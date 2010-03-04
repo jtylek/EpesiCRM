@@ -1401,7 +1401,7 @@ class Utils_RecordBrowser extends Module {
 											$col_id = array();
 											foreach ($col as $c) $col_id[] = preg_replace('/[^a-z0-9]/','_',strtolower($c));
 											$rec_count = Utils_RecordBrowserCommon::get_records_count($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
-											if ($rec_count<=50) {
+											if ($rec_count<=50 || $args['type']!='multiselect') {
 												$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
 											} else {
 												$records = array();
