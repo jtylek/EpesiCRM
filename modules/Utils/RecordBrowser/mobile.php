@@ -80,8 +80,14 @@ if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="")
 			continue;
 		}
 		if ($args['type']!='commondata' && $args['type']!='multiselect' && $args['type']!='select') continue;
+		continue;
+		// Everything past this seems heavily broken - namely parsing commondata field type parameters
 		if(isset($args['param'])) {
-			$str = explode(';', $args['param']);
+			if (is_array($args['param'])) {
+				$str = array_values($args['param']);
+			} else {
+				$str = explode(';', $args['param']);
+			}
 			$ref = explode('::', $str[0]);
 			if ($ref[0]!='' && isset($ref[1])) $search_crits[$chr.'"~:Ref:'.$c] = $search_string;
 			if ($args['type']=='commondata' || $ref[0]=='__COMMON__')
