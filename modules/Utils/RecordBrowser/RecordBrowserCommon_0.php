@@ -335,12 +335,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'param C(255),'.
 					'style C(64)',
 					array('constraints'=>''));
+		DB::CreateTable($tab.'_data_1',
+					'id I AUTO KEY,'.
+					'created_on T NOT NULL,'.
+					'created_by I NOT NULL,'.
+					'private I4 DEFAULT 0,'.
+					'active I1 NOT NULL DEFAULT 1',
+					array('constraints'=>''));
 		DB::CreateTable($tab.'_edit_history',
 					'id I AUTO KEY,'.
 					$tab.'_id I NOT NULL,'.
 					'edited_on T NOT NULL,'.
 					'edited_by I NOT NULL',
-					array('constraints'=>', FOREIGN KEY (edited_by) REFERENCES user_login(id)'));
+					array('constraints'=>', FOREIGN KEY (edited_by) REFERENCES user_login(id), FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'_data_1(id)'));
 		DB::CreateTable($tab.'_edit_history_data',
 					'edit_id I,'.
 					'field C(32),'.
@@ -363,13 +370,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, visible, position) VALUES(\'id\', \'foreign index\', 0, 0, 1)');
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'General\', \'page_split\', 0, 2)');
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'Details\', \'page_split\', 0, 3)');
-		DB::CreateTable($tab.'_data_1',
-					'id I AUTO KEY,'.
-					'created_on T NOT NULL,'.
-					'created_by I NOT NULL,'.
-					'private I4 DEFAULT 0,'.
-					'active I1 NOT NULL DEFAULT 1',
-					array('constraints'=>''));
 		foreach ($fields as $v)
 			Utils_RecordBrowserCommon::new_record_field($tab, $v);
 		return true;
@@ -984,9 +984,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							if (self::$table_rows[$f]['type']=='multiselect') {
 								$operator = 'LIKE';
 								$param = explode('::',self::$table_rows[$f]['param']);
-								if ($param[0]=='__COMMON__')$tail = '';
-								else $tail = '\_\_';
-								$w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.$tail),DB::qstr('%'));
+								$w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.'\_\_'),DB::qstr('%'));
 							}
 							elseif (!$noquotes) $w = DB::qstr($w);
 							$having .= ' OR (r.f_'.$key.' '.$operator.' '.$w.' ';
