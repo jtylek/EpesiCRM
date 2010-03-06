@@ -27,9 +27,8 @@ class Base_ModuleDownloader extends Module {
 	}
 
     private function process($mid /* Module ID */) {
-        $mid = urlencode($mid);
         // make temp destination filename
-        $destfile = $this->get_data_dir().$mid;
+        $destfile = $this->get_data_dir() . escapeshellcmd($mid);
         while(file_exists($destfile.'.zip')) $destfile .= '0';
         $destfile .= '.zip';
         // download file
@@ -74,7 +73,6 @@ class Base_ModuleDownloader extends Module {
 
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
