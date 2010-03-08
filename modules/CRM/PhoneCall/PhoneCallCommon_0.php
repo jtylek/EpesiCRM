@@ -103,7 +103,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 							if ($i->acl_check('edit phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
 							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
-							if ($me['id']==$param['contact']) return true;
+							if ($me['id']==$param['customer']) return true;
 							$info = Utils_RecordBrowserCommon::get_record_info('phonecall',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
@@ -111,7 +111,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 							if ($i->acl_check('delete phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
 							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
-							if ($me['id']==$param['contact']) return true;
+							if ($me['id']==$param['customer']) return true;
 							$info = Utils_RecordBrowserCommon::get_record_info('phonecall',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
@@ -240,6 +240,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function display_phone($record, $nolink, $desc) {
 		if ($record[$desc['id']]=='') return '';
 		$num = $record[$desc['id']];
+		if (!$record['customer']) return '---';
 		list($r,$id) = explode(':',$record['customer']);
 		if ($r=='P')
 			$contact = CRM_ContactsCommon::get_contact($id);
@@ -303,9 +304,9 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 			if ($action != 'none') {
 				$x = ModuleManager::get_instance('/Base_Box|0');
-				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['contact'])), array('task'));
+				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customer'])), array('task'));
 				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $values), array('phonecall'));
-				if ($action == 'new_event') CRM_CalendarCommon::view_event('add',array('title'=>$values['title'],'access'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'emp_id'=>$values['employees'],'cus_id'=>$values['contact']));
+				if ($action == 'new_event') CRM_CalendarCommon::view_event('add',array('title'=>$values['title'],'access'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'emp_id'=>$values['employees'],'cus_id'=>$values['customer']));
 				return false;
 			}
 

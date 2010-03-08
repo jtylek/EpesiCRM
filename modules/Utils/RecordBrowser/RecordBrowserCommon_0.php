@@ -18,7 +18,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $hash = array();
 	public static $admin_access = false;
 	public static $cols_order = array();
-	public static $options_limit = 50;
+	public static $options_limit = 0;
 	
 	private static $clear_get_val_cache = false;
 
@@ -1504,12 +1504,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								self::init($tab);
 								foreach ($edit_details as $k=>$v) {
 									$k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
+									if (!isset(self::$hash[$k])) continue;
 									if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') $v = $edit_details[$k] = self::decode_multi($v);
 									$r2[$k] = $v;
 								}
+								$access = self::get_access($tab,'view',$r);
 								foreach ($edit_details as $k=>$v) {
-									$access = self::get_access($tab,'view',$r);
 									$k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
+									if (!isset(self::$hash[$k])) continue;
 									if (!$access[$k]) continue;
 									self::init($tab);
 									$field = self::$hash[$k];
