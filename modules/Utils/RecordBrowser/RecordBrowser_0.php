@@ -401,41 +401,37 @@ class Utils_RecordBrowser extends Module {
 
 		$vals = $form->exportValues();
 
-        if($vals["submited"]) {
-            foreach ($filters_all as $filter) {
-                if (in_array(strtolower($filter), $external_filters)) continue;
-                $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
-                if (isset($this->custom_filters[$filter_id])) {
-                    if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
-                    if (isset($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]])) {
-                        foreach($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]] as $k=>$v)
-                            $this->crits[$k] = $v;
-                    } elseif (isset($this->custom_filters[$filter_id]['trans_callback'])) {
-                        $new_crits = call_user_func($this->custom_filters[$filter_id]['trans_callback'], $vals[$filter_id]);
-                        $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
-                    }
-                } else {
-                    if (!isset($text_filters[$filter_id])) {
-                        if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
-                        if ($vals[$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals[$filter_id];
-                    } else {
-                        if (!isset($vals[$filter_id])) $vals[$filter_id]='';
-                        if ($vals[$filter_id]!=='') {
-                            $args = $this->table_rows[$filter];
-                            $str = explode(';', $args['param']);
-                            $ref = explode('::', $str[0]);
-                            if ($ref[0]!='' && isset($ref[1])) $this->crits['_":Ref:'.$args['id']] = DB::Concat(DB::qstr($vals[$filter_id]),DB::qstr('%'));;
-                            if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
-                                if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_":RefCD:'.$args['id']] = DB::Concat(DB::qstr($vals[$filter_id]),DB::qstr('%'));;
-                            }
-                        }
-                    }
-                }
-            }
-            $this->set_module_variable('crits', $this->crits);
-        } else {
-            $this->crits = $this->get_module_variable('crits', array());
-        }
+		foreach ($filters_all as $filter) {
+			if (in_array(strtolower($filter), $external_filters)) continue;
+			$filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
+			if (isset($this->custom_filters[$filter_id])) {
+				if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
+				if (isset($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]])) {
+					foreach($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]] as $k=>$v)
+						$this->crits[$k] = $v;
+				} elseif (isset($this->custom_filters[$filter_id]['trans_callback'])) {
+					$new_crits = call_user_func($this->custom_filters[$filter_id]['trans_callback'], $vals[$filter_id]);
+					$this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
+				}
+			} else {
+				if (!isset($text_filters[$filter_id])) {
+					if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
+					if ($vals[$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals[$filter_id];
+				} else {
+					if (!isset($vals[$filter_id])) $vals[$filter_id]='';
+					if ($vals[$filter_id]!=='') {
+						$args = $this->table_rows[$filter];
+						$str = explode(';', $args['param']);
+						$ref = explode('::', $str[0]);
+						if ($ref[0]!='' && isset($ref[1])) $this->crits['_":Ref:'.$args['id']] = DB::Concat(DB::qstr($vals[$filter_id]),DB::qstr('%'));;
+						if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
+							if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_":RefCD:'.$args['id']] = DB::Concat(DB::qstr($vals[$filter_id]),DB::qstr('%'));;
+						}
+					}
+				}
+			}
+		}
+		$this->set_module_variable('crits', $this->crits);
 
 		$filters = array_merge($filters, $external_filters);
 		
