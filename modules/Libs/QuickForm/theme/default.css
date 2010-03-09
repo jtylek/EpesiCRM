@@ -218,7 +218,7 @@ div.autocomplete {
 */
 
 div.autocomplete ul {
-	position: absolute;
+/*	position: absolute; */ /* moves the suggestbox above the input field */
 	top: auto;
 	left: auto;
 	bottom:16px;
