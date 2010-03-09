@@ -7,6 +7,7 @@
 	   		<td class="label">{$form_data.end.label}</td><td class="data">{$form_data.end.html}</td>
 			<td>&nbsp;&nbsp;</td>
 	   		<td class="button">{$form_data.submit_button.html}</td>
+			<td>{$navigation_bar_additions}</td>
 		</tr>
 	</table>
 

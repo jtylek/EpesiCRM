@@ -12,7 +12,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_CalendarCommon extends ModuleCommon {
 	public static $last_added = null;
-	public static $trash = 0;
 
 	public static function body_access() {
 		return self::Instance()->acl_check('access');
@@ -107,7 +106,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 			return false;
 
 		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
-					'WHERE deleted='.CRM_CalendarCommon::$trash.' AND ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND '.
+					'WHERE ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND '.
  					'ev.id=%d)';
  		$row = DB::GetRow($query,array($id));
 		
@@ -120,7 +119,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 			return array();
 		
 		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
-					'WHERE deleted='.CRM_CalendarCommon::$trash.' AND ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND (ev.title LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
+					'WHERE ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND (ev.title LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
  					' OR ev.description LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
 					'))';
  		$recordSet = DB::Execute($query);
@@ -352,15 +351,8 @@ class CRM_CalendarCommon extends ModuleCommon {
 //		'color I1 DEFAULT 0, '.
 	}
 	
-	public static function new_event_handler($name, $callbacks) {
-		DB::Execute('INSERT INTO crm_calendar_custom_events_handlers(group_name) VALUES (%s)', array($name));
-		$possible_callbacks = array('get_callback', 'get_all_callback', 'update_callback', 'delete_callback');
-		foreach ($possible_callbacks as $callback_name) {
-			if (!isset($callbacks[$callback_name])) continue;
-			$callback = $callbacks[$callback_name];
-			if (is_array($callback)) $callback = implode('::', $callback);
-			DB::Execute('UPDATE crm_calendar_custom_events_handlers SET '.$callback_name.'=%s WHERE group_name=%s', array($callback, $name));
-		}
+	public static function new_event_handler($name, $callback) {
+		DB::Execute('INSERT INTO crm_calendar_custom_events_handlers(group_name, handler_callback) VALUES (%s, %s)', array($name, implode('::',$callback)));
 	}
 	
 	public static function delete_event_handler($name) {

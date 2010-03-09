@@ -1359,17 +1359,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			unset($_REQUEST['__jump_to_RB_action']);
 			$x = ModuleManager::get_instance('/Base_Box|0');
 			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->push_main('Utils/RecordBrowser','view_entry',array($action, $id),array($tab));
+			$x->push_main('Utils/RecordBrowser','view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
 			return array();
 		}
 		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id, '__jump_to_RB_action'=>$action);
 	}
-	public static function create_record_href($tab, $id, $action='view'){
+	public static function create_record_href($tab, $id, $action='view',$more=array()){
 		if(MOBILE_DEVICE) {
 			$cap = DB::GetOne('SELECT caption FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
 			return mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_view'),array($tab,$id),$cap);
 		}
-		return Module::create_href(self::get_record_href_array($tab,$id,$action));
+		return Module::create_href(self::get_record_href_array($tab,$id,$action)+$more);
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false, $action='view'){
 		self::check_table_name($tab);
@@ -1576,12 +1576,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$action = $_REQUEST['__jump_to_RB_action'];
 			if (!is_numeric($id)) trigger_error('Critical failure - invalid id, requested record with id "'.serialize($id).'" from table "'.serialize($tab).'".',E_USER_ERROR);
 			Utils_RecordBrowserCommon::check_table_name($tab);
+			if (!self::get_access($tab,'browse')) return false;
 			unset($_REQUEST['__jump_to_RB_record']);
 			unset($_REQUEST['__jump_to_RB_table']);
+			unset($_REQUEST['__jump_to_RB_action']);
 			$x = ModuleManager::get_instance('/Base_Box|0');
-			if (!self::get_access($tab,'browse')) return false;
 			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->push_main('Utils/RecordBrowser','view_entry',array($action, $id),array($tab));
+			$x->push_main('Utils/RecordBrowser','view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
 			return true;
 		}
 		return false;

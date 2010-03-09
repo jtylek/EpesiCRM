@@ -30,7 +30,7 @@ class Utils_LeightboxPrompt extends Module {
 		$this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label);
 	}
 	
-	public function body($header='', $params = array(), $add_disp='') {
+	public function body($header='', $params = array(), $add_disp='', $big=true) {
 		if (MOBILE_DEVICE) return;
 		if (isset($_REQUEST['__location']) && $this->last_location!=$_REQUEST['__location']) {
 			$this->last_location = $_REQUEST['__location'];
@@ -95,13 +95,22 @@ class Utils_LeightboxPrompt extends Module {
 			ob_start();
 			$theme->display('leightbox');
 			$profiles_out = ob_get_clean();
-			Libs_LeightboxCommon::display($this->group.'_followups_leightbox', $profiles_out, $header, true);
+			Libs_LeightboxCommon::display($this->group.'_followups_leightbox', $profiles_out, $header, $big);
 		}
 	}
 	
 	public function get_href($params=array()) {
 		$ret = 'href="javascript:void(0)" class="lbOn" rel="'.$this->group.'_followups_leightbox"';
 		if (!empty($params)) $ret .= ' onmousedown="f'.$this->group.'_set_params(\''.implode('\',\'',$params).'\');"';
+		return $ret;
+	}
+
+	public function get_href_js($params=array()) {
+		static $init=false;
+		if (!$init) print('<a style="display:none;" '.$this->get_href().'></a>');
+		$init=true;
+		$ret = 'leightbox_activate(\''.$this->group.'_followups_leightbox\');';
+		if (!empty($params)) $ret .= 'f'.$this->group.'_set_params(\''.implode('\',\'',$params).'\');';
 		return $ret;
 	}
 

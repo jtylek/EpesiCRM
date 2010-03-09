@@ -893,6 +893,11 @@ class Utils_RecordBrowser extends Module {
 		$this->navigate('view_entry', 'add', null, $record);
 		return true;
 	}
+	public function view_entry_with_REQUEST($mode='view', $id = null, $defaults = array(), $show_actions=true, $request=array()) {
+		foreach ($request as $k=>$v)
+			$_REQUEST[$k] = $v;
+		return $this->view_entry($mode, $id, $defaults, $show_actions);
+	}
 	public function view_entry($mode='view', $id = null, $defaults = array(), $show_actions=true) {
 		self::$mode = $mode;
 		if ($this->navigation_executed) {
@@ -1009,7 +1014,7 @@ class Utils_RecordBrowser extends Module {
 				}
 				$processing_result = call_user_func($method, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing');
 				if (is_array($processing_result)) {
-					$defaults = $this->custom_defaults = $this->record = $processing_result;
+					$defaults = $this->custom_defaults = self::$last_record = $this->record = $processing_result;
 //					foreach ($processing_result as $k=>$v) {
 //						$this->record[$k] = $v;
 //						$this->custom_defaults[$k] = $v;
@@ -1019,6 +1024,7 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 
+		if (self::$last_record===null) self::$last_record = $defaults;
 		if($mode=='add')
 			$form->setDefaults($defaults);
 
@@ -2098,7 +2104,7 @@ class Utils_RecordBrowser extends Module {
 		foreach($order as $k=>$v) {
 			$clean_order[] = array('column'=>$field_hash[$k],'order'=>$field_hash[$k],'direction'=>$v);
 		}
-		if ($limit!=null) {
+		if ($limit!=null && !isset($conf['force_limit'])) {
 			$limit = array('offset'=>0, 'numrows'=>$limit);
 			$records_qty = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits);
 			if ($records_qty>$limit['numrows']) {

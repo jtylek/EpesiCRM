@@ -31,13 +31,13 @@
 		<div class="content_shadow">
 <!-- -->
 
-	    {$new_event.open}
+	    {$new_meeting.open}
 		<div class="big-button">
 	        <img src="{$theme_dir}/CRM/Calendar/icon.png" alt="" align="middle" border="0" width="32" height="32">
 	        <div style="height: 5px;"></div>
-	        <span>{$new_event.text}</span>
+	        <span>{$new_meeting.text}</span>
         </div>
-	    {$new_event.close}
+	    {$new_meeting.close}
 
 <!-- SHADOW END -->
  		</div>

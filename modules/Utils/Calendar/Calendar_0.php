@@ -24,8 +24,10 @@ class Utils_Calendar extends Module {
 	private $event_module;
 	private $tb;
 	private $displayed_events = array();
+	private $custom_new_event_href_js = null;
 
-	public function construct($ev_mod, array $settings=null) {
+	public function construct($ev_mod, array $settings=null, $custom_new_event_href_js=null) {
+		$this->custom_new_event_href_js = $custom_new_event_href_js;
 		$this->settings = array_merge($this->settings,$settings);
 
 		$this->event_module = str_replace('/','_',$ev_mod);
@@ -258,8 +260,13 @@ class Utils_Calendar extends Module {
 			call_user_func(array($this,strtolower($v)));
 		}
 
-		Base_ActionBarCommon::add('add','Add event',$this->create_unique_href(array('action'=>'add','time'=>$this->date)));
-		Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_unique_href_js(array('action'=>'add','time'=>$this->date)).'}');
+		if ($this->custom_new_event_href_js!==null)
+			$jshref = call_user_func($this->custom_new_event_href_js, $this->date, '0');
+		else
+			$jshref = $this->create_unique_href_js(array('action'=>'add','time'=>$this->date));
+		$href = ' href="javascript:void(0)" onClick="'.str_replace('"','\'',$jshref).'" '; // TODO: regular escape didn't work
+		Base_ActionBarCommon::add('add','Add event',$href);
+		Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$jshref.'}');
 	}
 
 	public function push_event_action($action,$arg=null) {
@@ -346,6 +353,12 @@ class Utils_Calendar extends Module {
 		}
 		$form->assign_theme('form', $theme, new HTML_QuickForm_Renderer_TCMSArraySmarty());
 
+		if (is_callable(array($this->event_module, 'get_navigation_bar_additions'))) {
+			$event_module_instance = $this->init_module($this->event_module);
+			$navigation_bar_additions = call_user_func(array($event_module_instance,'get_navigation_bar_additions'), '', '');
+		}
+		$theme->assign('navigation_bar_additions', $navigation_bar_additions);
+
 		//////////////// data ////////////////////////
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
@@ -369,20 +382,28 @@ class Utils_Calendar extends Module {
 		foreach($ret as $row) {
 			$r = $gb->get_new_row();
 			$view_h = $this->create_callback_href(array($this,'push_event_action'),array('view',$row['id']));
+			$edit_h = $this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id']));
+			$del_h = $this->create_confirm_callback_href($this->ht('Delete this event?'),array($this,'delete_event'),$row['id']);
+			if (isset($row['view_action'])) $view_h = $row['view_action'];
+			if (isset($row['edit_action'])) $edit_h = $row['edit_action'];
+			if (isset($row['delete_action'])) $del_h = $row['delete_action'];
 
 			$ex = Utils_CalendarCommon::process_event($row);
 
 			$rrr = array(array('value'=>$ex['start'],'order_value'=>$row['start']),Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),'<a '.$view_h.'>'.$row['title'].'</a>');
 			foreach($add_cols as $a)
-				$rrr[] = $row['custom_agenda_col_'.$a];
+				if (isset($row['custom_agenda_col_'.$a]))
+					$rrr[] = $row['custom_agenda_col_'.$a];
+				else
+					$rrr[] = '';
 
 			$r->add_data_array($rrr);
 
 			if($row['additional_info']!=='' || $row['additional_info2'])
 				$r->add_info($row['additional_info'].(($row['additional_info']!=='' && $row['additional_info2']!=='')?'<hr>':'').$row['additional_info2']);
 
-			$r->add_action($this->create_confirm_callback_href($this->ht('Delete this event?'),array($this,'delete_event'),$row['id']),'Delete');
-			$r->add_action($this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id'])),'Edit');
+			$r->add_action($del_h,'Delete');
+			$r->add_action($edit_h,'Edit');
 			$r->add_action($view_h,'View');
 		}
 
@@ -522,8 +543,12 @@ class Utils_Calendar extends Module {
 		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
 		$this->js('Utils_Calendar.add_events_f = '.$ev_out);
 		$this->js('Utils_Calendar.add_events("Utils%2FCalendar%2Fday.css")');
+		if ($this->custom_new_event_href_js!==null)
+			$jshref = call_user_func($this->custom_new_event_href_js, '__TIME__', '__TIMELESS__');
+		else
+			$jshref = $this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__'));
 		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
-				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
+				'\''.Epesi::escapeJS($jshref,false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
 	}
@@ -711,8 +736,12 @@ class Utils_Calendar extends Module {
 		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
 		$this->js('Utils_Calendar.add_events_f = '.$ev_out);
 		$this->js('Utils_Calendar.add_events("Utils%2FCalendar%2Fweek.css")');
+		if ($this->custom_new_event_href_js!==null)
+			$jshref = call_user_func($this->custom_new_event_href_js, '__TIME__', '__TIMELESS__');
+		else
+			$jshref = $this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__'));
 		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
-				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
+				'\''.Epesi::escapeJS($jshref,false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
 	}
@@ -835,8 +864,12 @@ class Utils_Calendar extends Module {
 		$ev_out.='}';
 		$this->js('Utils_Calendar.add_events_f = '.$ev_out);
 		$this->js('Utils_Calendar.add_events("Utils%2FCalendar%2Fmonth.css")');
+		if ($this->custom_new_event_href_js!==null)
+			$jshref = call_user_func($this->custom_new_event_href_js, '__TIME__', '__TIMELESS__');
+		else
+			$jshref = $this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__'));
 		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
-				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
+				'\''.Epesi::escapeJS($jshref,false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
 	}

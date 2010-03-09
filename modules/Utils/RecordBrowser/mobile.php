@@ -12,8 +12,6 @@
 
 //!!! $table,$crits and sort variables are passed globally
 defined("_VALID_ACCESS") || die();
-Base_ThemeCommon::install_default_theme('Utils_GenericBrowser');
-Base_ThemeCommon::install_default_theme('Utils_RecordBrowser');
 
 //init
 $ret = DB::GetRow('SELECT caption, recent, favorites FROM recordbrowser_table_properties WHERE tab=%s',array($table));

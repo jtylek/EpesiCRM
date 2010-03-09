@@ -202,7 +202,15 @@ for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i]
 }
 
 function leightbox_activate(name) {
-leightbox_to_activate = name;
+	leightbox_to_activate = name;
+	lbox = document.getElementsByClassName('lbOn');
+	for(i = 0; i < lbox.length; i++) {
+		if (leightboxes[i] && name==lbox[i].rel) {
+			leightboxes[i].activate();
+			leightbox_to_activate='';
+			break;
+		}
+	}
 }
 
 addLeightboxMarkup();

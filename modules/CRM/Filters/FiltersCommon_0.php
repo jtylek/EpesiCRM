@@ -32,8 +32,8 @@ class CRM_FiltersCommon extends ModuleCommon {
 	}
 
 	public static function get() {
-//		trigger_error('!');
-		self::$in_use = true;
+		if (isset($_REQUEST['__location'])) self::$in_use = $_REQUEST['__location'];
+		else self::$in_use = true;
 		if(!isset($_SESSION['client']['filter_'.Acl::get_user()]))
 			$_SESSION['client']['filter_'.Acl::get_user()] = CRM_FiltersCommon::get_my_profile();
 		return '('.$_SESSION['client']['filter_'.Acl::get_user()].')';

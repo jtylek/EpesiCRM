@@ -12,7 +12,9 @@
 
 			    {$b.open}
 				<div class="big-button">
-			        <img src="{$b.icon}" alt="" align="middle" border="0" width="32" height="32">
+					{if ($b.icon)}
+						<img src="{$b.icon}" alt="" align="middle" border="0" width="32" height="32">
+					{/if}
 			        <div style="height: 5px;"></div>
 			        <span>{$b.label}</span>
 		        </div>

@@ -23,7 +23,7 @@ class CRM_FollowupCommon extends ModuleCommon {
 	
 	public static function drawLeightbox($prefix) {
 		if(MOBILE_DEVICE) return;
-		$events = (ModuleManager::is_installed('CRM/Calendar')>=0);
+		$meetings = (ModuleManager::is_installed('CRM/Meeting')>=0);
 		$tasks = (ModuleManager::is_installed('CRM/Tasks')>=0);
 		$phonecall = (ModuleManager::is_installed('CRM/PhoneCall')>=0);
 		self::check_location();
@@ -33,9 +33,9 @@ class CRM_FollowupCommon extends ModuleCommon {
 			$theme = Base_ThemeCommon::init_smarty();
 			eval_js_once($prefix.'_followups_deactivate = function(){leightbox_deactivate(\''.$prefix.'_followups_leightbox\');}');
 	
-			if ($events) {
-				$theme->assign('new_event',array('open'=>'<a id="'.$prefix.'_new_event_button" onclick="'.$prefix.'_set_action(\'new_event\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'New Event'),'close'=>'</a>'));
-				eval_js('Event.observe(\''.$prefix.'_new_event_button\',\'click\', '.$prefix.'_followups_deactivate)');
+			if ($meetings) {
+				$theme->assign('new_meeting',array('open'=>'<a id="'.$prefix.'_new_meeting_button" onclick="'.$prefix.'_set_action(\'new_meeting\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'New Meeting'),'close'=>'</a>'));
+				eval_js('Event.observe(\''.$prefix.'_new_meeting_button\',\'click\', '.$prefix.'_followups_deactivate)');
 			}
 
 			if ($tasks) {

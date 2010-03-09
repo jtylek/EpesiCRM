@@ -372,7 +372,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$ret .= $record['last_name'].' '.$record['first_name'];
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
 		if (!empty($record['company_name'])) {
-			$first_comp = array_pop($record['company_name']);
+			$first_comp = reset($record['company_name']);
 			$ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
 		}
 		return $ret;

@@ -10,24 +10,62 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar extends Module {
+	private $lp;
+	
+	public function new_event($type, $timestamp, $timeless) {
+		if ($type!==null) {
+			list($label,$id,$int_id) = explode('__',$type);
+			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d',$id);
+		} else {
+			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers');
+		}
+		$ret = call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, $this);
+		if (!$ret) {
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			return $x->pop_main();
+		}
+	}
+
+	public function jump_to_new_event($option, $timestamp, $timeless) {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('CRM_Calendar','new_event',array($option, $timestamp, $timeless));
+	}
+
 	public function body() {
 		$ev_mod = $this->init_module('CRM/Calendar/Event');
 		$ev_mod->help('Calendar Help','main');
-
-		CRM_CalendarCommon::$trash = $this->get_module_variable('trash',0);
-		
-		if(CRM_CalendarCommon::$trash) {
-			print('<h1>'.$this->t('You are in trash mode').'</h1>');
-		}
-		
-		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
-		CRM_FiltersCommon::add_action_bar_icon();
 
 		if(isset($_REQUEST['search_date']) && is_numeric($_REQUEST['search_date']) && isset($_REQUEST['ev_id']) && is_numeric($_REQUEST['ev_id'])) {
 			$default_date = intval($_REQUEST['search_date']);
 			$this->view_event(intval($_REQUEST['ev_id']));
 		} else
 			$default_date = null;
+
+
+		$handlers = DB::GetAll('SELECT id, group_name, handler_callback FROM crm_calendar_custom_events_handlers');
+		$this->lp = $this->init_module('Utils_LeightboxPrompt');
+		$count = 0;
+		foreach ($handlers as $k=>$v) {
+			$new_events = call_user_func($v['handler_callback'], 'new_event_types');
+			if ($new_events!==null) foreach($new_events as $k=>$w) {
+				if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
+				$this->lp->add_option('new_event__'.$v['id'].'__'.$k, $this->t($w['label']), $w['icon'], null);
+				$count++;
+			}
+		}
+		if ($count<2) {
+			$this->lp = null;
+		} else {
+			$this->display_module($this->lp, array('New Event', array('timestamp','timeless'), '', false));
+			$vals = $this->lp->export_values();
+			if ($vals) {
+				$this->jump_to_new_event($vals['option'],$vals['params']['timestamp'],$vals['params']['timeless']);
+				return;
+			}
+		}
+		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
 
 		$args = array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
@@ -44,7 +82,7 @@ class CRM_Calendar extends Module {
 		}
 
 		$theme = $this->init_module('Base/Theme');
-		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',$args));
+		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',$args,array($this, 'get_new_event_href_js')));
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();
 		$events = $c->get_displayed_events();
@@ -76,18 +114,26 @@ class CRM_Calendar extends Module {
 				$pdf->add_actionbar_icon($this->t(str_replace(' ','_',$view)));
 			}
 		}
-//		if(Base_AclCommon::i_am_sa()) {
-			if(CRM_CalendarCommon::$trash)
-				Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file('CRM_Calendar','icon.png'),'Calendar', $this->create_callback_href(array($this, 'set_trash'),array(0)));		
-			else
-				Base_ActionBarCommon::add('delete','Trash', $this->create_callback_href(array($this, 'set_trash'),array(1)));
-//		}
 	}
 	
-	public function set_trash($v) {
-		$this->set_module_variable('trash',$v);
+	public function get_new_event_href_js($timestamp, $timeless) {
+		if ($this->lp == null) {
+			$handler = DB::GetRow('SELECT id, group_name, handler_callback FROM crm_calendar_custom_events_handlers');
+			$new_events = call_user_func($handler['handler_callback'], 'new_event_types');
+			if ($new_events===null) return false;
+			foreach ($new_events as $k=>$w) {
+				if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
+				if (isset($_REQUEST['create_new_event'])) {
+					unset($_REQUEST['create_new_event']);
+					$this->jump_to_new_event($_REQUEST['option'],$_REQUEST['timestamp'],$_REQUEST['timeless']);
+					return;
+				}
+				return $this->create_href_js(array('create_new_event'=>true,'option'=>'new_event__'.$handler['id'].'__'.$k, 'timestamp'=>$timestamp, 'timeless'=>$timeless));
+			}
+		}
+		return $this->lp->get_href_js(array($timestamp, $timeless));
 	}
-
+	
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
 
@@ -104,24 +150,16 @@ class CRM_Calendar extends Module {
 		$gb->set_default_order(array($this->t('Start')=>'ASC'));
 		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
 //		trigger_error($gb->get_query_order());
-		$ret = CRM_Calendar_EventCommon::get_all($start,$end);
 		$data = array();
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
 
-		$custom_events = DB::GetAssoc('SELECT id, get_all_callback FROM crm_calendar_custom_events_handlers ORDER BY group_name');
+		$custom_events = DB::GetAssoc('SELECT id, handler_callback FROM crm_calendar_custom_events_handlers ORDER BY group_name');
+		$ret = array();
 		if (!empty($custom_events)) {
 			$c = 0;
-			$tmp = $ret;
-			$ret = array();
-			if ($conf['events_handlers__']) {
-				foreach ($tmp as $k=>$v) {
-					$ret[str_pad($v['start'], 16, '0', STR_PAD_LEFT).'__'.$c] = $v;
-					$c++;
-				}
-			}
 			foreach ($custom_events as $id=>$cb) {
 				if ($conf['events_handlers__'.$id]) {
-					$add = call_user_func(explode('::',$cb), $start, $end);
+					$add = call_user_func(explode('::',$cb), 'get_all', $start, $end,CRM_Calendar_EventCommon::$filter);
 					foreach ($add as $v) {
 						$ret[str_pad($v['start'], 16, '0', STR_PAD_LEFT).'__'.$c] = $v;
 						$c++;
