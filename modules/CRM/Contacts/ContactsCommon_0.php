@@ -347,7 +347,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->addElement('static', $field, $label, $def);
 		}
 	}
-	public static function display_contact($record, $nolink, $desc) {
+	public static function display_contact($record, $nolink=false, $desc=array()) {
 		$v = $record[$desc['id']];
 		$def = '';
 		$first = true;

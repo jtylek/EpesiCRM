@@ -19,6 +19,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		Utils_RecordBrowserCommon::new_addon($table, 'Utils/Attachment', 'body', 'Notes');
 	}
 
+	public static function delete_addon($table) {
+		Utils_RecordBrowserCommon::delete_addon($table, 'Utils/Attachment', 'body');
+	}
+
 	public static function user_settings() {
 		if(Acl::is_user()) {
 			return array(

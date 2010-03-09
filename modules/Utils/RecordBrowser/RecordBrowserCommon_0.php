@@ -311,6 +311,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function install_new_recordset($tab, $fields=array()) {
 		if (!preg_match('/^[a-zA-Z_0-9]+$/',$tab)) trigger_error('Invalid table name ('.$tab.') given to install_new_recordset.',E_USER_ERROR);
+		if (strlen($tab)>39) trigger_error('Invalid table name ('.$tab.') given to install_new_recordset, max length is 39 characters.',E_USER_ERROR);
 		if (DB::GetOne('SELECT 1 FROM recordbrowser_table_properties WHERE tab=%s', array($tab))) {
 			@DB::DropTable($tab.'_callback');
 			@DB::DropTable($tab.'_recent');
