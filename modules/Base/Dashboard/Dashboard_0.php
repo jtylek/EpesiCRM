@@ -82,6 +82,7 @@ class Base_Dashboard extends Module {
 			print('<div id="dashboard_applets_'.$j.'" style="width:33%;min-height:200px;padding-bottom:10px;vertical-align:top;float:left">');
 
 			foreach($applets[$j] as $row) {
+				if (!is_callable(array($row['module_name'].'Common', 'applet_caption'))) continue;
 				$cap = call_user_func(array($row['module_name'].'Common', 'applet_caption'));
 				if(!$cap || ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
 					$this->delete_applets($row['module_name']);
