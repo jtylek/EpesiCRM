@@ -1110,11 +1110,15 @@ class Utils_RecordBrowser extends Module {
                 $theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','clipboard.png').'" /></a>');
                 $text = $this->clipboard_pattern;
                 $record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+                /* for every field name store its value */
                 $data = array();
                 foreach($this->table_rows as $val) {
                     $fval = Utils_RecordBrowserCommon::get_val($this->tab, $val['id'], $record, true);
                     if(strlen($fval)) $data[$val['id']] = $fval;
                 }
+                /* to some complicate preg match to find every occurence
+                 * of %{ .. {f_name} .. } pattern
+                 */
                 $elem = 0;
                 $match = array();
                 $original_text = $text;
@@ -1142,7 +1146,17 @@ class Utils_RecordBrowser extends Module {
                     $text = $original_text;
                 }
                 load_js("modules/Utils/RecordBrowser/selecttext.js");
-                $text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
+                /* remove all php new lines, replace <br>|<br/> to new lines and quote all special chars */
+                $ftext = htmlspecialchars(preg_replace('#<[bB][rR]/?>#', "\n", str_replace("\n", '', $text)));
+                $flash_copy = '<object width="60" height="20">
+<param name="FlashVars" value="txtToCopy='.$ftext.'">
+<param name="movie" value="'.$this->get_module_dir().'copyButton.swf">
+<embed src="'.$this->get_module_dir().'copyButton.swf" flashvars="txtToCopy='.$ftext.'" width="60" height="20">
+</embed>
+</object>';
+                $text = '<h3>'.$this->t('Click Copy under the box or move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>'.$flash_copy;
+
+//                $text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
                 Libs_LeightboxCommon::display('clipboard',$text,'Copy');
             }
 		}
