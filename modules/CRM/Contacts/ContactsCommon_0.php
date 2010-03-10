@@ -415,16 +415,19 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
-	public static function autoselect_contact_suggestbox($str, $crits, $format_callback) {
+	public static function autoselect_contact_suggestbox($str, $crits, $format_callback, $inc_companies = true) {
 		$str = explode(' ', trim($str));
 		foreach ($str as $k=>$v)
 			if ($v) {
 				$v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
-				$recs = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>$v), array(), array('company_name'=>'ASC'));
-				$comp_ids = array();
-				foreach ($recs as $w) $comp_ids[$w['id']] = $w['id'];
-				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v, '|company_name'=>$comp_ids));
-//				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v));
+				if ($inc_companies) {
+					$recs = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>$v), array(), array('company_name'=>'ASC'));
+					$comp_ids = array();
+					foreach ($recs as $w) $comp_ids[$w['id']] = $w['id'];
+					$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v, '|company_name'=>$comp_ids));
+				} else {
+					$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v));
+				}
 			}
 		$recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
 		$ret = array();

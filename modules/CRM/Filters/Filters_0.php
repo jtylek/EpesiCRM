@@ -48,7 +48,7 @@ class CRM_Filters extends Module {
 			$cont[$v['id']] = call_user_func($fcallback, $v, true);
 		}
 		asort($cont);
-		$qf->addElement('autoselect','crm_filter_contact',$this->t('Records of'),$cont,array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company()), $fcallback)), $fcallback);
+		$qf->addElement('autoselect','crm_filter_contact',$this->t('Records of'),$cont,array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company()), $fcallback, false)), $fcallback);
 		if(isset($_SESSION['client']['filter_'.Acl::get_user()])) {
 			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()])));
 		}
