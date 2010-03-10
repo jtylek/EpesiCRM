@@ -25,5 +25,10 @@ $_REQUEST['values'] = $_GET['values'] = $_POST['values'];
 $_REQUEST['defaults'] = $_GET['defaults'] = $_POST['defaults'];
 $_REQUEST['parameters'] = $_GET['parameters'] = $_POST['parameters'];
 
-require_once($_SESSION['client']['utils_chainedselect'][$_POST['dest_id']]);
+if (!isset($_SESSION['client']['utils_chainedselect'][$_POST['dest_id']])) {
+	// bug tracking
+	error_log(print_r($_POST,true)."\n-----------------------------------------\n".print_r($_SESSION['client']['utils_chainedselect'],true)."\n==============================================\n",3,'data/chainselect.log');
+} else {
+	require_once($_SESSION['client']['utils_chainedselect'][$_POST['dest_id']]);
+}
 ?>
