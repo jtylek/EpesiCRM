@@ -595,6 +595,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					$bar->set_key(strip_tags($c),10);
 					$arr = array();
 					foreach ($results as $v) {
+						if (is_array($v[$c])) $v[$c] = reset($v[$c]);
 						$val = (int)strip_tags($v[$c]);
 						$arr[] = $val;
 						if($this->format[$c]=='currency') {
@@ -729,6 +730,7 @@ class Utils_RecordBrowser_Reports extends Module {
 						if(!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
 						$i=0;
 						foreach ($results as $v) {
+							if (is_array($v[$c])) $v[$c] = reset($v[$c]);
 							$val = (int)strip_tags($v[$c]);
 							$total += $val;
 							if (!isset($this->cols_total[$c][$i])) $this->cols_total[$c][$i] = 0;
