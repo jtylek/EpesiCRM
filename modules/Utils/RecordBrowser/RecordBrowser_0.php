@@ -32,7 +32,6 @@ class Utils_RecordBrowser extends Module {
 	private $more_add_button_stuff = '';
 	private $changed_view = false;
 	private $is_on_main_page = false;
-	private $custom_defaults = array();
 	private $multiple_defaults = false;
 	private $add_in_table = false;
 	private $custom_filters = array();
@@ -45,6 +44,7 @@ class Utils_RecordBrowser extends Module {
 	private $switch_to_addon = null;
 	private $additional_caption = '';
 	private $enable_export = false;
+	public $custom_defaults = array();
 	public static $admin_filter = '';
 	public static $tab_param = '';
 	public static $clone_result = null;

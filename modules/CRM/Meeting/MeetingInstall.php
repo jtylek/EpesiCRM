@@ -46,6 +46,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('crm_meeting', 'CRM/Meeting', 'meeting_attachment_addon', 'Notes');
 // ************ other ************** //
+		CRM_CalendarCommon::new_event_handler('Meetings', array('CRM_MeetingCommon', 'crm_calendar_handler'));
 
 		$this->add_aco('browse meetings',array('Employee'));
 		$this->add_aco('view meeting',array('Employee'));

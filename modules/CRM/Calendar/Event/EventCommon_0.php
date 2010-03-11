@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	public static $filter = null;
 	private static $my_id = null;
-	public static $events_handlers = array();
+	public static $events_handlers = null;
 	
 	public static function get_available_colors() {
 		static $color = array(0 => '', 1 => 'green', 2 => 'yellow', 3 => 'red', 4 => 'blue', 5=> 'gray', 6 => 'cyan', 7 =>'magenta');
@@ -22,12 +22,12 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function get($id) {
-		$id = explode('#', $id);
-		if (!isset($id[1])) trigger_error('Invalid ID:'.$id, E_USER_ERROR);
+		$nid = explode('#', $id);
+		if (!isset($nid[1])) trigger_error('Invalid ID:'.$id, E_USER_ERROR);
 		else {
-			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $id[0]);
-			$ret = call_user_func($callback, 'get', $id[1]);
-			$ret['id'] = $id[0].'#'.$ret['id'];
+			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $nid[0]);
+			$ret = call_user_func($callback, 'get', $nid[1]);
+			$ret['id'] = $nid[0].'#'.$ret['id'];
 			return $ret;
 		}
 	}
@@ -41,6 +41,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$custom_handlers = DB::GetAssoc('SELECT id, handler_callback FROM crm_calendar_custom_events_handlers');
 		$result = array();
 		
+		if (self::$events_handlers===null) self::$events_handlers = array_keys($custom_handlers);
 		foreach (self::$events_handlers as $handler) {
 			$result_ext = call_user_func($custom_handlers[$handler], 'get_all', $start, $end, $filter);
 			foreach ($result_ext as $v) {

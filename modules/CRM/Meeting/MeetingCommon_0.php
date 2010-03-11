@@ -642,8 +642,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 						'Notes' => Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$r['id'])
 					);
 
-		$next['employees'] = implode('<br>',$emps);
-		$next['customers'] = implode('<br>',$cuss);
+//		$next['employees'] = implode('<br>',$emps);
+//		$next['customers'] = implode('<br>',$cuss);
+		$next['employees'] = $r['employees'];
+		$next['customers'] = $r['customers'];
 		$next['custom_tooltip'] = 
 									'<center><b>'.
 										Base_LangCommon::ts('CRM_Meeting','Meeting').
