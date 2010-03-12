@@ -566,7 +566,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$cday = date('d', $iday);
 				$tday = date('d', strtotime($r['date']));
 				if ($cday!=$tday && ($tday<=$numdays || $numdays!=$cday)) return null;
-				if ($diff<0 || $diff%14!=0) return null;
 			}
 			if ($r['recurrence_type']==11) {
 				$cmonth = date('m', $iday);
@@ -576,7 +575,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$cday = date('d', $iday);
 				$tday = date('d', strtotime($r['date']));
 				if ($cday!=$tday && ($tday<=$numdays || $numdays!=$cday)) return null;
-				if ($diff<0 || $diff%14!=0) return null;
 			}
 		}
 		if ($r['recurrence_type']>0)
