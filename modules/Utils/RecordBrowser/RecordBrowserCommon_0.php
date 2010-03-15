@@ -1816,7 +1816,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //				$qf->setDefaults(array($args['id']=>$val));
 //				unset($defaults[$args['id']]);
 				$ff = $QFfield_callback_table[$field];
-				call_user_func_array($ff, array(&$qf, $args['id'], $label, $mode, '', $args, null, null));
+				if(isset($rec[$args['id']]))
+					$val = $rec[$args['id']];
+				elseif(isset($defaults[$args['id']]))
+					$val = $defaults[$args['id']];
+				else
+					continue;
+				call_user_func_array($ff, array(&$qf, $args['id'], $label, $mode, $val, $args, null, null));
+				unset($defaults[$args['id']]);
 				continue;
 			}
 
