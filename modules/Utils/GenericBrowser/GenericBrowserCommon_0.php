@@ -55,7 +55,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 			}
 			$headers[$i]['label'] = (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a href="mobile.php?'.http_build_query(array_merge($_GET,array('order'=>$i,'order_dir'=>$sort_direction))).'">' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
 			$headers[$i]['attrs'] = '';
-			if ($all_width) $headers[$i]['attrs'] .= 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
+			if ($all_width && isset($v['width'])) $headers[$i]['attrs'] .= 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
 			$headers[$i]['attrs'] .= 'nowrap="1" ';
 		}
 		$th->assign('cols',array_values($headers));
