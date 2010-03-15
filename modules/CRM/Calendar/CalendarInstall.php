@@ -47,7 +47,8 @@ class CRM_CalendarInstall extends ModuleInstall {
 			array('name'=>'Base/RegionalSettings','version'=>0),
 			array('name'=>'CRM/Filters','version'=>0),
 			array('name'=>'CRM/Calendar/Event','version'=>0),
-			array('name'=>'Utils/Watchdog','version'=>0)
+			array('name'=>'Utils/Watchdog','version'=>0),
+			array('name'=>'Utils/LeightboxPrompt','version'=>0)
 		);
 	}
 	public function version() {
