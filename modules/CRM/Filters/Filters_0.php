@@ -65,7 +65,7 @@ class CRM_Filters extends Module {
 		$th->display();
 		$profiles_out = ob_get_clean();
 
-		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->t('Filters'));
+		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->t('Filters'),true);
 		if(!$this->isset_module_variable('profile_desc'))
 			$this->set_profile($this->get_default_filter());
 		    

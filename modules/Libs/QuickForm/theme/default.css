@@ -207,15 +207,11 @@
 }
 /*	=autocomplete
 ----------------------------------------------------------------------------
-div.autocomplete {
-  position:absolute;
-  width:500px;
-  background-color:white;
-  border:1px solid #888;
-  margin:0;
-  padding:0;
-}
 */
+div.autocomplete {
+	z-index: 2010;
+}
+
 
 div.autocomplete ul {
 /*	position: absolute; */ /* moves the suggestbox above the input field */
