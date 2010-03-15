@@ -60,6 +60,7 @@ class Utils_TabbedBrowser extends Module {
 				$body .= '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($this->page==$i?'':'style="display:none"').'>';
 				if (isset($val['func'])){
 					ob_start();
+					if (!is_array($val['args'])) $val['args'] = array($val['args']);
 					call_user_func_array($val['func'],$val['args']);
 					$body .= ob_get_contents();
 					ob_end_clean();
