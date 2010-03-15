@@ -76,7 +76,7 @@ abstract class Module extends ModulePrimitive {
 	/**
 	 * Gets child module with specified node id.
 	 *
-	 * @param string
+	 * @param string $id
 	 * @return module object
 	 */
 	public final function & get_child($id) {
@@ -147,8 +147,9 @@ abstract class Module extends ModulePrimitive {
 	 * Note that after page refresh, this variable will preserve its value in contrary to module field variables.
 	 * Module variables are hold separately for every client.
 	 *
-	 * @param string key
-	 * @param mixed value
+	 * @param string $name key
+	 * @param mixed $value value
+     * @return mixed variable value
 	 */
 	public final function set_module_variable($name, $value) {
 		return $_SESSION['client']['__module_vars__'][$this->get_path()][$name] = $value;
@@ -159,10 +160,10 @@ abstract class Module extends ModulePrimitive {
 	 * Note that after page refresh, this variable will preserve its value in contrary to module field variables.
 	 * Module variables are hold separately for every client.
 	 *
-	 * @param integer client id
-	 * @param string module path (returned by get_path() method);
-	 * @param string key
-	 * @param mixed value
+	 * @param string $path module path (returned by get_path() method);
+	 * @param string $name key
+     * @param mixed $value variable value
+	 * @return mixed variable value
 	 */
 	public final static function static_set_module_variable($path,$name, $value) {
 		return $_SESSION['client']['__module_vars__'][$path][$name] = $value;
@@ -173,8 +174,8 @@ abstract class Module extends ModulePrimitive {
 	 * Returns value of a module variable. If the variable is not set, function will return value given as second parameter.
 	 * For details concerning module variables, see set_module_variable.
 	 *
-	 * @param string key
-	 * @param mixed default value
+	 * @param string $name key
+	 * @param mixed $default default value
 	 * @return mixed value
 	 */
 	public final function & get_module_variable($name, $default=null) {
@@ -189,10 +190,9 @@ abstract class Module extends ModulePrimitive {
 	 * Returns value of a module variable. If the variable is not set, function will return value given as third parameter.
 	 * For details concerning module variables, see set_module_variable.
 	 *
-	 * @param integer client id
-	 * @param string module path (returned by get_path() method);
-	 * @param string key
-	 * @param mixed default value
+	 * @param string $path module path (returned by get_path() method);
+	 * @param string $name key
+	 * @param mixed $default default value
 	 * @return mixed value
 	 */
 	public final static function & static_get_module_variable($path, $name, $default=null) {
@@ -210,7 +210,8 @@ abstract class Module extends ModulePrimitive {
  	 * For details concerning href variables, see create_href.
 	 * For details concerning module variables, see set_module_variable.
 	 *
-	 * @param string
+	 * @param string $name variable name
+     * @param mixed $default_value default value
 	 * @return mixed
 	 */
 	public final function & get_module_variable_or_unique_href_variable($name, $default_value=null) {
@@ -226,7 +227,7 @@ abstract class Module extends ModulePrimitive {
 	 * Checks if variable exists.
 	 * For details concerning module variables, see set_module_variable.
 	 *
-	 * @param string key
+	 * @param string $name key
 	 * @return bool true if variable exists, false otherwise
 	 */
 	public final function isset_module_variable($name) {
@@ -237,9 +238,8 @@ abstract class Module extends ModulePrimitive {
 	 * Checks if variable exists.
 	 * For details concerning module variables, see set_module_variable.
 	 *
-	 * @param integer client id
-	 * @param string module path (returned by get_path() method);
-	 * @param string key
+	 * @param string $path module path (returned by get_path() method);
+	 * @param string $name key
 	 * @return bool true if variable exists, false otherwise
 	 */
 	public final static function static_isset_module_variable($path,$name) {
@@ -250,7 +250,7 @@ abstract class Module extends ModulePrimitive {
 	 * Unset module variable.
 	 * For details concerning module variables see set_module_variable.
 	 *
-	 * @param string key
+	 * @param string $name key
 	 */
 	public final function unset_module_variable($name) {
 		if(!isset($name)) trigger_error('unset_module_variable needs one argument',E_USER_ERROR);
@@ -273,8 +273,8 @@ abstract class Module extends ModulePrimitive {
 	 * Share variable passed as first parameter with module passed as second parameter.
 	 * Any change of this variable will be visible in both modules.
 	 *
-	 * @param string varaible name
-	 * @param object module object
+	 * @param string $name varaible name
+	 * @param object $m module object
 	 * @return bool false if module is invalid, true otherwise
 	 */
 	public final function share_module_variable($name, & $m, $name2=null) {
@@ -291,8 +291,9 @@ abstract class Module extends ModulePrimitive {
 	 * Share href variable passed as first parameter with module passed as second parameter.
 	 * Any change of this variable will be visible in both modules.
 	 *
-	 * @param string href variable name
-	 * @param object module object
+	 * @param string $name href variable name
+	 * @param object $m module object
+     * @param string $name2
 	 * @return bool false if module is invalid, true otherwise
 	 */
 	public function share_unique_href_variable($name, & $m, $name2=null) {
@@ -311,7 +312,7 @@ abstract class Module extends ModulePrimitive {
 	 * If this method is not called, module is reloaded by default,
 	 * which means that only if output changed reload proceeds.
 	 *
-	 * @param bool true to force reload of whole module, false to suspend reloading
+	 * @param bool $b true to force reload of whole module, false to suspend reloading
 	 */
 	 public final function set_reload($b) {
 	 	if($this->reload==true) return;
@@ -335,9 +336,9 @@ abstract class Module extends ModulePrimitive {
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
 	 * </xmp>
 	 *
-	 * @param array variables to pass along with href
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param array $variables variables to pass along with href
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
 	public final static function create_href_js(array $variables = array (), $indicator=null, $mode=null) {
@@ -354,9 +355,9 @@ abstract class Module extends ModulePrimitive {
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
 	 * </xmp>
 	 *
-	 * @param array variables to pass along with href
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param array $variables variables to pass along with href
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
 	public final static function create_href(array $variables = array (),$indicator=null, $mode=null) {
@@ -373,10 +374,10 @@ abstract class Module extends ModulePrimitive {
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
 	 * </xmp>
 	 *
-	 * @param string question displayed in confirmation box
-	 * @param array variables to pass along with href
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param string $confirm question displayed in confirmation box
+	 * @param array $variables variables to pass along with href
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
 	public final static function create_confirm_href($confirm, array $variables = array (), $indicator=null, $mode=null) {
@@ -387,9 +388,9 @@ abstract class Module extends ModulePrimitive {
 	 * Similar to create_href, but variables passed to this function will only be accessible in module that called this function.
 	 * Those variables can be accessed with get_unique_href_variable.
 	 *
-	 * @param array variables to pass along with href
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param array $variables variables to pass along with href
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
 	public final function create_unique_href(array $variables = array (),$indicator=null,$mode=null) {
@@ -403,9 +404,9 @@ abstract class Module extends ModulePrimitive {
 	 * Similar to create_href, but variables passed to this function will only be accessible in module that called this function.
 	 * Those variables can be accessed with get_unique_href_variable.
 	 *
-	 * @param array variables to pass along with href
-	 * @param string status bar indicator text
- 	 * @param string block, allow, queue click on simutanous click
+	 * @param array $variables variables to pass along with href
+	 * @param string $indicator status bar indicator text
+ 	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
 	public final function create_unique_href_js(array $variables = array (),$indicator=null,$mode=null) {
@@ -420,10 +421,10 @@ abstract class Module extends ModulePrimitive {
 	 * This function will trigger js confirm dialog before launching processing.
 	 * If cancelled, no processing will be done.
 	 *
-	 * @param string question displayed in confirmation box
-	 * @param array variables to pass along with href
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param string $confirm question displayed in confirmation box
+	 * @param array $variables variables to pass along with href
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
 	public final function create_confirm_unique_href($confirm,array $variables = array (),$indicator=null,$mode=null) {
@@ -436,7 +437,7 @@ abstract class Module extends ModulePrimitive {
 	/**
 	 * Returns variable passed with create_unique_href.
 	 *
-	 * @param string key
+	 * @param string $key key
 	 * @return mixed value
 	 */
 	public final function get_unique_href_variable($key) {
@@ -448,7 +449,7 @@ abstract class Module extends ModulePrimitive {
 	/**
 	 * Unsets *unique_href variable.
 	 *
-	 * @param string key
+	 * @param string $key key
 	 */
 	public final function unset_unique_href_variable($key) {
 		$rkey = $this->create_unique_key($key);
@@ -458,7 +459,7 @@ abstract class Module extends ModulePrimitive {
 	/**
 	 * Checks if variable given as first parameter was passed with create_unique_href function.
 	 *
-	 * @param string key
+	 * @param string $key key
 	 * @return bool true if variable was declared, false otherwise
 	 */
 	public final function isset_unique_href_variable($key) {
@@ -487,10 +488,10 @@ abstract class Module extends ModulePrimitive {
 	 * WARNING: id of callback is generated using arguments passed to this function, so if you want to create
 	 * callback that run on every page reload, with different arguments, use create_callback_href_with_id
 	 *
-	 * @param mixed function
-	 * @param mixed arguments
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param mixed $func function
+	 * @param mixed $args arguments
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
 	public final function create_callback_href($func,$args=null,$indicator=null,$mode=null) {
@@ -507,9 +508,10 @@ abstract class Module extends ModulePrimitive {
 	 * WARNING: id of callback is generated using arguments passed to this function, so if you want to create
 	 * callback that run on every page reload, with different arguments, use create_callback_href_with_id
 	 *
-	 * @param mixed function
-	 * @param mixed arguments
-	 * @param string status bar indicator text
+	 * @param mixed $func function
+	 * @param mixed $args arguments
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
 	public final function create_callback_href_js($func,$args=null,$indicator=null,$mode=null) {
@@ -535,11 +537,11 @@ abstract class Module extends ModulePrimitive {
 	 * WARNING: id of callback is generated using arguments passed to this function, so if you want to create
 	 * callback that run on every page reload, with different arguments, use create_callback_href_with_id
 	 *
-	 * @param string question displayed in confirmation box
-	 * @param mixed function
-	 * @param mixed arguments
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param string $confirm question displayed in confirmation box
+	 * @param mixed $func function
+	 * @param mixed $args arguments
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
 	public final function create_confirm_callback_href($confirm, $func, $args=null,$indicator=null,$mode=null) {
@@ -569,11 +571,11 @@ abstract class Module extends ModulePrimitive {
 	 * The link, when used, will lead to calling of function which name is given as first parameter.
 	 * Callback returns true if you use this link again after page refresh.
 	 *
-	 * @param string callback id (name)
-	 * @param mixed function
-	 * @param mixed arguments
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param string $name callback id (name)
+	 * @param mixed $func function
+	 * @param mixed $args arguments
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string
 	 */
 	public final function create_callback_href_with_id($name, $func, $args=null,$indicator=null,$mode=null) {
@@ -588,8 +590,11 @@ abstract class Module extends ModulePrimitive {
 	 * The link, when used, will lead to calling of function which name is given as first parameter.
 	 * Callback returns true if you use this link again after page refresh.
 	 *
-	 * @param string callback id (name)
-	 * @param mixed function
+	 * @param string $name callback id (name)
+	 * @param mixed $func function
+     * @param mixed $args function arguments
+     * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string
 	 */
 	public final function create_callback_href_with_id_js($name, $func, $args=null,$indicator=null,$mode=null) {
@@ -607,12 +612,12 @@ abstract class Module extends ModulePrimitive {
 	 * This function will trigger js confirm dialog before launching processing.
 	 * If cancelled, no processing will be done.
 	 *
-	 * @param string question displayed in confirmation box
-	 * @param string callback id (name)
-	 * @param mixed function
-	 * @param mixed arguments
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param string $name callback id (name)
+	 * @param string $confirm question displayed in confirmation box
+	 * @param mixed $func function
+	 * @param mixed $args arguments
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string
 	 */
 	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args=null, $indicator=null,$mode=null) {
@@ -625,9 +630,9 @@ abstract class Module extends ModulePrimitive {
 	 * Creates link that will lead back to previous page content.
 	 * Use is_back to check it was called.
 	 *
-	 * @param integer number of times isback() should return true after this link is used
-	 * @param string status bar indicator text
-	 * @param string block, allow, queue click on simutanous click
+	 * @param integer $i number of times isback() should return true after this link is used
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string string that should be placed inside html <pre><a></pre> tag. See create_href for example.
 	 */
 	public final function create_back_href($i=1,$indicator=null,$mode=null) {
@@ -672,9 +677,10 @@ abstract class Module extends ModulePrimitive {
 	 *
 	 * Created module instance will be a child to the module which called this function.
 	 *
-	 * @param string module name
-	 * @param mixed arguments for module constructor
-	 * @param string unique name for the instance, will be assigned automatically by default
+	 * @param string $module_type module name
+	 * @param mixed $args arguments for module constructor
+	 * @param string $name unique name for the instance, will be assigned automatically by default
+     * @param boolean $clear_vars clean module variables
 	 * @return mixed if access denied returns null, else child module object
 	 */
 	public final function init_module($module_type, $args = null, $name=null,$clear_vars=false) {
@@ -695,12 +701,12 @@ abstract class Module extends ModulePrimitive {
 
 	/**
 	 * Call method of the module passed as first parameter,
-	 * which name is passed as second parameter.
-	 * You can pass additional arguments as next parameters.
+	 * which name is passed as third parameter.
+	 * You can pass additional arguments.
 	 *
-	 * @param module child module
-	 * @param mixed arguments
-	 * @param string function to call (get output from), if user has enought privileges.
+	 * @param module $m child module
+	 * @param mixed $args arguments
+	 * @param string $function_name function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else true
 	 */
 	public final function display_module(& $m, $args=null, $function_name = null) {
@@ -712,13 +718,13 @@ abstract class Module extends ModulePrimitive {
 
 	/**
 	 * Call method of the module passed as first parameter,
-	 * which name is passed as second parameter.
-	 * You can pass additional arguments as next parameters.
+	 * which name is passed as third parameter.
+	 * You can pass additional arguments.
 	 * Attention: do not pass the result of this function by one module to another module.
 	 *
-	 * @param module child module
-	 * @param string function to call (get output from), if user has enought privileges.
-	 * @param mixed arguments
+	 * @param module $m child module
+	 * @param mixed $args arguments
+	 * @param string $function_name function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else string
 	 */
 	public final function get_html_of_module(& $m, $args=null, $function_name = null) {
@@ -865,9 +871,11 @@ abstract class Module extends ModulePrimitive {
 	 * Also, this function will call newly created module's method, which name is passed as second parameter.
 	 * You can pass additional arguments as next parameters.
 	 *
-	 * @param string child module name
-	 * @param string function to call
-	 * @param mixed variables
+	 * @param string $module_type child module name
+     * @param mixed $display_args function_name arguments
+	 * @param string $function_name function to call
+     * @param mixed $construct_args module's construct arguments
+     * @param string $name module name
 	 * @return mixed if access denied returns null, otherwise returns child module object
 	 */
 	public final function pack_module($module_type, $display_args=null, $function_name = null, $construct_args=null, $name=null) {
@@ -879,7 +887,7 @@ abstract class Module extends ModulePrimitive {
 	/**
 	 * Appends js code to list of jses to evaluate.
 	 *
-	 * @param string js code
+	 * @param string $js js code
 	 */
 	public final function js($js) {
 		$this->jses[] = $js;
@@ -919,7 +927,7 @@ abstract class Module extends ModulePrimitive {
 	 *
 	 * This function is called inside create_unique_href function and should not be used directly.
 	 *
-	 * @param string
+	 * @param string $name
 	 * @return string
 	 */
 	public final function create_unique_key($name) {
@@ -929,7 +937,7 @@ abstract class Module extends ModulePrimitive {
 	/**
 	 * Makes child module to not loose its module variables
 	 *
-	 * @param string module
+	 * @param string $module_type module
 	 */
 	public final function freeze_module($module_type,$name=null) {
 		if($this->clear_child_vars) return;
