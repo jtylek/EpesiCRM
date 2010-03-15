@@ -594,12 +594,12 @@ class Utils_Calendar extends Module {
 		$link_text = $this->create_unique_href_js(array('week_date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'day',$this->settings['first_day_of_week']));
 
-		$week_shift = 86400*$this->get_module_variable('week_shift',0);
+		$week_shift = $this->get_module_variable('week_shift',0);
 
 		$first_day_of_displayed_week = date('w', $this->date)-$this->settings['first_day_of_week'];
 		if ($first_day_of_displayed_week<0) $first_day_of_displayed_week += 7;
-		$first_day_of_displayed_week *= 86400;
-		$dis_week_from = strtotime(date('Y-m-d 00:00:00',$this->date+$week_shift-$first_day_of_displayed_week));
+		$diff = $week_shift-$first_day_of_displayed_week;
+		$dis_week_from = strtotime(($diff<0?$diff:'+'.$diff).' days',$this->date);
 
 		//headers
 		$day_headers = array();
@@ -752,7 +752,7 @@ class Utils_Calendar extends Module {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
 		if ($diff<0) $diff += 7;
-		$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$first_day_of_month))-3600*24*$diff).' '.date('H:i:s',$first_day_of_month));
+		$currday = strtotime(date('Y-m-d',strtotime('-'.$diff.' days',$first_day_of_month)).' '.date('H:i:s',$first_day_of_month));
 		$curmonth = date('m', $date);
 
 		$month = array();
