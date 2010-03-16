@@ -15,7 +15,6 @@ class CRM_CalendarInstall extends ModuleInstall {
 		Base_ThemeCommon::install_default_theme('CRM/Calendar');
 		$this->add_aco('manage others','Employee Manager');
 		$this->add_aco('access','Employee');
-		Utils_WatchdogCommon::register_category('crm_calendar', array('CRM_CalendarCommon','watchdog_label'));
 		DB::CreateTable('crm_calendar_custom_events_handlers',
 						'id I4 AUTO KEY,'.
 						'group_name C(64),'.
