@@ -212,7 +212,7 @@ class CRM_Filters extends Module {
 		$form->addRule('name',$this->t('Field required'),'required');
 		$form->registerRule('unique','callback','check_group_name_exists', 'CRM_Filters');
 		$form->addRule('name',$this->t('Group with this name already exists'),'unique',$id);
-		$form->addElement('automulti','contacts',$this->t('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company())), array('CRM_ContactsCommon', 'contact_format_default'));
+		$form->addElement('automulti','contacts',$this->t('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company()), array('CRM_ContactsCommon', 'contact_format_no_company')), array('CRM_ContactsCommon', 'contact_format_no_company'));
 		if ($form->validate()) {
 			$v = $form->exportValues();
 			if(isset($id)) {
