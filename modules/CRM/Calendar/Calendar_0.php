@@ -118,7 +118,9 @@ class CRM_Calendar extends Module {
 	
 	public function get_new_event_href_js($timestamp, $timeless) {
 		if ($this->lp == null) {
-			$handler = DB::GetRow('SELECT id, group_name, handler_callback FROM crm_calendar_custom_events_handlers');
+			// $this->lp is null only then there's one module providing events with one event type
+			$handler = DB::GetRow('SELECT id, group_name, handler_callback FROM crm_calendar_custom_events_handlers WHERE');
+			if (!$handler) return false;
 			$new_events = call_user_func($handler['handler_callback'], 'new_event_types');
 			if ($new_events===null) return false;
 			foreach ($new_events as $k=>$w) {
