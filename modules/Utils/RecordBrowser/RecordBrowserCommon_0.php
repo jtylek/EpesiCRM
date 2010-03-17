@@ -1821,9 +1821,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				elseif(isset($defaults[$args['id']]))
 					$val = $defaults[$args['id']];
 				else
-					continue;
+					$val = null;
 				call_user_func_array($ff, array(&$qf, $args['id'], $label, $mode, $val, $args, null, null));
-				unset($defaults[$args['id']]);
+				if($mode=='edit')
+					unset($defaults[$args['id']]);
 				continue;
 			}
 
