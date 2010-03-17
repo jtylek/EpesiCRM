@@ -264,9 +264,11 @@ class Utils_Calendar extends Module {
 			$jshref = call_user_func($this->custom_new_event_href_js, $this->date, '0');
 		else
 			$jshref = $this->create_unique_href_js(array('action'=>'add','time'=>$this->date));
-		$href = ' href="javascript:void(0)" onClick="'.str_replace('"','\'',$jshref).'" '; // TODO: regular escape didn't work
-		Base_ActionBarCommon::add('add','Add event',$href);
-		Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$jshref.'}');
+		if ($jshref!==false) {
+			$href = ' href="javascript:void(0)" onClick="'.str_replace('"','\'',$jshref).'" '; // TODO: regular escape didn't work
+			Base_ActionBarCommon::add('add','Add event',$href);
+			Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$jshref.'}');
+		}
 	}
 
 	public function push_event_action($action,$arg=null) {

@@ -61,6 +61,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+		CRM_CalendarCommon::delete_event_handler('Meetings');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Meeting');
 		Utils_RecordBrowserCommon::uninstall_recordset('crm_meeting');
 		return true;
