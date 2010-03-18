@@ -351,15 +351,15 @@ class CRM_MeetingCommon extends ModuleCommon {
 		if ($notified!==true && $notified!==null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','notice.png').'" />'.$ret;
 		return $ret;
 	}
-	public static function display_status($record, $nolink, $desc) {
+	public static function get_status_change_leightbox_href($record, $nolink, $desc) {
 		$prefix = 'crm_meeting_leightbox';
 		CRM_FollowupCommon::drawLeightbox($prefix);
 
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
-		if (!self::access_meeting('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
-		if ($v>=2) return $status[$v];
+		if (!self::access_meeting('edit', $record) && !Base_AclCommon::i_am_admin()) return false;
+		if ($v>=2) return false;
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
 			unset($_REQUEST['form_name']);
 			$v = $_REQUEST['closecancel'];
@@ -394,9 +394,19 @@ class CRM_MeetingCommon extends ModuleCommon {
 			location(array());
 		}
 		if ($v==0) {
-			return '<a href="javascript:void(0)" onclick="'.$prefix.'_set_action(\'set_in_progress\');'.$prefix.'_set_id(\''.$record['id'].'\');'.$prefix.'_submit_form();">'.$status[$v].'</a>';
+			return ' href="javascript:void(0)" onclick="'.$prefix.'_set_action(\'set_in_progress\');'.$prefix.'_set_id(\''.$record['id'].'\');'.$prefix.'_submit_form();"';
 		}
-		return '<a href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$record['id'].');">'.$status[$v].'</a>';
+		return ' href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$record['id'].');"';
+	}
+	
+	public static function display_status($record, $nolink, $desc) {
+		$v = $record[$desc['id']];
+		if (!$v) $v = 0;
+		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
+		$href = self::get_status_change_leightbox_href($record, $nolink, $desc);
+		$ret = $status[$v];
+		if ($href!==false) $ret = '<a '.$href.'>'.$ret.'</a>';
+		return $ret;
 	}
 	public static function subscribed_employees($v) {
 		if (!is_array($v)) return;
@@ -606,6 +616,12 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'view', array('day'=>$day));
 		$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'edit');
 //		$next['delete_action'] = Module::create_confirm_href(Base_LangCommon::ts('Premium_SchoolRegister','Are you sure you want to delete this '.$type.'?'),array('delete_'.$type=>$record['id']));
+
+		$r_new = $r;
+		if ($r['status']==0) $r_new['status'] = 1;
+		$next['actions'] = array(
+			array('icon'=>Base_ThemeCommon::get_template_file('CRM/Meeting', 'close_event.png'), 'href'=>self::get_status_change_leightbox_href($r_new, false, array('id'=>'status')))
+		);
 
         $start_time = Base_RegionalSettingsCommon::time2reg($next['start'],2,false);
         $event_date = Base_RegionalSettingsCommon::time2reg($next['start'],false,3);
