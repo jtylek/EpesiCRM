@@ -39,11 +39,13 @@ class CRM_Tasks extends Module {
 		}
 		$short = ($conf['term']=='s' || $conf['term']=='b');
 		$long = ($conf['term']=='l' || $conf['term']=='b');
-		$closed = (isset($conf['closed']) && $conf['closed']);
 		$related = $conf['related'];
 		$rb = $this->init_module('Utils/RecordBrowser','task','task');
+		$status = array();
+		for ($i=0;$i<5;$i++)
+			if (isset($conf['status_'.$i]) && $conf['status_'.$i]) $status[] = $i;
 		$crits = array();
-		if (!$closed) $crits['!status'] = array(2,3);
+		$crits['status'] = $status;
 		if ($short && !$long) $crits['!longterm'] = 1;
 		if (!$short && $long) $crits['longterm'] = 1;
 		if ($related==0) $crits['employees'] = array($me['id']);

@@ -17,7 +17,7 @@ class CRM_CommonInstall extends ModuleInstall {
 		Utils_CommonDataCommon::new_array('CRM',array(),true,true);
 		Utils_CommonDataCommon::new_array('CRM/Priority',array(0=>'Low',1=>'Medium',2=>'High'), true,true);
 		Utils_CommonDataCommon::new_array('CRM/Access',array(0=>'Public', 1=>'Public, Read-Only', 2=>'Private'), true,true);
-		Utils_CommonDataCommon::new_array('CRM/Status',array('Open','In Progress','Closed','Canceled'), true,true);
+		Utils_CommonDataCommon::new_array('CRM/Status',array('Open','In Progress','On Hold','Closed','Canceled'), true,true);
 		return true;
 	}
 	
