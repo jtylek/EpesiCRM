@@ -47,8 +47,16 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			foreach ($result_ext as $v) {
 				$v['id'] = $handler.'#'.$v['id'];
 				if (isset($v['description'])) $v['custom_agenda_col_0'] = $v['description'];
-				if (isset($v['employees'])) $v['custom_agenda_col_1'] = $v['employees'];
-				if (isset($v['customers'])) $v['custom_agenda_col_2'] = $v['customers'];
+				if (isset($v['employees'])) {
+					$emps = array();
+					foreach ($v['employees'] as $e) $emps[] = CRM_ContactsCommon::contact_format_no_company($e);
+					$v['custom_agenda_col_1'] = implode('<br>',$emps);
+				}
+				if (isset($v['customers'])) {
+					$cuss = array();
+					foreach ($v['customers'] as $c) $cuss[] = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
+					$v['custom_agenda_col_2'] = implode('<br>',$cuss);
+				}
 				$result[] = $v;
 			}
 		}
