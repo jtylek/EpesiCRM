@@ -21,6 +21,10 @@ class Base_ModuleDownloaderInstall extends ModuleInstall {
         $this->remove_data_dir();
 		return true;
 	}
+
+    public function version() {
+        return array("0.1");
+    }
 	public function requires($v) {
 		return array(
 		array('name'=>'Libs/QuickForm','version'=>0));
