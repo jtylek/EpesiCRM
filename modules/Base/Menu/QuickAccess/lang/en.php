@@ -8,7 +8,7 @@ global $translations;
 $translations['Base_Menu_QuickAccess']['Shoutbox']='';
 $translations['Base_Menu_QuickAccess']['Menu']='';
 $translations['Base_Menu_QuickAccess']['Dashboard']='';
-$translations['Base_Menu_QuickAccess']['Launchpad']='Panel startowy';
+$translations['Base_Menu_QuickAccess']['Launchpad']='';
 $translations['Base_Menu_QuickAccess']['Help: About']='';
 $translations['Base_Menu_QuickAccess']['My settings: Set home page']='';
 $translations['Base_Menu_QuickAccess']['Help: Support']='';
