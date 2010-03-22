@@ -18,7 +18,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $hash = array();
 	public static $admin_access = false;
 	public static $cols_order = array();
-	public static $options_limit = 0;
+	public static $options_limit = 50;
 	
 	private static $clear_get_val_cache = false;
 
