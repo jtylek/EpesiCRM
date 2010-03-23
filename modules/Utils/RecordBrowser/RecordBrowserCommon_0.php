@@ -282,7 +282,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($row['type']=='commondata')
 				$row['param'] = self::decode_commondata_param($row['param']);
 			self::$table_rows[$row['field']] =
-				array(	'name'=>$row['field'],
+				array(	'name'=>str_replace('%','%%',$row['field']),
 						'id'=>preg_replace('/[^a-z0-9]/','_',strtolower($row['field'])),
 						'type'=>$row['type'],
 						'visible'=>$row['visible'],
