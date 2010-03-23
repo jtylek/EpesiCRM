@@ -180,6 +180,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($def_order=array(), $crits=array(), $cols=array()) {
+		unset($_SESSION['client']['recordbrowser']['admin_access']);
 		if ($this->check_for_jump()) return;
 		$this->fullscreen_table=true;
 		$this->init();
@@ -467,7 +468,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false) {
-		Base_ThemeCommon::install_default_theme($this->get_type());
+		if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
 		if ($this->check_for_jump()) return;
 		Utils_RecordBrowserCommon::$cols_order = $this->col_order;
 		if ($this->get_access('browse')===false) {
@@ -899,6 +900,7 @@ class Utils_RecordBrowser extends Module {
 		return $this->view_entry($mode, $id, $defaults, $show_actions);
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array(), $show_actions=true) {
+		if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
 		self::$mode = $mode;
 		if ($this->navigation_executed) {
 			$this->navigation_executed = false;
@@ -1497,6 +1499,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function administrator_panel() {
+		$_SESSION['client']['recordbrowser']['admin_access'] = true;
 		Utils_RecordBrowserCommon::$admin_access = true;
 		$this->init();
 		$tb = $this->init_module('Utils/TabbedBrowser');
@@ -2088,6 +2091,7 @@ class Utils_RecordBrowser extends Module {
 	}
 
 	public function mini_view($cols, $crits, $order, $info=null, $limit=null, $conf = array('actions_edit'=>true, 'actions_info'=>true), & $opts = array()){
+		unset($_SESSION['client']['recordbrowser']['admin_access']);
 		$this->init();
 		$gb = $this->init_module('Utils/GenericBrowser',$this->tab,$this->tab);
 		$field_hash = array();
