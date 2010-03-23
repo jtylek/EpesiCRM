@@ -384,7 +384,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			if ($action != 'none') {		
 				$x = ModuleManager::get_instance('/Base_Box|0');
-				$values['title'] = Base_LangCommon::ts('CRM/Meeting','Follow up: ').$values['title'];
 				if ($action == 'new_meeting') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $values), array('crm_meeting'));
 				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0)), array('task'));
 				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'],'status'=>0, 'customer'=>!empty($values['customers'])?array_pop($values['customers']):'')), array('phonecall'));
