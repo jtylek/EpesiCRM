@@ -48,7 +48,7 @@ class CRM_FollowupCommon extends ModuleCommon {
 				eval_js('Event.observe(\''.$prefix.'_new_phonecall_button\',\'click\', '.$prefix.'_followups_deactivate)');
 			}
 
-			$theme->assign('just_close',array('open'=>'<a id="'.$prefix.'_just_close_button" onclick="'.$prefix.'_set_action(\'none\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'No Follow up'),'close'=>'</a>'));
+			$theme->assign('just_close',array('open'=>'<a id="'.$prefix.'_just_close_button" onclick="'.$prefix.'_set_action(\'none\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'Save'),'close'=>'</a>'));
 			eval_js('Event.observe(\''.$prefix.'_just_close_button\',\'click\', '.$prefix.'_followups_deactivate)');
 
 			eval_js($prefix.'_submit_form = function () {'.

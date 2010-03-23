@@ -182,7 +182,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
-		if ($v>=2 || $nolink) return $status[$v];
+		if ($v>=3 || $nolink) return $status[$v];
 		CRM_FollowupCommon::drawLeightbox($prefix);
 		if (!self::access_task('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {

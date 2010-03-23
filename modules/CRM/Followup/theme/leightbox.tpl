@@ -145,7 +145,7 @@
 
 	    {$just_close.open}
 		<div class="big-button">
-            <img src="{$theme_dir}/Base/ActionBar/icons/folder.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/Base/ActionBar/icons/save.png" alt="" align="middle" border="0" width="32" height="32">
             <div style="height: 5px;"></div>
             <span>{$just_close.text}</span>
         </div>
