@@ -21,6 +21,7 @@ class CRM_LoginAudit extends Module {
 	            $users = array(-1=>$this->t('All'));
 	            while($row = $ret->FetchRow())
 	                $users[$row['id']] = Base_UserCommon::get_user_login($row['id']);
+				asort($users);
 	            $form->addElement('select','users',$this->t('Select user'), $users, 'onChange="'.$form->get_submit_form_js().'"');
 		$user = $form->exportValue('users');
         $form->display();
