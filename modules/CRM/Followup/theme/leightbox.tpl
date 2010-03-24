@@ -1,7 +1,7 @@
 <center>
-
+<BR>
 {$form_open}
-<table id="CRM_Filters" cellspacing="0" cellpadding="0" width="400px">
+<table id="CRM_Filters" cellspacing="0" cellpadding="0" width="600px">
 	<tr>
         <td style="width:100px;background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
         	{$form_closecancel.label}
