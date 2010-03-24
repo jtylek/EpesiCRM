@@ -32,14 +32,14 @@ a.button {
     line-height: 20px;
     height: 20px;
     display: block;
-    background-image: url("images/header-blue.gif");
+    background-image: url("../../../images/header-blue.gif");
     border: 0px;
     text-align: center;
 }
 
 input[type="submit"]:hover,
 a.button:hover {
-    background-image: url("images/header-blue-hover.gif");
+    background-image: url("../../../images/header-blue-hover.gif");
 }
 
 span.footer {
@@ -63,14 +63,14 @@ span.footer a:hover {
 }
 
 #banner .image {
-    background-image: url("images/logo-small.gif");
+    background-image: url("../../../images/logo-small.gif");
     background-repeat: repeat-x;
     width: 193px;
     height: 68px;
 }
 
 #banner .back {
-    background-image: url("images/banner-background.png");
+    background-image: url("../../../images/banner-background.png");
 
 }
 
