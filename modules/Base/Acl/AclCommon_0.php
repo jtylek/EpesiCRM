@@ -201,6 +201,7 @@ class Base_AclCommon extends ModuleCommon {
 	 */
 	public static function is_user_in_group($uid,$group) {		
 		$groups_arr = Acl::$gacl->get_object_groups($uid);
+		if(!$groups_arr) return false;
 		$groups = array();
 		foreach($groups_arr as $id) {
 			$arr = Acl::$gacl->get_group_data($id);
