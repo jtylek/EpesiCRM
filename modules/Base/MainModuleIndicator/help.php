@@ -7,7 +7,10 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-$h = $_SESSION['client']['help'];
+if(!isset($_SESSION['client']['help']) || !($h = $_SESSION['client']['help'])) {
+	$h = array();
+	$h[''] = array(false,'');
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
