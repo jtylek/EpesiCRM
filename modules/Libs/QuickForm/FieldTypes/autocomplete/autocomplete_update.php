@@ -17,6 +17,10 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../../../include.php');
 ModuleManager::load_modules();
 
+if (!isset($_SESSION['client']['quickform'])) {
+	print('<ul><li>Session expired, please reload the page</li></ul>');
+	return;
+}
 $params = $_SESSION['client']['quickform']['autocomplete'][$_GET['key']];
 $string = $_POST[$params['field']];
 $callback = $params['callback'];
