@@ -326,7 +326,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 				if ($contact['login']=='') $icon = $icon_none;
 				else {
 //					trigger_error(print_r($record,true));
-					$icon = Utils_WatchdogCommon::user_check_if_notified($contact['login'],'task',$record['id']);
+					$icon = Utils_WatchdogCommon::user_check_if_notified($contact['login'],'crm_meeting',$record['id']);
 					if ($icon===null) $icon = $icon_none;
 					elseif ($icon===true) $icon = $icon_on;
 					else $icon = $icon_off;
@@ -473,15 +473,24 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$values['date'] = Base_RegionalSettingsCommon::time2reg($values['date'].' '.date('H:i:s', strtotime($values['time'])),false,true,true,false);
 			if (isset($values['recurrence_end']) && $values['recurrence_end']) 
 				$values['recurrence_end'] = Base_RegionalSettingsCommon::time2reg($values['recurrence_end'].' '.date('H:i:s', strtotime($values['time'])),false,true,true,false);
+			break;
 		case 'added':
+			self::subscribed_employees($values);
+			$related = array_merge($values['employees'],$values['customers']);
+			foreach ($related as $v) {
+				if ($mode==='edit' && in_array($v, $old_related)) continue;
+				$subs = Utils_WatchdogCommon::get_subscribers('contact',$v);
+				foreach($subs as $s)
+					Utils_WatchdogCommon::user_subscribe($s, 'crm_meeting',$values['id']);
+			}
 			break;
 		}
 		return $values;
 	}
 	public static function watchdog_label($rid = null, $events = array(), $details = true) {
 		return Utils_RecordBrowserCommon::watchdog_label(
-				'task',
-				Base_LangCommon::ts('CRM_Tasks','Tasks'),
+				'crm_meeting',
+				Base_LangCommon::ts('CRM_Meeting','Meeting'),
 				$rid,
 				$events,
 				'title',
