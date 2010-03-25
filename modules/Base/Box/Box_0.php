@@ -166,7 +166,7 @@ class Base_Box extends Module {
 		if(isset($name)) {
 		    $arr['name'] = $name;
 		} else {
-		    $arr['name'] = 'main_'.$x;
+		    $arr['name'] = 'main_'.md5(microtime(true));
 		}
 		if(isset($module)) $arr['module'] = $module;
 		if(isset($func)) $arr['function'] = $func;

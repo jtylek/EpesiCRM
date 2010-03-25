@@ -794,7 +794,7 @@ class Utils_RecordBrowser extends Module {
 				}
 				if (!isset($da['info'])) $gb_row->add_info(($this->browse_mode=='recent'?'<b>'.$this->t('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
 				if ($this->additional_actions_method!==null && is_callable($this->additional_actions_method))
-					call_user_func($this->additional_actions_method, $row, $gb_row);
+					call_user_func($this->additional_actions_method, $row, $gb_row, $this);
 			}
 		}
 		if (!$special && $this->add_in_table && $this->view_fields_permission) {
