@@ -62,9 +62,9 @@ function mobile_stack_href($func,$args = array(),$caption=null) {
 }
 
 function sort_menus_cmp($a, $b) {
-	global $menus_out;
-	$aw = isset($menus_out[$a][2]) ? $menus_out[$a][2]:0;
-	$bw = isset($menus_out[$b][2]) ? $menus_out[$b][2]:0;
+	global $menus_out_tmp;
+	$aw = isset($menus_out_tmp[$a][2]) ? $menus_out_tmp[$a][2]:0;
+	$bw = isset($menus_out_tmp[$b][2]) ? $menus_out_tmp[$b][2]:0;
 	if(!isset($aw) || !is_numeric($aw)) $aw=0;
 	if(!isset($bw) || !is_numeric($bw)) $bw=0;
 	if($aw==$bw)
@@ -75,7 +75,7 @@ function sort_menus_cmp($a, $b) {
 
 function mobile_menu() {
 	$menus = ModuleManager::call_common_methods('mobile_menu');
-	global $menus_out;
+	global $menus_out, menus_out_tmp;
 	$menus_out = array();
 	foreach($menus as $m=>$r) {
 		if(!is_array($r)) continue;
@@ -95,6 +95,7 @@ function mobile_menu() {
 			$menus_out[$cap] = array($method,$args,$weight,$color);
 		}
 	}
+	$menus_out_tmp = $menus_out;
 	uksort($menus_out,'sort_menus_cmp');
 	foreach($menus_out as $cap=>$met) {
 		print('<a '.mobile_stack_href($met[0],$met[1],$cap).' '.(IPHONE?' class="button '.$met[3].'"':'').'>'.$cap.'</a>'.(IPHONE?'':'<br>'));
