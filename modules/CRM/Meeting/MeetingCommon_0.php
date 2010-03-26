@@ -5,7 +5,7 @@
  * @license MIT
  * @version 1.0
  * @package epesi-crm
- * @subpackage tasks
+ * @subpackage meeting
  */
 
 defined("_VALID_ACCESS") || die('Direct access forbidden');
@@ -60,13 +60,13 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 
 		$args=array(
-					'Task:'=>'<b>'.$r['title'].'</b>',
+					'Meeting:'=>'<b>'.$r['title'].'</b>',
 					'Description:'=>$r['description'],
 					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
 					'Contacts:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default')),
 					'Status:'=>$status[$r['status']],
-					'Deadline:'=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set'),
-					'Longterm:'=>Base_LangCommon::ts('CRM_Tasks',$r['longterm']!=0?'Yes':'No'),
+					'Date:'=>$r['duration']>=0?Base_RegionalSettingsCommon::time2reg($r['date'].' '.date('H:i:s',strtotime($r['time']))):Base_RegionalSettingsCommon::time2reg($r['date'],false),
+					'Duration:'=>$r['duration']>=0?Base_RegionalSettingsCommon::seconds_to_words($r['duration']):'---',
 					'Permission:'=>$access[$r['permission']],
 					'Priority:'=>$priority[$r['priority']],
 					);
@@ -82,7 +82,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		// and the name of the group for translation
 		//return	Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks');
 
-		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks'));
+		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_Meeting'));
 		if ($bg_color) $ret['row_attrs'] = 'style="background:'.$bg_color.';"';
 		return $ret;
 	}
@@ -154,6 +154,25 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$form->addElement('checkbox', 'timeless', Base_LangCommon::ts('Utils_RecordBrowser','Timeless'));
 			$form->setDefaults(array('timeless'=>($default==-1?1:0)));
 		}
+
+		//messanger
+		if($mode == 'add') {
+			eval_js_once('crm_calendar_event_messenger = function(v) {var mb=$("messenger_block");if(!mb)return;if(v)mb.show();else mb.hide();}');
+			$form->addElement('select','messenger_before',Base_LangCommon::ts('CRM_Meeting','Popup alert'),array(0=>Base_LangCommon::ts('CRM_Meeting','on event start'), 900=>Base_LangCommon::ts('CRM_Meeting','15 minutes before event'), 1800=>Base_LangCommon::ts('CRM_Meeting','30 minutes before event'), 2700=>Base_LangCommon::ts('CRM_Meeting','45 minutes before event'), 3600=>Base_LangCommon::ts('CRM_Meeting','1 hour before event'), 2*3600=>Base_LangCommon::ts('CRM_Meeting','2 hours before event'), 3*3600=>Base_LangCommon::ts('CRM_Meeting','3 hours before event'), 4*3600=>Base_LangCommon::ts('CRM_Meeting','4 hours before event'), 8*3600=>Base_LangCommon::ts('CRM_Meeting','8 hours before event'), 12*3600=>Base_LangCommon::ts('CRM_Meeting','12 hours before event'), 24*3600=>Base_LangCommon::ts('CRM_Meeting','24 hours before event')));
+			$form->addElement('textarea','messenger_message',Base_LangCommon::ts('CRM_Meeting','Popup message'), array('id'=>'messenger_message'));
+			$form->addElement('select','messenger_on',Base_LangCommon::ts('CRM_Meeting','Alert'),array('none'=>Base_LangCommon::ts('CRM_Meeting','None'),'me'=>Base_LangCommon::ts('CRM_Meeting','me'),'all'=>Base_LangCommon::ts('CRM_Meeting','all selected employees')),array('onChange'=>'crm_calendar_event_messenger(this.value!="none");$("messenger_message").value=$("title").value;'));
+//			$form->addElement('checkbox','messenger_on',Base_LangCommon::ts('CRM_Meeting','Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
+			eval_js('crm_calendar_event_messenger('.(($form->exportValue('messenger_on')!='none' && $form->exportValue('messenger_on')!='')?1:0).')');
+			$form->registerRule('check_my_user', 'callback', array('CRM_MeetingCommon','check_my_user'));
+			$form->addRule(array('messenger_on','emp_id'), Base_LangCommon::ts('CRM_Meeting','You have to select your contact to set alarm on it'), 'check_my_user');
+		}
+	}
+
+	public function check_my_user($arg) {
+		if($arg[0]!=='me') return true;
+		$sub = array_filter(explode('__SEP__',$arg[1]));
+		$me = CRM_ContactsCommon::get_my_record();
+		return in_array($me['id'],$sub);
 	}
 
 	public static function check_date_and_time($data) {
@@ -257,12 +276,12 @@ class CRM_MeetingCommon extends ModuleCommon {
 			return array();
 	}
 
-	public static function get_tasks($crits = array(), $cols = array(), $order = array()) {
-		return Utils_RecordBrowserCommon::get_records('task', $crits, $cols, $order);
+	public static function get_meetings($crits = array(), $cols = array(), $order = array()) {
+		return Utils_RecordBrowserCommon::get_records('crm_meeting', $crits, $cols, $order);
 	}
 
-	public static function get_task($id) {
-		return Utils_RecordBrowserCommon::get_record('task', $id);
+	public static function get_meeting($id) {
+		return Utils_RecordBrowserCommon::get_record('crm_meeting', $id);
 	}
 
 	public static function access_meeting($action, $param=null){
@@ -293,8 +312,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 	public static function applet_settings() {
 		return Utils_RecordBrowserCommon::applet_settings(array(
-			array('label'=>'Display tasks marked as','name'=>'term','type'=>'select','values'=>array('s'=>'Short term','l'=>'Long term','b'=>'Both'),'default'=>'s','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			array('label'=>'Display closed tasks','name'=>'closed','type'=>'checkbox','default'=>false),
+			array('label'=>'Display closed meetings','name'=>'closed','type'=>'checkbox','default'=>false),
 			array('label'=>'Related','name'=>'related','type'=>'select','values'=>array('Employee','Customer','Both'),'default'=>'0')
 			));
 	}
@@ -347,8 +365,8 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record();
 		$ret = self::display_title($record, false);
 		if (!in_array($me['id'], $record['employees'])) return $ret;
-		$notified = Utils_WatchdogCommon::check_if_notified('task',$record['id']);
-		if ($notified!==true && $notified!==null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','notice.png').'" />'.$ret;
+		$notified = Utils_WatchdogCommon::check_if_notified('crm_meeting',$record['id']);
+		if ($notified!==true && $notified!==null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Meeting','notice.png').'" />'.$ret;
 		return $ret;
 	}
 	public static function get_status_change_leightbox_href($record, $nolink, $desc) {
@@ -439,9 +457,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$values['title'] = Base_LangCommon::ts('CRM_Meeting','Follow up: ').$values['title'];
 			$values['status'] = 0;
 			$cus = reset($values['customers']);
-			if (ModuleManager::is_installed('CRM/Calendar')>=0) $ret['new_event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
-			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'deadline'=>date('Y-m-d', strtotime('+1 day')))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
+			if (ModuleManager::is_installed('CRM/Meeting')>=0) $ret['new_event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Meeting','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
+			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'deadline'=>date('Y-m-d', strtotime('+1 day')))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_PhoneCall','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
 			return $ret;
 		case 'add':
 		case 'edit':
@@ -465,6 +483,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 					if ($values['recurrence_end']<$date) $values['recurrence_end'] = $date;
 				}
 			}
+			
 			break;
 		case 'editing':
 		case 'adding':
@@ -483,6 +502,21 @@ class CRM_MeetingCommon extends ModuleCommon {
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'crm_meeting',$values['id']);
 			}
+
+			if(isset($values['messenger_on']) && $values['messenger_on']!='none') {
+				$start = strtotime($values['date'].' '.date('H:i:s',strtotime($values['time'])));
+				if($values['messenger_on']=='me')
+					Utils_MessengerCommon::add('CRM_Calendar_Event:'.$values['id'],'CRM_Meeting',$values['messenger_message'],$start-$values['messenger_before'], array('CRM_MeetingCommon','get_alarm'),array($values['id']));
+				else {
+					$eee = array();
+					foreach($values['employees'] as $v) {
+						$c = CRM_ContactsCommon::get_contact($v);
+						if(isset($c['login']))
+							$eee[] = $c['login'];
+					}
+					Utils_MessengerCommon::add('CRM_Calendar_Event:'.$values['id'],'CRM_Meeting',$values['messenger_message'],$start-$values['messenger_before'], array('CRM_MeetingCommon','get_alarm'),array($values['id']),$eee);
+				}
+			}
 			break;
 		}
 		return $values;
@@ -500,10 +534,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 	
 	public static function search_format($id) {
 		if(!self::Instance()->acl_check('browse meetings')) return false;
-		$row = self::get_tasks(array('id'=>$id));
+		$row = self::get_meeting(array('id'=>$id));
 		if(!$row) return false;
 		$row = array_pop($row);
-		return Utils_RecordBrowserCommon::record_link_open_tag('crm_meeting', $row['id']).Base_LangCommon::ts('CRM_Tasks', 'Task (attachment) #%d, %s', array($row['id'], $row['title'])).Utils_RecordBrowserCommon::record_link_close_tag();
+		return Utils_RecordBrowserCommon::record_link_open_tag('crm_meeting', $row['id']).Base_LangCommon::ts('CRM_Meeting', 'Meeting (attachment) #%d, %s', array($row['id'], $row['title'])).Utils_RecordBrowserCommon::record_link_close_tag();
 	}
 
 	public static function get_available_colors() {
@@ -726,6 +760,20 @@ class CRM_MeetingCommon extends ModuleCommon {
 	}
 
 
+	public static function get_alarm($id) {
+		$a = self::get_meeting($id);
+
+		if (!$a) return Base_LangCommon::ts('CRM_Calendar_Event','Private record');
+
+		if($a['duration']<0)
+			$date = Base_LangCommon::ts('CRM_Calendar_Event','Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['date'],false)));
+		else
+			$date = Base_LangCommon::ts('CRM_Calendar_Event',"Date: %s",array(Base_RegionalSettingsCommon::time2reg($a['date'].' '.date('H:i:s',strtotime($a['time'])),2)));
+
+		return $date."\n".Base_LangCommon::ts('CRM_Calendar_Event',"Title: %s",array($a['title']));
+	}
+
+
 	///////////////////////////////////
 	// mobile devices
 
@@ -735,10 +783,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		return array('Meetings'=>array('func'=>'mobile_meetings','color'=>'blue'));
 	}
 	
-	public function mobile_tasks() {
+	public function mobile_meetings() {
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1);
-		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id'])),array('deadline'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('priority'=>1, 'deadline'=>1,'longterm'=>1),$defaults);
+		Utils_RecordBrowserCommon::mobile_rb('crm_meeting',array('employees'=>array($me['id'])),array('date'=>'ASC', 'time'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('date'=>1,'time'=>1,'priority'=>1,'longterm'=>1),$defaults);
 	}
 }
 

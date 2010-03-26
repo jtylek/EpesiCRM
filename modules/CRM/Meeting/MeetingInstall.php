@@ -45,6 +45,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::enable_watchdog('crm_meeting', array('CRM_MeetingCommon','watchdog_label'));
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('crm_meeting', 'CRM/Meeting', 'meeting_attachment_addon', 'Notes');
+		Utils_RecordBrowserCommon::new_addon('crm_meeting', 'CRM/Meeting', 'messanger_addon', 'Alerts');
 // ************ other ************** //
 		CRM_CalendarCommon::new_event_handler('Meetings', array('CRM_MeetingCommon', 'crm_calendar_handler'));
 

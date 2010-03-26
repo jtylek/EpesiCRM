@@ -17,6 +17,7 @@ class Utils_Messenger extends Module {
 	private $users;
 	private $def_date;
 	private $real_id;
+	private $parent_type;
 
 	public function pop_box0() {
 		$x = ModuleManager::get_instance('/Base_Box|0');
@@ -30,7 +31,7 @@ class Utils_Messenger extends Module {
 		$x->push_main('Utils/Messenger',$func,$args,$const_args);
 	}
 
-	public function construct($id=null,$callback_method=null,$callback_args=null,$def_date=null,$users=null) {
+	public function construct($id=null,$callback_method=null,$callback_args=null,$def_date=null,$users=null,$parent=null) {
 		if(!isset($id))
 			//applet mode
 			return;
@@ -43,6 +44,7 @@ class Utils_Messenger extends Module {
 		$this->callback_method = $callback_method;
 		$this->callback_args = isset($callback_args)?((is_array($callback_args))?$callback_args:array($callback_args)):array();
 		$this->def_date = ($def_date!=null)?$def_date:time();
+		$this->parent_type = ($parent!==null)?$parent:$this->parent->get_type();
 	}
 	
 	public function edit($row) {
@@ -90,7 +92,7 @@ class Utils_Messenger extends Module {
 				$id = $row['id'];
 				DB::Execute('DELETE FROM utils_messenger_users WHERE message_id=%d',array($id));
 			} else {
-				DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->parent->get_type(),$ret['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$ret['alert_on']));
+				DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->parent_type,$ret['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$ret['alert_on']));
 				$id = DB::Insert_ID('utils_messenger_message','id');
 			}
 			if(is_array($this->users)) {

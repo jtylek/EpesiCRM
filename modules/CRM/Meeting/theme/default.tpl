@@ -305,6 +305,35 @@
                     </table>
                 </td>
             </tr>
+            {if $action=='add'}
+            <tr>
+                <td style="width: 50%; vertical-align: top;" colspan=2>
+                        <div id="alert" style="padding-top: 5px;">
+                            <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
+                                <tbody>
+                                    <tr>
+                                        <td class="label" align="left" style="width: 30%;">{$form_data.messenger_on.label}*</td>
+                                        <td class="data" align="left" style="width: 70%;"><span class="error">{$form_data.messenger_on.error}</span>{$form_data.messenger_on.html}</td>
+	                                </tr>
+    	                        </tbody>
+        	                </table>
+            	            <div id="messenger_block">
+                            <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
+                                <tbody>
+                                    <tr>
+                                        <td class="label" align="left" style="width: 30%;">{$form_data.messenger_before.label}*</td>
+                                        <td class="data" align="left" style="width: 70%;"><span class="error">{$form_data.messenger_before.error}</span>{$form_data.messenger_before.html}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label" align="left">{$form_data.messenger_message.label}*</td>
+                                        <td class="data smalltext" align="left"><span class="error">{$form_data.messenger_message.error}</span>{$form_data.messenger_message.html}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                </td>
+	   </tr>
+          {/if}
         </tbody>
     </table>
 </div>

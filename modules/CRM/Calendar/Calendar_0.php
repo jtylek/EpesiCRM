@@ -127,6 +127,7 @@ class CRM_Calendar extends Module {
 				if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
 				if (isset($_REQUEST['create_new_event'])) {
 					unset($_REQUEST['create_new_event']);
+					Epesi::alert(print_r(date('Y-m-d H:i:s',$_REQUEST['timestamp']),true));
 					$this->jump_to_new_event($_REQUEST['option'],$_REQUEST['timestamp'],$_REQUEST['timeless']);
 					return;
 				}
