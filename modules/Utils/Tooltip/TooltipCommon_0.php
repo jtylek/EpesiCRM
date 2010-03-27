@@ -103,8 +103,8 @@ class Utils_TooltipCommon extends ModuleCommon {
 		$table='<TABLE WIDTH="280" cellpadding="2">';
 		foreach ($arg as $k=>$v){
 			$table.='<TR><TD WIDTH="90"><STRONG>';
-			$table.=Base_LangCommon::ts($group,$k).'</STRONG></TD><TD bgcolor="white">'; // Translated label
-			$table.=$v; // Value
+			$table.=Base_LangCommon::ts($group,$k).'</STRONG></TD><TD bgcolor="white" style="word-wrap: break-word;">'; // Translated label
+			$table.= $v; // Value
 			$table.='</TD></TR>';
 		}
 		$table.='</TABLE>';
