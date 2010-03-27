@@ -47,9 +47,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$no_details = true;
 				$custom_event = true;
 			} else {
-				$ev = DB::GetRow('SELECT *, starts AS start, ends AS end FROM crm_calendar_event WHERE id=%d', array($id));
-				$id = explode('_',$id);
-				$id = $id[0];
+				trigger_error('Invalid event id: '.$id, E_USER_ERROR);
 			}
 		} else {
 			$ev = $id;

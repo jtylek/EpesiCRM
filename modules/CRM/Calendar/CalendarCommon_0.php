@@ -105,10 +105,11 @@ class CRM_CalendarCommon extends ModuleCommon {
 		if(!self::Instance()->acl_check('access'))
 			return false;
 
-		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
+/*		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
 					'WHERE ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND '.
  					'ev.id=%d)';
- 		$row = DB::GetRow($query,array($id));
+ 		$row = DB::GetRow($query,array($id));*/
+ 		$row = array();
 		
 		if(!$row) return false;
 		return '<a '.Base_BoxCommon::create_href(null, 'CRM_Calendar', null, array(), array(), array('search_date'=>$row['start'],'ev_id'=>$row['id'])).'>'.Base_LangCommon::ts('CRM_Calendar','Event (attachment) #%d, %s',array($row['id'], $row['title'])).'</a>';
@@ -118,17 +119,17 @@ class CRM_CalendarCommon extends ModuleCommon {
 		if(!self::Instance()->acl_check('access'))
 			return array();
 		
-		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
+/*		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
 					'WHERE ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND (ev.title LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
  					' OR ev.description LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
 					'))';
- 		$recordSet = DB::Execute($query);
+ 		$recordSet = DB::Execute($query);*/
  		$result = array();
 
- 		while (!$recordSet->EOF){
+/* 		while (!$recordSet->EOF){
  			$row = $recordSet->FetchRow();
 			$result[$row['id']] = '<a '.Base_BoxCommon::create_href(null, 'CRM_Calendar', null, array(), array(), array('search_date'=>$row['start'],'ev_id'=>$row['id'])).'>'.Base_LangCommon::ts('CRM_Calendar','Event #%d, %s',array($row['id'], $row['title'])).'</a>';
- 		} 		
+ 		} 		*/
 		return $result;
 	}
 
