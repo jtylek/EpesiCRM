@@ -465,6 +465,8 @@ class CRM_MeetingCommon extends ModuleCommon {
 		case 'edit':
 			if (isset($values['duration_switch']) && !$values['duration_switch'])
 				$values['duration'] = strtotime($values['end_time']) - strtotime($values['time']);
+			if (isset($values['timeless']) && $values['timeless'])
+				$values['duration'] = -1;
 			$new = '';
 			foreach (array(0=>'Mon',1=>'Tue',2=>'Wed',3=>'Thu',4=>'Fri',5=>'Sat',6=>'Sun') as $k=>$v) {
 				if (isset($values['recurrence_hash_'.$k]) && $values['recurrence_hash_'.$k])
