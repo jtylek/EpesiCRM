@@ -174,6 +174,9 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			(!isset($_REQUEST['utils_watchdog_id']) &&
 			$id===null))) {
 			self::user_change_subscription($user, $category_name, $id);
+			unset($_REQUEST['utils_watchdog_category']);
+			unset($_REQUEST['utils_watchdog_user']);
+			unset($_REQUEST['utils_watchdog_id']);
 			location(array());	
 		}
 		return array('utils_watchdog_category'=>$category_id, 'utils_watchdog_user'=>$user, 'utils_watchdog_id'=>$id);
