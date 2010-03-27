@@ -712,6 +712,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 //		$next['customers'] = implode('<br>',$cuss);
 		$next['employees'] = $r['employees'];
 		$next['customers'] = $r['customers'];
+		$next['status'] = $r['status']<=2?'active':'closed';
 		$next['custom_tooltip'] = 
 									'<center><b>'.
 										Base_LangCommon::ts('CRM_Meeting','Meeting').

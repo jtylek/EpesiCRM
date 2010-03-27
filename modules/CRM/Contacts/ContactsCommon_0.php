@@ -160,6 +160,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $score/$len;
 	}
 	public static function check_for_duplicates($data, $js_function=null){
+		return false;
 		$submit_js = Utils_RecordBrowser::$rb_obj->form->get_submit_form_js();
 		if ($js_function===null) {
 			eval_js('contact_duplicate_fill = function (cont_id, comp_id) {'.

@@ -162,7 +162,7 @@ class CRM_Calendar extends Module {
 			$c = 0;
 			foreach ($custom_events as $id=>$cb) {
 				if ($conf['events_handlers__'.$id]) {
-					$add = call_user_func(explode('::',$cb), 'get_all', $start, $end,CRM_Calendar_EventCommon::$filter);
+					$add = call_user_func(explode('::',$cb), 'get_all', $start, $end, CRM_Calendar_EventCommon::$filter);
 					foreach ($add as $v) {
 						$ret[str_pad($v['start'], 16, '0', STR_PAD_LEFT).'__'.$c] = $v;
 						$c++;
@@ -174,8 +174,7 @@ class CRM_Calendar extends Module {
 		ksort($ret);
 
 		foreach($ret as $row) {
-			if (isset($row['status']) && $row['status']>=2) continue;
-			if ($conf['color']!=0 && $colors[$conf['color']]!=$row['color']) continue;
+			if (isset($row['status']) && $row['status']=='closed') continue;
 			if (!isset($row['view_action'])) {
 				$ex = Utils_CalendarCommon::process_event($row);
 				$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
