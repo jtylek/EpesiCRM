@@ -475,6 +475,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			if ($new!='0000000') $values['recurrence_hash'] = $new;
 			$time = Base_RegionalSettingsCommon::time2reg($values['time'],true,true,true,false);
 			$values['date'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
+			$values['time'] = date('1970-01-01 H:i:s',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
 			if (isset($values['recurrence_end']) && $values['recurrence_end']) {
 				$values['recurrence_end'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['recurrence_end'].' '.date('H:i:s', strtotime($time))));
 				if ($values['recurrence_end']<$values['date']) $values['recurrence_end'] = $values['date'];
@@ -488,8 +489,11 @@ class CRM_MeetingCommon extends ModuleCommon {
 		case 'editing':
 		case 'adding':
 		case 'view':
-			if (isset($values['date']) && $values['date']) 
+			if (isset($values['date']) && $values['date']) {
 				$values['date'] = Base_RegionalSettingsCommon::time2reg($values['date'].' '.date('H:i:s', strtotime($values['time'])),false,true,true,false);
+				$values['time'] = Base_RegionalSettingsCommon::time2reg($values['date'].' '.date('H:i:s', strtotime($values['time'])),true,false,true,false);
+				$values['time'] = Base_RegionalSettingsCommon::reg2time('1970-01-01 '.$values['time']);
+			}
 			if (isset($values['recurrence_end']) && $values['recurrence_end']) 
 				$values['recurrence_end'] = Base_RegionalSettingsCommon::time2reg($values['recurrence_end'].' '.date('H:i:s', strtotime($values['time'])),false,true,true,false);
 			break;
@@ -550,11 +554,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$id = explode('_', $id);
 		$id = reset($id);
 		$r = Utils_RecordBrowserCommon::get_record('crm_meeting', $id);
+		$sp_start = explode(' ', date('Y-m-d H:i:s', $start));
 		$values = array();
-		$values['date'] = date('Y-m-d', $start);
-		$base_unix_time = strtotime('1970-01-01 00:00');
-		$start_num = $start-strtotime(date('Y-m-d', $start));
-		$values['time'] = date('Y-m-d H:i:s', $base_unix_time+$start_num);
+		$values['date'] = $sp_start[0];
+		$values['time'] = '1970-01-01 '.$sp_start[1];
 		if ($timeless)
 			$values['duration'] = -1;
 		else
@@ -564,6 +567,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$values['recurrence_end'] = $r['recurrence_end'];
 //		$values = self::submit_meeting($values, 'edit');
 //		trigger_error(print_r($values,true).'                            '.print_r($ovalues,true));
+//		trigger_error($start.' - '.$sp_start[0].' '.$sp_start[1].' - '.Base_RegionalSettingsCommon::time2reg($start).' - '.print_r($values,true));
 		$values = Utils_RecordBrowserCommon::update_record('crm_meeting', $id, $values);
 		if ($r['recurrence_type']>0) 
 			print('Epesi.updateIndicatorText("Updating calendar");Epesi.request("");');
@@ -633,9 +637,12 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$next['id'] = $r['id'].'_'.$day;
 
 		$base_unix_time = strtotime(date('1970-01-01 00:00:00'));
-
-		$next['start'] = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$iday).' '.Base_RegionalSettingsCommon::time2reg($r['time'], true, false, true, false));
-		$next['end'] = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$iday).' '.Base_RegionalSettingsCommon::time2reg(strtotime($r['time'])+$r['duration'], true, false, true, false));
+//		$next['start'] = Base_RegionalSettingsCommon::reg2time(Base_RegionalSettingsCommon::time2reg(date('Y-m-d',$iday).' '.date('H:i:s',strtotime($r['time'])), true, false, true, false));
+//		$next['end'] = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$iday).' '.Base_RegionalSettingsCommon::time2reg(date('Y-m-d',$iday).' '.date('H:i:s',strtotime($r['time'])+$r['duration']), true, false, true, false));
+		$next['start'] = date('Y-m-d',$iday).' '.date('H:i:s',strtotime($r['time']));
+		$next['end'] = date('Y-m-d',$iday).' '.date('H:i:s',strtotime($r['time'])+$r['duration']);
+		$next['start'] = strtotime($next['start']);
+		$next['end'] = strtotime($next['end']);
 
 		if ($r['duration']==-1) $next['timeless'] = $day;
 		$next['duration'] = intval($r['duration']);

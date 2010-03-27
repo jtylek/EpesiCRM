@@ -194,8 +194,8 @@ class Utils_Calendar extends Module {
 			$interval = strtotime($date.' '.$this->settings['interval']);
 			$zero_t = strtotime($date.' 0:00');
 			$interval -= $zero_t;
-			$start = strtotime($this->settings['start_day']);
-			$end = strtotime($this->settings['end_day']);
+			$start = strtotime($date.' '.$this->settings['start_day']);
+			$end = strtotime($date.' '.$this->settings['end_day']);
 			if($end===false || $start===false || $interval===false)
 				trigger_error('Invalid start/end_day or interval.',E_USER_ERROR);
 			$interval_shift = '+'.str_replace(':',' hours ',$this->settings['interval']).' mins';
@@ -232,14 +232,18 @@ class Utils_Calendar extends Module {
 				$x = $start;
 				while($x<$end) {
 					$x = strtotime($interval_shift, $x);
-					$time = (strtotime($date.' '.date('H:i:s',$start))-$zero_t);
+//					$start_serv = $start;
+//					$zero_t_serv = $zero_t;
+					$start_serv = Base_RegionalSettingsCommon::reg2time($start);
+					$zero_t_serv = Base_RegionalSettingsCommon::reg2time($zero_t);
+					$time = (strtotime($date.' '.date('H:i:s',$start_serv))-$zero_t_serv);
 					if(isset($used[$time]))
 						$timeline[$used[$time]]['time'] = false;
 					$used[$time] = count($timeline);
 					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($x,2,false,false),'time'=>$time,'join_rows'=>1);
 					$start = $x;
 				}
-				if($start<strtotime('23:59'))
+				if($start<strtotime($date.' '.'23:59'))
 					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>(strtotime($date.' '.date('H:i:s',$start))-$zero_t));
 			}
 		}
@@ -671,6 +675,7 @@ class Utils_Calendar extends Module {
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
+//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.Base_RegionalSettingsCommon::time2reg($ii).'";'); // *DEBUG*
 				}
 				$prev = $v;
 			}
