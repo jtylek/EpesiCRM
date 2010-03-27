@@ -1,0 +1,145 @@
+#CRM_Contacts__Contact {
+    width: 100%;
+}
+
+#CRM_Contacts__Contact table {
+    width: 100%;
+}
+
+#CRM_Contacts__Contact table.view {
+    border-top: 1px solid #b3b3b3;
+}
+
+#CRM_Contacts__Contact td.left-column  { width: 50%; vertical-align: top; }
+#CRM_Contacts__Contact td.right-column { width: 50%; vertical-align: top; }
+
+#CRM_Contacts__Contact td.right-column-view {
+    border-right: 1px solid #b3b3b3;
+}
+
+#CRM_Contacts__Contact .label {
+    background-color: #336699;
+    color: #FFFFFF;
+    border-bottom: 1px solid #B3B3B3;
+    height: 20px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 30%;
+    text-align: left;
+}
+
+#CRM_Contacts__Contact .data {
+    text-align: left;
+}
+
+#CRM_Contacts__Contact table.view .data {
+    border-bottom: 1px solid #B3B3B3;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#CRM_Contacts__Contact table.edit .data {
+    border-bottom: none;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+#CRM_Contacts__Contact .data input,
+#CRM_Contacts__Contact .data select,
+#CRM_Contacts__Contact .data textarea {
+    border: 0px;
+    background-color: #e6ecf2;
+    width: 100%;
+}
+
+#CRM_Contacts__Contact .data input[type="checkbox"],
+#CRM_Contacts__Contact .data input[type="radio"] {
+    width: auto;
+}
+
+#CRM_Contacts__Contact .data input:focus,
+#CRM_Contacts__Contact .data select:focus,
+#CRM_Contacts__Contact .data textarea:focus {
+    /*background-color: #f2f2e6;
+    background-color: #ffffa5;*/
+    background-color: #ffffa5;
+}
+
+#CRM_Contacts__Contact #multiselect .form-element select,
+#CRM_Contacts__Contact #multiselect .to-element select {
+    width: 150px;
+    height: 100px;
+}
+
+.CRM_Contacts__table {
+    width: 100%;
+    vertical-align: middle;
+    height: 31px;
+}
+
+.CRM_Contacts__table .icon {
+    width: 32px;
+    height: 27px;
+    text-align: left;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    vertical-align: top;
+    background-color: #666666;
+    background-image: url('images/dark-gray.gif');
+}
+
+.CRM_Contacts__table .arrow {
+    width: 32px;
+    height: 31px;
+    vertical-align: top;
+    text-align: center;
+    background-color: #666666;
+    background-image: url('images/dark-gray.gif');
+}
+
+.CRM_Contacts__table .arrow a {
+    display: block;
+    width: 32px;
+    height: 16px;
+    padding-top: 8px;
+    padding-bottom: 7px;
+}
+
+.CRM_Contacts__table .arrow a:hover {
+    background-color: #336699;
+}
+
+.CRM_Contacts__table .icon img {
+    position: absolute;
+    clip: rect(0px, 32px, 28px, 0px);
+}
+
+.CRM_Contacts__table .name {
+    width: 290px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 7px;
+    height: 24px;
+    vertical-align: top;
+    background-image: url('images/dark-gray-gradient.gif');
+    background-repeat: repeat-y;
+}
+
+.CRM_Contacts__table .required_fav_info {
+    color: #777777;
+    text-align: right;
+    padding-right: 20px;
+    vertical-align: middle;
+}
+
+.CRM_Contacts__table .required_fav_info img {
+    vertical-align: middle;
+}
+
+#CRM_Contacts__Contact .create-company input {
+    width: auto;
+}
