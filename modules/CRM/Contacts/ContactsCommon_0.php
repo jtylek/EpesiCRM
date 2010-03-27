@@ -774,6 +774,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$x = ModuleManager::get_instance('/Base_Box|0');
 			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 			$x->push_main('CRM/Contacts','edit_user_form',array($_REQUEST['crm_contacts_edit_user']));
+			unset($_REQUEST['crm_contacts_edit_user']);
 		}
 		if (!$v)
 			return '---';

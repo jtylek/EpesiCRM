@@ -214,6 +214,7 @@ class CRM_Contacts extends Module {
 		if (!$this->isset_module_variable('last_location')) $this->set_module_variable('last_location',isset($_REQUEST['__location'])?$_REQUEST['__location']:true);
 		$m = $this->init_module('Base/User/Administrator');
 		$this->display_module($m, array($user_id), 'edit_user_form');
+//		if($m->is_back()) Epesi::alert('back');
 		if ($m->is_back() || (isset($_REQUEST['__location']) && $_REQUEST['__location']!=$this->get_module_variable('last_location'))) {
 			$x = ModuleManager::get_instance('/Base_Box|0');
 			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);

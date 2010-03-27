@@ -193,7 +193,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
 		if($form->validate()) {
 			if($form->process(array(&$this, 'submit_edit_user_form')))
-				location(array());
+				$this->set_back_location();
 		} else $form->display();
 
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());

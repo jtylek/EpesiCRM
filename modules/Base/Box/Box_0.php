@@ -58,10 +58,12 @@ class Base_Box extends Module {
 		if(isset($containers['main']))
 		    $containers['main']['name'] = 'main_0';
 		
-		if(isset($_REQUEST['base_box_pop_main']))
+		if(isset($_REQUEST['base_box_pop_main'])) {
 			$pop_main = $_REQUEST['base_box_pop_main'];
-		else
+			unset($_REQUEST['base_box_pop_main']);
+		} else {
 			$pop_main = false;
+		}
 		if($this->isset_module_variable('main')) {
 			$mains = $this->get_module_variable('main');
 			if($pop_main) {
@@ -103,6 +105,7 @@ class Base_Box extends Module {
 				$mains = array();
 				$pop_main = true;
 			}
+			unset($_REQUEST['box_main_href']);
 			$hs_gc++;
 			if($hs_gc>4) {
 				foreach($hs as $k=>$v) {
@@ -116,6 +119,7 @@ class Base_Box extends Module {
 		array_push($mains,$containers['main']);
 		$main_length = count($mains);
 		$this->set_module_variable('main', $mains);
+//		Epesi::alert(print_r($mains,true));
 //		$containers['main']['name'] .= '_'.$main_length;
 		//print_r($containers);
 
@@ -160,6 +164,10 @@ class Base_Box extends Module {
 	}
 
 	public function push_main($module=null,$func=null,$args=null,$constr_args=null,$name=null) {
+		static $pushed = false;
+		if($pushed) 
+			trigger_error('Double push box!',E_USER_ERROR);
+		$pushed = true;
 		$mains = & $this->get_module_variable('main');
 		$x = count($mains);
 		$arr = $mains[$x-1];
@@ -177,6 +185,10 @@ class Base_Box extends Module {
 	}
 
 	public function pop_main($c=1) {
+		static $poped = false;
+		if($poped) 
+			trigger_error('Double pop box!',E_USER_ERROR);
+		$poped = true;
 		$mains = & $this->get_module_variable('main');
 		if(count($mains)>1)
 			location(array('base_box_pop_main'=>$c));

@@ -215,6 +215,7 @@ class Epesi {
 		$url = str_replace('&amp;','&',$url); //do we need this if we set arg_separator.output to &?
 
 		if($url) {
+			$_POST = array();
 			parse_str($url, $_POST);
 			if (get_magic_quotes_gpc())
 			        $_POST = undoMagicQuotes($_POST);
