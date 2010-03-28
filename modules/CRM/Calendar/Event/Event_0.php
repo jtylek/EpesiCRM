@@ -21,20 +21,25 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		self::$priority = Utils_CommonDataCommon::get_translated_array('CRM/Priority');
 	}
 
+
+	public function view_event($action, $id) {
+		$check = explode('#', $id);
+		if (isset($check[1])) {
+			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $check[0]);
+			$ev = call_user_func($callback, $action.'_event', $check[1], $this);
+		} else {
+			trigger_error('Invalid event id: '.$id, E_USER_ERROR);
+		}
+	}
+
 	public function view($id) {
-		if($this->is_back()) $this->back_to_calendar();
+//		if($this->is_back()) $this->back_to_calendar();
 		$this->view_event('view', $id);
 	}
 
 	public function edit($id) {
-		if($this->is_back()) $this->back_to_calendar();
+//		if($this->is_back()) $this->back_to_calendar();
 		$this->view_event('edit',$id);
-	}
-
-	public function add($def_date,$timeless=false,$def=array()) {
-		if($this->is_back()) $this->back_to_calendar();
-		$this->custom_defaults = $def;
-		$this->view_event('new', $def_date, $timeless);
 	}
 
 	public function make_event_PDF($pdf, $id, $no_details = false,$type='Event'){

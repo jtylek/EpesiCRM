@@ -4,7 +4,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 abstract class Utils_Calendar_Event extends Module {
 	abstract public function view($id);
 	abstract public function edit($id);
-	abstract public function add($def_date,$timeless=false);
 	
 	public function back_to_calendar() {
 		$x = ModuleManager::get_instance('/Base_Box|0');

@@ -28,6 +28,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 							break;
 			case 'new_event': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_new_event'), $args);
 							break;
+			case 'view_event': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_view_event'), $args);
+							break;
+			case 'edit_event': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_edit_event'), $args);
+							break;
 		}
 		return $ret;
 	}
@@ -40,6 +44,19 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$defaults['time'] = date('H:i:s', $timestamp);
 		$defaults['duration'] = $timeless?-1:3600;
 		$rb->view_entry('add', null, $defaults);
+		return true;
+	}
+
+	public static function crm_view_event($id, $cal_obj) {
+		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'crm_meeting');
+		$id = explode('_',$id);
+		$rb->view_entry('view', $id[0], isset($id[1])?array('day'=>$id[1]):array());
+		return true;
+	}
+	
+	public static function crm_edit_event($id, $cal_obj) {
+		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'crm_meeting');
+		$rb->view_entry('edit', $id);
 		return true;
 	}
 	
