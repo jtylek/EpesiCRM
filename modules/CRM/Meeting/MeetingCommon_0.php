@@ -664,7 +664,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$next['end'] = strtotime($next['end']);
 
 		if ($r['duration']==-1) $next['timeless'] = $day;
-		$next['timeless'] = false;
+		else $next['timeless'] = false;
 		$next['duration'] = intval($r['duration']);
 		$next['title'] = (string)$r['title'];
 		$next['description'] = (string)$r['description'];
