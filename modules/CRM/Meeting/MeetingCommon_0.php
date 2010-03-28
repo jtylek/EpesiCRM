@@ -457,12 +457,13 @@ class CRM_MeetingCommon extends ModuleCommon {
 			if (isset($_REQUEST['day'])) $values['date'] = $_REQUEST['day'];
 			$ret = array();
 			$start = strtotime($values['date'].' '.date('H:i:s', strtotime($values['time'])));
+			$start_disp = strtotime(Base_RegionalSettingsCommon::time2reg($start,true,true,true,false));
 			$end = strtotime('+'.$values['duration'].' seconds', $start);
 			$ret['day_details'] = array('start'=>array(
-				'day'=>date('j', $start), 
-				'month'=>date('F', $start), 
-				'year'=>date('Y', $start), 
-				'weekday'=>date('l', $start))
+				'day'=>date('j', $start_disp), 
+				'month'=>date('F', $start_disp), 
+				'year'=>date('Y', $start_disp), 
+				'weekday'=>date('l', $start_disp))
 			);
 
 			$ret['event_info'] = array('start_time'=>Base_RegionalSettingsCommon::time2reg($start,2,false), 'end_time'=>Base_RegionalSettingsCommon::time2reg($end,2,false), 'duration'=>Base_RegionalSettingsCommon::seconds_to_words($values['duration']), 'start_date'=>'-', 'end_date'=>'-');
@@ -492,29 +493,35 @@ class CRM_MeetingCommon extends ModuleCommon {
 					$new .= '0';
 			}
 			if ($new!='0000000') $values['recurrence_hash'] = $new;
-			$time = Base_RegionalSettingsCommon::time2reg($values['time'],true,true,true,false);
-			$values['date'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
-			$values['time'] = date('1970-01-01 H:i:s',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
-			if (isset($values['recurrence_end']) && $values['recurrence_end']) {
-				$values['recurrence_end'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['recurrence_end'].' '.date('H:i:s', strtotime($time))));
-				if ($values['recurrence_end']<$values['date']) $values['recurrence_end'] = $values['date'];
-				if ($values['recurrence_type']==8) {
-					$date =  date('Y-m-d', strtotime('+6 days', strtotime($values['date'])));
-					if ($values['recurrence_end']<$date) $values['recurrence_end'] = $date;
+			if ($values['duration']!=-1) {
+				$time = Base_RegionalSettingsCommon::time2reg($values['time'],true,true,true,false);
+				$values['date'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
+				$values['time'] = date('1970-01-01 H:i:s',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
+				if (isset($values['recurrence_end']) && $values['recurrence_end']) {
+					$values['recurrence_end'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['recurrence_end'].' '.date('H:i:s', strtotime($time))));
+					if ($values['recurrence_end']<$values['date']) $values['recurrence_end'] = $values['date'];
+					if ($values['recurrence_type']==8) {
+						$date =  date('Y-m-d', strtotime('+6 days', strtotime($values['date'])));
+						if ($values['recurrence_end']<$date) $values['recurrence_end'] = $date;
+					}
 				}
+			} else {
+				$values['time'] = '';
 			}
 			
 			break;
 		case 'editing':
 		case 'adding':
 		case 'view':
-			if (isset($values['date']) && $values['date']) {
-				$values['date'] = Base_RegionalSettingsCommon::time2reg($values['date'].' '.date('H:i:s', strtotime($values['time'])),false,true,true,false);
-				$values['time'] = Base_RegionalSettingsCommon::time2reg($values['date'].' '.date('H:i:s', strtotime($values['time'])),true,false,true,false);
-				$values['time'] = Base_RegionalSettingsCommon::reg2time('1970-01-01 '.$values['time']);
+			if ($values['duration']!=-1) {
+				if (isset($values['date']) && $values['date']) {
+					$values['date'] = Base_RegionalSettingsCommon::time2reg($values['date'].' '.date('H:i:s', strtotime($values['time'])),false,true,true,false);
+					$values['time'] = Base_RegionalSettingsCommon::time2reg($values['date'].' '.date('H:i:s', strtotime($values['time'])),true,false,true,false);
+					$values['time'] = Base_RegionalSettingsCommon::reg2time('1970-01-01 '.$values['time']);
+				}
+				if (isset($values['recurrence_end']) && $values['recurrence_end']) 
+					$values['recurrence_end'] = Base_RegionalSettingsCommon::time2reg($values['recurrence_end'].' '.date('H:i:s', strtotime($values['time'])),false,true,true,false);
 			}
-			if (isset($values['recurrence_end']) && $values['recurrence_end']) 
-				$values['recurrence_end'] = Base_RegionalSettingsCommon::time2reg($values['recurrence_end'].' '.date('H:i:s', strtotime($values['time'])),false,true,true,false);
 			break;
 		case 'added':
 			self::subscribed_employees($values);
@@ -577,9 +584,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$values = array();
 		$values['date'] = $sp_start[0];
 		$values['time'] = '1970-01-01 '.$sp_start[1];
-		if ($timeless)
+		if ($timeless) {
 			$values['duration'] = -1;
-		else
+			unset($values['time']);
+		} else
 			$values['duration'] = ($duration>0)?$duration:3600;
 		$r = self::submit_meeting($r, 'editing');
 		$values = self::submit_meeting($values, 'editing');
@@ -615,8 +623,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 		$next = array();
 		
-		$r['date'] = Base_RegionalSettingsCommon::time2reg($r['date'].' '.date('H:i:s', strtotime($r['time'])),false,true,true,false);
-		$r['recurrence_end'] = Base_RegionalSettingsCommon::time2reg($r['recurrence_end'].' '.date('H:i:s', strtotime($r['time'])),false,true,true,false);
+//		if ($r['duration']!=-1) {
+//			$r['date'] = Base_RegionalSettingsCommon::time2reg($r['date'].' '.date('H:i:s', strtotime($r['time'])),false,true,true,false);
+//			$r['recurrence_end'] = Base_RegionalSettingsCommon::time2reg($r['recurrence_end'].' '.date('H:i:s', strtotime($r['time'])),false,true,true,false);
+//		}
 		if ($day===null) {
 			$day = $r['date'];
 			$iday = strtotime($day);
@@ -692,9 +702,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 			array('icon'=>Base_ThemeCommon::get_template_file('CRM/Meeting', 'close_event.png'), 'href'=>self::get_status_change_leightbox_href($r_new, false, array('id'=>'status')))
 		);
 
-        $start_time = Base_RegionalSettingsCommon::time2reg($next['start'],2,false);
-        $event_date = Base_RegionalSettingsCommon::time2reg($next['start'],false,3);
-        $end_time = Base_RegionalSettingsCommon::time2reg($next['end'],2,false);
+        $start_time = Base_RegionalSettingsCommon::time2reg($next['start'],2,false,$r['duration']!=-1);
+        $event_date = Base_RegionalSettingsCommon::time2reg($next['start'],false,3,$r['duration']!=-1);
+        $end_time = Base_RegionalSettingsCommon::time2reg($next['end'],2,false,$r['duration']!=-1);
 
         $inf2 = array(
             'Date'=>'<b>'.$event_date.'</b>');
@@ -736,13 +746,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 									'</b></center><br>'.
 									Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').'<hr>'.
 									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
-
 		return $next;
 	}
 
 	public static function crm_event_get_all($start, $end, $filter=null) {
-		$start_reg = Base_RegionalSettingsCommon::reg2time($start);
-		$end_reg = Base_RegionalSettingsCommon::reg2time($end);
 		$crits = array();
 		if ($filter===null) $filter = CRM_FiltersCommon::get();
 		if($filter=='()')
@@ -757,7 +764,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		}
 		$critsb = $crits;
 		
-		$crits['<date'] = $end;
+		$crits['<=date'] = $end;
 		$crits['>=date'] = $start;
 		$crits['recurrence_type'] = '';
 		

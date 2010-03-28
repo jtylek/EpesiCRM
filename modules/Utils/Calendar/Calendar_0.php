@@ -234,9 +234,9 @@ class Utils_Calendar extends Module {
 					$x = strtotime($interval_shift, $x);
 //					$start_serv = $start;
 //					$zero_t_serv = $zero_t;
-					$start_serv = Base_RegionalSettingsCommon::reg2time($start);
+					$start_serv = Base_RegionalSettingsCommon::reg2time($date.' '.date('H:i:s',$start));
 					$zero_t_serv = Base_RegionalSettingsCommon::reg2time($zero_t);
-					$time = (strtotime($date.' '.date('H:i:s',$start_serv))-$zero_t_serv);
+					$time = ($start_serv-$zero_t_serv);
 					if(isset($used[$time]))
 						$timeline[$used[$time]]['time'] = false;
 					$used[$time] = count($timeline);
@@ -504,7 +504,6 @@ class Utils_Calendar extends Module {
 		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
 		foreach($ret as $ev) {
 			if(isset($ev['timeless']) && $ev['timeless']) {
-				//print($ev['timeless'].' '.date('Y-m-d',$start));
 				if($ev['timeless']!==$start) continue;
 				if(!isset($ev['custom_row_key']))
 					$ev['custom_row_key'] = 'timeless';
@@ -512,7 +511,6 @@ class Utils_Calendar extends Module {
 				$ev_start = $ev['start']-$today_t;//Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$ev['start']))
 				if($ev_start<0 || $ev_start>=86400) continue;
 			}
-
 
 			if(isset($ev['custom_row_key'])) {
 				if(isset($custom_keys[$ev['custom_row_key']])) {
@@ -533,10 +531,10 @@ class Utils_Calendar extends Module {
 				$dest_id = $timeline[$i]['id'];
 			}
 			if(isset($dest_id)) {
+				$this->print_event($ev,'day');
 				if(isset($ev['timeless']) && $ev['timeless'])
 					$dur = 1;
 				else {
-					$this->print_event($ev,'day');
 					$dur = 0;
 					$diff = strtotime($this->settings['start_day']) - $ev_start;
 	//				$ev['duration'];
@@ -668,6 +666,7 @@ class Utils_Calendar extends Module {
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
+//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.$ii.'";'); // *DEBUG*
 				} else {
 					$ii = $today_t+$v['time'];
 					$dnd[] = $ii;
