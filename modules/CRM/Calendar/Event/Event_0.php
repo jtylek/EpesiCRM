@@ -32,6 +32,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 	}
 
+	public function add($def_date,$timeless=false) {
+	
+	}
+
 	public function view($id) {
 //		if($this->is_back()) $this->back_to_calendar();
 		$this->view_event('view', $id);
