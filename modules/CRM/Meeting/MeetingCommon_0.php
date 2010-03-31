@@ -164,7 +164,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>$default));
 			$form->setDefaults(array('timeless'=>($default==-1?1:0)));
 			if (isset(Utils_RecordBrowser::$last_record['time']))
-				$form->setDefaults(array('end_time'=>strtotime('+'.$default.' seconds', strtotime(Utils_RecordBrowser::$last_record['time']))));
+				$form->setDefaults(array('end_time'=>strtotime('+'.$default.' seconds', Utils_RecordBrowser::$last_record['time'])));
 
 			$form->addFormRule(array('CRM_MeetingCommon','check_date_and_time'));
 		} else {
@@ -481,8 +481,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 			return $ret;
 		case 'add':
 		case 'edit':
-			if (isset($values['duration_switch']) && !$values['duration_switch'])
+			if (isset($values['duration_switch']) && !$values['duration_switch']) {
 				$values['duration'] = strtotime($values['end_time']) - strtotime($values['time']);
+				if ($values['duration']<0) $values['duration'] += 60*60*24; // failsafe
+			}
 			if (isset($values['timeless']) && $values['timeless'])
 				$values['duration'] = -1;
 			$new = '';
@@ -494,15 +496,17 @@ class CRM_MeetingCommon extends ModuleCommon {
 			}
 			if ($new!='0000000') $values['recurrence_hash'] = $new;
 			if ($values['duration']!=-1) {
-				$time = Base_RegionalSettingsCommon::time2reg($values['time'],true,true,true,false);
-				$values['date'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
-				$values['time'] = date('1970-01-01 H:i:s',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
-				if (isset($values['recurrence_end']) && $values['recurrence_end']) {
-					$values['recurrence_end'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['recurrence_end'].' '.date('H:i:s', strtotime($time))));
-					if ($values['recurrence_end']<$values['date']) $values['recurrence_end'] = $values['date'];
-					if ($values['recurrence_type']==8) {
-						$date =  date('Y-m-d', strtotime('+6 days', strtotime($values['date'])));
-						if ($values['recurrence_end']<$date) $values['recurrence_end'] = $date;
+				if (isset($values['modded'])) {
+					$time = Base_RegionalSettingsCommon::time2reg($values['time'],true,true,true,false);
+					$values['date'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
+					$values['time'] = date('1970-01-01 H:i:s',Base_RegionalSettingsCommon::reg2time($values['date'].' '.date('H:i:s', strtotime($time))));
+					if (isset($values['recurrence_end']) && $values['recurrence_end']) {
+						$values['recurrence_end'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['recurrence_end'].' '.date('H:i:s', strtotime($time))));
+						if ($values['recurrence_end']<$values['date']) $values['recurrence_end'] = $values['date'];
+						if ($values['recurrence_type']==8) {
+							$date =  date('Y-m-d', strtotime('+6 days', strtotime($values['date'])));
+							if ($values['recurrence_end']<$date) $values['recurrence_end'] = $date;
+						}
 					}
 				}
 			} else {
@@ -513,6 +517,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		case 'editing':
 		case 'adding':
 		case 'view':
+			$values['modded'] = 1;
 			if ($values['duration']!=-1) {
 				if (isset($values['date']) && $values['date']) {
 					$values['date'] = Base_RegionalSettingsCommon::time2reg($values['date'].' '.date('H:i:s', strtotime($values['time'])),false,true,true,false);
@@ -589,9 +594,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 			unset($values['time']);
 		} else
 			$values['duration'] = ($duration>0)?$duration:3600;
-		$r = self::submit_meeting($r, 'editing');
+//		$r = self::submit_meeting($r, 'editing');
 		$values = self::submit_meeting($values, 'editing');
-		$values['recurrence_end'] = $r['recurrence_end'];
+//		$values['recurrence_end'] = $r['recurrence_end'];
 //		$values = self::submit_meeting($values, 'edit');
 //		trigger_error(print_r($values,true).'                            '.print_r($ovalues,true));
 //		trigger_error($start.' - '.$sp_start[0].' '.$sp_start[1].' - '.Base_RegionalSettingsCommon::time2reg($start).' - '.print_r($values,true));
@@ -697,7 +702,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 		$r_new = $r;
 		if ($r['status']==0) $r_new['status'] = 1;
-		$next['actions'] = array(
+		if ($r['status']<=1) $next['actions'] = array(
 			array('icon'=>Base_ThemeCommon::get_template_file('CRM/Meeting', 'close_event.png'), 'href'=>self::get_status_change_leightbox_href($r_new, false, array('id'=>'status')))
 		);
 
