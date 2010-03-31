@@ -170,7 +170,7 @@ class CRM_Contacts_Activities extends Module {
 					if (isset($v['description']) && $v['description']!='') $title = '<span '.Utils_TooltipCommon::open_tag_attrs($v['description'], false).'>'.$title.'</span>';
 					$gb_row->add_data(	$this->t('Event'),
 								$title, 
-								Base_RegionalSettingsCommon::time2reg($v['start'],$v['timeless']?false:2), 
+								Base_RegionalSettingsCommon::time2reg($v['start'],$v['duration']==-1?false:2), 
 								CRM_ContactsCommon::display_contact(array('employees'=>$event['employees']), false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_contact(array('customers'=>$customers), false, array('id'=>'customers', 'param'=>';::')), 
 								Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$v['id'])
