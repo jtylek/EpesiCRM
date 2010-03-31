@@ -166,7 +166,8 @@ class Base_Box extends Module {
 	public function push_main($module=null,$func=null,$args=null,$constr_args=null,$name=null) {
 		static $pushed = false;
 		if($pushed) 
-			trigger_error('Double push box!',E_USER_ERROR);
+			return;
+//			trigger_error('Double push box!',E_USER_ERROR);
 		$pushed = true;
 		$mains = & $this->get_module_variable('main');
 		$x = count($mains);
@@ -187,7 +188,8 @@ class Base_Box extends Module {
 	public function pop_main($c=1) {
 		static $poped = false;
 		if($poped) 
-			trigger_error('Double pop box!',E_USER_ERROR);
+			return;
+//			trigger_error('Double pop box!',E_USER_ERROR);
 		$poped = true;
 		$mains = & $this->get_module_variable('main');
 		if(count($mains)>1)
