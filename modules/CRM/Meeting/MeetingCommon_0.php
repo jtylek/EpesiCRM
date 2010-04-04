@@ -571,14 +571,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 			);
 	}
 	
-	public static function search_format($id) {
-		if(!self::Instance()->acl_check('browse meetings')) return false;
-		$row = self::get_meeting(array('id'=>$id));
-		if(!$row) return false;
-		$row = array_pop($row);
-		return Utils_RecordBrowserCommon::record_link_open_tag('crm_meeting', $row['id']).Base_LangCommon::ts('CRM_Meeting', 'Meeting (attachment) #%d, %s', array($row['id'], $row['title'])).Utils_RecordBrowserCommon::record_link_close_tag();
-	}
-
 	public static function get_available_colors() {
 		static $color = array(0 => '', 1 => 'green', 2 => 'yellow', 3 => 'red', 4 => 'blue', 5=> 'gray', 6 => 'cyan', 7 =>'magenta');
 		$color[0] = $color[Base_User_SettingsCommon::get('CRM_Calendar','default_color')];
@@ -800,6 +792,24 @@ class CRM_MeetingCommon extends ModuleCommon {
 		return $result;
 	}
 
+    public static function search_format($id) {
+        $row = Utils_RecordBrowserCommon::get_record('crm_meeting',$id);
+        if(!$row) return false;
+        return Utils_RecordBrowserCommon::record_link_open_tag('crm_meeting', $row['id']).Base_LangCommon::ts('Custom_CADES_Hospitalizations', 'Meeting (attachment) #%d, %s at %s', array($row['id'], $row['title'], Base_RegionalSettingsCommon::time2reg($row['date'], false))).Utils_RecordBrowserCommon::record_link_close_tag();
+    }
+
+	public static function search($word){
+		$ret = array();
+		if(self::Instance()->acl_check('browse meetings')) {
+			$result = Utils_RecordBrowserCommon::get_records('crm_meeting',array('(~"title'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\''), '|~"description'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+
+	 		foreach ($result as $row) {
+				$ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('crm_meeting', $row['id']).Base_LangCommon::ts('Custom_CADES_Hospitalizations', 'Meeting #%d, %s at %s', array($row['id'], $row['title'], Base_RegionalSettingsCommon::time2reg($row['date'], false))).Utils_RecordBrowserCommon::record_link_close_tag();
+	 		}
+ 		}
+		
+		return $ret;
+	}
 
 	public static function get_alarm($id) {
 		$a = self::get_meeting($id);
