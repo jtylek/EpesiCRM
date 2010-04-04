@@ -520,6 +520,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 		case 'adding':
 		case 'view':
 			$values['modded'] = 1;
+			if (!isset($values['date'])) $values['date'] = date('Y-m-d');
+			if (!isset($values['time'])) $values['time'] = time();
+			if (!isset($values['duration'])) $values['duration'] = 3600;
 			if (!is_numeric($values['time'])) $values['time'] = strtotime($values['time']);
 			if ($values['duration']!=-1) {
 				if (isset($values['date']) && $values['date']) {
@@ -746,14 +749,14 @@ class CRM_MeetingCommon extends ModuleCommon {
 		return $next;
 	}
 
-	public static function crm_event_get_all($start, $end, $filter=null) {
+	public static function crm_event_get_all($start, $end, $filter=null, $customers=null) {
 		$start = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($start));
 		$crits = array();
 		if ($filter===null) $filter = CRM_FiltersCommon::get();
-		if($filter=='()')
-			$crits['employees'] = '';
-		else if($filter)
-			$crits['employees'] = explode(',',trim($filter,'()'));
+		if($filter!='()' && $filter)
+			$crits['(employees'] = explode(',',trim($filter,'()'));
+		if ($customers) 
+			$crits['|customers'] = $customers;
 
 		$me = CRM_ContactsCommon::get_my_record();
 		if(!Base_AclCommon::i_am_admin()) {

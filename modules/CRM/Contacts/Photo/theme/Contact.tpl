@@ -141,7 +141,7 @@
 										<tr>
 											<td class="label">{$f.label}{if $f.required}*{/if}</td>
 											<td colspan="2" class="data {$f.style}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
-											{if $y==1}
+											{if $y==1 && isset($photo_link)}
 												<td rowspan="{$rows}" style="width:120px;">
 													<a {$photo_link}>
 														<img src="{$photo_src}" style="max-width:120px;max-height:150px;" border="0">

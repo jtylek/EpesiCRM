@@ -22,29 +22,29 @@ class CRM_Contacts_Activities extends Module {
 		$this->theme->display();
 		$cont = CRM_ContactsCommon::get_contacts(array('company_name'=>$me['id']), array('id'));
 		$ids = array();
+		$cus_ids = array();
 		$db_string = '';
 		foreach($cont as $v) {
-//			$db_string .= ' OR contact=%d';
 			$ids[] = $v['id'];
+			$cus_ids[] = 'P:'.$v['id'];
 		}
+		$cus_ids[] = 'C:'.$me['id'];
 		$events = null;
 		$tasks = null;
 		$phonecalls = null;
 		$date_filter = '';
-//		if ($this->activities_date==0) $date_filter = ' cce.starts>'.Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')).' AND';
-//		if ($this->activities_date==1) $date_filter = ' cce.ends<'.Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')).' AND';
 		// TODO: recurring events
 		// TODO: check if statsu<2 if fine for closed
 		if ($this->display['events'] && $ids) {
 			if ($this->activities_date==0)
-				$events = CRM_Calendar_EventCommon::get_all(time(),time()+365*24*3600,'('.implode(',',$ids).')');
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s'),date('Y-m-d H:i:s',time()+365*24*3600),'('.implode(',',$ids).')', $cus_ids);
 			elseif ($this->activities_date==1)
-				$events = CRM_Calendar_EventCommon::get_all(0,time(),'('.implode(',',$ids).')');
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s'),'('.implode(',',$ids).')', $cus_ids);
 			else
-				$events = CRM_Calendar_EventCommon::get_all(0,time()+365*24*3600,'('.implode(',',$ids).')');
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s',time()+365*24*3600),'('.implode(',',$ids).')', $cus_ids);
 		}
 		//$events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE cce.deleted=0 AND '.$date_filter.(!$this->display['closed']?' cce.status<2 AND':'').' (EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND (false'.$db_string.')) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND (false'.$db_string.'))) ORDER BY starts DESC', array_merge($ids, $ids));
-		$crits = array('(employees'=>$ids, '|customers'=>'P:'.$ids);
+		$crits = array('(employees'=>$ids, '|customers'=>$cus_ids);
 		if ($this->activities_date==0) {
 			$crits['(>=deadline'] = date('Y-m-d');
 			$crits['|deadline'] = '';
@@ -55,7 +55,7 @@ class CRM_Contacts_Activities extends Module {
 		}
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
-		$crits = array('(employees'=>$ids, '|customer'=>'P:'.$ids);
+		$crits = array('(employees'=>$ids, '|customer'=>$cus_ids);
 		if ($this->activities_date==0) $crits['>=date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if ($this->activities_date==1) $crits['<date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
@@ -76,11 +76,11 @@ class CRM_Contacts_Activities extends Module {
 		if ($this->display['events']) {
 			//$events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE cce.deleted=0 AND'.$date_filter.(!$this->display['closed']?' cce.status<2 AND':'').' (EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND contact=%d) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND contact=%d)) ORDER BY starts DESC', array($me['id'], $me['id']));
 			if ($this->activities_date==0)
-				$events = CRM_Calendar_EventCommon::get_all(time(),time()+365*24*3600,'('.$me['id'].')');
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s'),date('Y-m-d H:i:s',time()+365*24*3600),'('.$me['id'].')',array('P:'.$me['id']));
 			elseif ($this->activities_date==1)
-				$events = CRM_Calendar_EventCommon::get_all(0,time(),'('.$me['id'].')');
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s'),'('.$me['id'].')',array('P:'.$me['id']));
 			else
-				$events = CRM_Calendar_EventCommon::get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s',time()+365*24*3600),'('.$me['id'].')');
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s',time()+365*24*3600),'('.$me['id'].')',array('P:'.$me['id']));
 		}
 		$crits = array('(employees'=>$me['id'], '|customers'=>'P:'.$me['id']);
 		if ($this->activities_date==0) {
@@ -107,7 +107,7 @@ class CRM_Contacts_Activities extends Module {
 		$form->addElement('checkbox', 'events', $this->t('Events'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'tasks', $this->t('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'phonecalls', $this->t('Phone Calls'), null, array('onchange'=>$form->get_submit_form_js()));
-		$form->addElement('select', 'activities_date', $this->t('Activities date'), array(0=>$this->t('Future'), 1=>$this->t('Past'), 2=>$this->t('All time')), array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('select', 'activities_date', str_replace(' ','&nbsp;',$this->t('Activities date')), array(0=>$this->t('Future'), 1=>$this->t('Past'), 2=>$this->t('All time')), array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'closed', $this->t('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
 		$old_display = $this->get_module_variable('display_options', array('events'=>1, 'tasks'=>1, 'phonecalls'=>1, 'closed'=>1, 'activities_date'=>2));
 		$form->setDefaults($old_display);
@@ -161,18 +161,17 @@ class CRM_Contacts_Activities extends Module {
 				if($i>=$limit['offset']) {
 //					$employees = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=%d', array($v['id']));
 //					$customers = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=%d', array($v['id']));
-					$event = CRM_Calendar_EventCommon::get($v['id']);
-					$customers = array();
-					foreach($event['customers'] as $cust)
-						if(preg_match('/^P:([0-9]+)$/',$cust,$reqs)) $customers[$reqs[1]] = $reqs[1];
+					$event = CRM_MeetingCommon::crm_event_get($v['id']);
 
-					$title = '<a '.$this->create_callback_href(array($this, 'view_event'), array($v['id'])).'>'.$v['title'].'</a>';
+					if (isset($v['view_action'])) $view_href = $v['view_action'];
+					else $view_href = $this->create_callback_href(array($this, 'view_event'), array($v['id']));
+					$title = '<a '.$view_href.'>'.$v['title'].'</a>';
 					if (isset($v['description']) && $v['description']!='') $title = '<span '.Utils_TooltipCommon::open_tag_attrs($v['description'], false).'>'.$title.'</span>';
 					$gb_row->add_data(	$this->t('Event'),
 								$title, 
 								Base_RegionalSettingsCommon::time2reg($v['start'],$v['duration']==-1?false:2), 
 								CRM_ContactsCommon::display_contact(array('employees'=>$event['employees']), false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
-								CRM_ContactsCommon::display_contact(array('customers'=>$customers), false, array('id'=>'customers', 'param'=>';::')), 
+								CRM_ContactsCommon::display_company_contact(array('customers'=>$event['customers']), false, array('id'=>'customers', 'param'=>';::')), 
 								Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$v['id'])
 							);
 				}
