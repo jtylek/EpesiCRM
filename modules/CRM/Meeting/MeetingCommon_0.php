@@ -615,6 +615,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	public static function crm_event_get($id, $day = null) {
 		if (!is_array($id)) {
 			$id = explode('_', $id);
+			if (isset($id[1]) && $day===null) $day = $id[1];
 			$id = reset($id);
 			$r = Utils_RecordBrowserCommon::get_record('crm_meeting', $id);
 		} else {
