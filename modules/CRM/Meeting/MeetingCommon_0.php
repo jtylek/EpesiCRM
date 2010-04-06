@@ -378,15 +378,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
 		return $ret;
 	}
-    public static function display_title_with_mark($record) {
-		$me = CRM_ContactsCommon::get_my_record();
-		$ret = self::display_title($record, false);
-		if (!in_array($me['id'], $record['employees'])) return $ret;
-		$notified = Utils_WatchdogCommon::check_if_notified('crm_meeting',$record['id']);
-		if ($notified!==true && $notified!==null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Meeting','notice.png').'" />'.$ret;
-		return $ret;
-	}
-	public static function get_status_change_leightbox_href($record, $nolink, $desc) {
+ 	public static function get_status_change_leightbox_href($record, $nolink, $desc) {
 		$prefix = 'crm_meeting_leightbox';
 		CRM_FollowupCommon::drawLeightbox($prefix);
 
@@ -691,7 +683,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$next['color'] = 'gray';
 
 		if($r['recurrence_type'])
-			$next['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next['title'];
+			$next['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0>'.$next['title'];
 
 		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'view', array('day'=>$day));
 		$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'edit');
@@ -755,7 +747,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$crits = array();
 		if ($filter===null) $filter = CRM_FiltersCommon::get();
 		if($filter!='()' && $filter)
-			$crits['(employees'] = explode(',',trim($filter,'()'));
+			$crits[($customers?'(':'').'employees'] = explode(',',trim($filter,'()'));
 		if ($customers) 
 			$crits['|customers'] = $customers;
 
