@@ -48,6 +48,7 @@ class Base_Admin extends Module {
 		foreach($cmr as $name=>$caption) {
 			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
 			if(!isset($caption)) $caption = $name.' module';
+			else $caption = $this->ht($caption);
 			$mod_ok[$caption] = $name;
 		}
 		uksort($mod_ok,'strcasecmp');
@@ -63,7 +64,7 @@ class Base_Admin extends Module {
 					$icon = null;
 				}
 			}
-			$buttons[]= array('link'=>'<a '.$this->create_unique_href(array('href'=>$name)).'>'.$this->ht($caption).'</a>',
+			$buttons[]= array('link'=>'<a '.$this->create_unique_href(array('href'=>$name)).'>'.$caption.'</a>',
 						'icon'=>$icon);
 		}
 		$theme =  & $this->pack_module('Base/Theme');
