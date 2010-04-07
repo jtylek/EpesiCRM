@@ -93,11 +93,15 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'user_list');
 
-		$gb->set_table_columns(array(
-						array('name'=>$this->t('Login'), 'order'=>'u.login', 'width'=>30),
-						array('name'=>$this->t('Active'), 'order'=>'u.active', 'width'=>5),
-						array('name'=>$this->t('Mail'), 'order'=>'p.mail', 'width'=>35),
-						array('name'=>$this->t('Access'),'width'=>30)));
+		$cols = array(
+					array('name'=>$this->t('Login'), 'order'=>'u.login', 'width'=>30),
+					array('name'=>$this->t('Active'), 'order'=>'u.active', 'width'=>5),
+					array('name'=>$this->t('Mail'), 'order'=>'p.mail', 'width'=>30),
+					array('name'=>$this->t('Access'),'width'=>30));
+						
+		if(Base_AclCommon::i_am_sa())
+			$cols[] = array('name'=>$this->t('Actions'),'width'=>5);
+		$gb->set_table_columns($cols);
 
 		$query = 'SELECT u.login, p.mail, u.id, u.active FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id';
 		$query_qty = 'SELECT count(u.id) FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id';
@@ -113,7 +117,10 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 				$groups = Base_AclCommon::get_user_groups_names($uid);
 				if($groups===false) continue; //skip if you don't have privileges
 
-				$gb->add_row('<a '.$this->create_unique_href(array('edit_user'=>$row['id'])).'>'.$row['login'].'</a>',$row['active']?$yes:$no,$row['mail'],$groups);
+				$gb_row = array('<a '.$this->create_unique_href(array('edit_user'=>$row['id'])).'>'.$row['login'].'</a>',$row['active']?$yes:$no,$row['mail'],$groups);
+				if(Base_AclCommon::i_am_sa())
+					$gb_row[] = '<a '.$this->create_callback_href(array($this,'log_as_user'),$row['id']).'>'.$this->t('Log as user').'</a>';
+				$gb->add_row_array($gb_row);
 			}
 
 		$this->display_module($gb);
@@ -127,6 +134,11 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		$qf->display();
 //		print('<a '.$this->create_unique_href(array('edit_user'=>-1)).'>'.$this->t('Add new user').'</a>');
 		Base_ActionBarCommon::add('add','New user',$this->create_unique_href(array('edit_user'=>-1)));
+	}
+	
+	public function log_as_user($id) {
+		Acl::set_user($id); //tag who is logged
+		Epesi::redirect();
 	}
 
 	public function edit_user_form($edit_id) {
