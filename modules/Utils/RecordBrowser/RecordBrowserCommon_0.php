@@ -1411,6 +1411,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 		return $ret;
 	}
+	public static function create_default_linked_label($tab, $id, $nolink=false){
+		if (!is_numeric($id)) return '';
+		$label = $tab.' '.$id;
+		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
+		return $ret;
+	}
 	public static function create_linked_label_r($tab, $col, $r, $nolink=false){
 		$id = $r['id'];
 		if (!is_numeric($id)) return '';
@@ -1722,7 +1728,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return DB::GetOne('SELECT pattern FROM recordbrowser_clipboard_pattern WHERE tab=%s AND enabled=1', array($tab));
     }
-
+    
 	///////////////////////////////////////////
 	// mobile devices
 	
