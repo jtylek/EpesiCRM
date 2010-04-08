@@ -18,7 +18,7 @@ class CRM_Contacts_PhotoInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts/Photo', 'Contact'));
 		Utils_RecordBrowserCommon::set_processing_callback('contact', array('CRM_Contacts_PhotoCommon', 'submit_contact'));
 		$this->create_data_dir();
-		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
+//		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		return true;
 	}
 	
