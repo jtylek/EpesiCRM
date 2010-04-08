@@ -30,7 +30,11 @@ switch ($_SESSION['client']['utils_planner']['resources'][$resource]['type']) {
 	case 'automulti': 	$value=json_decode($_POST['options']);
 						break;
 	case 'autoselect':
-	case 'select': 	$value=trim($_POST['value'],'"');
+	case 'checkbox': 
+	case 'select': 	$value=json_decode($_POST['value']);
+					break;
+	case 'datepicker':$value=json_decode($_POST['value']);
+					$value = date('Y-m-d', strtotime($value));
 					break;
 }
 

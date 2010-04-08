@@ -60,19 +60,32 @@ function time_grid_change_conflicts(from_time,day,conflict) {
 		elem.className = 'used '+switch_conflict;
 }
 
-function resource_changed(resource) {
-	opts = new Array();
-	i=0;
-	while (i!=$(resource).options.length){
-		opts[i] = $(resource).options[i].value;
-		i++;
+function resource_changed(resource,type) {
+	if (!type) {
+		opts = new Array();
+		i=0;
+		while (i!=$(resource).options.length){
+			opts[i] = $(resource).options[i].value;
+			i++;
+		}
+		rvalue = $(resource).value;
+	} else {
+		if (type=='checkbox') {
+			opts = 0;
+			if ($(resource).checked) rvalue = 1;
+			else rvalue = 0;
+		}
+		if (type=='datepicker') {
+			opts = 0;
+			rvalue = $(resource).value;
+		}
 	}
 	new Ajax.Request('modules/Utils/Planner/resource_change.php', {
 		method: 'post',
 		parameters:{
 			resource:Object.toJSON(resource),
 			options:Object.toJSON(opts),
-			value:Object.toJSON($(resource).value),
+			value:Object.toJSON(rvalue),
 			cid: Epesi.client_id
 		},
 		onSuccess:function(t) {

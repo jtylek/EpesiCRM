@@ -81,8 +81,14 @@ class Utils_Planner extends Module {
 			return $el;
 		}
 		if ($type=='checkbox'){
-//			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.'resource_changed("'.$name.'","checkbox");'.'});');
 			$el = $this->form->addElement($type, $name, $label, null, array('id'=>$name));
+			return $el;
+		}
+		if ($type=='datepicker'){
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
+			eval_js('Event.observe("'.$name.'", "native:change" , function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
+			$el = $this->form->addElement($type, $name, $label, array('id'=>$name));
 			return $el;
 		}
 		if ($type=='select'){
@@ -102,7 +108,7 @@ class Utils_Planner extends Module {
 			$el->on_hide_js($on_change);
 			return $el;
 		}
-		if ($type=='text' || $type=='datepicker'){
+		if ($type=='text'){
 			$el = $this->form->addElement($type, $name, $label, array('id'=>$name));
 			return $el;
 		}
