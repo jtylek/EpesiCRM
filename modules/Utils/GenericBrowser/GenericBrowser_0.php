@@ -755,7 +755,7 @@ class Utils_GenericBrowser extends Module {
 				else
 					foreach (range(1, $qty_pages) as $v) $pages[$v] = $v;
 				$form_p->addElement('select','page',$this->t('Page'), $pages, 'onChange="'.$form_p->get_submit_form_js(false).'"');
-				$form_p->setDefaults(array('page'=>$this->offset));
+				$form_p->setDefaults(array('page'=>($this->offset/$this->per_page)+1));
 			} else {
 				$form_p->addElement('text','page',$this->t('Page (%s to %s)', array(1,$qty_pages)), array('onclick'=>'this.focus();this.select();', 'onChange'=>$form_p->get_submit_form_js(false), 'style'=>'width:'.(7*strlen($qty_pages)).'px;'));
 				$form_p->setDefaults(array('page'=>($this->offset/$this->per_page)+1));
