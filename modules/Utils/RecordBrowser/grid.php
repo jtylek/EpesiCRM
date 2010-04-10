@@ -47,6 +47,12 @@ $rb->record = $record;
 
 ob_start();
 $rb->view_fields_permission = $rb->get_access('edit', $record);
+if(!$rb->view_fields_permission[$element]) {
+	ob_end_clean();
+	print('alert(\''.Base_LangCommon::ts('Utils_RecordBrowser','This field is not editable').'\');');
+	print('setTimeout("grid_disable_edit(\''.$element.'\',\''.$id.'\');",100);');
+	die();
+}
 $rb->prepare_view_entry_details($record, 'edit', $id, $form, array($element=>true), true);
 $more_html = ob_get_clean();
 
