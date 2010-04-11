@@ -210,9 +210,9 @@ class Utils_Planner extends Module {
 		$theme->display();
 		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-
-		foreach ($values as $k=>$v)
-			$this->values[$k] = $v;
+	
+//		foreach ($values as $k=>$v)
+//			$this->values[$k] = $v; // TODO: check if needed
 			
 		$time_frames = explode(';',$values['grid_selected_frames']);
 		if (!empty($time_frames) && $time_frames[0]) {
@@ -261,7 +261,6 @@ class Utils_Planner extends Module {
 		}
 		foreach ($this->values as $k=>$v) {
 			$_SESSION['client']['utils_planner']['resources'][$k]['value'] = $v;
-		error_log("CLEARING!!!!\n-------------------------------------\n",3,'data/planner.txt');
 			$_SESSION['client']['utils_planner']['resources'][$k]['in_use'] = array();
 		}
 		foreach ($this->values as $k=>$v) {
