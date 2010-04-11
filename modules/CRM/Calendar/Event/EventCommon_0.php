@@ -29,6 +29,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		else {
 			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $nid[0]);
 			$ret = call_user_func($callback, 'get', $nid[1]);
+			if ($ret===null) return null;
 			$ret['id'] = $nid[0].'#'.$ret['id'];
 			return $ret;
 		}
