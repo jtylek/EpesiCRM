@@ -160,7 +160,11 @@ class CRM_Contacts extends Module {
 		Base_ActionBarCommon::add('add','Add contact', $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$rb->set_button($this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$this->display_module($rb, array(array('company_name'=>array($arg['id'])), array('company_name'=>false), array('Fav'=>'DESC', 'Last Name'=>'ASC')), 'show_data');
-	}
+        $uid = Base_AclCommon::get_acl_user_id(Acl::get_user());
+        if( Base_AclCommon::is_user_in_group($uid, 'Employee Manager') || Base_AclCommon::i_am_admin() ) {
+            Base_ActionBarCommon::add('all', 'Update contacts', $this->create_confirm_callback_href('Do you want to update all contacts addresses with this company address?', array($this, 'update_contacts_address'), array($arg)));
+        }
+    }
 
 	public function company_addon_new_contact($id){
 		$x = ModuleManager::get_instance('/Base_Box|0');
@@ -168,6 +172,24 @@ class CRM_Contacts extends Module {
 		$x->push_main('CRM/Contacts','new_contact',$id,array());
 		return false;
 	}
+
+    public function update_contacts_address($company) {
+        $recs = CRM_ContactsCommon::get_contacts(array('company_name' => $company['id']), array('id'));
+        $fields = array('address_1' => 'address_1',
+                        'address_2' => 'address_2',
+                        'city' => 'city',
+                        'country' => 'country',
+                        'zone' => 'zone',
+                        'postal_code' => 'postal_code'
+                        );
+        $new_data = array();
+        foreach($fields as $k => $v) {
+            $new_data[$k] = $company[$v];
+        }
+        foreach($recs as $contact) {
+            Utils_RecordBrowserCommon::update_record('contact', $contact['id'], $new_data);
+        }
+    }
 
 	public function new_contact($company){
 		CRM_ContactsCommon::$paste_or_new = $company;
