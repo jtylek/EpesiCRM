@@ -18,7 +18,7 @@ class CRM_Tasks extends Module {
 
 		$this->rb = $this->init_module('Utils/RecordBrowser','task','task');
 		$me = CRM_ContactsCommon::get_my_record();
-		$this->rb->set_custom_filter('status',array('type'=>'checkbox','label'=>$this->t('Display closed tasks'),'trans'=>array('__NULL__'=>array('!status'=>array(2,3)),1=>array('status'=>array(0,1,2,3)))));
+		$this->rb->set_custom_filter('status',array('type'=>'checkbox','label'=>$this->t('Display closed tasks'),'trans'=>array('__NULL__'=>array('!status'=>array(3,4)),1=>array('status'=>array(0,1,2,3,4)))));
 		$this->rb->set_custom_filter('longterm',array('type'=>'select','label'=>$this->t('Display tasks marked as'),'args'=>array('__NULL__'=>$this->t('Both'),1=>$this->t('Short term'),2=>$this->t('Long term')),'trans'=>array('__NULL__'=>array('!longterm'=>2),1=>array('!longterm'=>1),2=>array('longterm'=>1))));
 		$this->rb->set_crm_filter('employees');
 		$this->rb->set_defaults(array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1));

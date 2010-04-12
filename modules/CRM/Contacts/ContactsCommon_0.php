@@ -416,7 +416,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
-	public static function autoselect_contact_suggestbox($str, $crits, $format_callback, $inc_companies = true) {
+	public static function autoselect_contact_suggestbox($str, $crits, $format_callback, $inc_companies = false) {
 		$str = explode(' ', trim($str));
 		foreach ($str as $k=>$v)
 			if ($v) {
