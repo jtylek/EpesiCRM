@@ -162,7 +162,10 @@ class CRM_Contacts extends Module {
 		$this->display_module($rb, array(array('company_name'=>array($arg['id'])), array('company_name'=>false), array('Fav'=>'DESC', 'Last Name'=>'ASC')), 'show_data');
         $uid = Base_AclCommon::get_acl_user_id(Acl::get_user());
         if( Base_AclCommon::is_user_in_group($uid, 'Employee Manager') || Base_AclCommon::i_am_admin() ) {
-            Base_ActionBarCommon::add('all', 'Update contacts', $this->create_confirm_callback_href('Do you want to update all contacts addresses with this company address?', array($this, 'update_contacts_address'), array($arg)));
+            $prompt_id = "contacts_address_fix";
+            $content = $this->update_contacts_address_prompt($arg, $prompt_id);
+            Libs_LeightboxCommon::display($prompt_id, $content, 'Update Contacts');
+            Base_ActionBarCommon::add('all', 'Update Contacts', Libs_LeightboxCommon::get_open_href($prompt_id));
         }
     }
 
@@ -173,15 +176,44 @@ class CRM_Contacts extends Module {
 		return false;
 	}
 
-    public function update_contacts_address($company) {
+    public function update_contacts_address_prompt($company, $lid) {
+        $html = $this->t('<br/>Update Contacts - this action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would You like to copy to company contacts:');
+        $form = $this->init_module('Libs/QuickForm');
+
+        $data = array( /* Source ID, Target ID, Text, Checked state */
+            array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>'Address 1', 'checked'=>true),
+            array('sid'=>'address_2', 'tid'=>'address_2', 'text'=>'Address 2', 'checked'=>true),
+            array('sid'=>'city', 'tid'=>'city', 'text'=>'City', 'checked'=>true),
+            array('sid'=>'country', 'tid'=>'country', 'text'=>'Country', 'checked'=>true),
+            array('sid'=>'zone', 'tid'=>'zone', 'text'=>'Zone', 'checked'=>true),
+            array('sid'=>'postal_code', 'tid'=>'postal_code', 'text'=>'Postal Code', 'checked'=>true),
+            array('sid'=>'phone', 'tid'=>'work_phone', 'text'=>'Phone as Work Phone', 'checked'=>false),
+            array('sid'=>'fax', 'tid'=>'fax', 'text'=>'Fax', 'checked'=>false),
+        );
+        foreach($data as $row) {
+            $form->addElement('checkbox', $row['sid'], $row['text'], '&nbsp;&nbsp;<span style="color: gray">'.$company[$row['sid']].'</span>', $row['checked'] ? array('checked'=>'checked'): array());
+        }
+
+        $form->addElement('submit', 'submit', $this->ht('Save'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+
+        if($form->validate()) {
+            $values = $form->exportValues();
+            $fields = array();
+            foreach($data as $row) {
+                if(array_key_exists($row['sid'], $values)) {
+                    $fields[$row['tid']] = $row['sid'];
+                }
+            }
+            $this->update_contacts_address($company, $fields);
+        }
+
+        $html .= $form->toHtml();
+
+        return $html;
+    }
+
+    public function update_contacts_address($company, $fields) {
         $recs = CRM_ContactsCommon::get_contacts(array('company_name' => $company['id']), array('id'));
-        $fields = array('address_1' => 'address_1',
-                        'address_2' => 'address_2',
-                        'city' => 'city',
-                        'country' => 'country',
-                        'zone' => 'zone',
-                        'postal_code' => 'postal_code'
-                        );
         $new_data = array();
         foreach($fields as $k => $v) {
             $new_data[$k] = $company[$v];
