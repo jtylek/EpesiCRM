@@ -204,9 +204,16 @@ class Epesi {
 
 	public static function debug($msg=null) {
 		static $msgs = '';
-		if($msg) $msgs .= $msg.'<br>';
-		return $msgs;
+		// Check if the argument is array:
+		if (is_array($msg)){
+			print_r($msg);
+		} else {
+			print($msg);
+		}
+		print('<br>');
+		return;
 	}
+
 
 	public static function process($url, $history_call=false,$refresh=false) {
 		if(MODULE_TIMES)
