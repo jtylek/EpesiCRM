@@ -205,6 +205,7 @@ class CRM_Contacts extends Module {
                 }
             }
             $this->update_contacts_address($company, $fields);
+            location(array());
         }
 
         $html .= $form->toHtml();
