@@ -206,7 +206,7 @@ class Epesi {
 		static $msgs = '';
 		// Check if the argument is array:
 		if (is_array($msg)){
-			print_r($msg);
+			print("<pre>".print_r($msg,true)."</pre>");
 		} else {
 			print($msg);
 		}
