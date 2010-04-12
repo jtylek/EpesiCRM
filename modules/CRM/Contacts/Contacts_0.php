@@ -194,7 +194,9 @@ class CRM_Contacts extends Module {
             $form->addElement('checkbox', $row['sid'], $row['text'], '&nbsp;&nbsp;<span style="color: gray">'.$company[$row['sid']].'</span>', $row['checked'] ? array('checked'=>'checked'): array());
         }
 
-        $form->addElement('submit', 'submit', $this->ht('Save'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+        $ok = $form->createElement('submit', 'submit', $this->ht('Confirm'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+        $cancel = $form->createElement('button', 'cancel', $this->ht('Cancel'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+        $form->addGroup(array($ok, $cancel));
 
         if($form->validate()) {
             $values = $form->exportValues();
