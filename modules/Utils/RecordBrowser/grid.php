@@ -16,7 +16,7 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-if (!Acl::is_user()) die('Unauthorized access');
+if (!Acl::is_user()) die('alert("Unauthorized access");');
 
 $id = json_decode($_POST['id']);
 $element = json_decode($_POST['element']);
@@ -56,7 +56,7 @@ if(!$rb->view_fields_permission[$element]) {
 $rb->prepare_view_entry_details($record, 'edit', $id, $form, array($element=>true), true);
 $more_html = ob_get_clean();
 
-if ($mode=='submit') {
+if ($mode=='submit') {// && $form->validate()) {
 	$form->validate();
 	$vals = $form->exportValues();
 	if (!isset($vals['__grid_'.$element])) trigger_error(print_r($vals,true));
@@ -92,12 +92,12 @@ if ($mode=='submit') {
 }
 ob_start();
 
-$form->updateAttributes(array('onsubmit'=>'return false;'));
+//$form->updateAttributes(array('onsubmit'=>'return false;'));
 
 $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 $form->accept($renderer);
 $data = $renderer->toArray();
-$html = $data['__grid_'.$element]['html'];
+$html = $data['__grid_'.$element]['error'].$data['__grid_'.$element]['html'];
 if ($form_name=='') {
 	$html = '<form '.$data['attributes'].'>'.$data['hidden'].$html.'</form>';
 	$form_name = $form->get_name();
