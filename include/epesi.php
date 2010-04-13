@@ -203,15 +203,20 @@ class Epesi {
 	}
 
 	public static function debug($msg=null) {
+		
 		static $msgs = '';
+		if($msg) $msgs .= $msg.'<br>';
+		return $msgs;
+		
+		/*		
 		// Check if the argument is array:
 		if (is_array($msg)){
-			print("<pre>".print_r($msg,true)."</pre>");
+			print("<pre>".print_r($msg,true)."</pre>".'</br>');
 		} else {
-			print($msg);
+			print($msg.'</br>');
 		}
-		print('<br>');
 		return;
+		*/
 	}
 
 
