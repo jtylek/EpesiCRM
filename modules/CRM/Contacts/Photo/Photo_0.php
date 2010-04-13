@@ -33,14 +33,30 @@ class CRM_Contacts_Photo extends Module {
 		}
 	}
 
-	public function submit_attach($file,$oryg,$data,$record) {	
-		$local = $this->get_data_dir();
+	public function submit_attach($file,$oryg,$data,$record) {
+        if(! $oryg) {
+            CRM_Contacts_PhotoCommon::del_photo($record['id']);
+            $this->submitted = true;
+            return;
+        }
+        /* check extension */
+        $possible_extensions = array('jpg', 'jpeg', 'png', 'gif');
+        $extension = strtolower(end(explode('.', $oryg)));
+        if( ! in_array($extension, $possible_extensions) ) {
+            echo $this->t("Filename extension should be one of these(letter size doesn't matter): ").implode(', ', $possible_extensions);
+            return;
+        }
+
+        $local = $this->get_data_dir();
+        $filebase = md5($record['first_name'] . $record['last_name']) . $record['id'];
+        $pattern = $local . $filebase;
 		$i = 0;
-		$pattern = $local.'/'.$record['id'].'_';
-		while (file_exists($pattern.$i)) $i++;
-		$dest_file = $pattern.$i;
+
+        while (file_exists($pattern.$i.'.'.$extension)) $i++;
+		$dest_file = $pattern.$i.'.'.$extension;
 		if ($file) {
 			rename($file,$dest_file);
+            CRM_Contacts_PhotoCommon::add_photo($record['id'], $filebase.$i.'.'.$extension);
 		}
 		$this->submitted = true;
 	}

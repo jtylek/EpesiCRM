@@ -11,20 +11,18 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Contacts_PhotoCommon extends ModuleCommon {
+    const table_name = 'contact_photos';
 
 	public static function submit_contact($values, $mode) {
 		$ret = CRM_ContactsCommon::submit_contact($values, $mode);
 		if ($mode=='display') {
 			$in = self::Instance();
-			$local = $in->get_data_dir();
-			$i = 0;
-			$pattern = $local.'/'.$values['id'].'_';
-			while (file_exists($pattern.($i+1))) $i++;
-			$dest_file = $pattern.$i;
-			if (file_exists($dest_file))
-				$file = $dest_file;
-			else
+            $filename = self::get_photo($values['id']);
+            if($filename) {
+        		$file = $in->get_data_dir() . $filename;
+            } else {
 				$file = Base_ThemeCommon::get_template_file('CRM/Contacts/Photo','placeholder.png');
+            }
 			$ret['photo_link'] = Module::create_href(array('upload_new_photo'=>$values['id'])).' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts/Photo','Click to change the photo'), false);
 			$ret['photo_src'] = $file;
 		}
@@ -36,6 +34,24 @@ class CRM_Contacts_PhotoCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
+
+    public static function add_photo($contact_id, $filename) {
+        self::del_photo($contact_id, $filename);
+        DB::Execute('INSERT INTO `'.self::table_name.'` VALUES (%d,%s) ON DUPLICATE KEY UPDATE `filename`=%s', array($contact_id, $filename, $filename));
+    }
+
+    public static function get_photo($contact_id) {
+        return DB::GetOne('SELECT `filename` FROM `'.self::table_name.'` WHERE `contact_id`=%d', array($contact_id));
+    }
+
+    public static function del_photo($contact_id) {
+        $filename = self::get_photo($contact_id);
+        if(! $filename) return;
+
+        $in = self::Instance();
+        unlink($in->get_data_dir() . $filename);
+        DB::Execute('DELETE FROM `'.self::table_name.'` WHERE `contact_id`=%d', array($contact_id));
+    }
 }
 
 ?>
