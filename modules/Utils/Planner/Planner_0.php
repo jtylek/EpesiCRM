@@ -211,8 +211,10 @@ class Utils_Planner extends Module {
 		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 	
-//		foreach ($values as $k=>$v)
-//			$this->values[$k] = $v; // TODO: check if needed
+		if ($this->form->validate()) {
+			foreach ($values as $k=>$v)
+				$this->values[$k] = $v;
+		}
 			
 		$time_frames = explode(';',$values['grid_selected_frames']);
 		if (!empty($time_frames) && $time_frames[0]) {
