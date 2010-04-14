@@ -75,7 +75,7 @@ function sort_menus_cmp($a, $b) {
 
 function mobile_menu() {
 	$menus = ModuleManager::call_common_methods('mobile_menu');
-	global $menus_out, menus_out_tmp;
+	global $menus_out, $menus_out_tmp;
 	$menus_out = array();
 	foreach($menus as $m=>$r) {
 		if(!is_array($r)) continue;
