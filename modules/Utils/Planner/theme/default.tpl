@@ -36,9 +36,10 @@
 			<table id="Utils_Planner__grid">
 				<tr>
 					<td/>
-					{foreach item=h from=$headers}
+					{foreach item=h key=k from=$headers}
 						<td class="header">
-							{$h}
+							{$h}<br>
+							<input type="button" value="Select All" onclick="{$select_all.$k}" />
 						</td>
 					{/foreach}
 				</tr>

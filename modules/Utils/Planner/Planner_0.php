@@ -15,6 +15,11 @@ class Utils_Planner extends Module {
 	private $form;
 	private $values = array();
 	
+	public function clear() {
+		unset($_SESSION['client']['utils_planner']);
+		$this->unset_module_variable('fixed_date');
+	}
+	
 	public function construct() {
 		$_SESSION['client']['utils_planner'] = array();
 		$_SESSION['client']['utils_planner']['resources'] = array();
@@ -150,6 +155,7 @@ class Utils_Planner extends Module {
 		/* HEADERS */
 		$fdow = Utils_PopupCalendarCommon::get_first_day_of_week();
 		$headers = array();
+		$select_all = array();
 		if ($this->date===null) {
 			$days_of_week = array(0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednesday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday');
 			while (count($headers)<7) {
@@ -168,18 +174,26 @@ class Utils_Planner extends Module {
 		}
 		$theme->assign('headers',$headers);
 		
+		foreach ($headers as $k1=>$v1)
+			$select_all[$k1] = '';
 		/* GRID LEGEND */
 		$grid_legend = array();
 		$grid_attrs = array();
 		foreach ($this->grid as $k=>$v) {
 			if (!isset($this->grid[$k+1])) break;
+			foreach ($headers as $k1=>$v1)
+				$select_all[$k1] .= ($select_all[$k1]?'time_grid_mouse_move':'time_grid_mouse_down').'('.$v.','.$k1.');';
 			$grid_legend[$v] = Utils_PlannerCommon::format_time($v*60);
 			$grid_legend[$v] .= ' - '.Utils_PlannerCommon::format_time($this->grid[$k+1]*60);
 			$grid_attrs[$v] = array(); 
 			foreach ($headers as $k2=>$v2) $grid_attrs[$v][$k2] = 'class="noconflict unused" id="'.$k2.'__'.$v.'" onmousedown="time_grid_mouse_down('.$v.','.$k2.')" onmousemove="if(typeof(time_grid_mouse_move)!=\'undefined\')time_grid_mouse_move('.$v.','.$k2.')"';
 		}
+		foreach ($headers as $k1=>$v1)
+			$select_all[$k1] .= 'time_grid_mouse_up();';
 		/* GRID LEGEND END */
 		
+		$theme->assign('select_all',$select_all);
+
 		$theme->assign('grid_legend',$grid_legend);
 		$theme->assign('grid_attrs',$grid_attrs);
 		$theme->assign('time_frames',array('label'=>$this->t('Time frames'), 'html'=>'<div id="Utils_Planner__time_frames" />'));
