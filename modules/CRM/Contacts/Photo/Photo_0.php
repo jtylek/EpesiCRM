@@ -21,8 +21,11 @@ class CRM_Contacts_Photo extends Module {
 
 		$form->add_upload_element();
 		
-		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
-		Base_ActionBarCommon::add('delete', 'Cancel', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        if(CRM_Contacts_PhotoCommon::get_photo($record['id'])) {
+            Base_ActionBarCommon::add('delete', 'Clear', $this->create_confirm_callback_href($this->ht("Are you sure?"), array($this, 'clear_photo'), array($record['id'])));
+        }
 
 		$this->display_module($form, array( array($this,'submit_attach'), $record));
 
@@ -35,7 +38,6 @@ class CRM_Contacts_Photo extends Module {
 
 	public function submit_attach($file,$oryg,$data,$record) {
         if(! $oryg) {
-            CRM_Contacts_PhotoCommon::del_photo($record['id']);
             $this->submitted = true;
             return;
         }
@@ -60,6 +62,11 @@ class CRM_Contacts_Photo extends Module {
 		}
 		$this->submitted = true;
 	}
+
+    public function clear_photo($contact_id) {
+        CRM_Contacts_PhotoCommon::del_photo($contact_id);
+        $this->submitted = true;
+    }
 }
 
 ?>

@@ -30,6 +30,9 @@ class CRM_Contacts_PhotoInstall extends ModuleInstall {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Contacts/Activities');
 		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
 		Utils_RecordBrowserCommon::set_processing_callback('contact', array('CRM_ContactsCommon', 'submit_contact'));
+
+        $this->remove_data_dir();
+        DB::DropTable(CRM_Contacts_PhotoCommon::table_name);
 		return true;
 	}
 	
