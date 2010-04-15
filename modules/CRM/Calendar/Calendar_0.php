@@ -28,6 +28,7 @@ class CRM_Calendar extends Module {
 	}
 
 	public function jump_to_new_event($option, $timestamp, $timeless) {
+		if (!is_numeric($timestamp)) $timestamp = strtotime($timestamp);
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main('CRM_Calendar','new_event',array($option, $timestamp, $timeless));
