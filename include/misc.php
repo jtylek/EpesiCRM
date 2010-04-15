@@ -319,7 +319,7 @@ function get_epesi_url() {
 	if(isset($GLOBALS['argv']))
 		return dirname(dirname(__FILE__));
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
-	return $protocol.$_SERVER['HTTP_HOST'].EPESI_DIR;
+	return rtrim($protocol.$_SERVER['HTTP_HOST'].EPESI_DIR,'/');
 }
 
 function filesize_hr($size) {
