@@ -84,11 +84,12 @@ class CRM_Calendar extends Module {
 
 		$theme = $this->init_module('Base/Theme');
 		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',$args,array($this, 'get_new_event_href_js')));
+		$view_type = $c->get_current_view();
+		CRM_CalendarCommon::$mode = $view_type;
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();
 		$events = $c->get_displayed_events();
 		if (!empty($events['events'])) {
-			$view_type = $c->get_current_view();
 			switch ($view_type) {
 				case 'Day': $view = 'Daily agenda'; break;
 				case 'Month': $view = 'Monthly agenda'; break;
