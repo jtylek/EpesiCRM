@@ -365,13 +365,30 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (!$def) 	$def = '---';
 		return $def;
 	}
+	public static function contact_get_tooltip($record) {
+		return Utils_TooltipCommon::format_info_tooltip(array('Group'=>implode(', ',$record['group']),
+				'Work Phone'=>$record['work_phone'],
+				'Mobile Phone'=>$record['mobile_phone'],
+				'Fax'=>$record['fax'],
+				'Email'=>$record['email'],
+				'Web address'=>$record['web_address'],
+				'Address 1'=>$record['address_1'],
+				'Address 2'=>$record['address_2'],
+				'City'=>$record['city'],
+				'Country'=>$record['country'],
+				'Postal Code'=>$record['postal_code']),'Utils_RecordBrowser');
+	}
 	public static function contact_format_default($record, $nolink=false){
 		if (is_numeric($record)) $record = self::get_contact($record);
 		if (!$record) return null;
 		$ret = '';
-		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-		$ret .= $record['last_name'].' '.$record['first_name'];
-		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
+		if (!$nolink) {
+			$ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
+			$ret .= Utils_TooltipCommon::create($record['last_name'].' '.$record['first_name'],self::contact_get_tooltip($record));
+			$ret .= Utils_RecordBrowserCommon::record_link_close_tag();
+		} else {
+			$ret .= $record['last_name'].' '.$record['first_name'];
+		}
 		if (!empty($record['company_name'])) {
 			$first_comp = reset($record['company_name']);
 			$ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
@@ -382,9 +399,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (is_numeric($record)) $record = self::get_contact($record);
 		if (!$record) return null;
 		$ret = '';
-		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-		$ret .= $record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:'');
-		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
+		if (!$nolink) {
+			$ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
+			$ret .= Utils_TooltipCommon::create($record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:''),self::contact_get_tooltip($record));
+			$ret .= Utils_RecordBrowserCommon::record_link_close_tag();
+		} else {
+			$ret .= $record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:'');
+		}
 		return $ret;
 	}
 	public static function contacts_chainedselect_crits($default, $desc, $format_func, $ref_field){
