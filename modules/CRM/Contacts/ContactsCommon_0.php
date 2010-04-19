@@ -366,7 +366,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $def;
 	}
 	public static function contact_get_tooltip($record) {
-		return Utils_TooltipCommon::format_info_tooltip(array('Group'=>implode(', ',$record['group']),
+		return Utils_TooltipCommon::format_info_tooltip(array('Group'=>is_array($record['group'])?implode(', ',$record['group']):'',
 				'Work Phone'=>$record['work_phone'],
 				'Mobile Phone'=>$record['mobile_phone'],
 				'Fax'=>$record['fax'],
