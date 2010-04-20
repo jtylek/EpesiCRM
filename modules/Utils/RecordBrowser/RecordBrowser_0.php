@@ -809,7 +809,7 @@ class Utils_RecordBrowser extends Module {
 			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 			if ($dpm!=='') {
 				$method = explode('::',$dpm);
-				if (is_callable($method)) call_user_func($method, $this->custom_defaults, 'adding');
+				if (is_callable($method)) $this->custom_defaults = call_user_func($method, $this->custom_defaults, 'adding');
 			}
 			$this->record = $this->custom_defaults;
 
