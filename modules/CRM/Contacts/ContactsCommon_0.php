@@ -297,7 +297,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 		if (!$id) return '---';
 		if ($rset=='P') $val = self::contact_format_default($id, $nolink);
-		else $val = Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $id, $nolink);
+		else $val = self::company_format_default($id, $nolink);
 		$val .= ' ['.$rset.']';
 		return $val;
 	}
@@ -364,6 +364,32 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 		if (!$def) 	$def = '---';
 		return $def;
+	}
+	
+	public static function company_get_tooltip($record) {
+		return Utils_TooltipCommon::format_info_tooltip(array('Group'=>is_array($record['group'])?implode(', ',$record['group']):'',
+				'Phone'=>$record['phone'],
+				'Fax'=>$record['fax'],
+				'Email'=>$record['email'],
+				'Web address'=>$record['web_address'],
+				'Address 1'=>$record['address_1'],
+				'Address 2'=>$record['address_2'],
+				'City'=>$record['city'],
+				'Country'=>$record['country'],
+				'Postal Code'=>$record['postal_code']),'Utils_RecordBrowser');
+	}
+	public static function company_format_default($record,$nolink=false) {
+		if (is_numeric($record)) $record = self::get_company($record);
+		if (!$record) return null;
+		$ret = '';
+		if (!$nolink) {
+			$ret .= Utils_RecordBrowserCommon::record_link_open_tag('company', $record['id']);
+			$ret .= Utils_TooltipCommon::create($record['company_name'],self::company_get_tooltip($record));
+			$ret .= Utils_RecordBrowserCommon::record_link_close_tag();
+		} else {
+			$ret .= $record['company_name'];
+		}
+		return $ret;
 	}
 	public static function contact_get_tooltip($record) {
 		return Utils_TooltipCommon::format_info_tooltip(array('Group'=>is_array($record['group'])?implode(', ',$record['group']):'',

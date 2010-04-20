@@ -612,6 +612,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (is_array($callback)) $callback = implode('::',$callback);
 		DB::Execute('UPDATE recordbrowser_table_properties SET access_callback=%s WHERE tab=%s', array($callback, $tab));
 	}
+	public static function set_description_callback($tab, $callback){
+		if (is_array($callback)) $callback = implode('::',$callback);
+		DB::Execute('UPDATE recordbrowser_table_properties SET description_callback=%s WHERE tab=%s', array($callback, $tab));
+	}
 	public static function get_sql_type($type) {
 		switch ($type) {
 			case 'checkbox': return '%d';
@@ -1413,7 +1417,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function create_default_linked_label($tab, $id, $nolink=false){
 		if (!is_numeric($id)) return '';
-		$label = $tab.' '.$id;
+		$rec = self::get_record($tab,$id);
+		if(!$rec) return '';
+		$descr = DB::GetOne('SELECT description_callback FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+		if($descr) {
+			if(preg_match('/::/',$descr)) {
+				$descr = explode('::',$descr);
+			} 
+			if(!is_callable($descr))
+				$descr = '';
+		}
+		if($descr)
+			$label = call_user_func($descr,$rec,$nolink);
+		else {
+			$field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE (type=\'text\' OR type=\'commondata\' OR type=\'integer\' OR type=\'date\') AND required=1 AND visible=1 AND active=1 ORDER BY position');
+			if(!$field)
+				$label = $tab.' '.$id;
+			else
+				$label = self::get_val($tab,$field,$rec);
+		}
 		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 		return $ret;
 	}

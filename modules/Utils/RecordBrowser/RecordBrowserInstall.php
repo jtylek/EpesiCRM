@@ -26,7 +26,8 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'caption C(32) DEFAULT \'\','.
 						'icon C(255) DEFAULT \'\','.
 						'access_callback C(128) DEFAULT \'\','.
-						'data_process_method C(255) DEFAULT \'\'',
+						'data_process_method C(255) DEFAULT \'\','.
+						'description_callback C(128) DEFAULT \'\'',
 						array('constraints'=>''));
 		DB::CreateTable('recordbrowser_datatype',
 						'type C(32) KEY,'.
