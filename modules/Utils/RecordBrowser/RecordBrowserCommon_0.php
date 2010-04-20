@@ -1419,7 +1419,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!is_numeric($id)) return '';
 		$rec = self::get_record($tab,$id);
 		if(!$rec) return '';
-		$descr = DB::GetOne('SELECT description_callback FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+		$tpro = DB::GetRow('SELECT caption,description_callback FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+		if(!$tpro) return '';
+		$cap = $tpro['caption'];
+		if(!$cap) $cap = $tab;
+		$descr = $tpro['description_callback'];
 		if($descr) {
 			if(preg_match('/::/',$descr)) {
 				$descr = explode('::',$descr);
@@ -1432,9 +1436,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		else {
 			$field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE (type=\'text\' OR type=\'commondata\' OR type=\'integer\' OR type=\'date\') AND required=1 AND visible=1 AND active=1 ORDER BY position');
 			if(!$field)
-				$label = $tab.' '.$id;
+				$label = $cap.': '.$id;
 			else
-				$label = self::get_val($tab,$field,$rec);
+				$label = $cap.': '.self::get_val($tab,$field,$rec);
 		}
 		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 		return $ret;
