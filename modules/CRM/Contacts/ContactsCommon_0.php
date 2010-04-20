@@ -367,17 +367,18 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	
 	public static function company_get_tooltip($record) {
+		if (!isset($record['group'])) return '';
 		return Utils_TooltipCommon::format_info_tooltip(array('Group'=>is_array($record['group'])?implode(', ',$record['group']):'',
-				'Phone'=>$record['phone'],
-				'Fax'=>$record['fax'],
-				'Email'=>$record['email'],
-				'Web address'=>$record['web_address'],
-				'Address 1'=>$record['address_1'],
-				'Address 2'=>$record['address_2'],
-				'City'=>$record['city'],
-				'Country'=>$record['country'],
-				'Postal Code'=>$record['postal_code']),'Utils_RecordBrowser');
-	}
+			'Phone'=>$record['phone'],
+			'Fax'=>$record['fax'],
+			'Email'=>$record['email'],
+			'Web address'=>$record['web_address'],
+			'Address 1'=>$record['address_1'],
+			'Address 2'=>$record['address_2'],
+			'City'=>$record['city'],
+			'Country'=>$record['country'],
+			'Postal Code'=>$record['postal_code']),'Utils_RecordBrowser');
+		}
 	public static function company_format_default($record,$nolink=false) {
 		if (is_numeric($record)) $record = self::get_company($record);
 		if (!$record) return null;
@@ -392,18 +393,20 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $ret;
 	}
 	public static function contact_get_tooltip($record) {
+		if (!isset($record['group'])) return '';
 		return Utils_TooltipCommon::format_info_tooltip(array('Group'=>is_array($record['group'])?implode(', ',$record['group']):'',
-				'Work Phone'=>$record['work_phone'],
-				'Mobile Phone'=>$record['mobile_phone'],
-				'Fax'=>$record['fax'],
-				'Email'=>$record['email'],
-				'Web address'=>$record['web_address'],
-				'Address 1'=>$record['address_1'],
-				'Address 2'=>$record['address_2'],
-				'City'=>$record['city'],
-				'Country'=>$record['country'],
-				'Postal Code'=>$record['postal_code']),'Utils_RecordBrowser');
+			'Work Phone'=>$record['work_phone'],
+			'Mobile Phone'=>$record['mobile_phone'],
+			'Fax'=>$record['fax'],
+			'Email'=>$record['email'],
+			'Web address'=>$record['web_address'],
+			'Address 1'=>$record['address_1'],
+			'Address 2'=>$record['address_2'],
+			'City'=>$record['city'],
+			'Country'=>$record['country'],
+			'Postal Code'=>$record['postal_code']),'Utils_RecordBrowser');
 	}
+		
 	public static function contact_format_default($record, $nolink=false){
 		if (is_numeric($record)) $record = self::get_contact($record);
 		if (!$record) return null;
