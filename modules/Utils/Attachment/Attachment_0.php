@@ -174,11 +174,15 @@ class Utils_Attachment extends Module {
 			$inline_img = '';
 			if($row['original']!=='') {
 				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
-				$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
-				$view_link = '';
-				$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
-				if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
-					$inline_img = '<hr><img src="'.$view_link.'" style="max-width:700px" /><br>';
+				if(file_exists($f_filename)) {
+					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
+					$view_link = '';
+					$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
+					if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
+						$inline_img = '<hr><img src="'.$view_link.'" style="max-width:700px" /><br>';
+				} else {
+					$file = 'missing file: '.$f_filename;
+				}
 			} else {
 				$file = '';
 			}
@@ -335,6 +339,7 @@ class Utils_Attachment extends Module {
 		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->t('Get link').'</a><br>');
 		$th->assign('filename',$row['original']);
 		$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
+		if(!file_exists($f_filename)) return 'missing file: '.$f_filename;
 		$th->assign('file_size',$this->t('File size: %s',array(filesize_hr($f_filename))));
 
 		$getters = ModuleManager::call_common_methods('attachment_getters');
@@ -407,8 +412,12 @@ class Utils_Attachment extends Module {
 					$inline_img = '<hr><img src="'.$view_link.'" style="max-width:900px" /><br>';
 
 			$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
-			$th->assign('file_size',filesize_hr($f_filename));
-			$th->assign('file','<a '.$file.'>'.$row['original'].'</a>');
+			if(file_exists($f_filename)) {
+				$th->assign('file_size',filesize_hr($f_filename));
+				$th->assign('file','<a '.$file.'>'.$row['original'].'</a>');
+			} else {
+				$th->assign('file','');
+			}
 			$th->assign('note',Utils_BBCodeCommon::parse($row['text']).$inline_img);
 		} else {
 			$th->assign('file','');
