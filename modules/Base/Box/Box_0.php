@@ -182,6 +182,7 @@ class Base_Box extends Module {
 		if(isset($args)) $arr['arguments'] = $args;
 		if(isset($constr_args)) $arr['constructor_arguments'] = $constr_args;
 		$mains[$x] = & $arr;
+		if($x>=7) array_shift($mains);
 		location(array());
 	}
 
@@ -192,8 +193,7 @@ class Base_Box extends Module {
 //			trigger_error('Double pop box!',E_USER_ERROR);
 		$poped = true;
 		$mains = & $this->get_module_variable('main');
-		if(count($mains)>1)
-			location(array('base_box_pop_main'=>$c));
+		location(array('base_box_pop_main'=>$c));
 	}
 }
 ?>
