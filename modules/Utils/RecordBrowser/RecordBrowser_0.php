@@ -312,11 +312,14 @@ class Utils_RecordBrowser extends Module {
 		$text_filters = array();
 		foreach ($filters_all as $filter) {
 			$filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
+			$field_id = 'filter__'.$filter_id;
 			if (isset($this->custom_filters[$filter_id])) {
 				$f = $this->custom_filters[$filter_id];
 				if (!isset($f['label'])) $f['label'] = $filter;
 				if (!isset($f['args'])) $f['args'] = null;
-				$form->addElement($f['type'], $filter_id, $f['label'], $f['args']);
+				if (!isset($f['args_2'])) $f['args_2'] = null;
+				if (!isset($f['args_3'])) $f['args_3'] = null;
+				$form->addElement($f['type'], $field_id, $f['label'], $f['args'], $f['args_2'], $f['args_3']);
 				$filters[] = $filter_id;
 				continue;
 			}
@@ -376,7 +379,7 @@ class Utils_RecordBrowser extends Module {
 				} 
 			}
 			$arr = array('__NULL__'=>'---')+$arr;
-			$form->addElement('select', $filter_id, $this->t($filter), $arr);
+			$form->addElement('select', $field_id, $this->t($filter), $arr);
 			$filters[] = $filter_id;
 		}
 		$form->addElement('submit', 'submit', 'Show');
@@ -406,27 +409,27 @@ class Utils_RecordBrowser extends Module {
 			if (in_array(strtolower($filter), $external_filters)) continue;
 			$filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
 			if (isset($this->custom_filters[$filter_id])) {
-				if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
-				if (isset($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]])) {
-					foreach($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]] as $k=>$v)
+				if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='__NULL__';
+				if (isset($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]])) {
+					foreach($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]] as $k=>$v)
 						$this->crits[$k] = $v;
 				} elseif (isset($this->custom_filters[$filter_id]['trans_callback'])) {
-					$new_crits = call_user_func($this->custom_filters[$filter_id]['trans_callback'], $vals[$filter_id]);
+					$new_crits = call_user_func($this->custom_filters[$filter_id]['trans_callback'], $vals['filter__'.$filter_id]);
 					$this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
 				}
 			} else {
 				if (!isset($text_filters[$filter_id])) {
-					if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
-					if ($vals[$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals[$filter_id];
+					if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='__NULL__';
+					if ($vals['filter__'.$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals['filter__'.$filter_id];
 				} else {
-					if (!isset($vals[$filter_id])) $vals[$filter_id]='';
-					if ($vals[$filter_id]!=='') {
+					if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='';
+					if ($vals['filter__'.$filter_id]!=='') {
 						$args = $this->table_rows[$filter];
 						$str = explode(';', $args['param']);
 						$ref = explode('::', $str[0]);
-						if ($ref[0]!='' && isset($ref[1])) $this->crits['_":Ref:'.$args['id']] = DB::Concat(DB::qstr($vals[$filter_id]),DB::qstr('%'));;
+						if ($ref[0]!='' && isset($ref[1])) $this->crits['_":Ref:'.$args['id']] = DB::Concat(DB::qstr($vals['filter__'.$filter_id]),DB::qstr('%'));;
 						if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
-							if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_":RefCD:'.$args['id']] = DB::Concat(DB::qstr($vals[$filter_id]),DB::qstr('%'));;
+							if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_":RefCD:'.$args['id']] = DB::Concat(DB::qstr($vals['filter__'.$filter_id]),DB::qstr('%'));;
 						}
 					}
 				}
@@ -436,8 +439,13 @@ class Utils_RecordBrowser extends Module {
 
 		$filters = array_merge($filters, $external_filters);
 		
-		foreach ($vals as $k=>$v)
-			if (isset($this->custom_filters[$k]) && $this->custom_filters[$k]['type']=='checkbox' && $v==='__NULL__') unset($vals[$k]);
+		foreach ($filters as $k=>$v)
+			$filters[$k] = 'filter__'.$v;
+
+		foreach ($vals as $k=>$v) {
+			$c = str_replace('filter__','',$k);
+			if (isset($this->custom_filters[$c]) && $this->custom_filters[$c]['type']=='checkbox' && $v==='__NULL__') unset($vals[$k]);
+		}
 		$this->set_module_variable('def_filter', $vals);
 		$theme = $this->init_module('Base/Theme');
 		$form->assign_theme('form',$theme);
@@ -1301,7 +1309,7 @@ class Utils_RecordBrowser extends Module {
 	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
 		//$init_js = '';
 		foreach($this->table_rows as $field => $args){
-			if (!$this->view_fields_permission[$args['id']]) continue;
+			if (isset($this->view_fields_permission[$args['id']]) && !$this->view_fields_permission[$args['id']]) continue;
 			if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
 			if (!isset($record[$args['id']])) $record[$args['id']] = '';
 			if ($for_grid) {
