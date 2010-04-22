@@ -3,7 +3,6 @@
 <div id="Base_Box__login">
 	<div class="status">{$status}</div>
 	<div class="entry">{$login}</div>
-{*	<div class="starting">{$about}</div>*}
 </div>
 
 {else}
