@@ -182,7 +182,7 @@ class Base_Box extends Module {
 		if(isset($args)) $arr['arguments'] = $args;
 		if(isset($constr_args)) $arr['constructor_arguments'] = $constr_args;
 		$mains[$x] = & $arr;
-		if($x>=7) array_shift($mains);
+		if($x>=5) array_shift($mains);
 		location(array());
 	}
 
