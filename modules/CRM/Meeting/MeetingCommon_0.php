@@ -768,25 +768,32 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$crits['>=date'] = $start;
 		$crits['recurrence_type'] = '';
 		
-		$ret = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits);
+		$count = 0;
+		$ret = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits, array(), array(), 50);
 
 		$result = array();
 		foreach ($ret as $r)
 			$result[] = self::crm_event_get($r);
+
+		$count += count($result);
 
 		$crits = $critsb;
 
 		$crits['<=date'] = $end;
 		$crits['>=recurrence_end'] = array($start,'');
 		$crits['!recurrence_type'] = '';
-		$ret = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits);
+		$ret = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits, array(), array(), 50);
 		
 		$day = strtotime($start);
 		$end = strtotime($end);
 		while ($day<=$end) {
 			foreach ($ret as $r) {
 				$next = self::crm_event_get($r, date('Y-m-d', $day));
-				if ($next) $result[] = $next;
+				if ($next) {
+					$result[] = $next;
+					$count++;
+					if ($count==50) break;
+				}
 			}
 			$day = strtotime('+1 day', $day);
 		}

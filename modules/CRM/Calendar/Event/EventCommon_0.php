@@ -41,10 +41,12 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function get_all($start,$end,$filter=null) {
+		if ($filter===null) $filter = self::$filter;
 		$custom_handlers = DB::GetAssoc('SELECT id, handler_callback FROM crm_calendar_custom_events_handlers');
 		$result = array();
-		
+
 		if (self::$events_handlers===null) self::$events_handlers = array_keys($custom_handlers);
+		$count = 0;
 		foreach (self::$events_handlers as $handler) {
 			$result_ext = call_user_func($custom_handlers[$handler], 'get_all', $start, $end, $filter);
 			foreach ($result_ext as $v) {
@@ -63,8 +65,12 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 					$v['custom_agenda_col_2'] = implode('<br>',$cuss);
 				}
 				$result[] = $v;
+				$count++;
+				if ($count==50) break;
 			}
+			if ($count==50) break;
 		}
+		if ($count==50) print('<b>There were too many events to display on the Calendar, please change CRM Filter</b>');
 		return $result;
 	}
 
