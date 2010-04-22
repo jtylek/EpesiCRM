@@ -2162,7 +2162,7 @@ class Utils_RecordBrowser extends Module {
 				else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $v['id'])),'View edit history',null,'history');
 			}
 			if ($this->additional_actions_method!==null && is_callable($this->additional_actions_method))
-				call_user_func($this->additional_actions_method, $row, $gb_row, $this);
+				call_user_func($this->additional_actions_method, $v, $gb_row, $this);
 		}
 		$this->display_module($gb);
 	}
