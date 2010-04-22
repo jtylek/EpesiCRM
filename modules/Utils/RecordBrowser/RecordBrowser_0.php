@@ -179,7 +179,7 @@ class Utils_RecordBrowser extends Module {
 		return $x;
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function body($def_order=array(), $crits=array(), $cols=array()) {
+	public function body($def_order=array(), $crits=array(), $cols=array(), $filters_set=array()) {
 		unset($_SESSION['client']['recordbrowser']['admin_access']);
 		if ($this->check_for_jump()) return;
 		$this->fullscreen_table=true;
@@ -224,7 +224,7 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 
-		if (!$this->disabled['filters']) $filters = $this->show_filters();
+		if (!$this->disabled['filters']) $filters = $this->show_filters($filters_set);
 		else $filters = '';
 
 		if (isset($this->filter_field)) {
@@ -283,20 +283,20 @@ class Utils_RecordBrowser extends Module {
 		$this->changed_view = true;
 		$this->set_module_variable('browse_mode', $mode);
 	}
+	
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function show_filters($filters_set = array(), $f_id='') {
+		$this->init();
 		if ($this->get_access('browse')===false) {
 			return;
 		}
-		$ret = DB::Execute('SELECT field FROM '.$this->tab.'_field WHERE filter=1 AND active=1');
 		$filters_all = array();
-		while($row = $ret->FetchRow())
-			if (!isset($filters_set[$row['field']]) || $filters_set[$row['field']]) {
-				$filters_all[] = $row['field'];
-				if (isset($filters_set[$row['field']])) unset($filters_set[$row['field']]);
+		foreach ($this->table_rows as $k=>$v) {
+			if ((!isset($filters_set[$v['id']]) && $v['filter']) || (isset($filters_set[$v['id']]) && $filters_set[$v['id']])) {
+				$filters_all[] = $k;
+				if (isset($filters_set[$v['id']])) unset($filters_set[$v['id']]);
 			}
-		foreach($filters_set as $k=>$v)
-			if ($v) $filters_all[] = $k;
+		}
 		if (empty($filters_all)) {
 			$this->crits = array();
 			return '';
@@ -2161,6 +2161,8 @@ class Utils_RecordBrowser extends Module {
 				if ($r_info['edited_on']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
 				else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $v['id'])),'View edit history',null,'history');
 			}
+			if ($this->additional_actions_method!==null && is_callable($this->additional_actions_method))
+				call_user_func($this->additional_actions_method, $row, $gb_row, $this);
 		}
 		$this->display_module($gb);
 	}
