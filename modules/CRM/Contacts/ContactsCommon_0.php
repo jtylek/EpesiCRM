@@ -917,7 +917,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
                 Libs_LeightboxCommon::display($lid, $html);
                 Base_ActionBarCommon::add('edit', 'Copy company data', Libs_LeightboxCommon::get_open_href($lid));
-//                eval_js('leightbox_activate("'.$lid.'")');
+                eval_js('setTimeout("leightbox_activate(\''.$lid.'\')",2000)');
             }
             if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) ) {
                 Base_ActionBarCommon::add('edit', 'Copy company data', Module::create_href(array('UCD'=>true)));
