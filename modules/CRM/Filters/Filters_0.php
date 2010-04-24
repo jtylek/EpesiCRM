@@ -41,14 +41,14 @@ class CRM_Filters extends Module {
 
 		$qf = $this->init_module('Libs/QuickForm');
 		$fcallback = array('CRM_ContactsCommon', 'contact_format_no_company');
-		$recent_crits = array('company_name'=>CRM_ContactsCommon::get_main_company(), '(:Recent'=>true, '|:Fav'=>true);
+		$recent_crits = array('(:Recent'=>true, '|:Fav'=>true);
 		$contacts = CRM_ContactsCommon::get_contacts($recent_crits);
 		$cont = array();
 		foreach ($contacts as $v) { 
 			$cont[$v['id']] = call_user_func($fcallback, $v, true);
 		}
 		asort($cont);
-		$qf->addElement('autoselect','crm_filter_contact',$this->t('Records of'),$cont,array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company()), $fcallback, false)), $fcallback);
+		$qf->addElement('autoselect','crm_filter_contact',$this->t('Records of'),$cont,array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array(array(), $fcallback, false)), $fcallback);
 		if(isset($_SESSION['client']['filter_'.Acl::get_user()])) {
 			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()])));
 		}
@@ -90,12 +90,6 @@ class CRM_Filters extends Module {
 				$desc = $this->t('Custom filter');
 		} elseif(is_numeric($prof)) {
 			$cids = DB::GetAssoc('SELECT contact_id, contact_id FROM crm_filters_contacts');
-			foreach ($cids as $v) {
-				$c = CRM_ContactsCommon::get_contact($v);
-				if (!in_array(CRM_ContactsCommon::get_main_company(), $c['company_name'])) {
-					DB::Execute('DELETE FROM crm_filters_contacts WHERE contact_id=%d',array($v));
-				}
-			}
 			$c = DB::GetCol('SELECT p.contact_id FROM crm_filters_contacts p WHERE p.group_id=%d',array($prof));
 			if($c)
 				$ret = implode(',',$c);
@@ -106,7 +100,7 @@ class CRM_Filters extends Module {
 			$ret = CRM_FiltersCommon::get_my_profile();
 			$desc = $this->t('My records');
 		} else {//all and undefined
-			$contacts = Utils_RecordBrowserCommon::get_records('contact', array('company_name'=>CRM_ContactsCommon::get_main_company()), array(), array('last_name'=>'ASC'));
+			$contacts = Utils_RecordBrowserCommon::get_records('contact', array(), array(), array('last_name'=>'ASC'));
 			$contacts_select = array();
 			foreach($contacts as $v)
 				$contacts_select[] = $v['id'];
@@ -146,7 +140,7 @@ class CRM_Filters extends Module {
 				));
 
 		$def_opts = array('my'=>$this->ht('My records'), 'all'=>$this->ht('All records'));
-		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
+		$contacts = CRM_ContactsCommon::get_contacts(array(),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
 		foreach($contacts as $v)
 			$def_opts['c'.$v['id']] = $v['last_name'].' '.$v['first_name'];
 
@@ -212,7 +206,7 @@ class CRM_Filters extends Module {
 		$form->addRule('name',$this->t('Field required'),'required');
 		$form->registerRule('unique','callback','check_group_name_exists', 'CRM_Filters');
 		$form->addRule('name',$this->t('Group with this name already exists'),'unique',$id);
-		$form->addElement('automulti','contacts',$this->t('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company()), array('CRM_ContactsCommon', 'contact_format_no_company')), array('CRM_ContactsCommon', 'contact_format_no_company'));
+		$form->addElement('automulti','contacts',$this->t('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array(), array('CRM_ContactsCommon', 'contact_format_no_company')), array('CRM_ContactsCommon', 'contact_format_no_company'));
 		if ($form->validate()) {
 			$v = $form->exportValues();
 			if(isset($id)) {
