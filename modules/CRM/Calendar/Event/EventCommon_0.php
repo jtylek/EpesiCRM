@@ -49,7 +49,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$count = 0;
 		foreach (self::$events_handlers as $handler) {
 			$result_ext = call_user_func($custom_handlers[$handler], 'get_all', $start, $end, $filter);
-			foreach ($result_ext as $v) {
+			foreach ($result_ext as $v) if ($v!==null) {
 				$v['id'] = $handler.'#'.$v['id'];
 				if (isset($v['description'])) $v['custom_agenda_col_0'] = $v['description'];
 				if (isset($v['employees'])) {
