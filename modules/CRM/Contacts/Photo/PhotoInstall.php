@@ -42,7 +42,8 @@ class CRM_Contacts_PhotoInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'CRM/Contacts', 'version'=>0)
+			array('name'=>'CRM/Contacts', 'version'=>0),
+			array('name'=>'Utils/Image', 'version'=>0)
 		);
 	}
 	
