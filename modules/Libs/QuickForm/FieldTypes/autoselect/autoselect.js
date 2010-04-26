@@ -1,16 +1,18 @@
-autoselect_on_hide = function (element) {
+autoselect_on_hide = function (element,mode) {
 	var new_value=$("__autocomplete_id_"+element+"__search").value.split("__");
 	if (new_value && typeof(new_value[1])!="undefined") {
 		$("__autocomplete_id_"+element+"__search").value="";
 		autoselect_add_value(element, new_value[0], new_value[1]);
+	} else new_value=false;
+	if (mode==1 || new_value) {
+		$('__'+element+'_select_span').style.display="";
+		focus_by_id(element);
+		$('__'+element+'_autocomplete_span').style.display="none";
+		var evt = document.createEvent('HTMLEvents');
+		evt.initEvent('change', true, true);
+		$(element).dispatchEvent(evt);
+		$("__autocomplete_id_"+element+"__search").value="";
 	}
-	$('__'+element+'_select_span').style.display="";
-	focus_by_id(element);
-	$('__'+element+'_autocomplete_span').style.display="none";
-	var evt = document.createEvent('HTMLEvents');
-	evt.initEvent('change', true, true);
-	$(element).dispatchEvent(evt);
-	$("__autocomplete_id_"+element+"__search").value="";
 }
 
 autoselect_add_value = function (element, value, label) {

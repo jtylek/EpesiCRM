@@ -84,6 +84,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
                 $this->setName($myName);
             }
             $strHtml .= $tabs . '<select' . $attrString . ">\n";
+			$mode = Base_User_SettingsCommon::get('Libs_QuickForm','autoselect_mode');
 
 			$val = $this->getValue();
 			if (isset($val[0]) && $val[0]!='' && !isset($this->__options[$val[0]]))
@@ -104,12 +105,17 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			$strHtml .= $tabs . '</select>';
 
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args));
-			$search->on_hide_js('autoselect_on_hide("'.$myName.'");'.$this->on_hide_js_code);
+			$search->on_hide_js('autoselect_on_hide("'.$myName.'",'.($mode?'1':'0').');'.$this->on_hide_js_code);
 
-            return 	'<span id="__'.$myName.'_select_span">'.
+			if ($mode==0) eval_js('Event.observe("'.$myName.'","change",function(){if($("'.$myName.'").value=="")autoselect_start_searching("'.$myName.'");});');
+			
+			if (isset($val[0]) && $val[0]!='' && !isset($this->__options[$val[0]]))
+				$mode=1;
+			
+            return 	'<span id="__'.$myName.'_select_span"'.($mode==0?' style="display:none;"':'').'>'.
 						$strHtml.
 					'</span>'.
-					'<span id="__'.$myName.'_autocomplete_span" style="display:none;">'.
+					'<span id="__'.$myName.'_autocomplete_span"'.($mode==1?' style="display:none;"':'').'>'.
 						$search->toHtml().
 					'</span>';
         }

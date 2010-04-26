@@ -26,5 +26,11 @@ class Libs_QuickFormCommon extends ModuleCommon {
 			$ret .= $t;
 		return $ret;
 	}
+	
+	public static function user_settings() {
+		return array('Forms'=>array(
+			array('name'=>'autoselect_mode', 'label'=>'Auto-select - display for empty fields', 'type'=>'select', 'values'=>array(0=>'Text field', 1=>'Select field'), 'default'=>0)
+		));
+	}
 }
 ?>
