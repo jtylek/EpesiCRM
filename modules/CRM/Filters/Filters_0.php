@@ -42,7 +42,7 @@ class CRM_Filters extends Module {
 		$qf = $this->init_module('Libs/QuickForm');
 		$fcallback = array('CRM_ContactsCommon', 'contact_format_no_company');
 		$recent_crits = array('(:Recent'=>true, '|:Fav'=>true);
-		$contacts = CRM_ContactsCommon::get_contacts($recent_crits);
+		$contacts = CRM_ContactsCommon::get_contacts($recent_crits,array(),array(),15);
 		$cont = array();
 		foreach ($contacts as $v) { 
 			$cont[$v['id']] = call_user_func($fcallback, $v, true);
