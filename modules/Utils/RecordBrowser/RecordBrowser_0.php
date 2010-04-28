@@ -201,7 +201,7 @@ class Utils_RecordBrowser extends Module {
                 if ($this->add_button===null) {
                     Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
                     Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)).'}');
-                } else {
+                } elseif($this->add_button!=='') {
                     Base_ActionBarCommon::add('add','New', $this->add_button);
                 }
             } else {
@@ -594,7 +594,7 @@ class Utils_RecordBrowser extends Module {
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
             else $label = false;
-            if ($label!==false) $custom_label = '<a '.$label.' '.Utils_TooltipCommon::open_tag_attrs($this->t('Add new record')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>';
+            if ($label!==false && $label!=='') $custom_label = '<a '.$label.' '.Utils_TooltipCommon::open_tag_attrs($this->t('Add new record')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>';
             if ($this->more_add_button_stuff) {
                 if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
                 else $custom_label = $this->more_add_button_stuff;
