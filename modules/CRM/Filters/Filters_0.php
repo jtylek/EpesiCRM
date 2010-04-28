@@ -100,14 +100,15 @@ class CRM_Filters extends Module {
 			$ret = CRM_FiltersCommon::get_my_profile();
 			$desc = $this->t('My records');
 		} else {//all and undefined
-			$contacts = Utils_RecordBrowserCommon::get_records('contact', array(), array(), array('last_name'=>'ASC'));
+		$ret = '';
+			/*$contacts = Utils_RecordBrowserCommon::get_records('contact', array(), array(), array('last_name'=>'ASC'));
 			$contacts_select = array();
 			foreach($contacts as $v)
 				$contacts_select[] = $v['id'];
 			if($contacts_select)
 				$ret = implode(',',$contacts_select);
 			else
-				$ret = '-1';
+				$ret = '-1';*/
 
 			$desc = $this->t('All records');
 		}
