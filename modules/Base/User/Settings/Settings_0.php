@@ -23,18 +23,21 @@ class Base_User_Settings extends Module {
 
     public function body($branch=null,$admin_settings=false) {
         $branch = $this->get_module_variable_or_unique_href_variable('settings_branch',$branch);
-        if($this->is_back()) $branch = null;
+        if($this->is_back()) {
+            $branch = null;
+        }
         $this->set_module_variable('settings_branch',$branch);
 
         $this->get_module_variable('admin_settings',($admin_settings && $this->acl_check('set defaults')));
 
         if (!$branch) {
-            if($this->is_back()) {
-                $x = ModuleManager::get_instance('/Base_Box|0');
-                if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+            $x = ModuleManager::get_instance('/Base_Box|0');
+            if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+            $mains = $x->get_module_variable('main');
+            if(count($mains)>1)
                 $x->pop_main();
-            }
-            $this->main_page();
+            else
+                $this->main_page();
             return;
         }
 
