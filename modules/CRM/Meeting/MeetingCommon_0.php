@@ -758,6 +758,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$crits[($customers?'(':'').'employees'] = explode(',',trim($filter,'()'));
 		if ($customers) 
 			$crits['|customers'] = $customers;
+		else $crits['|customers'] = explode(',',trim($filter,'()'));
 		$me = CRM_ContactsCommon::get_my_record();
 		if(!Base_AclCommon::i_am_admin()) {
 			$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(employees' => $me['id'], '|<permission' => 2));
