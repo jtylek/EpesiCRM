@@ -80,7 +80,6 @@ class CRM_MeetingInstall extends ModuleInstall {
 			array('name'=>'CRM/Acl', 'version'=>0),
 			array('name'=>'CRM/Contacts', 'version'=>0),
 			array('name'=>'CRM/Calendar', 'version'=>0),
-			array('name'=>'CRM/MailClient', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Acl', 'version'=>0),
 			array('name'=>'Utils/ChainedSelect', 'version'=>0),
