@@ -113,7 +113,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		if($ret)
 			while(($row=$ret->FetchRow())) {
 				$uid = Base_AclCommon::get_acl_user_id($row['id']);
-				if(!$uid) continue;
+				if(!$uid) $uid = Base_AclCommon::add_user($row['id']);
 				$groups = Base_AclCommon::get_user_groups_names($uid);
 				if($groups===false) continue; //skip if you don't have privileges
 
