@@ -402,6 +402,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $ret;
     }
     public static function contact_get_tooltip($record) {
+    	if(!is_array($record) || empty($record) || !isset($record['work_phone'])) return '';
         if(isset($record['group']) && is_array($record['group'])) {
             $group = Utils_CommonDataCommon::get_nodes('Contacts_Groups',$record['group']);
             if($group)
