@@ -45,6 +45,9 @@ class CRM_Roundcube extends Module {
         $this->display_module($this->rb,$order);
     }
 
+    public function caption() {
+        return 'Roundcube Mail Client';
+    }
 
 }
 
