@@ -38,10 +38,14 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             array('name'=>'SMTP Auth',             'type'=>'checkbox', 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_auth')),
             array('name'=>'SMTP Login',              'type'=>'text', 'required'=>false, 'param'=>'255', 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_login')),
             array('name'=>'SMTP Password',           'type'=>'text', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_password')),
-            array('name'=>'SMTP Security',           'type'=>'commondata', 'param'=>array('CRM/Roundcube/Security'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_security'))
+            array('name'=>'SMTP Security',           'type'=>'commondata', 'param'=>array('CRM/Roundcube/Security'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_security')),
+
+            array('name'=>'Default Account',             'type'=>'checkbox', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_default_account'))
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_accounts', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_accounts', 'Mail accounts');
+        Utils_RecordBrowserCommon::set_processing_callback('rc_accounts', array('CRM_RoundcubeCommon', 'submit_account'));
+
 
         return true;
     }

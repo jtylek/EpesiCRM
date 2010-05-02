@@ -19,14 +19,16 @@ class CRM_Roundcube extends Module {
         $def_id = $this->get_module_variable('default',null);
         foreach($accounts as $a) {
             if($def===null) $def = $a;
-            if($a['id']==$def_id) $def = $a;
+            if($def_id===null && $a['default_account']) $def = $a;
+            elseif($a['id']==$def_id) $def = $a;
             Base_ActionBarCommon::add('add',$a['login'], $this->create_callback_href(array($this,'account'),$a['id']),$a['server']);
         }
         if($def===null) {
             print($this->t('No accounts'));
             return;
         }
-        print('<iframe src="modules/CRM/Roundcube/src/index.php?'.http_build_query(array('_autologin_id'=>$def['id'],'_autologin_hash'=>md5($def['server'].$def['password'].$def['smtp_server'])/*,'_task'=>'logout'*/)).'" width="600px" height="300px" id="rc_frame"></iframe>');
+        $params = array('_autologin_id'=>$def['id'],'_autologin_hash'=>md5($def['server'].$def['password'].$def['smtp_server']));
+        print('<iframe style="border:0" border="0" src="modules/CRM/Roundcube/src/index.php?'.http_build_query($params).'" width="600px" height="300px" id="rc_frame"></iframe>');
         eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(dim.height-120)+"px";rc.style.width=(dim.width-50)+"px";');
     }
 

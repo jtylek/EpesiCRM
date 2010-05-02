@@ -70,6 +70,26 @@ class CRM_RoundcubeCommon extends ModuleCommon {
     public static function display_epesi_user($record, $nolink, $desc) {
         return Base_UserCommon::get_user_login($record['epesi_user']);
     }
+
+    public static function QFfield_default_account(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+        $form->addElement('checkbox', $field, $label,'');
+        $form->setDefaults(array($field=>$default));
+        if($mode=='view' || $default) $form->freeze(array($field));
+    }
+
+    public static function submit_account($param, $mode) {
+        if($mode=='edit')
+            $acc = Utils_RecordBrowserCommon::get_record('rc_accounts',$param['id']);
+        if($mode=='add' || (isset($acc['default_account']) && !$acc['default_account'])) {
+            $count = DB::GetOne('SELECT count(*) FROM rc_accounts_data_1 WHERE active=1 AND f_epesi_user=%d',array(Acl::get_user()));
+            if($count) {
+                if($param['default_account'])
+                    DB::Execute('UPDATE rc_accounts_data_1 SET f_default_account=0 WHERE active=1 AND f_epesi_user=%d',array(Acl::get_user()));
+            } else
+                $param['default_account']=1;
+        }
+        return $param;
+    }
 }
 
 ?>

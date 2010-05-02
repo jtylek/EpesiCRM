@@ -4,9 +4,9 @@
  * Sample plugin to try out some hooks.
  * This performs an automatic login if accessed from localhost
  */
-class epesi_autologon extends rcube_plugin
+class epesi_autorelogon extends rcube_plugin
 {
-  public $task = 'login';
+  public $task = 'mail';
 
   function init()
   {
@@ -19,8 +19,12 @@ class epesi_autologon extends rcube_plugin
     $rcmail = rcmail::get_instance();
     global $account;
     // change action to login
-    if (empty($_SESSION['user_id']) && !empty($account)) {
+    if ((empty($_SESSION['user_id']) || isset($_GET['_autologin_id'])) && !empty($account)) {
       $args['action'] = 'login';
+      $args['task'] = 'login';
+      $_SESSION['temp'] = 1;
+      $rcmail->logout_actions();
+      $rcmail->kill_session();
     }
 
     return $args;

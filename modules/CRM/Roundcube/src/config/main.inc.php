@@ -6,28 +6,29 @@ require_once('include/include_path.php');
 require_once('include/data_dir.php');
 require_once('include/config.php');
 require_once('include/database.php');
+require_once('include/acl.php');
 require_once('include/variables.php');
 chdir($d);
 $data_dir = '../../../../'.DATA_DIR.'/CRM_Roundcube/tmp/';
 $log_dir = '../../../../'.DATA_DIR.'/CRM_Roundcube/log/';
 if(!file_exists($data_dir))
-	mkdir($data_dir);
+    mkdir($data_dir);
 if(!file_exists($log_dir))
-	mkdir($log_dir);
+    mkdir($log_dir);
 
 if(isset($_GET['_autologin_id']) && isset($_GET['_autologin_hash'])) {
-	$id = $_GET['_autologin_id'];
-	$hash = $_GET['_autologin_hash'];
-	setcookie('rc_account',$id.':'.$hash);
+    $id = $_GET['_autologin_id'];
+    $hash = $_GET['_autologin_hash'];
+    setcookie('rc_account',$id.':'.$hash);
 } elseif(isset($_COOKIE['rc_account'])) {
-	list($id,$hash) = explode(':',$_COOKIE['rc_account']);
+    list($id,$hash) = explode(':',$_COOKIE['rc_account']);
 } else
-	die('Forbidden');
+    die('Forbidden');
 
 global $account;
 $account = DB::GetRow('SELECT * FROM rc_accounts_data_1 WHERE id=%d AND active=1',array($id));
 if(md5($account['f_server'].$account['f_password'].$account['f_smtp_server'])!==$hash)
-	die('Access Denied');
+    die('Access Denied');
 
 $rcmail_config = array();
 
@@ -42,7 +43,7 @@ $rcmail_config['debug_level'] = 1;
 $rcmail_config['log_driver'] = 'file';
 
 // date format for log entries
-// (read http://php.net/manual/en/function.date.php for all format characters)  
+// (read http://php.net/manual/en/function.date.php for all format characters)
 $rcmail_config['log_date_format'] = 'd-M-Y H:i:s O';
 
 // Syslog ident string to use, if using the 'syslog' log driver.
@@ -78,10 +79,10 @@ $rcmail_config['smtp_debug'] = false;
 // leave blank to show a textbox at login, give a list of hosts
 // to display a pulldown menu or set one host as string.
 // To use SSL/TLS connection, enter hostname with prefix ssl:// or tls://
-$rcmail_config['default_host'] = '';
+$rcmail_config['default_host'] = ($account['f_security']?$account['f_security'].'://':'').$account['f_server'];
 
 // TCP port used for IMAP connections
-$rcmail_config['default_port'] = 143;
+$rcmail_config['default_port'] = $account['f_security']=='ssl'?993:143;
 
 // IMAP auth type. Can be "auth" (CRAM-MD5), "plain" (PLAIN) or "check" to auto detect.
 // Optional, defaults to "check"
@@ -122,10 +123,10 @@ $rcmail_config['smtp_pass'] = $account['f_smtp_auth']?$account['f_smtp_password'
 // best server supported one)
 $rcmail_config['smtp_auth_type'] = '';
 
-// SMTP HELO host 
-// Hostname to give to the remote server for SMTP 'HELO' or 'EHLO' messages 
-// Leave this blank and you will get the server variable 'server_name' or 
-// localhost if that isn't defined. 
+// SMTP HELO host
+// Hostname to give to the remote server for SMTP 'HELO' or 'EHLO' messages
+// Leave this blank and you will get the server variable 'server_name' or
+// localhost if that isn't defined.
 $rcmail_config['smtp_helo_host'] = '';
 
 // ----------------------------------
@@ -198,11 +199,11 @@ $rcmail_config['password_charset'] = 'ISO-8859-1';
 $rcmail_config['sendmail_delay'] = 0;
 
 // Maximum number of recipients per message. Default: 0 (no limit)
-$rcmail_config['max_recipients'] = 0; 
+$rcmail_config['max_recipients'] = 0;
 
 // Maximum allowednumber of members of an address group. Default: 0 (no limit)
 // If 'max_recipients' is set this value should be less or equal
-$rcmail_config['max_group_members'] = 0; 
+$rcmail_config['max_group_members'] = 0;
 
 // add this user-agent to message headers when sending
 $rcmail_config['useragent'] = 'RoundCube Webmail/'.RCMAIL_VERSION;
@@ -255,13 +256,13 @@ $rcmail_config['email_dns_check'] = false;
 // ----------------------------------
 
 // List of active plugins (in plugins/ directory)
-$rcmail_config['plugins'] = array('epesi_autologon');
+$rcmail_config['plugins'] = array('epesi_autologon','epesi_autorelogon','epesi_addressbook');
 
 // ----------------------------------
 // USER INTERFACE
 // ----------------------------------
 
-// default messages sort column. Use empty value for default server's sorting, 
+// default messages sort column. Use empty value for default server's sorting,
 // or 'arrival', 'date', 'subject', 'from', 'to', 'size', 'cc'
 $rcmail_config['message_sort_col'] = '';
 
@@ -310,7 +311,7 @@ $rcmail_config['create_default_folders'] = false;
 // protect the default folders from renames, deletes, and subscription changes
 $rcmail_config['protect_default_folders'] = true;
 
-// if in your system 0 quota means no limit set this option to true 
+// if in your system 0 quota means no limit set this option to true
 $rcmail_config['quota_zero_as_unlimited'] = false;
 
 // Behavior if a received message requests a message delivery notification (read receipt)
@@ -360,7 +361,7 @@ $rcmail_config['address_book_type'] = 'sql';
 $rcmail_config['ldap_public'] = array();
 
 //
-// If you are going to use LDAP for individual address books, you will need to 
+// If you are going to use LDAP for individual address books, you will need to
 // set 'user_specific' to true and use the variables to generate the appropriate DNs to access it.
 //
 // The recommended directory structure for LDAP is to store all the address book entries
@@ -373,14 +374,14 @@ $rcmail_config['ldap_public'] = array();
 //
 // So the base_dn would be uid=%fu,ou=people,o=root
 // The bind_dn would be the same as based_dn or some super user login.
-/* 
+/*
  * example config for Verisign directory
  *
 $rcmail_config['ldap_public']['Verisign'] = array(
   'name'          => 'Verisign.com',
   'hosts'         => array('directory.verisign.com'),
   'port'          => 389,
-  'use_tls'	    => false,
+  'use_tls'     => false,
   'user_specific' => false,   // If true the base_dn, bind_dn and bind_pass default to the user's IMAP login.
   // %fu - The full username provided, assumes the username is an email
   //       address, uses the username_domain value if not an email address.
@@ -405,8 +406,8 @@ $rcmail_config['ldap_public']['Verisign'] = array(
   'scope'         => 'sub',   // search mode: sub|base|list
   'filter'        => '',      // used for basic listing (if not empty) and will be &'d with search queries. example: status=act
   'fuzzy_search'  => true     // server allows wildcard search
-  'sizelimit'     => '0',     // Enables you to limit the count of entries fetched. Setting this to 0 means no limit. 
-  'timelimit'     => '0',     // Sets the number of seconds how long is spend on the search. Setting this to 0 means no limit. 
+  'sizelimit'     => '0',     // Enables you to limit the count of entries fetched. Setting this to 0 means no limit.
+  'timelimit'     => '0',     // Sets the number of seconds how long is spend on the search. Setting this to 0 means no limit.
 );
 */
 
@@ -467,7 +468,7 @@ $rcmail_config['logout_purge'] = false;
 // Compact INBOX on logout
 $rcmail_config['logout_expunge'] = false;
 
-// Display attached images below the message body 
+// Display attached images below the message body
 $rcmail_config['inline_images'] = true;
 
 // Encoding of long/non-ascii attachment names:
@@ -485,7 +486,7 @@ $rcmail_config['skip_deleted'] = false;
 $rcmail_config['read_when_deleted'] = true;
 
 // Set to true to newer delete messages immediately
-// Use 'Purge' to remove messages marked as deleted 
+// Use 'Purge' to remove messages marked as deleted
 $rcmail_config['flag_for_deletion'] = false;
 
 // Default interval for keep-alive/check-recent requests (in seconds)
@@ -498,9 +499,9 @@ $rcmail_config['check_all_folders'] = false;
 // If true, after message delete/move, the next message will be displayed
 $rcmail_config['display_next'] = false;
 
-// 0 - Do not expand threads 
-// 1 - Expand all threads automatically 
-// 2 - Expand only threads with unread messages 
+// 0 - Do not expand threads
+// 1 - Expand all threads automatically
+// 2 - Expand only threads with unread messages
 $rcmail_config['autoexpand_threads'] = 0;
 
 // When replying place cursor above original message (top posting)

@@ -75,15 +75,15 @@ $RCMAIL->action = $startup['action'];
 
 // try to log in
 if ($RCMAIL->task == 'login' && $RCMAIL->action == 'login') {
-  // purge the session in case of new login when a session already exists 
+  // purge the session in case of new login when a session already exists
   $RCMAIL->kill_session();
-  
+
   $auth = $RCMAIL->plugins->exec_hook('authenticate', array(
     'host' => $RCMAIL->autoselect_host(),
     'user' => trim(get_input_value('_user', RCUBE_INPUT_POST)),
     'cookiecheck' => true,
   ));
-  
+
   if (!isset($auth['pass']))
     $auth['pass'] = get_input_value('_pass', RCUBE_INPUT_POST, true,
         $RCMAIL->config->get('password_charset', 'ISO-8859-1'));
@@ -176,7 +176,7 @@ if (empty($RCMAIL->user->ID)) {
       )
     );
   }
-  
+
   $OUTPUT->set_env('task', 'login');
   $OUTPUT->send('login');
 }
@@ -210,7 +210,7 @@ $action_map = array(
     'upload' => 'attachments.inc',
     'group-expand' => 'autocomplete.inc',
   ),
-  
+
   'addressbook' => array(
     'add' => 'edit.inc',
     'group-create' => 'groups.inc',
@@ -219,7 +219,7 @@ $action_map = array(
     'group-addmembers' => 'groups.inc',
     'group-delmembers' => 'groups.inc',
   ),
-  
+
   'settings' => array(
     'folders'       => 'manage_folders.inc',
     'create-folder' => 'manage_folders.inc',
@@ -270,5 +270,5 @@ raise_error(array(
   'line' => __LINE__,
   'file' => __FILE__,
   'message' => "Invalid request"), true, true);
-                      
+
 ?>
