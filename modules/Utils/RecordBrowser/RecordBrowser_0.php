@@ -307,9 +307,9 @@ class Utils_RecordBrowser extends Module {
         $form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
         $this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 
-        $form_sub = $form->get_submit_form_js_by_name(array($form->get_name(), $this->data_gb->form_s->get_name()),true,null)."return false;";
-        $this->data_gb->form_s->updateAttributes(array('onsubmit'=>$form_sub));
-        $form->updateAttributes(array('onsubmit'=>$form_sub));
+//        $form_sub = $form->get_submit_form_js_by_name(array($form->get_name(), $this->data_gb->form_s->get_name()),true,null)."return false;";
+//        $this->data_gb->form_s->updateAttributes(array('onsubmit'=>$form_sub));
+//	      $form->updateAttributes(array('onsubmit'=>$form_sub));
 
         $filters = array();
         $text_filters = array();
