@@ -24,6 +24,9 @@ if(!file_exists($data_dir))
 if(!file_exists($log_dir))
     mkdir($log_dir);
 
+if(!isset($E_SESSION['user']))
+    die('Not logged');
+
 if(isset($_GET['_autologin_id']) && isset($_GET['_autologin_hash'])) {
     $id = $_GET['_autologin_id'];
     $hash = $_GET['_autologin_hash'];
