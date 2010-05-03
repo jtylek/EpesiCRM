@@ -38,6 +38,7 @@ class epesi_addressbook_backend extends rcube_addressbook
 
   public function list_records($cols=null, $subset=0)
   {
+    global $E_SESSION;
     $this->result = $this->count();
     //$this->result->add(array('ID' => '111', 'name' => "epesi Contact", 'firstname' => "epesi", 'surname' => "Contact", 'email' => "epesi@roundcube.net"));
     $ret = DB::Execute('SELECT id as ID,f_first_name as firstname, f_last_name as surname, f_email as email FROM contact_data_1 WHERE active=1 AND f_email!=""  AND f_email is not null AND (f_permission<2 OR created_by=%d) ORDER BY f_last_name,f_first_name'.($subset?' LIMIT '.$subset:''),array($E_SESSION['user']));
@@ -51,6 +52,7 @@ class epesi_addressbook_backend extends rcube_addressbook
 
   public function search($fields, $value, $strict=false, $select=true)
   {
+    global $E_SESSION;
     $this->result = $this->count();
     //$this->result->add(array('ID' => '111', 'name' => "epesi Contact", 'firstname' => "epesi", 'surname' => "Contact", 'email' => "epesi@roundcube.net"));
     if($strict)
@@ -78,6 +80,7 @@ class epesi_addressbook_backend extends rcube_addressbook
   public function get_record($id, $assoc=false)
   {
     //$this->list_records();
+    global $E_SESSION;
     $ret = DB::GetRow('SELECT id as ID,f_first_name as firstname, f_last_name as surname, f_email as email FROM contact_data_1 WHERE active=1 AND id=%d AND f_email!=""  AND f_email is not null AND (f_permission<2 OR created_by=%d)',array($id,$E_SESSION['user']));
     if(!$ret) return false;
     $ret['name'] = $ret['surname'].' '.$ret['firstname'];
