@@ -751,7 +751,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$crits = array();
 		if ($filter===null) $filter = CRM_FiltersCommon::get();
 		if($filter!='()' && $filter)
-			$crits[($customers?'(':'').'employees'] = explode(',',trim($filter,'()'));
+			$crits['('.'employees'] = explode(',',trim($filter,'()'));
 		if ($customers) 
 			$crits['|customers'] = $customers;
 		else $crits['|customers'] = explode(',',trim($filter,'()'));
