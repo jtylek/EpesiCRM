@@ -379,11 +379,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		return $ret;
 	}
     public static function display_title_with_mark($record) {
-		$me = CRM_ContactsCommon::get_my_record();
 		$ret = self::display_title($record, false);
-		if (!in_array($me['id'], $record['employees'])) return $ret;
-		$notified = Utils_WatchdogCommon::check_if_notified('crm_meeting',$record['id']);
-		if ($notified!==true && $notified!==null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Meeting','notice.png').'" />'.$ret;
 		return $ret;
 	}
 	public static function get_status_change_leightbox_href($record, $nolink, $desc) {
