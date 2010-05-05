@@ -24,6 +24,7 @@ $body = '<html>'.
         '<head><meta http-equiv=Content-Type content="text/html; charset=utf-8" />'.
         '<script type="text/javascript">function fix_height(){parent.$("rc_mail_body").height = Math.max(document.body.offsetHeight,document.body.scrollHeight)+30;}</script>'.
         '</head><body>'.$body.($images?'<hr />'.implode('<br />',$images):'').
+        '<script type="text/javascript">fix_height();</script>'.
         '</body>'.
         '</html>';
 print($body);
