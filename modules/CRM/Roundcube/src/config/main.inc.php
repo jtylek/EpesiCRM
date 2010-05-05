@@ -38,7 +38,7 @@ if(isset($_GET['_autologin_id']) && isset($_GET['_autologin_hash'])) {
 
 global $account;
 $account = DB::GetRow('SELECT * FROM rc_accounts_data_1 WHERE id=%d AND active=1',array($id));
-if(md5($account['f_server'].$account['f_password'].$account['f_smtp_server'])!==$hash)
+if($E_SESSION['user']!==$account['f_epesi_user'])
     die('Access Denied');
 
 $rcmail_config = array();

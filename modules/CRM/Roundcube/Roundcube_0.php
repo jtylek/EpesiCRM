@@ -27,7 +27,7 @@ class CRM_Roundcube extends Module {
             print($this->t('No accounts'));
             return;
         }
-        $params = array('_autologin_id'=>$def['id'],'_autologin_hash'=>md5($def['server'].$def['password'].$def['smtp_server']));
+        $params = array('_autologin_id'=>$def['id']);
         print('<iframe style="border:0" border="0" src="modules/CRM/Roundcube/src/index.php?'.http_build_query($params).'" width="600px" height="300px" id="rc_frame"></iframe>');
         eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(dim.height-120)+"px";rc.style.width=(dim.width-50)+"px";');
     }
