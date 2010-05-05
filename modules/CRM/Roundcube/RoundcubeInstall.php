@@ -14,6 +14,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
     public function install() {
         $this->create_data_dir();
+		Base_ThemeCommon::install_default_theme($this -> get_type());
 
         if(DATABASE_DRIVER=='mysqlt')
             $f = file_get_contents('modules/CRM/Roundcube/src/SQL/mysql.initial.sql');
@@ -155,6 +156,8 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_accounts');
         Utils_CommonDataCommon::remove('CRM/Roundcube/Security');
+
+		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 
         return true;
     }
