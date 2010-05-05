@@ -51,9 +51,9 @@ class CRM_Roundcube extends Module {
         $rb->set_button(false);
         if($rs=='contact') {
             $ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
-            $this->display_module($rb, array(array('id'=>$ids), array(), array('date'=>'ASC')), 'show_data');
+            $this->display_module($rb, array(array('id'=>$ids), array(), array('date'=>'DESC')), 'show_data');
         } else {
-            $this->display_module($rb, array(array('recordset'=>array($rs), 'object'=>array($id)), array(), array('date'=>'ASC')), 'show_data');
+            $this->display_module($rb, array(array('recordset'=>array($rs), 'object'=>array($id)), array(), array('date'=>'DESC')), 'show_data');
         }
     }
 
