@@ -5,9 +5,9 @@ class epesi_archive extends rcube_plugin
 
   function init()
   {
-    $rcmail = rcmail::get_instance();
-
     $this->register_action('plugin.epesi_archive', array($this, 'request_action'));
+
+    $rcmail = rcmail::get_instance();
 
     if ($rcmail->action == '' || $rcmail->action == 'show') {
       $skin_path = $this->local_skin_path();
@@ -31,10 +31,11 @@ class epesi_archive extends rcube_plugin
     global $E_SESSION;
     $this->add_texts('localization');
 
+    $rcmail = rcmail::get_instance();
     $uids = get_input_value('_uid', RCUBE_INPUT_POST);
     $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
+    $sent_mbox = ($rcmail->config->get('sent_mbox')==$mbox);
 
-    $rcmail = rcmail::get_instance();
     $msgs = array();
     $uids = explode(',',$uids);
     foreach($uids as $uid) {
@@ -51,16 +52,23 @@ class epesi_archive extends rcube_plugin
     $map = array();
     foreach($msgs as $k=>$msg) {
         //error_log(print_r($msg->mime_parts,true));
-        $contact = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_email=%s AND (f_permission<2 OR created_by=%d)',array($msg->sender['mailto'],$E_SESSION['user']));
+        if($sent_mbox) {
+            list(,$send) = each($rcmail->imap->decode_address_list($msg->headers->to));
+            $addr = $send['mailto'];
+        } else {
+            $addr = $msg->sender['mailto'];
+        }
+        $contact = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_email=%s AND (f_permission<2 OR created_by=%d)',array($addr,$E_SESSION['user']));
         if($contact!==false) {
             $map[$k] = array('recordset'=>'contact','id'=>$contact);
             continue;
         }
-        $company = DB::GetOne('SELECT id FROM company_data_1 WHERE active=1 AND f_email=%s AND (f_permission<2 OR created_by=%d)',array($msg->sender['mailto'],$E_SESSION['user']));
+        $company = DB::GetOne('SELECT id FROM company_data_1 WHERE active=1 AND f_email=%s AND (f_permission<2 OR created_by=%d)',array($addr,$E_SESSION['user']));
         if($company!==false) {
             $map[$k] = array('recordset'=>'company','id'=>$company);
             continue;
         }
+
         $rcmail->output->command('display_message', $this->gettext('contactnotfound'), 'error');
         $rcmail->output->send();
         return;
@@ -98,8 +106,8 @@ class epesi_archive extends rcube_plugin
                 $headers[] = $k.': '.$v;
         }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
-        DB::Execute('INSERT INTO rc_mails_data_1(created_on,created_by,f_recordset,f_object,f_date,f_employee,f_subject,f_body,f_headers_data) VALUES(%T,%d,%s,%d,%T,%d,%s,%s,%s)',array(
-                    time(),$E_SESSION['user'],$object['recordset'],$object['id'],$date,$employee,substr($msg->subject,0,256),$body,implode("\n",$headers)));
+        DB::Execute('INSERT INTO rc_mails_data_1(created_on,created_by,f_recordset,f_object,f_date,f_employee,f_subject,f_body,f_headers_data,f_direction) VALUES(%T,%d,%s,%d,%T,%d,%s,%s,%s,%b)',array(
+                    time(),$E_SESSION['user'],$object['recordset'],$object['id'],$date,$employee,substr($msg->subject,0,256),$body,implode("\n",$headers),$sent_mbox));
         $id = DB::Insert_ID('rc_mails_data_1','id');
         foreach($msg->mime_parts as $mid=>$m) {
             if(!$m->disposition) continue;

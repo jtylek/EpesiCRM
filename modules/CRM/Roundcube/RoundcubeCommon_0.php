@@ -126,6 +126,10 @@ class CRM_RoundcubeCommon extends ModuleCommon {
         $form->freeze($field);
     }
 
+    public static function display_object($record, $nolink, $desc) {
+        return Utils_RecordBrowserCommon::create_default_linked_label($record['recordset'],$record['object']);
+    }
+
     public static function QFfield_attachments(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         $attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($rb_obj->record['id']));
         foreach($attachments as $k=>&$n)
@@ -140,6 +144,20 @@ class CRM_RoundcubeCommon extends ModuleCommon {
 
     public static function display_subject($record, $nolink, $desc) {
         return Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
+    }
+
+    public static function QFfield_direction(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if($default)
+            $txt = Base_LangCommon::ts('CRM_Roundcube','Sent by employee');
+        else
+            $txt = Base_LangCommon::ts('CRM_Roundcube','Received by employee');
+        $form->addElement('static', $field, $label,$txt);
+    }
+
+    public static function display_direction($record, $nolink, $desc) {
+        if($record['direction'])
+            return '<=';
+        return '=>';
     }
 
     public static function applet_caption() {

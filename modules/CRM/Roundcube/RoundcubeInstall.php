@@ -14,7 +14,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
     public function install() {
         $this->create_data_dir();
-		Base_ThemeCommon::install_default_theme($this -> get_type());
+        Base_ThemeCommon::install_default_theme($this -> get_type());
 
         if(DATABASE_DRIVER=='mysqlt')
             $f = file_get_contents('modules/CRM/Roundcube/src/SQL/mysql.initial.sql');
@@ -49,6 +49,15 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
         $fields = array(
             array(
+                'name'=>'Subject',
+                'type'=>'text',
+                'param'=>'256',
+                'extra'=>false,
+                'visible'=>true,
+                'required'=>false,
+                'display_callback'=>array('CRM_RoundcubeCommon','display_subject'),
+            ),
+            array(
                 'name'=>'Recordset',
                 'type'=>'text',
                 'param'=>'64',
@@ -60,18 +69,20 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'name'=>'Object',
                 'type'=>'integer',
                 'extra'=>false,
-                'visible'=>false,
+                'visible'=>true,
                 'required'=>true,
-                'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_object')
+                'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_object'),
+                'display_callback'=>array('CRM_RoundcubeCommon','display_object')
             ),
             array(
-                'name'=>'Subject',
+                'name'=>'Direction',
                 'type'=>'text',
-                'param'=>'256',
+                'param'=>1,
                 'extra'=>false,
                 'visible'=>true,
-                'required'=>false,
-                'display_callback'=>array('CRM_RoundcubeCommon','display_subject'),
+                'required'=>true,
+                'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_direction'),
+                'display_callback'=>array('CRM_RoundcubeCommon','display_direction')
             ),
             array(
                 'name'=>'Employee',
@@ -157,7 +168,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::uninstall_recordset('rc_accounts');
         Utils_CommonDataCommon::remove('CRM/Roundcube/Security');
 
-		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
+        Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 
         return true;
     }
