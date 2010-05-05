@@ -115,7 +115,7 @@ class epesi_archive extends rcube_plugin
         }
     }
 
-    //$rcmail->output->command('delete_messages');
+    $rcmail->output->command('delete_messages');
     $rcmail->output->command('display_message', $this->gettext('archived'), 'confirmation');
 
     $rcmail->output->send();
