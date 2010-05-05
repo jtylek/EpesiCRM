@@ -27,14 +27,16 @@ if(!file_exists($log_dir))
 if(!isset($E_SESSION['user']))
     die('Not logged');
 
-if(isset($_GET['_autologin_id']) && isset($_GET['_autologin_hash'])) {
+if(isset($_GET['_autologin_id'])) {
     $id = $_GET['_autologin_id'];
-    $hash = $_GET['_autologin_hash'];
-    setcookie('rc_account',$id.':'.$hash);
+    setcookie('rc_account',$id);
 } elseif(isset($_COOKIE['rc_account'])) {
-    list($id,$hash) = explode(':',$_COOKIE['rc_account']);
+    $id = $_COOKIE['rc_account'];
 } else
     die('Forbidden');
+
+if(!is_numeric($id))
+    die('Invalid account id');
 
 global $account;
 $account = DB::GetRow('SELECT * FROM rc_accounts_data_1 WHERE id=%d AND active=1',array($id));
