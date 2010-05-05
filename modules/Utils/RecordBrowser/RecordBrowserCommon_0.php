@@ -1217,10 +1217,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $ret = true;
             } else {
                 $ret = call_user_func($access_callback, $action, $record);
-                if ($action==='delete' && $ret) {
+/*                if ($action==='delete' && $ret) {
                     $ed_ret = call_user_func($access_callback, 'edit', $record);
                     $ret = ($ed_ret!==false);
-                }
+                }*/
             }
         }
         if ($action!=='browse_crits' && $action!=='delete') {
