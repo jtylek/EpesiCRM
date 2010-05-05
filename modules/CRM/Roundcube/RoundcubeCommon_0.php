@@ -90,6 +90,58 @@ class CRM_RoundcubeCommon extends ModuleCommon {
         }
         return $param;
     }
+
+    public static function new_addon($recordset) {
+        Utils_RecordBrowserCommon::new_addon($recordset, 'CRM/Roundcube', 'addon', 'Mails');
+    }
+
+    public static function access_mails($action, $param=null) {
+        $i = self::Instance();
+        switch ($action) {
+            case 'browse_crits':    return true;
+            case 'browse':  return true;
+            case 'view':    return array('recordset'=>false,'headers_data'=>false);
+            case 'clone':
+            case 'add':
+            case 'edit':    return false;
+            case 'delete':  return true;
+        }
+        return false;
+
+    }
+
+    public static function QFfield_body(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+        //$form->addElement('static', $field, $label,DB::GetOne('SELECT f_body FROM rc_mails_data_1 WHERE id=%d',array($rb->record['id'])));
+        $form->addElement('static', $field, $label,'<iframe id="rc_mail_body" src="modules/CRM/Roundcube/get_body.php?'.http_build_query(array('id'=>$rb->record['id'])).'" style="width:100%;border:0" border="0"></iframe>');
+    }
+
+    public static function QFfield_headers(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+        Libs_LeightboxCommon::display('mail_headers',$rb->record['headers_data'],Base_LangCommon::ts('CRM_Roundcube','Mail Headers'));
+        $form->addElement('static', $field, $label,'<a '.Libs_LeightboxCommon::get_open_href('mail_headers').'>'.Base_LangCommon::ts('CRM_Roundcube','display').'</a>');
+    }
+
+    public static function QFfield_object(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        $form->addElement('select',$field,$label,array($default=>Utils_RecordBrowserCommon::create_default_linked_label($rb_obj->record['recordset'],$default)));
+        $form->setDefaults(array($field=>$default));
+        $form->freeze($field);
+    }
+
+    public static function QFfield_attachments(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        $attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($rb_obj->record['id']));
+        foreach($attachments as $k=>&$n)
+            $n = '<a href="modules/CRM/Roundcube/get.php?'.http_build_query(array('mime_id'=>$k,'mail_id'=>$rb_obj->record['id'])).'" target="_blank">'.$n.'</a>';
+        if($attachments)
+            $form->addElement('static',$field,$label,($attachments?implode(', ',$attachments):''));
+    }
+
+    public static function display_attachments($record, $nolink, $desc) {
+        return DB::GetOne('SELECT count(mime_id) FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($record['id']));
+    }
+
+    public static function display_subject($record, $nolink, $desc) {
+        return Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
+    }
+
 }
 
 ?>

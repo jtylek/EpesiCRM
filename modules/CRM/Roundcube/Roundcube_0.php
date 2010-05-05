@@ -36,6 +36,25 @@ class CRM_Roundcube extends Module {
         $this->set_module_variable('default',$id);
     }
 
+    public function addon($arg, $rb) {
+        $rs = $rb->tab;
+        $id = $arg['id'];
+        $rb = $this->init_module('Utils/RecordBrowser','rc_mails','rc_mails');
+        $rb->set_header_properties(array(
+                'date'=>array('width'=>15),
+                'employee'=>array('width'=>25),
+                'subject'=>array('width'=>55),
+                'attachments'=>array('width'=>5)
+            ));
+        $rb->set_button(false);
+        if($rs=='contact') {
+            $ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
+            $this->display_module($rb, array(array('id'=>$ids), array(), array('date'=>'ASC')), 'show_data');
+        } else {
+            $this->display_module($rb, array(array('recordset'=>array($rs), 'object'=>array($id)), array(), array('date'=>'ASC')), 'show_data');
+        }
+    }
+
     ////////////////////////////////////////////////////////////
     //account management
     public function account_manager() {

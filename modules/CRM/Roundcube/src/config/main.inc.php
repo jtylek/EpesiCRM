@@ -13,7 +13,7 @@ $sess_name = $_COOKIE[session_name()];
 if(!$sess_name)
     $sess_name = $_REQUEST[session_name()];
 $E_SESSION = DB::GetOne('SELECT data FROM session WHERE name = %s', array($sess_name));
-if($E_SESSION) 
+if($E_SESSION)
     $E_SESSION = unserialize($E_SESSION);
 
 chdir($d);
@@ -267,7 +267,9 @@ $rcmail_config['email_dns_check'] = false;
 // ----------------------------------
 
 // List of active plugins (in plugins/ directory)
-$rcmail_config['plugins'] = array('epesi_autologon','epesi_autorelogon','epesi_addressbook');
+$rcmail_config['plugins'] = array('epesi_autologon','epesi_autorelogon','epesi_addressbook','additional_message_headers','epesi_archive','markasjunk');
+
+$rcmail_config['additional_message_headers'] = array('Epesi-User'=>DB::GetOne('SELECT login FROM user_login WHERE id=%d',array($E_SESSION['user'])));
 
 // ----------------------------------
 // USER INTERFACE
