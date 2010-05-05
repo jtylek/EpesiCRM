@@ -8,11 +8,11 @@ require_once('include/config.php');
 require_once('include/database.php');
 require_once('include/acl.php');
 require_once('include/variables.php');
-global $E_SESSION;
-$sess_name = $_COOKIE[session_name()];
-if(!$sess_name)
-    $sess_name = $_REQUEST[session_name()];
-$E_SESSION = DB::GetOne('SELECT data FROM session WHERE name = %s', array($sess_name));
+global $E_SESSION,$E_SESSION_ID;
+$E_SESSION_ID = $_COOKIE[session_name()];
+if(!$E_SESSION_ID)
+    $E_SESSION_ID = $_REQUEST[session_name()];
+$E_SESSION = DB::GetOne('SELECT data FROM session WHERE name = %s', array($E_SESSION_ID));
 if($E_SESSION)
     $E_SESSION = unserialize($E_SESSION);
 

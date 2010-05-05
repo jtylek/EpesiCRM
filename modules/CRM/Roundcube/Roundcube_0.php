@@ -55,6 +55,37 @@ class CRM_Roundcube extends Module {
         }
     }
 
+    public function applet($conf, $opts) {
+        Epesi::load_js('modules/CRM/Roundcube/utils.js');
+        $opts['go'] = true;
+        $accounts = array();
+        $ret = array();
+        $update_applet = '';
+        foreach($conf as $key=>$on) {
+            $x = explode('_',$key);
+            if($x[0]=='account' && $on) {
+                $id = $x[1];
+                $accounts[] = $id;
+            }
+        }
+        $accs = Utils_RecordBrowserCommon::get_records('rc_accounts',array('epesi_user'=>Acl::get_user(),'id'=>$accounts));
+        print('<ul>');
+        foreach($accs as $row) {
+            $mail = $row['login'];
+
+            $cell_id = 'mailaccount_'.$opts['id'].'_'.$row['id'];
+
+            //interval execution
+            eval_js_once('setInterval(\'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' , 0)\',300000)');
+
+            //and now
+            $update_applet .= 'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' ,1);';
+            print('<li><i>'.$mail.'</i> - <span id="'.$cell_id.'"></span></li>');
+        }
+        print('</ul>');
+        $this->js($update_applet);
+    }
+
     ////////////////////////////////////////////////////////////
     //account management
     public function account_manager() {

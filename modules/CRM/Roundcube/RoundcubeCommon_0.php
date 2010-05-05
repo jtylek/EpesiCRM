@@ -142,6 +142,26 @@ class CRM_RoundcubeCommon extends ModuleCommon {
         return Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
     }
 
+    public static function applet_caption() {
+        if(function_exists('imap_open'))
+            return "Mail indicator";
+        return false;
+    }
+
+    public static function applet_info() {
+        return "Checks if there is new mail";
+    }
+
+    public static function applet_settings() {
+        $conf = array(array('type'=>'header','label'=>'Choose accounts'));
+        $ret = Utils_RecordBrowserCommon::get_records('rc_accounts',array('epesi_user'=>Acl::get_user()));
+        foreach($ret as $row)
+                $conf[] = array('name'=>'account_'.$row['id'], 'label'=>$row['login'].' at '.$row['server'], 'type'=>'checkbox', 'default'=>1);
+        if(count($conf)==1)
+            return array(array('type'=>'static','label'=>'No accounts configured, go Home->My settings->Mail accounts'));
+        return $conf;
+    }
+
 }
 
 ?>
