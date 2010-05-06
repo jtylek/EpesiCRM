@@ -1974,12 +1974,15 @@ class Utils_RecordBrowser extends Module {
         if ($multiple) $this->multiple_defaults = true;
     }
     public function set_filters_defaults($arg){
-        $f = & $this->get_module_variable('def_filter', array());
-        if(is_array($arg)) {
-            foreach ($arg as $k=>$v) {
-                $f['filter__'.$k] = $v;
-            }
-        }
+		if(!$this->isset_module_variable('def_filter')) {
+			$r = array();
+			if(is_array($arg)) {
+				foreach ($arg as $k=>$v) {
+					$f['filter__'.$k] = $v;
+				}
+			}
+			$this->set_module_variable('def_filter', $f);
+		}
     }
     public function set_default_order($arg){
         foreach ($arg as $k=>$v)
