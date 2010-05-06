@@ -120,16 +120,6 @@ class CRM_RoundcubeCommon extends ModuleCommon {
         $form->addElement('static', $field, $label,'<a '.Libs_LeightboxCommon::get_open_href('mail_headers').'>'.Base_LangCommon::ts('CRM_Roundcube','display').'</a>');
     }
 
-    public static function QFfield_object(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
-        $form->addElement('select',$field,$label,array($default=>Utils_RecordBrowserCommon::create_default_linked_label($rb_obj->record['recordset'],$default)));
-        $form->setDefaults(array($field=>$default));
-        $form->freeze($field);
-    }
-
-    public static function display_object($record, $nolink, $desc) {
-        return Utils_RecordBrowserCommon::create_default_linked_label($record['recordset'],$record['object']);
-    }
-
     public static function QFfield_attachments(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         $attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($rb_obj->record['id']));
         foreach($attachments as $k=>&$n)

@@ -55,24 +55,15 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'extra'=>false,
                 'visible'=>true,
                 'required'=>false,
-                'display_callback'=>array('CRM_RoundcubeCommon','display_subject'),
+                'display_callback'=>array('CRM_RoundcubeCommon','display_subject')
             ),
             array(
-                'name'=>'Recordset',
-                'type'=>'text',
-                'param'=>'64',
+                'name'=>'Contacts',
+                'type'=>'crm_company_contact',
+                'param'=>array('field_type'=>'multiselect'),
+                'required'=>false,
                 'extra'=>false,
-                'visible'=>false,
-                'required'=>true
-            ),
-            array(
-                'name'=>'Object',
-                'type'=>'integer',
-                'extra'=>false,
-                'visible'=>true,
-                'required'=>true,
-                'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_object'),
-                'display_callback'=>array('CRM_RoundcubeCommon','display_object')
+                'visible'=>true
             ),
             array(
                 'name'=>'Direction',
@@ -160,9 +151,6 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
         Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Roundcube', 'addon');
         Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Roundcube', 'addon');
-//        $rss = DB::GetCol('SELECT f_recordset FROM rc_mails_data_1 GROUP BY f_recordset');
-  //      foreach($rss as $rs)
-    //        Utils_RecordBrowserCommon::delete_addon($rs, 'CRM/Roundcube', 'addon');
         DB::DropTable('rc_mails_attachments');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_accounts');

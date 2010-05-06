@@ -44,16 +44,16 @@ class CRM_Roundcube extends Module {
                 'direction'=>array('width'=>5),
                 'date'=>array('width'=>10),
                 'employee'=>array('width'=>20),
-                'object'=>array('name'=>'Customer','width'=>20),
+                'contacts'=>array('width'=>20),
                 'subject'=>array('width'=>40),
                 'attachments'=>array('width'=>5)
             ));
         $rb->set_button(false);
         if($rs=='contact') {
-            $ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
-            $this->display_module($rb, array(array('id'=>$ids), array(), array('date'=>'DESC')), 'show_data');
+            //$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
+            $this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id)), array(), array('date'=>'DESC')), 'show_data');
         } else {
-            $this->display_module($rb, array(array('recordset'=>array($rs), 'object'=>array($id)), array(), array('date'=>'DESC')), 'show_data');
+            $this->display_module($rb, array(array('contacts'=>array('C:'.$id)), array(), array('date'=>'DESC')), 'show_data');
         }
     }
 
