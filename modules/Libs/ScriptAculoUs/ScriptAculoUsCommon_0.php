@@ -19,4 +19,7 @@ load_js('modules/Libs/ScriptAculoUs/1.8.0/dragdrop.js');
 load_js('modules/Libs/ScriptAculoUs/1.8.0/controls.js');
 load_js('modules/Libs/ScriptAculoUs/1.8.0/slider.js');
 load_js('modules/Libs/ScriptAculoUs/1.8.0/sound.js');
+
+class Libs_ScriptAculoUsCommon extends ModuleCommon {}
+
 ?>

@@ -21,4 +21,5 @@ if(!MOBILE_DEVICE) {
 	load_css('modules/Libs/FCKeditor/frontend.css');
 	Libs_QuickFormCommon::add_on_submit_action("if(typeof(fckeditor_onsubmit)!='undefined')fckeditor_onsubmit(this)");
 }
+class Libs_FCKEditorCommon extends ModuleCommon {}
 ?> 

@@ -19,4 +19,5 @@ load_js('modules/Libs/Codepress/0.9.6/codepress.js');
 eval_js_once('document.observe("e:load", function(){CodePress.run();})');
 Libs_QuickFormCommon::add_on_submit_action('CodePress.update(this)');
 
+class Libs_CodepressCommon extends ModuleCommon {}
 ?>
