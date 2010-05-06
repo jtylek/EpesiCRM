@@ -121,7 +121,7 @@ class epesi_archive extends rcube_plugin
     $attachments_dir = '../../../../'.DATA_DIR.'/CRM_Roundcube/attachments/';
     if(!file_exists($attachments_dir)) mkdir($attachments_dir);
     foreach($msgs as $k=>$msg) {
-        $contacts = '__'.implode('__',$map[$k]).'__';
+        $contacts = $map[$k];//'__'.implode('__',$map[$k]).'__';
         if($msg->has_html_part()) {
             $body = $msg->first_html_part();
             foreach ($msg->mime_parts as $mime_id => $part) {
@@ -150,9 +150,18 @@ class epesi_archive extends rcube_plugin
                 $headers[] = $k.': '.$v;
         }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
-        DB::Execute('INSERT INTO rc_mails_data_1(created_on,created_by,f_contacts,f_date,f_employee,f_subject,f_body,f_headers_data,f_direction) VALUES(%T,%d,%s,%T,%d,%s,%s,%s,%b)',array(
+        $id = Utils_RecordBrowserCommon::new_record('rc_mails',array('contacts'=>$contacts,'date'=>$date,'employee'=>$employee,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'direction'=>$sent_mbox));
+        foreach($contacts as $c) {
+            list($rs,$con_id) = explode(':',$c);
+            if($rs=='P')
+                Utils_WatchdogCommon::new_event('contact',$con_id,'N_New mail');
+            else
+                Utils_WatchdogCommon::new_event('company',$con_id,'N_New mail');
+        }
+        Utils_WatchdogCommon::new_event('contact',$employee,'N_New mail');
+        /*DB::Execute('INSERT INTO rc_mails_data_1(created_on,created_by,f_contacts,f_date,f_employee,f_subject,f_body,f_headers_data,f_direction) VALUES(%T,%d,%s,%T,%d,%s,%s,%s,%b)',array(
                     time(),$E_SESSION['user'],$contacts,$date,$employee,substr($msg->subject,0,256),$body,implode("\n",$headers),$sent_mbox));
-        $id = DB::Insert_ID('rc_mails_data_1','id');
+        $id = DB::Insert_ID('rc_mails_data_1','id');*/
         foreach($msg->mime_parts as $mid=>$m) {
             if(!$m->disposition) continue;
             if($m->disposition=='inline')
