@@ -1,4 +1,13 @@
 <?php
+class ErrorObserver
+{
+}
+
+class ErrorHandler {
+	public static function add_observer() {
+	}
+}
+
 //function on_init() {}
 /**
  * Sample plugin to add a new address book
