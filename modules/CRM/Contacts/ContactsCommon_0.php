@@ -403,7 +403,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function contact_get_tooltip($record) {
     	if(!is_array($record) || empty($record) || !isset($record['work_phone'])) return '';
-        if(isset($record['group']) && is_array($record['group'])) {
+		if(isset($record['group']) && is_array($record['group'])) {
             $group = Utils_CommonDataCommon::get_nodes('Contacts_Groups',$record['group']);
             if($group)
                 $group = implode(', ',$group);
@@ -412,8 +412,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         } else {
             $group = '';
         }
-        return Utils_TooltipCommon::format_info_tooltip(array('Group'=>$group,
-                'Work Phone'=>$record['work_phone'],
+        return Utils_TooltipCommon::format_info_tooltip(array(
+				'Contact'=>'<STRONG>'.$record['last_name'].', '.$record['first_name'].'</STRONG>',
+				'Work Phone'=>$record['work_phone'],
                 'Mobile Phone'=>$record['mobile_phone'],
                 'Fax'=>$record['fax'],
                 'Email'=>$record['email'],
@@ -423,7 +424,9 @@ class CRM_ContactsCommon extends ModuleCommon {
                 'City'=>$record['city'],
                 'Zone'=>$record['zone']?Utils_CommonDataCommon::get_value('Countries/'.$record['country'].'/'.$record['zone']):'---',
                 'Country'=>Utils_CommonDataCommon::get_value('Countries/'.$record['country']),
-                'Postal Code'=>$record['postal_code']),'Utils_RecordBrowser');
+                'Postal Code'=>$record['postal_code'],
+				'Group'=>$group
+				),'Utils_RecordBrowser');
     }
     public static function contact_format_default($record, $nolink=false){
         if (is_numeric($record)) $record = self::get_contact($record);
