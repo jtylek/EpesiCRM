@@ -1,8 +1,8 @@
 <center>
 {$open_buttons_section}
 <table id="Utils_LeightboxPrompt" cellspacing="0" cellpadding="0">
+	{assign var=x value=0}
 	<tr>
-
 	{foreach item=b from=$buttons}
         <td>
 		<!-- SHADIW BEGIN -->
@@ -39,8 +39,13 @@
 			</div>
 		<!-- -->
         </td>
+		{assign var=x value=$x+1}
+		{if ($x==6)}
+			{assign var=x value=0}
+			</tr>
+			<tr>
+		{/if}
 	{/foreach}
-
     </tr>
 </table>
 {$close_buttons_section}
