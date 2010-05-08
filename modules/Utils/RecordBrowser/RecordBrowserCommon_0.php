@@ -1320,6 +1320,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function no_wrap($s) {
         $content_no_wrap = $s;
         preg_match_all('/>([^\<\>]*)</', $s, $match);
+		if (empty($match[1])) return str_replace(' ','&nbsp;', $s);
         foreach($match[1] as $v) $content_no_wrap = str_replace($v, str_replace(' ','&nbsp;', $v), $content_no_wrap);
         return $content_no_wrap;
     }

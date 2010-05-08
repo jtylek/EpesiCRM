@@ -718,9 +718,19 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 
 		$emps = array();
-		foreach ($r['employees'] as $e) $emps[] = CRM_ContactsCommon::contact_format_no_company($e);
+		foreach ($r['employees'] as $e) {
+			$e = CRM_ContactsCommon::contact_format_no_company($e, true);
+			$e = str_replace('&nbsp;',' ',$e);
+			if (strlen($e)>33) $e = substr($e , 0, 30).'...';
+			$emps[] = $e;
+		}
 		$cuss = array();
-		foreach ($r['customers'] as $c) $cuss[] = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
+		foreach ($r['customers'] as $c) {
+			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
+			$c = str_replace('&nbsp;',' ',$c);
+			if (strlen($c)>33) $c = substr($c, 0, 30).'...';
+			$cuss[] = $c;
+		}
 
 		$inf2 += array(	'Event' => '<b>'.$next['title'].'</b>',
 						'Description' => $next['description'],

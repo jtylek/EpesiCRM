@@ -282,7 +282,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!is_array($v)) $v = array($v);
         foreach($v as $k=>$w){
             if ($def) $def .= '<br>';
-            $def .= Utils_RecordBrowserCommon::no_wrap(self::autoselect_company_contact_format($w));
+            $def .= Utils_RecordBrowserCommon::no_wrap(self::autoselect_company_contact_format($w, $nolink));
         }
         if (!$def)  $def = '---';
         return $def;
@@ -298,7 +298,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!$id) return '---';
         if ($rset=='P') $val = self::contact_format_default($id, $nolink);
         else $val = self::company_format_default($id, $nolink);
-        $val .= ' ['.$rset.']';
+        $val = '['.$rset.'] '.$val;
         return $val;
     }
     public static function auto_company_contact_suggestbox($str, $fcallback) {
