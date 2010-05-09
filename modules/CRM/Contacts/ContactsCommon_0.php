@@ -863,74 +863,9 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function submit_contact($values, $mode) {
         switch ($mode) {
         case 'display':
-/********** TEST CODE ************/
-            if(isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) {
-                $ucd = Module::static_get_module_variable('CRM/Contacts', 'UCD', 0);
-                $ucd ++;
-                if($ucd > 1) Module::static_unset_module_variable('CRM/Contacts', 'UCD');
-                else Module::static_set_module_variable('CRM/Contacts', 'UCD', $ucd);
+            // display copy company data button and do update if needed
+            self::copy_company_data_subroutine($values);
 
-                $lid = 'UCDprompt';
-
-                $form = ModuleManager::new_instance('Libs_QuickForm', null, 'QFUCDprompt');
-                $form->construct();
-
-                $form->addElement('html', 'Select company:');
-                foreach($values['company_name'] as $id) {
-                    $form->addElement('radio', 'company', 'Company', self::company_format_default(self::get_company($id), true), $id);
-                }
-
-                $form->addElement('html', '<br/>Select which fields should be copied:');
-                $data = array( /* Source ID, Target ID, Text, Checked state */
-                        array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>'Address 1', 'checked'=>true),
-                        array('sid'=>'address_2', 'tid'=>'address_2', 'text'=>'Address 2', 'checked'=>true),
-                        array('sid'=>'city', 'tid'=>'city', 'text'=>'City', 'checked'=>true),
-                        array('sid'=>'country', 'tid'=>'country', 'text'=>'Country', 'checked'=>true),
-                        array('sid'=>'zone', 'tid'=>'zone', 'text'=>'Zone', 'checked'=>true),
-                        array('sid'=>'postal_code', 'tid'=>'postal_code', 'text'=>'Postal Code', 'checked'=>true),
-                        array('sid'=>'phone', 'tid'=>'work_phone', 'text'=>'Phone as Work Phone', 'checked'=>false),
-                        array('sid'=>'fax', 'tid'=>'fax', 'text'=>'Fax', 'checked'=>false),
-                );
-                foreach($data as $row) {
-                    $form->addElement('checkbox', $row['sid'], $row['text'], '', $row['checked'] ? array('checked'=>'checked'): array());
-                }
-
-                $ok = $form->createElement('submit', 'submit', 'Confirm', array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
-                $cancel = $form->createElement('button', 'cancel', 'Cancel', array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
-                $form->addGroup(array($ok, $cancel));
-
-                if($form->validate()) {
-                    $Uvalues = $form->exportValues();
-                    $fields = array();
-                    foreach($data as $row) {
-                        if(array_key_exists($row['sid'], $Uvalues)) {
-                            $fields[$row['tid']] = $row['sid'];
-                        }
-                    }
-
-                    if(isset($Uvalues['company'])) {
-                        $company = CRM_ContactsCommon::get_company($Uvalues['company']);
-                        $new_data = array();
-                        foreach($fields as $k => $v) {
-                            $new_data[$k] = $company[$v];
-                        }
-                        Utils_RecordBrowserCommon::update_record('contact', $values['id'], $new_data);
-                    }
-
-                    Module::static_unset_module_variable('CRM/Contacts', 'UCD');
-                    location(array());
-                }
-
-                $html = $form->toHtml();
-
-                Libs_LeightboxCommon::display($lid, $html);
-                Base_ActionBarCommon::add('edit', 'Copy company data', Libs_LeightboxCommon::get_open_href($lid));
-                eval_js('leightbox_activate(\''.$lid.'\')');
-            }
-            if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) ) {
-                Base_ActionBarCommon::add('edit', 'Copy company data', Module::create_href(array('UCD'=>true)));
-            }
-/*********** END TEST CODE ************/
             $is_employee = false;
             if (is_array($values['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $values['company_name'])) $is_employee = true;
             $me = CRM_ContactsCommon::get_my_record();
@@ -1076,6 +1011,88 @@ class CRM_ContactsCommon extends ModuleCommon {
         return  Utils_TooltipCommon::format_info_tooltip($htmlinfo,'CRM_Contacts');
     }
 
+    private static function copy_company_data_subroutine($values) {
+        /* First click should generate html code for leightbox and show it.
+         * This function is rarely used and we don't want to increase page size.
+         * To do this we use REQUEST variable UCD.
+         *
+         * We use module variable UCD to indicate that form was shown and we
+         * must check if it was submitted. If yes - do action. If it wasn't
+         * we should come back to initial state - do not print LB.
+         */
+        if(isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) {
+            $ucd = Module::static_get_module_variable('CRM/Contacts', 'UCD', 0);
+            $ucd ++;
+            if($ucd > 1) Module::static_unset_module_variable('CRM/Contacts', 'UCD');
+            else Module::static_set_module_variable('CRM/Contacts', 'UCD', $ucd);
+
+            $lid = 'UCDprompt';
+
+            $form = ModuleManager::new_instance('Libs_QuickForm', null, 'QFUCDprompt');
+            $form->construct();
+
+            $sel_val = array();
+            foreach($values['company_name'] as $id) {
+                $sel_val[$id] = self::company_format_default(self::get_company($id), true);
+            }
+            $form->addElement('select', 'company', 'Select company:', $sel_val);
+            unset($sel_val);
+
+            $form->addElement('html', 'Select which fields should be copied:');
+            $data = array( /* Source ID, Target ID, Text, Checked state */
+                    array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>'Address 1', 'checked'=>true),
+                    array('sid'=>'address_2', 'tid'=>'address_2', 'text'=>'Address 2', 'checked'=>true),
+                    array('sid'=>'city', 'tid'=>'city', 'text'=>'City', 'checked'=>true),
+                    array('sid'=>'country', 'tid'=>'country', 'text'=>'Country', 'checked'=>true),
+                    array('sid'=>'zone', 'tid'=>'zone', 'text'=>'Zone', 'checked'=>true),
+                    array('sid'=>'postal_code', 'tid'=>'postal_code', 'text'=>'Postal Code', 'checked'=>true),
+                    array('sid'=>'phone', 'tid'=>'work_phone', 'text'=>'Phone as Work Phone', 'checked'=>false),
+                    array('sid'=>'fax', 'tid'=>'fax', 'text'=>'Fax', 'checked'=>false),
+            );
+            foreach($data as $row) {
+                $form->addElement('checkbox', $row['sid'], $row['text'], '', $row['checked'] ? array('checked'=>'checked'): array());
+            }
+
+            $ok = $form->createElement('submit', 'submit', 'Confirm', array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+            $cancel = $form->createElement('button', 'cancel', 'Cancel', array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+            $form->addGroup(array($ok, $cancel));
+
+            if($form->validate()) {
+                $Uvalues = $form->exportValues();
+                $fields = array();
+                foreach($data as $row) {
+                    if(array_key_exists($row['sid'], $Uvalues)) {
+                        $fields[$row['tid']] = $row['sid'];
+                    }
+                }
+
+                if(isset($Uvalues['company'])) {
+                    $company = CRM_ContactsCommon::get_company($Uvalues['company']);
+                    $new_data = array();
+                    foreach($fields as $k => $v) {
+                        $new_data[$k] = $company[$v];
+                    }
+                    Utils_RecordBrowserCommon::update_record('contact', $values['id'], $new_data);
+                }
+
+                Module::static_unset_module_variable('CRM/Contacts', 'UCD');
+                location(array());
+            }
+
+            // set default to main company
+            if(($mc = self::get_main_company()))
+                $form->setDefaults(array('company'=>$mc));
+            
+            $html = $form->toHtml();
+
+            Libs_LeightboxCommon::display($lid, $html);
+            Base_ActionBarCommon::add('edit', 'Copy company data', Libs_LeightboxCommon::get_open_href($lid));
+            eval_js('leightbox_activate(\''.$lid.'\')');
+        }
+        if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) ) {
+            if(count($values['company_name'])) Base_ActionBarCommon::add('edit', 'Copy company data', Module::create_href(array('UCD'=>true)));
+        }
+    }
 
     public static function applet_caption() {
         return "Contacts";
