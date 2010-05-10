@@ -13,14 +13,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_RoundcubeCommon extends ModuleCommon {
     public static function menu() {
         if(Acl::is_user()) {
-            return array('Roundcube Mail Client'=>array());
+            return array('E-mail'=>array());
         }
         return array();
     }
 
     public static function user_settings() {
         if(Acl::is_user()) {
-            return array('Roundcube Mail Accounts'=>'account_manager');
+            return array('E-mail Accounts'=>'account_manager');
         }
         return array();
     }
