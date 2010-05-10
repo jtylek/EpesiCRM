@@ -23,7 +23,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		ModuleManager::include_common('CRM_Contacts',0);
 // ************ companies ************** //
 		$fields = array(
-			array('name'=>'Company Name',	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname')),
+			array('name'=>'Company Name',	'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname')),
 			array('name'=>'Short Name',		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
 			array('name'=>'Phone', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name'=>'Fax', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
