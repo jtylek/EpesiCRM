@@ -145,13 +145,25 @@ class Libs_QuickForm extends Module {
 				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.($v['default']?1:0).';';
 				break;
 			
+			case 'html':
+                if(! isset($v['text'])) {
+                    if(isset($v['label'])) {
+                        $v['text'] = $v['label'];
+                    } elseif(isset($v['name'])) {
+                        $v['text'] = $v['name'];
+                    } else {
+                        trigger_error("Undefined index 'text' form 'html' field");
+                    }
+                }
+				$elem = $this -> createElement($v['type'],$v['text']);
+                break;
+
 			case 'numeric':
 				if(!isset($v['rule']) || !is_array($v['rule'])) $v['rule']=array();
 				$v['type'] = 'text';
 				$v['rule'][] = array('type'=>'numeric','message'=>Base_LangCommon::ts('Libs_QuickForm','This is not valid number'));
 			case 'password':
 			case 'text':
-			case 'html':
 			case 'textarea':
 				$elem = $this -> createElement($v['type'],$v['name'],$v['label'],$v['param']);
 				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
