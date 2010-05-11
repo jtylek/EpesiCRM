@@ -11,7 +11,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ModuleDownloader extends Module {
-    const server = "http://localhost/epesi/tools/PMServer.php";
+    const server = "http://pm.epesicrm.com/";
 	
 	public function body() {
 	}
