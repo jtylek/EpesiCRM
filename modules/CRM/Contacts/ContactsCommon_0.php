@@ -929,12 +929,13 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function search($word){
         $ret = array();
         if(self::Instance()->acl_check('browse contacts')) {
-            $result = self::get_contacts(array('"~first_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+			$wo = explode(' ', $word);
 
-            foreach ($result as $row)
-                $ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('contact', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Contact #%d, %s %s', array($row['id'], $row['first_name'], $row['last_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
-
-            $result = self::get_contacts(array('"~last_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+			$crits = array();
+			foreach ($wo as $w)
+				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('("~first_name'=>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%')), '|"~last_name'=>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'))));
+			
+			$result = self::get_contacts($crits);
 
             foreach ($result as $row)
                 $ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('contact', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Contact #%d, %s %s', array($row['id'], $row['first_name'], $row['last_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
