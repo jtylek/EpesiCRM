@@ -48,6 +48,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::new_addon('crm_meeting', 'CRM/Meeting', 'messanger_addon', 'Alerts');
 // ************ other ************** //
 		CRM_CalendarCommon::new_event_handler('Meetings', array('CRM_MeetingCommon', 'crm_calendar_handler'));
+        CRM_RoundcubeCommon::new_addon('crm_meeting');
 
 		$this->add_aco('browse meetings',array('Employee'));
 		$this->add_aco('view meeting',array('Employee'));
@@ -62,6 +63,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+        CRM_RoundcubeCommon::delete_addon('crm_meeting');
 		CRM_CalendarCommon::delete_event_handler('Meetings');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Meeting');
 		Utils_RecordBrowserCommon::uninstall_recordset('crm_meeting');
@@ -79,6 +81,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 			array('name'=>'CRM/Common', 'version'=>0),
 			array('name'=>'CRM/Acl', 'version'=>0),
 			array('name'=>'CRM/Contacts', 'version'=>0),
+			array('name'=>'CRM/Roundcube', 'version'=>0),
 			array('name'=>'CRM/Calendar', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Acl', 'version'=>0),

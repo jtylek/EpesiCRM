@@ -56,6 +56,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 //		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
 		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon', 'Notes');
 		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'messanger_addon', 'Alerts');
+        CRM_RoundcubeCommon::new_addon('phonecall');
 // ************ other ************** //
 		$this->add_aco('browse phonecalls',array('Employee'));
 		$this->add_aco('view phonecall',array('Employee'));
@@ -70,6 +71,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+        CRM_RoundcubeCommon::delete_addon('phonecall');
 		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
 		Utils_RecordBrowserCommon::delete_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon');
 		Utils_AttachmentCommon::persistent_mass_delete('CRM/PhoneCall/');
@@ -87,6 +89,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Utils/Attachment', 'version'=>0),
 			array('name'=>'CRM/Acl', 'version'=>0),
 			array('name'=>'CRM/Contacts', 'version'=>0),
+			array('name'=>'CRM/Roundcube', 'version'=>0),
 			array('name'=>'CRM/Common', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Acl', 'version'=>0),

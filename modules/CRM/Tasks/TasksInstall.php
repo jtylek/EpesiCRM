@@ -51,6 +51,7 @@ class CRM_TasksInstall extends ModuleInstall {
 //		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
 // ************ other ************** //
 		Utils_BBCodeCommon::new_bbcode('task', 'CRM_TasksCommon', 'task_bbcode');
+        CRM_RoundcubeCommon::new_addon('task');
 
 		$this->add_aco('browse tasks',array('Employee'));
 		$this->add_aco('view task',array('Employee'));
@@ -65,6 +66,7 @@ class CRM_TasksInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+        CRM_RoundcubeCommon::delete_addon('task');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Tasks');
 		Utils_RecordBrowserCommon::uninstall_recordset('task');
 		return true;
@@ -80,6 +82,7 @@ class CRM_TasksInstall extends ModuleInstall {
 			array('name'=>'Utils/Attachment', 'version'=>0),
 			array('name'=>'CRM/Common', 'version'=>0),
 			array('name'=>'CRM/Acl', 'version'=>0),
+			array('name'=>'CRM/Roundcube', 'version'=>0),
 			array('name'=>'CRM/Contacts', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Acl', 'version'=>0),

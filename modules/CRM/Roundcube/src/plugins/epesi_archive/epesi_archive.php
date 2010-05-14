@@ -66,6 +66,7 @@ class epesi_archive extends rcube_plugin
         return 'C:'.$company;
     }
 
+    $rcmail = rcmail::get_instance();
     $rcmail->output->command('display_message', $this->gettext('contactnotfound').' '.$addr, 'error');
     $rcmail->output->send();
   }
