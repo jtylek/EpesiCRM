@@ -100,7 +100,22 @@ class CRM_RoundcubeCommon extends ModuleCommon {
         switch ($action) {
             case 'browse_crits':    return true;
             case 'browse':  return true;
-            case 'view':    return array('recordset'=>false,'headers_data'=>false);
+            case 'view':    return array('headers_data'=>false);
+            case 'clone':
+            case 'add':
+            case 'edit':    return false;
+            case 'delete':  return true;
+        }
+        return false;
+
+    }
+
+    public static function access_mails_assoc($action, $param=null) {
+        $i = self::Instance();
+        switch ($action) {
+            case 'browse_crits':    return true;
+            case 'browse':  return true;
+            case 'view':    return array('recordset'=>false);
             case 'clone':
             case 'add':
             case 'edit':    return false;
@@ -148,6 +163,10 @@ class CRM_RoundcubeCommon extends ModuleCommon {
         if($record['direction'])
             return '<=';
         return '=>';
+    }
+
+    public static function display_record_id($r, $nolink=false) {
+        return Utils_RecordBrowserCommon::create_default_linked_label($r['recordset'],$r['record_id']);
     }
 
     public static function applet_caption() {

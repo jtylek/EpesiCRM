@@ -126,6 +126,29 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::set_caption('rc_mails', 'Mails');
         Utils_RecordBrowserCommon::set_access_callback('rc_mails', array('CRM_RoundcubeCommon', 'access_mails'));
 
+        $fields = array(
+            array(
+                'name'=>'Mail',
+                'type'=>'select',
+                'param'=>'rc_mails::Subject' ,
+                'required'=>true, 'extra'=>false, 'visible'=>false
+            ), array(
+                'name'=>'Recordset',
+                'type'=>'text',
+                'param'=>64,
+                'required'=>true, 'extra'=>false, 'visible'=>false
+            ), array(
+                'name'=>'Record ID',
+                'type'=>'integer',
+                'display_callback'=>array($this->get_type().'Common', 'display_record_id'),
+                'required'=>true, 'extra'=>false, 'visible'=>true
+            )
+        );
+        Utils_RecordBrowserCommon::install_new_recordset('rc_mails_assoc', $fields);
+        Utils_RecordBrowserCommon::set_caption('rc_mails_assoc', 'Mails Associations');
+        Utils_RecordBrowserCommon::set_access_callback('rc_mails_assoc', array('CRM_RoundcubeCommon', 'access_mails_assoc'));
+        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon', 'Associated records');
+
         DB::CreateTable('rc_mails_attachments','
             mail_id I4 NOTNULL,
             type C(32),
@@ -151,7 +174,9 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
         Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Roundcube', 'addon');
         Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Roundcube', 'addon');
+        Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon');
         DB::DropTable('rc_mails_attachments');
+        Utils_RecordBrowserCommon::uninstall_recordset('rc_mails_assoc');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_accounts');
         Utils_CommonDataCommon::remove('CRM/Roundcube/Security');

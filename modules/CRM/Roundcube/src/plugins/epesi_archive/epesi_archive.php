@@ -119,6 +119,7 @@ class epesi_archive extends rcube_plugin
     }
 
     $attachments_dir = '../../../../'.DATA_DIR.'/CRM_Roundcube/attachments/';
+    $epesi_mails = array();
     if(!file_exists($attachments_dir)) mkdir($attachments_dir);
     foreach($msgs as $k=>$msg) {
         $contacts = $map[$k];//'__'.implode('__',$map[$k]).'__';
@@ -151,6 +152,7 @@ class epesi_archive extends rcube_plugin
         }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
         $id = Utils_RecordBrowserCommon::new_record('rc_mails',array('contacts'=>$contacts,'date'=>$date,'employee'=>$employee,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'direction'=>$sent_mbox));
+        $epesi_mails[] = $id;
         foreach($contacts as $c) {
             list($rs,$con_id) = explode(':',$c);
             if($rs=='P')
@@ -179,6 +181,25 @@ class epesi_archive extends rcube_plugin
     //$rcmail->output->command('delete_messages');
     $rcmail->output->command('move_messages', $this->archive_mbox);
     $rcmail->output->command('display_message', $this->gettext('archived'), 'confirmation');
+
+    global $E_SESSION_ID;
+    $lifetime = ini_get("session.gc_maxlifetime");
+    if(DATABASE_DRIVER=='mysqlt') {
+        if(!DB::GetOne('SELECT GET_LOCK(%s,%d)',array($E_SESSION_ID,ini_get('max_execution_time'))))
+            trigger_error('Unable to get lock on session name='.$E_SESSION_ID,E_USER_ERROR);
+    }
+    $ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($E_SESSION_ID, time()-$lifetime));
+    if($ret) {
+        $ret = unserialize($ret);
+        $ret['rc_mails_cp'] = $epesi_mails;
+        $data = serialize($ret);
+        if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
+        else $data = DB::qstr($data);
+        $ret &= DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($E_SESSION_ID)),'name');
+        if(DATABASE_DRIVER=='mysqlt') {
+            DB::Execute('SELECT RELEASE_LOCK(%s)',array($E_SESSION_ID));
+        }
+    }
 
     $rcmail->output->send();
   }

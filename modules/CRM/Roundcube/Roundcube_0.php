@@ -36,6 +36,11 @@ class CRM_Roundcube extends Module {
         $this->set_module_variable('default',$id);
     }
 
+    public function assoc_addon($arg,$rb) {
+        $rb = $this->init_module('Utils/RecordBrowser','rc_mails_assoc','rc_mails_assoc');
+        $this->display_module($rb, array(array('mail'=>$arg['id'])), 'show_data');
+    }
+
     public function addon($arg, $rb) {
         $rs = $rb->tab;
         $id = $arg['id'];
@@ -49,12 +54,37 @@ class CRM_Roundcube extends Module {
                 'attachments'=>array('width'=>5)
             ));
         $rb->set_button(false);
+        $rb->set_additional_actions_method(array($this, 'actions_for_mails'));
+        $assoc_mail_ids = array();
+        foreach(Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('recordset'=>$rs,'record_id'=>$id),array('mail')) as $m)
+            $assoc_mail_ids[] = $m['mail'];
         if($rs=='contact') {
             //$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
-            $this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id)), array(), array('date'=>'DESC')), 'show_data');
-        } else {
-            $this->display_module($rb, array(array('contacts'=>array('C:'.$id)), array(), array('date'=>'DESC')), 'show_data');
+            $this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+        } elseif($rs=='company') {
+            $this->display_module($rb, array(array('(contacts'=>array('C:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
         }
+        if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp']))
+            Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Paste mail', $this->create_callback_href(array($this,'paste'),array($rs,$id)));
+    }
+
+    public function paste($rs,$id) {
+        if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
+            foreach($_SESSION['rc_mails_cp'] as $mid) {
+                $c = Utils_RecordBrowserCommon::get_records_count('rc_mails_assoc',array('mail'=>$mid,'recordset'=>$rs,'record_id'=>$id));
+                if(!$c)
+                    Utils_RecordBrowserCommon::new_record('rc_mails_assoc',array('mail'=>$mid,'recordset'=>$rs,'record_id'=>$id));
+            }
+            Epesi::alert($this->t('Mail(s) is associated to this record now'));
+        }
+    }
+
+    public function actions_for_mails($r, $gb_row) {
+        $gb_row->add_action($this->create_callback_href(array($this,'copy'),array($r['id'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
+    }
+
+    public function copy($id) {
+        $_SESSION['rc_mails_cp'] = array($id);
     }
 
     public function applet($conf, $opts) {
