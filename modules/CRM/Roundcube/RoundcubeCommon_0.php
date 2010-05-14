@@ -91,10 +91,6 @@ class CRM_RoundcubeCommon extends ModuleCommon {
         return $param;
     }
 
-    public static function new_addon($recordset) {
-        Utils_RecordBrowserCommon::new_addon($recordset, 'CRM/Roundcube', 'addon', 'Mails');
-    }
-
     public static function access_mails($action, $param=null) {
         $i = self::Instance();
         switch ($action) {
