@@ -63,7 +63,8 @@ class CRM_Roundcube extends Module {
             $this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
         } elseif($rs=='company') {
             $this->display_module($rb, array(array('(contacts'=>array('C:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
-        }
+        } else
+            $this->display_module($rb, array(array('id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp']))
             Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Paste mail', $this->create_callback_href(array($this,'paste'),array($rs,$id)));
     }

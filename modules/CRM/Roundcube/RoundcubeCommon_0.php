@@ -189,6 +189,14 @@ class CRM_RoundcubeCommon extends ModuleCommon {
         return $conf;
     }
 
+    public static function new_addon($rs) {
+        Utils_RecordBrowserCommon::new_addon($rs, 'CRM/Roundcube', 'addon', 'Mails');
+    }
+
+    public static function delete_addon($rs) {
+        Utils_RecordBrowserCommon::new_addon($rs, 'CRM/Roundcube', 'addon');
+    }
+
 }
 
 ?>
