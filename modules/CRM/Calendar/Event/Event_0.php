@@ -223,8 +223,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 		CRM_Calendar_EventCommon::$events_handlers = $selected;
 
-		foreach ($selected as $k=>$e)
-			$form->setDefaults(array($elements_name[$e]=>true));
+		foreach ($selected as $k=>$e) {
+		    if(isset($elements_name[$e]))
+    			$form->setDefaults(array($elements_name[$e]=>true));
+		}
 
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('elements_name', $elements_name);
