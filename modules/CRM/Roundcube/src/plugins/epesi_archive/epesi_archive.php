@@ -167,7 +167,7 @@ class epesi_archive extends rcube_plugin
         $id = DB::Insert_ID('rc_mails_data_1','id');*/
         foreach($msg->mime_parts as $mid=>$m) {
             if(!$m->disposition) continue;
-            if($m->disposition=='inline')
+            if(isset($cid_map['cid:'.$m->content_id]))
                 $attachment = 0;
             else
                 $attachment = 1;
