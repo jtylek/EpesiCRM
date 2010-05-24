@@ -153,7 +153,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             mail_id I4 NOTNULL,
             type C(32),
             name C(255),
-            mime_id I4,
+            mime_id C(32),
             attachment I1 DEFAULT 1',
             array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES rc_mails_data_1(ID)'));
 

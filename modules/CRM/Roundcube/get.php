@@ -2,7 +2,7 @@
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-if(!isset($_GET['mail_id']) || !is_numeric($_GET['mail_id']) || !isset($_GET['mime_id']) || !is_numeric($_GET['mime_id']))
+if(!isset($_GET['mail_id']) || !is_numeric($_GET['mail_id']) || !isset($_GET['mime_id']) || (!is_numeric($_GET['mime_id']) && strlen($_GET['mime_id'])!=32))
     die('Invalid request');
 
 define('CID',false);

@@ -124,6 +124,9 @@ class epesi_archive extends rcube_plugin
     if(!file_exists($attachments_dir)) mkdir($attachments_dir);
     foreach($msgs as $k=>$msg) {
         $contacts = $map[$k];//'__'.implode('__',$map[$k]).'__';
+        $mime_map = array();
+        foreach($msg->mime_parts as $mid=>$m)
+            $mime_map[$m->mime_id] = md5($k.microtime(true).$mid);
         if($msg->has_html_part()) {
             $body = $msg->first_html_part();
             foreach ($msg->mime_parts as $mime_id => $part) {
@@ -139,7 +142,11 @@ class epesi_archive extends rcube_plugin
             foreach($cid_map as $k=>&$v) {
                 $x = strrchr($v,'=');
                 if(!$x) unset($cid_map[$k]);
-                else $v = 'get.php?'.http_build_query(array('mail_id'=>'__MAIL_ID__','mime_id'=>substr($x,1)));
+                else {
+                    $mid = substr($x,1);
+                    if(isset($mime_map[$mid]))
+                        $v = 'get.php?'.http_build_query(array('mail_id'=>'__MAIL_ID__','mime_id'=>$mime_map[$mid]));
+                }
             }
             $body = rcmail_wash_html($body,array('safe'=>true,'inline_html'=>true),$cid_map);
         } else {
@@ -171,9 +178,9 @@ class epesi_archive extends rcube_plugin
                 $attachment = 0;
             else
                 $attachment = 1;
-            DB::Execute('INSERT INTO rc_mails_attachments(mail_id,type,name,mime_id,attachment) VALUES(%d,%s,%s,%s,%b)',array($id,$m->mimetype,$m->filename,$m->mime_id,$attachment));
+            DB::Execute('INSERT INTO rc_mails_attachments(mail_id,type,name,mime_id,attachment) VALUES(%d,%s,%s,%s,%b)',array($id,$m->mimetype,$m->filename,$mime_map[$m->mime_id],$attachment));
             if(!file_exists($attachments_dir.$id)) mkdir($attachments_dir.$id);
-            $fp = fopen($attachments_dir.$id.'/'.$m->mime_id,'w');
+            $fp = fopen($attachments_dir.$id.'/'.$mime_map[$m->mime_id],'w');
             $msg->get_part_content($m->mime_id,$fp);
             fclose($fp);
         }
