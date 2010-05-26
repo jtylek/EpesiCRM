@@ -109,7 +109,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 
 			if ($mode==0) eval_js('Event.observe("'.$myName.'","change",function(){if($("'.$myName.'").value=="")autoselect_start_searching("'.$myName.'");});');
 			
-			if (isset($val[0]) && $val[0]!='' && isset($this->__options[$val[0]]))
+			if (isset($val[0]) && $val[0]!='')
 				$mode=1;
 			
             return 	'<span id="__'.$myName.'_select_span"'.($mode==0?' style="display:none;"':'').'>'.

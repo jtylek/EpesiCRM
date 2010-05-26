@@ -417,7 +417,7 @@ class Utils_RecordBrowser extends Module {
                     foreach($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]] as $k=>$v)
                         $this->crits[$k] = $v;
                 } elseif (isset($this->custom_filters[$filter_id]['trans_callback'])) {
-                    $new_crits = call_user_func($this->custom_filters[$filter_id]['trans_callback'], $vals['filter__'.$filter_id]);
+                    $new_crits = call_user_func($this->custom_filters[$filter_id]['trans_callback'], $vals['filter__'.$filter_id], $filter_id);
                     $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
                 }
             } else {

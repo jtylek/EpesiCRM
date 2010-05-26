@@ -522,6 +522,17 @@ class CRM_ContactsCommon extends ModuleCommon {
         }
         return $ret;
     }
+	
+	public static function autoselect_contact_filter($rb, $field, $label, $crits = array(), $fcallback=null) {
+        if ($fcallback==null) $fcallback = array('CRM_ContactsCommon','contact_format_no_company');
+        $rb->set_custom_filter($field, array('type'=>'autoselect','label'=>$label,'args'=>array(), 'args_2'=>array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $fcallback)), 'args_3'=>$fcallback, 'trans_callback'=>array('CRM_ContactsCommon','autoselect_contact_filter_trans')));
+	}
+	
+	public static function autoselect_contact_filter_trans($val, $field) {
+        if ($val!='__NULL__' && $val) return array($field=>$val);
+        else return array();
+	}
+	
     public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
         $cont = array();
         $param = explode(';',$desc['param']);
