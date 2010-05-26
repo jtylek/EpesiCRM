@@ -1639,8 +1639,26 @@ function update_from_1_0_8b_to_1_0_9() {
     	DB::Execute('UPDATE recordbrowser_table_properties SET description_callback=\'CRM_ContactsCommon::company_format_default\' WHERE tab=\'company\'');
     }
 
+    if (ModuleManager::is_installed('CRM_Tasks')>=0 || ModuleManager::is_installed('CRM_PhoneCall')>=0 || ModuleManager::is_installed('CRM_Meeting')>=0 || ModuleManager::is_installed('Apps_MailClient')>=0) {
+        if (ModuleManager::is_installed('CRM_Roundcube')==-1) {
+            ob_start();
+            ModuleManager::install('CRM_Roundcube');    
+    		ob_end_clean();
+        }
+
+        if(ModuleManager::is_installed('CRM_Tasks')>=0)
+            CRM_RoundcubeCommon::new_addon('task');
+        if(ModuleManager::is_installed('CRM_PhoneCall')>=0)
+            CRM_RoundcubeCommon::new_addon('phonecall');
+        if(ModuleManager::is_installed('CRM_Meeting')>=0)
+            CRM_RoundcubeCommon::new_addon('crm_meeting');
+    }
+
     if (ModuleManager::is_installed('CRM_Calendar')>=0) {
+        ob_start()
+        ModuleManager::install('Utils_LeightboxPrompt');
         ModuleManager::install('CRM_Meeting',0);
+		ob_end_clean();
 
         $fields = @DB::GetAssoc('SELECT field, callback FROM crm_calendar_event_custom_fields');
 
@@ -1760,18 +1778,6 @@ function update_from_1_0_8b_to_1_0_9() {
         DB::Execute('DELETE FROM modules WHERE name="Data_Countries_States_AU"');
     }
 
-    if (ModuleManager::is_installed('CRM_Tasks')>=0 || ModuleManager::is_installed('CRM_PhoneCall')>=0 || ModuleManager::is_installed('CRM_Meeting')>=0 || ModuleManager::is_installed('Apps_MailClient')>=0) {
-        if (ModuleManager::is_installed('CRM_Roundcube')==-1) {
-            ModuleManager::install('CRM_Roundcube');    
-        }
-
-        if(ModuleManager::is_installed('CRM_Tasks')>=0)
-            CRM_RoundcubeCommon::new_addon('task');
-        if(ModuleManager::is_installed('CRM_PhoneCall')>=0)
-            CRM_RoundcubeCommon::new_addon('phonecall');
-        if(ModuleManager::is_installed('CRM_Meeting')>=0)
-            CRM_RoundcubeCommon::new_addon('crm_meeting');
-    }
 }
 //=========================================================================
 

@@ -132,7 +132,7 @@ function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
 	return ErrorHandler::handle_error($type, htmlspecialchars($message),$errfile,$errline,$errcontext);
 }
 if(REPORT_ALL_ERRORS)
-	error_reporting(E_ALL ^ E_NOTICE); //all without notices
+	error_reporting(E_ALL ^ (E_NOTICE | E_STRICT)); //all without notices
 else
 	error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR);
 	

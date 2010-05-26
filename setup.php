@@ -6,6 +6,7 @@
  * @license MIT
  * @package epesi-base
  */
+error_reporting(E_ALL ^ (E_STRICT | E_NOTICE));
 ob_start();
 ini_set('arg_separator.output','&');
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
