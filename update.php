@@ -1655,7 +1655,7 @@ function update_from_1_0_8b_to_1_0_9() {
     }
 
     if (ModuleManager::is_installed('CRM_Calendar')>=0) {
-        ob_start()
+        ob_start();
         ModuleManager::install('Utils_LeightboxPrompt');
         ModuleManager::install('CRM_Meeting',0);
 		ob_end_clean();
