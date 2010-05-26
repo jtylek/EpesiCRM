@@ -162,7 +162,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5','1.0.6','1.0.7','1.0.8','1.0.8b');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5','1.0.6','1.0.7','1.0.8','1.0.8b','1.0.9');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -1544,6 +1544,234 @@ function update_from_1_0_6_to_1_0_7() {
 		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'messanger_addon', 'Alerts');
 	}
 
+}
+
+function update_from_1_0_8_to_1_0_8b() {
+	if (ModuleManager::is_installed('Apps_MailClient')!=-1 ||
+		ModuleManager::is_installed('Premium_Projects')!=-1) {
+		
+		ob_start();
+		ModuleManager::install('Utils_RecordBrowser_RecordPicker');
+		ob_end_clean();
+	}
+}
+
+function update_from_1_0_8b_to_1_0_9() {
+    if (ModuleManager::is_installed('Premium_Projects_Tickets')>=0) {
+        Utils_RecordBrowserCommon::new_record_field('premium_tickets',array('name'=>'Ticket Owner', 'type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Premium_Projects_TicketsCommon','users_crits'),'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('Premium_Projects_TicketsCommon','display_assigned_contacts'), 'required'=>true, 'extra'=>false, 'visible'=>true, 'position'=>'Project Name'));
+
+        $current = Utils_CommonDataCommon::get_array('Premium_Ticket_Status');
+        if (count($current)==5) {
+	        Utils_CommonDataCommon::new_array('Premium_Ticket_Status',array('New','Open','In Progress','On Hold','Resolved','Awaiting Feedback','Closed'), true,true);
+    	    DB::Execute('UPDATE premium_tickets_data_1 SET f_status=f_status+2 WHERE f_status>=2');
+        }
+    
+        $ret = DB::Execute('SELECT * FROM premium_tickets_data_1');
+
+        while ($row=$ret->FetchRow()) {
+	        if (!$row['f_ticket_owner']) {
+		        $c_id = CRM_ContactsCommon::get_contact_by_user_id($row['created_by']);
+    		    DB::Execute('UPDATE premium_tickets_data_1 SET f_ticket_owner=%d WHERE id=%d', array($c_id['id'], $row['id']));
+        	}
+        }
+    }
+    
+    if (ModuleManager::is_installed('CRM_Calendar')>=0) {
+
+        DB::DropTable('crm_calendar_custom_events_handlers');
+
+        DB::CreateTable('crm_calendar_custom_events_handlers',
+				'id I4 AUTO KEY,'.
+				'group_name C(64),'.
+				'handler_callback C(128)',
+				array('constraints'=>''));
+
+    }
+
+    if (ModuleManager::is_installed('CRM_Common')>=0) {
+        $current = Utils_CommonDataCommon::get_array('CRM/Status');
+        if (count($current)!=5) {
+            Utils_CommonDataCommon::new_array('CRM/Status',array('Open','In Progress','On Hold','Closed','Canceled'), true,true);
+
+            if (ModuleManager::is_installed('CRM_Tasks')>=0) {
+            	DB::Execute('UPDATE task_data_1 SET f_status=f_status+1 WHERE f_status>=2');
+            }
+
+            if (ModuleManager::is_installed('CRM_Meeting')>=0) {
+            	DB::Execute('UPDATE crm_meeting_data_1 SET f_status=f_status+1 WHERE f_status>=2');
+            }
+
+            if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
+            	DB::Execute('UPDATE phonecall_data_1 SET f_status=f_status+1 WHERE f_status>=2');
+            }
+        }
+    }
+
+    if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
+
+        $tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+        foreach ($tabs as $t) {
+        	@DB::Execute('ALTER TABLE '.$t.'_edit_history ADD CONSTRAINT '.$t.'_id_data_fkey FOREIGN KEY ('.$t.'_id) REFERENCES '.$t.'_data_1 (id)');
+        }
+
+    }
+    
+    if (ModuleManager::is_installed('CRM_Calendar')>=0) {
+
+        $ret = DB::Execute('SELECT * FROM utils_attachment_link WHERE local LIKE '.DB::Concat(DB::qstr('CRM/Calendar/Event/'),DB::qstr('%')));
+
+        while ($row = $ret->FetchRow()) {
+        	$func = serialize(array('CRM_MeetingCommon','search_format'));
+        	$args = serialize(array(str_replace('CRM/Calendar/Event/','',$row['local'])));
+        	DB::Execute('UPDATE utils_attachment_link SET func=%s, args=%s WHERE id=%d', array($func, $args, $row['id']));
+        }
+    }
+    
+    DB::Execute('DELETE FROM modules WHERE name="CRM_Calendar_Reports"');
+    DB::Execute('DELETE FROM modules WHERE name="CRM_Import"');
+
+    if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
+	    PatchDBAddColumn('recordbrowser_table_properties','description_callback','C(128)');
+    }
+
+    if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+	    DB::Execute('UPDATE recordbrowser_table_properties SET description_callback=\'CRM_ContactsCommon::contact_format_default\' WHERE tab=\'contact\'');
+    	DB::Execute('UPDATE recordbrowser_table_properties SET description_callback=\'CRM_ContactsCommon::company_format_default\' WHERE tab=\'company\'');
+    }
+
+    if (ModuleManager::is_installed('CRM_Calendar')>=0) {
+        ModuleManager::install('CRM_Meeting',0);
+
+        $fields = @DB::GetAssoc('SELECT field, callback FROM crm_calendar_event_custom_fields');
+
+        if (!$fields) $fields = array();
+
+        $move_fields = array();
+        foreach ($fields as $k=>$v) {
+        	Utils_RecordBrowserCommon::new_record_field('crm_meeting', 
+		        array('name'=>$k, 'type'=>'text', 'required'=>false, 'param'=>'255', 'extra'=>false, 'visible'=>false)
+        	);
+        	Utils_RecordBrowserCommon::set_QFfield_callback('crm_meeting',$k,explode('::', $v));
+        	$move_fields[] = $k;
+        }
+
+        $ret = @DB::Execute('SELECT * FROM crm_calendar_event');
+
+        if ($ret)
+            while($row = $ret->FetchRow()) {
+            	$id = DB::GetOne('SELECT id FROM crm_meeting_data_1 WHERE id=%d', array($row['id']));
+            	if (!$id) {
+            		DB::Execute('INSERT INTO crm_meeting_data_1 (id, created_on, created_by, active) VALUES (%d, %T, %d, %d)', array($row['id'],$row['created_on'],$row['created_by'],$row['deleted']?0:1));
+            		$id = $row['id'];
+            	}
+            	$new_values = array();
+            	$new_values['title'] = $row['title'];
+            	$new_values['description'] = $row['description'];
+            	$new_values['date'] = date('Y-m-d', $row['starts']);
+            	$new_values['time'] = date('1970-01-01 H:i:s', $row['starts']);
+            	$new_values['duration'] = $row['timeless']?-1:($row['ends']-$row['starts']);
+            	$new_values['permission'] = $row['access'];
+            	$new_values['priority'] = $row['priority'];
+            	$new_values['color'] = $row['color'];
+            	$new_values['status'] = $row['status'];
+            	$new_values['recurrence_type'] = $row['recurrence_type'];
+            	$new_values['recurrence_end'] = $row['recurrence_end'];
+            	$new_values['recurrence_hash'] = $row['recurrence_hash'];
+            	$emps = DB::GetCol('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d',array($id));
+            	$cus = DB::GetCol('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d',array($id));
+            	foreach ($cus as $k=>$v) $cus[$k] = 'P:'.$v;
+            	$new_values['employees'] = $emps;
+            	$new_values['customers'] = $cus;
+            	foreach ($move_fields as $v) $new_values[$v] = $row[$v];
+            	Utils_RecordBrowserCommon::update_record('crm_meeting', $id, $new_values);
+            }
+    }
+    
+    
+    if (ModuleManager::is_installed('CRM_Meeting')>=0) {
+        Utils_RecordBrowserCommon::new_addon('crm_meeting', 'CRM/Meeting', 'messanger_addon', 'Alerts');
+
+        DB::Execute('UPDATE utils_messenger_message SET parent_module="CRM_Meeting" WHERE parent_module="CRM_Calendar_Event"');
+    }
+
+    if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+        PatchDBRenameColumn('company_data_1','f_company_name','f_company_name','C(128)');
+        DB::Execute('UPDATE company_field SET param=%s WHERE field=%s', array(128,'Company Name'));
+    }
+
+    if (ModuleManager::is_installed('Data_Countries')>=0) {
+
+        $ro_wojew = array(
+            'AB'=>'Alba',
+            'AG'=>'Arges',
+            'AR'=>'Arad',
+            'B'=>'Bucuresti',
+            'BC'=>'Bacau',
+            'BH'=>'Bihor',
+            'BN'=>'Bistrita-Nasaud',
+            'BR'=>'Braila',
+            'BT'=>'Botosani',
+            'BV'=>'Brasov',
+            'BZ'=>'Buzau',
+            'CJ'=>'Cluj',
+            'CL'=>'Calarasi',
+            'CS'=>'Caras-Severin',
+            'CT'=>'Constanta',
+            'CV'=>'Covasna',
+            'DB'=>'Dambovita',
+            'DJ'=>'Dolj',
+            'GJ'=>'Gorj',
+            'GL'=>'Galati',
+            'GR'=>'Giurgiu',
+            'HD'=>'Hunedoara',
+            'HR'=>'Harghita',
+            'IF'=>'Ilfov',
+            'IL'=>'Ialomita',
+            'IS'=>'Iasi',
+            'MH'=>'Mehedinti',
+            'MM'=>'Maramures',
+            'MS'=>'Mures',
+            'NT'=>'Neamt',
+            'OT'=>'Olt',
+            'PH'=>'Prahova',
+            'SB'=>'Sibiu',
+            'SJ'=>'Salaj',
+            'SM'=>'Satu-Mare',
+            'SV'=>'Suceava',
+            'TL'=>'Tulcea',
+            'TM'=>'Timis',
+            'TR'=>'Teleorman',
+            'VL'=>'Valcea',
+            'VN'=>'Vrancea',
+            'VS'=>'Vaslui');
+		Utils_CommonDataCommon::new_array('Countries/RO',$ro_wojew);
+
+        if(ModuleManager::is_installed('Data_Countries_States_AU')<0) {
+		$australian_states = array('ACT'=>"Australian Capital Territory",  
+			'NSW'=>"New South Wales",
+			'NT'=>"Northern Territory",
+			'QLD'=>"Queensland",  
+			'SA'=>"South Australia",  
+			'TAS'=>"Tasmania",  
+			'VIC'=>"Victoria",  
+			'WA'=>"Western Australia");  
+		    Utils_CommonDataCommon::new_array('Countries/AU',$australian_states);
+        }
+        DB::Execute('DELETE FROM modules WHERE name="Data_Countries_States_AU"');
+    }
+
+    if (ModuleManager::is_installed('CRM_Tasks')>=0 || ModuleManager::is_installed('CRM_PhoneCall')>=0 || ModuleManager::is_installed('CRM_Meeting')>=0 || ModuleManager::is_installed('Apps_MailClient')>=0) {
+        if (ModuleManager::is_installed('CRM_Roundcube')==-1) {
+            ModuleManager::install('CRM_Roundcube');    
+        }
+
+        if(ModuleManager::is_installed('CRM_Tasks')>=0)
+            CRM_RoundcubeCommon::new_addon('task');
+        if(ModuleManager::is_installed('CRM_PhoneCall')>=0)
+            CRM_RoundcubeCommon::new_addon('phonecall');
+        if(ModuleManager::is_installed('CRM_Meeting')>=0)
+            CRM_RoundcubeCommon::new_addon('crm_meeting');
+    }
 }
 //=========================================================================
 
