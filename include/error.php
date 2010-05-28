@@ -128,7 +128,7 @@ class ErrorHandler {
 				                    }
 				                    $a = '???';
 				                }
-				                $arg = 'Array ('.implode(', ',$a).')';
+				                $arg = 'Array ('.implode(', ',$arg).')';
 				            }
 				            continue;
 				        }
