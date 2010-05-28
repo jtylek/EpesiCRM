@@ -334,6 +334,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $cont = array();
         if ($mode=='add' || $mode=='edit') {
             $fcallback = array('CRM_ContactsCommon','autoselect_company_contact_format');
+            Epesi::alert(print_r($desc,true));
             if ($desc['type']=='multiselect') {
                 $form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','auto_company_contact_suggestbox'), array($fcallback), $fcallback);
             } else {
@@ -402,8 +403,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $ret;
     }
     public static function contact_get_tooltip($record) {
-    	if(!is_array($record) || empty($record) || !isset($record['work_phone'])) return '';
-		if(isset($record['group']) && is_array($record['group'])) {
+        if(!is_array($record) || empty($record) || !isset($record['work_phone'])) return '';
+        if(isset($record['group']) && is_array($record['group'])) {
             $group = Utils_CommonDataCommon::get_nodes('Contacts_Groups',$record['group']);
             if($group)
                 $group = implode(', ',$group);
@@ -413,8 +414,8 @@ class CRM_ContactsCommon extends ModuleCommon {
             $group = '';
         }
         return Utils_TooltipCommon::format_info_tooltip(array(
-				'Contact'=>'<STRONG>'.$record['last_name'].', '.$record['first_name'].'</STRONG>',
-				'Work Phone'=>$record['work_phone'],
+                'Contact'=>'<STRONG>'.$record['last_name'].', '.$record['first_name'].'</STRONG>',
+                'Work Phone'=>$record['work_phone'],
                 'Mobile Phone'=>$record['mobile_phone'],
                 'Fax'=>$record['fax'],
                 'Email'=>$record['email'],
@@ -425,8 +426,8 @@ class CRM_ContactsCommon extends ModuleCommon {
                 'Zone'=>$record['zone']?Utils_CommonDataCommon::get_value('Countries/'.$record['country'].'/'.$record['zone']):'---',
                 'Country'=>Utils_CommonDataCommon::get_value('Countries/'.$record['country']),
                 'Postal Code'=>$record['postal_code'],
-				'Group'=>$group
-				),'Utils_RecordBrowser');
+                'Group'=>$group
+                ),'Utils_RecordBrowser');
     }
     public static function contact_format_default($record, $nolink=false){
         if (is_numeric($record)) $record = self::get_contact($record);
@@ -940,13 +941,13 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function search($word){
         $ret = array();
         if(self::Instance()->acl_check('browse contacts')) {
-			$wo = explode(' ', $word);
+            $wo = explode(' ', $word);
 
-			$crits = array();
-			foreach ($wo as $w)
-				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('("~first_name'=>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%')), '|"~last_name'=>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'))));
-			
-			$result = self::get_contacts($crits);
+            $crits = array();
+            foreach ($wo as $w)
+                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('("~first_name'=>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%')), '|"~last_name'=>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'))));
+
+            $result = self::get_contacts($crits);
 
             foreach ($result as $row)
                 $ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('contact', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Contact #%d, %s %s', array($row['id'], $row['first_name'], $row['last_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
@@ -1094,7 +1095,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             // set default to main company
             if(($mc = self::get_main_company()))
                 $form->setDefaults(array('company'=>$mc));
-            
+
             $html = $form->toHtml();
 
             Libs_LeightboxCommon::display($lid, $html);
