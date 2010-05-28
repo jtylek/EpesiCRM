@@ -81,6 +81,61 @@ class ErrorHandler {
 						if(isset($bt[$i]["line"]))
 					$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;line ".$bt[$i]["line"]."<br />";
 				$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;function called: ".$bt[$i]["function"];
+				if(isset($bt[$i]['args'])) {
+				    $args = $bt[$i]['args'];
+				    foreach($args as & $arg) {
+				        if(is_string($arg)) {
+				            $arg = '"'.addcslashes($arg,'"').'"';
+				            continue;
+				        }
+				        if(is_numeric($arg)) continue;
+	                    if(is_null($arg)) {
+	                        $arg = 'null';
+	                        continue;
+	                    }
+				        if(is_bool($arg)) {
+				            $arg = $arg?'true':'false';
+				            continue;
+				        }
+				        if(is_object($arg)) {
+				            $arg = 'Object ('.get_class($arg).')';
+				            continue;
+				        }
+				        if(is_array($arg)) {
+				            if(count($arg)>10) $arg = 'Array (#'.count($arg).')';
+				            else {
+				                foreach($arg as &$a) {
+				                    if(is_string($a)) {
+            				            $a = '"'.addcslashes($a,'"').'"';
+				                        continue;
+				                    }
+				                    if(is_numeric($a)) continue;
+				                    if(is_null($a)) {
+				                        $a = 'null';
+				                        continue;
+				                    }
+            				        if(is_bool($a)) {
+			            	            $a = $a?'true':'false';
+				                        continue;
+            				        }
+				                    if(is_object($a)) {
+				                        $a = 'Object ('.get_class($a).')';
+				                        continue;
+				                    }
+				                    if(is_array($a)) {
+				                        $a = 'Array (#'.count($a).')';
+				                        continue;
+				                    }
+				                    $a = '???';
+				                }
+				                $arg = '('.implode(', ',$a).')';
+				            }
+				            continue;
+				        }
+				        $arg = '???';
+				    }
+				    $backtrace .= '('.implode(', ',$args).')';
+				}
 				$backtrace .= "<br /><br />";
 			}
 		} else $backtrace = '';
