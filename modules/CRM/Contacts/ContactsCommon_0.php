@@ -433,12 +433,14 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (is_numeric($record)) $record = self::get_contact($record);
         if (!$record) return null;
         $ret = '';
+		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
+		$label = str_replace(array('l','f'), array($record['last_name'], $record['first_name']), $format);
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-            $ret .= Utils_TooltipCommon::create($record['last_name'].' '.$record['first_name'],self::contact_get_tooltip($record));
+            $ret .= Utils_TooltipCommon::create($label,self::contact_get_tooltip($record));
             $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
         } else {
-            $ret .= $record['last_name'].' '.$record['first_name'];
+            $ret .= $label;
         }
         if (!empty($record['company_name'])) {
             $first_comp = reset($record['company_name']);
@@ -450,12 +452,14 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (is_numeric($record)) $record = self::get_contact($record);
         if (!$record) return null;
         $ret = '';
+		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
+		$label = str_replace(array('l','f'), array($record['last_name'], $record['first_name']), $format);
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-            $ret .= Utils_TooltipCommon::create($record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:''),self::contact_get_tooltip($record));
+            $ret .= Utils_TooltipCommon::create($label,self::contact_get_tooltip($record));
             $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
         } else {
-            $ret .= $record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:'');
+            $ret .= $label;
         }
         return $ret;
     }
@@ -1119,6 +1123,18 @@ class CRM_ContactsCommon extends ModuleCommon {
         return array_merge(Utils_RecordBrowserCommon::applet_settings(),array(
                 array('name'=>'conds','label'=>'Display','type'=>'select','default'=>'fav','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('fav'=>Base_LangCommon::ts('CRM_Contacts','favourites'),'rec'=>Base_LangCommon::ts('CRM_Contacts','recent')))));
     }
+	public function user_settings() {
+		$opts = array(
+			'f l' => '[First name] [Last Name]',
+			'l f' => '[Last Name] [First name]',
+			'l, f' => '[Last Name], [First name]'
+		);
+		return array('Regional settings'=>array(
+				array('name'=>'contact_header', 'label'=>'Contacts display', 'type'=>'header'),
+				array('name'=>'contact_format','label'=>'Contact format','type'=>'select','values'=>$opts,'default'=>'l f')
+					));
+	}
+
     public static function applet_info_format($r){
         $args=array(
                     'Work phone:'=>$r['work_phone'],
