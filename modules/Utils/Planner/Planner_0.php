@@ -220,16 +220,18 @@ class Utils_Planner extends Module {
 			$this->unset_module_variable('preserve_values');
 		$this->form->setDefaults($values);
 
-		$this->form->assign_theme('form', $theme);
-		$theme->display();
-		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-	
+		$validate = false;
 		if ($this->form->validate()) {
+			$validate = true;
 			foreach ($values as $k=>$v)
 				$this->values[$k] = $v;
 		}
 			
+		$this->form->assign_theme('form', $theme);
+		$theme->display();
+		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		
 		$time_frames = explode(';',$values['grid_selected_frames']);
 		if (!empty($time_frames) && $time_frames[0]) {
 			foreach ($time_frames as $k=>$v) {
@@ -261,7 +263,7 @@ class Utils_Planner extends Module {
 				return;
 			}
 		}
-		if ($this->form->validate()) {
+		if ($validate) {
 			unset($values['grid_selected_frames']);
 			foreach ($time_frames as $k=>$v) {
 				if (!$v) {
