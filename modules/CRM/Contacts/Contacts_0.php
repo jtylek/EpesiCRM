@@ -63,6 +63,8 @@ class CRM_Contacts extends Module {
 //		$this->rb->set_cut_lengths(array('company_name'=>30));
 //		$this->rb->set_header_properties(array('company_name'=>array('name'=>'Company Name Replacement','width'=>1)));
 		if ($mode=='contact') {
+			$fcallback = array('CRM_ContactsCommon','company_format_default');
+			$this->rb->set_custom_filter('company_name', array('type'=>'autoselect','label'=>$this->t('Company Name'),'args'=>array(), 'args_2'=>array(array('CRM_ContactsCommon','autoselect_company_suggestbox'), array(array(), $fcallback)), 'args_3'=>$fcallback, 'trans_callback'=>array('CRM_ContactsCommon','autoselect_company_filter_trans')));
 			$this->rb->set_defaults(array(	'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
 			$this->rb->set_default_order(array('last_name'=>'ASC', 'first_name'=>'ASC'));

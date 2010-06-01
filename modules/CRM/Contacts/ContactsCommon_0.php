@@ -334,7 +334,6 @@ class CRM_ContactsCommon extends ModuleCommon {
         $cont = array();
         if ($mode=='add' || $mode=='edit') {
             $fcallback = array('CRM_ContactsCommon','autoselect_company_contact_format');
-            Epesi::alert(print_r($desc,true));
             if ($desc['type']=='multiselect') {
                 $form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','auto_company_contact_suggestbox'), array($fcallback), $fcallback);
             } else {
@@ -538,6 +537,11 @@ class CRM_ContactsCommon extends ModuleCommon {
         else return array();
 	}
 	
+	public static function autoselect_company_filter_trans($val, $field) {
+        if ($val!='__NULL__' && $val) return array($field=>$val);
+        else return array();
+	}
+
     public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
         $cont = array();
         $param = explode(';',$desc['param']);
