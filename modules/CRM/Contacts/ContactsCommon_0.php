@@ -433,7 +433,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!$record) return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
-		$label = str_replace(array('l','f'), array($record['last_name'], $record['first_name']), $format);
+		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
             $ret .= Utils_TooltipCommon::create($label,self::contact_get_tooltip($record));
@@ -452,7 +452,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!$record) return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
-		$label = str_replace(array('l','f'), array($record['last_name'], $record['first_name']), $format);
+		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
             $ret .= Utils_TooltipCommon::create($label,self::contact_get_tooltip($record));
@@ -1129,13 +1129,13 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 	public function user_settings() {
 		$opts = array(
-			'f l' => '[First name] [Last Name]',
-			'l f' => '[Last Name] [First name]',
-			'l, f' => '[Last Name], [First name]'
+			'##f## ##l##' => '[First name] [Last Name]',
+			'##l## ##f##' => '[Last Name] [First name]',
+			'##l##, ##f##' => '[Last Name], [First name]'
 		);
 		return array('Regional settings'=>array(
 				array('name'=>'contact_header', 'label'=>'Contacts display', 'type'=>'header'),
-				array('name'=>'contact_format','label'=>'Contact format','type'=>'select','values'=>$opts,'default'=>'l f')
+				array('name'=>'contact_format','label'=>'Contact format','type'=>'select','values'=>$opts,'default'=>'##l## ##f##')
 					));
 	}
 
