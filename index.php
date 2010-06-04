@@ -127,18 +127,6 @@ Please choose epesi version:<ul>
 	exit();
 }
 
-if(defined('CID')) {
-	if(constant('CID')!==false) die('Invalid update script defined custom CID. Please try to refresh site manually.');
-} else
-	define('CID',false); //i know that i won't access $_SESSION['client']
-require_once('include/session.php');
-
-$client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
-$client_id_next = $client_id+1;
-if($client_id_next==5) $client_id_next=0;
-$_SESSION['num_of_clients'] = $client_id_next;
-DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',array(session_id(),$client_id));
-session_commit();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -184,7 +172,7 @@ session_commit();
             }
 		</style>
 	</head>
-	<body onload="Epesi.init(<?php print($client_id); ?>,'<?php print(rtrim(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])),'/').'/process.php'); ?>','<?php print(http_build_query($_GET));?>')">
+	<body>
 		<div id="body_content">
 		<div id="main_content"></div>
 		<div style="padding-top:97px;">
@@ -206,6 +194,7 @@ session_commit();
 		</div>
 
 		</div>
+		<script type="text/javascript" src="init_js.php?<?php print(http_build_query($_GET));?>"></script>
 	</body>
 </html>
 <?php
