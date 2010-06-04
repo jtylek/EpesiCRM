@@ -427,7 +427,7 @@ class Data_CountriesInstall extends ModuleInstall {
 				"MA"=>'Morocco',
 				"MZ"=>'Mozambique',
 				"MM"=>'Myanmar',
-				"NA"=>'Nambia',
+				"NA"=>'Namibia',
 				"NU"=>'Nauru',
 				"NP"=>'Nepal',
 				"AN"=>'Netherland Antilles',
