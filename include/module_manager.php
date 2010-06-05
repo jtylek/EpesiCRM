@@ -103,8 +103,11 @@ class ModuleManager {
 		$queue = array();
 		$virtual_modules = array(); //virtually loaded modules
 		$priority = array();
+		$installed_modules = ModuleManager::get_load_priority_array(true);
 
-		foreach(self::$modules as $module_to_load=>$version) {
+		foreach($installed_modules as $v) {
+			$module_to_load = $v['name'];
+			$version = $v['version'];
 			$deps = self :: check_dependencies($module_to_load, $version, $virtual_modules);
 
 			if(!empty($deps)) {
@@ -116,12 +119,17 @@ class ModuleManager {
 			self :: register($module_to_load, $version, $virtual_modules);
 
 			//queue
-			foreach($queue as $k=>$m) {
-				$deps = self :: check_dependencies($m['name'], $m['version'], $virtual_modules);
-				if(empty($deps)) {
-					$priority[] = $m['name'];
-					unset($queue[$k]);
-					self :: register($m['name'], $m['version'], $virtual_modules);
+			$registered = true;
+			while($registered) {
+				$registered = false;
+				foreach($queue as $k=>$m) {
+					$deps = self :: check_dependencies($m['name'], $m['version'], $virtual_modules);
+					if(empty($deps)) {
+						$priority[] = $m['name'];
+						unset($queue[$k]);
+						self :: register($m['name'], $m['version'], $virtual_modules);
+						$registered = true;
+					}
 				}
 			}
 		}
