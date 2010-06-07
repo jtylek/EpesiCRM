@@ -94,8 +94,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$recurrence = strpos($id,'_');
 		if($recurrence!==false)
 			$id = substr($id,0,$recurrence);
+		$hndlr = DB::GetOne('SELECT id FROM crm_calendar_custom_events_handlers WHERE group_name=%s',array('Meetings'));
 
-		$a = self::get($id);
+		$a = self::get($hndlr.'#'.$id);
 
 		if (!$a) return Base_LangCommon::ts('CRM_Calendar_Event','Private record');
 

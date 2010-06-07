@@ -328,4 +328,5 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 
 }
+
 ?>
