@@ -125,6 +125,7 @@ class Utils_GenericBrowser extends Module {
 	private $custom_label = '';
 	private $table_prefix = '';
 	private $table_postfix = '';
+	private $absolute_width = false;
 	private static $possible_vals_for_per_page=array(5=>5,10=>10,15=>15,20=>20,25=>25,30=>30,40=>40,50=>50);
 	public $form_s = null;
 
@@ -136,6 +137,10 @@ class Utils_GenericBrowser extends Module {
 
 	public function set_custom_label($arg){
 		$this->custom_label = $arg;
+	}
+
+	public function absolute_width($arg){
+		$this->absolute_width = $arg;
 	}
 
 	/**
@@ -881,8 +886,10 @@ class Utils_GenericBrowser extends Module {
 			else $sort = '';
 			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
 			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
-			$headers[$i]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
+			if ($this->absolute_width) $headers[$i]['attrs'] = 'width="'.$v['width'].'" ';
+			else $headers[$i]['attrs'] = 'width="'.intval(100*$v['width']/$all_width).'%" ';
 			$headers[$i]['attrs'] .= 'nowrap="1" ';
+			if (isset($v['attrs'])) $headers[$i]['attrs'] .= $v['attrs'].' ';
 			$i++;
 		}
 		ksort($headers);

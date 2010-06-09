@@ -493,7 +493,7 @@ class Utils_RecordBrowser extends Module {
         return $x->pop_main();
     }
     //////////////////////////////////////////////////////////////////////////////////////////
-    public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false) {
+    public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false, $pdf = false) {
         if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
         if ($this->check_for_jump()) return;
         Utils_RecordBrowserCommon::$cols_order = $this->col_order;
@@ -501,6 +501,7 @@ class Utils_RecordBrowser extends Module {
             print($this->t('You are not authorised to browse this data.'));
             return;
         }
+
         $this->init();
         $this->action = 'Browse';
         if (!Base_AclCommon::i_am_admin() && $admin) {
@@ -531,12 +532,12 @@ class Utils_RecordBrowser extends Module {
             $table_columns = array(array('name'=>$this->t('Select'), 'width'=>1));
         } else {
             $table_columns = array();
-            if (!$admin && $this->favorites) {
+            if (!$pdf && !$admin && $this->favorites) {
                 $fav = array('name'=>$this->t('Fav'), 'width'=>1);
                 if (!isset($this->force_order)) $fav['order'] = ':Fav';
                 $table_columns[] = $fav;
             }
-            if (!$admin && $this->watchdog)
+            if (!$pdf && !$admin && $this->watchdog)
                 $table_columns[] = array('name'=>$this->t('Sub'), 'width'=>1);
         }
         if (!$this->disabled['quickjump']) $quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
@@ -545,6 +546,7 @@ class Utils_RecordBrowser extends Module {
         $hash = array();
         $access = $this->get_access('browse');
         $query_cols = array();
+		$width_sum = 0;
         foreach($this->table_rows as $field => $args) {
             $hash[$args['id']] = $field;
             if ($field === 'id') continue;
@@ -552,7 +554,7 @@ class Utils_RecordBrowser extends Module {
             if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
             $query_cols[] = $args['id'];
             $arr = array('name'=>$args['name']);
-            if (!isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
+            if (!$pdf && !isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
             if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp' || $args['type']=='time') && !$this->add_in_table) || $args['type']=='commondata') {
                 $arr['wrapmode'] = 'nowrap';
                 $arr['width'] = 1;
@@ -568,8 +570,8 @@ class Utils_RecordBrowser extends Module {
                 $str = explode(';', $args['param']);
             $ref = explode('::', $str[0]);
             $each = array();
-            if ($quickjump!=='' && $args['name']===$quickjump) $each[] = 'quickjump';
-            if (!$this->disabled['search']) $each[] = 'search';
+            if (!$pdf && $quickjump!=='' && $args['name']===$quickjump) $each[] = 'quickjump';
+            if (!$pdf && !$this->disabled['search']) $each[] = 'search';
             foreach ($each as $e) {
                 if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr[$e] = $args['id'];
                 if ($ref[0]!='' && isset($ref[1])) $arr[$e] = '__Ref__'.$args['id'];
@@ -579,35 +581,36 @@ class Utils_RecordBrowser extends Module {
                 }
             }
             if (isset($arr['quickjump'])) $arr['quickjump'] = '"~'.$arr['quickjump'];
-            /*
-            if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"~'.$args['id'];
-            if (!$this->disabled['search']) {
-                if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//preg_replace('/[^a-z0-9]/i','_',$field);
-                if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.$args['id'];//preg_replace('/[^a-z0-9]/i','_',$field);
-                if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
-                    if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr['search'] = '__RefCD__'.$args['id'];//preg_replace('/[^a-z0-9]/i','_',$field);
-                    else unset($arr['search']);
-                }
-            }
-            */
+			if ($pdf) {
+				$arr['attrs'] = 'style="border:1px;font-weight:bold;color:white;background-color:gray"';
+				if (!isset($arr['width'])) $arr['width'] = 9;
+				if ($arr['width']==1) $arr['width'] = 5;
+				$width_sum += $arr['width'];
+			}
             $table_columns[] = $arr;
         }
-        $clean_order = array();
-        foreach ($order as $k => $v) {
-            if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name'];
-            elseif (isset($hash[$k])) $key = $hash[$k];
-            else $key = $k;
-            $clean_order[$this->t($key)] = $v;
-        }
-//      if ($this->browse_mode == 'recent')
-//          $table_columns[] = array('name'=>$this->t('Visited on'), 'wrapmode'=>'nowrap', 'width'=>1);
+		if ($pdf)
+			foreach ($table_columns as $k=>$v) {
+				$table_columns[$k]['width'] = intval(530*$v['width']/$width_sum);
+			}
+		
+		$gb->set_table_columns( $table_columns );
+		
+		if (!$pdf) {
+			$clean_order = array();
+			foreach ($order as $k => $v) {
+				if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name'];
+				elseif (isset($hash[$k])) $key = $hash[$k];
+				else $key = $k;
+				$clean_order[$this->t($key)] = $v;
+			}
 
-        $gb->set_table_columns( $table_columns );
+			if ($this->browse_mode != 'recent')
+				$gb->set_default_order($clean_order, $this->changed_view);
+		}
 
-        if ($this->browse_mode != 'recent')
-            $gb->set_default_order($clean_order, $this->changed_view);
 
-        if (!$special && $this->get_access('add')!==false) {
+        if (!$pdf && !$special && $this->get_access('add')!==false) {
             $custom_label = '';
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
@@ -671,7 +674,7 @@ class Utils_RecordBrowser extends Module {
             $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $leftovers);
         }
 
-        $order = $gb->get_order();
+        if (!$pdf) $order = $gb->get_order();
         $crits = array_merge($crits, $search_res);
         if ($this->browse_mode == 'favorites')
             $crits[':Fav'] = true;
@@ -696,8 +699,23 @@ class Utils_RecordBrowser extends Module {
         }
         if (isset($this->force_order)) $order = $this->force_order;
 
+		if (!$pdf) {
+			$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
+			Base_ActionBarCommon::add('print', $this->t('Print'), 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
+			$_SESSION['client']['utils_recordbrowser'][$key] = array(
+				'tab'=>$this->tab,
+				'crits'=>$crits,
+				'cols'=>$cols,
+				'order'=>$order,
+				'admin'=>$admin,
+				'more_table_properties'=>$this->more_table_properties
+			);
+		}
+
         $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin);
-        $limit = $gb->get_limit($this->amount_of_records);
+        if ($pdf) $limit = null;
+		else $limit = $gb->get_limit($this->amount_of_records);
+
         $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 
         if ((Base_AclCommon::i_am_admin() && $this->fullscreen_table) || $this->enable_export)
@@ -718,7 +736,7 @@ class Utils_RecordBrowser extends Module {
         }
         if ($special) $rpicker_ind = array();
 
-        if (!$admin && $this->favorites) {
+        if (!$pdf && !$admin && $this->favorites) {
             $favs = array();
             $ret = DB::Execute('SELECT '.$this->tab.'_id FROM '.$this->tab.'_favorite WHERE user_id=%d', array(Acl::get_user()));
             while ($row=$ret->FetchRow()) $favs[$row[$this->tab.'_id']] = true;
@@ -732,7 +750,7 @@ class Utils_RecordBrowser extends Module {
         if ($grid_enabled) load_js('modules/Utils/RecordBrowser/grid.js');
 
         $this->view_fields_permission = $this->get_access('add', $this->custom_defaults);
-        if (!$special && $this->add_in_table && $this->view_fields_permission) {
+        if (!$pdf && !$special && $this->add_in_table && $this->view_fields_permission) {
             $form = $this->init_module('Libs/QuickForm',null, 'add_in_table__'.$this->tab);
             $form_name = $form->get_name();
         } else $form_name = '';
@@ -744,11 +762,11 @@ class Utils_RecordBrowser extends Module {
             }
             self::$access_override['id'] = $row['id'];
             $gb_row = $gb->get_new_row();
-            if (!$admin && $this->favorites) {
+            if (!$pdf && !$admin && $this->favorites) {
                 $isfav = isset($favs[$row['id']]);
                 $row_data= array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.($isfav==false?$star_off:$star_on).'" /></a>');
             } else $row_data= array();
-            if (!$admin && $this->watchdog)
+            if (!$pdf && !$admin && $this->watchdog)
                 $row_data[] = Utils_WatchdogCommon::get_change_subscription_icon($this->tab,$row['id']);
             if ($special) {
                 $element = $this->get_module_variable('element');
@@ -757,11 +775,11 @@ class Utils_RecordBrowser extends Module {
                 $row_data = array('<input type="checkbox" id="leightbox_rpicker_'.$element.'_'.$row['id'].'" formated_name="'.(is_callable($format)?strip_tags(call_user_func($format, $row, true)):'').'" />');
                 $rpicker_ind[] = $row['id'];
             }
-            foreach($query_cols as $argsid) {
+            foreach($query_cols as $k=>$argsid) {
                 if (!$access[$argsid]) continue;
                 $field = $hash[$argsid];
                 $args = $this->table_rows[$field];
-                $value = $this->get_val($field, $row, $special, $args);
+                $value = $this->get_val($field, $row, ($special || $pdf), $args);
                 if (isset($this->cut[$args['id']])) {
                     $value = Utils_RecordBrowserCommon::cut_string($value,$this->cut[$args['id']]);
                 }
@@ -789,7 +807,6 @@ class Utils_RecordBrowser extends Module {
                 }
                 if (is_array($value)) {
                     $value['value'] = $table.$value['value'].$ed_icon;
-                    if (!isset($value['attrs'])) $value['attrs'] = '';
                     $value['attrs'] = $attrs;
                 } else {
                     $value = array(
@@ -797,13 +814,16 @@ class Utils_RecordBrowser extends Module {
                         'attrs'=>$attrs
                     );
                 }
+				if ($pdf) {
+					$value['attrs'] = $attrs.' style="border:1px solid;padding:0 5px;" width="'.$table_columns[$k]['width'].'"';
+				}
                 $row_data[] = $value;
             }
 //          if ($this->browse_mode == 'recent')
 //              $row_data[] = $row['visited_on'];
 
             $gb_row->add_data_array($row_data);
-            if ($this->disabled['actions']!==true) {
+            if (!$pdf && $this->disabled['actions']!==true) {
                 if ($this->disabled['actions']===false) $da = array();
                 else $da = array_flip($this->disabled['actions']);
                 if (!$special) {
@@ -892,7 +912,12 @@ class Utils_RecordBrowser extends Module {
             Base_User_SettingsCommon::save('Utils/RecordBrowser/RecordPicker','per_page',$gb->get_module_variable('per_page'));
             Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$gb_per_page);
             return $ret;
-        } else $this->display_module($gb);
+        }
+		if ($pdf) {
+			$gb->absolute_width(true);
+			$args = array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','pdf'));
+		} else $args = array();
+		$this->display_module($gb, $args);
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function delete_record($id) {

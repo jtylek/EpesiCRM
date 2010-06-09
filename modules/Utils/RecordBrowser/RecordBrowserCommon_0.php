@@ -13,9 +13,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowserCommon extends ModuleCommon {
-    private static $table_rows = array();
     private static $del_or_a = '';
-    private static $hash = array();
+    public static $table_rows = array();
+    public static $hash = array();
     public static $admin_access = false;
     public static $cols_order = array();
     public static $options_limit = 0;
