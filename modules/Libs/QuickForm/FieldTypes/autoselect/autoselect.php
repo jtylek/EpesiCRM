@@ -87,8 +87,10 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			$mode = Base_User_SettingsCommon::get('Libs_QuickForm','autoselect_mode');
 
 			$val = $this->getValue();
-			if (isset($val[0]) && $val[0]!='' && !isset($this->__options[$val[0]]))
-				$this->addOption(strip_tags(call_user_func_array($this->more_opts_format, array($val[0]))), $val[0]);
+			if (isset($val[0]) && $val[0]!='' && !isset($this->__options[$val[0]])) {
+				$label = call_user_func_array($this->more_opts_format, array($val[0]));
+				if ($label!==null) $this->addOption(strip_tags($label), $val[0]);
+			}
 				
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
 			$strHtml .= '<option value="">'.'Start typing to search...'.'</option>';

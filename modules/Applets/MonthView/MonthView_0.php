@@ -68,7 +68,7 @@ class Applets_MonthView extends Module {
 		$theme->assign('prevyear_label', $this->ht('Previous year'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'month',null,null,''));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'month',null,null,''));
 
 		$day_headers = array();
 		$day = strtotime('Sun');

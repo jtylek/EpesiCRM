@@ -36,14 +36,24 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			$ex_date = Base_RegionalSettingsCommon::time2reg(null,false,true,false);
 			$date_format = Base_RegionalSettingsCommon::date_format();
 			$this->setType('text');
-			$str .= $this->_getTabs() . '<table class="utils_datepicket_element" style="border:0;padding:0;" cellpadding="0" cellspacing="0"><tr>'.
-				'<td><input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/PopupCalendar','Example date: %s',array($ex_date)), false ).' /></td>'.
-				'<td>'.	Utils_PopupCalendarCommon::show(md5($id),
-					'new Ajax.Request(\'modules/Utils/PopupCalendar/up.php\','.
-					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
-					'onSuccess:function(t){e=$(\''.Epesi::escapeJS($id,false).'\');e.value=t.responseText;e.fire(\'native:change\');}})',
-					false,null,null,
-					'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$label,$value).'</td></tr></table>';
+			if ($label===false) {
+				$js = Utils_PopupCalendarCommon::create_href(md5($id),
+						'new Ajax.Request(\'modules/Utils/PopupCalendar/up.php\','.
+						'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
+						'onSuccess:function(t){e=$(\''.Epesi::escapeJS($id,false).'\');e.value=t.responseText;e.fire(\'native:change\');}})',
+						null,null,
+						'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$value, $id);
+				$str .= $this->_getTabs() . '<input ' . $js . ' ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/PopupCalendar','Example date: %s',array($ex_date)), false ).' />';
+			} else {
+				$str .= $this->_getTabs() . '<table class="utils_datepicket_element" style="border:0;padding:0;" cellpadding="0" cellspacing="0"><tr>'.
+					'<td><input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/PopupCalendar','Example date: %s',array($ex_date)), false ).' /></td>'.
+					'<td>'.	Utils_PopupCalendarCommon::show(md5($id),
+						'new Ajax.Request(\'modules/Utils/PopupCalendar/up.php\','.
+						'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
+						'onSuccess:function(t){e=$(\''.Epesi::escapeJS($id,false).'\');e.value=t.responseText;e.fire(\'native:change\');}})',
+						null,null,
+						'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$label,$value).'</td></tr></table>';
+			}
 			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_PopupCalendarDatePicker.validate.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
 			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_PopupCalendarDatePicker.validate_blur.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
 		}

@@ -327,7 +327,14 @@ class Utils_RecordBrowser extends Module {
                 continue;
             }
             $arr = array();
-            if ($this->table_rows[$filter]['type']=='checkbox') {
+            if ($this->table_rows[$filter]['type']=='timestamp') {
+				$form->addElement('datepicker', $field_id.'__from', $this->t($filter).' ('.$this->t('from').')', array('label'=>false));
+				$form->addElement('datepicker', $field_id.'__to', $this->t($filter).' ('.$this->t('to').')', array('label'=>false));
+				$filters[] = $filter_id.'__from';
+				$filters[] = $filter_id.'__to';
+				continue;
+            }
+			if ($this->table_rows[$filter]['type']=='checkbox') {
                 $arr = array(''=>$this->ht('No'), 1=>$this->ht('Yes'));
             } else {
                 if ($this->table_rows[$filter]['type'] == 'commondata') {
@@ -411,6 +418,7 @@ class Utils_RecordBrowser extends Module {
         foreach ($filters_all as $filter) {
             if (in_array(strtolower($filter), $external_filters)) continue;
             $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
+            $field_id = 'filter__'.$filter_id;
             if (isset($this->custom_filters[$filter_id])) {
                 if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='__NULL__';
                 if (isset($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]])) {
@@ -421,6 +429,13 @@ class Utils_RecordBrowser extends Module {
                     $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
                 }
             } else {
+				if ($this->table_rows[$filter]['type']=='timestamp') {
+					if ($vals[$field_id.'__from'])
+						$this->crits['>='.$filter_id] = $vals[$field_id.'__from'].' 00:00:00';
+					if ($vals[$field_id.'__to'])
+						$this->crits['<='.$filter_id] = $vals[$field_id.'__to'].' 23:59:59';
+					continue;
+				}
                 if (!isset($text_filters[$filter_id])) {
                     if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='__NULL__';
                     if ($vals['filter__'.$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals['filter__'.$filter_id];

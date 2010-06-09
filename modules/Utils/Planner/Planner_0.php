@@ -209,7 +209,7 @@ class Utils_Planner extends Module {
 			$this->form->addElement('submit', 'today', $this->t('Today'), array('onclick'=>'$("planner_navigation").value="today";'));
 			$this->form->addElement('hidden', 'navigation', '', array('id'=>'planner_navigation'));
 			$link_text = '$(\'planner_navigation\').value=\'__YEAR__-__MONTH__-__DAY__\';'.$this->form->get_submit_form_js().';';
-			$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'day',$fdow,null,null,$this->date));
+			$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'day',$fdow,null,null,$this->date));
 			eval_js('$("planner_navigation").value="";');
 		}
 

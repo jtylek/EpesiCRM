@@ -449,7 +449,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function contact_format_no_company($record, $nolink=false){
         if (is_numeric($record)) $record = self::get_contact($record);
-        if (!$record) return null;
+        if (!$record || $record=='__NULL__') return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);

@@ -433,7 +433,7 @@ class Utils_Calendar extends Module {
 		$theme->assign('prev_label', $this->ht('Previous day'));
 		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text,false,'day',$this->settings['first_day_of_week']));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text,'day',$this->settings['first_day_of_week']));
 
 		$header_day = array('number'=>date('d',$this->date),
 							'label'=>$this->t(date('l',$this->date)),
@@ -596,7 +596,7 @@ class Utils_Calendar extends Module {
 		$theme->assign('prev7_label', $this->ht('Previous week'));
 		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 		$link_text = $this->create_unique_href_js(array('week_date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'day',$this->settings['first_day_of_week']));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'day',$this->settings['first_day_of_week']));
 
 		$week_shift = $this->get_module_variable('week_shift',0);
 
@@ -810,7 +810,7 @@ class Utils_Calendar extends Module {
 			$this->set_date($this->get_unique_href_variable('date'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'month'));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'month'));
 
 		$month = $this->month_array($this->date);
 		$dnd = array();
@@ -892,7 +892,7 @@ class Utils_Calendar extends Module {
 		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'year'));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'year'));
 
 
 		$day_headers = array();
