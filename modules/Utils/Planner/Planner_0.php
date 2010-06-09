@@ -127,8 +127,8 @@ class Utils_Planner extends Module {
 	public function set_default_time_frames($day, $start, $end) {
 		$mark = false;
 		$base_unix_time = strtotime('1970-01-01 00:00');
-		$start = (strtotime(Base_RegionalSettingsCommon::time2reg($start))-$base_unix_time)/60;
-		$end = (strtotime(Base_RegionalSettingsCommon::time2reg($end))-$base_unix_time)/60;
+		$start = (strtotime(Base_RegionalSettingsCommon::time2reg($start,true,true,true,false))-$base_unix_time)/60;
+		$end = (strtotime(Base_RegionalSettingsCommon::time2reg($end,true,true,true,false))-$base_unix_time)/60;
 		$last = 0;
 		foreach ($this->grid as $v) {
 			if (!$mark && $v>$start)
