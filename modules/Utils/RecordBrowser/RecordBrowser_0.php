@@ -741,8 +741,6 @@ class Utils_RecordBrowser extends Module {
             $favs = array();
             $ret = DB::Execute('SELECT '.$this->tab.'_id FROM '.$this->tab.'_favorite WHERE user_id=%d', array(Acl::get_user()));
             while ($row=$ret->FetchRow()) $favs[$row[$this->tab.'_id']] = true;
-            $star_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_fav.png');
-            $star_off = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_nofav.png');
         }
         self::$access_override['tab'] = $this->tab;
         if (isset($limit)) $i = $limit['offset'];
@@ -763,10 +761,11 @@ class Utils_RecordBrowser extends Module {
             }
             self::$access_override['id'] = $row['id'];
             $gb_row = $gb->get_new_row();
+			$row_data = array();
             if (!$pdf && !$admin && $this->favorites) {
                 $isfav = isset($favs[$row['id']]);
-                $row_data= array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.($isfav==false?$star_off:$star_on).'" /></a>');
-            } else $row_data= array();
+                $row_data[] = Utils_RecordBrowserCommon::get_fav_button($this->tab, $row['id'], $isfav);
+            }
             if (!$pdf && !$admin && $this->watchdog)
                 $row_data[] = Utils_WatchdogCommon::get_change_subscription_icon($this->tab,$row['id']);
             if ($special) {
@@ -1147,13 +1146,11 @@ class Utils_RecordBrowser extends Module {
         }
 
         if ($mode!='add') {
-            $isfav_query_result = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
-            $isfav = ($isfav_query_result!==false && $isfav_query_result!==null);
             $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
             $row_data= array();
 
             if ($this->favorites)
-                $theme -> assign('fav_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($id)).'><img style="width: 14px; height: 14px;" border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
+                $theme -> assign('fav_tooltip', Utils_RecordBrowserCommon::get_fav_button($this->tab, $id));
             if ($this->watchdog)
                 $theme -> assign('subscription_tooltip', Utils_WatchdogCommon::get_change_subscription_icon($this->tab, $id));
             if ($this->full_history) {
@@ -1540,12 +1537,6 @@ class Utils_RecordBrowser extends Module {
                 $form->addRule($args['id'], $this->t('Field required'), 'required');
         }
         //eval_js($init_js);
-    }
-    public function add_to_favs($id) {
-        DB::Execute('INSERT INTO '.$this->tab.'_favorite (user_id, '.$this->tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
-    }
-    public function remove_from_favs($id) {
-        DB::Execute('DELETE FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
     }
     public function update_record($id,$values) {
         Utils_RecordBrowserCommon::update_record($this->tab, $id, $values);

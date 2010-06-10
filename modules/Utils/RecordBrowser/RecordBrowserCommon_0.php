@@ -1243,6 +1243,26 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'edited_on'=>$edited['edited_on'],'edited_by'=>$edited['edited_by'],
                         'id'=>$id);
     }
+	public static function get_fav_button($tab, $id, $isfav = null) {
+		$tag_id = 'rb_fav_button_'.$tab.'_'.$id;
+		return '<span id="'.$tag_id.'">'.self::get_fav_button_tags($tab, $id, $isfav).'</span>';
+	}
+	public static function get_fav_button_tags($tab, $id, $isfav = null) {
+        self::check_table_name($tab);
+		$star_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_fav.png');
+		$star_off = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_nofav.png');
+		load_js('modules/Utils/RecordBrowser/favorites.js');
+		if ($isfav===null) $isfav = DB::GetOne('SELECT '.$tab.'_id FROM '.$tab.'_favorite WHERE user_id=%d AND '.$tab.'_id=%d', array(Acl::get_user(), $id));
+		$tag_id = 'rb_fav_button_'.$tab.'_'.$id;
+		return '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?Base_LangCommon::ts('Utils_RecordBrowser','This item is on your favourites list<br>Click to remove it from your favorites'):Base_LangCommon::ts('Utils_RecordBrowser','Click to add this item to favorites'))).' onclick="utils_recordbrowser_set_favorite('.($isfav?0:1).',\''.$tab.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.($isfav==false?$star_off:$star_on).'" /></a>';
+	}
+    public function set_favs($tab, $id, $state) {
+        self::check_table_name($tab);
+		if ($state)
+			DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
+		else
+			DB::Execute('DELETE FROM '.$tab.'_favorite WHERE user_id=%d AND '.$tab.'_id=%d', array(Acl::get_user(), $id));
+    }
     public static function get_html_record_info($tab, $id){
         if (is_numeric($id)) $info = Utils_RecordBrowserCommon::get_record_info($tab, $id);
         else $info = $id;

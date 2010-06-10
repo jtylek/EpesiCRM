@@ -5,7 +5,7 @@
  * @license Commercial
  * @version 1.0
  * @package epesi-utils
- * @subpackage genericbrowser
+ * @subpackage recordbrowser
  */
 if (!isset($_POST['id']) || !isset($_POST['tab']) || !isset($_POST['mode']) || !isset($_POST['element']) || !isset($_POST['cid']))
 	die('Invalid request: '.print_r($_POST,true));
