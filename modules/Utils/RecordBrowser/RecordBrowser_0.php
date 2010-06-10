@@ -494,6 +494,7 @@ class Utils_RecordBrowser extends Module {
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false, $pdf = false) {
+		if (Utils_RecordBrowserCommon::$admin_access) $admin = true;
         if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
         if ($this->check_for_jump()) return;
         Utils_RecordBrowserCommon::$cols_order = $this->col_order;
