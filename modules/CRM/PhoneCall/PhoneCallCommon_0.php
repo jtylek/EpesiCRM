@@ -20,7 +20,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return 'List of phone calls to do';
 	}
 	public static function applet_settings() {
-		return Utils_RecordBrowserCommon::applet_settings();
+		return Utils_RecordBrowserCommon::applet_settings(array(
+			array('label'=>'Include missed (past) calls','name'=>'past','type'=>'checkbox','default'=>1),
+			array('label'=>'Include today calls','name'=>'today','type'=>'checkbox','default'=>1),
+			array('label'=>'Include future calls','name'=>'future','type'=>'select','values'=>array(0=>'No',1=>'Tomorrow',2=>'2 days forward',7=>'1 week forward',-1=>'All'),'default'=>0)
+			));
 	}
 	public static function applet_info_format($r){
 		if (isset($r['customer']) && $r['customer']!='') {
@@ -165,7 +169,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					'o_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer_name;'.
 					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
 					'if (arg) {c_phone.disable();customer.disable();o_customer.enable();} else {c_phone.enable();if(customer.length!=0)customer.enable();o_customer.disable();}'.
-					'c_phone.checked=arg;'.
+					'if (arg) c_phone.checked=true;'.
 					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
 					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.
 					'if (arg) {phone.disable();o_phone.enable();} else {if(phone.length!=0)phone.enable();o_phone.disable();}'.

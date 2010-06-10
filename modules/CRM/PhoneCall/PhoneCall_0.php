@@ -48,12 +48,21 @@ class CRM_PhoneCall extends Module {
 			CRM_ContactsCommon::no_contact_message();
 			return;
 		}
+		$crits = array('employees'=>array($me['id']), '!status'=>array(2,3));
+		if (!$conf['past'])
+			$crits['>=date_and_time'] = date('Y-m-d 00:00:00');
+		if (!$conf['today']) {
+			$crits['(>=date_and_time'] = date('Y-m-d 00:00:00', strtotime('+1 day'));
+			$crits['|<date_and_time'] = date('Y-m-d 00:00:00');
+		}
+		if ($conf['future']!=-1)
+			$crits['<=date_and_time'] = date('Y-m-d 23:59:59', strtotime('+'.$conf['future'].' day'));
 		$conds = array(
 									array(	array('field'=>'contact_name', 'width'=>20, 'cut'=>14),
 											array('field'=>'phone_number', 'width'=>1, 'cut'=>15),
 											array('field'=>'status', 'width'=>1)
 										),
-									array('employees'=>array($me['id']), '!status'=>array(2,3)),
+									$crits,
 									array('status'=>'ASC','date_and_time'=>'ASC','priority'=>'DESC'),
 									array('CRM_PhoneCallCommon','applet_info_format'),
 									15,
