@@ -49,6 +49,7 @@ Autocompleter.Base = Class.create({
     this.changed     = false; 
     this.active      = false; 
     this.index       = 0;     
+	this.defaultIndex= 0;
     this.entryCount  = 0;
     this.oldElementValue = this.element.value;
 
@@ -57,6 +58,7 @@ Autocompleter.Base = Class.create({
     else
       this.options = options || { };
 
+	this.defaultIndex		  = options.defaultIndex || 0;
     this.options.paramName    = this.options.paramName || this.element.name;
     this.options.tokens       = this.options.tokens || [];
     this.options.frequency    = this.options.frequency || 0.4;
@@ -312,7 +314,7 @@ markNext: function() {
 
       this.stopIndicator();
 	  this.update.scrollTop = 0;
-      this.index = 0;
+      this.index = this.defaultIndex;
       
       if(this.entryCount==1 && this.options.autoSelect) {
         this.selectEntry();
