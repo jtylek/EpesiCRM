@@ -16,39 +16,77 @@ class Base_ModuleDownloader extends Module {
 	public function body() {
 	}
 
+    public function navigate($func, $params = array()) {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+        $x->push_main('Base_ModuleDownloader', $func, $params);
+        return false;
+    }
+
+    public function pop_main() {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+        $x->pop_main();
+    }
+
+
 	public function admin() {
         $form = $this->init_module('Libs/QuickForm');
         $form->addElement('text', 'mid', 'Download Code');
         $form->addElement('submit', 'submit', 'Download');
         if($form->validate()) {
-            $this->process($form->exportValue('mid'));
+            $this->navigate('processQuery', array($form->exportValue('mid')));
         }
         $form->display();
 	}
 
-    private function process($mid /* Module ID */) {
+    protected function processQuery($mid /* Module ID */) {
+        if($this->is_back()) {
+            $this->pop_main();
+        }
+        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+
+        /* request modules list */
+        $modules = unserialize($this->request(array('action'=>'list', 'id'=>$mid)));
+
+        if($modules === false) {
+            print($this->t('This code is not valid!'));
+        } elseif($modules === true) {
+            print($this->t('This code is no longer valid! Please request appropriate person for valid code!').'<br/>');
+        } else {
+            print($this->t('Click "Download now!" to download listed modules.<br/>If you have those modules, in "modules" directory they will be <b>overwritten</b>!'));
+            print("<ul>");
+            foreach($modules as $m) {
+                print('<li>'. $m .'</li>');
+            }
+            print("</ul>");
+            $form = $this->init_module('Libs/QuickForm');
+            if($form->validate()) {
+                $this->processDownload($mid);
+            } else $form->addElement('submit', 'submit', 'Download Now!');
+            $form->display();
+            return false;
+        }
+    }
+
+    protected function processDownload($mid /* Module ID */) {
         // make temp destination filename
         $destfile = $this->get_data_dir() . escapeshellcmd($mid);
         while(file_exists($destfile.'.zip')) $destfile .= '0';
         $destfile .= '.zip';
         // download file
-        $url = self::server . '?' . http_build_query(array('action'=>'file', 'id'=>$mid));
-        if( ($ret = $this->download_remote_file($url, $destfile)) === true ) {
+        if( ($ret = $this->request(array('action'=>'file', 'id'=>$mid), $destfile)) === true ) {
             print($this->t('File download succeded!').'<br/>');
         } else {
             print($this->t('Error downloading file!').'<br/>');
-            if( $ret == '403' ) {
-                print($this->t('This code is no longer valid! Please request appropriate person for valid code!').'<br/>');
-            }
             return;
         }
         // request md5 sum
-        $url = self::server . '?' . http_build_query(array('action'=>'md5', 'id'=>$mid));
-        $md5 = $this->download_remote_file($url);
+        $md5 = unserialize($this->request(array('action'=>'md5', 'id'=>$mid)));
         if( $md5 == md5_file($destfile) ) {
-            print('MD5: '.$md5.'  OK');
+            print('File consistency  OK');
         } else {
-            print('MD5: '.$md5.'  Error');
+            print('File consistency  <b>Error</b>');
             return;
         }
         // extract file contents
@@ -67,9 +105,11 @@ class Base_ModuleDownloader extends Module {
     }
 
     // *********** Function download_remote_file **************
-    private function download_remote_file($fileurl, $filename = null) {
+    protected function request($get = '', $filename = null) {
         $err_msg = '';
-        $ch = curl_init($fileurl);
+        if(is_array($get)) $get = http_build_query($get);
+        if(strlen($get) && $get[0] != '?') $get = '?'.$get;
+        $ch = curl_init(self::server . $get);
 
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_HEADER, false);
@@ -91,7 +131,7 @@ class Base_ModuleDownloader extends Module {
             return $response_code;
         }
 
-        if($filename) file_put_contents($filename,$output);
+        if($filename) return file_put_contents($filename,$output) !== false;
         else return $output;
 
         return true;
