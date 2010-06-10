@@ -202,16 +202,23 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if (empty($custom_handlers)) return '';
 		$form = $this->init_module('Libs/QuickForm');
 
-		$form->addElement('checkbox', 'events_handlers__', $this->t('Meetings'), null, array('onchange'=>$form->get_submit_form_js()));
-//		$elements_name = array(-1=>'events_handlers__');
-//		$default = array(-1); // FIXME delete this part, only needed for testing with old events
 		$elements_name = array();
 		$default = array();
 		foreach ($custom_handlers as $k=>$v) {
-			$form->addElement('checkbox', 'events_handlers__'.$k, $this->t($v), null, array('onchange'=>$form->get_submit_form_js()));
+			$form->addElement('checkbox', 'events_handlers__'.$k, $this->t($v), null, array('onclick'=>'calendar_event_handlers_changed=1;'));
 			$elements_name[$k] = 'events_handlers__'.$k;
 			$default[] = $k;
 		}
+		$form->addElement('hidden', 'event_handlers_changed', '', array('id'=>'event_handlers_changed'));
+		eval_js('calendar_event_handlers_changed=0;');
+		eval_js('hide_calendar_event_handlers_popup = function() {'.
+			'if(var_hide_calendar_event_handlers_popup==1){'.
+				'$("calendar_event_handlers_popup").style.display="none";'.
+				'if(calendar_event_handlers_changed==1){'.
+					$form->get_submit_form_js().
+				'}'.
+			'}'.
+		'}');
 
 		$selected = $this->get_module_variable('events_handlers', $default);
 		if ($form->validate()) {
@@ -227,9 +234,16 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		    if(isset($elements_name[$e]))
     			$form->setDefaults(array($elements_name[$e]=>true));
 		}
+		$label = 'Filter: Error';
+		$select_count = count($selected);
+		if ($select_count==count($custom_handlers)) $label = $this->t('All');
+		else $label = $this->t('Selection (%d)',array($select_count));
+		if ($select_count==1) $label = $this->t($custom_handlers[reset($selected)]);
+		if ($select_count==0) $label = $this->t('None');
 
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('elements_name', $elements_name);
+		$theme->assign('label', $label);
 		$form->assign_theme('form', $theme);
 		ob_start();
 		$theme->display('custom_event_handlers_form');
