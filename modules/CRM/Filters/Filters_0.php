@@ -48,7 +48,9 @@ class CRM_Filters extends Module {
 			$cont[$v['id']] = call_user_func($fcallback, $v, true);
 		}
 		asort($cont);
-		$qf->addElement('autoselect','crm_filter_contact',$this->t('Records of'),$cont,array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array(array(), $fcallback, false)), $fcallback);
+		$crits = array();
+		if (!Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')) $crits = array('company_name'=>CRM_ContactsCommon::get_main_company());
+		$qf->addElement('autoselect','crm_filter_contact',$this->t('Records of'),$cont,array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $fcallback, false)), $fcallback);
 		if(isset($_SESSION['client']['filter_'.Acl::get_user()])) {
 			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()])));
 		}
@@ -163,10 +165,15 @@ class CRM_Filters extends Module {
 		
 		$qf = $this->init_module('Libs/QuickForm',null,'default_filter');
 		$qf->addElement('select','def_filter',$this->t('Default filter'),$def_opts,array('onChange'=>$qf->get_submit_form_js()));
+		$qf->addElement('checkbox','show_all_contacts_in_filters',$this->t('Show All Contacts in Filters'),null,array('onChange'=>$qf->get_submit_form_js()));
 		$qf->addRule('def_filter',$this->t('Field required'),'required');
-		$qf->setDefaults(array('def_filter'=>$this->get_default_filter($def_filter_exists)));
+		$qf->setDefaults(array(	'def_filter'=>$this->get_default_filter($def_filter_exists),
+								'show_all_contacts_in_filters'=>Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')
+						));
 		if($qf->validate()) {
 		    $vals = $qf->exportValues();
+			if (!isset($vals['show_all_contacts_in_filters'])) $vals['show_all_contacts_in_filters'] = 0;
+			Base_User_SettingsCommon::save('CRM_Contacts','show_all_contacts_in_filters',$vals['show_all_contacts_in_filters']);
 		    if($def_filter_exists)
 			DB::Execute('UPDATE crm_filters_default SET filter=%s WHERE user_login_id=%d',array($vals['def_filter'],Acl::get_user()));
 		    else

@@ -1017,17 +1017,16 @@ class CRM_ContactsCommon extends ModuleCommon {
             else $edited_by = Base_UserCommon::get_user_login($edited_by);
         }
 
-        $htmlinfo=array(
-            'Record ID:'=>$id,
-            'Created by:'=>$created_by,
-            'Created on:'=>Base_RegionalSettingsCommon::time2reg($created_on)
-            );
-
-            if ($edited_by!=null) {
-            $htmlinfo=$htmlinfo+array(
-                'Edited by:'=>$edited_by,
-                'Edited on:'=>Base_RegionalSettingsCommon::time2reg($edited_on)
-                );
+        $htmlinfo=array();
+		if ($id) $htmlinfo['Record ID:'] = $id;
+		$htmlinfo['Created by:'] = $created_by;
+		$htmlinfo['Created on:'] = Base_RegionalSettingsCommon::time2reg($created_on);
+            
+		if ($edited_by!=null) {
+			$htmlinfo=$htmlinfo+array(
+				'Edited by:'=>$edited_by,
+				'Edited on:'=>Base_RegionalSettingsCommon::time2reg($edited_on)
+				);
         }
         return  Utils_TooltipCommon::format_info_tooltip($htmlinfo,'CRM_Contacts');
     }
@@ -1136,6 +1135,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return array('Regional settings'=>array(
 				array('name'=>'contact_header', 'label'=>'Contacts display', 'type'=>'header'),
 				array('name'=>'contact_format','label'=>'Contact format','type'=>'select','values'=>$opts,'default'=>'##l## ##f##')
+					),
+					'Filters'=>array( // Until there's an option to define user_settings variables and redirect the display to custom method at the same time, it's the best solution at hand
+				array('name'=>'show_all_contacts_in_filters','label'=>'Show All Contacts in Filters','type'=>'hidden','default'=>1)
 					));
 	}
 

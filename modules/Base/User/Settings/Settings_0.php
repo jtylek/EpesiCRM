@@ -154,22 +154,18 @@ class Base_User_Settings extends Module {
         $us = ModuleManager::call_common_methods('user_settings');
         foreach($us as $name=>$menu) {
             if(!is_array($menu)) continue;
-            $display = false;
-            foreach ($menu as $m) {
-                if (!is_array($m)) {
-                    $display = true;
-                    continue;
-                }
-                foreach ($m as $m2) {
-                    if (isset($m2['type']) && $m2['type']!='hidden') {
-                        $display=true;
-                        break;
-                    }
-                    if ($display) break;
-                }
-            }
-            if (!$display) continue;
-            foreach($menu as $k=>$v) {
+            foreach ($menu as $k=>$v) {
+				$display = false;
+                if (is_array($v)) {
+					foreach ($v as $k2=>$m2) {
+						if (isset($m2['type']) && $m2['type']!='hidden') {
+							$display=true;
+							break;
+						}
+						if ($display) break;
+					}
+                } else $display = true;
+				if (!$display) continue;
                 if(isset($modules[$k])) {
                     if (!is_string($v) && !isset($modules[$k]['external']))
                         $modules[$k]['module_names'][] = $name;
