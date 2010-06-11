@@ -227,10 +227,16 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return $data['events'];
 	}
 	public static function get_change_subscription_icon($category_name, $id) {
+		$tag_id = 'watchdog_sub_button_'.$category_name.'_'.$id;
+		return '<span id="'.$tag_id.'">'.self::get_change_subscription_icon_tags($category_name, $id).'</span>';
+	}
+	public static function get_change_subscription_icon_tags($category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-		$href = self::get_change_subscr_href($category_name, $id);
 		$last_seen = self::check_if_notified($category_name, $id);
+		load_js('modules/Utils/Watchdog/subscribe.js');
+		$tag_id = 'watchdog_sub_button_'.$category_name.'_'.$id;
+		$href = ' onclick="utils_watchdog_set_subscribe('.(($last_seen===null)?1:0).',\''.$category_name.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"';
 		if ($last_seen===null) {
 			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','subscribe_small.png');
 			$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','Click to subscribe this record.'));
