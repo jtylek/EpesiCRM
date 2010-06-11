@@ -50,6 +50,8 @@ class CRM_MeetingInstall extends ModuleInstall {
 		CRM_CalendarCommon::new_event_handler('Meetings', array('CRM_MeetingCommon', 'crm_calendar_handler'));
         CRM_RoundcubeCommon::new_addon('crm_meeting');
 
+		Utils_BBCodeCommon::new_bbcode('meeting', 'CRM_MeetingCommon', 'meeting_bbcode');
+
 		$this->add_aco('browse meetings',array('Employee'));
 		$this->add_aco('view meeting',array('Employee'));
 		$this->add_aco('edit meeting',array('Employee'));

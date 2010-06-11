@@ -69,6 +69,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		return "Meetings list";
 	}
 
+	public static function meeting_bbcode($text, $param, $opt) {
+		return Utils_RecordBrowserCommon::record_bbcode('crm_meeting', array('title'), $text, $param, $opt);
+	}
+
 	public static function applet_info_format($r){
 		// Build array representing 2-column tooltip
 		// Format: array (Label,value)
@@ -415,9 +419,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			if ($action != 'none') {		
 				$x = ModuleManager::get_instance('/Base_Box|0');
+				$values['follow_up'] = array('meeting',$record['id'],$record['title']);
 				if ($action == 'new_meeting') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $values), array('crm_meeting'));
-				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0)), array('task'));
-				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'],'status'=>0, 'customer'=>!empty($values['customers'])?array_pop($values['customers']):'')), array('phonecall'));
+				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'follow_up'=>$values['follow_up'])), array('task'));
+				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'],'status'=>0, 'customer'=>!empty($values['customers'])?array_pop($values['customers']):'','follow_up'=>$values['follow_up'])), array('phonecall'));
 				return false;
 			}
 
@@ -532,6 +537,8 @@ class CRM_MeetingCommon extends ModuleCommon {
 			}
 			break;
 		case 'added':
+			if (isset($values['follow_up']))
+				CRM_FollowupCommon::add_tracing_notes($values['follow_up'][0], $values['follow_up'][1], $values['follow_up'][2], 'meeting', $values['id'], $values['title']);
 			self::subscribed_employees($values);
 			$related = array_merge($values['employees'],$values['customers']);
 			foreach ($related as $v) {

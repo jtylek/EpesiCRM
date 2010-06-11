@@ -20,6 +20,39 @@ class CRM_FollowupCommon extends ModuleCommon {
 			self::$leightbox_ready = array();	
 		}
 	}
+
+	public static function add_tracing_notes($dest_rset, $dest_id, $dest_label, $linkto_rset, $linkto_id, $linkto_label) {
+		switch ($dest_rset) {
+			case 'phonecall':
+				$fwd_note_path = 'CRM/PhoneCall/'.$dest_id; 
+				$bck_note = 'Follow up after: [phone='.$dest_id.']'.$dest_label.'[/phone]'; 
+				break;
+			case 'meeting': 
+				$fwd_note_path = 'CRM/Calendar/Event/'.$dest_id; 
+				$bck_note = 'Follow up after: [meeting='.$dest_id.']'.$dest_label.'[/meeting]'; 
+				break;
+			case 'task': 
+				$fwd_note_path = 'CRM/Tasks/'.$dest_id; 
+				$bck_note = 'Follow up after: [task='.$dest_id.']'.$dest_label.'[/task]'; 
+				break;
+		}
+		switch ($linkto_rset) {
+			case 'phonecall': 
+				$bck_note_path = 'CRM/PhoneCall/'.$linkto_id; 
+				$fwd_note = 'Follow up: [phone='.$linkto_id.']'.$linkto_label.'[/phone]'; 
+				break;
+			case 'meeting': 
+				$bck_note_path = 'CRM/Calendar/Event/'.$linkto_id; 
+				$fwd_note = 'Follow up: [meeting='.$linkto_id.']'.$linkto_label.'[/meeting]'; 
+				break;
+			case 'task': 
+				$bck_note_path = 'CRM/Tasks/'.$linkto_id; 
+				$fwd_note = 'Follow up: [task='.$linkto_id.']'.$linkto_label.'[/task]'; 
+				break;
+		}
+		Utils_AttachmentCommon::add($fwd_note_path,0,Acl::get_user(),$fwd_note);
+		Utils_AttachmentCommon::add($bck_note_path,0,Acl::get_user(),$bck_note);
+	}
 	
 	public static function drawLeightbox($prefix) {
 		if(MOBILE_DEVICE) return;
