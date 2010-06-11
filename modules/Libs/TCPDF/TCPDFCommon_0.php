@@ -29,7 +29,8 @@ class Libs_TCPDFCommon extends ModuleCommon {
 
     public function new_pdf($orientation='P',$unit='mm',$format=null) {
         require_once(TCPDF_DIR.'tcpdf.php');
-
+        ini_set('memory_limit', '512M');
+        
         if ($format===null) $format = Base_User_SettingsCommon::get('Libs/TCPDF','page_format');
 
         $tcpdf = new TCPDF($orientation, $unit, $format, true);
