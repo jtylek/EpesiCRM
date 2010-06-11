@@ -660,6 +660,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d G:i:s'), Acl::get_user(), 1);
         foreach(self::$table_rows as $field => $args) {
+			$values[$args['id']] = trim($values[$args['id']]);
             if (!isset($values[$args['id']]) || $values[$args['id']]==='') continue;
             if ($args['type']=='long text')
                 $values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
