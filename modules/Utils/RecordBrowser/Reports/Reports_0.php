@@ -387,7 +387,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			if (empty($this->categories)) {
 				$total = array();
 				$i = 0;
-				$ref_rec = call_user_func($this->ref_record_display_callback, $r);
+				$ref_rec = call_user_func($this->ref_record_display_callback, $r, $this->pdf?true:false);
 				foreach ($results as & $res_ref) {
 					if (!is_array($res_ref)) $res_ref = array($res_ref);
 					if ($this->row_summary!==false) {
@@ -421,7 +421,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$count = count($this->categories);
 				foreach ($this->categories as $c) {
 					if ($this->first) {
-						$ref_rec = call_user_func($this->ref_record_display_callback, $r);
+						$ref_rec = call_user_func($this->ref_record_display_callback, $r, $this->pdf?true:false);
 						$grow = array(0=>$this->format_cell(array('row_desc'), $ref_rec));
 						$grow[0]['attrs'] .= ' rowspan="'.$count.'" ';
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
@@ -691,7 +691,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			foreach($this->ref_records as $k=>$r) {
 				$results = call_user_func($this->display_cell_callback, $r);
 
-				$ref_rec = call_user_func($this->ref_record_display_callback, $r);
+				$ref_rec = call_user_func($this->ref_record_display_callback, $r,true);
 
 				$bar = new OFC_Charts_Bar_Glass();
 				$bar->set_colour(self::$colours[$k%count(self::$colours)]);
@@ -866,7 +866,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			foreach($this->ref_records as $q=>$r) {
 				$results = call_user_func($this->display_cell_callback, $r);
 
-				$title2 = strip_tags(call_user_func($this->ref_record_display_callback, $r));
+				$title2 = strip_tags(call_user_func($this->ref_record_display_callback, $r,true));
 				$bar = new OFC_Charts_Line();
 				$bar->set_colour(self::$colours[$q%count(self::$colours)]);
 				$bar->set_key($title2,10);
@@ -915,7 +915,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 		$tb = & $this->init_module('Utils/TabbedBrowser');
 		foreach($this->ref_records as $k=>$r) {
-			$title = strip_tags(call_user_func($this->ref_record_display_callback, $r));
+			$title = strip_tags(call_user_func($this->ref_record_display_callback, $r,true));
 			$tb->set_tab($title, array($this,'draw_chart'),array($r,$title,$gb_captions));
 		}
 		if (empty($this->categories)) {
