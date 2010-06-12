@@ -27,7 +27,8 @@ class Base_ModuleDownloaderInstall extends ModuleInstall {
     }
 	public function requires($v) {
 		return array(
-		array('name'=>'Libs/QuickForm','version'=>0));
+		array('name'=>'Libs/QuickForm','version'=>0),
+		array('name'=>'Base/Admin','version'=>0));
 	}
 }
 

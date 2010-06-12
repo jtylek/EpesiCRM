@@ -42,14 +42,7 @@ class ErrorHandler {
 	}
 
 	public static function handle_error($type, $message,$errfile,$errline,$errcontext) {
-		if (error_reporting()) {
-
-			if(REPORT_ALL_ERRORS)
-				$breakLevel = E_ALL;
-			else
-				$breakLevel = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
-
-			if (($type & $breakLevel) > 0) {
+    	if (($type & error_reporting()) > 0) {
 				$backtrace = self::debug_backtrace();
 				
 				if ( ! self::notify_observers($type, $message,$errfile,$errline,$errcontext,$backtrace)) {
@@ -59,7 +52,6 @@ class ErrorHandler {
 				while(@ob_end_clean());
 				echo self::notify_client('Type: '.$type.'<br>Message: '.$message.'<br>File: '.$errfile.'<br>Line='.$errline.$backtrace.'<hr>');
 				exit();
-			}
 		}
 
 		return true;
@@ -187,7 +179,7 @@ function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
 	return ErrorHandler::handle_error($type, htmlspecialchars($message),$errfile,$errline,$errcontext);
 }
 if(REPORT_ALL_ERRORS)
-	error_reporting(E_ALL & ~E_NOTICE); //all without notices
+	error_reporting(E_ALL); //all without notices
 else
 	error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR);
 	
