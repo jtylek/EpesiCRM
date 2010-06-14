@@ -34,7 +34,7 @@ class CRM_TasksInstall extends ModuleInstall {
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
 		Utils_RecordBrowserCommon::set_tpl('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'default'));
-		Utils_RecordBrowserCommon::set_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));
+		Utils_RecordBrowserCommon::register_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'icon.png'));
 // 		Utils_RecordBrowserCommon::new_filter('contact', 'Company Name');
 //		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
@@ -68,6 +68,7 @@ class CRM_TasksInstall extends ModuleInstall {
 	public function uninstall() {
         CRM_RoundcubeCommon::delete_addon('task');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Tasks');
+		Utils_RecordBrowserCommon::unregister_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::uninstall_recordset('task');
 		return true;
 	}

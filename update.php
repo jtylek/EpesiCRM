@@ -304,7 +304,7 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
 		Utils_RecordBrowserCommon::set_tpl('task', Base_ThemeCommon::get_template_filename('Utils/Tasks', 'default'));
-		Utils_RecordBrowserCommon::set_processing_callback('task', array('Utils_TasksCommon', 'submit_task'));
+		Utils_RecordBrowserCommon::register_processing_callback('task', array('Utils_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('Utils/Tasks', 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('task', 5);
 		Utils_RecordBrowserCommon::set_caption('task', 'Tasks');
@@ -536,7 +536,7 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 		DB::Execute('UPDATE task_field SET param="contact::First Name|Last Name;::;CRM_TasksCommon::customers_crits" WHERE field="Customers"');
 		DB::Execute('UPDATE recordbrowser_addon SET module="CRM_Tasks" WHERE tab="task"');
 		DB::Execute('UPDATE task_callback SET module="CRM_TasksCommon" WHERE module="Utils_TasksCommon"');
-		DB::Execute('UPDATE recordbrowser_table_properties SET tpl="CRM_Tasks__default", icon="CRM_Tasks__icon.png", access_callback="CRM_TasksCommon::access_task", data_process_method="CRM_TasksCommon::submit_task" WHERE tab="task"');
+		DB::Execute('UPDATE recordbrowser_table_properties SET tpl="CRM_Tasks__default", icon="CRM_Tasks__icon.png", access_callback="CRM_TasksCommon::access_task" WHERE tab="task"');
 		DB::Execute('DELETE FROM task_data WHERE field="Page id"');
 		DB::Execute('DELETE FROM task_field WHERE field="Page id"');
 		Acl::add_aco('CRM_Tasks','browse tasks',array('Employee'));

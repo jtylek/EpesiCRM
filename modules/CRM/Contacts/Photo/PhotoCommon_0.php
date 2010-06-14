@@ -14,8 +14,8 @@ class CRM_Contacts_PhotoCommon extends ModuleCommon {
     const table_name = 'contact_photos';
 
 	public static function submit_contact($values, $mode) {
-		$ret = CRM_ContactsCommon::submit_contact($values, $mode);
 		if ($mode=='display') {
+			$ret = array();
 			$in = self::Instance();
             $filename = self::get_photo($values['id']);
             if($filename) {
@@ -25,6 +25,8 @@ class CRM_Contacts_PhotoCommon extends ModuleCommon {
             }
 			$ret['photo_link'] = Module::create_href(array('upload_new_photo'=>$values['id'])).' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts/Photo','Click to change the photo'), false);
 			$ret['photo_src'] = $file;
+		} else {
+			$ret = $values;
 		}
 		if (isset($_REQUEST['upload_new_photo']) && $_REQUEST['upload_new_photo']==$values['id']) {
 			unset($_REQUEST['upload_new_photo']);

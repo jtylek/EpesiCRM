@@ -26,7 +26,6 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'caption C(32) DEFAULT \'\','.
 						'icon C(255) DEFAULT \'\','.
 						'access_callback C(128) DEFAULT \'\','.
-						'data_process_method C(255) DEFAULT \'\','.
 						'description_callback C(128) DEFAULT \'\'',
 						array('constraints'=>''));
 		DB::CreateTable('recordbrowser_datatype',
@@ -47,6 +46,10 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 					'module C(128),'.
 					'func C(128)',
 					array('constraints'=>', PRIMARY KEY(tab, module, func)'));
+		DB::CreateTable('recordbrowser_processing_methods',
+					'tab C(64),'.
+					'func C(255)',
+					array('constraints'=>', PRIMARY KEY(tab, func)'));
         DB::CreateTable('recordbrowser_clipboard_pattern', 'tab C(64) KEY, pattern X, enabled I4');
 		return true;
 	}

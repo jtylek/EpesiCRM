@@ -37,7 +37,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('crm_meeting', $fields);
 		Utils_RecordBrowserCommon::set_tpl('crm_meeting', Base_ThemeCommon::get_template_filename('CRM/Meeting', 'default'));
-		Utils_RecordBrowserCommon::set_processing_callback('crm_meeting', array('CRM_MeetingCommon', 'submit_meeting'));
+		Utils_RecordBrowserCommon::register_processing_callback('crm_meeting', array('CRM_MeetingCommon', 'submit_meeting'));
 		Utils_RecordBrowserCommon::set_icon('crm_meeting', Base_ThemeCommon::get_template_filename('CRM/Meeting', 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('crm_meeting', 10);
 		Utils_RecordBrowserCommon::set_caption('crm_meeting', 'Meetings');
@@ -69,6 +69,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 		CRM_CalendarCommon::delete_event_handler('Meetings');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Meeting');
 		Utils_RecordBrowserCommon::uninstall_recordset('crm_meeting');
+		Utils_RecordBrowserCommon::unregister_processing_callback('crm_meeting', array('CRM_MeetingCommon', 'submit_meeting'));
 		return true;
 	}
 

@@ -41,7 +41,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('phonecall', $fields);
 		Utils_RecordBrowserCommon::set_tpl('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'default'));
-		Utils_RecordBrowserCommon::set_processing_callback('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
+		Utils_RecordBrowserCommon::register_processing_callback('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
 		Utils_RecordBrowserCommon::set_icon('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'icon.png'));
 // 		Utils_RecordBrowserCommon::new_filter('contact', 'Company Name');
 //		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
@@ -81,6 +81,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 //		Utils_AttachmentCommon::persistent_mass_delete('CRM/Contact/');
 //		Utils_AttachmentCommon::persistent_mass_delete('CRM/Company/');
 //		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Contacts', 'contact_attachment_addon');
+		Utils_RecordBrowserCommon::unregister_processing_callback('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
 		Utils_RecordBrowserCommon::uninstall_recordset('phonecall');
 		return true;
 	}

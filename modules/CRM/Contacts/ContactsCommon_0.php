@@ -735,7 +735,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         }
         if ($mode=='add' || $mode=='edit') {
             if (self::$paste_or_new=='new') {
-                $form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, array('onClick'=>'document.getElementsByName("company_name")[0].disabled=this.checked;document.getElementsByName("create_company_name")[0].disabled=!this.checked;'));
+                $form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, 'onClick="document.getElementsByName(\'company_name\')[0].disabled=this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','Create a new company for this contact')));
                 $form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
                 $form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
                 if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
@@ -769,7 +769,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             }
         }
         if ($mode!='view' && Base_AclCommon::i_am_admin()) {
-            $form->addElement('checkbox', 'create_new_user', Base_LangCommon::ts('CRM/Contacts','Create new user'), null, array('id'=>'crm_contacts_new_user','onClick'=>'document.getElementsByName("'.$field.'")[0].disabled=this.checked;$("crm_contacts_new_login").style.display=this.checked?"inline":"none";$("crm_contacts_select_user").style.display=this.checked?"none":"inline";'));
+            $form->addElement('checkbox', 'create_new_user', Base_LangCommon::ts('CRM/Contacts','Create new user'), null, 'id="crm_contacts_new_user" onClick="document.getElementsByName(\''.$field.'\')[0].disabled=this.checked;$(\'crm_contacts_new_login\').style.display=this.checked?\'inline\':\'none\';$(\'crm_contacts_select_user\').style.display=this.checked?\'none\':\'inline\';" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','Create a new epesi user for this contact')) );
             $form->addElement('text', 'new_login', Base_LangCommon::ts('CRM/Contacts','New user login'), array('id'=>'crm_contacts_new_login'));
             eval_js('$("crm_contacts_new_login").style.display=$("crm_contacts_new_user").checked?"inline":"none";');
             eval_js('$("crm_contacts_select_user").style.display=$("crm_contacts_new_user").checked?"none":"inline";');

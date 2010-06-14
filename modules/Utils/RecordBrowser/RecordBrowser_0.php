@@ -852,12 +852,7 @@ class Utils_RecordBrowser extends Module {
                 $visible_cols[$args['id']] = true;
             }
 
-            $dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
-            if ($dpm!=='') {
-                $method = explode('::',$dpm);
-                if (is_callable($method)) $this->custom_defaults = call_user_func($method, $this->custom_defaults, 'adding');
-            }
-            $this->record = $this->custom_defaults;
+			$this->record = $this->custom_defaults = Utils_RecordBrowserCommon::record_processing($this->tab, $this->custom_defaults, 'adding');
 
             $this->prepare_view_entry_details($this->custom_defaults, 'add', null, $form, $visible_cols);
             $form->setDefaults($this->custom_defaults);
@@ -927,11 +922,7 @@ class Utils_RecordBrowser extends Module {
     public function clone_record($id) {
         if (self::$clone_result!==null) {
             if (is_numeric(self::$clone_result)) {
-                $dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
-                if ($dpm!=='') {
-                    $method = explode('::',$dpm);
-                    if (is_callable($method)) call_user_func($method, array('original'=>$id, 'clone'=>self::$clone_result), 'cloned');
-                }
+                Utils_RecordBrowserCommon::record_processing($this->tab, self::$clone_result, 'cloned', $id);
                 $this->navigate('view_entry', 'view', self::$clone_result);
             }
             self::$clone_result = null;
@@ -1056,27 +1047,15 @@ class Utils_RecordBrowser extends Module {
         if($mode!='add')
             Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
 
-        $dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
-        if ($dpm!=='') {
-            $method = explode('::',$dpm);
-            if (is_callable($method)) {
-                if ($mode=='view') {
-                    $processing_result = call_user_func($method, $this->record, 'display');
-                    if (is_array($processing_result))
-                        foreach ($processing_result as $k=>$v)
-                            $theme->assign($k, $v);
-                }
-                $processing_result = call_user_func($method, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing');
-                if (is_array($processing_result)) {
-                    $defaults = $this->custom_defaults = self::$last_record = $this->record = $processing_result;
-//                  foreach ($processing_result as $k=>$v) {
-//                      $this->record[$k] = $v;
-//                      $this->custom_defaults[$k] = $v;
-//                      $defaults[$k] = $v;
-//                  }
-                }
-            }
-        }
+		if ($mode=='view') {
+			$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $this->record, 'display');
+			if ($dp && is_array($dp))
+				foreach ($dp as $k=>$v)
+					$theme->assign($k, $v);
+		}
+		$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing');
+		if (is_array($dp))
+			$defaults = $this->custom_defaults = self::$last_record = $this->record = $dp;
 
         if (self::$last_record===null) self::$last_record = $defaults;
         if($mode=='add')

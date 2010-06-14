@@ -82,7 +82,7 @@ class CRM_ContactsInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::set_clipboard_pattern('company', "%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {phone}<BR>}\n%{fax. {fax}<BR>}\n%{{web_address}<BR>}");
 // ************ contacts settings ************** //
 		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
-		Utils_RecordBrowserCommon::set_processing_callback('contact', array('CRM_ContactsCommon', 'submit_contact'));
+		Utils_RecordBrowserCommon::register_processing_callback('contact', array('CRM_ContactsCommon', 'submit_contact'));
 		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
 		Utils_RecordBrowserCommon::set_favorites('contact', true);
 		Utils_RecordBrowserCommon::set_recent('contact', 15);
@@ -137,6 +137,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::uninstall_recordset('contact');
 		Utils_CommonDataCommon::remove('Contacts_Groups');
 		Utils_CommonDataCommon::remove('Companies_Groups');
+		Utils_RecordBrowserCommon::unregister_processing_callback('contact', array('CRM_ContactsCommon', 'submit_contact'));
 		return true;
 	}
 

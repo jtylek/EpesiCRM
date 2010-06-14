@@ -583,9 +583,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::check_table_name($tab);
         DB::Execute('UPDATE '.$tab.'_field SET filter=0 WHERE field=%s', array($col_name));
     }
-    public static function set_processing_callback($tab, $callback) {
+    public static function register_processing_callback($tab, $callback) {
         if (is_array($callback)) $callback = implode('::',$callback);
-        DB::Execute('UPDATE recordbrowser_table_properties SET data_process_method=%s WHERE tab=%s', array($callback, $tab));
+        DB::Execute('INSERT INTO recordbrowser_processing_methods (tab, func) VALUES (%s, %s)', array($tab, $callback));
+    }
+    public static function unregister_processing_callback($tab, $callback) {
+        if (is_array($callback)) $callback = implode('::',$callback);
+        DB::Execute('DELETE FROM recordbrowser_processing_methods WHERE tab=%s AND func=%s', array($tab, $callback));
     }
     public static function set_quickjump($tab, $col_name) {
         DB::Execute('UPDATE recordbrowser_table_properties SET quickjump=%s WHERE tab=%s', array($col_name, $tab));
@@ -637,23 +641,44 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                     break;
             }
     }
+
+	public static function record_processing($tab, $base, $mode, $clone=null) {
+        self::check_table_name($tab);
+		static $cache = array();
+		if (!isset($cache[$tab])) {
+			$ret = DB::Execute('SELECT * FROM recordbrowser_processing_methods WHERE tab=%s', array($tab));
+			$cache[$tab] = array();
+			while ($row = $ret->FetchRow()) {
+				$callback = explode('::',$row['func']);
+				if (is_callable($callback))
+					$cache[$tab][] = $callback;
+			}
+		}
+		$current = $base;
+		if ($mode=='display') $result = array();
+		else $result = $base;
+		foreach ($cache[$tab] as $callback) {
+			if ($mode=='clone') $current = array('original'=>$clone, 'clone'=>$current);
+			$return = call_user_func($callback, $current, $mode);
+			if ($mode!='display') $current = $return;
+			else $result = array_merge($result, $return);
+		}
+		if ($mode!='display') $result = $current;
+		return $result;
+	}
+
     public static function new_record( $tab, $values = array()) {
         self::init($tab);
-        $dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
-        $method = '';
-        if ($dpm!=='') {
-            $for_processing = $values;
-            foreach(self::$table_rows as $field=>$args)
-                if ($args['type']==='multiselect') {
-                    if (!isset($for_processing[$args['id']]) || !$for_processing[$args['id']])
-                        $for_processing[$args['id']] = array();
-//                  else
-//                      if (!is_array($for_processing[$args['id']])) $for_processing[$args['id']] = self::decode_multi($for_processing[$args['id']]);
-                } elseif (!isset($for_processing[$args['id']])) $for_processing[$args['id']] = '';
-            $method = explode('::',$dpm);
-            if (is_callable($method)) $values = call_user_func($method, $for_processing, 'add');
-            else $dpm = '';
-        }
+
+		$for_processing = $values;
+		foreach(self::$table_rows as $field=>$args)
+			if ($args['type']==='multiselect') {
+				if (!isset($for_processing[$args['id']]) || !$for_processing[$args['id']])
+					$for_processing[$args['id']] = array();
+			} elseif (!isset($for_processing[$args['id']])) $for_processing[$args['id']] = '';
+
+		$values = self::record_processing($tab, $for_processing, 'add');
+
         self::init($tab);
         DB::StartTrans();
         $fields = 'created_on,created_by,active';
@@ -681,17 +706,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_subs'))
             Utils_WatchdogCommon::subscribe($tab,$id);
         Utils_WatchdogCommon::new_event($tab,$id,'C');
-        if ($dpm!=='') {
-            self::init($tab);
-            foreach(self::$table_rows as $field=>$args)
-                if ($args['type']==='multiselect') {
-                    if (!isset($values[$args['id']])) $values[$args['id']] = array();
-                    elseif (!is_array($values[$args['id']]))
-                        $values[$args['id']] = self::decode_multi($values[$args['id']]);
-                }
-            $values['id'] = $id;
-            call_user_func($method, $values, 'added');
-        }
+		self::init($tab);
+		foreach(self::$table_rows as $field=>$args)
+			if ($args['type']==='multiselect') {
+				if (!isset($values[$args['id']])) $values[$args['id']] = array();
+				elseif (!is_array($values[$args['id']]))
+					$values[$args['id']] = self::decode_multi($values[$args['id']]);
+			}
+		$values['id'] = $id;
+		self::record_processing($tab, $values, 'added');
+
         return $id;
     }
     public static function update_record($tab,$id,$values,$all_fields = false, $date = null, $dont_notify = false) {
@@ -699,16 +723,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::init($tab);
         $record = self::get_record($tab, $id, false);
         if (!is_array($record)) return false;
-        $dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
-        $method = '';
-        if ($dpm!=='') {
-            $process_method_args = $values;
-            $process_method_args['id'] = $id;
-            foreach ($record as $k=>$v)
-                if (!isset($process_method_args[$k])) $process_method_args[$k] = $v;
-            $method = explode('::',$dpm);
-            if (is_callable($method)) $values = call_user_func($method, $process_method_args, 'edit');
-        }
+
+		$process_method_args = $values;
+		$process_method_args['id'] = $id;
+		foreach ($record as $k=>$v)
+			if (!isset($process_method_args[$k])) $process_method_args[$k] = $v;
+
+		$values = self::record_processing($tab, $process_method_args, 'edit');
+
         $diff = array();
         self::init($tab);
         foreach(self::$table_rows as $field => $args){
@@ -1322,11 +1344,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $edit_id = DB::Insert_ID($tab.'_edit_history','id');
         DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state?'RESTORED':'DELETED')));
         DB::CompleteTrans();
-        $dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
-        if ($dpm!=='') {
-            $method = explode('::',$dpm);
-            if (is_callable($method)) call_user_func($method, self::get_record($tab, $id), $state?'restore':'delete');
-        }
+
+		$values = self::record_processing($tab, self::get_record($tab, $id), $state?'restore':'delete');
     }
     public static function delete_record($tab, $id, $perma=false) {
         if (!$perma) self::set_active($tab, $id, false);
@@ -1842,11 +1861,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if($id===false) {
             $mode = 'add';
             $access = array();
-            $dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
-            if ($dpm!=='') {
-                $method = explode('::',$dpm);
-                if (is_callable($method)) $defaults = call_user_func($method, $defaults, 'adding');
-            }
+			$defaults = self::record_processing($tab, $defaults, 'adding');
         } else {
             $mode = 'edit';
             $access = Utils_RecordBrowserCommon::get_access($tab, 'view',$rec);

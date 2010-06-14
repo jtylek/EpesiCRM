@@ -45,7 +45,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_accounts', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_accounts', 'Mail accounts');
-        Utils_RecordBrowserCommon::set_processing_callback('rc_accounts', array('CRM_RoundcubeCommon', 'submit_account'));
+		Utils_RecordBrowserCommon::register_processing_callback('rc_accounts', array('CRM_RoundcubeCommon', 'submit_account'));
 
         $fields = array(
             array(
@@ -180,6 +180,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_accounts');
         Utils_CommonDataCommon::remove('CRM/Roundcube/Security');
+		Utils_RecordBrowserCommon::unregister_processing_callback('rc_accounts', array('CRM_RoundcubeCommon', 'submit_account'));
 
         Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 
