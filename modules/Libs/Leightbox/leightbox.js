@@ -74,6 +74,7 @@ leightbox.prototype = {
 
     // Turn everything on - mainly the IE fixes
     activate: function(){
+		leightbox_is_active = true;
         if (browser == 'Internet Explorer'){
             this.getScroll();
             this.prepareIE('100%', 'hidden');
@@ -165,6 +166,7 @@ leightbox.prototype = {
 
     // Example of creating your own functionality once lightbox is initiated
     deactivate: function(){
+		leightbox_is_active = false;
         if (browser == "Internet Explorer"){
             this.setScroll(0,this.yPos);
             this.prepareIE("auto", "auto");
@@ -196,6 +198,8 @@ function addLeightboxMarkup() {
     leightbox_container.id          = 'leightbox_container';
     bod.appendChild(leightbox_container);
 }
+
+leightbox_is_active = false;
 
 function leightbox_deactivate(name) {
 for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i].deactivate();break;}

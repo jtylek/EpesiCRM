@@ -39,6 +39,8 @@ shortcut = {
 
 				if(element.tagName == 'INPUT' || element.tagName == 'TEXTAREA') return;
 			}
+
+			if (leightbox_is_active) return;
 	
 			//Find Which key is pressed
 			if (e.keyCode) code = e.keyCode;
