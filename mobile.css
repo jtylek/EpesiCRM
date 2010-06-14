@@ -31,14 +31,14 @@ a.button {
     width: 100px;
     line-height: 20px;
     height: 20px;
-    background-image: url("images/header-blue.gif");
+    background-image: url("images/header-blue.png");
     border: 0px;
     text-align: center;
 }
 
 input[type="submit"]:hover,
 a.button:hover {
-    background-image: url("images/header-blue-hover.gif");
+    background-image: url("images/header-blue-hover.png");
 }
 
 span.footer {
