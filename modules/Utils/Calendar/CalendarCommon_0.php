@@ -91,11 +91,18 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$start_time = $row['timeless_caption'];
 			$end_time = $start_time;
 			$ev_start = strtotime($row['timeless']);
+			$start_day = date('D',$row['start']);
 			$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false,true,false);
+			if($start_date == Base_RegionalSettingsCommon::time2reg(time(),false))
+				$start_t = Base_LangCommon::ts('Utils_Calendar','Today');
+			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()+3600*24,false))
+				$start_t = Base_LangCommon::ts('Utils_Calendar','Tomorrow');
+			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()-3600*24,false))
+				$start_t = Base_LangCommon::ts('Utils_Calendar','Yesterday');
+			else
+				$start_t = $start_day.', '.$start_date;
 			$end_date = $start_date;
-			$start_day = date('D',$ev_start);
 			$end_day = $start_day;
-			$start_t = $start_day.', '.$start_date;
 			$end_t = $start_t;
 		} else {
 			if(!is_numeric($row['start']) && is_string($row['start'])) $row['start'] = strtotime($row['start']);
@@ -134,10 +141,10 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		if(isset($row['fake_duration']))
 			$duration_str = Base_RegionalSettingsCommon::seconds_to_words($row['fake_duration']);
-		elseif($row['duration'])
+		elseif($row['duration']>0)
 			$duration_str = Base_RegionalSettingsCommon::seconds_to_words($row['duration']);
 		else
-			$duration_str = '';
+			$duration_str = '---';
 		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t,'start_time'=>$start_time,'end_time'=>$end_time,'start_date'=>$start_date,'end_date'=>$end_date,'start_day'=>$start_day,'end_day'=>$end_day);
 	}
 

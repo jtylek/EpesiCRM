@@ -74,8 +74,12 @@ class CRM_Calendar extends Module {
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
 			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			'default_date'=>$default_date,
-			'custom_agenda_cols'=>array('Description','Assigned to','Related with')
-			);
+			'custom_agenda_cols'=>array(
+				array('name'=>$this->t('Type'), 'order'=>'cus_col_0','width'=>6,'wrapmode'=>'nowrap'),
+				'Description',
+				'Assigned to',
+				'Related with'
+			));
 
 		if (isset($_REQUEST['jump_to_date']) && is_numeric($_REQUEST['jump_to_date']) && isset($_REQUEST['switch_to_tab']) && is_string($_REQUEST['switch_to_tab'])) {
 			$args['default_date'] = $_REQUEST['jump_to_date'];

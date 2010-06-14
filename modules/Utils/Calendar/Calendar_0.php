@@ -375,7 +375,8 @@ class Utils_Calendar extends Module {
 		if(is_array($this->settings['custom_agenda_cols'])) {
 			$w = 50/count($this->settings['custom_agenda_cols']);
 			foreach($this->settings['custom_agenda_cols'] as $k=>$col) {
-				$columns[] = array('name'=>$this->t($col), 'order'=>'cus_col_'.$k,'width'=>$w);
+				if (!is_array($col)) $col = array('name'=>$this->t($col), 'order'=>'cus_col_'.$k,'width'=>$w);
+				$columns[] = $col;
 				$add_cols[] = $k;
 			}
 		}
@@ -387,6 +388,7 @@ class Utils_Calendar extends Module {
 		$this->displayed_events = array('start'=>$start, 'end'=>$end,'events'=>$ret);
 		foreach($ret as $row) {
 			$r = $gb->get_new_row();
+			if (isset($row['status']) && $row['status']=='closed') continue;
 			$view_h = $this->create_callback_href(array($this,'push_event_action'),array('view',$row['id']));
 			$edit_h = $this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id']));
 			$del_h = $this->create_confirm_callback_href($this->ht('Delete this event?'),array($this,'delete_event'),$row['id']);

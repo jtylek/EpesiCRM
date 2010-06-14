@@ -626,7 +626,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$id = $r['id'];
 		}
 
-		$next = array();
+		$next = array('type'=>'Meeting');
 		
 //		if ($r['duration']!=-1) {
 //			$r['date'] = Base_RegionalSettingsCommon::time2reg($r['date'].' '.date('H:i:s', strtotime($r['time'])),false,true,true,false);
