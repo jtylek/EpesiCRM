@@ -1,7 +1,7 @@
 <?php
 $d = getcwd();
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
-chdir('../../../../');
+chdir(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))));
 require_once('include/data_dir.php');
 require_once('include/config.php');
 require_once('include/database.php');
