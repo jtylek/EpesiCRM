@@ -25,6 +25,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		$pos_before = $params['pos_before'];
 		
 		if (!$val) $val = '0';
+		$val = str_replace(array('.',','),$dec_delimiter,$val);
 		if (!strrchr($val,$dec_delimiter)) $val .= $dec_delimiter; 
 		$cur = explode($dec_delimiter, $val);
 		if (!isset($cur[1])) $cur[1] = ''; 
