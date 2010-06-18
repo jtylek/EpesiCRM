@@ -13,6 +13,7 @@ class epesi_addressbook extends rcube_plugin
   {
     $this->add_hook('address_sources', array($this, 'address_sources'));
     $this->add_hook('get_address_book', array($this, 'get_address_book'));
+    $this->add_hook('create_contact', array($this, 'create_contact'));
 
     // use this address book for autocompletion queries
     // (maybe this should be configurable by the user?)
@@ -47,4 +48,33 @@ class epesi_addressbook extends rcube_plugin
     return $p;
   }
 
+  public function create_contact($r) {
+    global $OUTPUT;
+    $mail = $r['record']['email'];
+    require_once(dirname(__FILE__) . '/epesi_contacts_addressbook_backend.php');
+    $contacts = new epesi_contacts_addressbook_backend();
+    $ret = $contacts->search(null,$mail,true,false);
+    if(count($ret->records)) {
+      $OUTPUT->show_message('contactexists', 'warning');
+    } else {
+      require_once(dirname(__FILE__) . '/epesi_companies_addressbook_backend.php');
+      $companies = new epesi_companies_addressbook_backend();    
+      $ret = $companies->search(null,$mail,true,false);
+      if(count($ret->records)) {
+        $OUTPUT->show_message('contactexists', 'warning');      
+      } else {
+        $name = explode(' ',$r['record']['name'],2);
+        if(count($name)<2) {
+          $OUTPUT->show_message('errorsavingcontact', 'warning');
+        } else {
+          $loc = Base_RegionalSettingsCommon::get_default_location();
+          Utils_RecordBrowserCommon::new_record('contact',array('first_name'=>$name[0],'last_name'=>$name[1],'email'=>$mail,'permission'=>0,'country'=>$loc['country']));
+          $OUTPUT->show_message('addedsuccessfully', 'confirmation');
+        }
+      }
+    }
+    $OUTPUT->send();
+    die();
+//    return array('abort'=>true);
+  }
 }
