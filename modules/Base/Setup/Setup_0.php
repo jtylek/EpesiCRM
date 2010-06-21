@@ -216,6 +216,7 @@ class Base_Setup extends Module {
 				Base_ActionBarCommon::add('scan','Scan for new modules',$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
 				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 				Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+                Base_ActionBarCommon::add('clone', 'Download', $this->create_callback_href(array($this, 'download_modules')));
 			}
 		}
 
@@ -245,6 +246,17 @@ class Base_Setup extends Module {
 				Epesi::redirect();
 		}
 	}
+
+    public function download_modules() {
+        if ($this->is_back()) {
+            return;
+        }
+        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+
+        $module = & $this->init_module('Base/ModuleDownloader');
+        $this->display_module($module, null, 'admin');
+        return true;
+    }
 
 	public static function parse_modules_folder_refresh(){
 		Base_SetupCommon::refresh_available_modules();
