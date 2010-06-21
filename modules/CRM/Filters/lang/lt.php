@@ -23,4 +23,5 @@ $translations['CRM_Filters']['Max length of field exceeded']='Maksimalus ilgis l
 $translations['CRM_Filters']['Group with this name already exists']='Grupė tokiu pavadinimu jau egzistuoja';
 $translations['CRM_Filters']['People']='Žmonės';
 $translations['CRM_Filters']['Delete this group?']='Ištrinti šią grupę';
+$translations['CRM_Filters']['Edit group "%s"']='';
 ?>

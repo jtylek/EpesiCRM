@@ -10,5 +10,5 @@ $translations['CRM_MailClient']['From']='Nuo';
 $translations['CRM_MailClient']['To']='Kam';
 $translations['CRM_MailClient']['Subject']='Tema';
 $translations['CRM_MailClient']['Attachments']='Priesagos';
-$translations['CRM_MailClient']['Mails']='';
+$translations['CRM_MailClient']['Mails']='Laiškai';
 ?>

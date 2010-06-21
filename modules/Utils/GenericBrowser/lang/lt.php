@@ -30,7 +30,7 @@ $translations['Utils_GenericBrowser']['Move down']='Žemin';
 $translations['Utils_GenericBrowser']['Move up']='Aukštin';
 $translations['Utils_GenericBrowser']['Forward']='Persiųsti';
 $translations['Utils_GenericBrowser']['First']='Pirmas';
-$translations['Utils_GenericBrowser']['Prev']='';
+$translations['Utils_GenericBrowser']['Prev']='Ankstesnis';
 $translations['Utils_GenericBrowser']['Reset Order']='Atšaukti užsakymą';
 $translations['Utils_GenericBrowser']['Show all']='Rodyti visus';
 $translations['Utils_GenericBrowser']['delete']='ištrinti';
@@ -38,5 +38,6 @@ $translations['Utils_GenericBrowser']['view']='peržiūrėti';
 $translations['Utils_GenericBrowser']['history']='istorija';
 $translations['Utils_GenericBrowser']['View edit history']='Peržiūrėti koregavimo istoriją';
 $translations['Utils_GenericBrowser']['Restore']='Atstatyti';
-$translations['Utils_GenericBrowser']['Reply']='';
+$translations['Utils_GenericBrowser']['Reply']='Atsakyti';
+$translations['Utils_GenericBrowser']['Activate']='Aktivuoti';
 ?>

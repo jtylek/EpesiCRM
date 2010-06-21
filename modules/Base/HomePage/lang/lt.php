@@ -5,5 +5,5 @@
  * @subpackage lt
  */
 global $translations;
-$translations['Base_HomePage']['Home page saved']='';
+$translations['Base_HomePage']['Home page saved']='Pirminis puslapis išsaugotas';
 ?>

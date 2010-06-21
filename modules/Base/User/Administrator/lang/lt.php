@@ -6,7 +6,7 @@
  */
 global $translations;
 $translations['Base_User_Administrator']['Login']='Prisijungimas';
-$translations['Base_User_Administrator']['Active']='';
+$translations['Base_User_Administrator']['Active']='Aktyvus';
 $translations['Base_User_Administrator']['Mail']='El.Paštas';
 $translations['Base_User_Administrator']['Access']='Teisės';
 $translations['Base_User_Administrator']['yes']='Taip';
@@ -37,21 +37,28 @@ $translations['Base_User_Administrator']['Confirm password']='Patvirtinti slapta
 $translations['Base_User_Administrator']['Passwords don\'t match']='Slaptažodžiai nesutampa';
 $translations['Base_User_Administrator']['Your password must be longer then 5 chars']='Jūsų slaptažodis turi būti ilgestinis negu 5 simboliai';
 $translations['Base_User_Administrator']['Username already taken']='Toks vartotojas jau yra';
-$translations['Base_User_Administrator']['Applying changes']='';
+$translations['Base_User_Administrator']['Applying changes']='Daromi pakeitimai';
 $translations['Base_User_Administrator']['Edit user']='Koreguoti vartotoją';
-$translations['Base_User_Administrator']['If you leave password fields empty, password is not changed.']='';
+$translations['Base_User_Administrator']['If you leave password fields empty, password is not changed.']='Jeigu paliksite slaptažodžio lauką tuščia jisai nesikeis.';
 $translations['Base_User_Administrator']['Yes']='Taip';
 $translations['Base_User_Administrator']['No']='Ne';
-$translations['Base_User_Administrator']['Saving settings']='';
+$translations['Base_User_Administrator']['Saving settings']='Saugojimo nustatymai';
 $translations['Base_User_Administrator']['Pakeisti slatažodį']='';
-$translations['Base_User_Administrator']['Leave password boxes empty if you prefer your current password']='';
-$translations['Base_User_Administrator']['New password']='';
-$translations['Base_User_Administrator']['Confirm new password']='';
-$translations['Base_User_Administrator']['Your passwords don\'t match']='';
+$translations['Base_User_Administrator']['Leave password boxes empty if you prefer your current password']='Palykite tuščia lauką jeigu nenorite keisti slaptažodžio';
+$translations['Base_User_Administrator']['New password']='Naujas slaptažodis';
+$translations['Base_User_Administrator']['Confirm new password']='Patvirtinti naują slaptažodį';
+$translations['Base_User_Administrator']['Your passwords don\'t match']='Jūsų slaptažodis nesutampa';
 $translations['Base_User_Administrator']['Pakeisti el.pašto adresą']='';
 $translations['Base_User_Administrator']['Naujas el.pašto adresas']='';
 $translations['Base_User_Administrator']['Neteisingas el.pašto adresas']='';
 $translations['Base_User_Administrator']['konfigūravimas']='';
 $translations['Base_User_Administrator']['Senas slaptažodis']='';
 $translations['Base_User_Administrator']['neteisingas senas slaptažodis']='';
+$translations['Base_User_Administrator']['Change password']='Pakeisti slaptažodį';
+$translations['Base_User_Administrator']['Change e-mail']='Pakeisti el. paštą';
+$translations['Base_User_Administrator']['New e-mail address']='Naujas el. pašto adresas';
+$translations['Base_User_Administrator']['Not valid e-mail address']='Neteisingas el.pašto adresas';
+$translations['Base_User_Administrator']['Confirmation']='Patvirtinimas';
+$translations['Base_User_Administrator']['Old password']='Senas slaptažodis';
+$translations['Base_User_Administrator']['Old password incorrect']='Yra neteisingas senas slaptažodis';
 ?>

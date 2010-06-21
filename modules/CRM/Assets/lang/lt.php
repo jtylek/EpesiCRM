@@ -5,5 +5,5 @@
  * @subpackage lt
  */
 global $translations;
-$translations['CRM_Assets']['Assets']='';
+$translations['CRM_Assets']['Assets']='(į)vertinti';
 ?>

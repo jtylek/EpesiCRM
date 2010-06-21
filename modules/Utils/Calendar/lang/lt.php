@@ -67,5 +67,12 @@ $translations['Utils_Calendar']['Delete this event?']='Ištrinti šį įvykį';
 $translations['Utils_Calendar']['Tomorrow']='Rytoj';
 $translations['Utils_Calendar']['Yesterday']='Vakar';
 $translations['Utils_Calendar']['Oct']='Spa';
-$translations['Utils_Calendar']['timeless']='';
+$translations['Utils_Calendar']['timeless']='Nesibaigiantis';
+$translations['Utils_Calendar']['Nov']='Lap';
+$translations['Utils_Calendar']['Dec']='Gru';
+$translations['Utils_Calendar']['Jan']='Sau';
+$translations['Utils_Calendar']['Feb']='';
+$translations['Utils_Calendar']['Mar']='';
+$translations['Utils_Calendar']['Apr']='';
+$translations['Utils_Calendar']['Jun']='';
 ?>

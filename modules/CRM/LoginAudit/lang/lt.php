@@ -18,7 +18,7 @@ $translations['CRM_LoginAudit']['Audit Log Maintenance']='';
 $translations['CRM_LoginAudit']['Purge log with records older than specified number of days:']='';
 $translations['CRM_LoginAudit']['Select number of days']='pasirinkti dienas';
 $translations['CRM_LoginAudit']['Log will be purged!']='';
-$translations['CRM_LoginAudit']['Records older than ']='';
-$translations['CRM_LoginAudit'][' days (']='';
-$translations['CRM_LoginAudit'][') were purged.']='';
+$translations['CRM_LoginAudit']['Records older than ']='Įrašai senesni negu ';
+$translations['CRM_LoginAudit'][' days (']='dienos (';
+$translations['CRM_LoginAudit'][') were purged.']=') buvo išvalytos.';
 ?>

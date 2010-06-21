@@ -28,4 +28,7 @@ $translations['CRM_Tasks']['New Event']='Naujas įvykis';
 $translations['CRM_Tasks']['New Task']='Nauja darbas';
 $translations['CRM_Tasks']['New Phonecall']='Naujas skambutis';
 $translations['CRM_Tasks']['Task: %s']='Darbas: %s';
+$translations['CRM_Tasks']['Not set']='';
+$translations['CRM_Tasks']['Yes']='';
+$translations['CRM_Tasks']['Task (attachment) #%d, %s']='';
 ?>

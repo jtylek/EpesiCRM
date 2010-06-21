@@ -13,4 +13,6 @@ $translations['Libs_QuickForm']['This is not valid number']='Neteisingas skaiči
 $translations['Libs_QuickForm']['Left']='Kairė';
 $translations['Libs_QuickForm']['Right']='Dešinė';
 $translations['Libs_QuickForm']['No records founds']='Nerasta jokių įrašų';
+$translations['Libs_QuickForm']['Kairė']='';
+$translations['Libs_QuickForm']['Dešinė']='';
 ?>

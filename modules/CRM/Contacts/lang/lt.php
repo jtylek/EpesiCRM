@@ -39,5 +39,7 @@ $translations['CRM_Contacts']['New Phonecall']='Naujas skambutis';
 $translations['CRM_Contacts']['%s %s from %s']='%s %s muo %s';
 $translations['CRM_Contacts']['Epesi users']='Network Gate Vartotojai';
 $translations['CRM_Contacts']['E-mail is required when creating new user.']='El.paštas yra reikalingas, kai kuriamas naujas vartotojas.';
-$translations['CRM_Contacts']['Record ID:']='';
+$translations['CRM_Contacts']['Record ID:']='Įrašo ID:';
+$translations['CRM_Contacts']['Company (attachment) #%d, %s']='';
+$translations['CRM_Contacts']['Contact (attachment) #%d, %s %s']='';
 ?>

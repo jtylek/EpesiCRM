@@ -5,6 +5,7 @@
  * @subpackage lt
  */
 global $translations;
+$translations['Base_Admin']['Backups']='Atsarginės kopijos';
 $translations['Base_Admin']['Change theme']='Pakeisti temą';
 $translations['Base_Admin']['Common data']='Bendriniai laukai';
 $translations['Base_Admin']['Countries']='Šalys';
@@ -26,4 +27,5 @@ $translations['Base_Admin']['Static pages']='Statiniai puslapiai';
 $translations['Base_Admin']['Title and logo']='Pavadinimas ir logotipas';
 $translations['Base_Admin']['Modules settings']='Modulių nustatymai';
 $translations['Base_Admin']['Tax Rates']='PVM';
+$translations['Base_Admin']['Download modules']='';
 ?>

@@ -5,7 +5,7 @@
  * @subpackage lt
  */
 global $translations;
-$translations['Utils_CurrencyField']['Example value: %s']='';
+$translations['Utils_CurrencyField']['Example value: %s']='Vertės pvz: %s';
 $translations['Utils_CurrencyField']['After']='Po';
 $translations['Utils_CurrencyField']['Before']='Prieš';
 $translations['Utils_CurrencyField']['Yes']='Taip';

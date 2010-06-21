@@ -11,7 +11,7 @@ $translations['Base_User_Login']['Logging in']='Jungiamasi';
 $translations['Base_User_Login']['Login']='Prisijungti';
 $translations['Base_User_Login']['Username']='Vartotojas';
 $translations['Base_User_Login']['Password']='Slaptažodis';
-$translations['Base_User_Login']['Don\'t check this box if you are using public computer!']='';
+$translations['Base_User_Login']['Don\'t check this box if you are using public computer!']='Negalima pažymėti šį langelį, jeigu naudojate kompiuterį viešoje vietoje!';
 $translations['Base_User_Login']['Remember me']='Prisiminti mane';
 $translations['Base_User_Login']['Recover password']='Atstatyti slatapžodį';
 $translations['Base_User_Login']['Login or password incorrect']='Prisijungimas arba slatažodis yra neteisingas';
@@ -40,4 +40,6 @@ Dėl saugumo priežasčių bus perjungiamas, kad jūs prisijungęs iš karto tur
 $translations['Base_User_Login']['Warning: Unable to send e-mail with password. Check Mail module configuration.']='Perspėjimas: Negalime nusiųsti el.pašto su slaptažodžiu. Tikrinti paštą modulio konfigūraciją.';
 $translations['Base_User_Login']['You have exceeded the number of allowed login attempts.<BR>']='Jūs viršijote leidžiamą Login bandymų skaičių.<BR>';
 $translations['Base_User_Login']['Host banned. Click here to refresh.']='Priimančiosios uždraustas. Spauskite čia, norėdami atnaujinti.';
+$translations['Base_User_Login']['Mail with password sent.']='';
+$translations['Base_User_Login']['Keep this box unchecked if using a  public computer']='';
 ?>

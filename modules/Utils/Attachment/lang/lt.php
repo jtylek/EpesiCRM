@@ -27,11 +27,11 @@ $translations['Utils_Attachment']['Owner: %s']='Savininkas: %s';
 $translations['Utils_Attachment']['Permission: %s']='Leidimas: %s';
 $translations['Utils_Attachment']['Last edited by %s<br>on %s<br>Number of edits: %d']='Paskutinis redagavo %s<br>iš %s<br>Keitimų skaičius: %d';
 $translations['Utils_Attachment']['Delete this entry?']='Ištrinti šį įrašą?';
-$translations['Utils_Attachment']['[ + ]']='';
-$translations['Utils_Attachment']['[ - ]']='';
+$translations['Utils_Attachment']['[ + ]']='[ + ]';
+$translations['Utils_Attachment']['[ - ]']='[ - ]';
 $translations['Utils_Attachment']['Click on view icon to see full note']='Paspauskite Rodyti ir išvysite visą dėmesį';
 $translations['Utils_Attachment']['Expand all']='Išskleisti visus';
 $translations['Utils_Attachment']['Collapse all']='Sutraukti viską';
-$translations['Utils_Attachment']['Edit note']='';
-$translations['Utils_Attachment']['Replace attachment with file']='';
+$translations['Utils_Attachment']['Edit note']='Koreguoti pastabą';
+$translations['Utils_Attachment']['Replace attachment with file']='Pakeisti priesagą su failu';
 ?>

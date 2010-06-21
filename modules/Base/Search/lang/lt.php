@@ -11,4 +11,5 @@ $translations['Base_Search']['Search']='ieškoti';
 $translations['Base_Search']['Keyword']='Raktinis žodis';
 $translations['Base_Search']['Field required']='Reikalingas laukas';
 $translations['Base_Search']['Search results']='Paieškos rezultatas';
+$translations['Base_Search']['Only 100 results are displayed.']='Tik 100 rezultatų yra rodoma.';
 ?>
