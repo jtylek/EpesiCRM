@@ -116,7 +116,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if (isset($ev['customers']) && !empty($ev['customers'])) {
 			foreach ($ev['customers'] as $v) {
 				$det = explode(':', $v);
-				$v = $det[1];
+				if (isset($det[1])) $v = $det[1];
+				else {
+					$v = $det[0];
+					$det[0] = 'P';
+				}
 				if ($det[0]=='P') {
 					$c = CRM_ContactsCommon::get_contact($v);
 					$company_name = array();
