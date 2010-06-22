@@ -658,7 +658,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($mode=='display') $result = array();
 		else $result = $base;
 		foreach ($cache[$tab] as $callback) {
-			if ($mode=='clone') $current = array('original'=>$clone, 'clone'=>$current);
+			if ($mode=='cloned') $current = array('original'=>$clone, 'clone'=>$current);
 			$return = call_user_func($callback, $current, $mode);
 			if ($return) {
 				if ($mode!='display') $current = $return;
