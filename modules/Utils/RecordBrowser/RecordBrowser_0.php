@@ -1931,7 +1931,7 @@ class Utils_RecordBrowser extends Module {
             $changed = array();
             $ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
             while($row2 = $ret2->FetchRow()) {
-                if ($row2['field']!='id' && !$access[$row2['field']]) continue;
+                if ($row2['field']!='id' && (!isset($access[$row2['field']]) || !$access[$row2['field']])) continue;
                 $changed[$row2['field']] = $row2['old_value'];
                 $last_row = $row2;
             }
