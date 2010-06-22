@@ -387,6 +387,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		return $ret;
 	}
 	public static function get_status_change_leightbox_href($record, $nolink, $desc) {
+	    if($nolink) return false;
 		$prefix = 'crm_meeting_leightbox';
 		CRM_FollowupCommon::drawLeightbox($prefix);
 
