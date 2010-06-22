@@ -98,8 +98,7 @@ class Base_ModuleDownloader extends Module {
                     $html = '';
                     foreach ($modules as $mo) {
                         /* obtain module name */
-                        $m = rtrim($mo, DIRECTORY_SEPARATOR);
-                        $m = str_replace(DIRECTORY_SEPARATOR, '_', $m);
+                        $m = $this->get_class_name($mo);
                         $inst = ModuleManager::is_installed($m) === -1;
                         $html .= '<tr><td>'.$mo.'</td><td class="element_button" style="text-align: center">';
                         /* if installed print button to form */
@@ -178,8 +177,7 @@ class Base_ModuleDownloader extends Module {
         $text = '<b>Installation process:</b><br/>';
 
         foreach ($modules as $mo) {
-            $m = rtrim($mo, '/\\');
-            $m = str_replace(array('/','\\'), '_', $m);
+            $m = $this->get_class_name($mo);
             $success = ModuleManager::install($m);
             $text .= $mo . ' - <b>' . ($success ? 'Success!' : 'Failure!') . '</b><br/>';
         }
@@ -222,6 +220,11 @@ class Base_ModuleDownloader extends Module {
             $this->pop_main();
             return;
         }
+    }
+
+    protected function get_class_name($mo) {
+        $m = rtrim($mo, '/\\');
+        return str_replace(array('\\','/'), '_', $m);
     }
 
     // *********** Function download_remote_file **************
