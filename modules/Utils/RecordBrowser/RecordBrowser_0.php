@@ -700,7 +700,9 @@ class Utils_RecordBrowser extends Module {
         }
         if (isset($this->force_order)) $order = $this->force_order;
 
-		if (!$pdf) {
+        $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin);
+
+		if (!$pdf && $this->amount_of_records<200) {
 			$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
 			Base_ActionBarCommon::add('print', $this->t('Print'), 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
 			$_SESSION['client']['utils_recordbrowser'][$key] = array(
@@ -713,7 +715,6 @@ class Utils_RecordBrowser extends Module {
 			);
 		}
 
-        $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin);
         if ($pdf) $limit = null;
 		else $limit = $gb->get_limit($this->amount_of_records);
 
