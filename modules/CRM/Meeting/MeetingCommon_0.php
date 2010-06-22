@@ -462,7 +462,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$pdf->set_subject('');
 				$pdf->prepare_header();
 				$pdf->AddPage();
-				$v = CRM_Calendar_EventCommon::get('27#'.$values['id']);
+				$v = CRM_Calendar_EventCommon::get(DB::GetOne('SELECT id FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array('Meetings')).'#'.$values['id']);
 				$ev_mod = Utils_RecordBrowser::$rb_obj->init_module('CRM/Calendar/Event');
 				$ev_mod->make_event_PDF($pdf,$v,true,'view');
 			}
