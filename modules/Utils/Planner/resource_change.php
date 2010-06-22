@@ -39,13 +39,14 @@ switch ($_SESSION['client']['utils_planner']['resources'][$resource]['type']) {
 }
 
 $_SESSION['client']['utils_planner']['resources'][$resource]['value'] = $value;
-session_commit();
 
 $js .= Utils_PlannerCommon::resource_changed($resource, $value);
 if (isset($_SESSION['client']['utils_planner']['resources'][$resource]['chained'])) {
 	foreach ($_SESSION['client']['utils_planner']['resources'][$resource]['chained'] as $v)
 		$js .= Utils_PlannerCommon::resource_changed($v, $_SESSION['client']['utils_planner']['resources'][$v]['value']);
 }
+
+session_commit();
 
 print($js);
 ?>
