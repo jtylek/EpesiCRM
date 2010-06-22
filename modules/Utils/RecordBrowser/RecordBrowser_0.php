@@ -327,7 +327,7 @@ class Utils_RecordBrowser extends Module {
                 continue;
             }
             $arr = array();
-            if ($this->table_rows[$filter]['type']=='timestamp') {
+            if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
 				$form->addElement('datepicker', $field_id.'__from', $this->t($filter).' ('.$this->t('from').')', array('label'=>false));
 				$form->addElement('datepicker', $field_id.'__to', $this->t($filter).' ('.$this->t('to').')', array('label'=>false));
 				$filters[] = $filter_id.'__from';
@@ -429,7 +429,7 @@ class Utils_RecordBrowser extends Module {
                     $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
                 }
             } else {
-				if ($this->table_rows[$filter]['type']=='timestamp') {
+				if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
 					if ($vals[$field_id.'__from'])
 						$this->crits['>='.$filter_id] = $vals[$field_id.'__from'].' 00:00:00';
 					if ($vals[$field_id.'__to'])
