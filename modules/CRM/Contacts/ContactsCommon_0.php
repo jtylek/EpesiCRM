@@ -78,7 +78,8 @@ class CRM_ContactsCommon extends ModuleCommon {
             case 'edit':    if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
                             $me = self::get_my_record();
                             if ($me && in_array($param['id'],$me['company_name']) && $i->acl_check('edit my company')) return true; //my company
-                            return $i->acl_check('edit company');
+                            if (!$i->acl_check('edit company')) return false;
+							return array('permission'=>$param['created_by']==Acl::get_user());
             case 'delete':  if ($param['created_by']==Acl::get_user()) return true;
                             return $i->acl_check('delete company');
         }
@@ -98,7 +99,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             case 'add':     return $i->acl_check('edit contact');
             case 'edit':    if ($param['login']==Acl::get_user()) return true; //me
                             if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
-                            if ($i->acl_check('edit contact')) return true;
+                            if ($i->acl_check('edit contact')) return array('permission'=>$param['created_by']==Acl::get_user());
                             if ($i->acl_check('edit my company contacts')) {
                                 $me = self::get_my_record();
                                 foreach($param['company_name'] as $cid)
