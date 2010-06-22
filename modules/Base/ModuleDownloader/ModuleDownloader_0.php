@@ -178,8 +178,8 @@ class Base_ModuleDownloader extends Module {
         $text = '<b>Installation process:</b><br/>';
 
         foreach ($modules as $mo) {
-            $m = rtrim($mo, DIRECTORY_SEPARATOR);
-            $m = str_replace(DIRECTORY_SEPARATOR, '_', $m);
+            $m = rtrim($mo, '/\\');
+            $m = str_replace(array('/','\\'), '_', $m);
             $success = ModuleManager::install($m);
             $text .= $mo . ' - <b>' . ($success ? 'Success!' : 'Failure!') . '</b><br/>';
         }
