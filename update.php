@@ -162,7 +162,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5','1.0.6','1.0.7','1.0.8','1.0.8b','1.0.9');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5','1.0.6','1.0.7','1.0.8','1.0.8b','1.0.9','1.1.0');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -1779,6 +1779,214 @@ function update_from_1_0_8b_to_1_0_9() {
     }
 
 }
+
+function update_from_1_0_9_to_1_1_0() {
+    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
+        ob_start();
+        ModuleManager::install('Base_ModuleDownloader');    
+  		ob_end_clean();
+    }
+
+    if(ModuleManager::is_installed('CRM_Calendar')>=0 && ModuleManager::is_installed('CRM_Meeting')>=0)
+	    CRM_CalendarCommon::new_event_handler('Meetings', array('CRM_MeetingCommon', 'crm_calendar_handler'));
+
+    if (ModuleManager::is_installed('Data_Countries')>=0) {
+        Utils_CommonDataCommon::set_value('Countries/NA','Namibia');
+    }
+
+    if (ModuleManager::is_installed('CRM_PhoneCall')!=-1)
+	    Utils_BBCodeCommon::new_bbcode('phone', 'CRM_PhoneCallCommon', 'phone_bbcode');
+
+    if (ModuleManager::is_installed('CRM_Meeting')!=-1)
+	    Utils_BBCodeCommon::new_bbcode('meeting', 'CRM_MeetingCommon', 'meeting_bbcode');
+
+    if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
+
+        $tables_db = DB::MetaTables();
+        if(!in_array('recordbrowser_processing_methods',$tables_db)) {
+
+            PatchDBDropColumn('recordbrowser_table_properties', 'data_process_method');
+
+            DB::CreateTable('recordbrowser_processing_methods',
+		   	'tab C(64),'.
+			'func C(255)',
+			array('constraints'=>', PRIMARY KEY(tab, func)'));
+
+
+            if (ModuleManager::is_installed('CRM_Assets')!=-1)
+            	Utils_RecordBrowserCommon::register_processing_callback('crm_assets', array('CRM_AssetsCommon', 'process_request'));
+
+            if (ModuleManager::is_installed('CRM_Contacts')!=-1)
+            	Utils_RecordBrowserCommon::register_processing_callback('contact', array('CRM_ContactsCommon', 'submit_contact'));
+
+            if (ModuleManager::is_installed('CRM_Contacts_Photo')!=-1)
+            	Utils_RecordBrowserCommon::register_processing_callback('contact', array('CRM_Contacts_PhotoCommon', 'submit_contact'));
+
+            if (ModuleManager::is_installed('CRM_Meeting')!=-1)
+        	    Utils_RecordBrowserCommon::register_processing_callback('crm_meeting', array('CRM_MeetingCommon', 'submit_meeting'));
+
+            if (ModuleManager::is_installed('CRM_PhoneCall')!=-1)
+            	Utils_RecordBrowserCommon::register_processing_callback('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
+
+        if (ModuleManager::is_installed('CRM_Roundcube')!=-1)
+        	Utils_RecordBrowserCommon::register_processing_callback('rc_accounts', array('CRM_RoundcubeCommon', 'submit_account'));
+
+        if (ModuleManager::is_installed('CRM_Tasks')!=-1)
+        	Utils_RecordBrowserCommon::register_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));
+
+if (ModuleManager::is_installed('Custom_CADES_Allergies')!=-1)
+   	Utils_RecordBrowserCommon::register_processing_callback('cades_allergies', array('Custom_CADES_AllergiesCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Appointments')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_appointments', array('Custom_CADES_AppointmentsCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Behavior')!=-1) {
+	Utils_RecordBrowserCommon::register_processing_callback('cades_behavior_log', array('Custom_CADES_BehaviorCommon', 'process_log_callback'));
+	Utils_RecordBrowserCommon::register_processing_callback('cades_behavior', array('Custom_CADES_BehaviorCommon', 'process_callback'));
+}
+
+if (ModuleManager::is_installed('Custom_CADES_ContactGroups')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('contact', array('Custom_CADES_ContactGroupsCommon', 'submit_contact'));
+
+if (ModuleManager::is_installed('Custom_CADES_Diet')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_diet', array('Custom_CADES_DietCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Hospitalizations')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_hospitalizations', array('Custom_CADES_HospitalizationsCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Immunizations')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_immunizations', array('Custom_CADES_ImmunizationsCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Insurance')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_insurance', array('Custom_CADES_InsuranceCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Issues')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_issues', array('Custom_CADES_IssuesCommon', 'submit_issue'));
+
+if (ModuleManager::is_installed('Custom_CADES_MedicalTests')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_medicaltests', array('Custom_CADES_MedicalTestsCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Reviews')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_reviews', array('Custom_CADES_ReviewsCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Seizures')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_seizures', array('Custom_CADES_SeizuresCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Services')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_services', array('Custom_CADES_ServicesCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Sleep')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_sleep', array('Custom_CADES_SleepCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Toileting')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_toileting', array('Custom_CADES_ToiletingCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_VitalSigns')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_vitalsigns', array('Custom_CADES_VitalSignsCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_CADES_Medications')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('cades_medications', array('Custom_CADES_MedicationsCommon', 'process_callback'));
+
+if (ModuleManager::is_installed('Custom_JobSearch_AdvertisingLog')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('custom_jobsearch_advertisinglog', array('Custom_JobSearch_AdvertisingLogCommon', 'submit_advertisinglog'));
+
+if (ModuleManager::is_installed('Custom_JobSearch')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('custom_jobsearch', array('Custom_JobSearchCommon', 'submit_jobsearch'));
+
+if (ModuleManager::is_installed('Custom_PersonalEquipment_Disbursement')!=-1) {
+	Utils_RecordBrowserCommon::register_processing_callback('custom_personalequipment_disbur_items', array('Custom_PersonalEquipment_DisbursementCommon', 'submit_disbursement_items'));
+	Utils_RecordBrowserCommon::register_processing_callback('custom_personalequipment_disbursement', array('Custom_PersonalEquipment_DisbursementCommon', 'submit_equipment'));
+}
+
+if (ModuleManager::is_installed('Custom_PersonalEquipment')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('custom_personalequipment', array('Custom_PersonalEquipmentCommon', 'submit_equipment'));
+
+if (ModuleManager::is_installed('Custom_Projects_ChangeOrders')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('custom_changeorders', array('Custom_Projects_ChangeOrdersCommon', 'submit_co'));
+
+if (ModuleManager::is_installed('Custom_Projects_ProgBilling')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('custom_projects_progbilling', array('Custom_Projects_ProgBillingCommon', 'submit_billing'));
+
+if (ModuleManager::is_installed('Custom_Projects_ShopEquipment')!=-1) {
+	Utils_RecordBrowserCommon::register_processing_callback('custom_shopequipment_rental', array('Custom_Projects_ShopEquipmentCommon', 'submit_equipment_rental'));
+	Utils_RecordBrowserCommon::register_processing_callback('custom_shopequipment', array('Custom_Projects_ShopEquipmentCommon', 'submit_equipment'));
+}
+
+if (ModuleManager::is_installed('Custom_Projects_Tickets')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('custom_tickets', array('Custom_Projects_TicketsCommon', 'submit_ticket'));
+
+if (ModuleManager::is_installed('Custom_TasksModified')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('task', array('Custom_TasksModifiedCommon', 'submit_task'));
+
+if (ModuleManager::is_installed('Premium_Apartments')!=-1) {
+	Utils_RecordBrowserCommon::register_processing_callback('premium_apartments_agent', array('Premium_ApartmentsCommon', 'agent_processing'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_apartments_rental', array('Premium_ApartmentsCommon', 'rental_processing'));
+}
+
+if (ModuleManager::is_installed('Premium_Checklist')!=-1) {
+    Utils_RecordBrowserCommon::register_processing_callback('premium_checklist_list_entry', array('Premium_ChecklistCommon', 'submit_list_entry'));
+    Utils_RecordBrowserCommon::register_processing_callback('premium_checklist_list', array('Premium_ChecklistCommon', 'submit_list'));
+    Utils_RecordBrowserCommon::register_processing_callback('premium_checklist_item', array('Premium_ChecklistCommon', 'submit_item'));
+}
+
+if (ModuleManager::is_installed('Premium_GCProjects')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('gc_projects', array('Premium_GCProjectsCommon', 'submit_project'));
+
+if (ModuleManager::is_installed('Premium_ListManager')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('premium_listmanager', array('Premium_ListManagerCommon', 'submit_listmanager'));
+
+if (ModuleManager::is_installed('Premium_Projects_Tickets')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('premium_tickets', array('Premium_Projects_TicketsCommon', 'submit_ticket'));
+
+if (ModuleManager::is_installed('Premium_Projects_TimesheetModified')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('premium_projects_timesheet', array('Premium_Projects_TimesheetCommon', 'processing_timesheet'));
+
+if (ModuleManager::is_installed('Premium_RelationsModified')!=-1) {
+	Utils_RecordBrowserCommon::register_processing_callback('relations', array('Premium_RelationsCommon', 'process_request'));
+	Utils_RecordBrowserCommon::register_processing_callback('relations_types', array('Premium_RelationsCommon', 'process_request_types'));
+}
+
+if (ModuleManager::is_installed('Premium_SalesOpportunityModified')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('premium_salesopportunity', array('Premium_SalesOpportunityCommon', 'submit_salesopportunity'));
+
+if (ModuleManager::is_installed('Premium_SchoolRegister')!=-1)
+	Utils_RecordBrowserCommon::register_processing_callback('premium_schoolregister_schedule', array('Premium_SchoolRegisterCommon', 'schedule_processing'));
+
+if (ModuleManager::is_installed('Premium_Warehouse_eCommerce')!=-1) {
+	Utils_RecordBrowserCommon::register_processing_callback('premium_ecommerce_products', array('Premium_Warehouse_eCommerceCommon', 'submit_products_position'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_ecommerce_parameters', array('Premium_Warehouse_eCommerceCommon', 'submit_parameters_position'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_ecommerce_parameter_groups', array('Premium_Warehouse_eCommerceCommon', 'submit_parameter_groups_position'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_ecommerce_pages', array('Premium_Warehouse_eCommerceCommon', 'submit_pages_position'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_ecommerce_polls', array('Premium_Warehouse_eCommerceCommon', 'submit_polls_position'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_ecommerce_boxes', array('Premium_Warehouse_eCommerceCommon', 'submit_boxes_position'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_ecommerce_banners', array('Premium_Warehouse_eCommerceCommon','banners_processing'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_ecommerce_users', array('Premium_Warehouse_eCommerceCommon', 'submit_user'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_ecommerce_3rdp_info', array('Premium_Warehouse_eCommerceCommon', 'submit_3rdp_info'));
+}
+
+if (ModuleManager::is_installed('Premium_Warehouse_Items')!=-1) {
+	Utils_RecordBrowserCommon::register_processing_callback('premium_warehouse_items', array('Premium_Warehouse_ItemsCommon', 'submit_item'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_warehouse_items_categories', array('Premium_Warehouse_ItemsCommon', 'submit_position'));
+}
+
+if (ModuleManager::is_installed('Premium_Warehouse_Items_Orders')!=-1) {
+	Utils_RecordBrowserCommon::register_processing_callback('premium_warehouse_items_orders', array('Premium_Warehouse_Items_OrdersCommon', 'submit_order'));
+	Utils_RecordBrowserCommon::register_processing_callback('premium_warehouse_items_orders_details', array('Premium_Warehouse_Items_OrdersCommon', 'submit_order_details'));
+}
+
+            if (ModuleManager::is_installed('Premium_Warehouse_Wholesale')!=-1)
+            	Utils_RecordBrowserCommon::register_processing_callback('premium_warehouse_distributor', array('Premium_Warehouse_WholesaleCommon', 'submit_distributor'));
+        }
+    }
+
+    if (ModuleManager::is_installed('Premium_Projects_Tickets')!=-1) {
+        ob_start();
+	    Acl::add_aco('Premium_Projects_Tickets','edit details',array('Employee Manager'));
+	    ob_end_clean();   
+	}
+
+}
+
 //=========================================================================
 
 try {
