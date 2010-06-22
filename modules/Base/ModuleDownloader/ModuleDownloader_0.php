@@ -96,11 +96,10 @@ class Base_ModuleDownloader extends Module {
                     $install_cnt = 0;
                     $modules_to_install = array();
                     $html = '';
-                    foreach ($modules as $mo) {
+                    foreach ($modules as $m) {
                         /* obtain module name */
-                        $m = $this->get_class_name($mo);
                         $inst = ModuleManager::is_installed($m) === -1;
-                        $html .= '<tr><td>'.$mo.'</td><td class="element_button" style="text-align: center">';
+                        $html .= '<tr><td>'.$m.'</td><td class="element_button" style="text-align: center">';
                         /* if installed print button to form */
                         if($inst) {
                             $el = $form->createElement('button', 'install', 'Install', $this->create_callback_href(array($this, 'install'), array(array($m))));
@@ -116,7 +115,7 @@ class Base_ModuleDownloader extends Module {
                     $form->addElement('html', $html);
 
                     /* add "Install All" and "Restart" button */
-                    if($install_cnt > 1) $form->addElement('button', 'install', 'Install All', $this->create_callback_href(array($this, 'install'), array($modules)));
+                    if($install_cnt > 1) $form->addElement('button', 'install', 'Install All', $this->create_callback_href(array($this, 'install'), array($modules_to_install)));
                     $form->addElement('button', 'restart', 'Restart Epesi', 'onclick="document.location=\'\'"');
                 }
             } else {
