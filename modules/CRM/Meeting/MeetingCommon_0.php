@@ -456,6 +456,18 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record();
 		switch ($mode) {
 		case 'display':
+			$pdf = Utils_RecordBrowser::$rb_obj->pack_module('Libs/TCPDF', 'L');
+			if ($pdf->prepare()) {
+				$pdf->set_title($values['title']);
+				$pdf->set_subject('');
+				$pdf->prepare_header();
+				$pdf->AddPage();
+				$v = CRM_Calendar_EventCommon::get('27#'.$values['id']);
+				$ev_mod = Utils_RecordBrowser::$rb_obj->init_module('CRM/Calendar/Event');
+				$ev_mod->make_event_PDF($pdf,$v,true,'view');
+			}
+			$pdf->add_actionbar_icon('Print');
+
 			if (isset($_REQUEST['day'])) $values['date'] = $_REQUEST['day'];
 			$ret = array();
 			$start = strtotime($values['date'].' '.date('H:i:s', strtotime($values['time'])));
@@ -767,12 +779,17 @@ class CRM_MeetingCommon extends ModuleCommon {
 	public static function crm_event_get_all($start, $end, $filter=null, $customers=null) {
 		$start = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($start));
 		$crits = array();
+		$f_array = explode(',',trim($filter,'()'));
 		if ($filter===null) $filter = CRM_FiltersCommon::get();
 		if($filter!='()' && $filter)
-			$crits['('.'employees'] = explode(',',trim($filter,'()'));
-		if ($customers) 
+			$crits['('.'employees'] = $f_array;
+		if ($customers && !empty($customers)) 
 			$crits['|customers'] = $customers;
-		else $crits['|customers'] = explode(',',trim($filter,'()'));
+		elseif($filter!='()' && $filter) {
+			$crits['|customers'] = $f_array;
+			foreach ($crits['|customers'] as $k=>$v)
+				$crits['|customers'][$k] = 'P:'.$v;
+		}
 		$me = CRM_ContactsCommon::get_my_record();
 		if(!Base_AclCommon::i_am_admin()) {
 			$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(employees' => $me['id'], '|<permission' => 2));

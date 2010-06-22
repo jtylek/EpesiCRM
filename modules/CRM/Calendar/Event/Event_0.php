@@ -101,38 +101,41 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$pdf_theme->assign('printed_on', array(	'label'=>$this->t('Printed on'),
 													'value'=>Base_RegionalSettingsCommon::time2reg(time())));
 		}
-		if (!$custom_event) {
-			$defec = CRM_Calendar_EventCommon::get_emp_and_cus($id);
-			$emps = array();
-			foreach ($defec['emp_id'] as $v) {
+		$emps = array();
+		$cuss = array();
+		$cus_cmps = array();
+		if (isset($ev['employees']) && !empty($ev['employees'])) {
+			foreach ($ev['employees'] as $v) {
 				$c = CRM_ContactsCommon::get_contact($v);
 				$emps[] = array('name'=>$c['last_name'].' '.$c['first_name'],
 								'mphone'=>$c['mobile_phone'],
 								'wphone'=>$c['work_phone'],
 								'hphone'=>$c['home_phone']);
 			}
-			$cuss = array();
-			$cus_cmps = array();
-			foreach ($defec['cus_id'] as $v) {
-				$c = CRM_ContactsCommon::get_contact($v);
-				$company_name = array();
-				if (is_array($c['company_name']))
-					foreach ($c['company_name'] as $vv)
-						$company_name[] = Utils_RecordBrowserCommon::get_value('company', $vv, 'Company Name');
-				$cuss[] = array('name'=>$c['last_name'].' '.$c['first_name'],
-								'mphone'=>$c['mobile_phone'],
-								'wphone'=>$c['work_phone'],
-								'hphone'=>$c['home_phone'],
-								'company_name'=>$company_name);
+		}
+		if (isset($ev['customers']) && !empty($ev['customers'])) {
+			foreach ($ev['customers'] as $v) {
+				$det = explode(':', $v);
+				$v = $det[1];
+				if ($det[0]=='P') {
+					$c = CRM_ContactsCommon::get_contact($v);
+					$company_name = array();
+					if (is_array($c['company_name']))
+						foreach ($c['company_name'] as $vv)
+							$company_name[] = Utils_RecordBrowserCommon::get_value('company', $vv, 'Company Name');
+					$cuss[] = array('name'=>$c['last_name'].' '.$c['first_name'],
+									'mphone'=>$c['mobile_phone'],
+									'wphone'=>$c['work_phone'],
+									'hphone'=>$c['home_phone'],
+									'company_name'=>$company_name);
+				}
+				if ($det[0]=='C') $c = array('company_name'=>array($v));
 				if (is_array($c['company_name']))
 					foreach ($c['company_name'] as $v2)
 						if (!isset($cus_cmps[$v2]))
 							$cus_cmps[$v2] = CRM_ContactsCommon::get_company($v2);
+				
 			}
-		} else {
-			$emps = array();
-			$cuss = array();
-			$cus_cmps = '';
 		}
 		$pdf_theme->assign('employees', array(	'main_label'=>$this->t('Employees'),
 												'name_label'=>$this->t('Name'),

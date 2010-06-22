@@ -352,8 +352,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         $v = $record[$desc['id']];
         $def = '';
         $first = true;
-        $param = explode(';',$desc['param']);
-        if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+        $param = @explode(';',$desc['param']);
+        if (!isset($param[1]) || $param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
         else $callback = explode('::', $param[1]);
         if (!is_array($v)) $v = array($v);
         foreach($v as $k=>$w){
