@@ -1797,8 +1797,11 @@ function update_from_1_0_9_to_1_1_0() {
     if (ModuleManager::is_installed('CRM_PhoneCall')!=-1)
 	    Utils_BBCodeCommon::new_bbcode('phone', 'CRM_PhoneCallCommon', 'phone_bbcode');
 
-    if (ModuleManager::is_installed('CRM_Meeting')!=-1)
+    if (ModuleManager::is_installed('CRM_Meeting')!=-1) {
 	    Utils_BBCodeCommon::new_bbcode('meeting', 'CRM_MeetingCommon', 'meeting_bbcode');
+		DB::Execute('DELETE FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array('Meetings'));
+		DB::Execute('INSERT INTO crm_calendar_custom_events_handlers (group_name, handler_callback) VALUES (%s, %s)', array('Meetings', 'CRM_MeetingCommon::crm_calendar_handler'));
+	}
 
     if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
 
