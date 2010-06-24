@@ -1941,15 +1941,15 @@ if (ModuleManager::is_installed('Premium_ListManager')!=-1)
 if (ModuleManager::is_installed('Premium_Projects_Tickets')!=-1)
 	Utils_RecordBrowserCommon::register_processing_callback('premium_tickets', array('Premium_Projects_TicketsCommon', 'submit_ticket'));
 
-if (ModuleManager::is_installed('Premium_Projects_TimesheetModified')!=-1)
+if (ModuleManager::is_installed('Premium_Projects_Timesheet')!=-1)
 	Utils_RecordBrowserCommon::register_processing_callback('premium_projects_timesheet', array('Premium_Projects_TimesheetCommon', 'processing_timesheet'));
 
-if (ModuleManager::is_installed('Premium_RelationsModified')!=-1) {
+if (ModuleManager::is_installed('Premium_Relations')!=-1) {
 	Utils_RecordBrowserCommon::register_processing_callback('relations', array('Premium_RelationsCommon', 'process_request'));
 	Utils_RecordBrowserCommon::register_processing_callback('relations_types', array('Premium_RelationsCommon', 'process_request_types'));
 }
 
-if (ModuleManager::is_installed('Premium_SalesOpportunityModified')!=-1)
+if (ModuleManager::is_installed('Premium_SalesOpportunity')!=-1)
 	Utils_RecordBrowserCommon::register_processing_callback('premium_salesopportunity', array('Premium_SalesOpportunityCommon', 'submit_salesopportunity'));
 
 if (ModuleManager::is_installed('Premium_SchoolRegister')!=-1)
