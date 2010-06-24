@@ -111,6 +111,18 @@
 				</table>
 			</td>
 		</tr>
+		<tr>
+			<td colspan="2">
+			<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+				{foreach key=k item=f from=$longfields name=fields}
+					<tr>
+						<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
+						<td class="data long_data {if $f.type == 'currency'}currency{/if}">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+					</tr>
+				{/foreach}
+			</table>
+			</td>
+		</tr>
 	</tbody>
 </table>
 
