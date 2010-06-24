@@ -38,7 +38,6 @@ class TestsInstall extends ModuleInstall {
 		    array('name'=>'Tests/Callbacks','version'=>0),
 		    array('name'=>'Tests/Colorpicker','version'=>0),
 		    array('name'=>'Tests/Comment','version'=>0),
-		    array('name'=>'Tests/FPDF','version'=>0),
 		    array('name'=>'Tests/GenericBrowser','version'=>0),
 		    array('name'=>'Tests/Image','version'=>0),
 		    array('name'=>'Tests/Lang','version'=>0),
