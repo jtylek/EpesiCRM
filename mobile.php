@@ -50,7 +50,7 @@ class StackEntry {
 	}
 
 	public function go() {
-		return call_user_func_array($this->func,$this->args);
+		return call_user_func_array(str_replace('"','',$this->func),$this->args);
 	}
 }
 

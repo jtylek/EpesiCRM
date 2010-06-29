@@ -303,7 +303,6 @@ class CRM_CalendarCommon extends ModuleCommon {
 		if($recurrence!==false)
 			$id = substr($id,0,$recurrence);
 		$row = CRM_Calendar_EventCommon::get($id);
-		$row_orig = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
 		$ex = Utils_CalendarCommon::process_event($row);
 		
 		print('<ul class="field">');
@@ -312,9 +311,9 @@ class CRM_CalendarCommon extends ModuleCommon {
 		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Duration').': '.$ex['duration'].'</li>');
 		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Ends').': '.$ex['end'].'</li>');
 		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Description').': '.$row['description'].'</li>');
-		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Priority').': '.Utils_CommonDataCommon::get_value('CRM/Priority/'.$row_orig['priority'],true).'</li>');
-		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Status').': '.Utils_CommonDataCommon::get_value('CRM/Status/'.$row_orig['status'],true).'</li>');
-		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Access').': '.Utils_CommonDataCommon::get_value('CRM/Access/'.$row_orig['access'],true).'</li>');
+//		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Priority').': '.Utils_CommonDataCommon::get_value('CRM/Priority/'.$row_orig['priority'],true).'</li>');
+//		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Status').': '.Utils_CommonDataCommon::get_value('CRM/Status/'.$row_orig['status'],true).'</li>');
+//		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Access').': '.Utils_CommonDataCommon::get_value('CRM/Access/'.$row_orig['access'],true).'</li>');
 		print('</ul>');
 //		'color I1 DEFAULT 0, '.
 	}
