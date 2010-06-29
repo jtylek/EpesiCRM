@@ -584,10 +584,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('UPDATE '.$tab.'_field SET filter=0 WHERE field=%s', array($col_name));
     }
     public static function register_processing_callback($tab, $callback) {
+        $tables_db = DB::MetaTables();
+        if(!in_array('recordbrowser_processing_methods',$tables_db)) return; // Delete this on major patch
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('INSERT INTO recordbrowser_processing_methods (tab, func) VALUES (%s, %s)', array($tab, $callback));
     }
     public static function unregister_processing_callback($tab, $callback) {
+        $tables_db = DB::MetaTables();
+        if(!in_array('recordbrowser_processing_methods',$tables_db)) return; // Delete this on major patch
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('DELETE FROM recordbrowser_processing_methods WHERE tab=%s AND func=%s', array($tab, $callback));
     }
