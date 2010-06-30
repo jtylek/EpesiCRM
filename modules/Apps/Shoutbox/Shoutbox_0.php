@@ -40,8 +40,9 @@ class Apps_Shoutbox extends Module {
 
         // $gb->set_default_order(array($this->t('Date')=>'DESC'));
 
-		$query = 'SELECT base_user_login_id, to_user_login_id, message, posted_on FROM apps_shoutbox_messages ORDER BY posted_on DESC';
-        $query_qty = 'SELECT count(id) FROM apps_shoutbox_messages';
+        $myid = Acl::get_user();
+		$query = 'SELECT base_user_login_id, to_user_login_id, message, posted_on FROM apps_shoutbox_messages WHERE to_user_login_id='.$myid.' OR to_user_login_id is null OR base_user_login_id='.$myid.' ORDER BY posted_on DESC';
+        $query_qty = 'SELECT count(id) FROM apps_shoutbox_messages WHERE to_user_login_id='.$myid.' OR to_user_login_id is null OR base_user_login_id='.$myid;
 
 		$ret = $gb->query_order_limit($query, $query_qty);
 
