@@ -196,6 +196,22 @@ class Utils_Messenger extends Module {
 
 		$gb->set_default_order(array($this->t('Start')=>'ASC'));
 
+		$this->lp = $this->init_module('Utils_LeightboxPrompt');
+		$this->lp->add_option('holdon_'.(5*60), $this->t('5 minutes'),null);
+		$this->lp->add_option('holdon_'.(15*60), $this->t('15 minutes'),null);
+		$this->lp->add_option('holdon_'.(30*60), $this->t('30 minutes'),null);
+		$this->lp->add_option('holdon_'.(60*60), $this->t('1 hour'),null);
+		$this->lp->add_option('holdon_'.(240*60), $this->t('4 hours'),null);
+		$this->lp->add_option('holdon_'.(12*3600), $this->t('12 hours'),null);
+		$this->lp->add_option('holdon_'.(24*3600), $this->t('24 hours'),null);
+    	$this->display_module($this->lp, array('Hold on', array('alert_id'), '', false));
+		$vals = $this->lp->export_values();
+		if ($vals) {
+		    if(preg_match('/^holdon_([0-9]+)$/',$vals['option'],$reqs)) {
+		        $_SESSION['utils_messenger_holdon'][$vals['params']['alert_id']] = time()+$reqs[1];
+    		}
+		}
+
 		$t = time();
 		$ret = DB::Execute('(SELECT u.done,m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T)'.
 					' UNION '.
@@ -206,7 +222,10 @@ class Utils_Messenger extends Module {
 		while($row = $ret->FetchRow()) {
 			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			$info = str_replace("\n",'<br>',$info);
-			$gb->add_row('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?$this->t("Alarm comment: %s",array($row['message'])):''));
+			$alert_on = Base_RegionalSettingsCommon::time2reg($row['alert_on']);
+			$gb->add_row(($row['done']?'<span class="checkbox_on" />':'<a '.Utils_TooltipCommon::open_tag_attrs($this->ht('Turn off alarm')).' '.$this->create_confirm_callback_href($this->ht('Turn off alarm?'),array('Utils_MessengerCommon','turn_off'),array($row['id'])).'><span class="checkbox_off" /></a>'),
+			        (($row['done'] || $row['alert_on']>$t)?$alert_on:'<a '.Utils_TooltipCommon::open_tag_attrs($this->ht('Hold on')).' '.$this->lp->get_href(array($row['id'])).'>'.$alert_on.'</a>'),
+			        $info.'<br>'.($row['message']?$this->t("Alarm comment: %s",array($row['message'])):''));
 		}
 
 		$this->display_module($gb);

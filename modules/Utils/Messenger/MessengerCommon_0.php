@@ -108,6 +108,10 @@ class Utils_MessengerCommon extends ModuleCommon {
 		return array('Messenger alerts'=>array(
 				'__function__'=>'browse'));
 	}
+	
+	public static function turn_off($id) {
+	    DB::Execute('UPDATE utils_messenger_users SET done=1,done_on=%T WHERE user_login_id=%d AND message_id=%d',array(time(),Acl::get_user(),$id));
+	}
 }
 
 eval_js_once('utils_messenger_on = true; utils_messenger_refresh = function(){'.

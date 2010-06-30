@@ -17,5 +17,6 @@ require_once('../../../include.php');
 ModuleManager::load_modules();
 
 if(!Acl::is_user() || !isset($_REQUEST['id'])) return;
-DB::Execute('UPDATE utils_messenger_users SET done=1,done_on=%T WHERE user_login_id=%d AND message_id=%d',array(time(),Acl::get_user(),$_REQUEST['id']));
+Utils_MessengerCommon::turn_off($_REQUEST['id']);
+//DB::Execute('UPDATE utils_messenger_users SET done=1,done_on=%T WHERE user_login_id=%d AND message_id=%d',array(time(),Acl::get_user(),$_REQUEST['id']));
 ?>

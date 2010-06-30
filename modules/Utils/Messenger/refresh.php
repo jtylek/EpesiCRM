@@ -22,7 +22,11 @@ if(!Acl::is_user()) return;
 $arr = DB::GetAll('SELECT m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T',array(Acl::get_user(),time()));
 //print it out
 print('utils_messenger_on=false;');
+$t = time();
 foreach($arr as $row) {
+    if(isset($_SESSION['utils_messenger_holdon'][$row['id']]) && $_SESSION['utils_messenger_holdon'][$row['id']]>$t)
+        continue;
+        
 	ob_start();
 	$ret = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 	ob_clean();
