@@ -16,8 +16,11 @@ ModuleManager::load_modules();
 if(!Acl::is_user())
 	exit();
 
+$myid = Acl::get_user();
+$uid = (isset($_GET['uid']) && is_numeric($_GET['uid']))?$_GET['uid']:null;
+
 //get last 20 messages
-$arr = DB::GetAll('SELECT ul.login, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id ORDER BY asm.posted_on DESC LIMIT 20');
+$arr = DB::GetAll('SELECT ul.login,ul2.login as to_login, asm.to_user_login_id as to_login_id,asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id LEFT JOIN user_login ul2 ON ul2.id=asm.to_user_login_id WHERE '.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).' ORDER BY asm.posted_on DESC LIMIT 20');
 //print it out
 foreach($arr as $row) {
 	if(!$row['login']) $row['login']='Anonymous';
@@ -29,8 +32,7 @@ foreach($arr as $row) {
 		default : $fcolor = '#AAAAAA';
 	}
 	
-	
-	print('<span class="author">'.$row['login'].' </span><span style="color:'.$fcolor.';">&nbsp;'.Utils_BBCodeCommon::parse($row['message']).'</span><span class="time"> ['.Base_RegionalSettingsCommon::time2reg($row['posted_on'],2).']</span><hr/>');
+	print('<span class="author">'.$row['login'].($row['to_login']?'&nbsp;->&nbsp;'.$row['to_login']:'').' </span><span style="color:'.$fcolor.';">&nbsp;'.(($row['to_login_id']==$myid && $uid===null)?'<b>':'').Utils_BBCodeCommon::parse($row['message']).(($row['to_login_id']==$myid && $uid===null)?'</b>':'').'</span><span class="time"> ['.Base_RegionalSettingsCommon::time2reg($row['posted_on'],2).']</span><hr/>');
 }
 
 $content = ob_get_contents();

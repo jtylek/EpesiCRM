@@ -17,6 +17,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('apps_shoutbox_messages','
 			id I4 AUTO KEY,
 			base_user_login_id I4 NOTNULL,
+			to_user_login_id I4,
 			message X,
 			posted_on T DEFTIMESTAMP',
 			array('constraints'=>', FOREIGN KEY (base_user_login_id) REFERENCES user_login(ID)'));
