@@ -16,6 +16,15 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         $this->create_data_dir();
         Base_ThemeCommon::install_default_theme($this -> get_type());
 
+        @DB::DropTable('rc_users');
+        @DB::DropTable('rc_identities');
+        @DB::DropTable('rc_contacts');
+        @DB::DropTable('rc_contactgroups');
+        @DB::DropTable('rc_contactgroupmembers');
+        @DB::DropTable('rc_session');
+        @DB::DropTable('rc_cache');
+        @DB::DropTable('rc_messages');
+
         if(DATABASE_DRIVER=='mysqlt')
             $f = file_get_contents('modules/CRM/Roundcube/src/SQL/mysql.initial.sql');
         else
