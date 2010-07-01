@@ -32,11 +32,14 @@ class Tools_WhoIsOnlineCommon extends ModuleCommon {
 	
 	public static function get() {
 		DB::Execute('delete from tools_whoisonline_users where session_name not in (select name from session)');
-		$ret = DB::Execute('SELECT DISTINCT ul.login FROM tools_whoisonline_users twu INNER JOIN user_login ul on ul.id=twu.user_login_id');
-		$all = array();
-		while($r = $ret->FetchRow())
-			if($r['login']!=Acl::get_user()) $all[] = $r['login'];
-		return $all;
+		$ret = DB::GetCol('SELECT DISTINCT ul.login FROM tools_whoisonline_users twu INNER JOIN user_login ul on ul.id=twu.user_login_id');
+		return $ret;
+	}
+
+	public static function get_ids() {
+		DB::Execute('delete from tools_whoisonline_users where session_name not in (select name from session)');
+		$ret = DB::GetCol('SELECT DISTINCT twu.user_login_id as id FROM tools_whoisonline_users twu');
+		return $ret;
 	}
 }
 if(!isset($_SESSION['tools_whoisonline']) || $_SESSION['tools_whoisonline']!=Acl::get_user()) {

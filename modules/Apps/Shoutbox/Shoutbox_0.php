@@ -72,53 +72,57 @@ class Apps_Shoutbox extends Module {
     }
     
     public function chat($big=false,$uid=null) {
-		Base_ThemeCommon::load_css($this->get_type());
 		$to = & $this->get_module_variable('to',"all");
 		eval_js('shoutbox_uid="'.$to.'"');
 		if(Acl::is_user()) {
 			//initialize HTML_QuickForm
 			$qf = & $this->init_module('Libs/QuickForm');
-			$g = array();
-			if($big) {
-                $myid = Acl::get_user();
-			    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-    			    $emps = DB::GetAssoc('SELECT l.id,IF(cd.f_last_name!=\'\',CONCAT(cd.f_last_name,\' \',cd.f_first_name),l.login) FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id!=%d',array($myid));			    
-			    } else
-    			    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id!=%d',array($myid));
-    			$g[] = HTML_QuickForm::createElement('select','to',$this->t('To'),array('all'=>$this->ht('-- all --'))+$emps,array('id'=>'shoutbox_to','onChange'=>'shoutbox_uid=this.value;shoutbox_refresh_big()'));
-			}
+
+            $myid = Acl::get_user();
+    	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
+        	    $emps = DB::GetAssoc('SELECT l.id,IF(cd.f_last_name!=\'\',CONCAT(cd.f_last_name,\' \',cd.f_first_name,\' (\',l.login,\')\'),l.login) as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id!=%d ORDER BY name',array($myid));			    
+		    } else
+    		    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id!=%d ORDER BY login',array($myid));
+    		if(ModuleManager::is_installed('Tools_WhoIsOnline')>=0) {
+    		    $online = Tools_WhoIsOnlineCommon::get_ids();
+    		    foreach($online as $id) {
+    		        if(isset($emps[$id])) 
+    		            $emps[$id] .= ' [online]';
+    		    }
+    		}
+    		$qf->addElement('select','to',$this->t('To'),array('all'=>$this->ht('-- all --'))+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));
 			//create text box
-			$g[] = HTML_QuickForm::createElement('text','post',$this->t('Post'),'id="shoutbox_text'.($big?'_big':'').'"');
+			$qf->addElement($big?'textarea':'text','post',$this->t('Message'),'id="shoutbox_text'.($big?'_big':'').'"');
+			$qf->addRule('post',$this->t('Field required'),'required');
 			//create submit button
-			$g[] = HTML_QuickForm::createElement('submit','button',$this->ht('Submit'), 'id="shoutbox_button'.($big?'_big':'').'"');
+			$qf->addElement('submit','submit_button',$this->ht('Submit'), 'id="shoutbox_button'.($big?'_big':'').'"');
 			//add it
-			$qf->addGroup($g,'post');
-			$qf->addGroupRule('post',$this->t('Field required'),'required',null,$big?3:2);
 			$qf->setRequiredNote(null);
-			$qf->setDefaults(array('post'=>array('to'=>$to)));
+			$qf->setDefaults(array('to'=>$to));
+    		$theme = $this->init_module('Base/Theme');
+		    $qf->assign_theme('form', $theme);
 
 			//if submited
 			if($qf->validate()) {
 				 //get post group
 				$msg = $qf->exportValue('post');
-				$to = $msg['to'];
+				$to = $qf->exportValue('to');
 				//get msg from post group
-				$msg = Utils_BBCodeCommon::optimize($msg['post']);
+				$msg = Utils_BBCodeCommon::optimize($msg);
 				//get logged user id
 				$user_id = Acl::get_user();
 				//clear text box and focus it
 				eval_js('$(\'shoutbox_text'.($big?'_big':'').'\').value=\'\';focus_by_id(\'shoutbox_text'.($big?'_big':'').'\');shoutbox_uid="'.$to.'"');
 
 				//insert to db
-				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id,to_user_login_id) VALUES(%s,%d,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id,$to==="all"?null:$to));
+				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id,to_user_login_id) VALUES(%s,%d,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id,is_numeric($to)?$to:null));
 			}
-			//display form
-			$qf->display();
 		} else {
 			print($this->t('Please log in to post message').'<br>');
 		}
 
-		print('<div id=\'shoutbox_board'.($big?'_big':'').'\'></div>');
+		$theme->assign('board','<div id=\'shoutbox_board'.($big?'_big':'').'\'></div>');
+   		$theme->display('chat_form'.($big?'_big':''));
 
 		//if shoutbox is diplayed, call myFunctions->refresh from refresh.php file every 5s
 		eval_js_once('shoutbox_refresh'.($big?'_big':'').' = function(){if(!$(\'shoutbox_board'.($big?'_big':'').'\')) return;'.
