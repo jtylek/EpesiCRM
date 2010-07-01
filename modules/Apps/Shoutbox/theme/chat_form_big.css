@@ -1,0 +1,64 @@
+#shoutbox_board_big {
+    height: 300px;
+	width: 100%;
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    overflow-y: scroll;
+    text-align: left;
+    border: 1px solid #B3B3B3;
+    padding: 5px;
+    background-color: #FFFFFF;
+}
+
+#shoutbox_big_container {
+    width: 95%;
+}
+
+#shoutbox_big_container .table {
+    width: 100%;
+}
+
+#shoutbox_to_big {
+    width: 100%;
+}
+
+#shoutbox_board_big .author {
+    background-color: #6F6F6F;
+	color: #ffffff;
+	padding: 1px 2px 1px 5px;
+	-moz-border-radius-topleft: 3px;
+	-webkit-border-top-left-radius: 3px;
+	-moz-border-radius-topright: 3px;
+	-webkit-border-top-right-radius: 3px;
+	-moz-border-radius-bottomleft: 3px;
+	-webkit-border-bottom-left-radius: 3px;
+	-moz-border-radius-bottomright: 3px;
+	-webkit-border-bottom-right-radius: 3px;
+}
+
+#shoutbox_board_big .time {
+	font-style:italic;
+    color: #B3B3B3;
+}
+
+#shoutbox_text_big {
+    width: 100%;
+}
+
+#shoutbox_button_big {
+    color: #FFFFFF;
+    background-color: #336699;
+    background-image: url('images/header-blue.gif');
+    background-repeat: repeat-x;
+    border: 0px;
+    width: 150px;
+    padding: 1px;
+    float:right;
+}
+
+#shoutbox_button_big:hover {
+    background-image: url('images/header-blue-hover.gif');
+}
