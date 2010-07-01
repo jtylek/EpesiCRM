@@ -87,7 +87,7 @@ class Apps_Shoutbox extends Module {
     		    $online = Tools_WhoIsOnlineCommon::get_ids();
     		    foreach($online as $id) {
     		        if(isset($emps[$id])) 
-    		            $emps[$id] = '!! '.$emps[$id] ;
+    		            $emps[$id] = '* '.$emps[$id] ;
     		    }
     		}
     		$qf->addElement('select','to',$this->t('To'),array('all'=>$this->ht('-- all --'))+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));
