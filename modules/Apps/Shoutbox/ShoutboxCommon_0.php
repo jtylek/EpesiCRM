@@ -36,5 +36,11 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 
 		return array('notifications'=>$ret);
 	}
+
+	public static function user_settings(){
+		return array('Misc'=>array(
+			array('name'=>'enable_im','label'=>'Allow IM with me','type'=>'bool','default'=>1)
+			));
+	}
 }
 ?>

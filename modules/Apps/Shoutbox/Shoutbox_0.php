@@ -113,10 +113,13 @@ class Apps_Shoutbox extends Module {
 			$qf = & $this->init_module('Libs/QuickForm');
 
             $myid = Acl::get_user();
-    	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-        	    $emps = DB::GetAssoc('SELECT l.id,IF(cd.f_last_name!=\'\',CONCAT(cd.f_last_name,\' \',cd.f_first_name,\' (\',l.login,\')\'),l.login) as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id!=%d ORDER BY name',array($myid));			    
-		    } else
-    		    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id!=%d ORDER BY login',array($myid));
+        	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im')) {
+        	    $adm = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','enable_im');
+        	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
+            	    $emps = DB::GetAssoc('SELECT l.id,IF(cd.f_last_name!=\'\',CONCAT(cd.f_last_name,\' \',cd.f_first_name,\' (\',l.login,\')\'),l.login) as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) ORDER BY name',array($myid,serialize(1)));			    
+		        } else
+    		        $emps = DB::GetAssoc('SELECT l.id,l.login FROM user_login l LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) ORDER BY l.login',array($myid,serialize(1)));
+    		} else $emps = array();
     		if(ModuleManager::is_installed('Tools_WhoIsOnline')>=0) {
     		    $online = Tools_WhoIsOnlineCommon::get_ids();
     		    foreach($online as $id) {
@@ -124,7 +127,9 @@ class Apps_Shoutbox extends Module {
     		            $emps[$id] = '* '.$emps[$id] ;
     		    }
     		}
-    		$qf->addElement('select','to',$this->t('To'),array('all'=>$this->ht('-- all --'))+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));
+       		$qf->addElement('select','to',$this->t('To'),array('all'=>$this->ht('-- all --'))+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));
+        	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
+        	    $qf->freeze(array('to'));
 			//create text box
 			$qf->addElement($big?'textarea':'text','post',$this->t('Message'),'id="shoutbox_text'.($big?'_big':'').'"');
 			$qf->addRule('post',$this->t('Field required'),'required');
