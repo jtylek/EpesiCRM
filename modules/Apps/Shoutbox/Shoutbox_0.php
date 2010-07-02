@@ -29,6 +29,39 @@ class Apps_Shoutbox extends Module {
 		$th = $this->init_module('Base/Theme');
 		$th->assign('header', $this->t('Shoutbox History'));
 
+		$qf = & $this->init_module('Libs/QuickForm');
+
+        $myid = Acl::get_user();
+  	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
+       	    $emps = DB::GetAssoc('SELECT l.id,IF(cd.f_last_name!=\'\',CONCAT(cd.f_last_name,\' \',cd.f_first_name,\' (\',l.login,\')\'),l.login) as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id!=%d ORDER BY name',array($myid));			    
+	    } else
+   		    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id!=%d ORDER BY login',array($myid));
+   		$qf->addElement('select','user',$this->t('User'),array('all'=>$this->ht('-- all --'))+$emps);
+   		$qf->addElement('datepicker','from_date',$this->t('From'));
+   		$qf->addElement('datepicker','to_date',$this->t('To'));
+		$qf->addElement('submit','submit_button',$this->ht('Filter'));
+	    
+	    $to_date = & $this->get_module_variable('to_date');
+	    $from_date = & $this->get_module_variable('from_date');
+		$user = & $this->get_module_variable('to',"all");
+		$qf->setDefaults(array('from_date'=>$from_date,'to_date'=>$to_date,'user'=>$uid));
+
+		//if submited
+		if($qf->validate()) {
+			$from_date = $qf->exportValue('from_date');
+			$to_date = $qf->exportValue('to_date');
+			$user = $qf->exportValue('user');
+		}
+
+	    $qf->assign_theme('form', $th);
+		
+		$uid = is_numeric($user)?$user:null;
+		$date_where = '';
+		if($from_date)
+		    $date_where .= 'AND posted_on>='.DB::DBDate($from_date);
+		if($to_date)
+		    $date_where .= 'AND posted_on<='.DB::DBDate($to_date);
+
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'shoutbox_history');
 
 		$gb->set_table_columns(array(
@@ -41,8 +74,8 @@ class Apps_Shoutbox extends Module {
         // $gb->set_default_order(array($this->t('Date')=>'DESC'));
 
         $myid = Acl::get_user();
-		$query = 'SELECT base_user_login_id, to_user_login_id, message, posted_on FROM apps_shoutbox_messages WHERE to_user_login_id='.$myid.' OR to_user_login_id is null OR base_user_login_id='.$myid.' ORDER BY posted_on DESC';
-        $query_qty = 'SELECT count(id) FROM apps_shoutbox_messages WHERE to_user_login_id='.$myid.' OR to_user_login_id is null OR base_user_login_id='.$myid;
+		$query = 'SELECT base_user_login_id, to_user_login_id, message, posted_on FROM apps_shoutbox_messages WHERE ('.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).')'.$date_where.' ORDER BY posted_on DESC';
+        $query_qty = 'SELECT count(id) FROM apps_shoutbox_messages WHERE ('.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).')'.$date_where;
 
 		$ret = $gb->query_order_limit($query, $query_qty);
 
@@ -56,6 +89,7 @@ class Apps_Shoutbox extends Module {
                 $gb->add_row('<span class="author">'.$ulogin.'</span>','<span class="author">'.$tologin.'</span>',Utils_BBCodeCommon::parse($row['message']),Base_RegionalSettingsCommon::time2reg($row['posted_on']));
 			}
 
+        $gb->set_inline_display(true);
 		$th->assign('messages',$this->get_html_of_module($gb));
 		$th->display();
             return true;
@@ -95,7 +129,7 @@ class Apps_Shoutbox extends Module {
 			$qf->addElement($big?'textarea':'text','post',$this->t('Message'),'id="shoutbox_text'.($big?'_big':'').'"');
 			$qf->addRule('post',$this->t('Field required'),'required');
 			//create submit button
-			$qf->addElement('submit','submit_button',$this->ht('Submit'), 'id="shoutbox_button'.($big?'_big':'').'"');
+			$qf->addElement('submit','submit_button',$this->ht('Send'), 'id="shoutbox_button'.($big?'_big':'').'"');
 			//add it
 			$qf->setRequiredNote(null);
 			$qf->setDefaults(array('to'=>$to));

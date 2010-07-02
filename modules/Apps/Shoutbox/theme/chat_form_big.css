@@ -1,5 +1,5 @@
 #shoutbox_board_big {
-    height: 300px;
+    height: 320px;
 	width: 100%;
     white-space: pre-wrap;       /* css-3 */
     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
@@ -46,6 +46,7 @@
 
 #shoutbox_text_big {
     width: 100%;
+    height: 80px;
 }
 
 #shoutbox_button_big {
@@ -54,7 +55,8 @@
     background-image: url('images/header-blue.gif');
     background-repeat: repeat-x;
     border: 0px;
-    width: 150px;
+    width: 90px;
+    height: 20px;
     padding: 1px;
     float:right;
 }
