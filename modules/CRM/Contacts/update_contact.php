@@ -21,9 +21,9 @@ $params = array();
 foreach($_POST['parameters'] as $k=>$v) {
 	$params[$k] = $v;
 }
-//if ($ret==-1) 
-//	$contacts = array();
-//else
+if ($ret=='') 
+	$contacts = array();
+else
 	$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>array($ret)), array(), array('last_name'=>'ASC'));
 
 $res = array();
