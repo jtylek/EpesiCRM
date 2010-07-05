@@ -74,6 +74,7 @@ class CRM_Tasks extends Module {
 
 	public function task_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array('CRM/Tasks/'.$arg['id']));
+		$a->action_bar_attach_file(false);
 		$a->set_view_func(array('CRM_TasksCommon','search_format'),array($arg['id']));
 		$a->enable_watchdog('task',$arg['id']);
 		$a->additional_header($this->t('Task: %s',array($arg['title'])));

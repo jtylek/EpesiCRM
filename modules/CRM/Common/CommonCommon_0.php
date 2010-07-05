@@ -20,6 +20,9 @@ class CRM_CommonCommon extends ModuleCommon {
 			return array(
 				'Dialing'=>array(
 					array('name'=>'method','label'=>'Method', 'type'=>'select', 'values'=>$methods, 'default'=>'none'),
+				),
+				'Misc'=>array(
+					array('name'=>'default_record_permission','label'=>'Default Records Permission','type'=>'select','default'=>0,'values'=>Utils_CommonDataCommon::get_array('CRM/Access', true))
 				)
 			);
 		}

@@ -893,7 +893,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 					if (ModuleManager::is_installed('CRM/Tasks')!==-1) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
 					if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'C:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 				}
+				$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('CRM/Company/'.$values['id']);
 				return $ret;
+			case 'adding':
+				$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
+				break;
 		}
 		return $values;
 	}
@@ -917,7 +921,11 @@ class CRM_ContactsCommon extends ModuleCommon {
                 if (ModuleManager::is_installed('CRM/Tasks')!==-1) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
                 if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
             }
+			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('CRM/Contact/'.$values['id']);
             return $ret;
+        case 'adding':
+			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
+			break;
         case 'add':
             if ($values['email']=='' && $values['login']!=0 && $mode=='add')
                 $values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
@@ -1154,7 +1162,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				array('name'=>'contact_header', 'label'=>'Contacts display', 'type'=>'header'),
 				array('name'=>'contact_format','label'=>'Contact format','type'=>'select','values'=>$opts,'default'=>'##l## ##f##')
 					),
-					'Filters'=>array( // Until there's an option to define user_settings variables and redirect the display to custom method at the same time, it's the best solution at hand
+					'Filters'=>array( // Until there's an option to define user_settings variables and redirect the display to custom method at the same time, it's the only solution to have this part here
 				array('name'=>'show_all_contacts_in_filters','label'=>'Show All Contacts in Filters','type'=>'hidden','default'=>1)
 					));
 	}

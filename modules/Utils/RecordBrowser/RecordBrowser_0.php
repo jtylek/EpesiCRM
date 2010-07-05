@@ -178,6 +178,21 @@ class Utils_RecordBrowser extends Module {
             self::$browsed_records = $this->get_module_variable('set_browsed_records',null);
         return $x;
     }
+	
+	public function jump_new_note($key=null) {
+		if ($key==null) $key = $this->tab.'/'.$this->record['id'];
+		$a = $this->init_module('Utils_Attachment',array($key));
+		$a->edit_note_queue();
+	}
+	
+	public function add_note_button_href($key=null) {
+		return $this->create_callback_href(array($this, 'jump_new_note'), array($key));
+	}
+	
+	public function add_note_button($key=null) {
+		$href = $this->add_note_button_href($key);
+		return '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Note')).' '.$href.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','icon_small.png').'"></a>';
+	}
     // BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
     public function body($def_order=array(), $crits=array(), $cols=array(), $filters_set=array()) {
         unset($_SESSION['client']['recordbrowser']['admin_access']);

@@ -27,15 +27,9 @@
 				{if isset($history_tooltip)}
 					&nbsp;&nbsp;&nbsp;{$history_tooltip}
 				{/if}
-				{if isset($__link.new_event.open)}
-					&nbsp;&nbsp;&nbsp;{$new_event}
-				{/if}
-				{if isset($__link.new_task.open)}
-					&nbsp;&nbsp;&nbsp;{$new_task}
-				{/if}
-				{if isset($__link.new_phonecall.open)}
-					&nbsp;&nbsp;&nbsp;{$new_phonecall}
-				{/if}
+				{foreach item=n from=$new}
+					&nbsp;&nbsp;&nbsp;{$n}
+				{/foreach}
 			</td>
 		</tr>
 	</tbody>

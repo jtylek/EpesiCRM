@@ -59,6 +59,7 @@ class CRM_Meeting extends Module {
 
 	public function meeting_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array('CRM/Calendar/Event/'.$arg['id']));
+		$a->action_bar_attach_file(false);
 		$a->set_view_func(array('CRM_MeetingCommon','search_format'),array($arg['id']));
 		$a->enable_watchdog('crm_meeting',$arg['id']);
 		$a->additional_header('Meeting: '.$arg['title']);

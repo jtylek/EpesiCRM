@@ -25,7 +25,7 @@ class Utils_Attachment extends Module {
 	private $public_write = true;
 	private $author = true;
 
-	private $inline = false;
+	private $action_bar_button = false;
 	private $add_header = '';
 	private $max_file_size = null;
 
@@ -44,7 +44,7 @@ class Utils_Attachment extends Module {
 		$this->group = & $this->get_module_variable('group',isset($group)?$group:null);
 		
 		if(isset($pd)) $this->persistent_deletion = $pd;
-		if(isset($in)) $this->inline = $in;
+		if(isset($in)) $this->action_bar_button = $in;
 		if(isset($priv_r)) $this->private_read = $priv_r;
 		if(isset($priv_w)) $this->private_write = $priv_w;
 		if(isset($prot_r)) $this->protected_read = $prot_r;
@@ -79,8 +79,8 @@ class Utils_Attachment extends Module {
 		$this->add_args = $y;
 	}
 
-	public function inline_attach_file($x=true) {
-		$this->inline = $x;
+	public function action_bar_attach_file($x=true) {
+		$this->action_bar_button = $x;
 	}
 
 	public function set_persistent_delete($x=true) {
@@ -200,19 +200,12 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
-				if($this->inline)
-					$r->add_action($this->create_callback_href(array($this,'edit_note'),$row['id']),'edit');
-				else
-					$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
+				$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
 				$r->add_action($this->create_confirm_callback_href($this->ht('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
 			}
-			if($this->inline) {
-				$r->add_action($this->create_callback_href(array($this,'view'),array($row['id'])),'view');
-				$r->add_action($this->create_callback_href(array($this,'edition_history'),$row['id']),'history');
-			} else {
-				$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
-				$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
-			}
+			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
+			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
+
 			$text = Utils_BBCodeCommon::parse(strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/>'));
 			$max_len = 120;
 			if ($max_len>strlen(strip_tags($text))) $max_len = strlen(strip_tags($text));
@@ -264,11 +257,13 @@ class Utils_Attachment extends Module {
 			$r->add_data_array($arr);
 		}
 		if($this->public_write) {
-			if($this->inline) {
-				print('<a '.$this->create_callback_href(array($this,'edit_note')).'>'.$this->t('Attach note').'</a>');
+			if(!$this->action_bar_button) {
+				$href = $this->create_callback_href(array($this,'edit_note_queue'));
+				$custom_label = '<a '.$href.' '.Utils_TooltipCommon::open_tag_attrs($this->t('New note')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>';
 				if(isset($_SESSION['attachment_copy'])) {
-					print('&nbsp;<a '.Utils_Tooltip::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste')).'>'.$this->t('Paste note').'</a>');
+					print('&nbsp;<a '.Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste')).'>'.$this->t('Paste note').'</a>');
 				}
+				$gb->set_custom_label($custom_label);
 			} else {
 				Base_ActionBarCommon::add('folder','Attach note',$this->create_callback_href(array($this,'edit_note_queue')));
 				if(isset($_SESSION['attachment_copy'])) {
@@ -284,7 +279,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function view_queue($id) {
-		$this->push_box0('view',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
+		$this->push_box0('view',array($id),array($this->group,$this->persistent_deletion,$this->action_bar_button,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 	
 	public function copy($id,$text) {
@@ -362,37 +357,22 @@ class Utils_Attachment extends Module {
 
 	public function view($id) {
 		if($this->is_back()) {
-			if($this->inline) return false;
 			return $this->pop_box0();
 		}
 
 		$row = DB::GetRow('SELECT uaf.id as file_id,ual.permission_by,ual.permission,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE ual.id=%d AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)',array($id));
 
-		if($this->inline) {
-			if(Base_AclCommon::i_am_admin() ||
-				$row['permission_by']==Acl::get_user() ||
-			   ($row['permission']==0 && $this->public_write) ||
-			   ($row['permission']==1 && $this->protected_write) ||
-			   ($row['permission']==2 && $this->private_write)) {
-				print('<a '.$this->create_callback_href(array($this,'edit_note'),$id).'>'.$this->t('Edit').'</a> :: ');
-				print('<a '.$this->create_confirm_callback_href($this->ht('Delete this entry?'),array($this,'delete_back'),$id).'>'.$this->t('Delete').'</a> :: ');
-			}
-			print('<a '.$this->create_callback_href(array($this,'edition_history'),$id).'>'.$this->t('History').'</a> :: ');
-			print('<a '.$this->create_back_href().'>'.$this->t('back').'</a><br>');
-		} else {
-			if(Base_AclCommon::i_am_admin() ||
-				$row['permission_by']==Acl::get_user() ||
-			   ($row['permission']==0 && $this->public_write) ||
-			   ($row['permission']==1 && $this->protected_write) ||
-			   ($row['permission']==2 && $this->private_write)) {
-				Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'edit_note_queue'),$id));
-				Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->ht('Delete this entry?'),array($this,'delete_back'),$id));
-			}
-			Base_ActionBarCommon::add('history','Edition history',$this->create_callback_href(array($this,'edition_history_queue'),$id));
-			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-			Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Copy',$this->create_callback_href(array($this,'copy'),$id));
+		if(Base_AclCommon::i_am_admin() ||
+			$row['permission_by']==Acl::get_user() ||
+		   ($row['permission']==0 && $this->public_write) ||
+		   ($row['permission']==1 && $this->protected_write) ||
+		   ($row['permission']==2 && $this->private_write)) {
+			Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'edit_note_queue'),$id));
+			Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->ht('Delete this entry?'),array($this,'delete_back'),$id));
 		}
-
+		Base_ActionBarCommon::add('history','Edition history',$this->create_callback_href(array($this,'edition_history_queue'),$id));
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Copy',$this->create_callback_href(array($this,'copy'),$id));
 
 		$th = $this->init_module('Base/Theme');
 		$th->assign('header',$this->add_header);
@@ -438,19 +418,15 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edition_history_queue($id) {
-		$this->push_box0('edition_history',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
+		$this->push_box0('edition_history',array($id),array($this->group,$this->persistent_deletion,$this->action_bar_button,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 
 	public function edition_history($id) {
 		if($this->is_back()) {
-			if($this->inline) return false;
 			return $this->pop_box0();
 		}
 
-		if($this->inline)
-			print('<a '.$this->create_back_href().'>'.$this->t('back').'</a>');
-		else
-			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
 		$th = $this->init_module('Base/Theme');
 		$th->assign('note_edition_header', $this->t('Note edit history'));
@@ -571,7 +547,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edit_note_queue($id=null) {
-		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
+		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->action_bar_button,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 
 	public function edit_note($id=null) {
@@ -607,14 +583,8 @@ class Utils_Attachment extends Module {
 				$form->setDefaults(array('permission'=>Base_User_SettingsCommon::get('Utils_Attachment','default_permission')));
 			}
 
-			if(!$this->inline) {
-				Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
-				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-			} else {
-				$s = HTML_QuickForm::createElement('button',null,$this->t('Save'),$form->get_submit_form_href());
-				$c = HTML_QuickForm::createElement('button',null,$this->t('Cancel'),$this->create_back_href());
-				$form->addGroup(array($s,$c));
-			}
+			Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
 			$this->ret_attach = true;
 			if(isset($id))
@@ -627,9 +597,7 @@ class Utils_Attachment extends Module {
 
 		$this->caption = 'Edit note';
 
-		if($this->inline)
-			return $this->ret_attach;
-		elseif(!$this->ret_attach)
+		if(!$this->ret_attach)
 			return $this->pop_box0();
 	}
 
