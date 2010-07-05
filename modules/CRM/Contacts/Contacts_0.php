@@ -159,6 +159,7 @@ class CRM_Contacts extends Module {
 	
 	public function company_addon($arg){
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
+		$rb->set_additional_actions_method(array($this, 'company_addon_contacts_actions'));
 		Base_ActionBarCommon::add('add','Add contact', $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$rb->set_button($this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$this->display_module($rb, array(array('company_name'=>array($arg['id'])), array('company_name'=>false), array('Fav'=>'DESC', 'Last Name'=>'ASC')), 'show_data');
@@ -170,6 +171,19 @@ class CRM_Contacts extends Module {
             Base_ActionBarCommon::add('all', 'Update Contacts', Libs_LeightboxCommon::get_open_href($prompt_id));
         }
     }
+
+	public function company_addon_contacts_actions($r, $gb_row) {
+		$is_employee = false;
+		if (is_array($r['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $r['company_name'])) $is_employee = true;
+		$me = CRM_ContactsCommon::get_my_record();
+		$emp = array($me['id']);
+		$cus = array();
+		if ($is_employee) $emp[] = $r['id'];
+		else $cus[] = 'P:'.$r['id'];
+		if (ModuleManager::is_installed('CRM/Calendar')!==-1) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), 'New Event', null, Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png'));
+		if (ModuleManager::is_installed('CRM/Tasks')!==-1) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), 'New Task', null, Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png'));
+		if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$r['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')), 'New Phonecall', null, Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png'));
+	}
 
 	public function company_addon_new_contact($id){
 		$x = ModuleManager::get_instance('/Base_Box|0');

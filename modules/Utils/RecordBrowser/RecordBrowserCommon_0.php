@@ -668,7 +668,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$return = call_user_func($callback, $current, $mode);
 			if ($return) {
 				if ($mode!='display') $current = $return;
-				else $result = array_merge($result, $return);
+				else $result = array_merge_recursive($result, $return);
 			}
 		}
 		if ($mode!='display') $result = $current;
@@ -1380,7 +1380,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (is_numeric(Utils_RecordBrowser::$clone_result)) $x->push_main('Utils/RecordBrowser','view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
             Utils_RecordBrowser::$clone_result = null;
         }
-        $def_md5 = md5(serialize($def));
+		$def_key = $def;
+		if (is_array($check_defaults)) foreach ($check_defaults as $c) unset($def_key[$c]);
+        $def_md5 = md5(serialize($def_key));
 //      print_r($_REQUEST);
 //      print('<br>'.$tab.' - '.$def_md5.' - '.$id.' - '.$check_defaults);
 //      print('<hr>');
