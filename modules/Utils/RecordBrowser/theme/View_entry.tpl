@@ -126,7 +126,7 @@
 					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 						{if $x>$mss_no_empty}
 							<tr>
-								<td class="label">!&nbsp;</td>
+								<td class="label">&nbsp;</td>
 								<td class="data">&nbsp;</td>
 							</tr>
 						{/if}
