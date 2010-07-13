@@ -39,7 +39,12 @@ class Utils_CommonData extends Module {
 						array('name'=>'akey','label'=>$this->t('Key'),
 							'rule'=>array('type'=>'callback','param'=>array($parent,$key),
 									'func'=>array($this,'check_key'),
-									'message'=>$this->t('Specified key already exists'))),
+									'message'=>$this->t('Specified key already exists')),
+							'rule'=>array('type'=>'callback','param'=>array($parent,$key),
+									'func'=>array($this,'check_key2'),
+									'message'=>$this->t('Specified contains invalid character "/"'))
+									
+									),
 						array('name'=>'value','label'=>$this->t('Value'))
 						));
 		if($key!==null) {
@@ -63,6 +68,10 @@ class Utils_CommonData extends Module {
 	public function check_key($new_key,$arr) {
 		if($arr[1]==$new_key) return true;
 		return Utils_CommonDataCommon::get_id($arr[0].'/'.$new_key)===false;
+	}
+
+	public function check_key2($new_key,$arr) {
+	    return strpos($new_key,'/')===false;
 	}
 
 	/**

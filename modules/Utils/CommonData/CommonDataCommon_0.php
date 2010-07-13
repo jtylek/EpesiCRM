@@ -132,6 +132,10 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @param bool whether method should overwrite if array already exists, otherwise the data will be appended
 	 */
 	public static function new_array($name,$array,$overwrite=false,$readonly=false){
+		foreach($array as $k=>$v)
+		    if(strpos($k,'/')!==false)
+		        trigger_error('Invalid common data key: '.$k,E_USER_ERROR);
+
 		$id = self::get_id($name);
 		if ($id!==false){
 			if (!$overwrite) {
@@ -158,6 +162,10 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @param bool whether method should overwrite data if array key already exists, otherwise the data will be preserved
 	 */
 	public static function extend_array($name,$array,$overwrite=false,$readonly=false){
+		foreach($array as $k=>$v)
+		    if(strpos($k,'/')!==false)
+		        trigger_error('Invalid common data key: '.$k,E_USER_ERROR);
+
 		$id = self::get_id($name);
 		if ($id===false){
 			self::new_array($name,$array,$overwrite,$readonly);
@@ -253,6 +261,10 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	}
 
 	public static function rename_key($parent,$old,$new) {
+	    if(strpos($new,'/')!==false)
+	        trigger_error('Invalid common data key: '.$new,E_USER_ERROR);
+
+
 		$id = self::get_id($parent.'/'.$old);
 		if($id===false) return false;
 		DB::Execute('UPDATE utils_commondata_tree SET akey=%s WHERE id=%d',array($new,$id));
