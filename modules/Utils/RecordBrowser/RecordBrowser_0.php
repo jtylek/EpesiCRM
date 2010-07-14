@@ -615,10 +615,11 @@ class Utils_RecordBrowser extends Module {
 		if (!$pdf) {
 			$clean_order = array();
 			foreach ($order as $k => $v) {
+				if(!in_array($k,$query_cols)) continue;
 				if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name'];
 				elseif (isset($hash[$k])) $key = $hash[$k];
 				else $key = $k;
-				$clean_order[$this->t($key)] = $v;
+   				$clean_order[$this->t($key)] = $v;
 			}
 
 			if ($this->browse_mode != 'recent')
