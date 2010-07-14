@@ -1518,7 +1518,7 @@ class Utils_RecordBrowser extends Module {
                                             if (empty($multi_adv_params['order'])) natcasesort($comp);
                                         }
                                         if ($args['type']==='select') $comp = array(''=>'---')+$comp;
-                                        if ($rec_count>50 && $args['type']=='multiselect') {
+                                        if ($rec_count>50 && $args['type']=='multiselect' && $multi_adv_params['format_callback']) {
                                             $f_callback = $multi_adv_params['format_callback'];
                                             $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);
                                         } else {
