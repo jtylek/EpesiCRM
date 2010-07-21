@@ -36,9 +36,16 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $cols_total = array();
 	private static $pdf_ready = 0;
 	private $bonus_width = 15;
+	private $join_rows = array();
 	
 	public function construct() {
 		$this->gb = $this->init_module('Utils/GenericBrowser',null,'report_page');
+	}
+	
+	public function join_row($m,$a) {
+		if(!isset($this->join_rows[$m]))
+			$this->join_rows[$m] = array();
+		$this->join_rows[$m][] = $a;
 	}
 	
 	public function enable_paging($amount) {
@@ -121,13 +128,11 @@ class Utils_RecordBrowser_Reports extends Module {
 				if ($type=='row_total' || $type=='total_all') {
 					$cols = count($this->gb_captions)-2;
 					if (!empty($this->categories)) $cols--;
-					$v = number_format($v/$cols,2);
-					$v = '--';
+					if(!$v) $v = '--';
 				}
 				if ($type=='col_total' || $type=='total_all') {
 					$rows = count($this->ref_records);
-					$v = number_format($v/$rows,2);
-					$v = '--';
+					if(!$v) $v = '--';
 				}
 				$next = $v.' %';
 //				$next = '--';
@@ -160,7 +165,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 	private function create_tooltip($ref_rec, $col, $value, $c='') {
 		if ($this->pdf) return '';
-		return Utils_TooltipCommon::open_tag_attrs($ref_rec.'<hr>'.$col.'<br>'.($c!=''?$c.':':'').$value, false).' ';
+		return Utils_TooltipCommon::open_tag_attrs($ref_rec.'<hr>'.$col.'<br>'.($c!=''?$c.': ':'').$value, false).' ';
 	}
 
 	public function check_dates($arg) {
@@ -409,6 +414,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 				array_unshift($results, $this->format_cell(array('row_desc'), $ref_rec));
 				if ($this->row_summary!==false) {
+					if($this->format=='percent') foreach($total as &$t) $t = 0;
 					if (isset($this->row_summary['callback'])) $total = call_user_func($this->row_summary['callback'], $results, $total);
 					$next = $this->format_cell(array($this->format,'total'), $total, 'row_total');
 					$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value']);
@@ -419,11 +425,10 @@ class Utils_RecordBrowser_Reports extends Module {
 				$ggrow = array();
 				$this->first = true;
 				$count = count($this->categories);
-				foreach ($this->categories as $c) {
+				foreach ($this->categories as $c_id=>$c) {
 					if ($this->first) {
 						$ref_rec = call_user_func($this->ref_record_display_callback, $r, $this->pdf?true:false);
 						$grow = array(0=>$this->format_cell(array('row_desc'), $ref_rec));
-						$grow[0]['attrs'] .= ' rowspan="'.$count.'" ';
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
 					$grow[] = $this->format_cell(array(), $c);
 					$total = array();
@@ -446,21 +451,38 @@ class Utils_RecordBrowser_Reports extends Module {
 							}
 						}
 						$next = $this->format_cell($format, $v[$c]);
-						$next['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i]['name'], $next['value'], $c);
+						if(!isset($this->join_rows[$c_id]))
+							$next['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i]['name'], $next['value'], $c);
 						$grow[] = $next;
 						$i++;
 					}
 					$format[] = 'total';
 					if ($this->row_summary!==false) {
+						if($this->format[$c]=='percent') foreach($total as &$t) $t = 0;
 						if (isset($this->row_summary['callback'])) $total = call_user_func($this->row_summary['callback'], $results, $total, $c);
 						$next = $this->format_cell($format, $total, 'row_total');
-						$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value'], $c);
+						if(!isset($this->join_rows[$c_id]))
+							$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value'], $c);
 						$grow[] = $next;
 					}
 					$this->first = false;
 					$ggrow[] = $grow;
 				}
 			}
+			foreach($this->join_rows as $m=>$a) {
+				if(!isset($ggrow[$m])) continue;
+				foreach($a as $aa) {
+					if(!isset($ggrow[$aa])) continue;
+					for($i=1; $i<count($ggrow[$aa]); $i++) {
+						$ggrow[$m][$i]['value'] .= ' / '.$ggrow[$aa][$i]['value'];
+					}
+					unset($ggrow[$aa]);
+				}
+				for($i=2; $i<count($ggrow[$m]); $i++)
+					$ggrow[$m][$i]['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i-2]['name'], $ggrow[$m][$i]['value'],$ggrow[$m][1]['value']);
+			}
+			if(!empty($this->categories))
+				$ggrow[0][0]['attrs'] .= ' rowspan="'.count($ggrow).'" ';
 			if ($this->pdf) {
 				$this->display_pdf_row($ggrow);
 			} else {
@@ -478,6 +500,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$i=0;
 				foreach ($this->cols_total as & $res_ref) {
 					if (!is_array($res_ref)) $res_ref = array($res_ref);
+					if($this->format=='percent') foreach($res_ref as &$vv) $v = 0;
 					if ($this->row_summary!==false) {
 						foreach ($res_ref as $k=>$w) {
 							if (!isset($total[$k])) $total[$k] = 0;
@@ -490,6 +513,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 				array_unshift($this->cols_total, $this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 				if ($this->row_summary!==false) {
+					if($this->format=='percent') foreach($total as &$t) $t = 0;
 					$next = $this->format_cell(array($this->format,'total_all'), $total, 'total_all');
 					$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value']);
 					$this->cols_total[] = $next;
@@ -510,12 +534,15 @@ class Utils_RecordBrowser_Reports extends Module {
 					$format = array($this->format[$c], 'total');
 					$i=0;
 					foreach ($this->cols_total[$c] as $v) {
+        					if (!is_array($v)) $v = array($v);
+						if($this->format[$c]=='percent') foreach($v as &$vv) $vv = 0;
 						if ($this->row_summary!==false) {
 							foreach ($v as $k=>$w) {
 								if (!isset($total[$k])) $total[$k] = 0;
 								$total[$k] += $w;
 							}
 						}
+						if (isset($this->col_summary['callback'])) $total = call_user_func($this->col_summary['callback'], $v, $c);
 						$next = $this->format_cell($format, $v, 'col_total');
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $next['value'], $c);
 						$grow[] = $next;
@@ -523,6 +550,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					}
 					$format = array($this->format[$c], 'total_all');
 					if ($this->row_summary!==false) {
+						if($this->format[$c]=='percent') foreach($total as &$t) $t = 0;
 						$next = $this->format_cell($format, $total, 'total_all');
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value'], $c);
 						$grow[] = $next;
@@ -531,6 +559,18 @@ class Utils_RecordBrowser_Reports extends Module {
 					$ggrow[] = $grow;
 				}
 			}
+		}
+		foreach($this->join_rows as $m=>$a) {
+			if(!isset($ggrow[$m])) continue;
+			foreach($a as $aa) {
+				if(!isset($ggrow[$aa])) continue;
+				for($i=1; $i<count($ggrow[$aa]); $i++) {
+					$ggrow[$m][$i]['value'] .= ' / '.$ggrow[$aa][$i]['value'];
+				}
+				unset($ggrow[$aa]);
+			}
+			for($i=2; $i<count($ggrow[$m]); $i++)
+				$ggrow[$m][$i]['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i-2]['name'], $ggrow[$m][$i]['value'],$ggrow[$m][1]['value']);
 		}
 		if ($this->pdf) {
 			$this->display_pdf_row($ggrow,true);
