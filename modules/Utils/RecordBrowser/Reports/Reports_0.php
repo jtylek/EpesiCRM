@@ -165,7 +165,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 	private function create_tooltip($ref_rec, $col, $value, $c='') {
 		if ($this->pdf) return '';
-		return Utils_TooltipCommon::open_tag_attrs($ref_rec.'<hr>'.$col.'<br>'.($c!=''?$c.': ':'').$value, false).' ';
+		return Utils_TooltipCommon::open_tag_attrs(strip_tags($ref_rec).'<hr>'.$col.'<br>'.($c!=''?$c.': ':'').$value, false).' ';
 	}
 
 	public function check_dates($arg) {
@@ -215,6 +215,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 //		$failed = false;
 		$other = $vals = $form->exportValues();
+		
 		$this->set_module_variable('vals',$vals);
 //		if ($vals['submited'] && !$form->validate()) {
 //			$this->date_range = 'error';
