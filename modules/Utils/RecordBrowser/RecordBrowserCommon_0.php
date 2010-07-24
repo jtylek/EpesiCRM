@@ -938,7 +938,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //                              print('<br>');
                                 foreach ($ret as $kkk=>$vvv)
                                     foreach ($v as $w) if ($w!='') {
-                                        if (preg_match('/'.$w.'/',$vvv)!==0) {
+										if (preg_match('|'.preg_quote($w).'|',$vvv)!==0) {
                                             $allowed_cd[] = $kkk;
                                             break;
                                         }
