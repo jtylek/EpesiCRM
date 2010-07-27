@@ -10,7 +10,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_ModuleDownloaderCommon extends Base_AdminModuleCommon {
+class Base_ModuleDownloaderCommon extends ModuleCommon {
 	public static function admin_caption() {
 		return 'Download modules';
 	}
