@@ -25,6 +25,10 @@ class Utils_LeightboxPrompt extends Module {
     public function construct() {
         $this->group = md5($this->get_path());
     }
+	
+	public function get_group_key() {
+		return $this->group;
+	}
 
     public function add_option($key, $label, $icon, $form=null) {
         $this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label);
@@ -107,12 +111,16 @@ class Utils_LeightboxPrompt extends Module {
 
     private $init = false;
     public function get_href_js($params=array()) {
-        if (!$this->init) print('<a style="display:none;" '.$this->get_href().'></a>');
-        $this->init=true;
+		$this->init_leightbox();
         $ret = 'leightbox_activate(\''.$this->group.'_followups_leightbox\');';
         if (!empty($params)) $ret .= 'f'.$this->group.'_set_params(\''.implode('\',\'',$params).'\');';
         return $ret;
     }
+	
+	public function init_leightbox() {
+        if (!$this->init) print('<a style="display:none;" '.$this->get_href().'></a>');
+        $this->init=true;
+	}
 
     public function get_close_leightbox_href() {
         return 'href="javascript:void(0)" onclick="f'.$this->group.'_followups_deactivate();"';
