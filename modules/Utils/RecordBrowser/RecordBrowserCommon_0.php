@@ -1467,7 +1467,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
         return $ret;
     }
-    public static function create_default_linked_label($tab, $id, $nolink=false){
+    public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true){
         if (!is_numeric($id)) return '';
         $rec = self::get_record($tab,$id);
         if(!$rec) return '';
@@ -1488,9 +1488,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         else {
             $field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE (type=\'text\' OR type=\'commondata\' OR type=\'integer\' OR type=\'date\') AND required=1 AND visible=1 AND active=1 ORDER BY position');
             if(!$field)
-                $label = $cap.': '.$id;
+                $label = ($table_name?$cap.': ':'').$id;
             else
-                $label = $cap.': '.self::get_val($tab,$field,$rec);
+                $label = ($table_name?$cap.': ':'').self::get_val($tab,$field,$rec);
         }
         $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
         return $ret;
@@ -1558,6 +1558,42 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         ));
         return $some_more;
     }
+	
+	public static function get_edit_details($tab, $r, $edit_id,$details=true) {
+		if (is_numeric($r)) $r = self::get_record($tab, $r);
+		$edit_info = DB::GetRow('SELECT * FROM '.$tab.'_edit_history WHERE id=%d',array($edit_id));
+		$event_display = 'Error, Invalid event: '.$edit_id;
+		if (!$edit_info) return $event_display;
+
+		$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record edited by</b> %s<b>, on</b> %s', array($edit_info['edited_by']!==null?Base_UserCommon::get_user_login($edit_info['edited_by']):'', Base_RegionalSettingsCommon::time2reg($edit_info['edited_on'])));
+		if (!$details) return $event_display;
+		$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($edit_id));
+		$event_display .= '<table border="0"><tr><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Field').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Old value').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','New value').'</b></td></tr>';
+		$r2 = $r;
+		self::init($tab);
+		foreach ($edit_details as $k=>$v) {
+			$k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
+			if (!isset(self::$hash[$k])) continue;
+			if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') $v = $edit_details[$k] = self::decode_multi($v);
+			$r2[$k] = $v;
+		}
+		$access = self::get_access($tab,'view',$r);
+		foreach ($edit_details as $k=>$v) {
+			$k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
+			if (!isset(self::$hash[$k])) continue;
+			if (!$access[$k]) continue;
+			self::init($tab);
+			$field = self::$hash[$k];
+			$event_display .= '<tr valign="top"><td><b>'.$field.'</b></td>';
+			$params = self::$table_rows[$field];
+			$event_display .=   '<td>'.self::get_val($tab, $field, $r2, true, $params).'</td>'.
+								'<td>'.self::get_val($tab, $field, $r, true, $params).'</td></tr>';
+		}
+		$r = $r2;
+		$event_display .= '</table>';
+		return $event_display;
+	}
+	
     public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null, $details = true) {
         $ret = array('category'=>$cat);
         if ($rid!==null) {
@@ -1577,36 +1613,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 switch ($param[0]) {
                     case 'C':   $event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record created by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($r['created_by']), Base_RegionalSettingsCommon::time2reg($r['created_on'])));
                                 break;
-                    case 'E':   $edit_info = DB::GetRow('SELECT * FROM '.$tab.'_edit_history WHERE id=%d',array($param[1]));
-                                $event_display = 'Error, Invalid event: '.$param;
-                                if (!$edit_info) continue;
-
-                                $event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record edited by</b> %s<b>, on</b> %s', array($edit_info['edited_by']!==null?Base_UserCommon::get_user_login($edit_info['edited_by']):'', Base_RegionalSettingsCommon::time2reg($edit_info['edited_on'])));
-                                if (!$details) break;
-                                $edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($param[1]));
-                                $event_display .= '<table border="0"><tr><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Field').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Old value').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','New value').'</b></td></tr>';
-                                $r2 = $r;
-                                self::init($tab);
-                                foreach ($edit_details as $k=>$v) {
-                                    $k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
-                                    if (!isset(self::$hash[$k])) continue;
-                                    if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') $v = $edit_details[$k] = self::decode_multi($v);
-                                    $r2[$k] = $v;
-                                }
-                                $access = self::get_access($tab,'view',$r);
-                                foreach ($edit_details as $k=>$v) {
-                                    $k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
-                                    if (!isset(self::$hash[$k])) continue;
-                                    if (!$access[$k]) continue;
-                                    self::init($tab);
-                                    $field = self::$hash[$k];
-                                    $event_display .= '<tr valign="top"><td><b>'.$field.'</b></td>';
-                                    $params = self::$table_rows[$field];
-                                    $event_display .=   '<td>'.self::get_val($tab, $field, $r2, true, $params).'</td>'.
-                                                        '<td>'.self::get_val($tab, $field, $r, true, $params).'</td></tr>';
-                                }
-                                $r = $r2;
-                                $event_display .= '</table>';
+                    case 'E':   $event_display = self::get_edit_details($tab, $r, $param[1] ,$details);
                                 break;
 
                     case 'N':   $event_display = false;
