@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Utils_LeightboxPromptCommon extends Module {
+class Utils_LeightboxPromptCommon extends ModuleCommon {
     public function get_href($group, $params=array()) {
         $ret = 'href="javascript:void(0)" class="lbOn" rel="'.$group.'_followups_leightbox"';
         if (!empty($params)) $ret .= ' onmousedown="f'.$group.'_set_params(\''.implode('\',\'',$params).'\');"';

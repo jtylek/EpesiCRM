@@ -104,9 +104,7 @@ class Utils_LeightboxPrompt extends Module {
     }
 
     public function get_href($params=array()) {
-        $ret = 'href="javascript:void(0)" class="lbOn" rel="'.$this->group.'_followups_leightbox"';
-        if (!empty($params)) $ret .= ' onmousedown="f'.$this->group.'_set_params(\''.implode('\',\'',$params).'\');"';
-        return $ret;
+		return Utils_LeightboxPromptCommon::get_href($this->group, $params);
     }
 
     private $init = false;
