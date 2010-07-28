@@ -459,7 +459,13 @@ class ModuleManager {
 	 * @param integer module version
 	 * @return bool true if installation success, false otherwise
 	 */
-	public static final function install($module_to_install, $version=null, $check=true, $include_common=true) {
+	public static final function install($module_to_install, $version=null, $check=null, $include_common=true) {
+		if($check===null) {
+			if(defined('UPDATING_EPESI'))
+				$check=false;
+			else
+				$check=true;
+		}
 		$debug = '<div class="green" style="text-align: left;">';
 
 		//already installed?

@@ -2055,6 +2055,7 @@ $cur_ver = '0.8.5';
 $go=false;
 $last_ver = '';
 define('CID',false);
+define('UPDATING_EPESI',true);
 require_once('include.php');
 ModuleManager::create_common_cache();
 ob_start();
@@ -2075,6 +2076,8 @@ foreach($versions as $v) {
 }
 @unlink(DATA_DIR.'/cache/common.php');
 @recursive_rmdir(DATA_DIR.'/cache/minify');
+
+ModuleManager::create_load_priority_array();
 
 themeup();
 langup();
