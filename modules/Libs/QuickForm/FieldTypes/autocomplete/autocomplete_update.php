@@ -26,12 +26,12 @@ $string = $_POST[$params['field']];
 $callback = $params['callback'];
 
 if (is_callable($callback)) {
-	if (strlen($string)<3)
-		print('<ul><li class="informal">'.Base_LangCommon::ts('Libs_QuickForm','Minimum %d letters are required.',array(3)).'</li></ul>');
-	else {
+/*	if (strlen($string)<2)
+		print('<ul><li class="informal">'.Base_LangCommon::ts('Libs_QuickForm','Minimum %d letters are required.',array(2)).'</li></ul>');
+	else {*/
 		array_unshift($params['args'], $string);
 		print(call_user_func_array($callback, $params['args']));
-	}
+//	}
 } else
 	print('<ul><li>Error: method ('.print_r($callback,true).') not callable</li></ul>');
 ?>
