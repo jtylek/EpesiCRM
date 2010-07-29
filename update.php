@@ -2047,12 +2047,13 @@ if (ModuleManager::is_installed('Premium_Warehouse_Items_Orders')!=-1) {
 
 function update_from_1_1_0_to_1_1_1() {
     if (ModuleManager::is_installed('Apps_Shoutbox')>=0) {
-	PatchDBAddColumn('apps_shoutbox_messages','to_user_login_id','I4');
+    	PatchDBAddColumn('apps_shoutbox_messages','to_user_login_id','I4');
     }
     if (ModuleManager::is_installed('CRM_Contacts')>=0)
-	Utils_RecordBrowserCommon::register_processing_callback('company', array('CRM_ContactsCommon', 'submit_company'));
-    if (ModuleManager::is_installed('CRM_Contacts')>=0)
-	DB::CreateIndex('contact_data_1__f_login_idx','contact_data_1','f_login,active');
+	    Utils_RecordBrowserCommon::register_processing_callback('company', array('CRM_ContactsCommon', 'submit_company'));
+    if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+    	@DB::CreateIndex('contact_data_1__f_login_idx','contact_data_1','f_login,active');
+    }
     DB::Execute('DELETE FROM modules WHERE name="Libs_FPDF"');
     DB::Execute('DELETE FROM modules WHERE name = "Tests_FPDF"');
     DB::Execute('DELETE FROM available_modules WHERE name = "Libs_FPDF"');
