@@ -162,7 +162,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5','1.0.6','1.0.7','1.0.8','1.0.8b','1.0.9','1.1.0');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5','1.0.6','1.0.7','1.0.8','1.0.8b','1.0.9','1.1.0','1.1.1');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -2045,6 +2045,20 @@ if (ModuleManager::is_installed('Premium_Warehouse_Items_Orders')!=-1) {
 
 }
 
+function update_from_1_1_0_to_1_1_1() {
+    if (ModuleManager::is_installed('Apps_Shoutbox')>=0) {
+	PatchDBAddColumn('apps_shoutbox_messages','to_user_login_id','I4');
+    }
+    if (ModuleManager::is_installed('CRM_Contacts')>=0)
+	Utils_RecordBrowserCommon::register_processing_callback('company', array('CRM_ContactsCommon', 'submit_company'));
+    if (ModuleManager::is_installed('CRM_Contacts')>=0)
+	DB::CreateIndex('contact_data_1__f_login_idx','contact_data_1','f_login,active');
+    DB::Execute('DELETE FROM modules WHERE name="Libs_FPDF"');
+    DB::Execute('DELETE FROM modules WHERE name = "Tests_FPDF"');
+    DB::Execute('DELETE FROM available_modules WHERE name = "Libs_FPDF"');
+    DB::Execute('DELETE FROM available_modules WHERE name = "Tests_FPDF"');
+
+}
 //=========================================================================
 
 try {
