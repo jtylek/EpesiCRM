@@ -1,0 +1,13 @@
+--- controls.js.orig	2010-07-29 15:36:04.438868857 +0200
++++ controls.js	2010-07-29 15:35:54.791166288 +0200
+@@ -90,7 +90,9 @@ Autocompleter.Base = Class.create({
+     Element.hide(this.update);
+ 
+     Event.observe(this.element, 'blur', this.onBlur.bindAsEventListener(this));
+-    Event.observe(this.element, 'keypress', this.onKeyPress.bindAsEventListener(this));
++    //changed to delay queries
++    new Form.Element.DelayedObserver(this.element, 0.5, this.onKeyPress.bindAsEventListener(this));
++//    Event.observe(this.element, 'keypress', this.onKeyPress.bindAsEventListener(this));
+   },
+ 
+   show: function() {

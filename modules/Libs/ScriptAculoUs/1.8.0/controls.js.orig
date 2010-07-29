@@ -90,9 +90,7 @@ Autocompleter.Base = Class.create({
     Element.hide(this.update);
 
     Event.observe(this.element, 'blur', this.onBlur.bindAsEventListener(this));
-    //changed to delay queries
-    new Form.Element.DelayedObserver(this.element, 0.5, this.onKeyPress.bindAsEventListener(this));
-//    Event.observe(this.element, 'keypress', this.onKeyPress.bindAsEventListener(this));
+    Event.observe(this.element, 'keypress', this.onKeyPress.bindAsEventListener(this));
   },
 
   show: function() {
