@@ -260,7 +260,7 @@ class CRM_Contacts extends Module {
 	}
 
 	public function company_attachment_addon($arg){
-		$a = $this->init_module('Utils/Attachment',array('CRM/Company/'.$arg['id']));
+		$a = $this->init_module('Utils/Attachment',array('company/'.$arg['id']));
 		$a->action_bar_attach_file(false);
 		$a->set_view_func(array('CRM_ContactsCommon','search_format_company'),array($arg['id']));
 		$a->enable_watchdog('company',$arg['id']);
@@ -271,7 +271,7 @@ class CRM_Contacts extends Module {
 	}
 
 	public function contact_attachment_addon($arg){
-		$a = $this->init_module('Utils/Attachment',array('CRM/Contact/'.$arg['id']));
+		$a = $this->init_module('Utils/Attachment',array('contact/'.$arg['id']));
 		$a->action_bar_attach_file(false);
 		$a->set_view_func(array('CRM_ContactsCommon','search_format_contact'),array($arg['id']));
 		$a->enable_watchdog('contact',$arg['id']);

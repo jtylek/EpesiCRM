@@ -1,0 +1,51 @@
+#Apps_ActivityReport table {
+    width: 60%;
+}
+
+#Apps_ActivityReport td.column  { vertical-align: top; }
+
+#Apps_ActivityReport .label {
+    background-color: #336699;
+    color: #FFFFFF;
+    border-bottom: 1px solid #B3B3B3;
+    height: 20px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 150px;
+    text-align: left;
+}
+
+/*
+#Apps_ActivityReport table.edit .label {
+    border: 2px solid white;
+}
+*/
+
+#Apps_ActivityReport .data {
+    text-align: left;
+    /*
+	width: 60%;
+	*/
+}
+
+#Apps_ActivityReport .actions {
+    color: #777777;
+    text-align: right;
+    padding-right: 20px;
+}
+
+#Apps_ActivityReport .activity_report_button input {
+	background-image:url("images/button.gif");
+	border:0 none;
+	color:#FFFFFF;
+	font-size:11px;
+	height:20px;
+	text-align:center;
+	vertical-align:middle;
+	width:100px;
+}
+
+Apps_ActivityReport .activity_report_button input:hover {
+	background-image: url("images/button-hover.gif");
+}

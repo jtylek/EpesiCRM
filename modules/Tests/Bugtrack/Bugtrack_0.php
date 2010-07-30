@@ -24,7 +24,7 @@ class Tests_Bugtrack extends Module {
 	}
 
 public function bugtrack_attachment_addon($arg){
-		$a = $this->init_module('Utils/Attachment',array('Tests/Bugtrack/'.$arg['id']));
+		$a = $this->init_module('Utils/Attachment',array('bugtrack/'.$arg['id']));
 		$a->set_view_func(array('Tests_BugtrackCommon','search_format'),array($arg['id']));
 		//$a->additional_header('Bugtrack Project: '.$arg['Project Name']);
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
