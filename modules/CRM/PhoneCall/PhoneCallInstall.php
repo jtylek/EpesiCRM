@@ -76,11 +76,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
         CRM_RoundcubeCommon::delete_addon('phonecall');
 		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
 		Utils_RecordBrowserCommon::delete_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon');
-		Utils_AttachmentCommon::persistent_mass_delete('CRM/PhoneCall/');
-//		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon');
-//		Utils_AttachmentCommon::persistent_mass_delete('CRM/Contact/');
-//		Utils_AttachmentCommon::persistent_mass_delete('CRM/Company/');
-//		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Contacts', 'contact_attachment_addon');
+		Utils_AttachmentCommon::persistent_mass_delete('phonecall/');
 		Utils_RecordBrowserCommon::unregister_processing_callback('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
 		Utils_RecordBrowserCommon::uninstall_recordset('phonecall');
 		return true;

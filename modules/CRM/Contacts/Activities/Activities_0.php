@@ -172,7 +172,7 @@ class CRM_Contacts_Activities extends Module {
 								Base_RegionalSettingsCommon::time2reg($v['start'],$v['duration']==-1?false:2), 
 								CRM_ContactsCommon::display_contact(array('employees'=>$event['employees']), false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_company_contact(array('customers'=>$event['customers']), false, array('id'=>'customers', 'param'=>';::')), 
-								Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$v['id'])
+								Utils_AttachmentCommon::count('crm_meeting/'.$v['id'])
 							);
 				}
 			} elseif($t['deadline'] == $maxt) {
@@ -184,7 +184,7 @@ class CRM_Contacts_Activities extends Module {
 								(!isset($v['deadline']) || !$v['deadline'])?$this->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline'],false,true,false), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_company_contact($v, false, array('id'=>'customers')), 
-								Utils_AttachmentCommon::count('CRM/Tasks/'.$v['id'])
+								Utils_AttachmentCommon::count('task/'.$v['id'])
 							);
 				}
 			} else {
@@ -196,7 +196,7 @@ class CRM_Contacts_Activities extends Module {
 								Base_RegionalSettingsCommon::time2reg($v['date_and_time'],2), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_PhoneCallCommon::display_contact_name($v, false), 
-								Utils_AttachmentCommon::count('CRM/PhoneCall/'.$v['id'])
+								Utils_AttachmentCommon::count('phonecall/'.$v['id'])
 							);
 				}
 			}

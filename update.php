@@ -2144,8 +2144,8 @@ while ($row = $ret->FetchRow()) {
 foreach ($trans as $k=>$v) {
 	$path = explode('/', $k);
 	$last = array_pop($path);
-	@mkdir('data/Utils_Attachment/'.$v);
 	if(!file_exists('data/Utils_Attachment/'.implode('/',$path)) || !is_dir('data/Utils_Attachment/'.implode('/',$path))) continue;
+	@mkdir('data/Utils_Attachment/'.$v);
 	$dirs = scandir('data/Utils_Attachment/'.implode('/',$path));
 	foreach ($dirs as $d) {
 		if ($d=='.' || $d=='..') continue;

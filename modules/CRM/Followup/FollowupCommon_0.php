@@ -24,29 +24,29 @@ class CRM_FollowupCommon extends ModuleCommon {
 	public static function add_tracing_notes($dest_rset, $dest_id, $dest_label, $linkto_rset, $linkto_id, $linkto_label) {
 		switch ($dest_rset) {
 			case 'phonecall':
-				$fwd_note_path = 'CRM/PhoneCall/'.$dest_id; 
+				$fwd_note_path = 'phonecall/'.$dest_id; 
 				$bck_note = 'Follow up after: [phone='.$dest_id.']'.$dest_label.'[/phone]'; 
 				break;
 			case 'meeting': 
-				$fwd_note_path = 'CRM/Calendar/Event/'.$dest_id; 
+				$fwd_note_path = 'crm_meeting/'.$dest_id; 
 				$bck_note = 'Follow up after: [meeting='.$dest_id.']'.$dest_label.'[/meeting]'; 
 				break;
 			case 'task': 
-				$fwd_note_path = 'CRM/Tasks/'.$dest_id; 
+				$fwd_note_path = 'task/'.$dest_id; 
 				$bck_note = 'Follow up after: [task='.$dest_id.']'.$dest_label.'[/task]'; 
 				break;
 		}
 		switch ($linkto_rset) {
 			case 'phonecall': 
-				$bck_note_path = 'CRM/PhoneCall/'.$linkto_id; 
+				$bck_note_path = 'phonecall/'.$linkto_id; 
 				$fwd_note = 'Follow up: [phone='.$linkto_id.']'.$linkto_label.'[/phone]'; 
 				break;
 			case 'meeting': 
-				$bck_note_path = 'CRM/Calendar/Event/'.$linkto_id; 
+				$bck_note_path = 'crm_meeting/'.$linkto_id; 
 				$fwd_note = 'Follow up: [meeting='.$linkto_id.']'.$linkto_label.'[/meeting]'; 
 				break;
 			case 'task': 
-				$bck_note_path = 'CRM/Tasks/'.$linkto_id; 
+				$bck_note_path = 'task/'.$linkto_id; 
 				$fwd_note = 'Follow up: [task='.$linkto_id.']'.$linkto_label.'[/task]'; 
 				break;
 		}

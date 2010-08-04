@@ -25,7 +25,6 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar/Event');
-		Utils_AttachmentCommon::persistent_mass_delete('CRM/Calendar/Event');
 		Utils_MessengerCommon::delete_by_parent_module($this->get_type());
 		return true;
 	}

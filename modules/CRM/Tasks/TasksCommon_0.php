@@ -195,7 +195,7 @@ class CRM_TasksCommon extends ModuleCommon {
 				if (get_magic_quotes_gpc())
 					$note = stripslashes($note);
 				$note = str_replace("\n",'<br />',$note);
-				Utils_AttachmentCommon::add('CRM/Tasks/'.$record['id'],0,Acl::get_user(),$note);
+				Utils_AttachmentCommon::add('task/'.$record['id'],0,Acl::get_user(),$note);
 			}
 
 			if ($action == 'set_in_progress') $v = 1;

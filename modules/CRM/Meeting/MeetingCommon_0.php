@@ -406,7 +406,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 				if (get_magic_quotes_gpc())
 					$note = stripslashes($note);
 				$note = str_replace("\n",'<br />',$note);
-				Utils_AttachmentCommon::add('CRM/Calendar/Event/'.$record['id'],0,Acl::get_user(),$note);
+				Utils_AttachmentCommon::add('crm_meeting/'.$record['id'],0,Acl::get_user(),$note);
 			}
 
 			if ($action == 'set_in_progress') $v = 1;
@@ -762,7 +762,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 						'Status' => Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status']),
 						'Access' => Utils_CommonDataCommon::get_value('CRM/Access/'.$r['permission']),
 						'Priority' => Utils_CommonDataCommon::get_value('CRM/Priority/'.$r['priority']),
-						'Notes' => Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$r['id'])
+						'Notes' => Utils_AttachmentCommon::count('crm_meeting/'.$r['id'])
 					);
 
 //		$next['employees'] = implode('<br>',$emps);
