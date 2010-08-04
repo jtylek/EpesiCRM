@@ -2061,7 +2061,7 @@ function update_from_1_1_0_to_1_1_1() {
 
 }
 
-function update_from_1_1_0_to_1_1_2() {
+function update_from_1_1_1_to_1_1_2() {
     if (ModuleManager::is_installed('CRM_Roundcube')>=0) {
 
 		$fields = array(
