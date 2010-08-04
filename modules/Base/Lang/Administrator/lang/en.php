@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage lang-administrator
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_Lang_Administrator']['Default language']='';

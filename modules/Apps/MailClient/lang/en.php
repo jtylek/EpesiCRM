@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-apps
- * @subpackage mailclient
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Apps_MailClient']['Private messages']='';

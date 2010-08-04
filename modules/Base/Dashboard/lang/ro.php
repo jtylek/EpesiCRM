@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage dashboard
+ * @package epesi-translations
+ * @subpackage ro
  */
 global $translations;
 $translations['Base_Dashboard']['Remove']='Elimina';

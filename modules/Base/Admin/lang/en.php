@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage admin
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_Admin']['Change theme']='';
@@ -25,4 +25,12 @@ $translations['Base_Admin']['PHP & SQL Errors to mail']='';
 $translations['Base_Admin']['Module indicator settings']='';
 $translations['Base_Admin']['Printing options']='';
 $translations['Base_Admin']['Mail client settings']='';
+$translations['Base_Admin']['Currencies']='';
+$translations['Base_Admin']['Title and logo']='';
+$translations['Base_Admin']['Tax Rates']='';
+$translations['Base_Admin']['Warehouse']='';
+$translations['Base_Admin']['eCommerce']='';
+$translations['Base_Admin']['Checklists']='';
+$translations['Base_Admin']['Relations Administration']='';
+$translations['Base_Admin']['Download modules']='';
 ?>

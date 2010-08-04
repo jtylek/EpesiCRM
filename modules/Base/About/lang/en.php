@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage about
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_About']['Click to get more info']='';

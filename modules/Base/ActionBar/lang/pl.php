@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage actionbar
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['Base_ActionBar']['Home']='Strona główna';
@@ -60,4 +60,39 @@ $translations['Base_ActionBar']['Send']='Wyślij';
 $translations['Base_ActionBar']['New field']='Nowe pole';
 $translations['Base_ActionBar']['New page']='Nowa strona';
 $translations['Base_ActionBar']['Subscribe']='Subskrybuj';
+$translations['Base_ActionBar']['']='';
+$translations['Base_ActionBar']['Export']='';
+$translations['Base_ActionBar']['Subskrybuj']='';
+$translations['Base_ActionBar']['Click 2 Fill']='';
+$translations['Base_ActionBar']['Completed']='';
+$translations['Base_ActionBar']['Modify Relations']='';
+$translations['Base_ActionBar']['Add array']='';
+$translations['Base_ActionBar']['Update Contacts']='';
+$translations['Base_ActionBar']['Physical Examination Report']='';
+$translations['Base_ActionBar']['Phys. Ex. Report']='';
+$translations['Base_ActionBar']['Scan plugins']='';
+$translations['Base_ActionBar']['Reports']='';
+$translations['Base_ActionBar']['Clear']='';
+$translations['Base_ActionBar']['Copy company data']='';
+$translations['Base_ActionBar']['Download PDF']='';
+$translations['Base_ActionBar']['Purge old alerts']='';
+$translations['Base_ActionBar']['Mark all as read']='';
+$translations['Base_ActionBar']['New account']='';
+$translations['Base_ActionBar']['pbukowski@telaxus.com mail.telaxus.com']='';
+$translations['Base_ActionBar']['pbukowski@telaxus.com<br />mail.telaxus.com']='';
+$translations['Base_ActionBar']['pbukowski@telaxus.com']='';
+$translations['Base_ActionBar']['tip']='';
+$translations['Base_ActionBar']['mail.telaxus.com']='';
+$translations['Base_ActionBar']['shacky7@gmail.com']='';
+$translations['Base_ActionBar']['gmail.com']='';
+$translations['Base_ActionBar']['imap.gmail.com']='';
+$translations['Base_ActionBar']['imap.gmail.com:993']='';
+$translations['Base_ActionBar']['Print']='';
+$translations['Base_ActionBar']['Auto-update']='';
+$translations['Base_ActionBar']['File scan']='';
+$translations['Base_ActionBar']['New alert']='';
+$translations['Base_ActionBar']['Download']='';
+$translations['Base_ActionBar']['Charts']='';
+$translations['Base_ActionBar']['Use this Trans.']='';
+$translations['Base_ActionBar']['Leave this trans.']='';
 ?>

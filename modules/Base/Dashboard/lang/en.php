@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage dashboard
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_Dashboard']['Remove']='';
@@ -169,4 +169,53 @@ $translations['Base_Dashboard']['Delete']='';
 $translations['Base_Dashboard']['Subscription status']='';
 $translations['Base_Dashboard']['Phone Calls settings']='';
 $translations['Base_Dashboard']['[All except closed]']='';
+$translations['Base_Dashboard']['Fullscreen']='';
+$translations['Base_Dashboard']['Meetings']='';
+$translations['Base_Dashboard']['Meetings settings']='';
+$translations['Base_Dashboard']['Display closed meetings']='';
+$translations['Base_Dashboard']['Meetings display settings']='';
+$translations['Base_Dashboard']['Checklists']='';
+$translations['Base_Dashboard']['Sleeping patients']='';
+$translations['Base_Dashboard']['Behavioring patients']='';
+$translations['Base_Dashboard']['Medical Reviews']='';
+$translations['Base_Dashboard']['Medical Tests']='';
+$translations['Base_Dashboard']['LogBook']='';
+$translations['Base_Dashboard']['Mail indicator settings']='';
+$translations['Base_Dashboard']['Choose accounts']='';
+$translations['Base_Dashboard']['pbukowski@telaxus.com at mail.telaxus.com']='';
+$translations['Base_Dashboard']['shacky7@gmail.com at imap.gmail.com']='';
+$translations['Base_Dashboard']['Mail indicator display settings']='';
+$translations['Base_Dashboard']['Mail indicator']='';
+$translations['Base_Dashboard']['Subscriptions settings']='';
+$translations['Base_Dashboard']['Display only new events']='';
+$translations['Base_Dashboard']['Categories']='';
+$translations['Base_Dashboard']['Companies']='';
+$translations['Base_Dashboard']['Contacts']='';
+$translations['Base_Dashboard']['Events']='';
+$translations['Base_Dashboard']['Phonecalls']='';
+$translations['Base_Dashboard']['Meeting']='';
+$translations['Base_Dashboard']['Warehouse']='';
+$translations['Base_Dashboard']['Items']='';
+$translations['Base_Dashboard']['Orders']='';
+$translations['Base_Dashboard']['Distributor']='';
+$translations['Base_Dashboard']['Relations']='';
+$translations['Base_Dashboard']['Diet']='';
+$translations['Base_Dashboard']['Medications']='';
+$translations['Base_Dashboard']['Hospitalizations']='';
+$translations['Base_Dashboard']['Appointments']='';
+$translations['Base_Dashboard']['Insurance']='';
+$translations['Base_Dashboard']['Seizures']='';
+$translations['Base_Dashboard']['Reviews']='';
+$translations['Base_Dashboard']['Allergies']='';
+$translations['Base_Dashboard']['Immunizations']='';
+$translations['Base_Dashboard']['MedicalTests']='';
+$translations['Base_Dashboard']['Subscriptions display settings']='';
+$translations['Base_Dashboard']['Behavioring patients settings']='';
+$translations['Base_Dashboard']['Display']='';
+$translations['Base_Dashboard']['favourites contacts']='';
+$translations['Base_Dashboard']['all contacts']='';
+$translations['Base_Dashboard']['Behavioring patients display settings']='';
+$translations['Base_Dashboard']['Patient Issues settings']='';
+$translations['Base_Dashboard']['Patient Issues display settings']='';
+$translations['Base_Dashboard']['Patient Issues']='';
 ?>

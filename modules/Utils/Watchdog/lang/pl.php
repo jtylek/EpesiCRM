@@ -13,4 +13,6 @@ $translations['Utils_Watchdog']['Mark all entries as read']='Zaznacz wszystkie w
 $translations['Utils_Watchdog']['This will update all of your subscriptions status in selected categories, are you sure you want to continue?']='Nastąpi teraz zaznaczenie wszystkich poniższych wpisów jako przeczytane, czy chcesz kontynuować?';
 $translations['Utils_Watchdog']['No category selected']='Nie wybrano kategorii';
 $translations['Utils_Watchdog']['Subscribe']='Subskrybuj';
+$translations['Utils_Watchdog']['Use this Trans.']='';
+$translations['Utils_Watchdog']['Leave this trans.']='';
 ?>

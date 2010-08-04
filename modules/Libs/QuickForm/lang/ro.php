@@ -2,7 +2,7 @@
 /**
  * Translation file
  * @package epesi-translations
- * @subpackage en
+ * @subpackage ro
  */
 global $translations;
 $translations['Libs_QuickForm']['denotes required field']='arata camp necesar';

@@ -2,7 +2,7 @@
 /**
  * Translation file
  * @package epesi-translations
- * @subpackage en
+ * @subpackage ro
  */
 global $translations;
 $translations['Utils_Messenger']['Alert on']='Alerta la';

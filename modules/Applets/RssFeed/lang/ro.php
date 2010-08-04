@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-applets
- * @subpackage rssfeed
+ * @package epesi-translations
+ * @subpackage ro
  */
 global $translations;
 $translations['Applets_RssFeed']['Loading RSS...']='Incarc RSS...';

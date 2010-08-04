@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-utils
- * @subpackage attachment
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Utils_Attachment']['Date']='';
@@ -41,4 +41,5 @@ $translations['Utils_Attachment']['[ + ]']='';
 $translations['Utils_Attachment']['[ - ]']='';
 $translations['Utils_Attachment']['Expand all']='';
 $translations['Utils_Attachment']['Collapse all']='';
+$translations['Utils_Attachment']['User']='';
 ?>

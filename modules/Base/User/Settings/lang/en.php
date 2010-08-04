@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage user-settings
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_User_Settings']['Account']='';
@@ -733,4 +733,41 @@ $translations['Base_User_Settings']['Auto-add to favorites records created by me
 $translations['Base_User_Settings']['Automatically add to favorites records created by me']='';
 $translations['Base_User_Settings']['Disabled']='';
 $translations['Base_User_Settings']['Enabled']='';
+$translations['Base_User_Settings']['Alerts']='';
+$translations['Base_User_Settings']['Dialing']='';
+$translations['Base_User_Settings']['Mail filters']='';
+$translations['Base_User_Settings']['Transaction']='';
+$translations['Base_User_Settings']['Warehouse']='';
+$translations['Base_User_Settings']['lt']='';
+$translations['Base_User_Settings']['America/Argentina/Salta']='';
+$translations['Base_User_Settings']['America/Matamoros']='';
+$translations['Base_User_Settings']['America/Ojinaga']='';
+$translations['Base_User_Settings']['America/Santa_Isabel']='';
+$translations['Base_User_Settings']['America/Santarem']='';
+$translations['Base_User_Settings']['Asia/Kathmandu']='';
+$translations['Base_User_Settings']['Asia/Novokuznetsk']='';
+$translations['Base_User_Settings']['Default currency']='';
+$translations['Base_User_Settings']['USD']='';
+$translations['Base_User_Settings']['Currency decimal point']='';
+$translations['Base_User_Settings']['.']='';
+$translations['Base_User_Settings']['Companies import mapping']='';
+$translations['Base_User_Settings']['Contacts import mapping']='';
+$translations['Base_User_Settings']['Forms']='';
+$translations['Base_User_Settings']['Roundcube Mail Accounts']='';
+$translations['Base_User_Settings']['E-mail Accounts']='';
+$translations['Base_User_Settings']['America/Bahia_Banderas']='';
+$translations['Base_User_Settings']['Antarctica/Macquarie']='';
+$translations['Base_User_Settings']['Currency']='';
+$translations['Base_User_Settings']['PLN']='';
+$translations['Base_User_Settings'][',']='';
+$translations['Base_User_Settings']['Contacts display']='';
+$translations['Base_User_Settings']['Contact format']='';
+$translations['Base_User_Settings']['[First name] [Last Name]']='';
+$translations['Base_User_Settings']['[Last Name] [First name]']='';
+$translations['Base_User_Settings']['[Last Name], [First name]']='';
+$translations['Base_User_Settings']['Allow IM with me']='';
+$translations['Base_User_Settings']['Default notes permission']='';
+$translations['Base_User_Settings']['Public']='';
+$translations['Base_User_Settings']['Protected']='';
+$translations['Base_User_Settings']['Private']='';
 ?>

@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage loginaudit
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['CRM_LoginAudit']['All']='';

@@ -1,24 +1,58 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage calendar-event
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
-$translations['CRM_Calendar_Event']['Displaying only 50 of %d events']='Wyświetlono tylko 50 z %d wydarzeń';
+$translations['CRM_Calendar_Event']['Timeless event']='';
+$translations['CRM_Calendar_Event']['Date']='';
+$translations['CRM_Calendar_Event']['Time']='Godzina';
+$translations['CRM_Calendar_Event']['Event']='';
+$translations['CRM_Calendar_Event']['Description']='Opis';
+$translations['CRM_Calendar_Event']['Assigned to']='';
+$translations['CRM_Calendar_Event']['Contacts']='';
+$translations['CRM_Calendar_Event']['Status']='Status';
 $translations['CRM_Calendar_Event']['Access']='Dostęp';
-$translations['CRM_Calendar_Event']['public']='publiczny';
 $translations['CRM_Calendar_Event']['Priority']='Priorytet';
-$translations['CRM_Calendar_Event']['Medium']='Średni';
 $translations['CRM_Calendar_Event']['Notes']='Notki';
+$translations['CRM_Calendar_Event']['Meetings']='';
+$translations['CRM_Calendar_Event']['Duration']='Czas trwania';
+$translations['CRM_Calendar_Event']['Medical Appointments']='';
+$translations['CRM_Calendar_Event']['Employees']='Pracownicy';
+$translations['CRM_Calendar_Event']['Name']='';
+$translations['CRM_Calendar_Event']['Mobile Phone']='';
+$translations['CRM_Calendar_Event']['Work Phone']='';
+$translations['CRM_Calendar_Event']['Home Phone']='';
+$translations['CRM_Calendar_Event']['Lp']='';
+$translations['CRM_Calendar_Event']['Customers']='Klienci';
+$translations['CRM_Calendar_Event']['Company Name']='';
+$translations['CRM_Calendar_Event']['Customers Companies']='';
+$translations['CRM_Calendar_Event']['Phone']='';
+$translations['CRM_Calendar_Event']['Fax']='';
+$translations['CRM_Calendar_Event']['Address']='';
+$translations['CRM_Calendar_Event']['City']='';
+$translations['CRM_Calendar_Event']['Title']='Tytuł';
+$translations['CRM_Calendar_Event']['Start date']='';
+$translations['CRM_Calendar_Event']['Start time']='';
+$translations['CRM_Calendar_Event']['End time']='';
+$translations['CRM_Calendar_Event']['%d hours']='';
+$translations['CRM_Calendar_Event']['Timeless']='Bezterminowo';
+$translations['CRM_Calendar_Event']['Yes']='';
+$translations['CRM_Calendar_Event']['%d minutes']='';
+$translations['CRM_Calendar_Event']['Timeless event: %s']='';
+$translations['CRM_Calendar_Event']['Title: %s']='Tytuł: %s';
+$translations['CRM_Calendar_Event']['Private record']='';
+$translations['CRM_Calendar_Event']['Date: %s']='';
+$translations['CRM_Calendar_Event']['Displaying only 50 of %d events']='Wyświetlono tylko 50 z %d wydarzeń';
+$translations['CRM_Calendar_Event']['public']='publiczny';
+$translations['CRM_Calendar_Event']['Medium']='Średni';
 $translations['CRM_Calendar_Event']['Created by']='Utworzony przez';
 $translations['CRM_Calendar_Event']['Created on']='Utworzony dnia';
 $translations['CRM_Calendar_Event']['Employees:']='Pracownicy:';
 $translations['CRM_Calendar_Event']['Customers:']='Klienci:';
 $translations['CRM_Calendar_Event']['None']='Żadne';
-$translations['CRM_Calendar_Event']['Title']='Tytuł';
 $translations['CRM_Calendar_Event']['Event start']='Początek wydarzenia';
-$translations['CRM_Calendar_Event']['Time']='Godzina';
 $translations['CRM_Calendar_Event']['---']='---';
 $translations['CRM_Calendar_Event']['5 minutes']='5 minut';
 $translations['CRM_Calendar_Event']['15 minutes']='10 minut';
@@ -28,10 +62,8 @@ $translations['CRM_Calendar_Event']['2 hours']='2 godziny';
 $translations['CRM_Calendar_Event']['4 hours']='4 godziny';
 $translations['CRM_Calendar_Event']['8 hours']='8 godzin';
 $translations['CRM_Calendar_Event']['Toggle']='Przełącz';
-$translations['CRM_Calendar_Event']['Duration']='Czas trwania';
 $translations['CRM_Calendar_Event']['Duration not selected']='Czas trwania nieokreślony';
 $translations['CRM_Calendar_Event']['Event end']='Koniec wydarzenia';
-$translations['CRM_Calendar_Event']['Timeless']='Bezterminowo';
 $translations['CRM_Calendar_Event']['Event itself']='Samo wydarzenie';
 $translations['CRM_Calendar_Event']['Public']='Publiczny';
 $translations['CRM_Calendar_Event']['Public, read-only']='Publiczny, tylko do odczytu';
@@ -47,12 +79,9 @@ $translations['CRM_Calendar_Event']['Gray']='Szary';
 $translations['CRM_Calendar_Event']['Cyan']='Turkusowy';
 $translations['CRM_Calendar_Event']['Magenta']='Purpurowy';
 $translations['CRM_Calendar_Event']['Color']='Kolor';
-$translations['CRM_Calendar_Event']['Employees']='Pracownicy';
 $translations['CRM_Calendar_Event']['At least one employee must be assigned to an event.']='Przynajmniej jeden pracownik mosi być przypisany do wydarzenia';
-$translations['CRM_Calendar_Event']['Customers']='Klienci';
 $translations['CRM_Calendar_Event']['Advanced']='Zaawansowane';
 $translations['CRM_Calendar_Event']['Related Person']='Osoba powiązana';
-$translations['CRM_Calendar_Event']['Description']='Opis';
 $translations['CRM_Calendar_Event']['private']='prywatny';
 $translations['CRM_Calendar_Event']['Edited by']='Edytowany przez';
 $translations['CRM_Calendar_Event']['Edited on']='Edytowany dnia';
@@ -60,8 +89,6 @@ $translations['CRM_Calendar_Event']['Edit']='Edytuj';
 $translations['CRM_Calendar_Event']['Start: %s
 End: %s']='Początek: %s
 Koniec: %s';
-$translations['CRM_Calendar_Event']['Title: %s']='Tytuł: %s';
-$translations['CRM_Calendar_Event']['Status']='Status';
 $translations['CRM_Calendar_Event']['Follow up: ']='Kontynuacja: ';
 $translations['CRM_Calendar_Event']['New Event']='Nowe wydarzenie';
 $translations['CRM_Calendar_Event']['New Task']='Nowe zadanie';
@@ -102,4 +129,8 @@ $translations['CRM_Calendar_Event']['Sunday']='Niedziela';
 $translations['CRM_Calendar_Event']['No end date']='Bez daty końcowej';
 $translations['CRM_Calendar_Event']['End date']='Data końcowa';
 $translations['CRM_Calendar_Event']['End date cannot be before start date.']='Data końcowa nie może być ustawiona na wcześniejszą niż data początku.';
+$translations['CRM_Calendar_Event']['Hospitalizations']='';
+$translations['CRM_Calendar_Event']['All']='';
+$translations['CRM_Calendar_Event']['Meeting']='';
+$translations['CRM_Calendar_Event']['Selection (%d)']='';
 ?>

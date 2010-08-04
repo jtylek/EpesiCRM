@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage admin
+ * @package epesi-translations
+ * @subpackage ro
  */
 global $translations;
 $translations['Base_Admin']['Change theme']='Schimba tema';

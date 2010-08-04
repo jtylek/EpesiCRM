@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage tasks
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['CRM_Tasks']['Your user doesn\'t have contact, please assign one']='';
@@ -25,4 +25,6 @@ $translations['CRM_Tasks']['New Phonecall']='';
 $translations['CRM_Tasks']['Task: %s']='';
 $translations['CRM_Tasks']['Notify']='';
 $translations['CRM_Tasks']['Tasks']='';
+$translations['CRM_Tasks'][' - Todo']='';
+$translations['CRM_Tasks'][' - short term']='';
 ?>

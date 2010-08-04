@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage user-administrator
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_User_Administrator']['Login']='';
@@ -56,4 +56,7 @@ $translations['Base_User_Administrator']['Yes']='';
 $translations['Base_User_Administrator']['No']='';
 $translations['Base_User_Administrator']['yes']='';
 $translations['Base_User_Administrator']['no']='';
+$translations['Base_User_Administrator']['Log as user']='';
+$translations['Base_User_Administrator']['Actions']='';
+$translations['Base_User_Administrator']['Contact']='';
 ?>

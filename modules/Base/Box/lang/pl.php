@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage box
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['Base_Box']['Check for new version']='Sprawdź nową wersję';

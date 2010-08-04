@@ -40,4 +40,9 @@ $translations['Utils_GenericBrowser']['Move up']='';
 $translations['Utils_GenericBrowser']['Restore']='';
 $translations['Utils_GenericBrowser']['Page (%s to %s)']='';
 $translations['Utils_GenericBrowser']['Append data']='';
+$translations['Utils_GenericBrowser']['']='';
+$translations['Utils_GenericBrowser']['copy']='';
+$translations['Utils_GenericBrowser']['cut']='';
+$translations['Utils_GenericBrowser']['Add']='';
+$translations['Utils_GenericBrowser']['Print Report']='';
 ?>

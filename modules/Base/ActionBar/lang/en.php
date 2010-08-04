@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage actionbar
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_ActionBar']['Home']='';
@@ -76,4 +76,26 @@ $translations['Base_ActionBar']['Manage weekends']='';
 $translations['Base_ActionBar']['Check']='';
 $translations['Base_ActionBar']['New mail']='';
 $translations['Base_ActionBar']['Mark all as read']='';
+$translations['Base_ActionBar']['Export']='';
+$translations['Base_ActionBar']['Click 2 Fill']='';
+$translations['Base_ActionBar']['New alert']='';
+$translations['Base_ActionBar']['Use this Trans.']='';
+$translations['Base_ActionBar']['Merge categories']='';
+$translations['Base_ActionBar']['Merge']='';
+$translations['Base_ActionBar']['Copy']='';
+$translations['Base_ActionBar']['pbukowski@telaxus.com']='';
+$translations['Base_ActionBar']['mail.telaxus.com']='';
+$translations['Base_ActionBar']['shacky7@gmail.com']='';
+$translations['Base_ActionBar']['imap.gmail.com']='';
+$translations['Base_ActionBar']['Copy company data']='';
+$translations['Base_ActionBar']['Reports']='';
+$translations['Base_ActionBar']['Paste mail']='';
+$translations['Base_ActionBar']['Add targets']='';
+$translations['Base_ActionBar']['Show main company contacts']='';
+$translations['Base_ActionBar']['Scan plugins']='';
+$translations['Base_ActionBar']['Auto-update']='';
+$translations['Base_ActionBar']['File scan']='';
+$translations['Base_ActionBar']['Icecat']='';
+$translations['Base_ActionBar']['3rd party']='';
+$translations['Base_ActionBar']['Completed']='';
 ?>

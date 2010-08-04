@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage phonecall
+ * @package epesi-translations
+ * @subpackage ro
  */
 global $translations;
 $translations['CRM_PhoneCall']['Display closed records']='Afiseaza inregistrarile inchise';

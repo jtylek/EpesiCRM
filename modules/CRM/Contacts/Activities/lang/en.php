@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage contacts-activities
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['CRM_Contacts_Activities']['Display']='';
@@ -19,4 +19,10 @@ $translations['CRM_Contacts_Activities']['Task']='';
 $translations['CRM_Contacts_Activities']['Closed']='';
 $translations['CRM_Contacts_Activities']['Phone Call']='';
 $translations['CRM_Contacts_Activities']['No deadline']='';
+$translations['CRM_Contacts_Activities']['Show']='';
+$translations['CRM_Contacts_Activities']['Activities date']='';
+$translations['CRM_Contacts_Activities']['Future']='';
+$translations['CRM_Contacts_Activities']['Past']='';
+$translations['CRM_Contacts_Activities']['All time']='';
+$translations['CRM_Contacts_Activities']['Attachments']='';
 ?>

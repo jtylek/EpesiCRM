@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage menu-quickaccess
+ * @package epesi-translations
+ * @subpackage ro
  */
 global $translations;
 $translations['Base_Menu_QuickAccess']['Shoutbox']='Panou de chat';

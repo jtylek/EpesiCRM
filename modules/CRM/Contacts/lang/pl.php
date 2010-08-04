@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage contacts
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['CRM_Contacts']['Add contact']='Dodaj kontakt';
@@ -26,4 +26,18 @@ $translations['CRM_Contacts']['Your user doesn\'t have contact, please assign on
 $translations['CRM_Contacts']['Click here to search this location using google maps']='Kliknij aby wyszukać to miejsce używając Google maps';
 $translations['CRM_Contacts']['Companies']='Firmy';
 $translations['CRM_Contacts']['Contacts']='Kontakty';
+$translations['CRM_Contacts']['Record ID:']='';
+$translations['CRM_Contacts']['Created by:']='';
+$translations['CRM_Contacts']['Created on:']='';
+$translations['CRM_Contacts']['Edited by:']='';
+$translations['CRM_Contacts']['Edited on:']='';
+$translations['CRM_Contacts']['Create new user']='';
+$translations['CRM_Contacts']['New user login']='';
+$translations['CRM_Contacts']['Invalid e-mail address']='';
+$translations['CRM_Contacts']['<br/>This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would You like to copy to company contacts:']='';
+$translations['CRM_Contacts']['Confirm']='';
+$translations['CRM_Contacts']['Cancel']='';
+$translations['CRM_Contacts']['Company (attachment) #%d, %s']='';
+$translations['CRM_Contacts']['Company Name']='';
+$translations['CRM_Contacts']['New Note']='';
 ?>

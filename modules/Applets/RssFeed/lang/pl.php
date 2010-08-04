@@ -1,9 +1,10 @@
 <?php
 /**
  * Translation file
- * @package epesi-applets
- * @subpackage rssfeed
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['Applets_RssFeed']['Loading RSS...']='Pobieranie RSS...';
+$translations['Applets_RssFeed']['RSS feed']='';
 ?>

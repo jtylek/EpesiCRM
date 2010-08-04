@@ -119,6 +119,16 @@ class CRM_Roundcube extends Module {
         $this->js($update_applet);
     }
 
+	public function mail_addresses_addon($arg,$rb) {
+		$type = $rb->tab;
+		$loc = Base_RegionalSettingsCommon::get_default_location();
+		$rb = $this->init_module('Utils/RecordBrowser','rc_multiple_emails');
+		$order = array(array('record_type'=>$type,'record_id'=>$arg['id']), array('record_type'=>false,'record_id'=>false), array());
+		$rb->set_defaults(array('record_type'=>$type,'record_id'=>$arg['id']));
+        $rb->enable_quick_new_records();
+		$this->display_module($rb,$order,'show_data');
+	}
+
     ////////////////////////////////////////////////////////////
     //account management
     public function account_manager() {

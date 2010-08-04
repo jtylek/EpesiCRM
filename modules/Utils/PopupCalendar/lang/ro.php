@@ -2,7 +2,7 @@
 /**
  * Translation file
  * @package epesi-translations
- * @subpackage en
+ * @subpackage ro
  */
 global $translations;
 $translations['Utils_PopupCalendar']['Select date']='Alege data';

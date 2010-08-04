@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage MainModuleIndicator
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_MainModuleIndicator']['Dashboard']='';
@@ -67,4 +67,93 @@ $translations['Base_MainModuleIndicator']['My settings: Calendar']='';
 $translations['Base_MainModuleIndicator']['Mail client']='';
 $translations['Base_MainModuleIndicator']['My settings: Default data view']='';
 $translations['Base_MainModuleIndicator']['My settings: Browsing Records']='';
+$translations['Base_MainModuleIndicator']['Items: Browse']='';
+$translations['Base_MainModuleIndicator']['Items: New record']='';
+$translations['Base_MainModuleIndicator']['Items Transactions: Browse']='';
+$translations['Base_MainModuleIndicator']['Items Transactions: New record']='';
+$translations['Base_MainModuleIndicator']['Administration: eCommerce']='';
+$translations['Base_MainModuleIndicator']['Items: Browsing']='';
+$translations['Base_MainModuleIndicator']['Items: View record']='';
+$translations['Base_MainModuleIndicator']['Items: Edit record']='';
+$translations['Base_MainModuleIndicator']['eCommerce - prices: New record']='';
+$translations['Base_MainModuleIndicator']['Administration: Tax Rates']='';
+$translations['Base_MainModuleIndicator']['Tax Rates: New record']='';
+$translations['Base_MainModuleIndicator']['Tax Rates: View record']='';
+$translations['Base_MainModuleIndicator']['eCommerce - prices: View record']='';
+$translations['Base_MainModuleIndicator']['eCommerce - Payments and Carrier: New record']='';
+$translations['Base_MainModuleIndicator']['eCommerce - Payments and Carrier: View record']='';
+$translations['Base_MainModuleIndicator']['Meetings: View record']='';
+$translations['Base_MainModuleIndicator']['Meetings: Edit record']='';
+$translations['Base_MainModuleIndicator']['Meetings: New record']='';
+$translations['Base_MainModuleIndicator']['Items Transactions: View record']='';
+$translations['Base_MainModuleIndicator']['eCommerce - Products: View record']='';
+$translations['Base_MainModuleIndicator']['eCommerce - Product Available: View record']='';
+$translations['Base_MainModuleIndicator']['eCommerce - Descriptions: New record']='';
+$translations['Base_MainModuleIndicator']['Items Categories: Browse']='';
+$translations['Base_MainModuleIndicator']['Items Categories: New record']='';
+$translations['Base_MainModuleIndicator']['Items Categories: Browsing']='';
+$translations['Base_MainModuleIndicator']['Items Categories: View record']='';
+$translations['Base_MainModuleIndicator']['Administration: Checklists']='';
+$translations['Base_MainModuleIndicator']['Checklists: New record']='';
+$translations['Base_MainModuleIndicator']['Checklists: View record']='';
+$translations['Base_MainModuleIndicator']['Checklists: Edit record']='';
+$translations['Base_MainModuleIndicator']['Checklist items: New record']='';
+$translations['Base_MainModuleIndicator']['Checklist items: View record']='';
+$translations['Base_MainModuleIndicator']['Checklist items: Edit record']='';
+$translations['Base_MainModuleIndicator']['Administration: Change theme']='';
+$translations['Base_MainModuleIndicator']['View note']='';
+$translations['Base_MainModuleIndicator']['Roundcube Mail Client']='';
+$translations['Base_MainModuleIndicator']['Appointments']='';
+$translations['Base_MainModuleIndicator']['Mails: View record']='';
+$translations['Base_MainModuleIndicator']['Mail accounts: Edit record']='';
+$translations['Base_MainModuleIndicator']['Medical Tests']='';
+$translations['Base_MainModuleIndicator']['Medical Tests: Edit record']='';
+$translations['Base_MainModuleIndicator']['Immunizations']='';
+$translations['Base_MainModuleIndicator']['Immunizations: New record']='';
+$translations['Base_MainModuleIndicator']['Medical Tests: New record']='';
+$translations['Base_MainModuleIndicator']['Medical Tests: View record']='';
+$translations['Base_MainModuleIndicator']['Sleep Tracking']='';
+$translations['Base_MainModuleIndicator']['Sleep: New record']='';
+$translations['Base_MainModuleIndicator']['Behavior Tracking']='';
+$translations['Base_MainModuleIndicator']['Behavior Log: New record']='';
+$translations['Base_MainModuleIndicator']['Behavior Log: View record']='';
+$translations['Base_MainModuleIndicator']['Behavior: New record']='';
+$translations['Base_MainModuleIndicator']['Behavior: Edit record']='';
+$translations['Base_MainModuleIndicator']['Behavior: View record']='';
+$translations['Base_MainModuleIndicator']['Mails Associations: View record']='';
+$translations['Base_MainModuleIndicator']['Mail accounts: View record']='';
+$translations['Base_MainModuleIndicator']['Administration: Currencies']='';
+$translations['Base_MainModuleIndicator']['Administration: Relations Administration']='';
+$translations['Base_MainModuleIndicator']['Relations Types: View record']='';
+$translations['Base_MainModuleIndicator']['Administration: Maintenance mode']='';
+$translations['Base_MainModuleIndicator']['JobSearch: Browse']='';
+$translations['Base_MainModuleIndicator']['JobSearch: New record']='';
+$translations['Base_MainModuleIndicator']['JobSearch: Browsing']='';
+$translations['Base_MainModuleIndicator']['JobSearch: View record']='';
+$translations['Base_MainModuleIndicator']['Issues: New record']='';
+$translations['Base_MainModuleIndicator']['Issues: View record']='';
+$translations['Base_MainModuleIndicator']['Issues: Edit record']='';
+$translations['Base_MainModuleIndicator']['Administration: Main Company']='';
+$translations['Base_MainModuleIndicator']['Distributors: Browse']='';
+$translations['Base_MainModuleIndicator']['Distributors: New record']='';
+$translations['Base_MainModuleIndicator']['Distributors: Browsing']='';
+$translations['Base_MainModuleIndicator']['Distributors: View record']='';
+$translations['Base_MainModuleIndicator']['3rd party info: New record']='';
+$translations['Base_MainModuleIndicator']['3rd party info: View record']='';
+$translations['Base_MainModuleIndicator']['3rd party info: Edit record']='';
+$translations['Base_MainModuleIndicator']['eCommerce stats']='';
+$translations['Base_MainModuleIndicator']['eCommerce - Products: Browse']='';
+$translations['Base_MainModuleIndicator']['eCommerce - Products: Edit record']='';
+$translations['Base_MainModuleIndicator']['Administration: Download modules']='';
+$translations['Base_MainModuleIndicator']['Distributors: Edit record']='';
+$translations['Base_MainModuleIndicator']['Medical Reviews: New record']='';
+$translations['Base_MainModuleIndicator']['Diagnosis: Browse']='';
+$translations['Base_MainModuleIndicator']['Diagnosis: New record']='';
+$translations['Base_MainModuleIndicator']['Diagnosis: Browsing']='';
+$translations['Base_MainModuleIndicator']['Diagnosis: View record']='';
+$translations['Base_MainModuleIndicator']['Diagnosis: Edit record']='';
+$translations['Base_MainModuleIndicator']['Meetings: Browse']='';
+$translations['Base_MainModuleIndicator']['Allergies: Browse']='';
+$translations['Base_MainModuleIndicator']['Issues: Browse']='';
+$translations['Base_MainModuleIndicator']['Shoutbox']='';
 ?>

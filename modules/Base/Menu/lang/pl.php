@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage menu
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['Base_Menu']['Menu']='Menu';
@@ -27,4 +27,55 @@ $translations['Base_Menu']['Reports']='Raporty';
 $translations['Base_Menu']['Tests']='Testy';
 $translations['Base_Menu']['Tickets']='Tickety';
 $translations['Base_Menu']['Mail client']='Klient Poczty';
+$translations['Base_Menu']['Meetings']='';
+$translations['Base_Menu']['Development']='';
+$translations['Base_Menu']['Create Module']='';
+$translations['Base_Menu']['Messenger alerts']='';
+$translations['Base_Menu']['Warehouse']='';
+$translations['Base_Menu']['Distributors']='';
+$translations['Base_Menu']['eCommerce']='';
+$translations['Base_Menu']['Comments queue']='';
+$translations['Base_Menu']['Newsletter']='';
+$translations['Base_Menu']['Products']='';
+$translations['Base_Menu']['Stats']='';
+$translations['Base_Menu']['Items']='';
+$translations['Base_Menu']['Items: Categories']='';
+$translations['Base_Menu']['Items: Transactions']='';
+$translations['Base_Menu']['Warehouses']='';
+$translations['Base_Menu']['Main Company']='';
+$translations['Base_Menu']['My Contact']='';
+$translations['Base_Menu']['Pending Checklists']='';
+$translations['Base_Menu']['Medical']='';
+$translations['Base_Menu']['Diet']='';
+$translations['Base_Menu']['Sleep']='';
+$translations['Base_Menu']['Behavior']='';
+$translations['Base_Menu']['Reviews']='';
+$translations['Base_Menu']['Immunizations']='';
+$translations['Base_Menu']['Medications']='';
+$translations['Base_Menu']['Hospitalizations']='';
+$translations['Base_Menu']['Appointments']='';
+$translations['Base_Menu']['Insurance']='';
+$translations['Base_Menu']['Seizures']='';
+$translations['Base_Menu']['Services']='';
+$translations['Base_Menu']['VitalSigns']='';
+$translations['Base_Menu']['Register']='';
+$translations['Base_Menu']['LogBook']='';
+$translations['Base_Menu']['Allergies']='';
+$translations['Base_Menu']['Roundcube']='';
+$translations['Base_Menu']['Roundcube Mail Client']='';
+$translations['Base_Menu']['Import...']='';
+$translations['Base_Menu']['E-mail']='';
+$translations['Base_Menu']['Job Search']='';
+$translations['Base_Menu']['Advertising Log']='';
+$translations['Base_Menu']['LicenseManager']='';
+$translations['Base_Menu']['Diagnosis']='';
+$translations['Base_Menu']['Issues']='';
+$translations['Base_Menu']['Express publish']='';
+$translations['Base_Menu']['Shoutbox']='';
+$translations['Base_Menu']['Projects by Estimator']='';
+$translations['Base_Menu']['Projects by GC']='';
+$translations['Base_Menu']['ZSI']='';
+$translations['Base_Menu']['Sales Goals']='';
+$translations['Base_Menu']['Expenses']='';
+$translations['Base_Menu']['Monthly Cost']='';
 ?>

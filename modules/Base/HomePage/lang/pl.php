@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage homepage
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['Base_HomePage']['Home page saved']='Strona domowa zapisana';

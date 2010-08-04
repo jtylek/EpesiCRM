@@ -57,11 +57,19 @@ class epesi_archive extends rcube_plugin
 
   function look_contact($addr) {
     global $E_SESSION;
-    $contact = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_email=%s AND (f_permission<2 OR created_by=%d)',array($addr,$E_SESSION['user']));
+    $fields = DB::GetCol('SELECT field FROM contact_field WHERE field LIKE \'%mail%\' ORDER BY field');
+    foreach($fields as & $f) {
+        $f = 'c.f_'.preg_replace('/[^a-z0-9]/','_',strtolower($f));
+    }
+    $contact = DB::GetOne('SELECT c.id FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type="contact") WHERE c.active=1 AND ('.implode('='.DB::qstr($addr).' OR ',$fields).'='.DB::qstr($addr).' OR m.f_email=%s) AND (c.f_permission<2 OR c.created_by=%d)',array($addr,$E_SESSION['user']));
     if($contact!==false) {
         return 'P:'.$contact;
     }
-    $company = DB::GetOne('SELECT id FROM company_data_1 WHERE active=1 AND f_email=%s AND (f_permission<2 OR created_by=%d)',array($addr,$E_SESSION['user']));
+    $fields = DB::GetCol('SELECT field FROM company_field WHERE field LIKE \'%mail%\' ORDER BY field');
+    foreach($fields as & $f) {
+        $f = 'c.f_'.preg_replace('/[^a-z0-9]/','_',strtolower($f));
+    }
+    $company = DB::GetOne('SELECT c.id FROM company_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type="company") WHERE c.active=1 AND ('.implode('='.DB::qstr($addr).' OR ',$fields).'='.DB::qstr($addr).' OR m.f_email=%s) AND (c.f_permission<2 OR c.created_by=%d)',array($addr,$E_SESSION['user']));
     if($company!==false) {
         return 'C:'.$company;
     }

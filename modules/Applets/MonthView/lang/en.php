@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-applets
- * @subpackage monthview
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Applets_MonthView']['Start']='';

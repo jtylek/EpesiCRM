@@ -39,4 +39,15 @@ $translations['Utils_GenericBrowser']['Page (%s to %s)']='Strona (%s do %s)';
 $translations['Utils_GenericBrowser']['Activate']='Aktywuj';
 $translations['Utils_GenericBrowser']['Move down']='Przesuń w dół';
 $translations['Utils_GenericBrowser']['Move up']='Przesuń w górę';
+$translations['Utils_GenericBrowser']['']='';
+$translations['Utils_GenericBrowser']['copy']='';
+$translations['Utils_GenericBrowser']['cut']='';
+$translations['Utils_GenericBrowser']['Add']='';
+$translations['Utils_GenericBrowser']['add']='';
+$translations['Utils_GenericBrowser']['new']='';
+$translations['Utils_GenericBrowser']['Print Report']='';
+$translations['Utils_GenericBrowser']['New Event']='';
+$translations['Utils_GenericBrowser']['New Task']='';
+$translations['Utils_GenericBrowser']['New Phonecall']='';
+$translations['Utils_GenericBrowser']['New Note']='';
 ?>

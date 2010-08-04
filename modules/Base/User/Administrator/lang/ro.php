@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage user-administrator
+ * @package epesi-translations
+ * @subpackage ro
  */
 global $translations;
 $translations['Base_User_Administrator']['Login']='Autentificare';
@@ -40,9 +40,9 @@ $translations['Base_User_Administrator']['Leave password boxes empty if you pref
 $translations['Base_User_Administrator']['New password']='Parola noua';
 $translations['Base_User_Administrator']['Confirm new password']='confirma noua parola';
 $translations['Base_User_Administrator']['Your passwords don\'t match']='Parolele nu coincid';
-$translations['Base_User_Administrator']['Change e-mail']='Modifica adresa mail'; 
-$translations['Base_User_Administrator']['New e-mail address']='Noua adresa mail'; 
-$translations['Base_User_Administrator']['Not valid e-mail address']='Adersa e-mail nu este valida'; 
+$translations['Base_User_Administrator']['Change e-mail']='Modifica adresa mail';
+$translations['Base_User_Administrator']['New e-mail address']='Noua adresa mail';
+$translations['Base_User_Administrator']['Not valid e-mail address']='Adersa e-mail nu este valida';
 $translations['Base_User_Administrator']['Confirmation']='Confirmare';
 $translations['Base_User_Administrator']['Old password']='Parola veche';
 $translations['Base_User_Administrator']['Old password incorrect']='Parola veche incorecta';

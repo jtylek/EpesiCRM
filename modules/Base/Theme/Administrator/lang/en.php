@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage theme-administrator
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_Theme_Administrator']['Choose template']='';

@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage user-login
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_User_Login']['Logged as %s']='';
@@ -34,4 +34,5 @@ Your password is: %s
 For security reasons it is recommened that you login immediately and change your password.
 
 This e-mail was automatically generated and you do not need to respond to it.']='';
+$translations['Base_User_Login']['Keep this box unchecked if using a  public computer']='';
 ?>

@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage phonecall
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['CRM_PhoneCall']['Display closed records']='Wyświetl zamknięte rekordy';
@@ -28,4 +28,9 @@ $translations['CRM_PhoneCall']['Follow up: ']='Kontynuacja: ';
 $translations['CRM_PhoneCall']['New Phonecall']='Nowy telefon';
 $translations['CRM_PhoneCall']['Field required']='Pole wymagane';
 $translations['CRM_PhoneCall']['Phonecalls']='Telefony';
+$translations['CRM_PhoneCall']['New Meeting']='';
+$translations['CRM_PhoneCall']['Save']='';
+$translations['CRM_PhoneCall']['Open']='';
+$translations['CRM_PhoneCall']['In Progress']='';
+$translations['CRM_PhoneCall']['On Hold']='';
 ?>

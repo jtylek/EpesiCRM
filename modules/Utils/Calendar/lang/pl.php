@@ -80,4 +80,5 @@ $translations['Utils_Calendar']['Mar']='Mar';
 $translations['Utils_Calendar']['Apr']='Kwi';
 $translations['Utils_Calendar']['Jun']='Cze';
 $translations['Utils_Calendar']['Jul']='Lip';
+$translations['Utils_Calendar']['Yesterday']='';
 ?>

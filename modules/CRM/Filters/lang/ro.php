@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage filters
+ * @package epesi-translations
+ * @subpackage ro
  */
 global $translations;
 $translations['CRM_Filters']['My records']='Inregistrarile mele';

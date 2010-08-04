@@ -168,6 +168,24 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
         Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'addon', 'Mails');
         Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'addon', 'Mails');
+
+		$fields = array(
+			array('name'=>'Record Type', 		'type'=>'text', 'param'=>'64', 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
+			array('name'=>'Record ID', 		'type'=>'integer', 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
+			array('name'=>'Nickname', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_nickname')),
+			array('name'=>'Email', 			'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email'))
+		);
+
+		Utils_RecordBrowserCommon::install_new_recordset('rc_multiple_emails', $fields);
+		
+		Utils_RecordBrowserCommon::set_favorites('rc_multiple_emails', true);
+		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', 'Mail addresses');
+		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundube', 'icon.png'));
+		Utils_RecordBrowserCommon::set_access_callback('rc_multiple_emails', array('CRM_RoundcubeCommon', 'access_mail_addresses'));
+
+		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
+		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
+
         return true;
     }
 
@@ -188,6 +206,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails_assoc');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_accounts');
+        Utils_RecordBrowserCommon::uninstall_recordset('rc_multiple_emails');
         Utils_CommonDataCommon::remove('CRM/Roundcube/Security');
 		Utils_RecordBrowserCommon::unregister_processing_callback('rc_accounts', array('CRM_RoundcubeCommon', 'submit_account'));
 

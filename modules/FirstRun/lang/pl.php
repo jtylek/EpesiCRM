@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-firstrun
- * @subpackage
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['FirstRun']['Welcome to epesi first run wizard']='Witamy w programie instalacyjnym epesi';

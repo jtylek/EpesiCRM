@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage user-settings
+ * @package epesi-translations
+ * @subpackage ro
  */
 global $translations;
 $translations['Base_User_Settings']['Account']='Cont';

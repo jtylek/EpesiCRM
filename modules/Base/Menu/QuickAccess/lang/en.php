@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage menu-quickaccess
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_Menu_QuickAccess']['Shoutbox']='';
@@ -49,4 +49,42 @@ $translations['Base_Menu_QuickAccess']['Premium: Projects']='';
 $translations['Base_Menu_QuickAccess']['Timesheets: Add']='';
 $translations['Base_Menu_QuickAccess']['Timesheets: Browse']='';
 $translations['Base_Menu_QuickAccess']['Mail client']='';
+$translations['Base_Menu_QuickAccess']['My settings: My Contact']='';
+$translations['Base_Menu_QuickAccess']['My settings: Main Company']='';
+$translations['Base_Menu_QuickAccess']['Messenger alerts']='';
+$translations['Base_Menu_QuickAccess']['CRM: Meetings']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: Warehouses']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: Items']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: Items: Categories']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: Items: Transactions']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: Distributors']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: eCommerce: Comments queue']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: eCommerce: Newsletter']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: eCommerce: Products']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: eCommerce: Stats']='';
+$translations['Base_Menu_QuickAccess']['Roundcube Mail Client']='';
+$translations['Base_Menu_QuickAccess']['Medical: Allergies']='';
+$translations['Base_Menu_QuickAccess']['Medical: Appointments']='';
+$translations['Base_Menu_QuickAccess']['Medical: Behavior']='';
+$translations['Base_Menu_QuickAccess']['Medical: Diet']='';
+$translations['Base_Menu_QuickAccess']['Medical: Hospitalizations']='';
+$translations['Base_Menu_QuickAccess']['Medical: Immunizations']='';
+$translations['Base_Menu_QuickAccess']['Medical: Insurance']='';
+$translations['Base_Menu_QuickAccess']['Medical: Tests']='';
+$translations['Base_Menu_QuickAccess']['Medical: Medications']='';
+$translations['Base_Menu_QuickAccess']['Medical: Reviews']='';
+$translations['Base_Menu_QuickAccess']['Medical: Seizures']='';
+$translations['Base_Menu_QuickAccess']['Medical: Services']='';
+$translations['Base_Menu_QuickAccess']['Medical: Sleep']='';
+$translations['Base_Menu_QuickAccess']['Medical: VitalSigns']='';
+$translations['Base_Menu_QuickAccess']['Pending Checklists']='';
+$translations['Base_Menu_QuickAccess']['Import...']='';
+$translations['Base_Menu_QuickAccess']['Register: LogBook']='';
+$translations['Base_Menu_QuickAccess']['E-mail']='';
+$translations['Base_Menu_QuickAccess']['Job Search: Job Search']='';
+$translations['Base_Menu_QuickAccess']['Job Search: Advertising Log']='';
+$translations['Base_Menu_QuickAccess']['Medical: Issues']='';
+$translations['Base_Menu_QuickAccess']['Warehouse: eCommerce: Express publish']='';
+$translations['Base_Menu_QuickAccess']['LicenseManager']='';
+$translations['Base_Menu_QuickAccess']['Medical: Diagnosis']='';
 ?>

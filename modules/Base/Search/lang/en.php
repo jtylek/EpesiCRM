@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage search
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['Base_Search']['Searching']='';

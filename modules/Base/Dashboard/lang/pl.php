@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage dashboard
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['Base_Dashboard']['Remove']='Usuń';
@@ -128,4 +128,34 @@ $translations['Base_Dashboard']['Phonecalls']='Telefony';
 $translations['Base_Dashboard']['Events']='Wydarzenia';
 $translations['Base_Dashboard']['Display only new events']='Wyświetlaj tylko nowe wydarzenia';
 $translations['Base_Dashboard']['Categories']='Kategorie';
+$translations['Base_Dashboard']['Fullscreen']='';
+$translations['Base_Dashboard']['Meetings']='';
+$translations['Base_Dashboard']['Checklists']='';
+$translations['Base_Dashboard']['Sleeping patients settings']='';
+$translations['Base_Dashboard']['Display']='';
+$translations['Base_Dashboard']['favourites contacts']='';
+$translations['Base_Dashboard']['all contacts']='';
+$translations['Base_Dashboard']['Sleeping patients display settings']='';
+$translations['Base_Dashboard']['Sleeping patients']='';
+$translations['Base_Dashboard']['Behavioring patients settings']='';
+$translations['Base_Dashboard']['Behavioring patients display settings']='';
+$translations['Base_Dashboard']['Behavioring patients']='';
+$translations['Base_Dashboard']['Medical Reviews settings']='';
+$translations['Base_Dashboard']['Medical Reviews display settings']='';
+$translations['Base_Dashboard']['Medical Reviews']='';
+$translations['Base_Dashboard']['Number of days']='';
+$translations['Base_Dashboard']['Field must be numeric and positive']='';
+$translations['Base_Dashboard']['Number of days in advance']='';
+$translations['Base_Dashboard']['Medical Tests settings']='';
+$translations['Base_Dashboard']['Medical Tests display settings']='';
+$translations['Base_Dashboard']['Medical Tests']='';
+$translations['Base_Dashboard']['LogBook settings']='';
+$translations['Base_Dashboard']['Show only my entries']='';
+$translations['Base_Dashboard']['LogBook display settings']='';
+$translations['Base_Dashboard']['LogBook']='';
+$translations['Base_Dashboard']['Quick Actions settings']='';
+$translations['Base_Dashboard']['Quick Actions display settings']='';
+$translations['Base_Dashboard']['Quick Actions']='';
+$translations['Base_Dashboard']['Mail indicator']='';
+$translations['Base_Dashboard']['Messenger alarms']='';
 ?>

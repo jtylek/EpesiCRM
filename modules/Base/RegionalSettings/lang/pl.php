@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage regionalsettings
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['Base_RegionalSettings']['Country']='Kraj';

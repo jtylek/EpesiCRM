@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage contacts
+ * @package epesi-translations
+ * @subpackage en
  */
 global $translations;
 $translations['CRM_Contacts']['Add contact']='';
@@ -26,4 +26,14 @@ $translations['CRM_Contacts']['Click here to search this location using google m
 $translations['CRM_Contacts']['Your user doesn\'t have contact, please assign one']='';
 $translations['CRM_Contacts']['Contacts']='';
 $translations['CRM_Contacts']['Companies']='';
+$translations['CRM_Contacts']['Record ID:']='';
+$translations['CRM_Contacts']['Created by:']='';
+$translations['CRM_Contacts']['Created on:']='';
+$translations['CRM_Contacts']['Edited by:']='';
+$translations['CRM_Contacts']['Edited on:']='';
+$translations['CRM_Contacts']['Create new user']='';
+$translations['CRM_Contacts']['New user login']='';
+$translations['CRM_Contacts']['Invalid e-mail address']='';
+$translations['CRM_Contacts']['Epesi users']='';
+$translations['CRM_Contacts']['Company Name']='';
 ?>

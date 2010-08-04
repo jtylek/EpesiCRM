@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-crm
- * @subpackage filters
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['CRM_Filters']['My records']='Moje rekordy';
@@ -24,4 +24,6 @@ $translations['CRM_Filters']['Filter: %s']='Filtr: %s';
 $translations['CRM_Filters']['%s']='%s';
 $translations['CRM_Filters']['Saved Filters']='Zapisane filrty';
 $translations['CRM_Filters']['Filters: ']='Filtry: ';
+$translations['CRM_Filters']['Default filter']='';
+$translations['CRM_Filters']['Show All Contacts in Filters']='';
 ?>
