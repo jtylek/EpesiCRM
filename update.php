@@ -162,7 +162,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5','1.0.6','1.0.7','1.0.8','1.0.8b','1.0.9','1.1.0','1.1.1');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5','1.0.6','1.0.7','1.0.8','1.0.8b','1.0.9','1.1.0','1.1.1','1.1.2');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -2059,6 +2059,101 @@ function update_from_1_1_0_to_1_1_1() {
     DB::Execute('DELETE FROM available_modules WHERE name = "Libs_FPDF"');
     DB::Execute('DELETE FROM available_modules WHERE name = "Tests_FPDF"');
 
+}
+
+function update_from_1_1_0_to_1_1_2() {
+    if (ModuleManager::is_installed('CRM_Roundcube')>=0) {
+
+		$fields = array(
+			array('name'=>'Record Type', 		'type'=>'text', 'param'=>'64', 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
+			array('name'=>'Record ID', 		'type'=>'integer', 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
+			array('name'=>'Nickname', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_nickname')),
+			array('name'=>'Email', 			'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email'))
+		);
+
+		Utils_RecordBrowserCommon::install_new_recordset('rc_multiple_emails', $fields);
+		
+		Utils_RecordBrowserCommon::set_favorites('rc_multiple_emails', true);
+		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', 'Mail addresses');
+		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundube', 'icon.png'));
+		Utils_RecordBrowserCommon::set_access_callback('rc_multiple_emails', array('CRM_RoundcubeCommon', 'access_mail_addresses'));
+
+		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
+		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
+    }
+
+if (ModuleManager::is_installed('Utils/RecordBrowser')>=0) {
+
+$trans = array(
+'CRM/Assets/'=>'crm_assets/',
+'CRM/Company/'=>'company/',
+'CRM/Contact/'=>'contact/',
+'CRM/Calendar/Event/'=>'crm_meeting/',
+'CRM/PhoneCall/'=>'phonecall/',
+'CRM/Tasks/'=>'task/',
+'Custom/CADES/Diagnosis/'=>'cades_diagnosis/',
+'CADES/Diet/'=>'cades_diet/',
+'CADES/Hospitalizations/'=>'cades_hospitalizations/',
+'CADES/Immunizations/'=>'cades_immunizations/',
+'CADES/Incidents/'=>'cades_incidents/',
+'CADES/Insurance/'=>'cades_insurance/',
+'Custom/CADES/Issues/'=>'cades_issues/',
+'CADES/MedicalTests/'=>'cades_medicaltests/',
+'CADES/Medications/'=>'cades_medications/',
+'CADES/Reviews/'=>'cades_reviews/',
+'CADES/Services/'=>'cades_services/',
+'CADES/Toileting/'=>'cades_toileting/',
+'CADES/VitalSigns/'=>'cades_vitalsigns/',
+'Custom/JobSearch/AdvertisingLog'=>'custom_jobsearch_advertisinglog/',
+'Custom/JobSearch'=>'custom_jobsearch/',
+'Custom/MonthlyCost/'=>'custom_monthlycost/',
+'Custom/Projects/ChangeOrders/'=>'custom_changeorders/',
+'Custom/Projects/LiftEquipment/'=>'custom_equipment/',
+'Custom/Projects/ShopEquipment/'=>'custom_shopequipment/',
+'Custom/Projects/Tickets'=>'custom_tickets/',
+'Custom/Projects/'=>'custom_projects/',
+'Premium/Apartments/Agent/'=>'premium_apartments_agent/',
+'Premium/Apartments/Rental/'=>'premium_apartments_rental/',
+'Premium/Apartments/Apartment/'=>'premium_apartments_apartment/',
+'Premium/GCProjects/'=>'gc_projects/',
+'Premium/ListManager/'=>'premium_listmanager/',
+'Premium/Projects/Tickets'=>'premium_tickets/',
+'Premium/Projects/'=>'premium_projects/',
+'Premium/SchooRegister/Lesson'=>'premium_schoolregister_lesson/',
+'Premium/Warehouse/eCommerce/Products/'=>'premium_ecommerce_products/',
+'Premium/Warehouse/eCommerce/ProductsDesc/'=>'premium_ecommerce_descriptions/',
+'Premium/Warehouse/eCommerce/Pages/'=>'premium_ecommerce_pages/',
+'Premium/Warehouse/eCommerce/PagesDesc/'=>'premium_ecommerce_pages_data/',
+'Premium/Warehouse/Items/Orders/'=>'premium_warehouse_items_orders/',
+'Premium/Warehouse/Items/'=>'premium_warehouse_items/',
+'Premium/Warehouse/Wholesale/'=>'premium_warehouse_distributor/',
+'Premium/Warehouse/'=>'premium_warehouse/',
+'Tests/Bugtrack/'=>'bugtrack/'
+);
+
+$ret = DB::Execute('SELECT * FROM utils_attachment_link');
+while ($row = $ret->FetchRow()) {
+	foreach ($trans as $k=>$v) {
+		$old_local = $row['local'];
+		$row['local'] = str_replace($k, $v, $row['local']);
+		if ($row['local']!=$old_local)
+			DB::Execute('UPDATE utils_attachment_link SET local=%s WHERE id=%d', array($row['local'], $row['id']));
+	}
+}
+
+foreach ($trans as $k=>$v) {
+	$path = explode('/', $k);
+	$last = array_pop($path);
+	@mkdir('data/Utils_Attachment/'.$v);
+	$dirs = scandir('data/Utils_Attachment/'.implode('/',$path));
+	foreach ($dirs as $d) {
+		if ($d=='.' || $d=='..') continue;
+		$new = str_replace($last,'',$d);
+		if ($new)
+			rename('data/Utils_Attachment/'.implode('/',$path).'/'.$d, 'data/Utils_Attachment/'.$v.'/'.$new);
+	}
+}
+}
 }
 //=========================================================================
 
