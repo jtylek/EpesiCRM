@@ -172,7 +172,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$start = Base_RegionalSettingsCommon::time2reg($ev['start'],false);
 		$pdf_theme->assign('start_date', array(	'label'=>$this->t('Start date'),
 												'value'=>$start,
-												'details'=>array('weekday'=>date('l', strtotime($start)))));
+												'details'=>array('weekday'=>$this->t(date('l', strtotime($start))))));
 		if (!isset($ev['timeless'])) {
 			$pdf_theme->assign('start_time', array(	'label'=>$this->t('Start time'),
 													'value'=>Base_RegionalSettingsCommon::time2reg($ev['start'],true,false)));
