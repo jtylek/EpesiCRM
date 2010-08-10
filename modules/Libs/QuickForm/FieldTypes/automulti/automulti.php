@@ -87,7 +87,8 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.Base_LangCommon::ts('Libs/QuickForm','No records founds').'</span></li>';
     	}
     	foreach ($result as $k=>$v) {
-    		$disp = call_user_func($format, $k);
+    		if ($format) $disp = call_user_func($format, $k);
+			else $disp = $v;
 			$ret .= '<li><span style="display:none;">'.$k.'__'.$disp.'</span><span class="informal">'.$v.'</span></li>';
     	}
     	$ret .= '</ul>';

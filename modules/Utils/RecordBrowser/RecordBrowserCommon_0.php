@@ -1758,13 +1758,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
         $op = '(';
         foreach ($fields as $f) {
-            $crits[$op.'~"'.$f] = $str;
+            $crits[$op.'~"'.strtolower(str_replace(' ','_',$f))] = $str;
             $op = '|';
         }
-        $records = self::get_records($tab, $crits, array(), array(), 10);
+        $records = self::get_records($ref[0], $crits, array(), array(), 10);
         $ret = array();
-        foreach ($records as $r)
-            $ret[$r['id']] = call_user_func($f_callback, $r);
+        foreach ($records as $r) {
+			if ($f_callback) $ret[$r['id']] = call_user_func($f_callback, $r);
+			else $ret[$r['id']] = self::create_default_linked_label($ref[0], $r['id'], true, false);
+		}
         return $ret;
     }
 
