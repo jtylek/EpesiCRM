@@ -1465,7 +1465,7 @@ class Utils_RecordBrowser extends Module {
                                             $col_id = array();
                                             foreach ($col as $c) $col_id[] = preg_replace('/[^a-z0-9]/','_',strtolower($c));
                                             $rec_count = Utils_RecordBrowserCommon::get_records_count($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
-                                            if ($rec_count<=50 || $args['type']!='multiselect') {
+                                            if ($rec_count<=Utils_RecordBrowserCommon::$options_limit || $args['type']!='multiselect' || empty($multi_adv_params['format_callback'])) {
                                                 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
                                             } else {
                                                 $records = array();
@@ -1519,7 +1519,7 @@ class Utils_RecordBrowser extends Module {
                                             if (empty($multi_adv_params['order'])) natcasesort($comp);
                                         }
                                         if ($args['type']==='select') $comp = array(''=>'---')+$comp;
-                                        if ($rec_count>50 && $args['type']=='multiselect' && $multi_adv_params['format_callback']) {
+                                        if ($rec_count>Utils_RecordBrowserCommon::$options_limit && $args['type']=='multiselect' && $multi_adv_params['format_callback']) {
                                             $f_callback = $multi_adv_params['format_callback'];
                                             $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);
                                         } else {
