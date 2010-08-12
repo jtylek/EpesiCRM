@@ -643,7 +643,7 @@ class Utils_RecordBrowser extends Module {
         $search_res = array();
         if ($gb->is_adv_search_on()) {
             foreach ($search as $k=>$v) {
-                $k = str_replace('__',':',$k);
+                $k = str_replace(array('__Ref__','__RefCD__'),array(':Ref:',':RefCD:'),$k);
                 $type = explode(':',$k);
                 if ($k[0]=='"') {
                     $search_res['~_'.$k] = $v;
@@ -671,7 +671,7 @@ class Utils_RecordBrowser extends Module {
             $leftovers = array();
             foreach ($val2 as $vv) {
                 foreach ($search as $k=>$v) {
-                    $k = str_replace('__',':',$k);
+					$k = str_replace(array('__Ref__','__RefCD__'),array(':Ref:',':RefCD:'),$k);
                     if ($v!=$val) {
                         $leftovers[$k] = $v;
                         continue;
