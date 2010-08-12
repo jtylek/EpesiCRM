@@ -158,6 +158,7 @@ class Apps_Shoutbox extends Module {
 			}
 		} else {
 			print($this->t('Please log in to post message').'<br>');
+			return;
 		}
 
 		$theme->assign('board','<div id=\'shoutbox_board'.($big?'_big':'').'\'></div>');
