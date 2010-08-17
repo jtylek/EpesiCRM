@@ -106,14 +106,18 @@ class epesi_companies_addressbook_backend extends rcube_addressbook
         } else {
             $ret = DB::Execute('SELECT c.id as ID,c.f_company_name, m.f_email as memails, m.id as mid, '.implode(', ',$m_cols).' FROM company_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type="company") WHERE c.active=1 AND (c.f_permission<2 OR c.created_by=%d) AND ('.implode(' LIKE CONCAT("%%",'.DB::qstr($value).',"%%") OR ',$m_cols).' LIKE CONCAT("%%",'.DB::qstr($value).',"%%") OR c.f_company_name LIKE CONCAT("%%",%s,"%%") OR c.f_short_name LIKE CONCAT("%%",%s,"%%") OR m.f_email LIKE CONCAT("%%",%s,"%%")) ORDER BY c.f_company_name'.($subset?' LIMIT '.$subset:''),array($E_SESSION['user'],$value,$value,$value));
         }
+        $done_ids = array();
         while($row = $ret->FetchRow()) {
             $row2 = array('name'=>$row['f_company_name']);
             $id = $row['ID'];
-            foreach ($m_cols2 as $k=>$m) {
-                if(!$row[$m]) continue;
-                $row2['email'] = $row[$m];
-                $row2['ID'] = $id.'/'.$k;
-                $this->result->add($row2);
+            if(!isset($done_ids[$id])) {
+                $done_ids[$id] = 1;
+                foreach ($m_cols2 as $k=>$m) {
+                    if(!$row[$m]) continue;
+                    $row2['email'] = $row[$m];
+                    $row2['ID'] = $id.'/'.$k;
+                    $this->result->add($row2);
+                }
             }
             if($row['memails']) {
                 $row2['email'] = $row['memails'];

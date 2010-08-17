@@ -104,13 +104,17 @@ class epesi_contacts_addressbook_backend extends rcube_addressbook
             $ret = DB::Execute('SELECT c.id as ID,c.f_first_name as firstname, c.f_last_name as surname, m.f_email as memails, m.id as mid, '.implode(', ',$m_cols).' FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type="contact") WHERE c.active=1 AND (c.f_permission<2 OR c.created_by=%d) AND ('.implode('='.DB::qstr($value).' OR ',$m_cols).'='.DB::qstr($value).' OR c.f_first_name=%s OR c.f_last_name=%s OR m.f_email=%s) ORDER BY c.f_last_name,c.f_first_name'.($subset?' LIMIT '.$subset:''),array($E_SESSION['user'],$value,$value,$value));
         else
             $ret = DB::Execute('SELECT c.id as ID,c.f_first_name as firstname, c.f_last_name as surname, m.f_email as memails, m.id as mid, '.implode(', ',$m_cols).' FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type="contact") WHERE c.active=1 AND (c.f_permission<2 OR c.created_by=%d) AND ('.implode(' LIKE CONCAT("%%",'.DB::qstr($value).',"%%") OR ',$m_cols).' LIKE CONCAT("%%",'.DB::qstr($value).',"%%") OR c.f_first_name LIKE CONCAT("%%",%s,"%%") OR c.f_last_name LIKE CONCAT("%%",%s,"%%") OR m.f_email LIKE CONCAT("%%",%s,"%%")) ORDER BY c.f_last_name,c.f_first_name'.($subset?' LIMIT '.$subset:''),array($E_SESSION['user'],$value,$value,$value));
+        $done_ids = array();
         while($row = $ret->FetchRow()) {
             $row2 = array('name'=>$row['surname'].' '.$row['firstname']);
             $id = $row['ID'];
-            foreach ($m_cols2 as $k=>$m) {
-                $row2['email'] = $row[$m];
-                $row2['ID'] = $id.'/'.$k;
-                $this->result->add($row2);
+            if(!isset($done_ids[$id])) {
+                $done_ids[$id] = 1;
+                foreach ($m_cols2 as $k=>$m) {
+                    $row2['email'] = $row[$m];
+                    $row2['ID'] = $id.'/'.$k;
+                    $this->result->add($row2);
+                }
             }
             if($row['memails']) {
                 $row2['email'] = $row['memails'];
