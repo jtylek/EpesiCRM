@@ -198,7 +198,7 @@ $rcmail_config['username_domain'] = '';
 
 // This domain will be used to form e-mail addresses of new users
 // Specify an array with 'host' => 'domain' values to support multiple hosts
-$rcmail_config['mail_domain'] = $account['f_email'];
+$rcmail_config['mail_domain'] = '';
 
 // Password charset.
 // Use it if your authentication backend doesn't support UTF-8.
@@ -268,7 +268,7 @@ $rcmail_config['email_dns_check'] = false;
 // List of active plugins (in plugins/ directory)
 $rcmail_config['plugins'] = array('epesi_init','epesi_autologon','epesi_autorelogon','epesi_addressbook','additional_message_headers','epesi_archive','markasjunk');
 
-$rcmail_config['additional_message_headers'] = array('Epesi-User'=>DB::GetOne('SELECT login FROM user_login WHERE id=%d',array($E_SESSION['user'])));
+$rcmail_config['additional_message_headers'] = array('Epesi-User'=>DB::GetOne('SELECT login FROM user_login WHERE id=%d',array($E_SESSION['user'])),'Reply-To'=>$account['f_email']);
 
 // ----------------------------------
 // USER INTERFACE
