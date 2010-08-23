@@ -39,6 +39,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
         $fields = array(
             array('name'=>'Epesi User',             'type'=>'integer', 'extra'=>false, 'visible'=>true, 'required'=>true, 'display_callback'=>array('CRM_RoundcubeCommon', 'display_epesi_user'), 'QFfield_callback'=>array('CRM_RoundcubeCommon', 'QFfield_epesi_user')),
+            array('name'=>'Email',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>128, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
             array('name'=>'Server',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'param'=>'255', 'required'=>true),
             array('name'=>'Login',              'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true),
             array('name'=>'Password',           'type'=>'text', 'required'=>true,'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_password')),

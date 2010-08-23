@@ -198,7 +198,7 @@ $rcmail_config['username_domain'] = '';
 
 // This domain will be used to form e-mail addresses of new users
 // Specify an array with 'host' => 'domain' values to support multiple hosts
-$rcmail_config['mail_domain'] = '';
+$rcmail_config['mail_domain'] = $account['f_email'];
 
 // Password charset.
 // Use it if your authentication backend doesn't support UTF-8.

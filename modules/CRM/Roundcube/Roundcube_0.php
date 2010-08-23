@@ -21,7 +21,7 @@ class CRM_Roundcube extends Module {
             if($def===null) $def = $a;
             if($def_id===null && $a['default_account']) $def = $a;
             elseif($a['id']==$def_id) $def = $a;
-            Base_ActionBarCommon::add('add',$a['login'], $this->create_callback_href(array($this,'account'),$a['id']),$a['server']);
+            Base_ActionBarCommon::add('add',$a['email'], $this->create_callback_href(array($this,'account'),$a['id']),$a['server']);
         }
         if($def===null) {
             print($this->t('No accounts'));
