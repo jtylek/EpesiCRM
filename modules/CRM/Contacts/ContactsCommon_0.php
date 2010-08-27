@@ -805,6 +805,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!isset($arg['create_new_user']) || !$arg['create_new_user']) return true;
         if (!$arg['email']) return array('login'=>Base_LangCommon::ts('CRM/Contacts','E-mail is required when creating new user.'));
         if (!$arg['new_login']) return array('login'=>Base_LangCommon::ts('Libs/QuickForm','Field required'));
+        if (strlen($arg['new_login'])<3 || strlen($arg['new_login'])>32) return array('login'=>Base_LangCommon::ts('CRM/Contacts','A username must be between 3 and 32 chars'));
         if (Base_UserCommon::get_user_id($arg['new_login'])) return array('login'=>Base_LangCommon::ts('Base/User/Administrator','Username already taken'));
         return true;
     }

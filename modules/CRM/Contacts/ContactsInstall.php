@@ -169,11 +169,10 @@ class CRM_ContactsInstall extends ModuleInstall {
 
 	public static function post_install() {
 		$loc = Base_RegionalSettingsCommon::get_default_location();
-		$count = DB::GetOne('SELECT count(ul.id) FROM user_login ul');
 		$ret = array(array('type'=>'text','name'=>'cname','label'=>'Company name','default'=>'','param'=>array('maxlength'=>64),'rule'=>array(array('type'=>'required','message'=>'Field required'))),
 			     array('type'=>'text','name'=>'sname','label'=>'Short company name','default'=>'','param'=>array('maxlength'=>64)),
 			);
-		if($count==1) {
+		if(Acl::is_user()) {
 			$ret[] = array('type'=>'text','name'=>'fname','label'=>'Your first name','default'=>'','param'=>array('maxlength'=>64), 'rule'=>array(array('type'=>'required','message'=>'Field required')));
 			$ret[] = array('type'=>'text','name'=>'lname','label'=>'Your last name','default'=>'','param'=>array('maxlength'=>64), 'rule'=>array(array('type'=>'required','message'=>'Field required')));
 		}
