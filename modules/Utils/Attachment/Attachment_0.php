@@ -120,24 +120,35 @@ class Utils_Attachment extends Module {
 		if(!$this->persistent_deletion)
 			$vd = isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments'];
 
-		$gb = $this->init_module('Utils/GenericBrowser',null,md5($this->group));
+		$gb = $this->init_module('Utils/GenericBrowser',null,md5(serialize($this->group)));
 		$cols = array();
 		if($vd)
 			$cols[] = array('name'=>$this->t('Deleted'),'order'=>'ual.deleted','width'=>5);
 		if($this->author)
 			$cols[] = array('name'=>$this->t('User'), 'order'=>'note_by','width'=>5);
+		if (is_array($this->group)) $cols[] = array('name'=>$this->t('Source'),'width'=>5, 'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>1,'wrapmode'=>'nowrap');
 		$expand_id = 'expand_collapse_'.md5($this->get_path());
 		$cols[] = array('name'=>$this->t('Note'), 'preppend'=>'<span id="'.$expand_id.'"></span>', 'width'=>70);
 		$cols[] = array('name'=>$this->t('Attachment'), 'order'=>'uaf.original','width'=>5);
 		$gb->set_table_columns($cols);
 
+		if (!is_array($this->group)) $group = DB::qstr($this->group);
+		else {
+			if (empty($this->group))
+				$group = DB::qstr('');
+			else {
+				$group = array();
+				foreach ($this->group as $k=>$v) $group[$k] = DB::qstr($v);
+				$group = implode(' OR ual.local=', $group);
+			}
+		}
 		if($vd) {
-			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)';
-			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.local='.DB::qstr($this->group);
+			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by, ual.func AS search_func, ual.args AS search_func_args FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)';
+			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual WHERE (false OR ual.local='.$group.')';
 		} else {
-			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0';
-			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.local='.DB::qstr($this->group).'  AND ual.deleted=0';
+			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by, ual.func AS search_func, ual.args AS search_func_args FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0';
+			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual WHERE (false OR ual.local='.$group.') AND ual.deleted=0';
 		}
 		$gb->set_default_order(array($this->t('Date')=>'DESC'));
 
@@ -251,12 +262,21 @@ class Utils_Attachment extends Module {
 				$arr[] = ($row['deleted']?'yes':'no');
 			if($this->author)
 				$arr[] = $row['note_by'];
+			if (is_array($this->group)) {
+				$callback = unserialize($row['search_func']);
+				if (is_callable($callback)) {
+					$args = unserialize($row['search_func_args']);
+					$arr[] = call_user_func_array($callback, $args);
+				} else {
+					$arr[] = $row['local'];
+				}
+			}
 			$arr[] = $regional_note_on;
 			$arr[] = $text;
 			$arr[] = $file;
 			$r->add_data_array($arr);
 		}
-		if($this->public_write) {
+		if($this->public_write && !is_array($this->group)) {
 			if(!$this->action_bar_button) {
 				$href = $this->create_callback_href(array($this,'edit_note_queue'));
 				$custom_label = '<a '.$href.' '.Utils_TooltipCommon::open_tag_attrs($this->t('New note')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>';
