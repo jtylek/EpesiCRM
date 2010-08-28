@@ -35,6 +35,7 @@ class CRM_PhoneCall extends Module {
 		$a = $this->init_module('Utils/Attachment',array('phonecall/'.$arg['id']));
 		$a->action_bar_attach_file(false);
 		$a->enable_watchdog('phonecall',$arg['id']);
+		$a->set_view_func(array('CRM_PhoneCallCommon','search_format'),array($arg['id']));
 		$a->additional_header($this->t('Phone Call: %s',array($arg['subject'])));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));

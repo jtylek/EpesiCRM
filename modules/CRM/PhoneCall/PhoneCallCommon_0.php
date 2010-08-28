@@ -382,6 +382,12 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				$details
 			);
 	}
+	
+	public static function search_format($id) {
+		$phone = self::get_phonecall($id);
+		if(!$phone) return false;
+		return Utils_RecordBrowserCommon::record_link_open_tag('phonecall', $phone['id']).Base_LangCommon::ts('CRM_PhoneCall', 'Phonecall (attachment) #%d, %s at %s', array($phone['id'], $phone['subject'], Base_RegionalSettingsCommon::time2reg($phone['date_and_time']))).Utils_RecordBrowserCommon::record_link_close_tag();
+	}
 
 	public static function get_alarm($id) {
 		$a = Utils_RecordBrowserCommon::get_record('phonecall',$id);
