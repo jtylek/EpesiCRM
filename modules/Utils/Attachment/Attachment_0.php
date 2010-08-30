@@ -580,6 +580,7 @@ class Utils_Attachment extends Module {
 			$fck = $form->addElement('fckeditor', 'note', $this->t('Note'));
 			$fck->setFCKProps('800','300');
 			
+    		$form->addRule('note',$this->t('Maximal lenght of note exceeded'),'maxlength',65535);
 			$form->set_upload_button_caption('Save');
 			if($form->getSubmitValue('note')=='' && !$form->is_file())
 				$form->addRule('note',$this->t('Please enter note or choose file'),'required');
