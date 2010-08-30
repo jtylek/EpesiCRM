@@ -1846,12 +1846,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach ($access as $k=>$v)
                 if (!$v) unset($rec[$k]);
 
-        if(Utils_RecordBrowserCommon::get_access($tab, 'edit', $rec))
-            print('<a '.(IPHONE?'class="button blue" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($tab,$id),Base_LangCommon::ts('Utils_RecordBrowser','Record edition')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Edit').'</a>'.(IPHONE?'':'<br />'));
-
-        if(Utils_RecordBrowserCommon::get_access($tab, 'delete', $rec))
-            print('<a '.(IPHONE?'class="button red" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_delete'), array($tab,$id),Base_LangCommon::ts('Utils_RecordBrowser','Record deletion')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Delete').'</a>'.(IPHONE?'':'<br />'));
-
         $cols = Utils_RecordBrowserCommon::init($tab);
         if(IPHONE) {
             print('<ul class="field">');
@@ -1868,6 +1862,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 print(Base_LangCommon::ts('Utils_RecordBrowser',$col['name']).': '.$val.'<br>');
             }
         }
+
+        if(Utils_RecordBrowserCommon::get_access($tab, 'edit', $rec))
+            print('<a '.(IPHONE?'class="button blue" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($tab,$id),Base_LangCommon::ts('Utils_RecordBrowser','Record edition')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Edit').'</a>'.(IPHONE?'':'<br />'));
+
+        if(Utils_RecordBrowserCommon::get_access($tab, 'delete', $rec))
+            print('<a '.(IPHONE?'class="button red" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_delete'), array($tab,$id),Base_LangCommon::ts('Utils_RecordBrowser','Record deletion')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Delete').'</a>'.(IPHONE?'':'<br />'));
+
     }
 
     public static function mobile_rb_edit($tab,$id) {
