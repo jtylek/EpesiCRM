@@ -139,6 +139,12 @@
     background-image: url('images/button-small-hover.gif');
 }
 
+#multiselect .buttons .button input[disabled],
+#multiselect .buttons .button input[readonly] {
+    background-color: transparent;
+    background-image: url('images/button-small-disabled.gif');
+}
+
 /*** automulti ***/
 
 #automulti {

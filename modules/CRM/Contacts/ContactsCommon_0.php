@@ -743,7 +743,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         }
         if ($mode=='add' || $mode=='edit') {
             if (self::$paste_or_new=='new') {
-                $form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, 'onClick="document.getElementsByName(\'company_name\')[0].disabled=this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','Create a new company for this contact')));
+				load_js('modules/CRM/Contacts/contacts.js');
+                $form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, 'onClick="crm_contacts_display_company(this.checked);document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','Create a new company for this contact')));
                 $form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
                 $form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
                 if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
@@ -752,7 +753,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                         'function update_create_company_name_field() {'.
                             'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
                         '}');
-                eval_js('document.getElementsByName("company_name")[0].disabled=document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+                eval_js('crm_contacts_display_company(document.getElementsByName("create_company")[0].checked);document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
             } else {
                 $comp = self::get_company(self::$paste_or_new);
                 $paste_company_info =
