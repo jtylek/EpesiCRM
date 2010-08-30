@@ -703,7 +703,7 @@
 								}
 							
 								ul.field li a {
-									font-size: 13px;
+									font-size: 19px; /* epesi fix for ugly, little links in view record panel */
 									line-height: 18px;
 									overflow: visible;
 									white-space: normal;
@@ -711,7 +711,6 @@
 									width: 60%;
 									padding: 0;
 									margin: 0 0 0 0;
-									vertical-align: top;
 									}
 									
 								ul.field li big {

@@ -1844,7 +1844,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $access = Utils_RecordBrowserCommon::get_access($tab, 'view',$rec);
         if (is_array($access))
             foreach ($access as $k=>$v)
-                if (!$v) unset($rec[$k]);
+                if (!$v) $rec[$k] = '';
 
         $cols = Utils_RecordBrowserCommon::init($tab);
         if(IPHONE) {

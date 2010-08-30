@@ -139,7 +139,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 	
 	public static function mobile_agenda($time_shift=0) {
-		print(Base_RegionalSettingsCommon::time2reg(time()+$time_shift,false,true).' - '.Base_RegionalSettingsCommon::time2reg(time()+7*24*3600+$time_shift,false,true).'<br>');
+		print('<center>'.Base_RegionalSettingsCommon::time2reg(time()+$time_shift,false,true).' - '.Base_RegionalSettingsCommon::time2reg(time()+7*24*3600+$time_shift,false,true).'</center>');
 	
 //		print('<a '.(IPHONE?'class="button blue" ':'').mobile_stack_href(array('CRM_CalendarCommon','mobile_add_event')).'>'.Base_LangCommon::ts('Utils_Calendar','Add event').'</a>');
 		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
