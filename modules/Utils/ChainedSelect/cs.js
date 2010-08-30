@@ -75,6 +75,15 @@ ChainedSelect.prototype = {
 				var new_opts = t.responseText.evalJSON();
 				var obj = $(dest_id);
 				var opts = obj.options;
+                if(new_opts == false) {
+                    obj.setAttribute("oldDisplayValue", obj.style.display);
+                    obj.style.display = "none";
+                    return;
+                } else {
+                    var val = obj.getAttribute("oldDisplayValue");
+                    if(val != undefined)
+                        obj.style.display = val;
+                }
 				opts.length=0;
 				if(new_opts.length==0) {
 					obj.fire('e_cs:clear');
