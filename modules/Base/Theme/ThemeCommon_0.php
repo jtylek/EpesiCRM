@@ -222,6 +222,16 @@ class Base_ThemeCommon extends ModuleCommon {
 			return false;
 		}
 	}
+
+    /**
+     * Get generic icon file.
+     *
+     * @param string $name icon name without extension. To check available icons explore Base/Theme/images/icons.
+     * @return string path to icon
+     */
+    public static function get_icon($name) {
+        return self::get_template_dir().'images/icons/'.$name.'.png';
+    }
 	
 	private static function get_images($dir) {
 		$content = scandir($dir);
