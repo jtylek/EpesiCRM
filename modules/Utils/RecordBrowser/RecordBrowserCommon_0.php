@@ -780,7 +780,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function add_recent_entry($tab, $user_id ,$id){
         self::check_table_name($tab);
-        DB::StartTrans();
         static $rec_size;
         if (!isset($rec_size)) $rec_size = DB::GetOne('SELECT recent FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
         DB::Execute('DELETE FROM '.$tab.'_recent WHERE user_id = %d AND '.$tab.'_id = %d',
@@ -800,7 +799,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     array($id,
                     $user_id,
                     date('Y-m-d H:i:s')));
-        DB::CompleteTrans();
     }
     public static function merge_crits($a = array(), $b = array()) {
         foreach ($b as $k=>$v){
