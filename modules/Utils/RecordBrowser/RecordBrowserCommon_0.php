@@ -689,7 +689,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$values = self::record_processing($tab, $for_processing, 'add');
 
         self::init($tab);
-        DB::StartTrans();
         $fields = 'created_on,created_by,active';
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d G:i:s'), Acl::get_user(), 1);
@@ -709,7 +708,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('INSERT INTO '.$tab.'_data_1 ('.$fields.') VALUES ('.$fields_types.')',$vals);
         $id = DB::Insert_ID($tab.'_data_1', 'id');
         self::add_recent_entry($tab, Acl::get_user(), $id);
-        DB::CompleteTrans();
         if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_fav'))
             DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
         if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_subs'))
@@ -1347,12 +1345,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function set_active($tab, $id, $state){
         self::check_table_name($tab);
-        DB::StartTrans();
         DB::Execute('UPDATE '.$tab.'_data_1 SET active=%d WHERE id=%d',array($state?1:0,$id));
         DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
         $edit_id = DB::Insert_ID($tab.'_edit_history','id');
         DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state?'RESTORED':'DELETED')));
-        DB::CompleteTrans();
 
 		$values = self::record_processing($tab, self::get_record($tab, $id), $state?'restore':'delete');
     }
