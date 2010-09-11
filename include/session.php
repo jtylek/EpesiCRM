@@ -8,7 +8,11 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-if(!SET_SESSION) return;
+if(!SET_SESSION) {
+    global $_SESSION;
+    $_SESSION = array();
+    return;
+}
 
 require_once('database.php');
 
