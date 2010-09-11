@@ -8,6 +8,7 @@
  * @package epesi-base
  */
 define('CID',false);
+define('SET_SESSION',false);
 if(isset($argv))
 	define('EPESI_DIR','/');
 require_once('include.php');
