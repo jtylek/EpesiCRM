@@ -11,6 +11,7 @@ define('CID',false);
 if(isset($argv))
 	define('EPESI_DIR','/');
 require_once('include.php');
+set_time_limit(0);
 
 $user = Acl::get_user();
 Acl::set_user();
