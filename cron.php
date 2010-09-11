@@ -14,15 +14,10 @@ if(isset($argv))
 require_once('include.php');
 set_time_limit(0);
 
-$user = Acl::get_user();
-Acl::set_user();
-
 ModuleManager::load_modules();
 $ret = ModuleManager::call_common_methods('cron');
 foreach($ret as $name=>$obj) {
 	print($name.":<br>".$obj."<hr>");
 }
-
-Acl::set_user($user);
 
 ?>
