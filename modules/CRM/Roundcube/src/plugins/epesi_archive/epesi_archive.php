@@ -33,8 +33,8 @@ class epesi_archive extends rcube_plugin
       $rcmail->output->set_env('archive_mailbox_icon', $this->url($skin_path.'/foldericon.png'));
 
       // add archive folder to the list of default mailboxes
-      if (($default_folders = $rcmail->config->get('default_imap_folders')) && !in_array($archive_mbox, $default_folders)) {
-        $default_folders[] = $archive_mbox;
+      if (($default_folders = $rcmail->config->get('default_imap_folders')) && !in_array($this->archive_mbox, $default_folders)) {
+        $default_folders[] = $this->archive_mbox;
         $rcmail->config->set('default_imap_folders', $default_folders);
       }
 

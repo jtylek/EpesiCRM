@@ -25,7 +25,7 @@ $translations['Base_User_Login']['Cancel']='Anulare';
 $translations['Base_User_Login']['A username must be between 3 and 32 chars']='Numele de utilizator trebuie sa fie intre 3 si 32 de caractere';
 $translations['Base_User_Login']['Username or e-mail invalid']='Utilizator sau adresa de e-mail invalide';
 $translations['Base_User_Login']['This isn\'t valid e-mail address']='Aceasta nu este o adresa de mail valida';
-$translations['Base_User_Login']['Warning: Unable to send e-mail with password. Check Mail module configuration.']='Atentionare: Nu pot trimite parola prin e-mail. Verificati configurarea modului e-mail';
+$translations['Base_User_Login']['Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.']='Atentionare: Nu pot trimite parola prin e-mail. Verificati configurarea modului e-mail';
 $translations['Base_User_Login']['Your account at %s']='';
 $translations['Base_User_Login']['This e-mail is to inform you that a user account was setup for you at: %s
 Your login name is: %s

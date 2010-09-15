@@ -68,6 +68,13 @@ class CRM_RoundcubeCommon extends ModuleCommon {
         if($mode=='view') $form->freeze(array($field));
     }
     
+    public static function QFfield_security(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+        $form->addElement('commondata', $field, $label,array('CRM/Roundcube/Security'),array('empty_option'=>true));
+        $form->addRule($field,Base_LangCommon::ts('CRM_Roundcube','OpenSSL not available - cannot set TLS/SSL. Please contact Epesi administrator.'),'callback',array('CRM_RoundcubeCommon','check_ssl'));
+        $form->setDefaults(array($field=>$default));
+        if($mode=='view') $form->freeze(array($field));
+    }
+    
     public static function check_ssl($o) {
         if($o=='ssl' || $o=='tls') return extension_loaded('openssl');
         return true;

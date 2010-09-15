@@ -25,7 +25,7 @@ $translations['Base_User_Login']['Cancel']='Avbryt';
 $translations['Base_User_Login']['A username must be between 3 and 32 chars']='Ett användarnamn måste vara mellan 3 och 32 tecken';
 $translations['Base_User_Login']['Username or e-mail invalid']='Användarnamn eller e-post ogiltig';
 $translations['Base_User_Login']['This isn\'t valid e-mail address']='Det här är inte en giltig e-postadress';
-$translations['Base_User_Login']['Warning: Unable to send e-mail with password. Check Mail module configuration.']='Varning: Det går inte att skicka e-post med lösenord. Granska e-postmodulkonfigurationen.';
+$translations['Base_User_Login']['Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.']='Varning: Det går inte att skicka e-post med lösenord. Granska e-postmodulkonfigurationen.';
 $translations['Base_User_Login']['Your account at %s']='Ditt konto på %s';
 $translations['Base_User_Login']['This e-mail is to inform you that a user account was setup for you at: %s
 Your login name is: %s

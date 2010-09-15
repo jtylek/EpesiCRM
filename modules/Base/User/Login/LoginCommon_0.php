@@ -115,7 +115,7 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 		
 		if($send_mail) {
 			if(!self::send_mail_with_password($username, $pass, $mail)) {
-				print(Base_LangCommon::ts('Base/User/Login','Warning: Unable to send e-mail with password. Check Mail module configuration.'));
+				print(Base_LangCommon::ts('Base/User/Login','Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.'));
 			}
 		}
 

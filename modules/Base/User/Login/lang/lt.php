@@ -37,7 +37,7 @@ Jūsų slaptažodis yra:% s
 Dėl saugumo priežasčių bus perjungiamas, kad jūs prisijungęs iš karto turėsite pakeisti savo slaptažodį.
 
 Šis e-mail buvo automatiškai sugeneruotas ir nereikia atsakyti į jį.';
-$translations['Base_User_Login']['Warning: Unable to send e-mail with password. Check Mail module configuration.']='Perspėjimas: Negalime nusiųsti el.pašto su slaptažodžiu. Tikrinti paštą modulio konfigūraciją.';
+$translations['Base_User_Login']['Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.']='Perspėjimas: Negalime nusiųsti el.pašto su slaptažodžiu. Tikrinti paštą modulio konfigūraciją.';
 $translations['Base_User_Login']['You have exceeded the number of allowed login attempts.<BR>']='Jūs viršijote leidžiamą Login bandymų skaičių.<BR>';
 $translations['Base_User_Login']['Host banned. Click here to refresh.']='Priimančiosios uždraustas. Spauskite čia, norėdami atnaujinti.';
 $translations['Base_User_Login']['Mail with password sent.']='';
