@@ -200,8 +200,9 @@ class Utils_Attachment extends Module {
 
 			static $def_permissions = array('Public','Protected','Private');
 			$perm = $this->t($def_permissions[$row['permission']]);
-			$note_on = Base_RegionalSettingsCommon::time2reg($row['note_on'],0);
-			$note_on_time = Base_RegionalSettingsCommon::time2reg($row['note_on'],1);
+			$created_on = $row['note_on']>$row['upload_on']?$row['note_on']:$row['upload_on'];
+			$note_on = Base_RegionalSettingsCommon::time2reg($created_on,0);
+			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
 			$info = $this->t('Owner: %s',array($row['permission_owner'])).'<br>'.
 				$this->t('Permission: %s',array($perm)).'<hr>'.
 				$this->t('Last edited by %s<br>on %s<br>Number of edits: %d',array($row['note_by'],$note_on_time,$row['note_revision']));
