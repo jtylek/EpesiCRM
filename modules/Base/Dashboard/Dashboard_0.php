@@ -247,8 +247,10 @@ class Base_Dashboard extends Module {
 		if($this->is_back()) return false;
 		Base_ActionBarCommon::add('back','Dashboard',$this->create_back_href());
 
+        $in_use = DB::GetAssoc('SELECT module_name,1 FROM base_dashboard_applets WHERE user_login_id=%d',array(Acl::get_user()));
 
 		$buttons = array();
+		$buttons_in_use = array();
 		$app_cap = ModuleManager::call_common_methods('applet_caption');
 		asort($app_cap);
 		$app_info = ModuleManager::call_common_methods('applet_info');
@@ -282,8 +284,12 @@ class Base_Dashboard extends Module {
 				$desc = strip_tags((!is_string($app_info[$name]) && isset($app_info[$name]['description']))?$app_info[$name]['description']:$info);
 			else 
 				$desc = '';
-			$buttons[] = array('link'=>'<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($name,$tab_id)).'>'.$cap.'</a>',
-						'icon'=>$icon,'desc'=>((strlen($desc)>100)?substr($desc,0,100).'...':$desc));
+		    if(isset($in_use[$name]))
+		    	$buttons_in_use[] = array('link'=>'<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($name,$tab_id)).'>'.$cap.'</a>',
+			    			'icon'=>$icon,'desc'=>((strlen($desc)>100)?substr($desc,0,100).'...':$desc));
+			else
+	    		$buttons[] = array('link'=>'<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($name,$tab_id)).'>'.$cap.'</a>',
+    						'icon'=>$icon,'desc'=>((strlen($desc)>100)?substr($desc,0,100).'...':$desc));
 		}
 
 		if(empty($buttons)) {
@@ -293,7 +299,9 @@ class Base_Dashboard extends Module {
 
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $this->t('Add applet'));
+		$theme->assign('header_in_use', $this->t('Already added applets'));
 		$theme->assign('buttons', $buttons);
+		$theme->assign('buttons_in_use', $buttons_in_use);
 		$theme->display('list');
 
 		return true;
