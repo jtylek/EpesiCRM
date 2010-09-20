@@ -409,7 +409,8 @@ class HTML_QuickForm_element extends HTML_Common
         switch ($event) {
             case 'createElement':
                 $className = get_class($this);
-                $this->$className($arg[0], $arg[1], $arg[2], $arg[3], $arg[4]);
+				call_user_func_array(array($this, $className), $arg);
+//                $this->$className($arg[0], $arg[1], $arg[2], $arg[3], $arg[4]);
                 break;
             case 'addElement':
                 $this->onQuickFormEvent('createElement', $arg, $caller);
