@@ -203,7 +203,7 @@ class CRM_RoundcubeCommon extends ModuleCommon {
     }
 
     public static function delete_addon($rs) {
-        Utils_RecordBrowserCommon::new_addon($rs, 'CRM/Roundcube', 'addon');
+        Utils_RecordBrowserCommon::delete_addon($rs, 'CRM/Roundcube', 'addon');
     }
 
 	public static function access_mail_addresses($action, $param=null){
