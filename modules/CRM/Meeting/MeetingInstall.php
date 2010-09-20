@@ -20,8 +20,8 @@ class CRM_MeetingInstall extends ModuleInstall {
 
 			array('name'=>'Description', 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
 
-			array('name'=>'Date', 				'type'=>'date', 'extra'=>false, 'visible'=>true, 'param'=>'255', 'visible'=>false),
-			array('name'=>'Time', 				'type'=>'time', 'extra'=>false, 'visible'=>true, 'param'=>'255', 'visible'=>false),
+			array('name'=>'Date', 				'type'=>'date', 'extra'=>false, 'visible'=>true, 'param'=>'255'),
+			array('name'=>'Time', 				'type'=>'time', 'extra'=>false, 'visible'=>true, 'param'=>'255'),
 			array('name'=>'Duration', 			'type'=>'integer', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_duration')),
 
 			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_MeetingCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('CRM_MeetingCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true),
@@ -31,9 +31,9 @@ class CRM_MeetingInstall extends ModuleInstall {
 			array('name'=>'Priority', 			'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>array('order_by_key'=>true,'CRM/Priority'), 'extra'=>false),
 			array('name'=>'Permission', 		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
 
-			array('name'=>'Recurrence type',	'type'=>'integer', 'required'=>false, 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_recurrence')),
-			array('name'=>'Recurrence end', 	'type'=>'date', 'required'=>false, 'extra'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_recurrence_end')),
-			array('name'=>'Recurrence hash', 	'type'=>'text', 'required'=>false, 'param'=>'16', 'extra'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_recurrence_hash'))
+			array('name'=>'Recurrence type',	'type'=>'integer', 'required'=>false, 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_recurrence')),
+			array('name'=>'Recurrence end', 	'type'=>'date', 'required'=>false, 'extra'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_recurrence_end'),'visible'=>false),
+			array('name'=>'Recurrence hash', 	'type'=>'text', 'required'=>false, 'param'=>'16', 'extra'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_recurrence_hash'),'visible'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('crm_meeting', $fields);
 		Utils_RecordBrowserCommon::set_tpl('crm_meeting', Base_ThemeCommon::get_template_filename('CRM/Meeting', 'default'));
