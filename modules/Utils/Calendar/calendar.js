@@ -24,7 +24,7 @@ add_events:function(css) {
 		Utils_Calendar.add_events_f();	
 	}	
 },
-add_event:function(dest_id,ev_id,draggable,duration) {
+add_event:function(dest_id,ev_id,draggable,duration,max_cut) {
 	var dest = $(dest_id);
 	var ev = $('utils_calendar_event:'+ev_id);
 	if(!ev) {
@@ -40,6 +40,7 @@ add_event:function(dest_id,ev_id,draggable,duration) {
 		dest.appendChild(ev);
 	} else {
 		ev.setAttribute('duration',duration);
+		ev.setAttribute('max_cut',max_cut);
 		ev.style.position = 'absolute';
 //		ev.style.overflow = 'hidden';
 
@@ -125,14 +126,16 @@ add_event_tag:function(dest,ev) {
 		cell.setAttribute('events_children',ch.toJSON());
 
 		if(cell.hasAttribute('join_rows')) {
-//			duration -= cell.getAttribute('join_rows');
-			duration -= 1;
+			max_cut = parseInt(ev.getAttribute('max_cut'));
+			cut = parseInt(cell.getAttribute('join_rows'));
+			if (cut>1 && max_cut>0 && max_cut<cut) cut = max_cut;
+			duration -= cut;
 			cell = $(cell.getAttribute('next_row'));
 		} else
 			duration = 0;
 		h++;
 	} while(duration>0);
-	ev.style.height = (h * dest.getHeight())+'px';
+	ev.style.height = (h * dest.getHeight() - 2)+'px';
 
 	var ev_w = ev.getWidth();
 	var offset_step = ev_w/5;
@@ -234,6 +237,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 								Utils_Calendar.remove_event_tag(droppable,element);
 								setTimeout(Utils_Calendar.flush_reload_event_tag,300);
 								//Utils_Calendar.flush_reload_event_tag();
+                                element.setAttribute('max_cut',0);
 							}
 
 							new Draggable(element, {

@@ -228,7 +228,7 @@ class Utils_Calendar extends Module {
 				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>(strtotime($date.' '.date('H:i:s',$curr))-$zero_t));
 			} else {
 				if(date('H:i:s',strtotime('0:00'))!=date('H:i:s',$start))
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg('0:00',2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0,'join_rows'=>ceil(($start-strtotime('0:00'))/$interval));
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg('0:00',2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0,'join_rows'=>ceil((strtotime(date('H:i:s',$start))-strtotime('0:00'))/$interval));
 				$x = $start;
 				while($x<$end) {
 					$x = strtotime($interval_shift, $x);
@@ -534,16 +534,17 @@ class Utils_Calendar extends Module {
 			}
 			if(isset($dest_id)) {
 				$this->print_event($ev,'day');
-				if(isset($ev['timeless']) && $ev['timeless'])
+				if(isset($ev['timeless']) && $ev['timeless']) {
 					$dur = 1;
-				else {
+					$diff = 0;
+				} else {
 					$dur = 0;
-					$diff = strtotime($this->settings['start_day']) - $ev_start;
-	//				$ev['duration'];
-	//				print_r($diff.' - ');
+					$day_start = explode(':',$this->settings['start_day']);
+					$day_start = ($day_start[0]*60+$day_start[1])*60;
+					$diff = ($day_start - ($ev['start'] - $today_t))/3600;
 					$dur += ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00')));
 				}
-				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.$dur.');';
+				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.$dur.', '.$diff.');';
 			}
 		}
 		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
@@ -736,9 +737,12 @@ class Utils_Calendar extends Module {
 			}
 			if(isset($dest_id)) {
 //				print($ev['title'].' '.$ev['start'].'<hr>');
+				$day_start = explode(':',$this->settings['start_day']);
+				$day_start = ($day_start[0]*60+$day_start[1])*60;
+				$diff = ($day_start - ($ev['start'] - $today_t))/3600;
 				$this->print_event($ev);
 //				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).')');
-				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).');';
+				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).', '.$diff.');';
 			}
 		}
 		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
