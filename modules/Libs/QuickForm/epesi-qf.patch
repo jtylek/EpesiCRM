@@ -1,6 +1,6 @@
-diff -rup 3.2.10.orig/HTML/QuickForm/advcheckbox.php 3.2.10/HTML/QuickForm/advcheckbox.php
---- 3.2.10.orig/HTML/QuickForm/advcheckbox.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/advcheckbox.php	2008-11-17 15:53:10.000000000 +0100
+diff -rup 3.2.11.orig/HTML/QuickForm/advcheckbox.php 3.2.11/HTML/QuickForm/advcheckbox.php
+--- 3.2.11.orig/HTML/QuickForm/advcheckbox.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/advcheckbox.php	2010-09-20 19:29:17.283106311 +0200
 @@ -249,7 +249,10 @@ class HTML_QuickForm_advcheckbox extends
                  // default values are overriden by submitted
                  $value = $this->_findValue($caller->_constantValues);
@@ -13,9 +13,9 @@ diff -rup 3.2.10.orig/HTML/QuickForm/advcheckbox.php 3.2.10/HTML/QuickForm/advch
                      if (null === $value) {
                          $value = $this->_findValue($caller->_defaultValues);
                      }
-diff -rup 3.2.10.orig/HTML/QuickForm/checkbox.php 3.2.10/HTML/QuickForm/checkbox.php
---- 3.2.10.orig/HTML/QuickForm/checkbox.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/checkbox.php	2008-11-17 15:53:10.000000000 +0100
+diff -rup 3.2.11.orig/HTML/QuickForm/checkbox.php 3.2.11/HTML/QuickForm/checkbox.php
+--- 3.2.11.orig/HTML/QuickForm/checkbox.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/checkbox.php	2010-09-20 19:29:17.299098705 +0200
 @@ -146,10 +146,10 @@ class HTML_QuickForm_checkbox extends HT
      function getFrozenHtml()
      {
@@ -42,9 +42,9 @@ diff -rup 3.2.10.orig/HTML/QuickForm/checkbox.php 3.2.10/HTML/QuickForm/checkbox
                      } else {
                          $value = $this->_findValue($caller->_defaultValues);
                      }
-diff -rup 3.2.10.orig/HTML/QuickForm/date.php 3.2.10/HTML/QuickForm/date.php
---- 3.2.10.orig/HTML/QuickForm/date.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/date.php	2009-11-26 14:10:37.775231184 +0100
+diff -rup 3.2.11.orig/HTML/QuickForm/date.php 3.2.11/HTML/QuickForm/date.php
+--- 3.2.11.orig/HTML/QuickForm/date.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/date.php	2010-09-20 19:29:17.323086179 +0200
 @@ -55,8 +55,8 @@ class HTML_QuickForm_date extends HTML_Q
      var $_options = array(
          'language'         => 'en',
@@ -75,9 +75,9 @@ diff -rup 3.2.10.orig/HTML/QuickForm/date.php 3.2.10/HTML/QuickForm/date.php
          $renderer->setElementTemplate('{element}');
          parent::accept($renderer);
          return $this->_wrap[0] . $renderer->toHtml() . $this->_wrap[1];
-diff -rup 3.2.10.orig/HTML/QuickForm/element.php 3.2.10/HTML/QuickForm/element.php
---- 3.2.10.orig/HTML/QuickForm/element.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/element.php	2010-09-20 19:27:33.223086607 +0200
+diff -rup 3.2.11.orig/HTML/QuickForm/element.php 3.2.11/HTML/QuickForm/element.php
+--- 3.2.11.orig/HTML/QuickForm/element.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/element.php	2010-09-20 19:29:17.331087825 +0200
 @@ -76,6 +76,14 @@ class HTML_QuickForm_element extends HTM
       */
      var $_persistantFreeze = false;
@@ -170,9 +170,9 @@ diff -rup 3.2.10.orig/HTML/QuickForm/element.php 3.2.10/HTML/QuickForm/element.p
          }
      } // end func _generateId
  
-diff -rup 3.2.10.orig/HTML/QuickForm/group.php 3.2.10/HTML/QuickForm/group.php
---- 3.2.10.orig/HTML/QuickForm/group.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/group.php	2009-09-09 13:51:09.940618811 +0200
+diff -rup 3.2.11.orig/HTML/QuickForm/group.php 3.2.11/HTML/QuickForm/group.php
+--- 3.2.11.orig/HTML/QuickForm/group.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/group.php	2010-09-20 19:29:17.331087825 +0200
 @@ -299,7 +299,7 @@ class HTML_QuickForm_group extends HTML_
      function toHtml()
      {
@@ -182,9 +182,9 @@ diff -rup 3.2.10.orig/HTML/QuickForm/group.php 3.2.10/HTML/QuickForm/group.php
          $renderer->setElementTemplate('{element}');
          $this->accept($renderer);
          return $renderer->toHtml();
-diff -rup 3.2.10.orig/HTML/QuickForm/hierselect.php 3.2.10/HTML/QuickForm/hierselect.php
---- 3.2.10.orig/HTML/QuickForm/hierselect.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/hierselect.php	2009-09-09 13:51:05.128617224 +0200
+diff -rup 3.2.11.orig/HTML/QuickForm/hierselect.php 3.2.11/HTML/QuickForm/hierselect.php
+--- 3.2.11.orig/HTML/QuickForm/hierselect.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/hierselect.php	2010-09-20 19:29:17.335099647 +0200
 @@ -164,7 +164,7 @@ class HTML_QuickForm_hierselect extends
              // check if all elements have been created
              $totalNbElements = count($this->_options);
@@ -212,7 +212,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm/hierselect.php 3.2.10/HTML/QuickForm/hierse
          }
      } // end func _createElements
  
-@@ -459,7 +459,7 @@ JAVASCRIPT;
+@@ -462,7 +462,7 @@ JAVASCRIPT;
                            $this->_convertArrayToJavascript($values, false) . ";\n";
          }
          include_once('HTML/QuickForm/Renderer/Default.php');
@@ -221,9 +221,9 @@ diff -rup 3.2.10.orig/HTML/QuickForm/hierselect.php 3.2.10/HTML/QuickForm/hierse
          $renderer->setElementTemplate('{element}');
          parent::accept($renderer);
  
-diff -rup 3.2.10.orig/HTML/QuickForm/radio.php 3.2.10/HTML/QuickForm/radio.php
---- 3.2.10.orig/HTML/QuickForm/radio.php	2007-10-05 22:29:01.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/radio.php	2008-11-17 15:53:10.000000000 +0100
+diff -rup 3.2.11.orig/HTML/QuickForm/radio.php 3.2.11/HTML/QuickForm/radio.php
+--- 3.2.11.orig/HTML/QuickForm/radio.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/radio.php	2010-09-20 19:29:17.335099647 +0200
 @@ -146,10 +146,10 @@ class HTML_QuickForm_radio extends HTML_
      function getFrozenHtml()
      {
@@ -249,9 +249,9 @@ diff -rup 3.2.10.orig/HTML/QuickForm/radio.php 3.2.10/HTML/QuickForm/radio.php
                      if (null === $value) {
                          $value = $this->_findValue($caller->_defaultValues);
                      }
-diff -rup 3.2.10.orig/HTML/QuickForm/Renderer/ObjectFlexy.php 3.2.10/HTML/QuickForm/Renderer/ObjectFlexy.php
---- 3.2.10.orig/HTML/QuickForm/Renderer/ObjectFlexy.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/Renderer/ObjectFlexy.php	2009-09-09 13:51:20.672619807 +0200
+diff -rup 3.2.11.orig/HTML/QuickForm/Renderer/ObjectFlexy.php 3.2.11/HTML/QuickForm/Renderer/ObjectFlexy.php
+--- 3.2.11.orig/HTML/QuickForm/Renderer/ObjectFlexy.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/Renderer/ObjectFlexy.php	2010-09-20 19:29:17.335099647 +0200
 @@ -34,9 +34,9 @@ require_once 'HTML/QuickForm/Renderer/Ob
   *
   * Usage:
@@ -265,10 +265,10 @@ diff -rup 3.2.10.orig/HTML/QuickForm/Renderer/ObjectFlexy.php 3.2.10/HTML/QuickF
   * $renderer->setHtmlTemplate("html.html");
   * $renderer->setLabelTemplate("label.html");
   * $form->accept($renderer);
-Tylko w 3.2.10/HTML/QuickForm/Renderer: .svn
-diff -rup 3.2.10.orig/HTML/QuickForm/Rule/Required.php 3.2.10/HTML/QuickForm/Rule/Required.php
---- 3.2.10.orig/HTML/QuickForm/Rule/Required.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/Rule/Required.php	2008-11-08 19:32:39.000000000 +0100
+Tylko w 3.2.11/HTML/QuickForm/Renderer: .svn
+diff -rup 3.2.11.orig/HTML/QuickForm/Rule/Required.php 3.2.11/HTML/QuickForm/Rule/Required.php
+--- 3.2.11.orig/HTML/QuickForm/Rule/Required.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/Rule/Required.php	2010-09-20 19:29:17.335099647 +0200
 @@ -47,6 +47,7 @@ class HTML_QuickForm_Rule_Required exten
       */
      function validate($value, $options = null)
@@ -277,10 +277,10 @@ diff -rup 3.2.10.orig/HTML/QuickForm/Rule/Required.php 3.2.10/HTML/QuickForm/Rul
          if ((string)$value == '') {
              return false;
          }
-Tylko w 3.2.10/HTML/QuickForm/Rule: .svn
-diff -rup 3.2.10.orig/HTML/QuickForm/RuleRegistry.php 3.2.10/HTML/QuickForm/RuleRegistry.php
---- 3.2.10.orig/HTML/QuickForm/RuleRegistry.php	2007-10-05 22:29:01.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/RuleRegistry.php	2009-09-09 13:50:46.628617373 +0200
+Tylko w 3.2.11/HTML/QuickForm/Rule: .svn
+diff -rup 3.2.11.orig/HTML/QuickForm/RuleRegistry.php 3.2.11/HTML/QuickForm/RuleRegistry.php
+--- 3.2.11.orig/HTML/QuickForm/RuleRegistry.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/RuleRegistry.php	2010-09-20 19:29:17.340089737 +0200
 @@ -125,7 +125,7 @@ class HTML_QuickForm_RuleRegistry
              if (!empty($path)) {
                  include_once($path);
@@ -290,9 +290,9 @@ diff -rup 3.2.10.orig/HTML/QuickForm/RuleRegistry.php 3.2.10/HTML/QuickForm/Rule
          }
          $this->_rules[$class]->setName($ruleName);
          return $this->_rules[$class];
-diff -rup 3.2.10.orig/HTML/QuickForm/select.php 3.2.10/HTML/QuickForm/select.php
---- 3.2.10.orig/HTML/QuickForm/select.php	2007-10-05 22:29:01.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/select.php	2009-05-27 18:21:15.000000000 +0200
+diff -rup 3.2.11.orig/HTML/QuickForm/select.php 3.2.11/HTML/QuickForm/select.php
+--- 3.2.11.orig/HTML/QuickForm/select.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/select.php	2010-09-20 19:29:17.340089737 +0200
 @@ -593,10 +593,13 @@ class HTML_QuickForm_select extends HTML
          if ('updateValue' == $event) {
              $value = $this->_findValue($caller->_constantValues);
@@ -309,10 +309,10 @@ diff -rup 3.2.10.orig/HTML/QuickForm/select.php 3.2.10/HTML/QuickForm/select.php
                      $value = $this->_findValue($caller->_defaultValues);
                  }
              }
-Tylko w 3.2.10/HTML/QuickForm: .svn
-diff -rup 3.2.10.orig/HTML/QuickForm.php 3.2.10/HTML/QuickForm.php
---- 3.2.10.orig/HTML/QuickForm.php	2007-10-05 22:29:01.000000000 +0200
-+++ 3.2.10/HTML/QuickForm.php	2010-05-06 15:12:20.481930807 +0200
+Tylko w 3.2.11/HTML/QuickForm: .svn
+diff -rup 3.2.11.orig/HTML/QuickForm.php 3.2.11/HTML/QuickForm.php
+--- 3.2.11.orig/HTML/QuickForm.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm.php	2010-09-20 19:29:17.363089098 +0200
 @@ -593,8 +593,10 @@ class HTML_QuickForm extends HTML_Common
          }
          $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][1];
@@ -326,7 +326,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm.php 3.2.10/HTML/QuickForm.php
          for ($i = 0; $i < 5; $i++) {
              if (!isset($args[$i])) {
                  $args[$i] = null;
-@@ -1512,6 +1514,7 @@ class HTML_QuickForm extends HTML_Common
+@@ -1518,6 +1520,7 @@ class HTML_QuickForm extends HTML_Common
          $registry =& HTML_QuickForm_RuleRegistry::singleton();
  
          foreach ($this->_rules as $target => $rules) {
@@ -334,7 +334,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm.php 3.2.10/HTML/QuickForm.php
              $submitValue = $this->getSubmitValue($target);
  
              foreach ($rules as $rule) {
-@@ -1656,7 +1659,8 @@ class HTML_QuickForm extends HTML_Common
+@@ -1662,7 +1665,8 @@ class HTML_QuickForm extends HTML_Common
          if (!is_callable($callback)) {
              return PEAR::raiseError(null, QUICKFORM_INVALID_PROCESS, null, E_USER_WARNING, "Callback function does not exist in QuickForm::process()", 'HTML_QuickForm_Error', true);
          }
@@ -344,7 +344,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm.php 3.2.10/HTML/QuickForm.php
          return call_user_func($callback, $values);
      } // end func process
  
-@@ -1698,7 +1702,7 @@ class HTML_QuickForm extends HTML_Common
+@@ -1704,7 +1708,7 @@ class HTML_QuickForm extends HTML_Common
      {
          if (!isset($GLOBALS['_HTML_QuickForm_default_renderer'])) {
              include_once('HTML/QuickForm/Renderer/Default.php');
@@ -353,7 +353,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm.php 3.2.10/HTML/QuickForm.php
          }
          return $GLOBALS['_HTML_QuickForm_default_renderer'];
      } // end func defaultRenderer
-@@ -1855,7 +1859,7 @@ class HTML_QuickForm extends HTML_Common
+@@ -1861,7 +1865,7 @@ class HTML_QuickForm extends HTML_Common
      function toArray($collectHidden = false)
      {
          include_once 'HTML/QuickForm/Renderer/Array.php';
@@ -362,5 +362,5 @@ diff -rup 3.2.10.orig/HTML/QuickForm.php 3.2.10/HTML/QuickForm.php
          $this->accept($renderer);
          return $renderer->toArray();
       } // end func toArray
-Tylko w 3.2.10/HTML: .svn
-Tylko w 3.2.10: .svn
+Tylko w 3.2.11/HTML: .svn
+Tylko w 3.2.11: .svn
