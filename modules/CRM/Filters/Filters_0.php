@@ -22,10 +22,10 @@ class CRM_Filters extends Module {
 
 		eval_js_once('crm_filters_deactivate = function(){leightbox_deactivate(\'crm_filters\');}');
 
-		$th->assign('my','<a '.$this->create_callback_href(array($this,'set_profile'),'my').' id="crm_filters_my">'.$this->t('My records').'</a>');
+		$th->assign('my','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'my').' id="crm_filters_my">'.$this->t('My records').'</a>');
 		eval_js('Event.observe(\'crm_filters_my\',\'click\', crm_filters_deactivate)');
 
-		$th->assign('all','<a '.$this->create_callback_href(array($this,'set_profile'),'all').' id="crm_filters_all">'.$this->t('All records').'</a>');
+		$th->assign('all','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'all').' id="crm_filters_all">'.$this->t('All records').'</a>');
 		eval_js('Event.observe(\'crm_filters_all\',\'click\', crm_filters_deactivate)');
 
 		$th->assign('manage','<a '.$this->create_callback_href(array($this,'manage_filters')).' id="crm_filters_manage">'.$this->t('Manage filters').'</a>');
@@ -34,7 +34,7 @@ class CRM_Filters extends Module {
 		$ret = DB::Execute('SELECT id,name,description FROM crm_filters_group WHERE user_login_id=%d',array(Acl::get_user()));
 		$filters = array();
 		while($row = $ret->FetchRow()) {
-			$filters[] = array('title'=>$row['name'],'description'=>'','open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($row['description'],false).' '.$this->create_callback_href(array($this,'set_profile'),$row['id']).' id="crm_filters_'.$row['id'].'">','close'=>'</a>');
+			$filters[] = array('title'=>$row['name'],'description'=>'','open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($row['description'],false).' '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),$row['id']).' id="crm_filters_'.$row['id'].'">','close'=>'</a>');
 			eval_js('Event.observe(\'crm_filters_'.$row['id'].'\',\'click\', crm_filters_deactivate)');
 		}
 		$th->assign('filters',$filters);
@@ -51,13 +51,13 @@ class CRM_Filters extends Module {
 		$crits = array();
 		if (!Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')) $crits = array('company_name'=>CRM_ContactsCommon::get_main_company());
 		$qf->addElement('autoselect','crm_filter_contact',$this->t('Records of'),$cont,array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $fcallback, false)), $fcallback);
-		if(isset($_SESSION['client']['filter_'.Acl::get_user()])) {
-			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()])));
+		if(isset($_SESSION['client']['filter_'.Acl::get_user()]['value'])) {
+			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()]['value'])));
 		}
 		$qf->addElement('submit',null,'Show', array('onclick'=>'crm_filters_deactivate()'));
 		if($qf->validate()) {
 			$c = $qf->exportValue('crm_filter_contact');
-			$this->set_profile('c'.$c);
+			CRM_FiltersCommon::set_profile('c'.$c);
 			location(array());
 		}
 		$th->assign('saved_filters',$this->t('Saved Filters'));
@@ -68,56 +68,19 @@ class CRM_Filters extends Module {
 		$profiles_out = ob_get_clean();
 
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->t('Filters'),true);
-		if(!$this->isset_module_variable('profile_desc'))
-			$this->set_profile($this->get_default_filter());
+		if(!isset($_SESSION['client']['filter_'.Acl::get_user()]['desc']))
+			CRM_FiltersCommon::set_profile($this->get_default_filter());
 		    
 		//Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->t('My records')));
 		if (isset($_REQUEST['__location'])) $in_use = (CRM_FiltersCommon::$in_use===$_REQUEST['__location']);
 		else $in_use = CRM_FiltersCommon::$in_use;
-		print($this->t('%s',array('<a class="lbOn'.($in_use?'':' disabled').'" rel="crm_filters">'.$this->ht('Filters: ').'<b>'.$this->get_module_variable('profile_desc').'</b></a>')));
+		print($this->t('%s',array('<a class="lbOn'.($in_use?'':' disabled').'" rel="crm_filters">'.$this->ht('Filters: ').'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b></a>')));
 	}
 
 	public function manage_filters() {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main($this->get_type(),'edit');
-	}
-
-	public function set_profile($prof) {
-		if(preg_match('/^c([0-9,]+)$/',$prof,$reqs)) {
-			$ret = $reqs[1];
-			if(strpos($ret,',')===false)
-				$desc = CRM_ContactsCommon::contact_format_no_company($ret,true);
-			else
-				$desc = $this->t('Custom filter');
-		} elseif(is_numeric($prof)) {
-			$cids = DB::GetAssoc('SELECT contact_id, contact_id FROM crm_filters_contacts');
-			$c = DB::GetCol('SELECT p.contact_id FROM crm_filters_contacts p WHERE p.group_id=%d',array($prof));
-			if($c)
-				$ret = implode(',',$c);
-			else
-				$ret = '-1';
-			$desc = DB::GetOne('SELECT name FROM crm_filters_group WHERE id=%d',array($prof));
-		} elseif($prof=='my') {
-			$ret = CRM_FiltersCommon::get_my_profile();
-			$desc = $this->t('My records');
-		} else {//all and undefined
-		$ret = '';
-			/*$contacts = Utils_RecordBrowserCommon::get_records('contact', array(), array(), array('last_name'=>'ASC'));
-			$contacts_select = array();
-			foreach($contacts as $v)
-				$contacts_select[] = $v['id'];
-			if($contacts_select)
-				$ret = implode(',',$contacts_select);
-			else
-				$ret = '-1';*/
-
-			$desc = $this->t('All records');
-		}
-//		$this->set_module_variable('profile',$ret);
-		$_SESSION['client']['filter_'.Acl::get_user()] = $ret;
-		$this->set_module_variable('profile_desc',$desc);
-		location(array());
 	}
 
 /*	public function get() {

@@ -925,6 +925,10 @@ class CRM_ContactsCommon extends ModuleCommon {
             if ($is_employee) $emp[] = $values['id'];
             else $cus[] = 'P:'.$values['id'];
             $ret = array();
+			$ret['new'] = array();
+			$ret['new']['crm_filter'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','Set CRM Filter')).' '.Module::create_href(array('set_crm_filter'=>1)).'>F</a>';
+			if (isset($_REQUEST['set_crm_filter']))
+				CRM_FiltersCommon::set_profile('c'.$values['id']);
             if(self::Instance()->acl_check('"new" actions')) {
                 if (ModuleManager::is_installed('CRM/Calendar')!==-1) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
                 if (ModuleManager::is_installed('CRM/Tasks')!==-1) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
