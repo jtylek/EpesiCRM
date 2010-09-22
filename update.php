@@ -2151,7 +2151,7 @@ foreach ($trans as $k=>$v) {
 		if ($d=='.' || $d=='..') continue;
 		$new = str_replace($last,'',$d);
 		if ($new)
-			rename('data/Utils_Attachment/'.implode('/',$path).'/'.$d, 'data/Utils_Attachment/'.$v.'/'.$new);
+			rename('data/Utils_Attachment/'.implode('/',$path).'/'.$d, 'data/Utils_Attachment/'.$v.$new);
 	}
 }
 }
