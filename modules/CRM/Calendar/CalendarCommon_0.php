@@ -299,9 +299,9 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 	
 	public static function mobile_view_event($id) {
-		$recurrence = strpos($id,'_');
-		if($recurrence!==false)
-			$id = substr($id,0,$recurrence);
+//		$recurrence = strpos($id,'_');
+//		if($recurrence!==false)
+//			$id = substr($id,0,$recurrence);
 		$row = CRM_Calendar_EventCommon::get($id);
 		$ex = Utils_CalendarCommon::process_event($row);
 		

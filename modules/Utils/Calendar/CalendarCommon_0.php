@@ -175,9 +175,9 @@ class Utils_CalendarCommon extends ModuleCommon {
 		
 		//add data
 		ob_start();
-		$ret = call_user_func(array(str_replace('/','_',$evmod).'Common','get_all'),date('Y-m-d',$start),date('Y-m-d',$end));
+		$ret_raw = call_user_func(array(str_replace('/','_',$evmod).'Common','get_all'),date('Y-m-d',$start),date('Y-m-d',$end));
 		ob_get_clean();
-		if(!is_array($ret))
+		if(!is_array($ret_raw))
 			trigger_error('Invalid return of event method: get_all (not an array)',E_USER_ERROR);
 
 		if(IPHONE) {
@@ -186,6 +186,13 @@ class Utils_CalendarCommon extends ModuleCommon {
 		} else {
 			$data = array();
 		}
+		$ret = array();
+		$i = 0;
+		foreach($ret_raw as $row) {
+			$ret[$row['start'].'_'.$i] = $row;
+			$i++;
+		}
+		ksort($ret);
 		foreach($ret as $row) {
 			$ex = Utils_CalendarCommon::process_event($row);
 			if($view_func)
