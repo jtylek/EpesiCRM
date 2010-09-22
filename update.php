@@ -2149,7 +2149,8 @@ foreach ($trans as $k=>$v) {
 	$dirs = scandir('data/Utils_Attachment/'.implode('/',$path));
 	foreach ($dirs as $d) {
 		if ($d=='.' || $d=='..') continue;
-		$new = str_replace($last,'',$d);
+		$new = str_replace($last,'',$d, $count);
+		if ($count!=1) continue;
 		if ($new)
 			rename('data/Utils_Attachment/'.implode('/',$path).'/'.$d, 'data/Utils_Attachment/'.$v.$new);
 	}
