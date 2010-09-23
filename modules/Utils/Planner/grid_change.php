@@ -25,6 +25,7 @@ $frames = json_decode($_POST['frames']);
 asort($frames);
 
 if (!Acl::is_user()) die('Unauthorized access');
+if (!isset($_SESSION['client']['utils_planner'])) return;
 
 $js = '';
 
