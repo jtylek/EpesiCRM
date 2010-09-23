@@ -34,9 +34,6 @@ class CRM_Contacts_ActivitiesInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'CRM/Tasks', 'version'=>0),
-			array('name'=>'CRM/PhoneCall', 'version'=>0),
-			array('name'=>'CRM/Calendar', 'version'=>0),
 			array('name'=>'Utils/RecordBrowser', 'version'=>0),
 			array('name'=>'Utils/Attachment', 'version'=>0),
 			array('name'=>'CRM/Acl', 'version'=>0),

@@ -180,7 +180,7 @@ class CRM_Contacts extends Module {
 		$cus = array();
 		if ($is_employee) $emp[] = $r['id'];
 		else $cus[] = 'P:'.$r['id'];
-		if (ModuleManager::is_installed('CRM/Calendar')!==-1) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), 'New Event', null, Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png'));
+		if (ModuleManager::is_installed('CRM/Meetings')!==-1) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), 'New Event', null, Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png'));
 		if (ModuleManager::is_installed('CRM/Tasks')!==-1) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), 'New Task', null, Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png'));
 		if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$r['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')), 'New Phonecall', null, Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png'));
 		$gb_row->add_action(Utils_RecordBrowser::$rb_obj->add_note_button_href('CRM/Contact/'.$r['id']), 'New Note', null, Base_ThemeCommon::get_template_file('Utils_Attachment','icon_small.png'));
