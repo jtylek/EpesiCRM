@@ -65,6 +65,9 @@ class CRM_MeetingInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+		Utils_RecordBrowserCommon::delete_addon('crm_meeting', 'CRM/Meeting', 'meeting_attachment_addon');
+		Utils_RecordBrowserCommon::delete_addon('crm_meeting', 'CRM/Meeting', 'messanger_addon');
+
         CRM_RoundcubeCommon::delete_addon('crm_meeting');
 		CRM_CalendarCommon::delete_event_handler('Meetings');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Meeting');
