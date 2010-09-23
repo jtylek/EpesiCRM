@@ -26,6 +26,7 @@ if (!Acl::is_user()) die('Unauthorized access');
 
 $js = '';
 $value = null;
+if (!isset($_SESSION['client']['utils_planner'])) trigger_error(print_r($_SESSION,true));
 switch ($_SESSION['client']['utils_planner']['resources'][$resource]['type']) {
 	case 'automulti': 	$value=json_decode($_POST['options']);
 						break;
