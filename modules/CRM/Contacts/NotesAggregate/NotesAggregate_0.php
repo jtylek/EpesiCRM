@@ -33,7 +33,10 @@ class CRM_Contacts_NotesAggregate extends Module {
 		
 		$ids = array('C:'.$company['id']);
 		$cont = CRM_ContactsCommon::get_contacts(array('company_name'=>$company['id']));
-		foreach ($cont as $k=>$v) $ids[] = 'P:'.$v['id'];
+		foreach ($cont as $k=>$v) {
+			$ids[] = 'P:'.$v['id'];
+			$attachment_groups[] = 'contact/'.$v['id'];
+		}
 		$multi_ids = array();
 		$single_ids = array();
 		
