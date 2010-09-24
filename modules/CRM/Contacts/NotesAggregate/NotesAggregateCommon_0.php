@@ -12,7 +12,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Contacts_NotesAggregateCommon extends ModuleCommon {
-
+	public function user_settings() {
+		return array('Notes Aggregate'=>array(
+				array('name'=>'show_all_notes','label'=>'Include Record Notes in Aggregate','type'=>'checkbox','default'=>false)
+					));
+	}
 }
 
 ?>

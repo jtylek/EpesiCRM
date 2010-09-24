@@ -182,6 +182,7 @@ class Utils_RecordBrowser extends Module {
 	public function jump_new_note($key=null) {
 		if ($key==null) $key = $this->tab.'/'.$this->record['id'];
 		$a = $this->init_module('Utils_Attachment',array($key));
+		$a->set_view_func(array('Utils_RecordBrowserCommon','create_default_linked_label'),explode('/',$key));
 		$a->edit_note_queue();
 	}
 	

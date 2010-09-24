@@ -42,6 +42,8 @@ class Utils_Attachment extends Module {
 
 	public function construct($group=null,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null,$add_func=null,$add_args=null,$max_fs=null) {
 		$this->group = & $this->get_module_variable('group',isset($group)?$group:null);
+		$this->func = & $this->get_module_variable('func',isset($func)?$func:null);
+		$this->args = & $this->get_module_variable('args',isset($args)?$args:null);
 		
 		if(isset($pd)) $this->persistent_deletion = $pd;
 		if(isset($in)) $this->action_bar_button = $in;
@@ -54,8 +56,6 @@ class Utils_Attachment extends Module {
 		$this->add_header = & $this->get_module_variable('header',isset($header)?$header:null);
 		if(isset($watchdog_cat)) $this->watchdog_category = $watchdog_cat;
 		if(isset($watchdog_id)) $this->watchdog_id = $watchdog_id;
-		if(isset($func)) $this->func = $func;
-		if(isset($args)) $this->args = $args;
 		if(isset($add_func)) $this->add_func = $add_func;
 		if(isset($add_args)) $this->add_args = $add_args;
 		if(isset($max_fs)) $this->max_file_size = $max_fs;
@@ -113,6 +113,7 @@ class Utils_Attachment extends Module {
 		if(isset($arg) && isset($rb)) {
 			$this->group = $rb->tab.'/'.$arg['id'];
 			$this->add_header = $rb->caption();
+			$this->set_view_func(array('Utils_RecordBrowserCommon','create_default_linked_label'),array($rb->tab, $arg['id']));
 		}
 		if(!isset($this->group)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 	

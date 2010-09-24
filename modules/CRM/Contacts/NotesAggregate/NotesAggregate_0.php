@@ -24,6 +24,12 @@ class CRM_Contacts_NotesAggregate extends Module {
 		$ret = DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_customer = "P:'.$contact['id'].'"');
 		while ($row = $ret->FetchRow()) $attachment_groups[] = 'phonecall/'.$row['id'];
 		
+		$ret = DB::Execute('SELECT id FROM premium_salesopportunity_data_1 WHERE f_customers LIKE '.DB::Concat(DB::qstr('%'), DB::qstr('\_\_P:'.$contact['id'].'\_\_'), DB::qstr('%')));
+		while ($row = $ret->FetchRow()) $attachment_groups[] = 'premium_salesopportunity/'.$row['id'];
+		
+		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
+			$attachment_groups[] = 'contact/'.$contact['id'];
+
 		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
 		$this->display_module($a);
 	}
@@ -54,6 +60,12 @@ class CRM_Contacts_NotesAggregate extends Module {
 		$ret = DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_customer = '.$single_ids);
 		while ($row = $ret->FetchRow()) $attachment_groups[] = 'phonecall/'.$row['id'];
 		
+		$ret = DB::Execute('SELECT id FROM premium_salesopportunity_data_1 WHERE f_customers LIKE '.$multi_ids);
+		while ($row = $ret->FetchRow()) $attachment_groups[] = 'premium_salesopportunity/'.$row['id'];
+		
+		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
+			$attachment_groups[] = 'company/'.$company['id'];
+		
 		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
 		$this->display_module($a);
 	}
@@ -69,6 +81,9 @@ class CRM_Contacts_NotesAggregate extends Module {
 		
 		$ret = DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
 		while ($row = $ret->FetchRow()) $attachment_groups[] = 'phonecall/'.$row['id'];
+		
+		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
+			$attachment_groups[] = 'premium_salesopportunity/'.$salesopportunity['id'];
 		
 		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
 		$this->display_module($a);

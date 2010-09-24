@@ -902,7 +902,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 					if (ModuleManager::is_installed('CRM/Tasks')!==-1) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
 					if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'C:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 				}
-				$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('CRM/Company/'.$values['id']);
+				$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('company/'.$values['id']);
 				return $ret;
 			case 'adding':
 				$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
@@ -934,7 +934,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                 if (ModuleManager::is_installed('CRM/Tasks')!==-1) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
                 if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
             }
-			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('CRM/Contact/'.$values['id']);
+			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('contact/'.$values['id']);
             return $ret;
         case 'adding':
 			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
