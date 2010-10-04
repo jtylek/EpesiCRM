@@ -104,13 +104,13 @@ class CRM_Contacts_Activities extends Module {
 	public function filters() {	
 		$form = $this->init_module('Libs/QuickForm');
 		$form->addElement('header', 'display', $this->t('Show'));
-		if (ModuleManager::is_installed('CRM/Meetings')!=-1) $form->addElement('checkbox', 'events', $this->t('Events'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (ModuleManager::is_installed('CRM/Meeting')!=-1) $form->addElement('checkbox', 'events', $this->t('Events'), null, array('onchange'=>$form->get_submit_form_js()));
 		if (ModuleManager::is_installed('CRM/Tasks')!=-1) $form->addElement('checkbox', 'tasks', $this->t('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
 		if (ModuleManager::is_installed('CRM/PhoneCall')!=-1) $form->addElement('checkbox', 'phonecalls', $this->t('Phone Calls'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('select', 'activities_date', str_replace(' ','&nbsp;',$this->t('Activities date')), array(0=>$this->t('Future'), 1=>$this->t('Past'), 2=>$this->t('All time')), array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'closed', $this->t('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
 		$old_display = $this->get_module_variable('display_options', array(
-			'events'=>(ModuleManager::is_installed('CRM/Meetings')!=-1), 
+			'events'=>(ModuleManager::is_installed('CRM/Meeting')!=-1), 
 			'tasks'=>(ModuleManager::is_installed('CRM/Tasks')!=-1), 
 			'phonecalls'=>(ModuleManager::is_installed('CRM/PhoneCall')!=-1), 
 			'closed'=>1, 
