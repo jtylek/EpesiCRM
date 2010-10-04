@@ -205,7 +205,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_settings = array_merge($final_settings,$settings[2]);
 //      $final_settings[] = array('name'=>'header_category_subscriptions','label'=>'Auto-subscribe to all new records','type'=>'header');
 //      $final_settings = array_merge($final_settings,$settings[3]);
-        return array('Browsing Records'=>$final_settings);
+        return array('Browsing records'=>$final_settings);
     }
     public static function check_table_name($tab, $flush=false, $failure_on_missing=true){
         static $tables = null;
