@@ -744,14 +744,14 @@ class CRM_MeetingCommon extends ModuleCommon {
 		foreach ($r['employees'] as $e) {
 			$e = CRM_ContactsCommon::contact_format_no_company($e, true);
 			$e = str_replace('&nbsp;',' ',$e);
-			if (strlen($e)>33) $e = substr($e , 0, 30).'...';
+			if (mb_strlen($e,'UTF-8')>33) $e = mb_substr($e , 0, 30, 'UTF-8').'...';
 			$emps[] = $e;
 		}
 		$cuss = array();
 		foreach ($r['customers'] as $c) {
 			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
 			$c = str_replace('&nbsp;',' ',$c);
-			if (strlen($c)>33) $c = substr($c, 0, 30).'...';
+			if (mb_strlen($c,'UTF-8')>33) $c = mb_substr($c, 0, 30, 'UTF-8').'...';
 			$cuss[] = $c;
 		}
 

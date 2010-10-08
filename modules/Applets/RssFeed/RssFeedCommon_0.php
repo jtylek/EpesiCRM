@@ -61,7 +61,7 @@ class Applets_RssFeedCommon extends ModuleCommon {
 		if(!$title)
 			return 'RSS Feed';
 
-		if (strlen($title)>15) return substr($title,0,15).'...';
+		if (mb_strlen($title,'UTF-8')>15) return mb_substr($title,0,15,'UTF-8').'...';
 		return $title;
 	}
 

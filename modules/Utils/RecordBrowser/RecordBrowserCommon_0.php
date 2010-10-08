@@ -1684,39 +1684,43 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $curr_len = 0;
             $tags = array();
             $inside = false;
-            $strlen = strlen($str);
+			preg_match_all('/./u', $str, $a);
+			$a = $a[0];
+            $strlen = count($a);
             while ($curr_len<=$len && $i<$strlen) {
-                if ($str{$i} == '&' && !$inside) {
+                if ($a[$i] == '&' && !$inside) {
                     $e = -1;
-                    if (isset($str{$i+3}) && $str{$i+3}==';') $e = 3;
-                    elseif (isset($str{$i+4}) && $str{$i+4}==';') $e = 4;
-                    elseif (isset($str{$i+5}) && $str{$i+5}==';') $e = 5;
+                    if (isset($a[$i+3]) && $a[$i+3]==';') $e = 3;
+                    elseif (isset($a[$i+4]) && $a[$i+4]==';') $e = 4;
+                    elseif (isset($a[$i+5]) && $a[$i+5]==';') $e = 5;
                     if ($e!=-1) {
-                        $hsc = substr($str, $i, $e+1);
+                        $hsc = implode("", array_splice($str, $i, $e+1));
                         if ($hsc=='&nbsp;' || strlen(htmlspecialchars_decode($hsc))==1) {
-                            $label .= substr($str, $i, $e);
+                            $label .= implode("", array_splice($str, $i, $e));
                             $i += $e;
                             $curr_len++;
                         }
                     }
-                } elseif ($str{$i} == '<') {
+                } elseif ($a[$i] == '<') {
                     $inside = true;
-                    if (isset($str{$i+1}) && $str{$i+1} == '/') {
+                    if (isset($a[$i+1]) && $a[$i+1] == '/') {
                         if (!empty($tags)) array_pop($tags);
                     } else {
                         $j = 1;
                         $next_tag = '';
-                        while ($i+$j<=$strlen && $str{$i+$j}!=' ' && $str{$i+$j}!='>' && $str{$i+$j}!='/') {
-                            $next_tag .= $str{$i+$j};
+                        while ($i+$j<=$strlen && $a[$i+$j]!=' ' && $a[$i+$j]!='>' && $a[$i+$j]!='/') {
+                            $next_tag .= $a[$i+$j];
                             $j++;
                         }
                         $tags[] = $next_tag;
                     }
-                } elseif ($str{$i} == '>') {
-                    if ($i>0 && $str{$i-1} == '/') array_pop($tags);
+                } elseif ($a[$i] == '>') {
+                    if ($i>0 && $a[$i-1] == '/') array_pop($tags);
                     $inside = false;
-                } elseif (!$inside) $curr_len++;
-                $label .= $str{$i};
+                } elseif (!$inside) {
+					$curr_len++;
+				}
+                $label .= $a[$i];
                 $i++;
             }
             if ($i<$strlen) {
