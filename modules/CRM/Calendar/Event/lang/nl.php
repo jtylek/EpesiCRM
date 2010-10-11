@@ -1,0 +1,86 @@
+<?php
+/**
+ * Translation file
+ * @package epesi-translations
+ * @subpackage nl
+ */
+global $translations;
+$translations['CRM_Calendar_Event']['Title']='Titel';
+$translations['CRM_Calendar_Event']['Status']='Status';
+$translations['CRM_Calendar_Event']['Event start']='Start van Gebeurtenis';
+$translations['CRM_Calendar_Event']['Time']='Zeit';
+$translations['CRM_Calendar_Event']['---']='---';
+$translations['CRM_Calendar_Event']['5 minutes']='5 Minuten';
+$translations['CRM_Calendar_Event']['15 minutes']='15 Minuten';
+$translations['CRM_Calendar_Event']['30 minutes']='30 Minuten';
+$translations['CRM_Calendar_Event']['45 minutes']='45 Minuten';
+$translations['CRM_Calendar_Event']['1 hour']='1 Uur';
+$translations['CRM_Calendar_Event']['2 hours']='2 Uur';
+$translations['CRM_Calendar_Event']['4 hours']='4 Uur';
+$translations['CRM_Calendar_Event']['8 hours']='8 Uur';
+$translations['CRM_Calendar_Event']['Toggle']='Umschalten';
+$translations['CRM_Calendar_Event']['Duration']='Dauer';
+$translations['CRM_Calendar_Event']['Duration not selected']='Geen duur geselecteerd';
+$translations['CRM_Calendar_Event']['Event end']='Einde Gebeurtenis';
+$translations['CRM_Calendar_Event']['Timeless']='Zonder tijd';
+$translations['CRM_Calendar_Event']['Event itself']='Gebeurtenis zelf';
+$translations['CRM_Calendar_Event']['Default']='Standaard';
+$translations['CRM_Calendar_Event']['Green']='Groen';
+$translations['CRM_Calendar_Event']['Yellow']='Geel';
+$translations['CRM_Calendar_Event']['Red']='Rood';
+$translations['CRM_Calendar_Event']['Blue']='Blauw';
+$translations['CRM_Calendar_Event']['Gray']='Grijs';
+$translations['CRM_Calendar_Event']['Cyan']='Cyaan';
+$translations['CRM_Calendar_Event']['Magenta']='Magenta';
+$translations['CRM_Calendar_Event']['Access']='Toegang';
+$translations['CRM_Calendar_Event']['Priority']='Prioriteit';
+$translations['CRM_Calendar_Event']['Color']='Kleur';
+$translations['CRM_Calendar_Event']['Employees']='Medewerker';
+$translations['CRM_Calendar_Event']['At least one employee must be assigned to an event.']='Tenminste 1 medewerker moet aan een gebeurtenis verbonden zijn.';
+$translations['CRM_Calendar_Event']['Customers']='Clienten';
+$translations['CRM_Calendar_Event']['Popup alert']='Popup Alarm';
+$translations['CRM_Calendar_Event']['on event start']='bij begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['15 minutes before event']='15 Minuten voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['30 minutes before event']='30 Minuten voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['45 minutes before event']='45 Minuten voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['1 hour before event']='1 Uur voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['2 hours before event']='2 Uur voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['3 hours before event']='3 Uur voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['4 hours before event']='4 Uur voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['8 hours before event']='8 Uur voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['12 hours before event']='12 Uur voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['24 hours before event']='24 Uur voor begin van Gebeurtenis';
+$translations['CRM_Calendar_Event']['Popup message']='Popup Bericht';
+$translations['CRM_Calendar_Event']['Alert']='Meldsignaal';
+$translations['CRM_Calendar_Event']['None']='Niets';
+$translations['CRM_Calendar_Event']['me']='ik';
+$translations['CRM_Calendar_Event']['all selected employees']='Alle gekozen medewerkers';
+$translations['CRM_Calendar_Event']['You have to select your contact to set alarm on it']='U moet uw contact selecteren om een meldsignaal in te stellen ';
+$translations['CRM_Calendar_Event']['Recurrence event']='Terugkerende Gebeurtenis';
+$translations['CRM_Calendar_Event']['Recurrence interval']='Terugkerende Interval';
+$translations['CRM_Calendar_Event']['everyday']='iedere Dag';
+$translations['CRM_Calendar_Event']['every second day']='iedere tweede Dag';
+$translations['CRM_Calendar_Event']['every third day']='iedere derde Dag';
+$translations['CRM_Calendar_Event']['every fourth day']='iedere vierde Dag';
+$translations['CRM_Calendar_Event']['every fifth day']='iedere vijfde Dag';
+$translations['CRM_Calendar_Event']['every sixth day']='iedere zesde Dag';
+$translations['CRM_Calendar_Event']['once every week']='Eenmaal per Week';
+$translations['CRM_Calendar_Event']['customize week']='Week aanpassen';
+$translations['CRM_Calendar_Event']['every two weeks']='iedere tweede Week';
+$translations['CRM_Calendar_Event']['every month']='iedere Maand';
+$translations['CRM_Calendar_Event']['every year']='ieder Jaar';
+$translations['CRM_Calendar_Event']['Monday']='Maandag';
+$translations['CRM_Calendar_Event']['Tuesday']='Dinsdag';
+$translations['CRM_Calendar_Event']['Wednesday']='Woensdag';
+$translations['CRM_Calendar_Event']['Thursday']='Dondersdag';
+$translations['CRM_Calendar_Event']['Friday']='Vrijdag';
+$translations['CRM_Calendar_Event']['Saturday']='Zaterdag';
+$translations['CRM_Calendar_Event']['Sunday']='Zondag';
+$translations['CRM_Calendar_Event']['No end date']='Geen Einddatum';
+$translations['CRM_Calendar_Event']['End date']='Einddatum';
+$translations['CRM_Calendar_Event']['End date cannot be before start date.']='Einddatum kan niet voor de Begindatum liggen.';
+$translations['CRM_Calendar_Event']['Related Person']='Verwante Persoon';
+$translations['CRM_Calendar_Event']['Description']='Beschrijving';
+$translations['CRM_Calendar_Event']['Meetings']='';
+$translations['CRM_Calendar_Event']['All']='';
+?>
