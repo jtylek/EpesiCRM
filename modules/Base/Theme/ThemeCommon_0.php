@@ -279,6 +279,27 @@ class Base_ThemeCommon extends ModuleCommon {
 		//images
 		self::create_images_cache();
 	}
+
+
+	public static function install_default_theme_common_files($dir,$f) {
+		if(class_exists('ZipArchive')) {
+			$zip = new ZipArchive;
+			if ($zip->open($dir.$f.'.zip') == 1) {
+    			$zip->extractTo(DATA_DIR.'/Base_Theme/templates/default/');
+    			return;
+			}
+		}
+		mkdir(DATA_DIR.'/Base_Theme/templates/default/'.$f);
+		$content = scandir($dir.$f);
+		foreach ($content as $name){
+			if ($name == '.' || $name == '..') continue;
+			$path = $dir.$f.'/'.$name;
+			if (is_dir($path))
+				self::install_default_theme_common_files($dir,$f.'/'.$name);
+			else
+				copy($path,DATA_DIR.'/Base_Theme/templates/default/'.$f.'/'.$name);
+		}
+	}
 }
 
 ?>

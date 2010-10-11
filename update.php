@@ -2157,6 +2157,39 @@ foreach ($trans as $k=>$v) {
 }
 }
 }
+
+$versions[] = '1.1.3';
+function update_from_1_1_2_to_1_1_3() {
+    if( ModuleManager::is_installed('Base_Theme')>=0 ) {
+        Base_ThemeCommon::install_default_theme_common_files('modules/Base/Theme/','images');
+    }
+
+    if (ModuleManager::is_installed('CRM_Meeting')>=0) {
+        DB::Execute('UPDATE crm_meeting_field SET visible=1 WHERE field="Date" OR field="Time"');
+        DB::Execute('UPDATE crm_meeting_field SET visible=0 WHERE field="Recurrence type" OR field="Recurrence end" OR field="Recurrence hash"');
+    }
+
+    if (ModuleManager::is_installed('CRM_Roundcube')>=0) {
+        Utils_RecordBrowserCommon::set_QFfield_callback('rc_accounts', 'Security', array('CRM_RoundcubeCommon','QFfield_security'));
+        Utils_RecordBrowserCommon::new_record_field('rc_accounts',
+            array('name'=>'Email',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>128, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email'),'position'=>'Epesi User')
+            );
+
+        $rec = Utils_RecordBrowserCommon::get_records('rc_accounts');
+        foreach($rec as $r) {
+            if(preg_match('/@/',$r['login']))
+                $email = $r['login'];
+            else
+                $email = $r['login'].'@'.$r['server'];
+            Utils_RecordBrowserCommon::update_record('rc_accounts',$r['id'],array('email'=>$email));
+        }
+    }
+
+    if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0) {
+	    Utils_RecordBrowserCommon::register_processing_callback('contact', array('Premium_SalesOpportunityCommon', 'submit_contact'));
+    	Utils_RecordBrowserCommon::register_processing_callback('company', array('Premium_SalesOpportunityCommon', 'submit_company'));
+    }
+}
 //=========================================================================
 
 try {
