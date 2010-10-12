@@ -650,7 +650,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function record_processing($tab, $base, $mode, $clone=null) {
         self::check_table_name($tab);
         $tables_db = DB::MetaTables();
-        if(!in_array('recordbrowser_processing_methods',$tables_db)) return; // Delete this on major patch
+        if(!in_array('recordbrowser_processing_methods',$tables_db)) return $base;
 		static $cache = array();
 		if (!isset($cache[$tab])) {
 			$ret = DB::Execute('SELECT * FROM recordbrowser_processing_methods WHERE tab=%s', array($tab));
