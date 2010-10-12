@@ -9,7 +9,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 define("EPESI_VERSION", '1.1.3'); 
-$svnid = '$Rev$';
+$svnid = '$Rev$'; 
 $scid = substr($svnid, 6); 
 define("EPESI_REVISION", intval(substr($scid, 0, strlen($scid) - 2)));
 
