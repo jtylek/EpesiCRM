@@ -357,12 +357,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::CreateTable($tab.'_favorite',
                     $tab.'_id I,'.
                     'user_id I',
-                    array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id)'));
+                    array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id), FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'_data_1(id)'));
         DB::CreateTable($tab.'_recent',
                     $tab.'_id I,'.
                     'user_id I,'.
                     'visited_on T',
-                    array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id)'));
+                    array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id), FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'_data_1(id)'));
         DB::CreateTable($tab.'_callback',
                     'field C(32),'.
                     'callback C(255),'.
