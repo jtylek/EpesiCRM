@@ -1694,9 +1694,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     elseif (isset($a[$i+4]) && $a[$i+4]==';') $e = 4;
                     elseif (isset($a[$i+5]) && $a[$i+5]==';') $e = 5;
                     if ($e!=-1) {
-                        $hsc = implode("", array_splice($a, $i, $e+1));
+                        $hsc = implode("", array_slice($a, $i, $e+1));
                         if ($hsc=='&nbsp;' || strlen(htmlspecialchars_decode($hsc))==1) {
-                            $label .= implode("", array_splice($a, $i, $e));
+                            $label .= implode("", array_slice($a, $i, $e));
                             $i += $e;
                             $curr_len++;
                         }
