@@ -51,9 +51,9 @@ class CRM_PhoneCall extends Module {
 			return;
 		}
 		$crits = array('employees'=>array($me['id']), '!status'=>array(2,3));
-		if (!$conf['past'])
+		if (!isset($conf['past']) || !$conf['past'])
 			$crits['>=date_and_time'] = date('Y-m-d 00:00:00');
-		if (!$conf['today']) {
+		if (!isset($conf['today']) || !$conf['today']) {
 			$crits['(>=date_and_time'] = date('Y-m-d 00:00:00', strtotime('+1 day'));
 			$crits['|<date_and_time'] = date('Y-m-d 00:00:00');
 		}
