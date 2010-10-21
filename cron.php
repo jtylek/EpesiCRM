@@ -13,7 +13,7 @@ if(isset($argv))
 	define('EPESI_DIR','/');
 require_once('include.php');
 set_time_limit(0);
-
+ini_set('memory_limit', '512M');
 ModuleManager::load_modules();
 $ret = ModuleManager::call_common_methods('cron');
 foreach($ret as $name=>$obj) {
