@@ -2202,6 +2202,13 @@ $last_ver = '';
 define('CID',false);
 define('UPDATING_EPESI',true);
 require_once('include.php');
+
+//restore innodb tables in case of db reimport
+$tbls = DB::MetaTables();
+foreach($tbls as $t) {
+    DB::Execute('ALTER TABLE '.$t.' ENGINE = INNODB');
+}
+
 ModuleManager::create_common_cache();
 ob_start();
 ModuleManager::load_modules();
