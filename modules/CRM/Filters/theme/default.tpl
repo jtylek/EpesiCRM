@@ -133,60 +133,62 @@
 
 <br>
 
-<table id="CRM_Filters" cellspacing="0" cellpadding="0">
-    <tr>
-        <td colspan="4" class="Filters_header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</td>
-    </tr>
-	<tr>
+{if !empty($filters)}
+	<table id="CRM_Filters" cellspacing="0" cellpadding="0">
+		<tr>
+			<td colspan="4" class="Filters_header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</td>
+		</tr>
+		<tr>
 
-	{assign var=x value=0}
-    {foreach item=p key=k from=$filters}
-	{assign var=x value=$x+1}
+		{assign var=x value=0}
+		{foreach item=p key=k from=$filters}
+		{assign var=x value=$x+1}
 
-		<td>
+			<td>
 
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 120px;">
-		<div class="content_shadow">
-<!-- -->
+	<!-- SHADIW BEGIN -->
+		<div class="layer" style="padding: 8px; width: 120px;">
+			<div class="content_shadow">
+	<!-- -->
 
-	    {$p.open}
-		<div class="big-button">
-            <span class="text">{$p.title}</span>
-            <span class="desc">{$p.description}</span>
-        </div>
-	    {$p.close}
+			{$p.open}
+			<div class="big-button">
+				<span class="text">{$p.title}</span>
+				<span class="desc">{$p.description}</span>
+			</div>
+			{$p.close}
 
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
+	<!-- SHADOW END -->
+			</div>
+			<div class="shadow-top">
+				<div class="left"></div>
+				<div class="center"></div>
+				<div class="right"></div>
+			</div>
+			<div class="shadow-middle">
+				<div class="left"></div>
+				<div class="right"></div>
+			</div>
+			<div class="shadow-bottom">
+				<div class="left"></div>
+				<div class="center"></div>
+				<div class="right"></div>
+			</div>
 		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
+	<!-- -->
 
-	</td>
+		</td>
 
-	{if ($x%4)==0}
-	</tr>
-	<tr>
-	{/if}
+		{if ($x%4)==0}
+		</tr>
+		<tr>
+		{/if}
 
-{/foreach}
+	{/foreach}
 
-	</tr>
+		</tr>
 
-</table>
+	</table>
+{/if}
 
 </center>

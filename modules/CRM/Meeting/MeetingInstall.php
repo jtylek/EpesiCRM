@@ -24,7 +24,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 			array('name'=>'Time', 				'type'=>'time', 'extra'=>false, 'visible'=>true, 'param'=>'255'),
 			array('name'=>'Duration', 			'type'=>'integer', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_duration')),
 
-			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_MeetingCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('CRM_MeetingCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true),
+			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_MeetingCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('CRM_MeetingCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true, 'filter'=>true),
 			array('name'=>'Customers', 			'type'=>'crm_company_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_MeetingCommon','customers_crits')), 'extra'=>false, 'visible'=>true),
 
 			array('name'=>'Status',				'type'=>'commondata', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>array('order_by_key'=>true,'CRM/Status'), 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_MeetingCommon','display_status')),

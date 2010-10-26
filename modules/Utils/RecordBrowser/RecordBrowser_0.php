@@ -35,7 +35,6 @@ class Utils_RecordBrowser extends Module {
     private $multiple_defaults = false;
     private $add_in_table = false;
     private $custom_filters = array();
-    private $filter_field;
     private $default_order = array();
     private $cut = array();
     private $more_table_properties = array();
@@ -243,20 +242,6 @@ class Utils_RecordBrowser extends Module {
         if (!$this->disabled['filters']) $filters = $this->show_filters($filters_set);
         else $filters = '';
 
-        if (isset($this->filter_field)) {
-            CRM_FiltersCommon::add_action_bar_icon();
-			$ff = trim(CRM_FiltersCommon::get(),'()');
-			if ($ff) {
-				$ff = explode(',',$ff);
-				if ($ff[0]!='') $ff[] = '';
-				$op = '(';
-				if (!is_array($this->filter_field)) $this->filter_field = array($this->filter_field);
-				foreach ($this->filter_field as $f) {
-					$this->crits[$op.$f] = $ff;
-					$op = '|';
-				}
-			}
-        }
         $this->crits = $this->crits+$crits;
 
         $theme = $this->init_module('Base/Theme');
@@ -401,6 +386,7 @@ class Utils_RecordBrowser extends Module {
                             }
                         }
                         natcasesort($arr);
+						if (isset($x[0]) && $x[0]=='contact') $arr = array($this->crm_perspective_default()=>$this->t('[Perspective]'))+$arr;
                     }
                 }
             }
@@ -469,6 +455,11 @@ class Utils_RecordBrowser extends Module {
                 }
             }
         }
+		foreach ($this->crits as $k=>$c) if ($c==$this->crm_perspective_default()) {
+			$this->crits[$k] = explode(',',trim(CRM_FiltersCommon::get(),'()'));
+			if (isset($this->crits[$k][0]) && $this->crits[$k][0]=='') unset($this->crits[$k]);
+		}
+
         $this->set_module_variable('crits', $this->crits);
 
         $filters = array_merge($filters, $external_filters);
@@ -2005,6 +1996,9 @@ class Utils_RecordBrowser extends Module {
             $this->custom_defaults[$k] = $v;
         if ($multiple) $this->multiple_defaults = true;
     }
+	public function crm_perspective_default() {
+		return '__PERSPECTIVE__';
+	}
     public function set_filters_defaults($arg){
 		if(!$this->isset_module_variable('def_filter')) {
 			$r = array();
@@ -2130,11 +2124,9 @@ class Utils_RecordBrowser extends Module {
             $this->set_module_variable('force_add_in_table_after_submit', false);
         }
     }
+	
     public function set_custom_filter($arg, $spec){
         $this->custom_filters[$arg] = $spec;
-    }
-    public function set_crm_filter($field){
-        $this->filter_field = $field;
     }
 
     public function set_no_limit_in_mini_view($arg){

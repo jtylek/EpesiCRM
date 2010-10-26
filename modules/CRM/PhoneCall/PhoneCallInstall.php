@@ -27,7 +27,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Other Customer Name','type'=>'text', 'param'=>'64', 'extra'=>false),
 
 			array('name'=>'Permission', 		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
-			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false, 'visible'=>true),
+			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false, 'visible'=>true, 'filter'=>true),
 
 			array('name'=>'Status',				'type'=>'commondata', 'required'=>true, 'filter'=>true, 'param'=>array('order_by_key'=>true,'CRM/Status'), 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_status')),
 			array('name'=>'Priority', 			'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Priority'), 'extra'=>false),

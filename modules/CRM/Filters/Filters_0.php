@@ -28,7 +28,7 @@ class CRM_Filters extends Module {
 		$th->assign('all','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'all').' id="crm_filters_all">'.$this->t('All records').'</a>');
 		eval_js('Event.observe(\'crm_filters_all\',\'click\', crm_filters_deactivate)');
 
-		$th->assign('manage','<a '.$this->create_callback_href(array($this,'manage_filters')).' id="crm_filters_manage">'.$this->t('Manage filters').'</a>');
+		$th->assign('manage','<a '.$this->create_callback_href(array($this,'manage_filters')).' id="crm_filters_manage">'.$this->t('Manage presets').'</a>');
 		eval_js('Event.observe(\'crm_filters_manage\',\'click\', crm_filters_deactivate)');
 
 		$ret = DB::Execute('SELECT id,name,description FROM crm_filters_group WHERE user_login_id=%d',array(Acl::get_user()));
@@ -60,21 +60,21 @@ class CRM_Filters extends Module {
 			CRM_FiltersCommon::set_profile('c'.$c);
 			location(array());
 		}
-		$th->assign('saved_filters',$this->t('Saved Filters'));
+		$th->assign('saved_filters',$this->t('Saved Presets'));
 		$th->assign('contacts',$qf->toHtml());
 
 		ob_start();
 		$th->display();
 		$profiles_out = ob_get_clean();
 
-		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->t('Filters'),true);
+		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->t('Perspective'),true);
 		if(!isset($_SESSION['client']['filter_'.Acl::get_user()]['desc']))
 			CRM_FiltersCommon::set_profile($this->get_default_filter());
 		    
 		//Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->t('My records')));
 		if (isset($_REQUEST['__location'])) $in_use = (CRM_FiltersCommon::$in_use===$_REQUEST['__location']);
 		else $in_use = CRM_FiltersCommon::$in_use;
-		print($this->t('%s',array('<a class="lbOn'.($in_use?'':' disabled').'" rel="crm_filters">'.$this->ht('Filters: ').'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b></a>')));
+		print($this->t('%s',array('<a class="lbOn'.($in_use?'':' disabled').'" rel="crm_filters">'.$this->ht('Perspective: ').'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b></a>')));
 	}
 
 	public function manage_filters() {
@@ -95,7 +95,7 @@ class CRM_Filters extends Module {
 	}*/
 
 	public function edit() {
-		Base_ActionBarCommon::add('add','Add group',$this->create_callback_href(array($this,'edit_group')));
+		Base_ActionBarCommon::add('add','Add preset',$this->create_callback_href(array($this,'edit_group')));
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'edit');
 
@@ -127,8 +127,8 @@ class CRM_Filters extends Module {
 		$this->display_module($gb);
 		
 		$qf = $this->init_module('Libs/QuickForm',null,'default_filter');
-		$qf->addElement('select','def_filter',$this->t('Default filter'),$def_opts,array('onChange'=>$qf->get_submit_form_js()));
-		$qf->addElement('checkbox','show_all_contacts_in_filters',$this->t('Show All Contacts in Filters'),null,array('onChange'=>$qf->get_submit_form_js()));
+		$qf->addElement('select','def_filter',$this->t('Default perspective'),$def_opts,array('onChange'=>$qf->get_submit_form_js()));
+		$qf->addElement('checkbox','show_all_contacts_in_filters',$this->t('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
 		$qf->addRule('def_filter',$this->t('Field required'),'required');
 		$qf->setDefaults(array(	'def_filter'=>$this->get_default_filter($def_filter_exists),
 								'show_all_contacts_in_filters'=>Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')
@@ -169,7 +169,7 @@ class CRM_Filters extends Module {
 
 			$form->setDefaults(array('name'=>$name,'contacts'=>$contacts_def,'description'=>$description));
 		} else
-			$form->addElement('header',null,$this->t('New group'));
+			$form->addElement('header',null,$this->t('New preset'));
 		$form->addElement('text','name',$this->t('Name'));
 		$form->addElement('text','description',$this->t('Description'));
 		$form->addRule('name',$this->t('Max length of field exceeded'),'maxlength',128);

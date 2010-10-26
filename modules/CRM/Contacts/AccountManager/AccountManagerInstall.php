@@ -14,12 +14,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Contacts_AccountManagerInstall extends ModuleInstall {
 
 	public function install() {
-		Utils_RecordBrowserCommon::new_record_field('company', array('name'=>'Account Manager', 'type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('CRM_Contacts_AccountManagerCommon', 'crits_accountmanager'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false, 'visible'=>true));
+		Utils_RecordBrowserCommon::new_record_field('company', array('name'=>'Account Manager', 'type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('CRM_Contacts_AccountManagerCommon', 'crits_accountmanager'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false, 'filter'=>true, 'visible'=>true));
+		Utils_RecordBrowserCommon::new_browse_mode_details_callback('company', 'CRM/Contacts/AccountManager', 'browse_mode_details');
 		return true;
 	}
 	
 	public function uninstall() {
 		Utils_RecordBrowserCommon::delete_record_field('company', 'Account Manager');
+		Utils_RecordBrowserCommon::delete_browse_mode_details_callback('company', 'CRM/Contacts/AccountManager', 'browse_mode_details');
 		return true;
 	}
 	

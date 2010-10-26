@@ -11,6 +11,10 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Contacts_AccountManager extends Module {
+	public function browse_mode_details($form, $filters, $vals, $crits, $dont_hide) {
+		$form->setDefaults(array('filter__account_manager'=>'__PERSPECTIVE__'));
+		$dont_hide = true;
+	}
 	
 }
 

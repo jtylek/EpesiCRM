@@ -39,7 +39,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField', 'decimal_point')));
 
 			$str .= $this->_getTabs() .
-					'<span><input style="width:60%;" ' . $this->_getAttrString($this->_attributes) . ' '.
+					'<span><input style="width: auto;" ' . $this->_getAttrString($this->_attributes) . ' '.
 					Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/CurrencyField','Example value: %s',array('123'.Utils_CurrencyFieldCommon::get_decimal_point().implode('',range(4,3+$this->dec_digits)))), false ).
 					' /></span>'.
 					'<span style="width:40px;"><select style="width:40px;" name="__'.str_replace(array('[',']'),'',$name).'__currency" id="__'.$id.'__currency">';
