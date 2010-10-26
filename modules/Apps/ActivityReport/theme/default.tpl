@@ -13,9 +13,25 @@
 		</td>
 	</tr>
 	<tr>
-		<td class="data" rowspan="5">
+		<td class="data" rowspan="7">
 			{$form_data.recordsets.html}
 		</td>
+		<td class="label">
+			{$form_data.start_date.label}
+		</td>
+		<td class="data" colspan="3">
+			{$form_data.start_date.html}
+		</td>
+	</tr>
+	<tr>
+		<td class="label">
+			{$form_data.end_date.label}
+		</td>
+		<td class="data" colspan="3">
+			{$form_data.end_date.html}
+		</td>
+	</tr>
+	<tr>
 		<td class="label">
 			{$form_data.new.label}
 		</td>

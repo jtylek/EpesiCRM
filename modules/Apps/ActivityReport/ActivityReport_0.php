@@ -30,9 +30,12 @@ class Apps_ActivityReport extends Module {
 		$form->addElement('checkbox', 'note', $this->t('Notes'));
 		$form->addElement('checkbox', 'file', $this->t('Files'));
 
+		$form->addElement('datepicker', 'start_date', $this->t('Start Date'));
+		$form->addElement('datepicker', 'end_date', $this->t('End Date'));
+
 		$form->addElement('submit', 'submit', $this->t('Show'));
 
-		$filters = $this->get_module_variable('filters', array('user'=>'', 'new'=>1, 'edit'=>1, 'delete_restore'=>1, 'recordsets'=>array_keys($rb_tabs)));
+		$filters = $this->get_module_variable('filters', array('user'=>'', 'new'=>1, 'edit'=>1, 'delete_restore'=>1, 'recordsets'=>array_keys($rb_tabs), 'start_date'=>date('Y-m-01'), 'end_date'=>date('Y-m-d')));
 		
 		if ($form->validate()) {
 			$filters = $form->exportValues();
@@ -59,17 +62,17 @@ class Apps_ActivityReport extends Module {
 		));
 		$tables = array();
 
-		$a_where = array();
+		$af_where = array();
 		foreach($rb_tabs as $k=>$t)
-			$a_where[] = 'ual.local LIKE '.DB::Concat(DB::qstr($k.'/'),DB::qstr('%'));
-		$a_where = ' ('.implode(' OR ',$a_where).')';
+			$af_where[] = 'ual.local LIKE '.DB::Concat(DB::qstr($k.'/'),DB::qstr('%'));
+		$af_where = ' ('.implode(' OR ',$af_where).')';
 
 		$e_where = array();
 		$c_where = '';
 		if ($filters['user']) {
 			$e_where[] = ' edited_by = '.$filters['user'];
 			$c_where = ' created_by = '.$filters['user'];
-			$a_where .= ' AND created_by = '.$filters['user'];
+			$af_where .= ' AND created_by = '.$filters['user'];
 		}
 		if (isset($filters['edit'])) {
 			if (!isset($filters['delete_restore'])) {
@@ -80,6 +83,21 @@ class Apps_ActivityReport extends Module {
 				$e_where[] = ' ehd.field="id"';
 			}
 		}
+		$an_where = $af_where;
+		if ($filters['start_date']) {
+			$date = DB::qstr(date('Y-m-d', strtotime($filters['start_date'])));
+			$af_where .= ' AND uaf.created_on >= '.$date;
+			$an_where .= ' AND uan.created_on >= '.$date;
+			$c_where .= ($c_where?' AND':'').' created_on >= '.$date;
+			$e_where[] = ' edited_on >= '.$date;
+		}
+		if ($filters['end_date']) {
+			$date = DB::qstr(date('Y-m-d 23:59:59', strtotime($filters['end_date'])));
+			$af_where .= ' AND uaf.created_on <= '.$date;
+			$an_where .= ' AND uan.created_on <= '.$date;
+			$c_where .= ($c_where?' AND':'').' created_on <= '.$date;
+			$e_where[] = ' edited_on <= '.$date;
+		}
 		
 		if (!empty($e_where)) $e_where = ' WHERE'.implode(' AND',$e_where);
 		else $e_where = '';
@@ -87,11 +105,10 @@ class Apps_ActivityReport extends Module {
 
 		// **** files ****
 		if (isset($filters['file']))
-			$tables[] = 'SELECT uaf.revision AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, "" AS tab, "file" AS action FROM utils_attachment_file uaf LEFT JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE original!="" AND '.$a_where;
+			$tables[] = 'SELECT uaf.revision AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, "" AS tab, "file" AS action FROM utils_attachment_file uaf LEFT JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE original!="" AND '.$af_where;
 		// **** notes ****
 		if (isset($filters['note']))
-			$tables[] = 'SELECT uan.revision AS id,uan.created_on AS edited_on,uan.created_by AS edited_by, ual.local AS r_id, "" AS tab, "note" AS action FROM utils_attachment_note uan LEFT JOIN utils_attachment_link ual ON uan.attach_id=ual.id WHERE '.$a_where;
-
+			$tables[] = 'SELECT uan.revision AS id,uan.created_on AS edited_on,uan.created_by AS edited_by, ual.local AS r_id, "" AS tab, "note" AS action FROM utils_attachment_note uan LEFT JOIN utils_attachment_link ual ON uan.attach_id=ual.id WHERE '.$an_where;
 		// **** edit ****
 		if (isset($filters['edit']) || isset($filters['delete_restore']))
 			foreach($rb_tabs as $k=>$t)
@@ -100,7 +117,7 @@ class Apps_ActivityReport extends Module {
 		if (isset($filters['new']))
 			foreach($rb_tabs as $k=>$t)
 				$tables[] = 'SELECT 0 AS id, created_on AS edited_on, created_by AS edited_by, id as r_id, "'.$k.'" as tab, "create" as action FROM '.$k.'_data_1'.$c_where;
-
+	
 		if (!empty($tables)) {
 			$tables = implode(' UNION ', $tables);
 			$limit = DB::GetOne('SELECT COUNT(*) FROM ('.$tables.') AS tmp ORDER BY edited_on DESC');
