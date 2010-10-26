@@ -49,3 +49,13 @@
 Apps_ActivityReport .activity_report_button input:hover {
 	background-image: url("images/button-hover.gif");
 }
+
+#activity_report_leightbox_content td {
+	width: 30%;
+	border-bottom: 1px solid;
+	border-right: 1px solid;
+}
+
+#activity_report_leightbox_content table {
+	margin-top: 10px;
+}
