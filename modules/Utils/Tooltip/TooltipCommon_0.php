@@ -84,10 +84,10 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string text with tooltip
 	 */
-	public function create( $text, $tip, $help=true) {
+	public function create( $text, $tip, $help=true, $max_width=300) {
 		self::show_help();
 		if((!$help || self::$help_tooltips) && is_string($tip) && $tip!=='')
-			return '<span '.self::open_tag_attrs($tip,$help).'>'.$text.'</span>';
+			return '<span '.self::open_tag_attrs($tip,$help,$max_width).'>'.$text.'</span>';
 		else
 			return $text;
 	}
@@ -110,6 +110,19 @@ class Utils_TooltipCommon extends ModuleCommon {
 		$table.='</TABLE>';
 		return $table;
 	}
+
+	public static function tooltip_leightbox_mode() {
+		static $init = null;
+		if (!isset($_REQUEST['__location'])) $loc = true;
+		else $loc = $_REQUEST['__location'];
+		if ($init!==$loc) {
+			Base_ThemeCommon::load_css('Utils/Tooltip','leightbox_mode');
+			Libs_LeightboxCommon::display('tooltip_leightbox_mode', '<center><span id="tooltip_leightbox_mode_content" /></center>');
+			$init = $loc;
+		}
+		return Libs_LeightboxCommon::get_open_href('tooltip_leightbox_mode').' onmousedown="Utils_Tooltip__leightbox_mode(this)" ';
+	}
+	
 }
 
 load_js('modules/Utils/Tooltip/js/Tooltip.js');

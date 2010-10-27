@@ -123,22 +123,6 @@ class Apps_ActivityReport extends Module {
 			$limit = DB::GetOne('SELECT COUNT(*) FROM ('.$tables.') AS tmp ORDER BY edited_on DESC');
 			$limit = $gb->get_limit($limit);
 			$ret = DB::SelectLimit('SELECT * FROM ('.$tables.') AS tmp ORDER BY edited_on DESC', $limit['numrows'], $limit['offset']);
-			Libs_LeightboxCommon::display('activity_report_edit_history', '<center><span id="activity_report_leightbox_content" /></center>');
-			eval_js('fill_activity_report_leightbox = function(tab, r_id, id) {'.
-				'$("activity_report_leightbox_content").innerHTML = "Loading...";'.
-				'new Ajax.Request("modules/Apps/ActivityReport/edit_history.php", {'.
-				'	method: "post",'.
-				'	parameters:{'.
-				'		tab: tab,'.
-				'		r_id: r_id,'.
-				'		id: id,'.
-				'		cid: Epesi.client_id'.
-				'	},'.
-				'	onSuccess:function(t) {'.
-				'		$("activity_report_leightbox_content").innerHTML = t.responseText;'.
-				'	}'.
-				'});'.
-			'}');
 			while ($row=$ret->FetchRow()) {
 				$user = CRM_ContactsCommon::get_user_label($row['edited_by']);
 				$action = '';
@@ -149,7 +133,7 @@ class Apps_ActivityReport extends Module {
 										$action = $details['id']=='DELETED'?$this->t('Deleted'):$this->t('Restored');
 									} else {
 										$action = $this->t('Edited');
-										$action = '<a '.Libs_LeightboxCommon::get_open_href('activity_report_edit_history').' onmouseup="fill_activity_report_leightbox(\''.$row['tab'].'\','.$row['r_id'].','.$row['id'].')" '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details'), array($row['tab'], $row['r_id'], $row['id'])).'>'.$action.'</a>';
+										$action = '<a '.Utils_TooltipCommon::tooltip_leightbox_mode().' '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details'), array($row['tab'], $row['r_id'], $row['id']), 500).'>'.$action.'</a>';
 									}
 									$link = Utils_RecordBrowserCommon::create_default_linked_label($row['tab'], $row['r_id'], false, false);
 									break;

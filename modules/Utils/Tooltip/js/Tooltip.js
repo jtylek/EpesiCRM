@@ -53,6 +53,7 @@ Utils_Tooltip__load_ajax_Tip = function(o,my_event,max_width) {
 			onSuccess:function(t) {
 				o.setAttribute('tip',t.responseText);
 				$('tooltip_text').innerHTML = t.responseText;
+				if ($("tooltip_leightbox_mode_content")) $("tooltip_leightbox_mode_content").innerHTML = t.responseText;
 			}
 		});
 	} else {
@@ -77,4 +78,9 @@ Utils_Tooltip__create_block = function(template) {
 	body = document.getElementsByTagName('body');
 	body = body[0];
 	document.body.appendChild(div);
+}
+
+Utils_Tooltip__leightbox_mode = function(o) {
+	var tip = o.getAttribute('tip');
+	$("tooltip_leightbox_mode_content").innerHTML = tip;
 }

@@ -93,8 +93,8 @@ class Utils_GenericBrowser_Row_Object {
 	 *
 	 * @param string tooltip
 	 */
-	public function add_info($tooltip){
-		$this->GBobj->__add_row_action($this->num, '','info',$tooltip,null);
+	public function add_info($tooltip, $leightbox = false){
+		$this->GBobj->__add_row_action($this->num, $leightbox?Utils_TooltipCommon::tooltip_leightbox_mode():'','info',$tooltip,null);
 	}
 
 	/**

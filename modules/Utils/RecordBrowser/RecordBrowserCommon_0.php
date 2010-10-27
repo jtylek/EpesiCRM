@@ -61,8 +61,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $first = true;
                 foreach ($val as $k=>$v){
 //                  if ($tab=='__COMMON__' && !isset($data[$v])) continue;
-                    if ($first) $first = false;
-                    else $ret .= '<br>';
                     if ($tab=='__COMMON__') {
                         $path = explode('/',$v);
                         $tooltip = '';
@@ -80,11 +78,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             }
                             $res .= $commondata_sep;
                         }
-                        $res .= Utils_CommonDataCommon::get_value($col.'/'.$v,true);
+                        $val = Utils_CommonDataCommon::get_value($col.'/'.$v,true);
+						if (!$val) continue;
+                        $res .= $val;
+						if ($first) $first = false;
+						else $ret .= '<br>';
                         $res = self::no_wrap($res);
                         if ($tooltip) $res = '<span '.Utils_TooltipCommon::open_tag_attrs($tooltip, false).'>'.$res.'</span>';
                         $ret .= $res;
-                    } else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
+                    } else {
+						if ($first) $first = false;
+						else $ret .= '<br>';
+						$ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
+					}
                 }
                 if ($ret=='') $ret = '---';
             }
@@ -1552,9 +1558,40 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         ));
         return $some_more;
     }
+
+	/**
+	 *	Returns older version of te record.
+	 *
+	 *	@param RecordSet - name of the recordset
+	 *	@param Record ID - ID of the record
+	 *	@param Revision ID - RB will backtrace all edits on that record down-to and including edit with this ID
+	 */
+	public static function get_record_revision($tab, $id, $rev_id) {
+		self::init($tab);
+		$r = self::get_record($tab, $id);
+		$ret = DB::Execute('SELECT id, edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d AND id>=%d ORDER BY edited_on DESC, id DESC',array($id, $rev_id));
+		while ($row = $ret->FetchRow()) {
+			$changed = array();
+			$ret2 = DB::Execute('SELECT * FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
+			while($row2 = $ret2->FetchRow()) {
+				$k = $row2['field'];
+				$v = $row2['old_value'];
+				if ($k=='id') $r['active'] = ($v!='DELETED');
+				else {
+					if (!isset(self::$hash[$k])) continue;
+					$r[$k] = $v;
+				}
+			}
+		}
+		return $r;
+	}
 	
-	public static function get_edit_details($tab, $r, $edit_id,$details=true) {
-		if (is_numeric($r)) $r = self::get_record($tab, $r);
+	public static function get_edit_details($tab, & $rid, $edit_id,$details=true) {
+		self::init($tab);
+		if (is_numeric($rid)) {
+			$prev_rev = DB::GetOne('SELECT MAX(id) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d AND id<%d', array($rid, $edit_id));
+			$r = self::get_record_revision($tab, $rid, $prev_rev);
+		} else $r = $rid;
 		$edit_info = DB::GetRow('SELECT * FROM '.$tab.'_edit_history WHERE id=%d',array($edit_id));
 		$event_display = 'Error, Invalid event: '.$edit_id;
 		if (!$edit_info) return $event_display;
@@ -1564,11 +1601,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($edit_id));
 		$event_display .= '<table border="0"><tr><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Field').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Old value').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','New value').'</b></td></tr>';
 		$r2 = $r;
-		self::init($tab);
 		foreach ($edit_details as $k=>$v) {
 			$k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
 			if (!isset(self::$hash[$k])) continue;
-			if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') $v = $edit_details[$k] = self::decode_multi($v);
+			if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') {
+				$v = $edit_details[$k] = self::decode_multi($v);
+				$r[$k] = self::decode_multi($r[$k]);
+			}
 			$r2[$k] = $v;
 		}
 		$access = self::get_access($tab,'view',$r);
@@ -1584,6 +1623,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								'<td>'.self::get_val($tab, $field, $r, true, $params).'</td></tr>';
 		}
 		$r = $r2;
+		foreach ($edit_details as $k=>$v) {
+			$k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
+			if (!isset(self::$hash[$k])) continue;
+			if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') {
+				$r[$k] = self::encode_multi($r[$k]);
+			}
+		}
 		$event_display .= '</table>';
 		return $event_display;
 	}

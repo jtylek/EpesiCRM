@@ -88,7 +88,7 @@ class Utils_Watchdog extends Module {
 				$gb_row->add_action('href="javascript:void(0);" onclick="watchdog_applet_mark_as_read(\''.$v.'__'.$k.'\')"','Restore','Mark as read');
 				$something_to_purge = true;
 			}
-			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events']);
+			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events'], true);
 			$count++;
 			if ($count==15) break;
 		}
