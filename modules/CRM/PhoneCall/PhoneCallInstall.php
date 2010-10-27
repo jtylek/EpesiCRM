@@ -69,6 +69,10 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		$this->add_aco('view public notes','Employee');
 		$this->add_aco('edit protected notes','Employee Administrator');
 		$this->add_aco('edit public notes','Employee');
+
+		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0)
+			Utils_RecordBrowserCommon::new_record_field('phonecall', 'Opportunity', 'select', true, false, 'premium_salesopportunity::Opportunity Name;Premium_SalesOpportunityCommon::crm_opportunity_reference_crits', '', false);
+
 		return true;
 	}
 

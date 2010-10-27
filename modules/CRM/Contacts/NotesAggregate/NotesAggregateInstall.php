@@ -33,7 +33,8 @@ class CRM_Contacts_NotesAggregateInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/RecordBrowser', 'version'=>0)
+			array('name'=>'Utils/RecordBrowser', 'version'=>0),
+			array('name'=>'CRM/Contacts', 'version'=>0)
 		);
 	}
 	

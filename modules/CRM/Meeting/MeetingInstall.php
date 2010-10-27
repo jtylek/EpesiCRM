@@ -20,8 +20,8 @@ class CRM_MeetingInstall extends ModuleInstall {
 
 			array('name'=>'Description', 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
 
-			array('name'=>'Date', 				'type'=>'date', 'extra'=>false, 'visible'=>true, 'param'=>'255'),
-			array('name'=>'Time', 				'type'=>'time', 'extra'=>false, 'visible'=>true, 'param'=>'255'),
+			array('name'=>'Date', 				'type'=>'date', 'required'=>true, 'extra'=>false, 'visible'=>true, 'param'=>'255'),
+			array('name'=>'Time', 				'type'=>'time', 'required'=>true, 'extra'=>false, 'visible'=>true, 'param'=>'255'),
 			array('name'=>'Duration', 			'type'=>'integer', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_duration')),
 
 			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_MeetingCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('CRM_MeetingCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true, 'filter'=>true),
@@ -61,6 +61,10 @@ class CRM_MeetingInstall extends ModuleInstall {
 		$this->add_aco('view public notes','Employee');
 		$this->add_aco('edit protected notes','Employee Administrator');
 		$this->add_aco('edit public notes','Employee');
+
+		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0)
+			Utils_RecordBrowserCommon::new_record_field('crm_meeting', 'Opportunity', 'select', true, false, 'premium_salesopportunity::Opportunity Name;Premium_SalesOpportunityCommon::crm_opportunity_reference_crits', '', false);
+
 		return true;
 	}
 

@@ -189,7 +189,6 @@
 #CRM_Calendar_Event_Personal #time_e {
 	display: block;
 	float: right;
-	padding-top: 2px;
 }
 
 #CRM_Calendar_Event_Personal .time_s input,

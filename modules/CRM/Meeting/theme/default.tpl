@@ -136,7 +136,7 @@
                                     <td class="label" style="border-right: 1px solid #b3b3b3; width: 40%; height: 21px;">{$form_data.date.label}</td>
                                 </tr>
                                 <tr>
-                                    <td class="data" style="border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.date.error}</span><div class="time_s" style="float: left; width: 200px; border-bottom: 1px solid #b3b3b3; text-align: center;">{$form_data.date.html}</div><span id="time_s">{$form_data.time.html}</span></td>
+                                    <td class="data" style="border-right: 1px solid #b3b3b3; height: 20px; "><span class="error">{$form_data.date.error}</span><div class="time_s" style="float: left; width: 200px; text-align: center;">{$form_data.date.html}</div><span id="time_s">{$form_data.time.html}</span></td>
                                 </tr>
                                 <tr>
                                     <td class="label" style="width: 60%; padding-right: 0px; height: 21px; vertical-align: top;"><div style="float: left; margin-top: 3px;">{$form_data.duration.label} / {$form_data.end_time.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$form_data.toggle.html}</div></td>
