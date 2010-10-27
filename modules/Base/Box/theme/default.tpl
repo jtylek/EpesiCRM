@@ -19,8 +19,11 @@
 			<tr>
 				<td class="roll-left"><img id="roll" src="{$theme_dir}/Base/Box/roll-up.png" onClick="var x='{$theme_dir}/Base/Box/roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png'; base_box_roll_topbar();" width="14" height="14" alt="=" border="0"></td>
 				<td class="menu-bar">{$menu}</td>
-				<td class="powered"><b onClick="full_screen('index.php');" style="cursor: pointer;">epesi</b> powered</td>
-				<td class="version">{$version_no}</td>
+				<td class="powered" nowrap="1"><a href="http://www.epesibim.com" target="_blank" style="color:white;"><b>epesi</b> powered</a></td>
+				<td class="version" nowrap="1">{$version_no}</td>
+				{if isset($donate)}
+					<td class="donate" nowrap="1">{$donate}</td>
+				{/if}
 				<td class="module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div><div id="quick-logout" style="display: none;"></div></td>
 			</tr>
 		</tbody>

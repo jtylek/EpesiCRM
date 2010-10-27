@@ -153,7 +153,15 @@ class Base_Box extends Module {
 
 
         //main output
-        $theme->assign('version_no','<a href="http://www.epesi.org" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Check for new version')).' target="_blank">'.$this->t('version&nbsp;%s',array(EPESI_VERSION)).'</a>');
+		$version_no = $this->t('version %s',array(EPESI_VERSION));
+		if (CHECK_VERSION) {
+			load_js('modules/Base/Box/check_for_new_version.js');
+			eval_js('check_for_new_version();');
+			$version_no = '<span id="epesi_new_version">'.Utils_TooltipCommon::create($version_no, $this->t('Checking if new version is available...'), false).'</span>';
+		}
+		if (SUGGEST_DONATION)
+			$theme->assign('donate',Utils_TooltipCommon::create('<a target="_blank" href="http://www.epesibim.com/cost">Support epesi!</a>', $this->t('<center>If you find our software useful, please support us by making a donation.<br>Your funding will help to ensure continued development of this project.<br>Click for details.</center>'), false, 500));
+        $theme->assign('version_no',$version_no);
         $theme->display();
 
 

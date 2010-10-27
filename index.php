@@ -185,8 +185,17 @@ Please choose epesi version:<ul>
                     <td><img src="images/logo.gif" alt="logo" width="550" height="200" border="0"></td>
                 </tr>
 				<tr>
-					<td style="text-align: center; vertical-align: middle; height: 40px;"><span id="epesiStatusText">Starting epesi ...</span></td>
+					<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText">Starting epesi ...</span></td>
                 </tr>
+<?php
+				if (SUGGEST_DONATION) {
+?>
+					<tr>
+						<td style="text-align: center; vertical-align: middle; height: 30px; "><span style="font-weight:normal; color: #888;" id="epesiStatusText">If you find our software useful, please support us by making a <a href="http://www.epesibim.com/cost" target="_blank">donation</a>.<br>Your funding will help to ensure continued development of this project.</span></td>
+					</tr>
+<?php
+				}
+?>
                 <tr>
 					<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
 				</tr>

@@ -30,6 +30,9 @@ if(!defined('REDUCING_TRANSFER')) define("REDUCING_TRANSFER",1);
 if(!defined('CACHE_COMMON_FILES')) define("CACHE_COMMON_FILES",1);
 if(!defined('MINIFY_ENCODE')) define('MINIFY_ENCODE',1);
 
+if(!defined('SUGGEST_DONATION')) define('SUGGEST_DONATION',0);
+if(!defined('CHECK_VERSION')) define('CHECK_VERSION',1);
+
 if(!defined('JS_OUTPUT')) define('JS_OUTPUT',0);
 if(!defined('SET_SESSION')) define('SET_SESSION',1);
 if(!defined('READ_ONLY_SESSION')) define('READ_ONLY_SESSION',0);

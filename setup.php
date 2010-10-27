@@ -307,6 +307,16 @@ define("GZIP_HISTORY",1);
 define("MINIFY_ENCODE",1);
 
 /*
+ * Show donation links in epesi
+ */
+define("SUGGEST_DONATION",1);
+
+/*
+ * automatically check for new version
+ */
+define("CHECK_VERSION",1);
+
+/*
  * Disable some administrator preferences.
  */
 define("DEMO_MODE",0);
