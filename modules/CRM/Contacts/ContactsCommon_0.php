@@ -869,6 +869,9 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function display_email($record, $nolink, $desc) {
         $v = $record[$desc['id']];
         if ($nolink) return $v;
+        if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
+            return CRM_RoundcubeCommon::get_mailto_link($v);
+        }
         return '<a href="mailto:'.$v.'">'.$v.'</a>';
     }
     public static function display_login($record, $nolink, $desc) {

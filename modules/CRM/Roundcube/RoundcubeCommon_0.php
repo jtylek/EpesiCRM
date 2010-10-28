@@ -261,6 +261,20 @@ class CRM_RoundcubeCommon extends ModuleCommon {
 		$r = Utils_RecordBrowserCommon::get_records('rc_multiple_emails',array('nickname'=>$v,'record_type'=>$id[0],'record_id'=>$id[1]),array());
 		return empty($r);
 	}
+	
+	public static function get_mailto_link($v) {
+        if(isset($_REQUEST['rc_mailto'])) {
+            $x = ModuleManager::get_instance('/Base_Box|0');
+            $x->push_main('CRM_Roundcube','new_mail',array($v));
+            unset($_REQUEST['rc_mailto']);
+        }
+        $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
+        if($ret) {
+//    	    return '<a '.Base_BoxCommon::create_href('','CRM_Roundcube','new_mail',array($v)).'>'.$v.'</a>';
+      	    return '<a '.Module::create_href(array('rc_mailto'=>$v)).'>'.$v.'</a>';
+      	}
+    	return '<a href="mailto:'.$v.'">'.$v.'</a>';
+	}
 }
 
 ?>

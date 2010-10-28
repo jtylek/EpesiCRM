@@ -36,5 +36,4 @@ class epesi_autologon extends rcube_plugin
 
     return $args;
   }
-
 }

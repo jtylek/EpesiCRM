@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Roundcube extends Module {
     public $rb;
 
-    public function body() {
+    public function body($params2=array()) {
         $accounts = Utils_RecordBrowserCommon::get_records('rc_accounts',array('epesi_user'=>Acl::get_user()));
         $def = null;
         $def_id = $this->get_module_variable('default',null);
@@ -27,9 +27,15 @@ class CRM_Roundcube extends Module {
             print($this->t('No accounts'));
             return;
         }
-        $params = array('_autologin_id'=>$def['id']);
+        $params = array('_autologin_id'=>$def['id'])+$params2;
+//        if($params2) $params['_url'] = http_build_query($params2);
         print('<iframe style="border:0" border="0" src="modules/CRM/Roundcube/src/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe>');
         eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(dim.height-100)+"px";');
+    }
+
+    public function new_mail($to) {
+//        $this->body(array('task' => 'mail', '_action' => 'compose', '_to' => $to));
+          $this->body(array('mailto' => $to));
     }
 
     public function account($id) {
