@@ -121,6 +121,9 @@ class Base_User_Login extends Module {
 			location(array());
 		} else {
 			$form->assign_theme('form', $theme);
+			if (SUGGEST_DONATION) {
+				$theme->assign('donation_note', $this->t('If you find our software useful, please support us by making a %s.<br>Your funding will help to ensure continued development of this project.', array('<a href="http://www.epesibim.com/cost" target="_blank">'.$this->t('donation').'</a>')));
+			}
 			$theme->display();
 
 			eval_js("focus_by_id('username')");

@@ -79,9 +79,10 @@ hr.line {
 /*** login ***/
 
 #Base_Box__login {
-/*	position: absolute;*/
+	position: relative;
 	width: 100%;
 	height: 100%;
+	top: -50px;
 	text-align: center;
 	vertical-align: middle;
 	background-color: #F0F0F0;
