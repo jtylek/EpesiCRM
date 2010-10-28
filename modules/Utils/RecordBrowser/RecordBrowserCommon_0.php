@@ -147,6 +147,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function decode_multi($v) {
         if ($v===null) return array();
+        if(is_array($v)) return $v;
         $v = explode('__',$v);
         array_shift($v);
         array_pop($v);
