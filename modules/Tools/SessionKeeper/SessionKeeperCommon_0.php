@@ -31,14 +31,20 @@ class Tools_SessionKeeperCommon extends ModuleCommon {
     }
 
 }
+
+load_js('modules/Tools/SessionKeeper/sk.js');
+$sys_time = ini_get("session.gc_maxlifetime");
+$interval = $sys_time/3;
+
 if(Acl::is_user()) {
     $time = Base_User_SettingsCommon::get('Tools/SessionKeeper','time');
-    load_js('modules/Tools/SessionKeeper/sk.js');
-    $sys_time = ini_get("session.gc_maxlifetime");
     if($time=='default')
         $time = $sys_time;
-    $interval = $sys_time/2;
     eval_js_once('SessionKeeper.maxtime='.$time.';'.
+            'SessionKeeper.interval='.$interval.';'.
+            'SessionKeeper.load()');
+} else {
+    eval_js_once('SessionKeeper.maxtime=201600;'. //one week
             'SessionKeeper.interval='.$interval.';'.
             'SessionKeeper.load()');
 
