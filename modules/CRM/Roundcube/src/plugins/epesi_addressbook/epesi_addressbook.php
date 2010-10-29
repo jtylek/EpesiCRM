@@ -30,8 +30,11 @@ class epesi_addressbook extends rcube_plugin
 
   public function address_sources($p)
   {
+    global $RCMAIL;
     $p['sources'][$this->contacts_abook] = array('id' => $this->contacts_abook, 'name' => 'Epesi Contacts', 'readonly' => true);
     $p['sources'][$this->companies_abook] = array('id' => $this->companies_abook, 'name' => 'Epesi Companies', 'readonly' => true);
+    if($RCMAIL->task == "addressbook")
+        unset($p['sources'][0]);
     return $p;
   }
 
@@ -48,6 +51,7 @@ class epesi_addressbook extends rcube_plugin
     return $p;
   }
 
+
   public function create_contact($r) {
     global $OUTPUT;
     $mail = $r['record']['email'];
@@ -55,7 +59,7 @@ class epesi_addressbook extends rcube_plugin
     $contacts = new epesi_contacts_addressbook_backend();
     $ret = $contacts->search(null,$mail,true,false);
     if(count($ret->records)) {
-      $OUTPUT->show_message('contactexists', 'warning');
+      $OUTPUT->show_message('contactexists'.print_r($ret,true), 'warning');
     } else {
       require_once(dirname(__FILE__) . '/epesi_companies_addressbook_backend.php');
       $companies = new epesi_companies_addressbook_backend();    
@@ -63,7 +67,10 @@ class epesi_addressbook extends rcube_plugin
       if(count($ret->records)) {
         $OUTPUT->show_message('contactexists', 'warning');      
       } else {
-        $name = explode(' ',$r['record']['name'],2);
+        if(isset($r['record']['firstname']) && $r['record']['firstname']!=="" && isset($r['record']['surname']) && $r['record']['surname']!=="")
+            $name = array($r['record']['firstname'],$r['record']['surname']);
+        else
+            $name = explode(' ',$r['record']['name'],2);
         if(count($name)<2) {
           $OUTPUT->show_message('errorsavingcontact', 'warning');
         } else {
@@ -74,7 +81,7 @@ class epesi_addressbook extends rcube_plugin
       }
     }
     $OUTPUT->send();
-    die();
 //    return array('abort'=>true);
   }
+  
 }
