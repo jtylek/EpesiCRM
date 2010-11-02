@@ -100,8 +100,8 @@ $rcmail_config['imap_auth_type'] = null;
 
 // If you know your imap's root directory and its folder delimiter,
 // you can specify them here. Otherwise they will be determined automatically.
-$rcmail_config['imap_root'] = null;
-$rcmail_config['imap_delimiter'] = null;
+$rcmail_config['imap_root'] = ($account['f_imap_root']?$account['f_imap_root']:null);
+$rcmail_config['imap_delimiter'] = ($account['f_imap_delimiter']?$account['f_imap_delimiter']:null);
 
 // By default IMAP capabilities are readed after connection to IMAP server
 // In some cases, e.g. when using IMAP proxy, there's a need to refresh the list

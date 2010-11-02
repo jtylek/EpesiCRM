@@ -39,7 +39,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
         $fields = array(
             array('name'=>'Epesi User',             'type'=>'integer', 'extra'=>false, 'visible'=>true, 'required'=>true, 'display_callback'=>array('CRM_RoundcubeCommon', 'display_epesi_user'), 'QFfield_callback'=>array('CRM_RoundcubeCommon', 'QFfield_epesi_user')),
-            array('name'=>'Email',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>128, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
+            array('name'=>'Email',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>128),
             array('name'=>'Server',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'param'=>'255', 'required'=>true),
             array('name'=>'Login',              'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true),
             array('name'=>'Password',           'type'=>'text', 'required'=>true,'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_password')),
@@ -51,7 +51,11 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             array('name'=>'SMTP Password',           'type'=>'text', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_password')),
             array('name'=>'SMTP Security',           'type'=>'commondata', 'param'=>array('CRM/Roundcube/Security'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_security')),
 
-            array('name'=>'Default Account',             'type'=>'checkbox', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_default_account'))
+            array('name'=>'Default Account',             'type'=>'checkbox', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_default_account')),
+
+            array('name'=>'Advanced', 'type'=>'page_split'),
+            array('name'=>'IMAP Root', 'type'=>'text', 'param'=>32, 'extra'=>true, 'visible'=>false),
+            array('name'=>'IMAP Delimiter', 'type'=>'text', 'param'=>8, 'extra'=>true, 'visible'=>false)
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_accounts', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_accounts', 'Mail accounts');

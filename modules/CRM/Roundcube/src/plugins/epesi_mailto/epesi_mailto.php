@@ -6,7 +6,7 @@
  */
 class epesi_mailto extends rcube_plugin
 {
-  public $task = 'mail|settings|addressbook';
+//  public $task = 'mail|settings|addressbook';
 
   function init()
   {
@@ -17,8 +17,7 @@ class epesi_mailto extends rcube_plugin
 
     if (($rcmail->task!='mail' || $rcmail->action == '') && !isset($_GET['mailto'])) {
         unset($_SESSION['epesi_mailto']);
-        die('<script>parent._chj("'.http_build_query(array('base_box_pop_main'=>1)).'","loading...");</script>');
-        exit;
+        print('<script>parent._chj("'.http_build_query(array('base_box_pop_main'=>1)).'","loading...");</script>');
     }
   }
   
