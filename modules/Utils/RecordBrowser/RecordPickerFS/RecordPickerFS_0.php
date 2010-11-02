@@ -79,6 +79,10 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 		if(is_array($s) && !empty($s))
 			$this->set_module_variable('selected',array_combine($s,$s));
 	}
+
+	public function clear_selected() {
+		$ret = $this->set_module_variable('selected',array());
+	}
 }
 
 ?>

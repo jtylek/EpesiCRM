@@ -455,7 +455,7 @@ class Utils_RecordBrowser extends Module {
                 }
             }
         }
-		foreach ($this->crits as $k=>$c) if ($c==$this->crm_perspective_default()) {
+		foreach ($this->crits as $k=>$c) if ($c===$this->crm_perspective_default()) {
 			$this->crits[$k] = explode(',',trim(CRM_FiltersCommon::get(),'()'));
 			if (isset($this->crits[$k][0]) && $this->crits[$k][0]=='') unset($this->crits[$k]);
 		}
@@ -2053,6 +2053,7 @@ class Utils_RecordBrowser extends Module {
         $theme->display('Record_picker');
     }
     public function recordpicker_fs($crits, $cols, $order, $filters, $path) {
+		self::$browsed_records = array();
         $this->init();
         $theme = $this->init_module('Base/Theme');
         Base_ThemeCommon::load_css($this->get_type(),'Browsing_records');

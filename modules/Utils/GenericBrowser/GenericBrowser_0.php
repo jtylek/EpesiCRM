@@ -927,10 +927,7 @@ class Utils_GenericBrowser extends Module {
 				if (is_array($v) && isset($v['attrs'])) $col[$k]['attrs'] = $v['attrs'];
 				else $col[$k]['attrs'] = '';
 				if (!is_array($v)) $v = array('value'=>$v);
-				if (trim(strip_tags($v['value']),' ')=='')
-					$col[$k]['label'] = $v['value'].'&nbsp;';
-				else
-					$col[$k]['label'] = $v['value'];
+				$col[$k]['label'] = $v['value'];
 				$col[$k]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
 				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td"';
 				if (isset($quickjump_col) && $k==$quickjump_col) $col[$k]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
