@@ -220,7 +220,7 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .version {
-	width: 40px;
+	width: 80px;
 	background-color: #595959;
 	background-image: url("images/header-black.png");
 	background-repeat: repeat-x;
