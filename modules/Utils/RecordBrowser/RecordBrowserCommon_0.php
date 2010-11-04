@@ -1382,28 +1382,46 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (is_numeric(Utils_RecordBrowser::$clone_result)) $x->push_main('Utils/RecordBrowser','view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
             Utils_RecordBrowser::$clone_result = null;
         }
-		$def_key = $def;
-		if (is_array($check_defaults)) foreach ($check_defaults as $c) unset($def_key[$c]);
+ 		$def_key = $def;
+    	if (is_array($check_defaults)) foreach ($check_defaults as $c) unset($def_key[$c]);
         $def_md5 = md5(serialize($def_key));
 //      print_r($_REQUEST);
 //      print('<br>'.$tab.' - '.$def_md5.' - '.$id.' - '.$check_defaults);
 //      print('<hr>');
         if (isset($_REQUEST['__add_record_to_RB_table']) &&
-            isset($_REQUEST['__add_record_id']) &&
-            isset($_REQUEST['__add_record_def']) &&
-            ($tab==$_REQUEST['__add_record_to_RB_table']) &&
-            (!$check_defaults || $def_md5==$_REQUEST['__add_record_def']) &&
-            ($id==$_REQUEST['__add_record_id'])) {
-            unset($_REQUEST['__add_record_to_RB_table']);
-            unset($_REQUEST['__add_record_id']);
-            unset($_REQUEST['__add_record_def']);
-            $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $def), array($tab));
-            return array();
+                isset($_REQUEST['__add_record_id']) &&
+                isset($_REQUEST['__add_record_def']) &&
+                ($tab==$_REQUEST['__add_record_to_RB_table']) &&
+                (!$check_defaults || $def_md5==$_REQUEST['__add_record_def']) &&
+                ($id==$_REQUEST['__add_record_id'])) {
+                unset($_REQUEST['__add_record_to_RB_table']);
+                unset($_REQUEST['__add_record_id']);
+                unset($_REQUEST['__add_record_def']);
+                $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $def), array($tab));
+                return array();
         }
         return array('__add_record_to_RB_table'=>$tab, '__add_record_id'=>$id, '__add_record_def'=>$def_md5);
     }
-    public static function create_new_record_href($tab, $def, $id='none', $check_defaults=true){
-        return Module::create_href(self::get_new_record_href($tab,$def, $id, $check_defaults));
+    public static function create_new_record_href($tab, $def, $id='none', $check_defaults=true, $multiple_defaults=false){
+        if($multiple_defaults) {
+            eval_js_once('actionbar_rb_new_record_deactivate = function(){leightbox_deactivate(\'actionbar_rb_new_record\');}');
+            $th = Base_ThemeCommon::init_smarty();
+            $cds = array();
+            foreach ($def as $k=>$v) {
+                    $cds[] = array( 'label'=>$k,
+                                    'open'=>'<a OnClick="actionbar_rb_new_record_deactivate();'.Module::create_href_js(self::get_new_record_href($tab,$v['defaults'], $id, $check_defaults)).'">',
+                                    'icon'=>$v['icon'],
+                                    'close'=>'</a>'
+                                    );
+            }
+            $th->assign('custom_defaults', $cds);
+            ob_start();
+            Base_ThemeCommon::display_smarty($th,'Utils_RecordBrowser','new_record_leightbox');
+            $panel = ob_get_clean();
+            Libs_LeightboxCommon::display('actionbar_rb_new_record',$panel,Base_LangCommon::ts('Utils_RecordBrowser','New record'));
+            return Libs_LeightboxCommon::get_open_href('actionbar_rb_new_record');
+        } else 
+            return Module::create_href(self::get_new_record_href($tab,$def, $id, $check_defaults));
     }
     public static function get_record_href_array($tab, $id, $action='view'){
         self::check_table_name($tab);

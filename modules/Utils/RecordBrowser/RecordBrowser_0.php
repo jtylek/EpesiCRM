@@ -220,22 +220,7 @@ class Utils_RecordBrowser extends Module {
                     Base_ActionBarCommon::add('add','New', $this->add_button);
                 }
             } else {
-                eval_js_once('actionbar_rb_new_record_deactivate = function(){leightbox_deactivate(\'actionbar_rb_new_record\');}');
-                $th = $this->init_module('Base/Theme');
-                $cds = array();
-                foreach ($this->custom_defaults as $k=>$v) {
-                    $cds[] = array( 'label'=>$k,
-                                    'open'=>'<a OnClick="actionbar_rb_new_record_deactivate();'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $v['defaults'])).'">',
-                                    'icon'=>$v['icon'],
-                                    'close'=>'</a>'
-                                    );
-                }
-                $th->assign('custom_defaults', $cds);
-                ob_start();
-                $th->display('new_record_leightbox');
-                $panel = ob_get_clean();
-                Libs_LeightboxCommon::display('actionbar_rb_new_record',$panel,$this->t('New record'));
-                Base_ActionBarCommon::add('add','New', Libs_LeightboxCommon::get_open_href('actionbar_rb_new_record'));
+                Base_ActionBarCommon::add('add','New', Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true));
             }
         }
 

@@ -200,7 +200,7 @@ class Base_Box extends Module {
             return;
 //          trigger_error('Double pop box!',E_USER_ERROR);
         $poped = true;
-        $mains = & $this->get_module_variable('main');
+//        $mains = & $this->get_module_variable('main');
         location(array('base_box_pop_main'=>$c));
     }
 }
