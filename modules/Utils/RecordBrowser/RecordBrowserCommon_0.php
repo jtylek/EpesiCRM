@@ -1606,7 +1606,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	
 	public static function get_edit_details($tab, $rid, $edit_id,$details=true) {
-		self::get_edit_details_modify_record($tab, $rid, $edit_id,$details);
+		return self::get_edit_details_modify_record($tab, $rid, $edit_id,$details);
 	}
 
 	public static function get_edit_details_modify_record($tab, & $rid, $edit_id,$details=true) {
