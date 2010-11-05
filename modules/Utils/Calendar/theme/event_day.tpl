@@ -52,7 +52,7 @@
 </span>
 
 {if $with_div}
-<div id="utils_calendar_event:{$event_id}" class="utils_calendar_event">
+<div id="utils_calendar_event:{$event_id}" class="utils_calendar_event" onmouseover="this.oldZIndex=this.style.zIndex;this.style.zIndex=80;" onmouseout="this.style.zIndex=this.oldZIndex;">
 {/if}
 	<span id="Utils_Calendar__event_day" class="event_{$color}">
 		<div class="row">
