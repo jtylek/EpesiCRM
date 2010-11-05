@@ -1605,7 +1605,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $r;
 	}
 	
-	public static function get_edit_details($tab, & $rid, $edit_id,$details=true) {
+	public static function get_edit_details($tab, $rid, $edit_id,$details=true) {
+		self::get_edit_details_modify_record($tab, $rid, $edit_id,$details);
+	}
+
+	public static function get_edit_details_modify_record($tab, & $rid, $edit_id,$details=true) {
 		self::init($tab);
 		if (is_numeric($rid)) {
 			$prev_rev = DB::GetOne('SELECT MAX(id) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d AND id<%d', array($rid, $edit_id));
@@ -1672,7 +1676,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 switch ($param[0]) {
                     case 'C':   $event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record created by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($r['created_by']), Base_RegionalSettingsCommon::time2reg($r['created_on'])));
                                 break;
-                    case 'E':   $event_display = self::get_edit_details($tab, $r, $param[1] ,$details);
+                    case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r, $param[1] ,$details);
                                 break;
 
                     case 'N':   $event_display = false;
