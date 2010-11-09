@@ -111,7 +111,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function user_subscribe($user_id, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-		$lse = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND id<(SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d)', array($id, $id));
+		$lse = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d AND id<(SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d)', array($id, $category_id, $id, $category_id));
 		if ($lse===false || $lse===null) $lse=-1;
 		$already_subscribed = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
 		if ($already_subscribed===false || $already_subscribed===null) DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array($lse,$user_id,$id,$category_id));
