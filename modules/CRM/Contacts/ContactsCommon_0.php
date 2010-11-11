@@ -534,6 +534,10 @@ class CRM_ContactsCommon extends ModuleCommon {
         }
         return $ret;
     }
+
+    public static function parent_company_crits($a,$v){
+        return array('!id'=>$v['id']);
+    }
 	
 	public static function autoselect_contact_filter($rb, $field, $label, $crits = array(), $fcallback=null) {
         if ($fcallback==null) $fcallback = array('CRM_ContactsCommon','contact_format_no_company');
@@ -651,7 +655,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $comp = array();
         $param = explode(';',$desc['param']);
         if ($mode=='add' || $mode=='edit') {
-            if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]));
+            if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]),false,$rb->record);
             else $crits = array();
             if (isset($crits['_no_company_option'])) {
                 $no_company_option = true;
@@ -1224,4 +1228,6 @@ class CRM_ContactsCommon extends ModuleCommon {
         Utils_RecordBrowserCommon::mobile_rb('company',array(),$sort,$info,$defaults);
     }
 }
+
+
 ?>
