@@ -54,4 +54,5 @@ $translations['Base_Menu']['Timesheets']='Fise de pontaj';
 $translations['Base_Menu']['Add']='Adauga';
 $translations['Base_Menu']['Browse']='Rasfoieste';
 $translations['Base_Menu']['Mail client']='Client de mail';
+$translations['Base_Menu']['Freeconet billing']='Facturare Freecont';
 ?>

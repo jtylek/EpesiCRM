@@ -734,4 +734,5 @@ $translations['Base_User_Settings']['Auto-add to favorites records created by me
 $translations['Base_User_Settings']['Automatically add to favorites records created by me']='Auto-adauga la favorite toate inregistrarile create de mine';
 $translations['Base_User_Settings']['Disabled']='Dezactivat';
 $translations['Base_User_Settings']['Enabled']='Activ';
+$translations['Base_User_Settings']['Freeconet SIP phone']='Telefon SIP Freeconet';
 ?>

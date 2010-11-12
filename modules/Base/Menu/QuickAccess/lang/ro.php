@@ -49,4 +49,5 @@ $translations['Base_Menu_QuickAccess']['Premium: Projects']='Premium: Proiecte';
 $translations['Base_Menu_QuickAccess']['Timesheets: Add']='Fise de pontaj: Adauga';
 $translations['Base_Menu_QuickAccess']['Timesheets: Browse']='Foi de pontaj: Rasfoieste';
 $translations['Base_Menu_QuickAccess']['Mail client']='Client de mail';
+$translations['Base_Menu_QuickAccess']['Freeconet billing']='Facturare Freeconet';
 ?>
