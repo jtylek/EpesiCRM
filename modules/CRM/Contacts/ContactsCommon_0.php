@@ -65,7 +65,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function get_my_record() {
         $me = self::get_contact_by_user_id(Acl::get_user());
-        if ($me===null) $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>array(), 'login'=>-1);
+        if ($me===null) $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>null, 'additional_work'=>array(), 'login'=>-1);
         return $me;
     }
     public static function access_company($action, $param=null){
@@ -84,7 +84,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             case 'add':     return $i->acl_check('edit company');
             case 'edit':    if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
                             $me = self::get_my_record();
-                            if ($me && in_array($param['id'],$me['company_name']) && $i->acl_check('edit my company')) return true; //my company
+                            if ($me && $param['id']==$me['company_name'] && $i->acl_check('edit my company')) return true; //my company
                             if (!$i->acl_check('edit company')) return false;
 							return array('permission'=>$param['created_by']==Acl::get_user());
             case 'delete':  if ($param['created_by']==Acl::get_user()) return true;
@@ -109,8 +109,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                             if ($i->acl_check('edit contact')) return array('permission'=>$param['created_by']==Acl::get_user());
                             if ($i->acl_check('edit my company contacts')) {
                                 $me = self::get_my_record();
-                                foreach($param['company_name'] as $cid)
-                                    if(in_array($cid,$me['company_name'])) return true; //customer
+                                if($param['company_name']==$me['company_name']) return true;
                             }
                             return false;
             case 'delete':  if ($param['created_by']==Acl::get_user()) return true;
@@ -236,8 +235,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $score += self::compare_strings($v['first_name'],$data['first_name']);
             $score += self::compare_strings($v['last_name'],$data['last_name']);
             if ($score<$precission) continue;
-            $first_comp = array_pop($v['company_name']);
-            if ($first_comp) array_push($v['company_name'],$first_comp);
+            $first_comp = $v['company_name'];
             $output[$score] = '<a href="javascript:void(0);" onmouseup="'.$js_function.'('.$v['id'].','.($first_comp?$first_comp:'\'\'').');leightbox_deactivate(\'crm_contact_duplicates\');'.$submit_js.'">[Use this]</a> '.self::contact_format_default($v,true).'<br>';
         }
         if (empty($output)) return false;
@@ -449,8 +447,11 @@ class CRM_ContactsCommon extends ModuleCommon {
         } else {
             $ret .= $label;
         }
-        if (!empty($record['company_name'])) {
-            $first_comp = reset($record['company_name']);
+        if (isset($record['company_name']) && $record['company_name']) {
+            $first_comp = $record['company_name'];
+            $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
+        } elseif (!empty($record['additional_work'])) {
+            $first_comp = reset($record['additional_work']);
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
         }
         return $ret;
@@ -535,7 +536,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $ret;
     }
 
-    public static function parent_company_crits($a,$v){
+    public static function parent_company_crits($a,$v=array()){
+        if(!isset($v['id'])) return array();
         return array('!id'=>$v['id']);
     }
 	
@@ -711,6 +713,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->setDefaults(array($field=>$def));*/
             if (isset($display_callbacks[$desc['name']])) $callback = $display_callbacks[$desc['name']];
             else $callback = array('CRM_ContactsCommon', 'display_company');
+//            trigger_error(print_r($rb->record,true),E_USER_ERROR);
             $form->addElement('static', $field, $label, call_user_func($callback, array('company'=>$default), false, array('id'=>'company')));
         }
     }
@@ -925,7 +928,8 @@ class CRM_ContactsCommon extends ModuleCommon {
             self::copy_company_data_subroutine($values);
 
             $is_employee = false;
-            if (is_array($values['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $values['company_name'])) $is_employee = true;
+            if (is_array($values['additional_work']) && in_array(CRM_ContactsCommon::get_main_company(), $values['additional_work'])) $is_employee = true;
+            if ($values['company_name'] == CRM_ContactsCommon::get_main_company()) $is_employee = true;
             $me = CRM_ContactsCommon::get_my_record();
             $emp = array($me['id']);
             $cus = array();
@@ -964,9 +968,13 @@ class CRM_ContactsCommon extends ModuleCommon {
                             'web_address'=>$values['web_address'],
                             'permission'=>$values['permission'])
                 );
-                if (!isset($values['company_name'])) $values['company_name'] = array();
-                if (!is_array($values['company_name'])) $values['company_name'] = array($values['company_name']);
-                $values['company_name'][] = $comp_id;
+                if (!isset($values['company_name'])) $values['company_name'] = null;
+                if (!isset($values['additional_work'])) $values['additional_work'] = array();
+                if (!is_array($values['additional_work'])) $values['additional_work'] = array($values['additional_work']);
+                if(!$values['company_name'])
+                    $values['company_name'] = $comp_id;
+                else
+                    $values['additional_work'][] = $comp_id;
             }
             if (Base_AclCommon::i_am_admin() && isset($values['create_new_user']) && $values['create_new_user']) {
                 Base_User_LoginCommon::add_user($values['new_login'], $values['email']);
@@ -1156,7 +1164,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             eval_js('leightbox_activate(\''.$lid.'\')');
         }
         if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) ) {
-            if(count($values['company_name'])) Base_ActionBarCommon::add('edit', 'Copy company data', Module::create_href(array('UCD'=>true)));
+            if($values['company_name']) Base_ActionBarCommon::add('edit', 'Copy company data', Module::create_href(array('UCD'=>true)));
         }
     }
 
@@ -1228,6 +1236,5 @@ class CRM_ContactsCommon extends ModuleCommon {
         Utils_RecordBrowserCommon::mobile_rb('company',array(),$sort,$info,$defaults);
     }
 }
-
 
 ?>

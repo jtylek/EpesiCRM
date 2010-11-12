@@ -25,7 +25,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		$fields = array(
 			array('name'=>'Company Name',	'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname')),
 			array('name'=>'Short Name',		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
-			array('name'=>'Parent Company',	'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('CRM_Contacts','parent_company_crits')), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>false),
+			array('name'=>'Parent Company',	'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('CRM_ContactsCommon','parent_company_crits')), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true),
 			array('name'=>'Phone', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name'=>'Fax', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Email', 			'type'=>'text', 'required'=>false, 'param'=>'128', 'extra'=>false, 'visible'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
@@ -46,7 +46,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Login', 			'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_login'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_login')),
 			array('name'=>'Last Name', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_lname')),
 			array('name'=>'First Name', 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_fname')),
-			array('name'=>'Company Name', 	'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true),
+			array('name'=>'Company Name', 	'type'=>'crm_company', 'param'=>array('field_type'=>'select'), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true),
+			array('name'=>'Additional Work', 	'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>false, 'visible'=>false, 'filter'=>true),
 			array('name'=>'Group', 			'type'=>'multiselect', 'required'=>false, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Contacts_Groups'), 'extra'=>false, 'filter'=>true),
 			array('name'=>'Title', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Work Phone', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
@@ -215,7 +216,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 				'fax'=>isset($val['fax'])?$val['fax']:'',
 				'permission'=>'0',
 				'web_address'=>isset($val['web'])?$val['web']:'',
-				'group'=>array('customer')
+				'group'=>array('other')
 				));
 		Variable::set('main_company',$comp_id);
 		if(Acl::is_user()) {
@@ -233,7 +234,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 					'work_phone'=>isset($val['phone'])?$val['phone']:'',
 					'fax'=>isset($val['fax'])?$val['fax']:'',
 					'web_address'=>isset($val['web'])?$val['web']:'',
-					'company_name'=>array($comp_id),
+					'company_name'=>$comp_id,
 					'login'=>Acl::get_user(),
 					'permission'=>'0',
 					'email'=>$mail,
