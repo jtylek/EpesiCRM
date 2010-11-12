@@ -24,5 +24,5 @@ $translations['FirstRun']['If you are on a hosted server it probably should stay
 $translations['FirstRun']['Choose method']='Alegeti metoda';
 $translations['FirstRun']['SMTP host address']='Adresa gazdei SMTP';
 $translations['FirstRun']['If your server needs authorization...']='Daca serverul dvs. necesita autentificare';
-$translations['FirstRun']['Warning']='AtentieOC';
+$translations['FirstRun']['Warning']='Atentie';
 ?>
