@@ -1350,6 +1350,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function set_active($tab, $id, $state){
         self::check_table_name($tab);
+        $current = DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id));
+		if ($current==($state?1:0)) return;
         DB::Execute('UPDATE '.$tab.'_data_1 SET active=%d WHERE id=%d',array($state?1:0,$id));
         DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
         $edit_id = DB::Insert_ID($tab.'_edit_history','id');
