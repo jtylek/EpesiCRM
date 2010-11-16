@@ -289,7 +289,11 @@ class CRM_Contacts extends Module {
 		$a->set_view_func(array('CRM_ContactsCommon','search_format_contact'),array($arg['id']));
 		$a->enable_watchdog('contact',$arg['id']);
 		$companies = array();
-		foreach($arg['company_name'] as $comp) {
+		if($arg['company_name']) {
+			$company = CRM_ContactsCommon::get_company($arg['company_name']);
+			$companies[] = $company['company_name'].($company['short_name']?' ('.$company['short_name'].')':'');
+		}
+		foreach($arg['additional_work'] as $comp) {
 			$company = CRM_ContactsCommon::get_company($comp);
 			$companies[] = $company['company_name'].($company['short_name']?' ('.$company['short_name'].')':'');
 		}
