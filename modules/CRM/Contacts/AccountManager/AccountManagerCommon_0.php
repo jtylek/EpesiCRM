@@ -16,6 +16,13 @@ class CRM_Contacts_AccountManagerCommon extends ModuleCommon {
 		return array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|additional_work'=>array(CRM_ContactsCommon::get_main_company()));
 	}
 
+	public function user_settings() {
+		return array('Browsing records'=>array(
+				array('name'=>'contact_header', 'label'=>'Filtering Companies', 'type'=>'header'),
+				array('name'=>'set_default','label'=>'Account Manager - default set to Perspective','type'=>'checkbox','default'=>0)
+					));
+	}
+
 }
 
 ?>
