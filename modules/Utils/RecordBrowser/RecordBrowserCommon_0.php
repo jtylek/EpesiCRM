@@ -545,8 +545,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function new_browse_mode_details_callback($tab, $mod, $func) {
         self::check_table_name($tab);
-        DB::Execute('INSERT INTO recordbrowser_browse_mode_definitions (tab, module, func) VALUES (%s, %s, %s)', array($tab, $mod, $func));
+        if(!DB::GetOne('SELECT 1 FROM recordbrowser_browse_mode_definitions WHERE tab=%s AND module=%s AND func=%s', array($tab, $mod, $func)))
+            DB::Execute('INSERT INTO recordbrowser_browse_mode_definitions (tab, module, func) VALUES (%s, %s, %s)', array($tab, $mod, $func));
     }
+    
     public static function delete_browse_mode_details_callback($tab, $mod, $func) {
         self::check_table_name($tab);
         DB::Execute('DELETE FROM recordbrowser_browse_mode_definitions WHERE tab=%s AND module=%s AND func=%s', array($tab, $mod, $func));
