@@ -65,7 +65,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function get_my_record() {
         $me = self::get_contact_by_user_id(Acl::get_user());
-        if ($me===null) $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>null, 'additional_work'=>array(), 'login'=>-1);
+        if ($me===null) $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>null, 'related_companies'=>array(), 'login'=>-1);
         return $me;
     }
     public static function access_company($action, $param=null){
@@ -450,8 +450,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (isset($record['company_name']) && $record['company_name']) {
             $first_comp = $record['company_name'];
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
-        } elseif (!empty($record['additional_work'])) {
-            $first_comp = reset($record['additional_work']);
+        } elseif (!empty($record['related_companies'])) {
+            $first_comp = reset($record['related_companies']);
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
         }
         return $ret;
@@ -750,8 +750,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         }
         if ($mode=='add' || $mode=='edit') {
             if (self::$paste_or_new=='new') {
-				load_js('modules/CRM/Contacts/contacts.js');
-                $form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, 'onClick="crm_contacts_display_company(this.checked);document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','Create a new company for this contact')));
+                $form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, 'onClick="$(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','Create a new company for this contact')));
                 $form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
                 $form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
                 if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
@@ -760,7 +759,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                         'function update_create_company_name_field() {'.
                             'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
                         '}');
-                eval_js('crm_contacts_display_company(document.getElementsByName("create_company")[0].checked);document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+                eval_js('$("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
             } else {
                 $comp = self::get_company(self::$paste_or_new);
                 $paste_company_info =
@@ -928,7 +927,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             self::copy_company_data_subroutine($values);
 
             $is_employee = false;
-            if (is_array($values['additional_work']) && in_array(CRM_ContactsCommon::get_main_company(), $values['additional_work'])) $is_employee = true;
+            if (is_array($values['related_companies']) && in_array(CRM_ContactsCommon::get_main_company(), $values['related_companies'])) $is_employee = true;
             if ($values['company_name'] == CRM_ContactsCommon::get_main_company()) $is_employee = true;
             $me = CRM_ContactsCommon::get_my_record();
             $emp = array($me['id']);
@@ -969,12 +968,12 @@ class CRM_ContactsCommon extends ModuleCommon {
                             'permission'=>$values['permission'])
                 );
                 if (!isset($values['company_name'])) $values['company_name'] = null;
-                if (!isset($values['additional_work'])) $values['additional_work'] = array();
-                if (!is_array($values['additional_work'])) $values['additional_work'] = array($values['additional_work']);
+                if (!isset($values['related_companies'])) $values['related_companies'] = array();
+                if (!is_array($values['related_companies'])) $values['related_companies'] = array($values['related_companies']);
                 if(!$values['company_name'])
                     $values['company_name'] = $comp_id;
                 else
-                    $values['additional_work'][] = $comp_id;
+                    $values['related_companies'][] = $comp_id;
             }
             if (Base_AclCommon::i_am_admin() && isset($values['create_new_user']) && $values['create_new_user']) {
                 Base_User_LoginCommon::add_user($values['new_login'], $values['email']);

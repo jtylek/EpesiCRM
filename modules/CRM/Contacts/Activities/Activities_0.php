@@ -20,7 +20,7 @@ class CRM_Contacts_Activities extends Module {
 		$this->theme = $this->pack_module('Base/Theme');
 		$this->filters();
 		$this->theme->display();
-		$cont = CRM_ContactsCommon::get_contacts(array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|additional_work'=>array(CRM_ContactsCommon::get_main_company())), array('id'));
+		$cont = CRM_ContactsCommon::get_contacts(array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company())), array('id'));
 		$ids = array();
 		$cus_ids = array();
 		$db_string = '';

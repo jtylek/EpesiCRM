@@ -47,7 +47,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Last Name', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_lname')),
 			array('name'=>'First Name', 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_fname')),
 			array('name'=>'Company Name', 	'type'=>'crm_company', 'param'=>array('field_type'=>'select'), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true),
-			array('name'=>'Additional Work', 	'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>false, 'visible'=>false, 'filter'=>true),
+			array('name'=>'Related Companies', 	'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>false, 'visible'=>false, 'filter'=>true),
 			array('name'=>'Group', 			'type'=>'multiselect', 'required'=>false, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Contacts_Groups'), 'extra'=>false, 'filter'=>true),
 			array('name'=>'Title', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Work Phone', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),

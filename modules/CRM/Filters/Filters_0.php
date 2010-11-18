@@ -49,7 +49,7 @@ class CRM_Filters extends Module {
 		}
 		asort($cont);
 		$crits = array();
-		if (!Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')) $crits = array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|additional_work'=>array(CRM_ContactsCommon::get_main_company()));
+		if (!Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')) $crits = array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company()));
 		$qf->addElement('autoselect','crm_filter_contact',$this->t('Records of'),$cont,array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $fcallback, false)), $fcallback);
 		if(isset($_SESSION['client']['filter_'.Acl::get_user()]['value'])) {
 			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()]['value'])));

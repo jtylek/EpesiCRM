@@ -46,7 +46,7 @@ class CRM_Contacts_NotesAggregate extends Module {
 		$attachment_groups = array();
 		
 		$ids = array('C:'.$company['id']);
-		$cont = CRM_ContactsCommon::get_contacts(array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|additional_work'=>array(CRM_ContactsCommon::get_main_company())));
+		$cont = CRM_ContactsCommon::get_contacts(array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company())));
 		foreach ($cont as $k=>$v) {
 			$ids[] = 'P:'.$v['id'];
 			$attachment_groups[] = 'contact/'.$v['id'];

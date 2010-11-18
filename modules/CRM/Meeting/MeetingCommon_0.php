@@ -339,7 +339,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	}
 	
 	public static function employees_crits(){
-		return array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|additional_work'=>array(CRM_ContactsCommon::get_main_company()));
+		return array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company()));
 	}
 	public static function customers_crits($arg){
 		if (!$arg) return array('(:Fav'=>true, '|:Recent'=>true);

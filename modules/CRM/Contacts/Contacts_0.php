@@ -293,7 +293,7 @@ class CRM_Contacts extends Module {
 			$company = CRM_ContactsCommon::get_company($arg['company_name']);
 			$companies[] = $company['company_name'].($company['short_name']?' ('.$company['short_name'].')':'');
 		}
-		foreach($arg['additional_work'] as $comp) {
+		foreach($arg['related_companies'] as $comp) {
 			$company = CRM_ContactsCommon::get_company($comp);
 			$companies[] = $company['company_name'].($company['short_name']?' ('.$company['short_name'].')':'');
 		}
