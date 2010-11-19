@@ -58,7 +58,7 @@ if(!defined('EPESI_DIR')) {
 		$dir = trim($dir_url,'/');
 		$epesi_dir = '/'.$dir.($dir?'/':'');
 		define('EPESI_DIR',$epesi_dir);
-	} else {
+	} elseif(PHP_SAPI!='cli') {
 		trigger_error('Detection of epesi directory failed. Please define EPESI_DIR variable in config.php',E_USER_ERROR);
 	}
 }
