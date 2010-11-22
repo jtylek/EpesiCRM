@@ -30,7 +30,7 @@ class CRM_Roundcube extends Module {
         $params = array('_autologin_id'=>$def['id'])+$params2;
 //        if($params2) $params['_url'] = http_build_query($params2);
         print('<iframe style="border:0" border="0" src="modules/CRM/Roundcube/src/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe>');
-        eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(dim.height-100)+"px";');
+        eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-100)+"px";');
     }
 
     public function new_mail($to) {

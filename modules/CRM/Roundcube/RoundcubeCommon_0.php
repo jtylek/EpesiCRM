@@ -12,14 +12,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_RoundcubeCommon extends ModuleCommon {
     public static function menu() {
-        if(Acl::is_user()) {
+	    if(self::Instance()->acl_check('access client')) {
             return array('E-mail'=>array());
         }
         return array();
     }
 
     public static function user_settings() {
-        if(Acl::is_user()) {
+	    if(self::Instance()->acl_check('access client')) {
             return array('E-mail Accounts'=>'account_manager');
         }
         return array();
@@ -106,6 +106,7 @@ class CRM_RoundcubeCommon extends ModuleCommon {
 
     public static function access_mails($action, $param=null) {
         $i = self::Instance();
+	    if(!$i->acl_check('access mails')) return false;
         switch ($action) {
             case 'browse_crits':    return true;
             case 'browse':  return true;
@@ -121,6 +122,7 @@ class CRM_RoundcubeCommon extends ModuleCommon {
 
     public static function access_mails_assoc($action, $param=null) {
         $i = self::Instance();
+	    if(!$i->acl_check('access mails')) return false;
         switch ($action) {
             case 'browse_crits':    return true;
             case 'browse':  return true;

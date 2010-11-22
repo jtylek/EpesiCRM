@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ActivityReportInstall extends ModuleInstall {
 
 	public function install() {
+		$this->add_aco('access','Employee');
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
@@ -38,6 +39,7 @@ class Apps_ActivityReportInstall extends ModuleInstall {
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/User','version'=>0),
+			array('name'=>'CRM/Acl','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Utils/RecordBrowser','version'=>0));
 	}	

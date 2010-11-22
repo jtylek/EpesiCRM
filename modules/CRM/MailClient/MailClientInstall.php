@@ -61,6 +61,8 @@ class CRM_MailClientInstall extends ModuleInstall {
 		$crits = null;
 		DB::Execute('INSERT INTO crm_mailclient_addons(tab,format_callback,crits) VALUES (%s,%s,%s)',array($tab,serialize($format_callback),serialize($crits)));
 
+		$this->add_aco('access','Employee');
+
 		return $ret;
 	}
 	

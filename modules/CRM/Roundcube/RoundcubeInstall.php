@@ -191,6 +191,9 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
 
+		$this->add_aco('access mails','Employee');
+		$this->add_aco('access client','Employee');
+
         return true;
     }
 
