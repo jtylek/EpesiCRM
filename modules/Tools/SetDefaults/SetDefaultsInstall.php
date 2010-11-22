@@ -27,16 +27,19 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 
 		// default applets
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(1,'Applets_Clock',2,0,1,1));
-//		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(2,'Applets_RssFeed',2,0,0,1));
-		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(3,'CRM_Tasks',1,0,6,1));
-		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(4,'CRM_PhoneCall',1,1,8,1));
+		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(2,'CRM_Tasks',1,0,6,1));
+		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(3,'CRM_PhoneCall',1,1,8,1));
+		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(4,'Applets_Note',2,0,10,1));
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(5,'CRM_Calendar',1,2,0,1));
-		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(6,'Applets_Note',0,1,10,1));
+		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(6,'Apps_Shoutbox',0,1,0,1));
+		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(7,'Utils_Watchdog',0,0,6,1));
+		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(8,'Premium_SalesOpportunity',1,3,8,1));
+
 
 		//default note
-		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(6,'bcolor','nice-yellow'));
-		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)',  array(6,'text','<p><strong>Congratulations!</strong><br />You just installed epesi BIM - Business Information Manager.</p><p>For more information, help and support please visit <a href="http://www.epesibim.com" target="_blank">www.epesibim.com</a></p><p><strong>New! Hotkeys support!</strong><br />Ctrl+H - back to home page<br /><br />In modules utilizing Record Browser:<br />Contacts, Comapnies, Tasks, PhoneCalls<br />as well as Calendar, you can use the following hotkeys:<br />Ctrl+S - save record<br />Ctrl+N - new record<br />Ctrl+E - edit record<br />Esc - back/cancel<br />'));
-		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(6,'title','Welcome'));
+		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(4,'bcolor','nice-yellow'));
+		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)',  array(4,'text','<p><strong>Congratulations!</strong><br />You just installed epesi BIM - Business Information Manager.</p><p>For more information, help and support please visit <a href="http://www.epesibim.com" target="_blank">www.epesibim.com</a></p><p><strong>Hotkeys support</strong><br />Ctrl+H - back to home page<br /><br />In modules utilizing Record Browser:<br />Contacts, Comapnies, Tasks, PhoneCalls<br />as well as Calendar, you can use the following hotkeys:<br />Ctrl+S - save record<br />Ctrl+N - new record<br />Ctrl+E - edit record<br />Esc - back/cancel<br />'));
+		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(4,'title','Welcome'));
 
 		// default favorites and subscriptions
 		// use serialize('1') instead of 's:1:"1";'

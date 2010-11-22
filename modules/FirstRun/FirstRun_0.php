@@ -54,6 +54,8 @@ class FirstRun extends Module {
 			$f->setDefaults(array('setup_type'=>key($this->ini)));
 			foreach($this->ini as $name=>$pkgs)
 				$f->addElement('radio', 'setup_type', '', $this->t($name), $name);
+			$f->addElement('html','<tr><td colspan=2><br /><STRONG>If you are not sure which package to choose select CRM Installation.<br>You can customize your installation later.</STRONG><br><br></td></tr>');
+
 			$wizard->next_page();
 
 			/////////////////////////////////////////////////////////////////
