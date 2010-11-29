@@ -164,7 +164,7 @@ class CRM_Contacts extends Module {
 		$rb->set_additional_actions_method(array($this, 'contacts_actions'));
 		Base_ActionBarCommon::add('add','Add contact', $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$rb->set_button($this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
-		$this->display_module($rb, array(array('company_name'=>array($arg['id'])), array('company_name'=>false), array('last_name'=>'ASC','first_name'=>'ASC')), 'show_data');
+		$this->display_module($rb, array(array('(company_name'=>$arg['id'],'|related_companies'=>array($arg['id'])), array('company_name'=>false), array('last_name'=>'ASC','first_name'=>'ASC')), 'show_data');
         $uid = Base_AclCommon::get_acl_user_id(Acl::get_user());
         if( Base_AclCommon::is_user_in_group($uid, 'Employee Manager') || Base_AclCommon::i_am_admin() ) {
             $prompt_id = "contacts_address_fix";
