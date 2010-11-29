@@ -289,7 +289,7 @@ class Base_ThemeCommon extends ModuleCommon {
     			return;
 			}
 		}
-		mkdir(DATA_DIR.'/Base_Theme/templates/default/'.$f);
+		@mkdir(DATA_DIR.'/Base_Theme/templates/default/'.$f);
 		$content = scandir($dir.$f);
 		foreach ($content as $name){
 			if ($name == '.' || $name == '..') continue;
@@ -297,7 +297,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			if (is_dir($path))
 				self::install_default_theme_common_files($dir,$f.'/'.$name);
 			else
-				copy($path,DATA_DIR.'/Base_Theme/templates/default/'.$f.'/'.$name);
+				@copy($path,DATA_DIR.'/Base_Theme/templates/default/'.$f.'/'.$name);
 		}
 	}
 }
