@@ -926,6 +926,7 @@ class Utils_GenericBrowser extends Module {
 				if (array_key_exists('display',$this->columns[$k]) && $this->columns[$k]['display']==false) continue;
 				if (is_array($v) && isset($v['attrs'])) $col[$k]['attrs'] = $v['attrs'];
 				else $col[$k]['attrs'] = '';
+				if ($this->absolute_width) $col[$k]['attrs'] .= ' width="'.$this->columns[$k]['width'].'"';
 				if (!is_array($v)) $v = array('value'=>$v);
 				$col[$k]['label'] = $v['value'];
 				$col[$k]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
