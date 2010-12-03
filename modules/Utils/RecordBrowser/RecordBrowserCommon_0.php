@@ -829,7 +829,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_tab = $tab.'_data_1 AS r';
         $vals = array();
         if (!$crits) $crits = array();
-        $access = self::get_access($tab, 'browse_crits');
+        $access = self::get_access($tab, 'browse_crits', null, $crits);
         if ($access===false) return array();
         elseif ($access!==true && is_array($access)) {
             $crits = self::merge_crits($crits, $access);
@@ -1243,7 +1243,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($or_started && !$or_result) return $cache[$tab.'__'.$id] = false;
         return $cache[$tab.'__'.$id] = true;
     }
-    public static function get_access($tab, $action, $record=null){
+    public static function get_access($tab, $action, $record=null, $crits=null){
         if (self::$admin_access && Base_AclCommon::i_am_admin()) {
             $ret = true;
         } else {
@@ -1253,7 +1253,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($access_callback === '' || !is_callable($access_callback)) {
                 $ret = true;
             } else {
-                $ret = call_user_func($access_callback, $action, $record);
+                $ret = call_user_func($access_callback, $action, $record, $crits);
 /*                if ($action==='delete' && $ret) {
                     $ed_ret = call_user_func($access_callback, 'edit', $record);
                     $ret = ($ed_ret!==false);

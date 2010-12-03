@@ -19,6 +19,11 @@ ModuleManager::load_modules();
 
 $_POST['values'] = json_decode($_POST['values']);
 $_POST['parameters'] = json_decode($_POST['parameters']);
+
+foreach($_POST['values'] as $k=>$v) { //verify post
+    if(!is_string($v)) return;
+}
+
 if (isset($_POST['defaults'])) $_POST['defaults'] = json_decode($_POST['defaults']);
 else $_POST['defaults'] = null;
 $_REQUEST['values'] = $_GET['values'] = $_POST['values'];
