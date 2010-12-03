@@ -63,7 +63,11 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 	function exportValue(&$submitValues, $assoc = false) {
 		$val = parent::exportValue($submitValues, $assoc);
-		$currency = $submitValues['__'.str_replace(array('[',']'),'',$this->getName()).'__currency'];
+		$currency_field_name = '__'.str_replace(array('[',']'),'',$this->getName()).'__currency';
+		if(isset($submitValues[$currency_field_name]))
+    		$currency = $submitValues[$currency_field_name];
+        else
+            return null;
 		if ($assoc) {
 			if (!isset($val[$this->getName()])) {
 				$key = explode('[', $this->getName());

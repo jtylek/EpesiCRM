@@ -211,7 +211,7 @@ class Utils_RecordBrowser extends Module {
         }
         if ($this->watchdog) Utils_WatchdogCommon::add_actionbar_change_subscription_button($this->tab);
         $this->is_on_main_page = true;
-        if ($this->get_access('add')!==false && $this->add_button!==false) {
+        if ($this->get_access('add',$this->custom_defaults)!==false && $this->add_button!==false) {
             if (!$this->multiple_defaults) {
                 if ($this->add_button===null) {
                     Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
@@ -604,7 +604,7 @@ class Utils_RecordBrowser extends Module {
 		}
 
 
-        if (!$pdf && !$special && $this->get_access('add')!==false) {
+        if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false) {
             $custom_label = '';
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
