@@ -2052,7 +2052,9 @@ function update_from_1_1_0_to_1_1_1() {
     if (ModuleManager::is_installed('CRM_Contacts')>=0)
 	    Utils_RecordBrowserCommon::register_processing_callback('company', array('CRM_ContactsCommon', 'submit_company'));
     if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+		ob_start();
     	@DB::CreateIndex('contact_data_1__f_login_idx','contact_data_1','f_login,active');
+		ob_get_clean();
     }
     DB::Execute('DELETE FROM modules WHERE name="Libs_FPDF"');
     DB::Execute('DELETE FROM modules WHERE name = "Tests_FPDF"');
