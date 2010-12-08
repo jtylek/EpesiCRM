@@ -657,7 +657,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $comp = array();
         $param = explode(';',$desc['param']);
         if ($mode=='add' || $mode=='edit') {
-            if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]),false,$rb->record);
+            if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]),false,isset($rb->record)?$rb->record:null);
             else $crits = array();
             if (isset($crits['_no_company_option'])) {
                 $no_company_option = true;
