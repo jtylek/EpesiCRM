@@ -20,7 +20,7 @@ class CRM_Contacts_Activities extends Module {
 		$this->theme = $this->pack_module('Base/Theme');
 		$this->filters();
 		$this->theme->display();
-		$cont = CRM_ContactsCommon::get_contacts(array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company())), array('id'));
+		$cont = CRM_ContactsCommon::get_contacts(array('(company_name'=>$me['id'],'|related_companies'=>array($me['id'])), array('id'));
 		$ids = array();
 		$cus_ids = array();
 		$db_string = '';
@@ -35,7 +35,7 @@ class CRM_Contacts_Activities extends Module {
 		$date_filter = '';
 		// TODO: recurring events
 		// TODO: check if statsu<2 if fine for closed
-		if ($this->display['events'] && $ids) {
+		if ($this->display['events'] && ($ids || $cus_ids)) {
 			if ($this->activities_date==0)
 				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s'),date('Y-m-d H:i:s',time()+365*24*3600),'('.implode(',',$ids).')', $cus_ids);
 			elseif ($this->activities_date==1)
