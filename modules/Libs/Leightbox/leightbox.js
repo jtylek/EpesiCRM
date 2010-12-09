@@ -169,7 +169,7 @@ leightbox.prototype = {
 		leightbox_is_active = false;
         if (browser == "Internet Explorer"){
             this.setScroll(0,this.yPos);
-            this.prepareIE("auto", "auto");
+            this.prepareIE("auto", "visible");
             this.hideSelects("visible");
         }
 

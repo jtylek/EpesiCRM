@@ -180,13 +180,13 @@
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
-	background-color: #FFFFFF;
+/*	background-color: #FFFFFF;*/
 	padding: 0px;
 	cursor: pointer;
 }
 
 #Utils_Calendar__week td.inter_other:hover {
-	background-color: #e6cfcf
+	background-color: #e6cfcf !important;
 }
 
 #Utils_Calendar__week td.inter_other_weekend {
@@ -196,24 +196,28 @@
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
-	background-color: #E0EDE0;
+	/*background-color: #E0EDE0;*/
 	padding: 0px;
 	cursor: pointer;
 }
 
-#Utils_Calendar__week td.inter_other_weekend:hover {
-	background-color: #e6cfcf
+#Utils_Calendar__week td.inter_other_weekend div.inner {
+    width: 100%;
+    height: 29px;
+	background-color: #E0EDE0;
+}
+
+#Utils_Calendar__week td.inter_other_weekend div.inner:hover {
+	background-color: #e6cfcf !important;
 }
 
 #Utils_Calendar__week td.inter_today {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
-	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
-	/*background-color: #CFDAE6;*/
-	background-color: #e6ecf2;
+/*	background-color: #CFDAE6;*/
 	padding: 0px;
 	cursor: pointer;
 
@@ -221,7 +225,13 @@
 	border-right: 2px solid #336699;
 }
 
-#Utils_Calendar__week td.inter_today:hover {
+#Utils_Calendar__week td.inter_today div.inner {
+    width: 100%;
+    height: 29px;
+	background-color: #CFDAE6;
+}
+
+#Utils_Calendar__week td.inter_today div.inner:hover {
 	background-color: #e6cfcf;
 }
 
@@ -232,8 +242,7 @@
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
-	/*background-color: #CFDAE6;*/
-	background-color: #E6ECF2;
+/*	background-color: #E6ECF2;*/
 	padding: 0px;
 	cursor: pointer;
 
@@ -241,7 +250,13 @@
 	border-right: 2px solid #336699;
 }
 
-#Utils_Calendar__week td.inter_today_weekend:hover {
+#Utils_Calendar__week td.inter_today_weekend div.inner {
+    width: 100%;
+    height: 29px;
+	background-color: #E6ECF2;
+}
+
+#Utils_Calendar__week td.inter_today_weekend div.inner:hover {
 	background-color: #e6cfcf;
 }
 
@@ -253,7 +268,7 @@ div.week-menu {
 }
 
 div.week-menu img {
-	vertical-align: middle;
+	vertical-align:top;
 }
 
 div.week-menu a.button {
@@ -266,6 +281,8 @@ div.week-menu a.button {
     border: 0px;
     text-align: center;
 }
+
+div.week-menu a.button {line-height:: 0px\0/;}
 
 div.week-menu a.button:hover {
     background-image: url('images/button-hover.gif');

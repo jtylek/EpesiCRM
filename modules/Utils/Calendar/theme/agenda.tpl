@@ -18,7 +18,7 @@
 				</tbody>
 			</table>
 		</td>
-		<td style="width:25%;float:right;">
+		<td style="float:right;">
 			{$navigation_bar_additions}
 		</td>
 	</tr>

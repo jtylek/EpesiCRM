@@ -56,7 +56,7 @@
 			<tr>
 				<td class="hour" nowrap >{$stamp.label}</td>
 				{foreach item=t key=j from=$time_ids}
-                    <td class="inter_{$day_headers.$j.style}"{if $t.$k!==false} id="{$t.$k}"{/if}>&nbsp;</td>
+                    <td class="inter_{$day_headers.$j.style}"{if $t.$k!==false} id="{$t.$k}"{/if}><div class="inner">&nbsp;</div></td>
 	            {/foreach}
 			</tr>
 		{/foreach}

@@ -43,6 +43,11 @@ class Base_UserCommon extends ModuleCommon {
 		return $acl;
 	}
 
+
+	public static function rename_user($uid,$username) {
+		DB::Execute('UPDATE user_login SET login=%s WHERE id=%d', array($username,$uid));
+	}
+
 	/**
 	 * Returns user id.
 	 *

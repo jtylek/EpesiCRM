@@ -55,7 +55,6 @@ var Epesi = {
 				alert("Sorry but your version of Internet Explorer browser is not supported.\nYou should upgrade it or install Mozilla Firefox.");
 				window.location = "http://www.mozilla.com/firefox/";
 			} else {
-				alert("Internet Explorer support is experimental.\nFor best experience please use Mozilla Firefox.");
 				Epesi.ie = true;
 			}
 		}

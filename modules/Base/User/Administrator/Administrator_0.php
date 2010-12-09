@@ -156,7 +156,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
     public function edit_user_form($edit_id) {
         $form = & $this->init_module('Libs/QuickForm',$this->ht(($edit_id>=0)?'Applying changes':'Creating new user'));
-
+        
         //create new user
         $form->addElement('header', null, $this->t((($edit_id>=0)?'Edit user':'Create new user')));
         $form->addElement('hidden', $this->create_unique_key('edit_user'), $edit_id);
@@ -193,7 +193,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             $ret = DB::Execute('SELECT u.login, p.mail, u.active FROM user_login u INNER JOIN user_password p ON (p.user_login_id=u.id) WHERE u.id=%d', $edit_id);
             if($ret && ($row = $ret->FetchRow())) {
                 $form->setDefaults(array('username'=>$row['login'], 'mail'=>$row['mail'], 'active'=>$row['active']));
-                $form->freeze('username');
+//                $form->freeze('username');
             }
 
             $uid = Base_AclCommon::get_acl_user_id($edit_id);
@@ -204,10 +204,10 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             $sel->setSelected(Base_AclCommon::get_user_groups($uid));
 
         } else {
-            $form->registerRule('check_username', 'callback', 'check_username_free', 'Base_User_LoginCommon');
-            $form->addRule('username', $this->t('Username already taken'), 'check_username');
             $sel->setSelected(array(Base_AclCommon::get_group_id('User')));
         }
+        $form->registerRule('check_username', 'callback', 'check_username_free', 'Base_User_LoginCommon');
+        $form->addRule(array('username',$this->create_unique_key('edit_user')), $this->t('Username already taken'), 'check_username');
 
         /*
         $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
@@ -249,24 +249,20 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
                 return false;
             }
         } else {
-            $user_id = Base_UserCommon::get_user_id($username);
-            if($user_id === false || $user_id!=$edit_id) {
-                print($this->t('Username doesn\'t match edited user.'));
-                return false;
-            }
-
-            if(Base_User_LoginCommon::change_user_preferences($user_id, $mail, $pass)===false) {
+            Base_UserCommon::rename_user($edit_id, $username);
+            
+            if(Base_User_LoginCommon::change_user_preferences($edit_id, $mail, $pass)===false) {
                 print($this->t('Unable to update account data (password and mail).'));
                 return false;
             }
 
-            if(!Base_UserCommon::change_active_state($user_id, $data['active'])) {
+            if(!Base_UserCommon::change_active_state($edit_id, $data['active'])) {
                 print($this->t('Unable to update account data (active).'));
                 return false;
             }
 
             $groups_new = $data['group'];
-            if(!Base_AclCommon::change_privileges($user_id, $groups_new)) {
+            if(!Base_AclCommon::change_privileges($edit_id, $groups_new)) {
                 print($this->t('Unable to update account data (groups).'));
                 return false;
             }

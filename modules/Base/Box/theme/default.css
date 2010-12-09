@@ -170,33 +170,6 @@ hr.line {
 	border-bottom: 0px solid #b3b3b3;
 }
 
-/* roll */
-
-#top_bar #top_bar_1 .roll-left {
-    padding-left: 3px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    width: 17px;
-	background-color: #595959;
-	background-image: url('images/header-black.png');
-	background-repeat: repeat-x;
-    cursor: pointer;
-}
-
-#top_bar #top_bar_1 .roll-left {
-	border-right: 4px solid #b3b3b3;
-}
-
-#top_bar #top_bar_1 .roll-left:hover {
-	background-image: url('images/header-black-hover.png');
-}
-
-#top_bar #top_bar_1 .roll-left img {
-    display: block;
-    margin: 0px;
-    padding: 0px;
-}
-
 /* menu bar */
 
 #top_bar #top_bar_1 .menu-bar {

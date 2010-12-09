@@ -42,7 +42,7 @@
 			<tr>
 				<td class="week-number"><a {$week.week_link}>{$week.week_label}</a></td>
 				{foreach item=day from=$week.days}
-					<td class="day {$day.style}" id="{$day.id}"><a class="day_link" {$day.day_link}>{$day.day}</a></td>
+					<td class="day {$day.style}"><div class="inner" id="{$day.id}"><a class="day_link" {$day.day_link}>{$day.day}</a></div></td>
 				{/foreach}
 			</tr>
 		{/foreach}

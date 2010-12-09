@@ -4,7 +4,7 @@
 
 table#Utils_Calendar__month {
 	width: 100%;
-	background-color: #336699;
+/*	background-color: #336699;*/
 }
 
 table#Utils_Calendar__month td.empty {
@@ -34,22 +34,42 @@ table#Utils_Calendar__month a.day_link {
 
 table#Utils_Calendar__month td.current {
 	color: #000000;
+}
+
+table#Utils_Calendar__month td.current div.inner {
+    width: 100%;
+    height: 100%;
 	background-color: #FFFFFF;
 }
 
 table#Utils_Calendar__month td.other {
 	color: #B3B3B3;
+}
+
+table#Utils_Calendar__month td.other div.inner {
+    width: 100%;
+    height: 100%;
 	background-color: #F0F0F0;
 }
 
 table#Utils_Calendar__month td.today {
 	/*background-color: #CFDAE6;*/
-	background-color: #E6ECF2;
 	border: 2px solid #336699;
+}
+
+table#Utils_Calendar__month td.today div.inner {
+    width: 100%;
+    height: 100%;
+	background-color: #E6ECF2;
 }
 
 table#Utils_Calendar__month td.current_weekend {
 	color: #000000;
+}
+
+table#Utils_Calendar__month td.current_weekend div.inner {
+    width: 100%;
+    height: 100%;
 	background-color: #E0EDE0;
 }
 
@@ -63,12 +83,23 @@ table#Utils_Calendar__month td.today_weekend a {
 
 table#Utils_Calendar__month td.other_weekend {
 	color: #B3B3B3;
+}
+
+table#Utils_Calendar__month td.other_weekend div.inner {
+    width: 100%;
+    height: 100%;
 	background-color: #D7DDE3;
 }
 
+
 table#Utils_Calendar__month td.today_weekend {
-	background-color: #CCFFCC;
 	border: 2px solid #336699;
+}
+
+table#Utils_Calendar__month td.other_weekend div.inner {
+    width: 100%;
+    height: 100%;
+	background-color: #CCFFCC;
 }
 
 table#Utils_Calendar__month td.other a.day_link {
@@ -79,11 +110,11 @@ table#Utils_Calendar__month td.other_weekend a.day_link {
 	color: #B3B3B3;
 }
 
-table#Utils_Calendar__month td.today_weekend:hover,
-table#Utils_Calendar__month td.current_weekend:hover,
-table#Utils_Calendar__month td.today:hover,
-table#Utils_Calendar__month td.current:hover {
-	background-color: #e6cfcf
+table#Utils_Calendar__month td.today_weekend div.inner:hover,
+table#Utils_Calendar__month td.current_weekend div.inner:hover,
+table#Utils_Calendar__month td.today div.inner:hover,
+table#Utils_Calendar__month td.current div.inner:hover {
+	background-color: #e6cfcf !important;
 }
 
 /* header */
