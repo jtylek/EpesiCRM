@@ -104,7 +104,7 @@ hr.line {
 /*** content body ***/
 
 #content_body {
-    position: relative;
+/*    position: relative;*/
    /* position: absolute; */
     /*margin-top: 97px;*/
     width: 100%;
@@ -113,9 +113,9 @@ hr.line {
 }
 
 #body_content {
-    position: relative;
+/*    position: relative;*/
    /* position: absolute; */
-    top: 50px;
+    margin-top: 100px;
     /*margin-top: 97px;*/
     width: 100%;
     padding: 0px;
@@ -123,7 +123,7 @@ hr.line {
 }
 
 #main_content {
-	position: relative;
+/*	position: relative;*/
 	/* width: 100%; */
 }
 
@@ -146,7 +146,7 @@ hr.line {
 #top_bar {
 	position: fixed;
 	left: 0px;
-	top: 0px;
+	top: 0px;       
 	z-index: 10;
 }
 
@@ -383,7 +383,6 @@ hr.line {
 }
 
 .layer .content_shadow {
-	position: relative;
 	z-index: 1;
 }
 

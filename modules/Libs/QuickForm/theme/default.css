@@ -183,6 +183,7 @@
 
 #automulti .button input {
     width: 50px;
+    width: 50px !important;
     height: 20px;
     color: #FFFFFF;
     border: none;
