@@ -2053,6 +2053,7 @@ class Utils_RecordBrowser extends Module {
             } else $this->crits[$k] = $v;
         }
         $theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
+		if (empty(self::$browsed_records)) return;
         if ($this->amount_of_records>=250) {
             $theme->assign('disabled', '_disabled');
             $theme->assign('select_all', array('js'=>'', 'label'=>$this->t('Select all')));
