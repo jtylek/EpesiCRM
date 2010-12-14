@@ -1105,7 +1105,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->construct();
 
             $sel_val = array();
-            foreach($values['company_name'] as $id) {
+            foreach(array_merge(array($values['company_name']),is_array($values['related_companies'])?$values['related_companies']:array()) as $id) {
                 $sel_val[$id] = self::company_format_default(self::get_company($id), true);
             }
             $form->addElement('select', 'company', 'Select company:', $sel_val);
