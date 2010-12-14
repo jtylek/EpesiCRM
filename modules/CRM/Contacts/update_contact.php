@@ -24,7 +24,7 @@ foreach($_POST['parameters'] as $k=>$v) {
 if ($ret=='') 
 	$contacts = array();
 else
-	$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>array($ret)), array(), array('last_name'=>'ASC'));
+	$contacts = CRM_ContactsCommon::get_contacts(array('(company_name'=>$ret,'|related_companies'=>array($ret)), array(), array('last_name'=>'ASC'));
 
 $res = array();
 $callback = explode('::', $params['format']);
