@@ -85,14 +85,6 @@
 							</tr>
 						</tbody>
 					</table>
-					<table id="CRM_PhoneCall" cellpadding="0" cellspacing="0" border="0">
-						<tr>
-							<td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.employees.label}</td>
-						</tr>
-						<tr>
-							<td class="data multiselect" style="vertical-align: top; {if $action == 'view'}border-left: 1px solid #b3b3b3; border-right: 1px solid #b3b3b3; border-bottom: 1px solid #b3b3b3; padding-left: 4px;{/if}"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}{if $action == 'view'}&nbsp;{/if}</td>
-						</tr>
-					</table>
 				</td>
 				{* RIGHT column *}
 				<td style="width: 50%; vertical-align: top;">
@@ -207,6 +199,7 @@
 							{if (	$k!='subject' &&
 									$k!='company_name' &&
 									$k!='employees' &&
+									$k!='related_to' &&
 									$k!='status' &&
 									$k!='priority' &&
 									$k!='permission' &&
@@ -228,6 +221,14 @@
 						{/foreach}
 					</table>
 				</td>
+			</tr>
+			<tr>
+				<td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.employees.label}</td>
+				<td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.related_to.label}</td>
+			</tr>
+			<tr>
+				<td class="data multiselect" style="vertical-align: top; {if $action == 'view'}border-left: 1px solid #b3b3b3; border-right: 1px solid #b3b3b3; border-bottom: 1px solid #b3b3b3; padding-left: 4px;{/if}"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}{if $action == 'view'}&nbsp;{/if}</td>
+				<td class="data multiselect" style="vertical-align: top; {if $action == 'view'}border-left: 1px solid #b3b3b3; border-right: 1px solid #b3b3b3; border-bottom: 1px solid #b3b3b3; padding-left: 4px;{/if}"><span class="error">{$form_data.related_to.error}</span>{$form_data.related_to.html}{if $action == 'view'}&nbsp;{/if}</td>
 			</tr>
 		</tbody>
 	</table>

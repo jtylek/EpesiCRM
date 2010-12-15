@@ -314,6 +314,40 @@ class CRM_TasksCommon extends ModuleCommon {
 		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1);
 		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id']),'status'=>array(0,1)),array('deadline'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('priority'=>1, 'deadline'=>1,'longterm'=>1),$defaults);
 	}
+
+	public static function crm_calendar_handler($action) {
+		return array();
+		$args = func_get_args();
+		array_shift($args);
+		$ret = null;
+		switch ($action) {
+			case 'get_all': $ret = call_user_func_array(array('CRM_TasksCommon','crm_event_get_all'), $args);
+							break;
+			case 'update': $ret = call_user_func_array(array('CRM_TasksCommon','crm_event_update'), $args);
+							break;
+			case 'get': $ret = call_user_func_array(array('CRM_TasksCommon','crm_event_get'), $args);
+							break;
+			case 'delete': $ret = call_user_func_array(array('CRM_TasksCommon','crm_event_delete'), $args);
+							break;
+			case 'new_event_types': $ret = array(array('label'=>'Task','icon'=>Base_ThemeCommon::get_template_file('CRM_Task','icon.png')));
+							break;
+			case 'new_event': $ret = call_user_func_array(array('CRM_TasksCommon','crm_new_event'), $args);
+							break;
+			case 'view_event': $ret = call_user_func_array(array('CRM_TasksCommon','crm_view_event'), $args);
+							break;
+			case 'edit_event': $ret = call_user_func_array(array('CRM_TasksCommon','crm_edit_event'), $args);
+							break;
+		}
+		return $ret;
+	}
+	
+	public static function crm_event_get_all() {
+		return array();
+	}
+
+	public static function crm_new_event() {
+		return '';
+	}
 }
 
 ?>

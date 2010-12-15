@@ -426,5 +426,39 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$defaults = array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>'1');
 		Utils_RecordBrowserCommon::mobile_rb('phonecall',array('employees'=>array($me['id'])),array('status'=>'ASC', 'date_and_time'=>'ASC', 'subject'=>'ASC'),array(),$defaults);
 	}
+
+	public static function crm_calendar_handler($action) {
+		return array();
+		$args = func_get_args();
+		array_shift($args);
+		$ret = null;
+		switch ($action) {
+			case 'get_all': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_event_get_all'), $args);
+							break;
+			case 'update': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_event_update'), $args);
+							break;
+			case 'get': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_event_get'), $args);
+							break;
+			case 'delete': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_event_delete'), $args);
+							break;
+			case 'new_event_types': $ret = array(array('label'=>'Phonecall','icon'=>Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon.png')));
+							break;
+			case 'new_event': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_new_event'), $args);
+							break;
+			case 'view_event': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_view_event'), $args);
+							break;
+			case 'edit_event': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_edit_event'), $args);
+							break;
+		}
+		return $ret;
+	}
+	
+	public static function crm_event_get_all() {
+		return array();
+	}
+
+	public static function crm_new_event() {
+		return '';
+	}
 }
 ?>

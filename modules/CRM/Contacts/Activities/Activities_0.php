@@ -55,7 +55,7 @@ class CRM_Contacts_Activities extends Module {
 		}
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
-		$crits = array('(employees'=>$ids, '|customer'=>$cus_ids);
+		$crits = array('(employees'=>$ids, '|customer'=>$cus_ids, '|related_to'=>$cus_ids);
 		if ($this->activities_date==0) $crits['>=date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if ($this->activities_date==1) $crits['<date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);

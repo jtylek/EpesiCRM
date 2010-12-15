@@ -50,6 +50,7 @@ class CRM_TasksInstall extends ModuleInstall {
 //		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes');
 //		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
 // ************ other ************** //
+		CRM_CalendarCommon::new_event_handler('Tasks', array('CRM_TasksCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('task', 'CRM_TasksCommon', 'task_bbcode');
         CRM_RoundcubeCommon::new_addon('task');
 
