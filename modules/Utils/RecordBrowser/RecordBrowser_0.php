@@ -1392,7 +1392,9 @@ class Utils_RecordBrowser extends Module {
                     case 'date':        $form->addElement('datepicker', $args['id'], $label, array('id'=>$args['id'], 'label'=>$this->add_in_table?'':null));
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
-                    case 'timestamp':   $form->addElement('timestamp', $args['id'], $label, array('id'=>$args['id']));
+                    case 'timestamp':   $f_param = array('id'=>$args['id']);
+										if ($args['param']) $f_param['optionIncrement'] = $args['param'];
+										$form->addElement('timestamp', $args['id'], $label, $f_param);
                                         static $rule_defined = false;
                                         if (!$rule_defined) $form->registerRule('timestamp_required', 'callback', 'timestamp_required', $this);
                                         $rule_defined = true;
