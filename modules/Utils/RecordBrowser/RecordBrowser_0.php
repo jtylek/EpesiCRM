@@ -486,6 +486,7 @@ class Utils_RecordBrowser extends Module {
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false, $pdf = false) {
+		$this->help('RecordBrowser','main');
 		if (Utils_RecordBrowserCommon::$admin_access) $admin = true;
         if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
         if ($this->check_for_jump()) return;

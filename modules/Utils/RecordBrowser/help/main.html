@@ -1,0 +1,355 @@
+<html>
+<head>
+</head>
+<body>
+<!-- -----------------------------------------------INTRODUCTION--------------------------------------------------- -->
+Record Browser is a general tool used by almost all modules in epesiBIM. It manages all kinds of record sets, from contacts to tasks to projects. 
+<!-- -----------------------------------------------TABLE OF CONTENTS--------------------------------------------------- -->
+<ol>
+ <li>
+  <a href="#browse">Browsing records</a>
+ </li>
+ <li>
+  <a href="#record">Record details</a>
+ </li>
+ <li>
+  <a href="#recent_and_favorite">Recent and Favorite records</a>
+ </li>
+ <li>
+  <a href="#subscriptions">Subscriptions</a>
+ </li>
+ <li>
+  <a href="#filters">Filters</a>
+ </li>
+ <li>
+  <a href="#search">Search</a>
+ </li>
+ <li>
+  <a href="#notes">Notes</a>
+ </li>
+ <li>
+  <a href="#settings">User settings</a>
+ </li>
+</ol>
+<!-- -----------------------------------------------DISPLAY--------------------------------------------------- -->
+<h1><a name="browse">Browsing records</a></h1>
+The basic functionality of Record Browser is displaying records in a structured and clear way. Together with sorting and filtering it makes a very useful tool. Below, you can see an example of using Record Browser to browse some contacts.
+<br /><img src="recordbrowser_browse01.png" />
+<ol>
+ <li>
+  <span style="font-weight:bold;">Label and basic filter</span>
+  <br /><img src="recordbrowser_browse02.png" />
+  <br />The title to the left gives information which module or what type of records is displayed. 
+  <br />The selection to the right gives the choice from three basic filters: whether you want to display all records, recently used ones or favorite ones.
+  To learn more about "Recent" or "Favorites" <a href="#recent_and_favorite">click here</a>.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Filters and search tool</span>
+  <br /><img src="recordbrowser_browse03.png" />
+  <br />Here you can find two very useful tools that will help you navigate through your records. Filters reduce the amount of displayed records by selecting only these fulfilling chosen criteria and search tool does that by selecting only the records that contain chosen words, phrases, etc.
+  <br /><span style="font-weight:bold;">a)</span> "Show filters" button. Click this button to get the filtering options. <a href="#filters">Click here</a> to learn more about filters and using them.
+  <br /><span style="font-weight:bold;">b)</span> Simple search. Write the word or phrase that you are looking for and click "Search" button. <a href="#search">Click here</a> to learn more about search options. 
+  <br /><span style="font-weight:bold;">c)</span> Advanced search. This tool allows you more complex search, when you want, for example, a certain word in a specific field or a few different word fragments in a few different fields. <a href="#search">Click here</a> to learn more.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Basic tools</span>
+  <br /><img src="recordbrowser_browse04.png" />
+  <br />The "plus" button to the left serves as the easy way of adding new records. Clicking it will open a filling form.
+  <br />The "ABC" button is a tool of a basic alphabetic filter. Clicking it will display a list:
+  <br /><img src="recordbrowser_browse05.png" />
+  <br />Choose one of the options from this list, for example "C", to display only the records starting with selected letter. The "123" option displays all records starting with numbers and "All" removes the fiter and displays all records.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Basic functionalities</span>
+  <br /><img src="recordbrowser_browse06.png" />
+  <br />Tools and options gathered in this section will help you manage your records.
+  <br /><span style="font-weight:bold;">a)</span> Actions. Here you can view the record in details (click <img src="recordbrowser_action01.png" />), edit it (click <img src="recordbrowser_action02.png" />), view the information about the record (hover mouse over <img src="recordbrowser_action03.png" />) and if it's created or owned by you - remove it (click <img src="recordbrowser_action04.png" />).
+  <br /><span style="font-weight:bold;">b)</span> Favorites. The records marked with a coloured star are the ones chosen by you as your favourite. Here you can also change the "favourite" status of the record - click on the <img src="recordbrowser_action05.png" /> to remove the record from your favourites and to make it your favourite - click <img src="recordbrowser_action06.png" />. <a href="#recent_and_favorite">Click here</a> to learn more about favorites.
+  <br /><span style="font-weight:bold;">c)</span> Subscriptions. This functionality keeps you up-to-date. A green dot (<img src="recordbrowser_action09.png" />) means that you're subscribing the record (tracking changes) and that you've seen the latest version of it. A red dot (<img src="recordbrowser_action08.png" />) also means that you're subscribing the record, but you haven't seen the latest version of it - you are not up-to-date. Hover mouse over the red dot to see the changes that have been made since you last saw the record. Clicking either red or green dot will unsubscribe the record. A grey dot (<img src="recordbrowser_action07.png" />) means that you're not subscribing the record and clicking it will start the subscription. <a href="#subscriptions">Click here</a> to learn more about subscriptions.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Records</span>
+  <br /><img src="recordbrowser_browse07.png" />
+  <br />In this section you will find the most important part - the data, the content of the records. It also works as a sorting tool. On the picture below you can see a fragment of an example set of records from Contacts module.
+  <br /> On the picture you can see blue labels (with "Last Name" and "First Name" written on them). They inform you what information is in the column below. You can use these labels to sort the records by the value of the column below the label. It's simple - just click the chosen label. Clicking it more than once will switch between ascending and descending order.
+  <br />Ascending order is marked with a triangle pointing to the top. It looks like this:
+  <br /><img src="recordbrowser_browse08.png" />
+  <br />Descending order is marked with a triangle fliped upside down and it looks like this:
+  <br /><img src="recordbrowser_browse09.png" />
+ </li>
+ <li>
+  <span style="font-weight:bold;">Navigation</span>
+  <br /><img src="recordbrowser_browse10.png" />
+  <br />When there are many records, they often must be displayed by pages. On the bottom you will find a tool, that will let you easily navigate through all the pages. 
+  <br /><span style="font-weight:bold;">a)</span> Here you can see, which records are displayed at the moment.
+  <br /><span style="font-weight:bold;">b)</span> These buttons help you navigate through the pages. On the first page you will see only these two ("Next" and "Last"), but on other pages you will also see "First" and "Prev" buttons (on the picture below), that will let you go back to the previous pages.
+  <br /><span style="font-weight:bold;">c)</span> Here you can jump to a specific page. Choose the right number from the select box.
+  <br /><span style="font-weight:bold;">d)</span> Here you can set the number of records that will be displayed per page - the more records per page, the less pages.
+ </li>
+</ol>
+<!-- -----------------------------------------------RECORD DETAILS--------------------------------------------------- -->
+<h1><a name="record">Record details</a></h1>
+The exact layout and content of the record details strictly depend on the type of record. Therefore every type of record may look completely different in the detailed view. There are however some interface parts common for all records based on Record Browser and these will be presented in this section, with the record of a company used as an example.
+<br /><img src="recordbrowser_details01.png" />
+<ol>
+ <li>
+  <span style="font-weight:bold;">Module name</span>
+  <br /><img src="recordbrowser_details02.png" />
+  <br />Here you can see what module you are in or what type of record you are seeing.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Actions</span>
+  <br /><img src="recordbrowser_details03.png" />
+  <br />This panel contains many useful and often used tools to help you manage the record. Hover mouse over any of these icons to see a tooltip that will explain what kind of functionality you will get when clicking on it. More detailed description attached below:
+  <ul>
+   <li>
+    <img src="recordbrowser_action07.png" /> - subscription buttton. There can be two different icons in this spot: <img src="recordbrowser_action08.png" /> or <img src="recordbrowser_action09.png" />. All of them refer to the status of your subscription to this record. To learn more about subscriptions <a href="#subscriptions">click here</a>.
+   </li>
+   <li>
+    <img src="recordbrowser_action06.png" /> - favorites indicator. You can also see another icon here: <img src="recordbrowser_action05.png" />. They inform whether record is among your favorite ones or not. To learn more about favorites <a href="#recent_and_favorite">click here</a>.
+   </li>
+   <li>
+    <img src="recordbrowser_action03.png" /> - basic info. Hover your mouse over this icon to see some basic information about the record's creation, edition etc.
+   </li>
+   <li>
+    <img src="recordbrowser_action10.png" /> - copy tool. It allows you to copy values from the record in an easy and convenient way. When you click it, a window with record's essential values will appear. To copy them click "Copy" button or use a keyboard shortcut.
+   </li>
+   <li>
+    <img src="recordbrowser_action11.png" /> - history. Click this button to see detailed history of all changes that were made to the record. If there weren't any changes, the button is inactive and it looks like this: <img src="recordbrowser_action16.png" />.
+   </li>
+   <li>
+    <img src="recordbrowser_action12.png" />, <img src="recordbrowser_action13.png" />, <img src="recordbrowser_action14.png" /> - these buttons and some other may appear on this action panel depending on the type of the record. These ones create new event, task or phonecall connected with the record. 
+   </li>
+   <li>
+    <img src="recordbrowser_action15.png" /> - new note. Click here to add a new note to the record. To learn more about notes <a href="#notes">click here</a>.
+   </li>
+  </ul>
+ </li>
+ <li>
+  <span style="font-weight:bold;">Main area</span>
+  <br /><img src="recordbrowser_details04.png" />
+  <br />Main area is an essential part of this view that contain the data stored by the record. Here you can see the whole information gathered about the particular thing (like company, in this example). The fields with blue background inform about the type of information that is displayed in the fields with white background. The little star symbol * indicates that the field is obligatory to fill.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Addons</span>
+  <br /><img src="recordbrowser_details05.png" />
+  <br />This space, located below the main area, is where all kinds of addons can be found. What you will see here depends on the type of the record. For example, for any company you can display here a list of contacts connected with the company (assigned in the system as employees of this company), notes, activities and mails connected with the company and some others. For more detailed description of the addons go to the parts of this manual that cover the specific modules/types of records. To learn more about notes <a href="#notes">click here</a>.
+ </li>
+</ol>
+<!-- -----------------------------------------------RECENT AND FAVORITE--------------------------------------------------- -->
+<h1><a name="recent_and_favorite">Recent and Favorite records</a></h1>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_recentandfavorite01.png" />
+  </td>
+  <td>
+   Usually there are many records stored in a system, but not all of them are of interest for the particular user. To help you display only the records you want Record Browser offers a very usefull tool: displaying recent or favorite records only. To choose one of this options, select it from the basic filtering list placed near the title of the module you are currently browsing (on the picture "Companies" module is used as example). There are 3 options available on this list: "All", "Recent" and "Favorites". "All" means that you want to display all possible and available to you records in the category. "Recent" will display records recently seen by you - usually the last 15 you've seen (but this depends on the module). "Favorites" option is used to display only these records that are marked as your favorite. Majority of modules use favorites as a tool, but you may sometimes encounter a module without this functionality, for example, Phone Calls.
+  </td>
+ </tr>
+</table>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_recentandfavorite02.png" />
+  </td>
+  <td>
+   When module uses favorites there is a special column visible (when <a href="#browse">browsing records</a>) that shows whether record is one of favorites or not. This column has the label "Fav". Yellow star icon (<img src="recordbrowser_action05.png" />) means that the record is on the favorite list and will be displayed when the "Favorites" display option is chosen. Clicking on this icon will remove the record from favorites (and the icon near the record will be changed to gray star). Gray star icon (<img src="recordbrowser_action06.png" />) means that the record isn't on the favorites list and won't be displayed in the "Favorites" mode. Clicking this icon will, analogically, make the record one of the favorites (and change it's star icon to yellow one). The same star icon you can see while viewing <a href="#record">record details</a>, in the top right corner, among other actions. You can use it the same way as the ones in <a href="#browse">browsing records</a> mode.
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------SUBSCRIPTIONS--------------------------------------------------- -->
+<h1><a name="subscriptions">Subscriptions</a></h1>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_subscriptions01.png" />
+  </td>
+  <td>
+   Subscriptions are very important and useful tool implemented in the system. The main idea behind them is to allow users to track changes in records that are important or interesting for them. Subscribing to a record means that from that moment you will be notified of all the changes that are made to that record. For some specific types of records not only changes are tracked, but also the records that use the subscribe record are listed. For example if you subscribe a contact, you will be notified of all the tasks that are assigned for this contact, provided you have an access to them.
+<br /> The basic and most convenient way of displaying tracked changes is a dashboard applet specifically designed for subscriptions. <!-- Click here to learn more --> However, you can view them through Record Browser as well. You can see whether the record is subscribed by you or not and you are informed whether you've seen the last changes or not.
+<br /> While <a href="#browse">browsing records</a>, the column that covers these aspects is labeled as "Sub" (on the picture). You can see there dots in three different colors. The grey dot (<img src="recordbrowser_action07.png" />) means that you don't subscribe the record, the green one (<img src="recordbrowser_action09.png" />) means that you are subscribing the record and you have seen all the changes, the red one (<img src="recordbrowser_action08.png" />) means that you are subscribing the record and haven't seen recent changes. Hovering the mouse over the red dot will display a tooltip with the changes made since you last viewed the record. Clicking a red or green dot will unsubscribe a record and clicking a gray dot will subcribe a record. To change the status of the record from red to green dot you may view the record (click on it to view its details) or mark the changes as seen in the subscriptions applet.
+<br /> You can see a similar dot while veiwing <a href="#record">record details</a>. It is located on actions panel in the top right corner. It can be either green or grey and you can use it to subscribe or unsubscribe the viewed record.
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------FILTERS--------------------------------------------------- -->
+<h1><a name="filters">Filters</a></h1>
+Filters offer you a convenient tool of customizing the way you're browsing records. They allow you to see only the records that meet specified criteria - have certain values in chosen fields.
+<br /><img src="recordbrowser_filters01.png" />
+<br />Using filters is very simple. While <a href="#browse">browsing records</a> click the "Show filters" button, that is located in the top right corner of the displaying area (as shown on snapshot above). This will display filtering fields which you can use to select the chosen values. The "Hide filters" button will replace "Show filters" button. Click it if you no longer want to see possible filters.
+<br /><img src="recordbrowser_filters02.png" />  
+<br />The selection of fields by which you can filter depends strictly on the type of displayed records. On the snapshot you can see an example where contacts were used and possible options here are "Company name" and "Group". To filter your records choose values of the options and then click "Show" button.
+<!-- -----------------------------------------------SEARCH--------------------------------------------------- -->
+<h1><a name="search">Search</a></h1>
+There is a search function implemented in Record Browser to help you browse through records even more efficiently and easily. Use it when you are looking for a record or records with specific phrase, word or set of letters (or numbers) in one of its fields.
+<br /><img src="recordbrowser_search01.png" />
+<br />Searching tools are located in the top-right part of the displaying area (as shown on the snapshot above). Use simple search when you want to search by one keyword/phrase. Write it in the field with "search keyword..." written in it (most to the left) and click "Search" button. The records containing this word or phrase in any field will be displayed.
+<br /> If your search needs at the moment are more complex you might want to use advanced search. When you click the "Advanced Search" button, special fields will show up in the main area.
+<br /><img src="recordbrowser_search02.png" />
+<br />Advanced search will allow you to look for a specific keyword/s in specific field/s. Write the phrases in the fields and click "Search" button to display only the records with chosen values in selected fields. Some of the fields may be unavailable for search (like the last field on the picture).
+<br />If you want to go back to simple searching, click "Simple Search" button.
+<!-- -----------------------------------------------NOTES--------------------------------------------------- -->
+<h1><a name="notes">Notes</a></h1>
+To make your information storage more flexible every record has a possibility to attach notes to it. Any kind of information can be linked with the record this way, from loose comments to documents to additional data that doesn't fit in any of the record's fields. Notes are displayed under the main area in <a href="#record">record details</a> among other addons.
+<br /><img src="recordbrowser_notes01.png" />
+<ol>
+ <li>
+  <span style="font-weight:bold;">New note</span>
+  <br />Click this button to add a new note to the record.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Notes addon</span>
+  <br /> Click this label to see the notes attached to the record. If it's displayed in green that means you are already viewing the notes.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Actions</span>
+  <br />Here you can see the actions that you can perform on the note. From left to right: view note (<img src="recordbrowser_action01.png" />), edit note (<img src="recordbrowser_action02.png" />), delete note (<img src="recordbrowser_action04.png" />), copy note (<img src="recordbrowser_action15.png" />), cut note (<img src="recordbrowser_action17.png" />), history (<img src="recordbrowser_action11.png" />), basic info (<img src="recordbrowser_action03.png" />). Click on the icon to perform respective action. The last icon shows basic info in a tooltip after you hover mouse over it.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Sticky</span>
+  <br />This icon indicates that the note is "sticky". That means that it will be listed before all "not sticky" notes.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Expand/collapse all notes</span>
+  <br />Click "plus" to see the whole text of all notes. Click "minus" if you want to view notes in shortened version.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Expand single note</span>
+  <br />Click it to see the whole text of a selected note.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Attachment</span>
+  <br />This icon indicates that the note has an attachment. Click it to see the attachment.
+ </li>
+</ol>
+
+<!-- -----------------------------------------------OPTIONS--------------------------------------------------- -->
+<h1><a name="settings">User settings</a></h1>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_settings01.png" />
+  </td>
+  <td>
+   There are many settings and tools in Record Browser that are optional and can be changed. They are split in two main categories - "Browsing tables" and "Browsing records". Both of them are accessible in the same way - via control panel. You can access control panel by choosing it from menu: Menu -> My settings -> Control panel (as shown on the picture). Here you can find buttons that will get you to both Record Browser settings categories among other. "Browsing tables" category contains more general settings, like number of records per page, while "Browsing records" deals with matters like the way of displaying specific types of records.
+  </td>
+ </tr>
+</table>
+The general way of managing this settings is common for both categories. While in one of the categories (after clicking on it), on action bar you can see a few buttons - back, save and restore.
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_settings_backbutton.png" />
+  </td>
+  <td>
+   Back button is used to leave the settings category without making any changes. It takes you back to control panel.
+  </td>
+ </tr>
+</table>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_settings_savebutton.png" />
+  </td>
+  <td>
+   Save button is used to save the changes in settings that you made. It saves the changes and takes you back to control panel.
+  </td>
+ </tr>
+</table>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_settings_restorebutton.png" />
+  </td>
+  <td>
+   Restore button changes the settings to default values. It doesn't however save this changes. You still have to confirm (using Save button) or cancel them (by using Back button).
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------Browsing tables--------------------------------------------------- -->
+<h2>Browsing tables</h2>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_settings03.png" />
+  </td>
+  <td>
+   Browsing tables options category groups the general browsing settings that are applied in all modules and to all kinds of records. Here you can find settings dealing with the look of the record tables, searching and sorting.
+  </td>
+ </tr>
+</table>
+After clicking the "Browsing tables" button from control panel you will see the list of options (on the picture below).
+<br /><img src="recordbrowser_settings04.png" />
+<ol>
+ <li>
+  <span style="font-weight:bold;">Records per page</span>
+  <br />The number chosen here indicates how many records will be displayed on one page. If the number of records you want to display is greater than the number chosen here, the records will be divided to pages through which you will be able to easily navigate. The possible options here are: 5, 10, 20, 50 and 100. This setting can be also changed in <a href="#browse">browsing records</a> mode - the select is located in bottom right part.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Position of "Actions" column</span>
+  <br />The default position of "Action" column while <a href="#browse">browsing records</a> is "Left" - this column is displayed as the first one on the left side. However, if you prefer to have it as most to the right one, you can do it by setting this option to "Right".
+ </li>
+ <li>
+  <span style="font-weight:bold;">Advanced search by default</span>
+  <br />This setting allows you to change the default search mode. You can always change between the modes while browsing records. This option only indicates what mode you start with. If you want to start with the simple search leave this field unchecked.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Advanced order history</span>
+  <br />Selecting this option will allow you to see more detailed information about the sorting that is used at the moment. This information will be displayed below the table with records in <a href="#browse">records browsing</a> mode.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Hide "No records found" message</span>
+  <br />If this option is checked, the message "No records found" will not be displayed if there are no records to display.
+ </li>
+ <li>
+  <span style="font-weight:bold;">Display "Show all" button</span>
+  <br />If you want to make your search even easier, you can display "Show all" button, that will allow you to reset all searching options and show all the records. If you choose not to put another button on your interface you may still reset searching options by clearing them manually. The button is displayed next to "Search" button (to the left) in <a href="#browse">browsing records</a> mode.
+ </li>
+</ol>
+<!-- -----------------------------------------------Browsing records--------------------------------------------------- -->
+<h2>Browsing records</h2>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_settings02.png" />
+  </td>
+  <td>
+   Browsing records category mainly allows you to set several options for each type of records separatedly. You will also find here some options dealing with creating and editing redords.
+  </td>
+ </tr>
+</table>
+Click "Browsing records" button from control panel to display options of record browsing. You can see them on the picture below.
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="recordbrowser_settings05.png" />
+  </td>
+  <td>
+   <ol>
+    <li>
+     <span style="font-weight:bold;">Quick new record - show by default</span>
+     <br />Checking this option will allow you to create new records from <a href="#browse">browsing records</a> mode. If you have this option enabled then (while in <a href="#browse">browsing records</a> mode) clicking "Add new record" will display empty row ready to be filled with data instead of redirecting you to another view. This is simpler and faster way of creating new records, but this way you can fill only some of the fields from the record, namely the ones that are displayed in <a href="#browse">records browsing</a> mode.
+    </li>
+    <li>
+     <span style="font-weight:bold;">Grid edit</span>
+     <br />This option allows you to edit some of the records fields from <a href="#browse">browsing records</a> mode. The fields that can be changed will show small edit icon when you hover a mouse over them. Clicking this icon will allow you to enter and save a new value.
+    </li>
+    <li>
+     <span style="font-weight:bold;">Default data view</span>
+     <br />The options gathered in this group allow you to choose the default way of displaying each type of records. You can choose from three basic view modes: to see all records, to see only favorites or to see the recent ones. You will see the settings for all installed modules. These settings can also be changed while <a href="#browse">browsing records</a> (basic filter next to the module label).
+    </li>
+    <li>
+     <span style="font-weight:bold;">Automatical adding your records to favorites</span>
+     <br />This group of settings allows you to toggle automation that will add to favorites all the records of chosen type you create.
+    </li>
+    <li>
+     <span style="font-weight:bold;">Auto-subscribing to your records</span>
+     <br />This group of settings toggles the auto-subscribing to the records of chosen type you create.
+    </li>
+   </ol>
+  </td>
+ </tr>
+</table>
+</body>
+</html>
