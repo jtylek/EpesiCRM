@@ -139,6 +139,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_mails', 'Mails');
         Utils_RecordBrowserCommon::set_access_callback('rc_mails', array('CRM_RoundcubeCommon', 'access_mails'));
+        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', 'Attachments');
 
         $fields = array(
             array(
@@ -207,6 +208,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         DB::DropTable('rc_cache');
         DB::DropTable('rc_messages');
 
+        Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon');
         Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Roundcube', 'addon');
         Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Roundcube', 'addon');
         Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon');

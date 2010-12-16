@@ -47,6 +47,18 @@ class CRM_Roundcube extends Module {
         $this->display_module($rb, array(array('mail'=>$arg['id'])), 'show_data');
     }
 
+    public function attachments_addon($arg,$rb) {
+ 		$m = & $this->init_module('Utils/GenericBrowser',null,'attachments');
+        $attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($arg['id']));
+        $data = array();
+        foreach($attachments as $k=>&$n) {
+            $filename = DATA_DIR.'/CRM_Roundcube/attachments/'.$arg['id'].'/'.$k;
+     		$data[] = array('<a href="modules/CRM/Roundcube/get.php?'.http_build_query(array('mime_id'=>$k,'mail_id'=>$arg['id'])).'" target="_blank">'.$n.'</a>',file_exists($filename)?filesize($filename):'---');
+        }
+ 		$this->display_module($m,array(array(array('name'=>'Filename','search'=>1),
+ 		                    array('name'=>'Size')),$data,false,null,array('Filename'=>'ASC')),'simple_table');
+    }
+
     public function addon($arg, $rb) {
         $rs = $rb->tab;
         $id = $arg['id'];

@@ -147,11 +147,6 @@ class CRM_RoundcubeCommon extends ModuleCommon {
     }
 
     public static function QFfield_attachments(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
-        $attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($rb_obj->record['id']));
-        foreach($attachments as $k=>&$n)
-            $n = '<a href="modules/CRM/Roundcube/get.php?'.http_build_query(array('mime_id'=>$k,'mail_id'=>$rb_obj->record['id'])).'" target="_blank">'.$n.'</a>';
-        if($attachments)
-            $form->addElement('static',$field,$label,($attachments?implode(', ',$attachments):''));
     }
 
     public static function display_attachments($record, $nolink, $desc) {
