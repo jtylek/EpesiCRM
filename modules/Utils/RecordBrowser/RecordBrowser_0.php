@@ -1394,7 +1394,7 @@ class Utils_RecordBrowser extends Module {
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
                     case 'timestamp':   $f_param = array('id'=>$args['id']);
-										if ($args['param']) $f_param['optionIncrement'] = $args['param'];
+										if ($args['param']) $f_param['optionIncrement'] = array('i'=>$args['param']);
 										$form->addElement('timestamp', $args['id'], $label, $f_param);
                                         static $rule_defined = false;
                                         if (!$rule_defined) $form->registerRule('timestamp_required', 'callback', 'timestamp_required', $this);

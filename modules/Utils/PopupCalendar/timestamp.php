@@ -66,7 +66,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
 		$lang_code = Base_LangCommon::get_lang_code();
 		$this->_options['format'] = $time_format;
-		$this->_options['optionIncrement'] = array('i' => isset($this->_options['optionIncrement'])?$this->_options['optionIncrement']:5);
+		if (!isset($this->_options['optionIncrement'])) $this->_options['optionIncrement'] = array('i' => 5);
 		$this->_options['language'] = $lang_code;
 		if (!isset($this->_options['date'])) $this->_options['date'] = true;
 
