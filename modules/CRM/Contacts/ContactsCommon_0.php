@@ -400,7 +400,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = '';
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('company', $record['id']);
-            $ret .= Utils_TooltipCommon::ajax_create($label,array('CRM_ContactsCommon','company_get_tooltip'), array($record));
+            $ret .= Utils_TooltipCommon::ajax_create($record['company_name'],array('CRM_ContactsCommon','company_get_tooltip'), array($record));
             $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
         } else {
             $ret .= $record['company_name'];
