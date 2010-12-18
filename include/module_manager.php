@@ -182,7 +182,7 @@ class ModuleManager {
 		return $ret;
 	}
 
-	private static function satisfy_dependencies($module_to_install,$version,$check) {
+	private static function satisfy_dependencies($module_to_install,$version,$check=null) {
 		self::$processing[$module_to_install] = $version;
 		try {
 			$deps = self :: check_dependencies($module_to_install, $version, self::$modules);
