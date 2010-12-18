@@ -93,6 +93,18 @@ class Utils_TooltipCommon extends ModuleCommon {
 	}
 
 	/**
+	 * Returns string that if displayed will create text with tooltip loaded via ajax.
+	 *
+	 * @param string text
+	 * @param string tooltip text
+	 * @param boolean help tooltip? (you can turn off help tooltips)
+	 * @return string text with tooltip
+	 */
+	public function ajax_create( $text, $callback, $args=array(), $max_width=300) {
+		return '<span '.self::ajax_open_tag_attrs($callback,$args,$max_width).'>'.$text.'</span>';
+	}
+
+	/**
 	* Returns a 2-column formatted table
 	*
 	* @param array keys are captions, values are values

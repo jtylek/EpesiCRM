@@ -400,7 +400,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = '';
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('company', $record['id']);
-            $ret .= Utils_TooltipCommon::create($record['company_name'],self::company_get_tooltip($record));
+            $ret .= Utils_TooltipCommon::ajax_create($label,array('CRM_ContactsCommon','company_get_tooltip'), array($record));
             $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
         } else {
             $ret .= $record['company_name'];
@@ -442,7 +442,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-            $ret .= Utils_TooltipCommon::create($label,self::contact_get_tooltip($record));
+            $ret .= Utils_TooltipCommon::ajax_create($label,array('CRM_ContactsCommon','contact_get_tooltip'), array($record));
             $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
         } else {
             $ret .= $label;
@@ -464,7 +464,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-            $ret .= Utils_TooltipCommon::create($label,self::contact_get_tooltip($record));
+            $ret .= Utils_TooltipCommon::ajax_create($label,array('CRM_ContactsCommon','contact_get_tooltip'), array($record));
             $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
         } else {
             $ret .= $label;
