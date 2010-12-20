@@ -1660,8 +1660,8 @@ class Utils_RecordBrowser extends Module {
         );
 
         //read database
-        $rows = count($this->table_rows);
-        $max_p = DB::GetOne('SELECT MIN(position) FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field!=\'General\'');
+        $rows = end($this->table_rows);
+		$rows = $rows['position'];
         foreach($this->table_rows as $field=>$args) {
             $gb_row = $gb->get_new_row();
             if($args['extra']) {
@@ -1679,9 +1679,9 @@ class Utils_RecordBrowser extends Module {
                 if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate', null, 'active-on');
                 else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate', null, 'active-off');
             }
-            if ($args['position']>$max_p && $args['position']<=$rows || ($args['position']<$max_p-1 && $args['position']>2))
+            if ($args['position']<$rows && $args['position']>2)
                 $gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], +1)),'Move down', null, 'move-down');
-            if ($args['position']>$max_p+1 || ($args['position']<$max_p && $args['position']>3))
+            if ($args['position']>3)
                 $gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], -1)),'Move up', null, 'move-up');
             if ($args['type']=='text')
                 $args['param'] = $this->t('Length').' '.$args['param'];
