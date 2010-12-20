@@ -7,7 +7,7 @@
 			    <td class="label" nowrap="1">
 			    	{$e.label}
 				</td>
-				<td style="padding-left:5px;">
+				<td style="padding-left:5px;" id="{$e.name}__leightbox_prompt__data_span">
 					{$e.html}
 				</td>
 				<td style="color:red;padding-left:5px;text-align:left;">
