@@ -25,7 +25,6 @@ class CRM_ContactsInstall extends ModuleInstall {
 		$fields = array(
 			array('name'=>'Company Name',	'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname')),
 			array('name'=>'Short Name',		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
-			array('name'=>'Parent Company',	'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('CRM_ContactsCommon','parent_company_crits')), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true),
 			array('name'=>'Phone', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name'=>'Fax', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Email', 			'type'=>'text', 'required'=>false, 'param'=>'128', 'extra'=>false, 'visible'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
