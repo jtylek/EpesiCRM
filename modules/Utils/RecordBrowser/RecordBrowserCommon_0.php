@@ -1756,7 +1756,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $i = 0;
             $curr_len = 0;
             $tags = array();
-            $inside = false;
+            $inside = 0;
 			preg_match_all('/./u', $str, $a);
 			$a = $a[0];
             $strlen = count($a);
@@ -1774,8 +1774,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $curr_len++;
                         }
                     }
-                } elseif ($a[$i] == '<') {
-                    $inside = true;
+                } elseif ($a[$i] == '<' && !$inside) {
+                    $inside = 1;
                     if (isset($a[$i+1]) && $a[$i+1] == '/') {
                         if (!empty($tags)) array_pop($tags);
                     } else {
@@ -1787,9 +1787,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         }
                         $tags[] = $next_tag;
                     }
-                } elseif ($a[$i] == '>') {
+				} elseif ($a[$i] == '"' && $inside==1) {
+					$inside = 2;
+				} elseif ($a[$i] == '"' && $inside==2) {
+					$inside = 1;
+                } elseif ($a[$i] == '>' && $inside==1) {
                     if ($i>0 && $a[$i-1] == '/') array_pop($tags);
-                    $inside = false;
+                    $inside = 0;
                 } elseif (!$inside) {
 					$curr_len++;
 				}
