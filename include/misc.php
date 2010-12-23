@@ -477,7 +477,7 @@ function detect_mobile_device(){
 }
 
 function detect_iphone(){
-  if(preg_match('/iphone/i',$_SERVER['HTTP_USER_AGENT'])||preg_match('/ipod/i',$_SERVER['HTTP_USER_AGENT'])||preg_match('/android/i',$_SERVER['HTTP_USER_AGENT'])||preg_match('/webOS/i',$_SERVER['HTTP_USER_AGENT'])){
+  if(preg_match('/iphone/i',$_SERVER['HTTP_USER_AGENT'])||preg_match('/iPad/i',$_SERVER['HTTP_USER_AGENT'])||preg_match('/ipod/i',$_SERVER['HTTP_USER_AGENT'])||preg_match('/android/i',$_SERVER['HTTP_USER_AGENT'])||preg_match('/webOS/i',$_SERVER['HTTP_USER_AGENT'])){
 	return true;
   }
 }
