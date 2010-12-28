@@ -2192,6 +2192,141 @@ function update_from_1_1_2_to_1_1_3() {
     	Utils_RecordBrowserCommon::register_processing_callback('company', array('Premium_SalesOpportunityCommon', 'submit_company'));
     }
 }
+
+$versions[] = '1.1.4';
+function update_from_1_1_3_to_1_1_4() {
+    if(ModuleManager::is_installed('Apps_ActivityReport')>=0) {
+        Acl::add_aco('Apps_ActivityReport','access','Employee');
+    }
+
+    if( ModuleManager::is_installed('Base_Theme') ) {
+        Base_ThemeCommon::install_default_theme_common_files('modules/Base/Theme/','images');
+    }
+
+    if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+        if(!DB::GetOne('SELECT 1 FROM contact_field WHERE field=%s',array('Related Companies')) && !DB::GetOne('SELECT 1 FROM contact_field WHERE field=%s',array('Additional Work'))) {
+            Utils_RecordBrowserCommon::new_record_field('contact',
+		        	array('name'=>'Additional Work', 	'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>false, 'visible'=>false, 'filter'=>true,'position'=>'First Name')
+            );
+            DB::Execute('UPDATE contact_data_1 SET f_additional_work=f_company_name');
+
+            Utils_RecordBrowserCommon::delete_record_field('contact','Company Name');
+            Utils_RecordBrowserCommon::new_record_field('contact',
+		        	array('name'=>'Company Name', 	'type'=>'crm_company', 'param'=>array('field_type'=>'select'), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true,'position'=>'First Name')
+            );
+
+            $ret = Utils_RecordBrowserCommon::get_records('contact',array(),array('additional_work','id','first_name','last_name'));
+            foreach($ret as $r) {
+                if(count($r['additional_work'])>0) {
+                    Utils_RecordBrowserCommon::update_record('contact',$r['id'],array('company_name'=>array_shift($r['additional_work']),'additional_work'=>$r['additional_work']));
+                    if(count($r['additional_work'])>0)
+                        error_log($r['id'].' '.$r['first_name'].' '.$r['last_name']."\n",3,DATA_DIR.'/additional_work.log');
+                }
+            }        
+        }
+
+        if(DB::GetOne('SELECT 1 FROM contact_field WHERE field=%s',array('Additional Work'))) {
+            Utils_RecordBrowserCommon::new_record_field('contact',
+		        	array('name'=>'Related Companies', 	'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>false, 'visible'=>false, 'filter'=>true,'position'=>'Additional Work')
+            );
+            DB::Execute('UPDATE contact_data_1 SET f_related_companies=f_additional_work');
+
+            Utils_RecordBrowserCommon::delete_record_field('contact','Additional Work');
+        }
+    }
+    
+    if (ModuleManager::is_installed('CRM_Meeting')>=0) {
+        DB::Execute('UPDATE crm_meeting_field SET visible=1 WHERE field="Date" OR field="Time"');
+        DB::Execute('UPDATE crm_meeting_field SET visible=0 WHERE field="Recurrence type" OR field="Recurrence end" OR field="Recurrence hash"');
+    }
+    
+    if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
+        Utils_RecordBrowserCommon::new_record_field('phonecall',
+			array('name'=>'Related to', 'type'=>'crm_company_contact', 'param'=>array('field_type'=>'multiselect'), 'extra'=>false, 'visible'=>true)
+		);
+    }
+
+    if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
+        Acl::add_aco('CRM_Roundcube','access mails','Employee');
+        Acl::add_aco('CRM_Roundcube','access client','Employee');
+
+        Utils_RecordBrowserCommon::new_record_field('rc_accounts',
+            array('name'=>'Advanced', 'type'=>'page_split')
+        );
+
+        Utils_RecordBrowserCommon::new_record_field('rc_accounts',
+            array('name'=>'IMAP Root', 'type'=>'text', 'param'=>32, 'extra'=>true, 'visible'=>false)
+        );
+
+        Utils_RecordBrowserCommon::new_record_field('rc_accounts',
+            array('name'=>'IMAP Delimiter', 'type'=>'text', 'param'=>8, 'extra'=>true, 'visible'=>false)
+        );
+
+
+        Utils_RecordBrowserCommon::new_record_field('rc_accounts',
+            array('name'=>'Email',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>128,'position'=>'Epesi User')
+            );
+
+        $rec = Utils_RecordBrowserCommon::get_records('rc_accounts');
+        foreach($rec as $r) {
+            if($r['server']=='mail.cadeservices.org') $r['server'] = 'cadeservices.org';
+            if(preg_match('/@/',$r['login']))
+                $email = $r['login'];
+            else
+                $email = $r['login'].'@'.$r['server'];
+            Utils_RecordBrowserCommon::update_record('rc_accounts',$r['id'],array('email'=>$email));
+        }
+
+        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', 'Attachments');
+
+        Utils_RecordBrowserCommon::set_QFfield_callback('rc_accounts', 'Security', array('CRM_RoundcubeCommon','QFfield_security'));
+    }
+
+    if (ModuleManager::is_installed('CRM_Tasks')>=0) {
+    	Utils_RecordBrowserCommon::new_filter('task', 'Employees');
+    	Utils_RecordBrowserCommon::new_filter('task', 'Priority');
+    }
+
+    if (ModuleManager::is_installed('CRM_Meeting')>=0) {
+    	Utils_RecordBrowserCommon::new_filter('crm_meeting', 'Employees');
+    }
+
+    if (ModuleManager::is_installed('CRM_Contacts_AccountManager')>=0) {
+	    Utils_RecordBrowserCommon::new_filter('company', 'Account Manager');
+    	Utils_RecordBrowserCommon::new_browse_mode_details_callback('company', 'CRM/Contacts/AccountManager', 'browse_mode_details');
+    }
+
+    if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
+	    Utils_RecordBrowserCommon::new_filter('phonecall', 'Employees');
+    }
+
+    if (ModuleManager::is_installed('Custom_Projects_Tickets')>=0) {
+	    Utils_RecordBrowserCommon::new_filter('custom_tickets', 'Assigned To');
+    }
+    
+    if (ModuleManager::is_installed('Premium_Relations')>=0) {
+        Utils_RecordBrowserCommon::register_processing_callback('relations_types', array('Premium_RelationsCommon', 'process_request_types'));
+    }
+    
+    if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0) {
+	    Utils_RecordBrowserCommon::new_addon('company', 'Premium/SalesOpportunity', 'company_addon', 'Sales Opportunities');
+    	Utils_RecordBrowserCommon::new_addon('contact', 'Premium/SalesOpportunity', 'contact_addon', 'Sales Opportunities');
+        DB::Execute('UPDATE recordbrowser_addon SET label=%s WHERE tab=%s AND module=%s AND func=%s', array('Premium_SalesOpportunityCommon::activities_addon_label', 'premium_salesopportunity', 'Premium_SalesOpportunity', 'activities_addon'));
+        Utils_RecordBrowserCommon::set_display_callback('premium_salesopportunity', 'Employees', array('Premium_SalesOpportunityCommon','display_employees'));
+    }
+
+    if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
+        @DB::CreateIndex('utils_watchdog_event__internal_id__idx', 'utils_watchdog_event', 'internal_id');
+    }
+
+    if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
+        $tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+        foreach ($tabs as $t) {
+        	@DB::Execute('ALTER TABLE '.$t.'_favorite ADD CONSTRAINT  FOREIGN KEY ('.$t.'_id) REFERENCES '.$t.'_data_1 (id)');
+        	@DB::Execute('ALTER TABLE '.$t.'_recent ADD CONSTRAINT FOREIGN KEY ('.$t.'_id) REFERENCES '.$t.'_data_1 (id)');
+        }
+    }
+}
 //=========================================================================
 
 try {
