@@ -59,7 +59,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'messanger_addon', 'Alerts');
         CRM_RoundcubeCommon::new_addon('phonecall');
 // ************ other ************** //
-		CRM_CalendarCommon::new_event_handler('Phonecalls', array('CRM_PhoneCallCommon', 'crm_calendar_handler'));
+//		CRM_CalendarCommon::new_event_handler('Phonecalls', array('CRM_PhoneCallCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('phone', 'CRM_PhoneCallCommon', 'phone_bbcode');
 
 		$this->add_aco('browse phonecalls',array('Employee'));
