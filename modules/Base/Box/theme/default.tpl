@@ -18,8 +18,7 @@
 		<tbody>
 			<tr>
 				<td class="menu-bar">{$menu}</td>
-				<td class="powered" nowrap="1"><a href="http://www.epesibim.com" target="_blank" style="color:white;"><b>epesi</b> powered</a></td>
-				<td class="version" nowrap="1">{$version_no}</td>
+				<td class="powered" nowrap="1"><a href="http://www.epesibim.com" target="_blank" style="color:white;"><b>epesi</b> powered</a> {$version_no}</td>
 				{if isset($donate)}
 					<td class="donate" nowrap="1">{$donate}</td>
 				{/if}

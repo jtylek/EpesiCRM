@@ -33,7 +33,7 @@ else $tooltip = Base_LangCommon::ts('Base_Box','There\'s a new version of epesi 
 
 $message = Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s <b>(Update Available!)</b>',array(EPESI_VERSION)), $tooltip, false);
 
-if (Base_AclCommon::i_am_sa()) $message = '<a href="http://sourceforge.net/projects/epesi/files/" target="_blank">'.$message.'</a>';
+if (Base_AclCommon::i_am_sa()) $message = '<a href="http://sourceforge.net/projects/epesi/files/" target="_blank" class="version">'.$message.'</a>';
 
 print($message);
 ?>

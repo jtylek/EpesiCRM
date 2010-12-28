@@ -181,7 +181,6 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .powered {
-    text-align: right;
     vertical-align: middle;
 	background-color: #595959;
 	background-image: url("images/header-black.png");
@@ -190,33 +189,22 @@ hr.line {
 	padding-right: 4px;
     font-size: 9px;
     color: white;
+    text-align: right;
 }
 
-#top_bar #top_bar_1 .version {
-	width: 80px;
-	background-color: #595959;
-	background-image: url("images/header-black.png");
-	background-repeat: repeat-x;
-	color: white;
-	padding-left: 4px;
-	padding-right: 4px;
-	text-align: center;
-	font-size: 9px;
-}
-
-#top_bar #top_bar_1 .version a {
+#top_bar #top_bar_1 .powered a {
 	color: #FFFFFF;
     padding-left: 1px;
     padding-right: 1px;
 }
 
-#top_bar #top_bar_1 .version a:hover {
+#top_bar #top_bar_1 .powered a.version:hover {
 	color: gray;
 	background-color: #FFFFFF;
 }
 
 #top_bar #top_bar_1 .donate {
-	width: 40px;
+	width: 100px;
 	background-color: #595959;
 	background-image: url("images/header-black.png");
 	background-repeat: repeat-x;
