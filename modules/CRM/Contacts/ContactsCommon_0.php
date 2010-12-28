@@ -562,11 +562,14 @@ class CRM_ContactsCommon extends ModuleCommon {
                 $crit_callback = explode('::',$param[2]);
                 if ($crit_callback[0]=='ChainedSelect') {
                     $crits = null;
-                } else {
+                } elseif (is_callable($crit_callback)) {
                     $crits = call_user_func($crit_callback, false);
                     $adv_crits = call_user_func($crit_callback, true);
                     if ($adv_crits === $crits) $adv_crits = null;
-                }
+                } else {
+					$crits = array();
+					$adv_crits = null;
+				}
             } else $crits = array();
             if ($crits===true) $crits = $adv_crits;
             if ($desc['type']!='multiselect' && (!isset($crit_callback) || $crit_callback[0]!='ChainedSelect')) $cont[''] = '---';

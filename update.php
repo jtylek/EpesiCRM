@@ -2196,7 +2196,9 @@ function update_from_1_1_2_to_1_1_3() {
 $versions[] = '1.1.4';
 function update_from_1_1_3_to_1_1_4() {
     if(ModuleManager::is_installed('Apps_ActivityReport')>=0) {
+		ob_start();
         Acl::add_aco('Apps_ActivityReport','access','Employee');
+		ob_end_clean();
     }
 
     if( ModuleManager::is_installed('Base_Theme') ) {
@@ -2247,8 +2249,10 @@ function update_from_1_1_3_to_1_1_4() {
     }
 
     if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
+		ob_start();
         Acl::add_aco('CRM_Roundcube','access mails','Employee');
         Acl::add_aco('CRM_Roundcube','access client','Employee');
+		ob_end_clean();
 
         Utils_RecordBrowserCommon::new_record_field('rc_accounts',
             array('name'=>'Advanced', 'type'=>'page_split')
