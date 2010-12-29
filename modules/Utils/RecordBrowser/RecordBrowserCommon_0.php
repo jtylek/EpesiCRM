@@ -1927,14 +1927,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach($cols as $k=>$col) {
                 $val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,true,$col);
                 if($val==='') continue;
-                print('<li>'.Base_LangCommon::ts('Utils_RecordBrowser',$col['name']).': '.$val.'</li>');
+                print('<li>'.Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,$col['name']).': '.$val.'</li>'); // TRSL
             }
             print('</ul>');
         } else {
             foreach($cols as $k=>$col) {
                 $val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,true,$col);
                 if($val==='') continue;
-                print(Base_LangCommon::ts('Utils_RecordBrowser',$col['name']).': '.$val.'<br>');
+                print(Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,$col['name']).': '.$val.'<br>'); // TRSL
             }
         }
 
@@ -1977,7 +1977,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach($cols as $field=>$args) {
             if(isset($access[$field['id']]) && !$access[$field['id']]) continue;
 
-            $label = Base_LangCommon::ts('Utils_RecordBrowser',$args['name']);
+            $label = Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,$args['name']); // TRSL
             //ignore callback fields
             if(isset($QFfield_callback_table[$field])) {
 //              if($id===false) continue;

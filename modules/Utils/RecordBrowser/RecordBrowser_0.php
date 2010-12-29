@@ -70,6 +70,10 @@ class Utils_RecordBrowser extends Module {
     public $form = null;
     public $tab;
     public $grid = null;
+	
+	public function ts($str) {
+		return Base_LangCommon::ts('Utils_RecordBrowser:'.$this->tab, $str);
+	}
 
     public function enable_grid($arg) {
         $this->grid = $arg;
@@ -314,8 +318,8 @@ class Utils_RecordBrowser extends Module {
             }
             $arr = array();
             if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
-				$form->addElement('datepicker', $field_id.'__from', $this->t($filter).' ('.$this->t('from').')', array('label'=>false));
-				$form->addElement('datepicker', $field_id.'__to', $this->t($filter).' ('.$this->t('to').')', array('label'=>false));
+				$form->addElement('datepicker', $field_id.'__from', $this->ts($filter).' ('.$this->t('from').')', array('label'=>false)); // TRSL
+				$form->addElement('datepicker', $field_id.'__to', $this->ts($filter).' ('.$this->t('to').')', array('label'=>false)); // TRSL
 				$filters[] = $filter_id.'__from';
 				$filters[] = $filter_id.'__to';
 				continue;
@@ -376,7 +380,7 @@ class Utils_RecordBrowser extends Module {
                 }
             }
             $arr = array('__NULL__'=>'---')+$arr;
-            $form->addElement('select', $field_id, $this->t($filter), $arr);
+            $form->addElement('select', $field_id, $this->ts($filter), $arr); // TRSL
             $filters[] = $filter_id;
         }
         $form->addElement('submit', 'submit', 'Show');
@@ -557,7 +561,7 @@ class Utils_RecordBrowser extends Module {
                 foreach (array('name','wrapmode','width') as $v)
                     if (isset($this->more_table_properties[$args['id']][$v])) $arr[$v] = $this->more_table_properties[$args['id']][$v];
             }
-            $arr['name'] = $this->t($arr['name']);
+            $arr['name'] = $this->ts($arr['name']); // TRSL
             if (is_array($args['param']))
                 $str = explode(';', $args['param']['array_id']);
             else
@@ -597,7 +601,7 @@ class Utils_RecordBrowser extends Module {
 				if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name'];
 				elseif (isset($hash[$k])) $key = $hash[$k];
 				else $key = $k;
-   				$clean_order[$this->t($key)] = $v;
+   				$clean_order[$this->ts($key)] = $v; // TRSL
 			}
 
 			if ($this->browse_mode != 'recent')
@@ -1220,7 +1224,7 @@ class Utils_RecordBrowser extends Module {
                     break;
                 }
             }
-            if ($valid_page && $pos - $last_page>1) $tb->set_tab($this->t($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols), $js);
+            if ($valid_page && $pos - $last_page>1) $tb->set_tab($this->ts($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols), $js); // TRSL
             $cols = $row['param'];
             $last_page = $pos;
             if ($row) $label = $row['field'];
@@ -1340,7 +1344,7 @@ class Utils_RecordBrowser extends Module {
                 $form->setDefaults(array($args['id']=>$record[$args['id']]));
                 continue;
             }
-            $label = '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>';
+            $label = '<span id="_'.$args['id'].'__label">'.$this->ts($args['name']).'</span>'; // TRSL
             if (isset($this->QFfield_callback_table[$field])) {
                 $ff = $this->QFfield_callback_table[$field];
                 call_user_func_array($ff, array(&$form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table));
@@ -1922,7 +1926,7 @@ class Utils_RecordBrowser extends Module {
             if (!$access[$args['id']]) continue;
             $field_hash[$args['id']] = $field;
             $val = $this->get_val($field, $created, false, $args);
-            if ($created[$args['id']] !== '') $gb_cur->add_row($this->t($field), $val);
+            if ($created[$args['id']] !== '') $gb_cur->add_row($this->ts($field), $val); // TRSL
         }
 
         $ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC, id DESC',array($id));
@@ -1945,7 +1949,7 @@ class Utils_RecordBrowser extends Module {
                     $gb_cha->add_row(
                         Base_RegionalSettingsCommon::time2reg($row['edited_on']),
                         $row['edited_by']!==null?Base_UserCommon::get_user_login($row['edited_by']):'',
-                        $this->t($field_hash[$k]),
+                        $this->ts($field_hash[$k]), // TRSL
                         $old,
                         $new
                     );
@@ -1957,7 +1961,7 @@ class Utils_RecordBrowser extends Module {
         foreach($this->table_rows as $field => $args) {
             if (!$access[$args['id']]) continue;
             $val = $this->get_val($field, $created, false, $args);
-            if ($created[$args['id']] !== '') $gb_ori->add_row($this->t($field), $val);
+            if ($created[$args['id']] !== '') $gb_ori->add_row($this->ts($field), $val); // TRSL
         }
         $theme = $this->init_module('Base/Theme');
         $theme->assign('table',$this->get_html_of_module($gb_cur));
@@ -2139,10 +2143,10 @@ class Utils_RecordBrowser extends Module {
             if (isset($v['callback'])) $callbacks[] = $v['callback'];
             else $callbacks[] = null;
             if (is_array($v)) {
-                $arr = array('name'=>$this->t($field_hash[$v['field']]), 'width'=>$v['width']);
+                $arr = array('name'=>$this->ts($field_hash[$v['field']]), 'width'=>$v['width']); // TRSL
                 $cols[$k] = $v['field'];
             } else {
-                $arr = array('name'=>$this->t($field_hash[$v]));
+                $arr = array('name'=>$this->ts($field_hash[$v])); // TRSL
                 $cols[$k] = $v;
             }
             if (isset($v['label'])) $arr['name'] = $v['label'];
