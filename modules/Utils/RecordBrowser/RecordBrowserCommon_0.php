@@ -634,6 +634,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('UPDATE recordbrowser_table_properties SET description_callback=%s WHERE tab=%s', array($callback, $tab));
     }
+    public static function get_caption($tab) {
+		static $cache = null;
+        if ($cache===null) $cache = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties');
+		if (is_string($tab) && isset($cache[$tab])) return $cache[$tab];
+		return '---';
+    }
     public static function get_sql_type($type) {
         switch ($type) {
             case 'checkbox': return '%d';
@@ -1890,6 +1896,146 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return DB::GetOne('SELECT pattern FROM recordbrowser_clipboard_pattern WHERE tab=%s AND enabled=1', array($tab));
     }
+	
+	public static function get_field_tooltip($label) {
+		$args = func_get_args();
+		array_shift($args);
+		return Utils_TooltipCommon::ajax_create($label, array('Utils_RecordBrowserCommon', 'ajax_get_field_tooltip'), $args);
+	}
+	
+	public static function ajax_get_field_tooltip() {
+		$args = func_get_args();
+		$type = array_shift($args);
+		switch ($type) {
+			case 'calculated':	return 'This field is not editable';
+			case 'integer':		
+			case 'float':		return 'Enter a numeric value in the text field';
+			case 'checkbox':	return 'Click to switch between checked/unchecked state';
+			case 'currency':	return 'Enter the amount in text field and select currency';
+			case 'text':		$ret = 'Enter the text in the text field';
+								if (isset($args[0])) $ret .= '<br />Maximum allowed length is <b>'.$args[0].'</b> characters';
+								return $ret;
+			case 'long text':	return 'Enter the text in the text area<br />Maximum allowed length is <b>400</b> characters';
+			case 'date':		return 'Enter the date in your selected format<br />Click on the text field to bring up a popup Calendar that allows you to pick the date<br />Click again on the text field to close popup Calendar';
+			case 'timestamp':	return 'Enter the date in your selected format and the time using select elements.<br />Click on the text field to bring up a popup Calendar that allows you to pick the date<br />Click again on the text field to close popup Calendar<br />You can change 12/24-hour format in Control Panel, Regional Settings';
+			case 'time':		return 'Enter the time using select elements<br />You can change 12/24-hour format in Control Panel, Regional Settings';
+			case 'commondata':	$ret = 'Select value';
+								if (isset($args[0])) $ret .= ' from <b>'.str_replace('_', '/', $args[0]).'</b> table';
+								return $ret;
+			case 'select':		$ret = 'Select one';
+								if (isset($args[0])) {
+									if (is_array($args[0])) {
+										$cap = array();
+										foreach ($args[0] as $t) $cap[] = '<b>'.self::get_caption($t).'</b>';
+										$cap = implode(' or ',$cap);
+									} $cap = '<b>'.self::get_caption($args[0]).'</b>';
+									$ret .= ' of '.$cap;
+								}
+								if (isset($args[1])) {
+									$val = implode('<br>&nbsp;&nbsp;&nbsp;',self::crits_to_words($args[0], $args[1]));
+									if ($val) $ret .= ' for which <br />&nbsp;&nbsp;&nbsp;'.$val;
+								}
+								return $ret;
+			case 'multiselect':	$ret = 'Select multiple';
+								if (isset($args[0])) {
+									if (is_array($args[0])) {
+										$cap = array();
+										foreach ($args[0] as $t) $cap[] = '<b>'.self::get_caption($t).'</b>';
+										$cap = implode(' or ',$cap);
+									} $cap = '<b>'.self::get_caption($args[0]).'</b>';
+									$ret .= ' '.$cap;
+								}
+								if (isset($args[1])) {
+									$val = implode('<br>&nbsp;&nbsp;&nbsp;',self::crits_to_words($args[0], $args[1]));
+									if ($val) $ret .= ' for which <br />&nbsp;&nbsp;&nbsp;'.$val;
+								}
+								return $ret;
+		}
+		return 'No additional information';
+	}
+	
+	public static function crits_to_words($tab, $crits) {
+		$ret = array();
+		$or_started = false;
+        foreach($crits as $k=>$v){
+            self::init($tab, false);
+            $negative = $noquotes = $or_start = $or = false;
+            $operator = '=';
+            while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
+                if ($k[0]=='!') $negative = true;
+                if ($k[0]=='"') $noquotes = true;
+                if ($k[0]=='(') $or_start = true;
+                if ($k[0]=='|') $or = true;
+                if ($k[0]=='<') $operator = '<';
+                if ($k[0]=='>') $operator = '>';
+                if ($k[0]=='~') $operator = 'LIKE';
+                if ($k[1]=='=' && $operator!='LIKE') {
+                    $operator .= '=';
+                    $k = substr($k, 2);
+                } else $k = substr($k, 1);
+                if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word. Crits:'.print_r($crits,true), E_USER_ERROR);
+            }
+            $or |= $or_start;
+            if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[$k]) && !isset(self::$table_rows[self::$hash[$k]])) continue; //failsafe
+
+			$next = '';
+			if (!empty($ret)) {
+				if ($or_start) $ret[] = 'and';
+				elseif ($or) $next .= 'or ';
+				else $next .= 'and ';
+			}
+
+            if ($k[0]==':') {
+                switch ($k) {
+                    case ':Fav' :   		$next .= 'is'.((!$v || ($negative && $v))?' not':'').' on <b>favorites</b>';
+											$ret[] = $next;
+											continue;
+                    case ':Recent'  :   	$next .= 'was'.((!$v || ($negative && $v))?'n\'t':'').' <b>recently</b> viewed';
+											$ret[] = $next;
+											continue;
+                    case ':Created_on'  :	$next .= '<b>created on</b> ';
+											break;
+                    case ':Created_by'  :	$next .= '<b>created by</b> ';
+											break;
+                    case ':Edited_on'   :	$next .= '<b>edited on</b> ';
+											break;
+				}
+			} else {
+				if ($k=='id') $next .= '<b>ID</b> ';
+				else $next .= '<b>'.self::$table_rows[self::$hash[$k]]['name'].'</b> ';
+			}
+			$next .= 'is ';
+			if ($negative) $next .= '<b>not</b> ';
+			if ($v=='') $next .= 'empty';
+			else {
+				switch ($operator) {
+					case '<':	$next .= 'smaller than '; break;
+					case '<=':	$next .= 'smaller or equal to '; break;
+					case '>':	$next .= 'greater than '; break;
+					case '>=':	$next .= 'greater or equal to '; break;
+					case 'LIKE':$next .= 'contains '; break;
+					default:	$next .= 'equal to ';
+				}
+				
+				switch ($k) {
+					case 'id':			if (!is_array($v)) $v = array($v); break;
+					case ':Created_on': $v = Base_RegionalSettingCommon::time2reg($v); break;
+                    case ':Created_by': $v = Base_UserCommon::get_user_login($v); break;
+                    case ':Edited_on':  $v = Base_RegionalSettingCommon::time2reg($v); break;
+					default: 			if (!is_array($v)) $v = array($v);
+										foreach ($v as $kk=>$vv)
+											$v[$kk] = self::get_val($tab, $k, array($k=>$vv));
+				}
+				foreach ($v as $kk=>$vv)
+					$v[$kk] = '<b>'.$vv.'</b>';
+				$next .= implode(' or ', $v);
+			}
+
+			$ret[] = $next;
+		}
+//		$ret[] = print_r($crits,true);
+		return $ret;
+	}
 
     ///////////////////////////////////////////
     // mobile devices

@@ -340,6 +340,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $cont = array();
         if ($mode=='add' || $mode=='edit') {
             $fcallback = array('CRM_ContactsCommon','autoselect_company_contact_format');
+			$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], array('company', 'contact'));
             if ($desc['type']=='multiselect') {
                 $form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','auto_company_contact_suggestbox'), array($fcallback), $fcallback);
             } else {
@@ -606,6 +607,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                 }
                 uasort($cont, array('CRM_ContactsCommon', 'compare_names'));
             }
+			$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], 'contact', $crits);
             if ($desc['type']=='select') {
                 if (is_numeric($limit)) {
                     unset($cont['']);
@@ -686,6 +688,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                 }
                 if ($desc['type']!=='multiselect') $comp = array($key => '---') + $comp;
             }
+			$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], 'company', $crits);
             if ($count>Utils_RecordBrowserCommon::$options_limit) {
                 $callback = array('CRM_ContactsCommon','display_company');
                 if ($desc['type']!=='multiselect')

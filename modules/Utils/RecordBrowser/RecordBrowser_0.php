@@ -1325,7 +1325,7 @@ class Utils_RecordBrowser extends Module {
     }
 
     public function max_description($string){
-        return strlen(Utils_BBCodeCommon::strip($string))<400;
+        return strlen(Utils_BBCodeCommon::strip($string))<=400;
     }
 
     public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
@@ -1346,6 +1346,7 @@ class Utils_RecordBrowser extends Module {
             }
             $label = '<span id="_'.$args['id'].'__label">'.$this->ts($args['name']).'</span>'; // TRSL
             if (isset($this->QFfield_callback_table[$field])) {
+				//$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
                 $ff = $this->QFfield_callback_table[$field];
                 call_user_func_array($ff, array(&$form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table));
             } else {
@@ -1357,7 +1358,8 @@ class Utils_RecordBrowser extends Module {
                     }
                 }
                 switch ($args['type']) {
-                    case 'calculated':  $form->addElement('static', $args['id'], $label, array('id'=>$args['id']));
+                    case 'calculated':  $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
+										$form->addElement('static', $args['id'], $label, array('id'=>$args['id']));
 //                                      if ($mode=='edit')
                                         if (!is_array($this->record))
                                             $values = $this->custom_defaults;
@@ -1370,35 +1372,42 @@ class Utils_RecordBrowser extends Module {
                                         $form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calculated_id($this->tab, $args['id'], $id).'">'.$val.'</div>'));
                                         break;
                     case 'integer':
-                    case 'float':       $form->addElement('text', $args['id'], $label, array('id'=>$args['id']));
+                    case 'float':       $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
+										$form->addElement('text', $args['id'], $label, array('id'=>$args['id']));
                                         if ($args['type']=='integer')
                                             $form->addRule($args['id'], $this->t('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
                                         else
                                             $form->addRule($args['id'], $this->t('Only numbers are allowed.'), 'numeric');
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
-                    case 'checkbox':    $form->addElement('checkbox', $args['id'], $label, '', array('id'=>$args['id']));
+                    case 'checkbox':    $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
+										$form->addElement('checkbox', $args['id'], $label, '', array('id'=>$args['id']));
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
-                    case 'currency':    $form->addElement('currency', $args['id'], $label, array('id'=>$args['id']));
+                    case 'currency':    $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
+										$form->addElement('currency', $args['id'], $label, array('id'=>$args['id']));
 //                                      if ($mode!=='add') $form->setDefaults(array($args['id']=>Utils_CurrencyFieldCommon::format_default($record[$args['id']])));
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
-                    case 'text':        $form->addElement('text', $args['id'], $label, array('id'=>$args['id'], 'maxlength'=>$args['param']));
+                    case 'text':        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $args['param']);
+										$form->addElement('text', $args['id'], $label, array('id'=>$args['id'], 'maxlength'=>$args['param']));
 //                                      else $form->addElement('static', $args['id'], $label, array('id'=>$args['id']));
                                         $form->addRule($args['id'], $this->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
-                    case 'long text':   $form->addElement($this->add_in_table?'text':'textarea', $args['id'], $label, array('id'=>$args['id'], 'onkeypress'=>'var key=event.which || event.keyCode;return this.value.length < 400 || ((key<32 || key>126) && key!=10 && key!=13) ;'));
+                    case 'long text':   $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
+										$form->addElement($this->add_in_table?'text':'textarea', $args['id'], $label, array('id'=>$args['id'], 'onkeypress'=>'var key=event.which || event.keyCode;return this.value.length < 400 || ((key<32 || key>126) && key!=10 && key!=13) ;'));
                                         $form->registerRule('max_description', 'callback', 'max_description', $this);
                                         $form->addRule($args['id'], $this->t('Maximum length for this field is 400 chars.'), 'max_description');
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
-                    case 'date':        $form->addElement('datepicker', $args['id'], $label, array('id'=>$args['id'], 'label'=>$this->add_in_table?'':null));
+                    case 'date':		$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
+										$form->addElement('datepicker', $args['id'], $label, array('id'=>$args['id'], 'label'=>$this->add_in_table?'':null));
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
                     case 'timestamp':   $f_param = array('id'=>$args['id']);
 										if ($args['param']) $f_param['optionIncrement'] = array('i'=>$args['param']);
+										$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
 										$form->addElement('timestamp', $args['id'], $label, $f_param);
                                         static $rule_defined = false;
                                         if (!$rule_defined) $form->registerRule('timestamp_required', 'callback', 'timestamp_required', $this);
@@ -1408,11 +1417,13 @@ class Utils_RecordBrowser extends Module {
                                         break;
                     case 'time':        $time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
                                         $lang_code = Base_LangCommon::get_lang_code();
+										$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
                                         $form->addElement('timestamp', $args['id'], $label, array('date'=>false, 'format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code, 'id'=>$args['id']));
                                         if ($mode!=='add' && $record[$args['id']]) $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
                     case 'commondata':  $param = explode('::',$args['param']['array_id']);
                                         foreach ($param as $k=>$v) if ($k!=0) $param[$k] = preg_replace('/[^a-z0-9]/','_',strtolower($v));
+										$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $args['param']['array_id']);
                                         $form->addElement($args['type'], $args['id'], $label, $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
@@ -1435,6 +1446,7 @@ class Utils_RecordBrowser extends Module {
                                             if (!is_array($data)) $data = array();
                                             $comp = $comp+$data;
                                             $rec_count = 0;
+											$label = Utils_RecordBrowserCommon::get_field_tooltip($label, 'commondata', $col);
                                         } else {
                                             if (isset($crits_callback)) {
                                                 $crit_callback = explode('::',$crits_callback);
@@ -1503,6 +1515,7 @@ class Utils_RecordBrowser extends Module {
                                                 unset($ext_rec[$v['id']]);
                                             }
                                             if (empty($multi_adv_params['order'])) natcasesort($comp);
+											$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $tab, $crits);
                                         }
                                         if ($args['type']==='select') $comp = array(''=>'---')+$comp;
                                         if ($rec_count>Utils_RecordBrowserCommon::$options_limit && $args['type']=='multiselect' && $multi_adv_params['format_callback']) {
