@@ -682,6 +682,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($cache[$tab] as $callback) {
 			if ($mode=='cloned') $current = array('original'=>$clone, 'clone'=>$current);
 			$return = call_user_func($callback, $current, $mode);
+			if ($return===false) return false;
 			if ($return) {
 				if ($mode!='display') $current = $return;
 				else $result = array_merge_recursive($result, $return);
@@ -702,6 +703,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			} elseif (!isset($for_processing[$args['id']])) $for_processing[$args['id']] = '';
 
 		$values = self::record_processing($tab, $for_processing, 'add');
+		if ($values===false) return;
 
         self::init($tab);
         $fields = 'created_on,created_by,active';
