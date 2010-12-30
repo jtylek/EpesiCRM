@@ -61,7 +61,7 @@ class Utils_RecordBrowser extends Module {
     private $current_field = null;
     private $additional_actions_method = null;
     private $filter_crits = array();
-    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false);
+    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false);
     private $force_order;
     private $clipboard_pattern = false;
     private $show_add_in_table = false;
@@ -131,6 +131,7 @@ class Utils_RecordBrowser extends Module {
     public function disable_filters(){$this->disabled['filters'] = true;}
     public function disable_quickjump(){$this->disabled['quickjump'] = true;}
     public function disable_headline() {$this->disabled['headline'] = true;}
+    public function disable_pdf() {$this->disabled['pdf'] = true;}
     public function disable_actions($arg=true) {$this->disabled['actions'] = $arg;}
 
     public function set_button($arg, $arg2=''){
@@ -700,7 +701,7 @@ class Utils_RecordBrowser extends Module {
 
         $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin);
 
-		if (!$pdf && $this->amount_of_records<200) {
+		if (!$this->disabled['pdf'] && !$pdf && $this->amount_of_records<200) {
 			$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
 			Base_ActionBarCommon::add('print', $this->t('Print'), 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
 			$_SESSION['client']['utils_recordbrowser'][$key] = array(

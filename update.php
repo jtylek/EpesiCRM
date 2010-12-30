@@ -2320,7 +2320,9 @@ function update_from_1_1_3_to_1_1_4() {
     }
 
     if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
+		ob_start();
         @DB::CreateIndex('utils_watchdog_event__internal_id__idx', 'utils_watchdog_event', 'internal_id');
+		ob_get_clean();
     }
 
     if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
