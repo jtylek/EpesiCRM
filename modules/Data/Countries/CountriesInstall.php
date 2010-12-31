@@ -641,6 +641,14 @@ class Data_CountriesInstall extends ModuleInstall {
             'VS'=>'Vaslui');
 		Utils_CommonDataCommon::new_array('Countries/RO',$ro_wojew);
 
+		$us_pa_county = array('philadelphia'=>'Philadelphia',
+			'montgomery'=>'Montgomery',
+			'delaware'=>'Delaware',
+			'lancaster'=>'Lancaster',
+			'chester'=>'Chester',
+			'bucks'=>'Bucks');
+		Utils_CommonDataCommon::new_array('Countries/US/PA',$us_pa_county);
+
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
