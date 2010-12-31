@@ -92,6 +92,8 @@ class CRM_FollowupCommon extends ModuleCommon {
 					'}');
 			eval_js($prefix.'_set_id = function (id) {'.
 						'document.forms["'.$prefix.'_follow_up_form"].id.value = id;'.
+						'$("'.$prefix.'_closecancel").value=3;'.
+						'$("'.$prefix.'_note").value="";'.
 					'}');
 			$theme->assign('form_open','<form id="'.$prefix.'_follow_up_form" name="'.$prefix.'_follow_up_form" method="POST">'.
 							'<input type="hidden" name="submited" value="0" />'.
@@ -100,7 +102,7 @@ class CRM_FollowupCommon extends ModuleCommon {
 							'<input type="hidden" name="action" value="" />');
 			$theme->assign('form_closecancel',	array(
 							'label'=>Base_LangCommon::ts('CRM_Followup','Status'),
-							'html'=>'<select name="closecancel" value="0">'.
+							'html'=>'<select name="closecancel" id="'.$prefix.'_closecancel" value="0">'.
 								'<option value="0">'.Base_LangCommon::ts('CRM/PhoneCall', 'Open').'</option>'.
 								'<option value="1">'.Base_LangCommon::ts('CRM/PhoneCall', 'In Progress').'</option>'.
 								'<option value="2">'.Base_LangCommon::ts('CRM/PhoneCall', 'On Hold').'</option>'.
@@ -109,7 +111,7 @@ class CRM_FollowupCommon extends ModuleCommon {
 							'</select>'));
 			$theme->assign('form_note',			array(
 							'label'=>Base_LangCommon::ts('CRM_Followup','Note'),
-							'html'=>'<textarea name="note"></textarea>'));
+							'html'=>'<textarea name="note" id="'.$prefix.'_note"></textarea>'));
 			$theme->assign('form_close','</form>');
 			ob_start();
 			Base_ThemeCommon::display_smarty($theme,'CRM_Followup','leightbox');
