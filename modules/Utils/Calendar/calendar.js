@@ -38,6 +38,7 @@ add_event:function(dest_id,ev_id,draggable,duration,max_cut) {
 	ev.setAttribute('last_cell',dest_id);
 	if(Utils_Calendar.page_type=='month') {
 		dest.appendChild(ev);
+		ev.show();
 	} else {
 		ev.setAttribute('duration',duration);
 		ev.setAttribute('max_cut',max_cut);
@@ -178,6 +179,7 @@ add_event_tag:function(dest,ev) {
 		ev.clonePosition(dest, {setHeight: false, setWidth: false, offsetLeft: (offset_step*offset)});
 	}
 	ev.setAttribute('last_cell',dest.id);
+	ev.show();
 
 
 	Utils_Calendar.reload_event_tag(reload);

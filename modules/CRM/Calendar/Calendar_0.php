@@ -34,7 +34,7 @@ class CRM_Calendar extends Module {
 		$x->push_main('CRM_Calendar','new_event',array($option, $timestamp, $timeless));
 	}
 
-	public function body() {
+	public function body($args = array()) {
 		$ev_mod = $this->init_module('CRM/Calendar/Event');
 		$ev_mod->help('Calendar Help','main');
 
@@ -68,7 +68,7 @@ class CRM_Calendar extends Module {
 		}
 		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
 
-		$args = array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
+		$args_defaults = array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'start_day'=>Base_User_SettingsCommon::get('CRM_Calendar','start_day'),
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
@@ -80,6 +80,8 @@ class CRM_Calendar extends Module {
 				'Assigned to',
 				'Related with'
 			));
+		foreach ($args_defaults as $k=>$v)
+			if (!isset($args[$k])) $args[$k] = $args_defaults[$k];
 
 		if (isset($_REQUEST['jump_to_date']) && is_numeric($_REQUEST['jump_to_date']) && isset($_REQUEST['switch_to_tab']) && is_string($_REQUEST['switch_to_tab'])) {
 			$args['default_date'] = $_REQUEST['jump_to_date'];
@@ -128,12 +130,11 @@ class CRM_Calendar extends Module {
 			$handler = DB::GetRow('SELECT id, group_name, handler_callback FROM crm_calendar_custom_events_handlers');
 			if (!$handler) return false;
 			$new_events = call_user_func($handler['handler_callback'], 'new_event_types');
-			if ($new_events===null) return false;
+			if ($new_events===null || empty($new_events)) return false;
 			foreach ($new_events as $k=>$w) {
 				if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
 				if (isset($_REQUEST['create_new_event'])) {
 					unset($_REQUEST['create_new_event']);
-//					Epesi::alert(print_r(date('Y-m-d H:i:s',$_REQUEST['timestamp']),true));
 					$this->jump_to_new_event($_REQUEST['option'],$_REQUEST['timestamp'],$_REQUEST['timeless']);
 					return;
 				}

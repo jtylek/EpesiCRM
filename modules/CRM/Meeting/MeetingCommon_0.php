@@ -474,11 +474,11 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$start_disp = strtotime(Base_RegionalSettingsCommon::time2reg($start,true,true,true,false));
 			$end = strtotime('+'.$values['duration'].' seconds', $start);
 			$ret['day_details'] = array('start'=>array(
-				'day'=>date('j', $start_disp), 
-				'month'=>date('F', $start_disp), 
-				'year'=>date('Y', $start_disp), 
-				'weekday'=>date('l', $start_disp))
-			);
+				'day'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'day', 'default_date'=>strtotime($values['date']))), array()).'>'.date('j', $start_disp).'</a>', 
+				'month'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'month', 'default_date'=>strtotime($values['date']))), array()).'>'.date('F', $start_disp).'</a>', 
+				'year'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'year', 'default_date'=>strtotime($values['date']))), array()).'>'.date('Y', $start_disp).'</a>', 
+				'weekday'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'week', 'default_date'=>strtotime($values['date']))), array()).'>'.date('l', $start_disp).'</a>'
+			));
 
 			$ret['event_info'] = array('start_time'=>Base_RegionalSettingsCommon::time2reg($start,2,false), 'end_time'=>Base_RegionalSettingsCommon::time2reg($end,2,false), 'duration'=>Base_RegionalSettingsCommon::seconds_to_words($values['duration']), 'start_date'=>'-', 'end_date'=>'-');
 			$ret['form_data']['timeless'] = array('label'=>'Timeless', 'html'=>'value');

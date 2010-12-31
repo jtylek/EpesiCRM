@@ -189,6 +189,7 @@
 #CRM_Calendar_Event_Personal #time_e {
 	display: block;
 	float: right;
+	padding-top: 2px;
 }
 
 #CRM_Calendar_Event_Personal .time_s input,
@@ -319,6 +320,14 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 #CRM_Calendar_Event_Personal .header-new .time,
 #CRM_Calendar_Event_Personal .header-new .duration {
 	font-weight: bold;
+}
+
+#CRM_Calendar_Event_Personal .header-new a {
+	color: inherit;
+}
+
+#CRM_Calendar_Event_Personal .header-new a:hover {
+	color: #993333;
 }
 
 #CRM_Calendar_Event_Personal .header-new .weekday,
