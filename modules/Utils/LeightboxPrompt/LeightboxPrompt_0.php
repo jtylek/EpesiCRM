@@ -69,8 +69,8 @@ class Utils_LeightboxPrompt extends Module {
                         $form->addElement('hidden', $this->group.'_'.$w, 'none', array('id'=>$this->group.'_'.$w));
                 }
                 if ($v['form']!==null) {
-                    $v['form']->addElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>count($this->options)==1?'f'.$this->group.'_followups_deactivate();':'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
-                    $v['form']->addElement('submit', 'submit', $this->t('OK'), array('onclick'=>'f'.$this->group.'_followups_deactivate();'));
+                    $v['form']->addElement('button', 'cancel', $this->t('Cancel'), array('id'=>$this->group.'_lp_cancel', 'onclick'=>count($this->options)==1?'f'.$this->group.'_followups_deactivate();':'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
+                    $v['form']->addElement('submit', 'submit', $this->t('OK'), array('id'=>$this->group.'_lp_submit', 'onclick'=>'f'.$this->group.'_followups_deactivate();'));
                     ob_start();
                     $th = $this->init_module('Base/Theme');
                     $v['form']->assign_theme('form', $th);
