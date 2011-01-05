@@ -152,6 +152,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 			}
 			$this->_elements['__date']->setValue(isset($value['__date'])?$value['__date']:'');
 		} else {
+			if (!$value) return;
 			if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);
 			$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;
 			//tz trans begin
