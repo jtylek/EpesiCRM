@@ -43,6 +43,7 @@ class Utils_RecordBrowser extends Module {
     private $switch_to_addon = null;
     private $additional_caption = '';
     private $enable_export = false;
+	private $search_calculated_callback = false;
     public $custom_defaults = array();
     public static $admin_filter = '';
     public static $tab_param = '';
@@ -119,6 +120,10 @@ class Utils_RecordBrowser extends Module {
     public function set_table_column_order($arg) {
         $this->col_order = $arg;
     }
+	
+	public function set_search_calculated_callback($callback) {
+		$this->search_calculated_callback = $callback;
+	}
 
     public function get_val($field, $record, $links_not_recommended = false, $args = null) {
         return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $links_not_recommended, $args);
@@ -400,7 +405,7 @@ class Utils_RecordBrowser extends Module {
         while ($row = $ret->FetchRow()) {
             $m = $this->init_module($row['module']);
             $next_dont_hide = false;
-            $this->display_module($m, array(& $form, & $external_filters, & $vals, & $this->crits, & $next_dont_hide), $row['func']);
+            $this->display_module($m, array(& $form, & $external_filters, & $vals, & $this->crits, & $next_dont_hide, $this), $row['func']);
             $dont_hide |= $next_dont_hide;
         }
         $this->set_module_variable('dont_hide', $dont_hide);
@@ -624,6 +629,9 @@ class Utils_RecordBrowser extends Module {
         }
         $search = $gb->get_search_query(true);
         $search_res = array();
+		if ($this->search_calculated_callback) {
+			$search_res = call_user_func($this->search_calculated_callback, & $search);
+		}
         if ($gb->is_adv_search_on()) {
             foreach ($search as $k=>$v) {
                 $k = str_replace(array('__Ref__','__RefCD__'),array(':Ref:',':RefCD:'),$k);
