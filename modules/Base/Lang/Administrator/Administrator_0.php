@@ -53,6 +53,9 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		Base_ActionBarCommon::add('refresh','Refresh languages',$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+
+		$form2 = $this->init_module('Libs/QuickForm',null,'translaction_filter');
+		$form2->addElement('select','lang_filter',$this->t('Filter'),array('Show all', 'Show with translation', 'Show without translation'), array('onchange'=>$form2->get_submit_form_js()));
 		
 		if($form->validate()) {
 			if($form->process(array($this,'submit_admin'))) {
@@ -60,13 +63,45 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			}
 		} else $form->display();
 		
+		if($form2->validate()) {
+			$vals = $form2->exportValues();
+			$this->set_module_variable('filter', $vals['lang_filter']);
+		}
+		$filter = $this->get_module_variable('filter', 0);
+		$form2->setDefaults(array('lang_filter'=>$filter));
+
+		$trans_filter = $form2->toHtml();
+		
+		eval_js('lang_translate = function (module, original, span_id) {'.
+					'var ret = prompt("Translate: "+original);'.
+					'if (ret === null) return;'.
+					'$(span_id).innerHTML = ret;'.
+					'$(span_id).style.color = "red";'.
+					'new Ajax.Request(\'modules/Base/Lang/Administrator/update_translation.php\', {'.
+						'method: \'post\','.
+						'parameters:{'.
+						'	module: module,'.
+						'	original: original,'.
+						'	new: ret,'.
+						'	cid: Epesi.client_id'.
+						'},'.
+						'onSuccess:function(t) {'.
+							'$(span_id).style.color = "black";'.
+						'}'.
+					'});'.
+				'}');
 		
 		$data = array();
 		foreach($translations as $m=>$v) 
-			foreach($v as $o=>$t)
-				$data[] = array($m,'<a '.$this->create_unique_href(array('module'=>$m, 'original'=>$o)).'>'.$o.'</a>',$t);
+			foreach($v as $o=>$t) {
+				if ($filter==1 && !$t) continue;
+				if ($filter==2 && $t) continue;
+				$span_id = $m.'__'.md5($o);
+				$data[] = array($m,'<a href="javascript:void(0);" onclick="lang_translate(\''.$m.'\',\''.$o.'\',\''.$span_id.'\');">'.$o.'</a>','<span id="'.$span_id.'">'.$t.'</span>');
+			}
 		
 		$gb = &$this->init_module('Utils/GenericBrowser',null,'lang_translations');
+		$gb->set_custom_label($trans_filter);
 		$gb->set_table_columns(array(
 				array('name'=>$this->t('Module'),'width'=>30,'search'=>'modules'),
 				array('name'=>$this->t('Original'), 'order_preg'=>'/^<[^>]+>([^<]*)<[^>]+>$/i','search'=>'original'),
@@ -115,35 +150,5 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		}
 		return Variable::set('default_lang',$data['lang_code']) && Variable::set('allow_lang_change',(isset($data['allow_lang_change']) && $data['allow_lang_change'])?1:0);	
 	}
-	
-	private function translate($module, $original) {
-		global $translations;
-		
-		$form = & $this->init_module('Libs/QuickForm',null,'tr');
-		
-		$form->addElement('header', null, htmlspecialchars($original));
-		$form->addElement('text','trans_text','Translation');
-		$form->setDefaults(array('trans_text'=>htmlspecialchars($translations[$module][$original])));
-		
-		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), $this->create_back_href());
-		$form->addGroup(array($ok_b, $cancel_b));
-		
-		if($form->validate()) {
-			$form->process(array(&$this, 'submit_translate'));
-		} else
-			$form->display();
-		
-	}
-	
-	public function submit_translate($data) {
-		global $translations;
-		$module = $this->get_module_variable('module');
-		$original = $this->get_module_variable('original');
-		$translations[$module][$original] = $data['trans_text'];
-		$this->set_back_location();
-		Base_LangCommon::save();
-	}
-	
 }
 ?>
