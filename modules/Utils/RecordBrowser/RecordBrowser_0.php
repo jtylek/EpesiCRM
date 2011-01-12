@@ -630,7 +630,7 @@ class Utils_RecordBrowser extends Module {
         $search = $gb->get_search_query(true);
         $search_res = array();
 		if ($this->search_calculated_callback) {
-			$search_res = call_user_func($this->search_calculated_callback, & $search);
+			$search_res = call_user_func($this->search_calculated_callback, $search);
 		}
         if ($gb->is_adv_search_on()) {
             foreach ($search as $k=>$v) {
