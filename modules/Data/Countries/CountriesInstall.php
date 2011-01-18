@@ -640,6 +640,23 @@ class Data_CountriesInstall extends ModuleInstall {
             'VN'=>'Vrancea',
             'VS'=>'Vaslui');
 		Utils_CommonDataCommon::new_array('Countries/RO',$ro_wojew);
+		
+		$ca_provinces = array(
+         'ON'=>'Ontario',
+         'AB'=>'Alberta',
+         'BC'=>'British Columbia',
+         'MB'=>'Manitoba',
+         'QC'=>'Quebec',
+         'LB'=>'Labrador',
+         'NS'=>'Nova Scotia',
+         'PE'=>'Prince Edwards Island',
+         'YK'=>'Yukon',
+         'NT'=>'Northwest Territories',
+         'NU'=>'Nunavut',
+         'NB'=>'New Brunswick',
+         'SK'=>'Saskatchewan';
+        );
+        Utils_CommonDataCommon::new_array('Countries/CA',$ca_provinces);
 
 		$us_pa_county = array('philadelphia'=>'Philadelphia',
 			'montgomery'=>'Montgomery',
