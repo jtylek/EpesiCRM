@@ -392,9 +392,6 @@ class Utils_Attachment extends Module {
 			Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'edit_note_queue'),$id));
 			Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->ht('Delete this entry?'),array($this,'delete_back'),$id));
 		}
-		Base_ActionBarCommon::add('history','Edition history',$this->create_callback_href(array($this,'edition_history_queue'),$id));
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Copy',$this->create_callback_href(array($this,'copy'),$id));
 
 		$th = $this->init_module('Base/Theme');
 		$th->assign('header',$this->add_header);
@@ -420,11 +417,16 @@ class Utils_Attachment extends Module {
 			} else {
 				$th->assign('file','');
 			}
-			$th->assign('note',Utils_BBCodeCommon::parse($row['text']).$inline_img);
+			$text = Utils_BBCodeCommon::parse($row['text']).$inline_img;
 		} else {
 			$th->assign('file','');
-			$th->assign('note',Utils_BBCodeCommon::parse($row['text']));
+			$text = Utils_BBCodeCommon::parse($row['text']);
 		}
+		$th->assign('note',$text);
+
+		Base_ActionBarCommon::add('history','Edition history',$this->create_callback_href(array($this,'edition_history_queue'),$id));
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Copy',$this->create_callback_href(array($this,'copy'),array($id,$text)));
 
 		$th->display('view');
 
