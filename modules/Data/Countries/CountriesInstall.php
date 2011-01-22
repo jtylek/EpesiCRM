@@ -654,7 +654,7 @@ class Data_CountriesInstall extends ModuleInstall {
          'NT'=>'Northwest Territories',
          'NU'=>'Nunavut',
          'NB'=>'New Brunswick',
-         'SK'=>'Saskatchewan';
+         'SK'=>'Saskatchewan'
         );
         Utils_CommonDataCommon::new_array('Countries/CA',$ca_provinces);
 
