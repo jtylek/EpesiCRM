@@ -251,7 +251,7 @@ class Utils_Attachment extends Module {
 			$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'));
 			// ************* Strip without loosing html entities
 			if($max_len<mb_strlen(strip_tags($text),'UTF8') || $inline_img) {
-				$text = array('value'=>mb_substr($text,0,$max_len,'UTF8').'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.$this->t('[ + ]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.mb_substr($text,$max_len,-1,'UTF8').$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->t('[ - ]').'</a></span>','hint'=>$this->t('Click on view icon to see full note'));
+				$text = array('value'=>mb_substr($text,0,$max_len,'UTF8').'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.$this->t('[ + ]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.mb_substr($text,$max_len,mb_strlen($text,'UTF8'),'UTF8').$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->t('[ - ]').'</a></span>','hint'=>$this->t('Click on view icon to see full note'));
 				$expandable[] = $row['id'];
 				if($row['sticky']) $text['value'] = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text['value'];
 			} else {
