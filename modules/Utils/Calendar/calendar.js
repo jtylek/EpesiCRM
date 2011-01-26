@@ -261,6 +261,14 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 			}
 		});
 		Event.observe(cell_id,'dblclick',function(e){eval(f)});
+		Event.observe(cell_id,'touchend',function(e){
+		    var now = new Date().getTime();
+		    var lastTouch = $(this).readAttribute('lastTouch') || 0;
+		    var delta = now-lastTouch;
+		    $(this).writeAttribute('lastTouch',now);
+		    if(delta<500)
+    		    eval(f);
+		});
 	});
 
 	//activate trash
