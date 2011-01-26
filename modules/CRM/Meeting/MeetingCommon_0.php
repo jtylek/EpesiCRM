@@ -32,6 +32,8 @@ class CRM_MeetingCommon extends ModuleCommon {
 							break;
 			case 'edit_event': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_edit_event'), $args);
 							break;
+			case 'recordset': $ret = 'crm_meeting';
+							break;
 		}
 		return $ret;
 	}

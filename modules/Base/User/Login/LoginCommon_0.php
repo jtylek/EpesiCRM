@@ -21,8 +21,9 @@ class Base_User_LoginCommon extends ModuleCommon {
 	 * @param string
 	 * @return bool
 	 */
-	public static function check_login($username, $pass) {
-		$ret = DB::Execute('SELECT null FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND p.password=%s AND u.active=1', array($username, md5($pass)));
+	public static function check_login($username, $pass, $md5=true) {
+		if ($md5) $pass = md5($pass);
+		$ret = DB::Execute('SELECT null FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND p.password=%s AND u.active=1', array($username, $pass));
 		if(!$ret->EOF) //user exists, login ok
 			return true;
 		else
