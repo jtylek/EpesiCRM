@@ -40,6 +40,13 @@ $account = DB::GetRow('SELECT * FROM rc_accounts_data_1 WHERE id=%d AND active=1
 if($E_SESSION['user']!==$account['f_epesi_user'])
     die('Access Denied');
 
+function rcube_epesi_autoload($f) {
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array(preg_replace("/Common$/","",$f)))) {
+        eval("class ".$f." extends ModuleCommon {}");
+    }
+}
+spl_autoload_register('rcube_epesi_autoload',false,true);
+
 $rcmail_config = array();
 
 // ----------------------------------
