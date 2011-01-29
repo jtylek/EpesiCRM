@@ -33,6 +33,32 @@ class epesi_init extends rcube_plugin
     chdir($d);
     global $E_SESSION;
     $_SESSION['user'] = $E_SESSION['user'];
+    if(Base_RegionalSettingsCommon::time_12h()) {
+        $time = 'h:i a';
+    } else {
+        $time = 'H:i';
+    }
+    $date=Base_RegionalSettingsCommon::date_format();
+    switch($date) {
+        case '%Y-%m-%d':
+            $date = 'Y-m-d';
+            break;
+        case '%m/%d/%Y':
+            $date = 'm/d/Y';
+            break;
+        case '%d %B %Y':
+            $date = 'd F Y';
+            break;
+        case '%d %b %Y':
+            $date = 'd M Y';
+            break;
+        case '%b %d, %Y':
+            $date = 'M d, Y';
+            break;
+    }
+    rcmail::get_instance()->config->set('date_short','D '.$time);
+    rcmail::get_instance()->config->set('date_long',$date.' '.$time);
+    rcmail::get_instance()->config->set('date_today',$time);        
   }
 
 }
