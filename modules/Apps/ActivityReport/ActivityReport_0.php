@@ -135,23 +135,29 @@ class Apps_ActivityReport extends Module {
 										$action = $this->t('Edited');
 										$action = '<a '.Utils_TooltipCommon::tooltip_leightbox_mode().' '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details'), array($row['tab'], $row['r_id'], $row['id']), 500).'>'.$action.'</a>';
 									}
-									$link = Utils_RecordBrowserCommon::create_default_linked_label($row['tab'], $row['r_id'], false, false);
+									$r_id = $row['r_id'];
 									break;
 					case 'create': 	$action = $this->t('Created');
-									$link = Utils_RecordBrowserCommon::create_default_linked_label($row['tab'], $row['r_id'], false, false);
+									$r_id = $row['r_id'];
 									break;
 					case 'file': 	$action = $this->t('Attachment: ');
 									$action .= $row['id']==0?'New':'Updated';
 									$id = explode('/',$row['r_id']);
 									$row['tab'] = $id[0];
-									$link = Utils_RecordBrowserCommon::create_default_linked_label($row['tab'], $id[1], false, false);
+									$r_id = $id[1];
 									break;
 					case 'note': 	$action = $this->t('Note: ');
 									$action .= $row['id']==0?'New':'Updated';
 									$id = explode('/',$row['r_id']);
 									$row['tab'] = $id[0];
-									$link = Utils_RecordBrowserCommon::create_default_linked_label($row['tab'], $id[1], false, false);
+									$r_id = $id[1];
 									break;
+				}
+				if (!Utils_RecordBrowserCommon::get_access($row['tab'], 'view', Utils_RecordBrowserCommon::get_record($row['tab'], $r_id))) {
+					$link = $this->t('Access restricted');
+					$action = strip_tags($action);
+				} else {
+					$link = Utils_RecordBrowserCommon::create_default_linked_label($row['tab'], $r_id, false, false);
 				}
 				$gb->add_row(
 					Base_RegionalSettingsCommon::time2reg($row['edited_on']),
