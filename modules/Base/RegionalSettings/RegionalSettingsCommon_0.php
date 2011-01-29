@@ -172,12 +172,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		 	return iconv('','UTF-8',$ret);
 		return $ret;
 	}
-
-	public static function set_locale($tz = true) {
-		self::$curr_locale = setlocale(LC_TIME,0);
+	
+	public static function set_locale() {
+		self::$curr_locale = setlocale(LC_ALL,0);
 		if (ModuleManager::is_installed('Base_Lang')!==-1) $lang_code = strtolower(Base_LangCommon::get_lang_code());
 		else $lang_code = 'en';
-		setlocale(LC_TIME,$lang_code.'_'.strtoupper($lang_code).'.utf8', //unixes
+		setlocale(LC_ALL,$lang_code.'_'.strtoupper($lang_code).'.utf8', //unixes
 				$lang_code.'_'.strtoupper($lang_code).'.UTF-8',
 				$lang_code.'.utf8',
 				$lang_code.'.UTF-8',
@@ -199,7 +199,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	}
 
 	public static function restore_locale() {
-		setlocale(LC_TIME,self::$curr_locale);
+		setlocale(LC_ALL,self::$curr_locale);
 	}
 
 	public static function set() {
@@ -275,7 +275,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 * @return string
 	 */
 	public static function time_format() {
-		return Base_User_SettingsCommon::get('Base_RegionalSettings','date').' '.Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+		return Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
 
 	/**

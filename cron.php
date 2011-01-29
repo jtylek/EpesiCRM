@@ -15,9 +15,14 @@ require_once('include.php');
 set_time_limit(0);
 ini_set('memory_limit', '512M');
 ModuleManager::load_modules();
+Acl::set_user(1);
 $ret = ModuleManager::call_common_methods('cron');
 foreach($ret as $name=>$obj) {
-	print($name.":<br>".$obj."<hr>");
+    if(!$obj) continue;
+    if(isset($argv))
+    	print($name.":\n".strip_tags($obj)."\n\n");
+    else
+    	print($name.":<br>".$obj."<hr>");
 }
 
 ?>
