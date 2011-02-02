@@ -57,26 +57,26 @@ class epesi_archive extends rcube_plugin
 
   function look_contact($addr) {
     global $E_SESSION;
+    $ret = array();
+    
     $fields = DB::GetCol('SELECT field FROM contact_field WHERE field LIKE \'%mail%\' ORDER BY field');
     foreach($fields as & $f) {
         $f = 'c.f_'.preg_replace('/[^a-z0-9]/','_',strtolower($f));
     }
-    $contact = DB::GetOne('SELECT c.id FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type="contact") WHERE c.active=1 AND ('.implode('='.DB::qstr($addr).' OR ',$fields).'='.DB::qstr($addr).' OR m.f_email=%s) AND (c.f_permission<2 OR c.created_by=%d)',array($addr,$E_SESSION['user']));
-    if($contact!==false) {
-        return 'P:'.$contact;
+    $contact = DB::GetCol('SELECT c.id FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type="contact") WHERE c.active=1 AND ('.implode('='.DB::qstr($addr).' OR ',$fields).'='.DB::qstr($addr).' OR m.f_email=%s) AND (c.f_permission<2 OR c.created_by=%d)',array($addr,$E_SESSION['user']));
+    foreach($contact as $contact_id) {
+        $ret[] = 'P:'.$contact_id;
     }
     $fields = DB::GetCol('SELECT field FROM company_field WHERE field LIKE \'%mail%\' ORDER BY field');
     foreach($fields as & $f) {
         $f = 'c.f_'.preg_replace('/[^a-z0-9]/','_',strtolower($f));
     }
-    $company = DB::GetOne('SELECT c.id FROM company_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type="company") WHERE c.active=1 AND ('.implode('='.DB::qstr($addr).' OR ',$fields).'='.DB::qstr($addr).' OR m.f_email=%s) AND (c.f_permission<2 OR c.created_by=%d)',array($addr,$E_SESSION['user']));
-    if($company!==false) {
-        return 'C:'.$company;
+    $company = DB::GetCol('SELECT c.id FROM company_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type="company") WHERE c.active=1 AND ('.implode('='.DB::qstr($addr).' OR ',$fields).'='.DB::qstr($addr).' OR m.f_email=%s) AND (c.f_permission<2 OR c.created_by=%d)',array($addr,$E_SESSION['user']));
+    foreach($company as $company_id) {
+        $ret[] = 'C:'.$company_id;
     }
-
-    $rcmail = rcmail::get_instance();
-    $rcmail->output->command('display_message', $this->gettext('contactnotfound').' '.$addr, 'error');
-    $rcmail->output->send();
+    
+    return $ret;
   }
 
   function request_action()
@@ -109,21 +109,30 @@ class epesi_archive extends rcube_plugin
 
     $map = array();
     foreach($msgs as $k=>$msg) {
-        //error_log(print_r($msg->mime_parts,true));
         if($sent_mbox) {
             $sends = $rcmail->imap->decode_address_list($msg->headers->to);
             $map[$k] = array();
             foreach($sends as $send) {
                 $addr = $send['mailto'];
                 $ret = $this->look_contact($addr);
-                if(!$ret) return;
-                $map[$k][] = $ret;
+                $map[$k] = array_merge($map[$k],$ret);
             }
         } else {
             $addr = $msg->sender['mailto'];
             $ret = $this->look_contact($addr);
-            if(!$ret) return;
-            $map[$k] = array($ret);
+            $map[$k] = $ret;
+        }
+    }
+    
+    if(!isset($_SESSION['force_archive']))
+        $_SESSION['force_archive'] = array();
+    foreach($map as $k=>$ret) {
+        if(!$ret && !isset($_SESSION['force_archive'][$k])) {
+            $_SESSION['force_archive'][$k] = 1;
+            $rcmail = rcmail::get_instance();
+            $rcmail->output->command('display_message', $this->gettext('contactnotfound').' '.$addr, 'error');
+            $rcmail->output->send();
+            return;
         }
     }
 
@@ -131,7 +140,7 @@ class epesi_archive extends rcube_plugin
     $epesi_mails = array();
     if(!file_exists($attachments_dir)) mkdir($attachments_dir);
     foreach($msgs as $k=>$msg) {
-        $contacts = $map[$k];//'__'.implode('__',$map[$k]).'__';
+        $contacts = $map[$k];
         $mime_map = array();
         foreach($msg->mime_parts as $mid=>$m)
             $mime_map[$m->mime_id] = md5($k.microtime(true).$mid);
