@@ -314,7 +314,9 @@ var Draggable = Class.create({
         
       var pointer = [Event.pointerX(event), Event.pointerY(event)];
       var pos     = Position.cumulativeOffset(this.element);
-      this.offset = [0,1].map( function(i) { return (pointer[i] - pos[i]) });
+	  var r   	  = Position.realOffset(this.element);
+
+      this.offset = [0,1].map( function(i) { return (pointer[i] - pos[i] + r[i]) });
       
       Draggables.activate(this);
       Event.stop(event);
@@ -457,14 +459,13 @@ var Draggable = Class.create({
   
   draw: function(point) {
     var pos = Position.cumulativeOffset(this.element);
-    if(this.options.ghosting) {
-      var r   = Position.realOffset(this.element);
-      pos[0] += r[0] - Position.deltaX; pos[1] += r[1] - Position.deltaY;
-    }
-    
+    var r   = Position.realOffset(this.element);
+    pos[0] -= r[0]; pos[1] -= r[1];
+
+    var pp = [pos[0],pos[1]];
     var d = this.currentDelta();
     pos[0] -= d[0]; pos[1] -= d[1];
-    
+
     if(this.options.scroll && (this.options.scroll != window && this._isScrollChild)) {
       pos[0] -= this.options.scroll.scrollLeft-this.originalScrollLeft;
       pos[1] -= this.options.scroll.scrollTop-this.originalScrollTop;
