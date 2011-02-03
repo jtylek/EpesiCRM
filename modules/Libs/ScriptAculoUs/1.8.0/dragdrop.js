@@ -108,11 +108,11 @@ var Droppables = {
     }
   },
 
-  fire: function(event, element) {
+  fire: function(event, element, pointer) {
     if(!this.last_active) return;
     Position.prepare();
-
-    if (this.isAffected([Event.pointerX(event), Event.pointerY(event)], element, this.last_active))
+    if(typeof pointer == "undefined") pointer = [Event.pointerX(event), Event.pointerY(event)];
+    if (this.isAffected(pointer, element, this.last_active))
       if (this.last_active.onDrop) {
         this.last_active.onDrop(element, this.last_active.element, event); 
         return true; 
@@ -135,8 +135,13 @@ var Draggables = {
       this.eventMouseMove = this.updateDrag.bindAsEventListener(this);
       this.eventKeypress  = this.keyPress.bindAsEventListener(this);
       
-      Event.observe(document, "mouseup", this.eventMouseUp);
-      Event.observe(document, "mousemove", this.eventMouseMove);
+      if(navigator.userAgent.match(/(iPad|iPod|iPhone)/i) != null) {
+        Event.observe(document, "touchend", this.eventMouseUp);
+        Event.observe(document, "touchmove", this.eventMouseMove);
+      } else {
+        Event.observe(document, "mouseup", this.eventMouseUp);
+        Event.observe(document, "mousemove", this.eventMouseMove);
+      }
       Event.observe(document, "keypress", this.eventKeypress);
     }
     this.drags.push(draggable);
@@ -145,8 +150,13 @@ var Draggables = {
   unregister: function(draggable) {
     this.drags = this.drags.reject(function(d) { return d==draggable });
     if(this.drags.length == 0) {
-      Event.stopObserving(document, "mouseup", this.eventMouseUp);
-      Event.stopObserving(document, "mousemove", this.eventMouseMove);
+      if(navigator.userAgent.match(/(iPad|iPod|iPhone)/i) != null) {
+        Event.stopObserving(document, "touchend", this.eventMouseUp);
+        Event.stopObserving(document, "touchmove", this.eventMouseMove);
+      } else {
+        Event.stopObserving(document, "mouseup", this.eventMouseUp);
+        Event.stopObserving(document, "mousemove", this.eventMouseMove);
+      }
       Event.stopObserving(document, "keypress", this.eventKeypress);
     }
   },
@@ -170,7 +180,14 @@ var Draggables = {
   
   updateDrag: function(event) {
     if(!this.activeDraggable) return;
-    var pointer = [Event.pointerX(event), Event.pointerY(event)];
+    var pointer = null;
+    if(event.type=="touchmove") {
+      if(event.touches.length != 1) return;
+      var t = event.touches[0];
+      pointer = [t.pageX,t.pageY];
+    } else {
+      pointer = [Event.pointerX(event), Event.pointerY(event)];
+    }
     // Mozilla-based browsers fire successive mousemove events with
     // the same coordinates, prevent needless redrawing (moz bug?)
     if(this._lastPointer && (this._lastPointer.inspect() == pointer.inspect())) return;
@@ -185,8 +202,8 @@ var Draggables = {
       this._timeout = null; 
     }
     if(!this.activeDraggable) return;
+    this.activeDraggable.endDrag(event,this._lastPointer);
     this._lastPointer = null;
-    this.activeDraggable.endDrag(event);
     this.activeDraggable = null;
   },
   
@@ -283,13 +300,21 @@ var Draggable = Class.create({
     this.dragging = false;   
 
     this.eventMouseDown = this.initDrag.bindAsEventListener(this);
-    Event.observe(this.handle, "mousedown", this.eventMouseDown);
+    if(navigator.userAgent.match(/(iPad|iPod|iPhone)/i) != null) {
+      Event.observe(this.handle, "touchstart", this.eventMouseDown);
+    } else {
+      Event.observe(this.handle, "mousedown", this.eventMouseDown);
+    }
     
     Draggables.register(this);
   },
   
   destroy: function() {
-    Event.stopObserving(this.handle, "mousedown", this.eventMouseDown);
+    if(navigator.userAgent.match(/(iPad|iPod|iPhone)/i) != null) {
+      Event.stopObserving(this.handle, "touchstart", this.eventMouseDown);
+    } else {
+      Event.stopObserving(this.handle, "mousedown", this.eventMouseDown);
+    }
     Draggables.unregister(this);
   },
   
@@ -302,7 +327,7 @@ var Draggable = Class.create({
   initDrag: function(event) {
     if(!Object.isUndefined(Draggable._dragging[this.element]) &&
       Draggable._dragging[this.element]) return;
-    if(Event.isLeftClick(event)) {    
+    if((Event.isLeftClick(event) && event.type!="touchstart") || event.type=="touchstart") {    
       // abort on form elements, fixes a Firefox issue
       var src = Event.element(event);
       if((tag_name = src.tagName.toUpperCase()) && (
@@ -311,8 +336,15 @@ var Draggable = Class.create({
         tag_name=='OPTION' ||
         tag_name=='BUTTON' ||
         tag_name=='TEXTAREA')) return;
-        
-      var pointer = [Event.pointerX(event), Event.pointerY(event)];
+
+      var pointer = null;
+      if(event.type=="touchstart") {
+        if(event.touches.length != 1) return;
+        var t = event.touches[0];
+        pointer = [t.pageX,t.pageY];
+      } else {
+        pointer = [Event.pointerX(event), Event.pointerY(event)];
+      }
       var pos     = Position.cumulativeOffset(this.element);
 	  var r   	  = Position.realOffset(this.element);
 
@@ -400,9 +432,14 @@ var Draggable = Class.create({
   finishDrag: function(event, success) {
     this.dragging = false;
     
+    var pointer = null;
+    if(event.type=="touchend") {
+      pointer = Draggables._lastPointer;
+    } else {
+      pointer = [Event.pointerX(event), Event.pointerY(event)];
+    }
     if(this.options.quiet){
       Position.prepare();
-      var pointer = [Event.pointerX(event), Event.pointerY(event)];
       Droppables.show(pointer, this.element);
     }
 
@@ -416,7 +453,7 @@ var Draggable = Class.create({
 
     var dropped = false; 
     if(success) { 
-      dropped = Droppables.fire(event, this.element); 
+      dropped = Droppables.fire(event, this.element,pointer); 
       if (!dropped) dropped = false; 
     }
     if(dropped && this.options.onDropped) this.options.onDropped(this.element);
