@@ -79,7 +79,8 @@ class Base_ThemeCommon extends ModuleCommon {
 			$smarty->compile_id = 'default';
 
 			if(!$smarty->template_exists($tpl)) {
-				trigger_error('Template not found: '.$tpl,E_USER_ERROR);
+			$tpl = '../../../'.$tpl;
+				//trigger_error('Template not found: '.$tpl,E_USER_ERROR);
 			}
 
 			$smarty->assign('theme_dir',$smarty->template_dir);
@@ -298,6 +299,58 @@ class Base_ThemeCommon extends ModuleCommon {
 				self::install_default_theme_common_files($dir,$f.'/'.$name);
 			else
 				@copy($path,DATA_DIR.'/Base_Theme/templates/default/'.$f.'/'.$name);
+		}
+	}
+
+	/**
+	 * For internal use only.
+	 */
+	public function parse_links($key, $val, $flat=true) {
+		if (!is_array($val)) {
+			$val = trim($val);
+			$i=0;
+			$count=0;
+			$open="";
+			$text="";
+			$close="";
+			$len = strlen($val);
+			if ($len>2 && $val{0}==='<' && $val{1}==='a')
+				while ($i<$len-1) {
+					if ($val{$i}==='<') {
+						if ($val{$i+1}==='a') {
+							if ($count===0) {
+								while ($i<$len-1 && $val{$i}!=='>') {
+									$open .= $val{$i};
+									$i++;
+									if ($val{$i}==='"') {
+										do {
+											$open .= $val{$i};
+											$i++;
+										} while ($i<$len && $val{$i}!=='"');
+									}
+								}
+								$open .= '>';
+							} else $text .= $val{$i};
+							$count++;
+						} else if (substr($val,$i+1,3)==='/a>') {
+							$count--;
+							if ($count===0) {
+								$close = '</a>';
+								return array(	'open' => $open,
+												'text' => $text,
+												'close' => '</a>');
+							} else $text .= $val{$i};
+						} else $text .= $val{$i};
+					} else $text .= $val{$i};
+					$i++;
+				}
+			return array();
+		} else {
+			$result = array();
+			foreach ($val as $k=>$v) {
+				$result[$k] = Base_ThemeCommon::parse_links($k, $v, false);
+			}
+			return $result;
 		}
 	}
 }

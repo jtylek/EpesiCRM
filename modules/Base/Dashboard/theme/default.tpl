@@ -1,5 +1,5 @@
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 310px; min-height: 30px;">
+	<div class="layer" style="padding: 9px; width: 95%; min-height: 30px;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -23,7 +23,29 @@
                 	{/if}
                 	{* 18px/icon + 2px base *}
                     <td class="header title {$handle_class} {$color}">{$caption}</td>
-                    <td class="header controls {$color}" nowrap="1">{if isset($href)}{$__link.href.open}<img src="{$theme_dir}/Base/Dashboard/resize.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/resize-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/resize.png';" width="14" height="14" alt="R" border="0">&nbsp;{$__link.href.close}{/if}{if isset($toggle)}{$__link.toggle.open}<img src="{$theme_dir}/Base/Dashboard/roll-up.png" onClick="var x='{$theme_dir}/Base/Dashboard/roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png';" width="14" height="14" alt="=" border="0">&nbsp;{$__link.toggle.close}{/if}{if isset($configure)}{$__link.configure.open}<img src="{$theme_dir}/Base/Dashboard/configure.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/configure-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/configure.png';" width="14" height="14" alt="c" border="0">&nbsp;{$__link.configure.close}{/if}{$__link.remove.open}<img src="{$theme_dir}/Base/Dashboard/close.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/close-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/close.png';" width="14" height="14" alt="x" border="0">&nbsp;{$__link.remove.close}</td>
+                    <td class="header controls {$color}" nowrap="1">
+						{if isset($href)}
+							{$__link.href.open}
+							<img src="{$theme_dir}/Base/Dashboard/resize.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/resize-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/resize.png';" width="14" height="14" alt="R" border="0">
+							{$__link.href.close}
+						{/if}
+						{if isset($toggle)}
+							{$__link.toggle.open}
+							<img src="{$theme_dir}/Base/Dashboard/roll-up.png" onMouseOver="var x='{$theme_dir}/Base/Dashboard/roll-';if(this.src.indexOf('roll-down')>=0)this.src=x+'down-hover.png';else this.src=x+'up-hover.png';" onMouseOut="var x='{$theme_dir}/Base/Dashboard/roll-';if(this.src.indexOf('roll-down')>=0)this.src=x+'down.png';else this.src=x+'up.png';" onClick="var x='{$theme_dir}/Base/Dashboard/roll-';if(this.src.indexOf('roll-down')>=0)this.src=x+'up-hover.png';else this.src=x+'down-hover.png';" width="14" height="14" alt="=" border="0">
+							{$__link.toggle.close}
+						{/if}
+						{if isset($configure)}
+							{$__link.configure.open}
+							<img src="{$theme_dir}/Base/Dashboard/configure.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/configure-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/configure.png';" width="14" height="14" alt="c" border="0">
+							{$__link.configure.close}
+						{/if}
+						{if isset($remove)}
+							{$__link.remove.open}
+							<img src="{$theme_dir}/Base/Dashboard/close.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/close-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/close.png';" width="14" height="14" alt="x" border="0">
+							{$__link.remove.close}
+						{/if}
+						&nbsp;
+					</td>
                 </tr>
                 <tr>
                     <td colspan="4" class="content_td" onclick="">{$content}</td>

@@ -52,10 +52,12 @@ class Utils_TabbedBrowser extends Module {
 		foreach($this->tabs as $caption=>$val) {
 			if($this->page==$i) $selected = ' class="tabbed_browser_selected"';
 				else $selected = ' class="tabbed_browser_unselected"';
-			if($val['js'])
-				$captions[$caption] = '<a id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this,\''.$path.'\')"'.$selected.'>'.$caption.'</a>';
+			if (isset($val['href']) && $val['href'])
+				$captions[$caption] = '<span id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" '.$val['href'].'>'.$caption.'</span>';
+			elseif ($val['js'])
+				$captions[$caption] = '<span id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this,\''.$path.'\')"'.$selected.'>'.$caption.'</span>';
 			else
-				$captions[$caption] = '<a id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.'</a>';
+				$captions[$caption] = '<span id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.'</span>';
 			if($this->page==$i || $val['js']) {
 				$body .= '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($this->page==$i?'':'style="display:none"').'>';
 				if (isset($val['func'])){
@@ -73,7 +75,6 @@ class Utils_TabbedBrowser extends Module {
 		}
 		
 		$this->tag = md5($body.$this->page); 
-		
 		$theme->assign('selected', $this->page);
 		$theme->assign('captions', $captions);
 		$theme->assign('body', $body);
@@ -138,6 +139,10 @@ class Utils_TabbedBrowser extends Module {
 	public function start_tab($caption) {
 		ob_start();
 		$this->caption = $caption;
+	}
+
+	public function set_href($href) {
+		$this->tabs[$this->caption]['href'] = $href;
 	}
 
 	public function end_tab() {

@@ -29,17 +29,16 @@ ul#Utils_TabbedBrowser li {
 	line-height: 29px;
 }
 
-ul#Utils_TabbedBrowser a.tabbed_browser_selected {
+ul#Utils_TabbedBrowser span.tabbed_browser_selected {
 	color: #FFFFFF;
-	padding-top: 3px;
+	padding-top: 5px;
 	background-color: #709c70;
 	background-image: url("images/header-green-dark.gif");
 	background-repeat: repeat-x;
 	font-weight: bold;
 }
 
-ul#Utils_TabbedBrowser li a {
-	padding: 3px 4px;
+ul#Utils_TabbedBrowser li span {
 	border: 0px;
 	/*background-color: #55AA55;*/
 	background-color: #339933;
@@ -54,12 +53,22 @@ ul#Utils_TabbedBrowser li a {
 	padding-right: 30px;
 	*/
 	padding-left: 10px;
-	padding-right:10px;
+	padding-right: 10px;
+	padding-top: 5px;
+	padding-bottom: 3px;
 }
 
-ul#Utils_TabbedBrowser a:hover {
-	color: #000000;
-	padding-top: 3px;
+ul#Utils_TabbedBrowser li a {
+	padding: 0px 2px;
+}
+
+ul#Utils_TabbedBrowser li img {
+	padding: 0px;
+}
+
+ul#Utils_TabbedBrowser span:hover {
+	cursor: pointer;
+	padding-top: 5px;
 	background-color: #709c70;
 	background-image: url('images/header-green-dark.gif');
 	background-repeat: repeat-x;
