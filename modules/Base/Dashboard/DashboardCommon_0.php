@@ -83,7 +83,7 @@ class Base_DashboardCommon extends ModuleCommon {
 					'</div>');
 			$th->assign('handle_class','handle');
 
-			$th->assign('caption',Base_LangCommon::ts('Base_Dashboard',$cap));
+			$th->assign('caption',Base_LangCommon::ts('Base_Dashboard',$cap?$cap:$name));
 			$th->assign('color',$colors[0]);
 
 			$remove_button = Base_DashboardCommon::get_remove_applet_button($id, false);
@@ -95,7 +95,7 @@ class Base_DashboardCommon extends ModuleCommon {
 
 			$th->assign('config_mode',true);
 
-			$html .= '<div class="applet" searchkey="'.Base_LangCommon::ts('Base_Dashboard',$cap).';'.$app_info[$name].'" order="'.$j.'" id="ab_item_'.'new_'.$id.'">';
+			$html .= '<div class="applet" searchkey="'.Base_LangCommon::ts('Base_Dashboard',$cap?$cap:$name).';'.$app_info[$name].'" order="'.$j.'" id="ab_item_'.'new_'.$id.'">';
 			ob_start();
 			Base_ThemeCommon::display_smarty($th,'Base_Dashboard','default');
 			$html .= ob_get_clean();
