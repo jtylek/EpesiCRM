@@ -77,7 +77,7 @@
 								{assign var=focus value=$f.element}
 							{/if}
 							<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
-							<td class="data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+							<td class="data" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 							{assign var=x value=$x+1}
 							{* If more than half records displayed start new table - second column table *}
 							{if $x >= $rows and $i==0}
@@ -120,7 +120,7 @@
 				{foreach key=k item=f from=$longfields name=fields}
 					<tr>
 						<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
-						<td class="data long_data {if $f.type == 'currency'}currency{/if}">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+						<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 					</tr>
 				{/foreach}
 			</table>

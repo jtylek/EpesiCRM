@@ -121,7 +121,7 @@
 					{/if}
 							<tr>
 								<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
-								<td class="data {$f.style}">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+								<td class="data {$f.style}" id="_{$f.element}__data">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 							</tr>
 					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 						{if $x>$mss_no_empty}
@@ -146,7 +146,7 @@
 				{foreach key=k item=f from=$longfields name=fields}
 					<tr>
 						<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
-						<td class="data long_data {if $f.type == 'currency'}currency{/if}">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+						<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 					</tr>
 				{/foreach}
 			</table>

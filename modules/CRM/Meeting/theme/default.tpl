@@ -103,7 +103,7 @@
                         <tbody>
                             <tr>
                                 <td class="group_bottom label title" align="left" style="width: 20%;">{$form_data.title.label}</td>
-                                <td class="group_bottom data title" align="left" style="width: 80%"><span class="error">{$form_data.title.error}</span>
+                                <td class="group_bottom data title" align="left" style="width: 80%" id="_title__data"><span class="error">{$form_data.title.error}</span>
                                     {$form_data.title.html}
                                 </td>
                             </tr>
@@ -116,7 +116,7 @@
                                 <td class="label" style="border-bottom: none; border-right: none;">{$form_data.description.label}</td>
                             </tr>
                             <tr>
-                                <td class="data" style="vertical-align: top; border-right: none; padding: 3px 4px 3px 0px;">
+                                <td class="data" style="vertical-align: top; border-right: none; padding: 3px 4px 3px 0px;" id="_description__data">
                                     {if $action == 'view'}<div style="padding-left: 2px; white-space: normal; overflow: auto;">{/if}
                                         {$form_data.description.html}
                                     {if $action == 'view'}</div>{/if}
@@ -136,15 +136,15 @@
                                     <td class="label" style="border-right: 1px solid #b3b3b3; width: 40%; height: 21px;">{$form_data.date.label}</td>
                                 </tr>
                                 <tr>
-                                    <td class="data" style="border-right: 1px solid #b3b3b3; height: 20px; "><span class="error">{$form_data.date.error}</span><div class="time_s" style="float: left; width: 200px; text-align: center;">{$form_data.date.html}</div><span id="time_s">{$form_data.time.html}</span></td>
+                                    <td class="data" style="border-right: 1px solid #b3b3b3; height: 20px; "><span class="error">{$form_data.date.error}</span><div class="time_s" style="float: left; width: 200px; text-align: center;" id="_date__data">{$form_data.date.html}</div><span id="time_s" id="_time__data">{$form_data.time.html}</span></td>
                                 </tr>
                                 <tr>
                                     <td class="label" style="width: 60%; padding-right: 0px; height: 21px; vertical-align: top;"><div style="float: left; margin-top: 3px;">{$form_data.duration.label} / {$form_data.end_time.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$form_data.toggle.html}</div></td>
                                 </tr>
                                 <tr>
                                     <td class="data" style="height: 20px;">
-                                        <div id="crm_calendar_duration_block"><span class="error">{$form_data.duration.error}</span><div style="float: left; width: 200px;"><span id="duration">{$form_data.duration.html}</span></div></div>
-                                        <div id="crm_calendar_event_end_block"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
+                                        <div id="crm_calendar_duration_block"><span class="error">{$form_data.duration.error}</span><div style="float: left; width: 200px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div></div>
+                                        <div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
                                     </td>
                                 </tr>
                         </tbody>
@@ -155,11 +155,11 @@
                         <tbody>
                             <tr>
                                 <td class="label" align="left" style="width: 20%;">{$form_data.timeless.label}</td>
-                                <td class="data" align="left" style="width: 80%;" colspan="2">{$form_data.timeless.html}</td>
+                                <td class="data" align="left" style="width: 80%;" colspan="2" id="_timeless__data">{$form_data.timeless.html}</td>
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.permission.label}</td>
-                                <td class="data permission" align="left" colspan="2">
+                                <td class="data permission" align="left" colspan="2" id="_permission__data">
 					<span class="error">{$form_data.permission.error}</span>
                                     {if $action=='view'}
                                         <div class="icon permission_{$raw_data.permission}"></div>
@@ -169,7 +169,7 @@
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.priority.label}</td>
-                                <td class="data priority" align="left" colspan="2">
+                                <td class="data priority" align="left" colspan="2" id="_priority__data">
 					<span class="error">{$form_data.priority.error}</span>
                                     {if $action=='view'}
                                         <div class="icon priority_{$raw_data.priority}"></div>
@@ -179,7 +179,7 @@
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.status.label}</td>
-                                <td class="data status" align="left" colspan="2">
+                                <td class="data status" align="left" colspan="2" id="_status__data">
 					<span class="error">{$form_data.status.error}</span>
                                     {if $action=='view'}
                                         <div class="icon status_{$raw_data.status}"></div>
@@ -189,14 +189,14 @@
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.recurrence_type.label}</td>
-                                <td class="data" align="left" colspan="2">
+                                <td class="data" align="left" colspan="2" id="_recurrence_type__data">
                                     {$form_data.recurrence_type.html}
                                 </td>
                             </tr>
 			    {if isset($form_data.recurrence_start_date)}
 				    <tr id="recurrence_start_date_row">
 					<td class="label" align="left">{$form_data.recurrence_start_date.label}</td>
-					<td class="data" align="left" colspan="2">
+					<td class="data" align="left" colspan="2" id="_recurrence_start_date__data">
 						<span id="recurrence_start_date_span">
 							{$form_data.recurrence_start_date.html}
 						</span>
@@ -206,12 +206,12 @@
                             <tr id="recurrence_end_date_row">
                                 <td class="label" align="left">{$form_data.recurrence_end.label}</td>
                                 {if isset($form_data.recurrence_end_checkbox)}
-									<td class="data" align="left" style="width:10px;">
+									<td class="data" align="left" style="width:10px;" id="_recurrence_end_checkbox__data">
 										{$form_data.recurrence_end_checkbox.html}
 									</td>
-								<td class="data" align="left">
+								<td class="data" align="left" id="_recurrence_end__data">
 								{else}
-                                <td class="data" align="left" colspan="2">
+                                <td class="data" align="left" id="_recurrence_end__data" colspan="2">
 								{/if}
 									<span id="recurrence_end_date_span">
 										{$form_data.recurrence_end.html}
@@ -220,7 +220,7 @@
                             </tr>
                             <tr id="recurrence_hash_row">
                                 <td class="label" align="left">{$form_data.recurrence_hash.label}</td>
-                                <td class="data" align="left" colspan="2">
+                                <td class="data" align="left" colspan="2" id="_recurrence_hash__data">
 					<span class="error">{$form_data.recurrence_hash.error}</span>
 									<table>
 										<tr>
@@ -272,7 +272,7 @@
 							$k!='permission')}
 					<tr>
 						<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
-						<td class="data" align="left" colspan="2">
+						<td class="data" align="left" colspan="2"  id="_{$f.element}__data">
 							<span class="error">{$f.error}</span>
 							{$f.html}
 						</td>
@@ -292,8 +292,8 @@
                                 <td class="label" style="width: 50%; padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.customers.label}</div></td>
                             </tr>
                             <tr>
-                                <td class="data" style="vertical-align: top; border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
-                                <td class="data" style="vertical-align: top;"><span class="error">{$form_data.customers.error}</span>{$form_data.customers.html}</td>
+                                <td class="data" id="_employees__data" style="vertical-align: top; border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
+                                <td class="data" id="_customers__data" style="vertical-align: top;"><span class="error">{$form_data.customers.error}</span>{$form_data.customers.html}</td>
                             </tr>
                         </tbody>
                     </table>

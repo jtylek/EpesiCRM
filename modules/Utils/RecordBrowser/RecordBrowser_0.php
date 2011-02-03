@@ -968,36 +968,6 @@ class Utils_RecordBrowser extends Module {
             eval_js('initc2f()');
             Base_ActionBarCommon::add('clone', 'Click 2 Fill', 'href="javascript:void(0)" onclick="c2f()"');
         }
-        if ($mode=='view' && false) {
-            if (self::$browsed_records!==null &&
-                isset(self::$browsed_records['tab']) &&
-                self::$browsed_records['tab']==$this->tab)
-                $this->set_module_variable('browsed_records',self::$browsed_records);
-            $browsed_records = $this->get_module_variable('browsed_records',null);
-            if ($browsed_records!=null) {
-                $this->set_module_variable('id',$id);
-                if (!is_array($browsed_records['crits'])) $browsed_records['crits'] = array();
-                if (!is_array($browsed_records['order'])) $browsed_records['order'] = array();
-                if (!is_array($browsed_records['records'])) $browsed_records['records'] = array();
-                $ids = Utils_RecordBrowserCommon::get_next_and_prev_record($this->tab, $browsed_records['crits'], $browsed_records['order'], $id, $this->get_module_variable('browsed_records_curr',isset($browsed_records['records'][$id])?$browsed_records['records'][$id]:null));
-                if (isset($ids['prev']))
-                    $theme->assign('prev_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['prev'])).'>Prev</a>');
-                if (isset($ids['next']))
-                    $theme->assign('next_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['next'])).'>Next</a>');
-                if (isset($ids['curr']))
-                    $this->set_module_variable('browsed_records_curr',$ids['curr']);
-                if (isset($_REQUEST['utils_recordbrowser_move_to_id']) &&
-                    ($_REQUEST['utils_recordbrowser_move_to_id']===$ids['next'] ||
-                    $_REQUEST['utils_recordbrowser_move_to_id']===$ids['prev'])) {
-                    self::$browsed_records = $browsed_records;
-                    $this->set_module_variable('browsed_records_curr',$_REQUEST['utils_recordbrowser_move_to_id']===$ids['next']?$ids['curr']+1:$ids['curr']-1);
-                    $this->set_module_variable('id',$_REQUEST['utils_recordbrowser_move_to_id']);
-                    unset($_REQUEST['utils_recordbrowser_move_to_id']);
-                    location(array());
-                    return;
-                }
-            }
-        }
         self::$browsed_records = null;
 
         Utils_RecordBrowserCommon::$cols_order = array();
@@ -1007,17 +977,21 @@ class Utils_RecordBrowser extends Module {
             self::$clone_result = 'canceled';
             return $this->back();
         }
-
-        if ($id!==null) Utils_WatchdogCommon::notified($this->tab,$id);
+        if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
 
         $this->init();
-        self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
+		if (is_numeric($id))
+			self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
+		else {
+			self::$last_record = $this->record = $id;
+			$id = $this->record['id'];
+		}
 
         if($mode=='add')
             foreach ($defaults as $k=>$v)
                 $this->custom_defaults[$k] = $v;
 
-        $access = $this->get_access($mode, isset($this->record)?$this->record:$this->custom_defaults);
+        $access = $this->get_access($mode=='history'?'view':$mode, isset($this->record)?$this->record:$this->custom_defaults);
         if ($mode=='edit' || $mode=='add')
             $this->view_fields_permission = $this->get_access('view', isset($this->record)?$this->record:$this->custom_defaults);
         else
@@ -1043,10 +1017,11 @@ class Utils_RecordBrowser extends Module {
 
         if ($mode!='add' && !$this->record[':active'] && !Base_AclCommon::i_am_admin()) return $this->back();
 
-        if ($mode=='view')
+        if ($mode=='view' || $mode=='history')
             $this->record = Utils_RecordBrowserCommon::format_long_text($this->tab,$this->record);
 
-        $tb = $this->init_module('Utils/TabbedBrowser');
+        $tb = $this->init_module('Utils/TabbedBrowser', null, 'recordbrowser_addons');
+		if ($mode=='history') $tb->set_inline_display();
         self::$tab_param = $tb->get_path();
 
         $form = $this->init_module('Libs/QuickForm',null, $mode);
@@ -1061,7 +1036,7 @@ class Utils_RecordBrowser extends Module {
 				foreach ($dp as $k=>$v)
 					$theme->assign($k, $v);
 		}
-		$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing');
+		$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $mode!='add'?$this->record:$this->custom_defaults, ($mode=='view' || $mode=='history')?'view':$mode.'ing');
 		if (is_array($dp))
 			$defaults = $this->custom_defaults = self::$last_record = $this->record = $dp;
 
@@ -1073,9 +1048,10 @@ class Utils_RecordBrowser extends Module {
             case 'add':     $this->action = 'New record'; break;
             case 'edit':    $this->action = 'Edit record'; break;
             case 'view':    $this->action = 'View record'; break;
+            case 'history':    $this->action = 'Record history view'; break;
         }
 
-        $this->prepare_view_entry_details($this->record, $mode, $id, $form);
+        $this->prepare_view_entry_details($this->record, $mode=='history'?'view':$mode, $id, $form);
 
         if ($mode==='edit' || $mode==='add')
             foreach($this->table_rows as $field => $args) {
@@ -1127,7 +1103,7 @@ class Utils_RecordBrowser extends Module {
                 }
                 if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back'])))
                     Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-            } else {
+            } elseif($mode!='history') {
                 Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
                 Base_ActionBarCommon::add('delete', 'Cancel', $this->create_back_href());
             }
@@ -1138,75 +1114,74 @@ class Utils_RecordBrowser extends Module {
             $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
             $row_data= array();
 
-            if ($this->favorites)
-                $theme -> assign('fav_tooltip', Utils_RecordBrowserCommon::get_fav_button($this->tab, $id));
-            if ($this->watchdog)
-                $theme -> assign('subscription_tooltip', Utils_WatchdogCommon::get_change_subscription_icon($this->tab, $id));
-            if ($this->full_history) {
-                $info = Utils_RecordBrowserCommon::get_record_info($this->tab, $id);
-                if ($info['edited_on']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('This record was never edited')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history_inactive.png').'" /></a>');
-                else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
-            }
-            if ($this->clipboard_pattern) {
-                $theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','clipboard.png').'" /></a>');
-                $text = $this->clipboard_pattern;
-                $record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
-                /* for every field name store its value */
-                $data = array();
-                foreach($this->table_rows as $val) {
-                    $fval = Utils_RecordBrowserCommon::get_val($this->tab, $val['id'], $record, true);
-                    if(strlen($fval)) $data[$val['id']] = $fval;
-                }
-                /* to some complicate preg match to find every occurence
-                 * of %{ .. {f_name} .. } pattern
-                 */
-                $elem = 0;
-                $match = array();
-                $original_text = $text;
-                $text = '%{'.$text.'}';
-                while(preg_match('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) { // match for pattern %{...{..}...}
-                    $text_replace = $match[1];
-                    $changed = false;
-                    while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) { // match for keys in braces {key}
-                        $replace_value = '';
-                        if(key_exists($second_match[1], $data)) {
-                            $replace_value = $data[$second_match[1]];
-                            $changed = true;
-                        }
-                        $text_replace = str_replace($second_match[0], $replace_value, $text_replace);
-                    }
-                    if(! $changed ) $text_replace = '';
-                    $data["int$elem"] = $text_replace;
-                    $text = str_replace($match[0], '{int'.$elem.'}', $text);
-                    $elem++;
-                }
-                $elem--;
-                if ($elem>=0) {
-                    $text = str_replace('{int'.$elem.'}', $data["int$elem"], $text);
-                } else {
-                    $text = $original_text;
-                }
-                load_js("modules/Utils/RecordBrowser/selecttext.js");
-                /* remove all php new lines, replace <br>|<br/> to new lines and quote all special chars */
-                $ftext = htmlspecialchars(preg_replace('#<[bB][rR]/?>#', "\n", str_replace("\n", '', $text)));
-                $flash_copy = '<object width="60" height="20">
-<param name="FlashVars" value="txtToCopy='.$ftext.'">
-<param name="movie" value="'.$this->get_module_dir().'copyButton.swf">
-<embed src="'.$this->get_module_dir().'copyButton.swf" flashvars="txtToCopy='.$ftext.'" width="60" height="20">
-</embed>
-</object>';
-                $text = '<h3>'.$this->t('Click Copy under the box or move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>'.$flash_copy;
+			if ($mode!='history') {
+				if ($this->favorites)
+					$theme -> assign('fav_tooltip', Utils_RecordBrowserCommon::get_fav_button($this->tab, $id));
+				if ($this->watchdog)
+					$theme -> assign('subscription_tooltip', Utils_WatchdogCommon::get_change_subscription_icon($this->tab, $id));
+				if ($this->full_history) {
+					$info = Utils_RecordBrowserCommon::get_record_info($this->tab, $id);
+					if ($info['edited_on']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('This record was never edited')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history_inactive.png').'" /></a>');
+					else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
+				}
+				if ($this->clipboard_pattern) {
+					$theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','clipboard.png').'" /></a>');
+					$text = $this->clipboard_pattern;
+					$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+					/* for every field name store its value */
+					$data = array();
+					foreach($this->table_rows as $val) {
+						$fval = Utils_RecordBrowserCommon::get_val($this->tab, $val['id'], $record, true);
+						if(strlen($fval)) $data[$val['id']] = $fval;
+					}
+					/* to some complicate preg match to find every occurence
+					 * of %{ .. {f_name} .. } pattern
+					 */
+					$elem = 0;
+					$match = array();
+					$original_text = $text;
+					$text = '%{'.$text.'}';
+					while(preg_match('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) { // match for pattern %{...{..}...}
+						$text_replace = $match[1];
+						$changed = false;
+						while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) { // match for keys in braces {key}
+							$replace_value = '';
+							if(key_exists($second_match[1], $data)) {
+								$replace_value = $data[$second_match[1]];
+								$changed = true;
+							}
+							$text_replace = str_replace($second_match[0], $replace_value, $text_replace);
+						}
+						if(! $changed ) $text_replace = '';
+						$data["int$elem"] = $text_replace;
+						$text = str_replace($match[0], '{int'.$elem.'}', $text);
+						$elem++;
+					}
+					$elem--;
+					if ($elem>=0) {
+						$text = str_replace('{int'.$elem.'}', $data["int$elem"], $text);
+					} else {
+						$text = $original_text;
+					}
+					load_js("modules/Utils/RecordBrowser/selecttext.js");
+					/* remove all php new lines, replace <br>|<br/> to new lines and quote all special chars */
+					$ftext = htmlspecialchars(preg_replace('#<[bB][rR]/?>#', "\n", str_replace("\n", '', $text)));
+					$flash_copy = '<object width="60" height="20">'.
+								'<param name="FlashVars" value="txtToCopy='.$ftext.'">'.
+								'<param name="movie" value="'.$this->get_module_dir().'copyButton.swf">'.
+								'<embed src="'.$this->get_module_dir().'copyButton.swf" flashvars="txtToCopy='.$ftext.'" width="60" height="20">'.
+								'</embed>'.
+								'</object>';
+					$text = '<h3>'.$this->t('Click Copy under the box or move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>'.$flash_copy;
 
-//                $text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
-                Libs_LeightboxCommon::display('clipboard',$text,'Copy');
-            }
+					Libs_LeightboxCommon::display('clipboard',$text,'Copy');
+				}
+			}
         }
-
-        if ($mode=='view') $form->freeze();
+        if ($mode=='view' || $mode=='history') $form->freeze();
         $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
         $form->accept($renderer);
         $data = $renderer->toArray();
-//      trigger_error(print_r($data,true));
 
         print($data['javascript'].'<form '.$data['attributes'].'>'.$data['hidden']."\n");
 
@@ -1238,7 +1213,7 @@ class Utils_RecordBrowser extends Module {
             $last_page = $pos;
             if ($row) $label = $row['field'];
         }
-        if ($mode!='add' && $mode!='edit') {
+        if ($mode!='add' && $mode!='edit' && $mode!='history') {
             $ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
             $addons_mod = array();
             while ($row = $ret->FetchRow()) {
@@ -1273,7 +1248,7 @@ class Utils_RecordBrowser extends Module {
             $tb->switch_tab($this->switch_to_addon);
             location(array());
         }
-        if ($mode=='add' || $mode=='edit') {
+        if ($mode=='add' || $mode=='edit' || $mode=='history') {
             print("</form>\n");
         }
         $tb->tag();
@@ -1309,7 +1284,7 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('fields', $fields);
         $theme->assign('cols', $cols);
         $theme->assign('longfields', $longfields);
-        $theme->assign('action', self::$mode);
+        $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $data);
         $theme->assign('required_note', $this->t('Indicates required fields.'));
 
@@ -1916,40 +1891,30 @@ class Utils_RecordBrowser extends Module {
         $theme->display('View_history');
     }
     public function view_edit_history($id){
+		load_js('modules/Utils/RecordBrowser/edit_history.js');
         if ($this->is_back())
             return $this->back();
         $this->init();
-        $gb_cur = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__current');
+		$tb = $this->init_module('Utils_TabbedBrowser');		
         $gb_cha = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__changes');
-        $gb_ori = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__original');
 
-        $table_columns = array( array('name'=>$this->t('Field'), 'width'=>1, 'wrapmode'=>'nowrap'),
-                                array('name'=>$this->t('Value'), 'width'=>1, 'wrapmode'=>'nowrap'));
         $table_columns_changes = array( array('name'=>$this->t('Date'), 'width'=>1, 'wrapmode'=>'nowrap'),
                                         array('name'=>$this->t('Username'), 'width'=>1, 'wrapmode'=>'nowrap'),
                                         array('name'=>$this->t('Field'), 'width'=>1, 'wrapmode'=>'nowrap'),
                                         array('name'=>$this->t('Old value'), 'width'=>1, 'wrapmode'=>'nowrap'),
                                         array('name'=>$this->t('New value'), 'width'=>1, 'wrapmode'=>'nowrap'));
 
-        $gb_cur->set_table_columns( $table_columns );
-        $gb_ori->set_table_columns( $table_columns );
         $gb_cha->set_table_columns( $table_columns_changes );
+
+        $gb_cha->set_inline_display();
 
         $created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
         $access = $this->get_access('view', $created);
         $created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
         $field_hash = array();
         $edited = DB::GetRow('SELECT ul.login, c.edited_on FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
-//      if (!isset($edited['login']))
-//          return;
-        $gb_cur->add_row($this->t('Edited by'), $edited['login']);
-        $gb_cur->add_row($this->t('Edited on'), Base_RegionalSettingsCommon::time2reg($edited['edited_on']));
-        foreach($this->table_rows as $field => $args) {
-            if (!$access[$args['id']]) continue;
+        foreach($this->table_rows as $field => $args)
             $field_hash[$args['id']] = $field;
-            $val = $this->get_val($field, $created, false, $args);
-            if ($created[$args['id']] !== '') $gb_cur->add_row($this->ts($field), $val); // TRSL
-        }
 
         $ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC, id DESC',array($id));
         while ($row = $ret->FetchRow()) {
@@ -1978,25 +1943,24 @@ class Utils_RecordBrowser extends Module {
                 }
             }
         }
-        $gb_ori->add_row($this->t('Created by'), $created['created_by_login']);
-        $gb_ori->add_row($this->t('Created on'), Base_RegionalSettingsCommon::time2reg($created['created_on']));
         foreach($this->table_rows as $field => $args) {
             if (!$access[$args['id']]) continue;
             $val = $this->get_val($field, $created, false, $args);
-            if ($created[$args['id']] !== '') $gb_ori->add_row($this->ts($field), $val); // TRSL
+//            if ($created[$args['id']] !== '') $gb_ori->add_row($this->ts($field), $val); // TRSL
         }
-        $theme = $this->init_module('Base/Theme');
-        $theme->assign('table',$this->get_html_of_module($gb_cur));
-        $theme->assign('label',$this->t('Current Record'));
-        $theme->display('View_history');
-        $theme = $this->init_module('Base/Theme');
-        $theme->assign('table',$this->get_html_of_module($gb_cha));
-        $theme->assign('label',$this->t('Changes History'));
-        $theme->display('View_history');
-        $theme = $this->init_module('Base/Theme');
-        $theme->assign('table',$this->get_html_of_module($gb_ori));
-        $theme->assign('label',$this->t('Original Record'));
-        $theme->display('View_history');
+		$tb->start_tab('Changes History');
+		$this->display_module($gb_cha);
+		$tb->end_tab();
+
+		$tb->start_tab('Record hitorical view');
+		$form = $this->init_module('Libs_QuickForm');
+		$form->addElement('timestamp', 'historical_view_pick_date', $this->t('View the record as of'), array(), array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");'));
+		$form->setDefaults(array('historical_view_pick_date'=>$created['created_on']));
+		$form->display();
+		$this->view_entry('history', $created);
+		$tb->end_tab();
+		
+		$this->display_module($tb);
         Base_ActionBarCommon::add('back','Back',$this->create_back_href());
         return true;
     }

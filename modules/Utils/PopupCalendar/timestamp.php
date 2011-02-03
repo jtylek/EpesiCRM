@@ -71,7 +71,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		if (!isset($this->_options['date'])) $this->_options['date'] = true;
 
 		if ($this->_options['date'])
-			$this->_elements['__datepicker'] = new HTML_QuickForm_datepicker('__datepicker', null, array(), $this->getAttributes());
+			$this->_elements['__datepicker'] = new HTML_QuickForm_datepicker('__datepicker', null, $this->getAttributes());
 		$this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
 	}
 

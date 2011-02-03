@@ -57,7 +57,7 @@
 						<tbody>
 							<tr>
 								<td class="group_bottom label title" align="left" style="width: 10%;">{$form_data.title.label}{if $form_data.title.required}*{/if}</td>
-								<td class="group_bottom data title" align="left"><span class="error">{$form_data.title.error}</span>
+								<td class="group_bottom data title" align="left" id="_title__data"><span class="error">{$form_data.title.error}</span>
 									{$form_data.title.html}
 								</td>
 							</tr>
@@ -70,7 +70,7 @@
 								<td class="label" style="border-bottom: none; border-right: 1px solid #b3b3b3;">{$form_data.description.label}{if $form_data.description.required}*{/if}</td>
 							</tr>
 							<tr>
-								<td class="data" style="vertical-align: top; padding: 3px 4px 3px 0px; {if $action == 'view'}border-bottom: 2px solid white;{/if}">
+								<td class="data" id="_description__data" style="vertical-align: top; padding: 3px 4px 3px 0px; {if $action == 'view'}border-bottom: 2px solid white;{/if}">
 									{if isset($form_data.description.error)}
 										{$form_data.description.error}
 									{/if}
@@ -93,7 +93,7 @@
 								<td class="label" style="border-bottom: 1px solid white;">{$form_data.employees.label}{if $form_data.employees.required}*{/if}</td>
 							</tr>
 							<tr>
-								<td class="data" style="vertical-align: top;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
+								<td class="data" id="_employees__data" style="vertical-align: top;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
 							</tr>
 						</tbody>
 					</table>
@@ -104,7 +104,7 @@
 						<tbody>
 							<tr>
 								<td class="label" align="left" style="width: 20%;">{$form_data.status.label}{if $form_data.status.required}*{/if}</td>
-								<td class="data status" align="left" style="width: 80%;">
+								<td class="data status" align="left" style="width: 80%;" id="_status__data">
 									<span class="error">{$form_data.status.error}</span>
 									{if $action == 'view'}
 										<div class="icon status_{$raw_data.status}"></div>
@@ -114,15 +114,15 @@
 							</tr>
 							<tr>
 								<td class="label" align="left">{$form_data.deadline.label}</td>
-								<td class="data" align="{if $action == 'view'}left{else}right{/if}" style="padding-right: 0px;" colspan=3>{$form_data.deadline.html}</td>
+								<td class="data" id="_deadline__data" align="{if $action == 'view'}left{else}right{/if}" style="padding-right: 0px;" colspan=3>{$form_data.deadline.html}</td>
 							</tr>
 							<tr>
 								<td class="label" align="left">{$form_data.longterm.label}</td>
-								<td class="data" align="left">{$form_data.longterm.html}</td>
+								<td class="data" id="_longterm__data" align="left">{$form_data.longterm.html}</td>
 							</tr>
 							<tr>
 								<td class="label" align="left">{$form_data.permission.label}{if $form_data.permission.required}*{/if}</td>
-								<td class="data permission" align="left">
+								<td class="data permission" align="left" id="_permission__data">
 									<span class="error">{$form_data.permission.error}</span>
 									{if $action=='view'}
 										<div class="icon permission_{$raw_data.permission}"></div>
@@ -132,7 +132,7 @@
 							</tr>
 							<tr>
 								<td class="label" align="left">{$form_data.priority.label}{if $form_data.priority.required}*{/if}</td>
-								<td class="data priority" align="left">
+								<td class="data priority" align="left" id="_priority__data">
 									<span class="error">{$form_data.priority.error}</span>
 									{if $action=='view'}
 										<div class="icon priority_{$raw_data.priority}"></div>
@@ -151,7 +151,7 @@
 										$k!='deadline')}
 								<tr>
 									<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
-									<td class="data" align="left">
+									<td class="data" align="left" id="_{$f.element}__data">
 										<span class="error">{$f.error}</span>
 										{$f.html}
 									</td>
@@ -167,7 +167,7 @@
 								<td class="label" style="padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.customers.label}</div><div style="float: right; background-color: white; padding-left: 4px;">{if isset($form_data.customers_rpicker_advanced.html)}{$form_data.customers_rpicker_advanced.html}{/if}</div></td>
 							</tr>
 							<tr>
-								<td class="data" style="vertical-align: top;"><span class="error">{$form_data.customers.error}</span>{$form_data.customers.html}</td>
+								<td class="data" id="_customers__data" style="vertical-align: top;"><span class="error">{$form_data.customers.error}</span>{$form_data.customers.html}</td>
 							</tr>
 						</tbody>
 					</table>
