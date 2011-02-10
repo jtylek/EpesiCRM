@@ -499,7 +499,6 @@ var Draggable = Class.create({
     var r   = Position.realOffset(this.element);
     pos[0] -= r[0]; pos[1] -= r[1];
 
-    var pp = [pos[0],pos[1]];
     var d = this.currentDelta();
     pos[0] -= d[0]; pos[1] -= d[1];
 

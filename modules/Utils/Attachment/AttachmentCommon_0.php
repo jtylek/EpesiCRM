@@ -92,7 +92,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
 		if($file) {
 			$local = self::Instance()->get_data_dir().$group;
-			@mkdir($local,0777,true);
+			if(!file_exists($local))
+    			mkdir($local,0777,true);
 			$dest_file = $local.'/'.$id.'_0';
 			rename($file,$dest_file);
 			if ($add_func) call_user_func($add_func,$id,0,$dest_file,$oryg,$add_args);
