@@ -11,15 +11,21 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_ShoutboxCommon extends ModuleCommon {
 	public static function menu() {
-		return array('Shoutbox'=>array());
+	    if(self::Instance()->acl_check('view'))
+    		return array('Shoutbox'=>array());
+    	return array();
 	}
 	
 	public static function applet_caption() {
-		return "Shoutbox";
+	    if(self::Instance()->acl_check('view'))
+    		return "Shoutbox";
+        return false;
 	}
 
 	public static function applet_info() {
-		return "Mini shoutbox"; //here can be associative array
+	    if(self::Instance()->acl_check('view'))
+    		return "Mini shoutbox"; //here can be associative array
+        return '';
 	}
 	
 	public static function user_search($search=null) {

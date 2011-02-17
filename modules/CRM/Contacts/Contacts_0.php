@@ -162,7 +162,8 @@ class CRM_Contacts extends Module {
 	public function company_addon($arg){
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
 		$rb->set_additional_actions_method(array($this, 'contacts_actions'));
-		Base_ActionBarCommon::add('add','Add contact', $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
+		if($this->acl_check('"new" actions'))
+    		Base_ActionBarCommon::add('add','Add contact', $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$rb->set_button($this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$this->display_module($rb, array(array('(company_name'=>$arg['id'],'|related_companies'=>array($arg['id'])), array('company_name'=>false), array('last_name'=>'ASC','first_name'=>'ASC')), 'show_data');
         $uid = Base_AclCommon::get_acl_user_id(Acl::get_user());
@@ -175,6 +176,7 @@ class CRM_Contacts extends Module {
     }
 
 	public function contacts_actions($r, $gb_row) {
+	    if(!$this->acl_check('"new" actions')) return;
 		$is_employee = false;
 		if (is_array($r['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $r['company_name'])) $is_employee = true;
 		$me = CRM_ContactsCommon::get_my_record();
@@ -189,6 +191,7 @@ class CRM_Contacts extends Module {
 	}
 
 	public function companies_actions($r, $gb_row) {
+	    if(!$this->acl_check('"new" actions')) return;
 		$me = CRM_ContactsCommon::get_my_record();
 		$emp = array($me['id']);
 		$cus = array();

@@ -26,6 +26,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
+		$this->add_aco('view',array('Employee'));
 		return $ret;
 	}
 
