@@ -11,8 +11,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ModuleDownloader extends Module {
-//    const server = "http://localhost/epesi/tools/modules_server/";
-    const server = "http://pm.epesicrm.com/";
+    const server = "http://localhost/epesi/tools/modules_server/";
+//    const server = "http://pm.epesicrm.com/";
 	
 	public function body() {
 	}
@@ -134,23 +134,29 @@ class Base_ModuleDownloader extends Module {
         $destfile = $this->get_data_dir() . escapeshellcmd($mid);
         while(file_exists($destfile.'.zip')) $destfile .= '0';
         $destfile .= '.zip';
-        // download file
-        if( ($ret = $this->request(array('action'=>'file', 'id'=>$mid), $destfile)) === true ) {
-            $text .= $this->t('File download succeded!').'<br/>';
-        } else {
+        // request hash
+        $hash = unserialize($this->request(array('action'=>'hash', 'id'=>$mid)));
+        if(! $hash) {
             $text .= $this->t('Error downloading file!').'<br/>';
             $success = false;
         }
-        // request md5 sum
+
         if($success) {
-            $md5 = unserialize($this->request(array('action'=>'md5', 'id'=>$mid)));
-            if( $md5 == md5_file($destfile) ) {
-                $text .= $this->t('File consistency  OK').'<br/>';
+            // download file
+            if( ($this->request(array('action'=>'file', 'hash'=>$hash), $destfile)) === true ) {
+                $text .= $this->t('File download succeded!').'<br/>';
+                if($hash == sha1_file($destfile)) {
+                    $text .= $this->t('File consistency  OK').'<br/>';
+                } else {
+                    $text .= $this->t('File consistency  <b>Error</b>').'<br/>';
+                    $success = false;
+                }
             } else {
-                $text .= $this->t('File consistency  <b>Error</b>').'<br/>';
+                $text .= $this->t('Error downloading file!').'<br/>';
                 $success = false;
             }
         }
+
         // extract file contents
         if($success) {
             if(class_exists('ZipArchive')) {
