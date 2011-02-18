@@ -38,7 +38,7 @@
 					<td/>
 					{foreach item=h key=k from=$headers}
 						<td class="header">
-							{$h}<br>
+							{$h}<br />
 							<input type="button" value="Select All" onclick="{$select_all.$k}" />
 						</td>
 					{/foreach}
@@ -52,7 +52,6 @@
 							<td {$grid_attrs.$gk.$k}>
 							</td>
 						{/foreach}
-						<br>
 					</tr>
 				{/foreach}
 			</table>
