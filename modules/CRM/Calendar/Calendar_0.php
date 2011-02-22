@@ -149,7 +149,7 @@ class CRM_Calendar extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agendaX');
 		$columns = array(
-			array('name'=>$this->t('Start'), 'order'=>'e.starts', 'width'=>50),
+			array('name'=>$this->t('Start'), 'order'=>'e.starts', 'width'=>25, 'wrapmode'=>'nowrap'),
 			array('name'=>$this->t('Title'), 'order'=>'e.title','width'=>50),
 		);
 		$gb->set_table_columns($columns);
@@ -162,6 +162,7 @@ class CRM_Calendar extends Module {
 //		trigger_error($gb->get_query_order());
 		$data = array();
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
+		Base_ThemeCommon::load_css('CRM_Calendar', 'agenda');
 
 		$custom_events = DB::GetAssoc('SELECT id, handler_callback FROM crm_calendar_custom_events_handlers ORDER BY group_name');
 		$ret = array();
@@ -196,15 +197,29 @@ class CRM_Calendar extends Module {
 
             ///////////////////
             // right column
-            $title = Utils_TooltipCommon::create($row['title'],$row['description']);
+            $title = Utils_TooltipCommon::create($row['title'],$row['custom_tooltip']);
 			
             //////////////////////////
             // left column
-            $date = Utils_TooltipCommon::create($ex['start'],$row['custom_tooltip']);
-
-            $gb->add_row(
-                array('value'=>$view_action.$date.'</a>', 'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),
-                $view_action.$title.'</a>');			
+            $date = $ex['start'];
+			
+			$day = date('Y-m-d', strtotime(Base_RegionalSettingsCommon::time2reg($row['start'])));
+			if ($day<date('Y-m-d')) $class = 'past';
+			elseif ($day==date('Y-m-d')) $class = 'today';
+			elseif ($day==date('Y-m-d', strtotime('+1 day'))) $class = 'tomorrow';
+			else $class = 'other';
+			
+			$gb_row = $gb->get_new_row();
+			$gb_row->set_attrs('class="CRM_Calendar_applet__'.$class.'"');
+			$gb_row->add_data(
+				array(
+					'value'=>$date, 
+					'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']
+				),
+				array(
+					'value'=>$view_action.$title.'</a>'
+				)
+			);
 		}
 
 

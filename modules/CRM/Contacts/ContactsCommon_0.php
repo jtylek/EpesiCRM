@@ -448,10 +448,10 @@ class CRM_ContactsCommon extends ModuleCommon {
         } else {
             $ret .= $label;
         }
-        if (isset($record['company_name']) && $record['company_name']) {
+        if (isset($record['company_name']) && $record['company_name'] && is_numeric($record['company_name'])) {
             $first_comp = $record['company_name'];
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
-        } elseif (!empty($record['related_companies'])) {
+        } elseif (is_array($record['related_companies']) && !empty($record['related_companies'])) {
             $first_comp = reset($record['related_companies']);
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
         }
