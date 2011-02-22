@@ -945,7 +945,7 @@ function update_from_1_0_0rc6_to_1_0_0() {
 			$p = explode('__',$r['phone']);
 		        if (isset($p[1])) {
 		    	    $p = $p[1];
-			    Utils_RecordBrowserCommon::update_record('phonecall', $r['id'], array('phone'=>$p));
+			    Utils_RecordBrowserCommon::update_record('phonecall', $r['id'], array('phone'=>$p)); // FIXME: Aparently, it's taking the contact, not the number here
 		        }
 		    }
 		}

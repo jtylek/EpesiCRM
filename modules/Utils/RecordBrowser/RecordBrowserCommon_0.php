@@ -911,7 +911,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             if(is_array($v))
                                 $inj = $v[0].DB::qstr($v[1]);
                             elseif(is_string($v))
-                                $inj = DB::qstr($v);
+                                $inj = $operator.DB::qstr($v);
                             if($inj)
                                 $having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
                                         '((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
@@ -1521,7 +1521,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if(!$field)
                 $label = ($table_name?$cap.': ':'').$id;
             else
-                $label = ($table_name?$cap.': ':'').self::get_val($tab,$field,$rec);
+                $label = ($table_name?$cap.': ':'').self::get_val($tab,$field,$rec,$nolink);
         }
         $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
         return $ret;

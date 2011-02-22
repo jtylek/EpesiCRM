@@ -235,7 +235,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function display_contact_name($record, $nolink) {
 		if ($record['other_customer']) return $record['other_customer_name'];
 		if ($record['customer']=='') return '---';
-		$ret = CRM_ContactsCommon::autoselect_company_contact_format($record['customer']);
+		$ret = CRM_ContactsCommon::autoselect_company_contact_format($record['customer'], $nolink);
 /*		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['customer']);
 		$cont = CRM_ContactsCommon::get_contact($record['customer']);
 		$ret .= $cont['last_name'].(($cont['first_name']!=='')?' '.$cont['first_name']:'');
