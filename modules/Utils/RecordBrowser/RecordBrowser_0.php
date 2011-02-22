@@ -24,7 +24,6 @@ class Utils_RecordBrowser extends Module {
     private $icon = '';
     private $favorites = false;
     private $full_history = true;
-    private $action = 'Browsing';
     private $crits = array();
     private $access_callback;
     private $noneditable_fields = array();
@@ -44,6 +43,7 @@ class Utils_RecordBrowser extends Module {
     private $additional_caption = '';
     private $enable_export = false;
 	private $search_calculated_callback = false;
+    public $action = 'Browsing';
     public $custom_defaults = array();
     public static $admin_filter = '';
     public static $tab_param = '';
