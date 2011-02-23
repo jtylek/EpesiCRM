@@ -87,10 +87,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$add_func=null,$add_args=array()) {
 		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args) VALUES(%s,%d,%d,%s,%s)',array($group,$permission,$user,serialize($func),serialize($args)));
 		$id = DB::Insert_ID('utils_attachment_link','id');
-		if($oryg===null) $oryg = '';
+		if(!$oryg) $oryg = 'no name';
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,$user));
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
-		if($file && $oryg) {
+		if($file) {
 			$local = self::Instance()->get_data_dir().$group;
 			if(!file_exists($local))
     			mkdir($local,0777,true);
