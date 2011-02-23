@@ -90,7 +90,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if($oryg===null) $oryg = '';
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,$user));
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
-		if($file) {
+		if($file && $oryg) {
 			$local = self::Instance()->get_data_dir().$group;
 			if(!file_exists($local))
     			mkdir($local,0777,true);
