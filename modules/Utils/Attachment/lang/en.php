@@ -42,4 +42,5 @@ $translations['Utils_Attachment']['[ - ]']='';
 $translations['Utils_Attachment']['Expand all']='';
 $translations['Utils_Attachment']['Collapse all']='';
 $translations['Utils_Attachment']['User']='';
+$translations['Utils_Attachment']['New note']='';
 ?>

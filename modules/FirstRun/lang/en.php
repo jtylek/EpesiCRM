@@ -6,9 +6,8 @@
  */
 global $translations;
 $translations['FirstRun']['Welcome to epesi first run wizard']='';
-$translations['FirstRun']['Base installation']='';
 $translations['FirstRun']['CRM installation']='';
-$translations['FirstRun']['CRM and Freeconet installation']='';
+$translations['FirstRun']['CRM and Sales Opportunity']='';
 $translations['FirstRun']['CRM and Bug Tracker installation']='';
 $translations['FirstRun']['Full installation']='';
 $translations['FirstRun']['Please enter administrator user login and password']='';

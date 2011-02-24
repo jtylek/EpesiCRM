@@ -98,4 +98,11 @@ $translations['Base_ActionBar']['File scan']='';
 $translations['Base_ActionBar']['Icecat']='';
 $translations['Base_ActionBar']['3rd party']='';
 $translations['Base_ActionBar']['Completed']='';
+$translations['Base_ActionBar']['Config']='';
+$translations['Base_ActionBar']['Download']='';
+$translations['Base_ActionBar']['Create bill']='';
+$translations['Base_ActionBar']['Leave this trans.']='';
+$translations['Base_ActionBar']['Webcam']='';
+$translations['Base_ActionBar']['Add to my Trans.']='';
+$translations['Base_ActionBar']['Update Contacts']='';
 ?>

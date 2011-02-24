@@ -27,4 +27,7 @@ $translations['CRM_Tasks']['Notify']='';
 $translations['CRM_Tasks']['Tasks']='';
 $translations['CRM_Tasks'][' - Todo']='';
 $translations['CRM_Tasks'][' - short term']='';
+$translations['Utils_RecordBrowser:task']['Title']='';
+$translations['Utils_RecordBrowser:task']['Deadline']='';
+$translations['Utils_RecordBrowser:task']['Status']='';
 ?>

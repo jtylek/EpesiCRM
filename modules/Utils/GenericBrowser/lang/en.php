@@ -45,4 +45,8 @@ $translations['Utils_GenericBrowser']['copy']='';
 $translations['Utils_GenericBrowser']['cut']='';
 $translations['Utils_GenericBrowser']['Add']='';
 $translations['Utils_GenericBrowser']['Print Report']='';
+$translations['Utils_GenericBrowser']['New Event']='';
+$translations['Utils_GenericBrowser']['New Task']='';
+$translations['Utils_GenericBrowser']['New Phonecall']='';
+$translations['Utils_GenericBrowser']['New Note']='';
 ?>

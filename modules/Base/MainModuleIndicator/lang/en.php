@@ -156,4 +156,14 @@ $translations['Base_MainModuleIndicator']['Meetings: Browse']='';
 $translations['Base_MainModuleIndicator']['Allergies: Browse']='';
 $translations['Base_MainModuleIndicator']['Issues: Browse']='';
 $translations['Base_MainModuleIndicator']['Shoutbox']='';
+$translations['Base_MainModuleIndicator']['Warehouse: Browse']='';
+$translations['Base_MainModuleIndicator']['Warehouse: New record']='';
+$translations['Base_MainModuleIndicator']['Warehouse: Browsing']='';
+$translations['Base_MainModuleIndicator']['Warehouse: View record']='';
+$translations['Base_MainModuleIndicator']['Items Transactions: Browsing']='';
+$translations['Base_MainModuleIndicator']['Items Order Details: Edit record']='';
+$translations['Base_MainModuleIndicator']['Items Order Details: View record']='';
+$translations['Base_MainModuleIndicator']['Items Transactions: Edit record']='';
+$translations['Base_MainModuleIndicator']['Item Location: View record']='';
+$translations['Base_MainModuleIndicator']['Item Location: New record']='';
 ?>

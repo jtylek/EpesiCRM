@@ -25,4 +25,6 @@ $translations['Utils_Watchdog']['Mark all entries as read']='';
 $translations['Utils_Watchdog']['This will update all of your subscriptions status in selected categories, are you sure you want to continue?']='';
 $translations['Utils_Watchdog']['Use this Trans.']='';
 $translations['Utils_Watchdog']['Are you sure you want to unsubscribe this record?']='';
+$translations['Utils_Watchdog']['Leave this trans.']='';
+$translations['Utils_Watchdog']['Add to my Trans.']='';
 ?>

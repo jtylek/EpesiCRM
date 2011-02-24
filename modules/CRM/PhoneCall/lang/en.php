@@ -35,4 +35,7 @@ $translations['CRM_PhoneCall']['Save']='';
 $translations['CRM_PhoneCall']['Open']='';
 $translations['CRM_PhoneCall']['In Progress']='';
 $translations['CRM_PhoneCall']['On Hold']='';
+$translations['Utils_RecordBrowser:phonecall']['Contact Name']='';
+$translations['Utils_RecordBrowser:phonecall']['Phone Number']='';
+$translations['Utils_RecordBrowser:phonecall']['Status']='';
 ?>

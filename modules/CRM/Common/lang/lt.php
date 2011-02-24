@@ -7,4 +7,6 @@
 global $translations;
 $translations['CRM_Common']['None']='Nėra';
 $translations['CRM_Common']['Skype and other "callto" protocol applications']='Skype ir kito "callto" protokolas';
+$translations['CRM_Common']['None']='Nėra';
+$translations['CRM_Common']['Skype and other "callto" protocol applications']='Skype ir kito "callto" protokolas';
 ?>

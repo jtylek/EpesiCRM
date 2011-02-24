@@ -701,4 +701,12 @@ $translations['Utils_RecordBrowser']['Diagnosis']='';
 $translations['Utils_RecordBrowser']['Default Recurrence']='';
 $translations['Utils_RecordBrowser']['Allergen/Medication']='';
 $translations['Utils_RecordBrowser']['Reaction']='';
+$translations['Utils_RecordBrowser']['[Perspective]']='';
+$translations['Utils_RecordBrowser']['Item List']='';
+$translations['Utils_RecordBrowser']['Serial Numbers']='';
+$translations['Utils_RecordBrowser']['Items Serials']='';
+$translations['Utils_RecordBrowser']['Items Order Details']='';
+$translations['Utils_RecordBrowser']['Mail addresses']='';
+$translations['Utils_RecordBrowser']['Item Location']='';
+$translations['Utils_RecordBrowser']['Warehouse Items']='';
 ?>
