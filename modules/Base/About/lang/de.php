@@ -6,4 +6,5 @@
  */
 global $translations;
 $translations['Base_About']['Click to get more info']='Klicken um mehr Information zu erhalten';
+$translations['Base_About']['Click to get more info']='Klicken um mehr Information zu erhalten';
 ?>

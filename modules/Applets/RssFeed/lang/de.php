@@ -6,4 +6,5 @@
  */
 global $translations;
 $translations['Applets_RssFeed']['Loading RSS...']='Lade RSS...';
+$translations['Applets_RssFeed']['Loading RSS...']='Lade RSS...';
 ?>
