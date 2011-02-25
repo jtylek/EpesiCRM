@@ -59,22 +59,22 @@
 }
 /* */
 
-table#Utils_GenericBrowser {
+table.Utils_GenericBrowser {
     background-color: #FFFFFF;
     /*border-top: 1px solid #B3B3B3;*/
     border-left: 1px solid #B3B3B3;
 }
 
-table#Utils_GenericBrowser input[type="text"] {
+table.Utils_GenericBrowser input[type="text"] {
 	width: 95%;
 }
 
-table#Utils_GenericBrowser a.button {
+table.Utils_GenericBrowser a.button {
 	width: 20px;
 	text-align:left;
 }
 
-table#Utils_GenericBrowser th {
+table.Utils_GenericBrowser > thead > tr > th {
     background-color: #336699;
     background-image: url("images/header-blue.gif");
     font-weight: normal;
@@ -88,7 +88,7 @@ table#Utils_GenericBrowser th {
     vertical-align: top;
 }
 
-table#Utils_GenericBrowser th span {
+table.Utils_GenericBrowser > thead > tr > th > span {
 	color: #FFFFFF;
     /*display: inline;*/
     height: 20px;
@@ -97,7 +97,7 @@ table#Utils_GenericBrowser th span {
     margin-right: 3px;
 }
 
-table#Utils_GenericBrowser th a {
+table.Utils_GenericBrowser > thead > tr > th a {
 	color: #FFFFFF;
     /*display: inline;*/
     display: block;
@@ -107,12 +107,12 @@ table#Utils_GenericBrowser th a {
     padding-right: 3px;
 }
 
-table#Utils_GenericBrowser th a:hover {
+table.Utils_GenericBrowser > thead > tr > th a:hover {
     background-image: url('images/header-blue-hover.gif');
     background-repeat: repeat-x;
 }
 
-table#Utils_GenericBrowser th input {
+table.Utils_GenericBrowser > thead > tr > th input {
     display: block;
     background-color: #e6ecf2;
     width: 100%;
@@ -122,19 +122,19 @@ table#Utils_GenericBrowser th input {
     border-top: 1px solid #b3b3b3;
 }
 
-table#Utils_GenericBrowser th input:focus {
+table.Utils_GenericBrowser > thead > tr > th input:focus {
     background-color: #ffffa5;
 }
 
-table#Utils_GenericBrowser tbody {
+table.Utils_GenericBrowser > tbody {
 	overflow: auto;
 }
 
-table#Utils_GenericBrowser tr {
+table.Utils_GenericBrowser > tbody > tr {
 	background-color: #FFFFFF;
 }
 
-table#Utils_GenericBrowser tr:hover {
+table.Utils_GenericBrowser > tbody > tr:hover {
 	background-color: #F0F0F0;
 }
 
@@ -147,19 +147,19 @@ table#Utils_GenericBrowser tr:hover {
     padding-right: 3px;
 }
 
-table#Utils_GenericBrowser td img {
+table.Utils_GenericBrowser > tbody > td img {
 	vertical-align: middle;
 }
 
 /* Navigation */
 
-table#Utils_GenericBrowser__navigation {
+table.Utils_GenericBrowser__navigation {
     width: 100%;
     padding-left: 20px;
     padding-right: 20px;
 }
 
-table#Utils_GenericBrowser__navigation img {
+table.Utils_GenericBrowser__navigation img {
     vertical-align: middle;
 }
 
