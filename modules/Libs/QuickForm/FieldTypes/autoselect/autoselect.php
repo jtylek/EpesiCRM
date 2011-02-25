@@ -54,10 +54,14 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
     	if (empty($result)) {
 			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.Base_LangCommon::ts('Libs/QuickForm','No records founds').'</span></li>';
     	}
-    	foreach ($result as $k=>$v) {
-			$ret .= '<li><span style="display:none;">'.$k.'__'.$v.'</span><span class="informal">'.str_replace(' ','&nbsp;',$v).'</span></li>';
-    	}
-    	$ret .= '</ul>';
+		if (is_array($result)) {
+			foreach ($result as $k=>$v) {
+				$ret .= '<li><span style="display:none;">'.$k.'__'.$v.'</span><span class="informal">'.str_replace(' ','&nbsp;',$v).'</span></li>';
+			}
+			$ret .= '</ul>';
+		} else {
+			$ret = $result;
+		}
     	return $ret;
     }
 
