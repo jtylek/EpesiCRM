@@ -2345,11 +2345,14 @@ $last_ver = '';
 define('CID',false);
 define('UPDATING_EPESI',true);
 require_once('include.php');
+@set_time_limit(0);
 
 //restore innodb tables in case of db reimport
-$tbls = DB::MetaTables();
+$tbls = DB::MetaTables('TABLE',true);
 foreach($tbls as $t) {
-    DB::Execute('ALTER TABLE '.$t.' ENGINE = INNODB');
+    $tbl = DB::GetRow('SHOW CREATE TABLE '.$t);
+    if(!isset($tbl[1]) || preg_match('/ENGINE=myisam/i',$tbl[1]))
+        DB::Execute('ALTER TABLE '.$t.' ENGINE = INNODB');
 }
 
 ModuleManager::create_common_cache();
