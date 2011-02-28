@@ -107,7 +107,7 @@ class Utils_BBCodeCommon extends ModuleCommon {
 		if (strpos(strtolower($url), 'http://')===false && 
 			strpos(strtolower($url), 'https://')===false && 
 			$url) $url = 'http://'.$url;
-		return '<a href="'.$url.'">'.$text.'</a>';
+		return '<a href="'.$url.'" target="_blank">'.$text.'</a>';
 	}
 
 	public static function tag_img($text, $param, $optimize_only=false) {
