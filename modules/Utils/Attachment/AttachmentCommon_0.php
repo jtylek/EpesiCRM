@@ -70,7 +70,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 	}
 	
-	public static function call_user_func_on_file($group,$func,$group_starts_with=true) {
+	public static function call_user_func_on_file($group,$func,$group_starts_with=false) {
 		$ret = DB::Execute('SELECT ual.id,ual.local, f.original, f.revision as rev
 				    FROM utils_attachment_link ual INNER JOIN utils_attachment_file f ON (f.attach_id=ual.id AND f.revision=(SELECT max(revision) FROM utils_attachment_file WHERE attach_id=ual.id))
 				    WHERE ual.deleted=0 AND '.self::get_where($group,$group_starts_with));
@@ -103,11 +103,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return $id;
 	}
 
-	public static function count($group=null,$group_starts_with=true) {
+	public static function count($group=null,$group_starts_with=false) {
 		return DB::GetOne('SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.self::get_where($group,$group_starts_with));
 	}
 
-	public static function get($group=null,$group_starts_with=true) {
+	public static function get($group=null,$group_starts_with=false) {
 		return DB::GetAll('SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE '.self::get_where($group,$group_starts_with).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0');
 	}
 
