@@ -452,7 +452,7 @@ class Apps_MailClient extends Module {
 
 		$f->addElement('text','subject',$this->t('Subject'),array('maxlength'=>256));
 		$f->addRule('subject',$this->t('Max length of subject is 256 chars'),'maxlength',256);
-		$fck = & $f->addElement('fckeditor', 'body', $this->t('Content'));
+		$fck = & $f->addElement('ckeditor', 'body', $this->t('Content'));
 		$fck->setFCKProps('800','300',true);
 
 		//if edit

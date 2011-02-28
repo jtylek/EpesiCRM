@@ -581,7 +581,7 @@ class Utils_Attachment extends Module {
 				$form->addElement('header', 'upload', $this->t('Edit note').': '.$this->add_header);
 			else
 				$form->addElement('header', 'upload', $this->t('Attach note').': '.$this->add_header);
-			$fck = $form->addElement('fckeditor', 'note', $this->t('Note'));
+			$fck = $form->addElement('ckeditor', 'note', $this->t('Note'));
 			$fck->setFCKProps('800','300');
 			
     		$form->addRule('note',$this->t('Maximal lenght of note exceeded'),'maxlength',65535);

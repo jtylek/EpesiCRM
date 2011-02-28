@@ -78,7 +78,7 @@ class Apps_StaticPage extends Module {
 		$f->addElement('text', 'title', $this->t('Title'),array('maxlength'=>255));
 		$f->addRule('title',$this->t('This field is required'),'required');
 		$f->addRule('title',$this->t('Field too long, max 255 chars'),'maxlength',255);
-		$fck = & $f->addElement('fckeditor', 'content', $this->t('Content'));
+		$fck = & $f->addElement('ckeditor', 'content', $this->t('Content'));
 		$fck->setFCKProps('800','300',true);
 		
 		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());

@@ -57,7 +57,7 @@ class Apps_StaticPageInstall extends ModuleInstall {
 			array('name'=>'Base/Admin','version'=>0),
 			array('name'=>'Utils/GenericBrowser','version'=>0),
 			array('name'=>'Utils/CustomMenu','version'=>0),
-			array('name'=>'Libs/FCKeditor','version'=>0),
+			array('name'=>'Libs/CKEditor','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0));
 	}
 }

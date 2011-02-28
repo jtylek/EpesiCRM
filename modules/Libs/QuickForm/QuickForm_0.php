@@ -104,6 +104,7 @@ class Libs_QuickForm extends Module {
 		$post = '';
 		foreach ($form_name as $f) {
 			if ($submited) $pre .= "$('".addslashes($f)."').submited.value=1;";
+			$pre .= "Event.fire(document,'e:submit_form','".$f."');";
 			$pre .= str_replace('this',"$('".addslashes($f)."')",Libs_QuickFormCommon::get_on_submit_actions());
 			if ($chj) $chj .= "+'&'+";
 			$chj .= "$('".addslashes($f)."').serialize()";

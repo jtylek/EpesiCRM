@@ -30,9 +30,14 @@ class Epesi {
 		$out = array();
 		require_once('libs/minify/Minify/Build.php');
 		foreach($arr as $loader=>$css) {
-			$csses_build = new Minify_Build($css);
-			$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));
-			$out[] = $f;
+			if($loader=='') {
+			    foreach($css as $c2)
+    			    $out[] = $c2;
+			} else  {
+    			$csses_build = new Minify_Build($css);
+	    		$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));
+		    	$out[] = $f;
+		    }
 		}
 		return $out;
 	}
