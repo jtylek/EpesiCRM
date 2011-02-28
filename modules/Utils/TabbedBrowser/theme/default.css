@@ -1,10 +1,10 @@
-#Utils_TabbedBrowser_div {
+.Utils_TabbedBrowser_div {
 	/*background-image: url('images/tabbed-background.png');
 	background-repeat: repeat-x;
 	background-position: 0px 31px;*/
 }
 
-ul#Utils_TabbedBrowser {
+ul.Utils_TabbedBrowser {
 	text-align: left;
 	font-weight: normal;
 	font-size: 11px;
@@ -23,13 +23,13 @@ ul#Utils_TabbedBrowser {
 	margin-bottom: 0px;
 }
 
-ul#Utils_TabbedBrowser li {
+ul.Utils_TabbedBrowser li {
 	display: inline;
 	white-space: nowrap;
 	line-height: 29px;
 }
 
-ul#Utils_TabbedBrowser span.tabbed_browser_selected {
+ul.Utils_TabbedBrowser li span.tabbed_browser_selected {
 	color: #FFFFFF;
 	padding-top: 5px;
 	background-color: #709c70;
@@ -38,7 +38,7 @@ ul#Utils_TabbedBrowser span.tabbed_browser_selected {
 	font-weight: bold;
 }
 
-ul#Utils_TabbedBrowser li span {
+ul.Utils_TabbedBrowser li span {
 	border: 0px;
 	/*background-color: #55AA55;*/
 	background-color: #339933;
@@ -58,15 +58,15 @@ ul#Utils_TabbedBrowser li span {
 	padding-bottom: 3px;
 }
 
-ul#Utils_TabbedBrowser li a {
+ul.Utils_TabbedBrowser li a {
 	padding: 0px 2px;
 }
 
-ul#Utils_TabbedBrowser li img {
+ul.Utils_TabbedBrowser li img {
 	padding: 0px;
 }
 
-ul#Utils_TabbedBrowser span:hover {
+ul.Utils_TabbedBrowser span:hover {
 	cursor: pointer;
 	padding-top: 5px;
 	background-color: #709c70;
@@ -75,9 +75,31 @@ ul#Utils_TabbedBrowser span:hover {
 	color: #ffffff;
 }
 
+ul.Utils_TabbedBrowser li div.tabbedbrowser_submenu {
+	z-index: 1500;
+	line-height:21px;
+	padding-top: 0px;
+}
+
+ul.Utils_TabbedBrowser li div.tabbedbrowser_submenu span {
+	display: block;
+	width: 100px;
+	background-image: none;
+	background-color: #222;
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+ul.Utils_TabbedBrowser li div.tabbedbrowser_submenu span:hover {
+	background-color: #709c70;
+}
+
+ul.Utils_TabbedBrowser li div.tabbedbrowser_submenu span.tabbed_browser_selected {
+	background-color: #709c70;
+}
 
 /* only for IE */
 
-#Utils_TabbedBrowser {
+.Utils_TabbedBrowser {
 	_margin-top: 11px;
 }
