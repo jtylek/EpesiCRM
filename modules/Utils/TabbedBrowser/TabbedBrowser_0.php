@@ -64,6 +64,10 @@ class Utils_TabbedBrowser extends Module {
 			if (count($captions)==1) {
 				unset($submenus[$group]);
 			} else {
+				if (isset($this->tabs[$group])) {
+					$submenus[$group][$group] = $this->tabs[$group];
+					unset($this->tabs[$group]);
+				}
 				foreach ($captions as $caption=>$val)
 					unset($this->tabs[$caption]);
 			}
