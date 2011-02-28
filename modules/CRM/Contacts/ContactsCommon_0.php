@@ -133,7 +133,9 @@ class CRM_ContactsCommon extends ModuleCommon {
             $ret['My settings']['My Contact']=array('mode'=>'my_contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
         }
         if(self::Instance()->acl_check('view company')) {
-            $ret['My settings']['Main Company']=array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
+			$me = CRM_ContactsCommon::get_main_company();
+			if (!empty($me))
+				$ret['My settings']['Main Company']=array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
         }
         if(count($ret['My settings'])==1)
             unset($ret['My settings']);
