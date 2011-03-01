@@ -28,6 +28,7 @@ if(!is_writable(DATA_DIR))
 
 // require_once('include/include_path.php');
 require_once('include/config.php');
+require_once('include/error.php');
 ob_start(array('ErrorHandler','handle_fatal'));
 require_once('include/database.php');
 require_once('include/variables.php');

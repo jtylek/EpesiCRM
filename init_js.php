@@ -8,6 +8,7 @@ if(!is_writable(DATA_DIR))
 	die();
 
 require_once('include/config.php');
+require_once('include/error.php');
 require_once('include/database.php');
 
 if(defined('CID')) {
