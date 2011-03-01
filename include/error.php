@@ -178,10 +178,14 @@ class ErrorHandler {
 
 //sometimes set_error_handler doesn't work with classes
 function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
-	if (class_exists('ErrorHandler'))
-		return ErrorHandler::handle_error($type, htmlspecialchars($message),$errfile,$errline,$errcontext);
-	else
-		return $message;
+    if(class_exists('ErrorHandler'))
+    	return ErrorHandler::handle_error($type, htmlspecialchars($message),$errfile,$errline,$errcontext);
+
+   	if (($type & error_reporting()) > 0) {
+        echo 'Error ('.$type.'): '.$message.' in '.$errfile.':'.$errline;
+        exit();
+    }
+    return true;
 }
 if(REPORT_ALL_ERRORS)
 	error_reporting(E_ALL); //all without notices

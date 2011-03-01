@@ -18,7 +18,6 @@ require_once('database.php');
 
 class DBSession {
     private static $lifetime;
-    private static $name;
     private static $ado; //for second postgresql connection - client session handling
 
     public static function open($path, $name) {
@@ -32,6 +31,8 @@ class DBSession {
     }
 
     public static function read($name) {
+        $apc = extension_loaded('apc');
+    
         if(DATABASE_DRIVER=='mysqlt') {
             if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name,ini_get('max_execution_time'))))
                 trigger_error('Unable to get lock on session name='.$name,E_USER_ERROR);
@@ -45,7 +46,11 @@ class DBSession {
             if(!is_numeric(CID))
                 trigger_error('Invalid client id.',E_USER_ERROR);
 
-            if(DATABASE_DRIVER=='postgres') {
+            if($apc) {
+                $ret = apc_fetch('sess_'.$name.'_'.CID);            
+                if($ret)
+                    $_SESSION['client'] = unserialize($ret);
+            } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 if(READ_ONLY_SESSION) {
                     self::$ado = DB::$ado;
@@ -75,10 +80,13 @@ class DBSession {
 
     public static function write($name, $data) {
         if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
+        $apc = extension_loaded('apc');
         $ret = 0;
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
-            if(DATABASE_DRIVER=='postgres') {
+            if($apc) {
+                apc_store('sess_'.$name.'_'.CID, $data, self::$lifetime);
+            } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
                 $ret &= self::$ado->Replace('session_client',array('data'=>$data,'session_name'=>self::$ado->qstr($name),'client_id'=>CID),array('session_name','client_id'));
@@ -104,11 +112,15 @@ class DBSession {
     }
 
     public static function destroy($name) {
+        if(extension_loaded('apc')) {
+            for($i=0; $i<5; $i++)
+                @apc_delete('sess_'.$name.'_'.$i);
+        }
         DB::BeginTrans();
         DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
         DB::Execute('DELETE FROM session_client WHERE session_name=%s',array($name));
         DB::Execute('DELETE FROM session WHERE name=%s',array($name));
-    DB::CommitTrans();
+        DB::CommitTrans();
         return true;
     }
 
@@ -118,9 +130,6 @@ class DBSession {
     while($row = $ret->FetchRow()) {
         self::destroy($row['name']);
     }
-/*      DB::Execute('DELETE FROM history WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
-        DB::Execute('DELETE FROM session_client WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
-        DB::Execute('DELETE FROM session WHERE expires < %d',array($t));*/
         return true;
     }
 }
@@ -139,6 +148,9 @@ session_set_save_handler(array('DBSession','open'),
                              array('DBSession','write'),
                              array('DBSession','destroy'),
                              array('DBSession','gc'));
+
+if(extension_loaded('apc')) //fix for class DBSession not found
+    register_shutdown_function('session_write_close');
 
 if(!defined('CID')) {
     if(isset($_SERVER['HTTP_X_CLIENT_ID']) && is_numeric($_SERVER['HTTP_X_CLIENT_ID']))

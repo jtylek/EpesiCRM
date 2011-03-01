@@ -21,4 +21,5 @@ if(isset($_GET['mod'])) {
 	print('<a href="logout.php">logout</a><br>');
 }
 
+//session_write();
 ?>
