@@ -46,11 +46,13 @@ class DBSession {
             if(!is_numeric(CID))
                 trigger_error('Invalid client id.',E_USER_ERROR);
 
-            if($apc) {
-                $ret = apc_fetch('sess_'.$name.'_'.CID);            
+/*            if($apc) {
+                $ret = apc_fetch('sess_'.$name.'_'.CID);
+//                error_log($ret."\n",3,'/tmp/loggg');
                 if($ret)
                     $_SESSION['client'] = unserialize($ret);
-            } elseif(DATABASE_DRIVER=='postgres') {
+            } else*/
+            if(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 if(READ_ONLY_SESSION) {
                     self::$ado = DB::$ado;
@@ -84,9 +86,10 @@ class DBSession {
         $ret = 0;
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
-            if($apc) {
+/*            if($apc) {
                 apc_store('sess_'.$name.'_'.CID, $data, self::$lifetime);
-            } elseif(DATABASE_DRIVER=='postgres') {
+            } else*/
+            if(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
                 $ret &= self::$ado->Replace('session_client',array('data'=>$data,'session_name'=>self::$ado->qstr($name),'client_id'=>CID),array('session_name','client_id'));
@@ -149,7 +152,7 @@ session_set_save_handler(array('DBSession','open'),
                              array('DBSession','destroy'),
                              array('DBSession','gc'));
 
-if(extension_loaded('apc')) //fix for class DBSession not found
+if(extension_loaded('apc') || extension_loaded('eaccelerator') || extension_loaded('xcache')) //fix for class DBSession not found
     register_shutdown_function('session_write_close');
 
 if(!defined('CID')) {
