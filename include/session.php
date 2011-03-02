@@ -17,27 +17,24 @@ if(!SET_SESSION) {
 require_once('database.php');
 
 class DBSession {
-    private static $lifetime;
     private static $ado; //for second postgresql connection - client session handling
 
     public static function open($path, $name) {
-        self::$lifetime = ini_get("session.gc_maxlifetime");
         return true;
     }
 
     public static function close() {
-        //self::gc(self::$lifetime);
         return true;
     }
 
     public static function read($name) {
         $apc = extension_loaded('apc') && APC_SESSION;
-    
+
         if(DATABASE_DRIVER=='mysqlt') {
             if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name,ini_get('max_execution_time'))))
                 trigger_error('Unable to get lock on session name='.$name,E_USER_ERROR);
         }
-        $ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
+        $ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-ini_get("session.gc_maxlifetime")));
         if($ret) {
                 $_SESSION = unserialize($ret);
         }
@@ -46,9 +43,8 @@ class DBSession {
             if(!is_numeric(CID))
                 trigger_error('Invalid client id.',E_USER_ERROR);
 
-            if($apc) {
+            if($apc && CID>=0 && CID<5) {
                 $ret = apc_fetch('sess_'.$name.'_'.CID);
-//                error_log($ret."\n",3,'/tmp/loggg');
                 if($ret)
                     $_SESSION['client'] = unserialize($ret);
             } elseif(DATABASE_DRIVER=='postgres') {
@@ -85,8 +81,8 @@ class DBSession {
         $ret = 0;
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
-            if($apc) {
-                apc_store('sess_'.$name.'_'.CID, $data, self::$lifetime);
+            if($apc && CID>=0 && CID<5) {
+                apc_store('sess_'.$name.'_'.CID, $data);
             } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
