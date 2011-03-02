@@ -1,8 +1,9 @@
 <?php
+require_once('auth.php');
 require_once('functions.php');
+
 pageheader();
 starttable();
-require_once('auth.php');
 
 if(isset($_GET['mod'])) {
 	call_user_func($_GET['mod']);

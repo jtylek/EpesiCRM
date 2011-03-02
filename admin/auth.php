@@ -26,6 +26,7 @@ $anonymous = true;
 
 if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user())) && !$anonymous) {
 	$form = new HTML_QuickForm('loginform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
+	$form->addElement('html', '<CENTER>Admin Tools<HR>');
 	$form->addElement('text','user','Login');
 	$form->addRule('user','Field required','required');
 	$form->addElement('password','pass','Password');
@@ -33,6 +34,7 @@ if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user
 	$form->registerRule('check_login', 'callback', 'submit_login');
 	$form->addRule('user', 'Login or password incorrect', 'check_login', $form);
 	$form->addElement('submit',null,'Ok');
+	$form->addElement('html', '</CENTER>');
 	if($form->validate()) {
 		$user = $form->exportValue('user');
 		Acl::set_user(Base_UserCommon::get_user_id($user));
