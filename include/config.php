@@ -29,7 +29,7 @@ if(!defined('GZIP_HISTORY')) define("GZIP_HISTORY",0);
 if(!defined('REDUCING_TRANSFER')) define("REDUCING_TRANSFER",1);
 if(!defined('CACHE_COMMON_FILES')) define("CACHE_COMMON_FILES",1);
 if(!defined('MINIFY_ENCODE')) define('MINIFY_ENCODE',1);
-if(!defined('APC_SESSION')) define('APC_SESSION',1);
+if(!defined('MEMCACHED_SESSION_SERVER')) define('MEMCACHED_SESSION_SERVER','');
 
 if(!defined('SUGGEST_DONATION')) define('SUGGEST_DONATION',0);
 if(!defined('CHECK_VERSION')) define('CHECK_VERSION',1);

@@ -17,24 +17,32 @@ if(!SET_SESSION) {
 require_once('database.php');
 
 class DBSession {
+    private static $lifetime;
+    private static $memcached;
     private static $ado; //for second postgresql connection - client session handling
 
     public static function open($path, $name) {
+        self::$lifetime = ini_get("session.gc_maxlifetime");
+        if(extension_loaded('memcache') && MEMCACHED_SESSION_SERVER) {
+            $srv = explode(':',MEMCACHED_SESSION_SERVER,2);
+            self::$memcached = new Memcache();
+            if(!self::$memcached->connect($srv[0],(isset($srv[1])?$srv[1]:11211)))
+                die('Cannot connect to memcache server');
+        }
         return true;
     }
 
     public static function close() {
+        //self::gc(self::$lifetime);
         return true;
     }
 
     public static function read($name) {
-        $apc = extension_loaded('apc') && APC_SESSION;
-
         if(DATABASE_DRIVER=='mysqlt') {
             if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name,ini_get('max_execution_time'))))
                 trigger_error('Unable to get lock on session name='.$name,E_USER_ERROR);
         }
-        $ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-ini_get("session.gc_maxlifetime")));
+        $ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
         if($ret) {
                 $_SESSION = unserialize($ret);
         }
@@ -43,8 +51,9 @@ class DBSession {
             if(!is_numeric(CID))
                 trigger_error('Invalid client id.',E_USER_ERROR);
 
-            if($apc && CID>=0 && CID<5) {
-                $ret = apc_fetch('sess_'.$name.'_'.CID);
+            if(self::$memcached) {
+                $ret = self::$memcached->get('sess_'.$name.'_'.CID);
+//                error_log($ret."\n",3,'/tmp/loggg');
                 if($ret)
                     $_SESSION['client'] = unserialize($ret);
             } elseif(DATABASE_DRIVER=='postgres') {
@@ -77,12 +86,11 @@ class DBSession {
 
     public static function write($name, $data) {
         if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
-        $apc = extension_loaded('apc') && APC_SESSION;
         $ret = 0;
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
-            if($apc && CID>=0 && CID<5) {
-                apc_store('sess_'.$name.'_'.CID, $data);
+            if(self::$memcached) {
+                self::$memcached->set('sess_'.$name.'_'.CID, $data, 0, self::$lifetime);
             } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
@@ -109,9 +117,9 @@ class DBSession {
     }
 
     public static function destroy($name) {
-        if(extension_loaded('apc') && APC_SESSION) {
+        if(self::$memcached) {
             for($i=0; $i<5; $i++)
-                @apc_delete('sess_'.$name.'_'.$i);
+                self::$memcached->delete('sess_'.$name.'_'.$i);
         }
         DB::BeginTrans();
         DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
