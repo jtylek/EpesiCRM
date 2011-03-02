@@ -16,10 +16,10 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-$id = json_decode($_POST['id']);
-$tab = json_decode($_POST['tab']);
+$id = $_POST['id'];
+$tab = $_POST['tab'];
 
-$dpv = json_decode($_POST['date']);
+$dpv = $_POST['date'];
 
 $now = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv));
 
