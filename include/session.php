@@ -90,7 +90,7 @@ class DBSession {
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
             if(self::$memcached) {
-                self::$memcached->set('sess_'.$name.'_'.CID, $data, 0, self::$lifetime);
+                self::$memcached->set('sess_'.$name.'_'.CID, $data, MEMCACHE_COMPRESSED, self::$lifetime);
             } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
