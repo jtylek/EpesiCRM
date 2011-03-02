@@ -31,7 +31,7 @@ class DBSession {
     }
 
     public static function read($name) {
-        $apc = extension_loaded('apc');
+        $apc = extension_loaded('apc') && APC_SESSION;
     
         if(DATABASE_DRIVER=='mysqlt') {
             if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name,ini_get('max_execution_time'))))
@@ -46,13 +46,12 @@ class DBSession {
             if(!is_numeric(CID))
                 trigger_error('Invalid client id.',E_USER_ERROR);
 
-/*            if($apc) {
+            if($apc) {
                 $ret = apc_fetch('sess_'.$name.'_'.CID);
 //                error_log($ret."\n",3,'/tmp/loggg');
                 if($ret)
                     $_SESSION['client'] = unserialize($ret);
-            } else*/
-            if(DATABASE_DRIVER=='postgres') {
+            } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 if(READ_ONLY_SESSION) {
                     self::$ado = DB::$ado;
@@ -82,14 +81,13 @@ class DBSession {
 
     public static function write($name, $data) {
         if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
-        $apc = extension_loaded('apc');
+        $apc = extension_loaded('apc') && APC_SESSION;
         $ret = 0;
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
-/*            if($apc) {
+            if($apc) {
                 apc_store('sess_'.$name.'_'.CID, $data, self::$lifetime);
-            } else*/
-            if(DATABASE_DRIVER=='postgres') {
+            } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
                 $ret &= self::$ado->Replace('session_client',array('data'=>$data,'session_name'=>self::$ado->qstr($name),'client_id'=>CID),array('session_name','client_id'));
@@ -115,7 +113,7 @@ class DBSession {
     }
 
     public static function destroy($name) {
-        if(extension_loaded('apc')) {
+        if(extension_loaded('apc') && APC_SESSION) {
             for($i=0; $i<5; $i++)
                 @apc_delete('sess_'.$name.'_'.$i);
         }
