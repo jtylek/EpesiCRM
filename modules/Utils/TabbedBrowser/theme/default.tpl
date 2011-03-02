@@ -19,7 +19,8 @@
 				{else}
 					<li>
 				{/if}
-				{$link}</li>&nbsp;
+				{$link}
+				</li>&nbsp;
 			{/foreach}
 			</ul>
 		</td>
