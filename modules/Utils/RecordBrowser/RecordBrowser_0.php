@@ -201,7 +201,7 @@ class Utils_RecordBrowser extends Module {
 	
 	public function add_note_button($key=null) {
 		$href = $this->add_note_button_href($key);
-		return '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Note')).' '.$href.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','icon_small.png').'"></a>';
+		return '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','New Note')).' '.$href.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','icon_small.png').'"></a>';
 	}
     // BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
     public function body($def_order=array(), $crits=array(), $cols=array(), $filters_set=array()) {
@@ -1897,6 +1897,7 @@ class Utils_RecordBrowser extends Module {
         $this->init();
 		$tb = $this->init_module('Utils_TabbedBrowser');		
         $gb_cha = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__changes');
+		$form = $this->init_module('Libs_QuickForm');
 
         $table_columns_changes = array( array('name'=>$this->t('Date'), 'width'=>1, 'wrapmode'=>'nowrap'),
                                         array('name'=>$this->t('Username'), 'width'=>1, 'wrapmode'=>'nowrap'),
@@ -1910,14 +1911,17 @@ class Utils_RecordBrowser extends Module {
 
         $created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
         $access = $this->get_access('view', $created);
-        $created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
+        $created['created_by_login'] = Utils_RecordBrowserCommon::get_user_label($created['created_by']);
         $field_hash = array();
         $edited = DB::GetRow('SELECT ul.login, c.edited_on FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
         foreach($this->table_rows as $field => $args)
             $field_hash[$args['id']] = $field;
 
         $ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC, id DESC',array($id));
+		$dates_select = array();
         while ($row = $ret->FetchRow()) {
+			$user = Utils_RecordBrowserCommon::get_user_label($row['edited_by']);
+			$dates_select[$row['edited_on']] = Base_RegionalSettingsCommon::time2reg($row['edited_on']);
             $changed = array();
             $ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
             while($row2 = $ret2->FetchRow()) {
@@ -1933,9 +1937,12 @@ class Utils_RecordBrowser extends Module {
                     if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
                     $created[$k] = $v;
                     $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
-                    $gb_cha->add_row(
+					$gb_row = $gb_cha->get_new_row();
+					$tb_path = escapeJS($tb->get_path());
+					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
+                    $gb_row->add_data(
                         Base_RegionalSettingsCommon::time2reg($row['edited_on']),
-                        $row['edited_by']!==null?Base_UserCommon::get_user_login($row['edited_by']):'',
+                        $row['edited_by']!==null?$user:'',
                         $this->ts($field_hash[$k]), // TRSL
                         $old,
                         $new
@@ -1943,6 +1950,7 @@ class Utils_RecordBrowser extends Module {
                 }
             }
         }
+		$dates_select[$created['created_on']] = Base_RegionalSettingsCommon::time2reg($created['created_on']);
         foreach($this->table_rows as $field => $args) {
             if (!$access[$args['id']]) continue;
             $val = $this->get_val($field, $created, false, $args);
@@ -1952,9 +1960,8 @@ class Utils_RecordBrowser extends Module {
 		$this->display_module($gb_cha);
 		$tb->end_tab();
 
-		$tb->start_tab('Record hitorical view');
-		$form = $this->init_module('Libs_QuickForm');
-		$form->addElement('timestamp', 'historical_view_pick_date', $this->t('View the record as of'), array(), array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");'));
+		$tb->start_tab('Record historical view');
+		$form->addElement('select', 'historical_view_pick_date', $this->t('View the record as of'), $dates_select, array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");', 'id'=>'historical_view_pick_date'));
 		$form->setDefaults(array('historical_view_pick_date'=>$created['created_on']));
 		$form->display();
 		$this->view_entry('history', $created);

@@ -1308,6 +1308,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		else
 			DB::Execute('DELETE FROM '.$tab.'_favorite WHERE user_id=%d AND '.$tab.'_id=%d', array(Acl::get_user(), $id));
     }
+	public static function get_user_label($uid) {
+        if (ModuleManager::is_installed('CRM_Contacts')>=0)
+			return CRM_ContactsCommon::get_user_label($uid);
+		else
+			Base_UserCommon::get_user_login($uid);
+	}
     public static function get_html_record_info($tab, $id){
         if (is_numeric($id)) $info = Utils_RecordBrowserCommon::get_record_info($tab, $id);
         else $info = $id;

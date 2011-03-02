@@ -20,16 +20,8 @@ $id = json_decode($_POST['id']);
 $tab = json_decode($_POST['tab']);
 
 $dpv = json_decode($_POST['date']);
-$dv = array();
-$dv['H'] = json_decode($_POST['H']);
-$dv['h'] = json_decode($_POST['H_small']);
-$dv['i'] = json_decode($_POST['i']);
-$dv['a'] = json_decode($_POST['a']);
-if (!$dv['a']) unset($dv['a']);
 
-
-$result = recalculate_time(date('Y-m-d'),$dv);
-$now = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d',Base_RegionalSettingsCommon::reg2time($dpv,false)).' '.date('H:i:s', $result)));
+$now = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv));
 
 $created = Utils_RecordBrowserCommon::get_record($tab, $id, true);
 $access = Utils_RecordBrowserCommon::get_access($tab, 'view', $created);
