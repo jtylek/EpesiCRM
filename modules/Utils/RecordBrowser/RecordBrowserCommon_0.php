@@ -1746,9 +1746,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $tab = $_REQUEST['__jump_to_RB_table'];
             $id = $_REQUEST['__jump_to_RB_record'];
             $action = $_REQUEST['__jump_to_RB_action'];
-            if (!is_numeric($id)) trigger_error('Critical failure - invalid id, requested record with id "'.serialize($id).'" from table "'.serialize($tab).'".',E_USER_ERROR);
+            if (!is_numeric($id)) return false;
             Utils_RecordBrowserCommon::check_table_name($tab);
             if (!self::get_access($tab,'browse')) return false;
+			if (!DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE id=%d', $id)) return false;
             unset($_REQUEST['__jump_to_RB_record']);
             unset($_REQUEST['__jump_to_RB_table']);
             unset($_REQUEST['__jump_to_RB_action']);

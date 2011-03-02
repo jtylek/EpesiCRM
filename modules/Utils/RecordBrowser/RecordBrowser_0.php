@@ -272,7 +272,7 @@ class Utils_RecordBrowser extends Module {
         ob_end_clean();
 
         $theme->assign('table', $table);
-        if (!$this->disabled['headline']) $theme->assign('caption', $this->t($this->caption).($this->additional_caption?' - '.$this->additional_caption:''));
+        if (!$this->disabled['headline']) $theme->assign('caption', $this->t($this->caption).($this->additional_caption?' - '.$this->additional_caption:'').' '.$this->get_jump_to_id_button());
         $theme->assign('icon', $this->icon);
         $theme->display('Browsing_records');
     }
@@ -957,6 +957,7 @@ class Utils_RecordBrowser extends Module {
             $this->navigation_executed = false;
             return true;
         }
+        if ($this->check_for_jump()) return;
         $theme = $this->init_module('Base/Theme');
         if ($this->isset_module_variable('id')) {
             $id = $this->get_module_variable('id');
@@ -1288,7 +1289,7 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('form_data', $data);
         $theme->assign('required_note', $this->t('Indicates required fields.'));
 
-        $theme->assign('caption',$this->t($this->caption));
+        $theme->assign('caption',$this->t($this->caption).' '.$this->get_jump_to_id_button());
         $theme->assign('icon',$this->icon);
 
         $theme->assign('main_page',$main_page);
@@ -2196,6 +2197,12 @@ class Utils_RecordBrowser extends Module {
         }
         $this->display_module($gb);
     }
+	
+	public function get_jump_to_id_button() {
+		$link = Module::create_href_js(Utils_RecordBrowserCommon::get_record_href_array($this->tab, '__ID__'));
+		$link = str_replace('__ID__', '\'+this.value+\'', $link);
+		return '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','jump_to.png').'"></a><input type="text" id="jump_to_record_input" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
+	}
 
     public function search_by_id_form($label) {
         $message = '';
