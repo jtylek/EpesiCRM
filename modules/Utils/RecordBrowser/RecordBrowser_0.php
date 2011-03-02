@@ -1889,7 +1889,7 @@ class Utils_RecordBrowser extends Module {
         $theme = $this->init_module('Base/Theme');
         $theme->assign('table',$this->get_html_of_module($gb_cha));
         $theme->assign('label',$this->t('Recent Changes'));
-        $theme->display('View_history');
+        $theme->display('View_dirty_read');
     }
     public function view_edit_history($id){
 		load_js('modules/Utils/RecordBrowser/edit_history.js');
