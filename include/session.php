@@ -23,8 +23,8 @@ class DBSession {
 
     public static function open($path, $name) {
         self::$lifetime = ini_get("session.gc_maxlifetime");
-        if(extension_loaded('memcache') && MEMCACHED_SESSION_SERVER) {
-            $srv = explode(':',MEMCACHED_SESSION_SERVER,2);
+        if(extension_loaded('memcache') && MEMCACHE_SESSION_SERVER) {
+            $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
             self::$memcached = new Memcache();
             if(!self::$memcached->connect($srv[0],(isset($srv[1])?$srv[1]:11211)))
                 die('Cannot connect to memcache server');
