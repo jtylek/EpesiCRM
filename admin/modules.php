@@ -1,5 +1,9 @@
 <?php
 require_once('auth.php');
+require_once('functions.php');
+pageheader();
+// print('<CENTER'>);
+starttable();
 
 //create default module form
 $form = new HTML_QuickForm('modulesform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
@@ -27,6 +31,7 @@ if ($form->validate()) {
 	print('<hr><a href="modules.php">back</a>');
 } else {
 	$form->display();
-	print('<hr><a href="index.php">back</a>');
 }
+closetable();
+pagefooter();
 ?>

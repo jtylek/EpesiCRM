@@ -1,0 +1,133 @@
+body {
+    font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
+    font-size: 11px;
+	margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+	background-color: #EAEAEA;
+}
+
+table {
+    font-size: 16px;
+	background-color: #FFFFFF;
+	width:650px; 
+}
+
+a {
+    color: #336699;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+a.button {
+    color: #FFFFFF;
+    font-weight: normal;
+    line-height: 20px;
+    display: block;
+    width: 100px;
+    background-image: url("../images/header-blue.png");
+    text-align: center;
+}
+
+a.button:hover {
+    background-image: url("../images/header-blue-hover.png");
+}
+
+.green {
+    color: #669933;
+}
+
+.red {
+    color: #993333;
+}
+
+.blue {
+    color: #336699;
+}
+
+.left {
+    float: left;
+    width: 50%;
+}
+
+.right {
+    float: right;
+    width: 50%;
+}
+
+.header {
+    height: 48px;
+    padding-top: 20px;
+    color: #009933;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+span.footer {
+    font-size: 10px;
+    color: #777777;
+}
+
+.line {
+    height: 1px;
+    width: 100%;
+    background-color: #B3B3B3;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/*** table banner ***/
+
+#banner {
+    width: 100%;
+    border-bottom: 4px solid #B3B3B3;
+}
+
+#banner .image {
+    background-image: url("../images/logo-small.png");
+    background-repeat: repeat-x;
+    width: 193px;
+    height: 68px;
+}
+
+#banner .back {
+    background-image: url("../images/banner-background.png");
+
+}
+
+/*** table main ***/
+
+#main-1 {
+    border: 1px solid #B3B3B3;
+    background-color: #FFFFFF;
+    padding: 0px 0px 0px 0px;
+}
+
+#main {
+    border: 1px solid #B3B3B3;
+    background-color: #F0F0F0;
+    padding: 20px 20px 20px 20px;
+}
+
+.content {
+    padding: 20px 20px 20px 20px;
+}
+
+.div-button {
+    height: 48px;
+    padding-top: 20px;
+    background-image: url("../images/background.png");
+    background-repeat: repeat-x;
+}
+
+div.licence {
+    overflow: auto;
+    height: 300px;
+    border: 1px solid #B3B3B3;
+    background-color: #FFFFFF;
+    padding: 10px 10px 10px 10px;
+}
+
+input {
+    font-size: 11px;
+    border: 1px solid #B3B3B3;
+}

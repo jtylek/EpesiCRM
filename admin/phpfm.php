@@ -43,6 +43,7 @@
 */
 require_once('auth.php');
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
 // +--------------------------------------------------
 // | Header and Globals
 // +--------------------------------------------------

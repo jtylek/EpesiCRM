@@ -10,6 +10,9 @@
 
  $ACCESS_PWD=''; #script access password, SET IT if you want to protect script from public access
  require_once('auth.php');
+ require_once('functions.php');
+ pageheader();
+
  
  #DEFAULT db connection settings
  $DB=array(
@@ -266,8 +269,7 @@ Database: <select name="db" onChange="frefresh()"><option value='*'> - select/re
  | <a href="?showcfg=1">Settings</a> 
 <?php } ?>
 <?php if ($GLOBALS['ACCESS_PWD']){?> | <a href="?logoff=1">Logoff</a> <?php }?>
- | <a href="?phpinfo=1">phpinfo</a> |
-<a href="index.php"> Main Menu</a>
+ | <a href="index.php"> Main Menu</a>
 </div>
 
 <div class="err"><?php echo $err_msg?></div>
@@ -305,15 +307,13 @@ Records: <b><?php echo $reccount?></b> in <b><?php echo $time_all?></b> sec<br /
 <?php echo $sqldr?>
 
 <?php
- print_footer();
+pagefooter();
+print_footer();
 }
 
 function print_footer(){
 ?>
 </form>
-<br>
-<br>
-
 <div align="right">
 <small>&copy; 2004-2007 Oleg Savchuk</small>
 </div>
