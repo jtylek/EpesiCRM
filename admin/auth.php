@@ -1,5 +1,6 @@
 <?php
 require_once('include.php');
+
 $lpa = ModuleManager::get_load_priority_array();
 $load = array('Base_User'=>1,'Base_User_Login'=>1);
 
@@ -40,6 +41,8 @@ if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user
 		exit();
 	}
 }
+
+
 
 function submit_login($username,$form) {
 	return ModuleManager::is_installed('Base_User_Login')>=0 && Base_User_LoginCommon::check_login($username, $form->exportValue('pass')) && Acl::check('Administration','Main','Users',Base_UserCommon::get_user_id($username));
