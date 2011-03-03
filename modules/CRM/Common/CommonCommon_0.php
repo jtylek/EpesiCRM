@@ -14,15 +14,15 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_CommonCommon extends ModuleCommon {
 	public static function user_settings() {
 		if(Acl::is_user()) {
-			$methods = array('none'=>Base_LangCommon::ts('CRM/Common','None'),
-					'callto'=>Base_LangCommon::ts('CRM/Common','Skype and other "callto" protocol applications'))
+			$methods = array('none'=>'None',
+					'callto'=>'Skype and other "callto" protocol applications')
 					+ ModuleManager::call_common_methods('dialer_description');
 			return array(
 				'Dialing'=>array(
 					array('name'=>'method','label'=>'Method', 'type'=>'select', 'values'=>$methods, 'default'=>'none'),
 				),
 				'Misc'=>array(
-					array('name'=>'default_record_permission','label'=>'Default Records Permission','type'=>'select','default'=>0,'values'=>Utils_CommonDataCommon::get_array('CRM/Access', true))
+					array('name'=>'default_record_permission','label'=>'Default Records Permission','type'=>'select','default'=>0,'values'=>Utils_CommonDataCommon::get_array('CRM/Access', false))
 				)
 			);
 		}

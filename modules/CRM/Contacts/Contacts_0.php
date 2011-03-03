@@ -210,18 +210,18 @@ class CRM_Contacts extends Module {
 	}
 
     public function update_contacts_address_prompt($company, $lid) {
-        $html = $this->t('<br/>This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would You like to copy to company contacts:');
+        $html = '<br/>'.$this->t('This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would You like to copy to company contacts:');
         $form = $this->init_module('Libs/QuickForm');
 
         $data = array( /* Source ID, Target ID, Text, Checked state */
-            array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>'Address 1', 'checked'=>true),
-            array('sid'=>'address_2', 'tid'=>'address_2', 'text'=>'Address 2', 'checked'=>true),
-            array('sid'=>'city', 'tid'=>'city', 'text'=>'City', 'checked'=>true),
-            array('sid'=>'country', 'tid'=>'country', 'text'=>'Country', 'checked'=>true),
-            array('sid'=>'zone', 'tid'=>'zone', 'text'=>'Zone', 'checked'=>true),
-            array('sid'=>'postal_code', 'tid'=>'postal_code', 'text'=>'Postal Code', 'checked'=>true),
-            array('sid'=>'phone', 'tid'=>'work_phone', 'text'=>'Phone as Work Phone', 'checked'=>false),
-            array('sid'=>'fax', 'tid'=>'fax', 'text'=>'Fax', 'checked'=>false),
+            array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>$this->t('Address 1'), 'checked'=>true),
+            array('sid'=>'address_2', 'tid'=>'address_2', 'text'=>$this->t('Address 2'), 'checked'=>true),
+            array('sid'=>'city', 'tid'=>'city', 'text'=>$this->t('City'), 'checked'=>true),
+            array('sid'=>'country', 'tid'=>'country', 'text'=>$this->t('Country'), 'checked'=>true),
+            array('sid'=>'zone', 'tid'=>'zone', 'text'=>$this->t('Zone'), 'checked'=>true),
+            array('sid'=>'postal_code', 'tid'=>'postal_code', 'text'=>$this->t('Postal Code'), 'checked'=>true),
+            array('sid'=>'phone', 'tid'=>'work_phone', 'text'=>$this->t('Phone as Work Phone'), 'checked'=>false),
+            array('sid'=>'fax', 'tid'=>'fax', 'text'=>$this->t('Fax'), 'checked'=>false),
         );
         foreach($data as $row) {
             $form->addElement('checkbox', $row['sid'], $row['text'], '&nbsp;&nbsp;<span style="color: gray">'.$company[$row['sid']].'</span>', $row['checked'] ? array('checked'=>'checked'): array());

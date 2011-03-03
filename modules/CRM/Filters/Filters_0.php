@@ -74,7 +74,7 @@ class CRM_Filters extends Module {
 		//Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->t('My records')));
 		if (isset($_REQUEST['__location'])) $in_use = (CRM_FiltersCommon::$in_use===$_REQUEST['__location']);
 		else $in_use = CRM_FiltersCommon::$in_use;
-		print($this->t('%s',array('<a class="lbOn'.($in_use?'':' disabled').'" rel="crm_filters">'.$this->ht('Perspective: ').'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b></a>')));
+		print('<a class="lbOn'.($in_use?'':' disabled').'" rel="crm_filters">'.$this->ht('Perspective: ').'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b></a>');
 	}
 
 	public function manage_filters() {

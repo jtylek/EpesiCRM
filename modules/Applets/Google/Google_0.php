@@ -27,7 +27,7 @@ class Applets_Google extends Module {
                     <table>
                         <tr>
                             <td><input name="q" size="30" maxlength="255" value="" type="text" /></td>
-                            <td><input class="button" name="sa" value="Search" type="submit" /></td>
+                            <td><input class="button" name="sa" value="'.$this->t('Search').'" type="submit" /></td>
                         </tr>
                     </table>
                     </center>

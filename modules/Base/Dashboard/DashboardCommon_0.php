@@ -79,7 +79,7 @@ class Base_DashboardCommon extends ModuleCommon {
 
 			if (!isset($app_info[$name])) $app_info[$name] = '';
 			$th->assign('content','<div class="content" style="padding:4px;" id="dashboard_applet_content_'.$id.'">'.
-					$app_info[$name].
+					Base_LangCommon::ts('Base_Dashboard',$app_info[$name]).
 					'</div>');
 			$th->assign('handle_class','handle');
 

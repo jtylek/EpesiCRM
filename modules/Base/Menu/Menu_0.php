@@ -200,7 +200,7 @@ class Base_Menu extends Module {
 
 		// Home menu
 		$home_menu = array();
-		$home_menu[$this->ht('Menu')] = $modules_menu;
+		$home_menu['Menu'] = $modules_menu;
 
 		// putting all menus into menu array
 		$menu = array();

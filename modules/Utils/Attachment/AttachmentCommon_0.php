@@ -27,7 +27,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if(Acl::is_user()) {
 			return array(
 				'Misc'=>array(
-					array('name'=>'default_permission','label'=>'Default notes permission', 'type'=>'select', 'default'=>0, 'values'=>array(Base_LangCommon::ts('Utils_Attachment','Public'),Base_LangCommon::ts('Utils_Attachment','Protected'),Base_LangCommon::ts('Utils_Attachment','Private')))
+					array('name'=>'default_permission','label'=>'Default notes permission', 'type'=>'select', 'default'=>0, 'values'=>array('Public','Protected','Private'))
 				)
 			);
 		}

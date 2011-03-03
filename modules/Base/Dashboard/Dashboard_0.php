@@ -426,7 +426,7 @@ class Base_Dashboard extends Module {
 		$values = $this->get_values($id,$module);
 		foreach($info as & $v){
 			if(isset($v['label'])) $v['label'] = $this->t($v['label']);
-			if(isset($v['values']) && is_array($v['values']))
+			if(isset($v['values']) && is_array($v['values']) && (!isset($v['translate']) || $v['translate']))
 				foreach($v['values'] as &$x)
 					$x = $this->ht($x);
 			if (isset($v['rule'])) {

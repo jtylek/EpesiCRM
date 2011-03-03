@@ -210,10 +210,10 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$subscribed = self::check_if_user_subscribes(Acl::get_user(), $category_id, $id);
 		if ($subscribed) {
 			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','unsubscribe_big.png');
-			$label = Base_LangCommon::ts('Utils_Watchdog','Unsubscribe');
+			$label = 'Unsubscribe';
 		} else {
 			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','subscribe_big.png');
-			$label = Base_LangCommon::ts('Utils_Watchdog','Subscribe');
+			$label = 'Subscribe';
 		}
 		Base_ActionBarCommon::add($icon,$label,$href);
 	}

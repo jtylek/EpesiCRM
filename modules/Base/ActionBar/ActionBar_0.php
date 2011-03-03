@@ -55,14 +55,14 @@ class Base_ActionBar extends Module {
 		//translate
 		foreach($icons as &$i) {
 			$i['label'] = $this->ht($i['label']);
-			$i['description'] = $this->ht($i['description']);
+			$description = $this->ht($i['description']);
 			if($display_text)
 				if($i['description'])
-					$t = Utils_TooltipCommon::open_tag_attrs($i['description']);
+					$t = Utils_TooltipCommon::open_tag_attrs($description);
 				else
 					$t = '';
 			else
-				$t = Utils_TooltipCommon::open_tag_attrs($i['label'].(($i['description'])?' - '.$i['description']:''),false);
+				$t = Utils_TooltipCommon::open_tag_attrs($i['label'].(($i['description'])?' - '.$description:''),false);
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
 			if (isset(Base_ActionBarCommon::$available_icons[$i['icon']]))

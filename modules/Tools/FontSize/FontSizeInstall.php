@@ -18,7 +18,7 @@ class Tools_FontSizeInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
-		Base_ThemeComon::uninstall_default_theme('Tools/FontSize');
+		Base_ThemeCommon::uninstall_default_theme('Tools/FontSize');
 		return true;
 	}
 	

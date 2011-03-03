@@ -30,7 +30,7 @@ class Applets_BirthdaysCommon extends ModuleCommon {
 							)
 			),
 			array(
-				'name'=>'title','label'=>'Title','type'=>'text','default'=>'Upcoming Birthdays',
+				'name'=>'title','label'=>'Title','type'=>'text','default'=>Base_LangCommon::ts('Applets/Birthdays','Upcoming Birthdays'),
 				'rule'=>array(
 						array('message'=>'Field required', 'type'=>'required')
 							)

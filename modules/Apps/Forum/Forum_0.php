@@ -34,7 +34,7 @@ class Apps_Forum extends Module {
 		$theme -> assign('forum_boards',$this->t('Forum Boards'));
 		$theme -> assign('boards',$boards);
 		if (Base_AclCommon::i_am_admin()) {
-			Base_ActionBarCommon::add('add',$this->ht('New board'),$this->create_callback_href(array($this,'add_board')));
+			Base_ActionBarCommon::add('add','New board',$this->create_callback_href(array($this,'add_board')));
 		}
 		$theme -> display('Boards');
 		$this->indicator = '';
@@ -75,9 +75,9 @@ class Apps_Forum extends Module {
 		$theme -> assign('board_name',$board_name);
 		$this->indicator = ' board';
 		$theme -> assign('forum_boards','<a '.$this->create_back_href().'>'.$this->t('Forum Boards').'</a>');
-		Base_ActionBarCommon::add('back',$this->ht('Boards'),$this->create_back_href());
+		Base_ActionBarCommon::add('back','Boards',$this->create_back_href());
 		if (Base_AclCommon::i_am_user())
-			Base_ActionBarCommon::add('add',$this->ht('New thread'),$this->create_callback_href(array($this,'new_thread'),array($board)));
+			Base_ActionBarCommon::add('add','New thread',$this->create_callback_href(array($this,'new_thread'),array($board)));
 		$theme -> display('Threads');
 		return true;
 	}

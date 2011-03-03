@@ -35,6 +35,7 @@ class Base_LangCommon extends ModuleCommon {
 	 * @return string
 	 */
 	 public static function ts($group, $original, array $arg=array(),$hidden=true) {
+		if (!$original) return '';
 		global $translations;
 		if(is_string($group))
 			$group = str_replace(array('/','\\'),'_',$group);

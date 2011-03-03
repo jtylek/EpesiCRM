@@ -1111,26 +1111,26 @@ class CRM_ContactsCommon extends ModuleCommon {
             foreach(array_merge(array($values['company_name']),is_array($values['related_companies'])?$values['related_companies']:array()) as $id) {
                 $sel_val[$id] = self::company_format_default(self::get_company($id), true);
             }
-            $form->addElement('select', 'company', 'Select company:', $sel_val);
+            $form->addElement('select', 'company', Base_LangCommon::ts('CRM_Contacts','Select company:'), $sel_val);
             unset($sel_val);
 
-            $form->addElement('html', 'Select which fields should be copied:');
+            $form->addElement('html', Base_LangCommon::ts('CRM_Contacts','Select which fields should be copied:'));
             $data = array( /* Source ID, Target ID, Text, Checked state */
-                    array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>'Address 1', 'checked'=>true),
-                    array('sid'=>'address_2', 'tid'=>'address_2', 'text'=>'Address 2', 'checked'=>true),
-                    array('sid'=>'city', 'tid'=>'city', 'text'=>'City', 'checked'=>true),
-                    array('sid'=>'country', 'tid'=>'country', 'text'=>'Country', 'checked'=>true),
-                    array('sid'=>'zone', 'tid'=>'zone', 'text'=>'Zone', 'checked'=>true),
-                    array('sid'=>'postal_code', 'tid'=>'postal_code', 'text'=>'Postal Code', 'checked'=>true),
-                    array('sid'=>'phone', 'tid'=>'work_phone', 'text'=>'Phone as Work Phone', 'checked'=>false),
-                    array('sid'=>'fax', 'tid'=>'fax', 'text'=>'Fax', 'checked'=>false),
+                    array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>Base_LangCommon::ts('CRM_Contacts','Address 1'), 'checked'=>true),
+                    array('sid'=>'address_2', 'tid'=>'address_2', 'text'=>Base_LangCommon::ts('CRM_Contacts','Address 2'), 'checked'=>true),
+                    array('sid'=>'city', 'tid'=>'city', 'text'=>Base_LangCommon::ts('CRM_Contacts','City'), 'checked'=>true),
+                    array('sid'=>'country', 'tid'=>'country', 'text'=>Base_LangCommon::ts('CRM_Contacts','Country'), 'checked'=>true),
+                    array('sid'=>'zone', 'tid'=>'zone', 'text'=>Base_LangCommon::ts('CRM_Contacts','Zone'), 'checked'=>true),
+                    array('sid'=>'postal_code', 'tid'=>'postal_code', 'text'=>Base_LangCommon::ts('CRM_Contacts','Postal Code'), 'checked'=>true),
+                    array('sid'=>'phone', 'tid'=>'work_phone', 'text'=>Base_LangCommon::ts('CRM_Contacts','Phone as Work Phone'), 'checked'=>false),
+                    array('sid'=>'fax', 'tid'=>'fax', 'text'=>Base_LangCommon::ts('CRM_Contacts','Fax'), 'checked'=>false),
             );
             foreach($data as $row) {
                 $form->addElement('checkbox', $row['sid'], $row['text'], '', $row['checked'] ? array('checked'=>'checked'): array());
             }
 
-            $ok = $form->createElement('submit', 'submit', 'Confirm', array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
-            $cancel = $form->createElement('button', 'cancel', 'Cancel', array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+            $ok = $form->createElement('submit', 'submit', Base_LangCommon::ts('CRM_Contacts','Confirm'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+            $cancel = $form->createElement('button', 'cancel', Base_LangCommon::ts('CRM_Contacts','Cancel'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
             $form->addGroup(array($ok, $cancel));
 
             if($form->validate()) {
@@ -1175,12 +1175,12 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 
     public static function applet_info() {
-        return "Displays recent/favourites contacts";
+        return "Displays recent/favorites contacts";
     }
 
     public static function applet_settings() {
         return array_merge(Utils_RecordBrowserCommon::applet_settings(),array(
-                array('name'=>'conds','label'=>'Display','type'=>'select','default'=>'fav','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('fav'=>Base_LangCommon::ts('CRM_Contacts','favourites'),'rec'=>Base_LangCommon::ts('CRM_Contacts','recent')))));
+                array('name'=>'conds','label'=>'Display','type'=>'select','default'=>'fav','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('fav'=>Base_LangCommon::ts('CRM_Contacts','Favorites'),'rec'=>Base_LangCommon::ts('CRM_Contacts','Recent')))));
     }
 	public function user_settings() {
 		$opts = array(
