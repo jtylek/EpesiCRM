@@ -40,6 +40,8 @@ if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user
 		Acl::set_user(Base_UserCommon::get_user_id($user));
 	} else {
 		$form->display();
+		closetable();
+		pagefooter();
 		exit();
 	}
 }

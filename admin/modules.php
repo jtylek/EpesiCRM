@@ -6,14 +6,14 @@ pageheader();
 starttable();
 
 //create default module form
-$form = new HTML_QuickForm('modulesform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
+$form = new HTML_QuickForm('modulesform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET), '', null, true);
 $form->addElement('html', '<CENTER><div class="header">Select modules to uninstall</div></CENTER>');
 $form->addElement('html', '<HR>');
 
 foreach(ModuleManager::$modules as $name=>$v)
 	$form->addElement('checkbox',$name,$name.' (ver '.$v.')');
 
-$form->addElement('submit', 'submit_button', 'Uninstall Selected');
+$form->addElement('button', 'submit_button', 'Uninstall Selected', array('class'=>'button', 'onclick'=>'if(confirm("Are you sure you want to uninstall selected modules?"))document.modulesform.submit();'));
 
 //validation or display
 if ($form->validate()) {

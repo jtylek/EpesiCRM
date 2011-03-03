@@ -18,7 +18,7 @@ a {
     text-decoration: none;
 }
 
-a.button {
+.button {
     color: #FFFFFF;
     font-weight: normal;
     line-height: 20px;
@@ -28,7 +28,7 @@ a.button {
     text-align: center;
 }
 
-a.button:hover {
+.button:hover {
     background-image: url("../images/header-blue-hover.png");
 }
 
