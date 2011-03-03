@@ -19,9 +19,7 @@ ModuleManager::load_modules();
 $id = $_POST['id'];
 $tab = $_POST['tab'];
 
-$dpv = $_POST['date'];
-
-$now = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv));
+$now = $_POST['date'];
 
 $created = Utils_RecordBrowserCommon::get_record($tab, $id, true);
 $access = Utils_RecordBrowserCommon::get_access($tab, 'view', $created);
@@ -35,7 +33,7 @@ $table_rows = Utils_RecordBrowserCommon::$table_rows;
 foreach($table_rows as $field => $args)
 	$field_hash[$args['id']] = $field;	
 
-$ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$tab.'_id=%d AND edited_on>=%T ORDER BY edited_on DESC, id DESC',array($id, $now));
+$ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$tab.'_id=%d AND edited_on>%T ORDER BY edited_on DESC, id DESC',array($id, $now));
 while ($row = $ret->FetchRow()) {
 	$changed = array();
 	$ret2 = DB::Execute('SELECT * FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
