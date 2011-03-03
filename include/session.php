@@ -53,7 +53,6 @@ class DBSession {
 
             if(self::$memcached) {
                 $ret = self::$memcached->get('sess_'.$name.'_'.CID);
-//                error_log($ret."\n",3,'/tmp/loggg');
                 if($ret)
                     $_SESSION['client'] = unserialize($ret);
             } elseif(DATABASE_DRIVER=='postgres') {

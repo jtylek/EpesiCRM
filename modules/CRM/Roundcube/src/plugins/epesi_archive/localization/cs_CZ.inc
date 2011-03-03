@@ -19,6 +19,7 @@
 
 $labels = array();
 $labels['buttontitle'] = 'Archivovat zprávu';
+$labels['buttontitle_compose'] = 'Archivovat zprávu';
 $labels['archived'] = 'Úspěšně vloženo do archivu';
 $labels['contactnotfound'] = 'Matching contact or company not found';
 $labels['archivefolder'] = 'Epesi Archiv';

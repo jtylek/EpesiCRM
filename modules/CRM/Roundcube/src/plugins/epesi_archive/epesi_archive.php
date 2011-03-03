@@ -6,15 +6,30 @@ class epesi_archive extends rcube_plugin
 
   function init()
   {
-    $this->register_action('plugin.epesi_archive', array($this, 'request_action'));
-
     $rcmail = rcmail::get_instance();
+    $this->register_action('plugin.epesi_archive', array($this, 'request_action'));
+    
+    //register hook to archive just sent mail
+    $this->add_hook('cleanup_attachments', array($this, 'auto_archive'));
+    $_SESSION['epesi_auto_archive'] = 1;
+
+    $this->include_script('archive.js');
+    $skin_path = $rcmail->config->get('skin_path');
+    $this->add_texts('localization', true);
+    
+    if($rcmail->action == 'compose') {
+        $this->add_button(
+        array(
+            'command' => 'plugin.epesi_auto_archive',
+            'imageact' => $skin_path.'/archive_act.png',
+            'title' => 'buttontitle_compose',
+            'domain' => $this->ID,
+            'id'=>'epesi_auto_archive_button'
+        ),
+        'toolbar');
+    }
 
     if ($rcmail->action == '' || $rcmail->action == 'show') {
-      $skin_path = $rcmail->config->get('skin_path');
-
-      $this->include_script('archive.js');
-      $this->add_texts('localization', true);
       $this->add_button(
         array(
             'command' => 'plugin.epesi_archive',
@@ -81,9 +96,14 @@ class epesi_archive extends rcube_plugin
 
   function request_action()
   {
-    global $E_SESSION;
     $this->add_texts('localization');
+    
+    if (isset($_POST['_enabled_auto_archive'])) { //auto archive toggle
+        $_SESSION['epesi_auto_archive'] = get_input_value('_enabled_auto_archive', RCUBE_INPUT_POST);
+        return;
+    }
 
+    //archive button
     $rcmail = rcmail::get_instance();
     $uids = get_input_value('_uid', RCUBE_INPUT_POST);
     $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
@@ -93,15 +113,30 @@ class epesi_archive extends rcube_plugin
         return;
     }
     $sent_mbox = ($rcmail->config->get('sent_mbox')==$mbox);
-
-    $msgs = array();
+    
     $uids = explode(',',$uids);
+    if($this->archive($uids,$sent_mbox)) {
+        $rcmail->output->command('move_messages', $this->archive_mbox);
+        $rcmail->output->command('display_message', $this->gettext('archived'), 'confirmation');
+
+        $rcmail->output->send();
+    }
+  }
+
+  private function archive($uids,$sent_mbox,$verbose=true) {
+    global $E_SESSION;
+    $rcmail = rcmail::get_instance();
+
+    $msgs = array();    
     foreach($uids as $uid) {
+        error_log("uid: ".print_r($uid,true)."\n",3,'/tmp/dupaaaa');
         $msg = new rcube_message($uid);
         if (empty($msg->headers)) {
-            $rcmail->output->show_message('messageopenerror', 'error');
-            $rcmail->output->send();
-            return;
+            if($verbose) {
+                $rcmail->output->show_message('messageopenerror', 'error');
+                $rcmail->output->send();
+            }
+            return false;
         } else {
             $msgs[] = $msg;
         }
@@ -129,10 +164,11 @@ class epesi_archive extends rcube_plugin
     foreach($map as $k=>$ret) {
         if(!$ret && !isset($_SESSION['force_archive'][$k])) {
             $_SESSION['force_archive'][$k] = 1;
-            $rcmail = rcmail::get_instance();
-            $rcmail->output->command('display_message', $this->gettext('contactnotfound').' '.$addr, 'error');
-            $rcmail->output->send();
-            return;
+            if($verbose) {
+                $rcmail->output->command('display_message', $this->gettext('contactnotfound').' '.$addr, 'error');
+                $rcmail->output->send();
+            }
+            return false;
         }
     }
 
@@ -172,11 +208,11 @@ class epesi_archive extends rcube_plugin
         $date = $msg->get_header('timestamp');
         $headers = array();
         foreach($msg->headers as $k=>$v) {
-            if(is_string($v))
+            if(is_string($v) && $k!='from' && $k!='to' && $k!='body_structure')
                 $headers[] = $k.': '.$v;
         }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
-        $id = Utils_RecordBrowserCommon::new_record('rc_mails',array('contacts'=>$contacts,'date'=>$date,'employee'=>$employee,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'direction'=>$sent_mbox));
+        $id = Utils_RecordBrowserCommon::new_record('rc_mails',array('contacts'=>$contacts,'date'=>$date,'employee'=>$employee,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'direction'=>$sent_mbox,'from'=>$msg->headers->from,'to'=>$msg->headers->to));
         $epesi_mails[] = $id;
         foreach($contacts as $c) {
             list($rs,$con_id) = explode(':',$c);
@@ -204,9 +240,6 @@ class epesi_archive extends rcube_plugin
     }
 
     //$rcmail->output->command('delete_messages');
-    $rcmail->output->command('move_messages', $this->archive_mbox);
-    $rcmail->output->command('display_message', $this->gettext('archived'), 'confirmation');
-
     global $E_SESSION_ID;
     $lifetime = ini_get("session.gc_maxlifetime");
     if(DATABASE_DRIVER=='mysqlt') {
@@ -225,8 +258,8 @@ class epesi_archive extends rcube_plugin
             DB::Execute('SELECT RELEASE_LOCK(%s)',array($E_SESSION_ID));
         }
     }
-
-    $rcmail->output->send();
+    
+    return true;
   }
 
   function add_mailbox($p) {
@@ -237,5 +270,24 @@ class epesi_archive extends rcube_plugin
         elseif(!$rcmail->imap->mailbox_exists($this->archive_mbox,true))
             $rcmail->imap->subscribe($this->archive_mbox);
     }
+  }
+
+  //on message sending
+  function auto_archive() {
+    if(!$_SESSION['epesi_auto_archive']) return;
+    
+    global $store_folder,$saved,$IMAP,$message_id,$store_target;
+    if(!$store_folder || !$saved) return;
+    
+    $msgid = strtr($message_id, array('>' => '', '<' => ''));  
+    $old_mbox = $IMAP->get_mailbox_name();
+
+    $IMAP->set_mailbox($store_target);
+    $uids = $IMAP->search_once('', 'HEADER Message-ID '.$msgid, true);
+    if(empty($uids)) return;
+    
+    $this->archive($uids,true,false);
+
+    $IMAP->set_mailbox($old_mbox);
   }
 }

@@ -3,6 +3,22 @@
  * @version @package_version@
  */
 
+var rcmail_epesi_auto_archive_enabled = false;
+
+function rcmail_epesi_auto_archive(prop)
+{
+  rcmail_epesi_auto_archive_enabled = !rcmail_epesi_auto_archive_enabled;
+  var x = document.getElementById('epesi_auto_archive_button');
+  if(rcmail_epesi_auto_archive_enabled) {
+    x.src = x.src.replace('archive_pas.png','archive_act.png');
+  } else {
+    x.src = x.src.replace('archive_act.png','archive_pas.png');  
+  }
+
+  rcmail.set_busy(true, 'loading');
+  rcmail.http_post('plugin.epesi_archive', '_enabled_auto_archive='+(rcmail_epesi_auto_archive_enabled?1:0), true);
+}
+
 function rcmail_epesi_archive(prop)
 {
   if (!rcmail.env.uid && (!rcmail.message_list || !rcmail.message_list.get_selection().length))
@@ -31,6 +47,13 @@ if (window.rcmail) {
     var li;
     if (rcmail.env.archive_mailbox && rcmail.env.archive_mailbox_icon && (li = rcmail.get_folder_li(rcmail.env.archive_mailbox)))
       $(li).css('background-image', 'url(' + rcmail.env.archive_mailbox_icon + ')');
+
+    // add archive button to compose window
+    if(rcmail.gui_objects.messageform) {
+        rcmail.register_command('plugin.epesi_auto_archive', rcmail_epesi_auto_archive);
+        rcmail.enable_command('plugin.epesi_auto_archive', true);
+        rcmail_epesi_auto_archive_enabled = true;
+    }
 
   })
 }

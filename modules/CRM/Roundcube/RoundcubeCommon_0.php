@@ -154,7 +154,7 @@ class CRM_RoundcubeCommon extends ModuleCommon {
     }
 
     public static function display_subject($record, $nolink, $desc) {
-        return Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
+        return Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink).($record['from']?'<br /><b>From:</b> '.$record['from']:'').($record['to']?'<br /><b>To:</b> '.$record['to']:'');
     }
 
     public static function QFfield_direction(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {

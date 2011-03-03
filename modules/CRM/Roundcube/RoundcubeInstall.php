@@ -134,6 +134,22 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'visible'=>false,
                 'required'=>false,
                 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_body')
+            ),
+            array(
+                'name'=>'From',
+                'type'=>'text',
+                'param'=>128,
+                'extra'=>false,
+                'visible'=>false,
+                'required'=>false
+            ),
+            array(
+                'name'=>'To',
+                'type'=>'text',
+                'param'=>512,
+                'extra'=>false,
+                'visible'=>false,
+                'required'=>false
             )
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails', $fields);

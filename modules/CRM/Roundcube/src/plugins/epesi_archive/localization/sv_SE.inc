@@ -2,6 +2,7 @@
 
 $labels = array();
 $labels['buttontitle'] = 'Arkivera meddelande';
+$labels['buttontitle_compose'] = 'Arkivera meddelande';
 $labels['archived'] = 'Meddelandet är arkiverat';
 $labels['contactnotfound'] = 'Matching contact or company not found';
 $labels['archivefolder'] = 'Epesi Arkiv';
