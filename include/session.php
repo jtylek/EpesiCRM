@@ -23,10 +23,14 @@ class DBSession {
 
     public static function open($path, $name) {
         self::$lifetime = ini_get("session.gc_maxlifetime");
-        if(extension_loaded('memcache') && MEMCACHE_SESSION_SERVER) {
+        if(MEMCACHE_SESSION_SERVER) {
             $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
-            self::$memcached = new Memcache();
-            if(!self::$memcached->connect($srv[0],(isset($srv[1])?$srv[1]:11211)))
+            if(extension_loaded('memcached'))
+                self::$memcached = new Memcached();
+            elseif(extension_loaded('memcache'))
+                self::$memcached = new Memcache();
+
+            if(self::$memcached && !self::$memcached->addServer($srv[0],(isset($srv[1])?$srv[1]:11211)))
                 die('Cannot connect to memcache server');
         }
         return true;
@@ -89,7 +93,10 @@ class DBSession {
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
             if(self::$memcached) {
-                self::$memcached->set('sess_'.$name.'_'.CID, $data, MEMCACHE_COMPRESSED, self::$lifetime);
+                if(extension_loaded('memcached'))
+                    self::$memcached->set('sess_'.$name.'_'.CID, $data, self::$lifetime);
+                else
+                    self::$memcached->set('sess_'.$name.'_'.CID, $data, 0, self::$lifetime);
             } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
