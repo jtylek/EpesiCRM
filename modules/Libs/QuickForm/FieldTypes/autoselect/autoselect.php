@@ -97,7 +97,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			}
 				
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
-			$strHtml .= '<option value="">'.'Start typing to search...'.'</option>';
+			$strHtml .= '<option value="">'.Base_LangCommon::ts('Libs/QuickForm','Start typing to search...').'</option>';
 //			eval_js('set_style_for_search_tip = function(el){if($(el).value=="__SEARCH_TIP__")$(el).className="autoselect_search_tip";else $(el).className=""}');
 //			eval_js('set_style_for_search_tip("'.$myName.'");');
 //			eval_js('Event.observe("'.$myName.'", "change", function (){set_style_for_search_tip("'.$myName.'");});');

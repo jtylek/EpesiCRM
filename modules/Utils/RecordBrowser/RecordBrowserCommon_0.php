@@ -125,22 +125,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($args['type']=='time') {
                 if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, 'without_seconds',false);
             }
+			if ($args['type']=='long text') {
+				$ret = htmlspecialchars($val);
+                $ret = str_replace("\n",'<br>',$ret);
+                $ret = Utils_BBCodeCommon::parse($ret);
+			}
         }
         return $ret;
     }
     public static function multiselect_from_common($arrid) {
         return '__COMMON__::'.$arrid;
     }
-    public static function format_long_text_array($tab,$records){
-        self::init($tab);
-        foreach(self::$table_rows as $field => $args) {
-            if ($args['type']!='long text') continue;
-            foreach ($records as $k=>$v) {
-                $records[$k][$args['id']] = str_replace("\n",'<br>',$v[$args['id']]);
-                $records[$k][$args['id']] = Utils_BBCodeCommon::parse($records[$k][$args['id']]);
-            }
-        }
-        return $records;
+    public static function format_long_text($text){
+		$ret = htmlspecialchars($text);
+		$ret = str_replace("\n",'<br>',$ret);
+		$ret = Utils_BBCodeCommon::parse($ret);
+        return $ret;
     }
     public static function encode_multi($v) {
         if ($v==='') return '';
@@ -177,16 +177,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return implode('__', $param);
     }
-    public static function format_long_text($tab,$record){
-        self::init($tab);
-        foreach(self::$table_rows as $field => $args) {
-            if ($args['type']!='long text') continue;
-            $record[$args['id']] = str_replace("\n",'<br>',htmlspecialchars($record[$args['id']]));
-            $record[$args['id']] = Utils_BBCodeCommon::parse($record[$args['id']]);
-        }
-        return $record;
-    }
-
     public static function user_settings(){
         $ret = DB::Execute('SELECT tab, caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties');
         $settings = array(0=>array(), 1=>array(), 2=>array(), 3=>array());
@@ -899,26 +889,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                         $having .= ' (rec.user_id='.Acl::get_user().' AND rec.user_id IS NOT NULL)';
                                         break;
                     case ':Created_on'  :
-                            $inj = '';
-                            if(is_array($v))
-                                $inj = $v[0].DB::qstr($v[1]);
-                            elseif(is_string($v))
-                                $inj = DB::qstr($v);
-                            if($inj)
-                                $having .= ' created_on '.$inj;
+                            $inj = $operator.DB::qstr($v);
+							$having .= ' created_on '.$inj;
                             break;
                     case ':Created_by'  :
                             $having .= ' created_by = '.$v;
                             break;
                     case ':Edited_on'   :
-                            $inj = '';
-                            if(is_array($v))
-                                $inj = $v[0].DB::qstr($v[1]);
-                            elseif(is_string($v))
-                                $inj = $operator.DB::qstr($v);
-                            if($inj)
-                                $having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
-                                        '((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
+                            $inj = $operator.DB::qstr($v);
+							$having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
+									'((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
                             break;
                     default:
                         if (substr($k,0,4)==':Ref') {
@@ -1641,7 +1621,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$event_display = 'Error, Invalid event: '.$edit_id;
 		if (!$edit_info) return $event_display;
 
-		$event_display = self::ts('<b>Record edited by</b> %s<b>, on</b> %s', array($edit_info['edited_by']!==null?Base_UserCommon::get_user_login($edit_info['edited_by']):'', Base_RegionalSettingsCommon::time2reg($edit_info['edited_on'])));
+		$event_display = self::ts('Record edited by %s, on %s', array($edit_info['edited_by']!==null?'<b>'.Base_UserCommon::get_user_login($edit_info['edited_by']).'</b>':'', '<b>'.Base_RegionalSettingsCommon::time2reg($edit_info['edited_on']).'</b>'));
 		if (!$details) return $event_display;
 		$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($edit_id));
 		$event_display .= '<table border="0"><tr><td><b>'.self::ts('Field').'</b></td><td><b>'.self::ts('Old value').'</b></td><td><b>'.self::ts('New value').'</b></td></tr>';
@@ -1662,7 +1642,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!$access[$k]) continue;
 			self::init($tab);
 			$field = self::$hash[$k];
-			$event_display .= '<tr valign="top"><td><b>'.$field.'</b></td>';
+			$event_display .= '<tr valign="top"><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,$field).'</b></td>';
 			$params = self::$table_rows[$field];
 			$event_display .=   '<td>'.self::get_val($tab, $field, $r2, true, $params).'</td>'.
 								'<td>'.self::get_val($tab, $field, $r, true, $params).'</td></tr>';

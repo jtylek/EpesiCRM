@@ -306,7 +306,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!$id) return '---';
         if ($rset=='P') $val = self::contact_format_default($id, $nolink);
         else $val = self::company_format_default($id, $nolink);
-        $val = '['.$rset.'] '.$val;
+        $val = '['.Base_LangCommon::ts('CRM_Contacts',$rset).'] '.$val;
         return $val;
     }
     public static function auto_company_contact_suggestbox($str, $fcallback) {
@@ -1180,7 +1180,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     public static function applet_settings() {
         return array_merge(Utils_RecordBrowserCommon::applet_settings(),array(
-                array('name'=>'conds','label'=>'Display','type'=>'select','default'=>'fav','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('fav'=>Base_LangCommon::ts('CRM_Contacts','Favorites'),'rec'=>Base_LangCommon::ts('CRM_Contacts','Recent')))));
+                array('name'=>'conds','label'=>'Display','type'=>'select','default'=>'fav','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('fav'=>'Favorites','rec'=>'Recent'))));
     }
 	public function user_settings() {
 		$opts = array(

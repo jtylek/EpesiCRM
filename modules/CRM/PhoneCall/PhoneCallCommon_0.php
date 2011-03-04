@@ -222,7 +222,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
     public static function display_subject($record, $nolink = false) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('phonecall', 'Subject', $record, $nolink);
-		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
+		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
 		return $ret;
 	}
 	public static function display_phone_number($record, $nolink) {

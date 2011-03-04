@@ -762,7 +762,6 @@ class Utils_RecordBrowser extends Module {
             $form_name = $form->get_name();
         } else $form_name = '';
         foreach ($records as $row) {
-            $row = Utils_RecordBrowserCommon::format_long_text($this->tab,$row);
             if ($this->browse_mode!='recent' && isset($limit)) {
                 self::$browsed_records['records'][$row['id']] = $i;
                 $i++;
@@ -966,7 +965,7 @@ class Utils_RecordBrowser extends Module {
         if($mode == 'add' || $mode == 'edit') {
             $theme -> assign('click2fill', '<div id="c2fBox"></div>');
             load_js('modules/Utils/RecordBrowser/click2fill.js');
-            eval_js('initc2f()');
+            eval_js('initc2f("'.$this->t('Scan/Edit').'","'.$this->t('Paste your data here').'")');
             Base_ActionBarCommon::add('clone', 'Click 2 Fill', 'href="javascript:void(0)" onclick="c2f()"');
         }
         self::$browsed_records = null;
@@ -1017,9 +1016,6 @@ class Utils_RecordBrowser extends Module {
         }
 
         if ($mode!='add' && !$this->record[':active'] && !Base_AclCommon::i_am_admin()) return $this->back();
-
-        if ($mode=='view' || $mode=='history')
-            $this->record = Utils_RecordBrowserCommon::format_long_text($this->tab,$this->record);
 
         $tb = $this->init_module('Utils/TabbedBrowser', null, 'recordbrowser_addons');
 		if ($mode=='history') $tb->set_inline_display();
@@ -1951,20 +1947,21 @@ class Utils_RecordBrowser extends Module {
                 }
             }
         }
+
+//		$tb->set_tab($this->t('Record historical view'), array($this, 'record_historical_view'), array($created, $access, $form, $dates_select), true);
+		$tb->start_tab($this->t('Record historical view'));
 		$dates_select[$created['created_on']] = Base_RegionalSettingsCommon::time2reg($created['created_on']);
         foreach($this->table_rows as $field => $args) {
             if (!$access[$args['id']]) continue;
             $val = $this->get_val($field, $created, false, $args);
-//            if ($created[$args['id']] !== '') $gb_ori->add_row($this->ts($field), $val); // TRSL
         }
-		$tb->start_tab('Record historical view');
 		$form->addElement('select', 'historical_view_pick_date', $this->t('View the record as of'), $dates_select, array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");', 'id'=>'historical_view_pick_date'));
 		$form->setDefaults(array('historical_view_pick_date'=>$created['created_on']));
 		$form->display();
 		$this->view_entry('history', $created);
 		$tb->end_tab();
 
-		$tb->start_tab('Changes History');
+		$tb->start_tab($this->t('Changes History'));
 		$this->display_module($gb_cha);
 		$tb->end_tab();
 
@@ -1973,6 +1970,9 @@ class Utils_RecordBrowser extends Module {
         Base_ActionBarCommon::add('back','Back',$this->create_back_href());
         return true;
     }
+	
+	public function record_historical_view($created, $access, $form, $dates_select) {
+	}
 
     public function set_active($id, $state=true){
         Utils_RecordBrowserCommon::set_active($this->tab, $id, $state);
@@ -2168,7 +2168,6 @@ class Utils_RecordBrowser extends Module {
             }
         }
         $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $clean_order, $limit);
-        $records = Utils_RecordBrowserCommon::format_long_text_array($this->tab,$records);
         foreach($records as $v) {
             $gb_row = $gb->get_new_row();
             $arr = array();
@@ -2210,9 +2209,11 @@ class Utils_RecordBrowser extends Module {
         $form = $this->init_module('Libs/QuickForm');
         $theme = $this->init_module('Base/Theme');
         $form->addElement('text', 'record_id', $label);
-        $form->addRule('record_id', 'Must be a number', 'numeric');
-        $form->addRule('record_id', 'Field required', 'required');
+        $form->addRule('record_id', Base_LangCommon::ts('Libs_QuickForm','Must be a number'), 'numeric');
+        $form->addRule('record_id', Base_LangCommon::ts('Libs_QuickForm','Field required'), 'required');
         $ret = false;
+		if ($form->isSubmitted())
+            $ret = true;
         if ($form->validate()) {
             $id = $form->exportValue('record_id');
             if (!is_numeric($id)) trigger_error('Invalid id',E_USER_ERROR);
@@ -2225,7 +2226,6 @@ class Utils_RecordBrowser extends Module {
                 $x->push_main('Utils/RecordBrowser','view_entry',array('view', $id),array($this->tab));
                 return;
             }
-            $ret = true;
         }
         $form->assign_theme('form', $theme);
         $theme->assign('message', $message);

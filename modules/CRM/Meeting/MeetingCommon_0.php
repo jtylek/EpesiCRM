@@ -381,7 +381,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	}
     public static function display_title($record, $nolink=false) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('crm_meeting', 'Title', $record, $nolink);
-		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
+		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
 		return $ret;
 	}
     public static function display_title_with_mark($record) {
@@ -761,9 +761,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 						'Description' => $next['description'],
 						'Assigned to' => implode('<br>',$emps),
 						'Contacts' => implode('<br>',$cuss),
-						'Status' => Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status']),
-						'Access' => Utils_CommonDataCommon::get_value('CRM/Access/'.$r['permission']),
-						'Priority' => Utils_CommonDataCommon::get_value('CRM/Priority/'.$r['priority']),
+						'Status' => Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
+						'Access' => Utils_CommonDataCommon::get_value('CRM/Access/'.$r['permission'],true),
+						'Priority' => Utils_CommonDataCommon::get_value('CRM/Priority/'.$r['priority'],true),
 						'Notes' => Utils_AttachmentCommon::count('crm_meeting/'.$r['id'])
 					);
 

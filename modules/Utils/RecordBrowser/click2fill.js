@@ -11,13 +11,17 @@ var now = 0;
  */
 var state = {uninitialized: -3, closed: -1, showed: 1, buttons: 2};
 var c2fstate = state.uninitialized;
+var c2flabel = "";
+var c2fmessage = "";
 
-function initc2f() {
+function initc2f(label, message) {
     includeCSS('modules/Utils/RecordBrowser/click2fill.css');
     objs = new Array();
     order = new Array();
     now = 0;
     c2fstate = state.uninitialized;
+	c2flabel = label;
+	c2fmessage = message;
 }
 function includeCSS(p_file) {
 	var v_css  = document.createElement('link');
@@ -60,7 +64,7 @@ function c2f() {
             alert("This template is not compatible with Click 2 Fill function");
             return;
         }
-        document.getElementById("c2fBox").innerHTML = '<textarea id="c2ftxt" rows="3" cols="50">Paste your data here</textarea><div id="c2fs"></div><input type="button" class="button" onclick="c2fScan()" value="Scan/Edit"/>';
+        document.getElementById("c2fBox").innerHTML = '<textarea id="c2ftxt" rows="3" cols="50">'+c2fmessage+'</textarea><div id="c2fs"></div><input type="button" class="button" onclick="c2fScan()" value="'+c2flabel+'"/>';
         c2fstate = state.closed;
         var el = document.getElementsByTagName("input");
         for(var i = 0; i < el.length; i++) {

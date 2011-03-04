@@ -303,7 +303,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	        /*** get the days and hours***/
 	        $days = intval(intval($seconds) / (3600*24));
     		if($days > 0) {
-            		$ret .= sprintf('%s day(s) ',$days);
+            		$ret .= Base_LangCommon::ts('Base_RegionalSettings','%s day(s) ',array($days));
 		}
 		$hours = (intval($seconds) / 3600)%24;
 	} else {
@@ -312,17 +312,17 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		$days = 0;
 	}
         if($hours > 0) {
-            $ret .= sprintf('%s hour(s) ',$hours);
+            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s hour(s) ',array($hours));
         }
         /*** get the minutes ***/
         $minutes = (intval($seconds) / 60)%60;
         if($minutes > 0)
         {
-            $ret .= sprintf('%s minutes',$minutes);
+            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s minutes',array($minutes));
         }
 	if($seconds_h) {
 	    $seconds = intval($seconds)%60;
-            $ret .= sprintf('%s seconds',$seconds);
+            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s seconds',array($seconds));
 	}	
 		return $ret;
         }
