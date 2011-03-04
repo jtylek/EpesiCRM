@@ -129,7 +129,6 @@ class epesi_archive extends rcube_plugin
 
     $msgs = array();    
     foreach($uids as $uid) {
-        error_log("uid: ".print_r($uid,true)."\n",3,'/tmp/dupaaaa');
         $msg = new rcube_message($uid);
         if (empty($msg->headers)) {
             if($verbose) {
