@@ -181,10 +181,11 @@ class epesi_archive extends rcube_plugin
         foreach($msg->mime_parts as $mid=>$m)
             $mime_map[$m->mime_id] = md5($k.microtime(true).$mid);
         if($msg->has_html_part()) {
-            $body = $msg->first_html_part();
+//            $body = $msg->first_html_part();
             foreach ($msg->mime_parts as $mime_id => $part) {
                 $mimetype = strtolower($part->ctype_primary . '/' . $part->ctype_secondary);
                 if ($mimetype == 'text/html') {
+                    $body = $rcmail->imap->get_message_part($msg->uid, $mime_id, $part);
                     if(isset($part->replaces))
                         $cid_map = $part->replaces;
                     else
@@ -209,10 +210,10 @@ class epesi_archive extends rcube_plugin
         $headers = array();
         foreach($msg->headers as $k=>$v) {
             if(is_string($v) && $k!='from' && $k!='to' && $k!='body_structure')
-                $headers[] = $k.': '.$v;
+                $headers[] = $k.': '.$rcmail->imap->decode_header($v);
         }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
-        $id = Utils_RecordBrowserCommon::new_record('rc_mails',array('contacts'=>$contacts,'date'=>$date,'employee'=>$employee,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'direction'=>$sent_mbox,'from'=>$msg->headers->from,'to'=>$msg->headers->to));
+        $id = Utils_RecordBrowserCommon::new_record('rc_mails',array('contacts'=>$contacts,'date'=>$date,'employee'=>$employee,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'direction'=>$sent_mbox,'from'=>$rcmail->imap->decode_header($msg->headers->from),'to'=>$rcmail->imap->decode_header($msg->headers->to)));
         $epesi_mails[] = $id;
         foreach($contacts as $c) {
             list($rs,$con_id) = explode(':',$c);
