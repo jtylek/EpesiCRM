@@ -15,8 +15,12 @@ $form->addElement('submit',null,'Evaluate');
 if($form->validate()) {
 	$input = $form->exportValue('input');
 	ModuleManager::load_modules();
-	print("Output:<br />");	
+	ob_start();
 	eval($input);
+	$output = ob_get_clean();
+	error_log('<?php exit(); ?>'."\n".Base_UserCommon::get_my_user_login().":\nInput:\n".$input."\n-----------------------------------------\nOutput:\n".$output."\n=========================================\n\n",3,DATA_DIR.'/phpconsole_log.php');
+	print("Output:<br />");	
+	print($output);
 	print("<hr />");
 }
 $form->display();
