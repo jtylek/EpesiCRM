@@ -18,9 +18,10 @@ if(isset($_GET['mod'])) {
 	print('<a href="wfb.php" TARGET=_BLANK>5. WFB File manager</a>&nbsp;&nbsp;(Opens new window)<br>');
 	print('<a href="phpfm.php" TARGET=_BLANK>6. phpfm File manager</a>&nbsp;&nbsp;(Opens new window)<br>');
 	print('<a href="phpminiadmin.php">7. Mini MySQL Admin</a><br>');
+	print('<a href="phpconsole.php">8. PHP Console</a><br>');
 	print('<hr>');
-	print('<a href="phpinfo.php">8. PHP info</a><br>');
-	print('<a href="configinfo.php">9. PHP environment & config.php</a><br>');
+	print('<a href="phpinfo.php">9. PHP info</a><br>');
+	print('<a href="configinfo.php">10. PHP environment & config.php</a><br>');
 	print('<hr>');
 	print('<a href="logout.php">logout</a><br>');
 }
