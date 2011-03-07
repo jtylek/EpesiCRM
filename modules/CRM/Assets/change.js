@@ -14,21 +14,21 @@ function change(index) {
         if(index != 3) dispMon = 'none';
         if(index != 4) dispPrint = 'none';
     }
-    $('_host_name__label').parentNode.parentNode.style.display=dispComp;
-    $('_operating_system__label').parentNode.parentNode.style.display=dispComp;
-    $('_processor__label').parentNode.parentNode.style.display=dispComp;
-    $('_ram__label').parentNode.parentNode.style.display=dispComp;
-    $('_hdd__label').parentNode.parentNode.style.display=dispComp;
-    $('_optical_devices__label').parentNode.parentNode.style.display=dispComp;
-    $('_audio__label').parentNode.parentNode.style.display=dispComp;
-    $('_software__label').parentNode.parentNode.style.display=dispComp;
+    $('_host_name__label').parentNode.parentNode.parentNode.style.display=dispComp;
+    $('_operating_system__label').parentNode.parentNode.parentNode.style.display=dispComp;
+    $('_processor__label').parentNode.parentNode.parentNode.style.display=dispComp;
+    $('_ram__label').parentNode.parentNode.parentNode.style.display=dispComp;
+    $('_hdd__label').parentNode.parentNode.parentNode.style.display=dispComp;
+    $('_optical_devices__label').parentNode.parentNode.parentNode.style.display=dispComp;
+    $('_audio__label').parentNode.parentNode.parentNode.style.display=dispComp;
+    $('_software__label').parentNode.parentNode.parentNode.style.display=dispComp;
 
-    $('_display_type__label').parentNode.parentNode.style.display=dispMon;
-    $('_screen_size__label').parentNode.parentNode.style.display=dispMon;
+    $('_display_type__label').parentNode.parentNode.parentNode.style.display=dispMon;
+    $('_screen_size__label').parentNode.parentNode.parentNode.style.display=dispMon;
 
     if(index == 2)
-        $('_screen_size__label').parentNode.parentNode.style.display='';
+        $('_screen_size__label').parentNode.parentNode.parentNode.style.display='';
 
-    $('_printer_type__label').parentNode.parentNode.style.display=dispPrint;
-    $('_color_printing__label').parentNode.parentNode.style.display=dispPrint;
+    $('_printer_type__label').parentNode.parentNode.parentNode.style.display=dispPrint;
+    $('_color_printing__label').parentNode.parentNode.parentNode.style.display=dispPrint;
 }
