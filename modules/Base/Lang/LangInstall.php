@@ -28,7 +28,7 @@ class Base_LangInstall extends ModuleInstall {
 	}
 
 	public function requires($v) {
-		return array(array('name'=>'Base/MaintenanceMode','version'=>0));
+		return array();
 	}
 	
 }

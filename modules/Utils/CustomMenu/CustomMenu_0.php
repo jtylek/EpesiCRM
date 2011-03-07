@@ -69,7 +69,7 @@ class Utils_CustomMenu extends Module {
 			$r = & $gb->get_new_row();
 			$r->add_data($row);
 			$r->add_action($this->create_unique_href(array('edit'=>$row)),'Edit');
-			$r->add_action($this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'delete_entry'),$row),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->t('Are you sure?'),array($this,'delete_entry'),$row),'Delete');
 		}
 		$this->display_module($gb);
 		
@@ -100,8 +100,8 @@ class Utils_CustomMenu extends Module {
 		$f->registerRule('check_path', 'callback', 'check_path', $this);
 		$f->addRule('path',$this->t('Specified path already exists'),'check_path');
 		
-		$save_b = & HTML_QuickForm::createElement('submit', null, $this->ht('OK'));
-		$back_b = & HTML_QuickForm::createElement('button', null, $this->ht('Cancel'), $this->create_back_href());
+		$save_b = & HTML_QuickForm::createElement('submit', null, $this->t('OK'));
+		$back_b = & HTML_QuickForm::createElement('button', null, $this->t('Cancel'), $this->create_back_href());
 		$f->addGroup(array($save_b,$back_b),'submit_button');
 		
 		if($f->validate()) {

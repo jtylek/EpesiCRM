@@ -83,8 +83,8 @@ class Apps_StaticPage extends Module {
 		
 		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
 		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
-//		$save_b = & HTML_QuickForm::createElement('submit', null, $this->ht('Save'));
-	//	$back_b = & HTML_QuickForm::createElement('button', null, $this->ht('Cancel'), $this->create_back_href());
+//		$save_b = & HTML_QuickForm::createElement('submit', null, $this->t('Save'));
+	//	$back_b = & HTML_QuickForm::createElement('button', null, $this->t('Cancel'), $this->create_back_href());
 		//$f->addGroup(array($save_b,$back_b),'submit_button');
 
 		if(isset($page))
@@ -112,7 +112,7 @@ class Apps_StaticPage extends Module {
 
 		if($path) {
 			$this->display_module($menu);
-			Base_ActionBarCommon::add('delete','Delete page',$this->create_confirm_unique_href($this->ht('Delete this page?'), array('delete'=>true)));
+			Base_ActionBarCommon::add('delete','Delete page',$this->create_confirm_unique_href($this->t('Delete this page?'), array('delete'=>true)));
 		}
 	}
 	

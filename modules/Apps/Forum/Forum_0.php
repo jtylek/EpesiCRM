@@ -27,7 +27,7 @@ class Apps_Forum extends Module {
 		while ($row = $ret->FetchRow()) 
 			$boards[] = array('descr' => $row['descr'],
 				'label' => '<a '.$this->create_callback_href(array($this,'view_board'), array($row['id'])).'>'.$row['name'].'</a>',
-				'delete' => Base_AclCommon::i_am_admin()?'<a '.$this->create_confirm_callback_href($this->ht('Are you sure you want to delete this board?'), array($this,'delete_board'), array($row['id'])).'>'.$this->t('Delete').'</a>':null
+				'delete' => Base_AclCommon::i_am_admin()?'<a '.$this->create_confirm_callback_href($this->t('Are you sure you want to delete this board?'), array($this,'delete_board'), array($row['id'])).'>'.$this->t('Delete').'</a>':null
 				);
 		
 		$theme = & $this->pack_module('Base/Theme');
@@ -61,7 +61,7 @@ class Apps_Forum extends Module {
 						'posted_on' =>  $this->t('Posted on %s',array($last_post['date'])),
 						'posted_by' =>  $this->t('Posted by %s',array($last_post['user'])),
 						'post_count' => $post_count?$post_count:'0',
-						'delete' => Base_AclCommon::i_am_admin()?'<a '.$this->create_confirm_callback_href($this->ht('Are you sure you want to delete this thread?'),array($this,'delete_thread'),array($row['id'])).'>'.$this->t('Delete').'</a>':null
+						'delete' => Base_AclCommon::i_am_admin()?'<a '.$this->create_confirm_callback_href($this->t('Are you sure you want to delete this thread?'),array($this,'delete_thread'),array($row['id'])).'>'.$this->t('Delete').'</a>':null
 				);
 		}
 		krsort($threads);
@@ -123,8 +123,8 @@ class Apps_Forum extends Module {
 		$form -> addElement('text','name',$this->t('Name'));
 		$form -> addRule('name', $this->t('Field required'), 'required');
 		$form -> addElement('textarea','descr',$this->t('Description'));
-		$submit = HTML_QuickForm::createElement('submit','submit',$this->ht('Create'));
-		$cancel = HTML_QuickForm::createElement('button','cancel',$this->ht('Cancel'), $this->create_back_href());
+		$submit = HTML_QuickForm::createElement('submit','submit',$this->t('Create'));
+		$cancel = HTML_QuickForm::createElement('button','cancel',$this->t('Cancel'), $this->create_back_href());
 		$form -> addGroup(array($submit,$cancel));
 		if ($form->validate()) {
 			DB::Execute('INSERT INTO apps_forum_board (name,descr) VALUES (%s,%s)',array(htmlspecialchars($form->exportValue('name'),ENT_QUOTES,'UTF-8'),htmlspecialchars($form->exportValue('descr'),ENT_QUOTES,'UTF-8')));
@@ -153,7 +153,7 @@ class Apps_Forum extends Module {
 
 		$this->indicator = ' - new thread';
 
-		$form = & $this->init_module('Libs/QuickForm',$this->ht('Creating new thread'));
+		$form = & $this->init_module('Libs/QuickForm',$this->t('Creating new thread'));
 		$theme = & $this->init_module('Base/Theme');
 
 		$form -> addElement('hidden','post_content','none');
@@ -161,8 +161,8 @@ class Apps_Forum extends Module {
 		$form -> addRule('topic',$this->t('Field required'),'required');
 		$form -> addElement('textarea','post',$this->t('First post'),array('rows'=>4,'cols'=>40,'onBlur'=>'document.getElementsByName(\'post_content\')[0].value = document.getElementsByName(\'post\')[0].value.replace(/\n/g,\'<br>\');'));
 		$form -> addRule('post',$this->t('Field required'),'required');
-		$form -> addElement('submit','submit','Submit');
-		$form -> addElement('button','cancel','Cancel',$this->create_back_href());
+		$form -> addElement('submit','submit',$this->t('Submit'));
+		$form -> addElement('button','cancel',$this->t('Cancel'),$this->create_back_href());
 		if ($form->validate() && Base_AclCommon::i_am_user()) {
 			$topic = htmlspecialchars($form->exportValue('topic'),ENT_QUOTES,'UTF-8');
 			DB::Execute('INSERT INTO apps_forum_thread (topic, apps_forum_board_id) VALUES (%s,%d)',array($topic,$board));

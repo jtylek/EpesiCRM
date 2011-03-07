@@ -16,8 +16,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_User_Login extends Module {
 
 	public function construct() {
-		if(!Base_MaintenanceModeCommon::get_changed())
-			$this->set_fast_process();
 	}
 
 	private function new_autologin_id() {
@@ -86,7 +84,7 @@ class Base_User_Login extends Module {
 		if($this->autologin()) return;
 
 		//else just login form
-		$form = & $this->init_module('Libs/QuickForm',$this->ht('Logging in'));
+		$form = & $this->init_module('Libs/QuickForm',$this->t('Logging in'));
 		$form->addElement('header', 'login_header', $this->t('Login'));
 		$form->addElement('text', 'username', $this->t('Username'),array('id'=>'username'));
 		$form->addElement('password', 'password', $this->t('Password'));
@@ -100,7 +98,7 @@ class Base_User_Login extends Module {
 		$form->addElement('checkbox', 'autologin', '',$this->t('Remember me'));
 
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.$this->t('Recover password').'</a>');
-		$form->addElement('submit', 'submit_button', $this->ht('Login'), array('class'=>'submit'));
+		$form->addElement('submit', 'submit_button', $this->t('Login'), array('class'=>'submit'));
 
 		// register and add a rule to check if a username and password is ok
 		$form->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
@@ -131,14 +129,14 @@ class Base_User_Login extends Module {
 	}
 
 	public function recover_pass() {
-		$form = & $this->init_module('Libs/QuickForm',$this->ht('Processing request'));
+		$form = & $this->init_module('Libs/QuickForm',$this->t('Processing request'));
 
 		$form->addElement('header', null, $this->t('Recover password'));
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');
 		$form->addElement('text', 'username', $this->t('Username'));
 		$form->addElement('text', 'mail', $this->t('e-mail'));
-		$ok_b = & HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
-		$cancel_b = & HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), $this->create_back_href());
+		$ok_b = & HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
+		$cancel_b = & HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b,$cancel_b),'buttons');
 
 		// require a username

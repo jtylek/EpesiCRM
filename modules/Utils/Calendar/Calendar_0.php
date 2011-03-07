@@ -346,7 +346,7 @@ class Utils_Calendar extends Module {
 
 		$form->addElement('datepicker', 'start', $this->t('From'));
 		$form->addElement('datepicker', 'end', $this->t('To'));
-		$form->addElement('submit', 'submit_button', $this->ht('Show'));
+		$form->addElement('submit', 'submit_button', $this->t('Show'));
 		$form->addRule('start', 'Field required', 'required');
 		$form->addRule('end', 'Field required', 'required');
 		$form->setDefaults(array('start'=>$start,'end'=>$end));
@@ -391,7 +391,7 @@ class Utils_Calendar extends Module {
 			if (isset($row['status']) && $row['status']=='closed') continue;
 			$view_h = $this->create_callback_href(array($this,'push_event_action'),array('view',$row['id']));
 			$edit_h = $this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id']));
-			$del_h = $this->create_confirm_callback_href($this->ht('Delete this event?'),array($this,'delete_event'),$row['id']);
+			$del_h = $this->create_confirm_callback_href($this->t('Delete this event?'),array($this,'delete_event'),$row['id']);
 			if (isset($row['view_action'])) $view_h = $row['view_action'];
 			if (isset($row['edit_action'])) $edit_h = $row['edit_action'];
 			if (isset($row['delete_action'])) $del_h = $row['delete_action'];
@@ -426,13 +426,13 @@ class Utils_Calendar extends Module {
 	public function day() {
 		$theme = & $this->pack_module('Base/Theme');
 
-		$theme->assign('trash_label', $this->ht('Drag and drop<br>to delete'));
+		$theme->assign('trash_label', $this->t('Drag and drop<br>to delete'));
 		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+24*3600))));
-		$theme->assign('next_label',$this->ht('Next day'));
+		$theme->assign('next_label',$this->t('Next day'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->ht('Today'));
+		$theme->assign('today_label', $this->t('Today'));
 		$theme->assign('prev_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-24*3600))));
-		$theme->assign('prev_label', $this->ht('Previous day'));
+		$theme->assign('prev_label', $this->t('Previous day'));
 		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text,'day',$this->settings['first_day_of_week']));
@@ -586,17 +586,17 @@ class Utils_Calendar extends Module {
 	public function week() {
 		$theme = & $this->pack_module('Base/Theme');
 
-		$theme->assign('trash_label', $this->ht('Drag and drop<br>to delete'));
+		$theme->assign('trash_label', $this->t('Drag and drop<br>to delete'));
 		$theme->assign('next7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+604800))));
-		$theme->assign('next7_label',$this->ht('Next week'));
+		$theme->assign('next7_label',$this->t('Next week'));
 		$theme->assign('next_href', $this->create_unique_href(array('shift_week_day'=>1)));
-		$theme->assign('next_label',$this->ht('Next day'));
+		$theme->assign('next_label',$this->t('Next day'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->ht('Today'));
+		$theme->assign('today_label', $this->t('Today'));
 		$theme->assign('prev_href', $this->create_unique_href(array('shift_week_day'=>0)));
-		$theme->assign('prev_label', $this->ht('Previous day'));
+		$theme->assign('prev_label', $this->t('Previous day'));
 		$theme->assign('prev7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-604800))));
-		$theme->assign('prev7_label', $this->ht('Previous week'));
+		$theme->assign('prev7_label', $this->t('Previous week'));
 		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 		$link_text = $this->create_unique_href_js(array('week_date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'day',$this->settings['first_day_of_week']));
@@ -800,17 +800,17 @@ class Utils_Calendar extends Module {
 	public function month() {
 		$theme = & $this->pack_module('Base/Theme');
 
-		$theme->assign('trash_label', $this->ht('Drag and drop<br>to delete'));
+		$theme->assign('trash_label', $this->t('Drag and drop<br>to delete'));
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
-		$theme->assign('nextyear_label',$this->ht('Next year'));
+		$theme->assign('nextyear_label',$this->t('Next year'));
 		$theme->assign('nextmonth_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+86400*date('t',$this->date)))));
-		$theme->assign('nextmonth_label',$this->ht('Next month'));
+		$theme->assign('nextmonth_label',$this->t('Next month'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->ht('Today'));
+		$theme->assign('today_label', $this->t('Today'));
 		$theme->assign('prevmonth_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-86400*date('t',$this->date-86400*(date('d', $this->date)+1))))));
-		$theme->assign('prevmonth_label', $this->ht('Previous month'));
+		$theme->assign('prevmonth_label', $this->t('Previous month'));
 		$theme->assign('prevyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)-1).date('-m-d',$this->date))));
-		$theme->assign('prevyear_label', $this->ht('Previous year'));
+		$theme->assign('prevyear_label', $this->t('Previous year'));
 		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 
 		if ($this->isset_unique_href_variable('date'))
@@ -891,11 +891,11 @@ class Utils_Calendar extends Module {
 		$theme = & $this->pack_module('Base/Theme');
 
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
-		$theme->assign('nextyear_label',$this->ht('Next year'));
+		$theme->assign('nextyear_label',$this->t('Next year'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->ht('Today'));
+		$theme->assign('today_label', $this->t('Today'));
 		$theme->assign('prevyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)-1).date('-m-d',$this->date))));
-		$theme->assign('prevyear_label', $this->ht('Previous year'));
+		$theme->assign('prevyear_label', $this->t('Previous year'));
 		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));

@@ -59,7 +59,7 @@ class CRM_Calendar extends Module {
 		if ($count<2) {
 			$this->lp = null;
 		} else {
-			$this->display_module($this->lp, array('New Event', array('timestamp','timeless'), '', false));
+			$this->display_module($this->lp, array($this->t('New Event'), array('timestamp','timeless'), '', false));
 			$vals = $this->lp->export_values();
 			if ($vals) {
 				$this->jump_to_new_event($vals['option'],$vals['params']['timestamp'],$vals['params']['timeless']);
@@ -195,13 +195,13 @@ class CRM_Calendar extends Module {
 				$view_action = '<a '.$row['view_action'].'>';
 			}
 
-            ///////////////////
-            // right column
-            $title = Utils_TooltipCommon::create($row['title'],$row['custom_tooltip']);
-			
             //////////////////////////
             // left column
             $date = $ex['start'];
+			
+            ///////////////////
+            // right column
+            $title = Utils_TooltipCommon::create($row['title'],$row['custom_tooltip']);
 			
 			$day = date('Y-m-d', strtotime(Base_RegionalSettingsCommon::time2reg($row['start'])));
 			if ($day<date('Y-m-d')) $class = 'past';

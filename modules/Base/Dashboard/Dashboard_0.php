@@ -186,17 +186,17 @@ class Base_Dashboard extends Module {
 				$th->assign('handle_class','handle');
 
 				if($opts['toggle'] && !$config_mode)
-					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Toggle')).'>=</a>');
+					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs($this->t('Toggle')).'>=</a>');
 
 				if($opts['go'])
 					$opts['href']=$this->create_main_href($row['module_name'],$opts['go_function'],$opts['go_arguments'],$opts['go_constructor_arguments']);
 				if($opts['href'])
-					$th->assign('href','<a class="href" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Fullscreen')).' '.$opts['href'].'>G</a>');
+					$th->assign('href','<a class="href" '.Utils_TooltipCommon::open_tag_attrs($this->t('Fullscreen')).' '.$opts['href'].'>G</a>');
 
 				$th->assign('remove',Base_DashboardCommon::get_remove_applet_button($row['id'], $default_dash));
 				
 				if (!$config_mode)
-					$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
+					$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs($this->t('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
 
 				$th->assign('caption',$opts['title']);
 				$th->assign('color',$colors[$row['color']]);
@@ -301,7 +301,7 @@ class Base_Dashboard extends Module {
 			return false;
 		}
 
-		$f = &$this->init_module('Libs/QuickForm',$this->ht('Saving settings'),'settings');
+		$f = &$this->init_module('Libs/QuickForm',$this->t('Saving settings'),'settings');
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
 
 		if($is_conf) {
@@ -317,9 +317,9 @@ class Base_Dashboard extends Module {
 		$f->addElement('header',null,$this->t($caption.' display settings'));
 
 		$color = Base_DashboardCommon::get_available_colors();
-		$color[0] = $this->t('Default').': '.$this->ht(ucfirst($color[0]));
+		$color[0] = $this->t('Default').': '.$this->t(ucfirst($color[0]));
 		for($k=1; $k<count($color); $k++)
-			$color[$k] = '&bull; '.$this->ht(ucfirst($color[$k]));
+			$color[$k] = '&bull; '.$this->t(ucfirst($color[$k]));
 		$f->addElement('select', '__color', $this->t('Color'), $color, array('style'=>'width: 100%;'));
 
 		$default_dash = $this->get_module_variable('default');
@@ -428,7 +428,7 @@ class Base_Dashboard extends Module {
 			if(isset($v['label'])) $v['label'] = $this->t($v['label']);
 			if(isset($v['values']) && is_array($v['values']) && (!isset($v['translate']) || $v['translate']))
 				foreach($v['values'] as &$x)
-					$x = $this->ht($x);
+					$x = $this->t($x);
 			if (isset($v['rule'])) {
 				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
 				foreach ($v['rule'] as & $r)

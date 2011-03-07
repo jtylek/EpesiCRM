@@ -231,7 +231,7 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon) {
 		if (!isset($icon)) $icon = strtolower(trim($label));
-		if ($label==strip_tags($label)) $label = $this->ht($label);
+		if ($label==strip_tags($label)) $label = $this->t($label);
 		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip);
 		$this->en_actions = true;
 	}
@@ -772,8 +772,8 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$this->form_s->addElement('text','search',$this->ht('Keyword'), array('onfocus'=>'if (this.value=="'.$this->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->ht('search keyword...').'";'));
-					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->ht('search keyword...')));
+					$this->form_s->addElement('text','search',$this->t('Keyword'), array('onfocus'=>'if (this.value=="'.$this->t('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->t('search keyword...').'";'));
+					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->t('search keyword...')));
 					$search_on=true;
 					break;
 				}
@@ -788,9 +788,9 @@ class Utils_GenericBrowser extends Module {
 				}
 				if (isset($v['search'])) {
 					$this->form_s->addElement('hidden','search__'.$v['search'],'');
-					$default = isset($search[$v['search']])?$search[$v['search']]:$this->ht('search keyword...');
+					$default = isset($search[$v['search']])?$search[$v['search']]:$this->t('search keyword...');
 					$this->form_s->setDefaults(array('search__'.$v['search']=>$default));
-					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" onfocus="if (this.value==\''.$this->ht('search keyword...').'\') this.value=\'\';" onblur="if (this.value==\'\') this.value=\''.$this->ht('search keyword...').'\'; document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
+					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" onfocus="if (this.value==\''.$this->t('search keyword...').'\') this.value=\'\';" onblur="if (this.value==\'\') this.value=\''.$this->t('search keyword...').'\'; document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
 					$search_fields[$k+$mov] = $in;
 					$search_on=true;
 				}
@@ -798,10 +798,10 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('search_fields', $search_fields);
 		}
 		if ($search_on) {
-			$this->form_s->addElement('submit','submit_search',$this->ht('Search'));
+			$this->form_s->addElement('submit','submit_search',$this->t('Search'));
 			if (Base_User_SettingsCommon::get($this->get_type(), 'show_all_button')) {
 				$el = $this->form_s->addElement('hidden','show_all_pressed');
-				$this->form_s->addElement('button','show_all',$this->ht('Show all'), array('onclick'=>'document.forms["'.$this->form_s->getAttribute('name').'"].show_all_pressed.value="1";'.$this->form_s->get_submit_form_js()));
+				$this->form_s->addElement('button','show_all',$this->t('Show all'), array('onclick'=>'document.forms["'.$this->form_s->getAttribute('name').'"].show_all_pressed.value="1";'.$this->form_s->get_submit_form_js()));
 				$el->setValue('0');
 			}
 		}
@@ -842,13 +842,13 @@ class Utils_GenericBrowser extends Module {
 				$search = array();
 				foreach ($values as $k=>$v){
 					if ($k=='search') {
-						if ($v!=$this->ht('search keyword...') && $v!='')
+						if ($v!=$this->t('search keyword...') && $v!='')
 							$search['__keyword__'] = $v;
 						break;
 					}
 					if (substr($k,0,8)=='search__') {
 						$val = substr($k,8);
-						if ($v!=$this->ht('search keyword...') && $v!='') $search[$val] = $v;
+						if ($v!=$this->t('search keyword...') && $v!='') $search[$val] = $v;
 					}
 				}
 				$this->set_module_variable('search',$search);

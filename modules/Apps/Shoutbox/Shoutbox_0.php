@@ -36,10 +36,10 @@ class Apps_Shoutbox extends Module {
        	    $emps = DB::GetAssoc('SELECT l.id,IF(cd.f_last_name!=\'\',CONCAT(cd.f_last_name,\' \',cd.f_first_name,\' (\',l.login,\')\'),l.login) as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id!=%d ORDER BY name',array($myid));			    
 	    } else
    		    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id!=%d ORDER BY login',array($myid));
-   		$qf->addElement('select','user',$this->t('User'),array('all'=>$this->ht('-- all --'))+$emps);
+   		$qf->addElement('select','user',$this->t('User'),array('all'=>$this->t('-- all --'))+$emps);
    		$qf->addElement('datepicker','from_date',$this->t('From'));
    		$qf->addElement('datepicker','to_date',$this->t('To'));
-		$qf->addElement('submit','submit_button',$this->ht('Filter'));
+		$qf->addElement('submit','submit_button',$this->t('Filter'));
 	    
 	    $to_date = & $this->get_module_variable('to_date');
 	    $from_date = & $this->get_module_variable('from_date');
@@ -127,7 +127,7 @@ class Apps_Shoutbox extends Module {
     		            $emps[$id] = '* '.$emps[$id] ;
     		    }
     		}
-       		$qf->addElement('select','to',$this->t('To'),array('all'=>$this->ht('-- all --'))+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));*/
+       		$qf->addElement('select','to',$this->t('To'),array('all'=>$this->t('-- all --'))+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));*/
             $myid = Acl::get_user();
         	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im') && ModuleManager::is_installed('Tools_WhoIsOnline')>=0) {
         	    $adm = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','enable_im');
@@ -139,7 +139,7 @@ class Apps_Shoutbox extends Module {
     		            $emps = DB::GetAssoc('SELECT l.id,CONCAT("* ",l.login) FROM user_login l LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) AND l.id IN ('.implode(',',$online).') ORDER BY l.login',array($myid,serialize(1)));
     		    } else $emps = array();
     		} else $emps = array();
-		    $e = $qf->addElement('autoselect','to',$this->t('To'), array('all'=>$this->ht('-- all --'))+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
+		    $e = $qf->addElement('autoselect','to',$this->t('To'), array('all'=>$this->t('-- all --'))+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
 		    $e->setAttribute('id','shoutbox_to'.($big?'_big':''));
 		    $e->setAttribute('onChange','shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()');
         	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
@@ -148,7 +148,7 @@ class Apps_Shoutbox extends Module {
 			$qf->addElement($big?'textarea':'text','post',$this->t('Message'),'id="shoutbox_text'.($big?'_big':'').'"');
 			$qf->addRule('post',$this->t('Field required'),'required');
 			//create submit button
-			$qf->addElement('submit','submit_button',$this->ht('Send'), 'id="shoutbox_button'.($big?'_big':'').'"');
+			$qf->addElement('submit','submit_button',$this->t('Send'), 'id="shoutbox_button'.($big?'_big':'').'"');
 			//add it
 			$qf->setRequiredNote(null);
 			$qf->setDefaults(array('to'=>$to));

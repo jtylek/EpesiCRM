@@ -74,7 +74,7 @@ class CRM_Filters extends Module {
 		//Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->t('My records')));
 		if (isset($_REQUEST['__location'])) $in_use = (CRM_FiltersCommon::$in_use===$_REQUEST['__location']);
 		else $in_use = CRM_FiltersCommon::$in_use;
-		print('<a class="lbOn'.($in_use?'':' disabled').'" rel="crm_filters">'.$this->ht('Perspective: ').'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b></a>');
+		print('<a class="lbOn'.($in_use?'':' disabled').'" rel="crm_filters">'.$this->t('Perspective: ').'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b></a>');
 	}
 
 	public function manage_filters() {
@@ -105,7 +105,7 @@ class CRM_Filters extends Module {
 				array('name'=>$this->t('Users in category'), 'width'=>50, 'order'=>'')
 				));
 
-		$def_opts = array('my'=>$this->ht('My records'), 'all'=>$this->ht('All records'));
+		$def_opts = array('my'=>$this->t('My records'), 'all'=>$this->t('All records'));
 		$contacts = CRM_ContactsCommon::get_contacts(array(),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
 		foreach($contacts as $v)
 			$def_opts['c'.$v['id']] = $v['last_name'].' '.$v['first_name'];
@@ -115,7 +115,7 @@ class CRM_Filters extends Module {
 			$def_opts[$row['id']] = $row['name'];
 		
 			$gb_row = & $gb->get_new_row();
-			$gb_row->add_action($this->create_confirm_callback_href($this->ht('Delete this group?'),array('CRM_Filters','delete_group'), $row['id']),'Delete');
+			$gb_row->add_action($this->create_confirm_callback_href($this->t('Delete this group?'),array('CRM_Filters','delete_group'), $row['id']),'Delete');
 			$gb_row->add_action($this->create_callback_href(array($this,'edit_group'),$row['id']),'Edit');
 			$cids = DB::GetAssoc('SELECT c.contact_id, c.contact_id FROM crm_filters_contacts c WHERE c.group_id=%d',array($row['id']));
 			$users = array();

@@ -66,8 +66,8 @@ class Base_Mail extends Module implements Base_AdminInterface {
 			}
 		}
 		
-		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), $this->create_back_href());
+		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
+		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b, $cancel_b));
 		
 		if($form->getSubmitValue('submited') && $form->validate() && $form->process(array(&$this,'submit_admin'))) {

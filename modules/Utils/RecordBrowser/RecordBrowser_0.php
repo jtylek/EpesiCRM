@@ -331,7 +331,7 @@ class Utils_RecordBrowser extends Module {
 				continue;
             }
 			if ($this->table_rows[$filter]['type']=='checkbox') {
-                $arr = array(''=>$this->ht('No'), 1=>$this->ht('Yes'));
+                $arr = array(''=>$this->t('No'), 1=>$this->t('Yes'));
             } else {
                 if ($this->table_rows[$filter]['type'] == 'commondata') {
                     $arr = Utils_CommonDataCommon::get_translated_array($this->table_rows[$filter]['param']['array_id'], $this->table_rows[$filter]['param']['order_by_key']);
@@ -389,7 +389,7 @@ class Utils_RecordBrowser extends Module {
             $form->addElement('select', $field_id, $this->ts($filter), $arr); // TRSL
             $filters[] = $filter_id;
         }
-        $form->addElement('submit', 'submit', 'Show');
+        $form->addElement('submit', 'submit', $this->t('Show'));
         $def_filt = $this->get_module_variable('def_filter', array());
 
         $this->crits = array();
@@ -1096,7 +1096,7 @@ class Utils_RecordBrowser extends Module {
                     Base_ActionBarCommon::add('delete', 'Delete', $this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array($this,'delete_record'),array($id)));
                 }
                 if ($this->get_access('clone',$this->record)) {
-                    Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
+                    Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->t('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
                 }
                 if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back'])))
                     Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
@@ -1171,7 +1171,7 @@ class Utils_RecordBrowser extends Module {
 								'</object>';
 					$text = '<h3>'.$this->t('Click Copy under the box or move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>'.$flash_copy;
 
-					Libs_LeightboxCommon::display('clipboard',$text,'Copy');
+					Libs_LeightboxCommon::display('clipboard',$text,$this->t('Copy'));
 				}
 			}
         }
@@ -1373,13 +1373,13 @@ class Utils_RecordBrowser extends Module {
                     case 'text':        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $args['param']);
 										$form->addElement('text', $args['id'], $label, array('id'=>$args['id'], 'maxlength'=>$args['param']));
 //                                      else $form->addElement('static', $args['id'], $label, array('id'=>$args['id']));
-                                        $form->addRule($args['id'], $this->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
+                                        $form->addRule($args['id'], $this->t('Maximum length for this field is %s characters.',array($args['param'])), 'maxlength', $args['param']);
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
                     case 'long text':   $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
 										$form->addElement($this->add_in_table?'text':'textarea', $args['id'], $label, array('id'=>$args['id'], 'onkeypress'=>'var key=event.which || event.keyCode;return this.value.length < 400 || ((key<32 || key>126) && key!=10 && key!=13) ;'));
                                         $form->registerRule('max_description', 'callback', 'max_description', $this);
-                                        $form->addRule($args['id'], $this->t('Maximum length for this field is 400 chars.'), 'max_description');
+                                        $form->addRule($args['id'], $this->t('Maximum length for this field is %s characters.', array(400)), 'max_description');
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
                     case 'date':		$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
@@ -1602,8 +1602,8 @@ class Utils_RecordBrowser extends Module {
         $form->addRule('label', $this->t('"ID" as page name is not allowed.'), 'check_if_no_id');
         $form->setDefaults(array('label'=>$id));
 
-        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
-        $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), $this->create_back_href());
+        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
+        $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
         $form->addGroup(array($ok_b, $cancel_b));
 
         if($form->validate()) {
@@ -1774,8 +1774,8 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('checkbox', 'required', $this->t('Required'));
         $form->addElement('checkbox', 'filter', $this->t('Filter enabled'));
 
-        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
-        $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), $this->create_back_href());
+        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
+        $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
         $form->addGroup(array($ok_b, $cancel_b));
 
         if ($form->validate()) {

@@ -378,7 +378,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 
 		if (empty($this->ref_records)) {
-			print('There were no records to display report for.');
+			print('<br>'.$this->t('There were no records to display report for.'));
 			return;
 		}
 		$this->cols_total = array();

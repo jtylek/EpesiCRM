@@ -197,7 +197,7 @@ class Apps_Gallery extends Module {
 		
 		
 		$form->addElement('text', 'new', 'New Folder:', array('value'=>''));
-		$form->addElement('submit', 'submit_button', $this->ht('Create'));
+		$form->addElement('submit', 'submit_button', $this->t('Create'));
 		$form->addRule('new', $this->t('Field required'),'required');
 		
 		if($form->getSubmitValue('submited') && $form->validate()) {
@@ -243,7 +243,7 @@ class Apps_Gallery extends Module {
 		);
 		$tree->sort();
 		
-		$form->addElement('submit', 'submit_button', $this->ht('Remove'));
+		$form->addElement('submit', 'submit_button', $this->t('Remove'));
 		
 		if($form->getSubmitValue('submited') && $form->validate()) {
 			if($form->process(array(&$this, 'submit_rm_folder'))) {
@@ -338,7 +338,7 @@ class Apps_Gallery extends Module {
 		$tree->sort();
 		
 		
-		$form->addElement('submit', 'submit_button', $this->ht('Share selected'));
+		$form->addElement('submit', 'submit_button', $this->t('Share selected'));
 		if($form->getSubmitValue('submited') && $form->validate()) {
 			if($form->process(array(&$this, 'submit_share_folders'))) {
 				location(array());
@@ -367,7 +367,7 @@ class Apps_Gallery extends Module {
 	
 	public function upload() {
 		if($this->is_back()) return false;
-		Base_ActionBarCommon::add('back',$this->ht('Back to Gallery'),$this->create_back_href());
+		Base_ActionBarCommon::add('back',$this->t('Back to Gallery'),$this->create_back_href());
 
 
 		$last = $this->get_module_variable('last_uploaded_img');
@@ -386,7 +386,7 @@ class Apps_Gallery extends Module {
 		if($this->isset_module_variable('data'))
 			return $this->process_data();
 		
-		//$form = & $this->init_module('Libs/QuickForm', array($this->ht('Uploading file...'),'modules/Apps/Gallery/upload.php','upload_iframe',''),'file_chooser');
+		//$form = & $this->init_module('Libs/QuickForm', array($this->t('Uploading file...'),'modules/Apps/Gallery/upload.php','upload_iframe',''),'file_chooser');
 		$form->addElement('header', 'upload', $this->t('Import an image to your gallery'));
 		
 //		$form->addElement('hidden', 'root', $this->root.$this->user);
@@ -411,7 +411,7 @@ class Apps_Gallery extends Module {
 	
 	public function manage() {
 		if($this->is_back()) return false;
-		Base_ActionBarCommon::add('back',$this->ht('Back to Gallery'),$this->create_back_href());
+		Base_ActionBarCommon::add('back',$this->t('Back to Gallery'),$this->create_back_href());
 		
 
 		$tb = & $this->init_module('Utils/TabbedBrowser');
@@ -426,8 +426,8 @@ class Apps_Gallery extends Module {
 	public function body() {
 		
 		if( Base_AclCommon::i_am_user() ) {
-			Base_ActionBarCommon::add('add',$this->ht('Upload'),$this->create_callback_href(array($this,'upload')));
-			Base_ActionBarCommon::add('settings',$this->ht('Manage Folders'),$this->create_callback_href(array($this,'manage')));
+			Base_ActionBarCommon::add('add',$this->t('Upload'),$this->create_callback_href(array($this,'upload')));
+			Base_ActionBarCommon::add('settings',$this->t('Manage Folders'),$this->create_callback_href(array($this,'manage')));
 		}
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);

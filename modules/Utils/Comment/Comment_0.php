@@ -42,7 +42,7 @@ class Utils_Comment extends Module{
 			return;
 		}
 		
-		$form = & $this->init_module('Libs/QuickForm',$this->ht('Posting reply'));
+		$form = & $this->init_module('Libs/QuickForm',$this->t('Posting reply'));
 		$theme = & $this->init_module('Base/Theme');
 
 		if ($this->tree_structure) {
@@ -67,7 +67,7 @@ class Utils_Comment extends Module{
 					$form -> addElement('static','whole','','<a '.$this->create_unique_href(array('answer'=>-1)).'>'.$this->t('Comment whole thread').'</a>');
 				}
 				$form -> addElement('textarea','comment_page_reply',$this->t('Message'),array('rows'=>4,'cols'=>40));//,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
-				$form -> addElement('submit','submit_comment','Submit');
+				$form -> addElement('submit','submit_comment',$this->t('Submit'));
 				if ($form->validate() && $this->reply){
 					$this->add_post($form->exportValue('comment_page_reply'),$answer);
 					$this->unset_module_variable('answer');
@@ -164,7 +164,7 @@ class Utils_Comment extends Module{
 		$row['text'] = str_replace("\n",'<br>',htmlspecialchars($row['text']));
 		if (Base_AclCommon::i_am_user()) {
 			if ($this->mod) {
-				$delete = '<a '.$this->create_confirm_callback_href($this->ht('Are you sure you want to delete this post?'),array('Utils_CommentCommon','delete_post'),$row['id']).'>'.$this->t('Delete').'</a>';
+				$delete = '<a '.$this->create_confirm_callback_href($this->t('Are you sure you want to delete this post?'),array('Utils_CommentCommon','delete_post'),$row['id']).'>'.$this->t('Delete').'</a>';
 				$rep_count = DB::GetOne('SELECT COUNT(*) FROM comment_report WHERE id=%d',$row['id']);
 				if (!$rep_count) $report = '';
 				else $report = $this->t('Reported %d time(s)',$rep_count);
@@ -204,7 +204,7 @@ class Utils_Comment extends Module{
 			location(array());
 		}
 
-		$form = & $this->init_module('Libs/QuickForm',$this->ht('Posting reply'));
+		$form = & $this->init_module('Libs/QuickForm',$this->t('Posting reply'));
 		$theme = & $this->init_module('Base/Theme');
 
 		if ($this->tree_structure) {
@@ -219,8 +219,8 @@ class Utils_Comment extends Module{
 		}
 		$form -> addElement('textarea','comment_page_reply',$this->t('Message'),array('rows'=>4,'cols'=>40));//,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
 		$form -> addRule('comment_page_reply',$this->t('Field required'),'required');
-		$form -> addElement('submit','submit_comment','Submit');
-		$form -> addElement('button','cancel_comment','Cancel',$this->create_back_href());
+		$form -> addElement('submit','submit_comment',$this->t('Submit'));
+		$form -> addElement('button','cancel_comment',$this->t('Cancel'),$this->create_back_href());
 		if ($form->validate() && $this->reply){
 			$this->add_post($form->exportValue('comment_page_reply'),$answer);
 			$this->unset_module_variable('answer');

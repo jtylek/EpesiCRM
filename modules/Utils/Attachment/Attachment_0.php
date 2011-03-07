@@ -214,7 +214,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
 				$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
-				$r->add_action($this->create_confirm_callback_href($this->ht('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
+				$r->add_action($this->create_confirm_callback_href($this->t('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
 			}
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
@@ -390,7 +390,7 @@ class Utils_Attachment extends Module {
 		   ($row['permission']==1 && $this->protected_write) ||
 		   ($row['permission']==2 && $this->private_write)) {
 			Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'edit_note_queue'),$id));
-			Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->ht('Delete this entry?'),array($this,'delete_back'),$id));
+			Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->t('Delete this entry?'),array($this,'delete_back'),$id));
 		}
 
 		$th = $this->init_module('Base/Theme');
@@ -589,7 +589,7 @@ class Utils_Attachment extends Module {
 			if($form->getSubmitValue('note')=='' && !$form->is_file())
 				$form->addRule('note',$this->t('Please enter note or choose file'),'required');
 
-			$form->addElement('select','permission',$this->t('Permission'),array($this->ht('Public'),$this->ht('Protected'),$this->ht('Private')));
+			$form->addElement('select','permission',$this->t('Permission'),array($this->t('Public'),$this->t('Protected'),$this->t('Private')));
 			$form->addElement('checkbox','sticky',$this->t('Sticky'));
 
 			if(isset($id))

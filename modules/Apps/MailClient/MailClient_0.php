@@ -63,7 +63,7 @@ class Apps_MailClient extends Module {
 			if($v['incoming_protocol']==0) $is_pop3=true;
 			$name = $v['mail']=='#internal'?$this->t('Private messages'):$v['mail'];
 			$online = Apps_MailClientCommon::is_online($v['id']);
-			$open_cb = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($v['id'],'Inbox/')).'>'.$name.($online?'':' '.$this->ht('(Offline)')).'</a>';
+			$open_cb = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($v['id'],'Inbox/')).'>'.$name.($online?'':' '.$this->t('(Offline)')).'</a>';
 			$tree[] = array('name'=>$open_cb, 'sub'=>$this->get_tree_structure($str[$v['mail']],$v['id']));
 			if($online)
 				$move_folders = array_merge($move_folders,$this->get_move_folders($str[$v['mail']],$name,$v['id']));
@@ -77,7 +77,7 @@ class Apps_MailClient extends Module {
 		$move_msg_f = $this->init_module('Libs/QuickForm',null,'move_msg');
 		$move_msg_f->addElement('hidden','msg_id','-1',array('id'=>'mail_client_actions_move_msg_id'));
 		$move_msg_f->addElement('select','folder',$this->t('Move message to folder'),$move_folders);
-		$move_msg_f->addElement('button','submit_button',$this->ht('Move'),array('onClick'=>$move_msg_f->get_submit_form_js().'leightbox_deactivate(\'mail_actions\');'));
+		$move_msg_f->addElement('button','submit_button',$this->t('Move'),array('onClick'=>$move_msg_f->get_submit_form_js().'leightbox_deactivate(\'mail_actions\');'));
 		$mail_actions_arr[] = $move_msg_f->toHtml();
 
 		$mail_actions_arr[] = '<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box,'dir'=>$dir,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->t('View source').'</a>';
@@ -168,7 +168,7 @@ class Apps_MailClient extends Module {
 			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),$to_address,$from_address,array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
 			$lid = 'mailclient_link_'.$id;
 			if($imap_online) {
-				$r->add_action($this->create_confirm_callback_href($this->ht('Delete this message?'),array($this,'remove_mail'),array($box,$dir,$id)),'Delete');
+				$r->add_action($this->create_confirm_callback_href($this->t('Delete this message?'),array($this,'remove_mail'),array($box,$dir,$id)),'Delete');
 				if($drafts_folder) {
 					$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'edit')),'Edit');
 				} elseif($sent_folder) {
@@ -207,10 +207,10 @@ class Apps_MailClient extends Module {
 
 //		if($is_pop3)
 		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->t('Check'),$this->check_mail_href());
-		Base_ActionBarCommon::add('new-mail',$this->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
-		Base_ActionBarCommon::add('scan',$this->ht('Mark all as read'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'mark_all_as_read')));
+		Base_ActionBarCommon::add('new-mail',$this->t('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
+		Base_ActionBarCommon::add('scan',$this->t('Mark all as read'),$this->create_confirm_callback_href($this->t('Are you sure?'),array($this,'mark_all_as_read')));
 		if($trash_folder)
-			Base_ActionBarCommon::add('delete',$this->ht('Empty trash'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'empty_trash')));
+			Base_ActionBarCommon::add('delete',$this->t('Empty trash'),$this->create_confirm_callback_href($this->t('Are you sure?'),array($this,'empty_trash')));
 
 	}
 
@@ -234,20 +234,20 @@ class Apps_MailClient extends Module {
 	public function remove_mail($box,$dir,$id) {
 		$box_dir=Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false && !$quiet) {
-			Epesi::alert($this->ht('Invalid mailbox'));
+			Epesi::alert($this->t('Invalid mailbox'));
 			return;
 		}
 		if($dir=='Trash/') {
 			if(Apps_MailClientCommon::remove_msg($box,$dir,$id)) {
 				Base_StatusBarCommon::message('Message deleted');
 			} else {
-				Epesi::alert($this->ht('Unable to delete message'));
+				Epesi::alert($this->t('Unable to delete message'));
 			}
 		} else {
 			if(Apps_MailClientCommon::move_msg($box,$dir,$box,'Trash/',$id)) {
 				Base_StatusBarCommon::message('Message moved to trash');
 			} else {
-				Epesi::alert($this->ht('Unable to move message to trash'));
+				Epesi::alert($this->t('Unable to move message to trash'));
 			}
 		}
 	}
@@ -256,7 +256,7 @@ class Apps_MailClient extends Module {
 		$box = $this->get_module_variable('opened_box');
 		$dir = $this->get_module_variable('opened_dir');
 		if(!Apps_MailClientCommon::mark_all_as_read($box, $dir)) {
-			Epesi::alert($this->ht('Invalid mailbox'));
+			Epesi::alert($this->t('Invalid mailbox'));
 		}
 	}
 
@@ -274,13 +274,13 @@ class Apps_MailClient extends Module {
 
 		$idx = Apps_MailClientCommon::get_index($box,$dir);
 		if($idx===false) {
-			Epesi::alert($this->ht('Invalid index'));
+			Epesi::alert($this->t('Invalid index'));
 			return false;
 		}
 
 		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($mbox_dir===false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
+			Epesi::alert($this->t('Invalid mailbox'));
 			return false;
 		}
 		$box = $mbox_dir.$dir;
@@ -297,14 +297,14 @@ class Apps_MailClient extends Module {
 	public function restore_mail($box,$dir,$id) {
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
+			Epesi::alert($this->t('Invalid mailbox'));
 			return false;
 		}
 		$trashpath = $box_dir.$dir.'.del';
 
 		$in = @fopen($trashpath,'r');
 		if($in===false) {
-			Epesi::alert($this->ht('Invalid mail to restore'));
+			Epesi::alert($this->t('Invalid mail to restore'));
 			return false;
 		}
 		$ret = array();
@@ -320,7 +320,7 @@ class Apps_MailClient extends Module {
 		}
 		fclose($in);
 		if($orig_box===false) {
-			Epesi::alert($this->ht('Invalid mail to restore'));
+			Epesi::alert($this->t('Invalid mail to restore'));
 			return false;
 		}
 
@@ -336,7 +336,7 @@ class Apps_MailClient extends Module {
 			}
 			Base_StatusBarCommon::message('Message restored.');
 		} else {
-			Epesi::alert($this->ht('Unable to restore mail.'));
+			Epesi::alert($this->t('Unable to restore mail.'));
 		}
 	}
 
@@ -406,7 +406,7 @@ class Apps_MailClient extends Module {
 			if($ed && $imap_online)
 				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$dir,$k)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','edit_folder.png').'" border="0"></a>';
 			if($del && $imap_online)
-				$arr['name'] .= '<a '.$this->create_confirm_callback_href($this->ht('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border="0"></a>';
+				$arr['name'] .= '<a '.$this->create_confirm_callback_href($this->t('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border="0"></a>';
 
 			if((!$ed || !$del) && strcasecmp($p,'Inbox/')==0) {
 				$ed = true;
@@ -440,7 +440,7 @@ class Apps_MailClient extends Module {
 		if($from_mails)
 			$from = $from_mails;
 		else
-			$from = array('pm'=>$this->ht('Private message'));
+			$from = array('pm'=>$this->t('Private message'));
 
 		if($box!==null)
 			$f->setDefaults(array('from_addr'=>$box));
@@ -528,9 +528,9 @@ class Apps_MailClient extends Module {
 			if($type=='reply' || $type=='forward') {
 				$msg_header = "\n\n--------- Original Message ---------\n".
 							" Subject: $subject\n".
-							" Date: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['date'])?$structure->headers['date']:$this->ht('no date header specified'))."\n".
-							" From: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['from'])?$structure->headers['from']:$this->ht('no from header specified'))."\n".
-							" To: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['to'])?$structure->headers['to']:$this->ht('no from header specified'))."\n\n";
+							" Date: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['date'])?$structure->headers['date']:$this->t('no date header specified'))."\n".
+							" From: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['from'])?$structure->headers['from']:$this->t('no from header specified'))."\n".
+							" To: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['to'])?$structure->headers['to']:$this->t('no from header specified'))."\n\n";
 				if($body_type=='plain') {
 					$body = $msg_header.$body;
 				} else {
@@ -709,12 +709,12 @@ class Apps_MailClient extends Module {
 							$dest_id = Apps_MailClientCommon::create_internal_mailbox($e);
 						}
 						if(Apps_MailClientCommon::drop_message($dest_id,'Inbox/',$v['subject'],$name.' <'.$name_epesi_mail.'>',$to_names,$date,$v['body'])===false)
-							Epesi::alert($this->ht('Unable to send message to %s',array($to_epesi_names[$e])));
+							Epesi::alert($this->t('Unable to send message to %s',array($to_epesi_names[$e])));
 					}
 			}
 			if($ret) {
 				$dest_id = $from?$from['id']:DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array(Acl::get_user()));
-				if(($mid = Apps_MailClientCommon::drop_message($dest_id,$save_folder.'/',$v['subject'],$from?$from['mail']:$this->ht('private message'),$to_names,$date,$v['body'],true))!==false) {
+				if(($mid = Apps_MailClientCommon::drop_message($dest_id,$save_folder.'/',$v['subject'],$from?$from['mail']:$this->t('private message'),$to_names,$date,$v['body'],true))!==false) {
 					if($drop_callback!==null && is_callable($drop_callback))
 						call_user_func($drop_callback,$dest_id,$save_folder.'/',$mid);
 					return false;
@@ -738,7 +738,7 @@ class Apps_MailClient extends Module {
 		$message = null;
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir === false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
+			Epesi::alert($this->t('Invalid mailbox'));
 		} elseif($id!==null) {
 			$message = @file_get_contents($box_dir.$dir.$id);
 			if($message===false)
@@ -806,7 +806,7 @@ class Apps_MailClient extends Module {
 			$r->add_data($row['mail']);
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'edit')),'Edit');
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'view')),'View');
-			$r->add_action($this->create_confirm_callback_href($this->ht("Delete this account?"),array($this,'delete_account'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->t("Delete this account?"),array($this,'delete_account'),$row['id']),'Delete');
 			$num++;
 		}
 		$this->display_module($gb);
@@ -920,7 +920,7 @@ class Apps_MailClient extends Module {
 	public function delete_account($id){
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($id);
 		if($box_dir===false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
+			Epesi::alert($this->t('Invalid mailbox'));
 			return;
 		}
 		@recursive_rmdir($box_dir);
@@ -1046,7 +1046,7 @@ class Apps_MailClient extends Module {
 			$r = & $gb->get_new_row();
 			$r->add_data($row['name']);
 			$r->add_action($this->create_callback_href(array($this,'filter'),array($row['id'],'edit')),'Edit');
-			$r->add_action($this->create_confirm_callback_href($this->ht("Delete this filter?"),array($this,'delete_filter'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->t("Delete this filter?"),array($this,'delete_filter'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
 		Base_ActionBarCommon::add('add','New filter',$this->create_callback_href(array($this,'filter'),array(null,'new')));
@@ -1110,10 +1110,10 @@ class Apps_MailClient extends Module {
 		$rules_ids[] = 'template';
 		foreach($rules_ids as $rid) {
 			$g = array();
-			$g[] = $f->createElement('select','header','',array('subject'=>$this->ht('Subject'),'from'=>$this->ht('From')));
+			$g[] = $f->createElement('select','header','',array('subject'=>$this->t('Subject'),'from'=>$this->t('From')));
 			$g[] = $f->createElement('select','match','',array('contains'=>Base_LangCommon::ts('Apps_MailClient','contains'),'notcontains'=>Base_LangCommon::ts('Apps_MailClient','doesn\'t contains'),'is'=>Base_LangCommon::ts('Apps_MailClient','is'),'notis'=>Base_LangCommon::ts('Apps_MailClient','isn\'t'),'begins'=>Base_LangCommon::ts('Apps_MailClient','begins with'),'ends'=>Base_LangCommon::ts('Apps_MailClient','ends with')));
 			$g[] = $f->createElement('text','value');
-			$g[] = $f->createElement('button','remove',$this->ht('Remove rule'),array('onClick'=>'Apps_MailClient.filter_remove(\'rule\','.$rid.')'));
+			$g[] = $f->createElement('button','remove',$this->t('Remove rule'),array('onClick'=>'Apps_MailClient.filter_remove(\'rule\','.$rid.')'));
 			$f->addGroup($g,'rule['.$rid.']');
 		}
 		$theme->assign('rule_template_block','mail_filters_rules_template');
@@ -1146,7 +1146,7 @@ class Apps_MailClient extends Module {
 			$g[] = $f->createElement('select','action','',array('move'=>Base_LangCommon::ts('Apps_MailClient','Move message to'),'copy'=>Base_LangCommon::ts('Apps_MailClient','Copy message to'),'forward'=>Base_LangCommon::ts('Apps_MailClient','Forward message to'),'forward_delete'=>Base_LangCommon::ts('Apps_MailClient','Forward message to ... and delete.'),'read'=>Base_LangCommon::ts('Apps_MailClient','Mark as read'),'delete'=>Base_LangCommon::ts('Apps_MailClient','Delete message pernamently')),array('onChange'=>'Apps_MailClient.filter_action_change('.$rid.',this.value)'));
 			$g[] = $f->createElement('text','value','',array('id'=>'mail_filter_action_value_'.$rid));
 			$g[] = $f->createElement('select','value_box','',$move_folders,array('id'=>'mail_filter_action_value_box_'.$rid));
-			$g[] = $f->createElement('button','remove',$this->ht('Remove action'),array('onClick'=>'Apps_MailClient.filter_remove(\'action\','.$rid.')'));
+			$g[] = $f->createElement('button','remove',$this->t('Remove action'),array('onClick'=>'Apps_MailClient.filter_remove(\'action\','.$rid.')'));
 			$f->addGroup($g,'action['.$rid.']');
 			$val = $f->exportValue('action['.$rid.']');
 			eval_js('Apps_MailClient.filter_action_change(\''.$rid.'\',\''.(isset($val['action'])?$val['action']:'').'\')');

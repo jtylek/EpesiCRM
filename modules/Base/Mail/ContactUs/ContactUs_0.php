@@ -31,7 +31,7 @@ class Base_Mail_ContactUs extends Module {
 		$body->setRows(15);
 		$form->addElement($body);
 		
-		$form->addElement('submit','submit_button',$this->ht('Send'));
+		$form->addElement('submit','submit_button',$this->t('Send'));
 		
 		if($form->validate()) {
 			if($form->process(array(&$this, 'submit_body')))

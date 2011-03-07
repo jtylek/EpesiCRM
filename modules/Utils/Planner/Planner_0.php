@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
@@ -159,16 +159,17 @@ class Utils_Planner extends Module {
 		if ($this->date===null) {
 			$days_of_week = array(0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednesday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday');
 			while (count($headers)<7) {
-				$headers[$fdow] = $days_of_week[$fdow];
+				$headers[$fdow] = $this->t($days_of_week[$fdow]);
 				$fdow++;
 				if ($fdow>6) $fdow -= 7;
 			}
 		} else {
 //			while (date('w',$this->date)!=$fdow) $this->date = strtotime('-1 day', $this->date);
 			$_SESSION['client']['utils_planner']['date'] = $this->date;
+			$days_of_week = array(0=>'Sun', 1=>'Mon', 2=>'Tue', 3=>'Wed', 4=>'Thu', 5=>'Fri', 6=>'Sat');
 			$curr = $this->date;
 			while (count($headers)<7) {
-				$headers[$curr] = Base_RegionalSettingsCommon::time2reg($curr, false, true).' '.date('D',$curr);
+				$headers[$curr] = Base_RegionalSettingsCommon::time2reg($curr, false, true).' '.$this->t($days_of_week[date('w',$curr)]);
 				$curr = strtotime('+1 day', $curr);
 			}
 		}
@@ -193,6 +194,7 @@ class Utils_Planner extends Module {
 		/* GRID LEGEND END */
 		
 		$theme->assign('select_all',$select_all);
+		$theme->assign('select_all_label',$this->t('Select All'));
 
 		$theme->assign('grid_legend',$grid_legend);
 		$theme->assign('grid_attrs',$grid_attrs);

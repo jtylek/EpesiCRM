@@ -20,7 +20,7 @@ class Base_Search extends Module {
 		if (isset($_REQUEST['quick_search'])) $qs_keyword=$_REQUEST['quick_search'];
 		$this->set_module_variable('qs_keyword', $qs_keyword);
 
-		$form = & $this->init_module('Libs/QuickForm',$this->ht('Searching'));
+		$form = & $this->init_module('Libs/QuickForm',$this->t('Searching'));
 		$theme =  & $this->pack_module('Base/Theme');
 
 		$modules_with_search = ModuleManager::check_common_methods('search');
@@ -28,16 +28,16 @@ class Base_Search extends Module {
 		$cmr = ModuleManager::check_common_methods('advanced_search');
 		foreach($cmr as $name) {
 			if(ModuleManager::check_access($name,'advanced_search'))
-				$modules_with_adv_search[$name] = $this->ht(str_replace('_',': ',$name));
+				$modules_with_adv_search[$name] = $this->t(str_replace('_',': ',$name));
 		}
 
 		$form->addElement('header', 'quick_search_header', $this->t('Quick search'));
-		$form->addElement('text', 'quick_search',  $this->ht('Keyword'), array('id'=>'quick_search_text'));
+		$form->addElement('text', 'quick_search',  $this->t('Keyword'), array('id'=>'quick_search_text'));
 		$form->addRule('quick_search', $this->t('Field required'), 'required');
-		$form->addElement('submit', 'quick_search_submit',  $this->ht('Search'), array('class'=>'submit','onclick'=>'var elem=getElementById(\''.$form->getAttribute('name').'\').elements[\'advanced_search\'];if(elem)elem.value=0;'));
+		$form->addElement('submit', 'quick_search_submit',  $this->t('Search'), array('class'=>'submit','onclick'=>'var elem=getElementById(\''.$form->getAttribute('name').'\').elements[\'advanced_search\'];if(elem)elem.value=0;'));
 
 		if (!empty($modules_with_adv_search)) {
-			$modules_with_adv_search_['__null__'] = '('.$this->ht('Select module').')';
+			$modules_with_adv_search_['__null__'] = '('.$this->t('Select module').')';
 			ksort($modules_with_adv_search);
 			foreach($modules_with_adv_search as $k=>$v) $modules_with_adv_search_[$k] = $v;
 			$form->addElement('static', 'advanced_search_header', $this->t('Advanced search'));
@@ -110,10 +110,10 @@ class Base_Search extends Module {
 	}
 	*/
 	public function mini() {
-		$form = & $this->init_module('Libs/QuickForm',$this->ht('Searching'));
+		$form = & $this->init_module('Libs/QuickForm',$this->t('Searching'));
 
 		$form->addElement('text', 'quick_search', $this->t('Quick search'));
-		$form->addElement('submit', 'quick_search_submit', $this->ht('Search'), array('class'=>'mini_submit'));
+		$form->addElement('submit', 'quick_search_submit', $this->t('Search'), array('class'=>'mini_submit'));
 
 		$theme =  & $this->pack_module('Base/Theme');
 		$form->assign_theme('form', $theme);

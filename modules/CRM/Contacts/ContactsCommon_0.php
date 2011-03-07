@@ -776,14 +776,13 @@ class CRM_ContactsCommon extends ModuleCommon {
                     'var k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['country'].'") break; else k++;'.
                     'country.selectedIndex = k;'.
                     'country.fire(\'e_u_cd:load\');'.
-                    'zone = $(\'zone\');'.
                     'setTimeout("'.
-                    'k = 0; while (k < zone.options.length) if (zone.options[k].value==\''.$comp['zone'].'\') break; else k++;'.
+                    'var zone = $(\'zone\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\''.$comp['zone'].'\') break; else k++;'.
                     'zone.selectedIndex = k;'.
                     '",900);'.
                     'document.getElementsByName("web_address")[0].value="'.$comp['web_address'].'";';
                 ;
-                $form->addElement('button', 'paste_company_info', 'Paste Company Info', array('onClick'=>$paste_company_info));
+                $form->addElement('button', 'paste_company_info', Base_LangCommon::ts('CRM_Contacts','Paste Company Info'), array('onClick'=>$paste_company_info));
             }
         }
         if ($mode!='view' && Base_AclCommon::i_am_admin()) {

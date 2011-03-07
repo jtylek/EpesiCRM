@@ -43,7 +43,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
         Base_ActionBarCommon::add('back','Back',$this->create_main_href('Base_User_Settings'));
         Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
-        #$form->addElement('submit', 'submit_button', $this->ht('OK'));
+        #$form->addElement('submit', 'submit_button', $this->t('OK'));
 
         if($form->validate_with_message('Setting saved','Problem encountered')) {
             if($form->process(array(&$this, 'submit_user_preferences'))){
@@ -139,7 +139,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $this->display_module($gb);
 
         $qf = $this->init_module('Libs/QuickForm',null,'ban');
-        $qf->addElement('select','bantime',$this->t('Ban time after 3 failed logins'),array(0=>$this->ht('disabled'),10=>$this->ht('10 seconds'),30=>$this->ht('30 seconds'),60=>$this->ht('1 minute'),180=>$this->ht('3 minutes'),300=>$this->ht('5 minutes'),900=>$this->ht('15 minutes'),1800=>$this->ht('30 minutes'),3600=>$this->ht('1 hour'),(3600*6)=>$this->ht('6 hours'),(3600*24)=>$this->ht('1 day')),array('onChange'=>$qf->get_submit_form_js()));
+        $qf->addElement('select','bantime',$this->t('Ban time after 3 failed logins'),array(0=>$this->t('disabled'),10=>$this->t('10 seconds'),30=>$this->t('30 seconds'),60=>$this->t('1 minute'),180=>$this->t('3 minutes'),300=>$this->t('5 minutes'),900=>$this->t('15 minutes'),1800=>$this->t('30 minutes'),3600=>$this->t('1 hour'),(3600*6)=>$this->t('6 hours'),(3600*24)=>$this->t('1 day')),array('onChange'=>$qf->get_submit_form_js()));
         $qf->setDefaults(array('bantime'=>Variable::get('host_ban_time')));
         if($qf->validate()) {
             Variable::set('host_ban_time',$qf->exportValue('bantime'));
@@ -155,7 +155,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     }
 
     public function edit_user_form($edit_id) {
-        $form = & $this->init_module('Libs/QuickForm',$this->ht(($edit_id>=0)?'Applying changes':'Creating new user'));
+        $form = & $this->init_module('Libs/QuickForm',$this->t(($edit_id>=0)?'Applying changes':'Creating new user'));
         
         //create new user
         $form->addElement('header', null, $this->t((($edit_id>=0)?'Edit user':'Create new user')));
@@ -187,7 +187,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addRule('pass', $this->t('Your password must be longer then 5 chars'), 'minlength', 5);
 
         if($edit_id>=0) {
-            $form->addElement('select', 'active', $this->t('Active'), array(1=>$this->ht('Yes'), 0=>$this->ht('No')));
+            $form->addElement('select', 'active', $this->t('Active'), array(1=>$this->t('Yes'), 0=>$this->t('No')));
 
             //set defaults
             $ret = DB::Execute('SELECT u.login, p.mail, u.active FROM user_login u INNER JOIN user_password p ON (p.user_login_id=u.id) WHERE u.id=%d', $edit_id);
@@ -210,8 +210,8 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addRule(array('username',$this->create_unique_key('edit_user')), $this->t('Username already taken'), 'check_username');
 
         /*
-        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
-        $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), 'onClick="parent.location=\''.$this->create_href().'\'"');
+        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
+        $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), 'onClick="parent.location=\''.$this->create_href().'\'"');
         $form->addGroup(array($ok_b, $cancel_b));
         */
 

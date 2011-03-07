@@ -61,7 +61,7 @@ class CRM_Fax extends Module {
 		
 		$form->addElement('datepicker', 'start', $this->t('From'));
 		$form->addElement('datepicker', 'end', $this->t('To'));
-		$form->addElement('submit', 'submit_button', $this->ht('Show'));
+		$form->addElement('submit', 'submit_button', $this->t('Show'));
 		$form->addRule('start', 'Field required', 'required');
 		$form->addRule('end', 'Field required', 'required');
 		$form->setDefaults(array('start'=>$start, 'end'=>$end));
@@ -139,7 +139,7 @@ class CRM_Fax extends Module {
 		
 		$form->addElement('datepicker', 'start', $this->t('From'));
 		$form->addElement('datepicker', 'end', $this->t('To'));
-		$form->addElement('submit', 'submit_button', $this->ht('Show'));
+		$form->addElement('submit', 'submit_button', $this->t('Show'));
 		$form->addRule('start', 'Field required', 'required');
 		$form->addRule('status', 'Field required', 'required');
 		$form->addRule('end', 'Field required', 'required');
@@ -210,7 +210,7 @@ class CRM_Fax extends Module {
 		
 		$form->addElement('select','status',$this->t('Status'),$statuses);
 		
-		$form->addElement('submit', 'submit_button', $this->ht('Show'));
+		$form->addElement('submit', 'submit_button', $this->t('Show'));
 		$form->addRule('status', 'Field required', 'required');
 		$form->setDefaults(array('status'=>$status));
 
@@ -310,7 +310,7 @@ class CRM_Fax extends Module {
 		list($providers,$providers_arr) = self::get_providers($file);
 		if(empty($providers)) {
 			$this->go_back($file);
-			Epesi::alert($this->ht('No fax providers installed or configured for this type of file.'));
+			Epesi::alert($this->t('No fax providers installed or configured for this type of file.'));
 			return;
 		}
 		$qf->addElement('header',null,$this->t('Faxing file: %s',array(basename($file))));
@@ -344,7 +344,7 @@ class CRM_Fax extends Module {
 		if($qf->validate()) {
 			$data = $qf->exportValues();
 			if(!isset($providers_arr[$data['provider']]['send_func'])) {
-				Epesi::alert($this->ht('Invalid fax provider.'));
+				Epesi::alert($this->t('Invalid fax provider.'));
 			} else {
 				$fax_func = array($data['provider'].'Common',$providers_arr[$data['provider']]['send_func']);
 				$numbers = array();

@@ -54,8 +54,8 @@ class Base_ActionBar extends Module {
 
 		//translate
 		foreach($icons as &$i) {
-			$i['label'] = $this->ht($i['label']);
-			$description = $this->ht($i['description']);
+			$i['label'] = $this->t($i['label']);
+			$description = $this->t($i['description']);
 			if($display_text)
 				if($i['description'])
 					$t = Utils_TooltipCommon::open_tag_attrs($description);
@@ -79,8 +79,8 @@ class Base_ActionBar extends Module {
 				foreach ($opts as $k=>$v) {
 					if($dash && Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_d')) {
 						$ii = array();
-						$trimmed_label = substr(strrchr($v['label'],':'),1);
-						$ii['label'] = $this->ht($trimmed_label?$trimmed_label:$v['label']);
+						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
+						$ii['label'] = $this->t($trimmed_label?$trimmed_label:$v['label']);
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
 						if(isset($arr['__url__']))
@@ -102,7 +102,7 @@ class Base_ActionBar extends Module {
 					if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_l')) {
 						$ii = array();
 						$trimmed_label = substr(strrchr($v['label'],':'),1);
-						$ii['label'] = $this->ht($trimmed_label?$trimmed_label:$v['label']);
+						$ii['label'] = $this->t($trimmed_label?$trimmed_label:$v['label']);
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
 						if(isset($arr['__url__']))
@@ -137,7 +137,7 @@ class Base_ActionBar extends Module {
 					$lp_out = ob_get_clean();
 					$big = count($launchpad)>10;
 					Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,$this->t('Launchpad'),$big);
-					$launcher[] = array('label'=>$this->ht('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
+					$launcher[] = array('label'=>$this->t('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
 				}
 			}
 		}

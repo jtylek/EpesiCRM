@@ -50,8 +50,8 @@ foreach ($cleanFrames as $day=>$v) {
 			$h = floor($dur/60);
 			$min = $dur%60;
 			$duration = '';
-			if ($h) $duration .= $h.'h ';
-			if ($min || !$duration) $duration .= $min.'min';
+			if ($h) $duration .= $h.Base_LangCommon::ts('Utils_Planner','h').' ';
+			if ($min || !$duration) $duration .= $min.Base_LangCommon::ts('Utils_Planner','min');
 			$next = '<tr>'.
 						'<td>'.$headers[$day].'</td>'.
 						'<td>'.Utils_PlannerCommon::format_time($start*60).'</td>'.

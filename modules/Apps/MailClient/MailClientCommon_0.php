@@ -299,7 +299,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function get_number_of_messages($box,$p) {
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
+			Epesi::alert($this->t('Invalid mailbox'));
 			return false;
 		}
 		$num = @file_get_contents($box_dir.$p.'.num');

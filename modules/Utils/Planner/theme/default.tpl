@@ -39,7 +39,7 @@
 					{foreach item=h key=k from=$headers}
 						<td class="header">
 							{$h}<br />
-							<input type="button" value="Select All" onclick="{$select_all.$k}" />
+							<input type="button" value="{$select_all_label}" onclick="{$select_all.$k}" />
 						</td>
 					{/foreach}
 				</tr>

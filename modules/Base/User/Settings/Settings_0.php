@@ -41,7 +41,7 @@ class Base_User_Settings extends Module {
             return;
         }
 
-        $f = &$this->init_module('Libs/QuickForm',$this->ht('Saving settings'),'settings');
+        $f = &$this->init_module('Libs/QuickForm',$this->t('Saving settings'),'settings');
         $f->addElement('header',null,$this->t($branch));
         $this->indicator = ': '.$branch;
         $this->settings_fields = array();
@@ -103,7 +103,7 @@ class Base_User_Settings extends Module {
             }
         }
 
-        Base_StatusBarCommon::message($this->ht('Setting saved'.($reload?' - reloading page':'')));
+        Base_StatusBarCommon::message($this->t('Setting saved'.($reload?' - reloading page':'')));
         if ($reload) eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')',false);
         return true;
     }
@@ -115,7 +115,7 @@ class Base_User_Settings extends Module {
         $this->settings_fields[] = $v['name'];
         if(isset($v['values']) && is_array($v['values']))
             foreach($v['values'] as &$x)
-                $x = $this->ht($x);
+                $x = $this->t($x);
         if (isset($v['rule'])) {
             if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
             foreach ($v['rule'] as & $r)

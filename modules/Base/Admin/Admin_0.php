@@ -48,7 +48,7 @@ class Base_Admin extends Module {
 		foreach($cmr as $name=>$caption) {
 			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
 			if(!isset($caption)) $caption = $name.' module';
-			else $caption = $this->ht($caption);
+			else $caption = $this->t($caption);
 			$mod_ok[$caption] = $name;
 		}
 		uksort($mod_ok,'strcasecmp');

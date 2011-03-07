@@ -170,7 +170,7 @@ class CRM_Contacts extends Module {
         if( Base_AclCommon::is_user_in_group($uid, 'Employee Manager') || Base_AclCommon::i_am_admin() ) {
             $prompt_id = "contacts_address_fix";
             $content = $this->update_contacts_address_prompt($arg, $prompt_id);
-            Libs_LeightboxCommon::display($prompt_id, $content, 'Update Contacts');
+            Libs_LeightboxCommon::display($prompt_id, $content, $this->t('Update Contacts'));
             Base_ActionBarCommon::add('all', 'Update Contacts', Libs_LeightboxCommon::get_open_href($prompt_id));
         }
     }
@@ -210,7 +210,7 @@ class CRM_Contacts extends Module {
 	}
 
     public function update_contacts_address_prompt($company, $lid) {
-        $html = '<br/>'.$this->t('This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would You like to copy to company contacts:');
+        $html = '<br/>'.$this->t('This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would you like to copy to company contacts:');
         $form = $this->init_module('Libs/QuickForm');
 
         $data = array( /* Source ID, Target ID, Text, Checked state */
@@ -227,8 +227,8 @@ class CRM_Contacts extends Module {
             $form->addElement('checkbox', $row['sid'], $row['text'], '&nbsp;&nbsp;<span style="color: gray">'.$company[$row['sid']].'</span>', $row['checked'] ? array('checked'=>'checked'): array());
         }
 
-        $ok = $form->createElement('submit', 'submit', $this->ht('Confirm'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
-        $cancel = $form->createElement('button', 'cancel', $this->ht('Cancel'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+        $ok = $form->createElement('submit', 'submit', $this->t('Confirm'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+        $cancel = $form->createElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
         $form->addGroup(array($ok, $cancel));
 
         if($form->validate()) {

@@ -226,7 +226,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			'$("recurrence_hash_row").style.display=mode;'.
 		'}');
 		$options = array(
-			''=>'No',
+			''=>Base_LangCommon::ts('CRM_Meeting','No'),
 			1=>Base_LangCommon::ts('CRM_Meeting','Everyday'),
 			2=>Base_LangCommon::ts('CRM_Meeting','Every second day'),
 			3=>Base_LangCommon::ts('CRM_Meeting','Every third day'),

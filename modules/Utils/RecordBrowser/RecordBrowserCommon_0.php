@@ -22,7 +22,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     private static $clear_get_val_cache = false;
 	
-	private static function ts($str, $arr=array()) {
+	public static function ts($str, $arr=array()) {
 		return Base_LangCommon::ts('Utils_RecordBrowserCommon', $str, $arr);
 	}
 
@@ -2170,7 +2170,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
                             break;
                 case 'text':        $qf->addElement('text', $args['id'], $label, array('maxlength'=>$args['param']));
-                            $qf->addRule($args['id'], self::ts('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
+                            $qf->addRule($args['id'], self::ts('Maximum length for this field is %s characters.', array($args['param'])), 'maxlength', $args['param']);
                             if($id!==false)
                                 $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
                             break;

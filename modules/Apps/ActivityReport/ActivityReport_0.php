@@ -12,6 +12,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ActivityReport extends Module {
 	public function body() {
 		$rb_tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties ORDER BY caption');
+		foreach ($rb_tabs as $k=>$v)
+			$rb_tabs[$k] = Utils_RecordBrowserCommon::ts($v);
 
 		$form = $this->init_module('Libs/QuickForm');
 
@@ -141,13 +143,13 @@ class Apps_ActivityReport extends Module {
 									$r_id = $row['r_id'];
 									break;
 					case 'file': 	$action = $this->t('Attachment: ');
-									$action .= $row['id']==0?'New':'Updated';
+									$action .= $this->t($row['id']==0?'New':'Updated');
 									$id = explode('/',$row['r_id']);
 									$row['tab'] = $id[0];
 									$r_id = $id[1];
 									break;
 					case 'note': 	$action = $this->t('Note: ');
-									$action .= $row['id']==0?'New':'Updated';
+									$action .= $this->t($row['id']==0?'New':'Updated');
 									$id = explode('/',$row['r_id']);
 									$row['tab'] = $id[0];
 									$r_id = $id[1];

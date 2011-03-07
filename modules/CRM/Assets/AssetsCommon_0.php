@@ -127,7 +127,7 @@ class CRM_AssetsCommon extends ModuleCommon {
         return array('Assets'=>array(
                 array('name'=>'desc', 'label'=>'Check what should appear in General Info', 'type'=>'static', 'default'=>' and set order of appearance(smaller number -> earlier showed)'),
 
-                array('name'=>'computer_header', 'label'=>'', 'type'=>'header', 'default'=>'Computer'),
+                array('name'=>'computer_header', 'label'=>'', 'type'=>'header', 'default'=>Base_LangCommon::ts('CRM_Assets','Computer')),
                 array('name'=>'processor', 'label'=>'CPU', 'type'=>'checkbox', 'default'=>true),
                     array('name'=>'processor_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'1'),
                 array('name'=>'ram', 'label'=>'RAM', 'type'=>'checkbox', 'default'=>true),
@@ -147,13 +147,13 @@ class CRM_AssetsCommon extends ModuleCommon {
                 array('name'=>'laptop_screen', 'label'=>'Laptop Screen Size', 'type'=>'checkbox', 'default'=>true),
                     array('name'=>'laptop_screen_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'9'),
 
-                array('name'=>'monitor_header', 'label'=>'', 'type'=>'header', 'default'=>'Monitor'),
+                array('name'=>'monitor_header', 'label'=>'', 'type'=>'header', 'default'=>Base_LangCommon::ts('CRM_Assets','Monitor')),
                 array('name'=>'display_type', 'label'=>'Display Type', 'type'=>'checkbox', 'default'=>true),
                     array('name'=>'display_type_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'1'),
                 array('name'=>'screen_size', 'label'=>'Screen Size', 'type'=>'checkbox', 'default'=>true),
                     array('name'=>'screen_size_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'2'),
 
-                array('name'=>'printer_header', 'label'=>'', 'type'=>'header', 'default'=>'Printer'),
+                array('name'=>'printer_header', 'label'=>'', 'type'=>'header', 'default'=>Base_LangCommon::ts('CRM_Assets','Printer')),
                 array('name'=>'printer_type', 'label'=>'Printer Type', 'type'=>'checkbox', 'default'=>true),
                     array('name'=>'printer_type_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'1'),
                 array('name'=>'color_printing', 'label'=>'Color Printing', 'type'=>'checkbox', 'default'=>true),

@@ -135,7 +135,7 @@ class Utils_Messenger extends Module {
 				
 			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['alert_on']),$row['message'],$us);
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users))),'Edit');
-			$r->add_action($this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->t('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
 		
@@ -175,7 +175,7 @@ class Utils_Messenger extends Module {
 			$info = str_replace("\n",'<br>',$info);
 			$r = & $gb->get_new_row();
 			$r->add_data('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?$this->t("Alarm comment: %s",array($row['message'])):''));
-			$r->add_action($this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'delete_user_entry'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->t('Are you sure?'),array($this,'delete_user_entry'),$row['id']),'Delete');
 		}
 
 		$this->display_module($gb);
@@ -223,8 +223,8 @@ class Utils_Messenger extends Module {
 			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			$info = str_replace("\n",'<br>',$info);
 			$alert_on = Base_RegionalSettingsCommon::time2reg($row['alert_on']);
-			$gb->add_row(($row['done']?'<span class="checkbox_on" />':'<a '.Utils_TooltipCommon::open_tag_attrs($this->ht('Turn off alarm')).' '.$this->create_confirm_callback_href($this->ht('Turn off alarm?'),array('Utils_MessengerCommon','turn_off'),array($row['id'])).'><span class="checkbox_off" /></a>'),
-			        (($row['done'] || $row['alert_on']>$t)?$alert_on:'<a '.Utils_TooltipCommon::open_tag_attrs($this->ht('Hold on')).' '.$this->lp->get_href(array($row['id'])).'>'.$alert_on.'</a>'),
+			$gb->add_row(($row['done']?'<span class="checkbox_on" />':'<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Turn off alarm')).' '.$this->create_confirm_callback_href($this->t('Turn off alarm?'),array('Utils_MessengerCommon','turn_off'),array($row['id'])).'><span class="checkbox_off" /></a>'),
+			        (($row['done'] || $row['alert_on']>$t)?$alert_on:'<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Hold on')).' '.$this->lp->get_href(array($row['id'])).'>'.$alert_on.'</a>'),
 			        $info.'<br>'.($row['message']?$this->t("Alarm comment: %s",array($row['message'])):''));
 		}
 

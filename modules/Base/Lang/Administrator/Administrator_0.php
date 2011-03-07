@@ -44,8 +44,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$form->setDefaults(array('lang_code'=>Variable::get('default_lang'),'allow_lang_change'=>Variable::get('allow_lang_change')));
 		
 		/*
-		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), $this->create_back_href());
+		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
+		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b, $cancel_b));
 		*/
 		
@@ -127,8 +127,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$form->registerRule('check_if_langpack_exists', 'callback', 'check_if_langpack_exists', $this);
 		$form -> addRule('code', $this->t('Specified langpack already exists'), 'check_if_langpack_exists');
 		$form -> addRule('code', $this->t('Field required'), 'required');
-		$submit = HTML_QuickForm::createElement('submit','submit',$this->ht('Create'));
-		$cancel = HTML_QuickForm::createElement('button','cancel',$this->ht('Cancel'), $this->create_back_href());
+		$submit = HTML_QuickForm::createElement('submit','submit',$this->t('Create'));
+		$cancel = HTML_QuickForm::createElement('button','cancel',$this->t('Cancel'), $this->create_back_href());
 		$form -> addGroup(array($submit,$cancel));
 		if ($form->validate()) {
 			Base_LangCommon::new_langpack($form->exportValue('code'));
