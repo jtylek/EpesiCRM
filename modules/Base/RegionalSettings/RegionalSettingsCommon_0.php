@@ -191,7 +191,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function strftime($format,$timestamp) {
 		$ret = strftime($format,$timestamp);
 		if ( strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ) {
-		    $loc = setlocale(LC_ALL,"0");
+		    $locale=setlocale(LC_ALL,"0");
+			static $loc = null;
+			if ($loc==$null) {
+				$loc=strtolower($locale);
+				$loc=explode('_',$loc,2);
+				$loc=$loc[0];
+			}
 		    if(isset(self::$encodings[$loc]))
     		 	return iconv(self::$encodings[$loc],'UTF-8',$ret);
     		return iconv('','UTF-8',$ret);
