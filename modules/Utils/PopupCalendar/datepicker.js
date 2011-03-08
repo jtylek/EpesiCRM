@@ -44,8 +44,8 @@ format2regexp: function(f) {
 		.replace('%m','[0-1]?[0-9]?')
 		.replace('%y','[0-9]{0,2}')
 		.replace('%Y','[0-9]{0,4}')
-		.replace('%b','[a-zA-Z]{0,3}')
-		.replace('%B','[a-zA-Z]*');
+		.replace('%b','[a-zA-ZáéíóäëöúàèììùąśżźćółńĄŚŻŹĆÓŁŃ]{0,3}')
+		.replace('%B','[a-zA-ZáéíóäëöúàèììùąśżźćółńĄŚŻŹĆÓŁŃ]+');
 },
 // get_caret method based on work of:
 // Author: Mihai Bazon, 2006
