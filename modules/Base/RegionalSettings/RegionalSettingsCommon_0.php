@@ -36,17 +36,39 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				'sk'=>'slovak',
 				'es'=>'spanish',
 				'se'=>'swedish',
-				'tr'=>'turkish');
+				'tr'=>'turkish',
+				'gr'=>'greek');
+	private static $encodings = array(
+				'chinese'=>'CP936',
+				'czech'=>'CP1250',
+				'danish'=>'CP1252',
+				'dutch'=>'CP1252',
+				'belgian'=>'CP1252',
+				'english'=>'CP1252',
+				'finnish'=>'CP1252',
+				'french'=>'CP437',
+				'german'=>'CP1252',
+				'hungarian'=>'CP1250',
+				'italian'=>'CP1252',
+				'japanese'=>'CP932',
+				'korean'=>'CP949',
+				'norwegian'=>'CP1252',
+				'polish'=>'CP1250',
+				'portuguese'=>'CP1252',
+				'russian'=>'CP1251',
+				'slovak'=>'CP1250',
+				'spanish'=>'CP1252',
+				'swedish'=>'CP1252',
+				'turkish'=>'CP1254',
+				'greek'=>'CP1253');
 
 
 	public static function user_settings() {
 		$now = strtotime('2008-02-15');
 		$date_formats_proto = array('%Y-%m-%d','%m/%d/%Y','%d %B %Y','%d %b %Y','%b %d, %Y');
 		$date_formats = array();
-		self::set_locale();
 		foreach($date_formats_proto as $f)
 			$date_formats[$f] = self::strftime($f,$now);
-		self::restore_locale();
 		if(!function_exists('timezone_identifiers_list'))
 			require_once('modules/Base/RegionalSettings/tz_list.php');
 		$tz = timezone_identifiers_list();
@@ -168,8 +190,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 
 	public static function strftime($format,$timestamp) {
 		$ret = strftime($format,$timestamp);
-		if ( strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' )
-		 	return iconv('','UTF-8',$ret);
+		if ( strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ) {
+		    $loc = setlocale(LC_ALL,"0");
+		    if(isset(self::$encodings[$loc]))
+    		 	return iconv(self::$encodings[$loc],'UTF-8',$ret);
+    		return iconv('','UTF-8',$ret);
+		}
 		return $ret;
 	}
 	
