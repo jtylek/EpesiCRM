@@ -46,17 +46,15 @@ while ($row = $ret->FetchRow()) {
 		if ($k!='id') {
 			if (!isset($field_hash[$k])) continue;
 			if (!isset($table_rows[$field_hash[$k]])) continue;
-			$new = Utils_RecordBrowserCommon::get_val($tab, $field_hash[$k], $created, false, $table_rows[$field_hash[$k]]);
 			if ($table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
 			$created[$k] = $v;
-			$old = Utils_RecordBrowserCommon::get_val($tab, $field_hash[$k], $created, false, $table_rows[$field_hash[$k]]);
 		}
 	}
 }
 
 foreach($table_rows as $field => $args) {
 	ob_start();
-	$val = Utils_RecordBrowserCommon::get_val($tab, $field, $created, false, $args);
+	$val = @Utils_RecordBrowserCommon::get_val($tab, $field, $created, false, $args);
 	ob_end_clean();
 	print('if($("_'.$args['id'].'__data"))$("_'.$args['id'].'__data").innerHTML = "'.Epesi::escapeJS($val).'";');
 //	if (!$access[$args['id']]) continue;
