@@ -3,12 +3,10 @@
  * @version @package_version@
  */
 
-var rcmail_epesi_auto_archive_enabled = false;
-
 function rcmail_epesi_auto_archive(prop)
 {
-  rcmail_epesi_auto_archive_enabled = !rcmail_epesi_auto_archive_enabled;
   var x = document.getElementById('epesi_auto_archive_button');
+  var rcmail_epesi_auto_archive_enabled = (x.src.search('archive_act.png')<0);
   if(rcmail_epesi_auto_archive_enabled) {
     x.src = x.src.replace('archive_pas.png','archive_act.png');
   } else {
@@ -52,7 +50,6 @@ if (window.rcmail) {
     if(rcmail.gui_objects.messageform) {
         rcmail.register_command('plugin.epesi_auto_archive', rcmail_epesi_auto_archive);
         rcmail.enable_command('plugin.epesi_auto_archive', true);
-        rcmail_epesi_auto_archive_enabled = true;
     }
 
   })

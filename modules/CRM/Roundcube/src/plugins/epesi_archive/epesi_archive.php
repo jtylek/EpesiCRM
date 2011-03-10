@@ -6,12 +6,15 @@ class epesi_archive extends rcube_plugin
 
   function init()
   {
+    global $account;
+
     $rcmail = rcmail::get_instance();
     $this->register_action('plugin.epesi_archive', array($this, 'request_action'));
     
     //register hook to archive just sent mail
     $this->add_hook('cleanup_attachments', array($this, 'auto_archive'));
-    $_SESSION['epesi_auto_archive'] = 1;
+    if(!isset($_SESSION['epesi_auto_archive']))
+        $_SESSION['epesi_auto_archive'] = isset($account['f_archive_on_sending']) && $account['f_archive_on_sending']?1:0;
 
     $this->include_script('archive.js');
     $skin_path = $rcmail->config->get('skin_path');
@@ -21,7 +24,7 @@ class epesi_archive extends rcube_plugin
         $this->add_button(
         array(
             'command' => 'plugin.epesi_auto_archive',
-            'imageact' => $skin_path.'/archive_act.png',
+            'imageact' => $skin_path.'/archive_'.($_SESSION['epesi_auto_archive']?'act':'pas').'.png',
             'title' => 'buttontitle_compose',
             'domain' => $this->ID,
             'id'=>'epesi_auto_archive_button'
@@ -275,6 +278,7 @@ class epesi_archive extends rcube_plugin
   //on message sending
   function auto_archive() {
     if(!$_SESSION['epesi_auto_archive']) return;
+    unset($_SESSION['epesi_auto_archive']);
     
     global $store_folder,$saved,$IMAP,$message_id,$store_target;
     if(!$store_folder || !$saved) return;

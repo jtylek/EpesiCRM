@@ -54,6 +54,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             array('name'=>'Default Account',             'type'=>'checkbox', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_default_account')),
 
             array('name'=>'Advanced', 'type'=>'page_split'),
+            array('name'=>'Archive on sending', 'type'=>'checkbox', 'extra'=>true, 'visible'=>false),
             array('name'=>'IMAP Root', 'type'=>'text', 'param'=>32, 'extra'=>true, 'visible'=>false),
             array('name'=>'IMAP Delimiter', 'type'=>'text', 'param'=>8, 'extra'=>true, 'visible'=>false)
         );
