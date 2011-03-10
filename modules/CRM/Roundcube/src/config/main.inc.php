@@ -184,7 +184,7 @@ $rcmail_config['skin_include_php'] = false;
 
 // Session lifetime in minutes
 // must be greater than 'keep_alive'/60
-$rcmail_config['session_lifetime'] = 10;
+$rcmail_config['session_lifetime'] = 480;
 
 // check client IP in session athorization
 $rcmail_config['ip_check'] = false;
