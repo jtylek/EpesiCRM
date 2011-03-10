@@ -161,7 +161,7 @@ class Base_ModuleDownloader extends Module {
         if($success) {
             if(class_exists('ZipArchive')) {
                 $zip = new ZipArchive();
-                if( filesize($destfile) == 0 || $zip->open($destfile) != true || $zip->extractTo('./modules') == false ) {
+                if( filesize($destfile) == 0 || $zip->open($destfile) != true || $zip->extractTo('./') == false ) {
                     $text .= $this->t("Archive error!").'<br/>';
                     $success = false;
                 } else {
