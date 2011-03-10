@@ -10,7 +10,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_RoundcubeCommon extends ModuleCommon {
+class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     public static function menu() {
 	    if(self::Instance()->acl_check('access client')) {
             return array('E-mail'=>array());
@@ -272,6 +272,10 @@ class CRM_RoundcubeCommon extends ModuleCommon {
       	    return '<a '.Module::create_href(array('rc_mailto'=>$v)).'>'.$v.'</a>';
       	}
     	return '<a href="mailto:'.$v.'">'.$v.'</a>';
+	}
+	
+	public static function admin_caption() {
+	    return 'Outgoing mail global signature';
 	}
 }
 

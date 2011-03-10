@@ -234,7 +234,7 @@ $rcmail_config['include_host_config'] = false;
 
 // path to a text file which will be added to each sent message
 // paths are relative to the RoundCube root folder
-$rcmail_config['generic_message_footer'] = 'epesi_footer.txt';
+$rcmail_config['generic_message_footer'] = '';
 
 // add a received header to outgoing mails containing the creators IP and hostname
 $rcmail_config['http_received_header'] = false;

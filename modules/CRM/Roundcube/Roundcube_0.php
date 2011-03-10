@@ -32,6 +32,36 @@ class CRM_Roundcube extends Module {
         print('<iframe style="border:0" border="0" src="modules/CRM/Roundcube/src/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe>');
         eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-100)+"px";');
     }
+    
+    public function admin() {
+		if($this->is_back()) {
+			$this->parent->reset();
+		}
+
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+	
+		$f = $this->init_module('Libs/QuickForm');
+		
+		$f->addElement('header',null,$this->t('Outgoing mail global signature'));
+		
+		$fck = & $f->addElement('ckeditor', 'content', $this->t('Content'));
+		$fck->setFCKProps('800','300',false);
+		
+		$f->setDefaults(array('content'=>Variable::get('crm_roundcube_global_signature',false)));
+
+		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
+		
+		if($f->validate()) {
+			$ret = $f->exportValues();
+			$content = $ret['content'];
+			Variable::set('crm_roundcube_global_signature',$content);
+			Base_StatusBarCommon::message($this->t('Signature saved'));
+			$this->parent->reset();
+			return;
+		}
+		$f->display();	
+        
+    }
 
     public function new_mail($to) {
 //        $this->body(array('task' => 'mail', '_action' => 'compose', '_to' => $to));

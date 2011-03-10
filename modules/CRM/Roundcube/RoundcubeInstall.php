@@ -238,6 +238,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::unregister_processing_callback('rc_accounts', array('CRM_RoundcubeCommon', 'submit_account'));
 
         Base_ThemeCommon::uninstall_default_theme($this -> get_type());
+        Variable::delete('crm_roundcube_global_signature');
 
         return true;
     }

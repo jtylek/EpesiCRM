@@ -59,6 +59,20 @@ class epesi_init extends rcube_plugin
     rcmail::get_instance()->config->set('date_short','D '.$time);
     rcmail::get_instance()->config->set('date_long',$date.' '.$time);
     rcmail::get_instance()->config->set('date_today',$time);        
+    
+    $this->add_hook('outgoing_message_body', array($this, 'add_signature'));
+  }
+  
+  public function add_signature($b) {
+    $footer = "Message sent with EpesiBIM - managing business your way!<br />http://www.epesibim.com";
+    $sig = Variable::get('crm_roundcube_global_signature',false);
+    if($sig) $footer = $sig.'<br />---<br />'.$footer;
+    if($b['type']=='plain') {
+        $b['body'] .= "\r\n".strip_tags(preg_replace('/<[bh]r\s*\/?>/i',"\r\n",$footer));
+    } else {
+        $b['body'] .= '<br />'.$footer;
+    }
+    return $b;
   }
 
 }
