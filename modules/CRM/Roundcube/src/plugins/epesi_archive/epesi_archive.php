@@ -164,12 +164,10 @@ class epesi_archive extends rcube_plugin
     if(!isset($_SESSION['force_archive']))
         $_SESSION['force_archive'] = array();
     foreach($map as $k=>$ret) {
-        if(!$ret && !isset($_SESSION['force_archive'][$k])) {
+        if(!$ret && !isset($_SESSION['force_archive'][$k]) && $verbose) {
             $_SESSION['force_archive'][$k] = 1;
-            if($verbose) {
-                $rcmail->output->command('display_message', $this->gettext('contactnotfound').' '.$addr, 'error');
-                $rcmail->output->send();
-            }
+            $rcmail->output->command('display_message', $this->gettext('contactnotfound').' '.$addr, 'error');
+            $rcmail->output->send();
             return false;
         }
     }
