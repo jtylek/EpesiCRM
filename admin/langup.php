@@ -4,7 +4,7 @@ print('<span style="font-family: courier; font-size: 11px;">');
 
 error_log('Langup started on '.date('Y-m-d H:i:s').' (admin site) by user with id '.Acl::get_user()."\n", 3, 'data/langup.log');
 
-$data_dir = DATA_DIR.'/Base_Lang/';
+$data_dir = DATA_DIR.'/Base_Lang/base/';
 $content = scandir($data_dir);
 foreach ($content as $name){
 	if ($name == '.' || $name == '..') continue;
@@ -31,7 +31,7 @@ while($row = $ret->FetchRow()) {
 		$langcode = substr($name,0,$dot);
 		if (strtolower(substr($name,$dot+1))!='php') continue;
 		$translations = array();
-		@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
+		@include(DATA_DIR.'/Base_Lang/base/'.$langcode.'.php');
 		include($directory.'/'.$name);
 		Base_LangCommon::save($langcode);
 	}
