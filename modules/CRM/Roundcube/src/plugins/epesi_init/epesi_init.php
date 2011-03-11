@@ -66,7 +66,7 @@ class epesi_init extends rcube_plugin
   public function add_signature($b) {
     $footer = "Message sent with EpesiBIM - managing business your way!<br /><a href=\"http://www.epesibim.com\">http://www.epesibim.com</a>";
     $sig = Variable::get('crm_roundcube_global_signature',false);
-    if($sig) $footer = $sig.'<br />---<br />'.$footer;
+    if($sig) $footer = $sig.'---<br />'.$footer;
     if($b['type']=='plain') {
         $b['body'] .= "\r\n".strip_tags(preg_replace('/<[bh]r\s*\/?>/i',"\r\n",$footer));
     } else {

@@ -186,8 +186,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			     array('type'=>'text','name'=>'postal','label'=>'Postal Code','default'=>'','param'=>array('maxlength'=>64)),
 			     array('type'=>'text','name'=>'phone','label'=>'Phone','default'=>'','param'=>array('maxlength'=>64)),
 			     array('type'=>'text','name'=>'fax','label'=>'Fax','default'=>'','param'=>array('maxlength'=>64)),
-			     array('type'=>'text','name'=>'web','label'=>'Web address','default'=>'','param'=>array('maxlength'=>64)),
-			     array('type'=>'checkbox','name'=>'registration','label'=>'Register EpesiBIM installation','default'=>1)
+			     array('type'=>'text','name'=>'web','label'=>'Web address','default'=>'','param'=>array('maxlength'=>64))
 			     ));
 	}
 
@@ -239,25 +238,6 @@ class CRM_ContactsInstall extends ModuleInstall {
 					'email'=>$mail,
 					'group'=>array('office','field')
 					));
-		}
-		if(isset($val['registration']) && $val['registration']) {
-			$ccc = Utils_RecordBrowserCommon::get_record('company',1);
-			foreach($ccc as $kk=>$vv) {
-				if(!is_string($vv) && !is_numeric($vv))
-					unset($ccc[$kk]);
-			}
-			unset($ccc[':active']);
-			unset($ccc['created_by']);
-			unset($ccc['id']);
-			$ccc = array_merge($ccc,array('first_name'=>isset($val['fname'])?$val['fname']:'','last_name'=>isset($val['lname'])?$val['lname']:'','mail'=>isset($mail)?$mail:''));
-			$url = 'http://www.epesibim.com/register/index.php?'.http_build_query($ccc);
-			if(function_exists('curl_init')) {
-				$rss = curl_init();
-				curl_setopt($rss, CURLOPT_URL, $url);
-				curl_exec($rss);
-			} else {
-				@file_get_contents($url);
-			}
 		}
 	}
 }
