@@ -62,8 +62,8 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		$decimal_point_options = DB::GetAssoc('SELECT id, decimal_sign FROM utils_currency WHERE active=1');
 		return array('Regional settings'=>array(
 				array('name'=>'currency_header', 'label'=>'Currency', 'type'=>'header'),
-				array('name'=>'default_currency','label'=>'Default currency','type'=>'select','values'=>$currency_options,'default'=>1),
-				array('name'=>'decimal_point','label'=>'Currency decimal point','type'=>'select','values'=>$decimal_point_options,'default'=>1)
+				array('name'=>'default_currency','label'=>'Default currency','type'=>'select','values'=>$currency_options,'default'=>1,'translate'=>false),
+				array('name'=>'decimal_point','label'=>'Currency decimal point','type'=>'select','values'=>$decimal_point_options,'default'=>1,'translate'=>false)
 					));
 	}
 	

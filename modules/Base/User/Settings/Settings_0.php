@@ -113,7 +113,7 @@ class Base_User_Settings extends Module {
         $old_name = $v['name'];
         $v['name'] = $module.self::$sep.$v['name'];
         $this->settings_fields[] = $v['name'];
-        if(isset($v['values']) && is_array($v['values']))
+		if(isset($v['values']) && is_array($v['values']) && (!isset($v['translate']) || $v['translate']))
             foreach($v['values'] as &$x)
                 $x = $this->t($x);
         if (isset($v['rule'])) {

@@ -73,9 +73,10 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			require_once('modules/Base/RegionalSettings/tz_list.php');
 		$tz = timezone_identifiers_list();
 		return array('Regional settings'=>array(
+				array('type'=>'header','label'=>'Date & Time','name'=>null),
 				//array('type'=>'select','name'=>'currency','label'=>'Currency') //google X pln in usd????
 				array('type'=>'select','name'=>'date','label'=>'Date format',
-					'default'=>'%m/%d/%Y','values'=>$date_formats),//strftime
+					'default'=>'%m/%d/%Y','values'=>$date_formats, 'translate'=>false),//strftime
 				array('type'=>'select','name'=>'time','label'=>'Time format',
 					'default'=>'%H:%M:%S','values'=>array('%I:%M:%S %p'=>'12h am/pm', '%H:%M:%S'=>'24h'),
 					'rule'=>array('type'=>'callback',
@@ -83,7 +84,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 						'message'=>'This language does not support 12h clock',
 						'param'=>'__form__')
 				),
-				array('type'=>'select','name'=>'tz','label'=>'Timezone', 'default'=>SYSTEM_TIMEZONE, 'values'=>array_combine($tz,$tz)),
+				array('type'=>'select','name'=>'tz','label'=>'Timezone', 'default'=>SYSTEM_TIMEZONE, 'values'=>array_combine($tz,$tz), 'translate'=>false),
 				array('type'=>'header','label'=>'Your location','name'=>null),
 				array('name'=>'default_country', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_country_elem'),'default'=>'US'),
 				array('name'=>'default_state', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_state_elem'),'default'=>'')
