@@ -1287,10 +1287,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
     public function set_favs($tab, $id, $state) {
         self::check_table_name($tab);
-		if ($state)
+		if ($state) {
+			if (DB::GetOne('SELECT * FROM '.$tab.'_favorite WHERE user_id=%d AND '.$tab.'_id=%d', array(Acl::get_user(), $id))) return;
 			DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
-		else
+		} else {
 			DB::Execute('DELETE FROM '.$tab.'_favorite WHERE user_id=%d AND '.$tab.'_id=%d', array(Acl::get_user(), $id));
+		}
     }
 	public static function get_user_label($uid) {
         if (ModuleManager::is_installed('CRM_Contacts')>=0)

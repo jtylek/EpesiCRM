@@ -101,7 +101,7 @@ class Base_ActionBar extends Module {
 					}
 					if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_l')) {
 						$ii = array();
-						$trimmed_label = substr(strrchr($v['label'],':'),1);
+						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
 						$ii['label'] = $this->t($trimmed_label?$trimmed_label:$v['label']);
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];

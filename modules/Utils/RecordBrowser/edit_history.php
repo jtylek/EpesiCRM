@@ -55,6 +55,8 @@ while ($row = $ret->FetchRow()) {
 foreach($table_rows as $field => $args) {
 	ob_start();
 	$val = @Utils_RecordBrowserCommon::get_val($tab, $field, $created, false, $args);
+	if (!$val)
+		$val = Utils_RecordBrowserCommon::get_val($tab, $field, $created, true, $args);
 	ob_end_clean();
 	print('if($("_'.$args['id'].'__data"))$("_'.$args['id'].'__data").innerHTML = "'.Epesi::escapeJS($val).'";');
 //	if (!$access[$args['id']]) continue;
