@@ -37,6 +37,7 @@ class Base_LangCommon extends ModuleCommon {
 	 public static function ts($group, $original, array $arg=array()) {
 		if (!$original) return '';
 		global $translations;
+		global $custom_translations;
 		if(is_string($group))
 			$group = str_replace(array('/','\\'),'_',$group);
 		elseif($group instanceof Module)
@@ -54,9 +55,13 @@ class Base_LangCommon extends ModuleCommon {
 			self::save();
 		}
 		
-		$trans_oryg = $translations[$group][$original];
-		if(!isset($trans_oryg) || $trans_oryg=='') $trans = $original;
-			else $trans=$trans_oryg;
+		if (isset($custom_translations[$group][$original]))
+			$trans = $custom_translations[$group][$original];
+		else {
+			$trans_oryg = $translations[$group][$original];
+			if(!isset($trans_oryg) || $trans_oryg=='') $trans = $original;
+				else $trans=$trans_oryg;
+		}
 
 		$trans = @vsprintf($trans,$arg);
 		if ($original && !$trans) $trans = '<b>Invalid translation, misused char % (use double %%)</b>';
@@ -69,9 +74,10 @@ class Base_LangCommon extends ModuleCommon {
 	 */
 	public static function save($lang = null) {
 		global $translations;
+		global $custom_translations;
 		//save translations file
 		if (!isset($lang)) $lang = self::get_lang_code();
-		$f = @fopen(DATA_DIR.'/Base_Lang/'.$lang.'.php', 'w');
+		$f = @fopen(DATA_DIR.'/Base_Lang/base/'.$lang.'.php', 'w');
 		if(!$f)	return false;
 
 		fwrite($f, "<?php\n");
@@ -83,6 +89,19 @@ class Base_LangCommon extends ModuleCommon {
 
 		fwrite($f, '?>');
 		fclose($f);
+
+		$f = @fopen(DATA_DIR.'/Base_Lang/custom/'.$lang.'.php', 'w');
+		if(!$f)	return false;
+
+		fwrite($f, "<?php\n");
+		fwrite($f, "/**\n * Translation file - custom translations.\n * @package epesi-translations\n * @subpackage $lang\n */\n");
+		fwrite($f, 'global $custom_translations;'."\n");
+		foreach($custom_translations as $p=>$xxx)
+			foreach($xxx as $k=>$v)
+				fwrite($f, '$custom_translations[\''.addcslashes($p,'\\\'').'\'][\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
+
+		fwrite($f, '?>');
+		fclose($f);
 		return true;
 	}
 
@@ -90,10 +109,15 @@ class Base_LangCommon extends ModuleCommon {
 	 * For internal use only.
 	 */
 	public static function load() {
-		@include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
+		@include_once(DATA_DIR.'/Base_Lang/base/'.self::get_lang_code().'.php');
 		global $translations;
 		if(!is_array($translations))
 			$translations=array();
+
+		@include_once(DATA_DIR.'/Base_Lang/custom/'.self::get_lang_code().'.php');
+		global $custom_translations;
+		if(!is_array($custom_translations))
+			$custom_translations=array();
 	}
 
 	public static function get_lang_code() {
@@ -123,7 +147,7 @@ class Base_LangCommon extends ModuleCommon {
 			if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
 			$langcode = substr($name,0,strpos($name,'.'));
 			$translations = array();
-			@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
+			@include(DATA_DIR.'/Base_Lang/base/'.$langcode.'.php');
 			include($directory.'/'.$name);
 			Base_LangCommon::save($langcode);
 		}
@@ -135,7 +159,8 @@ class Base_LangCommon extends ModuleCommon {
 	 * For internal use only.
 	 */
 	public static function new_langpack($code) {
-		file_put_contents(DATA_DIR.'/Base_Lang/'.$code.'.php','');
+		file_put_contents(DATA_DIR.'/Base_Lang/base/'.$code.'.php','');
+		file_put_contents(DATA_DIR.'/Base_Lang/custom/'.$code.'.php','');
 		self::refresh_cache();
 	}
 
@@ -144,15 +169,15 @@ class Base_LangCommon extends ModuleCommon {
 	 */
 	public static function get_langpack($code) {
 		global $translations;
-		if (!is_file(DATA_DIR.'/Base_Lang/'.$code.'.php')) return false;
-		include_once(DATA_DIR.'/Base_Lang/'.$code.'.php');
+		if (!is_file(DATA_DIR.'/Base_Lang/base/'.$code.'.php')) return false;
+		include_once(DATA_DIR.'/Base_Lang/base/'.$code.'.php');
 		$langpack = $translations;
-		include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
+		include_once(DATA_DIR.'/Base_Lang/base/'.self::get_lang_code().'.php');
 		return $langpack;
 	}
 
 	public static function refresh_cache() {
-		$ls_langs = scandir(DATA_DIR.'/Base_Lang');
+		$ls_langs = scandir(DATA_DIR.'/Base_Lang/base');
 		$langs = array();
 		foreach ($ls_langs as $entry)
 			if (preg_match('/.\.php$/i', $entry)) {

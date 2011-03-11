@@ -18,6 +18,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	
 	public function admin() {
 		global $translations;
+		global $custom_translations;
 
 		if($this->is_back()) {
 			if($this->isset_module_variable('module') && $this->isset_module_variable('original')) {
@@ -55,7 +56,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 
 		$form2 = $this->init_module('Libs/QuickForm',null,'translaction_filter');
-		$form2->addElement('select','lang_filter',$this->t('Filter'),array('Show all', 'Show with translation', 'Show without translation'), array('onchange'=>$form2->get_submit_form_js()));
+		$form2->addElement('select','lang_filter',$this->t('Filter'),array('Show all', 'Show with custom translation', 'Show with translation', 'Show without translation'), array('onchange'=>$form2->get_submit_form_js()));
 		
 		if($form->validate()) {
 			if($form->process(array($this,'submit_admin'))) {
@@ -94,8 +95,13 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$data = array();
 		foreach($translations as $m=>$v) 
 			foreach($v as $o=>$t) {
-				if ($filter==1 && !$t) continue;
-				if ($filter==2 && $t) continue;
+				if (isset($custom_translations[$m][$o])) {
+					$t = $custom_translations[$m][$o];
+				} else {
+					if ($filter==1) continue;
+				}
+				if ($filter==2 && !$t) continue;
+				if ($filter==3 && $t) continue;
 				$span_id = $m.'__'.md5($o);
 				$data[] = array($m,'<a href="javascript:void(0);" onclick="lang_translate(\''.$m.'\',\''.$o.'\',\''.$span_id.'\');">'.$o.'</a>','<span id="'.$span_id.'">'.$t.'</span>');
 			}

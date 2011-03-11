@@ -20,10 +20,15 @@ $module = json_decode($_POST['module']);
 $original = json_decode($_POST['original']);
 $new = json_decode($_POST['new']);
 
-global $translations;
+global $custom_translations;
 Base_LangCommon::load();
 
-$translations[$module][$original] = $new;
+if (!$new) {
+	unset($custom_translations[$module][$original]);
+	if (empty($custom_translations[$module]))
+		unset($custom_translations[$module]);
+} else
+	$custom_translations[$module][$original] = $new;
 
 Base_LangCommon::save();
 
