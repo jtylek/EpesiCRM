@@ -61,11 +61,8 @@ class Applets_MonthView extends Module {
 		$theme = $this->pack_module('Base/Theme');
 
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>date('Y-m-15',$this->date+30*24*60*60))));
-		$theme->assign('nextyear_label',$this->t('Next year'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->t('Today'));
 		$theme->assign('prevyear_href', $this->create_unique_href(array('date'=>date('Y-m-15',$this->date-30*24*60*60))));
-		$theme->assign('prevyear_label', $this->t('Previous year'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'month',null,null,''));

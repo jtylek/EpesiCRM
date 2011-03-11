@@ -90,18 +90,20 @@ class Base_LangCommon extends ModuleCommon {
 		fwrite($f, '?>');
 		fclose($f);
 
-		$f = @fopen(DATA_DIR.'/Base_Lang/custom/'.$lang.'.php', 'w');
-		if(!$f)	return false;
+		if (isset($custom_translations)) {
+			$f = @fopen(DATA_DIR.'/Base_Lang/custom/'.$lang.'.php', 'w');
+			if(!$f)	return false;
 
-		fwrite($f, "<?php\n");
-		fwrite($f, "/**\n * Translation file - custom translations.\n * @package epesi-translations\n * @subpackage $lang\n */\n");
-		fwrite($f, 'global $custom_translations;'."\n");
-		foreach($custom_translations as $p=>$xxx)
-			foreach($xxx as $k=>$v)
-				fwrite($f, '$custom_translations[\''.addcslashes($p,'\\\'').'\'][\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
+			fwrite($f, "<?php\n");
+			fwrite($f, "/**\n * Translation file - custom translations.\n * @package epesi-translations\n * @subpackage $lang\n */\n");
+			fwrite($f, 'global $custom_translations;'."\n");
+			foreach($custom_translations as $p=>$xxx)
+				foreach($xxx as $k=>$v)
+					fwrite($f, '$custom_translations[\''.addcslashes($p,'\\\'').'\'][\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
 
-		fwrite($f, '?>');
-		fclose($f);
+			fwrite($f, '?>');
+			fclose($f);
+		}
 		return true;
 	}
 
