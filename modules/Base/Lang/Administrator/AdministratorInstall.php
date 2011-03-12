@@ -39,7 +39,7 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 	}
 
 	public static function post_install() {
-		$ls_langs = scandir(DATA_DIR.'/Base_Lang');
+		$ls_langs = scandir(DATA_DIR.'/Base_Lang/base');
 		$langs = array();
 		foreach ($ls_langs as $entry)
 			if (preg_match('/.\.php$/i', $entry)) {
