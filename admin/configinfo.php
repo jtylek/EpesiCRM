@@ -10,7 +10,7 @@ pageheader();
 print('<CENTER><div class="header">PHP environment check</div></CENTER>');
 starttable();
 
-if(is_writable('.')){
+if(is_writable('data')){
 	echo '<div class="left">Directory is writeable</div><div class="right"><strong class="green">OK</strong></div><br />';
 } else {
 	die('<strong class="red">WARNING ! </strong>This directory is not writeable. Please fix privileges.');
