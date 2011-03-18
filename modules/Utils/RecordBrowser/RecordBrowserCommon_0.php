@@ -23,7 +23,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     private static $clear_get_val_cache = false;
 	
 	public static function ts($str, $arr=array()) {
-		return Base_LangCommon::ts('Utils_RecordBrowserCommon', $str, $arr);
+		return Base_LangCommon::ts('Utils_RecordBrowser', $str, $arr);
 	}
 
     public static function get_val($tab, $field, $record, $links_not_recommended = false, $args = null) {
