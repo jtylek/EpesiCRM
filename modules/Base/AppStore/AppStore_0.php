@@ -84,6 +84,8 @@ class Base_AppStore extends Module {
 		if($f->validate()) {
 			$ret = $f->exportValues();
 			
+			Variable::set("license_key","");
+			
 			Base_StatusBarCommon::message($this->t('Registered successfully'));
 			Epesi::redisplay();
 		}
