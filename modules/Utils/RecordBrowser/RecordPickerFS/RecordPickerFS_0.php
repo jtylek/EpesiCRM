@@ -50,18 +50,29 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 		return ' href="javascript:void(0)" onClick="'.$this->create_open_href_js($form,$select).'" ';
 	}
 
-	public function create_open_href_js($form = null,$select = null) {
+	public function create_open_href_js($form = null,$select = null,$prepend='') {
 		if($form) {
 			$md = md5($this->get_path());
 			$form->addElement('hidden','rpfs_'.$md,0,array('id'=>'rpfs_'.$md));
 			if($form->exportValue('rpfs_'.$md)) {
 				if($select) {
-					$this->set_selected($form->exportValue($select));
+				    $selected = $form->exportValue($select);
+				    if($prepend)
+				        foreach($selected as $k=>$v)
+				            if(strpos($v,$prepend)===0)
+				                $selected[$k] = substr($v,strlen($prepend));
+				            else
+				                unset($selected[$k]);
+					$this->set_selected($selected);
 				}
 				$this->open();
 			} else {
 				if($select) {
-					$form->setDefaults(array($select=>$this->get_selected()));
+				    $selected = $this->get_selected();
+				    if($prepend)
+				        foreach($selected as &$v)
+				            $v = $prepend.$v;
+					$form->setDefaults(array($select=>$selected));
 				}
 			}
 			return '$(\'rpfs_'.$md.'\').value=1;'.$form->get_submit_form_js(false);

@@ -1497,11 +1497,17 @@ class Utils_RecordBrowser extends Module {
                                             }
                                             if (empty($multi_adv_params['order'])) natcasesort($comp);
 											$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $tab, $crits);
+
+                                            if($args['type']=='multiselect') {
+                                                ${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPickerFS',array($this->tab,$crits));
+                                                $label .= '<br /><button href="javascript:void(0)" onClick="'.${'rp_'.$args['id']}->create_open_href_js($form,$args['id']).'">'.$this->t('Advanced selection').'</button>';
+                                                $this->display_module(${'rp_'.$args['id']});
+                                            }
                                         }
                                         if ($args['type']==='select') $comp = array(''=>'---')+$comp;
                                         if ($rec_count>Utils_RecordBrowserCommon::$options_limit && $args['type']=='multiselect' && $multi_adv_params['format_callback']) {
                                             $f_callback = $multi_adv_params['format_callback'];
-                                            $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);
+                                            $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);                                
                                         } else {
                                             $form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
                                         }
