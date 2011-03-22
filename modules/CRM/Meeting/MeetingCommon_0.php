@@ -700,6 +700,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$next['title'] = (string)$r['title'];
 		$next['description'] = (string)$r['description'];
 		$next['color'] = 'gray';
+		$next['recordset'] = 'crm_meeting';
 		if ($r['status']==0 || $r['status']==1)
 			switch ($r['priority']) {
 				case 0: $next['color'] = 'green'; break;
