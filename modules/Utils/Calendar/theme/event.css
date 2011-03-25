@@ -28,7 +28,14 @@
 #Utils_Calendar__event #event_time {
     display: block;
     float: left;
+	margin-left: 10px;
+	position: absolute;
+	width: 100%;
+	vertical-align: middle;
+	max-width: 49px;
+	overflow: hidden;
     padding-left: 5px;
+    padding-right: 15px;
     color: black;
     font-size: 11px;
 }

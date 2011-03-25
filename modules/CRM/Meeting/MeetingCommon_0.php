@@ -784,8 +784,8 @@ class CRM_MeetingCommon extends ModuleCommon {
 	public static function crm_event_get_all($start, $end, $filter=null, $customers=null) {
 		$start = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($start));
 		$crits = array();
-		$f_array = explode(',',trim($filter,'()'));
 		if ($filter===null) $filter = CRM_FiltersCommon::get();
+		$f_array = explode(',',trim($filter,'()'));
 		if($filter!='()' && $filter)
 			$crits['('.'employees'] = $f_array;
 		if ($customers && !empty($customers)) 
@@ -794,10 +794,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$crits['|customers'] = $f_array;
 			foreach ($crits['|customers'] as $k=>$v)
 				$crits['|customers'][$k] = 'P:'.$v;
-		}
-		$me = CRM_ContactsCommon::get_my_record();
-		if(!Base_AclCommon::i_am_admin()) {
-			$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(employees' => $me['id'], '|<permission' => 2));
 		}
 		$critsb = $crits;
 		

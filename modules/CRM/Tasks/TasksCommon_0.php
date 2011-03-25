@@ -316,7 +316,6 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 
 	public static function crm_calendar_handler($action) {
-		return array();
 		$args = func_get_args();
 		array_shift($args);
 		$ret = null;
@@ -329,7 +328,7 @@ class CRM_TasksCommon extends ModuleCommon {
 							break;
 			case 'delete': $ret = call_user_func_array(array('CRM_TasksCommon','crm_event_delete'), $args);
 							break;
-			case 'new_event_types': $ret = array(array('label'=>'Task','icon'=>Base_ThemeCommon::get_template_file('CRM_Task','icon.png')));
+			case 'new_event_types': $ret = array(array('label'=>'Task','icon'=>Base_ThemeCommon::get_template_file('CRM_Tasks','icon.png')));
 							break;
 			case 'new_event': $ret = call_user_func_array(array('CRM_TasksCommon','crm_new_event'), $args);
 							break;
@@ -337,17 +336,152 @@ class CRM_TasksCommon extends ModuleCommon {
 							break;
 			case 'edit_event': $ret = call_user_func_array(array('CRM_TasksCommon','crm_edit_event'), $args);
 							break;
+			case 'recordset': $ret = 'task';
 		}
 		return $ret;
 	}
 	
-	public static function crm_event_get_all() {
-		return array();
+	public static function crm_view_event($id, $cal_obj) {
+		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'task');
+		$rb->view_entry('view', $id);
+		return true;
+	}
+	public static function crm_edit_event($id, $cal_obj) {
+		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'task');
+		$rb->view_entry('edit', $id);
+		return true;
+	}
+	public static function crm_new_event($timestamp, $timeless, $id, $cal_obj) {
+		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'task');
+		$me = CRM_ContactsCommon::get_my_record();
+		$defaults = array('employees'=>$me['id'], 'priority'=>1, 'permission'=>0, 'status'=>0);
+		$defaults['deadline'] = date('Y-m-d', $timestamp);
+		$rb->view_entry('add', null, $defaults);
+		return true;
 	}
 
-	public static function crm_new_event() {
-		return '';
+	public static function crm_event_delete($id) {
+		Utils_RecordBrowserCommon::delete_record('task',$id);
+		return true;
 	}
+	public static function crm_event_update($id, $start, $duration, $timeless) {
+		if (!$timeless) return false;
+		$values = array('deadline'=>date('Y-m-d', $start));
+		Utils_RecordBrowserCommon::update_record('task', $id, $values);
+		return true;
+	}
+	public static function crm_event_get_all($start, $end, $filter=null, $customers=null) {
+		$start = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($start));
+		$crits = array();
+		if ($filter===null) $filter = CRM_FiltersCommon::get();
+		$f_array = explode(',',trim($filter,'()'));
+		if($filter!='()' && $filter)
+			$crits['('.'employees'] = $f_array;
+		if ($customers && !empty($customers)) 
+			$crits['|customers'] = $customers;
+		elseif($filter!='()' && $filter) {
+			$crits['|customers'] = $f_array;
+			foreach ($crits['|customers'] as $k=>$v)
+				$crits['|customers'][$k] = 'P:'.$v;
+		}
+		$crits['<=deadline'] = $end;
+		$crits['>=deadline'] = $start;
+		
+		$ret = Utils_RecordBrowserCommon::get_records('task', $crits, array(), array(), 50);
+
+		$result = array();
+		foreach ($ret as $r)
+			$result[] = self::crm_event_get($r);
+
+		return $result;
+	}
+
+	public static function crm_event_get($id) {
+		if (!is_array($id)) {
+			$r = Utils_RecordBrowserCommon::get_record('task', $id);
+		} else {
+			$r = $id;
+			$id = $r['id'];
+		}
+
+		$next = array('type'=>'Task');
+		
+		$day = $r['deadline'];
+		$iday = strtotime($day);
+		$next['id'] = $r['id'];
+
+		$base_unix_time = strtotime(date('1970-01-01 00:00:00'));
+		$next['start'] = $iday;
+		$next['timeless'] = $day;
+
+		$next['duration'] = -1;
+		$next['title'] = (string)$r['title'];
+		$next['description'] = (string)$r['description'];
+		$next['color'] = 'gray';
+		if ($r['status']==0 || $r['status']==1)
+			switch ($r['priority']) {
+				case 0: $next['color'] = 'green'; break;
+				case 1: $next['color'] = 'yellow'; break;
+				case 2: $next['color'] = 'red'; break;
+			}
+		if ($r['status']==2)
+			$next['color'] = 'blue';
+		if ($r['status']==3)
+			$next['color'] = 'gray';
+
+		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('task', $r['id'], 'view');
+		$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('task', $r['id'], 'edit');
+//		$next['delete_action'] = Module::create_confirm_href(Base_LangCommon::ts('Premium_SchoolRegister','Are you sure you want to delete this '.$type.'?'),array('delete_'.$type=>$record['id']));
+
+/*		$r_new = $r;
+		if ($r['status']==0) $r_new['status'] = 1;
+		if ($r['status']<=1) $next['actions'] = array(
+			array('icon'=>Base_ThemeCommon::get_template_file('CRM/Meeting', 'close_event.png'), 'href'=>self::get_status_change_leightbox_href($r_new, false, array('id'=>'status')))
+		);*/
+
+        $start_time = Base_RegionalSettingsCommon::time2reg($next['start'],2,false,false);
+        $event_date = Base_RegionalSettingsCommon::time2reg($next['start'],false,3,false);
+
+        $inf2 = array(
+            'Date'=>'<b>'.$event_date.'</b>');
+
+		$emps = array();
+		foreach ($r['employees'] as $e) {
+			$e = CRM_ContactsCommon::contact_format_no_company($e, true);
+			$e = str_replace('&nbsp;',' ',$e);
+			if (mb_strlen($e,'UTF-8')>33) $e = mb_substr($e , 0, 30, 'UTF-8').'...';
+			$emps[] = $e;
+		}
+		$cuss = array();
+		foreach ($r['customers'] as $c) {
+			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
+			$c = str_replace('&nbsp;',' ',$c);
+			if (mb_strlen($c,'UTF-8')>33) $c = mb_substr($c, 0, 30, 'UTF-8').'...';
+			$cuss[] = $c;
+		}
+
+		$inf2 += array(	'Task' => '<b>'.$next['title'].'</b>',
+						'Description' => $next['description'],
+						'Assigned to' => implode('<br>',$emps),
+						'Contacts' => implode('<br>',$cuss),
+						'Status' => Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
+						'Access' => Utils_CommonDataCommon::get_value('CRM/Access/'.$r['permission'],true),
+						'Priority' => Utils_CommonDataCommon::get_value('CRM/Priority/'.$r['priority'],true),
+						'Notes' => Utils_AttachmentCommon::count('task/'.$r['id'])
+					);
+
+		$next['employees'] = $r['employees'];
+		$next['customers'] = $r['customers'];
+		$next['status'] = $r['status']<=2?'active':'closed';
+		$next['custom_tooltip'] = 
+									'<center><b>'.
+										Base_LangCommon::ts('CRM_Task','Task').
+									'</b></center><br>'.
+									Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').'<hr>'.
+									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
+		return $next;
+	}
+
 }
 
 ?>

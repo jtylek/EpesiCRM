@@ -36,9 +36,6 @@ class CRM_TasksInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_tpl('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'default'));
 		Utils_RecordBrowserCommon::register_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'icon.png'));
-// 		Utils_RecordBrowserCommon::new_filter('contact', 'Company Name');
-//		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
-//		Utils_RecordBrowserCommon::set_favorites('contact', true);
 		Utils_RecordBrowserCommon::set_recent('task', 5);
 		Utils_RecordBrowserCommon::set_caption('task', 'Tasks');
 		Utils_RecordBrowserCommon::set_access_callback('task', array('CRM_TasksCommon', 'access_task'));
@@ -46,11 +43,8 @@ class CRM_TasksInstall extends ModuleInstall {
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'task_attachment_addon', 'Notes');
 		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'messanger_addon', 'Alerts');
-//		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
-//		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes');
-//		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
 // ************ other ************** //
-//		CRM_CalendarCommon::new_event_handler('Tasks', array('CRM_TasksCommon', 'crm_calendar_handler'));
+		CRM_CalendarCommon::new_event_handler('Tasks', array('CRM_TasksCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('task', 'CRM_TasksCommon', 'task_bbcode');
         CRM_RoundcubeCommon::new_addon('task');
 
@@ -71,6 +65,7 @@ class CRM_TasksInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+		CRM_CalendarCommon::delete_event_handler('Tasks');
         CRM_RoundcubeCommon::delete_addon('task');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Tasks');
 		Utils_RecordBrowserCommon::unregister_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));

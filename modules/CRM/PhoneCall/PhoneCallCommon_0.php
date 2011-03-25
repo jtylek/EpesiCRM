@@ -428,7 +428,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 
 	public static function crm_calendar_handler($action) {
-		return array();
 		$args = func_get_args();
 		array_shift($args);
 		$ret = null;
@@ -449,16 +448,145 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 							break;
 			case 'edit_event': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_edit_event'), $args);
 							break;
+			case 'recordset': $ret = 'phonecall';
 		}
 		return $ret;
 	}
-	
-	public static function crm_event_get_all() {
-		return array();
+	public static function crm_view_event($id, $cal_obj) {
+		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'phonecall');
+		$rb->view_entry('view', $id);
+		return true;
+	}
+	public static function crm_edit_event($id, $cal_obj) {
+		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'phonecall');
+		$rb->view_entry('edit', $id);
+		return true;
+	}
+	public static function crm_new_event($timestamp, $timeless, $id, $cal_obj) {
+		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'phonecall');
+		$me = CRM_ContactsCommon::get_my_record();
+		$defaults = array('employees'=>$me['id'], 'priority'=>1, 'permission'=>0, 'status'=>0);
+		$defaults['date_and_time'] = date('Y-m-d H:i:s', $timestamp);
+		$rb->view_entry('add', null, $defaults);
+		return true;
 	}
 
-	public static function crm_new_event() {
-		return '';
+	public static function crm_event_delete($id) {
+		Utils_RecordBrowserCommon::delete_record('phonecall',$id);
+		return true;
+	}
+	public static function crm_event_update($id, $start, $duration, $timeless) {
+		if ($timeless) return false;
+		$values = array('date_and_time'=>date('Y-m-d H:i:s', $start));
+		Utils_RecordBrowserCommon::update_record('phonecall', $id, $values);
+		return true;
+	}
+	public static function crm_event_get_all($start, $end, $filter=null, $customers=null) {
+		$start = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($start));
+		$crits = array();
+		if ($filter===null) $filter = CRM_FiltersCommon::get();
+		$f_array = explode(',',trim($filter,'()'));
+		if($filter!='()' && $filter)
+			$crits['('.'employees'] = $f_array;
+		if ($customers && !empty($customers)) 
+			$crits['|customer'] = $customers;
+		elseif($filter!='()' && $filter) {
+			$crits['|customer'] = $f_array;
+			foreach ($crits['|customer'] as $k=>$v)
+				$crits['|customer'][$k] = 'P:'.$v;
+		}
+		$crits['<=date_and_time'] = $end;
+		$crits['>=date_and_time'] = $start;
+		
+		$ret = Utils_RecordBrowserCommon::get_records('phonecall', $crits, array(), array(), 50);
+
+		$result = array();
+		foreach ($ret as $r)
+			$result[] = self::crm_event_get($r);
+
+		return $result;
+	}
+
+	public static function crm_event_get($id) {
+		if (!is_array($id)) {
+			$r = Utils_RecordBrowserCommon::get_record('phonecall', $id);
+		} else {
+			$r = $id;
+			$id = $r['id'];
+		}
+
+		$next = array('type'=>'phonecall');
+		
+		$next['id'] = $r['id'];
+
+		$next['start'] = strtotime($r['date_and_time']);
+		$next['end'] = strtotime($r['date_and_time'])+15*60;
+
+		$next['duration'] = intval(15*60);
+
+		$next['title'] = (string)$r['subject'];
+		$next['description'] = (string)$r['description'];
+		$next['color'] = 'gray';
+		if ($r['status']==0 || $r['status']==1)
+			switch ($r['priority']) {
+				case 0: $next['color'] = 'green'; break;
+				case 1: $next['color'] = 'yellow'; break;
+				case 2: $next['color'] = 'red'; break;
+			}
+		if ($r['status']==2)
+			$next['color'] = 'blue';
+		if ($r['status']==3)
+			$next['color'] = 'gray';
+
+		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('phonecall', $r['id'], 'view');
+		$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('phonecall', $r['id'], 'edit');
+//		$next['delete_action'] = Module::create_confirm_href(Base_LangCommon::ts('Premium_SchoolRegister','Are you sure you want to delete this '.$type.'?'),array('delete_'.$type=>$record['id']));
+
+/*		$r_new = $r;
+		if ($r['status']==0) $r_new['status'] = 1;
+		if ($r['status']<=1) $next['actions'] = array(
+			array('icon'=>Base_ThemeCommon::get_template_file('CRM/Meeting', 'close_event.png'), 'href'=>self::get_status_change_leightbox_href($r_new, false, array('id'=>'status')))
+		);*/
+
+        $start_time = Base_RegionalSettingsCommon::time2reg($next['start'],2,false,false);
+        $event_date = Base_RegionalSettingsCommon::time2reg($next['start'],false,3,false);
+
+        $inf2 = array(
+            'Date'=>'<b>'.$event_date.'</b>');
+
+		$emps = array();
+		foreach ($r['employees'] as $e) {
+			$e = CRM_ContactsCommon::contact_format_no_company($e, true);
+			$e = str_replace('&nbsp;',' ',$e);
+			if (mb_strlen($e,'UTF-8')>33) $e = mb_substr($e , 0, 30, 'UTF-8').'...';
+			$emps[] = $e;
+		}
+		$cuss = array();
+		$c = CRM_ContactsCommon::display_company_contact(array('customer'=>$r['customer']), true, array('id'=>'customer'));
+		$c = str_replace('&nbsp;',' ',$c);
+		if (mb_strlen($c,'UTF-8')>33) $c = mb_substr($c, 0, 30, 'UTF-8').'...';
+		$cuss[] = $c;
+
+		$inf2 += array(	'phonecall' => '<b>'.$next['title'].'</b>',
+						'Description' => $next['description'],
+						'Assigned to' => implode('<br>',$emps),
+						'Contacts' => implode('<br>',$cuss),
+						'Status' => Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
+						'Access' => Utils_CommonDataCommon::get_value('CRM/Access/'.$r['permission'],true),
+						'Priority' => Utils_CommonDataCommon::get_value('CRM/Priority/'.$r['priority'],true),
+						'Notes' => Utils_AttachmentCommon::count('phonecall/'.$r['id'])
+					);
+
+		$next['employees'] = $r['employees'];
+		$next['customer'] = $r['customer'];
+		$next['status'] = $r['status']<=2?'active':'closed';
+		$next['custom_tooltip'] = 
+									'<center><b>'.
+										Base_LangCommon::ts('CRM_PhoneCall','Phonecall').
+									'</b></center><br>'.
+									Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').'<hr>'.
+									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
+		return $next;
 	}
 }
 ?>

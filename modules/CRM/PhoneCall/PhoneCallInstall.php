@@ -44,22 +44,16 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_tpl('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'default'));
 		Utils_RecordBrowserCommon::register_processing_callback('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
 		Utils_RecordBrowserCommon::set_icon('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'icon.png'));
-// 		Utils_RecordBrowserCommon::new_filter('contact', 'Company Name');
-//		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
-//		Utils_RecordBrowserCommon::set_favorites('contact', true);
 		Utils_RecordBrowserCommon::set_recent('phonecall', 5);
 		Utils_RecordBrowserCommon::set_caption('phonecall', 'Phone Calls');
 		Utils_RecordBrowserCommon::set_access_callback('phonecall', array('CRM_PhoneCallCommon', 'access_phonecall'));
 		Utils_RecordBrowserCommon::enable_watchdog('phonecall', array('CRM_PhoneCallCommon','watchdog_label'));
 // ************ addons ************** //
-//		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
-//		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes');
-//		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
 		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon', 'Notes');
 		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'messanger_addon', 'Alerts');
         CRM_RoundcubeCommon::new_addon('phonecall');
 // ************ other ************** //
-//		CRM_CalendarCommon::new_event_handler('Phonecalls', array('CRM_PhoneCallCommon', 'crm_calendar_handler'));
+		CRM_CalendarCommon::new_event_handler('Phonecalls', array('CRM_PhoneCallCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('phone', 'CRM_PhoneCallCommon', 'phone_bbcode');
 
 		$this->add_aco('browse phonecalls',array('Employee'));
@@ -79,6 +73,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+		CRM_CalendarCommon::delete_event_handler('Phonecalls');
         CRM_RoundcubeCommon::delete_addon('phonecall');
 		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
 		Utils_RecordBrowserCommon::delete_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon');

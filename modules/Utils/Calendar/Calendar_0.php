@@ -610,7 +610,7 @@ class Utils_Calendar extends Module {
 
 		//headers
 		$day_headers = array();
-		$today = date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(null,false)));
+		$today = Base_RegionalSettingsCommon::time2reg(null,false,true,true,false);
 		if (date('m',$dis_week_from)!=date('m',$dis_week_from+518400)) {
 			$second_span_width = date('d',$dis_week_from+518400);
 			$header_month = array('first_span'=>array(
@@ -769,7 +769,7 @@ class Utils_Calendar extends Module {
 		$curmonth = date('m', $date);
 
 		$month = array();
-		$today = date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(null,false)));
+		$today = Base_RegionalSettingsCommon::time2reg(null,false,true,true,false);
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		while (date('m', $currday) != ($curmonth)%12+1) {
 			$week = array();

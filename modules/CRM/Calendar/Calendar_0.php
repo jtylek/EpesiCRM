@@ -203,7 +203,7 @@ class CRM_Calendar extends Module {
             // right column
             $title = Utils_TooltipCommon::create($row['title'],$row['custom_tooltip']);
 			
-			$day = date('Y-m-d', strtotime(Base_RegionalSettingsCommon::time2reg($row['start'])));
+			$day = $row['timeless']?$row['timeless']:Base_RegionalSettingsCommon::time2reg($row['start'], false, true, true, false);
 			if ($day<date('Y-m-d')) $class = 'past';
 			elseif ($day==date('Y-m-d')) $class = 'today';
 			elseif ($day==date('Y-m-d', strtotime('+1 day'))) $class = 'tomorrow';
