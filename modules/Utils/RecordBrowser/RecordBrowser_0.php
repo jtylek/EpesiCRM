@@ -1499,9 +1499,9 @@ class Utils_RecordBrowser extends Module {
 											$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $tab, $crits);
 
                                             if($args['type']=='multiselect') {
-                                                ${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPickerFS',array($this->tab,$crits));
-                                                $label .= '<br /><button href="javascript:void(0)" onClick="'.${'rp_'.$args['id']}->create_open_href_js($form,$args['id']).'">'.$this->t('Advanced selection').'</button>';
-                                                $this->display_module(${'rp_'.$args['id']});
+                                                ${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPicker',array());
+                                                $this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits));
+                                                $label .= '<br /><input type="button" '.${'rp_'.$args['id']}->create_open_href().' value="'.$this->t('Advanced selection').'" />';
                                             }
                                         }
                                         if ($args['type']==='select') $comp = array(''=>'---')+$comp;

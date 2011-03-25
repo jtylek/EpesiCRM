@@ -67,7 +67,7 @@ leightbox.prototype = {
     yPos : 0,
 
     initialize: function(ctrl) {
-        this.content = ctrl.rel;
+        this.content = ctrl.getAttribute("rel");
         Event.observe(ctrl, 'click', this.activate.bindAsEventListener(this), false);
         ctrl.onclick = function(){return false;};
     },
@@ -158,7 +158,7 @@ leightbox.prototype = {
         lbActions = document.getElementsByClassName('lbAction');
 
         for(i = 0; i < lbActions.length; i++) {
-            Event.observe(lbActions[i], 'click', this[lbActions[i].rel].bindAsEventListener(this), false);
+            Event.observe(lbActions[i], 'click', this[lbActions[i].getAttribute("rel")].bindAsEventListener(this), false);
             lbActions[i].onclick = function(){return false;};
         }
 
@@ -227,7 +227,7 @@ document.observe("e:load", function() {
         delete(leightboxes[i]);
     for(i = 0; i < lbox.length; i++) {
         leightboxes[i] = new leightbox(lbox[i]);
-        if (leightbox_to_activate==lbox[i].rel) {
+        if (leightbox_to_activate==lbox[i].getAttribute("rel")) {
             leightboxes[i].activate();
             leightbox_to_activate='';
         }

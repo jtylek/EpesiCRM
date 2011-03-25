@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_Contacts_CountyCommon extends Base_AdminModuleCommon {
+class CRM_Contacts_CountyCommon extends ModuleCommon {
 	public static function QFfield_county(&$form, $field, $label, $mode, $default, $desc) {
 		$param = explode('::',$desc['param']['array_id']);
 		foreach ($param as $k=>$v) if ($k!==0) $param[$k] = strtolower(str_replace(' ','_',$v));
