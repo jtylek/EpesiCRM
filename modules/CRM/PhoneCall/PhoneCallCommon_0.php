@@ -262,6 +262,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$id = strtolower(str_replace(' ','_',$nr));
 		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
 
+if(!isset($contact[$id])) trigger_error(print_r($contact,true));
 		$number = $contact[$id];
 		if($number && strpos($number,'+')===false) {
 			if($contact['country']) {
@@ -361,6 +362,12 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			}
 			if ($mode=='added') break;
 		case 'add':
+			if(isset($values['phone']) && $values['phone']) {
+				if($values['customer']{0}=='P' && $values['phone']=='4')
+				    $values['phone'] == '1';
+				elseif($values['customer']{0}=='C' && $values['phone']!='4')
+				    $values['phone'] == '4';
+			} 
 			if (isset($values['other_customer']) && $values['other_customer']) {
 				$values['other_phone']=1;
 				$values['customer']='';
