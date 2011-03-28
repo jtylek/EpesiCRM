@@ -219,10 +219,14 @@ class Utils_Attachment extends Module {
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 
-			$text = Utils_BBCodeCommon::parse(strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/>'));
+			$text = Utils_BBCodeCommon::parse(strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/><ul><li>'));
 			$max_len = 120;
 			if ($max_len>strlen(strip_tags($text))) $max_len = strlen(strip_tags($text));
 			$br = strpos($text,'<br');
+			$ul = strpos($text,'<ul');
+			if($ul!==false && ($br===false || $ul<$br)) $br = $ul;
+			$li = strpos($text,'<li');
+			if($li!==false && ($br===false || $li<$br)) $br = $li;
 			if($br!==false && $br<$max_len) $max_len=$br;
 			// ************* Strip without loosing html entities
 			$i = 0;
