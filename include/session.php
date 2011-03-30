@@ -98,7 +98,7 @@ class DBSession {
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
             if(self::$memcached) {
-                $data = str_split($data,1048500); //something little less then 1MB
+                $data = str_split($data,1000000); //something little less then 1MB
                 $data[] = '';
                 $mcd = extension_loaded('memcached');
                 foreach($data as $i=>$d) {
