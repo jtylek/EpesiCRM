@@ -56,7 +56,12 @@ class DBSession {
                 trigger_error('Invalid client id.',E_USER_ERROR);
 
             if(self::$memcached) {
-                $ret = self::$memcached->get('sess_'.$name.'_'.CID);
+                $ret = '';
+                for($i=0;; $i++) {
+                    $rr = self::$memcached->get('sess_'.$name.'_'.CID.'_'.$i)
+                    if($rr==='' || $rr===false || $rr===null) break;
+                    $ret .= $rr;
+                }
                 if($ret)
                     $_SESSION['client'] = unserialize($ret);
             } elseif(DATABASE_DRIVER=='postgres') {
@@ -93,10 +98,15 @@ class DBSession {
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
             if(self::$memcached) {
-                if(extension_loaded('memcached'))
-                    self::$memcached->set('sess_'.$name.'_'.CID, $data, self::$lifetime);
-                else
-                    self::$memcached->set('sess_'.$name.'_'.CID, $data, 0, self::$lifetime);
+                $data = str_split($data,1048500); //something little less then 1MB
+                $data[] = '';
+                $mcd = extension_loaded('memcached');
+                foreach($data as $i=>$d) {
+                    if($mcd)
+                        self::$memcached->set('sess_'.$name.'_'.CID.'_'.$i, $d, self::$lifetime);
+                    else
+                        self::$memcached->set('sess_'.$name.'_'.CID.'_'.$i, $d, 0, self::$lifetime);
+                }
             } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
