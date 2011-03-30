@@ -1498,16 +1498,15 @@ class Utils_RecordBrowser extends Module {
                                             if (empty($multi_adv_params['order'])) natcasesort($comp);
 											$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $tab, $crits);
 
-                                            if($args['type']=='multiselect') {
-                                                ${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPicker',array());
-                                                $this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits));
-                                                $label .= '<br /><input type="button" '.${'rp_'.$args['id']}->create_open_href().' value="'.$this->t('Advanced selection').'" />';
-                                            }
                                         }
                                         if ($args['type']==='select') $comp = array(''=>'---')+$comp;
                                         if ($rec_count>Utils_RecordBrowserCommon::$options_limit && $args['type']=='multiselect' && $multi_adv_params['format_callback']) {
                                             $f_callback = $multi_adv_params['format_callback'];
-                                            $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);                                
+                                            $el = $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);                                
+
+											${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPicker',array());
+											$this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits));
+											$el->set_search_button('<a '.${'rp_'.$args['id']}->create_open_href().' '.Utils_TooltipCommon::open_tag_attrs($this->t('Advanced Selection')).' href="javascript:void(0);"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','icon_zoom.jpg').'"></a>');
                                         } else {
                                             $form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
                                         }
@@ -2037,6 +2036,7 @@ class Utils_RecordBrowser extends Module {
             $theme->assign('select_all', array('js'=>'RecordPicker_select_all(1,\''.$this->get_path().'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->t('Select all')));
             $theme->assign('deselect_all', array('js'=>'RecordPicker_select_all(0,\''.$this->get_path().'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->t('Deselect all')));
         }
+        $theme->assign('close_leightbox', array('js'=>'leightbox_deactivate(\'rpicker_leightbox_'.$element.'\');', 'label'=>$this->t('Commit Selection')));
         load_js('modules/Utils/RecordBrowser/rpicker.js');
 
         $rpicker_ind = $this->get_module_variable('rpicker_ind');

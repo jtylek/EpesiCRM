@@ -56,6 +56,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 	public static $list_sep = '__SEP__';
 	private $on_add_js_code = '';
 	private $on_remove_js_code = '';
+	private $search_button = '';
 	
     /**
      * Class constructor
@@ -94,7 +95,9 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     	$ret .= '</ul>';
     	return $ret;
     }
-    
+    public function set_search_button($html) {
+    	$this->search_button = $html;
+    }
     public function on_add_js($js) {
     	$this->on_add_js_code .= $js;
     }
@@ -276,10 +279,11 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$strHtml .= $tabs . '<table id="automulti">';
             $strHtml .= $tabs . '<tr>'.
             			$tabs . '<td class="search-element">' . $searchElement . '</td>'.
+						($this->search_button? $tabs.'<td>'.$this->search_button.'</td>' : '').
 						$tabs . '<td class="button disabled" id="automulti_button_style_'.$myName.'">'.'<input type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.$this->list_sep.'\');'.$this->on_remove_js_code.'" value="'.Base_LangCommon::ts('Libs_QuickForm','Remove').'">'.'</td>' .
 								'</tr>';
 
-			$strHtml .= $tabs . '<tr><td class="main-element" colspan="2">' . $mainElement . '</td></tr></table>';
+			$strHtml .= $tabs . '<tr><td class="main-element" colspan="3">' . $mainElement . '</td></tr></table>';
 
 			$this->setName($myName);
 

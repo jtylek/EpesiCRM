@@ -6,6 +6,7 @@
 					<div class="buttons{$disabled}" style="float:left;">
 						<input type="button" onClick="{$select_all.js}" value="{$select_all.label}">
 						<input type="button" onClick="{$deselect_all.js}" value="{$deselect_all.label}">
+						<input type="button" onClick="{$close_leightbox.js}" value="{$close_leightbox.label}">
 					</div>
 				</div>
 			</td>

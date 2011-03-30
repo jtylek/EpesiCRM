@@ -17,9 +17,12 @@ rpicker_init = function(element, id){
 	});
 }
 
-rpicker_move = function(element, id, cstring){
+rpicker_move = function(element, id, cstring, where){
 	var checkbox = $('leightbox_rpicker_'+element+'_'+id);
-	var where = checkbox.checked;
+	if (typeof(where)=="undefined")
+		where = checkbox.checked;
+	else
+		checkbox.checked = where;
 	var tolist = document.getElementsByName(element+'to[]')[0];
 	var fromlist = document.getElementsByName(element+'from[]')[0];
 	if (!tolist) {
