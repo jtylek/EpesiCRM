@@ -39,14 +39,14 @@ class CRM_MeetingCommon extends ModuleCommon {
 	}
 	
 	public static function crm_new_event($timestamp, $timeless, $id, $cal_obj) {
-		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'crm_meeting');
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>$me['id'], 'priority'=>1, 'permission'=>0, 'status'=>0);
 		$defaults['date'] = date('Y-m-d', $timestamp);
 		$defaults['time'] = date('H:i:s', $timestamp);
 		$defaults['duration'] = $timeless?-1:3600;
-		$rb->view_entry('add', null, $defaults);
-		return true;
+		$x->push_main('Utils_RecordBrowser','view_entry',array('add', null, $defaults), 'crm_meeting');
 	}
 
 	public static function crm_view_event($id, $cal_obj) {

@@ -169,12 +169,12 @@ class Utils_Planner extends Module {
 			$days_of_week = array(0=>'Sun', 1=>'Mon', 2=>'Tue', 3=>'Wed', 4=>'Thu', 5=>'Fri', 6=>'Sat');
 			$curr = $this->date;
 			while (count($headers)<7) {
-				$headers[$curr] = Base_RegionalSettingsCommon::time2reg($curr, false, true).' '.$this->t($days_of_week[date('w',$curr)]);
+				$headers[$curr] = Base_RegionalSettingsCommon::time2reg($curr, false, true, false).' '.$this->t($days_of_week[date('w',$curr)]);
 				$curr = strtotime('+1 day', $curr);
 			}
 		}
 		$theme->assign('headers',$headers);
-		
+
 		foreach ($headers as $k1=>$v1)
 			$select_all[$k1] = '';
 		/* GRID LEGEND */

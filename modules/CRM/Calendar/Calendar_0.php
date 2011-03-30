@@ -28,10 +28,13 @@ class CRM_Calendar extends Module {
 	}
 
 	public function jump_to_new_event($option, $timestamp, $timeless) {
-		if (!is_numeric($timestamp)) $timestamp = strtotime($timestamp);
+		list($label,$id,$int_id) = explode('__',$option);
+		$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d',$id);
+		call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, $this);
+/*		if (!is_numeric($timestamp)) $timestamp = strtotime($timestamp);
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM_Calendar','new_event',array($option, $timestamp, $timeless));
+		$x->push_main('CRM_Calendar','new_event',array($option, $timestamp, $timeless));*/
 	}
 
 	public function body($args = array()) {

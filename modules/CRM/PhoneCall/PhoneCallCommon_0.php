@@ -470,12 +470,12 @@ if(!isset($contact[$id])) trigger_error(print_r($contact,true));
 		return true;
 	}
 	public static function crm_new_event($timestamp, $timeless, $id, $cal_obj) {
-		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'phonecall');
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>$me['id'], 'priority'=>1, 'permission'=>0, 'status'=>0);
 		$defaults['date_and_time'] = date('Y-m-d H:i:s', $timestamp);
-		$rb->view_entry('add', null, $defaults);
-		return true;
+		$x->push_main('Utils_RecordBrowser','view_entry',array('add', null, $defaults), 'phonecall');
 	}
 
 	public static function crm_event_delete($id) {
