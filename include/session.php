@@ -58,7 +58,7 @@ class DBSession {
             if(self::$memcached) {
                 $ret = '';
                 for($i=0;; $i++) {
-                    $rr = self::$memcached->get('sess_'.$name.'_'.CID.'_'.$i)
+                    $rr = self::$memcached->get('sess_'.$name.'_'.CID.'_'.$i);
                     if($rr==='' || $rr===false || $rr===null) break;
                     $ret .= $rr;
                 }
@@ -135,7 +135,8 @@ class DBSession {
     public static function destroy($name) {
         if(self::$memcached) {
             for($i=0; $i<5; $i++)
-                self::$memcached->delete('sess_'.$name.'_'.$i);
+        	for($k=0;;$k++)
+                	if(!self::$memcached->delete('sess_'.$name.'_'.$i.'_'.$k)) break;
         }
         DB::BeginTrans();
         DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
