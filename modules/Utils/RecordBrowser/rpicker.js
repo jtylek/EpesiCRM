@@ -21,7 +21,7 @@ rpicker_move = function(element, id, cstring, where){
 	var checkbox = $('leightbox_rpicker_'+element+'_'+id);
 	if (typeof(where)=="undefined")
 		where = checkbox.checked;
-	else
+	else if (checkbox)
 		checkbox.checked = where;
 	var tolist = document.getElementsByName(element+'to[]')[0];
 	var fromlist = document.getElementsByName(element+'from[]')[0];
