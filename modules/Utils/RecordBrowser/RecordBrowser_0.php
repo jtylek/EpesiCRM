@@ -1228,8 +1228,8 @@ class Utils_RecordBrowser extends Module {
                 else $tb->set_tab($this->t($row['label']),array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
             }
         }
-        $tb->tag();
         $this->display_module($tb);
+        $tb->tag();
         if ($this->switch_to_addon!==null) {
             $ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
             $tab_counter=0;
