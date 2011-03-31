@@ -1413,7 +1413,7 @@ class Utils_RecordBrowser extends Module {
                                         $ref = explode(';',$args['param']);
                                         if (isset($ref[1])) $crits_callback = $ref[1];
                                         else $crits_callback = null;
-                                        if (isset($ref[2])) $multi_adv_params = call_user_func(explode('::',$ref[2]));
+                                        if (isset($ref[2])) $multi_adv_params = call_user_func(explode('::',$ref[2]), $record);
                                         else $multi_adv_params = null;
                                         if (!isset($multi_adv_params) || !is_array($multi_adv_params)) $multi_adv_params = array();
                                         if (!isset($multi_adv_params['order'])) $multi_adv_params['order'] = array();
@@ -1505,7 +1505,8 @@ class Utils_RecordBrowser extends Module {
                                             $el = $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);                                
 
 											${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPicker',array());
-											$this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits));
+											$filters_defaults = array($multi_adv_params['filters_defaults'])?$multi_adv_params['filters_defaults']:array();
+											$this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits,array(),array(),array(),$filters_defaults));
 											$el->set_search_button('<a '.${'rp_'.$args['id']}->create_open_href().' '.Utils_TooltipCommon::open_tag_attrs($this->t('Advanced Selection')).' href="javascript:void(0);"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','icon_zoom.jpg').'"></a>');
                                         } else {
                                             $form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
