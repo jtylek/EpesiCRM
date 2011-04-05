@@ -14,7 +14,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-if(!MOBILE_DEVICE) {
+if(!MOBILE_DEVICE && class_exists('HTML_Quickform')) {
 	HTML_Quickform::registerElementType('ckeditor','modules/Libs/CKEditor/ckeditor.php'
                                             ,'HTML_Quickform_ckeditor');
 /*	load_js('modules/Libs/CKEditor/onsubmit.js');*/
