@@ -21,7 +21,8 @@ class Base_AppStore extends Module {
 	        return $this->parent->reset();
 	    }
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-	    
+//        Variable::set("license_key",'');
+        
 	    if(Variable::get("license_key")=="") {
 	        return $this->register();
 	    }
@@ -84,10 +85,18 @@ class Base_AppStore extends Module {
 		if($f->validate()) {
 			$ret = $f->exportValues();
 			
-			Variable::set("license_key","");
+			require_once('modules/Base/AppStore/ClientRequester.php');;
+			$cr = new ClientRequester();
+			$lic = $cr->register_client_id_request(serialize($ret));
 			
-			Base_StatusBarCommon::message($this->t('Registered successfully'));
-			Epesi::redisplay();
+			if($lic) {
+    			Variable::set("license_key",$lic);
+			
+	    		Base_StatusBarCommon::message($this->t('Registered successfully'));
+	        } else {
+	            Base_StatusBarCommon::message($this->t('Registration error'));
+	        }
+//		   	Epesi::redisplay();
 		}
 		$f->display();	
 	}
