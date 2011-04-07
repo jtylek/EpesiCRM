@@ -45,7 +45,8 @@ class DB {
 		if(!@self::$ado->Connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
     			die("Connect to database failed");
 //  		DB::$ado->raiseErrorFn = $errh;
-		self::$ado->Execute('SET NAMES "utf8"');
+        if(preg_match('/^mysql/i',DATABASE_DRIVER))
+    		self::$ado->Execute('SET NAMES "utf8"');
 	//        DB::Execute('SET CHARACTER SET utf8');
 	}
 
