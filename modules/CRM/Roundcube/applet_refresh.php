@@ -25,10 +25,12 @@ if(!$l) die('error reading messages overview');
 $unseen = array();
 foreach($l as $msg) {
     if(isset($msg->seen) && !$msg->seen) {
-        $array = imap_mime_header_decode($msg->subject);
         $subject = "";
-        foreach ($array as $key => $part) {
-            $subject .= $part->text;
+        if(isset($msg->subject)) {
+            $array = imap_mime_header_decode($msg->subject);
+            foreach ($array as $key => $part) {
+                $subject .= $part->text;
+            }
         }
     	$unseen[] = htmlspecialchars($msg->from).': <i>'.$subject.'</i>';
     }
