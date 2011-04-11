@@ -82,7 +82,7 @@ class DB {
 	
 	public static function CreateTable($name, $cols, $opts=null) {
 		$dict = &self::dict();
-		$def_opts = array('postgres'=>' WITH OIDS','mysql' => ' TYPE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci');
+		$def_opts = array('postgres'=>' WITH OIDS','mysql' => ' ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci');
 		$arr = $dict->CreateTableSQL($name,$cols,isset($opts)?array_merge($def_opts,$opts):$def_opts);
 		if($arr===false) return false;
 		$ret = $dict->ExecuteSQLArray($arr);
