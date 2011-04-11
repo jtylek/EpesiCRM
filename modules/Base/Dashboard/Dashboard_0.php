@@ -187,6 +187,9 @@ class Base_Dashboard extends Module {
 
 				if($opts['toggle'] && !$config_mode)
 					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs($this->t('Toggle')).'>=</a>');
+					
+				foreach ($opts['actions'] as $k=>$v)
+					if (!$v) unset($opts['actions'][$k]);
 
 				if($opts['go'])
 					$opts['href']=$this->create_main_href($row['module_name'],$opts['go_function'],$opts['go_arguments'],$opts['go_constructor_arguments']);

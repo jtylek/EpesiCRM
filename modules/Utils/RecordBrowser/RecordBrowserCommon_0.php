@@ -1719,6 +1719,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     public static function applet_new_record_button($tab, $defaults = array()) {
+		if (!self::get_access($tab, 'add')) return '';
         return '<a '.Utils_TooltipCommon::open_tag_attrs(self::ts('New record')).' '.Utils_RecordBrowserCommon::create_new_record_href($tab,$defaults).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','add.png').'" border="0"></a>';
     }
 
