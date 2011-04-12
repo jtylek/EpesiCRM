@@ -16,9 +16,9 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../../include.php');
 ModuleManager::load_modules();
 
-$module = json_decode($_POST['module']);
-$original = json_decode($_POST['original']);
-$new = json_decode($_POST['new']);
+$module = $_POST['module'];
+$original = $_POST['original'];
+$new = $_POST['new'];
 
 global $custom_translations;
 Base_LangCommon::load();
