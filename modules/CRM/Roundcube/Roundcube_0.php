@@ -24,7 +24,7 @@ class CRM_Roundcube extends Module {
             Base_ActionBarCommon::add('add',$a['email'], $this->create_callback_href(array($this,'account'),$a['id']),$a['server']);
         }
         if($def===null) {
-            print($this->t('No accounts'));
+			print('<h1><a '.$this->create_callback_href(array($this,'push_settings'),array('E-mail Accounts')).'>Please set your e-mail account</a></h1>');
             return;
         }
         $params = array('_autologin_id'=>$def['id'])+$params2;
@@ -32,6 +32,12 @@ class CRM_Roundcube extends Module {
         print('<iframe style="border:0" border="0" src="modules/CRM/Roundcube/src/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe>');
         eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-100)+"px";');
     }
+
+	public function push_settings($s) {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('Base_User_Settings',null,array($s));
+	}
     
     public function admin() {
 		if($this->is_back()) {

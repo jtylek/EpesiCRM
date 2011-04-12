@@ -212,6 +212,8 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		$this->add_aco('access mails','Employee');
 		$this->add_aco('access client','Employee');
 
+        Variable::set('crm_roundcube_global_signature',"Message sent with EpesiBIM - managing business your way!<br /><a href=\"http://www.epesibim.com\">http://www.epesibim.com</a>");
+
         return true;
     }
 
