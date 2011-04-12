@@ -51,8 +51,13 @@ class Base_User_Settings extends Module {
         foreach($us as $name=>$menu) {
             if(!is_array($menu)) continue;
             foreach($menu as $k=>$v)
-                if($k==$branch)
-                    $this->add_module_settings_to_form($v,$f,$name);
+                if($k==$branch) {
+                    if(is_string($v)) {
+                        Base_BoxCommon::location($name,$v);
+                    } else {
+                        $this->add_module_settings_to_form($v,$f,$name);
+                    }
+                }    
         }
 
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
