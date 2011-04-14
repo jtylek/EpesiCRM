@@ -21,7 +21,7 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
                          ,$bToolbarAdvanced   = false
                          ,$mCkRequestedAttrs = NULL) {
 
-        $this->setConfig(array('width'=>$sWidth,'height'=>$sHeight,'toolbar'=>($bToolbarAdvanced)?'Default':'Basic'));
+        $this->setConfig(array('width'=>$sWidth,'height'=>$sHeight,'toolbar'=>($bToolbarAdvanced)?'Full':'Basic'));
     }
     
     function setConfig(array $conf) {
