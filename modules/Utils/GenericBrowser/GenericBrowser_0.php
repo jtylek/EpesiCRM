@@ -410,6 +410,7 @@ class Utils_GenericBrowser extends Module {
 	public function change_order($ch_order){
 		$order = $this->get_module_variable('order', array());
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+		$ord = null;
 		foreach($this->columns as $val)
 			if ($val['name'] == $ch_order) {
 				$ord = $val['order'];
