@@ -13,19 +13,31 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_WhoIsOnline extends Module {
 
 	public function body() {
-		$all = Tools_WhoIsOnlineCommon::get();
-		foreach($all as &$x) {
-			$c = CRM_ContactsCommon::get_contact_by_user_id(Base_UserCommon::get_user_id($x));
-			if($c)
-				$x = CRM_ContactsCommon::contact_format_no_company($c);
-		}
-		$th = $this->init_module('Base/Theme');
-		$th->assign('users',$all);
-		$th->display();
 	}
 	
-	public function applet() {
-		$this->body();
+	public function applet($v,$o) {
+		$all = Tools_WhoIsOnlineCommon::get();
+		$map = array();
+		foreach($all as $id=>$x) {
+			$c = CRM_ContactsCommon::get_contact_by_user_id(Base_UserCommon::get_user_id($x));
+			if($c) {
+				$all[$id] = CRM_ContactsCommon::contact_format_no_company($c);
+    			$map[$id] = $c['last_name'];
+    		} else
+    		    $map[$id] = $x;
+		}
+		asort($map);
+
+		$c = count($all);
+		if($c==1)
+    		$o['title'] = $this->t('%d user online',$c);
+    	else
+    		$o['title'] = $this->t('%d users online',$c);
+
+        print('<ul>');
+    	foreach($map as $id=>$x)
+    	    print('<li>'.$all[$id].'</li>');
+    	print('</ul>');
 	}
 
 }
