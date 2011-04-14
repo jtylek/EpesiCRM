@@ -12,18 +12,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tools_WhoIsOnlineCommon extends ModuleCommon {
-	public static function applet_caption() {
-		return "Who is online";
-	}
-
-	public static function applet_info() {
-		return "Shows online users";
-	}
-	
-	public static function body_access() {
-		return Acl::is_user();
-	}
-	
 	public static function user_settings() {
 		return array('Misc'=>array(
 			array('name'=>'show_me','type'=>'checkbox','label'=>'Show me in online users','default'=>1)

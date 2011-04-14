@@ -44,7 +44,6 @@ class Tools_WhoIsOnlineInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/User','version'=>0),
-			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0));
 	}
 	

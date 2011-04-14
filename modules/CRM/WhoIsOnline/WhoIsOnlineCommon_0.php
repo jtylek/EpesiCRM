@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_WhoIsOnlineCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return "CRM - Who is online";
+		return "Who is online";
 	}
 
 	public static function applet_info() {
