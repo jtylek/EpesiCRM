@@ -1942,7 +1942,7 @@ class Utils_RecordBrowser extends Module {
                     $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
 					$gb_row = $gb_cha->get_new_row();
 					$tb_path = escapeJS($tb->get_path());
-					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(0,2,null,\''.$tb_path.'\')"','View');
+					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
                     $gb_row->add_data(
                         Base_RegionalSettingsCommon::time2reg($row['edited_on']),
                         $row['edited_by']!==null?$user:'',
@@ -1955,6 +1955,10 @@ class Utils_RecordBrowser extends Module {
         }
 
 //		$tb->set_tab($this->t('Record historical view'), array($this, 'record_historical_view'), array($created, $access, $form, $dates_select), true);
+		$tb->start_tab($this->t('Changes History'));
+		$this->display_module($gb_cha);
+		$tb->end_tab();
+
 		$tb->start_tab($this->t('Record historical view'));
 		$dates_select[$created['created_on']] = Base_RegionalSettingsCommon::time2reg($created['created_on']);
         foreach($this->table_rows as $field => $args) {
@@ -1965,10 +1969,6 @@ class Utils_RecordBrowser extends Module {
 		$form->setDefaults(array('historical_view_pick_date'=>$created['created_on']));
 		$form->display();
 		$this->view_entry('history', $created);
-		$tb->end_tab();
-
-		$tb->start_tab($this->t('Changes History'));
-		$this->display_module($gb_cha);
 		$tb->end_tab();
 
 		
