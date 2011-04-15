@@ -51,9 +51,11 @@ Utils_Tooltip__load_ajax_Tip = function(o,my_event,max_width) {
 				cid: Epesi.client_id
 			},
 			onSuccess:function(t) {
-				o.setAttribute('tip',t.responseText);
-				$('tooltip_text').innerHTML = t.responseText;
-				if ($("tooltip_leightbox_mode_content")) $("tooltip_leightbox_mode_content").innerHTML = t.responseText;
+				if (t.responseText) {
+					o.setAttribute('tip',t.responseText);
+					$('tooltip_text').innerHTML = t.responseText;
+					if ($("tooltip_leightbox_mode_content")) $("tooltip_leightbox_mode_content").innerHTML = t.responseText;
+				}
 			}
 		});
 	} else {

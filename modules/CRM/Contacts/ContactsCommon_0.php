@@ -376,6 +376,8 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 
     public static function company_get_tooltip($record) {
+		if (!$record[':active']) return '';
+		if (!self::access_company('view', $record)) return '';
         if(isset($record['group']) && is_array($record['group'])) {
             $group = Utils_CommonDataCommon::get_nodes('Companies_Groups',$record['group']);
             if($group)
@@ -411,6 +413,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $ret;
     }
     public static function contact_get_tooltip($record) {
+		if (!$record[':active']) return '';
+		if (!self::access_contact('view', $record)) return '';
         if(!is_array($record) || empty($record) || !isset($record['work_phone'])) return '';
         if(isset($record['group']) && is_array($record['group'])) {
             $group = Utils_CommonDataCommon::get_nodes('Contacts_Groups',$record['group']);
