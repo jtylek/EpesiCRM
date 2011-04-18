@@ -52,7 +52,8 @@ class ClientRequester implements IClient {
         $err_msg = '';
         $post = http_build_query(array('f' => $function, 'c' => $this->license_key, 'a' => serialize($params)));
 //        $ch = curl_init('https://localhost/epesi/tools/EpesiServiceServer/');
-        $ch = curl_init('http://127.0.0.1/epesi-trunk/tools/EpesiServiceServer/');
+        $ch = curl_init('http://localhost/epesi/tools/EpesiServiceServer/');
+//        $ch = curl_init('http://127.0.0.1/epesi-trunk/tools/EpesiServiceServer/');
 
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_HEADER, false);

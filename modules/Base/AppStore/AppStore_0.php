@@ -87,7 +87,7 @@ class Base_AppStore extends Module {
 			
 			require_once('modules/Base/AppStore/ClientRequester.php');;
 			$cr = new ClientRequester();
-			$lic = $cr->register_client_id_request(serialize($ret));
+			$lic = $cr->register_client_id_request($ret);
 			
 			if($lic) {
     			Variable::set("license_key",$lic);
