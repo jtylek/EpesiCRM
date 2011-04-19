@@ -30,6 +30,11 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $form->setDefaults(array($field=>$default));
     }
 
+	public static function display_password($r, $nolink=null, $desc=array()) {
+		if ($r[$desc['id']]) return '******';
+		else return '';
+	}
+
     public static function QFfield_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('password', $field, $label);
         $form->setDefaults(array($field=>$default));
