@@ -11,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_ActivityReport extends Module {
 	public function body() {
+	    if (!$this->acl_check('access')) return;
 		$rb_tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties ORDER BY caption');
 		foreach ($rb_tabs as $k=>$v)
 			$rb_tabs[$k] = Utils_RecordBrowserCommon::ts($v);
