@@ -2333,6 +2333,119 @@ function update_from_1_1_3_to_1_1_4() {
         }
     }
 }
+
+$versions[] = '1.1.5';
+function update_from_1_1_4_to_1_1_5() {
+    DB::Execute('DELETE FROM modules WHERE name=%s', array('Base_MaintenanceMode'));
+
+    if (DB::GetOne('SELECT name FROM modules WHERE name=%s', array('Base_MaintenanceMode_Administrator'))) {
+	    Base_ThemeCommon::uninstall_default_theme('Base_MaintenanceMode_Administrator');
+    	DB::Execute('DELETE FROM modules WHERE name=%s', array('Base_MaintenanceMode_Administrator'));
+    }
+
+    if(ModuleManager::is_installed('Apps_ActivityReport')>=0) {
+        Acl::del_aco('Apps_ActivityReport','access');
+        Acl::add_aco('Apps_ActivityReport','access','Employee Manager');
+    }
+    
+    if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
+        ob_start();
+        @DB::CreateIndex('utils_watchdog_event__internal_id__idx', 'utils_watchdog_event', 'internal_id');
+        ob_end_clean();
+    }
+    
+    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
+        $pp = DB::GetOne('SELECT 1 FROM company_field WHERE field="Parent Company"');
+        if($pp) {
+            if (ModuleManager::is_installed('CRM_Contacts_ParentCompany')==-1) {
+                DB::Execute('INSERT INTO modules(name,version,priority) VALUES ("CRM_Contacts_ParentCompany",0,0)');
+            }
+            DB::Execute('UPDATE company_field SET param="company::Company Name;CRM_Contacts_ParentCompanyCommon::parent_company_crits" WHERE field="Parent Company"');
+        }
+    }
+    
+    if(ModuleManager::is_installed('Apps_Shoutbox')>=0) {
+        Acl::add_aco('Apps_Shoutbox','view','Employee');
+    }
+
+    ob_start();
+    ModuleManager::install('Libs_CKEditor');
+    DB::Execute('DELETE FROM modules WHERE name="Libs_FCKeditor"');
+    ob_end_clean();
+
+    if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
+        @Utils_RecordBrowserCommon::new_record_field('rc_mails',
+            array(
+                'name'=>'From',
+                'type'=>'text',
+                'param'=>128,
+                'extra'=>false,
+                'visible'=>false,
+                'required'=>false
+            ));
+        @Utils_RecordBrowserCommon::new_record_field('rc_mails',
+            array(
+                'name'=>'To',
+                'type'=>'text',
+                'param'=>512,
+                'extra'=>false,
+                'visible'=>false,
+                'required'=>false
+            ));
+        @Utils_RecordBrowserCommon::new_record_field('rc_accounts',
+            array('name'=>'Archive on sending', 'type'=>'checkbox', 'extra'=>true, 'visible'=>false, 'position'=>'Advanced'));
+        DB::Execute('UPDATE rc_accounts_data_1 SET f_archive_on_sending=1');
+    }
+    
+    if(ModuleManager::is_installed('CRM_Calendar')!=-1) {
+        if (ModuleManager::is_installed('CRM_Tasks')!=-1)
+        	CRM_CalendarCommon::new_event_handler('Tasks', array('CRM_TasksCommon', 'crm_calendar_handler'));
+
+        if (ModuleManager::is_installed('CRM_PhoneCall')!=-1)
+        	CRM_CalendarCommon::new_event_handler('Phonecalls', array('CRM_PhoneCallCommon', 'crm_calendar_handler'));
+
+        if (ModuleManager::is_installed('Premium_Projects_Tickets')!=-1)
+        	CRM_CalendarCommon::new_event_handler('Tickets', array('Premium_Projects_TicketsCommon', 'crm_calendar_handler'));
+    }
+    
+    if (ModuleManager::is_installed('Base_Lang')>=0) {
+        if (is_dir(DATA_DIR.'/Base_Lang/base')) return;
+
+        mkdir(DATA_DIR.'/Base_Lang/base');
+        mkdir(DATA_DIR.'/Base_Lang/custom');
+
+        $data_dir = DATA_DIR.'/Base_Lang/';
+        $content = scandir($data_dir);
+        foreach ($content as $name){
+        	if ($name == '.' || $name == '..') continue;
+        	$dot = strpos($name,'.');
+        	if (strtolower(substr($name,$dot+1))!='php') continue;
+        	$langcode = substr($name,0,$dot);
+        	if (!$langcode) continue;
+        	rename($data_dir.$name, $data_dir.'base/'.$name);
+        	file_put_contents($data_dir.'custom/'.$name, "<?php\n/* custom translations */\nglobal ".'$custom_translations'.";\n?>");
+        }
+    }
+    
+    if (ModuleManager::is_installed('Base_Dashboard')!=-1) {
+        $users = DB::GetAssoc('SELECT id,user_login_id FROM base_dashboard_applets WHERE module_name=%s',array('Tools_WhoIsOnline'));
+        foreach($users as $id=>$u) {
+            if(DB::GetOne('SELECT 1 FROM base_dashboard_applets WHERE module_name=%s AND user_login_id=%d',array('CRM_WhoIsOnline',$u))) {
+                DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d',array($id));
+                DB::Execute('DELETE FROM base_dashboard_applets WHERE id=%d',array($id));
+            } else {
+                DB::Execute('UPDATE base_dashboard_applets SET module_name=%s WHERE id=%d',array('CRM_WhoIsOnline',$id));
+            }
+        }
+        DB::Execute('UPDATE base_dashboard_default_applets SET module_name=%s WHERE module_name=%s',array('CRM_WhoIsOnline','Tools_WhoIsOnline'));
+    }
+
+    if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
+	    Utils_RecordBrowserCommon::set_display_callback('rc_accounts', 'Password', array('CRM_RoundcubeCommon','display_password'));
+    	Utils_RecordBrowserCommon::set_display_callback('rc_accounts', 'SMTP Password', array('CRM_RoundcubeCommon','display_password'));
+    }
+
+}
 //=========================================================================
 
 try {
