@@ -11,6 +11,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_WatchdogCommon extends ModuleCommon {
+	private static $log = true;
+
 	public static function applet_caption() {
 		return "Subscriptions";
 	}
@@ -116,6 +118,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$already_subscribed = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
 		if ($already_subscribed===false || $already_subscribed===null) DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array($lse,$user_id,$id,$category_id));
 		if ($user_id==Acl::get_user()) self::notified($category_name, $id);
+		if (self::$log) error_log('User '.$user_id.' subscribed to '.$category_name.':'.$id."\n",3,'data/subscriptions.log');
 	}
 
 	public static function user_change_subscription($user_id, $category_name, $id=null) {
@@ -132,6 +135,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				if ($user_id==Acl::get_user()) self::notified($category_name, $id);
 			}
 		}
+		if (self::$log) error_log('User '.$user_id.' '.($already_subscribed?'un':'').'subscribed to '.$category_name.':'.$id."\n",3,'data/subscriptions.log');
 	}
 
 	public static function user_unsubscribe($user_id, $category_name, $id) {
@@ -139,6 +143,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if (!$category_id) return;
 		if ($user_id!==null) DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
 		else DB::Execute('DELETE FROM utils_watchdog_subscription WHERE internal_id=%d AND category_id=%d',array($id,$category_id));
+		if (self::$log) error_log('User '.$user_id.' unsubscribed to '.$category_name.':'.$id."\n",3,'data/subscriptions.log');
 	}
 
 	public static function user_check_if_notified($user_id, $category_name, $id) {
