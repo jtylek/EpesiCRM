@@ -23,7 +23,7 @@ class Base_User_AdministratorCommon extends Base_AdminModuleCommon {
 	}
 	
 	public static function menu() {
-		if (!Acl::check('Base_User_Settings', 'menu access'))
+		if (!Acl::check('Base_User_Settings', 'access'))
 			return array('My settings'=>array('__weight__'=>10,'__submenu__'=>1,'Change password'=>array()));
 	}
 }

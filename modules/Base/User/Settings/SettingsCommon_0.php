@@ -16,7 +16,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	private static $user_variables;
 
 	public static function menu(){
-		if (self::Instance()->acl_check('menu access'))
+		if (self::Instance()->acl_check('access'))
 			return array('My settings'=>array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array()));
 		return array();
 	}
