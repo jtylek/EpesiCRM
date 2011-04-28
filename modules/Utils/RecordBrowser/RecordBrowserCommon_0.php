@@ -186,6 +186,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $options = array('all'=>'All');
                 if ($row['favorites']) $options['favorites'] = 'Favorites';
                 if ($row['recent']) $options['recent'] = 'Recent';
+                if (Utils_WatchdogCommon::category_exists($row['tab'])) $options['watchdog'] = 'Subscribed';
                 $settings[0][] = array('name'=>$row['tab'].'_default_view','label'=>$row['caption'],'type'=>'select','values'=>$options,'default'=>'all');
             }
             if ($row['favorites'])
@@ -884,6 +885,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 switch ($k) {
                     case ':Fav' :   $final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_favorite AS fav ON fav.'.$tab.'_id=r.id';
                                     $having .= ' (fav.user_id='.Acl::get_user().' AND fav.user_id IS NOT NULL)';
+                                    break;
+                    case ':Sub' :   $final_tab = '('.$final_tab.') LEFT JOIN utils_watchdog_subscription AS sub ON sub.internal_id=r.id';
+                                    $having .= ' (sub.user_id='.Acl::get_user().' AND sub.user_id IS NOT NULL)';
                                     break;
                     case ':Recent'  :   $final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_recent AS rec ON rec.'.$tab.'_id=r.id';
                                         $having .= ' (rec.user_id='.Acl::get_user().' AND rec.user_id IS NOT NULL)';

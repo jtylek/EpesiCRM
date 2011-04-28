@@ -244,6 +244,7 @@ class Utils_RecordBrowser extends Module {
         $opts = array('all'=>$this->t('All'));
         if ($this->recent>0) $opts['recent'] = $this->t('Recent');
         if ($this->favorites) $opts['favorites'] = $this->t('Favorites');
+        if ($this->watchdog) $opts['watchdog'] = $this->t('Subscribed');
         if (count($opts)>1) {
             if ($this->disabled['browse_mode'])
                 $this->browse_mode='all';
@@ -686,6 +687,8 @@ class Utils_RecordBrowser extends Module {
         $crits = array_merge($crits, $search_res);
         if ($this->browse_mode == 'favorites')
             $crits[':Fav'] = true;
+        if ($this->browse_mode == 'watchdog')
+            $crits[':Sub'] = true;
         if ($this->browse_mode == 'recent') {
             $crits[':Recent'] = true;
             $order = array(':Visited_on'=>'DESC');
