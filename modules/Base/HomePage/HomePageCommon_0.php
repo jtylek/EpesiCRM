@@ -46,7 +46,7 @@ class Base_HomePageCommon extends ModuleCommon {
 	}
 
 	public static function menu() {
-		if(Acl::is_user())
+		if (self::Instance()->acl_check('menu access'))
 			return array('My settings'=>array('__submenu__'=>1,'Set home page'=>array('Base_HomePage_save'=>'1','__module__'=>null)));
 		return array();
 	}

@@ -77,8 +77,11 @@ class Base_DashboardInstall extends ModuleInstall {
 			print('Unable to create table base_dashboard_default_settings<br>');
 			return false;
 		}
-		$this->add_aco('set default dashboard','Super administrator');
 		Base_ThemeCommon::install_default_theme($this->get_type());
+
+		$this->add_aco('set default dashboard','Super administrator');
+		$this->add_aco('access',array('Employee', 'Administrator'));
+
 		return $ret;
 	}
 	

@@ -709,7 +709,7 @@ class Utils_RecordBrowser extends Module {
 
         $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin);
 
-		if (!$this->disabled['pdf'] && !$pdf && $this->amount_of_records<200) {
+		if (!$this->disabled['pdf'] && !$pdf && $this->amount_of_records<200 && Base_AclCommon::i_am_admin()) {
 			$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
 			Base_ActionBarCommon::add('print', 'Print', 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
 			$_SESSION['client']['utils_recordbrowser'][$key] = array(
@@ -782,8 +782,13 @@ class Utils_RecordBrowser extends Module {
                 $row_data = array('<input type="checkbox" id="leightbox_rpicker_'.$element.'_'.$row['id'].'" formated_name="'.(is_callable($format)?strip_tags(call_user_func($format, $row, true)):'').'" />');
                 $rpicker_ind[] = $row['id'];
             }
+            $r_access = $this->get_access('view', $row);
             foreach($query_cols as $k=>$argsid) {
                 if (!$access[$argsid]) continue;
+				if (!$r_access[$argsid]) {
+					$row_data[] = '';
+					continue;
+				}
                 $field = $hash[$argsid];
                 $args = $this->table_rows[$field];
                 $value = $this->get_val($field, $row, ($special || $pdf), $args);
@@ -962,12 +967,6 @@ class Utils_RecordBrowser extends Module {
             $id = $this->get_module_variable('id');
             $this->unset_module_variable('id');
         }
-        if($mode == 'add' || $mode == 'edit') {
-            $theme -> assign('click2fill', '<div id="c2fBox"></div>');
-            load_js('modules/Utils/RecordBrowser/click2fill.js');
-            eval_js('initc2f("'.$this->t('Scan/Edit').'","'.$this->t('Paste your data here').'")');
-            Base_ActionBarCommon::add('clone', 'Click 2 Fill', 'href="javascript:void(0)" onclick="c2f()"');
-        }
         self::$browsed_records = null;
 
         Utils_RecordBrowserCommon::$cols_order = array();
@@ -1006,13 +1005,28 @@ class Utils_RecordBrowser extends Module {
                 else
                     $this->view_fields_permission = $access;
             } else {
-                print($this->t('You have no longer permission to view this record.'));
+                print($this->t('You don\'t have permission to view this record.'));
                 if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back']))) {
                     Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
                     Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
                 }
                 return true;
             }
+        }
+        if ($mode=='add' && !$access) {
+			print($this->t('You don\'t have permission to perform this action.'));
+			if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back']))) {
+				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+				Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
+			}
+			return true;
+		}
+
+        if($mode == 'add' || $mode == 'edit') {
+            $theme -> assign('click2fill', '<div id="c2fBox"></div>');
+            load_js('modules/Utils/RecordBrowser/click2fill.js');
+            eval_js('initc2f("'.$this->t('Scan/Edit').'","'.$this->t('Paste your data here').'")');
+            Base_ActionBarCommon::add('clone', 'Click 2 Fill', 'href="javascript:void(0)" onclick="c2f()"');
         }
 
         if ($mode!='add' && !$this->record[':active'] && !Base_AclCommon::i_am_admin()) return $this->back();

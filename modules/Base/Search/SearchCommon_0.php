@@ -15,7 +15,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_SearchCommon extends ModuleCommon {
 	public static function menu() {
-		return array('Search'=>array());
+		if (self::Instance()->acl_check('access'))
+			return array('Search'=>array());
+		return array();
 	}
 }
 ?>

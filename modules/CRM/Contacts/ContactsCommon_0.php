@@ -75,7 +75,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                                     $me = self::get_my_record();
                                     if ($me) return array('company_name'=>$me['company_name']);
                                     return false;
-            case 'browse':  return true;
+            case 'browse':  return $i->acl_check('browse companies');
             case 'view':    if ($i->acl_check('view company') && ($param['permission']!=2 || $param['created_by']==Acl::get_user())) return true;
                             $me = self::get_my_record();
                             if ($me && $param['id']==$me['company_name']) return true;
@@ -97,7 +97,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         switch ($action) {
             case 'browse_crits':    if ($i->acl_check('browse contacts')) return array('(!permission'=>2, '|login'=>Acl::get_user(), '|:Created_by'=>Acl::get_user());
                                     else return array('login'=>Acl::get_user());
-            case 'browse':  return true;
+            case 'browse':  return $i->acl_check('browse contacts');
             case 'view':    if (!$i->acl_check('view contact')) {
                                 return $param['login']==Acl::get_user();
                             }
@@ -120,12 +120,21 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     /*--------------------------------------------------------------------*/
     public static function menu() {
-        $ret = array(
-            'CRM'=>array(
+        $ret = array();
+		$opts = array();
+		if (self::access_contact('browse'))
+			$opts['Contacts'] = array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
+		if (self::access_company('browse'))
+			$opts['Companies'] = array('mode'=>'company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
+		if (!empty($opts)) {
+			$opts['__submenu__'] = 1;
+			$ret['CRM'] = array(
                 '__submenu__'=>1,
                 'Contacts'=>array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png'),
                 'Companies'=>array('mode'=>'company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png')
-            ));
+			);
+ 		}
+		
         $ret['My settings']=array('__submenu__'=>1);
 
         $me = self::get_my_record();

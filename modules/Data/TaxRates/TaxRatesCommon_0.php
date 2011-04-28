@@ -13,6 +13,20 @@ class Data_TaxRatesCommon extends Base_AdminModuleCommon {
 	public static function admin_caption() {
 		return 'Tax Rates';
 	}
+	
+	public static function access_tax_rates($action) {
+		$i = self::Instance();
+		switch ($action) {
+			case 'browse_crits': return $i->acl_check('browse tax rates');
+			case 'browse':	return $i->acl_check('browse tax rates');
+			case 'view':	return $i->acl_check('view tax rate');
+			case 'clone':
+			case 'add':
+			case 'edit':	return $i->acl_check('edit tax rate');
+			case 'delete':	return $i->acl_check('delete tax rate');
+		}
+		return false;
+	}
 
 	public static function get_tax_details() {
 		static $cache = null;

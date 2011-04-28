@@ -105,8 +105,10 @@ class Utils_MessengerCommon extends ModuleCommon {
 	}
 
     public static function menu() {
-		return array('Messenger alerts'=>array(
+		if (self::Instance()->acl_check('access'))
+			return array('Messenger alerts'=>array(
 				'__function__'=>'browse'));
+		return array();
 	}
 	
 	public static function turn_off($id) {

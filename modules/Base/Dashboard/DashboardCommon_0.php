@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_DashboardCommon extends ModuleCommon {
 	public static function menu() {
-		if(Acl::is_user())
+		if(self::Instance()->acl_check('access'))
 			return array('Dashboard'=>array());
 		return array();
 	}

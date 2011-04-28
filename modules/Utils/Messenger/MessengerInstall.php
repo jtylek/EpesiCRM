@@ -41,6 +41,8 @@ class Utils_MessengerInstall extends ModuleInstall {
 			print('Unable to create table utils_messenger_users.<br>');
 			return false;
 		}
+		$this->add_aco('access',array('Employee', 'Administrator'));
+		
 		return $ret;
 	}
 	

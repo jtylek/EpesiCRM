@@ -110,6 +110,7 @@ class Base_Search extends Module {
 	}
 	*/
 	public function mini() {
+		if (!$this->acl_check('access')) return '';
 		$form = & $this->init_module('Libs/QuickForm',$this->t('Searching'));
 
 		$form->addElement('text', 'quick_search', $this->t('Quick search'));

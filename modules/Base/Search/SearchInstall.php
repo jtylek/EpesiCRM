@@ -17,6 +17,7 @@ class Base_SearchInstall extends ModuleInstall {
 	public function install() {
 		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('Base/Search');
+		$this->add_aco('access',array('Employee', 'Administrator'));
 		return true;
 	}
 	
