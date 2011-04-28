@@ -886,7 +886,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case ':Fav' :   $final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_favorite AS fav ON fav.'.$tab.'_id=r.id';
                                     $having .= ' (fav.user_id='.Acl::get_user().' AND fav.user_id IS NOT NULL)';
                                     break;
-                    case ':Sub' :   $final_tab = '('.$final_tab.') LEFT JOIN utils_watchdog_subscription AS sub ON sub.internal_id=r.id';
+                    case ':Sub' :   $final_tab = '('.$final_tab.') LEFT JOIN utils_watchdog_subscription AS sub ON sub.internal_id=r.id AND sub.category_id='.Utils_WatchdogCommon::get_category_id($tab);
                                     $having .= ' (sub.user_id='.Acl::get_user().' AND sub.user_id IS NOT NULL)';
                                     break;
                     case ':Recent'  :   $final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_recent AS rec ON rec.'.$tab.'_id=r.id';
