@@ -297,6 +297,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $v = $record[$desc['id']];
         $def = '';
         if (!is_array($v)) $v = array($v);
+		if (count($v)>100) return count($v).' '.Base_LangCommon::ts('CRM_Contacts','values');
         foreach($v as $k=>$w){
             if ($def) $def .= '<br>';
             $def .= Utils_RecordBrowserCommon::no_wrap(self::autoselect_company_contact_format($w, $nolink));
