@@ -2344,8 +2344,10 @@ function update_from_1_1_4_to_1_1_5() {
     }
 
     if(ModuleManager::is_installed('Apps_ActivityReport')>=0) {
+        ob_start();
         Acl::del_aco('Apps_ActivityReport','access');
         Acl::add_aco('Apps_ActivityReport','access','Employee Manager');
+        ob_end_clean();
     }
     
     if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
