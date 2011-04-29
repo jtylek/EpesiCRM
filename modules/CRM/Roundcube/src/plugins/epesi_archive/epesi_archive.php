@@ -155,8 +155,14 @@ class epesi_archive extends rcube_plugin
                 $map[$k] = array_merge($map[$k],$ret);
             }
         } else {
-            $addr = $msg->sender['mailto'];
-            $ret = $this->look_contact($addr);
+            $addr = $rcmail->imap->decode_address_list($msg->headers->from);
+            if($addr) $addr = array_shift($addr);
+            if(!isset($addr['mailto']) || !$addr['mailto']) {
+                $map[$k] = false;
+                continue;
+            }
+//            $addr = $msg->sender;
+            $ret = $this->look_contact($addr['mailto']);
             $map[$k] = $ret;
         }
     }
