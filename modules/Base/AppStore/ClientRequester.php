@@ -44,16 +44,19 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
+    public function get_installation_status() {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
     public function set_client_license_key($license_key) {
         $this->license_key = $license_key;
     }
 
     protected function call($function, $params, $unserialize = true) {
         $err_msg = '';
-        $post = http_build_query(array('f' => $function, 'c' => $this->license_key, 'a' => serialize($params)));
+        $post = http_build_query(array(IClient::param_function => $function, IClient::param_installation_key => $this->license_key, IClient::param_arguments => serialize($params)));
 //        $ch = curl_init('https://localhost/epesi/tools/EpesiServiceServer/');
         $ch = curl_init('http://localhost/epesi/tools/EpesiServiceServer/');
-//        $ch = curl_init('http://127.0.0.1/epesi-trunk/tools/EpesiServiceServer/');
 
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_HEADER, false);
@@ -80,7 +83,7 @@ class ClientRequester implements IClient {
 
         if ($unserialize) {
             $r = @unserialize($output);
-            return $r?$r:504;
+            return $r ? $r : 504;
         } else
             return $output;
     }

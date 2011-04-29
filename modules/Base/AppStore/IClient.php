@@ -10,14 +10,23 @@
  * Use this interface to perform clients requests to Epesi Service Server
  */
 interface IClient {
+    const param_function = 'f';
+    const param_arguments = 'a';
+    const param_installation_key = 'c';
 
     /**
      * Set specific client license key.
+     * USED ONLY LOCALLY - NOT SERVER REQUEST
      *
      * @param string $license_key unique client identifier
      */
     function set_client_license_key($license_key);
 
+    /**
+     * Get installation status.
+     * @return string|false Installation status or false on error.
+     */
+    function get_installation_status();
     /**
      * Register installation and request temporary client identifier.
      *
