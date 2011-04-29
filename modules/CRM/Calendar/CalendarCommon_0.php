@@ -319,6 +319,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 	
 	public static function new_event_handler($name, $callback) {
+		if (DB::GetOne('SELECT group_name FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array($name))) return;
 		DB::Execute('INSERT INTO crm_calendar_custom_events_handlers(group_name, handler_callback) VALUES (%s, %s)', array($name, implode('::',$callback)));
 	}
 	
