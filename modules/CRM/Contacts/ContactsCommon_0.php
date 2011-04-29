@@ -23,6 +23,9 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function no_contact_message() {
         print(Base_LangCommon::ts('CRM_Contacts','Your user doesn\'t have contact, please assign one'));
     }
+	public static function contact_attachment_addon_access() {
+		return self::access_contact('browse');
+	}
 	public static function get_user_label($user_id, $nolink=false) {
 		$user = CRM_ContactsCommon::get_contact_by_user_id($user_id);
 		if ($user===null) $user = Base_UserCommon::get_user_login($user_id);

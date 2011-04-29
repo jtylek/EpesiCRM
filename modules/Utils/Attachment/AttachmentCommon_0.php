@@ -14,7 +14,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
-
 	public static function new_addon($table) {
 		Utils_RecordBrowserCommon::new_addon($table, 'Utils/Attachment', 'body', 'Notes');
 	}

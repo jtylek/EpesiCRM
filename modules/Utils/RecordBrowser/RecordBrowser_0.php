@@ -1240,6 +1240,7 @@ class Utils_RecordBrowser extends Module {
                     $row['label'] = $result['label'];
                 }
                 $mod_id = md5(serialize($row));
+				if (method_exists($row['module'].'Common',$row['func'].'_access') && !call_user_func(array($row['module'].'Common',$row['func'].'_access'), $this->record, $this)) continue;
                 $addons_mod[$mod_id] = $this->init_module($row['module']);
                 if (!method_exists($addons_mod[$mod_id],$row['func'])) $tb->set_tab($this->t($row['label']),array($this, 'broken_addon'), array(), $js);
                 else $tb->set_tab($this->t($row['label']),array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);

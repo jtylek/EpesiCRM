@@ -17,6 +17,9 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         }
         return array();
     }
+	public static function addon_access() {
+		return CRM_ContactsCommon::access_contact('browse');
+	}
 
     public static function user_settings() {
 	    if(self::Instance()->acl_check('access client')) {
