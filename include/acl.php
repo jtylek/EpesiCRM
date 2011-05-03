@@ -109,7 +109,7 @@ class Acl {
 				if($x===false) return false;
 				$ret = Acl::$gacl->add_acl(array($section =>array($name)), array(), array($x), NULL, NULL,1,1,'','','user');
 				if(!$ret) return false;
-				print('adding '.$section.' '.$name.' '.$g.'<br>');
+//				print('adding '.$section.' '.$name.' '.$g.'<br>');
 			}
 		}
 		return $ret;
