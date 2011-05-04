@@ -12,7 +12,7 @@ foreach ($content as $name){
 	if (strtolower(substr($name,$dot+1))!='php') continue;
 	$langcode = substr($name,0,$dot);
 	if (!$langcode) continue;
-	copy($data_dir.$name, $data_dir.$name.'.backup.'.date('Y_m_d__h_i_s'));
+	rename($data_dir.$name, $data_dir.$name.'.backup.'.date('Y_m_d__h_i_s'));
 }
 
 $ret = DB::Execute('SELECT * FROM modules');

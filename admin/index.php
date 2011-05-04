@@ -13,7 +13,7 @@ if(isset($_GET['mod'])) {
 	print('<a href="modules.php">1. Uninstall modules</a><br>');
 	print('<a href="modulesup.php">2. Update load priority array</a><br>');
 	print('<a href="themeup.php">3. Rebuild Common cache & default theme</a><br>');
-	print('<a href="langup.php">4. Update translations</a><br>');
+	print('<a href="langup.php">4. Rebuild Language files</a><br>');
 	print('<hr>');
 	print('<a href="wfb.php" TARGET=_BLANK>5. WFB File manager</a>&nbsp;&nbsp;(Opens new window)<br>');
 	print('<a href="phpfm.php" TARGET=_BLANK>6. phpfm File manager</a>&nbsp;&nbsp;(Opens new window)<br>');
