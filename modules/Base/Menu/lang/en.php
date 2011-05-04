@@ -95,4 +95,6 @@ $translations['Base_Menu']['Issues']='';
 $translations['Base_Menu']['Express publish']='';
 $translations['Base_Menu']['LicenseManager']='';
 $translations['Base_Menu']['Diagnosis']='';
+$translations['Base_Menu']['Bug tracker']='';
+$translations['Base_Menu']['Fax']='';
 ?>

@@ -6,7 +6,6 @@
  */
 global $translations;
 $translations['FirstRun']['Welcome to epesi first run wizard']='Witamy w programie instalacyjnym epesi';
-$translations['FirstRun']['Base installation']='Instalacja Podstawowa';
 $translations['FirstRun']['CRM installation']='Instalacja CRM';
 $translations['FirstRun']['Full installation']='Pełna Instalacja';
 $translations['FirstRun']['Please enter administrator user login and password']='Prosze podać nazwę i hasło administratora';
@@ -25,4 +24,5 @@ $translations['FirstRun']['Choose method']='Wybierz metodę';
 $translations['FirstRun']['SMTP host address']='Adres serwera SMTP';
 $translations['FirstRun']['If your server needs authorization...']='Jeżeli serwer wymaga autoryzacji...';
 $translations['FirstRun']['Warning']='Ostrzeżenie';
+$translations['FirstRun']['Base installation']='Instalacja Podstawowa';
 ?>

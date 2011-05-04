@@ -87,4 +87,7 @@ $translations['Base_Menu_QuickAccess']['Medical: Issues']='';
 $translations['Base_Menu_QuickAccess']['Warehouse: eCommerce: Express publish']='';
 $translations['Base_Menu_QuickAccess']['LicenseManager']='';
 $translations['Base_Menu_QuickAccess']['Medical: Diagnosis']='';
+$translations['Base_Menu_QuickAccess']['CRM: Fax']='';
+$translations['Base_Menu_QuickAccess']['Bug tracker: Projects']='';
+$translations['Base_Menu_QuickAccess']['Bug tracker: Tickets']='';
 ?>

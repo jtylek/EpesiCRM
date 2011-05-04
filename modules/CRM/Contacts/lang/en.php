@@ -40,6 +40,7 @@ $translations['CRM_Contacts']['New Note']='';
 $translations['CRM_Contacts']['<br/>This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would You like to copy to company contacts:']='';
 $translations['CRM_Contacts']['Confirm']='';
 $translations['CRM_Contacts']['Cancel']='';
+$translations['CRM_Contacts']['P']='';
 $translations['Utils_RecordBrowser:company']['Group']='';
 $translations['Utils_RecordBrowser:company']['Company Name']='';
 $translations['Utils_RecordBrowser:company']['Phone']='';

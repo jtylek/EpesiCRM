@@ -6,5 +6,4 @@
  */
 global $translations;
 $translations['Utils_Attachment_Administrator']['View deleted']='Peržiūrėti ištrintus';
-$translations['Utils_Attachment_Administrator']['View deleted']='Peržiūrėti ištrintus';
 ?>

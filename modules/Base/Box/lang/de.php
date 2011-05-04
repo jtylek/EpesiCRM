@@ -7,6 +7,4 @@
 global $translations;
 $translations['Base_Box']['Check for new version']='Suche nach neuer Version';
 $translations['Base_Box']['version&nbsp;%s']='Version %s';
-$translations['Base_Box']['Check for new version']='Suche nach neuer Version';
-$translations['Base_Box']['version&nbsp;%s']='Version %s';
 ?>

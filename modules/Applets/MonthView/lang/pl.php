@@ -5,6 +5,8 @@
  * @subpackage pl
  */
 global $translations;
+$translations['Applets_MonthView']['Start']='';
+$translations['Applets_MonthView']['Title']='';
 $translations['Applets_MonthView']['Next year']='Następny rok';
 $translations['Applets_MonthView']['Today']='Dzisiejszy dzień';
 $translations['Applets_MonthView']['Previous year']='Przyszły rok';

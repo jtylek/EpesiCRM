@@ -7,6 +7,4 @@
 global $translations;
 $translations['Base_RegionalSettings']['Country']='Land';
 $translations['Base_RegionalSettings']['State']='Bundesland';
-$translations['Base_RegionalSettings']['Country']='Land';
-$translations['Base_RegionalSettings']['State']='Bundesland';
 ?>

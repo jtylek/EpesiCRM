@@ -28,4 +28,5 @@ $translations['CRM_Filters']['Manage presets']='';
 $translations['CRM_Filters']['Saved Presets']='';
 $translations['CRM_Filters']['Perspective']='';
 $translations['CRM_Filters']['Perspective: ']='';
+$translations['CRM_Filters']['Show']='';
 ?>

@@ -44,6 +44,4 @@ $translations['Utils_Attachment']['IP address']='Adres IP';
 $translations['Utils_Attachment']['Host name']='Nazwa Hosta';
 $translations['Utils_Attachment']['Method description']='Rodzaj akcji';
 $translations['Utils_Attachment']['Remote']='Zdalny';
-$translations['Utils_Attachment']['User']='';
-$translations['Utils_Attachment']['New note']='';
 ?>
