@@ -181,6 +181,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::set_access_callback('rc_mails_assoc', array('CRM_RoundcubeCommon', 'access_mails_assoc'));
         Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon', 'Associated records');
 
+        @DB::DropTable('rc_mails_attachments');
         DB::CreateTable('rc_mails_attachments','
             mail_id I4 NOTNULL,
             type C(32),

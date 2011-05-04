@@ -509,6 +509,7 @@ class ModuleManager {
 		}
 */
 		$debug .= '<b>' . $module_to_install . '</b>' . ': calling install method<br>';
+        DB::Execute('SET FOREIGN_KEY_CHECKS = 0');
 		//call install script and fill database
 		if(!call_user_func(array (
 			self::$modules_install[$module_to_install],
@@ -522,8 +523,10 @@ class ModuleManager {
 			Acl::del_aco_section($module_to_install);
 			self::remove_data_dir($module_to_install);
 			print($debug.'<b>' . $module_to_install . '</b>' . ': uninstalled<br>');
+            DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
 			return false;
 		}
+        DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
 
 		$debug .= '<b>' . $module_to_install . '</b>' . ': registering<br>';
 		$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_to_install);
