@@ -2448,6 +2448,36 @@ function update_from_1_1_4_to_1_1_5() {
     }
 
 }
+
+$versions[] = '1.1.6';
+function update_from_1_1_5_to_1_1_6() {
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('CRM_MailClient'))) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('CRM_MailClient'));
+		$ret = DB::GetCol('SELECT tab FROM crm_mailclient_addons');
+		foreach($ret as $r) {
+			Utils_RecordBrowserCommon::delete_addon($r, 'CRM/MailClient', 'rb_addon');
+		}
+		Base_ThemeCommon::uninstall_default_theme('CRM_MailClient');
+		Utils_WatchdogCommon::unregister_category('crm_mailclient');
+		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/MailClient', 'contact_addon');
+		DB::DropTable('crm_mailclient_attachments');
+		DB::DropTable('crm_mailclient_rb_mails');
+		DB::DropTable('crm_mailclient_mails');
+		DB::DropTable('crm_mailclient_addons');
+    }
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Apps_MailClient'))) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Apps_MailClient'));
+		$ret = true;
+		$ret &= DB::DropTable('apps_mailclient_filter_rules');
+		$ret &= DB::DropTable('apps_mailclient_filter_actions');
+		$ret &= DB::DropTable('apps_mailclient_filters');
+		$ret &= DB::DropTable('apps_mailclient_accounts');
+		Variable::delete('max_mail_size');
+		Base_ThemeCommon::uninstall_default_theme('Apps_MailClient');
+    }
+    DB::Execute('DELETE FROM modules WHERE name=%s',array('Base_Navigation'));
+    DB::Execute('DELETE FROM modules WHERE name=%s',array('Utils_DirtyRead'));
+}
 //=========================================================================
 
 try {

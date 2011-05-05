@@ -22,7 +22,7 @@ if (!$lastest_version) {
 	return;
 }
 
-preg_match('/epesi\-([^\-]*)\-rev/', $lastest_version, $matches);
+preg_match('/epesi\-([^\-]*)\-rev/ms', $lastest_version, $matches);
 if ($matches[1]==EPESI_VERSION) {
 	print(Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION)), Base_LangCommon::ts('Base_Box','You are using most up-to-date version of epesi.'), false));
 	return;
