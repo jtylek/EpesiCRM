@@ -1,16 +1,11 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-require('IClient.php');
+require_once 'IClient.php';
 
 /**
- * Description of ClientRequester
- *
- * @author ajb
+ * ClientRequester to perform Epesi Service Server clients requests.
+ * @author Adam Bukowski <abukowski@telaxus.com>
+ * @copyright Copyright &copy; 2011, Telaxus LLC
  */
 class ClientRequester implements IClient {
 
@@ -83,7 +78,7 @@ class ClientRequester implements IClient {
 
         if ($unserialize) {
             $r = @unserialize($output);
-            return $r ? $r : 504;
+            return $r !== false ? $r : 504;
         } else
             return $output;
     }
