@@ -139,7 +139,7 @@ class CRM_Contacts extends Module {
 		$companies = CRM_ContactsCommon::get_companies(array(), array(), array('company_name'=>'ASC'));
 		$x = array();
 		foreach($companies as $c)
-			$x['s'.$c['id']] = htmlentities($c['company_name']);//.' ('.$c['short_name'].')'
+			$x['s'.$c['id']] = $c['company_name'];//.' ('.$c['short_name'].')'
 		$qf->addElement('select','company',$this->t('Choose main company'),$x);
 		$qf->addElement('static',null,null,'Contacts assigned to this company are treated as employees. You should set the main company only once.');
 		try {
