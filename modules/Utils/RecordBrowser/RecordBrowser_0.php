@@ -335,7 +335,19 @@ class Utils_RecordBrowser extends Module {
                 $arr = array(''=>$this->t('No'), 1=>$this->t('Yes'));
             } else {
                 if ($this->table_rows[$filter]['type'] == 'commondata') {
-                    $arr = Utils_CommonDataCommon::get_translated_array($this->table_rows[$filter]['param']['array_id'], $this->table_rows[$filter]['param']['order_by_key']);
+					$parts = explode('::', $this->table_rows[$filter]['param']['array_id']);
+					$array_id = array_shift($parts);
+					$arr = Utils_CommonDataCommon::get_translated_array($array_id, $this->table_rows[$filter]['param']['order_by_key']);
+					while (!empty($parts)) {
+						array_shift($parts);
+						$next_arr = array();
+						foreach ($arr as $k=>$v) {
+							$next = Utils_CommonDataCommon::get_translated_array($array_id.'/'.$k, $this->table_rows[$filter]['param']['order_by_key']);
+							foreach ($next as $k2=>$v2)
+								$next_arr[$k.'/'.$k2] = $v.' / '.$v2;
+						}
+						$arr = $next_arr;
+					}
                     natcasesort($arr);
                 } else {
                     $param = explode(';',$this->table_rows[$filter]['param']);
@@ -436,7 +448,17 @@ class Utils_RecordBrowser extends Module {
 				}
                 if (!isset($text_filters[$filter_id])) {
                     if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='__NULL__';
-                    if ($vals['filter__'.$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals['filter__'.$filter_id];
+					if ($vals['filter__'.$filter_id]==='__NULL__') continue;
+					if ($this->table_rows[$filter]['type']=='commondata') {
+						$vals = explode('/',$vals['filter__'.$filter_id]);
+						$param = explode('::',$this->table_rows[$filter]['param']['array_id']);
+						array_shift($param);
+						$param[] = $filter_id;
+						foreach ($vals as $v)
+							$this->crits[preg_replace('/[^a-z0-9]/','_',strtolower(array_shift($param)))] = $v;
+					} else {
+						$this->crits[$filter_id] = $vals['filter__'.$filter_id];
+					}
                 } else {
                     if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='';
                     if ($vals['filter__'.$filter_id]!=='') {
@@ -445,7 +467,8 @@ class Utils_RecordBrowser extends Module {
                         $ref = explode('::', $str[0]);
                         if ($ref[0]!='' && isset($ref[1])) $this->crits['_":Ref:'.$args['id']] = DB::Concat(DB::qstr($vals['filter__'.$filter_id]),DB::qstr('%'));;
                         if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
-                            if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_":RefCD:'.$args['id']] = DB::Concat(DB::qstr($vals['filter__'.$filter_id]),DB::qstr('%'));;
+							$val = array_pop(explode('/',$vals['filter__'.$filter_id]));
+                            if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_":RefCD:'.$args['id']] = DB::Concat(DB::qstr($val),DB::qstr('%'));;
                         }
                     }
                 }
