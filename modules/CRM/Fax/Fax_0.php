@@ -317,7 +317,7 @@ class CRM_Fax extends Module {
 		$qf->addElement('select','provider',$this->t('Provider'),$providers);
 		
 		$qf->addElement('header',null,$this->t('Contact'));
-		$fav_contact = CRM_ContactsCommon::get_contacts(array(':Fav'=>true,'!fax'=>''),array('id','login','first_name','last_name','company_name'));
+		$fav_contact = CRM_ContactsCommon::get_contacts(array(':Fav'=>true,'!fax'=>''));
 		$fav_contact2 = array();
 		foreach($fav_contact as $v)
 			$fav_contact2[$v['id']] = CRM_ContactsCommon::contact_format_default($v,true);

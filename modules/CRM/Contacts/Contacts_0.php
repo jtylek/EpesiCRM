@@ -94,10 +94,10 @@ class CRM_Contacts extends Module {
 			print('<h2>'.$this->t('Epesi users').'</h2>');
 
 		$logins = DB::GetAssoc('SELECT id,login FROM user_login');
-		$ccc = CRM_ContactsCommon::get_contacts(array('login'=>array_keys($logins)),array('login','first_name','last_name','company_name'));
+		$ccc = CRM_ContactsCommon::get_contacts(array('login'=>array_keys($logins)));
 
 		if($filter)
-			$c = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())),array('first_name','last_name','login'));
+			$c = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
 		else
 			$c = & $ccc;
 		$gb = $this->init_module('Utils/GenericBrowser',null,'my_contacts');

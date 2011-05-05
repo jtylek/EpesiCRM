@@ -576,7 +576,7 @@ class Apps_MailClient extends Module {
 		$theme->assign('addressbook_area_id','apps_mailclient_addressbook');
 
 		if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-			$fav = CRM_ContactsCommon::get_contacts($from_mails?array(':Fav'=>true,'(!email'=>'','|!login'=>''):array(':Fav'=>true,'!login'=>''),array('id','login','first_name','last_name','company_name'));
+			$fav = CRM_ContactsCommon::get_contacts($from_mails?array(':Fav'=>true,'(!email'=>'','|!login'=>''):array(':Fav'=>true,'!login'=>''));
 			foreach($fav as $v)
 				$fav2[$v['id'].'@epesi_contact'] = CRM_ContactsCommon::contact_format_default($v,true);
 			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
