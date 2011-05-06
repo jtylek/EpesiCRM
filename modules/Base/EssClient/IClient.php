@@ -1,13 +1,9 @@
 <?php
 
 /**
- *
+ * Use this interface to perform clients requests to Epesi Service Server.
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2011, Telaxus LLC
- */
-
-/**
- * Use this interface to perform clients requests to Epesi Service Server
  */
 interface IClient {
     const param_function = 'f';
@@ -27,6 +23,7 @@ interface IClient {
      * @return string|false Installation status or false on error.
      */
     function get_installation_status();
+
     /**
      * Register installation and request temporary client identifier.
      *

@@ -9,7 +9,12 @@ require_once 'IClient.php';
  */
 class ClientRequester implements IClient {
 
+    protected $server;
     protected $license_key;
+
+    public function __construct($server) {
+        $this->server = $server;
+    }
 
     public function get_list_of_modules($start, $amount) {
         return $this->call(__FUNCTION__, func_get_args());
@@ -49,9 +54,13 @@ class ClientRequester implements IClient {
 
     protected function call($function, $params, $unserialize = true) {
         $err_msg = '';
-        $post = http_build_query(array(IClient::param_function => $function, IClient::param_installation_key => $this->license_key, IClient::param_arguments => serialize($params)));
-//        $ch = curl_init('https://localhost/epesi/tools/EpesiServiceServer/');
-        $ch = curl_init('http://localhost/epesi/tools/EpesiServiceServer/');
+        $post = http_build_query(
+                array(
+                    IClient::param_function => $function,
+                    IClient::param_installation_key => $this->license_key,
+                    IClient::param_arguments => serialize($params)
+                ));
+        $ch = curl_init($this->server);
 
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_HEADER, false);
