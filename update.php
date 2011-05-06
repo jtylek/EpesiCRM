@@ -2477,6 +2477,158 @@ function update_from_1_1_5_to_1_1_6() {
     }
     DB::Execute('DELETE FROM modules WHERE name=%s',array('Base_Navigation'));
     DB::Execute('DELETE FROM modules WHERE name=%s',array('Utils_DirtyRead'));
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Premium_Freeconet')) && !is_dir('modules/Premium/Freeconet')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Premium_Freeconet'));
+        Base_ThemeCommon::uninstall_default_theme('Premium_Freeconet');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('CRM_Fax')) && !is_dir('modules/CRM/Fax')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('CRM_Fax'));
+        Base_ThemeCommon::uninstall_default_theme('CRM_Fax');
+		Acl::del_aco_section('CRM_Fax');
+		ModuleManager::remove_data_dir('CRM_Fax');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Utils_Comment')) && !is_dir('modules/Utils/Comment')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Utils_Comment'));
+        Base_ThemeCommon::uninstall_default_theme('Utils_Comment');
+        DB::DropTable('comment_report');
+		DB::DropTable('comment');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Apps_Forum')) && !is_dir('modules/Apps/Forum')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Apps_Forum'));
+        Base_ThemeCommon::uninstall_default_theme('Apps_Forum');
+		$ret = true;
+		$ret &= DB::DropTable('apps_forum_thread');
+		$ret &= DB::DropTable('apps_forum_board');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Apps_Gallery')) && !is_dir('modules/Apps/Gallery')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Apps_Gallery'));
+        Base_ThemeCommon::uninstall_default_theme('Apps_Gallery');
+		ModuleManager::remove_data_dir('Apps_Gallery');
+		DB::DropTable('gallery_shared_media');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Utils_Gallery')) && !is_dir('modules/Utils/Gallery')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Utils_Gallery'));
+        Base_ThemeCommon::uninstall_default_theme('Utils_Gallery');
+		ModuleManager::remove_data_dir('Utils_Gallery');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Utils_Path')) && !is_dir('modules/Utils/Path')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Utils_Path'));
+        Base_ThemeCommon::uninstall_default_theme('Utils_Path');
+		ModuleManager::remove_data_dir('Utils_Path');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Libs_Lytebox')) && !is_dir('modules/Libs/Lytebox')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Libs_Lytebox'));
+        Base_ThemeCommon::uninstall_default_theme('Libs_Lytebox');
+		ModuleManager::remove_data_dir('Libs_Lytebox');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Apps_StaticPage')) && !is_dir('modules/Apps/StaticPage')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Apps_StaticPage'));
+        Base_ThemeCommon::uninstall_default_theme('Apps_StaticPage');
+		ModuleManager::remove_data_dir('Apps_StaticPage');
+		DB::DropTable('apps_staticpage_pages');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Utils_CustomMenu')) && !is_dir('modules/Utils/CustomMenu')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Utils_CustomMenu'));
+        Base_ThemeCommon::uninstall_default_theme('Utils_CustomMenu');
+		ModuleManager::remove_data_dir('Utils_CustomMenu');
+		$ret = true;
+		$ret &= DB::DropTable('utils_custommenu_entry');
+		$ret &= DB::DropTable('utils_custommenu_page');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Apps_TwisterGame')) && !is_dir('modules/Apps/TwisterGame')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Apps_TwisterGame'));
+        Base_ThemeCommon::uninstall_default_theme('Apps_TwisterGame');
+		ModuleManager::remove_data_dir('Apps_TwisterGame');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Develop_Translations')) && !is_dir('modules/Develop/Translations')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Develop_Translations'));
+        Base_ThemeCommon::uninstall_default_theme('Develop_Translations');
+ 		ModuleManager::remove_data_dir('Develop_Translations');
+		DB::DropTable('develop_translations_list');
+		Base_ThemeCommon::uninstall_default_theme('Develop_Translations');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Develop_ModuleCreator')) && !is_dir('modules/Develop/ModuleCreator')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Develop_ModuleCreator'));
+        Base_ThemeCommon::uninstall_default_theme('Develop_ModuleCreator');
+ 		ModuleManager::remove_data_dir('Develop_ModuleCreator');
+		Acl::del_aco_section('Develop_ModuleCreator');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Develop_ModuleEditor')) && !is_dir('modules/Develop/ModuleEditor')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Develop_ModuleEditor'));
+        Base_ThemeCommon::uninstall_default_theme('Develop_ModuleEditor');
+ 		ModuleManager::remove_data_dir('Develop_ModuleEditor');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Develop_TableBrowserCreator')) && !is_dir('modules/Develop/TableBrowserCreator')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Develop_TableBrowserCreator'));
+        Base_ThemeCommon::uninstall_default_theme('Develop_TableBrowserCreator');
+ 		ModuleManager::remove_data_dir('Develop_TableBrowserCreator');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Tests')) && !is_dir('modules/Tests')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Tests'));
+        Base_ThemeCommon::uninstall_default_theme('Tests');
+ 		ModuleManager::remove_data_dir('Tests');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Tests_Bugtrack')) && !is_dir('modules/Tests/Bugtrack')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Tests_Bugtrack'));
+        Base_ThemeCommon::uninstall_default_theme('Tests_Bugtrack');
+ 		ModuleManager::remove_data_dir('Tests_Bugtrack');
+		Acl::del_aco_section('Tests_Bugtrack');
+		Utils_RecordBrowserCommon::delete_addon('company', 'Tests/Bugtrack', 'company_bugtrack_addon');
+		Utils_RecordBrowserCommon::uninstall_recordset('bugtrack');
+		Utils_CommonDataCommon::remove('Bugtrack_Status');
+    }
+
+    $tests = array('Attachment', 'BookmarkBrowser', 'Calendar', 'Callbacks', 'Callbacks_a', 'Codepress', 'Colorpicker', 'Comment', 'GenericBrowser', 'Image', 'Lang', 'Leightbox', 'Lytebox', 'Menu', 'OpenFlashChart', 'QuickForm', 'Report', 'Search', 'SharedUniqueHref', 'SharedUniqueHref_a', 'TabbedBrowser', 'Tooltip', 'Wizard');
+    foreach($tests as $t) {
+        if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Tests_'.$t)) && !is_dir('modules/Tests/'.str_replace('_','/',$t))) {
+            DB::Execute('DELETE FROM modules WHERE name=%s',array('Tests_'.$t));
+            Base_ThemeCommon::uninstall_default_theme('Tests_'.$t);
+    		ModuleManager::remove_data_dir('Tests_'.$t);
+        }
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Utils_CatFile')) && !is_dir('modules/Utils/CatFile')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Utils_CatFile'));
+        Base_ThemeCommon::uninstall_default_theme('Utils_CatFile');
+		ModuleManager::remove_data_dir('Utils_CatFile');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Libs_Codepress')) && !is_dir('modules/Utils/CatFile')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Libs_Codepress'));
+        Base_ThemeCommon::uninstall_default_theme('Libs_Codepress');
+		ModuleManager::remove_data_dir('Libs_Codepress');
+    }
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Utils_Planner')) && !is_dir('modules/Utils/Planner')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Utils_Planner'));
+        Base_ThemeCommon::uninstall_default_theme('Utils_Planner');
+		ModuleManager::remove_data_dir('Utils_Planner');
+    }
+
+
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Utils_ExportXLS')) && !is_dir('modules/Utils/ExportXLS')) {
+        DB::Execute('DELETE FROM modules WHERE name=%s',array('Utils_ExportXLS'));
+        Base_ThemeCommon::uninstall_default_theme('Utils_ExportXLS');
+		ModuleManager::remove_data_dir('Utils_ExportXLS');
+    }
+
 }
 //=========================================================================
 
