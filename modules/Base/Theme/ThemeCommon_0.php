@@ -305,7 +305,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	/**
 	 * For internal use only.
 	 */
-	public function parse_links($key, $val, $flat=true) {
+	public static function parse_links($key, $val, $flat=true) {
 		if (!is_array($val)) {
 			$val = trim($val);
 			$i=0;

@@ -55,7 +55,7 @@ class Tests_BugtrackCommon extends ModuleCommon {
 	}
 
 /*
-	public function admin_caption() {
+	public static function admin_caption() {
 		return 'Bugtrack';
 	}
 */

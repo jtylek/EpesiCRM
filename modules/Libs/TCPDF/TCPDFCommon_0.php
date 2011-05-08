@@ -27,7 +27,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
             ));
     }
 
-    public function new_pdf($orientation='P',$unit='mm',$format=null) {
+    public static function new_pdf($orientation='P',$unit='mm',$format=null) {
         require_once(TCPDF_DIR.'tcpdf.php');
         ini_set('memory_limit', '512M');
         
@@ -57,7 +57,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
         return $tcpdf;
     }
 
-    public function prepare_header(& $tcpdf, $title='', $subject='', $printed_by=true, $logo_filename=null) {
+    public static function prepare_header(& $tcpdf, $title='', $subject='', $printed_by=true, $logo_filename=null) {
         if ($logo_filename===null) $logo_filename = Libs_TCPDFCommon::get_logo_filename();
         $default_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png');
         if (!file_exists($logo_filename)) $logo_filename = $default_filename;
@@ -92,11 +92,11 @@ class Libs_TCPDFCommon extends ModuleCommon {
         self::SetFont($tcpdf, self::$default_font, '', 9);
     }
 
-    public function add_page(& $tcpdf) {
+    public static function add_page(& $tcpdf) {
         $tcpdf->AddPage();
     }
 
-    public function writeHTML(& $tcpdf, $html, $autobreak=true) {
+    public static function writeHTML(& $tcpdf, $html, $autobreak=true) {
         $html = Libs_TCPDFCommon::stripHTML($html);
         if ($autobreak) {
             $pages = $tcpdf->getNumPages();
@@ -111,15 +111,15 @@ class Libs_TCPDFCommon extends ModuleCommon {
             $tcpdf->WriteHTML($html,false,0,false);
     }
 
-    public function SetFont(& $tcpdf, $family, $style='', $size=0) {
+    public static function SetFont(& $tcpdf, $family, $style='', $size=0) {
         $tcpdf->SetFont(self::$default_font, $style, $size);
     }
 
-    public function output(& $tcpdf) {
+    public static function output(& $tcpdf) {
         return $tcpdf->Output('','S');
     }
 
-    public function stripHTML($html) {
+    public static function stripHTML($html) {
         $html = str_replace(array("\n", "\t", "\r"), '', $html);
         $html = preg_replace('/\<\/?[aA][^\>]*\>/', '', $html);
         return $html;

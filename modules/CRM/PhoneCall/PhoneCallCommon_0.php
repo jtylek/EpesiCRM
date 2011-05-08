@@ -422,13 +422,13 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 	//////////////////////////
 	// mobile devices
-	public function mobile_menu() {
+	public static function mobile_menu() {
 		if(!self::Instance()->acl_check('browse phonecalls'))
 			return array();
 		return array('Phone Calls'=>array('func'=>'mobile_phone_calls','color'=>'blue'));
 	}
 
-	public function mobile_phone_calls() {
+	public static function mobile_phone_calls() {
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>'1');
 		Utils_RecordBrowserCommon::mobile_rb('phonecall',array('employees'=>array($me['id'])),array('status'=>'ASC', 'date_and_time'=>'ASC', 'subject'=>'ASC'),array(),$defaults);

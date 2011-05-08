@@ -495,7 +495,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         Utils_ChainedSelectCommon::create($desc['id'],array($ref_field),'modules/CRM/Contacts/update_contact.php', array('format'=>implode('::', $format_func), 'required'=>$desc['required']), $default);
         return null;
     }
-    public function compare_names($a, $b) {
+    public static function compare_names($a, $b) {
         return strcasecmp(strip_tags($a),strip_tags($b));
     }
 
@@ -1198,7 +1198,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         return array_merge(Utils_RecordBrowserCommon::applet_settings(),array(
                 array('name'=>'conds','label'=>'Display','type'=>'select','default'=>'fav','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('fav'=>'Favorites','rec'=>'Recent'))));
     }
-	public function user_settings() {
+	public static function user_settings() {
 		$opts = array(
 			'##f## ##l##' => '[First name] [Last Name]',
 			'##l## ##f##' => '[Last Name] [First name]',
@@ -1228,13 +1228,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     //////////////////////////
     // mobile devices
-    public function mobile_menu() {
+    public static function mobile_menu() {
         if(!Acl::is_user())
             return array();
         return array('Contacts'=>array('func'=>'mobile_contacts','color'=>'red'),'Companies'=>array('func'=>'mobile_companies','color'=>'black'));
     }
 
-    public function mobile_contacts() {
+    public static function mobile_contacts() {
         $sort = array('last_name'=>'ASC', 'first_name'=>'ASC');
         $info = array('company_name'=>0,'work_phone'=>1,'mobile_phone'=>1);
         $defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
@@ -1245,7 +1245,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         Utils_RecordBrowserCommon::mobile_rb('contact',array(),$sort,$info,$defaults);
     }
 
-    public function mobile_companies() {
+    public static function mobile_companies() {
         $info = array('phone'=>1);
         $sort = array('company_name'=>'ASC');
         $defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),

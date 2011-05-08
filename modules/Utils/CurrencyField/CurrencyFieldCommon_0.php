@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CurrencyFieldCommon extends ModuleCommon {
-	public function format($val, $currency=null) {
+	public static function format($val, $currency=null) {
 		if (!isset($currency) || !$currency) {
 			$val = self::get_values($val);
 			$currency = $val[1];
@@ -37,13 +37,13 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $ret;
 	}
 	
-	public function get_values($p) {
+	public static function get_values($p) {
 		if (!is_array($p)) $p = explode('__', $p);
 		if (!isset($p[1])) $p[1] = Base_User_SettingsCommon::get('Utils_CurrencyField', 'default_currency');
 		return $p;
 	}
 	
-	public function format_default($v, $c=null) {
+	public static function format_default($v, $c=null) {
 		if ($c===null) {
 			$c = explode('__',$v);
 			if (!isset($c[1])) {
@@ -57,7 +57,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $v.'__'.$c;
 	}
 
-	public function user_settings() {
+	public static function user_settings() {
 		$currency_options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
 		$decimal_point_options = DB::GetAssoc('SELECT id, decimal_sign FROM utils_currency WHERE active=1');
 		return array('Regional settings'=>array(
@@ -101,7 +101,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $cache;
 	}
 	
-	public function admin_caption() {
+	public static function admin_caption() {
 		return 'Currencies';
 	}
 }

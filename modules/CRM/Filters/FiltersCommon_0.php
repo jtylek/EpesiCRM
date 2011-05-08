@@ -43,7 +43,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 		Base_ActionBarCommon::add('filter','Filters','class="lbOn" rel="crm_filters"');
 	}
 
-	public function set_profile($prof) {
+	public static function set_profile($prof) {
 		if(preg_match('/^c([0-9,]+)$/',$prof,$reqs)) {
 			$ret = $reqs[1];
 			if(strpos($ret,',')===false)

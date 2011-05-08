@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_ReportCommon extends ModuleCommon {
-	public function menu() {
+	public static function menu() {
 		return array('Tests'=>array('__submenu__'=>1, 'Reports - Companies'=>array()));	
 	}
 

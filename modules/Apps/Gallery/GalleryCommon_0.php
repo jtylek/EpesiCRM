@@ -22,8 +22,9 @@ class Apps_GalleryCommon extends ModuleCommon {
 		return "Displays image from your gallery"; //here can be associative array
 	}
 
-	public function _applet_settings() {
-		$dir = $this->get_data_dir().Acl::get_user().'/';
+	public static function applet_settings() {
+        $i = self::Instance();
+		$dir = $i->get_data_dir().Acl::get_user().'/';
 		$images = array();
 		if(file_exists($dir) && is_dir($dir)) {
 			$images_tmp = preg_tree($dir,'/\.(jpg|jpeg|png|gif)$/i');
@@ -39,13 +40,9 @@ class Apps_GalleryCommon extends ModuleCommon {
 			$ret[] = array('name'=>'image','label'=>'Choose image','type'=>'select','values'=>$images,'default'=>$def,'rule'=>array(array('message'=>'Field required', 'type'=>'required')));
 			$ret[] = array('name'=>'size','label'=>'Maximum size','type'=>'select','values'=>array(100=>'100x100',200=>'200x200',300=>'300x300'),'default'=>200,'rule'=>array(array('message'=>'Field required', 'type'=>'required')));
 		} else {
-			$ret[] = array('name'=>'no_img','type'=>'static','label'=>'','values'=>Base_LangCommon::ts($this->get_type(),'No images in your gallery'));
+			$ret[] = array('name'=>'no_img','type'=>'static','label'=>'','values'=>Base_LangCommon::ts($i->get_type(),'No images in your gallery'));
 		}
 		return $ret;
-	}
-
-	public static function applet_settings() {
-		return self::Instance()->_applet_settings();
 	}
 
 }

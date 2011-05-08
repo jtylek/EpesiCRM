@@ -303,13 +303,13 @@ class CRM_TasksCommon extends ModuleCommon {
 	///////////////////////////////////
 	// mobile devices
 
-	public function mobile_menu() {
+	public static function mobile_menu() {
 		if(!self::Instance()->acl_check('browse tasks'))
 			return array();
 		return array('Tasks'=>array('func'=>'mobile_tasks','color'=>'blue'));
 	}
 	
-	public function mobile_tasks() {
+	public static function mobile_tasks() {
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1);
 		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id']),'status'=>array(0,1)),array('deadline'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('priority'=>1, 'deadline'=>1,'longterm'=>1),$defaults);

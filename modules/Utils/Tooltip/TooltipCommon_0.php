@@ -84,7 +84,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string text with tooltip
 	 */
-	public function create( $text, $tip, $help=true, $max_width=300) {
+	public static function create( $text, $tip, $help=true, $max_width=300) {
 		self::show_help();
 		if((!$help || self::$help_tooltips) && is_string($tip) && $tip!=='')
 			return '<span '.self::open_tag_attrs($tip,$help,$max_width).'>'.$text.'</span>';
@@ -100,7 +100,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string text with tooltip
 	 */
-	public function ajax_create( $text, $callback, $args=array(), $max_width=300) {
+	public static function ajax_create( $text, $callback, $args=array(), $max_width=300) {
 		return '<span '.self::ajax_open_tag_attrs($callback,$args,$max_width).'>'.$text.'</span>';
 	}
 

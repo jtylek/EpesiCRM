@@ -1753,7 +1753,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return false;
     }
 
-    public function cut_string($str, $len, $tooltip=true, &$cut=null) {
+    public static function cut_string($str, $len, $tooltip=true, &$cut=null) {
         if ($len==-1) return $str;
         $ret = '';
         $strings = explode('<br>',$str);

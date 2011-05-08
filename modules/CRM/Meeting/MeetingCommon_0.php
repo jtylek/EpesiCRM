@@ -191,7 +191,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		}
 	}
 
-	public function check_my_user($arg) {
+	public static function check_my_user($arg) {
 		if($arg[0]!=='me') return true;
 		$sub = array_filter(explode('__SEP__',$arg[1]));
 		$me = CRM_ContactsCommon::get_my_record();
@@ -870,13 +870,13 @@ class CRM_MeetingCommon extends ModuleCommon {
 	///////////////////////////////////
 	// mobile devices
 
-	public function mobile_menu() {
+	public static function mobile_menu() {
 		if(!self::Instance()->acl_check('browse meetings'))
 			return array();
 		return array('Meetings'=>array('func'=>'mobile_meetings','color'=>'blue'));
 	}
 	
-	public function mobile_meetings() {
+	public static function mobile_meetings() {
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1);
 		Utils_RecordBrowserCommon::mobile_rb('crm_meeting',array('employees'=>array($me['id'])),array('date'=>'ASC', 'time'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('date'=>1,'time'=>1,'priority'=>1,'longterm'=>1),$defaults);
