@@ -1290,7 +1290,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$tag_id = 'rb_fav_button_'.$tab.'_'.$id;
 		return '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?self::ts('This item is on your favorites list<br>Click to remove it from your favorites'):self::ts('Click to add this item to favorites'))).' onclick="utils_recordbrowser_set_favorite('.($isfav?0:1).',\''.$tab.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.($isfav==false?$star_off:$star_on).'" /></a>';
 	}
-    public function set_favs($tab, $id, $state) {
+    public static function set_favs($tab, $id, $state) {
         self::check_table_name($tab);
 		if ($state) {
 			if (DB::GetOne('SELECT * FROM '.$tab.'_favorite WHERE user_id=%d AND '.$tab.'_id=%d', array(Acl::get_user(), $id))) return;
