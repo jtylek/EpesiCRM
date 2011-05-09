@@ -86,8 +86,10 @@ class ClientRequester implements IClient {
         }
 
         if ($unserialize) {
-            $r = unserialize($output);
-            // TODO: unserialize error handling
+            // handle unserialization error
+            if($output == serialize(false)) return false;
+            $r = @unserialize($output);
+            if($r === false) throw new ErrorException("Unserialize error");
             return $r;
         } else
             return $output;
