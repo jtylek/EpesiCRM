@@ -1701,25 +1701,25 @@ class Utils_RecordBrowser extends Module {
             array('name'=>$this->t('Table view'), 'width'=>5),
             array('name'=>$this->t('Required'), 'width'=>5),
             array('name'=>$this->t('Filter'), 'width'=>5),
-            array('name'=>$this->t('Parameters'), 'width'=>5))
-        );
+            array('name'=>$this->t('Parameters'), 'width'=>5),
+            array('name'=>$this->t('Display callback'), 'width'=>5),
+            array('name'=>$this->t('QFfield callback'), 'width'=>5)
+		));
+		
+		$display_callbacbacks = DB::GetAssoc('SELECT field, callback FROM '.$this->tab.'_callback WHERE freezed=1');
+		$QFfield_callbacbacks = DB::GetAssoc('SELECT field, callback FROM '.$this->tab.'_callback WHERE freezed=0');
 
         //read database
         $rows = end($this->table_rows);
 		$rows = $rows['position'];
         foreach($this->table_rows as $field=>$args) {
             $gb_row = $gb->get_new_row();
-            if($args['extra']) {
-                if ($args['type'] != 'page_split') {
-                    $gb_row->add_action($this->create_callback_href(array($this, 'view_field'),array('edit',$field)),'Edit');
-                } else {
-                    $gb_row->add_action($this->create_callback_href(array($this, 'delete_page'),array($field)),'Delete');
-                    $gb_row->add_action($this->create_callback_href(array($this, 'edit_page'),array($field)),'Edit');
-                }
-            } else {
-                if ($field!='General' && $args['type']=='page_split')
-                    $gb_row->add_action($this->create_callback_href(array($this, 'edit_page'),array($field)),'Edit');
-            }
+			if ($args['type'] != 'page_split') {
+				$gb_row->add_action($this->create_callback_href(array($this, 'view_field'),array('edit',$field)),'Edit');
+			} elseif ($field!='General') {
+				$gb_row->add_action($this->create_callback_href(array($this, 'delete_page'),array($field)),'Delete');
+				$gb_row->add_action($this->create_callback_href(array($this, 'edit_page'),array($field)),'Edit');
+			}
             if ($args['type']!=='page_split' && $args['extra']){
                 if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate', null, 'active-on');
                 else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate', null, 'active-off');
@@ -1737,17 +1737,32 @@ class Utils_RecordBrowser extends Module {
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
+                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
+                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>'')
                     );
-                else
+                else {
+					if (isset($display_callbacbacks[$field])) {
+						$d_c = '<b>Yes</b>';
+						if (!is_callable(explode('::', $display_callbacbacks[$field]))) $d_c = '<span style="color:red;font-weight:bold;">Invalid!</span>';
+						$d_c = Utils_TooltipCommon::create($d_c, $display_callbacbacks[$field], false);
+					} else $d_c = '';
+					if (isset($QFfield_callbacbacks[$field])) {
+						$QF_c = '<b>Yes</b>';
+						if (!is_callable(explode('::', $QFfield_callbacbacks[$field]))) $QF_c = '<span style="color:red;font-weight:bold;">Invalid!</span>';
+						$QF_c = Utils_TooltipCommon::create($QF_c, $QFfield_callbacbacks[$field], false);
+					} else $QF_c = '';
                     $gb_row->add_data(
                         $field,
                         $args['type'],
                         $args['visible']?$this->t('<b>Yes</b>'):$this->t('No'),
                         $args['required']?$this->t('<b>Yes</b>'):$this->t('No'),
                         $args['filter']?$this->t('<b>Yes</b>'):$this->t('No'),
-                        is_array($args['param'])?serialize($args['param']):$args['param']
+                        is_array($args['param'])?serialize($args['param']):$args['param'],
+						$d_c,
+						$QF_c
                     );
+				}
         }
         $this->display_module($gb);
     }
@@ -1773,7 +1788,8 @@ class Utils_RecordBrowser extends Module {
             'integer'=>'integer',
             'float'=>'float',
             'text'=>'text',
-            'long text'=>'long text'
+            'long text'=>'long text',
+			'commondata'=>'commondata'
         );
         natcasesort($data_type);
 
@@ -1797,9 +1813,10 @@ class Utils_RecordBrowser extends Module {
 
 
         if ($action=='edit') {
-            $row = DB::GetRow('SELECT field, type, visible, required, param, filter FROM '.$this->tab.'_field WHERE field=%s',array($field));
+            $row = DB::GetRow('SELECT field, type, visible, required, param, filter, extra FROM '.$this->tab.'_field WHERE field=%s',array($field));
             $form->setDefaults($row);
             $form->addElement('static', 'select_data_type', $this->t('Data Type'), $row['type']);
+			if (!$row['extra']) $form->freeze('field');
             $selected_data= $row['type'];
         } else {
             $form->addElement('select', 'select_data_type', $this->t('Data Type'), $data_type);
@@ -1816,10 +1833,27 @@ class Utils_RecordBrowser extends Module {
                     $form->addRule('text_length', $this->t('Must be a number greater than 0.'), 'regex', '/^[1-9][0-9]*$/');
                 }
                 break;
+			case 'commondata':
+				$form->addElement('text', 'commondata_table', $this->t('CommonData table'));
+				$form->addElement('select', 'select_type', $this->t('Type'), array('select'=>$this->t('Select'), 'multi'=>$this->t('Multiselect')));
+				$form->addElement('select', 'order_by', $this->t('Order by'), array('key'=>$this->t('Key'), 'value'=>$this->t('Value')));
+				$form->addRule('commondata_table', $this->t('Field required'), 'required');
+				break;
         }
         $form->addElement('checkbox', 'visible', $this->t('Table view'));
         $form->addElement('checkbox', 'required', $this->t('Required'));
         $form->addElement('checkbox', 'filter', $this->t('Filter enabled'));
+
+        $form->addElement('header', null, $this->t('Callbacks (for advanced users)'));
+        $form->addElement('text', 'display_callback', $this->t('Display'), array('maxlength'=>255, 'style'=>'width:300px'));
+        $form->addElement('text', 'QFfield_callback', $this->t('QFfield'), array('maxlength'=>255, 'style'=>'width:300px'));
+		
+		if ($action=='edit') {
+			$display_callbacback = DB::GetOne('SELECT callback FROM '.$this->tab.'_callback WHERE freezed=1 AND field=%s', array($field));
+			$QFfield_callbacback = DB::GetOne('SELECT callback FROM '.$this->tab.'_callback WHERE freezed=0 AND field=%s', array($field));
+			$form->setDefaults(array('display_callback'=>$display_callbacback));
+			$form->setDefaults(array('QFfield_callback'=>$QFfield_callbacback));
+		}
 
         $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
         $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
@@ -1828,19 +1862,34 @@ class Utils_RecordBrowser extends Module {
         if ($form->validate()) {
             $data = $form->exportValues();
             $data['field'] = trim($data['field']);
+			$type = DB::GetOne('SELECT type FROM '.$this->tab.'_field WHERE field=%s', array($field));
+			if (!isset($data['select_data_type'])) $data['select_data_type'] = $type;
             if ($action=='add')
                 $field = $data['field'];
             $id = preg_replace('/[^a-z0-9]/','_',strtolower($field));
             $new_id = preg_replace('/[^a-z0-9]/','_',strtolower($data['field']));
             if (preg_match('/^[a-z0-9_]*$/',$id)==0) trigger_error('Invalid column name: '.$field);
             if (preg_match('/^[a-z0-9_]*$/',$new_id)==0) trigger_error('Invalid new column name: '.$data['field']);
+			$param = '';
+			switch ($data['select_data_type']) {
+				case 'text': if ($action=='add') $param = $data['text_length'];
+								break;
+				case 'commondata':
+							if ($data['select_type']=='select') {
+								$param = Utils_RecordBrowserCommon::encode_commondata_param(array('order_by_key'=>$data['order_by']=='key', 'array_id'=>$data['commondata_table']));
+							} else {
+								$param = '__COMMON__::'.$data['commondata_table'];
+								$data['select_data_type'] = 'multiselect';
+							}
+							break;
+			}
             if ($action=='add') {
                 $id = $new_id;
                 if (in_array($data['select_data_type'], array('time','timestamp','currency','integer')))
                     $style = $data['select_data_type'];
                 else
                     $style = '';
-                Utils_RecordBrowserCommon::new_record_field($this->tab, $data['field'], $data['select_data_type'], 0, 0, isset($data['text_length'])?$data['text_length']:'', $style);
+                Utils_RecordBrowserCommon::new_record_field($this->tab, $data['field'], $data['select_data_type'], 0, 0, $param, $style);
             }
             if(!isset($data['visible']) || $data['visible'] == '') $data['visible'] = 0;
             if(!isset($data['required']) || $data['required'] == '') $data['required'] = 0;
@@ -1855,7 +1904,6 @@ class Utils_RecordBrowser extends Module {
                 if(DATABASE_DRIVER=='postgres')
                     DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$new_id);
                 else {
-                    $type = DB::GetOne('SELECT type FROM '.$this->tab.'_field WHERE field=%s', array($field));
                     $param = DB::GetOne('SELECT param FROM '.$this->tab.'_field WHERE field=%s', array($field));
                     DB::RenameColumn($this->tab.'_data_1', 'f_'.$id, 'f_'.$new_id, Utils_RecordBrowserCommon::actual_db_type($type, $param));
                 }
@@ -1865,6 +1913,15 @@ class Utils_RecordBrowser extends Module {
             DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
                         array($new_id, $id));
             DB::CompleteTrans();
+			
+			DB::Execute('DELETE FROM '.$this->tab.'_callback WHERE freezed=1 AND field=%s', array($field));
+			if ($data['display_callback'])
+				DB::Execute('INSERT INTO '.$this->tab.'_callback (callback,freezed,field) VALUES (%s,1,%s)', array($data['display_callback'], $field));
+				
+			DB::Execute('DELETE FROM '.$this->tab.'_callback WHERE freezed=0 AND field=%s', array($field));
+			if ($data['QFfield_callback'])
+				DB::Execute('INSERT INTO '.$this->tab.'_callback (callback,freezed,field) VALUES (%s,0,%s)', array($data['QFfield_callback'], $field));
+			
             $this->init(true, true);
             return false;
         }
