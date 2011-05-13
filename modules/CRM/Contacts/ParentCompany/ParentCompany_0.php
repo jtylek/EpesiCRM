@@ -16,6 +16,11 @@ class CRM_Contacts_ParentCompany extends Module {
 	
 	}
 
+	public function parent_company_addon($arg) {
+		$rb = $this->init_module('Utils/RecordBrowser','company','parent_company_addon');
+		$this->display_module($rb, array(array('parent_company'=>$arg['id']), array(), array('company_name'=>'ASC')), 'show_data');
+	}
+	
 }
 
 ?>

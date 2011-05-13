@@ -15,10 +15,12 @@ class CRM_Contacts_ParentCompanyInstall extends ModuleInstall {
 	public function install() {
         Utils_RecordBrowserCommon::new_record_field('company', 
 	    		array('name'=>'Parent Company',	'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('CRM_Contacts_ParentCompanyCommon','parent_company_crits')), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true,'position'=>'Phone'));
+		Utils_RecordBrowserCommon::new_addon('company', 'CRM_Contacts_ParentCompany', 'parent_company_addon', 'Child Companies');
 		return true;
 	}
 	
 	public function uninstall() {
+		Utils_RecordBrowserCommon::delete_addon('company', 'CRM_Contacts_ParentCompany', 'parent_company_addon');
         Utils_RecordBrowserCommon::delete_record_field('company', 'Parent Company');
 		return true;
 	}
