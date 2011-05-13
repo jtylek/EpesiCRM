@@ -79,7 +79,7 @@ class Utils_Tree extends Module {
 				$this->_sub++;
 			}
 			foreach( $t as $k => $v ) {
-				$ret .= '<div id=utils_tree_node_'.$this->_id.' class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
+				$ret .= '<div id=utils_tree_node_'.$this->_id.' class=utils_tree_node onmouseover=\'if(typeof(utils_tree_hl)!="undefined")utils_tree_hl(this)\' onmouseout=\'if(typeof(utils_tree_rg)!="undefined")utils_tree_rg(this)\'><table><tr>';
 				if(isset($v['sub']) && count($v['sub']) > 0)
 					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle('.$this->_id.', '.($this->_sub).')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src="'.Base_ThemeCommon::get_template_file($this->get_type(),'opener_active_closed.gif').'"></td>';
 				else
