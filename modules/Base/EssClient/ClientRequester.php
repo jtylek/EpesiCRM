@@ -48,6 +48,10 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
+    public function get_registered_data() {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
     public function set_client_license_key($license_key) {
         $this->license_key = $license_key;
     }
@@ -87,9 +91,11 @@ class ClientRequester implements IClient {
 
         if ($unserialize) {
             // handle unserialization error
-            if($output == serialize(false)) return false;
+            if ($output == serialize(false))
+                return false;
             $r = @unserialize($output);
-            if($r === false) throw new ErrorException("Unserialize error");
+            if ($r === false)
+                throw new ErrorException("Unserialize error");
             return $r;
         } else
             return $output;

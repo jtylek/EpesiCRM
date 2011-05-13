@@ -20,14 +20,21 @@ interface IClient {
 
     /**
      * Get installation status.
+     *
      * @return string|false Installation status or false on error.
      */
     function get_installation_status();
 
     /**
+     * Get company data stored on server.
+     * 
+     * @return array registered data.
+     */
+    function get_registered_data();
+
+    /**
      * Register installation and request temporary client identifier.
      *
-     * @todo specify data in registration
      * @param array data from registration form
      * @return string|bool temporary client identifier, true on successful data update or false on any error
      */

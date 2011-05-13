@@ -19,21 +19,26 @@ class Base_EssClient extends Module {
 
     public function admin() {
         if ($this->is_back()) {
-            return $this->parent->reset();
+            $this->parent->reset();
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 //        Variable::set("license_key", '');
 
         if (Base_EssClientCommon::get_license_key() == "") {
-            return $this->register();
+            $this->navigate('register');
         } else {
-            echo Base_EssClientCommon::get_license_key() . "<br/>";
-            echo Base_EssClientCommon::server()->get_installation_status() . "<br/>";
+            print($this->t('Your installation is registered.') . '<br/>');
+            $data = Base_EssClientCommon::server()->get_registered_data();
+            print('<a ' . $this->create_callback_href(array($this, 'navigate'), array('register', array($data))) . '>' . $this->t('Edit registered company details') . '</a>');
         }
-
     }
 
-    public function register() {
+    public function register($data = null) {
+        if ($this->is_back()) {
+            $this->pop_main();
+        }
+        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+
         $f = $this->init_module('Libs/QuickForm');
 
         $f->addElement('text', 'company_name', $this->t('Company name'), array('maxlength' => 128));
@@ -81,25 +86,46 @@ class Base_EssClient extends Module {
         $f->addRule('tax_id', $this->t('Field required'), 'required');
         $f->addRule('tax_id', $this->t('Max length exceeded'), 'maxlength', 64);
 
-        $f->setDefaults(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()));
+        if($data) {
+            $f->setDefaults($data);
+        } else {
+            $f->setDefaults(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()));
+        }
 
         Base_ActionBarCommon::add('send', 'Register', $f->get_submit_form_href());
 
         if ($f->validate()) {
             $ret = $f->exportValues();
 
-            $lic = Base_EssClientCommon::server()->register_client_id_request($ret);
+            $ret = Base_EssClientCommon::server()->register_client_id_request($ret);
 
-            if ($lic) {
-                Base_EssClientCommon::set_license_key($lic);
+            if($ret) {
+                if(is_string($ret))
+                    Base_EssClientCommon::set_license_key($ret);
 
                 Base_StatusBarCommon::message($this->t('Registered successfully'));
+                $this->pop_main();
             } else {
+                print($this->t("Some kind of error! :("));
                 Base_StatusBarCommon::message($this->t('Registration error'));
             }
-//		   	Epesi::redisplay();
         }
         $f->display();
+    }
+
+    public function navigate($func, $params = array()) {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        if (!$x)
+            trigger_error('There is no base box module instance', E_USER_ERROR);
+        $x->push_main('Base/EssClient', $func, $params);
+        return false;
+    }
+
+    public function pop_main() {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        if (!$x)
+            trigger_error('There is no base box module instance', E_USER_ERROR);
+        $x->pop_main();
     }
 
 }
