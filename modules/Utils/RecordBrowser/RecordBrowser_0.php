@@ -1833,11 +1833,25 @@ class Utils_RecordBrowser extends Module {
                     $form->addRule('text_length', $this->t('Must be a number greater than 0.'), 'regex', '/^[1-9][0-9]*$/');
                 }
                 break;
+			case 'multiselect':
+				if ($action=='edit') {
+					list($tab, $col) = explode('::', $row['param']);
+					if ($tab=='__COMMON__') {
+						$row['param'] = '__'.$col;
+						$form->setDefaults(array('select_type'=>'multi'));
+					} else {
+						break;
+					}
+				}
 			case 'commondata':
 				$form->addElement('text', 'commondata_table', $this->t('CommonData table'));
 				$form->addElement('select', 'select_type', $this->t('Type'), array('select'=>$this->t('Select'), 'multi'=>$this->t('Multiselect')));
 				$form->addElement('select', 'order_by', $this->t('Order by'), array('key'=>$this->t('Key'), 'value'=>$this->t('Value')));
 				$form->addRule('commondata_table', $this->t('Field required'), 'required');
+				if ($action=='edit') {
+					$param = Utils_RecordBrowserCommon::decode_commondata_param($row['param']);
+					$form->setDefaults(array('order_by'=>$param['order_by_key']?'key':'value', 'commondata_table'=>$param['array_id']));
+				}
 				break;
         }
         $form->addElement('checkbox', 'visible', $this->t('Table view'));
@@ -1855,9 +1869,12 @@ class Utils_RecordBrowser extends Module {
 			$form->setDefaults(array('QFfield_callback'=>$QFfield_callbacback));
 		}
 
-        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('back', 'Cancel', $this->create_back_href());
+		
+/*        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
         $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
-        $form->addGroup(array($ok_b, $cancel_b));
+        $form->addGroup(array($ok_b, $cancel_b));*/
 
         if ($form->validate()) {
             $data = $form->exportValues();
