@@ -148,6 +148,7 @@ hr.line {
 	left: 0px;
 	top: 0px;       
 	z-index: 10;
+	background-color: #F0F0F0;
 }
 
 #ActionBar {
@@ -174,11 +175,40 @@ hr.line {
 
 #top_bar #top_bar_1 .menu-bar {
 	height: 20px;
+	width: 85px;
 	text-align: left;
 	background-color: #595959;
 	background-image: url('images/header-black.png');
 	background-repeat: repeat-x;
 }
+
+#top_bar #top_bar_1 .home-bar {
+	height: 20px;
+	width: 85px;
+	text-align: left;
+	background-color: #595959;
+	background-image: url('images/header-black.png');
+	background-repeat: repeat-x;
+	border-right: 3px solid #B3B3B3;
+
+}
+
+#top_bar #top_bar_1 .home-bar .home-bar-icon {
+	margin: auto 0px auto 5px ;
+	width: 14px; 
+	height: 14px; 
+	float: left;
+	background-image: url("images/home-small.png");
+}
+
+.home-bar-tekst {
+	font-size: 11px;
+	color: white;
+	font-weight: bold;
+	text-align: center;
+	overflow: auto;
+	float:right; 
+	width: 60px; }
 
 #top_bar #top_bar_1 .powered {
     vertical-align: middle;
@@ -270,41 +300,84 @@ hr.line {
 }
 
 #top_bar #top_bar_2 .logo {
-	width: 205px;
-	height: 73px;
+	width: 200px;
+	height: 78px;
 	text-align: left;
 	vertical-align: top;
-	background-image: url('images/action-bar-left.png');
-	background-repeat: no-repeat;
-	padding-top: 5px;
+	padding-top: 6px;
 	padding-left: 5px;
 }
+
+.shadow_css3_logo_border {
+	width: 193px;
+	height: 68px;
+	margin: 0 auto auto 3px;
+	-webkit-box-shadow: 0px 0px 5px #000000;
+	-moz-box-shadow: 0px 0px 5px #000000;
+	box-shadow: 0px 0px 5px #000000;
+	background-color: #fff;
+	padding: 0px;}
 
 #top_bar #top_bar_2 .logo img {
 }
 
 #top_bar #top_bar_2 .icons {
 	width: auto;
+	vertical-align: top;
+	padding-top: 6px;
 	height: 78px;
-	background-image: url('images/action-bar-center.png');
-	background-repeat: repeat-x;
 }
 
+.shadow_css3_icons_border {	
+	width: 99%;
+	height: 68px;
+	margin: auto;
+	-webkit-box-shadow: 0px 0px 5px #000000;
+	-moz-box-shadow: 0px 0px 5px #000000;
+	box-shadow: 0px 0px 5px #000000;
+	background-color: #fff;
+	padding: 0px;}
+	
+.icons_launchpad {
+    width: 90px;
+    height: 78px;
+    vertical-align: top;
+    padding-top: 6px;
+    border: 0px solid blue;}
+.shadow_css3_icons_launchpad_border {
+	width: 85px;
+	height: 68px;
+	margin: 0 3px auto auto;
+	-webkit-box-shadow: 0px 0px 5px #000000;
+	-moz-box-shadow: 0px 0px 5px #000000;
+	box-shadow: 0px 0px 5px #000000;
+	background-color: #fff;
+	padding: 0px;}	
+	
 #top_bar #top_bar_2 #login-search-td {
-	width: 297px;
+	width: 288px;
 	height: 78px;
-	background-image: url('images/action-bar-right.png');
-	background-repeat: no-repeat;
     vertical-align: top;
     padding-top: 6px;
 }
+
+.shadow_css3_login-search-td_border  {
+	width: 282px;
+	height: 68px;
+	margin: 0 4px auto auto;
+	-webkit-box-shadow: 0px 0px 5px #000000;
+	-moz-box-shadow: 0px 0px 5px #000000;
+	box-shadow: 0px 0px 5px #000000;
+	background-color: #fff;
+	padding: 0px;}
+
 
 #top_bar #top_bar_2 .login {
 	height: 20px;
     padding-top: 1px;
 	vertical-align: top;
 	text-align: left;
-    padding-left: 19px;
+    padding-left: 9px;
 }
 
 #top_bar #top_bar_2 .login a {
@@ -321,7 +394,7 @@ hr.line {
 	height: 20px;
 	vertical-align: top;
 	text-align: left;
-	padding-left: 13px;
+	padding-left: 3px;
     padding-top: 2px;
 }
 
@@ -334,7 +407,7 @@ hr.line {
 	text-align: left;
     vertical-align: top;
     padding-top: 2px;
-    padding-left: 13px;
+    padding-left: 3px;
 }
 
 #top_bar #top_bar_2 .filter a {
