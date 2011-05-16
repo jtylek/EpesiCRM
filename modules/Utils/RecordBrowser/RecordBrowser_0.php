@@ -1898,6 +1898,8 @@ class Utils_RecordBrowser extends Module {
 								$param = '__COMMON__::'.$data['commondata_table'];
 								$data['select_data_type'] = 'multiselect';
 							}
+							if ($action!='add')
+								DB::Execute('UPDATE '.$this->tab.'_field SET param=%s WHERE field=%s', array($param, $field));
 							break;
 			}
             if ($action=='add') {
