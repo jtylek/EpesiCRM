@@ -82,11 +82,11 @@ class ClientRequester implements IClient {
 
         curl_close($ch);
         if ($errno != '') {
-            print($filename . ' download returned cURL error: ' . $errno);
+            throw new ErrorException("cURL error: $errno");
         }
 
         if ($response_code == '404' || $response_code == '403') {
-            return $response_code;
+            throw new ErrorException("HTTP Response Code $response_code");
         }
 
         if ($unserialize) {
