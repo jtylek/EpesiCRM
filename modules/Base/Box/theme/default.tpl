@@ -18,6 +18,12 @@
 		<tbody>
 			<tr>
 				<td class="menu-bar">{$menu}</td>
+				<td class="home-bar">
+					<div class="home-bar-icon"></div>
+					<div class="home-bar-tekst">
+						Home <!------- Insert Launchpad code and delete "Home" text!!! ------->
+					</div>
+				</td>
 				<td class="powered" nowrap="1"><a href="http://www.epesibim.com" target="_blank" style="color:white;"><b>epesi</b> powered</a> {$version_no}</td>
 				{if isset($donate)}
 					<td class="donate" nowrap="1">{$donate}</td>
@@ -32,14 +38,19 @@
 			<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
 			<tbody>
 				<tr>
-					<td class="logo">{$logo}</td>
-					<td class="icons">{$actionbar}</td>
-					<td id="login-search-td">
-						<div id="search-login-bar">
-							<div class="login">{$login}</div>
-							<div class="search" id="search_box">{$search}</div>
-							<div class="filter" id="filter_box">{$filter}</div>
+					<td class="logo"><div class="shadow_css3_logo_border">{$logo}</div></td>
+					<td class="icons"><div class="shadow_css3_icons_border">{$actionbar}</div></td>
+					<td class="icons_launchpad">
+						<div class="shadow_css3_icons_launchpad_border"> 
+							<!------- Insert Launchpad code !!! ------->
 						</div>
+					</td>
+					<td id="login-search-td">
+						<div class="shadow_css3_login-search-td_border">
+								<div class="login">{$login}</div>
+								<div class="search" id="search_box">{$search}</div>
+								<div class="filter" id="filter_box">{$filter}</div>
+						</div>	
 					</td>
 				</tr>
 			</tbody>
