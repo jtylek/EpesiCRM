@@ -28,9 +28,25 @@ class Base_EssClient extends Module {
             $this->navigate('register');
         } else {
             print($this->t('Your installation is registered.') . '<br/>');
-            $data = Base_EssClientCommon::server()->get_registered_data();
-            print('<a ' . $this->create_callback_href(array($this, 'navigate'), array('register', array($data))) . '>' . $this->t('Edit registered company details') . '</a>');
+            $status = Base_EssClientCommon::server()->get_installation_status();
+            print($this->t('Installation status is: ') . $this->t($status) . '<br/>');
+            if(strcasecmp($status, "validated") == 0) {
+                print('<a ' . $this->create_callback_href(array($this, 'confirm_installation')) . '>' . $this->t('Confirm Installation') . '</a></br>');
+            }
+            print('<a ' . $this->create_callback_href(array($this, 'edit_data')) . '>' . $this->t('Edit registered company details') . '</a>');
         }
+    }
+
+    public function confirm_installation() {
+        $r = Base_EssClientCommon::server()->register_client_id_confirm();
+        $color = $r ? 'green' : 'red';
+        $text = $r ? 'Installation confirmed!' : 'Confirmation error!';
+        print('<div style="color: ' . $color . '">' . $this->t($text) . '</div>');
+    }
+
+    public function edit_data() {
+        $data = Base_EssClientCommon::server()->get_registered_data();
+        $this->navigate('register', array($data));
     }
 
     public function register($data = null) {
