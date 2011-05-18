@@ -355,7 +355,7 @@ class Epesi {
 					$debug .= 'Reloading missing '.$k.'<hr>';
 				if(isset($v['span']))
 					self::text($v['value'], $v['span']);
-				if($v['js'])
+				if(isset($v['js']) && $v['js'])
 					self::js(join(";",$v['js']));
 				$reloaded[$k] = true;
 			}
