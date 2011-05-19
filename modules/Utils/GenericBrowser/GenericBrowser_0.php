@@ -860,8 +860,8 @@ class Utils_GenericBrowser extends Module {
 
 		$headers = array();
 		if ($this->en_actions) {
-			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: 0%"');
-			else $headers[count($this->columns)] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: 0%"');
+			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: 1%;"');
+			else $headers[count($this->columns)] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: 1%;"');
 		}
 
 		$all_width = 0;
