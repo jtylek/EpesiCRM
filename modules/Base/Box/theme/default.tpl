@@ -18,10 +18,10 @@
 		<tbody>
 			<tr>
 				<td class="menu-bar">{$menu}</td>
-				<td class="home-bar">
+				<td class="home-bar" {$home.href}>
 					<div class="home-bar-icon"></div>
-					<div class="home-bar-tekst">
-						Home <!------- Insert Launchpad code and delete "Home" text!!! ------->
+					<div class="home-bar-text">
+						{$home.label}
 					</div>
 				</td>
 				<td class="powered" nowrap="1"><a href="http://www.epesibim.com" target="_blank" style="color:white;"><b>epesi</b> powered</a> {$version_no}</td>
@@ -39,10 +39,14 @@
 			<tbody>
 				<tr>
 					<td class="logo"><div class="shadow_css3_logo_border">{$logo}</div></td>
-					<td class="icons"><div class="shadow_css3_icons_border">{$actionbar}</div></td>
-					<td class="icons_launchpad">
+					<td class="icons">
+						<div class="shadow_css3_icons_border">
+							{$actionbar}
+						</div>
+					</td>
+					<td class="icons_launchpad" id="launchpad_button_section" style="display:none;">
 						<div class="shadow_css3_icons_launchpad_border"> 
-							<!------- Insert Launchpad code !!! ------->
+							{$launchpad}
 						</div>
 					</td>
 					<td id="login-search-td">

@@ -14,6 +14,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ActionBar extends Module {
+	private static $launchpad;
 
 	/**
 	 * Compares two action bar entries to determine order.
@@ -75,7 +76,7 @@ class Base_ActionBar extends Module {
 			$opts = Base_Menu_QuickAccessCommon::get_options();
 			if(!empty($opts)) {
 				$dash = ($mod=ModuleManager::get_instance('/Base_Box|0')) && ($main=$mod->get_main_module()) && $main->get_type()=='Base_Dashboard';
-				$launchpad = array();
+				self::$launchpad = array();
 				foreach ($opts as $k=>$v) {
 					if($dash && Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_d')) {
 						$ii = array();
@@ -120,24 +121,8 @@ class Base_ActionBar extends Module {
 							$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
 						}
 						$ii['icon'] = $icon;
-						$launchpad[] = $ii;
+						self::$launchpad[] = $ii;
 					}
-				}
-				usort($launchpad,array($this,'compare_launcher'));
-				if(!empty($launchpad)) {
-					$icon = Base_ThemeCommon::get_template_file($this->get_type(),'launcher.png');
-					$th = & $this->pack_module('Base/Theme');
-					$th->assign('display_icon',$display_icon);
-					$th->assign('display_text',$display_text);
-					usort($launchpad,array($this,'compare_launcher'));
-					$th->assign('icons',$launchpad);
-					eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
-					ob_start();
-					$th->display('launchpad');
-					$lp_out = ob_get_clean();
-					$big = count($launchpad)>10;
-					Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,$this->t('Launchpad'),$big);
-					$launcher[] = array('label'=>$this->t('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
 				}
 			}
 		}
@@ -149,6 +134,40 @@ class Base_ActionBar extends Module {
 		$th->assign('icons',$icons);
 		$th->assign('launcher',array_reverse($launcher));
 		$th->display();
+	}
+	
+	public function launchpad() {
+		if(Acl::is_user())
+			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
+		else
+			$display_settings = 'both';
+		$display_icon = ($display_settings == 'both' || $display_settings == 'icons only');
+		$display_text = ($display_settings == 'both' || $display_settings == 'text only');
+
+		$launcher = array();
+		usort(self::$launchpad,array($this,'compare_launcher'));
+		if(!empty(self::$launchpad)) {
+			$icon = Base_ThemeCommon::get_template_file($this->get_type(),'launcher.png');
+			$th = & $this->pack_module('Base/Theme');
+			$th->assign('display_icon',$display_icon);
+			$th->assign('display_text',$display_text);
+			usort(self::$launchpad,array($this,'compare_launcher'));
+			$th->assign('icons',self::$launchpad);
+			eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
+			ob_start();
+			$th->display('launchpad');
+			$lp_out = ob_get_clean();
+			$big = count(self::$launchpad)>10;
+			Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,$this->t('Launchpad'),$big);
+			$launcher[] = array('label'=>$this->t('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
+			$th = & $this->pack_module('Base/Theme');
+			$th->assign('display_icon',$display_icon);
+			$th->assign('display_text',$display_text);
+			$th->assign('icons',array());
+			$th->assign('launcher',array_reverse($launcher));
+			$th->display();
+			eval_js('$("launchpad_button_section").style.display="";');
+		}
 	}
 
 }

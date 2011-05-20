@@ -175,7 +175,7 @@ hr.line {
 
 #top_bar #top_bar_1 .menu-bar {
 	height: 20px;
-	width: 85px;
+	width: 101px;
 	text-align: left;
 	background-color: #595959;
 	background-image: url('images/header-black.png');
@@ -184,13 +184,18 @@ hr.line {
 
 #top_bar #top_bar_1 .home-bar {
 	height: 20px;
-	width: 85px;
+	width: 101px;
 	text-align: left;
 	background-color: #595959;
 	background-image: url('images/header-black.png');
 	background-repeat: repeat-x;
 	border-right: 3px solid #B3B3B3;
+	cursor: pointer;
 
+}
+
+#top_bar #top_bar_1 .home-bar:hover {
+	background-image: url('images/header-green-dark.png');
 }
 
 #top_bar #top_bar_1 .home-bar .home-bar-icon {
@@ -198,14 +203,14 @@ hr.line {
 	width: 14px; 
 	height: 14px; 
 	float: left;
-	background-image: url("images/home-small.png");
+	background-image: url("Base/Box/home-small.png");
 }
 
-.home-bar-tekst {
+.home-bar-text {
 	font-size: 11px;
 	color: white;
 	font-weight: bold;
-	text-align: center;
+	text-align: left;
 	overflow: auto;
 	float:right; 
 	width: 60px; }
@@ -339,13 +344,13 @@ hr.line {
 	padding: 0px;}
 	
 .icons_launchpad {
-    width: 90px;
+    width: 75px;
     height: 78px;
     vertical-align: top;
     padding-top: 6px;
     border: 0px solid blue;}
 .shadow_css3_icons_launchpad_border {
-	width: 85px;
+	width: 70px;
 	height: 68px;
 	margin: 0 3px auto auto;
 	-webkit-box-shadow: 0px 0px 5px #000000;
