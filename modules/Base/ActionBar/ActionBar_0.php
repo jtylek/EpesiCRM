@@ -137,6 +137,7 @@ class Base_ActionBar extends Module {
 	}
 	
 	public function launchpad() {
+		if (self::$launchpad==null) then return;
 		if(Acl::is_user())
 			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
 		else
