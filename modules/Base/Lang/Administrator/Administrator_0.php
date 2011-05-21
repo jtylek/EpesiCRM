@@ -74,7 +74,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$trans_filter = $form2->toHtml();
 		
 		eval_js('lang_translate = function (module, original, span_id) {'.
-					'var ret = prompt("Translate: "+original);'.
+					'var ret = prompt("Translate: "+original, $(span_id).innerHTML);'.
 					'if (ret === null) return;'.
 					'$(span_id).innerHTML = ret;'.
 					'$(span_id).style.color = "red";'.
