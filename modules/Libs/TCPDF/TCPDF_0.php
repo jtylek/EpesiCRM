@@ -17,6 +17,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Libs_TCPDF extends Module {
+	public static $default_font = 'dejavusanscondensed';//'Helvetica';
 	public $tcpdf;
 	private static $lifetime = '-12 hours';
 	private $steps = array();
