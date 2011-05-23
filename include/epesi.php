@@ -34,9 +34,17 @@ class Epesi {
 			    foreach($css as $c2)
     			    $out[] = $c2;
 			} else  {
-    			$csses_build = new Minify_Build($css);
-	    		$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));
-		    	$out[] = $f;
+			    if(DEBUG_CSS) {
+			        foreach($css as $c2) {
+            			$csses_build = new Minify_Build(array($c2));
+	            		$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array($c2))));
+		            	$out[] = $f;
+			        }
+			    } else {
+        			$csses_build = new Minify_Build($css);
+	        		$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));
+		        	$out[] = $f;
+		        }
 		    }
 		}
 		return $out;
