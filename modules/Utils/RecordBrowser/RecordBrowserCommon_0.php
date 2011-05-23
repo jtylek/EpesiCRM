@@ -926,21 +926,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             if ($params[1]=='RefCD' || $tab2=='__COMMON__') {
                                 $ret = Utils_CommonDataCommon::get_translated_array($cols2!==null?$cols2:$cols);
                                 $allowed_cd = array();
-//                              print('<br>');
-//                              print_r($v);
                                 if (!is_array($v)) $v = array($v);
-//                              print('<br>');
                                 if ($noquotes && $operator=='LIKE') {
                                     $pat = explode('###',DB::Concat(DB::qstr('###'),DB::qstr('%')));
                                     foreach ($v as $g=>$w) if ($w!='') {
                                         $v[$g] = '^'.str_replace($pat, '', $w);
                                     }
                                 }
-//                              print_r($v);
-//                              print('<br>');
                                 foreach ($ret as $kkk=>$vvv)
                                     foreach ($v as $w) if ($w!='') {
-										if (preg_match('|'.preg_quote($w).'|',$vvv)!==0) {
+										if (preg_match('|'.preg_quote($w).'|i',$vvv)!==0) {
                                             $allowed_cd[] = $kkk;
                                             break;
                                         }
