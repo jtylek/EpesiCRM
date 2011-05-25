@@ -21,5 +21,21 @@ if(!MOBILE_DEVICE && class_exists('HTML_Quickform')) {
 	load_css('modules/Libs/CKEditor/frontend.css');
 /*	Libs_QuickFormCommon::add_on_submit_action("if(typeof(ckeditor_onsubmit)!='undefined')ckeditor_onsubmit(this)");*/
 }
-class Libs_CKEditorCommon extends ModuleCommon {}
+class Libs_CKEditorCommon extends ModuleCommon {
+    public static function QFfield_cb(&$form, $field, $label, $mode, $default) {
+        if ($mode=='add' || $mode=='edit') {
+            $fck = $form->addElement('ckeditor', $field, $label);
+            $fck->setFCKProps('800','300',true);
+            if ($mode=='edit') $form->setDefaults(array($field=>$default));
+        } else {
+            $form->addElement('static', $field, $label);
+            $form->setDefaults(array($field=>html_entity_decode($default)));
+        }
+    }
+
+    public static function display_cb($r, $nolink=false, $desc=null) {
+        return html_entity_decode(html_entity_decode($r[$desc['id']]));
+    }
+
+}
 ?> 
