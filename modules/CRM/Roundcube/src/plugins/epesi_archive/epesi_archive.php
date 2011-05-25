@@ -3,6 +3,7 @@ class epesi_archive extends rcube_plugin
 {
   public $task = 'mail';
   public $archive_mbox = 'Epesi Archive';
+  public $archive_sent_mbox = 'Epesi Archive Sent';
 
   function init()
   {
@@ -50,25 +51,35 @@ class epesi_archive extends rcube_plugin
       $rcmail->output->set_env('archive_mailbox', $this->archive_mbox);
       $rcmail->output->set_env('archive_mailbox_icon', $this->url($skin_path.'/foldericon.png'));
 
+      $rcmail->output->set_env('archive_sent_mailbox', $this->archive_sent_mbox);
+      $rcmail->output->set_env('archive_sent_mailbox_icon', $this->url($skin_path.'/foldericon.png'));
+
       // add archive folder to the list of default mailboxes
       if (($default_folders = $rcmail->config->get('default_imap_folders')) && !in_array($this->archive_mbox, $default_folders)) {
         $default_folders[] = $this->archive_mbox;
         $rcmail->config->set('default_imap_folders', $default_folders);
       }
 
-      if(!$rcmail->config->get('create_default_folders'))
-        $this->add_hook('list_mailboxes', array($this, 'add_mailbox'));
+      if (($default_folders = $rcmail->config->get('default_imap_folders')) && !in_array($this->archive_sent_mbox, $default_folders)) {
+        $default_folders[] = $this->archive_sent_mbox;
+        $rcmail->config->set('default_imap_folders', $default_folders);
+      }
+
+//      if(!$rcmail->config->get('create_default_folders'))
+      $this->add_hook('list_mailboxes', array($this, 'add_mailbox'));
     }
   }
 
   function render_mailboxlist($p)
   {
     $rcmail = rcmail::get_instance();
-    $archive_mbox = $this->archive_mbox;
 
     // set localized name for the configured archive folder
-    if (isset($p['list'][$archive_mbox]))
-        $p['list'][$archive_mbox]['name'] = $this->gettext('archivefolder');
+    if (isset($p['list'][$this->archive_mbox]))
+        $p['list'][$this->archive_mbox]['name'] = $this->gettext('archivefolder');
+
+    if (isset($p['list'][$this->archive_sent_mbox]))
+        $p['list'][$this->archive_sent_mbox]['name'] = $this->gettext('archivesentfolder');
 
     return $p;
   }
@@ -110,7 +121,7 @@ class epesi_archive extends rcube_plugin
     $rcmail = rcmail::get_instance();
     $uids = get_input_value('_uid', RCUBE_INPUT_POST);
     $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
-    if($mbox==$this->archive_mbox || $mbox==$rcmail->config->get('drafts_mbox')) {
+    if($mbox==$this->archive_mbox || $mbox==$this->archive_sent_mbox || $mbox==$rcmail->config->get('drafts_mbox')) {
         $rcmail->output->command('display_message', $this->gettext('invalidfolder'), 'error');
         $rcmail->output->send();
         return;
@@ -119,7 +130,10 @@ class epesi_archive extends rcube_plugin
     
     $uids = explode(',',$uids);
     if($this->archive($uids,$sent_mbox)) {
-        $rcmail->output->command('move_messages', $this->archive_mbox);
+        if($sent_mbox)
+            $rcmail->output->command('move_messages', $this->archive_sent_mbox);
+        else
+            $rcmail->output->command('move_messages', $this->archive_mbox);
         $rcmail->output->command('display_message', $this->gettext('archived'), 'confirmation');
 
         $rcmail->output->send();
@@ -140,7 +154,7 @@ class epesi_archive extends rcube_plugin
             }
             return false;
         } else {
-            $msgs[] = $msg;
+            $msgs[$uid] = $msg;
         }
     }
 
@@ -172,7 +186,7 @@ class epesi_archive extends rcube_plugin
     foreach($map as $k=>$ret) {
         if(!$ret && !isset($_SESSION['force_archive'][$k]) && $verbose) {
             $_SESSION['force_archive'][$k] = 1;
-            $rcmail->output->command('display_message', $this->gettext('contactnotfound').' '.$addr, 'error');
+            $rcmail->output->command('display_message', $this->gettext('contactnotfound'), 'error');
             $rcmail->output->send();
             return false;
         }
@@ -276,6 +290,11 @@ class epesi_archive extends rcube_plugin
             $rcmail->imap->create_mailbox($this->archive_mbox,true);
         elseif(!$rcmail->imap->mailbox_exists($this->archive_mbox,true))
             $rcmail->imap->subscribe($this->archive_mbox);
+
+        if(!$rcmail->imap->mailbox_exists($this->archive_sent_mbox))
+            $rcmail->imap->create_mailbox($this->archive_sent_mbox,true);
+        elseif(!$rcmail->imap->mailbox_exists($this->archive_sent_mbox,true))
+            $rcmail->imap->subscribe($this->archive_sent_mbox);
     }
   }
 
@@ -294,8 +313,16 @@ class epesi_archive extends rcube_plugin
     $uids = $IMAP->search_once('', 'HEADER Message-ID '.$msgid, true);
     if(empty($uids)) return;
     
-    $this->archive($uids,true,false);
+    $archived = $this->archive($uids,true,false);
+
+    if($archived)
+        $rcmail->output->command('move_messages', $this->archive_sent_mbox);
 
     $IMAP->set_mailbox($old_mbox);
+    
+    if($archived) {
+        $rcmail->output->command('display_message', $this->gettext('archived'), 'confirmation');
+        $rcmail->output->send();
+    }
   }
 }
