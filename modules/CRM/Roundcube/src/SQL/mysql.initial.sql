@@ -13,11 +13,11 @@ CREATE TABLE `rc_users` (
  `mail_host` varchar(128) NOT NULL,
  `alias` varchar(128) NOT NULL,
  `created` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
- `last_login` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
+ `last_login` datetime DEFAULT NULL,
  `language` varchar(5),
  `preferences` text,
  PRIMARY KEY(`user_id`),
- INDEX `username_index` (`username`),
+ UNIQUE `username` (`username`, `mail_host`),
  INDEX `alias_index` (`alias`)
 );
 CREATE TABLE `rc_messages` (
@@ -60,7 +60,7 @@ CREATE TABLE `rc_contacts` (
  `changed` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
  `del` tinyint(1) NOT NULL DEFAULT '0',
  `name` varchar(128) NOT NULL DEFAULT '',
- `email` varchar(128) NOT NULL,
+ `email` varchar(255) NOT NULL,
  `firstname` varchar(128) NOT NULL DEFAULT '',
  `surname` varchar(128) NOT NULL DEFAULT '',
  `vcard` text NULL,

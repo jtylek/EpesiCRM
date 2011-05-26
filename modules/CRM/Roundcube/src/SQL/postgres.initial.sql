@@ -9,11 +9,11 @@ CREATE TABLE rc_users (
     mail_host varchar(128) DEFAULT '' NOT NULL,
     alias varchar(128) DEFAULT '' NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    last_login timestamp with time zone DEFAULT now() NOT NULL,
+    last_login timestamp with time zone DEFAULT NULL,
     "language" varchar(5),
-    preferences text DEFAULT ''::text NOT NULL
+    preferences text DEFAULT ''::text NOT NULL,
+    CONSTRAINT users_username_key UNIQUE (username, mail_host)
 );
-CREATE INDEX rc_users_username_id_idx ON rc_users (username);
 CREATE INDEX rc_users_alias_id_idx ON rc_users (alias);
 CREATE TABLE "rc_session" (
     sess_id varchar(40) DEFAULT '' PRIMARY KEY,
@@ -58,7 +58,7 @@ CREATE TABLE rc_contacts (
     changed timestamp with time zone DEFAULT now() NOT NULL,
     del smallint DEFAULT 0 NOT NULL,
     name varchar(128) DEFAULT '' NOT NULL,
-    email varchar(128) DEFAULT '' NOT NULL,
+    email varchar(255) DEFAULT '' NOT NULL,
     firstname varchar(128) DEFAULT '' NOT NULL,
     surname varchar(128) DEFAULT '' NOT NULL,
     vcard text
