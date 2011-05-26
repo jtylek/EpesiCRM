@@ -36,6 +36,8 @@ class epesi_autorelogon extends rcube_plugin
     if (!empty($account)) {
       $args['user'] = $account['f_login'];
       $args['pass'] = $account['f_password'];
+      $args['cookiecheck'] = false;
+      $args['valid'] = true;
     }
 
     return $args;

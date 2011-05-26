@@ -20,6 +20,8 @@ class epesi_archive extends rcube_plugin
     $this->include_script('archive.js');
     $skin_path = $rcmail->config->get('skin_path');
     $this->add_texts('localization', true);
+
+    $this->add_hook('messages_list', array($this, 'list_messages'));
     
     if($rcmail->action == 'compose') {
         $this->add_button(
@@ -324,5 +326,16 @@ class epesi_archive extends rcube_plugin
         $rcmail->output->command('display_message', $this->gettext('archived'), 'confirmation');
         $rcmail->output->send();
     }
+  }
+  
+  function list_messages($p) {
+    global $IMAP;
+    $mbox = $IMAP->get_mailbox_name();
+    if($mbox=='Epesi Archive Sent') {
+        foreach($p['cols'] as &$c) {
+            if($c=='from') $c = 'to';
+        }
+    }
+    return $p;
   }
 }
