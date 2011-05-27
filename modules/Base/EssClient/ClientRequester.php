@@ -85,8 +85,11 @@ class ClientRequester implements IClient {
             throw new ErrorException("cURL error: $errno");
         }
 
-        if ($response_code == '404' || $response_code == '403') {
-            throw new ErrorException("HTTP Response Code $response_code");
+        if ($response_code == '404') {
+            throw new ErrorException("Server not available!");
+        }
+        if ($response_code == '403') {
+            throw new ErrorException("Authentication failed!");
         }
 
         if ($unserialize) {
@@ -95,7 +98,7 @@ class ClientRequester implements IClient {
                 return false;
             $r = @unserialize($output);
             if ($r === false)
-                throw new ErrorException("Unserialize error");
+                throw new ErrorException("Unserialize error $output");
             return $r;
         } else
             return $output;

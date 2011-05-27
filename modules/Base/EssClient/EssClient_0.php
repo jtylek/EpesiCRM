@@ -17,12 +17,16 @@ class Base_EssClient extends Module {
         
     }
 
+    public function clear_license_key() {
+        Variable::set("license_key", '');
+    }
+
     public function admin() {
         if ($this->is_back()) {
             $this->parent->reset();
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-//        Variable::set("license_key", '');
+        Base_ActionBarCommon::add('delete', 'Clear license key', $this->create_callback_href(array($this, 'clear_license_key')));
 
         if (Base_EssClientCommon::get_license_key() == "") {
             $this->register_form();
@@ -111,7 +115,7 @@ class Base_EssClient extends Module {
             $f->addRule('admin_first_name', $this->t('Field required'), 'required');
             $f->addRule('admin_first_name', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'admin_first_name', $this->t('Administrator\'s last name'), array('maxlength' => 64));
+            $f->addElement('text', 'admin_last_name', $this->t('Administrator\'s last name'), array('maxlength' => 64));
             $f->addRule('admin_last_name', $this->t('Field required'), 'required');
             $f->addRule('admin_last_name', $this->t('Max length exceeded'), 'maxlength', 64);
 
@@ -151,18 +155,24 @@ class Base_EssClient extends Module {
 
                 $ret = Base_EssClientCommon::server()->register_client_id_request($ret);
 
+                $text = '';
+                $color = 'black';
                 if ($ret) {
                     if (is_string($ret))
                         Base_EssClientCommon::set_license_key($ret);
 
-                    print('<div style="color: green">' . $this->t("Registration successfull!") . '</div>');
-                    Base_StatusBarCommon::message($this->t('Registered successfully'));
+                    $text = ($data ? 'Update' : 'Registration') . ' successful';
+                    $color = 'green';
                 } else {
-                    print('<div style="color: red">' . $this->t("Some kind of error!") . '</div>');
-                    Base_StatusBarCommon::message($this->t('Registration error'));
+                    $text = 'Some kind of error!';
+                    $color = 'red';
                 }
+                print('<div style="color: ' . $color . '">' . $this->t($text) . '</div>');
+                Base_StatusBarCommon::message($this->t($text));
             } else {
-                Base_ActionBarCommon::add('send', 'Register', $f->get_submit_form_href());
+                Base_ActionBarCommon::add('send', $data ? 'Update' : 'Register', $f->get_submit_form_href());
+                if ($data && isset($data['status']) && $data['status'] == 'Confirmed')
+                    print($this->t('<div style="color: red">If you update company data, you need to confirm your installation once again!</div>'));
                 $f->display();
             }
         } else {
