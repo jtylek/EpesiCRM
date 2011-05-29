@@ -9,7 +9,8 @@
                             <div class="icon">
                                 {$i.open}
 									{if $display_icon}
-									<img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32">
+									<!-- <img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32"> -->
+									<div class="div_icon icon_{$i.icon}"></div>
 									{/if}
 									{if $display_text}
                                     <span style="font-size: 5px;">&nbsp;</span>

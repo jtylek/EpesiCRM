@@ -66,8 +66,8 @@ class Base_ActionBar extends Module {
 				$t = Utils_TooltipCommon::open_tag_attrs($i['label'].(($i['description'])?' - '.$description:''),false);
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
-			if (isset(Base_ActionBarCommon::$available_icons[$i['icon']]))
-				$i['icon'] = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/'.$i['icon'].'.png');
+			//if (isset(Base_ActionBarCommon::$available_icons[$i['icon']]))
+			//	$i['icon'] = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/'.$i['icon'].'.png');
 		}
 
 

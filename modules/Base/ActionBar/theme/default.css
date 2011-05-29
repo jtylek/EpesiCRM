@@ -73,3 +73,35 @@
 	/* to powoduje blad rozciagania sie w IE */
 	/*padding-top: 3px;*/
 }
+
+#Base_ActionBar #panel div.icon .div_icon {
+	width: 32px;
+	height: 32px;
+	background-image: url('Base/ActionBar/icons.png');
+}
+
+#Base_ActionBar #panel div.icon .icon_add       { background-position:   0px    0px; }
+#Base_ActionBar #panel div.icon .icon_all       { background-position: -32px    0px; }
+#Base_ActionBar #panel div.icon .icon_attach    { background-position: -64px    0px; }
+#Base_ActionBar #panel div.icon .icon_back      { background-position: -96px    0px; }
+#Base_ActionBar #panel div.icon .icon_calendar  { background-position:   0px  -32px; }
+#Base_ActionBar #panel div.icon .icon_clone     { background-position: -32px  -32px; }
+#Base_ActionBar #panel div.icon .icon_delete    { background-position: -64px  -32px; }
+#Base_ActionBar #panel div.icon .icon_edit      { background-position: -96px  -32px; }
+#Base_ActionBar #panel div.icon .icon_exit      { background-position:   0px  -64px; }
+#Base_ActionBar #panel div.icon .icon_favorites { background-position: -32px  -64px; }
+#Base_ActionBar #panel div.icon .icon_filter    { background-position: -64px  -64px; }
+#Base_ActionBar #panel div.icon .icon_folder    { background-position: -96px  -64px; }
+#Base_ActionBar #panel div.icon .icon_forward   { background-position:   0px  -96px; }
+#Base_ActionBar #panel div.icon .icon_history   { background-position: -32px  -96px; }
+#Base_ActionBar #panel div.icon .icon_home      { background-position: -64px  -96px; }
+#Base_ActionBar #panel div.icon .icon_new-mail  { background-position: -96px  -96px; }
+#Base_ActionBar #panel div.icon .icon_print     { background-position:   0px -128px; }
+#Base_ActionBar #panel div.icon .icon_reply     { background-position: -32px -128px; }
+#Base_ActionBar #panel div.icon .icon_report    { background-position: -64px -128px; }
+#Base_ActionBar #panel div.icon .icon_save      { background-position: -96px -128px; }
+#Base_ActionBar #panel div.icon .icon_scan      { background-position:   0px -160px; }
+#Base_ActionBar #panel div.icon .icon_search    { background-position: -32px -160px; }
+#Base_ActionBar #panel div.icon .icon_send      { background-position: -64px -160px; }
+#Base_ActionBar #panel div.icon .icon_settings  { background-position: -96px -160px; }
+#Base_ActionBar #panel div.icon .icon_view      { background-position:   0px -192px; }
