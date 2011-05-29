@@ -37,8 +37,12 @@ class Base_EssClient extends Module {
             $data = Base_EssClientCommon::server()->get_registered_data();
             $data['license_key'] = Base_EssClientCommon::get_license_key();
             $data['status'] = Base_EssClientCommon::server()->get_installation_status();
+            // handle different status messages
+            if (strcasecmp($data['status'], "new") == 0 || strcasecmp($data['status'], "updated") == 0) {
+                print($this->t('<div style="color: red">Wait for your company data validation by our service and come back here to confirm installation!</div>'));
+            }
             if (strcasecmp($data['status'], "validated") == 0) {
-                print('<a ' . $this->create_callback_href(array($this, 'confirm_installation')) . '>' . $this->t('Confirm Installation') . '</a><br/><br/>');
+                print('<a class="button" ' . $this->create_callback_href(array($this, 'confirm_installation')) . '>' . $this->t('Confirm Installation') . '</a><br/>');
             }
             Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'navigate'), array('register_push_main', array($data))));
             $this->register_form(false, $data);
@@ -124,6 +128,8 @@ class Base_EssClient extends Module {
             $f->addRule('admin_email', $this->t('Max length exceeded'), 'maxlength', 128);
             $f->addRule('admin_email', $this->t('Invalid e-mail address'), 'email');
         } else {
+            $this->add_static_field($f, 'status', 'Installation status', $data);
+            $this->add_static_field($f, 'license_key', 'License key', $data);
             $this->add_static_field($f, 'company_name', 'Company name', $data);
             $this->add_static_field($f, 'short_name', 'Short name', $data);
             $this->add_static_field($f, 'phone', 'Phone', $data);
@@ -139,8 +145,6 @@ class Base_EssClient extends Module {
             $this->add_static_field($f, 'admin_first_name', 'Administator first name', $data);
             $this->add_static_field($f, 'admin_last_name', 'Administator last name', $data);
             $f->addElement('static', 'admin_email', $admin_email_tooltip . $this->t('Administrator\'s email'), isset($data['admin_email']) ? $data['admin_email'] : '');
-            $this->add_static_field($f, 'license_key', 'License key', $data);
-            $this->add_static_field($f, 'status', 'Installation status', $data);
         }
 
         if ($edit) {
