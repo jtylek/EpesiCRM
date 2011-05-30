@@ -6,7 +6,7 @@
 	    <table id="Base_Search__Search" cellpadding="0" cellspacing="0" border="0">
 			<tr>
 				<td class="input">{$form_data.quick_search.html}</td>
-				<td class="submit">{$form_data.quick_search_submit.html}</td>
+				<td class="submit">{$form_data.quick_search_submit.html}<div class="search_icon"></div></td>
 			</tr>		
 		</table>
 	</form>

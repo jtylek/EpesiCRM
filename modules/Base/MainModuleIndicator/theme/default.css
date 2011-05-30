@@ -1,12 +1,12 @@
 .text {
     float: left;
-    width: 266px;
+    width: 281px;
 }
 
 .help {
-    float: left;
+    float: right;
     width: 21px;
-    text-align: left;
+  
 }
 
 .help img {

@@ -19,10 +19,12 @@
 			<tr>
 				<td class="menu-bar">{$menu}</td>
 				<td class="home-bar" {$home.href}>
-					<div class="home-bar-icon"></div>
-					<div class="home-bar-text">
-						{$home.label}
-					</div>
+					<div id="home-bar1">
+						<div class="home-bar-icon"></div>
+						<div class="home-bar-text">
+							{$home.label}
+						</div>
+					</div="home-bar1">
 				</td>
 				<td class="powered" nowrap="1"><a href="http://www.epesibim.com" target="_blank" style="color:white;"><b>epesi</b> powered</a> {$version_no}</td>
 				{if isset($donate)}

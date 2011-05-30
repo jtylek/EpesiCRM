@@ -66,8 +66,8 @@ class Base_User_Login extends Module {
 				Acl::set_user();
 				eval_js('document.location=\'index.php\';',false);
 			} else {
-				$theme->assign('logged_as', '<div style="float: left; width: 164px; padding-top: 3px; text-align: center;">'.$this->t('Logged as %s',array('<b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
-				$theme->assign('logout', '<a class="button" style="float: left;" '.$this->create_unique_href(array('logout'=>1)).'>'.$this->t('Logout').'</a>');
+				$theme->assign('logged_as', '<div style="float: left; width: 154px; padding-top: 3px; text-align: center;">'.$this->t('Logged as %s',array('<b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
+				$theme->assign('logout', '<a class="button logout_icon" style="float: left;" '.$this->create_unique_href(array('logout'=>1)).'>'.$this->t('Logout').'<div ></div></a>');
 				$theme->display();
 			}
 			return;
