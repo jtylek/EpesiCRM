@@ -57,8 +57,6 @@ function pagefooter(){
 </body>
 
 </html>
-</body>
-</html>
 <!-- End of Footer -->
 <?php
 }
