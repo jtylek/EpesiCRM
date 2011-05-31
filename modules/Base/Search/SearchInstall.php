@@ -32,6 +32,7 @@ class Base_SearchInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Libs/QuickForm','version'=>0), 
+			array('name'=>'CRM/Acl','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Box','version'=>0));
 	}

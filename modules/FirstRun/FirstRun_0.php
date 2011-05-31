@@ -157,6 +157,12 @@ class FirstRun extends Module {
 		}
 
 		Acl::set_user($user_id);
+		$uid = Base_AclCommon::get_acl_user_id(Acl::get_user());
+		if($uid !== false) {
+			$groups_old = Base_AclCommon::get_user_groups($uid);
+			Base_AclCommon::change_privileges(Acl::get_user(), array_merge($groups_old,array(Base_AclCommon::get_group_id('Employee Administrator'),Base_AclCommon::get_group_id('Customer Administrator'))));
+		}
+
 		Variable::set('anonymous_setup',false);
 		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
 

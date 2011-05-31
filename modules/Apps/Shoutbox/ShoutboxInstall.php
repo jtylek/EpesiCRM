@@ -47,6 +47,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Acl','version'=>0),
+			array('name'=>'CRM/Acl','version'=>0),
 			array('name'=>'Base/User','version'=>0),
 			array('name'=>'Utils/BBCode', 'version'=>0), 
 			array('name'=>'Base/Lang','version'=>0),

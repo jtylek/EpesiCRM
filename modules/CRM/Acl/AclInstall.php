@@ -15,14 +15,6 @@ class CRM_AclInstall extends ModuleInstall {
 		if($ret) $ret = Acl::add_groups(array('Customer'=>array('Customer Manager'=>array('Customer Administrator'))));
 		if($ret) $ret = Acl::add_groups(array('Employee'=>array('Employee Manager'=>array('Employee Administrator'))));
 
-		if($ret) {
-			$uid = Base_AclCommon::get_acl_user_id(Acl::get_user());
-			if($uid !== false) {
-				$groups_old = Base_AclCommon::get_user_groups($uid);
-				Base_AclCommon::change_privileges(Acl::get_user(), array_merge($groups_old,array(Base_AclCommon::get_group_id('Employee Administrator'),Base_AclCommon::get_group_id('Customer Administrator'))));
-			}
-		}
-
 		return $ret;
 	}
 
@@ -41,7 +33,9 @@ class CRM_AclInstall extends ModuleInstall {
 	}
 
 	public function requires($v) {
-		return array(array('name'=>'Base/Acl','version'=>0));
+		return array(
+					array('name'=>'Base/Acl','version'=>0),
+					array('name'=>'Base/User','version'=>0));
 	}
 }
 ?>
