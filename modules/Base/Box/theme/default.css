@@ -430,7 +430,13 @@ hr.line {
 	padding-top: 1px;
 	padding-left: 5px;
 }
-
+.content_shadow_css3 {
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px #2F4F4F;
+	-moz-box-shadow: 1px 1px 3px #2F4F4F;
+	box-shadow: 1px 1px 3px #2F4F4F;
+	/* end css3 shadow border*/}
+	
 .shadow_css3_logo_border {
 	width: 193px;
 	height: 78px;
