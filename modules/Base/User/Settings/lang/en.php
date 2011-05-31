@@ -770,4 +770,9 @@ $translations['Base_User_Settings']['Default notes permission']='';
 $translations['Base_User_Settings']['Public']='';
 $translations['Base_User_Settings']['Protected']='';
 $translations['Base_User_Settings']['Private']='';
+$translations['Base_User_Settings']['Assets']='';
+$translations['Base_User_Settings']['Browsing records']='';
+$translations['Base_User_Settings']['Notes Aggregate']='';
+$translations['Base_User_Settings']['Language']='';
+$translations['Base_User_Settings']['Date & Time']='';
 ?>

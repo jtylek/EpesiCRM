@@ -5,21 +5,21 @@
  * @subpackage de
  */
 global $translations;
-$translations['Utils_GenericBrowser']['No records found']='Keine Einträge gefunden';
-$translations['Utils_GenericBrowser']['Number of rows per page']='Zahl der Zeilen pro Seite';
+$translations['Utils_GenericBrowser']['No records found']='Kein Eintrag gefunden';
+$translations['Utils_GenericBrowser']['Number of rows per page']='Anzahl Zeilen per Seite';
 $translations['Utils_GenericBrowser']['Page']='Seite';
 $translations['Utils_GenericBrowser']['Keyword']='Schlüsselwort';
-$translations['Utils_GenericBrowser']['search keyword...']='suche Schlüsselwort...';
-$translations['Utils_GenericBrowser']['Search']='Suche';
-$translations['Utils_GenericBrowser']['Records <b>%d</b> to <b>%d</b> of <b>%d</b>']='Einträge <b>%d</b> bis <b>%d</b> von <b>%d</b>';
+$translations['Utils_GenericBrowser']['search keyword...']='Schlüsselwort suchen...';
+$translations['Utils_GenericBrowser']['Search']='Suchen';
+$translations['Utils_GenericBrowser']['Records <b>%d</b> to <b>%d</b> of <b>%d</b>']='Eintrag %d bis %d von %d';
 $translations['Utils_GenericBrowser']['Next']='Weiter';
 $translations['Utils_GenericBrowser']['Last']='Ende';
 $translations['Utils_GenericBrowser']['Advanced Search']='Erweiterte Suche';
 $translations['Utils_GenericBrowser']['edit']='bearbeiten';
-$translations['Utils_GenericBrowser']['View']='Anzeigen';
+$translations['Utils_GenericBrowser']['View']='Sehen';
 $translations['Utils_GenericBrowser']['Edit']='Bearbeiten';
 $translations['Utils_GenericBrowser']['Delete']='Löschen';
-$translations['Utils_GenericBrowser']['All']='Alles';
+$translations['Utils_GenericBrowser']['All']='Alle';
 $translations['Utils_GenericBrowser']['info']='info';
 $translations['Utils_GenericBrowser']['Deactivate']='Deaktivieren';
 $translations['Utils_GenericBrowser']['This record was never edited']='Dieser Eintrag wurde nie bearbeited';
@@ -32,4 +32,9 @@ $translations['Utils_GenericBrowser']['First']='Anfang';
 $translations['Utils_GenericBrowser']['Prev']='Zurück';
 $translations['Utils_GenericBrowser']['Simple Search']='Einfache Suche';
 $translations['Utils_GenericBrowser']['View edit history']='Zeige "Bearbeite Verlauf"';
+$translations['Utils_GenericBrowser']['New Event']='Neues Ereignis';
+$translations['Utils_GenericBrowser']['New Task']='Neue Aufgabe';
+$translations['Utils_GenericBrowser']['New Phonecall']='Neuer Anruf';
+$translations['Utils_GenericBrowser']['New Note']='Neue Notiz';
+$translations['Utils_GenericBrowser']['Restore']='Wiederherstellen';
 ?>

@@ -24,4 +24,8 @@ $translations['Base_Admin']['PHP & SQL Errors to mail']='Błedy PHP i SQL wysył
 $translations['Base_Admin']['Module indicator settings']='Ustawienia wskaźnika lokacji';
 $translations['Base_Admin']['Printing options']='Ustawienia drukowania';
 $translations['Base_Admin']['Mail client settings']='Ustawienia klienta poczty';
+$translations['Base_Admin']['Currencies']='Waluty';
+$translations['Base_Admin']['Download modules']='Ściągnij moduły';
+$translations['Base_Admin']['Title and logo']='Tytuł i logo';
+$translations['Base_Admin']['Outgoing mail global signature']='Globalny podpis wychodzącej poczty';
 ?>

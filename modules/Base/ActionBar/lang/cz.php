@@ -95,7 +95,6 @@ $translations['Base_ActionBar']['Show main company contacts']='Ukázat kontakty 
 $translations['Base_ActionBar']['Fax']='Fax';
 $translations['Base_ActionBar']['Empty trash']='Vypráznit koš';
 $translations['Base_ActionBar']['Split']='Rozdělit';
-$translations['Base_ActionBar']['Calendar']='Kalendář';
 $translations['Base_ActionBar']['Attach to record']='Přidat k záznamu';
 $translations['Base_ActionBar']['Move & Notify']='Přesunout & Upozornit';
 ?>

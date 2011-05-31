@@ -97,4 +97,9 @@ $translations['Base_Menu']['LicenseManager']='';
 $translations['Base_Menu']['Diagnosis']='';
 $translations['Base_Menu']['Bug tracker']='';
 $translations['Base_Menu']['Fax']='';
+$translations['Base_Menu']['Assets']='';
+$translations['Base_Menu']['List Manager']='';
+$translations['Base_Menu']['Sales Opportunity']='';
+$translations['Base_Menu']['User Activity Report']='';
+$translations['Base_Menu']['Translations']='';
 ?>

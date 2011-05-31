@@ -6,7 +6,7 @@
  */
 global $translations;
 $translations['Base_User_Login']['Logged as %s']='Zalogowany jako %s';
-$translations['Base_User_Login']['Logout']='Wyloguj się';
+$translations['Base_User_Login']['Logout']='Wyloguj';
 $translations['Base_User_Login']['Logging in']='Trwa logowanie';
 $translations['Base_User_Login']['Login']='Logowanie';
 $translations['Base_User_Login']['Username']='Użytkownik';

@@ -218,4 +218,5 @@ $translations['Base_Dashboard']['Behavioring patients display settings']='';
 $translations['Base_Dashboard']['Patient Issues settings']='';
 $translations['Base_Dashboard']['Patient Issues display settings']='';
 $translations['Base_Dashboard']['Patient Issues']='';
+$translations['Base_Dashboard']['Sales Opportunities']='';
 ?>

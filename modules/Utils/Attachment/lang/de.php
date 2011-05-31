@@ -12,4 +12,6 @@ $translations['Utils_Attachment']['User']='Benutzer';
 $translations['Utils_Attachment']['Date']='Datum';
 $translations['Utils_Attachment']['Note']='Notiz';
 $translations['Utils_Attachment']['Attachment']='Anhang';
+$translations['Utils_Attachment']['New note']='Neue Notiz';
+$translations['Utils_Attachment']['Source']='Quelle';
 ?>

@@ -90,4 +90,9 @@ $translations['Base_Menu_QuickAccess']['Medical: Diagnosis']='';
 $translations['Base_Menu_QuickAccess']['CRM: Fax']='';
 $translations['Base_Menu_QuickAccess']['Bug tracker: Projects']='';
 $translations['Base_Menu_QuickAccess']['Bug tracker: Tickets']='';
+$translations['Base_Menu_QuickAccess']['Reports: User Activity Report']='';
+$translations['Base_Menu_QuickAccess']['CRM: Assets']='';
+$translations['Base_Menu_QuickAccess']['Translations']='';
+$translations['Base_Menu_QuickAccess']['CRM: List Manager']='';
+$translations['Base_Menu_QuickAccess']['CRM: Sales Opportunity']='';
 ?>

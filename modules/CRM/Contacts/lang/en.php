@@ -56,6 +56,7 @@ $translations['Utils_RecordBrowser:company']['Address 2']='';
 $translations['Utils_RecordBrowser:company']['Country']='';
 $translations['Utils_RecordBrowser:company']['Postal Code']='';
 $translations['Utils_RecordBrowser:company']['Tax ID']='';
+$translations['Utils_RecordBrowser:company']['Account Manager']='';
 $translations['Utils_RecordBrowser:contact']['Related Companies']='';
 $translations['Utils_RecordBrowser:contact']['Group']='';
 $translations['Utils_RecordBrowser:contact']['Last Name']='';

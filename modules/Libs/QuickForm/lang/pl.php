@@ -5,9 +5,11 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Libs_QuickForm']['denotes required field']='pole wymagane';
+$translations['Libs_QuickForm']['denotes required field']='oznacza pole wymagane';
 $translations['Libs_QuickForm']['Left']='Lewo';
 $translations['Libs_QuickForm']['Right']='Prawo';
 $translations['Libs_QuickForm']['Text too long']='Tekst jest zbyt długi';
 $translations['Libs_QuickForm']['Field required']='Pole wymagane';
+$translations['Libs_QuickForm']['Start typing to search...']='Zacznij pisać aby wyszukać...';
+$translations['Libs_QuickForm']['Remove']='Usuń';
 ?>

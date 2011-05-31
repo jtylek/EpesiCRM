@@ -22,8 +22,11 @@ $translations['CRM_Tasks']['Description: %s']='Opis: %s';
 $translations['CRM_Tasks']['New Phonecall']='Nowy telefon';
 $translations['CRM_Tasks']['Task: %s']='Zadanie: %s';
 $translations['CRM_Tasks']['Tasks']='Zadania';
-$translations['CRM_Tasks'][' - short term']=' - krótkoterm.';
+$translations['CRM_Tasks'][' - short term']='- krótkoterminowe';
 $translations['CRM_Tasks'][' - Related']=' - Związane';
 $translations['CRM_Tasks'][' - long term']=' - długoterm.';
-$translations['CRM_Tasks'][' - Todo']=' - Moje';
+$translations['CRM_Tasks'][' - Todo']='- Zadanie';
+$translations['Utils_RecordBrowser:task']['Title']='Tytuł';
+$translations['Utils_RecordBrowser:task']['Deadline']='Termin';
+$translations['Utils_RecordBrowser:task']['Status']='Status';
 ?>

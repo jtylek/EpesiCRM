@@ -25,6 +25,6 @@ $translations['Utils_PopupCalendar']['Wed']='Mi';
 $translations['Utils_PopupCalendar']['Thu']='Do';
 $translations['Utils_PopupCalendar']['Fri']='Fr';
 $translations['Utils_PopupCalendar']['Sat']='Sa';
-$translations['Utils_PopupCalendar']['Example date: %s']='Beispieldatum: %s';
+$translations['Utils_PopupCalendar']['Example date: %s']='Beispiel Datum: %s';
 $translations['Utils_PopupCalendar']['Select month']='Wähle Monat';
 ?>

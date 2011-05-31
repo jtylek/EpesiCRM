@@ -5,5 +5,5 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Utils_Tooltip']['Loading...']='';
+$translations['Utils_Tooltip']['Loading...']='Wczytywanie...';
 ?>

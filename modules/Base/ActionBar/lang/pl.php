@@ -59,5 +59,14 @@ $translations['Base_ActionBar']['Abandon ticket']='Porzuć ticket';
 $translations['Base_ActionBar']['Subscribe']='Subskrybuj';
 $translations['Base_ActionBar']['Check']='Sprawdź';
 $translations['Base_ActionBar']['New mail']='Nowa wiadomość';
+$translations['Base_ActionBar']['Export']='Eksport';
+$translations['Base_ActionBar']['Print']='Drukuj';
+$translations['Base_ActionBar']['Click 2 Fill']='Kliknij-wypełnij';
+$translations['Base_ActionBar']['Config']='Konfiguruj';
+$translations['Base_ActionBar']['Zarządzanie']='Zarządzanie';
+$translations['Base_ActionBar']['Delete logo']='Usuń logotyp';
+$translations['Base_ActionBar']['Refresh languages']='Odśwież listę języków';
+$translations['Base_ActionBar']['Add targets']='Dodaj obiekty';
+$translations['Base_ActionBar']['Commit selection']='Zatwierdź wybór';
 $translations['Base_ActionBar']['Send']='Wyślij';
 ?>

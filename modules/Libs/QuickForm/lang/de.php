@@ -11,4 +11,5 @@ $translations['Libs_QuickForm']['Right']='Rechts';
 $translations['Libs_QuickForm']['Text too long']='Text zu lang';
 $translations['Libs_QuickForm']['Field required']='Pflichtfeld';
 $translations['Libs_QuickForm']['Remove']='Entfernen';
+$translations['Libs_QuickForm']['Start typing to search...']='';
 ?>

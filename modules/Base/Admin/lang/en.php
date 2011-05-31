@@ -33,4 +33,5 @@ $translations['Base_Admin']['eCommerce']='';
 $translations['Base_Admin']['Checklists']='';
 $translations['Base_Admin']['Relations Administration']='';
 $translations['Base_Admin']['Download modules']='';
+$translations['Base_Admin']['Outgoing mail global signature']='';
 ?>

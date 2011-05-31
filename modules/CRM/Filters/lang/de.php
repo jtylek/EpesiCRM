@@ -18,4 +18,9 @@ $translations['CRM_Filters']['Description']='Beschreibung';
 $translations['CRM_Filters']['Users in category']='Benutzer in Kategorie';
 $translations['CRM_Filters']['Default filter']='Standardfilter';
 $translations['CRM_Filters']['Field required']='Benötigtes Feld';
+$translations['CRM_Filters']['Manage presets']='Voreinstellungen bearbeiten';
+$translations['CRM_Filters']['Show']='Zeige';
+$translations['CRM_Filters']['Saved Presets']='Gesicherte Voreinstellungen';
+$translations['CRM_Filters']['Perspective']='';
+$translations['CRM_Filters']['Perspective: ']='';
 ?>

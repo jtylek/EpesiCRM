@@ -105,4 +105,6 @@ $translations['Base_ActionBar']['Leave this trans.']='';
 $translations['Base_ActionBar']['Webcam']='';
 $translations['Base_ActionBar']['Add to my Trans.']='';
 $translations['Base_ActionBar']['Update Contacts']='';
+$translations['Base_ActionBar']['Rebuild modules database']='';
+$translations['Base_ActionBar']['Refresh languages']='';
 ?>

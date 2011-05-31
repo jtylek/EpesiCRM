@@ -25,6 +25,17 @@ $translations['Base_Menu']['Import']='Importuj';
 $translations['Base_Menu']['Reports']='Raporty';
 $translations['Base_Menu']['Tickets']='Tickety';
 $translations['Base_Menu']['Mail client']='Klient Poczty';
+$translations['Base_Menu']['My Contact']='Mój Kontakt';
+$translations['Base_Menu']['Main Company']='Moja Firma';
+$translations['Base_Menu']['Meetings']='Spotkania';
+$translations['Base_Menu']['User Activity Report']='Raport aktywności użytkowników';
+$translations['Base_Menu']['Sales Opportunity']='Szanse Sprzedaży';
+$translations['Base_Menu']['E-mail']='E-mail';
+$translations['Base_Menu']['Messenger alerts']='Alarmy komunikatora';
+$translations['Base_Menu']['Shoutbox']='Shoutbox';
+$translations['Base_Menu']['Translations']='Tłumaczenia';
+$translations['Base_Menu']['List Manager']='Menadżer List';
+$translations['Base_Menu']['Assets']='Wyposażenie';
 $translations['Base_Menu']['Projects']='Projekty';
 $translations['Base_Menu']['Tests']='Testy';
 ?>

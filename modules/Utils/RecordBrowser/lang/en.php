@@ -709,4 +709,7 @@ $translations['Utils_RecordBrowser']['Items Order Details']='';
 $translations['Utils_RecordBrowser']['Mail addresses']='';
 $translations['Utils_RecordBrowser']['Item Location']='';
 $translations['Utils_RecordBrowser']['Warehouse Items']='';
+$translations['Utils_RecordBrowser']['Show']='';
+$translations['Utils_RecordBrowser']['Subscribed']='';
+$translations['Utils_RecordBrowser']['Jump to record by ID']='';
 ?>

@@ -5,7 +5,7 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Utils_GenericBrowser']['No records found']='Żadnych danych nie znaleziono';
+$translations['Utils_GenericBrowser']['No records found']='Nie znaleziono żadnych danych';
 $translations['Utils_GenericBrowser']['View']='Oglądaj';
 $translations['Utils_GenericBrowser']['Edit']='Edycja';
 $translations['Utils_GenericBrowser']['Delete']='Usuń';
@@ -39,4 +39,8 @@ $translations['Utils_GenericBrowser']['Move down']='Przesuń w dół';
 $translations['Utils_GenericBrowser']['Move up']='Przesuń w górę';
 $translations['Utils_GenericBrowser']['Restore']='Przywróć';
 $translations['Utils_GenericBrowser']['Page (%s to %s)']='Strona (%s do %s)';
+$translations['Utils_GenericBrowser']['New Task']='Nowe zadanie';
+$translations['Utils_GenericBrowser']['New Event']='Nowe wydarzenie';
+$translations['Utils_GenericBrowser']['New Phonecall']='Nowy telefon';
+$translations['Utils_GenericBrowser']['New Note']='Nowa notatka';
 ?>

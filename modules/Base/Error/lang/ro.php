@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-base
- * @subpackage error
+ * @package epesi-translations
+ * @subpackage ro
  */
 global $translations;
 $translations['Base_Error']['Send bugs to']='Trimite probleme la';
