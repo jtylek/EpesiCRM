@@ -2628,7 +2628,60 @@ function update_from_1_1_5_to_1_1_6() {
         Base_ThemeCommon::uninstall_default_theme('Utils_ExportXLS');
 		ModuleManager::remove_data_dir('Utils_ExportXLS');
     }
+}
 
+$versions[] = '1.1.7';
+function update_from_1_1_6_to_1_1_7() {
+    ob_start();
+
+    if(ModuleManager::is_installed('Base_Dashboard')>=0) {
+        Acl::add_aco('Base_Dashboard','access',array('Employee', 'Administrator'));
+    }
+
+    if(ModuleManager::is_installed('Utils_Messenger')>=0) {
+	    Acl::add_aco('Utils_Messenger','access',array('Employee', 'Administrator'));
+    }
+
+    if(ModuleManager::is_installed('Premium_SalesOpportunity')>=0) {
+	    Acl::add_aco('Premium_SalesOpportunity','browse so',array('Employee'));
+    }
+
+    if(ModuleManager::is_installed('Premium_Projects_Tickets')>=0) {
+	    Acl::add_aco('Premium_Projects_Tickets', 'browse tickets',array('Employee'));
+    }
+
+    if(ModuleManager::is_installed('Base_Search')>=0) {
+	    Acl::add_aco('Base_Search', 'access',array('Employee', 'Administrator'));
+    }
+
+    if(ModuleManager::is_installed('Base_HomePage')>=0) {
+	    Acl::add_aco('Base_HomePage', 'menu access',array('Employee', 'Administrator'));
+    }
+
+    if(ModuleManager::is_installed('Premium_Warehouse')>=0) {
+	    Acl::del_aco('Premium_Warehouse', 'browse warehouses', array('Employee'));
+    	Acl::del_aco('Premium_Warehouse', 'view warehouses', array('Employee'));
+
+	    Acl::add_aco('Premium_Warehouse', 'browse warehouses', array('Employee'));
+    	Acl::add_aco('Premium_Warehouse', 'view warehouses', array('Employee'));
+    }
+
+    if(ModuleManager::is_installed('Base_User_Settings')>=0) {
+    	Acl::add_aco('Base_User_Settings', 'access',array('Employee', 'Administrator'));
+    }
+
+    if(ModuleManager::is_installed('Data_TaxRates')>=0) {
+	    Utils_RecordBrowserCommon::set_access_callback('data_tax_rates', array('Data_TaxRatesCommon', 'access_tax_rates'));
+    	Acl::add_aco('Data_TaxRates', 'browse tax rates',array('Employee Manager'));
+	    Acl::add_aco('Data_TaxRates', 'view tax rate',array('Employee Manager'));
+    	Acl::add_aco('Data_TaxRates', 'edit tax rate',array('Employee Manager'));
+	    Acl::add_aco('Data_TaxRates', 'delete tax rate',array('Employee Manager'));
+    }
+
+    if(ModuleManager::is_installed('Premium_Timesheet')>=0) {
+	    Acl::add_aco('Premium_Timesheet', 'view billing rates',array('Employee Manager'));
+    }
+    ob_end_clean();
 }
 //=========================================================================
 
