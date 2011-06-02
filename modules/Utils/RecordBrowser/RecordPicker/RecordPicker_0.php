@@ -12,11 +12,13 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_RecordBrowser_RecordPicker extends Module {
 	private $element;
 
-	public function body($tab, $element, $format=array(), $crits=array(), $cols=array(), $order=array(), $filters=array(), $filters_defaults=array()) {
+	public function body($tab, $element, $format=array(), $crits=array(), $cols=array(), $order=array(), $filters=array(), $filters_defaults=array(), $custom_filters=array()) {
 		$rb = $this->init_module('Utils/RecordBrowser', $tab, $tab.'_picker');
 		$rb->adv_search = true;
 		$rb->set_filters_defaults($filters_defaults);
 		$rb->disable_actions();
+		foreach($custom_filters as $field=>$arr)
+		    $rb->set_custom_filter($field,$arr);
 
 		$this->element = $element;
 
