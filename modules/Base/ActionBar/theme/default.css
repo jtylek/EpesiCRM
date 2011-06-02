@@ -41,21 +41,35 @@
 #Base_ActionBar table.ActionBar #panel div.icon a:link {
 	color: #336699;
 }
-
-.panel_div {
-	margin: 4px 6px 0 0; }
-
-.panel_div:hover {
+#Base_ActionBar table.ActionBar #panel div.icon a:hover {
+	color: #336699;
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px #2F4F4F;
-	-moz-box-shadow: 1px 1px 3px #2F4F4F;
-	box-shadow: 1px 1px 3px #2F4F4F;
+	-webkit-box-shadow: inset 1px 1px 3px gray;
+	-moz-box-shadow: inset 1px 1px 3px gray;
+	box-shadow: inset 1px 1px 3px gray;
 	/* end css3 shadow border*/
 	/* border radius css3 */
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	/* end border radius css3 */
+}
+.panel_div {
+	margin: 4px 6px 0 4px;
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px gray;
+	-moz-box-shadow: 1px 1px 3px gray;
+	box-shadow: 1px 1px 3px gray;
+	/* end css3 shadow border*/
+	/* border radius css3 */
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	/* end border radius css3 */
+}
+
+.panel_div:hover {
+
 }	
 	
 #Base_ActionBar table.ActionBar #panel div.icon a:hover {

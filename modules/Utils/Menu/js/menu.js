@@ -143,7 +143,7 @@ CustomMenubar = function(id, _layout) {
 			menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
 		}
 		if(layout[this.id] == 'horizontal' && this.depth == 0) {
-			menu_string[this.id] += '<a  href=# class=root_item_link_down><div class=root_item_link_down_arrow_box><div class=root_item_link_down_arrow_icon></div><div class=root_item_link_down_arrow>' + title + '</div><div></a>';
+			menu_string[this.id] += '<a  href=# class=root_item_link_down><div class=root_item_link_down_arrow_box><div class=root_item_link_down_arrow_icon></div><div class=root_item_link_down_arrow>' + title + '</div></div></a>';
 		} else {
 			menu_string[this.id] += '<a  href=# class=root_item_link_right><div class=root_item_link_right_arrow>' + title + '</div></a>';
 		}

@@ -64,28 +64,66 @@ input, textarea, select {
 	/* end border radius */
 	
 	/*dark css3 green background gradient */
-	background: #709c70; /* Old browsers */
+	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#709c70), color-stop(49%,#4d844d), color-stop(51%,#226622), color-stop(100%,#649464)); /* Chrome,Safari4+ */
 	background: -webkit-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Chrome10+,Safari5.1+ */
 	background: -o-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Opera11.10+ */
 	background: -ms-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* IE10+ */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#709C70', endColorstr='#649464',GradientType=0 ); /* IE6-9 */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64B164', endColorstr='#307030',GradientType=0); /* IE6-9 */
 	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
 	/* end dark css3 green background gradient */
 }
 
+.logged_as {
+	float: left;
+	width: 154px;
+	padding-top: 3px;
+	margin-right: 6px;
+	text-align: center;
+}
 
+.logout_css3_box {
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */
+
+    display: block;
+    height: 21px;
+    overflow: hidden;
+    width: 110px;
+}
+
+.logout_icon_img {
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	right: 11px;
+	top: 34px;
+	background: url("Base/Box/logout_icon.png") no-repeat right;
+}
 .logout_icon {
+	font-weight: normal;
+    color: #FFFFFF;
+    width: 110px;
+    line-height: 21px;
+    height: 22px;
+    display: block;
+    border: none;
+    text-align: center;
+    vertical-align: middle;
+	
 	/*dark css3 green background image gradient */
-	background: url("Base/Box/logout_icon.png") no-repeat right, #709c70; /* Old browsers */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -webkit-gradient(linear, left top, left bottom, color-stop(0%,#709c70), color-stop(49%,#4d844d), color-stop(51%,#226622), color-stop(100%,#649464)); /* Chrome,Safari4+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -webkit-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Chrome10+,Safari5.1+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -o-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Opera11.10+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -ms-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* IE10+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#709C70', endColorstr='#649464',GradientType=0 ); /* IE6-9 */
-	background: url("Base/Box/logout_icon.png") no-repeat right, linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
+	background: #226622; /* Old browsers */
+	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#709c70), color-stop(49%,#4d844d), color-stop(51%,#226622), color-stop(100%,#649464)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#35b135', endColorstr='#2d602d',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
 	/* end dark css3 green background gradient */
 }
 
@@ -102,7 +140,7 @@ input, textarea, select {
 	background: -webkit-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Chrome10+,Safari5.1+ */
 	background: -o-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Opera11.10+ */
 	background: -ms-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* IE10+ */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#226622', endColorstr='#226622',GradientType=0 ); /* IE6-9 */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5ada5a', endColorstr='#2d602d',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
 	/* end light css3 green background gradient */
     color: white;
@@ -110,14 +148,14 @@ input, textarea, select {
 .logout_icon:hover,
 .logout_icon:focus{
 	/*light css3 green background gradient */
-	background: url("Base/Box/logout_icon.png") no-repeat right, #226622; /* Old browsers */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -webkit-gradient(linear, left top, left bottom, color-stop(0%,#226622), color-stop(1%,#71b871), color-stop(49%,#58ab58), color-stop(51%,#379b37), color-stop(95%,#63b163), color-stop(100%,#226622)); /* Chrome,Safari4+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -webkit-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Chrome10+,Safari5.1+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -o-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Opera11.10+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, -ms-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* IE10+ */
-	background: url("Base/Box/logout_icon.png") no-repeat right, filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#226622', endColorstr='#226622',GradientType=0 ); /* IE6-9 */
-	background: url("Base/Box/logout_icon.png") no-repeat right, linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
+	background: #226622; /* Old browsers */
+	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#226622), color-stop(1%,#71b871), color-stop(49%,#58ab58), color-stop(51%,#379b37), color-stop(95%,#63b163), color-stop(100%,#226622)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5ada5a', endColorstr='#308630',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
 	/* end light css3 green background gradient */
 }
 hr.line {
@@ -166,7 +204,7 @@ hr.line {
 #body_content {
 /*    position: relative;*/
    /* position: absolute; */
-    margin-top: 114px;
+    margin-top: 119px;
     /*margin-top: 97px;*/
     width: 100%;
     padding: 0px;
@@ -199,12 +237,15 @@ hr.line {
 	left: 0px;
 	top: 0px;       
 	z-index: 10;
-	background-color: #F0F0F0;
+	background-color: transparent;
 }
 
+#MenuBar {
+	background-color: #F0F0F0;
+}
 #ActionBar {
     overflow: hidden;
-    height: 80px;
+    height: 90px;
 }
 
 #ShadowBar {
@@ -226,25 +267,25 @@ hr.line {
 
 #top_bar #top_bar_1 .menu-bar {
 	height: 20px;
-	width: 91px;
+	width: 104px;
 	text-align: left;
 }
 
 #top_bar #top_bar_1 #home-bar1 {
-	width: 97px;
+	width: 92px;
 	height: 22px;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	margin: 0 auto 0 0px;
+	margin: 0 9px 0 auto;
 	
 	/*dark css3 green background gradient */
-	background: #709c70; /* Old browsers */
+	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#709c70), color-stop(49%,#4d844d), color-stop(51%,#226622), color-stop(100%,#649464)); /* Chrome,Safari4+ */
 	background: -webkit-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Chrome10+,Safari5.1+ */
 	background: -o-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Opera11.10+ */
 	background: -ms-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* IE10+ */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#709C70', endColorstr='#649464',GradientType=0 ); /* IE6-9 */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64B164', endColorstr='#307030',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
 	/* end dark css3 green background gradient */
 	
@@ -263,14 +304,14 @@ hr.line {
 	background: -webkit-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Chrome10+,Safari5.1+ */
 	background: -o-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Opera11.10+ */
 	background: -ms-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* IE10+ */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#226622', endColorstr='#226622',GradientType=0 ); /* IE6-9 */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5ada5a', endColorstr='#308630',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
 	/* end light css3 green background gradient */
 }
 
 #top_bar #top_bar_1 .home-bar {
 	height: 30px;
-	width: 103px;
+	width: 105px;
 	text-align: left;
 	cursor: pointer;
 }
@@ -293,7 +334,7 @@ hr.line {
 	text-align: left;
 	overflow: auto;
 	float:right; 
-	width: 65px; 
+	width: 60px; 
 }
 	
 
@@ -420,6 +461,16 @@ hr.line {
 #top_bar #top_bar_2 {
 	width: 100%;
 	height: auto;
+	/* css3 transparent gradient */
+	background: #f0f0f0; /* Old browsers */
+	background: -moz-linear-gradient(top, #f0f0f0 0%, transparent 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0f0f0), color-stop(100%,transparent)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #f0f0f0 0%,transparent 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #f0f0f0 0%,transparent 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #f0f0f0 0%,transparent 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f0f0f0', endColorstr='transparent',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #f0f0f0 0%,transparent 100%); /* W3C */
+	/* end css3 transparent gradient */
 }
 
 #top_bar #top_bar_2 .logo {
@@ -445,9 +496,9 @@ hr.line {
 	padding: 0px;
 	overflow: hidden;
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px #2F4F4F;
-	-moz-box-shadow: 1px 1px 3px #2F4F4F;
-	box-shadow: 1px 1px 3px #2F4F4F;
+	-webkit-box-shadow: 1px 1px 6px #494949;
+	-moz-box-shadow: 1px 1px 6px #494949;
+	box-shadow: 1px 1px 6px #494949;
 	/* end css3 shadow border*/
 	
 	/* border bottom radius */
@@ -486,9 +537,9 @@ hr.line {
 	background-color: #fff;
 	padding: 0px;
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px #2F4F4F;
-	-moz-box-shadow: 1px 1px 3px #2F4F4F;
-	box-shadow: 1px 1px 3px #2F4F4F;
+	-webkit-box-shadow: 1px 1px 6px #494949;
+	-moz-box-shadow: 1px 1px 6px #494949;
+	box-shadow: 1px 1px 6px #494949;
 	/* end css3 shadow border*/
 	/* border bottom radius */
 	-webkit-border-top-left-radius: 0px;
@@ -519,9 +570,9 @@ hr.line {
 	background-color: #fff;
 	padding: 0px;
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px #2F4F4F;
-	-moz-box-shadow: 1px 1px 3px #2F4F4F;
-	box-shadow: 1px 1px 3px #2F4F4F;
+	-webkit-box-shadow: 1px 1px 6px #494949;
+	-moz-box-shadow: 1px 1px 6px #494949;
+	box-shadow: 1px 1px 6px #494949;
 	/* end css3 shadow border*/
 	/* border bottom radius */
 	-webkit-border-top-left-radius: 0px;
@@ -577,15 +628,10 @@ hr.line {
 
 #top_bar #top_bar_2 .login {
 	height: 20px;
-    padding-top: 3px;
+    padding-top: 2px;
 	vertical-align: top;
 	text-align: left;
     padding-left: 9px;
-}
-
-#top_bar #top_bar_2 .login a {
-    margin-left: 7px;
-	background-color: green;
 }
 
 #top_bar #top_bar_2 .login a:hover { 
@@ -608,84 +654,96 @@ hr.line {
     width: 277px;
 }
 
+.filter_css3_box {
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */
+
+    display: block;
+    height: 27px;
+    overflow: hidden;
+    width: 277px;
+}
+.filter_icon_img {
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	right: 11px;
+	top: 84px;
+	background: url("Base/Box/filter_icon.png") no-repeat right;
+}
 #top_bar #top_bar_2 .filter {
-	height: 22px;
+	height: auto;
 	text-align: left;
     vertical-align: top;
-    padding-top: 4px;
-    padding-left: 3px;
+    padding-top: 3px;
+	padding-left: 3px;
+	margin: auto;
 }
+
 
 #top_bar #top_bar_2 .filter a {
     color: white;
     cursor: pointer;
     display: block;
-    height: 19px;
+    height: 21px;
     width: 277px;
     padding-top: 6px;
     text-align: center;
     vertical-align: middle;
 	/*dark css3 green background image gradient */
-	background: url("Base/Box/filter_icon.png") no-repeat right, #709c70; /* Old browsers */
-	background: url("Base/Box/filter_icon.png") no-repeat left, -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -webkit-gradient(linear, left top, left bottom, color-stop(0%,#709c70), color-stop(49%,#4d844d), color-stop(51%,#226622), color-stop(100%,#649464)); /* Chrome,Safari4+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -webkit-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Chrome10+,Safari5.1+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -o-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Opera11.10+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -ms-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* IE10+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#709C70', endColorstr='#649464',GradientType=0 ); /* IE6-9 */
-	background: url("Base/Box/filter_icon.png") no-repeat right, linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
+	background: #226622; /* Old browsers */
+	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#709c70), color-stop(49%,#4d844d), color-stop(51%,#226622), color-stop(100%,#649464)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#35b135', endColorstr='#2d602d',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
 	/* end dark css3 green background gradient */
-
-	/* border radius */
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	border-radius: 6px;
-	/* end border radius */
 }
+
 
 #top_bar #top_bar_2 .filter a.disabled {
 	/* gray v1 css3 background gradient */
-	background: url("Base/Box/filter_icon.png") no-repeat right, #c6c6c6; /* Old browsers */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -moz-linear-gradient(top, #c6c6c6 0%, #939393 36%, #686868 63%, #c6c6c6 99%); /* FF3.6+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c6c6c6), color-stop(36%,#939393), color-stop(63%,#686868), color-stop(99%,#c6c6c6)); /* Chrome,Safari4+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -webkit-linear-gradient(top, #c6c6c6 0%,#939393 36%,#686868 63%,#c6c6c6 99%); /* Chrome10+,Safari5.1+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right,: -o-linear-gradient(top, #c6c6c6 0%,#939393 36%,#686868 63%,#c6c6c6 99%); /* Opera11.10+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -ms-linear-gradient(top, #c6c6c6 0%,#939393 36%,#686868 63%,#c6c6c6 99%); /* IE10+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#C6C6C6', endColorstr='#C6C6C6',GradientType=0 ); /* IE6-9 */
-	background: url("Base/Box/filter_icon.png") no-repeat right, linear-gradient(top, #c6c6c6 0%,#939393 36%,#686868 63%,#c6c6c6 99%); /* W3C */
+	background: #c6c6c6; /* Old browsers */
+	background: -moz-linear-gradient(top, #c6c6c6 0%, #939393 36%, #686868 63%, #c6c6c6 99%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c6c6c6), color-stop(36%,#939393), color-stop(63%,#686868), color-stop(99%,#c6c6c6)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #c6c6c6 0%,#939393 36%,#686868 63%,#c6c6c6 99%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #c6c6c6 0%,#939393 36%,#686868 63%,#c6c6c6 99%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #c6c6c6 0%,#939393 36%,#686868 63%,#c6c6c6 99%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#adadad', endColorstr='#898989',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #c6c6c6 0%,#939393 36%,#686868 63%,#c6c6c6 99%); /* W3C */
 	/* gray v1 css3 background gradient */
 	
-	/* border radius */
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	border-radius: 6px;
-	/* end border radius */
 
 }
 
 #top_bar #top_bar_2 .filter a:hover {
 	/*light css3 green background gradient */
-	background: url("Base/Box/filter_icon.png") no-repeat right, #226622; /* Old browsers */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -webkit-gradient(linear, left top, left bottom, color-stop(0%,#226622), color-stop(1%,#71b871), color-stop(49%,#58ab58), color-stop(51%,#379b37), color-stop(95%,#63b163), color-stop(100%,#226622)); /* Chrome,Safari4+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -webkit-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Chrome10+,Safari5.1+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -o-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Opera11.10+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -ms-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* IE10+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#226622', endColorstr='#226622',GradientType=0 ); /* IE6-9 */
-	background: url("Base/Box/filter_icon.png") no-repeat right, linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
+	background: #226622; /* Old browsers */
+	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#226622), color-stop(1%,#71b871), color-stop(49%,#58ab58), color-stop(51%,#379b37), color-stop(95%,#63b163), color-stop(100%,#226622)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5ada5a', endColorstr='#2d602d',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
 	/* end light css3 green background gradient */
 }
 
 #top_bar #top_bar_2 .filter a:hover.disabled {
 	/* gray v2 css3 background gradient */
-	background: url("Base/Box/filter_icon.png") no-repeat right, #c6c6c6; /* Old browsers */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -moz-linear-gradient(top, #c6c6c6 1%, #686868 37%, #939393 64%, #c6c6c6 100%); /* FF3.6+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -webkit-gradient(linear, left top, left bottom, color-stop(1%,#c6c6c6), color-stop(37%,#686868), color-stop(64%,#939393), color-stop(100%,#c6c6c6)); /* Chrome,Safari4+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -webkit-linear-gradient(top, #c6c6c6 1%,#686868 37%,#939393 64%,#c6c6c6 100%); /* Chrome10+,Safari5.1+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -o-linear-gradient(top, #c6c6c6 1%,#686868 37%,#939393 64%,#c6c6c6 100%); /* Opera11.10+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, -ms-linear-gradient(top, #c6c6c6 1%,#686868 37%,#939393 64%,#c6c6c6 100%); /* IE10+ */
-	background: url("Base/Box/filter_icon.png") no-repeat right, filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#C6C6C6', endColorstr='#C6C6C6',GradientType=0 ); /* IE6-9 */
-	background: url("Base/Box/filter_icon.png") no-repeat right,  linear-gradient(top, #c6c6c6 1%,#686868 37%,#939393 64%,#c6c6c6 100%); /* W3C */	
+	background: #c6c6c6; /* Old browsers */
+	background: -moz-linear-gradient(top, #c6c6c6 1%, #686868 37%, #939393 64%, #c6c6c6 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,#c6c6c6), color-stop(37%,#686868), color-stop(64%,#939393), color-stop(100%,#c6c6c6)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #c6c6c6 1%,#686868 37%,#939393 64%,#c6c6c6 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #c6c6c6 1%,#686868 37%,#939393 64%,#c6c6c6 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #c6c6c6 1%,#686868 37%,#939393 64%,#c6c6c6 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#C6C6C6', endColorstr='#a1a1a1',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #c6c6c6 1%,#686868 37%,#939393 64%,#c6c6c6 100%); /* W3C */	
 	/* gray v1 css3 background gradient */
 }
 
