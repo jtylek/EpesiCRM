@@ -2111,7 +2111,7 @@ class Utils_RecordBrowser extends Module {
 	}
     public function set_filters_defaults($arg){
 		if(!$this->isset_module_variable('def_filter')) {
-			$r = array();
+			$f = array();
 			if(is_array($arg)) {
 				foreach ($arg as $k=>$v) {
 					$f['filter__'.$k] = $v;
@@ -2146,7 +2146,6 @@ class Utils_RecordBrowser extends Module {
         }
         $theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
         if ($this->amount_of_records>=250) {
-            $theme->assign('disabled', '_disabled');
             $theme->assign('select_all', array('js'=>'', 'label'=>$this->t('Select all')));
             $theme->assign('deselect_all', array('js'=>'', 'label'=>$this->t('Deselect all')));
         } else {
