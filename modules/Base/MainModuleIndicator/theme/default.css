@@ -1,11 +1,11 @@
 .text {
     float: left;
-    width: 281px;
+    width: 271px;
 }
 
 .help {
-    float: right;
-    width: 21px;
+    margin: auto;
+    width: 14px;
   
 }
 

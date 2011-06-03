@@ -267,16 +267,53 @@ hr.line {
 
 #top_bar #top_bar_1 .menu-bar {
 	height: 20px;
-	width: 104px;
+	width: 93px;
 	text-align: left;
+	
+	/*dark css3 green background gradient */
+/*	background: #226622; IE 9 conflict/* Old browsers */
+	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#709c70), color-stop(49%,#4d844d), color-stop(51%,#226622), color-stop(100%,#649464)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64B164', endColorstr='#307030',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
+	/* end dark css3 green background gradient */
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px #2F4F4F;
+	-moz-box-shadow: 1px 1px 3px #2F4F4F;
+	box-shadow: 1px 1px 3px #2F4F4F;
+	/* end css3 shadow border*/
+}
+
+#top_bar #top_bar_1 .menu-bar:hover { 
+	/*light css3 green background gradient */
+/*	background: #226622; IE 9 conflict/* Old browsers */
+	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#226622), color-stop(1%,#71b871), color-stop(49%,#58ab58), color-stop(51%,#379b37), color-stop(95%,#63b163), color-stop(100%,#226622)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5ada5a', endColorstr='#308630',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
+	/* end light css3 green background gradient */
 }
 
 #top_bar #top_bar_1 #home-bar1 {
-	width: 92px;
+	width: 100%;
 	height: 22px;
 	padding-top: 4px;
 	padding-bottom: 4px;
 	margin: 0 9px 0 auto;
+	}
+
+#top_bar #top_bar_1 .home-bar {
+	height: 30px;
+	width: 93px;
+	text-align: left;
+	cursor: pointer;
 	
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
@@ -294,9 +331,9 @@ hr.line {
 	-moz-box-shadow: 0px 0px 3px #000000;
 	box-shadow: 0px 0px 3px #000000;
 	/* end css3 shadow border*/
-	}
-	
-#top_bar #top_bar_1 #home-bar1:hover {
+}
+
+#top_bar #top_bar_1 .home-bar:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
@@ -308,15 +345,6 @@ hr.line {
 	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
 	/* end light css3 green background gradient */
 }
-
-#top_bar #top_bar_1 .home-bar {
-	height: 30px;
-	width: 105px;
-	text-align: left;
-	cursor: pointer;
-}
-
-
 
 #top_bar #top_bar_1 .home-bar .home-bar-icon {
 	margin: auto 0px auto 5px ;
@@ -357,9 +385,9 @@ hr.line {
 	/* end black css3 background gradient */
 	
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px #2F4F4F;
-	-moz-box-shadow: 1px 1px 3px #2F4F4F;
-	box-shadow: 1px 1px 3px #2F4F4F;
+	-webkit-box-shadow: 0px 0px 3px gray;
+	-moz-box-shadow: 0px 0px 3px gray;
+	box-shadow: 0px 0px 3px gray;
 	/* end css3 shadow border*/
 }
 
@@ -403,26 +431,36 @@ hr.line {
 	background-color: #FFFFFF;
 }
 
+#top_bar_help {
+	width: 70px;
+	height: auto;
+	overflow: hidden;
+	/* black css3 background gradient */
+	background: #4c4c4c; /* Old browsers */
+	background: -moz-linear-gradient(top, #4c4c4c 0%, #595959 12%, #666666 25%, #474747 39%, #2c2c2c 50%, #000000 51%, #111111 60%, #2b2b2b 76%, #1c1c1c 91%, #131313 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4c4c4c), color-stop(12%,#595959), color-stop(25%,#666666), color-stop(39%,#474747), color-stop(50%,#2c2c2c), color-stop(51%,#000000), color-stop(60%,#111111), color-stop(76%,#2b2b2b), color-stop(91%,#1c1c1c), color-stop(100%,#131313)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4c4c4c', endColorstr='#131313',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%); /* W3C */
+	/* end black css3 background gradient */
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 0px 0px 3px #000000;
+	-moz-box-shadow: 0px 0px 3px #000000;
+	box-shadow: 0px 0px 3px #000000;
+	/* end css3 shadow border*/
+}
+
 #top_bar #top_bar_1 .module-indicator {
-	width: 287px;
+	width: 282px;
     height: auto;
-	padding-right: 5px;
 	font-weight: bold;
 	text-align: center;
 	color: #FFFFFF;
     vertical-align: medium;
     text-align: center;
-
-}
-
-#top_bar #top_bar_1 .module-indicator #module-indicator {
-	width: 282px;
-	height: 22px;
-    text-align: center;
-    display: block;
-    float: left;
-    padding-top: 8px;
-	margin: auto 4px auto 5px;
 	
 	/* black css3 background gradient */
 	background: #4c4c4c; /* Old browsers */
@@ -440,6 +478,17 @@ hr.line {
 	-moz-box-shadow: 1px 1px 3px #2F4F4F;
 	box-shadow: 1px 1px 3px #2F4F4F;
 	/* end css3 shadow border*/
+
+}
+
+#top_bar #top_bar_1 .module-indicator #module-indicator {
+	width: auto;
+	height: 22px;
+    text-align: center;
+    display: block;
+    float: left;
+    padding-top: 8px;
+	margin: auto 4px auto 5px;
 }
 
 #top_bar #top_bar_1 .module-indicator #quick-logout {
@@ -474,7 +523,7 @@ hr.line {
 }
 
 #top_bar #top_bar_2 .logo {
-	width: 200px;
+	width: 198px;
 	height: 80px;
 	text-align: left;
 	vertical-align: top;
@@ -490,7 +539,7 @@ hr.line {
 	
 .shadow_css3_logo_border {
 	width: 193px;
-	height: 78px;
+	height: 79px;
 	margin: 0 auto auto 3px;
 	background-color: #fff;
 	padding: 0px;
@@ -559,13 +608,13 @@ hr.line {
 	
 .icons_launchpad {
     width: 75px;
-    height: 80px;
+    height: 77px;
     vertical-align: top;
     padding-top: 1px;
-    border: 0px solid blue;}
+}
 .shadow_css3_icons_launchpad_border {
 	width: 70px;
-	height: auto;
+	height: 79px;
 	margin: 0 3px auto auto;
 	background-color: #fff;
 	padding: 0px;
@@ -591,7 +640,7 @@ hr.line {
 }	
 	
 #top_bar #top_bar_2 #login-search-td {
-	width: 288px;
+	width: 289px;
 	height: 80px;
     vertical-align: top;
     padding: 1px 5px 0 0;
@@ -599,7 +648,7 @@ hr.line {
 
 .shadow_css3_login-search-td_border  {
 	width: 282px;
-	height: 78px;
+	height: 79px;
 	margin: 0 4px auto auto;
 	background-color: #fff;
 	padding: 0px;

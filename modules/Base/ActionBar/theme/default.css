@@ -5,7 +5,7 @@
 
 #Base_ActionBar table.ActionBar {
 	width: 100%;
-	height: 76px;
+	height: 77px;
 	padding: 10px;
 	border-collapse: collapse;
 }
@@ -18,6 +18,7 @@
 #Base_ActionBar #panel {
 	text-align: center;
 	vertical-align: middle;
+	line-height: 11px;
 }
 
 #Base_ActionBar #panel div.icon   {
@@ -27,15 +28,25 @@
 
 #Base_ActionBar #panel div.icon a {
 	display: block; float: left;
-	height: 67px !important;
+	height: 69px !important;
 	vertical-align: middle;
 	text-decoration : none;
 	padding: 0px 1px 0px 0px;
 }
 
 #Base_ActionBar table.ActionBar #panel {
-	height: 76px;
+	height: 77px;
 	overflow: hidden;
+	/* gray css3 gradient */
+	background: #eaeaea; /* Old browsers */
+	background: -moz-linear-gradient(top, #eaeaea 0%, #ffffff 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eaeaea), color-stop(100%,#ffffff)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #eaeaea 0%,#ffffff 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #eaeaea 0%,#ffffff 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #eaeaea 0%,#ffffff 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eaeaea', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #eaeaea 0%,#ffffff 100%); /* W3C */
+	/* gray css3 gradient */
 }
 
 #Base_ActionBar table.ActionBar #panel div.icon a:link {
@@ -43,19 +54,20 @@
 }
 #Base_ActionBar table.ActionBar #panel div.icon a:hover {
 	color: #336699;
-	/* css3 shadow border*/
-	-webkit-box-shadow: inset 1px 1px 3px gray;
-	-moz-box-shadow: inset 1px 1px 3px gray;
-	box-shadow: inset 1px 1px 3px gray;
-	/* end css3 shadow border*/
 	/* border radius css3 */
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	/* end border radius css3 */
+		/* css3 shadow border*/
+	-webkit-box-shadow: inset 1px 1px 2px gray;
+	-moz-box-shadow: inset 1px 1px 2px gray;
+	box-shadow: inset 1px 1px 2px gray;
+	/* end css3 shadow border*/
 }
 .panel_div {
-	margin: 4px 6px 0 4px;
+	background-color: white;
+	margin: 3px 5px 0 0px;
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 3px gray;
 	-moz-box-shadow: 1px 1px 3px gray;
@@ -69,6 +81,11 @@
 }
 
 .panel_div:hover {
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 1px gray;
+	-moz-box-shadow: 1px 1px 1px gray;
+	box-shadow: 1px 1px 1px gray;
+	/* end css3 shadow border*/
 
 }	
 	
@@ -86,7 +103,7 @@
 }
 
 #Base_ActionBar #panel div.icon img {
-	margin-top: 3px;
+	margin-top: 4px;
 }
 
 #Base_ActionBar #panel div.icon span {

@@ -17,7 +17,9 @@
 		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
 			<tr>
+				<td style="empty-cells: hide; width: 8px;"></td>
 				<td class="menu-bar">{$menu}</td>
+				<td style=" empty-cells: hide; width: 7px;"></td>
 				<td class="home-bar" {$home.href}>
 					<div id="home-bar1">
 						<div class="home-bar-icon"></div>
@@ -26,11 +28,16 @@
 						</div>
 					</div="home-bar1">
 				</td>
+				<td style="empty-cells: hide; width: 6px;"></td>
 				<td class="powered" nowrap="1"><a href="http://www.epesibim.com" target="_blank" style="color:white;"><b>epesi</b> powered</a> {$version_no}</td>
 				{if isset($donate)}
 					<td class="donate" nowrap="1">{$donate}</td>
 				{/if}
+				<td style="empty-cells: hide; width: 6px;"></td>
+				<td id="top_bar_help"><div class="help">{$__link.help.open}<img src="{$theme_dir}/Base/MainModuleIndicator/help.png" onMouseOver="this.src='{$theme_dir}/Base/MainModuleIndicator/help-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/MainModuleIndicator/help.png';" width="14" height="14" alt="?" border="0"></div></td>
+				<td style="empty-cells: hide; width: 6px;"></td>				
 				<td class="module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div><div id="quick-logout" style="display: none;"></div></td>
+				<td style="empty-cells: hide; width: 9px;"></td>
 			</tr>
 		</tbody>
 		</table>
