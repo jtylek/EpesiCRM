@@ -15,24 +15,15 @@ if($rec['epesi_user']!==Acl::get_user()) die('invalid account id');
 
 $port = $rec['security']=='ssl'?993:143;
 
-$mailbox = imap_open('{'.$rec['server'].'/imap/readonly/novalidate-cert'.($rec['security']?'/'.$rec['security']:'').':'.$port.'}INBOX',$rec['login'],$rec['password'],OP_READONLY);
+$mailbox = imap_open('{'.$rec['server'].'/imap/readonly/novalidate-cert'.($rec['security']?'/'.$rec['security']:'').':'.$port.'}',$rec['login'],$rec['password'],OP_READONLY);
 if(!$mailbox) die('connection error');
-$check = imap_check($mailbox);
-if(!$check) die('error reading messages');
-$msgCount = $check->Nmsgs;
+$uns = imap_search($mailbox,'UNSEEN ALL');
 $unseen = array();
-if($msgCount>=1) {
-    $l=imap_fetch_overview($mailbox,'1:'.$msgCount,0);
+if($uns) {
+    $l=imap_fetch_overview($mailbox,implode(',',$uns),0);
     if(!$l) die('error reading messages overview');
     foreach($l as $msg) {
-        if(isset($msg->seen) && !$msg->seen) {
-            $array = imap_mime_header_decode($msg->subject);
-            $subject = "";
-            foreach ($array as $key => $part) {
-                $subject .= $part->text;
-            }
-        	$unseen[] = htmlspecialchars($msg->from).': <i>'.$subject.'</i>';
-        }
+        	$unseen[] = htmlspecialchars(imap_utf8($msg->from)).': <i>'.htmlspecialchars(imap_utf8($msg->subject)).'</i>';
     }
 }
 print(Utils_TooltipCommon::create(count($unseen),implode('<br />',$unseen)));

@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Roundcube extends Module {
     public $rb;
 
-    public function body($params2=array()) {
+    public function body($params2=array(),$def_account_id=null) {
         $accounts = Utils_RecordBrowserCommon::get_records('rc_accounts',array('epesi_user'=>Acl::get_user()));
         $def = null;
         $def_id = $this->get_module_variable('default',null);
@@ -141,6 +141,11 @@ class CRM_Roundcube extends Module {
     public function copy($id) {
         $_SESSION['rc_mails_cp'] = array($id);
     }
+    
+    public function open_rc_account($id) {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        $x->push_main('CRM_Roundcube','body',array(array(),$id));
+    }
 
     public function applet($conf, $opts) {
         Epesi::load_js('modules/CRM/Roundcube/utils.js');
@@ -167,7 +172,7 @@ class CRM_Roundcube extends Module {
 
             //and now
             $update_applet .= 'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' ,1);';
-            print('<li><i>'.$mail.'</i> - <span id="'.$cell_id.'"></span></li>');
+            print('<li><i><a'.$this->create_callback_href(array($this,'open_rc_account'),$row['id']).'>'.$mail.'</a></i> - <span id="'.$cell_id.'"></span></li>');
         }
         print('</ul>');
         $this->js($update_applet);
