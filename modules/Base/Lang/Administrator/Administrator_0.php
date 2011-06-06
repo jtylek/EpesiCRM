@@ -103,7 +103,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 				if ($filter==2 && !$t) continue;
 				if ($filter==3 && $t) continue;
 				$span_id = $m.'__'.md5($o);
-				$data[] = array($m,'<a href="javascript:void(0);" onclick="lang_translate(\''.$m.'\',\''.$o.'\',\''.$span_id.'\');">'.$o.'</a>','<span id="'.$span_id.'">'.$t.'</span>');
+				$data[] = array($m,'<a href="javascript:void(0);" onclick="lang_translate(\''.$m.'\',\''.Epesi::escapeJS(htmlspecialchars($o)).'\',\''.$span_id.'\');">'.$o.'</a>','<span id="'.$span_id.'">'.$t.'</span>');
 			}
 		
 		$gb = &$this->init_module('Utils/GenericBrowser',null,'lang_translations');
