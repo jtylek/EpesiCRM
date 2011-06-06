@@ -219,30 +219,33 @@ class Utils_Attachment extends Module {
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 
-			$text = Utils_BBCodeCommon::parse(strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/><ul><li>'));
+			$text = trim(Utils_BBCodeCommon::parse(strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/><ul><li>')));
+			$text_tagless = strip_tags($text,'<br><br/><ul><li>');
 			$max_len = 120;
-			if ($max_len>strlen(strip_tags($text))) $max_len = strlen(strip_tags($text));
-			$br = strpos($text,'<br');
-			$ul = strpos($text,'<ul');
+			if ($max_len>mb_strlen($text_tagless,'UTF-8')) $max_len = mb_strlen($text_tagless,'UTF-8');
+			$br = mb_strpos($text_tagless,'<br',0,'UTF-8');
+			$ul = mb_strpos($text_tagless,'<ul',0,'UTF-8');
 			if($ul!==false && ($br===false || $ul<$br)) $br = $ul;
-			$li = strpos($text,'<li');
+			$li = mb_strpos($text_tagless,'<li',0,'UTF-8');
 			if($li!==false && ($br===false || $li<$br)) $br = $li;
 			if($br!==false && $br<$max_len) $max_len=$br;
 			// ************* Strip without loosing html entities
 			$i = 0;
+			$count=0;
 			$continue=0;
 			$in_middle=false;
-			while ($continue>0 || $in_middle || $i<$max_len) {
-				if ($text{$i}=='<') {
-					if (isset($text{$i+1}) && $text{$i+1}!='/') $continue++;
+			preg_match_all('/./u', $text, $a);
+			$a = $a[0];
+			while ($continue>0 || $in_middle || $count<$max_len) {
+				if ($a[$i]=='<') {
+					if (isset($a[$i+1]) && $a[$i+1]!='/') $continue++;
 					else $continue--;
 					$in_middle=true;
-				}
-				if ($text{$i}=='>') {
+				} elseif ($a[$i]=='>') {
 					$in_middle=false;
-					if (isset($text{$i-1}) && $text{$i-1}=='/') $continue--;
-				}
-				if (!isset($text{$i+1})) {
+					if (isset($a[$i-1]) && $a[$i-1]=='/') $continue--;
+				} elseif (!$in_middle) $count++;
+				if (!isset($a[$i+1])) {
 					$i++;
 					break;
 				}
@@ -254,7 +257,7 @@ class Utils_Attachment extends Module {
 			$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
 			$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'));
 			// ************* Strip without loosing html entities
-			if($max_len<mb_strlen(strip_tags($text),'UTF8') || $inline_img) {
+			if($max_len<mb_strlen($text,'UTF8') || $inline_img) {
 				$text = array('value'=>mb_substr($text,0,$max_len,'UTF8').'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.$this->t('[ + ]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.mb_substr($text,$max_len,mb_strlen($text,'UTF8'),'UTF8').$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->t('[ - ]').'</a></span>','hint'=>$this->t('Click on view icon to see full note'));
 				$expandable[] = $row['id'];
 				if($row['sticky']) $text['value'] = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text['value'];
