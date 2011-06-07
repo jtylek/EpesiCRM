@@ -29,7 +29,8 @@ class Utils_BBCodeCommon extends ModuleCommon {
 		self::$optimize_only = $optimize_only;
 		if (self::$bbcodes===null) self::init();
 		$matches = array();
-		return preg_replace_callback('/\[(.*?)(=(.*?|".*?"))?\](.*?)\[\/\\1\]/', array('Utils_BBCodeCommon','replace'),$text);
+		$ret = preg_replace_callback('/\[(.*?)(=(.*?|".*?"))?\](.*?)\[\/\\1\]/', array('Utils_BBCodeCommon','replace'),$text);
+		return $ret?$ret:$text;
 	}
 	
 	public static function strip($text) {
