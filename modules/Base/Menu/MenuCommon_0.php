@@ -97,19 +97,6 @@ class Base_MenuCommon extends ModuleCommon {
 	public static function create_array($arr) {
 		return self::create_href_js(null,$arr,'array');
 	}
-
-        private static $quick = array();
-	public static function add_quick_menu($name,$action) {
-		self::$quick[$name] = $action;
-	}
-
-	public static function get_quick_menu() {
-		return self::$quick;
-	}
-
-	public static function clean_quick_menu() {
-		self::$quick = array();
-	}
 }
-on_exit(array('Base_MenuCommon','clean_quick_menu'));
+
 ?>

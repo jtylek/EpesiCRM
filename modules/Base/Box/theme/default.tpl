@@ -29,6 +29,10 @@
 					</div="home-bar1">
 				</td>
 				<td style="empty-cells: hide; width: 6px;"></td>
+				{if $quick_access_menu}
+					<td class="menu-bar">{$quick_access_menu}</td>
+					<td style="empty-cells: hide; width: 6px;"></td>
+				{/if}
 				<td class="powered" nowrap="1"><a href="http://www.epesibim.com" target="_blank" style="color:white;"><b>epesi</b> powered</a> {$version_no}</td>
 				{if isset($donate)}
 					<td class="donate" nowrap="1">{$donate}</td>

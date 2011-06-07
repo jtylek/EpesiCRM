@@ -28,7 +28,6 @@ class Base_Dashboard extends Module {
 	}
 	
 	private function dashboard() {
-		//Base_MenuCommon::add_quick_menu('Dashboard/Manage tabs',$this->create_callback_href(array($this,'tabs_list')));
 		Base_ActionBarCommon::add('settings','Config',$this->create_callback_href(array($this,'switch_config_mode')));
 		load_js($this->get_module_dir().'ab.js');
 		$default_dash = $this->get_module_variable('default');

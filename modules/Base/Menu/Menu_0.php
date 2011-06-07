@@ -122,7 +122,6 @@ class Base_Menu extends Module {
 			} else {
 				if (is_array($menu[$k]) && array_key_exists('__submenu__',$menu[$k])) {
 					self::add_menu($menu[$k],$v);
-//					ksort($menu[$k]);
 				} elseif(is_array($v)) {
 					$c = Base_LangCommon::ts('Base/Menu','submenu');
 					if(is_array($menu[$k]) && array_key_exists('__submenu__',$menu[$k]))
@@ -148,7 +147,6 @@ class Base_Menu extends Module {
 		if(!isset($bw) || !is_numeric($bw)) $bw=0;
 		if($aw==$bw)
 			return strcasecmp($a, $b);
-//		trigger_error('='.$aw."=".print_r($bw,true).'=',E_USER_ERROR);
 		return $aw-$bw;
 	}
 
@@ -174,6 +172,30 @@ class Base_Menu extends Module {
 		}
 		if (!empty($modules_menu)) $modules_menu['__submenu__'] = 1;
 
+		self::sort_menus($modules_menu);
+
+		// Home menu
+		$home_menu = array();
+		$home_menu['Menu'] = $modules_menu;
+
+		// putting all menus into menu array
+		$menu = $home_menu;
+
+		// preparing menu string
+		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");
+		$this->build_menu($menu_mod,$menu);
+
+		$theme = & $this->init_module('Base/Theme');
+
+		$menu_mod->set_inline_display();
+		$theme->assign('menu', $this->get_html_of_module($menu_mod));
+
+		$theme->display();
+
+	}
+	
+	public function quick_access_menu() {
+		$this->set_inline_display(true);
 		// preparing quick access menu
 		if (array_key_exists('Base_Menu_QuickAccess',ModuleManager::$modules)){
 			$qaccess_menu = Base_Menu_QuickAccessCommon::quick_access_menu();
@@ -182,38 +204,10 @@ class Base_Menu extends Module {
 			} else $qaccess_menu = array();
 		} else $qaccess_menu = array();
 
-		// preparing quick menu
-		$current_module_menu = array();
-                $qm = Base_MenuCommon::get_quick_menu();
-                foreach($qm as $name=>$action) {
-                    $r = explode('/',trim($name,'/'));
-                    $curr = & $current_module_menu;
-                    for($i=0; $i<count($r)-1; $i++) {
-                        if(!isset($curr[$r[$i]]))
-                            $curr[$r[$i]] = array('__submenu__'=>1);
-                        $curr = & $curr[$r[$i]];
-                    }
-                    $curr[$r[count($r)-1]] = array('__url__'=>'javascript:('.$action.')');
-                }
+		if (empty($qaccess_menu)) return;
 
-		self::sort_menus($modules_menu);
-
-		// Home menu
-		$home_menu = array();
-		$home_menu['Menu'] = $modules_menu;
-
-		// putting all menus into menu array
-		$menu = array();
-		$menu = array_merge($menu,$home_menu);
-		$menu = array_merge($menu,$qaccess_menu);
-		$menu = array_merge($menu,$current_module_menu);
-
-		// preparing menu string
 		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");
-		$this->build_menu($menu_mod,$menu);
-//		self::$menu_module = $this->get_path();
-
-//		$this->menu_name = $this->get_name().$this->get_instance_id().'menu';
+		$this->build_menu($menu_mod,$qaccess_menu);
 
 		$theme = & $this->init_module('Base/Theme');
 
