@@ -44,9 +44,6 @@ class Base_MainModuleIndicator extends Module {
 				eval_js('document.title=\''.addslashes(Variable::get('base_page_title')).'\'');
 		}
 		
-		//help
-		$t->assign('help', '<a href="'.$this->get_module_dir().'help.php?cid='.CID.'" target="_blank">help</a>');
-			
 		$t->display();
 	}
 	

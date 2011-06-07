@@ -858,4 +858,24 @@ hr.line {
 .layer .shadow-middle	.left	{ background-image: url('images/shadow/l.png' ); }
 .layer .shadow-middle	.right	{ background-image: url('images/shadow/r.png' ); }
 
+.help_label {
+	padding: 3px;
+	vertical-align: top;
+}
 
+.help {
+    margin: auto;
+    width: 45px;
+}
+
+.help a {
+	color: #FFFFFF;
+	font-weight: bold;
+}
+
+.help img {
+    border: none;
+}
+
+.help:hover {
+}

@@ -32,6 +32,11 @@ class Base_MainModuleIndicatorCommon extends Base_AdminModuleCommon {
 	public static function clean_help() {
 		$_SESSION['client']['help'] = array();
 	}
+
+	public function get_href() {
+		return 'href="'.self::Instance()->get_module_dir().'help.php?cid='.CID.'" target="_blank"'; // 15:20
+	}
+	
 }
 
 Module::register_method('help',array('Base_MainModuleIndicatorCommon','add_help')); //interactive ts
