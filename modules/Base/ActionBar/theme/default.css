@@ -36,6 +36,7 @@
 
 #Base_ActionBar table.ActionBar #panel {
 	height: 77px;
+	padding-left: 5px;
 	overflow: hidden;
 	/* gray css3 gradient */
 	background: #eaeaea; /* Old browsers */
@@ -51,47 +52,60 @@
 
 #Base_ActionBar table.ActionBar #panel div.icon a:link {
 	color: #336699;
+	/*Transition*/
+	-webkit-transition: all 0.4s ease-out;
+    -moz-transition: all 0.4s ease-out;
+    -o-transition: all 0.4s ease-out;	
+	/* end Transition*/
 }
 #Base_ActionBar table.ActionBar #panel div.icon a:hover {
 	color: #336699;
 	/* border radius css3 */
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
 	/* end border radius css3 */
-		/* css3 shadow border*/
-	-webkit-box-shadow: inset 1px 1px 2px gray;
-	-moz-box-shadow: inset 1px 1px 2px gray;
-	box-shadow: inset 1px 1px 2px gray;
-	/* end css3 shadow border*/
+
 }
 .panel_div {
-	background-color: white;
-	margin: 3px 5px 0 0px;
+	margin: 3px 8px 0 0px;
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px gray;
-	-moz-box-shadow: 1px 1px 3px gray;
-	box-shadow: 1px 1px 3px gray;
+	-webkit-box-shadow: 0px 0px 3px gray;
+	-moz-box-shadow: 0px 0px 3px gray;
+	box-shadow: 0px 0px 3px gray;
 	/* end css3 shadow border*/
 	/* border radius css3 */
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	/* end border radius css3 */
+	
+	/*Transition*/
+	-webkit-transition: all 0.4s ease-out;
+    -moz-transition: all 0.4s ease-out;
+    -o-transition: all 0.4s ease-out;	
+	/* end Transition*/
 }
 
 .panel_div:hover {
+	/* border radius css3 */
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	/* end border radius css3 */
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 1px gray;
-	-moz-box-shadow: 1px 1px 1px gray;
-	box-shadow: 1px 1px 1px gray;
+	-webkit-box-shadow: 0px 0px 10px #005100;
+	-moz-box-shadow: 0px 0px 10px #005100;
+	box-shadow: 0px 0px 10px #005100;
 	/* end css3 shadow border*/
 
 }	
+
+#launchpad_button_section .panel_div {
+	margin: 3px 5px 0 0px; }
 	
 #Base_ActionBar table.ActionBar #panel div.icon a:hover {
 	color : #993333;
-	padding: 1px 0px 0px 1px;
 }
 
 #Base_ActionBar table.ActionBar #panel div.icon a:hover span {

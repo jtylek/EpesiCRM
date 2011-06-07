@@ -5,12 +5,12 @@
                 <td valign="top">
                     <div id="panel">
 						{foreach item=i from=$icons}
-                        <div class="panel_div" style="float: left; margin-left:5px;">
+                        <div class="panel_div" style="float: left;">
                             <div class="icon">
                                 {$i.open}
 									{if $display_icon}
 									<!-- <img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32"> -->
-									<div class="div_icon icon_{$i.icon}"></div>
+									<div class="div_icon icon_{$i.icon}" style="margin-top: 4px;"></div>
 									{/if}
 									{if $display_text}
 									<table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$i.label}</td></tr></table>
