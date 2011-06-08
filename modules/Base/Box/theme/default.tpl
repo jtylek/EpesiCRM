@@ -38,7 +38,7 @@
 					<td class="donate" nowrap="1">{$donate}</td>
 				{/if}
 				<td style="empty-cells: hide; width: 6px;"></td>
-				<td id="top_bar_help"><div class="help"><a {$help.href} onMouseOver="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help-hover.png';" onMouseOut="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help.png';"><img src="{$theme_dir}/Base/MainModuleIndicator/help.png" id="help_icon" width="14" height="14" alt="?" border="0"><span class="help_label">{$help.label}</span></a></div></td>
+				<td id="top_bar_help"><div class="help"><a {$help.href} onMouseOver="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help-hover.png';" onMouseOut="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help.png';"><img src="{$theme_dir}/Base/MainModuleIndicator/help.png" id="help_icon" alt="?" border="0"><div class="help_label">{$help.label}</div></a></div></td>
 				<td style="empty-cells: hide; width: 6px;"></td>				
 				<td class="module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div></td>
 				<td style="empty-cells: hide; width: 9px;"></td>

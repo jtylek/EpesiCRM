@@ -895,13 +895,16 @@ background: linear-gradient(top, #b2b2b2 0%,#9b9b9b 49%,#7c7c7c 51%,#a8a8a8 100%
 .layer .shadow-middle	.right	{ background-image: url('images/shadow/r.png' ); }
 
 .help_label {
-	padding: 3px;
 	vertical-align: top;
+	width: 42px;
+	display: block;
+	float: right;
+	text-align: center;
 }
 
 .help {
     margin: auto;
-    width: 45px;
+    width: 56px;
 }
 
 .help a {
@@ -911,6 +914,8 @@ background: linear-gradient(top, #b2b2b2 0%,#9b9b9b 49%,#7c7c7c 51%,#a8a8a8 100%
 
 .help img {
     border: none;
+	width: 14px;
+	height: 14px;
 }
 
 .help:hover {
