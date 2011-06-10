@@ -131,6 +131,17 @@ class DBSession {
         }
         return ($ret>0)?true:false;
     }
+    
+    public static function destroy_client($name,$i) {
+        if(self::$memcached) {
+        	for($k=0;;$k++)
+                	if(!self::$memcached->delete('sess_'.$name.'_'.$i.'_'.$k)) break;
+        }
+        DB::BeginTrans();
+        DB::Execute('DELETE FROM history WHERE session_name=%s AND client_id=%d',array($name,$i));
+        DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',array($name,$i));
+        DB::CommitTrans();
+    }
 
     public static function destroy($name) {
         if(self::$memcached) {
