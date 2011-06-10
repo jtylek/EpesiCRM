@@ -13,8 +13,8 @@ function rcmail_epesi_auto_archive(prop)
     x.src = x.src.replace('archive_act.png','archive_pas.png');  
   }
 
-  rcmail.set_busy(true, 'loading');
-  rcmail.http_post('plugin.epesi_archive', '_enabled_auto_archive='+(rcmail_epesi_auto_archive_enabled?1:0), true);
+  var msgid = rcmail.set_busy(true, 'loading');
+  rcmail.http_post('plugin.epesi_archive', '_enabled_auto_archive='+(rcmail_epesi_auto_archive_enabled?1:0), msgid);
 }
 
 function rcmail_epesi_archive(prop)
@@ -24,8 +24,8 @@ function rcmail_epesi_archive(prop)
 
   var uids = rcmail.env.uid ? rcmail.env.uid : rcmail.message_list.get_selection().join(',');
 
-  rcmail.set_busy(true, 'loading');
-  rcmail.http_post('plugin.epesi_archive', '_uid='+uids+'&_mbox='+urlencode(rcmail.env.mailbox), true);
+  var msgid = rcmail.set_busy(true, 'loading');
+  rcmail.http_post('plugin.epesi_archive', '_uid='+uids+'&_mbox='+urlencode(rcmail.env.mailbox),msgid);
 }
 
 // callback for app-onload event
@@ -51,8 +51,8 @@ if (window.rcmail) {
 
     // add archive button to compose window
     if(rcmail.gui_objects.messageform) {
-        rcmail.register_command('plugin.epesi_auto_archive', rcmail_epesi_auto_archive);
-        rcmail.enable_command('plugin.epesi_auto_archive', true);
+        rcmail.register_command('plugin.epesi_auto_archive', rcmail_epesi_auto_archive, true);
+        rcmail.env.compose_commands.push('plugin.epesi_auto_archive');
     }
 
   })

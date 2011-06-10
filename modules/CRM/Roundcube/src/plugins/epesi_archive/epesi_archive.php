@@ -113,6 +113,7 @@ class epesi_archive extends rcube_plugin
   function request_action()
   {
     $this->add_texts('localization');
+    $rcmail = rcmail::get_instance();
     
     if (isset($_POST['_enabled_auto_archive'])) { //auto archive toggle
         $_SESSION['epesi_auto_archive'] = get_input_value('_enabled_auto_archive', RCUBE_INPUT_POST);
@@ -120,12 +121,10 @@ class epesi_archive extends rcube_plugin
     }
 
     //archive button
-    $rcmail = rcmail::get_instance();
     $uids = get_input_value('_uid', RCUBE_INPUT_POST);
     $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
     if($mbox==$this->archive_mbox || $mbox==$this->archive_sent_mbox || $mbox==$rcmail->config->get('drafts_mbox')) {
-        $rcmail->output->command('display_message', $this->gettext('invalidfolder'), 'error');
-        $rcmail->output->send();
+        $rcmail->output->command('display_message',$this->gettext('invalidfolder'), 'error');
         return;
     }
     $sent_mbox = ($rcmail->config->get('sent_mbox')==$mbox);
@@ -136,9 +135,7 @@ class epesi_archive extends rcube_plugin
             $rcmail->output->command('move_messages', $this->archive_sent_mbox);
         else
             $rcmail->output->command('move_messages', $this->archive_mbox);
-        $rcmail->output->command('display_message', $this->gettext('archived'), 'confirmation');
-
-        $rcmail->output->send();
+        $rcmail->output->command('display_message',$this->gettext('archived'), 'confirmation');
     }
   }
 
@@ -151,8 +148,7 @@ class epesi_archive extends rcube_plugin
         $msg = new rcube_message($uid);
         if (empty($msg->headers)) {
             if($verbose) {
-                $rcmail->output->show_message('messageopenerror', 'error');
-                $rcmail->output->send();
+                $rcmail->output->command('display_message','messageopenerror', 'error');
             }
             return false;
         } else {
@@ -188,8 +184,7 @@ class epesi_archive extends rcube_plugin
     foreach($map as $k=>$ret) {
         if(!$ret && !isset($_SESSION['force_archive'][$k]) && $verbose) {
             $_SESSION['force_archive'][$k] = 1;
-            $rcmail->output->command('display_message', $this->gettext('contactnotfound'), 'error');
-            $rcmail->output->send();
+            $rcmail->output->command('display_message',$this->gettext('contactnotfound'), 'error');
             return false;
         }
     }
@@ -318,14 +313,15 @@ class epesi_archive extends rcube_plugin
     
     $archived = $this->archive($uids,true,false);
 
-    if($archived)
+    if($archived) {
+        $rcmail->output->command('set_env', 'uid', array_shift($uids));
         $rcmail->output->command('move_messages', $this->archive_sent_mbox);
+    }
 
     $IMAP->set_mailbox($old_mbox);
     
     if($archived) {
-        $rcmail->output->command('display_message', $this->gettext('archived'), 'confirmation');
-        $rcmail->output->send();
+        $rcmail->output->command('display_message',$this->gettext('archived'), 'confirmation');
     }
   }
   
