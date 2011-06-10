@@ -1,9 +1,6 @@
-<!-- SHADIW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 95%; min-height: 30px;">
-		<div class="content_shadow">
-<!-- -->
-
-            <table class="container" cellpadding="0" cellspacing="0" border="0">
+		<div class="content_shadow_css3_dashboard {$color}">
+            <table class="container {$color}" cellpadding="0" cellspacing="0" border="0">
                 <tbody>
                 <tr>
                 	<td width="3px" class="header actions {$color}">
@@ -52,22 +49,6 @@
                 </tr>
                 </tbody>
             </table>
-
-<!-- SHADOW END -->
  		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
 	</div>
-<!-- -->
+
