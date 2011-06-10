@@ -11,9 +11,9 @@ class epesi_addressbook extends rcube_plugin
 
   public function init()
   {
-    $this->add_hook('address_sources', array($this, 'address_sources'));
-    $this->add_hook('get_address_book', array($this, 'get_address_book'));
-    $this->add_hook('create_contact', array($this, 'create_contact'));
+    $this->add_hook('addressbooks_list', array($this, 'address_sources'));
+    $this->add_hook('addressbook_get', array($this, 'get_address_book'));
+    $this->add_hook('contact_create', array($this, 'create_contact'));
 
     // use this address book for autocompletion queries
     // (maybe this should be configurable by the user?)

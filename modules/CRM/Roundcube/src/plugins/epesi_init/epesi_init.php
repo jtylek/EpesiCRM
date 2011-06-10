@@ -60,7 +60,7 @@ class epesi_init extends rcube_plugin
     rcmail::get_instance()->config->set('date_long',$date.' '.$time);
     rcmail::get_instance()->config->set('date_today',$time);        
     
-    $this->add_hook('outgoing_message_body', array($this, 'add_signature'));
+    $this->add_hook('message_outgoing_body', array($this, 'add_signature'));
   }
   
   public function add_signature($b) {

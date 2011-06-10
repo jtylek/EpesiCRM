@@ -13,7 +13,7 @@ class epesi_archive extends rcube_plugin
     $this->register_action('plugin.epesi_archive', array($this, 'request_action'));
     
     //register hook to archive just sent mail
-    $this->add_hook('cleanup_attachments', array($this, 'auto_archive'));
+    $this->add_hook('attachments_cleanup', array($this, 'auto_archive'));
     if(!isset($_SESSION['epesi_auto_archive']))
         $_SESSION['epesi_auto_archive'] = isset($account['f_archive_on_sending']) && $account['f_archive_on_sending']?1:0;
 
