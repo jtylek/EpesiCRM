@@ -315,6 +315,7 @@ class epesi_archive extends rcube_plugin
 
     if($archived) {
         $rcmail->output->command('set_env', 'uid', array_shift($uids));
+        $rcmail->output->command('set_env', 'mailbox',$store_target);
         $rcmail->output->command('move_messages', $this->archive_sent_mbox);
     }
 

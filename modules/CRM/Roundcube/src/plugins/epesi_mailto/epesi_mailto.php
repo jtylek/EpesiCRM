@@ -17,7 +17,7 @@ class epesi_mailto extends rcube_plugin
 
     if (($rcmail->task!='mail' || $rcmail->action == '') && !isset($_GET['mailto'])) {
         unset($_SESSION['epesi_mailto']);
-        print('<script>parent._chj("'.http_build_query(array('base_box_pop_main'=>1)).'","loading...");</script>');
+        print('<script>parent._chj("'.http_build_query(array('base_box_pop_main'=>1)).'","loading...");</script>');//setTimeout(function(){},3000);
     }
   }
   
