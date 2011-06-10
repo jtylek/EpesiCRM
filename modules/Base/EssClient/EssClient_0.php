@@ -50,7 +50,7 @@ class Base_EssClient extends Module {
     }
 
     public function confirm_installation() {
-        $r = Base_EssClientCommon::server()->register_client_id_confirm();
+        $r = Base_EssClientCommon::server()->register_installation_confirm();
         $color = $r ? 'green' : 'red';
         $text = $r ? 'Installation confirmed!' : 'Confirmation error!';
         print('<div style="color: ' . $color . '">' . $this->t($text) . '</div>');
@@ -157,7 +157,7 @@ class Base_EssClient extends Module {
             if ($f->validate()) {
                 $ret = $f->exportValues();
 
-                $ret = Base_EssClientCommon::server()->register_client_id_request($ret);
+                $ret = Base_EssClientCommon::server()->register_installation_request($ret);
 
                 $text = '';
                 $color = 'black';

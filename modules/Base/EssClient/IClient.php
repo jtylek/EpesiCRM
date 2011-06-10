@@ -33,19 +33,19 @@ interface IClient {
     function get_registered_data();
 
     /**
-     * Register installation and request temporary client identifier.
+     * Register installation and request client identifier.
      *
      * @param array data from registration form
-     * @return string|bool temporary client identifier, true on successful data update or false on any error
+     * @return string|bool client identifier, true on successful data update or false on any error
      */
-    function register_client_id_request($data);
+    function register_installation_request($data);
 
     /**
-     * Confirm temporary client id.
+     * Confirm client id.
      *
      * @return boolean true on success, false on failure
      */
-    function register_client_id_confirm();
+    function register_installation_confirm();
 
     /**
      * Use this function before get_module_file() to generate package on server side.
@@ -59,7 +59,7 @@ interface IClient {
      * Download package file contents.
      * 
      * @param string $module_file_hash sha1 sum of module package file returned by get_module_hash()
-     * $return string|false file data on success(use file_put_contents) or false on error
+     * @return string|false file data on success(use file_put_contents) or false on error
      */
     function get_module_file($module_file_hash);
 
