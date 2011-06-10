@@ -35,7 +35,7 @@ interface IClient {
     /**
      * Register installation and request client identifier.
      *
-     * @param array data from registration form
+     * @param array $data from registration form
      * @return string|bool client identifier, true on successful data update or false on any error
      */
     function register_installation_request($data);
