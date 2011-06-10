@@ -307,6 +307,7 @@ class epesi_archive extends rcube_plugin
     
     global $store_folder,$saved,$IMAP,$message_id,$store_target;
     if(!$store_folder || !$saved) return;
+    $rcmail = rcmail::get_instance();
     
     $msgid = strtr($message_id, array('>' => '', '<' => ''));  
     $old_mbox = $IMAP->get_mailbox_name();
