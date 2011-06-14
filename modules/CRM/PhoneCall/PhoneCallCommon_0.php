@@ -145,7 +145,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					'function enable_disable_phone(arg) {'.
 					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
 					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.
-					'if (arg) {phone.disable();o_phone.enable();} else {if(phone.length!=0)phone.enable();o_phone.disable();}'.
+					'if (arg) {phone.disabled=true;o_phone.disabled=false;} else {if(phone.length!=0)phone.disabled=false;o_phone.disabled=true;}'.
 					'};'.
 					'function onchange_other_phone() {'.
 					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
@@ -169,11 +169,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					'customer = document.forms[\''.$form->getAttribute('name').'\'].customer;'.
 					'o_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer_name;'.
 					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
-					'if (arg) {c_phone.disable();customer.disable();o_customer.enable();} else {c_phone.enable();if(customer.length!=0)customer.enable();o_customer.disable();}'.
+					'if (arg) {c_phone.disabled=true;customer.disabled=true;o_customer.disabled=false;} else {c_phone.disabled=false;if(customer.length!=0)customer.disabled=false;o_customer.disabled=true;}'.
 					'if (arg) c_phone.checked=true;'.
 					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
 					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.
-					'if (arg) {phone.disable();o_phone.enable();} else {if(phone.length!=0)phone.enable();o_phone.disable();}'.
+					'if (arg) {phone.disabled=true;o_phone.disabled=false;} else {if(phone.length!=0)phone.disabled=false;o_phone.disabled=true;}'.
 					'};'.
 					'function onchange_other_customer() {'.
 					'c_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer;'.

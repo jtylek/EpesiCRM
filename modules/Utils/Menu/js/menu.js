@@ -50,10 +50,7 @@ custom_show = function(menu, submenu) {
 		else
         		elem.style.position = 'absolute';
 		elem.style.zIndex = 1000;
-		var offT = 0;
-		if(Epesi.ie && submenu==0)
-		    offT = 50;
-		elem.clonePosition(elem.parentNode,{setWidth:false, setHeight:false, offsetTop:offT});
+		elem.clonePosition(elem.parentNode,{setWidth:false, setHeight:false, offsetTop:0});
 	}
 }
 
