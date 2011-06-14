@@ -26,8 +26,8 @@ class Data_TaxRatesInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_access_callback('data_tax_rates', array('Data_TaxRatesCommon', 'access_tax_rates'));
 		Utils_RecordBrowserCommon::set_icon('data_tax_rates', Base_ThemeCommon::get_template_filename('Data/TaxRates', 'icon.png'));
 
-		$this->add_aco('browse tax rates',array('Employee Manager'));
-		$this->add_aco('view tax rate',array('Employee Manager'));
+		$this->add_aco('browse tax rates',array('Employee'));
+		$this->add_aco('view tax rate',array('Employee'));
 		$this->add_aco('edit tax rate',array('Employee Manager'));
 		$this->add_aco('delete tax rate',array('Employee Manager'));
 				
