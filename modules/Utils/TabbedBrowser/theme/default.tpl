@@ -25,8 +25,9 @@
 			</ul>
 		</td>
 	</tr>
-	<tr>
-		<td>
+	<tr >
+		<td >
+		<div class="border_bottom"></div>
 			<center>{$body}</center>
 		</td>
 	</tr>

@@ -15,10 +15,8 @@
 </div>
 
 
-<!-- SHADIW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 764px;">
-		<div class="content_shadow">
-<!-- -->
+		<div class="css3_content_shadow">
 
 {math assign="col" equation="x" x=3}
 
@@ -54,22 +52,5 @@
 {/foreach}
 
 </table>
-
-<!-- SHADOW END -->
  		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
 	</div>
-<!-- -->

@@ -5,10 +5,7 @@
 	<tr>
 	{foreach item=b from=$buttons}
         <td>
-		<!-- SHADIW BEGIN -->
-			<div class="layer" style="padding: 8px; width: 80px;">
-				<div class="content_shadow">
-		<!-- -->
+			<div class="leightbox_shadow_css3">
 
 			    {$b.open}
 				<div class="big-button">
@@ -16,28 +13,10 @@
 						<img src="{$b.icon}" alt="" align="middle" border="0" width="32" height="32">
 					{/if}
 			        <div style="height: 5px;"></div>
-			        <span>{$b.label}</span>
+			        <table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$b.label}</td></tr></table>
 		        </div>
 			    {$b.close}
-
-		<!-- SHADOW END -->
-		 		</div>
-				<div class="shadow-top">
-					<div class="left"></div>
-					<div class="center"></div>
-					<div class="right"></div>
-				</div>
-				<div class="shadow-middle">
-					<div class="left"></div>
-					<div class="right"></div>
-				</div>
-				<div class="shadow-bottom">
-					<div class="left"></div>
-					<div class="center"></div>
-					<div class="right"></div>
-				</div>
-			</div>
-		<!-- -->
+		 	</div>
         </td>
 		{assign var=x value=$x+1}
 		{if ($x==6)}

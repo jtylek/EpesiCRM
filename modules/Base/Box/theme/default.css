@@ -63,6 +63,12 @@ input, textarea, select {
 	border-radius: 6px;
 	/* end border radius */
 	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px black;
+	-moz-box-shadow: 1px 1px 3px black;
+	box-shadow: 1px 1px 3px black;
+	/* end css3 shadow border*/
+	
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -204,7 +210,7 @@ hr.line {
 #body_content {
 /*    position: relative;*/
    /* position: absolute; */
-    margin-top: 119px;
+    margin-top: 123px;
     /*margin-top: 97px;*/
     width: 100%;
     padding: 0px;
@@ -589,16 +595,16 @@ hr.line {
 	/* border bottom radius */
 	-webkit-border-top-left-radius: 0px;
 	-webkit-border-top-right-radius: 0px;
-	-webkit-border-bottom-right-radius: 3px;
-	-webkit-border-bottom-left-radius: 3px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
 	-moz-border-radius-topleft: 0px;
 	-moz-border-radius-topright: 0px;
-	-moz-border-radius-bottomright: 3px;
-	-moz-border-radius-bottomleft: 3px;
+	-moz-border-radius-bottomright: 6px;
+	-moz-border-radius-bottomleft: 6px;
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
-	border-bottom-right-radius: 3px;
-	border-bottom-left-radius: 3px; 
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px; 
 	/* end border bottom radius */
 }
 	
@@ -629,16 +635,16 @@ hr.line {
 	/* border bottom radius */
 	-webkit-border-top-left-radius: 0px;
 	-webkit-border-top-right-radius: 0px;
-	-webkit-border-bottom-right-radius: 3px;
-	-webkit-border-bottom-left-radius: 3px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
 	-moz-border-radius-topleft: 0px;
 	-moz-border-radius-topright: 0px;
-	-moz-border-radius-bottomright: 3px;
-	-moz-border-radius-bottomleft: 3px;
+	-moz-border-radius-bottomright: 6px;
+	-moz-border-radius-bottomleft: 6px;
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
-	border-bottom-right-radius: 3px;
-	border-bottom-left-radius: 3px; 
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px; 
 	/* end border bottom radius */
 	
 	/* gray css3 gradient */
@@ -673,16 +679,16 @@ hr.line {
 	/* border bottom radius */
 	-webkit-border-top-left-radius: 0px;
 	-webkit-border-top-right-radius: 0px;
-	-webkit-border-bottom-right-radius: 3px;
-	-webkit-border-bottom-left-radius: 3px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
 	-moz-border-radius-topleft: 0px;
 	-moz-border-radius-topright: 0px;
-	-moz-border-radius-bottomright: 3px;
-	-moz-border-radius-bottomleft: 3px;
+	-moz-border-radius-bottomright: 6px;
+	-moz-border-radius-bottomleft: 6px;
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
-	border-bottom-right-radius: 3px;
-	border-bottom-left-radius: 3px; 
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px; 
 	/* end border bottom radius */	
 	
 	/* gray css3 gradient */
@@ -719,16 +725,16 @@ hr.line {
 	/* border bottom radius */
 	-webkit-border-top-left-radius: 0px;
 	-webkit-border-top-right-radius: 0px;
-	-webkit-border-bottom-right-radius: 3px;
-	-webkit-border-bottom-left-radius: 3px;
+	-webkit-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
 	-moz-border-radius-topleft: 0px;
 	-moz-border-radius-topright: 0px;
-	-moz-border-radius-bottomright: 3px;
-	-moz-border-radius-bottomleft: 3px;
+	-moz-border-radius-bottomright: 6px;
+	-moz-border-radius-bottomleft: 6px;
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
-	border-bottom-right-radius: 3px;
-	border-bottom-left-radius: 3px; 
+	border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px; 
 	/* end border bottom radius */
 
 }
@@ -755,7 +761,7 @@ hr.line {
 	vertical-align: top;
 	text-align: left;
 	padding-left: 3px;
-    padding-top: 4px;
+    padding-top: 5px;
 }
 
 #top_bar #top_bar_2 .search #Base_Search__Search {
@@ -779,14 +785,14 @@ hr.line {
 	height: 20px;
 	position: absolute;
 	right: 11px;
-	top: 84px;
+	top: 86px;
 	background: url("Base/Box/filter_icon.png") no-repeat right;
 }
 #top_bar #top_bar_2 .filter {
 	height: auto;
 	text-align: left;
     vertical-align: top;
-    padding-top: 3px;
+    padding-top: 5px;
 	padding-left: 3px;
 	margin: auto;
 }

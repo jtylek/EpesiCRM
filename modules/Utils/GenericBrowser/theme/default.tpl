@@ -8,7 +8,7 @@
 	<tbody>
 		<tr>
 			<!-- Custom label -->
-			<td>
+			<td class="letter_search_icon">
 				{if isset($custom_label)}
 				{$custom_label}
 				{/if}
@@ -23,11 +23,11 @@
 				{/if}
 				>
 					<!-- SHADOW BEGIN -->
-						<div class="layer" style="padding: 10px; width: 540px;">
+						<div class="layer">
 							<div class="content_shadow">
 					<!-- -->
 
-						<div style="background-color: white; height: 20px; padding-top: 2px; padding-left: 2px;">
+						<div style="background-color: white; height: 22px; padding-top: 2px; padding-left: 2px;">
 							{if isset($letter_links)}
 							{foreach key=k item=link from=$letter_links}
 							{$link}
@@ -57,7 +57,7 @@
 				{/if}
 			</td>
 			<!-- Advanced / Simple Search -->
-			<td style="text-align: right;">
+			<td id="generic_browser_search" style="text-align: right;">
 				{if isset($form_data_search)}
 					<div class="IEfix">
 					{$form_data_search.javascript}
@@ -112,81 +112,56 @@
 	</tbody>
 </table>
 
-{$table_prefix}
 
 <div class="table">
-
-<!-- SHADOW BEGIN -->
 	<div class="layer">
-		<div class="content_shadow">
-<!-- -->
+		<div class="css3_content_shadow">
+			<div class="margin2px">
+				{$table_prefix}
+				{html_table_epesi table_attr='class="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;"' loop=$data cols=$cols row_attrs=$row_attrs}
+				{$table_postfix}
 
-<div class="margin2px">
+				{if isset($form_data_paging)}
+				{$form_data_paging.javascript}
 
-{html_table_epesi table_attr='class="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;"' loop=$data cols=$cols row_attrs=$row_attrs}
+				<form {$form_data_paging.attributes}>
+				{$form_data_paging.hidden}
+				{/if}
+				{if isset($order) || $first || $prev || $summary || isset($form_data_paging.page) || isset($form_data_paging.per_page)}
+					<table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
+						<tr class="nav_background">
+							<td nowrap style="width: 50%; text-align: left;">
+								{if isset($order)}
+									{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
+								{/if}
+							</td>
 
-</div>
+							<td class="nav_button" nowrap>{if isset($__link.first.open)}{$__link.first.open}<div class="nav_div1"><img src="{$theme_dir}/images/first.png"></div><div class="nav_div2">{$__link.first.text}</div>{$__link.first.close}{/if}</td>
+							<td class="nav_button" nowrap>{if isset($__link.prev.open)}{$__link.prev.open}<div class="nav_div1"><img border="0" src="{$theme_dir}/images/prev.png"></div><div class="nav_div2">{$__link.prev.text}</div>{$__link.prev.close}{/if}</td>
+							<td class="nav_button" nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
+							<td class="nav_button" nowrap>{if isset($__link.next.open)}{$__link.next.open}<div class="nav_div1">{$__link.next.text}</div><div class="nav_div2"><img border="0" src="{$theme_dir}/images/next.png"></div>{$__link.next.close}{/if}</td>
+							<td class="nav_button" nowrap>{if isset($__link.last.open)}{$__link.last.open}<div class="nav_div1">{$__link.last.text}</div><div class="nav_div2"><img border="0" src="{$theme_dir}/images/last.png"></div>{$__link.last.close}{/if}</td>
+					
+							<td class="nav_pagin" nowrap style="width: 25%; text-align: right;">		
+								{if isset($form_data_paging.page)}
+									&nbsp;&nbsp;&nbsp;{$form_data_paging.page.label}&nbsp;&nbsp;&nbsp;{$form_data_paging.page.html}
+								{/if}	
+							</td>
+							<td class="nav_per_page" nowrap style="width: 25%; text-align: right;">
+								{if isset($form_data_paging.per_page)}
+									&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.label}&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.html}
+								{/if}
+							</td>
+						</tr>
+					</table>
+				{/if}
 
-<!-- SHADOW END -->
+				{if isset($form_data_paging)}
+				</form>
+				{/if}
+			</div>
  		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
 	</div>
-<!-- -->
-
 </div>
 
-{$table_postfix}
-
-{if isset($form_data_paging)}
-{$form_data_paging.javascript}
-
-<form {$form_data_paging.attributes}>
-{$form_data_paging.hidden}
-{/if}
-{if isset($order) || $first || $prev || $summary || isset($form_data_paging.page) || isset($form_data_paging.per_page)}
-	<table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td nowrap style="width: 50%; text-align: left;">
-				{if isset($order)}
-					{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
-				{/if}
-			</td>
-
-			<td nowrap>{if isset($__link.first.open)}{$__link.first.open}&nbsp;<img border="0" src="{$theme_dir}/images/first.png">&nbsp;{$__link.first.text}&nbsp;{$__link.first.close}{/if}</td>
-			<td nowrap>{if isset($__link.prev.open)}{$__link.prev.open}&nbsp;<img border="0" src="{$theme_dir}/images/prev.png">&nbsp;{$__link.prev.text}&nbsp;{$__link.prev.close}{/if}</td>
-			<td nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
-
-			<td nowrap>{if isset($__link.next.open)}{$__link.next.open}&nbsp;{$__link.next.text}&nbsp;<img border="0" src="{$theme_dir}/images/next.png">&nbsp;{$__link.next.close}{/if}</td>
-			<td nowrap>{if isset($__link.last.open)}{$__link.last.open}&nbsp;{$__link.last.text}&nbsp;<img border="0" src="{$theme_dir}/images/last.png">&nbsp;{$__link.last.close}{/if}</td>
-	
-			<td nowrap style="width: 25%; text-align: right;">
-				{if isset($form_data_paging.page)}
-					&nbsp;&nbsp;&nbsp;{$form_data_paging.page.label}&nbsp;&nbsp;&nbsp;{$form_data_paging.page.html}
-				{/if}
-			</td>
-			<td nowrap style="width: 25%; text-align: right;">
-				{if isset($form_data_paging.per_page)}
-					&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.label}&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.html}
-				{/if}
-			</td>
-		</tr>
-	</table>
-{/if}
-
-{if isset($form_data_paging)}
-</form>
-{/if}
 </div>

@@ -26,9 +26,19 @@ table#Base_Search__Search input {
 	color: #000000;
 	border: 1px solid #b3b3b3;
 	/*width: 173px;*/
-	width: 161px;
+	width: 156px;
 	height: 16px;
 	font-size: 11px;
+	padding-left: 5px;
+	
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */
+}
+table#Base_Search__Search input:focus {
+	background-color: #FFFFA5;
 }
 
 table#Base_Search__Search td.input {
@@ -81,7 +91,7 @@ table#Base_Search__Search input.mini_submit:hover {
 	height: 20px;
 	position: absolute;
 	right: 11px;
-	top: 57px;
+	top: 58px;
 	background: url("Base/Box/search_icon.png") no-repeat right;
 }
 

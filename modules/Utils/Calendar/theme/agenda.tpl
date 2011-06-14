@@ -1,6 +1,6 @@
 {$form_open}
 
-<table style="width:100%">
+<table style="width:98%">
 	<tr>
 		<td style="width:25%">
 			&nbsp;

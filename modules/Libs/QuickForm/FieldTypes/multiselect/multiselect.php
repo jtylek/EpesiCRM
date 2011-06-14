@@ -574,11 +574,11 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$strHtml .= $tabs . '<table id="multiselect">';
             $strHtml .= $tabs . '<tr><td class="form-element">' . $fromElement . '</td>';
 
-			$strHtml .= $tabs . '<td class="buttons"><table>' .
-						$tabs . '<tr><td class="button">'.$buttons['add_selected'].'</td></tr>' .
-						$tabs . '<tr><td class="button">'.$buttons['add_all'].'</td></tr>' .
-						$tabs . '<tr><td class="button">'.$buttons['remove_all'].'</td></tr>' .
-						$tabs . '<tr><td class="button">'.$buttons['remove_selected'].'</td></tr>' .
+			$strHtml .= $tabs . '<td ><table>' .
+						$tabs . '<tr><td >'.$buttons['add_selected'].'</td></tr>' .
+						$tabs . '<tr><td >'.$buttons['add_all'].'</td></tr>' .
+						$tabs . '<tr><td >'.$buttons['remove_all'].'</td></tr>' .
+						$tabs . '<tr><td >'.$buttons['remove_selected'].'</td></tr>' .
 						$tabs . '</table></td>';
 
 			$strHtml .= $tabs . '<td class="to-element">' . $toElement . '</td></tr></table>';

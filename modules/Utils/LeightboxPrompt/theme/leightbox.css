@@ -1,9 +1,6 @@
 #Filters_header,
 .Filters_header {
 	color: #FFFFFF;
-	background-color: #336699;
-	background-image: url("images/header-blue.gif");
-	background-repeat: repeat-x;
 	height: 20px;
 	text-align: center;
 	vertical-align: middle;
@@ -39,22 +36,19 @@
 /* button */
 
 table#Utils_LeightboxPrompt .big-button {
-	background-color: #F0F0F0;
-	border: 1px solid #FFFFFF;
-	background-repeat: repeat-x;
+	/*width: 200px;*/
+	height: auto;
 	vertical-align: middle;
 	text-align: center;
 	font-size: 11px;
 	display: block;
+	padding-top: 3px;
 	cursor: pointer;
-	height: 60px;
-	background-image: url("images/big-button.png");
-	padding-top: 10px;
+	color: #336699;
 }
 
 table#Utils_LeightboxPrompt .big-button:hover {
-	background-color: #FFFFFF;
-	background-image: url("images/big-button-hover.png");
+	color: #993333;
 }
 
 table#Utils_LeightboxPrompt a .big-button {
@@ -101,4 +95,47 @@ table#Utils_LeightboxPrompt .button-small:hover {
 
 table#Utils_LeightboxPrompt a:hover {
 	color: #993333;
+}
+
+.icon_td_text {
+	width: 50px;
+	height: 29px;
+	overflow: hidden;
+	text-align: center;
+    vertical-align: middle;
+	font-weight: normal;
+}
+
+.leightbox_shadow_css3 {
+	margin: 8px; 
+	width: 56px;
+	height: 73px;
+	overflow: hidden;
+	background-color: white; 
+	
+	/*Transition*/
+	-webkit-transition: all 0.4s ease-out;
+    -moz-transition: all 0.4s ease-out;
+    -o-transition: all 0.4s ease-out;	
+	/* end Transition*/
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 0px 0px 3px gray;
+	-moz-box-shadow: 0px 0px 3px gray;
+	box-shadow: 0px 0px 3px gray;
+	/* end css3 shadow border*/
+	
+	/* border radius css3 */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius css3 */	
+}
+
+.leightbox_shadow_css3:hover {
+	/* css3 shadow border*/
+	-webkit-box-shadow: 0px 0px 10px #005100;
+	-moz-box-shadow: 0px 0px 10px #005100;
+	box-shadow: 0px 0px 10px #005100;
+	/* end css3 shadow border*/
 }
