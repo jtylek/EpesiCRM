@@ -475,6 +475,7 @@ class HTML_QuickForm_element extends HTML_Common
         if (!$this->getAttribute('id')) {
             $this->updateAttributes(array('id' => 'qf_'.$idx));// . substr(md5($idx++), 0, 6)));
         }
+		$idx++;
     } // end func _generateId
 
     // }}}

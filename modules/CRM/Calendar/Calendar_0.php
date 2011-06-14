@@ -51,7 +51,7 @@ class CRM_Calendar extends Module {
 		$handlers = DB::GetAll('SELECT id, group_name, handler_callback FROM crm_calendar_custom_events_handlers');
 		$this->lp = $this->init_module('Utils_LeightboxPrompt');
 		$count = 0;
-		foreach ($handlers as $k=>$v) {
+		foreach ($handlers as $v) {
 			$new_events = call_user_func($v['handler_callback'], 'new_event_types');
 			if ($new_events!==null) foreach($new_events as $k=>$w) {
 				if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
