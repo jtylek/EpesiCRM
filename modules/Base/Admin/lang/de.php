@@ -25,4 +25,6 @@ $translations['Base_Admin']['Records Sets']='Zusammenstellung der Einträge';
 $translations['Base_Admin']['Static pages']='Statische Seiten';
 $translations['Base_Admin']['Title and logo']='Titel und Logo';
 $translations['Base_Admin']['Modules settings']='Moduleinstellungen';
+$translations['Base_Admin']['Download modules']='Module herunterladen';
+$translations['Base_Admin']['Outgoing mail global signature']='Mail Signaturen erstellen';
 ?>

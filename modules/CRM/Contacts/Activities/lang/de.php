@@ -20,4 +20,8 @@ $translations['CRM_Contacts_Activities']['Date/Deadline']='Datum/Deadline';
 $translations['CRM_Contacts_Activities']['Employees']='Mitarbeiter';
 $translations['CRM_Contacts_Activities']['Customers']='Kunden';
 $translations['CRM_Contacts_Activities']['Attachments']='Anhänge';
+$translations['CRM_Contacts_Activities']['Event']='Anlass';
+$translations['CRM_Contacts_Activities']['Phone Call']='Anruf';
+$translations['CRM_Contacts_Activities']['Task']='Aufgabe';
+$translations['CRM_Contacts_Activities']['No deadline']='Keine Deadline';
 ?>

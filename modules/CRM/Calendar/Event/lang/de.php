@@ -86,4 +86,12 @@ $translations['CRM_Calendar_Event']['Tasks']='Aufgaben';
 $translations['CRM_Calendar_Event']['Phonecalls']='Anrufe';
 $translations['CRM_Calendar_Event']['Tickets']='';
 $translations['CRM_Calendar_Event']['All']='Alle';
+$translations['CRM_Calendar_Event']['Date']='Datum';
+$translations['CRM_Calendar_Event']['phonecall']='Anruf';
+$translations['CRM_Calendar_Event']['Assigned to']='Zugewiesen an';
+$translations['CRM_Calendar_Event']['Contacts']='Kontakte';
+$translations['CRM_Calendar_Event']['Notes']='Notizen';
+$translations['CRM_Calendar_Event']['Timeless event']='Endlos';
+$translations['CRM_Calendar_Event']['Event']='Anlass';
+$translations['CRM_Calendar_Event']['Meeting']='';
 ?>

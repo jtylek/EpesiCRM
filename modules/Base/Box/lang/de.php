@@ -13,4 +13,6 @@ $translations['Base_Box']['Checking if new version is available...']='Nach neuer
 $translations['Base_Box']['Support epesi!']='epesi unterstützen';
 $translations['Base_Box']['If you find our software useful, please support us by making a donation.<br>Your funding will help to ensure continued development of this project.<br>Click for details.']='Falls sie epesi als gut beurteilen, unterstützen sie uns doch mit einer Spende.<br />Ihr Beitrag hilft die Weiterentwicklung von epesi zu sichern. <br />Weitere Details...';
 $translations['Base_Box']['Home']='';
+$translations['Base_Box']['There\'s a new version of epesi available for download. Please contact your administrator.']='Es gibt ein Update von epesi, bitte kontaktieren sie Ihren Administrator';
+$translations['Base_Box']['version %s <b>(Update Available!)</b>']='Version %s <b>(Neue Version verfügbar)</b>';
 ?>

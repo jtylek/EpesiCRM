@@ -12,4 +12,5 @@ $translations['Base_Lang_Administrator']['Original']='Original';
 $translations['Base_Lang_Administrator']['Translated']='Übersetzt';
 $translations['Base_Lang_Administrator']['OK']='OK';
 $translations['Base_Lang_Administrator']['Cancel']='Abbrechen';
+$translations['Base_Lang_Administrator']['Filter']='';
 ?>

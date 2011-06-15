@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-applets
- * @subpackage birthdays
+ * @package epesi-translations
+ * @subpackage pl
  */
 global $translations;
 $translations['Applets_Birthdays']['Birthdays upcoming in the next: ']='Urodziny w najbliższych';

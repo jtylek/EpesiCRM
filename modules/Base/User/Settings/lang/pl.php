@@ -101,4 +101,5 @@ $translations['Base_User_Settings']['50']='50';
 $translations['Base_User_Settings']['100']='100';
 $translations['Base_User_Settings']['Reports: Projects']='Raporty: Projekty';
 $translations['Base_User_Settings']['Action bar displays']='Wyswitlanie paska akcji';
+$translations['Base_User_Settings']['Freeconet SIP phone']='Telefon internetowy Freeconet';
 ?>

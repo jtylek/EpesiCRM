@@ -6,4 +6,5 @@
  */
 global $translations;
 $translations['Applets_RssFeed']['Loading RSS...']='Pobieranie RSS...';
+$translations['Applets_RssFeed']['Loading Weather...']='Pobieranie Pogody...';
 ?>

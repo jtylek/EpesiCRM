@@ -34,4 +34,5 @@ $translations['Base_Menu_QuickAccess']['CRM: Sales Opportunity']='Szanse Sprzeda
 $translations['Base_Menu_QuickAccess']['Messenger alerts']='Alarmy komunikatora';
 $translations['Base_Menu_QuickAccess']['CRM: List Manager']='CRM: Menadżer List';
 $translations['Base_Menu_QuickAccess']['CRM: Assets']='CRM: Wyposażenie';
+$translations['Base_Menu_QuickAccess']['Freeconet billing']='Biling telefoniczny Freeconet';
 ?>

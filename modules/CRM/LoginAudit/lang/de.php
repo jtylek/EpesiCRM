@@ -21,4 +21,5 @@ $translations['CRM_LoginAudit']['Log will be purged!']='Log wird geleert!';
 $translations['CRM_LoginAudit']['Records older than ']='Einträge älter als';
 $translations['CRM_LoginAudit'][' days (']='Tage (';
 $translations['CRM_LoginAudit'][') were purged.']=') werden geleert.';
+$translations['CRM_LoginAudit']['<b>Login</b> [uid] -> User Name']='';
 ?>

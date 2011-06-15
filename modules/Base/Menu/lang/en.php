@@ -102,4 +102,14 @@ $translations['Base_Menu']['List Manager']='';
 $translations['Base_Menu']['Sales Opportunity']='';
 $translations['Base_Menu']['User Activity Report']='';
 $translations['Base_Menu']['Translations']='';
+$translations['Base_Menu']['Freeconet billing']='';
+$translations['Base_Menu']['Courses']='Programs';
+$translations['Base_Menu']['Lessons']='Schedule';
+$translations['Base_Menu']['Resolve Conflicts']='';
+$translations['Base_Menu']['Rooms']='Locations';
+$translations['Base_Menu']['Schedule']='Schedule Template';
+$translations['Base_Menu']['Settings']='';
+$translations['Base_Menu']['Attend. Event Types']='';
+$translations['Base_Menu']['Planner Grid']='';
+$translations['Base_Menu']['Terms']='';
 ?>

@@ -38,4 +38,5 @@ $translations['Base_Menu']['List Manager']='Menadżer List';
 $translations['Base_Menu']['Assets']='Wyposażenie';
 $translations['Base_Menu']['Projects']='Projekty';
 $translations['Base_Menu']['Tests']='Testy';
+$translations['Base_Menu']['Freeconet billing']='Biling telefoniczny Freeconet';
 ?>

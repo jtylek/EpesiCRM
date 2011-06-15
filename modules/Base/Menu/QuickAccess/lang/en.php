@@ -95,4 +95,13 @@ $translations['Base_Menu_QuickAccess']['CRM: Assets']='';
 $translations['Base_Menu_QuickAccess']['Translations']='';
 $translations['Base_Menu_QuickAccess']['CRM: List Manager']='';
 $translations['Base_Menu_QuickAccess']['CRM: Sales Opportunity']='';
+$translations['Base_Menu_QuickAccess']['Freeconet billing']='';
+$translations['Base_Menu_QuickAccess']['Register: Resolve Conflicts']='';
+$translations['Base_Menu_QuickAccess']['Register: Schedule']='Schedule Template';
+$translations['Base_Menu_QuickAccess']['Register: Lessons']='Schedule';
+$translations['Base_Menu_QuickAccess']['Register: Courses']='Programs';
+$translations['Base_Menu_QuickAccess']['Register: Rooms']='Locations';
+$translations['Base_Menu_QuickAccess']['Register: Settings: Terms']='';
+$translations['Base_Menu_QuickAccess']['Register: Settings: Attend. Event Types']='';
+$translations['Base_Menu_QuickAccess']['Register: Settings: Planner Grid']='';
 ?>
