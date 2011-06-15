@@ -167,9 +167,10 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					'Event.observe(\'other_customer\',\'change\', onchange_other_customer);'.
 					'function enable_disable_customer(arg) {'.
 					'customer = document.forms[\''.$form->getAttribute('name').'\'].customer;'.
+					'customer_s = document.forms[\''.$form->getAttribute('name').'\'].customer__search;'.
 					'o_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer_name;'.
 					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
-					'if (arg) {c_phone.disabled=true;customer.disabled=true;o_customer.disabled=false;} else {c_phone.disabled=false;if(customer.length!=0)customer.disabled=false;o_customer.disabled=true;}'.
+					'if (arg) {c_phone.disabled=true;customer_s.disabled=customer.disabled=true;o_customer.disabled=false;} else {c_phone.disabled=false;if(customer.length!=0)customer_s.disabled=customer.disabled=false;o_customer.disabled=true;}'.
 					'if (arg) c_phone.checked=true;'.
 					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
 					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.
