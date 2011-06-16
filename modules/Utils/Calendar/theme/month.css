@@ -286,6 +286,9 @@ table#Utils_Calendar__month .month-header a:hover {
 
 #month-menu img {
 	vertical-align: middle;
+	width: 20px;
+	height: 20px;
+	border: none;
 }
 
 #month-menu .empty {

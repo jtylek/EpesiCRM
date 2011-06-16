@@ -49,7 +49,6 @@
 	text-align: left;
 	vertical-align: middle;
 	padding-bottom: 3px;
-	text-shadow:  -1px 1px 6px black;
 }
 
 #dashboard .controls a {
@@ -92,16 +91,16 @@
 	/* end css3 shadow border*/
 }
 
-.content_shadow_css3_dashboard.black { border: 4px solid #404040;}
-.content_shadow_css3_dashboard.blue { border: 4px solid #7B9CBD;}
-.content_shadow_css3_dashboard.dark-blue { border: 4px solid #346799;}
-.content_shadow_css3_dashboard.dark-gray { border: 4px solid #8C8C8C;}
-.content_shadow_css3_dashboard.green { border: 4px solid #7BBD7B;}
-.content_shadow_css3_dashboard.dark-green { border: 4px solid #339900;}
-.content_shadow_css3_dashboard.red { border: 4px solid #BD7B7B;}
-.content_shadow_css3_dashboard.dark-red { border: 4px solid #990033;}
-.content_shadow_css3_dashboard.yellow { border: 4px solid #FFFF66;}
-.content_shadow_css3_dashboard.dark-yellow { border: 4px solid #DBDB29;}
+.content_shadow_css3_dashboard.black_dashboard { border: 4px solid #5B5B5B;}
+.content_shadow_css3_dashboard.blue_dashboard { border: 4px solid #7B9CBD;}
+.content_shadow_css3_dashboard.dark-blue_dashboard { border: 4px solid #346799;}
+.content_shadow_css3_dashboard.dark-gray_dashboard { border: 4px solid #8C8C8C;}
+.content_shadow_css3_dashboard.green_dashboard { border: 4px solid #A8CC8E;}
+.content_shadow_css3_dashboard.dark-green_dashboard { border: 4px solid #4A7C2A;}
+.content_shadow_css3_dashboard.red_dashboard { border: 4px solid #BD7B7B;}
+.content_shadow_css3_dashboard.dark-red_dashboard { border: 4px solid #990033;}
+.content_shadow_css3_dashboard.yellow_dashboard { border: 4px solid #F2F2A2;}
+.content_shadow_css3_dashboard.dark-yellow_dashboard { border: 4px solid #CCCC33;}
 
 
 /* no shadow in tables */
@@ -128,3 +127,14 @@
 #dashboard #letters-search	{
 	padding: 0px;
 }
+
+#dashboard #Utils_GenericBrowser__navigation {
+	height: 15px;
+}
+#dashboard #Utils_GenericBrowser__navigation .nav_background {
+	border: 1px solid red;
+	background: none;
+	font-size: 100%;
+	color: black;
+}
+

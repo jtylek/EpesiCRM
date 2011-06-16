@@ -1,4 +1,5 @@
 #shoutbox_board_big {
+	margin-top: 5px;
     height: 320px;
 	width: 100%;
     white-space: pre-wrap;       /* css-3 */
@@ -11,6 +12,18 @@
     border: 1px solid #B3B3B3;
     padding: 5px;
     background-color: #FFFFFF;
+	
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px black;
+	-moz-box-shadow: 1px 1px 3px black;
+	box-shadow: 1px 1px 3px black;
+	/* end css3 shadow border*/
 }
 
 #shoutbox_big_container {
@@ -47,18 +60,51 @@
 #shoutbox_text_big {
     width: 100%;
     height: 80px;
+
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px black;
+	-moz-box-shadow: 1px 1px 3px black;
+	box-shadow: 1px 1px 3px black;
+	/* end css3 shadow border*/
 }
 
 #shoutbox_button_big {
+	cursor:pointer;
     color: #FFFFFF;
-    background-color: #336699;
-    background-image: url('images/header-blue.gif');
-    background-repeat: repeat-x;
     border: 0px;
     width: 90px;
-    height: 20px;
-    padding: 1px;
+    height: 24px;
+    padding: 0px 0px 6px 0px;
     float:right;
+	
+	/* css3 blue gradient */
+	background: #7b9cbd; /* Old browsers */
+	background: -moz-linear-gradient(top, #7b9cbd 0%, #336699 50%, #7b9cbd 51%, #7b9cbd 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7b9cbd), color-stop(50%,#336699), color-stop(51%,#7b9cbd), color-stop(100%,#7b9cbd)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #7b9cbd 0%,#336699 50%,#7b9cbd 51%,#7b9cbd 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #7b9cbd 0%,#336699 50%,#7b9cbd 51%,#7b9cbd 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #7b9cbd 0%,#336699 50%,#7b9cbd 51%,#7b9cbd 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7b9cbd', endColorstr='#7b9cbd',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #7b9cbd 0%,#336699 50%,#7b9cbd 51%,#7b9cbd 100%); /* W3C */
+	/* end css3  gradient */
+	
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px black;
+	-moz-box-shadow: 1px 1px 3px black;
+	box-shadow: 1px 1px 3px black;
+	/* end css3 shadow border*/
 }
 
 #shoutbox_button_big:hover {

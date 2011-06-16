@@ -14,9 +14,9 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 			</div>
 		</td>
 		<td style="width: 10px;"></td>
-		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>
-		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
-		<td><a class="button" {$next_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$next_label}</a></td>
+		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>
+		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
+		<td><a class="button" {$next_href}><img src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$next_label}</a></td>
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
 		<td class="empty"></td>
@@ -25,10 +25,8 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 </div>
 
 
-<!-- SHADOW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 100%;">
-		<div class="content_shadow">
-<!-- -->
+		<div class="css3_content_shadow">
 
 <div style="padding: 5px; background-color: #FFFFFF;">
 
@@ -62,26 +60,8 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 	</table>
 
 </div>
-
-<!-- SHADOW END -->
  		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
 	</div>
-<!-- -->
-
 <div style="color: #777777; display: block; float: left; padding-left: 20px;">{$info}</div>
 
 </div>

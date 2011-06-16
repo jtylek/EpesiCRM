@@ -224,6 +224,9 @@ div.day-menu table.day-menu td {
 
 div.day-menu img {
 	vertical-align: middle;
+	width: 20px;
+	height: 20px;
+	border: none;
 }
 
 div.day-menu .empty {

@@ -358,12 +358,19 @@ div.week-menu img {
 div.week-menu a.button {
     font-weight: normal;
     color: #FFFFFF;
-    width: 100px;
+    width: 103px;
     height: 26px;
 	padding-top: 4px;
     display: block;
     border: 0px;
     text-align: center;
+}
+
+div.week-menu a.button img {
+	vertical-align: middle;
+	width: 20px;
+	height: 20px;
+	border: none;
 }
 
 div.week-menu a.button {line-height:: 0px\0/;}

@@ -288,7 +288,7 @@ class Utils_Attachment extends Module {
 		if($this->public_write && !is_array($this->group)) {
 			if(!$this->action_bar_button) {
 				$href = $this->create_callback_href(array($this,'edit_note_queue'));
-				$custom_label = '<a '.$href.' '.Utils_TooltipCommon::open_tag_attrs($this->t('New note')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>';
+				$custom_label = '<a class="attachment_add_new" '.$href.' '.Utils_TooltipCommon::open_tag_attrs($this->t('New note')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /><div class="attachment_div_add_new">Add new</div></a>';
 				if(isset($_SESSION['attachment_copy'])) {
 					print('&nbsp;<a '.Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste')).'>'.$this->t('Paste note').'</a>');
 				}

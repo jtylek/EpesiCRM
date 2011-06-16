@@ -263,6 +263,9 @@ div.year-menu {
 
 div.year-menu img {
 	vertical-align: middle;
+	width: 20px;
+	height: 20px;
+	border: none;
 }
 
 div.year-menu a.button {
