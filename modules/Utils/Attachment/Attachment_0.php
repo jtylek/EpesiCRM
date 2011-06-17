@@ -191,7 +191,7 @@ class Utils_Attachment extends Module {
 					$view_link = '';
 					$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
 					if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
-						$inline_img = '<hr><img src="'.$view_link.'" style="max-width:700px" /><br>';
+						$inline_img = '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
 				} else {
 					$file = 'missing file: '.$f_filename;
 				}
