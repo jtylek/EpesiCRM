@@ -971,6 +971,7 @@ class Utils_RecordBrowser extends Module {
         if (is_array($access))
             foreach ($access as $k=>$v)
                 if (!$v) unset($record[$k]);
+		$record = Utils_RecordBrowserCommon::record_processing($this->tab, $record, 'cloning', $id);
 		unset($record['id']);
         $this->navigate('view_entry', 'add', null, $record);
         return true;

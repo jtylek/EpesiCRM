@@ -134,8 +134,8 @@ class Utils_RecordBrowser_Reports extends Module {
 					$rows = count($this->ref_records);
 					if(!$v) $v = '--';
 				}
+				if (is_numeric($v)) $v = number_format($v, 2);
 				$next = $v.' %';
-//				$next = '--';
 				if ($v!=0) unset($format['fade_out_zero']);
 			}
 			$ret[] = $next;
@@ -534,8 +534,8 @@ class Utils_RecordBrowser_Reports extends Module {
 					if (!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
 					$format = array($this->format[$c], 'total');
 					$i=0;
-					foreach ($this->cols_total[$c] as $v) {
-        					if (!is_array($v)) $v = array($v);
+					foreach ($this->cols_total[$c] as $col=>$v) {
+        				if (!is_array($v)) $v = array($v);
 						if($this->format[$c]=='percent') foreach($v as &$vv) $vv = 0;
 						if ($this->row_summary!==false) {
 							foreach ($v as $k=>$w) {
@@ -543,7 +543,7 @@ class Utils_RecordBrowser_Reports extends Module {
 								$total[$k] += $w;
 							}
 						}
-						if (isset($this->col_summary['callback'])) $total = call_user_func($this->col_summary['callback'], $v, $c);
+						if (isset($this->col_summary['callback'])) $v = call_user_func($this->col_summary['callback'], $v, $c, $col);
 						$next = $this->format_cell($format, $v, 'col_total');
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $next['value'], $c);
 						$grow[] = $next;
@@ -552,6 +552,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					$format = array($this->format[$c], 'total_all');
 					if ($this->row_summary!==false) {
 						if($this->format[$c]=='percent') foreach($total as &$t) $t = 0;
+						if (isset($this->row_summary['callback'])) $total = call_user_func($this->row_summary['callback'], $results, $total, $c);
 						$next = $this->format_cell($format, $total, 'total_all');
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value'], $c);
 						$grow[] = $next;
