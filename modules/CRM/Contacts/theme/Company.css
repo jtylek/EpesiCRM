@@ -1,6 +1,6 @@
 .css3_content_shadow{
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 5x black;
+	-webkit-box-shadow: 1px 1px 5px black;
 	-moz-box-shadow: 1px 1px 5px black;
 	box-shadow: 1px 1px 5px black;
 	/* end css3 shadow border*/

@@ -1,14 +1,76 @@
+#shoutbox-content {
+	width: 100%;
+	height: auto;
+}
 .shoutbox-header {
     vertical-align: middle;
     text-align: left;
     font-size: 14px;
     font-weight: bold;
     color: #FFFFFF;
-    padding-left: 10px;
+    padding-left: 20px;
     padding-top: 7px;
     height: 24px;
+	width: 30%;
+	float: left;
     vertical-align: top;
-    background-image: url('images/dark-gray-gradient.gif');
-    background-repeat: repeat-y;
+	margin-bottom: 10px;
+	/* css3 horizontal gray gradient */
+	background: #666666; /* Old browsers */
+	background: -moz-linear-gradient(left, #666666 0%, #F0F0F0 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#666666), color-stop(100%,#F0F0F0)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(left, #666666 0%,#F0F0F0 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(left, #666666 0%,#F0F0F0 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(left, #666666 0%,#F0F0F0 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#666666', endColorstr='#F0F0F0',GradientType=1 ); /* IE6-9 */
+	background: linear-gradient(left, #666666 0%,#F0F0F0 100%); /* W3C */
+	/* end css3 horizontal gray gradient */
 }
 
+#shoutbox-content form {
+	clear: both;
+}
+
+#shoutbox-content input {
+	padding: 5px 8px;
+	color: white;
+	cursor: pointer;
+	
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px black;
+	-moz-box-shadow: 1px 1px 3px black;
+	box-shadow: 1px 1px 3px black;
+	/* end css3 shadow border*/
+	
+	/*dark css3 green background gradient */
+	background: #226622; /* Old browsers */
+	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#709c70), color-stop(49%,#4d844d), color-stop(51%,#226622), color-stop(100%,#649464)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64B164', endColorstr='#307030',GradientType=0); /* IE6-9 */
+	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
+	/* end dark css3 green background gradient */
+}
+
+input#datepicker_field_from_date,
+input#datepicker_field_to_date {
+	color: black;
+	background: white;
+}
+
+#shoutbox-content #datepicker_field_from_date:focus,
+#shoutbox-content #datepicker_field_to_date:focus {
+	background: #ffffa5;
+}
+
+#shoutbox-content select{
+	font-size: 14px;
+}

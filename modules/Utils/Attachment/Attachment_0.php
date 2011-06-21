@@ -130,7 +130,7 @@ class Utils_Attachment extends Module {
 		if (is_array($this->group)) $cols[] = array('name'=>$this->t('Source'),'width'=>5, 'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>1,'wrapmode'=>'nowrap');
 		$expand_id = 'expand_collapse_'.md5($this->get_path());
-		$cols[] = array('name'=>$this->t('Note'), 'preppend'=>'<span id="'.$expand_id.'"></span>', 'width'=>70);
+		$cols[] = array('name'=>$this->t('Note'), 'preppend'=>'<span class="GB_margin" id="'.$expand_id.'"></span>', 'width'=>70);
 		$cols[] = array('name'=>$this->t('Attachment'), 'order'=>'uaf.original','width'=>5);
 		$gb->set_table_columns($cols);
 
@@ -258,7 +258,7 @@ class Utils_Attachment extends Module {
 			$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'));
 			// ************* Strip without loosing html entities
 			if($max_len<mb_strlen($text,'UTF8') || $inline_img) {
-				$text = array('value'=>mb_substr($text,0,$max_len,'UTF8').'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.$this->t('[ + ]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.mb_substr($text,$max_len,mb_strlen($text,'UTF8'),'UTF8').$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->t('[ - ]').'</a></span>','hint'=>$this->t('Click on view icon to see full note'));
+				$text = array('value'=>mb_substr($text,0,$max_len,'UTF8').'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.$this->t('<div class="plus_green"></div>').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.mb_substr($text,$max_len,mb_strlen($text,'UTF8'),'UTF8').$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->t('<div class="minus_green"></div>').'</a></span>','hint'=>$this->t('Click on view icon to see full note'));
 				$expandable[] = $row['id'];
 				if($row['sticky']) $text['value'] = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text['value'];
 			} else {
@@ -302,7 +302,7 @@ class Utils_Attachment extends Module {
 		}
 
 		if(!empty($expandable))
-			eval_js('$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a style="display:inline;" href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Expand all')).'>[ + ]</a> <a style="display:inline;" href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Collapse all')).'>[ - ]</a>').'\'');
+			eval_js('$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Expand all')).'><div class="plus_white"></div></a> <a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Collapse all')).'><div class="minus_white"></div></a>').'\'');
 
 		$this->display_module($gb);
 	}

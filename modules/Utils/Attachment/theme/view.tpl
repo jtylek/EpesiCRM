@@ -9,18 +9,14 @@
 </table>
 
 
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 98%;">
-		<div class="content_shadow">
-<!-- -->
-
+<div class="css3_content_shadow_view">
     <table id="Utils_Attachment__view" border="0" cellpadding="0" cellspacing="5">
     	<tbody>
     		<tr>
     			<td class="header" colspan="3">{$header}</td>
         	</tr>
             <tr>
-                <td class="notepad-left">&nbsp;</td>
+                <!--<td class="notepad-left">&nbsp;</td>-->
                 <td class="note" colspan="2">{$note}</td>
             </tr>
 			{if $file!=''}
@@ -46,22 +42,4 @@
 			{/if}
     	</tbody>
     </table>
-
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
+ </div>

@@ -15,6 +15,7 @@ p.event {
 /* classes for big table */
 
 #Utils_Calendar__year {
+	margin-bottom: 3px;
 }
 
 #Utils_Calendar__year td {
@@ -241,6 +242,9 @@ div.month-applet {
 div.month-applet img {
 	vertical-align: middle;
 }
+div.month-applet-menu {
+	margin-top: 5px;
+}
 
 div.month-applet-menu a.button {
     font-weight: normal;
@@ -254,10 +258,17 @@ div.month-applet-menu a.button {
 }
 
 div.month-applet-menu a.button:hover {
-	background-color: #339933;
-    /*background-image: url("images/header-blue-hover.gif");*/
 }
 
+div.month-applet-menu a img {
+	width: 15px;
+	height: 15px;
+	margin: 4px auto auto auto;
+}
+div.month-applet-menu .select_date_dashboard a img {
+	margin-right: 4px;
+	margin-top: 0px;
+}
 div.month-applet table.month-applet {
 	width: 100%;
 }

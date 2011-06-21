@@ -120,11 +120,7 @@
 #launchpad_button_section #Base_ActionBar #panel div.icon {
 	margin: auto;}
 
-#Base_ActionBar #panel div.icon .div_icon {
-	width: 32px;
-	height: 32px;
-	background-image: url('Base/ActionBar/icons.png');
-}
+#Base_ActionBar #panel div.icon .div_icon { width: 32px;height: 32px; background-image: url('Base/ActionBar/icons.png'); margin: auto;}
 
 #Base_ActionBar #panel div.icon .icon_add       { background-position:   0px    0px; margin: auto;}
 #Base_ActionBar #panel div.icon .icon_all       { background-position: -32px    0px; margin: auto;}

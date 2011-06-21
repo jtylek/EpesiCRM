@@ -27,6 +27,12 @@ table#Base_Search__Search td.header_tail {
 	-moz-border-radius: 6px;
 	border-radius: 6px;
 	/* end border radius */
+
+	/* css3 shadow border*/
+ 	-webkit-box-shadow: 1px 1px 2px black;
+ 	-moz-box-shadow: 1px 1px 2px black;
+ 	box-shadow: 1px 1px 2px black;
+ 	/* end css3 shadow border*/
 }
 
 table#Base_Search__Search td.header_tail span.header {

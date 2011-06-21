@@ -1,6 +1,6 @@
 .css3_content_shadow{
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 5x black;
+	-webkit-box-shadow: 1px 1px 5px black;
 	-moz-box-shadow: 1px 1px 5px black;
 	box-shadow: 1px 1px 5px black;
 	/* end css3 shadow border*/
@@ -177,10 +177,13 @@ table.Utils_GenericBrowser > thead > tr > th {
 	background: linear-gradient(top, #7b9cbd 0%,#7b9cbd 50%,#336699 51%,#7b9cbd 100%); /* W3C */
 	/* end css3  gradient */
 }
-
+table.Utils_GenericBrowser > thead > tr > th > .GB_margin {
+	margin-left: 40%;
+}
 table.Utils_GenericBrowser > thead > tr > th > span {
 	color: #FFFFFF;
-    /*display: inline;*/
+	display: block;
+	float: left;
     height: 20px;
     line-height: 20px;
     margin-left: 3px;
@@ -209,6 +212,56 @@ table.Utils_GenericBrowser > thead > tr > th a:hover {
 	background: linear-gradient(top, #7b9cbd 0%,#336699 49%,#7b9cbd 51%,#7b9cbd 100%); /* W3C */
 	/* end css3 blue gradient - reverse */
 }
+.plus-minus,
+.plus-minus:hover {
+	width: 16px!important;
+	height: 16px !important;
+	float: left;
+	margin-top: 2px;
+	background: none !important;
+}
+/* plus minus - white */
+table.Utils_GenericBrowser > thead > tr > th div.plus_white {
+	width: 16px;
+	height: 16px;
+	background: url('Utils/GenericBrowser/plus_white.png');
+}
+table.Utils_GenericBrowser > thead > tr > th div.plus_white:hover {
+	background: url('Utils/GenericBrowser/plus_white2.png');
+}
+table.Utils_GenericBrowser > thead > tr > th div.minus_white {
+	width: 16px;
+	height: 16px;
+	background: url('Utils/GenericBrowser/minus_white.png');
+}
+table.Utils_GenericBrowser > thead > tr > th div.minus_white:hover {
+	background: url('Utils/GenericBrowser/minus_white2.png');
+}
+/* plus minus - white */
+
+/* plus minus - green */
+table.Utils_GenericBrowser div.plus_green {
+	float: right;
+	margin-right: 5px;
+	width: 16px;
+	height: 16px;
+	background: url('Utils/GenericBrowser/plus_green.png');
+}
+table.Utils_GenericBrowser div.plus_green:hover {
+	background: url('Utils/GenericBrowser/plus_green2.png');
+}
+table.Utils_GenericBrowser div.minus_green {
+	float: right;
+	margin-right: 5px;
+	width: 16px;
+	height: 16px;
+	background: url('Utils/GenericBrowser/minus_green.png');
+}
+table.Utils_GenericBrowser div.minus_green:hover {
+	background: url('Utils/GenericBrowser/minus_green2.png');
+}
+/* end plus minus - green */
+
 
 table.Utils_GenericBrowser > thead > tr > th input {
     display: block;
@@ -376,7 +429,7 @@ table.Utils_GenericBrowser__navigation img {
     width: 100%;
     padding-left: 20px;
     padding-right: 20px;
-	padding: 5px 20px 0 20px;
+	padding: 6px 20px 6px 20px;
 }
 
 #letters-search .letters {
