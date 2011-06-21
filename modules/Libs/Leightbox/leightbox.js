@@ -221,7 +221,7 @@ function leightbox_activate(name) {
 addLeightboxMarkup();
 getBrowserInfo();
 
-document.observe("e:load", function() {
+function leightbox_reload() {
     lbox = document.getElementsByClassName('lbOn');
     for(i = 0; i < leightboxes.length; i++)
         delete(leightboxes[i]);
@@ -232,4 +232,6 @@ document.observe("e:load", function() {
             leightbox_to_activate='';
         }
     }
-});
+}
+
+document.observe("e:load", leightbox_reload);
