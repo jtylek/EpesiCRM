@@ -28,8 +28,8 @@ table#Base_ActionBar a:hover {
 
 
 .launchpad_shadow_css3 {
-	margin: 8px; 
-	width: 56px;
+	margin: 8px 8px auto auto; 
+	width: 59px;
 	height: 73px;
 	overflow: hidden;
 	background-color: white; 

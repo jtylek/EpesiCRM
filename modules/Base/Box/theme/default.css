@@ -104,14 +104,14 @@ input, textarea, select {
     display: block;
     height: 21px;
     overflow: hidden;
-    width: 110px;
+    width: 108px;
 }
 
 .logout_icon_img {
 	width: 20px;
 	height: 20px;
 	position: absolute;
-	right: 11px;
+	right: 14px;
 	top: 34px;
 	background: url("Base/Box/logout_icon.png") no-repeat right;
 }
@@ -712,7 +712,7 @@ hr.line {
 	width: 289px;
 	height: auto;
     vertical-align: top;
-    padding: 1px 5px 0 0;
+    padding: 1px 4px 0 0;
 }
 
 .shadow_css3_login-search-td_border  {
@@ -789,13 +789,13 @@ hr.line {
     display: block;
     height: 27px;
     overflow: hidden;
-    width: 277px;
+    width: 275px;
 }
 .filter_icon_img {
 	width: 20px;
 	height: 20px;
 	position: absolute;
-	right: 11px;
+	right: 14px;
 	top: 86px;
 	background: url("Base/Box/filter_icon.png") no-repeat right;
 }
@@ -875,7 +875,7 @@ hr.line {
 
 .layer {
 	margin: 0px;
-	padding: 2px 10px 10px 10px;
+	padding: 2px 8px 10px 8px;
 	position: relative;
 }
 

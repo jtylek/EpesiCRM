@@ -58,7 +58,7 @@
 #Utils_RecordBrowser__Filter .buttons_disabled {
     display: block;
     float: right;
-    padding-right: 20px;
+    padding-right: 8px;
 }
 
 .Utils_RecordBrowser__Filter .buttons input,

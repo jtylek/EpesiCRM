@@ -14,6 +14,10 @@
 	background-position: 0px 31px;*/
 }
 
+.Utils_TabbedBrowser_div .letter_search_icon {
+	padding: 6px;
+}
+
 ul.Utils_TabbedBrowser {
 	text-align: left;
 	font-weight: normal;
@@ -21,7 +25,7 @@ ul.Utils_TabbedBrowser {
 	/*border-bottom: 4px solid #828282;*/
 	list-style-type: none;
 	/* padding: 13px 20px 3px 20px; */
-	padding: 0px 20px 0px 20px;
+	padding: 0px 8px;
 	padding-top: 0px;
 	margin-top: 0px;
 	background: transparent;

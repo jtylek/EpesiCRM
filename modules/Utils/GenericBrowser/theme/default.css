@@ -6,8 +6,16 @@
 	/* end css3 shadow border*/
 }
 
+.GenericBrowser_letters {
+	background-color: white;
+	height: 22px;
+	padding-top: 2px;
+	padding-left: 2px;
+	margin: 3px auto auto 5px;
+}
+
 #generic_browser_search{
-	width: 378px;
+	width: 364px;
 }
 .Utils_GenericBrowser__quickjump {
 	font-weight: normal;
@@ -95,7 +103,7 @@
 }
 
 .Utils_GenericBrowser__search .advanced {
-    padding-left: 20px;
+    padding-left: 6px;
 }
 
 .Utils_GenericBrowser__search .advanced a.button {
@@ -427,9 +435,7 @@ table.Utils_GenericBrowser__navigation img {
 
 #letters-search {
     width: 100%;
-    padding-left: 20px;
-    padding-right: 20px;
-	padding: 6px 20px 6px 20px;
+	padding: 0px 8px 0px 8px;
 }
 
 #letters-search .letters {
@@ -443,7 +449,7 @@ table.Utils_GenericBrowser__navigation img {
 
 .letter_search_icon {
 	width: 85px;
-	padding: 0px 2px 0 0;
+	padding: 0px 7px 0 0px;
 	color: white;
 }
 
@@ -545,13 +551,11 @@ table.Utils_GenericBrowser__navigation img {
     position: absolute;
     margin-left: 34px;
     margin-left: 50px;
-    margin-top: -11px;
 }
 
 #letters-search .letters .abc {
     height: 19px;
 	padding: 4px 0px 7px 0px;
-	margin-left: 5px;
     line-height: 20px;
     width: 50px;
     text-align: center;
@@ -600,8 +604,8 @@ table.Utils_GenericBrowser__navigation img {
 
 
 .layer {
-    padding: 9px;
-    width: 98%;
+    padding: 8px;
+    width: auto;
 }
 
 .layer .margin2px {

@@ -63,21 +63,21 @@
 	/* end dark css3 green background gradient */
 }
 
-#Leightbox_header .right .launchpad_icon_resize {
+#Leightbox_header .right .launchpad_icon_close {
 	width: auto;
     cursor: pointer;
     display: block;
     height: 22px;
     padding: 8px 25px 0 8px;
     color: white;
-	background: url(Libs/Leightbox/resize.png) no-repeat 5px 8px transparent;
+	background: url(Libs/Leightbox/close.png) no-repeat 5px 8px transparent;
 	background-position: right;
 }
 
-#Leightbox_header .right .launchpad_icon_resize:hover {
+#Leightbox_header .right .launchpad_icon_close:hover {
     color: white;
 	text-decoration: underline;
-	background: url(Libs/Leightbox/resize-hover.png) no-repeat 5px 8px transparent;
+	background: url(Libs/Leightbox/close-hover.png) no-repeat 5px 8px transparent;
 	background-position: right;
 }
 

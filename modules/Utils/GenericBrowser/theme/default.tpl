@@ -8,11 +8,11 @@
 	<tbody>
 		<tr>
 			<!-- Custom label -->
-			<td class="letter_search_icon">
-				{if isset($custom_label)}
+			{if (isset($custom_label) && $custom_label)}
+				<td class="letter_search_icon">
 				{$custom_label}
-				{/if}
-			</td>
+				</td>
+			{/if}
 			<!-- QuickJump -->
 			<td class="letters">
 				{if isset($letter_links)}
@@ -22,37 +22,14 @@
 					style="display: none;"
 				{/if}
 				>
-					<!-- SHADOW BEGIN -->
-						<div class="layer">
-							<div class="content_shadow">
-					<!-- -->
-
-						<div style="background-color: white; height: 22px; padding-top: 2px; padding-left: 2px;">
+					<div class="css3_content_shadow GenericBrowser_letters">
 							{if isset($letter_links)}
 							{foreach key=k item=link from=$letter_links}
 							{$link}
 							{/foreach}
 							{/if}
-						</div>
+					</div>
 
-					<!-- SHADOW END -->
-							</div>
-							<div class="shadow-top">
-								<div class="left"></div>
-								<div class="center"></div>
-								<div class="right"></div>
-							</div>
-							<div class="shadow-middle">
-								<div class="left"></div>
-								<div class="right"></div>
-							</div>
-							<div class="shadow-bottom">
-								<div class="left"></div>
-								<div class="center"></div>
-								<div class="right"></div>
-							</div>
-						</div>
-					<!-- -->
 				</div>
 				{/if}
 			</td>

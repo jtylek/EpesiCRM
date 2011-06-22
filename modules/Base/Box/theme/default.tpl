@@ -41,7 +41,7 @@
 				<td id="top_bar_help"><div class="help"><a {$help.href} onMouseOver="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help-hover.png';" onMouseOut="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help.png';"><img src="{$theme_dir}/Base/MainModuleIndicator/help.png" id="help_icon" alt="?" border="0"><div class="help_label">{$help.label}</div></a></div></td>
 				<td style="empty-cells: hide; width: 6px;"></td>				
 				<td class="module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div></td>
-				<td style="empty-cells: hide; width: 9px;"></td>
+				<td style="empty-cells: hide; width: 8px;"></td>
 			</tr>
 		</tbody>
 		</table>
