@@ -89,6 +89,14 @@ interface IClient {
      * @return int|false amount or false on error
      */
     function get_list_of_modules_total_amount();
+
+    /**
+     * Submit order to server to buy modules.
+     * 
+     * @param array $modules array of module ids
+     * @return array Array of booleans module_id => success?
+     */
+    function order_submit($modules);
 }
 
 ?>

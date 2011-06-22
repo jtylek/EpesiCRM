@@ -56,6 +56,10 @@ class ClientRequester implements IClient {
         $this->license_key = $license_key;
     }
 
+    public function order_submit($modules) {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
     protected function call($function, $params, $unserialize = true) {
         $err_msg = '';
         $post = http_build_query(
