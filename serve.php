@@ -30,9 +30,10 @@ if (isset($_GET['f'])) {
 		
 	if(isset($arr)) {
 		$arr2 = array();
+		$this_file_dir_pattern = '/'.preg_quote(dirname(__FILE__),'/').'/i';
 		foreach($arr as $k=>$v) {
 	    	if (preg_match($filenamePattern, $v) &&
-    	    	file_exists($v))
+    	    	file_exists($v) && preg_match($this_file_dir_pattern,realpath($v)))
 					$arr2[] = $v;
 		}
 	
