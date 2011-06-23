@@ -5,7 +5,7 @@
  * @subpackage de
  */
 global $translations;
-$translations['Base_Admin']['Change theme']='Ändere das Layout';
+$translations['Base_Admin']['Change theme']='Layout ändern';
 $translations['Base_Admin']['Common data']='Gemeinsame Daten';
 $translations['Base_Admin']['Countries']='Länder';
 $translations['Base_Admin']['Currencies']='Währungen';
@@ -26,5 +26,5 @@ $translations['Base_Admin']['Static pages']='Statische Seiten';
 $translations['Base_Admin']['Title and logo']='Titel und Logo';
 $translations['Base_Admin']['Modules settings']='Moduleinstellungen';
 $translations['Base_Admin']['Download modules']='Module herunterladen';
-$translations['Base_Admin']['Outgoing mail global signature']='Mail Signaturen erstellen';
+$translations['Base_Admin']['Outgoing mail global signature']='Ausgehende Mail Signatur';
 ?>

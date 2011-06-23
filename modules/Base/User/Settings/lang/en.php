@@ -775,5 +775,4 @@ $translations['Base_User_Settings']['Browsing records']='';
 $translations['Base_User_Settings']['Notes Aggregate']='';
 $translations['Base_User_Settings']['Language']='';
 $translations['Base_User_Settings']['Date & Time']='';
-$translations['Base_User_Settings']['Freeconet SIP phone']='';
 ?>

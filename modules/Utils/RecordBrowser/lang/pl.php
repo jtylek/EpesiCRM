@@ -178,4 +178,6 @@ $translations['Utils_RecordBrowser']['Start Date']='Data rozpoczęcia';
 $translations['Utils_RecordBrowser']['Only numbers are allowed.']='Tylko cyfry są dozwolone';
 $translations['Utils_RecordBrowser']['Sub']='Sub';
 $translations['Utils_RecordBrowser']['* Projects']='* Projekty';
+$translations['Utils_RecordBrowser']['[Perspective]']='[Perspektywa]';
+$translations['Utils_RecordBrowser']['Subscribed']='Zapisany';
 ?>

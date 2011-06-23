@@ -35,4 +35,6 @@ $translations['Base_Menu_QuickAccess']['Messenger alerts']='Alarmy komunikatora'
 $translations['Base_Menu_QuickAccess']['CRM: List Manager']='CRM: Menadżer List';
 $translations['Base_Menu_QuickAccess']['CRM: Assets']='CRM: Wyposażenie';
 $translations['Base_Menu_QuickAccess']['Freeconet billing']='Biling telefoniczny Freeconet';
+$translations['Base_Menu_QuickAccess']['Bug tracker: Projects']='';
+$translations['Base_Menu_QuickAccess']['Bug tracker: Tickets']='';
 ?>

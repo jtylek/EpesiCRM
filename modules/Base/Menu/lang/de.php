@@ -67,5 +67,4 @@ $translations['Base_Menu']['Reports']='Übersichten';
 $translations['Base_Menu']['User Activity Report']='Benutzeraktivitäten';
 $translations['Base_Menu']['Translations']='Übersetzungen';
 $translations['Base_Menu']['Change password']='';
-$translations['Base_Menu']['Sales Opportunities by Salesman']='';
 ?>

@@ -287,12 +287,4 @@ $translations['Utils_CommonData']['Ink']='Tinte';
 $translations['Utils_CommonData']['CRT']='';
 $translations['Utils_CommonData']['LCD']='';
 $translations['Utils_CommonData']['Laser']='';
-$translations['Utils_CommonData']['New Customer']='Neukunde';
-$translations['Utils_CommonData']['Existing Customer']='Bestehender Kunde';
-$translations['Utils_CommonData']['Web Site']='';
-$translations['Utils_CommonData']['E-mail']='';
-$translations['Utils_CommonData']['Referral']='';
-$translations['Utils_CommonData']['Advert']='';
-$translations['Utils_CommonData']['SSL']='';
-$translations['Utils_CommonData']['TLS']='';
 ?>

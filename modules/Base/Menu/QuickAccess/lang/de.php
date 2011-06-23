@@ -58,5 +58,4 @@ $translations['Base_Menu_QuickAccess']['E-mail']='E-mail';
 $translations['Base_Menu_QuickAccess']['Translations']='Übersetzungen';
 $translations['Base_Menu_QuickAccess']['CRM: List Manager']='CRM: Listenmanager';
 $translations['Base_Menu_QuickAccess']['CRM: Sales Opportunity']='CRM: Absatzchancen';
-$translations['Base_Menu_QuickAccess']['Reports: Sales Opportunities by Salesman']='';
 ?>

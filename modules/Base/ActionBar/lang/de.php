@@ -60,9 +60,6 @@ $translations['Base_ActionBar']['Config']='Einstellungen';
 $translations['Base_ActionBar']['Update Contacts']='Kontakte aktualisieren';
 $translations['Base_ActionBar']['Copy company data']='Firmendaten kopieren';
 $translations['Base_ActionBar']['Add targets']='Ziele hinzufügen';
-$translations['Base_ActionBar']['Download']='';
-$translations['Base_ActionBar']['Rebuild modules database']='Datenbank Module aktualisieren';
-$translations['Base_ActionBar']['Create PDF']='PDF erstellen';
 $translations['Base_ActionBar']['New user']='Neuer Benutzer';
-$translations['Base_ActionBar']['Restore defaults']='';
+$translations['Base_ActionBar']['Manage templates']='Templates Verwalten';
 ?>

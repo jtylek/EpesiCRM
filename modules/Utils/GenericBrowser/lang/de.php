@@ -37,9 +37,4 @@ $translations['Utils_GenericBrowser']['New Task']='Neue Aufgabe';
 $translations['Utils_GenericBrowser']['New Phonecall']='Neuer Anruf';
 $translations['Utils_GenericBrowser']['New Note']='Neue Notiz';
 $translations['Utils_GenericBrowser']['Restore']='Wiederherstellen';
-$translations['Utils_GenericBrowser']['delete']='Löschen';
-$translations['Utils_GenericBrowser']['view']='Andicht';
-$translations['Utils_GenericBrowser']['history']='Verlauf';
-$translations['Utils_GenericBrowser']['copy']='Kpieren';
-$translations['Utils_GenericBrowser']['cut']='Ausschneiden';
 ?>

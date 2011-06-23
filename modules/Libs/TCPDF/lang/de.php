@@ -7,4 +7,5 @@
 global $translations;
 $translations['Libs_TCPDF']['Upload company logo']='Upload des Firmenlogos';
 $translations['Libs_TCPDF']['Upload']='Upload';
+$translations['Libs_TCPDF']['Page']='';
 ?>

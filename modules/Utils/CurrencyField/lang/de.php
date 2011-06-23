@@ -14,7 +14,7 @@ $translations['Utils_CurrencyField']['Symbol']='Symbol';
 $translations['Utils_CurrencyField']['Symbol position']='Position des Symbols';
 $translations['Utils_CurrencyField']['Decimal sign']='Dezimalzeichen';
 $translations['Utils_CurrencyField']['Thousand sign']='Tausender Trennzeichen';
-$translations['Utils_CurrencyField']['Decimals']='Dezimale';
+$translations['Utils_CurrencyField']['Decimals']='Dezimalen';
 $translations['Utils_CurrencyField']['Active']='Aktiv';
 $translations['Utils_CurrencyField']['Edit currency']='Bearbeite Währung';
 $translations['Utils_CurrencyField']['Code must be up to 16 characters long']='Code darf bis zu 16 Zeichen lang sein';
@@ -23,5 +23,4 @@ $translations['Utils_CurrencyField']['Decimal sign must be up to 2 characters lo
 $translations['Utils_CurrencyField']['Thousand sign must be up to 2 characters long']='Tausender Trennzeichen darf bis zu 2 Zeichen lang sein';
 $translations['Utils_CurrencyField']['Field must hold numeric value']='Feld muss numerischen Wert beinhalten';
 $translations['Utils_CurrencyField']['Field required']='Benötigtes Feld';
-$translations['Utils_CurrencyField']['Example value: %s']='';
 ?>
