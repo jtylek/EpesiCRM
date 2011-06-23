@@ -2705,19 +2705,19 @@ ob_end_clean();
 
 if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
     if(DATABASE_DRIVER=='mysqlt') {
-        DB::Execute('ALTER TABLE `rc_users` CHANGE `last_login` `last_login` datetime DEFAULT NULL');
-        DB::Execute('UPDATE `rc_users` SET `last_login` = NULL WHERE `last_login` = \'1000-01-01 00:00:00\'');
-        DB::Execute('ALTER TABLE `rc_users` DROP INDEX `username_index`');
-        DB::Execute('ALTER TABLE `rc_users` ADD UNIQUE `username` (`username`, `mail_host`)');
-        DB::Execute('ALTER TABLE `rc_contacts` MODIFY `email` varchar(255) NOT NULL');
-        DB::Execute('TRUNCATE TABLE `rc_messages`');
+        @DB::Execute('ALTER TABLE `rc_users` CHANGE `last_login` `last_login` datetime DEFAULT NULL');
+        @DB::Execute('UPDATE `rc_users` SET `last_login` = NULL WHERE `last_login` = \'1000-01-01 00:00:00\'');
+        @DB::Execute('ALTER TABLE `rc_users` DROP INDEX `username_index`');
+        @DB::Execute('ALTER TABLE `rc_users` ADD UNIQUE `username` (`username`, `mail_host`)');
+        @DB::Execute('ALTER TABLE `rc_contacts` MODIFY `email` varchar(255) NOT NULL');
+        @DB::Execute('TRUNCATE TABLE `rc_messages`');
     } else {
-        DB::Execute('ALTER TABLE rc_users ALTER last_login DROP NOT NULL');
-        DB::Execute('ALTER TABLE rc_users ALTER last_login SET DEFAULT NULL');
-        DB::Execute('DROP INDEX rc_users_username_id_idx');
-        DB::Execute('ALTER TABLE rc_users ADD CONSTRAINT users_username_key UNIQUE (username, mail_host)');
-        DB::Execute('ALTER TABLE rc_contacts ALTER email TYPE varchar(255)');
-        DB::Execute('TRUNCATE rc_messages');
+        @DB::Execute('ALTER TABLE rc_users ALTER last_login DROP NOT NULL');
+        @DB::Execute('ALTER TABLE rc_users ALTER last_login SET DEFAULT NULL');
+        @DB::Execute('DROP INDEX rc_users_username_id_idx');
+        @DB::Execute('ALTER TABLE rc_users ADD CONSTRAINT users_username_key UNIQUE (username, mail_host)');
+        @DB::Execute('ALTER TABLE rc_contacts ALTER email TYPE varchar(255)');
+        @DB::Execute('TRUNCATE rc_messages');
     }
 }
 
