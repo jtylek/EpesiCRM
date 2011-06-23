@@ -2683,6 +2683,73 @@ function update_from_1_1_6_to_1_1_7() {
     }
     ob_end_clean();
 }
+
+$versions[] = '1.1.8';
+function update_from_1_1_7_to_1_1_8() {
+ob_start();
+if (ModuleManager::is_installed('Base_User_Settings')>=0)
+	Acl::add_aco('Base_User_Settings','access',array('Employee', 'Administrator'));
+
+if (ModuleManager::is_installed('Base_Dashboard')>=0)
+	Acl::add_aco('Base_Dashboard','access',array('Employee', 'Administrator'));
+
+if (ModuleManager::is_installed('Base_Search')>=0)
+	Acl::add_aco('Base_Search','access',array('Employee', 'Administrator'));
+
+if (ModuleManager::is_installed('Base_HomePage')>=0)
+	Acl::add_aco('Base_HomePage','menu access',array('Employee', 'Administrator'));
+
+if (ModuleManager::is_installed('Utils_Attachment')>=0)
+	Acl::add_aco('Utils_Attachment','view download history','Employee');
+ob_end_clean();
+
+if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
+    if(DATABASE_DRIVER=='mysqlt') {
+        DB::Execute('ALTER TABLE `rc_users` CHANGE `last_login` `last_login` datetime DEFAULT NULL');
+        DB::Execute('UPDATE `rc_users` SET `last_login` = NULL WHERE `last_login` = \'1000-01-01 00:00:00\'');
+        DB::Execute('ALTER TABLE `rc_users` DROP INDEX `username_index`');
+        DB::Execute('ALTER TABLE `rc_users` ADD UNIQUE `username` (`username`, `mail_host`)');
+        DB::Execute('ALTER TABLE `rc_contacts` MODIFY `email` varchar(255) NOT NULL');
+        DB::Execute('TRUNCATE TABLE `rc_messages`');
+    } else {
+        DB::Execute('ALTER TABLE rc_users ALTER last_login DROP NOT NULL');
+        DB::Execute('ALTER TABLE rc_users ALTER last_login SET DEFAULT NULL');
+        DB::Execute('DROP INDEX rc_users_username_id_idx');
+        DB::Execute('ALTER TABLE rc_users ADD CONSTRAINT users_username_key UNIQUE (username, mail_host)');
+        DB::Execute('ALTER TABLE rc_contacts ALTER email TYPE varchar(255)');
+        DB::Execute('TRUNCATE rc_messages');
+    }
+}
+
+if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
+    Acl::add_aco('Data_TaxRates','browse tax rates',array('Employee'));
+    Acl::add_aco('Data_TaxRates','view tax rate',array('Employee'));
+}
+
+if (ModuleManager::is_installed('CRM_Contacts_ParentCompany')>=0) {
+    Utils_RecordBrowserCommon::new_addon('company', 'CRM_Contacts_ParentCompany', 'parent_company_addon', 'Child Companies');
+}
+
+if (ModuleManager::is_installed('CRM_Contacts')>=0 && ModuleManager::is_installed('CRM_Roundcube')>=0){
+
+if (DB::GetOne('SELECT * FROM contact_field WHERE field=%s', array('Assistant Email'))) {
+	$ret = DB::Execute('SELECT * FROM contact_data_1 WHERE f_assistant_email IS NOT NULL');
+	while($row = $ret->FetchRow()) {
+		Utils_RecordBrowserCommon::new_record('rc_multiple_emails', array('record_type'=>'contact', 'record_id'=>$row['id'], 'nickname'=>'Assistant\'s E-mail', 'email'=>$row['f_assistant_email']));
+	}
+	Utils_RecordBrowserCommon::delete_record_field('contact', 'Assistant Email');
+}
+
+if (DB::GetOne('SELECT * FROM contact_field WHERE field=%s', array('Home Email'))) {
+	$ret = DB::Execute('SELECT * FROM contact_data_1 WHERE f_home_email IS NOT NULL');
+	while($row = $ret->FetchRow()) {
+		Utils_RecordBrowserCommon::new_record('rc_multiple_emails', array('record_type'=>'contact', 'record_id'=>$row['id'], 'nickname'=>'Home E-mail', 'email'=>$row['f_home_email']));
+	}
+	Utils_RecordBrowserCommon::delete_record_field('contact', 'Home Email');
+}
+
+}
+}
 //=========================================================================
 
 try {
