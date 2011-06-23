@@ -22,7 +22,7 @@ $serveExtensions = array('css', 'js');
 if (isset($_GET['f'])) {
     $filename = $_GET['f']; // remove any naughty bits
     $filenamePattern = '/[^\'"\\/\\\\]+\\.(?:' 
-        .implode('|', $serveExtensions).   ')$/';
+        .implode('|', $serveExtensions).')$/';
 	if(is_string($filename))
 	    $arr = explode(',',$filename);
 	elseif(is_array($filename))
@@ -32,7 +32,7 @@ if (isset($_GET['f'])) {
 		$arr2 = array();
 		foreach($arr as $k=>$v) {
 	    	if (preg_match($filenamePattern, $v) &&
-    	    	file_exists($v)) 
+    	    	file_exists($v))
 					$arr2[] = $v;
 		}
 	
@@ -48,7 +48,7 @@ if (isset($_GET['f'])) {
 			mkdir($cache_dir,0777,true);
 		Minify::setCache($cache_dir);
         
-		$opts = array(	'files' => $arr,
+		$opts = array(	'files' => $arr2,
 						'setExpires' => time() + 86400 * 365,
 						'rewriteCssUris'=>false
 				    );
