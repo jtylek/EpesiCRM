@@ -2721,7 +2721,7 @@ if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
     }
 }
 
-if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
+if(ModuleManager::is_installed('Data_TaxRates')>=0) {
     Acl::add_aco('Data_TaxRates','browse tax rates',array('Employee'));
     Acl::add_aco('Data_TaxRates','view tax rate',array('Employee'));
 }
