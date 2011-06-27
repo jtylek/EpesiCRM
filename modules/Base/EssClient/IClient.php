@@ -50,18 +50,18 @@ interface IClient {
     /**
      * Use this function before get_module_file() to generate package on server side.
      * 
-     * @param string $module_id unique identifier of module package
+     * @param array $order_ids Order ids to download in one file
      * @return string|false file sha1 sum or false on error
      */
-    function get_module_hash($module_id);
+    function download_prepare($order_ids);
 
     /**
      * Download package file contents.
      * 
-     * @param string $module_file_hash sha1 sum of module package file returned by get_module_hash()
+     * @param string $file_hash sha1 sum of package file returned by download_prepare()
      * @return string|false file data on success(use file_put_contents) or false on error
      */
-    function get_module_file($module_file_hash);
+    function download_prepared_file($file_hash);
 
     /**
      * Request module additional info.
