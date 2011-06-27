@@ -1,5 +1,4 @@
 #quickform {
-	width: 99%;
 }
 
 #quickform .header {
@@ -48,12 +47,11 @@
 	text-align: right;
 	vertical-align: top;
 	font-weight: normal;
-	width: 70px;
-	
 }
 
 #quickform .element,
-#quickform .element_text {
+#quickform .element_text,
+#quickform .element_password {
 	padding-top: 5px;
 }
 
@@ -70,7 +68,6 @@
 #quickform input {
 	font-weight: normal;
 	font-size: 11px;
-	color: black;
 	padding: 1px 3px;
 }
 
