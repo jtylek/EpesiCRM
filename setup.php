@@ -265,7 +265,7 @@ define("REDUCING_TRANSFER",1);
 /*
  * Turn on common cache.
  */
-define("CACHE_COMMON_FILES",1);
+define("CACHE_COMMON_FILES",0);
 
 /*
  * A lot of debug info, starting with what modules are changed, what module variables are set... etc.
