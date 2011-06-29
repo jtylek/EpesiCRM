@@ -33,7 +33,7 @@ class Apps_Shoutbox extends Module {
 
         $myid = Acl::get_user();
   	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-       	    $emps = DB::GetAssoc('SELECT l.id,IF(cd.f_last_name!=\'\',CONCAT(cd.f_last_name,\' \',cd.f_first_name,\' (\',l.login,\')\'),l.login) as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id!=%d ORDER BY name',array($myid));			    
+       	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id!=%d ORDER BY name',array($myid));			    
 	    } else
    		    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id!=%d ORDER BY login',array($myid));
    		$qf->addElement('select','user',$this->t('User'),array('all'=>$this->t('-- all --'))+$emps);
