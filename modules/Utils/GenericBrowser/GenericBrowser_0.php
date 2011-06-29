@@ -485,7 +485,7 @@ class Utils_GenericBrowser extends Module {
 		 				if (!$array) {
 		 					$t_where = '';
 		 					foreach($search as $s) {
-								$t_where .= ($t_where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($s)),DB::qstr('%'));
+								$t_where .= ($t_where?' AND':'').' '.$v['search'].' '.DB::like().' '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($s)),DB::qstr('%'));
 							}
 							$where .= ($where?' OR':'').' ('.$t_where.')';
 						} else
@@ -496,7 +496,7 @@ class Utils_GenericBrowser extends Module {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search']) && isset($search[$v['search']])) {
 		 			if (!$array)
-						$where .= ($where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search[$v['search']])),DB::qstr('%'));
+						$where .= ($where?' AND':'').' '.$v['search'].' '.DB::like().' '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search[$v['search']])),DB::qstr('%'));
 					else
 						$where[$v['search']][] = $search[$v['search']];
 				}
@@ -507,7 +507,7 @@ class Utils_GenericBrowser extends Module {
 					$where = ($where?'('.$where.') AND':'').' (false';
 					foreach(range(0,9) as $v)
 						$where .= 	' OR '
-									.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr($v)),'\'%\'');
+									.$quickjump.' '.DB::like().' '.DB::Concat(sprintf('%s',DB::qstr($v)),'\'%\'');
 					$where .= 	')';
 					if ($where) $where = ' ('.$where.')';
 	 			} else {
@@ -518,9 +518,9 @@ class Utils_GenericBrowser extends Module {
  			} else {
 	 			if (!$array) {
 					$where = ($where?'('.$where.') AND':'').' ('
-								.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr($quickjump_to)),'\'%\'')
+								.$quickjump.' '.DB::like().' '.DB::Concat(sprintf('%s',DB::qstr($quickjump_to)),'\'%\'')
 								.' OR '
-								.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr(strtolower($quickjump_to))),'\'%\'').
+								.$quickjump.' '.DB::like().' '.DB::Concat(sprintf('%s',DB::qstr(strtolower($quickjump_to))),'\'%\'').
 								')';
 					if ($where) $where = ' ('.$where.')';
 	 			} else {

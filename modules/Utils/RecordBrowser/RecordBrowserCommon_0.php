@@ -253,7 +253,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             elseif (!isset(self::$hash[$v])) trigger_error('get_id(): Unknown column: '.$v, E_USER_ERROR);
             $f_id = self::$hash[$v];
             if (self::$table_rows[$f_id]['type']=='multiselect') {
-                $where .= ' AND f_'.$v.' LIKE '.DB::Concat(DB::qstr('%\_\_'),'%s',DB::qstr('\_\_%'));
+                $where .= ' AND f_'.$v.' '.DB::like().' '.DB::Concat(DB::qstr('%\_\_'),'%s',DB::qstr('\_\_%'));
             } else $where .= ' AND f_'.$v.'=%s';
 
         }
@@ -859,8 +859,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if ($k[0]=='|') $or = true;
                 if ($k[0]=='<') $operator = '<';
                 if ($k[0]=='>') $operator = '>';
-                if ($k[0]=='~') $operator = 'LIKE';
-                if ($k[1]=='=' && $operator!='LIKE') {
+                if ($k[0]=='~') $operator = DB::like();
+                if ($k[1]=='=' && $operator!=DB::like()) {
                     $operator .= '=';
                     $k = substr($k, 2);
                 } else $k = substr($k, 1);
@@ -927,7 +927,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 $ret = Utils_CommonDataCommon::get_translated_array($cols2!==null?$cols2:$cols);
                                 $allowed_cd = array();
                                 if (!is_array($v)) $v = array($v);
-                                if ($noquotes && $operator=='LIKE') {
+                                if ($noquotes && $operator==DB::like()) {
                                     $pat = explode('###',DB::Concat(DB::qstr('###'),DB::qstr('%')));
                                     foreach ($v as $g=>$w) if ($w!='') {
                                         $v[$g] = '^'.str_replace($pat, '', $w);
@@ -947,11 +947,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 $having_cd = array();
                                 foreach ($allowed_cd as $vvv) {
                                     if ($is_multiselect)
-                                        $having_cd[] = 'r.f_'.$ref.' LIKE '.DB::Concat(DB::qstr('%'),DB::qstr('__'.$vvv.'__'),DB::qstr('%'));
+                                        $having_cd[] = 'r.f_'.$ref.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr('__'.$vvv.'__'),DB::qstr('%'));
                                     else
                                         $having_cd[] = 'r.f_'.$ref.'='.DB::qstr($vvv);
                                 }
-//                              print_r($having_cd);
                                 $having .= '('.implode(' OR ',$having_cd).')';
                                 break;
                             }
@@ -968,8 +967,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                     break;
                                 } else {
                                     if (!$noquotes) $w = DB::qstr($w);
-                                    $poss_vals .= ' OR f_'.implode(' LIKE '.$w.' OR f_', $cols2).' LIKE '.$w;
-                                    // TODO: possible inj
+                                    $poss_vals .= ' OR f_'.implode(' '.DB::like().' '.$w.' OR f_', $cols2).' '.DB::like().' '.$w;
                                 }
                             }
                             $allowed_cd = DB::GetAssoc('SELECT id, id FROM '.$tab2.'_data_1 WHERE false '.$poss_vals);
@@ -985,8 +983,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $is_multiselect = (self::$table_rows[self::$hash[$ref]]['type']=='multiselect');
                             foreach ($allowed_cd as $vvv) {
                                 if ($is_multiselect) $www = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$vvv.'\_\_'),DB::qstr('%'));
-                                else $www = DB::qstr($vvv);
-                                $having_cd[] = 'r.f_'.$ref.' LIKE '.$www;
+                                elseif (is_numeric($vvv)) {
+									$www = intVal($vvv);
+									$having_cd[] = 'r.f_'.$ref.' = '.$www;
+									continue;
+								}
+								else $www = DB::qstr($vvv);
+                                $having_cd[] = 'r.f_'.$ref.' '.DB::like().' '.$www;
                             }
                             $having .= '('.implode(' OR ',$having_cd).')';
                         } else trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
@@ -1012,6 +1015,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $f = $k;
                             $key = self::$table_rows[$k]['id'];
                         } else trigger_error('In table "'.$tab.'" - unknow column "'.$k.'" in criteria "'.print_r($crits,true).'". Available columns are: "'.print_r(self::$table_rows,true).'"', E_USER_ERROR);
+
+						if (self::$table_rows[self::$hash[$key]]['type']=='timestamp' && is_numeric($w))
+							$w = date('Y-m-d H:i:s', $w);
+						elseif (self::$table_rows[self::$hash[$key]]['type']=='date' && is_numeric($w))
+							$w = date('Y-m-d', $w);
+
                         if (self::$table_rows[$f]['type']!='text' && self::$table_rows[$f]['type']!='long text' && ($w==='' || $w===null || $w===false)) {
                             if($operator=='=')
                                 $having .= ' OR r.f_'.$key.' IS NULL';
@@ -1021,7 +1030,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $having .= ' OR r.f_'.$k.' IS NULL OR r.f_'.$k.'=\'\'';
                         } else {
                             if (self::$table_rows[$f]['type']=='multiselect') {
-                                $operator = 'LIKE';
+                                $operator = DB::like();
                                 $param = explode('::',self::$table_rows[$f]['param']);
                                 $w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.'\_\_'),DB::qstr('%'));
                             }
@@ -1969,8 +1978,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if ($k[0]=='|') $or = true;
                 if ($k[0]=='<') $operator = '<';
                 if ($k[0]=='>') $operator = '>';
-                if ($k[0]=='~') $operator = 'LIKE';
-                if ($k[1]=='=' && $operator!='LIKE') {
+                if ($k[0]=='~') $operator = DB::like();
+                if ($k[1]=='=' && $operator!=DB::like()) {
                     $operator .= '=';
                     $k = substr($k, 2);
                 } else $k = substr($k, 1);
@@ -2014,7 +2023,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					case '<=':	$operand .= 'smaller or equal to'; break;
 					case '>':	$operand .= 'greater than'; break;
 					case '>=':	$operand .= 'greater or equal to'; break;
-					case 'LIKE':$operand .= 'contains'; break;
+					case DB::like(): $operand .= 'contains'; break;
 					default:	$operand .= 'equal to';
 				}
 				$operand = self::ts($operand).' ';

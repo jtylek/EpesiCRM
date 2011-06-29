@@ -564,10 +564,8 @@ select viewname,'V' from pg_views where viewname like $mask";
 			// Freek
 			if (is_array($keys)) {
 				foreach($keys as $key) {
-					if ($fld->name == $key['column_name'] AND $key['primary_key'] == 't') 
-						$fld->primary_key = true;
-					if ($fld->name == $key['column_name'] AND $key['unique_key'] == 't') 
-						$fld->unique = true; // What name is more compatible?
+					$fld->primary_key = ($fld->name == $key['column_name'] AND $key['primary_key'] == 't');
+					$fld->unique = ($fld->name == $key['column_name'] AND $key['unique_key'] == 't');
 				}
 			}
 			

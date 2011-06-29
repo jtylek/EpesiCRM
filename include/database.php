@@ -922,6 +922,15 @@ if(SQL_TIMES)self::$queries[] = array("func"=>"CachePageExecute", "args"=>$args,
 return $ret;
 }
 
+	public function like() {
+		static $like = null;
+		if ($like===null) {
+            if(strcasecmp(DATABASE_DRIVER,"postgres")!==0) $like = 'LIKE';
+			else $like = 'ILIKE';
+		}
+		return $like;
+	}
+
 
 }
 

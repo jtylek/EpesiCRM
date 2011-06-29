@@ -67,7 +67,7 @@ class Apps_ActivityReport extends Module {
 
 		$af_where = array();
 		foreach($rb_tabs as $k=>$t)
-			$af_where[] = 'ual.local LIKE '.DB::Concat(DB::qstr($k.'/'),DB::qstr('%'));
+			$af_where[] = 'ual.local '.DB::like().' '.DB::Concat(DB::qstr($k.'/'),DB::qstr('%'));
 		$af_where = ' ('.implode(' OR ',$af_where).')';
 
 		$e_where = array();
