@@ -1005,16 +1005,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     if ($negative) $having .= 'NOT ';
                     $having .= '(false';
                     foreach($v as $w) {
-                        if ($w==='') {
+                        if (isset(self::$hash[$k])) {
+                            $f = self::$hash[$k];
+                            $key = $k;
+                        } elseif (isset(self::$table_rows[$k])) {
+                            $f = $k;
+                            $key = self::$table_rows[$k]['id'];
+                        } else trigger_error('In table "'.$tab.'" - unknow column "'.$k.'" in criteria "'.print_r($crits,true).'". Available columns are: "'.print_r(self::$table_rows,true).'"', E_USER_ERROR);
+                        if (self::$table_rows[$f]['type']!='text' && self::$table_rows[$f]['type']!='long text' && ($w==='' || $w===null || $w===false)) {
+                            if($operator=='=')
+                                $having .= ' OR r.f_'.$key.' IS NULL';
+                            else
+                                $having .= ' OR r.f_'.$key.' IS NOT NULL';
+                        } elseif ($w==='') {
                             $having .= ' OR r.f_'.$k.' IS NULL OR r.f_'.$k.'=\'\'';
                         } else {
-                            if (isset(self::$hash[$k])) {
-                                $f = self::$hash[$k];
-                                $key = $k;
-                            } elseif (isset(self::$table_rows[$k])) {
-                                $f = $k;
-                                $key = self::$table_rows[$k]['id'];
-                            } else trigger_error('In table "'.$tab.'" - unknow column "'.$k.'" in criteria "'.print_r($crits,true).'". Available columns are: "'.print_r(self::$table_rows,true).'"', E_USER_ERROR);
                             if (self::$table_rows[$f]['type']=='multiselect') {
                                 $operator = 'LIKE';
                                 $param = explode('::',self::$table_rows[$f]['param']);
