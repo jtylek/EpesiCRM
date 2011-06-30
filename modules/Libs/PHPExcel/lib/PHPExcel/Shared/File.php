@@ -2,7 +2,7 @@
 /**
  * PHPExcel
  *
- * Copyright (c) 2006 - 2009 PHPExcel
+ * Copyright (c) 2006 - 2011 PHPExcel
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,9 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Shared
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.7.0, 2009-08-10
+ * @version    1.7.6, 2011-02-27
  */
 
 
@@ -31,7 +31,7 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Shared
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 class PHPExcel_Shared_File
 {
@@ -75,11 +75,13 @@ class PHPExcel_Shared_File
 		$returnValue = '';
 
 		// Try using realpath()
-		$returnValue = realpath($pFilename);
+		if (file_exists($pFilename)) {
+			$returnValue = realpath($pFilename);
+		}
 
 		// Found something?
 		if ($returnValue == '' || is_null($returnValue)) {
-			$pathArray = split('/' , $pFilename);
+			$pathArray = explode('/' , $pFilename);
 			while(in_array('..', $pathArray) && $pathArray[0] != '..') {
 				for ($i = 0; $i < count($pathArray); ++$i) {
 					if ($pathArray[$i] == '..' && $i > 0) {
@@ -95,4 +97,43 @@ class PHPExcel_Shared_File
 		// Return
 		return $returnValue;
 	}
+
+	/**
+	 * Get the systems temporary directory.
+	 *
+	 * @return string
+	 */
+	public static function sys_get_temp_dir()
+	{
+		// sys_get_temp_dir is only available since PHP 5.2.1
+		// http://php.net/manual/en/function.sys-get-temp-dir.php#94119
+
+		if ( !function_exists('sys_get_temp_dir')) {
+			if ($temp = getenv('TMP') ) {
+				if (file_exists($temp)) { return realpath($temp); }
+			}
+			if ($temp = getenv('TEMP') ) {
+				if (file_exists($temp)) { return realpath($temp); }
+			}
+			if ($temp = getenv('TMPDIR') ) {
+				if (file_exists($temp)) { return realpath($temp); }
+			}
+
+			// trick for creating a file in system's temporary dir
+			// without knowing the path of the system's temporary dir
+			$temp = tempnam(__FILE__, '');
+			if (file_exists($temp)) {
+				unlink($temp);
+				return realpath(dirname($temp));
+			}
+
+			return null;
+		}
+
+		// use ordinary built-in PHP function
+		//	There should be no problem with the 5.2.4 Suhosin realpath() bug, because this line should only
+		//		be called if we're running 5.2.1 or earlier
+		return realpath(sys_get_temp_dir());
+	}
+
 }

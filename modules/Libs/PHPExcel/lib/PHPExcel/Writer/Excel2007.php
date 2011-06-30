@@ -2,7 +2,7 @@
 /**
  * PHPExcel
  *
- * Copyright (c) 2006 - 2009 PHPExcel
+ * Copyright (c) 2006 - 2011 PHPExcel
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,73 +20,10 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Writer_Excel2007
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.7.0, 2009-08-10
+ * @version    1.7.6, 2011-02-27
  */
-
-
-/** PHPExcel root directory */
-if (!defined('PHPEXCEL_ROOT')) {
-	/**
-	 * @ignore
-	 */
-	define('PHPEXCEL_ROOT', dirname(__FILE__) . '/../../');
-}
-
-/** PHPExcel */
-require_once PHPEXCEL_ROOT . 'PHPExcel.php';
-
-/** PHPExcel_HashTable */
-require_once PHPEXCEL_ROOT . 'PHPExcel/HashTable.php';
-
-/** PHPExcel_IComparable */
-require_once PHPEXCEL_ROOT . 'PHPExcel/IComparable.php';
-
-/** PHPExcel_Worksheet */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Worksheet.php';
-
-/** PHPExcel_Cell */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Cell.php';
-
-/** PHPExcel_IWriter */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/IWriter.php';
-
-/** PHPExcel_Shared_XMLWriter */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/XMLWriter.php';
-
-/** PHPExcel_Writer_Excel2007_WriterPart */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/WriterPart.php';
-
-/** PHPExcel_Writer_Excel2007_StringTable */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/StringTable.php';
-
-/** PHPExcel_Writer_Excel2007_ContentTypes */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/ContentTypes.php';
-
-/** PHPExcel_Writer_Excel2007_DocProps */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/DocProps.php';
-
-/** PHPExcel_Writer_Excel2007_Rels */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/Rels.php';
-
-/** PHPExcel_Writer_Excel2007_Theme */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/Theme.php';
-
-/** PHPExcel_Writer_Excel2007_Style */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/Style.php';
-
-/** PHPExcel_Writer_Excel2007_Workbook */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/Workbook.php';
-
-/** PHPExcel_Writer_Excel2007_Worksheet */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/Worksheet.php';
-
-/** PHPExcel_Writer_Excel2007_Drawing */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/Drawing.php';
-
-/** PHPExcel_Writer_Excel2007_Comments */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/Comments.php';
 
 
 /**
@@ -94,7 +31,7 @@ require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/Comments.php';
  *
  * @category   PHPExcel
  * @package    PHPExcel_Writer_Excel2007
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 {
@@ -117,7 +54,7 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 	 *
 	 * @var PHPExcel_Writer_Excel2007_WriterPart[]
 	 */
-	private $_writerParts;
+	private $_writerParts	= array();
 
 	/**
 	 * Private PHPExcel
@@ -131,7 +68,7 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 	 *
 	 * @var string[]
 	 */
-	private $_stringTable;
+	private $_stringTable	= array();
 
 	/**
 	 * Private unique PHPExcel_Style_Conditional HashTable
@@ -181,13 +118,13 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 	 * @var boolean
 	 */
 	private $_useDiskCaching = false;
-	
+
 	/**
 	 * Disk caching directory
 	 *
 	 * @var string
 	 */
-	private $_diskCachingDirectory;
+	private $_diskCachingDirectory	= './';
 
     /**
      * Create a new PHPExcel_Writer_Excel2007
@@ -198,35 +135,33 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
     {
     	// Assign PHPExcel
 		$this->setPHPExcel($pPHPExcel);
-		
-		// Set up disk caching location
-		$this->_diskCachingDirectory = './';
 
-    	// Initialise writer parts
-    	$this->_writerParts['stringtable']		= new PHPExcel_Writer_Excel2007_StringTable();
-		$this->_writerParts['contenttypes'] 	= new PHPExcel_Writer_Excel2007_ContentTypes();
-		$this->_writerParts['docprops'] 		= new PHPExcel_Writer_Excel2007_DocProps();
-		$this->_writerParts['rels'] 			= new PHPExcel_Writer_Excel2007_Rels();
-		$this->_writerParts['theme'] 			= new PHPExcel_Writer_Excel2007_Theme();
-		$this->_writerParts['style'] 			= new PHPExcel_Writer_Excel2007_Style();
-		$this->_writerParts['workbook'] 		= new PHPExcel_Writer_Excel2007_Workbook();
-		$this->_writerParts['worksheet'] 		= new PHPExcel_Writer_Excel2007_Worksheet();
-		$this->_writerParts['drawing'] 			= new PHPExcel_Writer_Excel2007_Drawing();
-		$this->_writerParts['comments'] 		= new PHPExcel_Writer_Excel2007_Comments();
+    	$writerPartsArray = array(	'stringtable'	=> 'PHPExcel_Writer_Excel2007_StringTable',
+									'contenttypes'	=> 'PHPExcel_Writer_Excel2007_ContentTypes',
+									'docprops' 		=> 'PHPExcel_Writer_Excel2007_DocProps',
+									'rels'			=> 'PHPExcel_Writer_Excel2007_Rels',
+									'theme' 		=> 'PHPExcel_Writer_Excel2007_Theme',
+									'style' 		=> 'PHPExcel_Writer_Excel2007_Style',
+									'workbook' 		=> 'PHPExcel_Writer_Excel2007_Workbook',
+									'worksheet' 	=> 'PHPExcel_Writer_Excel2007_Worksheet',
+									'drawing' 		=> 'PHPExcel_Writer_Excel2007_Drawing',
+									'comments' 		=> 'PHPExcel_Writer_Excel2007_Comments'
+								 );
 
-		// Assign parent IWriter
-		foreach ($this->_writerParts as $writer) {
-			$writer->setParentWriter($this);
+    	//	Initialise writer parts
+		//		and Assign their parent IWriters
+		foreach ($writerPartsArray as $writer => $class) {
+			$this->_writerParts[$writer] = new $class($this);
 		}
 
+    	$hashTablesArray = array( '_stylesConditionalHashTable',	'_fillHashTable',		'_fontHashTable',
+								  '_bordersHashTable',				'_numFmtHashTable',		'_drawingHashTable'
+							    );
+
 		// Set HashTable variables
-		$this->_stringTable					= array();
-		$this->_stylesConditionalHashTable 	= new PHPExcel_HashTable();
-		$this->_fillHashTable 				= new PHPExcel_HashTable();
-		$this->_fontHashTable 				= new PHPExcel_HashTable();
-		$this->_bordersHashTable 			= new PHPExcel_HashTable();
-		$this->_numFmtHashTable 			= new PHPExcel_HashTable();
-		$this->_drawingHashTable 			= new PHPExcel_HashTable();
+		foreach ($hashTablesArray as $tableName) {
+			$this->$tableName 	= new PHPExcel_HashTable();
+		}
     }
 
 	/**
@@ -235,7 +170,7 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 	 * @param 	string 	$pPartName		Writer part name
 	 * @return 	PHPExcel_Writer_Excel2007_WriterPart
 	 */
-	function getWriterPart($pPartName = '') {
+	public function getWriterPart($pPartName = '') {
 		if ($pPartName != '' && isset($this->_writerParts[strtolower($pPartName)])) {
 			return $this->_writerParts[strtolower($pPartName)];
 		} else {
@@ -251,7 +186,7 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 	 */
 	public function save($pFilename = null)
 	{
-		if (!is_null($this->_spreadSheet)) {
+		if ($this->_spreadSheet !== NULL) {
 			// garbage collect
 			$this->_spreadSheet->garbageCollect();
 
@@ -264,6 +199,8 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 				}
 			}
 
+			$saveDebugLog = PHPExcel_Calculation::getInstance()->writeDebugLog;
+			PHPExcel_Calculation::getInstance()->writeDebugLog = false;
 			$saveDateReturnType = PHPExcel_Calculation_Functions::getReturnDateType();
 			PHPExcel_Calculation_Functions::setReturnDateType(PHPExcel_Calculation_Functions::RETURNDATE_EXCEL);
 
@@ -284,8 +221,12 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 			$this->_drawingHashTable->addFromSource( 			$this->getWriterPart('Drawing')->allDrawings($this->_spreadSheet) 		);
 
 			// Create new ZIP file and open it for writing
-			$objZip = new ZipArchive();
+			$zipClass = PHPExcel_Settings::getZipClass();
+			$objZip = new $zipClass();
 
+			if (file_exists($pFilename)) {
+				unlink($pFilename);
+			}
 			// Try opening the ZIP file
 			if ($objZip->open($pFilename, ZIPARCHIVE::OVERWRITE) !== true) {
 				if ($objZip->open($pFilename, ZIPARCHIVE::CREATE) !== true) {
@@ -303,6 +244,10 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 			// Add document properties to ZIP file
 			$objZip->addFromString('docProps/app.xml', 				$this->getWriterPart('DocProps')->writeDocPropsApp($this->_spreadSheet));
 			$objZip->addFromString('docProps/core.xml', 			$this->getWriterPart('DocProps')->writeDocPropsCore($this->_spreadSheet));
+			$customPropertiesPart = $this->getWriterPart('DocProps')->writeDocPropsCustom($this->_spreadSheet);
+			if ($customPropertiesPart !== NULL) {
+				$objZip->addFromString('docProps/custom.xml', 		$customPropertiesPart);
+			}
 
 			// Add theme to ZIP file
 			$objZip->addFromString('xl/theme/theme1.xml', 			$this->getWriterPart('Theme')->writeTheme($this->_spreadSheet));
@@ -394,6 +339,7 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 			}
 
 			PHPExcel_Calculation_Functions::setReturnDateType($saveDateReturnType);
+			PHPExcel_Calculation::getInstance()->writeDebugLog = $saveDebugLog;
 
 			// Close file
 			if ($objZip->close() === false) {
@@ -419,7 +365,7 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 	 * @throws Exception
 	 */
 	public function getPHPExcel() {
-		if (!is_null($this->_spreadSheet)) {
+		if ($this->_spreadSheet !== null) {
 			return $this->_spreadSheet;
 		} else {
 			throw new Exception("No PHPExcel assigned.");
@@ -558,8 +504,8 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 	 */
 	public function setUseDiskCaching($pValue = false, $pDirectory = null) {
 		$this->_useDiskCaching = $pValue;
-		
-		if (!is_null($pDirectory)) {
+
+		if ($pDirectory !== NULL) {
     		if (is_dir($pDirectory)) {
     			$this->_diskCachingDirectory = $pDirectory;
     		} else {
@@ -568,7 +514,7 @@ class PHPExcel_Writer_Excel2007 implements PHPExcel_Writer_IWriter
 		}
 		return $this;
 	}
-	    
+
 	/**
 	 * Get disk caching directory
 	 *

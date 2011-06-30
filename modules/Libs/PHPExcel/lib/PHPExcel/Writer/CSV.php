@@ -2,7 +2,7 @@
 /**
  * PHPExcel
  *
- * Copyright (c) 2006 - 2009 PHPExcel
+ * Copyright (c) 2006 - 2011 PHPExcel
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,40 +19,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category   PHPExcel
- * @package    PHPExcel_Writer
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
- * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.7.0, 2009-08-10
+ * @package	PHPExcel_Writer
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @license	http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
+ * @version	1.7.6, 2011-02-27
  */
-
-
-/** PHPExcel root directory */
-if (!defined('PHPEXCEL_ROOT')) {
-	/**
-	 * @ignore
-	 */
-	define('PHPEXCEL_ROOT', dirname(__FILE__) . '/../../');
-}
-
-/** PHPExcel_IWriter */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/IWriter.php';
-
-/** PHPExcel_Cell */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Cell.php';
-
-/** PHPExcel_RichText */
-require_once PHPEXCEL_ROOT . 'PHPExcel/RichText.php';
-
-/** PHPExcel_Shared_String */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/String.php';
 
 
 /**
  * PHPExcel_Writer_CSV
  *
  * @category   PHPExcel
- * @package    PHPExcel_Writer
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @package	PHPExcel_Writer
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 class PHPExcel_Writer_CSV implements PHPExcel_Writer_IWriter {
 	/**
@@ -67,28 +46,28 @@ class PHPExcel_Writer_CSV implements PHPExcel_Writer_IWriter {
 	 *
 	 * @var string
 	 */
-	private $_delimiter;
+	private $_delimiter	= ',';
 
 	/**
 	 * Enclosure
 	 *
 	 * @var string
 	 */
-	private $_enclosure;
+	private $_enclosure	= '"';
 
 	/**
 	 * Line ending
 	 *
 	 * @var string
 	 */
-	private $_lineEnding;
+	private $_lineEnding	= PHP_EOL;
 
 	/**
 	 * Sheet index to write
 	 *
 	 * @var int
 	 */
-	private $_sheetIndex;
+	private $_sheetIndex	= 0;
 
 	/**
 	 * Pre-calculate formulas
@@ -107,31 +86,29 @@ class PHPExcel_Writer_CSV implements PHPExcel_Writer_IWriter {
 	/**
 	 * Create a new PHPExcel_Writer_CSV
 	 *
-	 * @param 	PHPExcel	$phpExcel	PHPExcel object
+	 * @param	PHPExcel	$phpExcel	PHPExcel object
 	 */
 	public function __construct(PHPExcel $phpExcel) {
-		$this->_phpExcel 	= $phpExcel;
-		$this->_delimiter 	= ',';
-		$this->_enclosure 	= '"';
-		$this->_lineEnding 	= PHP_EOL;
-		$this->_sheetIndex 	= 0;
+		$this->_phpExcel	= $phpExcel;
 	}
 
 	/**
 	 * Save PHPExcel to file
 	 *
-	 * @param 	string 		$pFileName
-	 * @throws 	Exception
+	 * @param	string		$pFileName
+	 * @throws	Exception
 	 */
 	public function save($pFilename = null) {
 		// Fetch sheet
 		$sheet = $this->_phpExcel->getSheet($this->_sheetIndex);
 
+		$saveDebugLog = PHPExcel_Calculation::getInstance()->writeDebugLog;
+		PHPExcel_Calculation::getInstance()->writeDebugLog = false;
 		$saveArrayReturnType = PHPExcel_Calculation::getArrayReturnType();
 		PHPExcel_Calculation::setArrayReturnType(PHPExcel_Calculation::RETURN_ARRAY_AS_VALUE);
 
 		// Open file
-		$fileHandle = fopen($pFilename, 'w');
+		$fileHandle = fopen($pFilename, 'wb+');
 		if ($fileHandle === false) {
 			throw new Exception("Could not open file $pFilename for writing.");
 		}
@@ -153,6 +130,7 @@ class PHPExcel_Writer_CSV implements PHPExcel_Writer_IWriter {
 		fclose($fileHandle);
 
 		PHPExcel_Calculation::setArrayReturnType($saveArrayReturnType);
+		PHPExcel_Calculation::getInstance()->writeDebugLog = $saveDebugLog;
 	}
 
 	/**
@@ -266,7 +244,7 @@ class PHPExcel_Writer_CSV implements PHPExcel_Writer_IWriter {
 	 * @throws	Exception
 	 */
 	private function _writeLine($pFileHandle = null, $pValues = null) {
-		if (!is_null($pFileHandle) && is_array($pValues)) {
+		if (is_array($pValues)) {
 			// No leading delimiter
 			$writeDelimiter = false;
 
@@ -298,23 +276,23 @@ class PHPExcel_Writer_CSV implements PHPExcel_Writer_IWriter {
 		}
 	}
 
-    /**
-     * Get Pre-Calculate Formulas
-     *
-     * @return boolean
-     */
-    public function getPreCalculateFormulas() {
-    	return $this->_preCalculateFormulas;
-    }
+	/**
+	 * Get Pre-Calculate Formulas
+	 *
+	 * @return boolean
+	 */
+	public function getPreCalculateFormulas() {
+		return $this->_preCalculateFormulas;
+	}
 
-    /**
-     * Set Pre-Calculate Formulas
-     *
-     * @param boolean $pValue	Pre-Calculate Formulas?
-     * @return PHPExcel_Writer_CSV
-     */
-    public function setPreCalculateFormulas($pValue = true) {
-    	$this->_preCalculateFormulas = $pValue;
-    	return $this;
-    }
+	/**
+	 * Set Pre-Calculate Formulas
+	 *
+	 * @param boolean $pValue	Pre-Calculate Formulas?
+	 * @return PHPExcel_Writer_CSV
+	 */
+	public function setPreCalculateFormulas($pValue = true) {
+		$this->_preCalculateFormulas = $pValue;
+		return $this;
+	}
 }

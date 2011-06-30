@@ -14,7 +14,7 @@ require_once 'Stats.php';
  * Example of use of Matrix Class, featuring magic squares.
  */
 class Benchmark {
-	var $stat;
+	public $stat;
 
 
 	/**

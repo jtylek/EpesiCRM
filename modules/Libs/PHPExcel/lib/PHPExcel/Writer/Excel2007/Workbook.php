@@ -2,7 +2,7 @@
 /**
  * PHPExcel
  *
- * Copyright (c) 2006 - 2009 PHPExcel
+ * Copyright (c) 2006 - 2011 PHPExcel
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,37 +20,10 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Writer_Excel2007
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.7.0, 2009-08-10
+ * @version    1.7.6, 2011-02-27
  */
-
-
-/** PHPExcel root directory */
-if (!defined('PHPEXCEL_ROOT')) {
-	/**
-	 * @ignore
-	 */
-	define('PHPEXCEL_ROOT', dirname(__FILE__) . '/../../../');
-}
-
-/** PHPExcel */
-require_once PHPEXCEL_ROOT . 'PHPExcel.php';
-
-/** PHPExcel_Writer_Excel2007 */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007.php';
-
-/** PHPExcel_Writer_Excel2007_WriterPart */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel2007/WriterPart.php';
-
-/** PHPExcel_Cell */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Cell.php';
-
-/** PHPExcel_Shared_Date */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/Date.php';
-
-/** PHPExcel_Shared_XMLWriter */
-require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/XMLWriter.php';
 
 
 /**
@@ -58,7 +31,7 @@ require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/XMLWriter.php';
  *
  * @category   PHPExcel
  * @package    PHPExcel_Writer_Excel2007
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 class PHPExcel_Writer_Excel2007_Workbook extends PHPExcel_Writer_Excel2007_WriterPart
 {
@@ -142,13 +115,13 @@ class PHPExcel_Writer_Excel2007_Workbook extends PHPExcel_Writer_Excel2007_Write
 	private function _writeWorkbookPr(PHPExcel_Shared_XMLWriter $objWriter = null)
 	{
 		$objWriter->startElement('workbookPr');
-		
+
 		if (PHPExcel_Shared_Date::getExcelCalendar() == PHPExcel_Shared_Date::CALENDAR_MAC_1904) {
 			$objWriter->writeAttribute('date1904', '1');
 		}
-		
+
 		$objWriter->writeAttribute('codeName', 'ThisWorkbook');
-				
+
 		$objWriter->endElement();
 	}
 
@@ -244,7 +217,8 @@ class PHPExcel_Writer_Excel2007_Workbook extends PHPExcel_Writer_Excel2007_Write
 				$objWriter,
 				$pPHPExcel->getSheet($i)->getTitle(),
 				($i + 1),
-				($i + 1 + 3)
+				($i + 1 + 3),
+				$pPHPExcel->getSheet($i)->getSheetState()
 			);
 		}
 
@@ -258,15 +232,19 @@ class PHPExcel_Writer_Excel2007_Workbook extends PHPExcel_Writer_Excel2007_Write
 	 * @param 	string 						$pSheetname 		Sheet name
 	 * @param 	int							$pSheetId	 		Sheet id
 	 * @param 	int							$pRelId				Relationship ID
+	 * @param   string                      $sheetState         Sheet state (visible, hidden, veryHidden)
 	 * @throws 	Exception
 	 */
-	private function _writeSheet(PHPExcel_Shared_XMLWriter $objWriter = null, $pSheetname = '', $pSheetId = 1, $pRelId = 1)
+	private function _writeSheet(PHPExcel_Shared_XMLWriter $objWriter = null, $pSheetname = '', $pSheetId = 1, $pRelId = 1, $sheetState = 'visible')
 	{
 		if ($pSheetname != '') {
 			// Write sheet
 			$objWriter->startElement('sheet');
 			$objWriter->writeAttribute('name', 		$pSheetname);
 			$objWriter->writeAttribute('sheetId', 	$pSheetId);
+			if ($sheetState != 'visible' && $sheetState != '') {
+				$objWriter->writeAttribute('state', $sheetState);
+			}
 			$objWriter->writeAttribute('r:id', 		'rId' . $pRelId);
 			$objWriter->endElement();
 		} else {
@@ -337,20 +315,20 @@ class PHPExcel_Writer_Excel2007_Workbook extends PHPExcel_Writer_Excel2007_Write
 		$objWriter->startElement('definedName');
 		$objWriter->writeAttribute('name',			$pNamedRange->getName());
 		if ($pNamedRange->getLocalOnly()) {
-			$objWriter->writeAttribute('localSheetId',	$pNamedRange->getWorksheet()->getParent()->getIndex($pNamedRange->getWorksheet()));
+			$objWriter->writeAttribute('localSheetId',	$pNamedRange->getScope()->getParent()->getIndex($pNamedRange->getScope()));
 		}
 
 		// Create absolute coordinate and write as raw text
 		$range = PHPExcel_Cell::splitRange($pNamedRange->getRange());
 		for ($i = 0; $i < count($range); $i++) {
-			$range[$i][0] = '\'' . str_replace("'", "''", $pNamedRange->getWorksheet()->getTitle()) . '\'!' . PHPExcel_Cell::absoluteCoordinate($range[$i][0]);
+			$range[$i][0] = '\'' . str_replace("'", "''", $pNamedRange->getWorksheet()->getTitle()) . '\'!' . PHPExcel_Cell::absoluteReference($range[$i][0]);
 			if (isset($range[$i][1])) {
-				$range[$i][1] = PHPExcel_Cell::absoluteCoordinate($range[$i][1]);
+				$range[$i][1] = PHPExcel_Cell::absoluteReference($range[$i][1]);
 			}
 		}
 		$range = PHPExcel_Cell::buildRange($range);
 
-		$objWriter->writeRaw($range);
+		$objWriter->writeRawData($range);
 
 		$objWriter->endElement();
 	}
@@ -379,7 +357,7 @@ class PHPExcel_Writer_Excel2007_Workbook extends PHPExcel_Writer_Excel2007_Write
 			$range[1] = PHPExcel_Cell::absoluteCoordinate($range[1]);
 			$range = implode(':', $range);
 
-			$objWriter->writeRaw('\'' . str_replace("'", "''", $pSheet->getTitle()) . '\'!' . $range);
+			$objWriter->writeRawData('\'' . str_replace("'", "''", $pSheet->getTitle()) . '\'!' . $range);
 
 			$objWriter->endElement();
 		}
@@ -422,7 +400,7 @@ class PHPExcel_Writer_Excel2007_Workbook extends PHPExcel_Writer_Excel2007_Write
 				$settingString .= '\'' . str_replace("'", "''", $pSheet->getTitle()) . '\'!$' . $repeat[0] . ':$' . $repeat[1];
 			}
 
-			$objWriter->writeRaw($settingString);
+			$objWriter->writeRawData($settingString);
 
 			$objWriter->endElement();
 		}
@@ -449,11 +427,15 @@ class PHPExcel_Writer_Excel2007_Workbook extends PHPExcel_Writer_Excel2007_Write
 
 			// Print area
 			$printArea = PHPExcel_Cell::splitRange($pSheet->getPageSetup()->getPrintArea());
-			$printArea = $printArea[0];
-			$printArea[0] = PHPExcel_Cell::absoluteCoordinate($printArea[0]);
-			$printArea[1] = PHPExcel_Cell::absoluteCoordinate($printArea[1]);
 
-			$objWriter->writeRaw('\'' . str_replace("'", "''", $pSheet->getTitle()) . '\'!' . implode(':', $printArea));
+			$chunks = array();
+			foreach ($printArea as $printAreaRect) {
+				$printAreaRect[0] = PHPExcel_Cell::absoluteReference($printAreaRect[0]);
+				$printAreaRect[1] = PHPExcel_Cell::absoluteReference($printAreaRect[1]);
+				$chunks[] = '\'' . str_replace("'", "''", $pSheet->getTitle()) . '\'!' . implode(':', $printAreaRect);
+			}
+
+			$objWriter->writeRawData(implode(',', $chunks));
 
 			$objWriter->endElement();
 		}

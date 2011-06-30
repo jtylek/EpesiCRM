@@ -9,7 +9,7 @@ require_once "../Matrix.php";
  *
  * Example: Passing in three points (2,3) (1,4) and (3,7) will produce
  * the results [2.5, -8.5, 10] which means that the points are on the
- * curve y = 2.5x² - 8.5x + 10.
+ * curve y = 2.5xÂ² - 8.5x + 10.
  *
  * @see http://geosoft.no/software/lagrange/LagrangeInterpolation.java.html
  * @see http://source.freehep.org/jcvsweb/ilc/LCSIM/wdview/lcsim/src/org/lcsim/fit/polynomial/PolynomialFitter.java

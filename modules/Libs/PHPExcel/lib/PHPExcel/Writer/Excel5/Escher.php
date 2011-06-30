@@ -2,7 +2,7 @@
 /**
  * PHPExcel
  *
- * Copyright (c) 2006 - 2009 PHPExcel
+ * Copyright (c) 2006 - 2011 PHPExcel
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,9 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Writer_Excel5
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.7.0, 2009-08-10
+ * @version    1.7.6, 2011-02-27
  */
 
  
@@ -31,7 +31,7 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Writer_Excel5
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 class PHPExcel_Writer_Excel5_Escher
 {
@@ -106,9 +106,12 @@ class PHPExcel_Writer_Excel5_Escher
 					, $this->_object->getCSpSaved()
 					, $this->_object->getCDgSaved() // count total number of drawings saved
 				);
+
 			// add file identifier clusters (one per drawing)
-			for ($i = 0; $i < $this->_object->getCDgSaved(); ++$i) {
-				$dggData .= pack('VV', 0, 0);
+			$IDCLs = $this->_object->getIDCLs();
+
+			foreach ($IDCLs as $dgId => $maxReducedSpId) {
+				$dggData .= pack('VV', $dgId, $maxReducedSpId + 1);
 			}
 
 			$header = pack('vvV', $recVerInstance, $recType, strlen($dggData));
@@ -395,7 +398,7 @@ class PHPExcel_Writer_Excel5_Escher
 
 			$header = pack('vvV', $recVerInstance, $recType, $length);
 
-			$data .= $header . pack('VV', $this->_object->getSpId(), $this->_object->getSpgr() ? 0x0005 : 0xA000);
+			$data .= $header . pack('VV', $this->_object->getSpId(), $this->_object->getSpgr() ? 0x0005 : 0x0A00);
 
 
 			// the options
@@ -447,7 +450,7 @@ class PHPExcel_Writer_Excel5_Escher
 				// end offsetY
 				$endOffsetY = $this->_object->getEndOffsetY();
 
-				$clientAnchorData = pack('vvvvvvvvv', 0x00,
+				$clientAnchorData = pack('vvvvvvvvv', 0x02,
 					$c1, $startOffsetX, $r1, $startOffsetY,
 					$c2, $endOffsetX, $r2, $endOffsetY);
 

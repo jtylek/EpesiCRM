@@ -2,7 +2,7 @@
 /**
  * PHPExcel
  *
- * Copyright (c) 2006 - 2009 PHPExcel
+ * Copyright (c) 2006 - 2011 PHPExcel
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,9 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Worksheet
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.7.0, 2009-08-10
+ * @version    1.7.6, 2011-02-27
  */
 
 
@@ -31,36 +31,33 @@
  *
  * @category   PHPExcel
  * @package    PHPExcel_Worksheet
- * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 class PHPExcel_Worksheet_SheetView
 {
 	/**
 	 * ZoomScale
-	 * 
+	 *
 	 * Valid values range from 10 to 400.
 	 *
 	 * @var int
 	 */
-	private $_zoomScale;
+	private $_zoomScale			= 100;
 
 	/**
 	 * ZoomScaleNormal
-	 * 
+	 *
 	 * Valid values range from 10 to 400.
 	 *
 	 * @var int
 	 */
-	private $_zoomScaleNormal;
+	private $_zoomScaleNormal	= 100;
 
     /**
      * Create a new PHPExcel_Worksheet_SheetView
      */
     public function __construct()
     {
-    	// Initialise values
-    	$this->_zoomScale 				= 100;
-    	$this->_zoomScaleNormal 		= 100;
     }
 
 	/**
@@ -82,14 +79,16 @@ class PHPExcel_Worksheet_SheetView
 	 * @return PHPExcel_Worksheet_SheetView
 	 */
 	public function setZoomScale($pValue = 100) {
-		if (($pValue >= 10 && $pValue <= 400) || is_null($pValue)) {
+		// Microsoft Office Excel 2007 only allows setting a scale between 10 and 400 via the user interface,
+		// but it is apparently still able to handle any scale >= 1
+		if (($pValue >= 1) || is_null($pValue)) {
 			$this->_zoomScale = $pValue;
 		} else {
-			throw new Exception("Valid scale is between 10 and 400.");
+			throw new Exception("Scale must be greater than or equal to 1.");
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Get ZoomScaleNormal
 	 *
@@ -109,10 +108,10 @@ class PHPExcel_Worksheet_SheetView
 	 * @return PHPExcel_Worksheet_SheetView
 	 */
 	public function setZoomScaleNormal($pValue = 100) {
-		if (($pValue >= 10 && $pValue <= 400) || is_null($pValue)) {
+		if (($pValue >= 1) || is_null($pValue)) {
 			$this->_zoomScaleNormal = $pValue;
 		} else {
-			throw new Exception("Valid scale is between 10 and 400.");
+			throw new Exception("Scale must be greater than or equal to 1.");
 		}
 		return $this;
 	}

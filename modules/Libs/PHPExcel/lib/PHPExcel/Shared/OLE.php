@@ -19,19 +19,6 @@
 //
 // $Id: OLE.php,v 1.13 2007/03/07 14:38:25 schmidt Exp $
 
-/** PHPExcel root directory */
-if (!defined('PHPEXCEL_ROOT')) {
-	/**
-	 * @ignore
-	 */
-	define('PHPEXCEL_ROOT', dirname(__FILE__) . '/../../');
-}
-
-require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/OLE.php';
-require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/OLE/OLE_PPS.php';
-require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/OLE/OLE_File.php';
-require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/OLE/OLE_Root.php';
-require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/OLE/ChainedBlockStream.php';
 
 /**
 * Array for storing OLE instances that are accessed from
@@ -124,36 +111,36 @@ class PHPExcel_Shared_OLE
 			throw new Exception("Only Little-Endian encoding is supported.");
 		}
 		// Size of blocks and short blocks in bytes
-		$this->bigBlockSize = pow(2, $this->_readInt2($fh));
-		$this->smallBlockSize  = pow(2, $this->_readInt2($fh));
+		$this->bigBlockSize = pow(2, self::_readInt2($fh));
+		$this->smallBlockSize  = pow(2, self::_readInt2($fh));
 
 		// Skip UID, revision number and version number
 		fseek($fh, 44);
 		// Number of blocks in Big Block Allocation Table
-		$bbatBlockCount = $this->_readInt4($fh);
+		$bbatBlockCount = self::_readInt4($fh);
 
 		// Root chain 1st block
-		$directoryFirstBlockId = $this->_readInt4($fh);
+		$directoryFirstBlockId = self::_readInt4($fh);
 
 		// Skip unused bytes
 		fseek($fh, 56);
 		// Streams shorter than this are stored using small blocks
-		$this->bigBlockThreshold = $this->_readInt4($fh);
+		$this->bigBlockThreshold = self::_readInt4($fh);
 		// Block id of first sector in Short Block Allocation Table
-		$sbatFirstBlockId = $this->_readInt4($fh);
+		$sbatFirstBlockId = self::_readInt4($fh);
 		// Number of blocks in Short Block Allocation Table
-		$sbbatBlockCount = $this->_readInt4($fh);
+		$sbbatBlockCount = self::_readInt4($fh);
 		// Block id of first sector in Master Block Allocation Table
-		$mbatFirstBlockId = $this->_readInt4($fh);
+		$mbatFirstBlockId = self::_readInt4($fh);
 		// Number of blocks in Master Block Allocation Table
-		$mbbatBlockCount = $this->_readInt4($fh);
+		$mbbatBlockCount = self::_readInt4($fh);
 		$this->bbat = array();
 
 		// Remaining 4 * 109 bytes of current block is beginning of Master
 		// Block Allocation Table
 		$mbatBlocks = array();
 		for ($i = 0; $i < 109; ++$i) {
-			$mbatBlocks[] = $this->_readInt4($fh);
+			$mbatBlocks[] = self::_readInt4($fh);
 		}
 
 		// Read rest of Master Block Allocation Table (if any is left)
@@ -161,10 +148,10 @@ class PHPExcel_Shared_OLE
 		for ($i = 0; $i < $mbbatBlockCount; ++$i) {
 			fseek($fh, $pos);
 			for ($j = 0; $j < $this->bigBlockSize / 4 - 1; ++$j) {
-				$mbatBlocks[] = $this->_readInt4($fh);
+				$mbatBlocks[] = self::_readInt4($fh);
 			}
 			// Last block id in each block points to next block
-			$pos = $this->_getBlockOffset($this->_readInt4($fh));
+			$pos = $this->_getBlockOffset(self::_readInt4($fh));
 		}
 
 		// Read Big Block Allocation Table according to chain specified by
@@ -173,7 +160,7 @@ class PHPExcel_Shared_OLE
 			$pos = $this->_getBlockOffset($mbatBlocks[$i]);
 			fseek($fh, $pos);
 			for ($j = 0 ; $j < $this->bigBlockSize / 4; ++$j) {
-				$this->bbat[] = $this->_readInt4($fh);
+				$this->bbat[] = self::_readInt4($fh);
 			}
 		}
 
@@ -182,7 +169,7 @@ class PHPExcel_Shared_OLE
 		$shortBlockCount = $sbbatBlockCount * $this->bigBlockSize / 4;
 		$sbatFh = $this->getStream($sbatFirstBlockId);
 		for ($blockId = 0; $blockId < $shortBlockCount; ++$blockId) {
-			$this->sbat[$blockId] = $this->_readInt4($sbatFh);
+			$this->sbat[$blockId] = self::_readInt4($sbatFh);
 		}
 		fclose($sbatFh);
 
@@ -238,7 +225,7 @@ class PHPExcel_Shared_OLE
 	 * @return  int
 	 * @access public
 	 */
-	public function _readInt1($fh)
+	private static function _readInt1($fh)
 	{
 		list(, $tmp) = unpack("c", fread($fh, 1));
 		return $tmp;
@@ -250,7 +237,7 @@ class PHPExcel_Shared_OLE
 	 * @return  int
 	 * @access public
 	 */
-	public function _readInt2($fh)
+	private static function _readInt2($fh)
 	{
 		list(, $tmp) = unpack("v", fread($fh, 2));
 		return $tmp;
@@ -262,7 +249,7 @@ class PHPExcel_Shared_OLE
 	 * @return  int
 	 * @access public
 	 */
-	public function _readInt4($fh)
+	private static function _readInt4($fh)
 	{
 		list(, $tmp) = unpack("V", fread($fh, 4));
 		return $tmp;
@@ -282,11 +269,11 @@ class PHPExcel_Shared_OLE
 		for ($pos = 0; ; $pos += 128) {
 			fseek($fh, $pos, SEEK_SET);
 			$nameUtf16 = fread($fh, 64);
-			$nameLength = $this->_readInt2($fh);
+			$nameLength = self::_readInt2($fh);
 			$nameUtf16 = substr($nameUtf16, 0, $nameLength - 2);
 			// Simple conversion from UTF-16LE to ISO-8859-1
 			$name = str_replace("\x00", "", $nameUtf16);
-			$type = $this->_readInt1($fh);
+			$type = self::_readInt1($fh);
 			switch ($type) {
 			case self::OLE_PPS_TYPE_ROOT:
 				$pps = new PHPExcel_Shared_OLE_PPS_Root(null, null, array());
@@ -305,14 +292,14 @@ class PHPExcel_Shared_OLE
 			fseek($fh, 1, SEEK_CUR);
 			$pps->Type    = $type;
 			$pps->Name    = $name;
-			$pps->PrevPps = $this->_readInt4($fh);
-			$pps->NextPps = $this->_readInt4($fh);
-			$pps->DirPps  = $this->_readInt4($fh);
+			$pps->PrevPps = self::_readInt4($fh);
+			$pps->NextPps = self::_readInt4($fh);
+			$pps->DirPps  = self::_readInt4($fh);
 			fseek($fh, 20, SEEK_CUR);
 			$pps->Time1st = self::OLE2LocalDate(fread($fh, 8));
 			$pps->Time2nd = self::OLE2LocalDate(fread($fh, 8));
-			$pps->_StartBlock = $this->_readInt4($fh);
-			$pps->Size = $this->_readInt4($fh);
+			$pps->_StartBlock = self::_readInt4($fh);
+			$pps->Size = self::_readInt4($fh);
 			$pps->No = count($this->_list);
 			$this->_list[] = $pps;
 
@@ -527,20 +514,9 @@ class PHPExcel_Shared_OLE
 
 		// factor used for separating numbers into 4 bytes parts
 		$factor = pow(2,32);
-		$high_part = 0;
-		for ($i = 0; $i < 4; ++$i) {
-			list(, $high_part) = unpack('C', $string{(7 - $i)});
-			if ($i < 3) {
-				$high_part *= 0x100;
-			}
-		}
-		$low_part = 0;
-		for ($i = 4; $i < 8; ++$i) {
-			list(, $low_part) = unpack('C', $string{(7 - $i)});
-			if ($i < 7) {
-				$low_part *= 0x100;
-			}
-		}
+		list(, $high_part) = unpack('V', substr($string, 4, 4));
+		list(, $low_part) = unpack('V', substr($string, 0, 4));
+
 		$big_date = ($high_part * $factor) + $low_part;
 		// translate to seconds
 		$big_date /= 10000000;
