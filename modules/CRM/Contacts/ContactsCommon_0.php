@@ -747,11 +747,12 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->setDefaults(array($field=>self::display_webaddress(array('webaddress'=>$default), null, array('id'=>'webaddress'))));
         }
     }
-    public static function QFfield_email(&$form, $field, $label, $mode, $default) {
+    public static function QFfield_email(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode=='add' || $mode=='edit') {
             $form->addElement('text', $field, $label);
             $form->addRule($field, Base_LangCommon::ts('CRM_Contacts','Invalid e-mail address'), 'email');//'/^[\._a-zA-Z0-9\-]+@[\.a-zA-Z0-9\-]+\.[a-zA-Z]{2,3}$/');
             if ($mode=='edit') $form->setDefaults(array($field=>$default));
+			self::add_rule_email_unique($form, $field, $rb_obj->tab, isset($rb_obj->record['id'])?$rb_obj->record['id']:null);
         } else {
             $form->addElement('static', $field, $label);
             $form->setDefaults(array($field=>self::display_email(array('email'=>$default), null, array('id'=>'email'))));
@@ -1225,6 +1226,46 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_Contacts'));
         return $ret;
     }
+	
+	static $field = null;
+	static $rset = null;
+	static $rid = null;
+	public static function add_rule_email_unique($form, $field, $rset=null, $rid=null) {
+		self::$field = $field;
+		self::$rset = $rset;
+		self::$rid = $rid;
+		$form->addFormRule(array('CRM_ContactsCommon', 'check_email_unique'));
+	}
+
+	public static function check_email_unique($data) {
+		$email = $data[self::$field];
+		$rec = self::get_record_by_email($email, self::$rset, self::$rid);
+		if ($rec == false) return true;
+		return array(self::$field=>Base_LangCommon::ts('CRM_Contacts', 'E-mail address duplicate found: %s', array(Utils_RecordBrowserCommon::create_default_linked_label($rec[0], $rec[1]))));
+	}
+	
+	public static function get_record_by_email($email, $rset=null, $rid=null) {
+		if ($rid==null) $rset=null;
+		$cont = DB::GetRow('SELECT id, created_on, created_by FROM contact_data_1 WHERE active=1 AND f_email '.DB::like().' %s AND id!=%d', array($email, $rset=='contact'?$rid:-1));
+		if ($cont)
+			return array('contact', $cont['id']);
+		if (ModuleManager::is_installed('CRM_Roundcube')>=0) {
+			$vals = array($email);
+			$where_id = '';
+			if ($rid!=null) {
+				$vals[] = $rset;
+				$vals[] = $rid;
+				$where_id = ' AND (f_record_type!=%s OR f_record_id!=%d)';
+			}
+			$tmp = DB::GetRow('SELECT id, f_record_id, f_record_type FROM rc_multiple_emails_data_1 WHERE active=1 AND f_email '.DB::like().' %s'.$where_id.' ORDER BY f_record_type DESC', $vals);
+			if ($tmp)
+				return array($tmp['f_record_type'], $tmp['f_record_id']);
+		}
+		$comp = DB::GetRow('SELECT id, created_on, created_by FROM company_data_1 WHERE active=1 AND f_email '.DB::like().' %s AND id!=%d', array($email, $rset=='company'?$rid:-1));
+		if ($cont)
+			return array('company', $comp['id']);
+		return false;
+	}
 
     //////////////////////////
     // mobile devices
