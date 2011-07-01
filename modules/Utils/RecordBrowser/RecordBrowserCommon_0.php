@@ -825,8 +825,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
         static $cache = array();
         self::init($tab, $admin);
-        if (isset($cache[$key])) return $cache[$key];
+		if (isset($cache[$key])) return $cache[$key];
         if (!$tab) return false;
+		$postgre = (strcasecmp(DATABASE_DRIVER,"postgres")===0);
         $having = '';
         $fields = '';
         $where = '';
@@ -1035,9 +1036,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 $w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.'\_\_'),DB::qstr('%'));
                             }
                             elseif (!$noquotes) $w = DB::qstr($w);
-                            $having .= ' OR (r.f_'.$key.' '.$operator.' '.$w.' ';
-                            if ($operator=='<') $having .= 'OR r.f_'.$key.' IS NULL)';
-                            else $having .= 'AND r.f_'.$key.' IS NOT NULL)';
+
+                            if (false || $postgre && ($operator=='<' || $operator=='<=' || $operator=='>' || $operator=='>=')) {
+								switch (self::$table_rows[$f]['type']) {
+									case 'timestamp': $cast_type = 'timestamp'; break;
+									case 'date': $cast_type = 'date'; break;
+									default: $cast_type = 'integer';
+								}
+								$c_field = 'CAST(r.f_'.$key.' AS '.$cast_type.')';
+							} else $c_field = 'r.f_'.$key;
+                            $having .= ' OR ('.$c_field.' '.$operator.' '.$w.' ';
+                            if ($operator=='<' || $operator=='<=') {
+								$having .= 'OR r.f_'.$key.' IS NULL)';
+							} else {
+								$having .= 'AND r.f_'.$key.' IS NOT NULL)';
+							}
                         }
                     }
                     $having .= ')';

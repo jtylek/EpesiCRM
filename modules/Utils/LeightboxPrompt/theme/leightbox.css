@@ -45,6 +45,7 @@ table#Utils_LeightboxPrompt .big-button {
 	padding-top: 3px;
 	cursor: pointer;
 	color: #336699;
+	height: 100%;
 }
 
 table#Utils_LeightboxPrompt .big-button:hover {
