@@ -122,7 +122,7 @@ class Utils_FileUpload extends Module {
 	 *
 	 * @param method method for submit action
 	 */
-	public function body($on_sub) {
+	public function body($on_sub = null) {
 		if(isset($on_sub)) {
 			$args = func_get_args();
 			call_user_func_array(array($this,'set_submit_callback'),$args);
