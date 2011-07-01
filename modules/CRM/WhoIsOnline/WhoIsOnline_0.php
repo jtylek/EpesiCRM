@@ -30,9 +30,9 @@ class CRM_WhoIsOnline extends Module {
 
 		$c = count($all);
 		if($c==1)
-    		$o['title'] = $this->t('%d user online',$c);
+    		$o['title'] = $this->t('%d user online',array($c));
     	else
-    		$o['title'] = $this->t('%d users online',$c);
+    		$o['title'] = $this->t('%d users online',array($c));
 
         print('<ul>');
     	foreach($map as $id=>$x)
