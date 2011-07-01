@@ -671,7 +671,7 @@ class Utils_Attachment extends Module {
 			@mkdir($local,0777,true);
 			$dest_file = $local.'/'.$id.'_'.$rev;
 			rename($file,$dest_file);
-			if ($this->add_func) call_user_func($this->add_func,$id,$rev,$dest_file,$this->add_args);
+			if ($this->add_func) call_user_func($this->add_func,$id,$rev,$dest_file,$oryg,$this->add_args);
 		}
 		$this->ret_attach = false;
 		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_~_'.$id);
