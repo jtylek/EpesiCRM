@@ -6,8 +6,10 @@
 
 .Utils_RecordBrowser__Filter {
     display: block;
-    padding-right: 20px;
+	margin: 4px 8px auto auto;
 }
+
+
 
 /* label */
 
@@ -33,6 +35,9 @@
     padding-right: 2px;
 }
 
+.Utils_RecordBrowser__Filter .data select {
+	padding: 7px 0px 6px 0px;
+}
 .Utils_RecordBrowser__Filter .data input,
 .Utils_RecordBrowser__Filter .data select,
 .Utils_RecordBrowser__Filter .data textarea {
@@ -54,9 +59,14 @@
 
 /* buttons */
 
+#recordbrowser_filters_ .buttons {
+	padding-left: 5px;
+}
+
 #Utils_RecordBrowser__Filter .buttons,
 #Utils_RecordBrowser__Filter .buttons_disabled {
-    display: block;
+	cursor: pointer;
+	display: block;
     float: right;
     padding-right: 8px;
 }
@@ -68,6 +78,7 @@
     height: 30px;
     border: 0px;
 	padding-bottom: 3px;
+	cursor: pointer;
 
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
@@ -102,6 +113,7 @@
     height: 30px;
     border: 0px;
 	padding-bottom: 3px;
+	cursor: pointer;
 	
 	/* border radius */
 	-webkit-border-radius: 6px;
