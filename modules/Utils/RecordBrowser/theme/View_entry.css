@@ -1,25 +1,25 @@
-#Utils_RecordBrowser__View_entry {
+.Utils_RecordBrowser__View_entry {
     width: 100%;
 }
 
-#Utils_RecordBrowser__View_entry table.view {
+.Utils_RecordBrowser__View_entry table.view {
     border-top: 1px solid #B3B3B3;
     border-right:  1px solid #B3B3B3;
     width: 100%;
 }
 
-#Utils_RecordBrowser__View_entry table.edit {
+.Utils_RecordBrowser__View_entry table.edit {
     border-top: none;
     width: 100%;
 }
 
-#Utils_RecordBrowser__View_entry table {
+.Utils_RecordBrowser__View_entry table {
     width: 100%;
 }
 
-#Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }
+.Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }
 
-#Utils_RecordBrowser__View_entry .label {
+.Utils_RecordBrowser__View_entry .label {
     background-color: #336699;
     color: #FFFFFF;
     border-bottom: 1px solid #B3B3B3;
@@ -32,101 +32,101 @@
 }
 
 /*
-#Utils_RecordBrowser__View_entry table.edit .label {
+.Utils_RecordBrowser__View_entry table.edit .label {
     border: 2px solid white;
 }
 */
 
-#Utils_RecordBrowser__View_entry .long_label {
+.Utils_RecordBrowser__View_entry .long_label {
     text-align: left;
     width: 20%;
 }
 
-#Utils_RecordBrowser__View_entry .data {
+.Utils_RecordBrowser__View_entry .data {
     text-align: left;
     /*
 	width: 60%;
 	*/
 }
 
-#Utils_RecordBrowser__View_entry .currency {
+.Utils_RecordBrowser__View_entry .currency {
     text-align: right;
 }
 
-#Utils_RecordBrowser__View_entry .number {
+.Utils_RecordBrowser__View_entry .number {
     text-align: right;
 }
 
-#Utils_RecordBrowser__View_entry table.view .data {
+.Utils_RecordBrowser__View_entry table.view .data {
     border-bottom: 1px solid #B3B3B3;
     padding-left: 5px;
     padding-right: 5px;
 }
 
-#Utils_RecordBrowser__View_entry table.view .data img {
+.Utils_RecordBrowser__View_entry table.view .data img {
     vertical-align: middle;
 }
 
-#Utils_RecordBrowser__View_entry table.edit .data {
+.Utils_RecordBrowser__View_entry table.edit .data {
     border-bottom: none;
     padding-left: 4px;
     padding-right: 4px;
 }
 
-#Utils_RecordBrowser__View_entry .long_data {
+.Utils_RecordBrowser__View_entry .long_data {
     width: 80%;
 }
 
-#Utils_RecordBrowser__View_entry table.view .long_data {
+.Utils_RecordBrowser__View_entry table.view .long_data {
     border-right: 1px solid #B3B3B3;
 }
 
-#Utils_RecordBrowser__View_entry table.edit .long_data {
+.Utils_RecordBrowser__View_entry table.edit .long_data {
     border-right: none;
 }
 
-#Utils_RecordBrowser__View_entry .data input,
-#Utils_RecordBrowser__View_entry .data select,
-#Utils_RecordBrowser__View_entry .data textarea {
+.Utils_RecordBrowser__View_entry .data input,
+.Utils_RecordBrowser__View_entry .data select,
+.Utils_RecordBrowser__View_entry .data textarea {
     border: 0px;
     background-color: #e6ecf2;
     width: 100%;
 }
 
-#Utils_RecordBrowser__View_entry .time input,
-#Utils_RecordBrowser__View_entry .time select,
-#Utils_RecordBrowser__View_entry .timestamp input,
-#Utils_RecordBrowser__View_entry .timestamp select {
+.Utils_RecordBrowser__View_entry .time input,
+.Utils_RecordBrowser__View_entry .time select,
+.Utils_RecordBrowser__View_entry .timestamp input,
+.Utils_RecordBrowser__View_entry .timestamp select {
     width: auto;
 }
 
-#Utils_RecordBrowser__View_entry .data input[type="checkbox"],
-#Utils_RecordBrowser__View_entry .data input[type="radio"] {
+.Utils_RecordBrowser__View_entry .data input[type="checkbox"],
+.Utils_RecordBrowser__View_entry .data input[type="radio"] {
     width: auto;
 }
 
-#Utils_RecordBrowser__View_entry .data input:focus,
-#Utils_RecordBrowser__View_entry .data select:focus,
-#Utils_RecordBrowser__View_entry .data textarea:focus {
+.Utils_RecordBrowser__View_entry .data input:focus,
+.Utils_RecordBrowser__View_entry .data select:focus,
+.Utils_RecordBrowser__View_entry .data textarea:focus {
     /*background-color: #f2f2e6;
     background-color: #ffffa5;*/
     background-color: #ffffa5;
 }
 
-#Utils_RecordBrowser__View_entry #multiselect .form-element select,
-#Utils_RecordBrowser__View_entry #multiselect .to-element select {
+.Utils_RecordBrowser__View_entry #multiselect .form-element select,
+.Utils_RecordBrowser__View_entry #multiselect .to-element select {
     /*width: 150px;*/
     width: 100%;
     height: 100px;
 }
 
-#Utils_RecordBrowser__View_entry .data input#due_date {
+.Utils_RecordBrowser__View_entry .data input#due_date {
     display: block;
     margin-top: 1px;
     float: left;
 }
 
-#Utils_RecordBrowser__View_entry .data a.button {
+.Utils_RecordBrowser__View_entry .data a.button {
     height: 20px;
     display: block;
     float: right;
