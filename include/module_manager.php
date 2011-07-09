@@ -869,7 +869,7 @@ class ModuleManager {
 			$ret = array();
 			ob_start();
 			foreach(self::$modules as $name=>$version)
-				if(method_exists($name.'Common', $method)) {
+				if(class_exists($name.'Common') && method_exists($name.'Common', $method)) {
 					$ret[$name] = call_user_func_array(array($name.'Common',$method),$args);
 				}
 			ob_end_clean();
@@ -884,7 +884,7 @@ class ModuleManager {
 		if(!isset($cache[$cache_id]) || !$cached) {
 			$ret = array();
 			foreach(self::$modules as $name=>$version)
-				if(method_exists($name.'Common', $method)) {
+				if(class_exists($name.'Common') && method_exists($name.'Common', $method)) {
 					$ret[] = $name;
 				}
 			$cache[$cache_id]=&$ret;
