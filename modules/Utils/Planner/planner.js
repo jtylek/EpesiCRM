@@ -1,9 +1,9 @@
-function has_class(elem, class) {
+function has_class(elem, current_class) {
 	if (elem.className) {
 		var class_list = elem.className.split(' ');
-		class = class.toUpperCase();
+		current_class = current_class.toUpperCase();
 		for (var i=0; i<class_list.length; i++) {
-			if ( class_list[i].toUpperCase() == class) {
+			if ( class_list[i].toUpperCase() == current_class) {
 				return true;
 			}
 		}
