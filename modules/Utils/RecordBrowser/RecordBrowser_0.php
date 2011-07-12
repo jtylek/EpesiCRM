@@ -440,9 +440,9 @@ class Utils_RecordBrowser extends Module {
                 }
             } else {
 				if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
-					if ($vals[$field_id.'__from'])
+					if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'])
 						$this->crits['>='.$filter_id] = $vals[$field_id.'__from'].' 00:00:00';
-					if ($vals[$field_id.'__to'])
+					if (isset($vals[$field_id.'__to']) && $vals[$field_id.'__to'])
 						$this->crits['<='.$filter_id] = $vals[$field_id.'__to'].' 23:59:59';
 					continue;
 				}
@@ -450,11 +450,11 @@ class Utils_RecordBrowser extends Module {
                     if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='__NULL__';
 					if ($vals['filter__'.$filter_id]==='__NULL__') continue;
 					if ($this->table_rows[$filter]['type']=='commondata') {
-						$vals = explode('/',$vals['filter__'.$filter_id]);
+						$vals2 = explode('/',$vals['filter__'.$filter_id]);
 						$param = explode('::',$this->table_rows[$filter]['param']['array_id']);
 						array_shift($param);
 						$param[] = $filter_id;
-						foreach ($vals as $v)
+						foreach ($vals2 as $v)
 							$this->crits[preg_replace('/[^a-z0-9]/','_',strtolower(array_shift($param)))] = $v;
 					} else {
 						$this->crits[$filter_id] = $vals['filter__'.$filter_id];
