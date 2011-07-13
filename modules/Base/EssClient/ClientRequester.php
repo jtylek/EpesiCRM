@@ -16,19 +16,19 @@ class ClientRequester implements IClient {
         $this->server = $server;
     }
 
+    public function download_prepare($order_ids) {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function download_prepared_file($file_hash) {
+        return $this->call(__FUNCTION__, func_get_args(), false);
+    }
+
     public function get_list_of_modules($start, $amount) {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
     public function get_list_of_modules_total_amount() {
-        return $this->call(__FUNCTION__, func_get_args());
-    }
-
-    public function get_module_file($module_file_hash) {
-        return $this->call(__FUNCTION__, func_get_args(), false);
-    }
-
-    public function get_module_hash($module_id) {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
