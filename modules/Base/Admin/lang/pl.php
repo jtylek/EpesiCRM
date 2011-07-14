@@ -28,4 +28,9 @@ $translations['Base_Admin']['Currencies']='Waluty';
 $translations['Base_Admin']['Download modules']='Ściągnij moduły';
 $translations['Base_Admin']['Title and logo']='Tytuł i logo';
 $translations['Base_Admin']['Outgoing mail global signature']='Globalny podpis wychodzącej poczty';
+$translations['Base_Admin']['Warehouse']='Hurtownia';
+$translations['Base_Admin']['Tax Rates']='Stawki Podatku';
+$translations['Base_Admin']['Sales Report']='Raport sprzedaży';
+$translations['Base_Admin']['eCommerce']='Sklep internetowy';
+$translations['Base_Admin']['eCommerce prices']='Ceny w sklepie internetowym';
 ?>

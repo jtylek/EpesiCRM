@@ -16,5 +16,5 @@ $translations['Base_Box']['Checking if new version is available...']='Sprawdzani
 $translations['Base_Box']['If you find our software useful, please support us by making a donation.<br>Your funding will help to ensure continued development of this project.<br>Click for details.']='Jeżeli używasz tej aplikacji proszę wesprzyj nasz projekt przez dotację.<br>Twoja pomoc pozwoli nam kontunuawać pracę nad aplikacją.<br>Kliknij aby dowiedzieć się więcej.';
 $translations['Base_Box']['version&nbsp;%s']='wersja&nbsp;%s';
 $translations['Base_Box']['Help']='Pomoc';
-$translations['Base_Box']['Home']='Start';
+$translations['Base_Box']['Home']='Dom';
 ?>

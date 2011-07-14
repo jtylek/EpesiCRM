@@ -43,4 +43,5 @@ $translations['Utils_GenericBrowser']['New Task']='Nowe zadanie';
 $translations['Utils_GenericBrowser']['New Event']='Nowe wydarzenie';
 $translations['Utils_GenericBrowser']['New Phonecall']='Nowy telefon';
 $translations['Utils_GenericBrowser']['New Note']='Nowa notatka';
+$translations['Utils_GenericBrowser']['Reset Order']='';
 ?>

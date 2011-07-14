@@ -69,4 +69,12 @@ $translations['Base_ActionBar']['Refresh languages']='Odśwież listę języków
 $translations['Base_ActionBar']['Add targets']='Dodaj obiekty';
 $translations['Base_ActionBar']['Commit selection']='Zatwierdź wybór';
 $translations['Base_ActionBar']['Send']='Wyślij';
+$translations['Base_ActionBar']['Warehouses']='Magazyny';
+$translations['Base_ActionBar']['Items']='Produkty';
+$translations['Base_ActionBar']['Transactions']='Tranzakcje';
+$translations['Base_ActionBar']['Print Receipt']='';
+$translations['Base_ActionBar']['Use this Trans.']='';
+$translations['Base_ActionBar']['Auto-update']='';
+$translations['Base_ActionBar']['File scan']='';
+$translations['Base_ActionBar']['Add to my Trans.']='Dodaj do Transakcji';
 ?>

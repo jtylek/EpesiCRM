@@ -131,4 +131,13 @@ $translations['Base_Dashboard']['All']='Wszystkie';
 $translations['Base_Dashboard']['[All]']='[Wszystkie]';
 $translations['Base_Dashboard']['In Progress']='W trakcie';
 $translations['Base_Dashboard']['Actions']='Akcje';
+$translations['Base_Dashboard']['eCommerce orders']='';
+$translations['Base_Dashboard']['New Online Order']='Zamówienie Int.';
+$translations['Base_Dashboard']['Not sold items']='';
+$translations['Base_Dashboard']['4 months']='';
+$translations['Base_Dashboard']['Order Received']='Zamówienie Złożone -> Zweryfikuj Płatność';
+$translations['Base_Dashboard']['Messenger alarms']='Do wiadomosci';
+$translations['Base_Dashboard']['Who is online']='Zalogowani';
+$translations['Base_Dashboard']['Active Orders']='';
+$translations['Base_Dashboard']['Active']='Aktywny';
 ?>

@@ -5,5 +5,5 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Libs_TCPDF']['Page']='';
+$translations['Libs_TCPDF']['Page']='Strona';
 ?>

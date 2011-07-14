@@ -25,4 +25,5 @@ $translations['Base_User_Login']['Cancel']='Anuluj';
 $translations['Base_User_Login']['A username must be between 3 and 32 chars']='Nazwa użytkownika musi miec od 3 do 32 znaków';
 $translations['Base_User_Login']['Username or e-mail invalid']='Nazwa użytkownika lub adres e-mail jest nieprawidłowy';
 $translations['Base_User_Login']['This isn\'t valid e-mail address']='To nie jest prawidłowy adres e-mail';
+$translations['Base_User_Login']['Keep this box unchecked if using a  public computer']='';
 ?>

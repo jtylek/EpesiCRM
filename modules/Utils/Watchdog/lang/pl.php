@@ -13,4 +13,7 @@ $translations['Utils_Watchdog']['This will update all of your subscriptions stat
 $translations['Utils_Watchdog']['No category selected']='Nie wybrano kategorii';
 $translations['Utils_Watchdog']['Cat.']='Kat.';
 $translations['Utils_Watchdog']['Title']='Tytuł';
+$translations['Utils_Watchdog']['Are you sure you want to unsubscribe this record?']='';
+$translations['Utils_Watchdog']['Click to unsubscribe']='';
+$translations['Utils_Watchdog']['Mark as read']='';
 ?>

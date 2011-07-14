@@ -72,4 +72,9 @@ $translations['Base_MainModuleIndicator']['List Manager: Edit record']='Menedże
 $translations['Base_MainModuleIndicator']['List Element: Edit record']='Obiekt Listy: Edytuj rekord';
 $translations['Base_MainModuleIndicator']['Assets: Browse']='Sprzęt: Przgladanie';
 $translations['Base_MainModuleIndicator']['Shoutbox']='Shoutbox';
+$translations['Base_MainModuleIndicator']['Items Transactions: Browse']='';
+$translations['Base_MainModuleIndicator']['Items Transactions: View record']='';
+$translations['Base_MainModuleIndicator']['Distributors: View record']='';
+$translations['Base_MainModuleIndicator']['Items: Browse']='';
+$translations['Base_MainModuleIndicator']['Items: View record']='';
 ?>
