@@ -84,7 +84,7 @@ input, textarea, select {
 .logged_as {
 	float: left;
 	width: 154px;
-	padding-top: 3px;
+	padding-top: 0px;
 	margin-right: 6px;
 	text-align: center;
 }
@@ -746,8 +746,8 @@ hr.line {
 
 
 #top_bar #top_bar_2 .login {
-	height: 20px;
-    padding-top: 2px;
+	height: 21px;
+    padding-top: 1px;
 	vertical-align: top;
 	text-align: left;
     padding-left: 9px;
