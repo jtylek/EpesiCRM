@@ -193,6 +193,10 @@ div.events_brief {
 	height: 30px;
 }
 
+#Utils_Calendar__agenda .data input:focus {
+	background-color: #FFFFA5;
+}
+
 /* Select date */
 
 #Utils_Calendar__agenda .data a.button {

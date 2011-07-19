@@ -358,7 +358,7 @@ div.week-menu img {
 div.week-menu a.button {
     font-weight: normal;
     color: #FFFFFF;
-    width: 103px;
+    width: 135px;
     height: 26px;
 	padding-top: 4px;
     display: block;
@@ -396,7 +396,7 @@ div.week-menu .empty {
 
 div.week-menu .trash {
 	display: block;
-	margin-left: 0px;
+	margin: 5px auto auto 0px;
 	padding: 4px;
 	height: 32px;
 	width: 128px;
