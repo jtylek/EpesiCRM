@@ -90,7 +90,7 @@ class epesi_archive extends rcube_plugin
     global $E_SESSION;
     $ret = array();
     
-    $fields = DB::GetCol('SELECT field FROM contact_field WHERE field LIKE \'%mail%\' ORDER BY field');
+    $fields = DB::GetCol('SELECT field FROM contact_field WHERE active=1 AND type=\'text\' AND field LIKE \'%mail%\' ORDER BY field');
     foreach($fields as & $f) {
         $f = 'c.f_'.preg_replace('/[^a-z0-9]/','_',strtolower($f));
     }
@@ -98,7 +98,7 @@ class epesi_archive extends rcube_plugin
     foreach($contact as $contact_id) {
         $ret[] = 'P:'.$contact_id;
     }
-    $fields = DB::GetCol('SELECT field FROM company_field WHERE field LIKE \'%mail%\' ORDER BY field');
+    $fields = DB::GetCol('SELECT field FROM company_field WHERE active=1 AND type=\'text\' AND field LIKE \'%mail%\' ORDER BY field');
     foreach($fields as & $f) {
         $f = 'c.f_'.preg_replace('/[^a-z0-9]/','_',strtolower($f));
     }
