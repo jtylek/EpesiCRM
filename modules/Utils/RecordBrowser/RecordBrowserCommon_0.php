@@ -1643,7 +1643,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function get_edit_details_modify_record($tab, & $rid, $edit_id,$details=true) {
 		self::init($tab);
 		if (is_numeric($rid)) {
-			$prev_rev = DB::GetOne('SELECT MAX(id) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d AND id<%d', array($rid, $edit_id));
+			$prev_rev = DB::GetOne('SELECT MIN(id) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d AND id>%d', array($rid, $edit_id));
 			$r = self::get_record_revision($tab, $rid, $prev_rev);
 		} else $r = $rid;
 		$edit_info = DB::GetRow('SELECT * FROM '.$tab.'_edit_history WHERE id=%d',array($edit_id));
@@ -1707,7 +1707,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 switch ($param[0]) {
                     case 'C':   $event_display = self::ts('<b>Record created by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($r['created_by']), Base_RegionalSettingsCommon::time2reg($r['created_on'])));
                                 break;
-                    case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r, $param[1] ,$details);
+                    case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r['id'], $param[1] ,$details);
                                 break;
 
                     case 'N':   $event_display = false;
