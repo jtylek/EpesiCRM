@@ -307,7 +307,7 @@ class Base_Dashboard extends Module {
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
 
 		if($is_conf) {
-			$f->addElement('header',null,$this->t($caption. ' settings'));
+			$f->addElement('header',null,$this->t($caption).' '.$this->t('settings'));
 
 			$menu = call_user_func($sett_fn);
 			if (is_array($menu))
@@ -316,7 +316,7 @@ class Base_Dashboard extends Module {
 				trigger_error('Invalid applet settings function: '.$mod,E_USER_ERROR);
 		}
 
-		$f->addElement('header',null,$this->t($caption.' display settings'));
+		$f->addElement('header',null,$this->t($caption).' '.$this->t('display settings'));
 
 		$color = Base_DashboardCommon::get_available_colors();
 		$color[0] = $this->t('Default').': '.$this->t(ucfirst($color[0]));
@@ -427,7 +427,17 @@ class Base_Dashboard extends Module {
 	private function add_module_settings_to_form($info, &$f, $id, $module){
 		$values = $this->get_values($id,$module);
 		foreach($info as & $v){
-			if(isset($v['label'])) $v['label'] = $this->t($v['label']);
+			if(isset($v['label'])) {
+				if (is_array($v['label'])) {
+					$label = $v['label']['value'];
+					if (isset($v['label']['translate']) && $v['label']['translate'])
+						$v['label'] = $this->t($label);
+					else
+						$v['label'] = $label;
+				} else {
+					$v['label'] = $this->t($v['label']);
+				}
+			}
 			if(isset($v['values']) && is_array($v['values']) && (!isset($v['translate']) || $v['translate']))
 				foreach($v['values'] as &$x)
 					$x = $this->t($x);

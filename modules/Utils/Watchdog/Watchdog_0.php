@@ -46,12 +46,12 @@ class Utils_Watchdog extends Module {
 					);
 		if (count($categories)==1) {
 			$title = call_user_func($methods[$categories[0]]);
-			$opts['title'] = Base_LangCommon::ts('Premium/Projects/Tickets','Subscriptions - ').$title['category'];
+			$opts['title'] = Base_LangCommon::ts('Utils/Watchdog','Subscriptions - ').$title['category'];
 			$header = array(array('name'=>$this->t('Title')));
 		} elseif (count($categories)==count($methods)) {
-			$opts['title'] = Base_LangCommon::ts('Premium/Projects/Tickets','Subscriptions - All');
+			$opts['title'] = Base_LangCommon::ts('Utils/Watchdog','Subscriptions - All');
 		} else {
-			$opts['title'] = Base_LangCommon::ts('Premium/Projects/Tickets','Subscriptions - Selection');
+			$opts['title'] = Base_LangCommon::ts('Utils/Watchdog','Subscriptions - Selection');
 		}
 		if (isset($conf['only_new']) && $conf['only_new']) $only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
 		else $only_new = '';

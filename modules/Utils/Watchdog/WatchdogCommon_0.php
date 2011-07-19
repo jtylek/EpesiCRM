@@ -28,7 +28,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			foreach ($methods as $k=>$v) { 
 				$method = explode('::',$v);
 				$methods[$k] = call_user_func($method);
-				$ret[] = array('label'=>$methods[$k]['category'],'name'=>'category_'.$k,'type'=>'checkbox','default'=>true);
+				$ret[] = array('label'=>array('value'=>$methods[$k]['category'], 'translate'=>false),'name'=>'category_'.$k,'type'=>'checkbox','default'=>true);
 			}
 		}
 		return $ret;

@@ -20,6 +20,7 @@ function wait_while_null(id,action) {
 };
 
 var Epesi = {
+	default_indicator:'loading...',
 	procOn:0,
 	client_id:0,
 	process_file:'process.php',
@@ -101,7 +102,7 @@ var Epesi = {
 	},
 	href: function(url,indicator,mode) {
 		if(Epesi.procOn==0 || mode=='allow'){
-			if(indicator=='') indicator='loading...';
+			if(indicator=='') indicator=Epesi.default_indicator;
 			Epesi.updateIndicatorText(indicator);
 			Epesi.request(url);
 		} else if(mode=='queue')

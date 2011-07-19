@@ -124,6 +124,8 @@ class Base_LangCommon extends ModuleCommon {
 		global $custom_translations;
 		if(!is_array($custom_translations))
 			$custom_translations=array();
+			
+		eval_js_once('Epesi.default_indicator="'.self::ts('Base_Lang', 'loading...').'";');
 	}
 
 	public static function get_lang_code() {

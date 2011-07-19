@@ -5,7 +5,7 @@
             <td colspan="2">{$custom_tooltip}</td>
 	</tr>
     <tr>
-            <td class="info" colspan="2">Click to show / hide menu</td>
+            <td class="info" colspan="2">{$show_hide_info}</td>
     </tr>
 	</tbody>
 </table>
@@ -36,7 +36,7 @@
             <td colspan="2">{$additional_info2}</td>
         </tr>
         <tr>
-            <td class="info" colspan="2">Click to show / hide menu</td>
+            <td class="info" colspan="2">{$show_hide_info}</td>
         </tr>
     </tbody>
 </table>

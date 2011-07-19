@@ -33,6 +33,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('end_day',$ex['end_day']);
 		$th->assign('end',$ex['end']);
 		$th->assign('duration',$ex['duration']);
+		$th->assign('show_hide_info',Base_LangCommon::ts('Utils_Calendar','Click to show / hide menu'));
 		$th->assign('additional_info',$ev['additional_info']);
 		$th->assign('additional_info2',$ev['additional_info2']);
 		if(isset($ev['custom_tooltip']))
@@ -87,7 +88,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		if(isset($row['timeless']) && $row['timeless']) {
 			if(!isset($row['timeless_caption']))
-				$row['timeless_caption'] = Base_LangCommon::ts('Utils_Calendar','timeless');
+				$row['timeless_caption'] = str_replace(' ','&nbsp;',Base_LangCommon::ts('Utils_Calendar','timeless'));
 			$start_time = $row['timeless_caption'];
 			$end_time = $start_time;
 			$ev_start = strtotime($row['timeless']);
