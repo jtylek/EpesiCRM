@@ -24,15 +24,15 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, func_get_args(), false);
     }
 
-    public function get_list_of_modules($start, $amount) {
+    public function modules_list($start, $amount) {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function get_list_of_modules_total_amount() {
+    public function modules_list_total_amount() {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function get_module_info($module_id) {
+    public function module_get_info($module_id) {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
@@ -44,11 +44,11 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function get_installation_status() {
+    public function installation_status() {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function get_registered_data() {
+    public function installation_registered_data() {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
@@ -57,6 +57,10 @@ class ClientRequester implements IClient {
     }
 
     public function order_submit($modules) {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function orders_list() {
         return $this->call(__FUNCTION__, func_get_args());
     }
 

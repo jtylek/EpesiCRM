@@ -34,9 +34,9 @@ class Base_EssClient extends Module {
         }
         if (Base_EssClientCommon::get_license_key()) {
             print($this->t('Your installation is registered.') . '<br/>');
-            $data = Base_EssClientCommon::server()->get_registered_data();
+            $data = Base_EssClientCommon::server()->installation_registered_data();
             $data['license_key'] = Base_EssClientCommon::get_license_key();
-            $data['status'] = Base_EssClientCommon::server()->get_installation_status();
+            $data['status'] = Base_EssClientCommon::server()->installation_status();
             // handle different status messages
             if (strcasecmp($data['status'], "new") == 0 || strcasecmp($data['status'], "updated") == 0) {
                 print($this->t('<div style="color: red">Wait for your company data validation by our service and come back here to confirm installation!</div>'));
@@ -57,7 +57,7 @@ class Base_EssClient extends Module {
     }
 
     public function edit_data() {
-        $data = Base_EssClientCommon::server()->get_registered_data();
+        $data = Base_EssClientCommon::server()->installation_registered_data();
         $this->navigate('register', array($data));
     }
 

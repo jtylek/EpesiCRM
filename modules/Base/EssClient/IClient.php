@@ -23,14 +23,14 @@ interface IClient {
      *
      * @return string|false Installation status or false on error.
      */
-    function get_installation_status();
+    function installation_status();
 
     /**
      * Get company data stored on server.
      * 
      * @return array registered data.
      */
-    function get_registered_data();
+    function installation_registered_data();
 
     /**
      * Register installation and request client identifier.
@@ -70,7 +70,7 @@ interface IClient {
      * @param string $module_id unique identifier of module package
      * @return array|false array with module info or false on error
      */
-    function get_module_info($module_id);
+    function module_get_info($module_id);
 
     /**
      * Request list of available modules in specific range.
@@ -81,14 +81,14 @@ interface IClient {
      * @param int $amount amount of records
      * @return array|false array of modules with info or false on error
      */
-    function get_list_of_modules($start, $amount);
+    function modules_list($start, $amount);
 
     /**
      * Request total amount of available modules.
      * 
      * @return int|false amount or false on error
      */
-    function get_list_of_modules_total_amount();
+    function modules_list_total_amount();
 
     /**
      * Submit order to server to buy modules.
@@ -97,6 +97,13 @@ interface IClient {
      * @return array Array of booleans module_id => success?
      */
     function order_submit($modules);
+
+    /**
+     * Get list of orders
+     *
+     * @return array Array of orders
+     */
+    function orders_list();
 }
 
 ?>
