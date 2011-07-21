@@ -720,8 +720,8 @@ class Utils_RecordBrowser extends Module {
         if ($admin) {
             $order = array(':Edited_on'=>'DESC');
             $form = $this->init_module('Libs/QuickForm', null, $this->tab.'_admin_filter');
-            $form->addElement('select', 'show_records', 'Show records', array(0=>'all',1=>'active',2=>'deactivated'));
-            $form->addElement('submit', 'submit', 'Show');
+            $form->addElement('select', 'show_records', $this->t('Show records'), array(0=>$this->t('all'),1=>$this->t('active'),2=>$this->t('deactivated')));
+            $form->addElement('submit', 'submit', $this->t('Show'));
             $f = $this->get_module_variable('admin_filter', 0);
             $form->setDefaults(array('show_records'=>$f));
             self::$admin_filter = $form->exportValue('show_records');

@@ -29,7 +29,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$form = & $this->init_module('Libs/QuickForm','Changing template');
 		
 		$themes = Base_Theme::list_themes();
-		$form->addElement('header', 'install_module_header', 'Themes Administration');
+		$form->addElement('header', 'install_module_header', $this->t('Themes Administration'));
 		$form->addElement('select', 'theme', $this->t('Choose template'), $themes);
 
 		$form->addElement('checkbox', 'preload_selected', $this->t('Preload selected template images'));

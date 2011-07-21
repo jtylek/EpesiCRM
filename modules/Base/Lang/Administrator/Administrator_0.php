@@ -37,7 +37,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		
 		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
 		$langs = array_combine($ls_langs,$ls_langs);
-		$form->addElement('header', 'module_header', 'Languages Administration');
+		$form->addElement('header', 'module_header', $this->t('Languages Administration'));
 		$form->addElement('select','lang_code',$this->t('Default language'), $langs);
 		
 		$form->addElement('checkbox','allow_lang_change',$this->t('Allow users to change language'));

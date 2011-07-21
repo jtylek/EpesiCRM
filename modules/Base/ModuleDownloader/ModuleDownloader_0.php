@@ -33,8 +33,8 @@ class Base_ModuleDownloader extends Module {
 
 	public function admin() {
         $form = $this->init_module('Libs/QuickForm');
-        $form->addElement('text', 'mid', 'Download Code');
-        $form->addElement('submit', 'submit', 'Download');
+        $form->addElement('text', 'mid', $this->t('Download Code'));
+        $form->addElement('submit', 'submit', $this->t('Download'));
         if ($form->validate()) {
             $this->navigate('processQuery', array($form->exportValue('mid')));
         }
@@ -119,7 +119,7 @@ class Base_ModuleDownloader extends Module {
                     $form->addElement('button', 'restart', 'Restart Epesi', 'onclick="document.location=\'\'"');
                 }
             } else {
-                $form->addElement('button', 'download', 'Download Now!', $this->create_callback_href(array($this, 'processDownload'), array($mid)));
+                $form->addElement('button', 'download', $this->t('Download Now!'), $this->create_callback_href(array($this, 'processDownload'), array($mid)));
             }
 
             $form->display();
