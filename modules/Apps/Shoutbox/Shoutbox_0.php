@@ -20,8 +20,8 @@ class Apps_Shoutbox extends Module {
 		*/
 		
 		$tb = & $this->init_module('Utils/TabbedBrowser');
-		$tb->set_tab('Chat', array($this,'chat'),true,null);
-		$tb->set_tab('History', array($this,'history'),null);
+		$tb->set_tab($this->t('Chat'), array($this,'chat'),true,null);
+		$tb->set_tab($this->t('History'), array($this,'history'),null);
 		$this->display_module($tb);
     }
 	
