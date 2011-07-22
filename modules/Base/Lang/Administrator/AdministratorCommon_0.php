@@ -21,8 +21,7 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 		if(DEMO_MODE && Base_UserCommon::get_my_user_login()=='admin') {
 			$langs = array('en'=>'en');
 		} else {
-			$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
-			$langs = array_combine($ls_langs,$ls_langs);
+			$langs = Base_LangCommon::get_installed_langs();
 		}
 		return array('Regional settings'=>array(
 			array('type'=>'header','label'=>'Language','name'=>null),

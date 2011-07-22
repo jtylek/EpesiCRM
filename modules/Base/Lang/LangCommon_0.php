@@ -257,7 +257,11 @@ class Base_LangCommon extends ModuleCommon {
 
 		return $trans;
 	}
-*/
+*/	
+	public static function get_installed_langs() {
+		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
+		return array_combine($ls_langs,$ls_langs);
+	}
 }
 
 Module::register_method('t',array('Base_LangCommon','ts')); // interactive ts
