@@ -966,6 +966,16 @@ hr.line {
 /* Global styles */
 
 	/* Add / Remove buttons */
+		#assigned_to__add_selected,
+		#assigned_to__add_all,
+		#assigned_to__remove_all,
+		#assigned_to__remove_selected,
+		
+		#required_tickets__add_selected,
+		#required_tickets__add_all,
+		#required_tickets__remove_all,
+		#required_tickets__remove_selected,
+	
 		#employees__add_selected,
 		#employees__add_all,
 		#employees__remove_all,
@@ -1011,6 +1021,16 @@ hr.line {
 			/* end dark css3 green background gradient */
 		}
 
+		#assigned_to__add_selected:hover,
+		#assigned_to__add_all:hover,
+		#assigned_to__remove_all:hover,
+		#assigned_to__remove_selected:hover,
+		
+		#required_tickets__add_selected:hover,
+		#required_tickets__add_all:hover,
+		#required_tickets__remove_all:hover,
+		#required_tickets__remove_selected:hover,
+		
 		#employees__add_selected:hover,
 		#employees__add_all:hover,
 		#employees__remove_all:hover,

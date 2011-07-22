@@ -55,7 +55,7 @@ ul.Utils_TabbedBrowser li span.tabbed_browser_selected {
 
 }
 ul.Utils_TabbedBrowser li span.tabbed_browser_selected:hover {
-
+	text-decoration: none;
 }
 ul.Utils_TabbedBrowser li span {
 	border: 0px;
