@@ -5,7 +5,7 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Base_User_Administrator']['Login']='Logowanie';
+$translations['Base_User_Administrator']['Login']='Login ';
 $translations['Base_User_Administrator']['Mail']='Ustawienie poczty';
 $translations['Base_User_Administrator']['Access']='Dostęp';
 $translations['Base_User_Administrator']['Ban time after 3 failed logins']='Blokuj użytkownika po 3 nieudanych próbach logowania';
@@ -56,4 +56,7 @@ $translations['Base_User_Administrator']['Yes']='Tak';
 $translations['Base_User_Administrator']['No']='Nie';
 $translations['Base_User_Administrator']['yes']='tak';
 $translations['Base_User_Administrator']['no']='nie';
+$translations['Base_User_Administrator']['Log as user']='';
+$translations['Base_User_Administrator']['Actions']='Akcje';
+$translations['Base_User_Administrator']['Contact']='Kontakt';
 ?>

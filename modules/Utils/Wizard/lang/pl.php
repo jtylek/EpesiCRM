@@ -5,6 +5,6 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Utils_Wizard']['Next']='След.';
-$translations['Utils_Wizard']['Prev']='Пред.';
+$translations['Utils_Wizard']['Next']='Następny';
+$translations['Utils_Wizard']['Prev']='Poprzedni';
 ?>

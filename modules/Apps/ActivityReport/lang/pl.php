@@ -5,21 +5,21 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Apps_ActivityReport']['Record Type']='Тип записи';
-$translations['Apps_ActivityReport']['New record']='Новая запись';
-$translations['Apps_ActivityReport']['Record edit']='Редактировать запись';
-$translations['Apps_ActivityReport']['Record Delete/restore']='Запись удалить/восстановить';
-$translations['Apps_ActivityReport']['Notes']='Заметки';
-$translations['Apps_ActivityReport']['User']='Пользователь';
-$translations['Apps_ActivityReport']['All']='Все';
-$translations['Apps_ActivityReport']['Files']='Файлы';
-$translations['Apps_ActivityReport']['Start Date']='Дата начала';
-$translations['Apps_ActivityReport']['End Date']='Дата окончания';
-$translations['Apps_ActivityReport']['Show']='Показать';
-$translations['Apps_ActivityReport']['Type']='Тип';
-$translations['Apps_ActivityReport']['Date']='Дата';
-$translations['Apps_ActivityReport']['Label']='Метка';
-$translations['Apps_ActivityReport']['Actions taken']='Принятые меры';
-$translations['Apps_ActivityReport']['Created']='Создано';
-$translations['Apps_ActivityReport']['Edited']='Отредактировано';
+$translations['Apps_ActivityReport']['Record Type']='Typ rekordu';
+$translations['Apps_ActivityReport']['New record']='Nowy rekord';
+$translations['Apps_ActivityReport']['Record edit']='Edytuj rekord';
+$translations['Apps_ActivityReport']['Record Delete/restore']='Usuń/przywróć rekord';
+$translations['Apps_ActivityReport']['Notes']='Uwagi';
+$translations['Apps_ActivityReport']['User']='Użytkownik';
+$translations['Apps_ActivityReport']['All']='Wszystko';
+$translations['Apps_ActivityReport']['Files']='Pliki';
+$translations['Apps_ActivityReport']['Start Date']='Data rozpoczęcia';
+$translations['Apps_ActivityReport']['End Date']='Data zakończenia';
+$translations['Apps_ActivityReport']['Show']='Pokaż';
+$translations['Apps_ActivityReport']['Type']='Typ';
+$translations['Apps_ActivityReport']['Date']='Data';
+$translations['Apps_ActivityReport']['Label']='Etykieta';
+$translations['Apps_ActivityReport']['Actions taken']='Podjęte działania';
+$translations['Apps_ActivityReport']['Created']='Stworzony';
+$translations['Apps_ActivityReport']['Edited']='Edytowany';
 ?>

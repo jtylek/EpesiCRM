@@ -5,6 +5,7 @@
  * @subpackage de
  */
 global $translations;
+$translations['Utils_CurrencyField']['Example value: %s']='';
 $translations['Utils_CurrencyField']['After']='Später';
 $translations['Utils_CurrencyField']['Before']='Vorher';
 $translations['Utils_CurrencyField']['Yes']='Ja';

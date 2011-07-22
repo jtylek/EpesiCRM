@@ -5,6 +5,8 @@
  * @subpackage pl
  */
 global $translations;
+$translations['CRM_Calendar_Event']['Meetings']='Spotkania';
+$translations['CRM_Calendar_Event']['All']='Wszystko';
 $translations['CRM_Calendar_Event']['Description']='Opis';
 $translations['CRM_Calendar_Event']['Status']='Status';
 $translations['CRM_Calendar_Event']['Access']='Dostęp';
@@ -102,4 +104,7 @@ $translations['CRM_Calendar_Event']['End date cannot be before start date.']='Da
 $translations['CRM_Calendar_Event']['Time']='Godzina';
 $translations['CRM_Calendar_Event']['Customers']='Klienci';
 $translations['CRM_Calendar_Event']['Title']='Tytuł';
+$translations['CRM_Calendar_Event']['Tasks']='Zadania';
+$translations['CRM_Calendar_Event']['Phonecalls']='Telefony';
+$translations['CRM_Calendar_Event']['Tickets']='Tickety';
 ?>

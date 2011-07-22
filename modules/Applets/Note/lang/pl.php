@@ -5,5 +5,5 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Applets_Note']['Note']='Notatka';
+$translations['Applets_Note']['Note']='Notka';
 ?>

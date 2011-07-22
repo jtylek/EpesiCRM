@@ -21,4 +21,5 @@ $translations['Base_Box']['If you find our software useful, please support us by
 $translations['Base_Box']['There\'s a new version of epesi available for download, click to go to download page.']='';
 $translations['Base_Box']['version %s <b>(Update Available!)</b>']='';
 $translations['Base_Box']['Home']='';
+$translations['Base_Box']['Help']='';
 ?>

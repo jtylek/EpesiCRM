@@ -5,6 +5,10 @@
  * @subpackage de
  */
 global $translations;
+$translations['CRM_Assets']['Assets']='';
+$translations['CRM_Assets']['Computer']='';
+$translations['CRM_Assets']['Monitor']='';
+$translations['CRM_Assets']['Printer']='';
 $translations['Utils_RecordBrowser:crm_assets']['Active']='Aktiv';
 $translations['Utils_RecordBrowser:crm_assets']['Category']='Kategorie';
 $translations['Utils_RecordBrowser:crm_assets']['Company']='Firma';
@@ -27,8 +31,4 @@ $translations['Utils_RecordBrowser:crm_assets']['HDD']='';
 $translations['Utils_RecordBrowser:crm_assets']['Optical Devices']='';
 $translations['Utils_RecordBrowser:crm_assets']['Audio']='';
 $translations['Utils_RecordBrowser:crm_assets']['Software']='';
-$translations['CRM_Assets']['Assets']='';
-$translations['CRM_Assets']['Computer']='';
-$translations['CRM_Assets']['Monitor']='';
-$translations['CRM_Assets']['Printer']='';
 ?>

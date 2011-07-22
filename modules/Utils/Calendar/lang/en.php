@@ -74,4 +74,5 @@ $translations['Utils_Calendar']['Sep']='';
 $translations['Utils_Calendar']['Mar']='';
 $translations['Utils_Calendar']['Apr']='';
 $translations['Utils_Calendar']['Feb']='';
+$translations['Utils_Calendar']['Jul']='';
 ?>

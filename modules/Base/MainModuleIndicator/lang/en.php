@@ -166,4 +166,6 @@ $translations['Base_MainModuleIndicator']['Items Order Details: View record']=''
 $translations['Base_MainModuleIndicator']['Items Transactions: Edit record']='';
 $translations['Base_MainModuleIndicator']['Item Location: View record']='';
 $translations['Base_MainModuleIndicator']['Item Location: New record']='';
+$translations['Base_MainModuleIndicator']['My settings: user']='';
+$translations['Base_MainModuleIndicator']['Administration: Login Audit']='';
 ?>

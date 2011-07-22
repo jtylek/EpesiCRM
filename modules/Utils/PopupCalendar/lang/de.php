@@ -6,6 +6,10 @@
  */
 global $translations;
 $translations['Utils_PopupCalendar']['Select date']='Wähle Datum';
+$translations['Utils_PopupCalendar']['Example date: %s']='Beispiel Datum: %s';
+$translations['Utils_PopupCalendar']['Select month']='Wähle Monat';
+$translations['Utils_PopupCalendar']['Select year']='Wähle Jahr';
+$translations['Utils_PopupCalendar']['Calendar']='';
 $translations['Utils_PopupCalendar']['January']='Januar';
 $translations['Utils_PopupCalendar']['February']='Februar';
 $translations['Utils_PopupCalendar']['March']='März';
@@ -25,7 +29,4 @@ $translations['Utils_PopupCalendar']['Wed']='Mi';
 $translations['Utils_PopupCalendar']['Thu']='Do';
 $translations['Utils_PopupCalendar']['Fri']='Fr';
 $translations['Utils_PopupCalendar']['Sat']='Sa';
-$translations['Utils_PopupCalendar']['Example date: %s']='Beispiel Datum: %s';
-$translations['Utils_PopupCalendar']['Select month']='Wähle Monat';
-$translations['Utils_PopupCalendar']['Select year']='Wähle Jahr';
 ?>

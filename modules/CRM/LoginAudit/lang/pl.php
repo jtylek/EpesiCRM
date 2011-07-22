@@ -20,4 +20,5 @@ $translations['CRM_LoginAudit']['Select number of days']='Wybierz liczbę dni';
 $translations['CRM_LoginAudit']['Back']='Wstecz';
 $translations['CRM_LoginAudit']['Purge Log File']='Wyczyść plik rejestru';
 $translations['CRM_LoginAudit']['Log will be purgd!']='Rejestr zostanie wyczyszczony!';
+$translations['CRM_LoginAudit']['<b>Login</b> [uid] -> User Name']='<b>Login<b>[uid] -> Użytkownik';
 ?>

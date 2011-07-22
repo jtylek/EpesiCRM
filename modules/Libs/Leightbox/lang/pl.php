@@ -6,5 +6,5 @@
  */
 global $translations;
 $translations['Libs_Leightbox']['Close']='Zamknij';
-$translations['Libs_Leightbox']['Resize']='Zmień';
+$translations['Libs_Leightbox']['Resize']='Zmień rozmiar';
 ?>

@@ -6,12 +6,8 @@
  */
 global $translations;
 $translations['Base_User_Administrator']['Login']='';
-$translations['Base_User_Administrator']['Contact']='Kontakt';
-$translations['Base_User_Administrator']['Active']='Aktiv';
 $translations['Base_User_Administrator']['Mail']='';
 $translations['Base_User_Administrator']['Access']='Zugang als';
-$translations['Base_User_Administrator']['yes']='Ja';
-$translations['Base_User_Administrator']['no']='Nein';
 $translations['Base_User_Administrator']['Ban time after 3 failed logins']='Sperrzeit nach 3 fehlerhaften Anmeldungen';
 $translations['Base_User_Administrator']['disabled']='deaktiviert';
 $translations['Base_User_Administrator']['10 seconds']='10 Sekunden';
@@ -38,4 +34,29 @@ $translations['Base_User_Administrator']['Confirm password']='Bestätige Passwor
 $translations['Base_User_Administrator']['Passwords don\'t match']='Passwort stimmt nicht überein';
 $translations['Base_User_Administrator']['Your password must be longer then 5 chars']='Ihr Passwort muss länger als 5 Zeichen sein';
 $translations['Base_User_Administrator']['Username already taken']='Benutzername bereits vergeben';
+$translations['Base_User_Administrator']['Saving settings']='';
+$translations['Base_User_Administrator']['Change password']='';
+$translations['Base_User_Administrator']['Leave password boxes empty if you prefer your current password']='';
+$translations['Base_User_Administrator']['New password']='';
+$translations['Base_User_Administrator']['Confirm new password']='';
+$translations['Base_User_Administrator']['Your passwords don\'t match']='';
+$translations['Base_User_Administrator']['Change e-mail']='';
+$translations['Base_User_Administrator']['New e-mail address']='';
+$translations['Base_User_Administrator']['Not valid e-mail address']='';
+$translations['Base_User_Administrator']['Confirmation']='';
+$translations['Base_User_Administrator']['Old password']='';
+$translations['Base_User_Administrator']['Old password incorrect']='';
+$translations['Base_User_Administrator']['Back']='';
+$translations['Base_User_Administrator']['Save']='';
+$translations['Base_User_Administrator']['Applying changes']='';
+$translations['Base_User_Administrator']['Edit user']='';
+$translations['Base_User_Administrator']['If you leave password fields empty, password is not changed.']='';
+$translations['Base_User_Administrator']['Active']='Aktiv';
+$translations['Base_User_Administrator']['Yes']='';
+$translations['Base_User_Administrator']['No']='';
+$translations['Base_User_Administrator']['yes']='Ja';
+$translations['Base_User_Administrator']['no']='Nein';
+$translations['Base_User_Administrator']['Log as user']='';
+$translations['Base_User_Administrator']['Actions']='';
+$translations['Base_User_Administrator']['Contact']='Kontakt';
 ?>

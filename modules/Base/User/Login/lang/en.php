@@ -37,4 +37,5 @@ This e-mail was automatically generated and you do not need to respond to it.']=
 $translations['Base_User_Login']['Keep this box unchecked if using a  public computer']='';
 $translations['Base_User_Login']['donation']='';
 $translations['Base_User_Login']['If you find our software useful, please support us by making a %s.<br>Your funding will help to ensure continued development of this project.']='';
+$translations['Base_User_Login']['Mail with password sent.']='';
 ?>

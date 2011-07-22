@@ -27,4 +27,6 @@ $translations['Utils_Watchdog']['Use this Trans.']='';
 $translations['Utils_Watchdog']['Are you sure you want to unsubscribe this record?']='';
 $translations['Utils_Watchdog']['Leave this trans.']='';
 $translations['Utils_Watchdog']['Add to my Trans.']='';
+$translations['Utils_Watchdog']['Click to unsubscribe']='';
+$translations['Utils_Watchdog']['Mark as read']='';
 ?>

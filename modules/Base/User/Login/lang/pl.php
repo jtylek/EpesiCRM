@@ -8,7 +8,7 @@ global $translations;
 $translations['Base_User_Login']['Logged as %s']='Zalogowany jako %s';
 $translations['Base_User_Login']['Logout']='Wyloguj';
 $translations['Base_User_Login']['Logging in']='Trwa logowanie';
-$translations['Base_User_Login']['Login']='Logowanie';
+$translations['Base_User_Login']['Login']='Login ';
 $translations['Base_User_Login']['Username']='Użytkownik';
 $translations['Base_User_Login']['Password']='Hasło';
 $translations['Base_User_Login']['Don\'t check this box if you are using public computer!']='Nie zaznaczaj tego pola jeżeli używasz publicznego komputera';
@@ -25,5 +25,17 @@ $translations['Base_User_Login']['Cancel']='Anuluj';
 $translations['Base_User_Login']['A username must be between 3 and 32 chars']='Nazwa użytkownika musi miec od 3 do 32 znaków';
 $translations['Base_User_Login']['Username or e-mail invalid']='Nazwa użytkownika lub adres e-mail jest nieprawidłowy';
 $translations['Base_User_Login']['This isn\'t valid e-mail address']='To nie jest prawidłowy adres e-mail';
+$translations['Base_User_Login']['Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.']='';
+$translations['Base_User_Login']['Your account at %s']='';
+$translations['Base_User_Login']['This e-mail is to inform you that a user account was setup for you at: %s
+Your login name is: %s
+Your password is: %s
+
+For security reasons it is recommened that you login immediately and change your password.
+
+This e-mail was automatically generated and you do not need to respond to it.']='';
 $translations['Base_User_Login']['Keep this box unchecked if using a  public computer']='';
+$translations['Base_User_Login']['donation']='';
+$translations['Base_User_Login']['If you find our software useful, please support us by making a %s.<br>Your funding will help to ensure continued development of this project.']='Jeżeli używasz tej aplikacji proszę wesprzyj nasz projekt przez $s. Twoja pomoc pozwoli nam kontunuawać pracę nad aplikacją.';
+$translations['Base_User_Login']['Mail with password sent.']='';
 ?>

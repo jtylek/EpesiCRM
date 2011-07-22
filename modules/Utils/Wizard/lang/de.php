@@ -6,4 +6,5 @@
  */
 global $translations;
 $translations['Utils_Wizard']['Next']='Weiter';
+$translations['Utils_Wizard']['Prev']='';
 ?>

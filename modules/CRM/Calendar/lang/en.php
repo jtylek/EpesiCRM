@@ -22,4 +22,8 @@ $translations['CRM_Calendar']['Event moved']='';
 $translations['CRM_Calendar']['Meeting']='';
 $translations['CRM_Calendar']['Medical Appointments']='';
 $translations['CRM_Calendar']['Type']='';
+$translations['CRM_Calendar']['Task']='';
+$translations['CRM_Calendar']['Phonecall']='';
+$translations['CRM_Calendar']['Ticket']='';
+$translations['CRM_Calendar']['New Event']='';
 ?>
