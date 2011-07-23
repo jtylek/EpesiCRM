@@ -19,6 +19,7 @@ class Utils_Attachment_Administrator extends Module {
 	public function admin() {
 		if($this->is_back()) {
 			$this->parent->reset();
+			return;
 		}
 		
 		$form = & $this->init_module('Libs/QuickForm',null,'xxx');

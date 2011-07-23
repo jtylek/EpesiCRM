@@ -25,12 +25,12 @@ class Base_AppStore extends Module {
         if ($this->is_back()) {
             return $this->parent->reset();
         }
-        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 
         if (Base_EssClientCommon::get_license_key() == "") {
             // push main
             $m = $this->init_module('Base/EssClient');
-            $this->display_module($m, null, 'register');
+            $this->display_module($m, null, 'register_form');
         } else {
             $this->cart_button();
             Base_ActionBarCommon::add('history', $this->t('Orders'), $this->create_callback_href(array($this, 'navigate'), array('orders_form')));

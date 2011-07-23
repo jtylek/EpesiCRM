@@ -24,7 +24,6 @@ class Base_Mail extends Module implements Base_AdminInterface {
 	public function admin() {
 		if($this->is_back()) {
 			$this->parent->reset();
-			//print('ok');
 			return;
 		}
 		
@@ -66,9 +65,8 @@ class Base_Mail extends Module implements Base_AdminInterface {
 			}
 		}
 		
-		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
-		$form->addGroup(array($ok_b, $cancel_b));
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 		
 		if($form->getSubmitValue('submited') && $form->validate() && $form->process(array(&$this,'submit_admin'))) {
 			$this->parent->reset();

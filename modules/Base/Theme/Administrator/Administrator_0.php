@@ -35,12 +35,6 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$form->addElement('checkbox', 'preload_selected', $this->t('Preload selected template images'));
 		$form->addElement('checkbox', 'preload_default', $this->t('Preload default template images'));
 		
-		/*
-		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), 'onClick="'.$this->create_back_href().'"');
-		$form->addGroup(array($ok_b, $cancel_b));
-		*/
-		
 		$form->setDefaults(array(
 			'theme'=>Variable::get('default_theme'),
 			'preload_selected'=>Variable::get('preload_image_cache_selected'),

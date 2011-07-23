@@ -83,9 +83,6 @@ class Apps_StaticPage extends Module {
 		
 		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
 		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
-//		$save_b = & HTML_QuickForm::createElement('submit', null, $this->t('Save'));
-	//	$back_b = & HTML_QuickForm::createElement('button', null, $this->t('Cancel'), $this->create_back_href());
-		//$f->addGroup(array($save_b,$back_b),'submit_button');
 
 		if(isset($page))
 			$menu = &$this->init_module('Utils/CustomMenu',array('staticpage:'.$page['id']));			
@@ -140,15 +137,23 @@ class Apps_StaticPage extends Module {
 
 		$menu_edit = $this->get_module_variable_or_unique_href_variable('menu_edit');
 		if(isset($menu_edit)) return $this->menu_edit($menu_edit);
-
+		
 		if($this->is_back()) {
-			$this->unset_module_variable('view');
+			if ($this->isset_module_variable('view'))
+				$this->unset_module_variable('view');
+			else {
+				if($this->parent->get_type()=='Base_Admin')
+					$this->parent->reset();
+				else
+					location(array());
+				return;
+			}
 		} else
 			$view = $this->get_module_variable_or_unique_href_variable('view');
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		if(isset($view)) { 
 			$this->body($view);
 //			print('<hr><a '.$this->create_back_href().'>Go back</a>');
-			Base_ActionBarCommon::add('back','Go back',$this->create_back_href());
 			return;
 		}
 		

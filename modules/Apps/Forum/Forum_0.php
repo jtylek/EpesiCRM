@@ -123,9 +123,10 @@ class Apps_Forum extends Module {
 		$form -> addElement('text','name',$this->t('Name'));
 		$form -> addRule('name', $this->t('Field required'), 'required');
 		$form -> addElement('textarea','descr',$this->t('Description'));
-		$submit = HTML_QuickForm::createElement('submit','submit',$this->t('Create'));
-		$cancel = HTML_QuickForm::createElement('button','cancel',$this->t('Cancel'), $this->create_back_href());
-		$form -> addGroup(array($submit,$cancel));
+		
+		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
+		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+
 		if ($form->validate()) {
 			DB::Execute('INSERT INTO apps_forum_board (name,descr) VALUES (%s,%s)',array(htmlspecialchars($form->exportValue('name'),ENT_QUOTES,'UTF-8'),htmlspecialchars($form->exportValue('descr'),ENT_QUOTES,'UTF-8')));
 			return false;

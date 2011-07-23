@@ -42,6 +42,7 @@ class CRM_Roundcube extends Module {
     public function admin() {
 		if($this->is_back()) {
 			$this->parent->reset();
+			return;
 		}
 
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());

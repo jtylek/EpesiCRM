@@ -23,9 +23,19 @@ class Base_User_Settings extends Module {
 
     public function body($branch=null,$admin_settings=false) {
         $branch = $this->get_module_variable_or_unique_href_variable('settings_branch',$branch);
-        if($this->is_back()) {
+        if($branch!==null && $this->is_back()) {
             $branch = null;
         }
+		if ($branch===null) {
+			if($this->is_back()) {
+				if($this->parent->get_type()=='Base_Admin')
+					$this->parent->reset();
+				else
+					location(array());
+				return;
+			}
+			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		}
         $this->set_module_variable('settings_branch',$branch);
 
         $this->get_module_variable('admin_settings',($admin_settings && $this->acl_check('set defaults')));

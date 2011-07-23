@@ -73,9 +73,8 @@ class Base_ModuleManager extends Module {
 		}
 				
 		//control buttons
-		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', 'OK');
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', 'Cancel', $this->create_back_href());
-		$form->addGroup(array($ok_b, $cancel_b));
+		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
+		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 		
 		//validation or display
 		if ($form->validate()) {

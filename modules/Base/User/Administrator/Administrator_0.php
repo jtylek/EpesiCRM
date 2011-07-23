@@ -85,6 +85,15 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     }
 
     public function admin() {
+		if($this->is_back()) {
+			if($this->parent->get_type()=='Base_Admin')
+				$this->parent->reset();
+			else
+				location(array());
+			return;
+		}
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+
         $edit = $this->get_unique_href_variable('edit_user');
         if($edit!=null) {
             $this->edit_user_form($edit);
@@ -208,13 +217,6 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         }
         $form->registerRule('check_username', 'callback', 'check_username_free', 'Base_User_LoginCommon');
         $form->addRule(array('username',$this->create_unique_key('edit_user')), $this->t('Username already taken'), 'check_username');
-
-        /*
-        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
-        $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), 'onClick="parent.location=\''.$this->create_href().'\'"');
-        $form->addGroup(array($ok_b, $cancel_b));
-        */
-
 
         if($form->validate()) {
             if($form->process(array(&$this, 'submit_edit_user_form')))

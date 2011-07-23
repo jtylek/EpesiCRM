@@ -1650,9 +1650,8 @@ class Utils_RecordBrowser extends Module {
         $form->addRule('label', $this->t('"ID" as page name is not allowed.'), 'check_if_no_id');
         $form->setDefaults(array('label'=>$id));
 
-        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
-        $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
-        $form->addGroup(array($ok_b, $cancel_b));
+		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
+		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 
         if($form->validate()) {
             $data = $form->exportValues();
@@ -1873,10 +1872,6 @@ class Utils_RecordBrowser extends Module {
 		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 		Base_ActionBarCommon::add('back', 'Cancel', $this->create_back_href());
 		
-/*        $ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->t('OK'));
-        $cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->t('Cancel'), $this->create_back_href());
-        $form->addGroup(array($ok_b, $cancel_b));*/
-
         if ($form->validate()) {
             $data = $form->exportValues();
             $data['field'] = trim($data['field']);
@@ -2204,6 +2199,15 @@ class Utils_RecordBrowser extends Module {
         $theme->display('Record_picker');
     }
     public function admin() {
+		if($this->is_back()) {
+			if($this->parent->get_type()=='Base_Admin')
+				$this->parent->reset();
+			else
+				location(array());
+			return;
+		}
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+
         $ret = DB::Execute('SELECT tab FROM recordbrowser_table_properties');
         $form = $this->init_module('Libs/QuickForm');
         $opts = array();
@@ -2220,11 +2224,13 @@ class Utils_RecordBrowser extends Module {
         $tab = $this->get_module_variable('admin_browse_recordset', $first);
         $form->setDefaults(array('recordset'=>$tab));
         $form->display();
-        if ($tab) $this->record_management($tab);
+        if ($tab) {
+			$this->record_management($tab);
+		}
     }
     public function record_management($table){
-        $rb = $this->init_module('Utils/RecordBrowser',$table,$table);
-        $this->display_module($rb, null, 'administrator_panel');
+		$this->tab = $table;
+		$this->administrator_panel();
     }
 
     public function enable_quick_new_records($button = true, $force_show = null) {

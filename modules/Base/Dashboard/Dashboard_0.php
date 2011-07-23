@@ -459,6 +459,15 @@ class Base_Dashboard extends Module {
 	//////////////////////////////////////////////////////////
 	//default dashboard
 	public function admin() {
+		if($this->is_back()) {
+			if($this->parent->get_type()=='Base_Admin')
+				$this->parent->reset();
+			else
+				location(array());
+			return;
+		}
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		
 		$this->set_module_variable('default',true);
 		$this->dashboard();
 	}

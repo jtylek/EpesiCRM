@@ -32,6 +32,15 @@ class Base_ModuleDownloader extends Module {
 
 
 	public function admin() {
+		if($this->is_back()) {
+			if($this->parent->get_type()=='Base_Admin')
+				$this->parent->reset();
+			else
+				location(array());
+			return;
+		}
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+
         $form = $this->init_module('Libs/QuickForm');
         $form->addElement('text', 'mid', $this->t('Download Code'));
         $form->addElement('submit', 'submit', $this->t('Download'));

@@ -117,7 +117,10 @@ class Libs_TCPDF extends Module {
 	}
 	
 	public function admin() {
-		if($this->is_back()) $this->parent->reset();
+		if($this->is_back()) {
+			$this->parent->reset();
+			return;
+		}
 		$form = & $this->init_module('Utils/FileUpload',array(false));
 		$form->addElement('header', 'upload', Base_LangCommon::ts($this->get_type(),'Upload company logo',array(),false));
 		$form->add_upload_element();

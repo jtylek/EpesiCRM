@@ -13,6 +13,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_LoginAudit extends Module {
 
     public function admin() {
+		if($this->is_back()) {
+			if($this->parent->get_type()=='Base_Admin')
+				$this->parent->reset();
+			else
+				location(array());
+			return;
+		}
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
         $user = $this->get_module_variable('filter_user',-1);
         $form = $this->init_module('Libs/QuickForm',null,'filter');
