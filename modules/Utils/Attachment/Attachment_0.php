@@ -268,7 +268,7 @@ class Utils_Attachment extends Module {
 			$regional_note_on = $note_on;
 			$arr = array();
 			if($vd)
-				$arr[] = ($row['deleted']?'yes':'no');
+				$arr[] = ($row['deleted']?'<a '.$this->create_confirm_callback_href($this->t('Do you want to restore this note?'),array($this,'restore'),array($row['id'])).' '.Utils_TooltipCommon::open_tag_attrs($this->t('Restore note')).'>'.$this->t('yes').'</a>':$this->t('no'));
 			if($this->author)
 				$arr[] = $row['note_by'];
 			if (is_array($this->group)) {
@@ -479,7 +479,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
-				$r->add_action($this->create_callback_href(array($this,'restore_note'),array($id,$row['revision'])),'restore');
+				$r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),'restore');
 			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_by'],$row['text']);
 		}
 		$th->assign('note_edition',$this->get_html_of_module($gb));
@@ -503,7 +503,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
-				$r->add_action($this->create_callback_href(array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
+				$r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore attached file to this version?'),array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
 			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
 			$r->add_data($row['file_revision'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['upload_by'],$file);
 		}
@@ -544,6 +544,10 @@ class Utils_Attachment extends Module {
 		$this->caption = 'Note history';
 
 		return true;
+	}
+	
+	public function restore($id) {
+		DB::Execute('UPDATE utils_attachment_link SET deleted=0 WHERE id=%d',array($id));	
 	}
 
 	public function restore_note($id,$rev) {

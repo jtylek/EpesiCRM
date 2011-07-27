@@ -184,12 +184,9 @@ function check_htaccess() {
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
 	$test_url = $protocol.$_SERVER['HTTP_HOST'].$epesi_dir.'data/test.php';
 	file_put_contents('data/test.php','<?php'."\n".'if(!ini_get("magic_quotes_gpc")) print("OK"); ?>');
-	$sapi_type = php_sapi_name();
-    if (substr($sapi_type, 0, 3) == 'cgi') {
-        file_put_contents('data/.htaccess',"Options -Indexes\nSetEnv PHPRC ".dirname(__FILE__)."\n");
-    } else {
+
     	copy('htaccess.txt','data/.htaccess');
-    }
+
 	if(ini_get('allow_url_fopen'))
 		$ret = @file_get_contents($test_url);
 	elseif (extension_loaded('curl')) { // Test if curl is loaded
@@ -201,23 +198,38 @@ function check_htaccess() {
 		curl_close($ch);
 	}
 
-    $content = file_get_contents('data/.htaccess');
-	unlink('data/.htaccess');
-	unlink('data/test.php');
-
 	if(!isset($ret)) {
+		unlink('data/.htaccess');
+		unlink('data/test.php');
 		print('Unable to check epesi root .htaccess file hosting compatibility. You should tweak it yourself. <br>Suggested .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
 		return false;
 	}
 	if($ret!=="OK") {
-		print('Your hosting is not compatible with default epesi root .htaccess file. You should tweak it yourself. <br>Default .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
-		return false;
+		file_put_contents('data/.htaccess',"Options -Indexes\nSetEnv PHPRC ".dirname(__FILE__)."\n");
+		if(ini_get('allow_url_fopen'))
+			$ret = @file_get_contents($test_url);
+		elseif (extension_loaded('curl')) { // Test if curl is loaded
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //Set curl to return the data instead of printing it to the browser.
+			curl_setopt($ch, CURLOPT_URL, $test_url);
+			$ret = curl_exec($ch);
+			curl_close($ch);
+		}
+		if($ret!=="OK") {
+			unlink('data/.htaccess');
+			unlink('data/test.php');
+			print('Your hosting is not compatible with default epesi root .htaccess file. You should tweak it yourself. <br>Default .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
+			return false;
+		}
 	}
 	if(!is_writable('.')) {
-		print('Your hosting is compatible with default epesi root .htaccess file, but installer cannot write to epesi root directory. You should copy htaccess.txt to .htaccess file manually.');
+		unlink('data/test.php');
+		print('Your hosting is compatible with default epesi root .htaccess file, but installer cannot write to epesi root directory. You should paste following text to .htaccess file manually.<pre>'.file_get_contents('data/.htaccess').'</pre>');
+		unlink('data/.htaccess');
 		return false;
 	}
-	file_put_contents('.htaccess',$content);
+	rename('data/.htaccess','.htaccess');
 	return true;
 }
 

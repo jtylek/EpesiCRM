@@ -6,4 +6,4 @@ php_value memory_limit "64M"
 php_flag magic_quotes_gpc off
 
 #if your server is running php as cgi/fastcgi you should set following directive instead of above php_value/flag
-#SetEnv PHPRC /your/epesi/root/directory
+#SetEnv PHPRC /your/epesi/root/directory/php.ini
