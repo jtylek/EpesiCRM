@@ -117,8 +117,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$ev_end = $row['end'];
 
 			Base_RegionalSettingsCommon::set();
-			$start_day = date('D',$ev_start);
-			$end_day = date('D',$ev_end);
+			$start_day = Base_LangCommon::ts('Utils_Calendar',date('D',$ev_start));
+			$end_day = Base_LangCommon::ts('Utils_Calendar',date('D',$ev_end));
 			Base_RegionalSettingsCommon::restore();
 
 			$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false);

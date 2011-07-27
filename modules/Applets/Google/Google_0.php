@@ -20,7 +20,7 @@ class Applets_Google extends Module {
         Base_ThemeCommon::load_css($this -> get_type());
         print ('<div id="google">');
  		print ('
-            <form method="get" action="http://www.google.com/custom" target="_blank">
+            <form method="get" action="http://www.google.com/search" target="_blank">
                 <fieldset style="border: 0px;">
                     <a href="http://www.google.com/search"><img src="'.Base_ThemeCommon::get_template_file('Applets/Google','Logo_40wht.gif').'" alt="Google" style="border: 0px; width: 128px; height: 53px;" /></a>
                     <center>

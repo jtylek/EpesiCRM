@@ -54,7 +54,7 @@ if($i<3) {
 			DB::Execute('UPDATE '.$table.' SET pos=%d, col=%d WHERE id=%d'.($val?' AND user_login_id=%d':''),$vals);
 		} else {
 			$cleanId = str_replace('-','_',$id);
-			$vals = array($cleanId,$tab,$i,$pos,Acl::get_user());
+			$vals = array($cleanId,$tab,$i,$pos);
 			if ($val) $vals[] = $val;
 			DB::Execute('INSERT INTO '.$table.'(module_name,tab,col,pos'.($val?',user_login_id':'').') VALUES (%s,%d,%d,%d'.($val?',%d':'').')',$vals);
 			$new_id = DB::Insert_ID('base_dashboard_applets', 'id');

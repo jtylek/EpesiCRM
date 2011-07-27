@@ -62,7 +62,7 @@ class CRM_AssetsCommon extends ModuleCommon {
             return isset($arr) ? implode(' ', $arr) : Base_LangCommon::t('No info');
         }
 
-        return Base_LangCommon::t('This is non-categorized asset.');
+        return Base_LangCommon::ts('CRM_Assets','This is non-categorized asset.');
     }
 
     public static function watchdog_label($rid = null, $events = array(), $details = true) {
@@ -125,7 +125,7 @@ class CRM_AssetsCommon extends ModuleCommon {
 
     public static function user_settings() {
         return array('Assets'=>array(
-                array('name'=>'desc', 'label'=>'Check what should appear in General Info', 'type'=>'static', 'default'=>' and set order of appearance(smaller number -> earlier showed)'),
+                array('name'=>'desc', 'label'=>'Check what should appear in General Info', 'type'=>'static', 'default'=>Base_LangCommon::ts('CRM_Assets',' and set order of appearance(smaller number -> earlier showed)')),
 
                 array('name'=>'computer_header', 'label'=>'', 'type'=>'header', 'default'=>Base_LangCommon::ts('CRM_Assets','Computer')),
                 array('name'=>'processor', 'label'=>'CPU', 'type'=>'checkbox', 'default'=>true),

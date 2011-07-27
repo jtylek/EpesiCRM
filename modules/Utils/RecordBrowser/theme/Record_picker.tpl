@@ -10,7 +10,9 @@
 					{if $deselect_all.js!=""}
 						<input type="button" onClick="{$deselect_all.js}" value="{$deselect_all.label}">
 					{/if}
+					{if isset($close_leightbox)}
 						<input type="button" onClick="{$close_leightbox.js}" value="{$close_leightbox.label}">
+					{/if}
 					</div>
 				</div>
 			</td>
