@@ -102,7 +102,6 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			     array('name'=>'Libs/CKEditor', 'version'=>0),
 			     array('name'=>'Libs/Leightbox', 'version'=>0),
 			     array('name'=>'Utils/Tooltip', 'version'=>0),
-			     array('name'=>'Utils/Attachment/Administrator', 'version'=>0),
 			     array('name'=>'Utils/Watchdog', 'version'=>0),
 			     array('name'=>'Base/RegionalSettings', 'version'=>0),
 			     array('name'=>'Base/Lang','version'=>0),

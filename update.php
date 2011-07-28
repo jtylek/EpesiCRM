@@ -2750,6 +2750,37 @@ if (DB::GetOne('SELECT * FROM contact_field WHERE field=%s', array('Home Email')
 
 }
 }
+
+$versions[] = '1.2.0';
+function update_from_1_1_8_to_1_2_0() {
+ob_start();
+ob_end_clean();
+
+if (ModuleManager::is_installed('Base_Admin')>=0) {
+    $tbls = DB::MetaTables('TABLE',true);
+    if(!in_array('base_admin_access',$tbls))
+        DB::CreateTable('base_admin_access',
+        	'id I4 AUTO KEY,'.
+        	'module C(128),'.
+        	'section C(64),'.
+        	'allow I1',
+        	array('constraints'=>''));
+}
+
+if (ModuleManager::is_installed('Data_Countries')>=0) {
+    $countries = array(
+		"BC"=>'British Indian Ocean Territory',
+		"CS"=>'Cocos Islands',
+		"FS"=>'French Southern Territories');
+
+    Utils_CommonDataCommon::extend_array('Countries', $countries, true);
+}
+
+DB::Execute('DELETE FROM modules WHERE name=%s', array('Utils_Attachment_Administrator'));
+Base_ThemeCommon::uninstall_default_theme('Utils_Attachment_Administrator');
+Base_SetupCommon::refresh_available_modules();
+
+}
 //=========================================================================
 
 try {
