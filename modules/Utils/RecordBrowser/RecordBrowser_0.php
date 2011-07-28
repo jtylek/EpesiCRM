@@ -1567,15 +1567,42 @@ class Utils_RecordBrowser extends Module {
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function administrator_panel() {
-        $_SESSION['client']['recordbrowser']['admin_access'] = true;
-        Utils_RecordBrowserCommon::$admin_access = true;
+        $_SESSION['client']['recordbrowser']['admin_access'] = Base_AdminCommon::get_access('Utils_RecordBrowser', 'records')==2;
+        Utils_RecordBrowserCommon::$admin_access = Base_AdminCommon::get_access('Utils_RecordBrowser', 'records')==2;
         $this->init();
         $tb = $this->init_module('Utils/TabbedBrowser');
-
-        $tb->set_tab($this->t('Manage Records'),array($this, 'show_data'), array(array(), array(), array(), true) );
-        $tb->set_tab($this->t('Manage Fields'),array($this, 'setup_loader') );
-        $tb->set_tab($this->t('Manage Addons'),array($this, 'manage_addons') );
-        $tb->set_tab($this->t('Clipboard Pattern'), array($this, 'setup_clipboard_pattern') );
+		
+		$tabs = array(
+		array(
+			'access'=>'records',
+			'func'=>array($this, 'show_data'),
+			'label'=>'Manage Records',
+			'args'=>array(array(), array(), array(), Base_AdminCommon::get_access('Utils_RecordBrowser', 'records')==2)
+		),
+		array(
+			'access'=>'fields',
+			'func'=>array($this, 'setup_loader'),
+			'label'=>'Manage Fields',
+			'args'=>array()
+		),
+		array(
+			'access'=>'addons',
+			'func'=>array($this, 'manage_addons'),
+			'label'=>'Manage Addons',
+			'args'=>array()
+		),
+		array(
+			'access'=>'pattern',
+			'func'=>array($this, 'setup_clipboard_pattern'),
+			'label'=>'Clipboard Pattern',
+			'args'=>array()
+		)
+		);
+		foreach($tabs as $t) {
+			$access = Base_AdminCommon::get_access('Utils_RecordBrowser', $t['access']);
+			if ($access!=0)
+				$tb->set_tab($this->t($t['label']), $t['func'], $t['args'] );
+		}
 
         $tb->body();
         $tb->tag();
@@ -1596,6 +1623,8 @@ class Utils_RecordBrowser extends Module {
     }
 
     public function manage_addons() {
+		$full_access = Base_AdminCommon::get_access('Utils_RecordBrowser', 'addons')==2;
+
         $gb = $this->init_module('Utils/GenericBrowser','manage_addons'.$this->tab, 'manage_addons'.$this->tab);
         $gb->set_table_columns(array(
                                 array('name'=>$this->t('Addon caption')),
@@ -1604,13 +1633,15 @@ class Utils_RecordBrowser extends Module {
         $add = DB::GetAll('SELECT * FROM recordbrowser_addon WHERE tab=%s ORDER BY pos',array($this->tab));
         $first = true;
         foreach ($add as $v) {
-            if (isset($gb_row)) $gb_row->add_action($this->create_callback_href(array($this, 'move_addon'),array($v['tab'],$v['pos']-1, +1)),'Move down', null, 'move-down');
+            if (isset($gb_row) && $full_access) $gb_row->add_action($this->create_callback_href(array($this, 'move_addon'),array($v['tab'],$v['pos']-1, +1)),'Move down', null, 'move-down');
             $gb_row = $gb->get_new_row();
             $gb_row->add_data($v['label'], $v['module'].' -> '.$v['func'].'()');
-            $gb_row->add_action($this->create_callback_href(array($this, 'set_addon_active'), array($v['tab'],$v['pos'],!$v['enabled'])), ($v['enabled']?'Dea':'A').'ctivate', null, 'active-'.($v['enabled']?'on':'off'));
+			if ($full_access) {
+				$gb_row->add_action($this->create_callback_href(array($this, 'set_addon_active'), array($v['tab'],$v['pos'],!$v['enabled'])), ($v['enabled']?'Dea':'A').'ctivate', null, 'active-'.($v['enabled']?'on':'off'));
 
-            if (!$first) $gb_row->add_action($this->create_callback_href(array($this, 'move_addon'),array($v['tab'],$v['pos'], -1)),'Move up', null, 'move-up');
-            $first = false;
+				if (!$first) $gb_row->add_action($this->create_callback_href(array($this, 'move_addon'),array($v['tab'],$v['pos'], -1)),'Move up', null, 'move-up');
+				$first = false;
+			}
         }
         $this->display_module($gb);
     }
@@ -1666,6 +1697,7 @@ class Utils_RecordBrowser extends Module {
         return true;
     }
     public function setup_clipboard_pattern() {
+		$full_access = Base_AdminCommon::get_access('Utils_RecordBrowser', 'pattern')==2;
         $form = $this->init_module('Libs/QuickForm');
         $r = Utils_RecordBrowserCommon::get_clipboard_pattern($this->tab, true);
         $form->addElement('select', 'enable', $this->t('Enable'), array($this->t('No'), $this->t('Yes')));
@@ -1677,7 +1709,11 @@ class Utils_RecordBrowser extends Module {
         $textarea = $form->addElement('textarea', 'pattern', $label);
         $textarea->setRows(12);
         $textarea->setCols(80);
-        $form->addElement('submit', 'save', $this->t('Save'));
+		if ($full_access) {
+			Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		} else {
+			$form->freeze();
+		}
         if($r) $form->setDefaults(array('enable'=>($r['enabled']?1:0), 'pattern'=>$r['pattern']));
         else $form->setDefaults(array('enable'=>0));
         $form->display();
@@ -1691,9 +1727,13 @@ class Utils_RecordBrowser extends Module {
         $this->init(true);
         $action = $this->get_module_variable_or_unique_href_variable('setup_action', 'show');
         $subject = $this->get_module_variable_or_unique_href_variable('subject', 'regular');
+		
+		$full_access = Base_AdminCommon::get_access('Utils_RecordBrowser', 'fields')==2;
 
-        Base_ActionBarCommon::add('add','New field',$this->create_callback_href(array($this, 'view_field')));
-        Base_ActionBarCommon::add('add','New page',$this->create_callback_href(array($this, 'new_page')));
+		if ($full_access) {
+			Base_ActionBarCommon::add('add','New field',$this->create_callback_href(array($this, 'view_field')));
+			Base_ActionBarCommon::add('add','New page',$this->create_callback_href(array($this, 'new_page')));
+		}
         $gb = $this->init_module('Utils/GenericBrowser', null, 'fields');
         $gb->set_table_columns(array(
             array('name'=>$this->t('Field'), 'width'=>20),
@@ -1714,20 +1754,22 @@ class Utils_RecordBrowser extends Module {
 		$rows = $rows['position'];
         foreach($this->table_rows as $field=>$args) {
             $gb_row = $gb->get_new_row();
-			if ($args['type'] != 'page_split') {
-				$gb_row->add_action($this->create_callback_href(array($this, 'view_field'),array('edit',$field)),'Edit');
-			} elseif ($field!='General') {
-				$gb_row->add_action($this->create_callback_href(array($this, 'delete_page'),array($field)),'Delete');
-				$gb_row->add_action($this->create_callback_href(array($this, 'edit_page'),array($field)),'Edit');
+			if ($full_access) {
+				if ($args['type'] != 'page_split') {
+					$gb_row->add_action($this->create_callback_href(array($this, 'view_field'),array('edit',$field)),'Edit');
+				} elseif ($field!='General') {
+					$gb_row->add_action($this->create_callback_href(array($this, 'delete_page'),array($field)),'Delete');
+					$gb_row->add_action($this->create_callback_href(array($this, 'edit_page'),array($field)),'Edit');
+				}
+				if ($args['type']!=='page_split' && $args['extra']){
+					if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate', null, 'active-on');
+					else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate', null, 'active-off');
+				}
+				if ($args['position']<$rows && $args['position']>2)
+					$gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], +1)),'Move down', null, 'move-down');
+				if ($args['position']>3)
+					$gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], -1)),'Move up', null, 'move-up');
 			}
-            if ($args['type']!=='page_split' && $args['extra']){
-                if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate', null, 'active-on');
-                else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate', null, 'active-off');
-            }
-            if ($args['position']<$rows && $args['position']>2)
-                $gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], +1)),'Move down', null, 'move-down');
-            if ($args['position']>3)
-                $gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], -1)),'Move up', null, 'move-up');
             if ($args['type']=='text')
                 $args['param'] = $this->t('Length').' '.$args['param'];
             if ($args['type'] == 'page_split')

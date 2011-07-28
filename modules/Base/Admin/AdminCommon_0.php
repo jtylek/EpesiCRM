@@ -31,7 +31,8 @@ class Base_AdminCommon extends ModuleCommon {
 		return array('__split__'=>array('__weight__'=>2000),'Administrator'=>array('__weight__'=>2001));
 	}
 	
-	public static function get_access($module, $section='') {
+	public static function get_access($module, $section='', $force_check=false) {
+		if (!$force_check && Base_AclCommon::i_am_sa()) return true;
 		static $cache = array();
 		if (!isset($cache[$module])) {
 			$cache[$module] = array();

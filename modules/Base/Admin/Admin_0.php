@@ -47,6 +47,7 @@ class Base_Admin extends Module {
 		$cmr = ModuleManager::call_common_methods('admin_caption');
 		foreach($cmr as $name=>$caption) {
 			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
+			if (Base_AdminCommon::get_access($name)==false) continue;
 			if(!isset($caption)) $caption = $name.' module';
 			else $caption = $this->t($caption);
 			$mod_ok[$caption] = $name;
@@ -120,7 +121,7 @@ class Base_Admin extends Module {
 			$sections = array();
 			$sections_id = $name.'__sections';
 
-			$enable_default = Base_AdminCommon::get_access($name);
+			$enable_default = Base_AdminCommon::get_access($name, '', true);
 			$form->addElement('checkbox', $enable_field, $this->t($enable_default===null?'Access blocked':'Allow access'), null, array('onchange'=>'admin_switch_button("'.$button_id.'",this.checked, "'.$sections_id.'");', 'id'=>$enable_field, 'style'=>$enable_default===null?'display:none;':''));
 			$form->setDefaults(array($enable_field=>$enable_default));
 			eval_js('admin_switch_button("'.$button_id.'",$("'.$enable_field.'").checked, "'.$sections_id.'", 1);');
@@ -133,12 +134,12 @@ class Base_Admin extends Module {
 						$vals = isset($v['values'])?$v['values']:null;
 						$s_field = $name.'__'.$s.'__switch';
 						$form->addElement($type, $s_field, $this->t($v['label']), $vals);
-						$form->setDefaults(array($s_field=>Base_AdminCommon::get_access($name, $s)));
+						$form->setDefaults(array($s_field=>Base_AdminCommon::get_access($name, $s, true)));
 						$sections[$s] = $s_field;
 					}
 			}
 			
-			$buttons[]= array(
+			$buttons[$name]= array(
 				'label'=>$caption,
 				'icon'=>$icon,
 				'id'=>$button_id,
@@ -147,6 +148,19 @@ class Base_Admin extends Module {
 				'sections'=>$sections
 			);
 		}
+		
+		if ($form->validate()) {
+			$vals = $form->exportValues();
+			DB::Execute('DELETE FROM base_admin_access');
+			foreach ($buttons as $name=>$b) {
+				DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, '', (isset($vals[$b['enable_switch']]) && $vals[$b['enable_switch']])?1:0 ));
+				foreach ($b['sections'] as $s=>$f)
+					DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, $s, isset($vals[$f])?$vals[$f]:0 ));
+			}
+		}
+
+		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		$theme =  & $this->pack_module('Base/Theme');
 
