@@ -62,7 +62,7 @@ foreach ($records as $r) {
 	$rec = array($r['id']);
 	foreach ($tab_info as $v) {
 		ob_start();
-		$val = Utils_RecordBrowserCommon::get_val($tab, $v['name'], $r, true, $v);
+		$val = Utils_RecordBrowserCommon::get_val($tab, str_replace('%%','%',$v['name']), $r, true, $v);
 		ob_end_clean();
 		$val = str_replace('&nbsp;',' ',htmlspecialchars_decode(strip_tags(preg_replace('/\<[Bb][Rr]\/?\>/',"\n",$val))));
 		if ($v['style']=='currency') {
