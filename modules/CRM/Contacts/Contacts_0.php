@@ -84,6 +84,7 @@ class CRM_Contacts extends Module {
 				location(array());
 			return;
 		}
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 		
 		$filter = $this->get_module_variable_or_unique_href_variable('filter',1);
 		

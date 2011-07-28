@@ -19,14 +19,13 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * You can extend AdminModule for default access privileges.
  */
 class Base_Admin extends Module {
+
+	public function set_module($module) {
+		$this->set_module_variable('selected_module', $module);
+	}
 		
 	public function body() {
-		$module = $this->get_module_variable_or_unique_href_variable('href');
-
-		if(isset($_REQUEST['admin_href'])) {
-			$module = $_REQUEST['admin_href'];
-			$this->set_module_variable('href', $module);
-		}
+		$module = $this->get_module_variable('selected_module', false);
 
 		if($module) {
 			$this->pack_module($module,null,'admin');
@@ -37,7 +36,7 @@ class Base_Admin extends Module {
 	} 
 		
 	public function reset() {
-		$this->unset_module_variable('href');
+		$this->unset_module_variable('selected_module');
 		location(array());
 	}
 	
@@ -67,7 +66,7 @@ class Base_Admin extends Module {
 					$icon = null;
 				}
 			}
-			$buttons[]= array('link'=>'<a '.$this->create_unique_href(array('href'=>$name)).'>'.$caption.'</a>',
+			$buttons[]= array('link'=>'<a '.$this->create_callback_href(array($this, 'set_module'), array($name)).'>'.$caption.'</a>',
 						'icon'=>$icon);
 		}
 		$theme =  & $this->pack_module('Base/Theme');

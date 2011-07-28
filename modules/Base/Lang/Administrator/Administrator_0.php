@@ -21,42 +21,37 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		global $custom_translations;
 
 		if($this->is_back()) {
-			if($this->isset_module_variable('module') && $this->isset_module_variable('original')) {
-				$this->unset_module_variable('module');
-				$this->unset_module_variable('original');
-			} else
-				$this->parent->reset();
+			$this->parent->reset();
 		}
-		
-		$module = $this->get_module_variable_or_unique_href_variable('module');
-		$original = $this->get_module_variable_or_unique_href_variable('original');
-		if(isset($module) && isset($original)) 
-			return $this->translate($module, $original);
 		
 		$form = & $this->init_module('Libs/QuickForm',null,'language_setup');
 		
 		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
 		$langs = array_combine($ls_langs,$ls_langs);
 		$form->addElement('header', 'module_header', $this->t('Languages Administration'));
-		$form->addElement('select','lang_code',$this->t('Default language'), $langs);
+		$form->addElement('select','lang_code',$this->t('Default language'), $langs, array('onchange'=>$form->get_submit_form_js()));
+		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
+			$form->freeze('lang_code');
 		
-		$form->addElement('checkbox','allow_lang_change',$this->t('Allow users to change language'));
+		$form->addElement('checkbox','allow_lang_change',$this->t('Allow users to change language'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'enable_users_to_select'))
+			$form->freeze('allow_lang_change');
 		
 		$form->setDefaults(array('lang_code'=>Variable::get('default_lang'),'allow_lang_change'=>Variable::get('allow_lang_change')));
 		
-		Base_ActionBarCommon::add('add','New langpack',$this->create_callback_href(array($this,'new_lang_pack')));
-		Base_ActionBarCommon::add('refresh','Refresh languages',$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
+		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'new_langpack'))
+			Base_ActionBarCommon::add('add','New langpack',$this->create_callback_href(array($this,'new_lang_pack')));
+		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
+			Base_ActionBarCommon::add('refresh','Refresh languages',$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 
 		$form2 = $this->init_module('Libs/QuickForm',null,'translaction_filter');
 		$form2->addElement('select','lang_filter',$this->t('Filter'),array('Show all', 'Show with custom translation', 'Show with translation', 'Show without translation'), array('onchange'=>$form2->get_submit_form_js()));
 		
 		if($form->validate()) {
-			if($form->process(array($this,'submit_admin'))) {
-				$this->parent->reset();
-			}
-		} else $form->display();
+			$form->process(array($this,'submit_admin'));
+		}
+		$form->display();
 		
 		if($form2->validate()) {
 			$vals = $form2->exportValues();
@@ -67,7 +62,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 
 		$trans_filter = $form2->toHtml();
 		
-		eval_js('lang_translate = function (module, original, span_id) {'.
+		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate'))
+			eval_js('lang_translate = function (module, original, span_id) {'.
 					'var ret = prompt("Translate: "+original, $(span_id).innerHTML);'.
 					'if (ret === null) return;'.
 					'$(span_id).innerHTML = ret;'.
@@ -97,7 +93,11 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 				if ($filter==2 && !$t) continue;
 				if ($filter==3 && $t) continue;
 				$span_id = $m.'__'.md5($o);
-				$data[] = array($m,'<a href="javascript:void(0);" onclick="lang_translate(\''.$m.'\',\''.Epesi::escapeJS(htmlspecialchars($o)).'\',\''.$span_id.'\');">'.$o.'</a>','<span id="'.$span_id.'">'.$t.'</span>');
+				if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate')) {
+					$o = '<a href="javascript:void(0);" onclick="lang_translate(\''.$m.'\',\''.Epesi::escapeJS(htmlspecialchars($o)).'\',\''.$span_id.'\');">'.$o.'</a>';
+					$t = '<span id="'.$span_id.'">'.$t.'</span>';
+				}
+				$data[] = array($m,$o,$t);
 			}
 		
 		$gb = &$this->init_module('Utils/GenericBrowser',null,'lang_translations');

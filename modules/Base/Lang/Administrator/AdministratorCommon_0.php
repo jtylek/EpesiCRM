@@ -16,6 +16,15 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 		return 'Language & Translations';
 	}
 
+	public static function admin_access_levels() {
+		return array(
+			'select_language'=>array('label'=>'Select language', 'default'=>1),
+			'enable_users_to_select'=>array('label'=>'Enable users to select language', 'default'=>1),
+			'translate'=>array('label'=>'Custom translations', 'default'=>1),
+			'new_langpack'=>array('label'=>'New language pack', 'default'=>1)
+		);
+	}
+
 	public static function user_settings(){
 		if(!Variable::get('allow_lang_change')) return null;
 		if(DEMO_MODE && Base_UserCommon::get_my_user_login()=='admin') {

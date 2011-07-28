@@ -16,6 +16,9 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../../include.php');
 ModuleManager::load_modules();
 
+if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate'))
+	die('Unauthorized access');
+
 $module = $_POST['module'];
 $original = $_POST['original'];
 $new = $_POST['new'];
