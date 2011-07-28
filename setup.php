@@ -183,7 +183,7 @@ function check_htaccess() {
 	$epesi_dir = '/'.$dir.($dir?'/':'');
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
 	$test_url = $protocol.$_SERVER['HTTP_HOST'].$epesi_dir.'data/test.php';
-	file_put_contents('data/test.php','<?php'."\n".'if(!ini_get("magic_quotes_gpc")) print("OK"); ?>');
+	file_put_contents('data/test.php','<?php'."\n".'print("OK"); ?>');
 
     	copy('htaccess.txt','data/.htaccess');
 
