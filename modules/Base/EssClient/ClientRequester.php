@@ -64,12 +64,13 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    protected function call($function, $params, $unserialize = true) {
+    protected function call($function, $params, $serialize_response = true) {
         $err_msg = '';
         $post = http_build_query(
                 array(
                     IClient::param_function => $function,
                     IClient::param_installation_key => $this->license_key,
+                    IClient::param_serialize => $serialize_response,
                     IClient::param_arguments => serialize($params)
                 ));
         $ch = curl_init($this->server);
@@ -100,7 +101,7 @@ class ClientRequester implements IClient {
             throw new ErrorException("Authentication failed!");
         }
 
-        if ($unserialize) {
+        if ($serialize_response) {
             // handle unserialization error
             if ($output == serialize(false))
                 return false;

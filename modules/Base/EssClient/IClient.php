@@ -9,6 +9,7 @@ interface IClient {
     const param_function = 'f';
     const param_arguments = 'a';
     const param_installation_key = 'c';
+    const param_serialize = 's';
 
     /**
      * Set specific client license key.

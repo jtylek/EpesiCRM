@@ -50,7 +50,7 @@ class Base_AppStoreCommon extends Base_AdminModuleCommon {
         if ($r['description'])
             $x[] = "<b>Description:</b><br/>{$r['description']}";
         $x[] = "<b>Repository:</b> {$r['repository']}";
-        $x[] = "<b>Modules:</b><br/>{$r['path']}";
+        $x[] = "<b>Files:</b><br/>{$r['path']}";
         $x[] = "<b>Price:</b> {$r['price']}";
         $x[] = "<b>Version:</b> {$r['version']}";
         $x[] = "<b>Active:</b> {$r['active']}";
@@ -82,6 +82,16 @@ class Base_AppStoreCommon extends Base_AdminModuleCommon {
         }
         Module::static_set_module_variable(self::MOD_PATH, 'modules_list', $modules);
         return array_slice($modules, $offset, $amount);
+    }
+
+    public static function get_module_info($module_id) {
+        $modules_cache = Module::static_get_module_variable(self::MOD_PATH, 'modules_info', array());
+        if (isset($modules_cache[$module_id]))
+            return $modules_cache[$module_id];
+        // if not - request server
+        $modules_cache[$module_id] = Base_EssClientCommon::server()->module_get_info($module_id);
+        Module::static_set_module_variable(self::MOD_PATH, 'modules_info', $modules_cache);
+        return $modules_cache[$module_id];
     }
 
 }

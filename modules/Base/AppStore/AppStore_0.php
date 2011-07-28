@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AppStore extends Module {
     const refresh_info_text = 'Data is stored until close or refresh of browser\'s Epesi window or tab';
+    const VAR_download_status = 'download_status';
 
     protected $banned_columns_module = array('id', 'owner_id', 'path');
     protected $banned_columns_order = array('id', 'installation_id');
@@ -25,7 +26,7 @@ class Base_AppStore extends Module {
         if ($this->is_back()) {
             return $this->parent->reset();
         }
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 
         if (Base_EssClientCommon::get_license_key() == "") {
             // push main
@@ -46,7 +47,6 @@ class Base_AppStore extends Module {
             $x = $gb->get_limit($total);
             // fetch data
             $t = Base_AppStoreCommon::modules_list($x['offset'], $x['numrows']);
-//            $t = Base_EssClientCommon::server()->modules_list($x['offset'], $x['numrows']);
             $gb = $this->GB_module($gb, $t, array($this, 'GB_row_additional_actions_store'));
             $this->display_module($gb);
         }
@@ -153,8 +153,9 @@ class Base_AppStore extends Module {
 
     public function download_form() {
         $this->back_button();
-        Base_ActionBarCommon::add('delete', 'Clear list', $this->create_callback_href(array('Base_AppStoreCommon', 'empty_download_queue')));
         $downloads = Base_AppStoreCommon::get_download_queue();
+        Base_ActionBarCommon::add('delete', 'Clear list', $this->create_callback_href(array('Base_AppStoreCommon', 'empty_download_queue')));
+        Base_ActionBarCommon::add('clone', 'Proceed download', $this->create_callback_href(array($this, 'navigate'), array('download_process')));
         if (count($downloads) == 0) {
             print($this->t('No items'));
             return;
@@ -163,6 +164,67 @@ class Base_AppStore extends Module {
         $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadslist');
         $gb = $this->GB_order($gb, $downloads, array($this, 'GB_row_additional_actions_downloads'));
         $this->display_module($gb);
+    }
+
+    public function download_process() {
+        $this->back_button();
+        $orders = Base_AppStoreCommon::get_download_queue();
+        if (!count($orders)) {
+            return;
+        }
+        $orders_ids = array();
+        foreach ($orders as $o) {
+            $orders_ids[] = $o['id'];
+        }
+        $hash = Base_EssClientCommon::server()->download_prepare($orders_ids);
+        if ($hash === false) {
+            print('Prepare error');
+            return;
+        }
+        // download file and check sum
+        $file_contents = Base_EssClientCommon::server()->download_prepared_file($hash);
+        if (sha1($file_contents) !== $hash) {
+            print("File hash error $hash " . sha1($file_contents));
+            return;
+        }
+        // make temp destination filename
+        $destfile = $this->get_data_dir() . time();
+        $i = 0;
+        while (file_exists("{$destfile}{$i}.zip"))
+            $i++;
+        $destfile .= "{$i}.zip";
+        // store file
+        if (file_put_contents($destfile, $file_contents) === false) {
+            print('File store error');
+            return;
+        }
+        // extract
+        if (class_exists('ZipArchive')) {
+            $zip = new ZipArchive();
+            if (filesize($destfile) == 0 || $zip->open($destfile) != true || $zip->extractTo('./') == false) {
+                $text .= $this->t("Archive error!") . '<br/>';
+                return;
+            } else {
+                $zip->close();
+            }
+        } else {
+            $text .= $this->t("Please enable zip extension in server configuration!") . '<br/>';
+            return;
+        }
+        // show download status
+        $this->back_button(2);
+        print($this->t('Download process succeed!') . '<br/>');
+        print($this->t('Now you can install some of new modules!') . '<br/>');
+        print($this->t('New files or directories:') . '<br/>');
+        // list all files            return;
+
+        $all_files = array();
+        foreach ($orders as $d) {
+            $mod = Base_AppStoreCommon::get_module_info($d['module_id']);
+            $all_files = array_merge($all_files, explode(',', $mod['path']));
+        }
+        print(implode('<br/>', $all_files));
+        Base_AppStoreCommon::empty_download_queue();
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
@@ -187,7 +249,7 @@ class Base_AppStore extends Module {
         // paid
         $data['paid'] = $this->t($data['paid'] ? 'Yes' : 'No');
         // module info
-        $module = Base_EssClientCommon::server()->module_get_info($data['module_id']);
+        $module = Base_AppStoreCommon::get_module_info($data['module_id']);
         $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_AppStoreCommon', 'module_format_info'), array($module));
         $data['module'] = "<a $tooltip>{$module['name']}</a>";
         unset($data['module_id']);
@@ -249,18 +311,20 @@ class Base_AppStore extends Module {
         return false;
     }
 
-    public function pop_main() {
+    public function pop_main($i = 1) {
         $x = ModuleManager::get_instance('/Base_Box|0');
         if (!$x)
             trigger_error('There is no base box module instance', E_USER_ERROR);
-        $x->pop_main();
+        $x->pop_main($i);
     }
 
-    public function back_button() {
-        if ($this->is_back()) {
-            return $this->pop_main();
-        }
-        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+    public function back_button($i = 1) {
+        $x = 0;
+        while ($this->is_back())
+            $x++;
+        if ($x > 0)
+            return $this->pop_main($x);
+        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href($i));
     }
 
 }
