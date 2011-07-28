@@ -346,8 +346,8 @@ class CRM_ContactsCommon extends ModuleCommon {
                 $ret[$key] = self::autoselect_company_contact_format($key,true);
             }
         }
-//        asort($ret);
-//        $ret = array_slice($ret, 0, 10, true);
+        asort($ret);
+        $ret = array_slice($ret, 0, 10, true);
         return $ret;
     }
 
