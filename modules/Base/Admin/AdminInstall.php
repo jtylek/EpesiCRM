@@ -17,10 +17,17 @@ class Base_AdminInstall extends ModuleInstall {
 	public function install() {
 		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('Base/Admin');
+		DB::CreateTable('base_admin_access',
+			'id I4 AUTO KEY,'.
+			'module C(128),'.
+			'section C(64),'.
+			'allow I1',
+			array('constraints'=>''));
 		return true;
 	}
 	
 	public function uninstall() {
+		DB::DropTable('base_admin_access');
 		Base_ThemeCommon::uninstall_default_theme('Base/Admin');
 		return true;
 	}

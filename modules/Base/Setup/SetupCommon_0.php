@@ -11,13 +11,18 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_SetupCommon extends ModuleCommon {
 	public static function body_access() {
-		return (Variable::get('anonymous_setup') || Acl::check('Administration','Main'));
+		return self::admin_access();
 	}
 
 	public static function admin_access() {
-		return (Variable::get('anonymous_setup') || Acl::check('Administration','Main'));
+		if (Variable::get('anonymous_setup')) return true;
+		return Base_AclCommon::i_am_admin();
 	}
-	
+
+	public static function admin_access_levels() {
+		return false;
+	}
+
 	public static function admin_caption() {
 		return 'Modules Administration';
 	}

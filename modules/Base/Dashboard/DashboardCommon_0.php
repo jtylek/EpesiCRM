@@ -17,8 +17,8 @@ class Base_DashboardCommon extends ModuleCommon {
 		return array();
 	}
 
-	public static function admin_access() {
-		return self::Instance()->acl_check('set default dashboard');
+	public static function admin_access_levels() {
+		return false;
 	}
 
 	public static function admin_caption() {

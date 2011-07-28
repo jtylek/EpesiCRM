@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCommonInterface {
+class Utils_CommonDataCommon extends ModuleCommon {
 
 	/**
 	 * For internal use only.
@@ -17,12 +17,9 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	public static function admin_caption(){
 		return "Common data";
 	}
-
-	/**
-	 * For internal use only.
-	 */
-	public static function admin_access(){
-		return self::Instance()->acl_check('manage');
+	
+	public static function admin_access_levels() {
+		return false;
 	}
 
 	public static function get_id($name, $clear_cache=false) {

@@ -52,6 +52,8 @@ class Base_Admin extends Module {
 			$mod_ok[$caption] = $name;
 		}
 		uksort($mod_ok,'strcasecmp');
+		if (Base_AclCommon::i_am_sa())
+			$mod_ok['Admin Panel Access'] = 'Base_Admin';
 		
 		$buttons = array();
 		foreach($mod_ok as $caption=>$name) {
@@ -81,6 +83,78 @@ class Base_Admin extends Module {
 		$caption = call_user_func($func);
 		if($caption) return 'Administration: '.$caption;
 		return 'Administration';
+	}
+	
+	public function admin() {
+		if(!Base_AclCommon::i_am_sa() || $this->is_back()) {
+			$this->parent->reset();
+			return;
+		}
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		
+		$cmr = ModuleManager::call_common_methods('admin_caption');
+		foreach($cmr as $name=>$caption) {
+			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
+			if(!isset($caption)) $caption = $name.' module';
+			else $caption = $this->t($caption);
+			$mod_ok[$caption] = $name;
+		}
+		uksort($mod_ok,'strcasecmp');
+		
+		$form = $this->init_module('Libs_QuickForm');
+		
+		$buttons = array();
+		load_js('modules/Base/Admin/js/main.js');
+		foreach($mod_ok as $caption=>$name) {
+			if (method_exists($name.'Common','admin_icon')) {
+				$icon = call_user_func(array($name.'Common','admin_icon'));
+			} else {
+				try {
+					$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
+				} catch(Exception $e) {
+					$icon = null;
+				}
+			}
+			$button_id = $name.'__button';
+			$enable_field = $name.'_enable';
+			$sections = array();
+			$sections_id = $name.'__sections';
+
+			$enable_default = Base_AdminCommon::get_access($name);
+			$form->addElement('checkbox', $enable_field, $this->t($enable_default===null?'Access blocked':'Allow access'), null, array('onchange'=>'admin_switch_button("'.$button_id.'",this.checked, "'.$sections_id.'");', 'id'=>$enable_field, 'style'=>$enable_default===null?'display:none;':''));
+			$form->setDefaults(array($enable_field=>$enable_default));
+			eval_js('admin_switch_button("'.$button_id.'",$("'.$enable_field.'").checked, "'.$sections_id.'", 1);');
+			
+			if (class_exists($name.'Common') && is_callable(array($name.'Common', 'admin_access_levels'))) {
+				$raws = call_user_func(array($name.'Common', 'admin_access_levels'));
+				if (is_array($raws))
+					foreach ($raws as $s=>$v) {
+						$type = isset($v['values'])?'select':'checkbox';
+						$vals = isset($v['values'])?$v['values']:null;
+						$s_field = $name.'__'.$s.'__switch';
+						$form->addElement($type, $s_field, $this->t($v['label']), $vals);
+						$form->setDefaults(array($s_field=>Base_AdminCommon::get_access($name, $s)));
+						$sections[$s] = $s_field;
+					}
+			}
+			
+			$buttons[]= array(
+				'label'=>$caption,
+				'icon'=>$icon,
+				'id'=>$button_id,
+				'enable_switch'=>$enable_field,
+				'sections_id'=>$sections_id,
+				'sections'=>$sections
+			);
+		}
+		Base_ThemeCommon::install_default_theme($this->get_type());
+		$theme =  & $this->pack_module('Base/Theme');
+
+		$form->assign_theme('form', $theme);
+		
+		$theme->assign('header', $this->t('Admin Panel Access'));
+		$theme->assign('buttons', $buttons);
+		$theme->display('access_panel');
 	}
 }
 

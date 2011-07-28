@@ -79,7 +79,6 @@ class Base_DashboardInstall extends ModuleInstall {
 		}
 		Base_ThemeCommon::install_default_theme($this->get_type());
 
-		$this->add_aco('set default dashboard','Super administrator');
 		$this->add_aco('access',array('Employee', 'Administrator'));
 
 		return $ret;

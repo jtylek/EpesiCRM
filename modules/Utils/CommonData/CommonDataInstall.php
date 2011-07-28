@@ -25,7 +25,6 @@ class Utils_CommonDataInstall extends ModuleInstall {
 			print('Unable to create table utils_commondata_tree.<br>');
 			return false;
 		}
-		$this->add_aco('manage','Super administrator');
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return $ret;
 	}

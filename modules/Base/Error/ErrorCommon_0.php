@@ -35,8 +35,13 @@ class Base_ErrorCommon extends ModuleCommon implements Base_AdminModuleCommonInt
 	}
 
 	public static function admin_access() {
-		return Base_AclCommon::i_am_sa() && !TRIAL_MODE && !DEMO_MODE;
+		return !TRIAL_MODE && !DEMO_MODE;
 	}
+
+	public static function admin_access_levels() {
+		return (!TRIAL_MODE && !DEMO_MODE)?false:null;
+	}
+
 }
 
 

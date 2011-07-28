@@ -28,7 +28,7 @@
 	/* end css3 shadow border*/
 }
 
-table#Base_Admin .big-button {
+table#Base_Admin__access .big-button {
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -41,8 +41,6 @@ table#Base_Admin .big-button {
 	font-size: 11px;
 
 	display: block;
-	cursor: pointer;
-	cursor: hand; /* css2 */
 	
 	/* css3 gray 2color gradient */
 	background: #ffffff; /* Old browsers */
@@ -56,7 +54,7 @@ table#Base_Admin .big-button {
 	/* end css3 gray 2color gradient */
 }
 
-table#Base_Admin .big-button .bb_icon {
+table#Base_Admin__access .big-button .inactive_icon {
 	height: 32px;
 	width: 32px;
 	margin: auto;
@@ -64,16 +62,39 @@ table#Base_Admin .big-button .bb_icon {
 	vertical-align: middle;
 }
 
-table#Base_Admin .big-button .bb_text {
-	height: 40px;
-	width: 100px;
+
+table#Base_Admin__access .big-button .inactive_text {
+	color: lightgray;
+}
+
+table#Base_Admin__access .big-button .bb_icon {
+	height: 38px;
+	width: 32px;
+	margin: auto;
+	padding-top: 5px;
+	vertical-align: middle;
+}
+
+
+table#Base_Admin__access .big-button .bb_text {
+	font-weight: bold;
+	height: 49px;
+	width: 80px;
 	padding: 5px;
 	text-align: center;
 	vertical-align: middle;
 	display: table-cell;
 }
 
-table#Base_Admin .big-button:hover {
+table#Base_Admin__access .big-button .bb_form {
+	width: 120px;
+	padding: 5px;
+	text-align: center;
+	vertical-align: middle;
+	display: table-cell;
+}
+
+table#Base_Admin__access .big-button:hover {
 	/* css3 gray 2color reverse gradient */
 	background: #e1e1e1; /* Old browsers */
 	background: -moz-linear-gradient(top, #e1e1e1 0%, #ffffff 100%); /* FF3.6+ */
@@ -86,16 +107,20 @@ table#Base_Admin .big-button:hover {
 	/* end css3 gray 2color reverse gradient */
 }
 
-table#Base_Admin a {
+table#Base_Admin__access .big-button_container {
+	vertical-align: top;
+}
+
+table#Base_Admin__access a {
 	color: #336699;
 	font-weight: bold;
 }
 
-table#Base_Admin a:hover {
+table#Base_Admin__access a:hover {
 	color: #993333;
 }
 
-table#Base_Admin .header {
+table#Base_Admin__access .header {
 	color: #FFFFFF;
 	height: 25px;
 	text-align: center;

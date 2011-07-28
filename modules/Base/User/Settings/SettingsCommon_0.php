@@ -25,8 +25,8 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		return Acl::is_user();
 	}
 
-	public static function admin_access() {
-		return self::Instance()->acl_check('set defaults');
+	public static function admin_access_levels() {
+		return false;
 	}
 
 	public static function admin_caption() {

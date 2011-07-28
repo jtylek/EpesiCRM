@@ -30,6 +30,36 @@ class Base_AdminCommon extends ModuleCommon {
 		if(!Base_AclCommon::i_am_admin()) return array();
 		return array('__split__'=>array('__weight__'=>2000),'Administrator'=>array('__weight__'=>2001));
 	}
+	
+	public static function get_access($module, $section='') {
+		static $cache = array();
+		if (!isset($cache[$module])) {
+			$cache[$module] = array();
+			$ret = DB::GetAssoc('SELECT section, allow FROM base_admin_access WHERE module=%s', array($module));
+			$defaults = array(''=>1);
+			if (class_exists($module.'Common') && is_callable(array($module.'Common', 'admin_access_levels'))) {
+				$raws = call_user_func(array($module.'Common', 'admin_access_levels'));
+				if ($raws==false) {
+					$defaults[''] = $raws;
+				} else {
+					$defaults[''] = 1;
+					if (is_array($raws))
+						foreach ($raws as $s=>$v) {
+							if (isset($v['default']))
+								$defaults[$s] = $v['default'];
+							else
+								$defaults[$s] = 0;
+						}
+				}
+			}
+			foreach($defaults as $s=>$v)
+				if (isset($ret[$s]))
+					$cache[$module][$s] = $ret[$s];
+				else
+					$cache[$module][$s] = $v;
+		}
+		return $cache[$module][$section];
+	}
 }
 
 /**

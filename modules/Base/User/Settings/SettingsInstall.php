@@ -37,7 +37,6 @@ class Base_User_SettingsInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme('Base/User/Settings');
-		$this->add_aco('set defaults','Super administrator');
 		$this->add_aco('access',array('Employee', 'Administrator'));
 
 		return $ret;
