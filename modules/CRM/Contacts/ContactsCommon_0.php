@@ -340,14 +340,14 @@ class CRM_ContactsCommon extends ModuleCommon {
                         break;
                 }
             }
-            $recs = Utils_RecordBrowserCommon::get_records($k, $crits, array(), $order);
+            $recs = Utils_RecordBrowserCommon::get_records($k, $crits, array(), $order, 10);
             foreach($recs as $v2) {
                 $key = $v.':'.$v2['id'];
                 $ret[$key] = self::autoselect_company_contact_format($key,true);
             }
         }
-        asort($ret);
-        $ret = array_slice($ret, 0, 10, true);
+//        asort($ret);
+//        $ret = array_slice($ret, 0, 10, true);
         return $ret;
     }
 
