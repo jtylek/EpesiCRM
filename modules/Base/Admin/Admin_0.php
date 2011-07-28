@@ -51,9 +51,10 @@ class Base_Admin extends Module {
 			else $caption = $this->t($caption);
 			$mod_ok[$caption] = $name;
 		}
-		uksort($mod_ok,'strcasecmp');
 		if (Base_AclCommon::i_am_sa())
 			$mod_ok['Admin Panel Access'] = 'Base_Admin';
+
+		uksort($mod_ok,'strcasecmp');
 		
 		$buttons = array();
 		foreach($mod_ok as $caption=>$name) {
@@ -156,6 +157,8 @@ class Base_Admin extends Module {
 				foreach ($b['sections'] as $s=>$f)
 					DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, $s, isset($vals[$f])?$vals[$f]:0 ));
 			}
+			$this->parent->reset();
+			return;
 		}
 
 		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
