@@ -119,7 +119,7 @@ class Utils_Attachment extends Module {
 	
 		$vd = null;
 		if(!$this->persistent_deletion)
-			$vd = isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments'];
+			$vd = isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments'] && Base_AclCommon::i_am_admin();
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,md5(serialize($this->group)));
 		$cols = array();
@@ -213,8 +213,11 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
-				$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
-				$r->add_action($this->create_confirm_callback_href($this->t('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
+				if(!isset($row['deleted']) || !$row['deleted']) {
+    				$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
+    				$r->add_action($this->create_confirm_callback_href($this->t('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
+    			} else
+    			    $r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore');
 			}
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
@@ -254,8 +257,10 @@ class Utils_Attachment extends Module {
 			$max_len=$i;
 
 
-			$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
-			$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'));
+			if(!isset($row['deleted']) || !$row['deleted']) {
+        		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
+		    	$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'));
+		    }
 			// ************* Strip without loosing html entities
 			if($max_len<mb_strlen($text,'UTF8') || $inline_img) {
 				$text = array('value'=>mb_substr($text,0,$max_len,'UTF8').'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.'<div class="plus_green"></div>'.'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.mb_substr($text,$max_len,mb_strlen($text,'UTF8'),'UTF8').$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.'<div class="minus_green"></div>'.'</a></span>','hint'=>$this->t('Click on view icon to see full note'));
@@ -268,7 +273,7 @@ class Utils_Attachment extends Module {
 			$regional_note_on = $note_on;
 			$arr = array();
 			if($vd)
-				$arr[] = ($row['deleted']?'<a '.$this->create_confirm_callback_href($this->t('Do you want to restore this note?'),array($this,'restore'),array($row['id'])).' '.Utils_TooltipCommon::open_tag_attrs($this->t('Restore note')).'>'.$this->t('yes').'</a>':$this->t('no'));
+				$arr[] = ($row['deleted']?'<a '.$this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),array($row['id'])).' '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to restore')).'>'.$this->t('yes').'</a>':$this->t('no'));
 			if($this->author)
 				$arr[] = $row['note_by'];
 			if (is_array($this->group)) {
@@ -292,6 +297,9 @@ class Utils_Attachment extends Module {
 				if(isset($_SESSION['attachment_copy'])) {
 					print('&nbsp;<a '.Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste')).'>'.$this->t('Paste note').'</a>');
 				}
+				if(Base_AclCommon::i_am_admin()) {
+					print('&nbsp;<input type="checkbox" '.($vd?'checked':'').' onChange="if(this.checked)'.$this->create_callback_href_js(array($this,'show_deleted'),array(true)).' else '.$this->create_callback_href_js(array($this,'show_deleted'),array(false)).'">'.$this->t('Show deleted notes').'</input>');
+				}
 				$gb->set_custom_label($custom_label);
 			} else {
 				Base_ActionBarCommon::add('folder','Attach note',$this->create_callback_href(array($this,'edit_note_queue')));
@@ -305,6 +313,10 @@ class Utils_Attachment extends Module {
 			eval_js('$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Expand all')).'><div class="plus_white"></div></a> <a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Collapse all')).'><div class="minus_white"></div></a>').'\'');
 
 		$this->display_module($gb);
+	}
+	
+	public function show_deleted($val) {
+	    $_SESSION['view_deleted_attachments'] = $val;
 	}
 
 	public function view_queue($id) {
@@ -396,8 +408,12 @@ class Utils_Attachment extends Module {
 		   ($row['permission']==0 && $this->public_write) ||
 		   ($row['permission']==1 && $this->protected_write) ||
 		   ($row['permission']==2 && $this->private_write)) {
-			Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'edit_note_queue'),$id));
-			Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->t('Delete this entry?'),array($this,'delete_back'),$id));
+		    if(!$row['deleted']) {
+    			Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'edit_note_queue'),$id));
+	    		Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->t('Delete this entry?'),array($this,'delete_back'),$id));
+	    	} else {
+	    		Base_ActionBarCommon::add('restore','Restore',$this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),$id));	    	
+	    	}
 		}
 
 		$th = $this->init_module('Base/Theme');
@@ -433,7 +449,8 @@ class Utils_Attachment extends Module {
 
 		Base_ActionBarCommon::add('history','Edition history',$this->create_callback_href(array($this,'edition_history_queue'),$id));
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Copy',$this->create_callback_href(array($this,'copy'),array($id,$text)));
+		if(!$row['deleted'])
+    		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Copy',$this->create_callback_href(array($this,'copy'),array($id,$text)));
 
 		$th->display('view');
 
