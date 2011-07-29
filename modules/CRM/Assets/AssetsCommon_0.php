@@ -26,12 +26,12 @@ class CRM_AssetsCommon extends ModuleCommon {
             $k = array('host_name'=>'Host Name', 'processor'=>'CPU', 'ram'=>'RAM', 'hdd'=>'HDD', 'operating_system'=>'OS', 'optical_devices'=>'DRIVES', 'audio'=>'AUDIO', 'software'=>'SOFT');
             foreach($k as $var => $label) {
                 $pos = Base_User_SettingsCommon::get('CRM/Assets', $var.'_pos');
-                if($r[$var] && Base_User_SettingsCommon::get('CRM/Assets', $var)) $arr[$pos] = '['.Base_LangCommon::t($label).'] '.$r[$var];
+                if($r[$var] && Base_User_SettingsCommon::get('CRM/Assets', $var)) $arr[$pos] = '['.Base_LangCommon::ts('CRM_Assets',$label).'] '.$r[$var];
             }
             /* laptop screen */
             if($r['category']==2) {
                 $pos = Base_User_SettingsCommon::get('CRM/Assets', 'laptop_screen_pos');
-                if($r['screen_size'] && Base_User_SettingsCommon::get('CRM/Assets', 'laptop_screen')) $arr[$pos] = '['.Base_LangCommon::t('Screen').'] '.$r['screen_size'];
+                if($r['screen_size'] && Base_User_SettingsCommon::get('CRM/Assets', 'laptop_screen')) $arr[$pos] = '['.Base_LangCommon::ts('CRM_Assets','Screen').'] '.$r['screen_size'];
             }
         }
         /* monitor */
@@ -39,27 +39,27 @@ class CRM_AssetsCommon extends ModuleCommon {
             if(Base_User_SettingsCommon::get('CRM/Assets', 'display_type')) {
                 $type = Utils_CommonDataCommon::get_translated_array('crm_assets_monitor_type');
                 $pos = Base_User_SettingsCommon::get('CRM/Assets', 'display_type_pos');
-                $arr[$pos] = '['.Base_LangCommon::t('Display Type').'] '.($r['display_type']!=null ? $type[$r['display_type']] : Base_LangCommon::t('Undefined'));
+                $arr[$pos] = '['.Base_LangCommon::ts('CRM_Assets','Display Type').'] '.($r['display_type']!=null ? $type[$r['display_type']] : Base_LangCommon::ts('CRM_Assets','Undefined'));
             }
             $pos = Base_User_SettingsCommon::get('CRM/Assets', 'screen_size_pos');
-            if($r['screen_size'] && Base_User_SettingsCommon::get('CRM/Assets', 'screen_size')) $arr[$pos] = '['.Base_LangCommon::t('Screen Size').'] '.$r['screen_size'];
+            if($r['screen_size'] && Base_User_SettingsCommon::get('CRM/Assets', 'screen_size')) $arr[$pos] = '['.Base_LangCommon::ts('CRM_Assets','Screen Size').'] '.$r['screen_size'];
         }
         /* printer */
         if($r['category']==4) {
             if(Base_User_SettingsCommon::get('CRM/Assets', 'printer_type')) {
                 $type = Utils_CommonDataCommon::get_translated_array('crm_assets_printer_type');
                 $pos = Base_User_SettingsCommon::get('CRM/Assets', 'printer_type_pos');
-                $arr[$pos] = '['.Base_LangCommon::t('Printer Type').'] '.($r['printer_type']!=null ? $type[$r['printer_type']] : Base_LangCommon::t('Undefined'));
+                $arr[$pos] = '['.Base_LangCommon::ts('CRM_Assets','Printer Type').'] '.($r['printer_type']!=null ? $type[$r['printer_type']] : Base_LangCommon::ts('CRM_Assets','Undefined'));
             }
             if(Base_User_SettingsCommon::get('CRM/Assets', 'color_printing')) {
                 $color = $r['color_printing'] ? 'Yes': 'No';
                 $pos = Base_User_SettingsCommon::get('CRM/Assets', 'color_printing_pos');
-                $arr[$pos] = '['.Base_LangCommon::t('Color printing').'] '.Base_LangCommon::t($color);
+                $arr[$pos] = '['.Base_LangCommon::ts('CRM_Assets','Color printing').'] '.Base_LangCommon::ts('CRM_Assets',$color);
             }
         }
         if($r['category']<=4) {
             if(isset($arr)) ksort($arr);
-            return isset($arr) ? implode(' ', $arr) : Base_LangCommon::t('No info');
+            return isset($arr) ? implode(' ', $arr) : Base_LangCommon::ts('No info');
         }
 
         return Base_LangCommon::ts('CRM_Assets','This is non-categorized asset.');
