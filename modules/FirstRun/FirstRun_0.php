@@ -189,6 +189,7 @@ class FirstRun extends Module {
 		$t = microtime(true);
 		error_log(date('Y-m-d H:i:s').': Installing modules ...'."\n",3,DATA_DIR.'/firstrun.log');
 		foreach($pkgs as $p) {
+		    if(!is_dir('modules/'.$p)) continue;
 			$t2 = microtime(true);
 			error_log(' * '.date('Y-m-d H:i:s').' - '.$p.' (',3,DATA_DIR.'/firstrun.log');
 			if(!ModuleManager::install(str_replace('/','_',$p),null,false)) {
