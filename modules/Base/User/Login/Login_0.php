@@ -86,11 +86,14 @@ class Base_User_Login extends Module {
 		//else just login form
 		$form = & $this->init_module('Libs/QuickForm',$this->t('Logging in'));
 		$form->addElement('header', 'login_header', $this->t('Login'));
-		$form->addElement('text', 'username', $this->t('Username'),array('id'=>'username'));
-		$form->addElement('password', 'password', $this->t('Password'));
 		
-		if(DEMO_MODE)
-	 		$form->setDefaults(array('username'=>'admin','password'=>'admin'));
+		if(DEMO_MODE) {
+    		$form->addElement('select', 'username', $this->t('Username'),array('admin'=>'admin','admin_pl'=>'admin_pl','admin_ru'=>'admin_ru'), array('id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
+	    	$form->addElement('hidden', 'password', 'admin');		
+		} else {
+    		$form->addElement('text', 'username', $this->t('Username'),array('id'=>'username'));
+	    	$form->addElement('password', 'password', $this->t('Password'));
+		}
 
 		// Display warning about storing a cookie
 		$warning=$this->t('Keep this box unchecked if using a  public computer');
