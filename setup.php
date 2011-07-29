@@ -229,6 +229,7 @@ function check_htaccess() {
 		unlink('data/.htaccess');
 		return false;
 	}
+	unlink('data/test.php');
 	rename('data/.htaccess','.htaccess');
 	return true;
 }
