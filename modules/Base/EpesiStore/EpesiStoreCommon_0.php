@@ -7,17 +7,17 @@
  * @license MIT
  * @version 0.1
  * @package epesi-Base
- * @subpackage AppStore
+ * @subpackage EpesiStore
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_AppStoreCommon extends Base_AdminModuleCommon {
-    const MOD_PATH = 'Base_AppStoreCommon';
+class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
+    const MOD_PATH = 'Base_EpesiStoreCommon';
     const CART_VAR = 'cart';
     const DOWNLOAD_QUEUE_VAR = 'queue';
 
     public static function admin_caption() {
-        return "AppStore";
+        return "Epesi Store";
     }
 
     public static function get_cart() {

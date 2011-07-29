@@ -7,11 +7,11 @@
  * @license MIT
  * @version 0.1
  * @package epesi-Base
- * @subpackage AppStore
+ * @subpackage EpesiStore
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_AppStoreInstall extends ModuleInstall {
+class Base_EpesiStoreInstall extends ModuleInstall {
 
     public function install() {
         if ($this->create_data_dir())
@@ -39,8 +39,8 @@ class Base_AppStoreInstall extends ModuleInstall {
 
     public static function info() {
         return array(
-            'Description' => '',
-            'Author' => 'pbukowski@telaxus.com',
+            'Description' => 'Epesi store allows administrator to buy and download additional modules and updates',
+            'Author' => 'abukowski@telaxus.com',
             'License' => 'MIT');
     }
 

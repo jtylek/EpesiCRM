@@ -2,16 +2,16 @@
 
 /**
  * 
- * @author pbukowski@telaxus.com
- * @copyright Telaxus LLC
+ * @author Adam Bukowski <abukowski@telaxus.com>
+ * @copyright Copyright &copy; 2011, Telaxus LLC
  * @license MIT
  * @version 0.1
  * @package epesi-Base
- * @subpackage AppStore
+ * @subpackage EpesiStore
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_AppStore extends Module {
+class Base_EpesiStore extends Module {
     const refresh_info_text = 'Data is stored until close or refresh of browser\'s Epesi window or tab';
     const VAR_download_status = 'download_status';
 
@@ -40,20 +40,20 @@ class Base_AppStore extends Module {
     }
 
     public function store_form() {
-        $total = Base_AppStoreCommon::modules_total_amount();
+        $total = Base_EpesiStoreCommon::modules_total_amount();
         if ($total) {
             /* @var $gb Utils_GenericBrowser */
             $gb = $this->init_module('Utils/GenericBrowser', null, 'moduleslist');
             $x = $gb->get_limit($total);
             // fetch data
-            $t = Base_AppStoreCommon::modules_list($x['offset'], $x['numrows']);
+            $t = Base_EpesiStoreCommon::modules_list($x['offset'], $x['numrows']);
             $gb = $this->GB_module($gb, $t, array($this, 'GB_row_additional_actions_store'));
             $this->display_module($gb);
         }
     }
 
     public function cart_button() {
-        $cart = Base_AppStoreCommon::get_cart();
+        $cart = Base_EpesiStoreCommon::get_cart();
         $amount = count($cart);
         if ($amount == 0)
             $amount = $this->t('Empty');
@@ -64,7 +64,7 @@ class Base_AppStore extends Module {
     public function cart_form() {
         $this->back_button();
 
-        $items = Base_AppStoreCommon::get_cart();
+        $items = Base_EpesiStoreCommon::get_cart();
         $total_price = 0;
         if (count($items) == 0) {
             print($this->t('Cart is empty!'));
@@ -91,7 +91,7 @@ class Base_AppStore extends Module {
             foreach ($ret as $id => $success) {
                 print("$module_names[$id] - <span style=\"color: " . ($success ? "green" : "gray") . "\">" . $this->t($success ? 'Ordered' : 'Not ordered') . "</span><br/>");
             }
-            Base_AppStoreCommon::empty_cart();
+            Base_EpesiStoreCommon::empty_cart();
         } else {
             $this->display_module($gb);
             $f->display();
@@ -99,17 +99,17 @@ class Base_AppStore extends Module {
     }
 
     public function cart_add_item($r) {
-        $items = Base_AppStoreCommon::get_cart();
+        $items = Base_EpesiStoreCommon::get_cart();
         $items[] = $r;
-        Base_AppStoreCommon::set_cart($items);
+        Base_EpesiStoreCommon::set_cart($items);
     }
 
     public function cart_remove_item($r) {
-        $items = Base_AppStoreCommon::get_cart();
+        $items = Base_EpesiStoreCommon::get_cart();
         $key = array_search($r, $items);
         if ($key !== false) {
             unset($items[$key]);
-            Base_AppStoreCommon::set_cart($items);
+            Base_EpesiStoreCommon::set_cart($items);
         }
     }
 
@@ -129,23 +129,23 @@ class Base_AppStore extends Module {
     }
 
     public function download_queue_item($r) {
-        $q = Base_AppStoreCommon::get_download_queue();
+        $q = Base_EpesiStoreCommon::get_download_queue();
         $q[] = $r;
-        Base_AppStoreCommon::set_download_queue($q);
+        Base_EpesiStoreCommon::set_download_queue($q);
     }
 
     public function download_dequeue_item($r) {
-        $q = Base_AppStoreCommon::get_download_queue();
+        $q = Base_EpesiStoreCommon::get_download_queue();
         $k = array_search($r, $q);
         if ($k !== false) {
             unset($q[$k]);
-            Base_AppStoreCommon::set_download_queue($q);
+            Base_EpesiStoreCommon::set_download_queue($q);
         }
     }
 
     public function download_button() {
         $download = $this->t('Downloads');
-        $count = count(Base_AppStoreCommon::get_download_queue());
+        $count = count(Base_EpesiStoreCommon::get_download_queue());
         if ($count == 0)
             $count = $this->t('Empty');
         Base_ActionBarCommon::add('clone', "$download ($count)", $this->create_callback_href(array($this, 'navigate'), array('download_form')));
@@ -153,8 +153,8 @@ class Base_AppStore extends Module {
 
     public function download_form() {
         $this->back_button();
-        $downloads = Base_AppStoreCommon::get_download_queue();
-        Base_ActionBarCommon::add('delete', 'Clear list', $this->create_callback_href(array('Base_AppStoreCommon', 'empty_download_queue')));
+        $downloads = Base_EpesiStoreCommon::get_download_queue();
+        Base_ActionBarCommon::add('delete', 'Clear list', $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
         Base_ActionBarCommon::add('clone', 'Proceed download', $this->create_callback_href(array($this, 'navigate'), array('download_process')));
         if (count($downloads) == 0) {
             print($this->t('No items'));
@@ -168,7 +168,7 @@ class Base_AppStore extends Module {
 
     public function download_process() {
         $this->back_button();
-        $orders = Base_AppStoreCommon::get_download_queue();
+        $orders = Base_EpesiStoreCommon::get_download_queue();
         if (!count($orders)) {
             return;
         }
@@ -216,15 +216,14 @@ class Base_AppStore extends Module {
         print($this->t('Download process succeed!') . '<br/>');
         print($this->t('Now you can install some of new modules!') . '<br/>');
         print($this->t('New files or directories:') . '<br/>');
-        // list all files            return;
-
+        // list all files
         $all_files = array();
         foreach ($orders as $d) {
-            $mod = Base_AppStoreCommon::get_module_info($d['module_id']);
+            $mod = Base_EpesiStoreCommon::get_module_info($d['module_id']);
             $all_files = array_merge($all_files, explode(',', $mod['path']));
         }
         print(implode('<br/>', $all_files));
-        Base_AppStoreCommon::empty_download_queue();
+        Base_EpesiStoreCommon::empty_download_queue();
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
@@ -249,8 +248,8 @@ class Base_AppStore extends Module {
         // paid
         $data['paid'] = $this->t($data['paid'] ? 'Yes' : 'No');
         // module info
-        $module = Base_AppStoreCommon::get_module_info($data['module_id']);
-        $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_AppStoreCommon', 'module_format_info'), array($module));
+        $module = Base_EpesiStoreCommon::get_module_info($data['module_id']);
+        $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($module));
         $data['module'] = "<a $tooltip>{$module['name']}</a>";
         unset($data['module_id']);
 
