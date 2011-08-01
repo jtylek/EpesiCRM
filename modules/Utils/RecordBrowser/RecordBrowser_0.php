@@ -1347,10 +1347,6 @@ class Utils_RecordBrowser extends Module {
         return $v['__datepicker']!=='' && Base_RegionalSettingsCommon::reg2time($v['__datepicker'],false)!==false;
     }
 
-    public function max_description($string){
-        return strlen(Utils_BBCodeCommon::strip($string))<=400;
-    }
-
     public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
         //$init_js = '';
         foreach($this->table_rows as $field => $args){
@@ -1419,9 +1415,7 @@ class Utils_RecordBrowser extends Module {
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
                     case 'long text':   $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
-										$form->addElement($this->add_in_table?'text':'textarea', $args['id'], $label, array('id'=>$args['id'], 'onkeypress'=>'var key=event.which || event.keyCode;return this.value.length < 400 || ((key<32 || key>126) && key!=10 && key!=13) ;'));
-                                        $form->registerRule('max_description', 'callback', 'max_description', $this);
-                                        $form->addRule($args['id'], $this->t('Maximum length for this field is %s characters.', array(400)), 'max_description');
+										$form->addElement($this->add_in_table?'text':'textarea', $args['id'], $label, array('id'=>$args['id']));
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
                     case 'date':		$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
