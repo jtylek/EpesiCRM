@@ -1239,6 +1239,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	public static function check_email_unique($data) {
 		$email = $data[self::$field];
+		if (!$email) return true;
 		$rec = self::get_record_by_email($email, self::$rset, self::$rid);
 		if ($rec == false) return true;
 		return array(self::$field=>Base_LangCommon::ts('CRM_Contacts', 'E-mail address duplicate found: %s', array(Utils_RecordBrowserCommon::create_default_linked_label($rec[0], $rec[1]))));
