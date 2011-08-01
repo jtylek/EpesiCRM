@@ -347,13 +347,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'param C(255),'.
                     'style C(64)',
                     array('constraints'=>''));
+        DB::CreateTable($tab.'_callback',
+                    'field C(32),'.
+                    'callback C(255),'.
+                    'freezed I1',
+                    array('constraints'=>''));
+
+        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, visible, position) VALUES(\'id\', \'foreign index\', 0, 0, 1)');
+        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'General\', \'page_split\', 0, 2)');
+        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'Details\', \'page_split\', 0, 3)');
+
+		$fields_sql = '';
+        foreach ($fields as $v)
+            $fields_sql .= Utils_RecordBrowserCommon::new_record_field($tab, $v, false);
         DB::CreateTable($tab.'_data_1',
                     'id I AUTO KEY,'.
                     'created_on T NOT NULL,'.
                     'created_by I NOT NULL,'.
                     'private I4 DEFAULT 0,'.
-                    'active I1 NOT NULL DEFAULT 1',
+                    'active I1 NOT NULL DEFAULT 1'.
+					$fields_sql,
                     array('constraints'=>''));
+
         DB::CreateTable($tab.'_edit_history',
                     'id I AUTO KEY,'.
                     $tab.'_id I NOT NULL,'.
@@ -374,16 +389,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'user_id I,'.
                     'visited_on T',
                     array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id), FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'_data_1(id)'));
-        DB::CreateTable($tab.'_callback',
-                    'field C(32),'.
-                    'callback C(255),'.
-                    'freezed I1',
-                    array('constraints'=>''));
-        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, visible, position) VALUES(\'id\', \'foreign index\', 0, 0, 1)');
-        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'General\', \'page_split\', 0, 2)');
-        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'Details\', \'page_split\', 0, 3)');
-        foreach ($fields as $v)
-            Utils_RecordBrowserCommon::new_record_field($tab, $v);
         return true;
     }
     public static function enable_watchdog($tab,$watchdog_callback) {
@@ -440,7 +445,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::init($tab, false, true);
     }
 
-    public static function new_record_field($tab, $definition){
+    public static function new_record_field($tab, $definition, $alter=true){
         static $datatypes = null;
         if ($datatypes===null) {
             $datatypes = array();
@@ -489,8 +494,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         self::check_table_name($tab);
         self::$clear_get_val_cache = true;
-        $exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($definition['name']));
-        if ($exists) return;
+		if ($alter) {
+			$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($definition['name']));
+			if ($exists) return;
+		}
 
         DB::StartTrans();
         if (is_string($definition['position'])) $definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($definition['position']))+1;
@@ -520,9 +527,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
         }
         $f = self::actual_db_type($definition['type'], $param);
-        if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.preg_replace('/[^a-z0-9]/','_',strtolower($definition['name'])).' '.$f);
         DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($definition['name'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0));
-        self::init($tab, false, true);
+		$column = 'f_'.preg_replace('/[^a-z0-9]/','_',strtolower($definition['name']));
+		if ($alter) {
+			self::init($tab, false, true);
+			if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN '.$column.' '.$f);
+		} else {
+			if ($f!=='') return ','.$column.' '.$f;
+			else return '';
+		}
     }
     public static function actual_db_type($type, $param=null) {
         $f = '';
