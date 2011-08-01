@@ -146,17 +146,8 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		if($id===false) return false;
 		if($overwrite)
 			DB::Execute('UPDATE utils_commondata_tree SET readonly=%b WHERE id=%d',array($readonly,$id));
-		$qty = count($array);
-		if ($qty!=0) {
-			$qvals = array();
-			foreach($array as $k=>$v) {
-				$qvals[] = $id;
-				$qvals[] = $k;
-				$qvals[] = $v;
-				$qvals[] = $readonly;
-			}
-			DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value, readonly) VALUES '.implode(',',array_fill(0, $qty, '(%d,%s,%s,%b)')),$qvals);
-		}
+		foreach($array as $k=>$v)
+			DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value, readonly) VALUES (%d,%s,%s,%b)',array($id,$k,$v,$readonly));
 		return true;
 	}
 
