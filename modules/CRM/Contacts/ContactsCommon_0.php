@@ -1263,7 +1263,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				return array($tmp['f_record_type'], $tmp['f_record_id']);
 		}
 		$comp = DB::GetRow('SELECT id, created_on, created_by FROM company_data_1 WHERE active=1 AND f_email '.DB::like().' %s AND id!=%d', array($email, $rset=='company'?$rid:-1));
-		if ($cont)
+		if ($comp)
 			return array('company', $comp['id']);
 		return false;
 	}
