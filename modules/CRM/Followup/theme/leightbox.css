@@ -1,4 +1,4 @@
-#Filters_header,
+/*#Filters_header,
 .Filters_header {
 	color: #FFFFFF;
 	background-color: #336699;
@@ -36,7 +36,7 @@
 	padding-right: 3px;
 }
 
-/* button */
+/* button *//*
 
 table#CRM_Filters .big-button {
 	background-color: #F0F0F0;
@@ -82,7 +82,7 @@ table#CRM_Filters .big-button span.desc {
 }
 
 /* small button */
-
+/*
 table#CRM_Filters .button-small {
 	display: block;
 	line-height: 20px;
@@ -97,7 +97,7 @@ table#CRM_Filters .button-small:hover {
 	background-color: #339933;
 	color: #FFFFFF;
 }
-
+*/
 /* a */
 
 table#CRM_Filters a:hover {
@@ -110,4 +110,27 @@ table#CRM_Filters .crm_followup_leightbox_note textarea {
 
 table#CRM_Filters .crm_followup_leightbox_note {
 	width: 100%;
+}
+
+
+
+/* NEW */
+.panel_div {
+	height: 73px;
+	width: 56px;
+	cursor: pointer;
+	padding-top:2px;
+}
+
+.div_icon img{
+	display: block;
+	margin: auto;
+}
+
+.icon_td_text {
+	height: 29px;
+	overflow: hidden;
+	text-align: center;
+	vertical-align: middle;
+	width: 50px;
 }

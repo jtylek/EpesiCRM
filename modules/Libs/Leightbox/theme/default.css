@@ -30,7 +30,7 @@
 	/* end dark css3 green background gradient */
 }
 #Leightbox_header .left .launchpad_icon_resize {
-	width: 100%;
+	width: auto;
     cursor: pointer;
     display: block;
     height: 22px;

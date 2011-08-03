@@ -1,179 +1,79 @@
 <center>
 <BR>
 {$form_open}
-<table id="CRM_Filters" cellspacing="0" cellpadding="0" width="600px">
-	<tr>
-        <td style="width:100px;background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
-        	{$form_closecancel.label}
-		</td>
-		<td colspan="3" style="width:1px;">
-			{$form_closecancel.html}
-		</td>
-	</tr>
-	<tr>
-        <td style="background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
-        	{$form_note.label}
-		</td>
-		<td colspan="3">
-			<div class="crm_followup_leightbox_note">
-				{$form_note.html}
-			</div>
-        </td>
-	</tr>
-</table>
-        <!-- MY -->
-<table id="CRM_Filters" cellspacing="0" cellpadding="0">
-	<tr>
-        <td>
+	<table id="CRM_Filters" cellspacing="0" cellpadding="0" width="600px">
+			<tr>
+				<td style="width:100px;background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
+					{$form_closecancel.label} <!-- STATUS -->
+				</td>
+				<td colspan="3" style="width:1px;">
+					{$form_closecancel.html} <!-- SELECT -->
+				</td>
+			</tr>
+			<tr>
+				<td style="background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
+					{$form_note.label} <!-- 1 note -->
+				</td>
+				<td colspan="3">
+					<div class="crm_followup_leightbox_note">
+						{$form_note.html} <!-- 2 note input -->
+					</div>
+				</td>
+			</tr>
+	</table>
+       
+	<table id="CRM_Filters" cellspacing="0" cellpadding="0">	
+		<tr>
+			<td valign="top">
+				<div class="panel">
+					{$new_meeting.open}
+					<div class="panel_div">
+						<div class="icon">
+							<div class="div_icon"><img src="{$theme_dir}/CRM/Calendar/icon.png" alt="" align="middle" border="0" width="32" height="32"></div>
+							<table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$new_meeting.text}</td></tr></table>
+						</div>
+					</div>
+					{$new_meeting.close}
+				</div>
+			</td>
 
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 80px;">
-		<div class="content_shadow">
-<!-- -->
+			<td valign="top">
+				<div class="panel">
+					{$new_task.open}
+					<div class="panel_div">
+						<div class="div_icon">
+							<div class="div_icon"><img src="{$theme_dir}/CRM/Tasks/icon.png" alt="" align="middle" border="0" width="32" height="32"></div>
+							<table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$new_task.text}</td></tr></table>
+						</div>
+					</div>
+					{$new_task.close}
+				</div>
+			</td>
 
-	    {$new_meeting.open}
-		<div class="big-button">
-	        <img src="{$theme_dir}/CRM/Calendar/icon.png" alt="" align="middle" border="0" width="32" height="32">
-	        <div style="height: 5px;"></div>
-	        <span>{$new_meeting.text}</span>
-        </div>
-	    {$new_meeting.close}
-
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
-
-        </td>
-
-        <!-- ALL -->
-        <td>
-
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 80px;">
-		<div class="content_shadow">
-<!-- -->
-
-	    {$new_task.open}
-		<div class="big-button">
-            <img src="{$theme_dir}/CRM/Tasks/icon.png" alt="" align="middle" border="0" width="32" height="32">
-            <div style="height: 5px;"></div>
-            <span>{$new_task.text}</span>
-        </div>
-	    {$new_task.close}
-
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
-
-        </td>
-
-        <!-- MANAGE FILTERS -->
-        <td>
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 100px;">
-		<div class="content_shadow">
-<!-- -->
-
-
-
-	    {$new_phonecall.open}
-		<div class="big-button">
-            <img src="{$theme_dir}/CRM/PhoneCall/icon.png" alt="" align="middle" border="0" width="32" height="32">
-            <div style="height: 5px;"></div>
-            <span>{$new_phonecall.text}</span>
-        </div>
-	    {$new_phonecall.close}
-
-
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
-
-        </td>
-        <td>
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 100px;">
-		<div class="content_shadow">
-<!-- -->
-
-
-
-	    {$just_close.open}
-		<div class="big-button">
-            <img src="{$theme_dir}/Base/ActionBar/icons/save.png" alt="" align="middle" border="0" width="32" height="32">
-            <div style="height: 5px;"></div>
-            <span>{$just_close.text}</span>
-        </div>
-	    {$just_close.close}
-
-
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
-
-        </td>
-    </tr>
-</table>
-{$form_close}
+			<td valign="top">
+				<div class="panel">
+					{$new_phonecall.open}
+					<div class="panel_div">
+						<div class="div_icon"><img src="{$theme_dir}/CRM/PhoneCall/icon.png" alt="" align="middle" border="0" width="32" height="32"></div>
+						<table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$new_phonecall.text}</td></tr></table>
+					</div>
+					{$new_phonecall.close}
+				</div>
+			</td>
+			
+			
+			<td valign="top">
+				<div class="panel"></div>
+					{$just_close.open}
+					<div class="panel_div">
+						<div class="div_icon"><img src="{$theme_dir}/Base/ActionBar/icons/save.png" alt="" align="middle" border="0" width="32" height="32"></div>
+						<table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$just_close.text}</td></tr></table>
+					</div>
+					{$just_close.close}
+				</div>
+			</td>
+		</tr>
+	</table>
+	{$form_close}
 
 </center>

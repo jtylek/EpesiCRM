@@ -32,7 +32,7 @@ foreach($arr as $row) {
 		default : $fcolor = '#AAAAAA';
 	}
 	
-	print('<span class="author">'.$row['login'].($row['to_login']?'&nbsp;->&nbsp;'.$row['to_login']:'').' </span><span style="color:'.$fcolor.';">&nbsp;'.(($row['to_login_id']==$myid && $uid===null)?'<b>':'').Utils_BBCodeCommon::parse($row['message']).(($row['to_login_id']==$myid && $uid===null)?'</b>':'').'</span><span class="time"> ['.Base_RegionalSettingsCommon::time2reg($row['posted_on'],2).']</span><hr/>');
+	print('<span class="author border_radius_3px dark_blue_gradient">'.$row['login'].($row['to_login']?'&nbsp;->&nbsp;'.$row['to_login']:'').' </span><span class="shoutbox_textbox"style="color:'.$fcolor.';">&nbsp;'.(($row['to_login_id']==$myid && $uid===null)?'<b>':'').Utils_BBCodeCommon::parse($row['message']).(($row['to_login_id']==$myid && $uid===null)?'</b>':'').'</span><span class="time"> ['.Base_RegionalSettingsCommon::time2reg($row['posted_on'],2).']</span><hr/>');
 }
 
 $content = ob_get_contents();
