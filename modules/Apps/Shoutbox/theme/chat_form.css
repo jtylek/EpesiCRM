@@ -33,8 +33,7 @@
 }
 
 #__to_select_span #to {
-    font-size: 14px;
-    margin: 5px auto auto 5px;
+    margin: 7px auto auto 5px;
 }
 #__to_select_span #to:focus {
 	background-color: #FFFFA5;
