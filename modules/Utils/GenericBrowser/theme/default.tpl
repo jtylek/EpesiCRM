@@ -10,7 +10,7 @@
 			<!-- Custom label -->
 			{if (isset($custom_label) && $custom_label)}
 				<td class="letter_search_icon">
-				{$custom_label}
+				<nobr>{$custom_label}</nobr>
 				</td>
 			{/if}
 			<!-- QuickJump -->

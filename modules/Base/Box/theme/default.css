@@ -963,6 +963,16 @@ hr.line {
 
 
 /* Global styles */
+	
+	/* shadows */
+		.shadow_5px {
+			/* css3 shadow border*/
+			-webkit-box-shadow: 1px 1px 5px black;
+			-moz-box-shadow: 1px 1px 5px black;
+			box-shadow: 1px 1px 5px black;
+			/* end css3 shadow border*/
+		}
+	/* shadows */
 
 	/* radius borders */
 		.border_radius_3px {

@@ -382,10 +382,10 @@ table.Utils_GenericBrowser__navigation img {
 /* add new attachment*/
 .attachment_add_new {
 	display: block;
-	width: 73px;
+	width: 100%;
 	height: 18px;
 	color: white;
-	padding: 6px 10px;
+	padding: 6px 16px 8px 7px;
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -428,7 +428,7 @@ table.Utils_GenericBrowser__navigation img {
 	margin: 0px 6px auto auto;
 }
 .attachment_add_new .attachment_div_add_new {
-	margin-top:2px;
+	margin-top:4px;
 }
 
 /* letter links */

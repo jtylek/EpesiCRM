@@ -21,7 +21,9 @@
 .Base_StatusBar div.layer {
     padding: 10px;
 }
-
+.Base_StatusBar .border_radius_6px{
+	overflow: hidden;
+}
 .Base_StatusBar table {
     width: 100%;
     font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;

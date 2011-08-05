@@ -16,7 +16,7 @@
 			</tr>
 		{/if}
 	{/foreach}
-	<tr>
+	<tr  class="Utils_LeightboxPrompt__form_button">
 	    <td style="float:right;">
 	    	{$form_data.cancel.html}
 		</td>

@@ -162,6 +162,19 @@ Please choose epesi version:<ul>
 				vertical-align: middle;
 				z-index: 2002;
                 color: #336699;
+				overflow: hidden;
+				
+				/* css3 shadow border*/
+				-webkit-box-shadow: 1px 1px 5px black;
+				-moz-box-shadow: 1px 1px 5px black;
+				box-shadow: 1px 1px 5px black;
+				/* end css3 shadow border*/
+				
+				/* border radius */
+				-webkit-border-radius: 6px;
+				-moz-border-radius: 6px;
+				border-radius: 6px;
+				/* end border radius */
 			}
 			#epesiStatus table {
 				color: #336699;
@@ -170,29 +183,31 @@ Please choose epesi version:<ul>
 				font-size: 11px;
 				border: 5px solid #FFFFFF;
             }
+
 		</style>
 	</head>
 	<body>
-		<div id="body_content">
-		<div id="main_content"></div>
-		<div id="debug_content" style="padding-top:97px;display:none;">
-			<div id="debug"></div>
-			<div id="error_box" onclick="this.innerHTML='';"></div>
-		</div>
-		<div id="epesiStatus">
-			<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
-                <tr>
-                    <td><img src="images/logo.gif" alt="logo" width="550" height="200" border="0"></td>
-                </tr>
-				<tr>
-					<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText">Starting epesi ...</span></td>
-                </tr>
-                <tr>
-					<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
-				</tr>
-			</table>
-		</div>
 
+		<div id="body_content">
+			<div id="main_content"></div>
+			<div id="debug_content" style="padding-top:97px;display:none;">
+				<div id="debug"></div>
+				<div id="error_box" onclick="this.innerHTML='';"></div>
+			</div>
+			
+			<div id="epesiStatus">
+				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
+					<tr>
+						<td><img src="images/logo.gif" alt="logo" width="550" height="200" border="0"></td>
+					</tr>
+					<tr>
+						<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText">Starting epesi ...</span></td>
+					</tr>
+					<tr>
+						<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
+					</tr>
+				</table>
+			</div>	
 		</div>
 		<script type="text/javascript" src="init_js.php?<?php print(http_build_query($_GET));?>"></script>
 	</body>
