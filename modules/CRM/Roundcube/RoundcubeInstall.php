@@ -197,7 +197,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 			array('name'=>'Record Type', 		'type'=>'text', 'param'=>'64', 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
 			array('name'=>'Record ID', 		'type'=>'integer', 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
 			array('name'=>'Nickname', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_nickname')),
-			array('name'=>'Email', 			'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email'))
+			array('name'=>'Email', 			'type'=>'email', 'required'=>true, 'param'=>array('unique'=>true), 'extra'=>false, 'visible'=>true)
 		);
 
 		Utils_RecordBrowserCommon::install_new_recordset('rc_multiple_emails', $fields);

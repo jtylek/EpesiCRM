@@ -261,6 +261,18 @@ class CRM_ContactsCommon extends ModuleCommon {
         eval_js('leightbox_activate("crm_contact_duplicates");');
         return true;
     }
+	public static function email_datatype($field = array()) {
+        if (!isset($field['QFfield_callback'])) {
+			if (is_array($field['param']) && isset($field['param']['unique']) && $field['param']['unique'])
+				$field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_unique_email');
+			else
+				$field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_email');
+		}
+        if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_email');
+        $field['type'] = 'text';
+        $field['param'] = '128';
+        return $field;
+	}
     public static function crm_company_datatype($field = array()) {
         if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company');
         if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_company');
@@ -752,12 +764,17 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->addElement('text', $field, $label);
             $form->addRule($field, Base_LangCommon::ts('CRM_Contacts','Invalid e-mail address'), 'email');//'/^[\._a-zA-Z0-9\-]+@[\.a-zA-Z0-9\-]+\.[a-zA-Z]{2,3}$/');
             if ($mode=='edit') $form->setDefaults(array($field=>$default));
-			self::add_rule_email_unique($form, $field, $rb_obj->tab, isset($rb_obj->record['id'])?$rb_obj->record['id']:null);
         } else {
             $form->addElement('static', $field, $label);
             $form->setDefaults(array($field=>self::display_email(array('email'=>$default), null, array('id'=>'email'))));
         }
     }
+    public static function QFfield_unique_email(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+		$ret = self::QFfield_email($form, $field, $label, $mode, $default, $desc, $rb_obj);
+        if ($mode=='add' || $mode=='edit')
+			self::add_rule_email_unique($form, $field, $rb_obj->tab, isset($rb_obj->record['id'])?$rb_obj->record['id']:null);
+		return $ret;
+	}
     public static function check_new_company_name($data){
         if (isset($data['create_company_name'])) $data['create_company_name'] = trim($data['create_company_name']);
         if (isset($data['create_company']) && $data['create_company'] && (!isset($data['create_company_name']) || !$data['create_company_name'])) return array('create_company_name'=>Base_LangCommon::ts('Libs/QuickForm','Field requried'));

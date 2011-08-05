@@ -20,6 +20,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::register_datatype('crm_company', 'CRM_ContactsCommon', 'crm_company_datatype');
 		Utils_RecordBrowserCommon::register_datatype('crm_contact', 'CRM_ContactsCommon', 'crm_contact_datatype');
 		Utils_RecordBrowserCommon::register_datatype('crm_company_contact', 'CRM_ContactsCommon', 'crm_company_contact_datatype');
+		Utils_RecordBrowserCommon::register_datatype('email', 'CRM_ContactsCommon', 'email_datatype');
 		ModuleManager::include_common('CRM_Contacts',0);
 // ************ companies ************** //
 		$fields = array(
@@ -27,7 +28,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Short Name',		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
 			array('name'=>'Phone', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name'=>'Fax', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Email', 			'type'=>'text', 'required'=>false, 'param'=>'128', 'extra'=>false, 'visible'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
+			array('name'=>'Email', 			'type'=>'email', 'required'=>false, 'param'=>array('unique'=>true), 'extra'=>false, 'visible'=>false),
 			array('name'=>'Web address',	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
 			array('name'=>'Group', 			'type'=>'multiselect', 'required'=>false, 'visible'=>true, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Companies_Groups'), 'extra'=>false, 'visible'=>true, 'filter'=>true),
 			array('name'=>'Permission',		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
@@ -52,7 +53,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Work Phone', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name'=>'Mobile Phone', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name'=>'Fax', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Email', 			'type'=>'text', 'required'=>false, 'param'=>'128', 'extra'=>false, 'visible'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
+			array('name'=>'Email', 			'type'=>'email', 'required'=>false, 'param'=>array('unique'=>true), 'extra'=>false, 'visible'=>false),
 			array('name'=>'Web address', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
 			array('name'=>'Address 1', 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon','maplink')),
 			array('name'=>'Address 2', 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon','maplink')),
