@@ -99,7 +99,7 @@ class Base_Dashboard extends Module {
 			}
 			if ($config_mode) {
 				// *** New tab button ****
-				$this->tb->start_tab('Add new Tab');
+				$this->tb->start_tab($this->t('Add new Tab'));
 				$this->tb->set_href('href="javascript:void(0);" onclick="edit_dashboard_tab(null);"');
 				$this->tb->end_tab();
 			}
