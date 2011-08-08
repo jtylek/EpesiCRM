@@ -132,7 +132,6 @@ dashboard_filter_applets = function() {
 	for (i=0; i<qty; i++) {
 		if (nodes[i] && nodes[i].id && nodes[i].id.indexOf("ab_item_new_")!=-1) {
 			var searchkey = nodes[i].getAttribute('searchkey');
-			$('module-indicator').innerHTML = searchkey;
 			if (searchkey.toLowerCase().indexOf(str)!=-1) nodes[i].style.display="";
 			else nodes[i].style.display="none";
 		}
