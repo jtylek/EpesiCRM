@@ -1,0 +1,10 @@
+.note_field p {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
+.note_field {
+	overflow: hidden;
+	float: left;
+	width: 90%;
+}

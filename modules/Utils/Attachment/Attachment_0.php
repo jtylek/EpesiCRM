@@ -158,21 +158,8 @@ class Utils_Attachment extends Module {
 		$query_limits = $gb->get_limit($qty);
 		$ret = DB::SelectLimit($query.$query_order,$query_limits['numrows'],$query_limits['offset']);
 
-		eval_js_once('utils_attachment_expand = function(id) {'.
-			     '$(\'utils_attachment_more_\'+id).hide();'.
-			     '$(\'utils_attachment_text_\'+id).show();'.
-			     '};'.
-			     'utils_attachment_expand_all = function(ids) {'.
-			     'ids.each(function(k){utils_attachment_expand(k)})'.
-			     '};'.
-			     'utils_attachment_collapse = function(id) {'.
-			     '$(\'utils_attachment_more_\'+id).show();'.
-			     '$(\'utils_attachment_text_\'+id).hide();'.
-			     '};'.
-			     'utils_attachment_collapse_all = function(ids) {'.
-			     'ids.each(function(k){utils_attachment_collapse(k)})'.
-			     '};');
-		$expandable = array();
+		Base_ThemeCommon::load_css('Utils_Attachment','browse');
+		load_js('modules/Utils/Attachment/js/main.js');
 
 		while($row = $ret->FetchRow()) {
 			if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
@@ -222,53 +209,18 @@ class Utils_Attachment extends Module {
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 
-			$text = trim(Utils_BBCodeCommon::parse(strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/><ul><li>')));
-			$text_tagless = strip_tags($text,'<br><br/><ul><li>');
-			$max_len = 120;
-			if ($max_len>mb_strlen($text_tagless,'UTF-8')) $max_len = mb_strlen($text_tagless,'UTF-8');
-			$br = mb_strpos($text_tagless,'<br',0,'UTF-8');
-			$ul = mb_strpos($text_tagless,'<ul',0,'UTF-8');
-			if($ul!==false && ($br===false || $ul<$br)) $br = $ul;
-			$li = mb_strpos($text_tagless,'<li',0,'UTF-8');
-			if($li!==false && ($br===false || $li<$br)) $br = $li;
-			if($br!==false && $br<$max_len) $max_len=$br;
-			// ************* Strip without loosing html entities
-			$i = 0;
-			$count=0;
-			$continue=0;
-			$in_middle=false;
-			preg_match_all('/./u', $text, $a);
-			$a = $a[0];
-			while ($continue>0 || $in_middle || $count<$max_len) {
-				if ($a[$i]=='<') {
-					if (isset($a[$i+1]) && $a[$i+1]!='/') $continue++;
-					else $continue--;
-					$in_middle=true;
-				} elseif ($a[$i]=='>') {
-					$in_middle=false;
-					if (isset($a[$i-1]) && $a[$i-1]=='/') $continue--;
-				} elseif (!$in_middle) $count++;
-				if (!isset($a[$i+1])) {
-					$i++;
-					break;
-				}
-				$i++;
-			}
-			$max_len=$i;
-
+			$text = $row['text'];
 
 			if(!isset($row['deleted']) || !$row['deleted']) {
         		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
 		    	$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'));
 		    }
-			// ************* Strip without loosing html entities
-			if($max_len<mb_strlen($text,'UTF8') || $inline_img) {
-				$text = array('value'=>mb_substr($text,0,$max_len,'UTF8').'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.'<div class="plus_green"></div>'.'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.mb_substr($text,$max_len,mb_strlen($text,'UTF8'),'UTF8').$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.'<div class="minus_green"></div>'.'</a></span>','hint'=>$this->t('Click on view icon to see full note'));
-				$expandable[] = $row['id'];
-				if($row['sticky']) $text['value'] = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text['value'];
-			} else {
-				if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text;
-			}
+			
+			if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text;
+			$buttons = '<div id="note_buttons_'.$row['id'].'"><a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.'<div class="plus_green"></div>'.'</a>'.'<a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')" id="utils_attachment_less_'.$row['id'].'">'.'<div class="minus_green"></div>'.'</a>'.'</div>';
+			$text = '<div style="height:18px;" id="note_'.$row['id'].'" class="note_field">'.$text.$inline_img.'</div>'.$buttons;
+
+			eval_js('init_note_expandable('.$row['id'].');');
 
 			$regional_note_on = $note_on;
 			$arr = array();
@@ -309,8 +261,7 @@ class Utils_Attachment extends Module {
 			}
 		}
 
-		if(!empty($expandable))
-			eval_js('$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Expand all')).'><div class="plus_white"></div></a> <a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Collapse all')).'><div class="minus_white"></div></a>').'\'');
+		eval_js('if(expandable_notes.length>0)$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_expand_all()\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Expand all')).'><div class="plus_white"></div></a> <a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_collapse_all()\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Collapse all')).'><div class="minus_white"></div></a>').'\'');
 
 		$this->display_module($gb);
 	}
