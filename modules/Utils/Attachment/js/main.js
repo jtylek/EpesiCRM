@@ -1,7 +1,7 @@
 var expandable_notes = new Array();
 
 utils_attachment_expand = function(id) {
-	if($("note_"+id))
+	if($("note_"+id)) {
 		$("note_"+id).style.height = "";
 		$("utils_attachment_more_"+id).hide();
 		$("utils_attachment_less_"+id).show();
