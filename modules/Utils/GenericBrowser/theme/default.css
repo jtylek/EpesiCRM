@@ -186,7 +186,7 @@ table.Utils_GenericBrowser > thead > tr > th {
 	/* end css3  gradient */
 }
 table.Utils_GenericBrowser > thead > tr > th > .GB_margin {
-	margin-left: 40%;
+	margin: 0px 40% auto 5px;
 }
 table.Utils_GenericBrowser > thead > tr > th > span {
 	color: #FFFFFF;
@@ -222,24 +222,24 @@ table.Utils_GenericBrowser > thead > tr > th a:hover {
 }
 .plus-minus,
 .plus-minus:hover {
-	width: 16px!important;
-	height: 16px !important;
+	width: 8px!important;
+	height: 8px !important;
 	float: left;
-	margin-top: 2px;
+	margin-top: 5px;
 	background: none !important;
 }
 /* plus minus - white */
 table.Utils_GenericBrowser > thead > tr > th div.plus_white {
-	width: 16px;
-	height: 16px;
+	width: 8px;
+	height: 8px;
 	background: url('Utils/GenericBrowser/plus_white.png');
 }
 table.Utils_GenericBrowser > thead > tr > th div.plus_white:hover {
 	background: url('Utils/GenericBrowser/plus_white2.png');
 }
 table.Utils_GenericBrowser > thead > tr > th div.minus_white {
-	width: 16px;
-	height: 16px;
+	width: 8px;
+	height: 8px;
 	background: url('Utils/GenericBrowser/minus_white.png');
 }
 table.Utils_GenericBrowser > thead > tr > th div.minus_white:hover {
@@ -251,8 +251,8 @@ table.Utils_GenericBrowser > thead > tr > th div.minus_white:hover {
 table.Utils_GenericBrowser div.plus_green {
 	float: right;
 	margin-right: 5px;
-	width: 16px;
-	height: 16px;
+	width: 8px;
+	height: 8px;
 	background: url('Utils/GenericBrowser/plus_green.png');
 }
 table.Utils_GenericBrowser div.plus_green:hover {
@@ -261,8 +261,8 @@ table.Utils_GenericBrowser div.plus_green:hover {
 table.Utils_GenericBrowser div.minus_green {
 	float: right;
 	margin-right: 5px;
-	width: 16px;
-	height: 16px;
+	width: 8px;
+	height: 8px;
 	background: url('Utils/GenericBrowser/minus_green.png');
 }
 table.Utils_GenericBrowser div.minus_green:hover {
@@ -382,7 +382,7 @@ table.Utils_GenericBrowser__navigation img {
 /* add new attachment*/
 .attachment_add_new {
 	display: block;
-	width: 100%;
+	width: 80px;
 	height: 18px;
 	color: white;
 	padding: 6px 16px 8px 7px;
@@ -448,7 +448,7 @@ table.Utils_GenericBrowser__navigation img {
 }
 
 .letter_search_icon {
-	width: 85px;
+	width: 105px;
 	padding: 0px 7px 0 0px;
 	color: white;
 }
