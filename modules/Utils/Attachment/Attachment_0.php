@@ -160,6 +160,7 @@ class Utils_Attachment extends Module {
 
 		Base_ThemeCommon::load_css('Utils_Attachment','browse');
 		load_js('modules/Utils/Attachment/js/main.js');
+		eval_js('expandable_notes = new Array();');
 
 		while($row = $ret->FetchRow()) {
 			if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {

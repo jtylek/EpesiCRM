@@ -2,9 +2,10 @@ var expandable_notes = new Array();
 
 utils_attachment_expand = function(id) {
 	if($("note_"+id))
-	$("note_"+id).style.height = "";
-	$("utils_attachment_more_"+id).hide();
-	$("utils_attachment_less_"+id).show();
+		$("note_"+id).style.height = "";
+		$("utils_attachment_more_"+id).hide();
+		$("utils_attachment_less_"+id).show();
+	}
 };
 
 utils_attachment_expand_all = function() {
@@ -12,10 +13,11 @@ utils_attachment_expand_all = function() {
 };
 
 utils_attachment_collapse = function(id) {
-	if($("note_"+id))
-	$("note_"+id).style.height = "18px";
-	$("utils_attachment_more_"+id).show();
-	$("utils_attachment_less_"+id).hide();
+	if($("note_"+id)) {
+		$("note_"+id).style.height = "18px";
+		$("utils_attachment_more_"+id).show();
+		$("utils_attachment_less_"+id).hide();
+	}
 };
 
 utils_attachment_collapse_all = function() {
