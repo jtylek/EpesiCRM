@@ -37,15 +37,15 @@ class CRM_TasksCommon extends ModuleCommon {
 		}
 
 		$args=array(
-					'Task:'=>'<b>'.$r['title'].'</b>',
-					'Description:'=>$r['description'],
-					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
-					'Customers:'=> $customers,
-					'Status:'=>$status[$r['status']],
-					'Deadline:'=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set'),
-					'Longterm:'=>Base_LangCommon::ts('CRM_Tasks',$r['longterm']!=0?'Yes':'No'),
-					'Permission:'=>$access[$r['permission']],
-					'Priority:'=>$priority[$r['priority']],
+					'Task'=>'<b>'.$r['title'].'</b>',
+					'Description'=>$r['description'],
+					'Assigned to'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
+					'Customers'=> $customers,
+					'Status'=>$status[$r['status']],
+					'Deadline'=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set'),
+					'Longterm'=>Base_LangCommon::ts('CRM_Tasks',$r['longterm']!=0?'Yes':'No'),
+					'Permission'=>$access[$r['permission']],
+					'Priority'=>$priority[$r['priority']],
 					);
 		
 		$bg_color = '';
@@ -59,7 +59,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		// and the name of the group for translation
 		//return	Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks');
 
-		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks'));
+		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'Utils_RecordBrowser:task'));
 		if ($bg_color) $ret['row_attrs'] = 'style="background:'.$bg_color.';"';
 		return $ret;
 	}

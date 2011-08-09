@@ -1233,14 +1233,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     public static function applet_info_format($r){
         $args=array(
-                    'Work phone:'=>$r['work_phone'],
-                    'Mobile phone:'=>$r['mobile_phone'],
-                    'Home phone:'=>$r['home_phone'],
-                    'Fax:'=>$r['fax'],
-                    'E-mail:'=>$r['email']
+                    'Work phone'=>$r['work_phone'],
+                    'Mobile phone'=>$r['mobile_phone'],
+                    'Home phone'=>$r['home_phone'],
+                    'Fax'=>$r['fax'],
+                    'Email'=>$r['email']
                     );
 
-        $ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_Contacts'));
+        $ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'Utils_RecordBrowser:contact'));
         return $ret;
     }
 	

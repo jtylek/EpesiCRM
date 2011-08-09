@@ -83,15 +83,15 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 
 		$args=array(
-					'Meeting:'=>'<b>'.$r['title'].'</b>',
-					'Description:'=>$r['description'],
-					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
-					'Contacts:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default')),
-					'Status:'=>$status[$r['status']],
-					'Date:'=>$r['duration']>=0?Base_RegionalSettingsCommon::time2reg($r['date'].' '.date('H:i:s',strtotime($r['time']))):Base_RegionalSettingsCommon::time2reg($r['date'],false),
-					'Duration:'=>$r['duration']>=0?Base_RegionalSettingsCommon::seconds_to_words($r['duration']):'---',
-					'Permission:'=>$access[$r['permission']],
-					'Priority:'=>$priority[$r['priority']],
+					'Meeting'=>'<b>'.$r['title'].'</b>',
+					'Description'=>$r['description'],
+					'Assigned to'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
+					'Contacts'=>CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default')),
+					'Status'=>$status[$r['status']],
+					'Date'=>$r['duration']>=0?Base_RegionalSettingsCommon::time2reg($r['date'].' '.date('H:i:s',strtotime($r['time']))):Base_RegionalSettingsCommon::time2reg($r['date'],false),
+					'Duration'=>$r['duration']>=0?Base_RegionalSettingsCommon::seconds_to_words($r['duration']):'---',
+					'Permission'=>$access[$r['permission']],
+					'Priority'=>$priority[$r['priority']],
 					);
 		
 		$bg_color = '';
@@ -105,7 +105,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		// and the name of the group for translation
 		//return	Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks');
 
-		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_Meeting'));
+		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'Utils_RecordBrowser:crm_meeting'));
 		if ($bg_color) $ret['row_attrs'] = 'style="background:'.$bg_color.';"';
 		return $ret;
 	}

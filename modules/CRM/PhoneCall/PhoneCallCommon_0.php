@@ -56,15 +56,15 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 
 		$args=array(
-					'Call:'=>'<b>'.$phone.'</b>',
-					'Customer:'=>$customer,
-					'Subject:'=>'<b>'.$r['subject'].'</b>',
-					'Description:'=>$r['description'],
-					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
-					'Date and Time:'=>Base_RegionalSettingsCommon::time2reg($r['date_and_time']),
-					'Status:'=>$status[$r['status']],
-					'Permission:'=>$access[$r['permission']],
-					'Priority:'=>$priority[$r['priority']]
+					'Call'=>'<b>'.$phone.'</b>',
+					'Customer'=>$customer,
+					'Subject'=>'<b>'.$r['subject'].'</b>',
+					'Description'=>$r['description'],
+					'Assigned to'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
+					'Date and Time'=>Base_RegionalSettingsCommon::time2reg($r['date_and_time']),
+					'Status'=>$status[$r['status']],
+					'Permission'=>$access[$r['permission']],
+					'Priority'=>$priority[$r['priority']]
 					);
 
 		// Pass 2 arguments: array containing pairs: label/value
@@ -74,7 +74,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			case 1: $bg_color = '#FFFFD5'; break;
 			case 2: $bg_color = '#FFD5D5'; break;
 		}
-		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_PhoneCall'));
+		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'Utils_RecordBrowser:phonecall'));
 		if ($bg_color) $ret['row_attrs'] = 'style="background:'.$bg_color.';"';
 		return $ret;
 
