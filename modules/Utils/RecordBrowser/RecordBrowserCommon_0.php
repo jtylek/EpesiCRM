@@ -803,12 +803,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!$dont_notify && !empty($diff)) {
             DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array((($date==null)?date('Y-m-d G:i:s'):$date), Acl::get_user(), $id));
             $edit_id = DB::Insert_ID(''.$tab.'_edit_history','id');
-            Utils_WatchdogCommon::new_event($tab,$id,'E_'.$edit_id);
             foreach($diff as $k=>$v) {
                 if (!is_array($v)) $v = array($v);
                 foreach($v as $c)
                     DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, $k, $c));
             }
+            Utils_WatchdogCommon::new_event($tab,$id,'E_'.$edit_id);
         }
         DB::CompleteTrans();
     }

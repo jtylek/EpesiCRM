@@ -13,6 +13,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_WatchdogCommon extends ModuleCommon {
 	private static $log = true;
 
+	public static function user_settings() {
+		return array(
+			'Subscriptions'=>array(
+				array('name'=>'email', 'label'=>'Send e-mail on new events', 'type'=>'checkbox', 'default'=>false)
+			)
+		);
+	}
+
 	public static function applet_caption() {
 		return "Subscriptions";
 	}
@@ -85,12 +93,24 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$category_id = self::get_category_id($category_name, false);
 		if (!$category_id) return;
 		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message, event_time) VALUES (%d,%d,%s,%T)',array($category_id,$id,$message,time()));
+		$event_id = DB::Insert_ID('utils_watchdog_event', 'id');
 		Utils_WatchdogCommon::notified($category_name,$id);
 		$count = DB::GetOne('SELECT COUNT(*) FROM utils_watchdog_event WHERE category_id=%d AND internal_id=%d', array($category_id,$id));
 		if ($count==1) {
 			$subscribers = self::get_subscribers($category_id);
 			foreach ($subscribers as $s)
 				self::user_subscribe($s, $category_name, $id);
+		}
+		$mail_users = DB::GetAssoc('SELECT user_id, user_id FROM utils_watchdog_subscription AS uws INNER JOIN base_user_settings AS bus ON uws.user_id=bus.user_login_id AND category_id=%d AND internal_id=%s AND bus.module=%s AND bus.variable=%s AND bus.value=%s', array($category_id, $id, 'Utils_Watchdog', 'email', serialize('1')));
+
+		$email_data = self::display_events($category_id, array($event_id=>$message), $id);
+		foreach ($mail_users as $m) {
+				if ($m==Acl::get_user()) continue;
+				$contact = Utils_RecordBrowserCommon::get_id('contact', 'login', $m);
+				if (!$contact) continue;
+				$email = Utils_RecordBrowserCommon::get_value('contact', $contact, 'email');
+				if (!$email) continue;
+				Base_MailCommon::send($email,Base_LangCommon::ts('Utils_Watchdog', 'Epesi notification - %s - %s', array($email_data['category'], strip_tags($email_data['title']))),$email_data['events'], null, null, true);
 		}
 	}
 	// *************************** Subscription manipulation *******************
@@ -229,7 +249,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$method = explode('::', $method);
 		$data = call_user_func($method, $id, $changes);
 		if (!isset($data['events'])) return '';
-		return $data['events'];
+		return $data;
 	}
 	public static function get_change_subscription_icon($category_name, $id) {
 		$tag_id = 'watchdog_sub_button_'.$category_name.'_'.$id;
@@ -251,7 +271,8 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are subscribing this record. Click to unsubscribe.'));
 			} else {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','unsubscribe_small_new_events.png');
-				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are subscribing this record. Click to unsubscribe.<br>The following changes were made since the last time you were viewing this record:<br>%s',array(self::display_events($category_id, $last_seen, $id))));
+				$ev = self::display_events($category_id, $last_seen, $id);
+				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are subscribing this record. Click to unsubscribe.<br>The following changes were made since the last time you were viewing this record:<br>%s',array($ev['events'])));
 			}
 		}
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
