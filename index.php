@@ -155,7 +155,7 @@ Please choose epesi version:<ul>
   				/* all */
   				/*background-color: #e6ecf2;*/
   				background-color: white;
-				border: 2px solid #336699;
+				border: 5px solid #336699;
 				visibility: hidden;
 				width: 560px;
 				text-align: center;
@@ -165,9 +165,9 @@ Please choose epesi version:<ul>
 				overflow: hidden;
 				
 				/* css3 shadow border*/
-				-webkit-box-shadow: 1px 1px 5px black;
-				-moz-box-shadow: 1px 1px 5px black;
-				box-shadow: 1px 1px 5px black;
+				-webkit-box-shadow: 1px 1px 15px black;
+				-moz-box-shadow: 1px 1px 15px black;
+				box-shadow: 1px 1px 15px black;
 				/* end css3 shadow border*/
 				
 				/* border radius */

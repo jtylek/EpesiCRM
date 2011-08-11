@@ -9,11 +9,11 @@
 
 .Base_StatusBar {
 	z-index: 2001;
-	width: 300px;
+	width: 200px;
   	position: fixed;
 	left: 50%;
 	top: 30%;
-	margin-left: -150px;
+	margin-left: -110px;
 	text-align: center;
 	vertical-align: middle;
 }
@@ -27,7 +27,7 @@
 .Base_StatusBar table {
     width: 100%;
     font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-	font-size: 11px;
+	font-size: 14px;
 	font-weight: bold;
 	/*color: #339933;*/
 	color: #336699;
@@ -36,17 +36,19 @@
     border: 5px solid white;
     /*background-color: #cfe6cf;
     background-color: #e6f2e6;*/
-	background-color: #e6ecf2;
+	background-color: #bbe6c5;
 }
 
 .Base_StatusBar td.sb_image {
-	text-align: center;
+	text-align: right;
 	vertical-align: middle;
-    height: 20px;
+    height: 80px;
+	width:50px;
 }
 
 .Base_StatusBar td.sb_text {
 	text-align: center;
 	vertical-align: middle;
-    height: 30px;
+    height: auto;
+	width: auto;
 }

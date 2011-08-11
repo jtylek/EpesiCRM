@@ -5,7 +5,7 @@
                 <td valign="top">
                     <div id="panel">
 						{foreach item=i from=$icons}
-                        <div class="panel_div" style="float: left;">
+                        <div class="panel_div panel_div_left" style="float: left;">
                             <div class="icon">
                                 {$i.open}
 									{if $display_icon}

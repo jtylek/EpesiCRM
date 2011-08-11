@@ -36,7 +36,6 @@
 
 #Base_ActionBar table.ActionBar #panel {
 	height: 81px;
-	padding-left: 5px;
 	overflow: hidden;
 }
 
@@ -58,7 +57,7 @@
 
 }
 .panel_div {
-	margin: 3px 8px 0 0px;
+	margin: 3px 7px 0 0px;
 	background-color: white;
 	/* css3 shadow border*/
 	-webkit-box-shadow: 0px 0px 3px gray;
@@ -85,10 +84,20 @@
 	box-shadow: 0px 0px 10px #005100;
 	/* end css3 shadow border*/
 
-}	
+}
+
+.panel_div_left {
+	margin-left: 7px;
+}
 
 #launchpad_button_section .panel_div {
-	margin: 3px 5px 0 0px; }
+	margin-left: 2px;
+	width: 64px; 
+}
+
+#launchpad_button_section .panel_div .icon_td_text {
+	width: 57px !important;
+}
 	
 #Base_ActionBar table.ActionBar #panel div.icon a:hover {
 	color : #993333;

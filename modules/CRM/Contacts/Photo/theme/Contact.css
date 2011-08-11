@@ -143,3 +143,11 @@
 #CRM_Contacts__Contact .create-company input {
     width: auto;
 }
+
+#CRM_Contacts__Contact .photo img {
+	padding: 3px;
+	margin: 10px;
+	max-width:120px;
+	max-height:150px;
+	border: none;
+}

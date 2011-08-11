@@ -74,7 +74,7 @@
 
 <!-- SHADOW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 98%;">
-		<div class="content_shadow">
+		<div class="shadow_5px">
 <!-- -->
 
 <div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
@@ -137,8 +137,8 @@
 											<td colspan="2" class="data {$f.style}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 											{if $y==1 && isset($photo_link)}
 												<td rowspan="{$rows}" style="width:120px;">
-													<a {$photo_link}>
-														<img src="{$photo_src}" style="max-width:120px;max-height:150px;" border="0">
+													<a class="photo" {$photo_link}>
+														<img  class="shadow_5px_left" src="{$photo_src}" >
 													</a>
 												</td>
 											{/if}
@@ -214,19 +214,5 @@
 
 <!-- SHADOW END -->
  		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
 	</div>
 <!-- -->
