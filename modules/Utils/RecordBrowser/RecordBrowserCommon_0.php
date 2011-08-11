@@ -744,9 +744,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::add_recent_entry($tab, Acl::get_user(), $id);
         if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_fav'))
             DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
-        if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_subs'))
-            Utils_WatchdogCommon::subscribe($tab,$id);
-        Utils_WatchdogCommon::new_event($tab,$id,'C');
 		self::init($tab);
 		foreach(self::$table_rows as $field=>$args)
 			if ($args['type']==='multiselect') {
@@ -756,6 +753,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		$values['id'] = $id;
 		self::record_processing($tab, $values, 'added');
+
+        if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_subs'))
+            Utils_WatchdogCommon::subscribe($tab,$id);
+        Utils_WatchdogCommon::new_event($tab,$id,'C');
 
         return $id;
     }
@@ -1729,7 +1730,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach ($events as $v) {
                 $param = explode('_', $v);
                 switch ($param[0]) {
-                    case 'C':   $event_display = self::ts('<b>Record created by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($r['created_by']), Base_RegionalSettingsCommon::time2reg($r['created_on'])));
+                    case 'C':   $event_display = self::ts('Record created by %s, on %s', array('<b>'.Base_UserCommon::get_user_login($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
                                 break;
                     case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r['id'], $param[1] ,$details);
                                 break;
@@ -1987,10 +1988,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								if (isset($args[0])) {
 									if (is_array($args[0])) {
 										$cap = array();
-										foreach ($args[0] as $t) $cap[] = '<b>'.self::get_caption($t).'</b>';
+										foreach ($args[0] as $t) $cap[] = '<b>'.self::ts(self::get_caption($t)).'</b>';
 										$cap = implode(' '.self::ts('or').' ',$cap);
-									} $cap = '<b>'.self::get_caption($args[0]).'</b>';
-									$ret .= ' '.self::ts($cap);
+									} $cap = '<b>'.self::ts(self::get_caption($args[0])).'</b>';
+									$ret .= ' '.$cap;
 								}
 								if (isset($args[1])) {
 									$val = implode('<br>&nbsp;&nbsp;&nbsp;',self::crits_to_words($args[0], $args[1]));
