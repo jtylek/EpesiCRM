@@ -1456,6 +1456,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function create_new_record_href($tab, $def, $id='none', $check_defaults=true, $multiple_defaults=false){
         if($multiple_defaults) {
+            static $done = false;
+            if($done) return Libs_LeightboxCommon::get_open_href('actionbar_rb_new_record');
             eval_js_once('actionbar_rb_new_record_deactivate = function(){leightbox_deactivate(\'actionbar_rb_new_record\');}');
             $th = Base_ThemeCommon::init_smarty();
             $cds = array();
@@ -1471,6 +1473,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             Base_ThemeCommon::display_smarty($th,'Utils_RecordBrowser','new_record_leightbox');
             $panel = ob_get_clean();
             Libs_LeightboxCommon::display('actionbar_rb_new_record',$panel,self::ts('New record'));
+            $done = true;
             return Libs_LeightboxCommon::get_open_href('actionbar_rb_new_record');
         } else 
             return Module::create_href(self::get_new_record_href($tab,$def, $id, $check_defaults));
