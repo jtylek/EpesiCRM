@@ -25,7 +25,6 @@ class Utils_Attachment extends Module {
 	private $public_write = true;
 	private $author = true;
 
-	private $action_bar_button = false;
 	private $add_header = '';
 	private $max_file_size = null;
 
@@ -40,13 +39,12 @@ class Utils_Attachment extends Module {
 	private $add_func = null;
 	private $add_args = array();
 
-	public function construct($group=null,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null,$add_func=null,$add_args=null,$max_fs=null) {
+	public function construct($group=null,$pd=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null,$add_func=null,$add_args=null,$max_fs=null) {
 		$this->group = & $this->get_module_variable('group',isset($group)?$group:null);
 		$this->func = & $this->get_module_variable('func',isset($func)?$func:null);
 		$this->args = & $this->get_module_variable('args',isset($args)?$args:null);
 		
 		if(isset($pd)) $this->persistent_deletion = $pd;
-		if(isset($in)) $this->action_bar_button = $in;
 		if(isset($priv_r)) $this->private_read = $priv_r;
 		if(isset($priv_w)) $this->private_write = $priv_w;
 		if(isset($prot_r)) $this->protected_read = $prot_r;
@@ -77,10 +75,6 @@ class Utils_Attachment extends Module {
 	public function set_add_func($x, array $y=array()) {
 		$this->add_func = $x;
 		$this->add_args = $y;
-	}
-
-	public function action_bar_attach_file($x=true) {
-		$this->action_bar_button = $x;
 	}
 
 	public function set_persistent_delete($x=true) {
@@ -129,8 +123,7 @@ class Utils_Attachment extends Module {
 			$cols[] = array('name'=>$this->t('User'), 'order'=>'note_by','width'=>5);
 		if (is_array($this->group)) $cols[] = array('name'=>$this->t('Source'),'width'=>5, 'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>1,'wrapmode'=>'nowrap');
-		$expand_id = 'expand_collapse_'.md5($this->get_path());
-		$cols[] = array('name'=>$this->t('Note'), 'preppend'=>'<span class="GB_margin" id="'.$expand_id.'"></span>', 'width'=>70);
+		$cols[] = array('name'=>$this->t('Note'), 'width'=>70);
 		$cols[] = array('name'=>$this->t('Attachment'), 'order'=>'uaf.original','width'=>5);
 		$gb->set_table_columns($cols);
 
@@ -161,6 +154,8 @@ class Utils_Attachment extends Module {
 		Base_ThemeCommon::load_css('Utils_Attachment','browse');
 		load_js('modules/Utils/Attachment/js/main.js');
 		eval_js('expandable_notes = new Array();');
+		eval_js('expandable_notes_amount = 0;');
+		eval_js('expanded_notes = 0;');
 
 		while($row = $ret->FetchRow()) {
 			if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
@@ -218,10 +213,11 @@ class Utils_Attachment extends Module {
 		    }
 			
 			if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text;
-			$buttons = '<div id="note_buttons_'.$row['id'].'"><a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.'<div class="plus_green"></div>'.'</a>'.'<a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')" id="utils_attachment_less_'.$row['id'].'">'.'<div class="minus_green"></div>'.'</a>'.'</div>';
-			$text = '<div style="height:18px;" id="note_'.$row['id'].'" class="note_field">'.$text.$inline_img.'</div>'.$buttons;
 
-			eval_js('init_note_expandable('.$row['id'].');');
+			$r->add_action('style="dispaly:none;" href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_green.png'));
+			$r->add_action('style="dispaly:none;" href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')" id="utils_attachment_less_'.$row['id'].'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_green.png'));
+
+			$text = '<div style="height:18px;" id="note_'.$row['id'].'" class="note_field">'.$text.$inline_img.'</div>';
 
 			$regional_note_on = $note_on;
 			$arr = array();
@@ -242,27 +238,45 @@ class Utils_Attachment extends Module {
 			$arr[] = $text;
 			$arr[] = $file;
 			$r->add_data_array($arr);
+
+			eval_js('init_note_expandable('.$row['id'].');');
 		}
+		$button_theme = $this->init_module('Base_Theme');
 		if($this->public_write && !is_array($this->group)) {
-			if(!$this->action_bar_button) {
-				$href = $this->create_callback_href(array($this,'edit_note_queue'));
-				$custom_label = '<a class="attachment_add_new" '.$href.' '.Utils_TooltipCommon::open_tag_attrs($this->t('New note')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /><div class="attachment_div_add_new">'.$this->t('Add new').'</div></a>';
-				if(isset($_SESSION['attachment_copy'])) {
-					print('&nbsp;<a '.Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste')).'>'.$this->t('Paste note').'</a>');
-				}
-				if(Base_AclCommon::i_am_admin()) {
-					print('&nbsp;<input type="checkbox" '.($vd?'checked':'').' onChange="if(this.checked)'.$this->create_callback_href_js(array($this,'show_deleted'),array(true)).' else '.$this->create_callback_href_js(array($this,'show_deleted'),array(false)).'">'.$this->t('Show deleted notes').'</input>');
-				}
-				$gb->set_custom_label($custom_label);
-			} else {
-				Base_ActionBarCommon::add('folder','Attach note',$this->create_callback_href(array($this,'edit_note_queue')));
-				if(isset($_SESSION['attachment_copy'])) {
-					Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Paste note',$this->create_callback_href(array($this,'paste')),$_SESSION['attachment_copy']['text']);
-				}
+			$button_theme->assign('new_note',array(
+				'label'=>$this->t('New note'),
+				'href'=>$this->create_callback_href(array($this,'edit_note_queue'))
+			));
+
+			if(isset($_SESSION['attachment_copy'])) {
+				$button_theme->assign('paste',array(
+					'label'=>$this->t('Paste note'),
+					'href'=>Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste'))
+				));
+			}
+			if(Base_AclCommon::i_am_admin()) {
+				$button_theme->assign('show_deleted',array(
+					'label'=>$this->t('Show deleted notes'),
+					'default'=>($vd?'checked="1"':''),
+					'show'=>$this->create_callback_href_js(array($this,'show_deleted'),array(true)),
+					'hide'=>$this->create_callback_href_js(array($this,'show_deleted'),array(false))
+				));
 			}
 		}
 
-		eval_js('if(expandable_notes.length>0)$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_expand_all()\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Expand all')).'><div class="plus_white"></div></a> <a class="plus-minus" href="javascript:void(0)" onClick=\'utils_attachment_collapse_all()\' '.Utils_TooltipCommon::open_tag_attrs($this->t('Collapse all')).'><div class="minus_white"></div></a>').'\'');
+		$button_theme->assign('expand_collapse',array(
+			'e_label'=>$this->t('Expand All'),
+			'e_href'=>'href="javascript:void(0);" onClick=\'utils_attachment_expand_all()\'',
+			'e_id'=>'expand_all_button',
+			'c_label'=>$this->t('Collapse All'),
+			'c_href'=>'href="javascript:void(0);" onClick=\'utils_attachment_collapse_all()\'',
+			'c_id'=>'collapse_all_button'
+		));
+
+		$custom_label = $this->get_html_of_module($button_theme, array('browse'), 'display');
+		$gb->set_custom_label($custom_label, 'style="width:100%;"');
+
+		eval_js('utils_attachment_show_hide_buttons();');
 
 		$this->display_module($gb);
 	}
@@ -272,7 +286,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function view_queue($id) {
-		$this->push_box0('view',array($id),array($this->group,$this->persistent_deletion,$this->action_bar_button,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
+		$this->push_box0('view',array($id),array($this->group,$this->persistent_deletion,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 	
 	public function copy($id,$text) {
@@ -418,7 +432,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edition_history_queue($id) {
-		$this->push_box0('edition_history',array($id),array($this->group,$this->persistent_deletion,$this->action_bar_button,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
+		$this->push_box0('edition_history',array($id),array($this->group,$this->persistent_deletion,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 
 	public function edition_history($id) {
@@ -551,7 +565,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edit_note_queue($id=null) {
-		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->action_bar_button,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
+		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 
 	public function edit_note($id=null) {

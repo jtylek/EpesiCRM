@@ -123,6 +123,7 @@ class Utils_GenericBrowser extends Module {
 	private $forced_per_page = false;
 	private $offset;
 	private $custom_label = '';
+	private $custom_label_args = '';
 	private $table_prefix = '';
 	private $table_postfix = '';
 	private $absolute_width = false;
@@ -135,8 +136,9 @@ class Utils_GenericBrowser extends Module {
 			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',<construct args>, \'instance name here\');',E_USER_ERROR);
 	}
 
-	public function set_custom_label($arg){
+	public function set_custom_label($arg, $args=''){
 		$this->custom_label = $arg;
+		$this->custom_label_args = $args;
 	}
 
 	public function absolute_width($arg){
@@ -986,6 +988,7 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('next', $this->gb_next());
 		$theme->assign('last', $this->gb_last());
 		$theme->assign('custom_label', $this->custom_label);
+		$theme->assign('custom_label_args', $this->custom_label_args);
 
 		if ($search_on) $theme->assign('adv_search','<a class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?$this->t('Simple Search'):$this->t('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
 		else $theme->assign('adv_search','');

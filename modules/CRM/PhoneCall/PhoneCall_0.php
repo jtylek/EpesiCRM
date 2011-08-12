@@ -33,7 +33,6 @@ class CRM_PhoneCall extends Module {
 
 	public function phonecall_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array('phonecall/'.$arg['id']));
-		$a->action_bar_attach_file(false);
 		$a->enable_watchdog('phonecall',$arg['id']);
 		$a->set_view_func(array('CRM_PhoneCallCommon','search_format'),array($arg['id']));
 		$a->additional_header($this->t('Phone Call: %s',array($arg['subject'])));
