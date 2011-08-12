@@ -205,7 +205,7 @@ class Utils_Attachment extends Module {
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 
-			$text = $row['text'];
+			$text = trim(Utils_BBCodeCommon::parse($row['text']));
 
 			if(!isset($row['deleted']) || !$row['deleted']) {
         		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
