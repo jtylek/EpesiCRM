@@ -1,4 +1,4 @@
-/* Attachment header */
+/* Attachment header
 
 #Attachment_header {
     color: #FFFFFF;
@@ -37,7 +37,7 @@
 	padding: 3px;
 }
 
-/* download */
+
 
 table#Utils_Attachment__download .big-button {
 	background-color: #F0F0F0;
@@ -63,8 +63,9 @@ table#Utils_Attachment__download a .big-button {
 	font-weight: bold;
 }
 
-/* a */
+
 
 table#Utils_Attachment__download a:hover {
 	color: #993333;
 }
+*/

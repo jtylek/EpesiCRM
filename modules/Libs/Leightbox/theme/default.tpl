@@ -9,14 +9,14 @@
 				
                 <td class="left" >
 					<a class="launchpad_icon_resize" onClick="libs_leightbox_resize(this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode)">
-					<span class="launchpac_icon_resize_text">{$resize_label}</span>
+					<nobr><span class="launchpac_icon_resize_text">{$resize_label}</span></nobr>
 					</a>
 				</td>
 				
 				<td class="center">{$header}</td>
 				<td class="right">
 					<a class="launchpad_icon_close" {$close_href}>
-						<span class="launchpac_icon_close_text">{$close_label}</span>
+						<nobr><span class="launchpac_icon_close_text">{$close_label}</span></nobr>
 					</a>
 				</td>
 				
