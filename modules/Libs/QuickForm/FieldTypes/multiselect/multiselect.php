@@ -363,9 +363,8 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$this->_attributes['id'] = $myName . '__from';
 			$attrString = $this->_getAttrString($this->_attributes);
 			$attrArray = $this->getAttributes();
-			$leave_selected = isset($attrArray['leave_selected']) ? $attrArray['leave_selected'] : 0;
 			$fromElement = '';
-            $fromElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)add_selected_'.$mod.'();" ondblclick="add_selected_'.$mod.'()">'."\n";
+            $fromElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');" ondblclick="ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');">'."\n";
 //			print_r($this->_values);
 			if (isset($this->_values[0]) && preg_match('/'.addcslashes($this->list_sep,'/').'/i',$this->_values[0])) {
 		        $this->_values = explode($this->list_sep,$this->_values[0]);
@@ -376,7 +375,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
             	$this->keyhash[$i] = $this->_options[$k]['attr']['value'];
             	$kv = array_search($this->_options[$k]['attr']['value'], $this->_values);
             	$i++;
-				if ($leave_selected || !(is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)))
+				if (!(is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)))
                 	$fromElement .= $tabs . "\t<option " . $this->_getAttrString($this->_options[$k]['attr']) . ">" . $this->_options[$k]['text'] . "</option>\n";
             }
 			$fromElement .= $tabs . '</select>';
@@ -385,7 +384,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$this->setName($myName . 'to[]');
 			$this->_attributes['id'] = $myName . '__to';
 			$attrString = $this->_getAttrString($this->_attributes);
-			$toElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)remove_selected_'.$mod.'();" ondblclick="remove_selected_'.$mod.'();">'."\n";
+			$toElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');" ondblclick="ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');">'."\n";
 			$list = '';
 			foreach ($this->_options as $option) {
                 if (is_array($this->_values) && in_array((string)$option['attr']['value'], $this->_values)) {
@@ -396,181 +395,22 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$toElement .= $tabs . '</select>';
 
 			$buttons = array();
-			if ($leave_selected) {
-				eval_js('remove_selected_'.$mod.' = function(){'.
-									'tolist = document.getElementsByName(\''.$myName.'to[]\')[0];'.
-									'list = \'\';'.
-									'i=0;'.
-									'while (i!=tolist.options.length){'.
-									'	if (tolist.options[i].selected) '.
-									'		tolist.options[i] = null;'.
-									'	else {'.
-									'		list += \''.$this->list_sep.'\'+tolist.options[i].value;'.
-									'		i++;'.
-									'	}'.
-									'}'.
-									'document.getElementsByName(\''.$myName.'\')[0].value=list; '.
-									'}');
-				eval_js('add_selected_'.$mod.' = function() {'.
-									'tolist = document.getElementsByName(\''.$myName.'to[]\')[0];'.
-									'fromlist = document.getElementsByName(\''.$myName.'from[]\')[0];'.
-									'list = document.getElementsByName(\''.$myName.'\')[0].value; '.
-									'i=0;'.
-									'while (i!=fromlist.options.length){'.
-									'	if (fromlist.options[i].selected){ '.
-									'		j=0;'.
-									'		while (j != tolist.options.length){'.
-									'			if (tolist.options[j].value == fromlist.options[i].value) break;'.
-									'			j++;'.
-									'		}'.
-									'		if (j == tolist.options.length) {'.
-									'			tolist.options[j] = new Option(fromlist.options[i].text);'.
-									'			tolist.options[j].value = fromlist.options[i].value;'.
-									'			list += \''.$this->list_sep.'\'+tolist.options[j].value;'.
-									'		}'.
-									'	}'.
-									'	i++;'.
-									'}'.
-									'document.getElementsByName(\''.$myName.'\')[0].value=list; '.
-									'}');
-				$buttons['remove_all'] = '<input align=center type=button value="<<" onclick="'.
-									'tolist = this.form[\''.$myName.'to[]\']; '.
-									'this.form[\''.$myName.'\'].value = \'\'; '.
-									'while (tolist.options.length!=0)'.
-									'	tolist.options[0] = null;'.
-									'"/></td>';
-				$buttons['remove_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__from\');" type=button value="<" onclick="'.
-									'remove_selected_'.$mod.'();'.
-									'"/>';
-				$buttons['add_selected'] = '<input onFocus="focus_by_id(\''.$myName.'_to\');" type=button value=">" onclick="'.
-									'add_selected_'.$mod.'();'.
-									'"/>';
-				$buttons['add_all'] = '<input type=button value=">>" onclick="'.
-									'tolist = this.form[\''.$myName.'to[]\']; '.
-									'fromlist = this.form[\''.$myName.'from[]\'];'.
-									'list = \'\'; '.
-									'while (tolist.options.length!=0)'.
-									'	tolist.options[0] = null;'.
-									'for (i = 0; i < fromlist.options.length; i++) {'.
-									'	tolist.options[i] = new Option(fromlist.options[i].text);'.
-									'	tolist.options[i].value = fromlist.options[i].value;'.
-									'	list += \''.$this->list_sep.'\'+tolist.options[i].value;'.
-									'}'.
-									'this.form[\''.$myName.'\'].value=list; '.
-									'"/>';
-			} else {
-				eval_js('remove_selected_'.$mod.' = function(){'.
-									'tolist = document.getElementsByName(\''.$myName.'to[]\')[0];'.
-									'fromlist = document.getElementsByName(\''.$myName.'from[]\')[0];'.
-									'list = \'\';'.
-									'k = 0;'.
-									'i = 0;'.
-									'while (k!=tolist.options.length) {'.
-									'	if (tolist.options[k].selected) {'.
-									'		while (i!=fromlist.options.length && fromlist.options[i].value<tolist.options[k].value) i++;'.
-									'		jj = fromlist.length;'.
-									'		fromlist.options[jj] = new Option();'.
-									'		for( j = jj; j > i; j-- ) {'.
-									'			fromlist.options[j].text = fromlist.options[j-1].text;'.
-									'			fromlist.options[j].value = fromlist.options[j-1].value;'.
-									'		}'.
-									'		fromlist.options[i].value = tolist.options[k].value;'.
-									'		fromlist.options[i].text = tolist.options[k].text;'.
-									' 	} else {'.
-									'		list += \''.$this->list_sep.'\'+tolist.options[k].value;'.
-									'	}'.
-									'	k++;'.
-									'}'.
-									'for(i = (tolist.length-1); i >= 0; i--) {'.
-									'	if(tolist.options[i].selected == true) {'.
-									'		tolist.options[i] = null;'.
-									'	}'.
-									'}'.
-									'document.getElementsByName(\''.$myName.'\')[0].value=list;'.
-									'}');
-				eval_js('add_selected_'.$mod.' = function(){ '.
-									'tolist = document.getElementsByName(\''.$myName.'to[]\')[0];'.
-									'fromlist = document.getElementsByName(\''.$myName.'from[]\')[0];'.
-									'list = \'\';'.
-									'k = 0;'.
-									'i = 0;'.
-									'while (k!=fromlist.length) {'.
-									'	if (fromlist.options[k].selected) {'.
-									'		while(i < tolist.length && tolist.options[i].value<fromlist.options[k].value) i++;'.
-									'		jj = tolist.length;'.
-									'		tolist.options[jj] = new Option();'.
-									'		for( j = jj; j > i; j-- ) {'.
-									'			tolist.options[j].value = tolist.options[j-1].value;'.
-									'			tolist.options[j].text = tolist.options[j-1].text;'.
-									'		}'.
-									'		tolist.options[i].value = fromlist.options[k].value;'.
-									'		tolist.options[i].text = fromlist.options[k].text;'.
-									' 	} k++;'.
-									'}'.
-									'for(i = (fromlist.length-1); i >= 0; i--) {'.
-									'	if(fromlist.options[i].selected == true) {'.
-									'		fromlist.options[i] = null;'.
-									'	}'.
-									'}'.
-									'k = 0;'.
-									'while (k!=tolist.length) { list += \''.$this->list_sep.'\'+tolist.options[k].value; k++; }'.
-									'document.getElementsByName(\''.$myName.'\')[0].value=list; '.
-									'}');
-				$buttons['remove_all'] = '<input id="'.$myName.'__remove_all" align=center type=button value="<<" onclick="'.
-									'tolist = document.getElementsByName(\''.$myName.'to[]\')[0];'.
-									'fromlist = document.getElementsByName(\''.$myName.'from[]\')[0];'.
-									'list = \'\';'.
-									'k = 0;'.
-									'i = 0;'.
-									'while (k!=tolist.options.length) {'.
-									'	while (i!=fromlist.options.length && fromlist.options[i].value<tolist.options[k].value) i++;'.
-									'	jj = fromlist.length;'.
-									'	fromlist.options[jj] = new Option();'.
-									'	for( j = jj; j > i; j-- ) {'.
-									'		fromlist.options[j].text = fromlist.options[j-1].text;'.
-									'		fromlist.options[j].value = fromlist.options[j-1].value;'.
-									'	}'.
-									'	fromlist.options[i].value = tolist.options[k].value;'.
-									'	fromlist.options[i].text = tolist.options[k].text;'.
-									'	k++;'.
-									'}'.
-									'for(i = (tolist.length-1); i >= 0; i--) {'.
-									'	tolist.options[i] = null;'.
-									'}'.
-									'document.getElementsByName(\''.$myName.'\')[0].value=list;'.
-									'"/>';
-				$buttons['remove_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__from\');" id="'.$myName.'__remove_selected" type=button value="<" onclick="'.
-									'remove_selected_'.$mod.'();'.
-									'"/>';
-				$buttons['add_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__to\');" id="'.$myName.'__add_selected" type=button value=">" onclick="'.
-									'add_selected_'.$mod.'();'.
-									'"/>';
-				$buttons['add_all'] = '<input id="'.$myName.'__add_all" type=button value=">>" onclick="'.
-									'tolist = document.getElementsByName(\''.$myName.'to[]\')[0];'.
-									'fromlist = document.getElementsByName(\''.$myName.'from[]\')[0];'.
-									'list = \'\';'.
-									'k = 0;'.
-									'i = 0;'.
-									'while (k!=fromlist.length) {'.
-									'	while(i < tolist.length && tolist.options[i].value<fromlist.options[k].value) i++;'.
-									'	jj = tolist.length;'.
-									'	tolist.options[jj] = new Option();'.
-									'	for( j = jj; j > i; j-- ) {'.
-									'		tolist.options[j].value = tolist.options[j-1].value;'.
-									'		tolist.options[j].text = tolist.options[j-1].text;'.
-									'	}'.
-									'	tolist.options[i].value = fromlist.options[k].value;'.
-									'	tolist.options[i].text = fromlist.options[k].text;'.
-									' 	k++;'.
-									'}'.
-									'for(i = (fromlist.length-1); i >= 0; i--) {'.
-									'	fromlist.options[i] = null;'.
-									'}'.
-									'k = 0;'.
-									'while (k!=tolist.length) { list += \''.$this->list_sep.'\'+tolist.options[k].value; k++; }'.
-									'document.getElementsByName(\''.$myName.'\')[0].value=list; '.
-									'"/>';
-			}
+			
+			load_js('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.js');
+			
+			$buttons['add_all'] = '<input id="'.$myName.'__add_all" type=button value=">>" onclick="'.
+								'ms_add_all(\''.$myName.'\', \''.$this->list_sep.'\');'.
+								'"/>';
+			$buttons['remove_all'] = '<input id="'.$myName.'__remove_all" align=center type=button value="<<" onclick="'.
+								'ms_remove_all(\''.$myName.'\', \''.$this->list_sep.'\');'.
+								'"/>';
+			$buttons['remove_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__from\');" id="'.$myName.'__remove_selected" type=button value="<" onclick="'.
+								'ms_remove_selected(\''.$myName.'\', \''.$this->list_sep.'\');'.
+								'"/>';
+			$buttons['add_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__to\');" id="'.$myName.'__add_selected" type=button value=">" onclick="'.
+								'ms_add_selected(\''.$myName.'\', \''.$this->list_sep.'\');'.
+								'"/>';
+
 			$strHtml .= $tabs . '<table id="multiselect">';
             $strHtml .= $tabs . '<tr><td class="form-element">' . $fromElement . '</td>';
 
