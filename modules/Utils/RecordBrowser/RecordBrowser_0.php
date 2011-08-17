@@ -1070,12 +1070,6 @@ class Utils_RecordBrowser extends Module {
         if($mode!='add')
             Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
 
-		if ($mode=='view') {
-			$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $this->record, 'display');
-			if ($dp && is_array($dp))
-				foreach ($dp as $k=>$v)
-					$theme->assign($k, $v);
-		}
 		$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $mode!='add'?$this->record:$this->custom_defaults, ($mode=='view' || $mode=='history')?'view':$mode.'ing');
 		if (is_array($dp))
 			$defaults = $this->custom_defaults = self::$last_record = $this->record = $dp;
@@ -1218,6 +1212,14 @@ class Utils_RecordBrowser extends Module {
 				}
 			}
         }
+
+	if ($mode=='view') {
+		$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $this->record, 'display');
+		if ($dp && is_array($dp))
+			foreach ($dp as $k=>$v)
+				$theme->assign($k, $v);
+	}
+
         if ($mode=='view' || $mode=='history') $form->freeze();
         $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
         $form->accept($renderer);
