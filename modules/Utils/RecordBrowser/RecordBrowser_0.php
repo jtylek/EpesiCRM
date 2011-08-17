@@ -2003,7 +2003,6 @@ class Utils_RecordBrowser extends Module {
         $gb_cha->set_table_columns( $table_columns_changes );
 
         $created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
-        $created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
         $field_hash = array();
         foreach($this->table_rows as $field => $args)
             $field_hash[$args['id']] = $field;
@@ -2065,7 +2064,6 @@ class Utils_RecordBrowser extends Module {
 
         $created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
         $access = $this->get_access('view', $created);
-        $created['created_by_login'] = Utils_RecordBrowserCommon::get_user_label($created['created_by']);
         $field_hash = array();
         $edited = DB::GetRow('SELECT ul.login, c.edited_on FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
         foreach($this->table_rows as $field => $args)
@@ -2073,9 +2071,11 @@ class Utils_RecordBrowser extends Module {
 
         $ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC, id DESC',array($id));
 		$dates_select = array();
+		$tb_path = escapeJS($tb->get_path());
         while ($row = $ret->FetchRow()) {
 			$user = Utils_RecordBrowserCommon::get_user_label($row['edited_by']);
-			$dates_select[$row['edited_on']] = Base_RegionalSettingsCommon::time2reg($row['edited_on']);
+			$date_and_time = Base_RegionalSettingsCommon::time2reg($row['edited_on']);
+			$dates_select[$row['edited_on']] = $date_and_time;
             $changed = array();
             $ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
             while($row2 = $ret2->FetchRow()) {
@@ -2084,18 +2084,23 @@ class Utils_RecordBrowser extends Module {
                 $last_row = $row2;
             }
             foreach($changed as $k=>$v) {
-                if ($k=='id') $gb_cha->add_row($row['edited_on'], $row['edited_by']!==null?Base_UserCommon::get_user_login($row['edited_by']):'', '<b>'.$last_row['old_value'].'</b>', '', '');
-                else {
+                if ($k=='id') {
+					$gb_cha->add_row(
+						$date_and_time, 
+						$user, 
+						array('value'=>$this->t($last_row['old_value']), 'attrs'=>'colspan="3" style="text-align:center;font-weight:bold;"'),
+						'', 
+						'');
+                } else {
                     if (!isset($field_hash[$k])) continue;
                     $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
                     if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
                     $created[$k] = $v;
                     $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
 					$gb_row = $gb_cha->get_new_row();
-					$tb_path = escapeJS($tb->get_path());
 					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
                     $gb_row->add_data(
-                        Base_RegionalSettingsCommon::time2reg($row['edited_on']),
+                        $date_and_time,
                         $row['edited_by']!==null?$user:'',
                         $this->ts($field_hash[$k]), // TRSL
                         $old,
@@ -2104,6 +2109,16 @@ class Utils_RecordBrowser extends Module {
                 }
             }
         }
+
+		$gb_row = $gb_cha->get_new_row();
+		$gb_row->add_data(
+			Base_RegionalSettingsCommon::time2reg($created['created_on']),
+			$created['created_by']!==null?Utils_RecordBrowserCommon::get_user_label($created['created_by']):'',
+			array('value'=>$this->t('RECORD CREATED'), 'attrs'=>'colspan="3" style="text-align:center;font-weight:bold;"'),
+			null,
+			null
+		);
+
 
 //		$tb->set_tab($this->t('Record historical view'), array($this, 'record_historical_view'), array($created, $access, $form, $dates_select), true);
 		$tb->start_tab($this->t('Changes History'));
