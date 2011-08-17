@@ -228,47 +228,7 @@ table.Utils_GenericBrowser > thead > tr > th a:hover {
 	margin-top: 5px;
 	background: none !important;
 }
-/* plus minus - white */
-table.Utils_GenericBrowser > thead > tr > th div.plus_white {
-	width: 8px;
-	height: 8px;
-	background: url('Utils/GenericBrowser/plus_white.png');
-}
-table.Utils_GenericBrowser > thead > tr > th div.plus_white:hover {
-	background: url('Utils/GenericBrowser/plus_white2.png');
-}
-table.Utils_GenericBrowser > thead > tr > th div.minus_white {
-	width: 8px;
-	height: 8px;
-	background: url('Utils/GenericBrowser/minus_white.png');
-}
-table.Utils_GenericBrowser > thead > tr > th div.minus_white:hover {
-	background: url('Utils/GenericBrowser/minus_white2.png');
-}
-/* plus minus - white */
 
-/* plus minus - green */
-table.Utils_GenericBrowser div.plus_green {
-	float: right;
-	margin-right: 5px;
-	width: 8px;
-	height: 8px;
-	background: url('Utils/GenericBrowser/plus_green.png');
-}
-table.Utils_GenericBrowser div.plus_green:hover {
-	background: url('Utils/GenericBrowser/plus_green2.png');
-}
-table.Utils_GenericBrowser div.minus_green {
-	float: right;
-	margin-right: 5px;
-	width: 8px;
-	height: 8px;
-	background: url('Utils/GenericBrowser/minus_green.png');
-}
-table.Utils_GenericBrowser div.minus_green:hover {
-	background: url('Utils/GenericBrowser/minus_green2.png');
-}
-/* end plus minus - green */
 
 
 table.Utils_GenericBrowser > thead > tr > th input {

@@ -8,14 +8,14 @@
 			</a>
 		</td>
 		<td style="width:1px;" id="{$expand_collapse.e_id}">
-			<a class="attachment_add_new" {$expand_collapse.e_href}><img border="0" src="{$theme_dir}/Base/ActionBar/icons/add-small.png" />
+			<a class="attachment_add_new" {$expand_collapse.e_href}><img border="0" src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
 				<div class="attachment_div_add_new">
 					{$expand_collapse.e_label}
 				</div>
 			</a>
 		</td>
 		<td style="width:1px;display:none;" id="{$expand_collapse.c_id}">
-			<a class="attachment_add_new" {$expand_collapse.c_href}><img border="0" src="{$theme_dir}/Base/ActionBar/icons/add-small.png" />
+			<a class="attachment_add_new" {$expand_collapse.c_href}><img border="0" src="{$theme_dir}/Base/ActionBar/icons/collapse_big.png" />
 				<div class="attachment_div_add_new">
 					{$expand_collapse.c_label}
 				</div>

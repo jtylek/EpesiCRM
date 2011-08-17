@@ -164,10 +164,10 @@ class Utils_Attachment extends Module {
 		eval_js('expandable_notes_amount = 0;');
 		eval_js('expanded_notes = 0;');
 
-		eval_js('notes_expand_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_green.png').'";');
-		eval_js('notes_collapse_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_green.png').'";');
-		eval_js('notes_expand_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png').'";');
-		eval_js('notes_collapse_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png').'";');
+		eval_js('notes_expand_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand.gif').'";');
+		eval_js('notes_collapse_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse.gif').'";');
+		eval_js('notes_expand_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand_gray.gif').'";');
+		eval_js('notes_collapse_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse_gray.gif').'";');
 
 		while($row = $ret->FetchRow()) {
 			if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
