@@ -1353,12 +1353,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_numeric($id)) $info = Utils_RecordBrowserCommon::get_record_info($tab, $id);
         else $info = $id;
         if (isset($info['id'])) $id = $info['id'];
-        // If CRM Contacts module is installed get user contact
-        if (ModuleManager::is_installed('CRM_Contacts')>=0)
-            return CRM_ContactsCommon::get_html_record_info($info['created_by'],$info['created_on'],$info['edited_by'],$info['edited_on'], $id);
 
         // If CRM Module is not installed get user login only
-        $created_by = Base_UserCommon::get_user_login($info['created_by']);
+        $created_by = self::get_user_label($info['created_by']);
         $htmlinfo=array(
                     'Record ID:'=>$id,
                     'Created by:'=>$created_by,
@@ -1366,7 +1363,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         );
         if ($info['edited_on']!==null) {
             $htmlinfo=$htmlinfo+array(
-                    'Edited by:'=>$info['edited_by']!==null?Base_UserCommon::get_user_login($info['edited_by']):'',
+                    'Edited by:'=>$info['edited_by']!==null?self::get_user_label($info['edited_by']):'',
                     'Edited on:'=>Base_RegionalSettingsCommon::time2reg($info['edited_on'])
                         );
         }
@@ -1675,7 +1672,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$event_display = 'Error, Invalid event: '.$edit_id;
 		if (!$edit_info) return $event_display;
 
-		$event_display = self::ts('Record edited by %s, on %s', array($edit_info['edited_by']!==null?'<b>'.Base_UserCommon::get_user_login($edit_info['edited_by']).'</b>':'', '<b>'.Base_RegionalSettingsCommon::time2reg($edit_info['edited_on']).'</b>'));
+		$event_display = self::ts('Record edited by %s, on %s', array($edit_info['edited_by']!==null?'<b>'.self::get_user_label($edit_info['edited_by']).'</b>':'', '<b>'.Base_RegionalSettingsCommon::time2reg($edit_info['edited_on']).'</b>'));
 		if (!$details) return $event_display;
 		$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($edit_id));
 		$event_display .= '<table border="0"><tr><td><b>'.self::ts('Field').'</b></td><td><b>'.self::ts('Old value').'</b></td><td><b>'.self::ts('New value').'</b></td></tr>';
@@ -1730,7 +1727,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach ($events as $v) {
                 $param = explode('_', $v);
                 switch ($param[0]) {
-                    case 'C':   $event_display = self::ts('Record created by %s, on %s', array('<b>'.Base_UserCommon::get_user_login($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
+                    case 'C':   $event_display = self::ts('Record created by %s, on %s', array('<b>'.self::get_user_label($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
                                 break;
                     case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r['id'], $param[1] ,$details);
                                 break;
