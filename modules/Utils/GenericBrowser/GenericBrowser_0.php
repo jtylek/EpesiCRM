@@ -70,8 +70,8 @@ class Utils_GenericBrowser_Row_Object {
 	 * @param string href
 	 * @param string label
 	 */
-	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null){
-		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,$tooltip,$icon);
+	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null,$off=false){
+		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,$tooltip,$icon,$off);
 	}
 
 	/**
@@ -231,10 +231,10 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon) {
+	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$off=false) {
 		if (!isset($icon)) $icon = strtolower(trim($label));
 		if ($label==strip_tags($label)) $label = $this->t($label);
-		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip);
+		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip, 'off'=>$off);
 		$this->en_actions = true;
 	}
 
@@ -912,7 +912,7 @@ class Utils_GenericBrowser extends Module {
 					foreach($this->actions[$i] as $icon=>$arr) {
 						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
 					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print') {
-							$actions .= '<img src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser',$icon.'.png').'" border="0" width="14" height="14">';
+							$actions .= '<img src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser',$icon.($arr['off']?'-off':'').'.png').'" border="0" width="14" height="14">';
 					    } elseif(file_exists($icon)) {
 							$actions .= '<img src="'.$icon.'" border="0" width="14" height="14">';
 					    } else {

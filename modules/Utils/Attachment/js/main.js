@@ -8,7 +8,7 @@ utils_attachment_show_hide_buttons = function () {
 		$("collapse_all_button").hide();
 		return;
 	}	
-	if (expanded_notes==expandable_notes_amount) {
+	if (expanded_notes>=expandable_notes_amount) {
 		$("expand_all_button").hide();
 		$("collapse_all_button").show();
 	} else {
@@ -22,7 +22,8 @@ utils_attachment_expand = function(id) {
 		$("note_"+id).style.height = "";
 		$("utils_attachment_more_"+id).hide();
 		$("utils_attachment_less_"+id).show();
-		expanded_notes++;
+		if (expandable_notes[id])
+			expanded_notes++;
 	}
 	utils_attachment_show_hide_buttons();
 };
@@ -38,7 +39,8 @@ utils_attachment_collapse = function(id) {
 		$("note_"+id).style.height = "18px";
 		$("utils_attachment_more_"+id).show();
 		$("utils_attachment_less_"+id).hide();
-		expanded_notes--;
+		if (expandable_notes[id])
+			expanded_notes--;
 	}
 	utils_attachment_show_hide_buttons();
 };
@@ -54,12 +56,16 @@ init_note_expandable = function(id, skipTimed) {
 	if (el.clientHeight<el.scrollHeight) {
 		$("utils_attachment_less_"+id).hide();
 		$("utils_attachment_more_"+id).show();
+		$("utils_attachment_less_"+id).childNodes[0].src = notes_collapse_icon;
+		$("utils_attachment_more_"+id).childNodes[0].src = notes_expand_icon;
 		expandable_notes[id] = id;
 		expandable_notes_amount++;
 		utils_attachment_show_hide_buttons();
 	} else {
-		$("utils_attachment_more_"+id).hide();
 		$("utils_attachment_less_"+id).hide();
+		$("utils_attachment_more_"+id).show();
+		$("utils_attachment_less_"+id).childNodes[0].src = notes_collapse_icon_off;
+		$("utils_attachment_more_"+id).childNodes[0].src = notes_expand_icon_off;
 		if (!skipTimed) {
 			setTimeout('init_note_expandable('+id+', 1);', 500);
 		}

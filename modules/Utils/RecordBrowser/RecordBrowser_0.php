@@ -866,15 +866,19 @@ class Utils_RecordBrowser extends Module {
                 else $da = array_flip($this->disabled['actions']);
                 if (!$special) {
                     if (!isset($da['view'])) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view', $row['id'])),'View');
+					else $gb_row->add_action('','View',$this->t('You don\'t have permission to view this record'),null,true);
                     if (!isset($da['edit']) && $this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),'Edit');
+					else $gb_row->add_action('','Edit',$this->t('You don\'t have permission to edit this record'),null,true);
                     if ($admin) {
                         if (!$row[':active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),'Activate', null, 'active-off');
                         else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),'Deactivate', null, 'active-on');
                         $info = Utils_RecordBrowserCommon::get_record_info($this->tab, $row['id']);
                         if ($info['edited_on']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
                         else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $row['id'])),'View edit history',null,'history');
-                    } else
-                    if (!isset($da['delete']) && $this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),'Delete');
+                    } else {
+						if (!isset($da['delete']) && $this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),'Delete');
+						else $gb_row->add_action('','Delete',$this->t('You don\'t have permission to delete this record'),null,true);
+					}
                 }
                 if (!isset($da['info'])) $gb_row->add_info(($this->browse_mode=='recent'?'<b>'.$this->t('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
                 if ($this->additional_actions_method!==null && is_callable($this->additional_actions_method))
