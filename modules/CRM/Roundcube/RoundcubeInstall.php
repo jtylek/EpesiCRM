@@ -157,6 +157,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::set_caption('rc_mails', 'Mails');
         Utils_RecordBrowserCommon::set_access_callback('rc_mails', array('CRM_RoundcubeCommon', 'access_mails'));
         Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', 'Attachments');
+		Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'mails'));
 
         $fields = array(
             array(
