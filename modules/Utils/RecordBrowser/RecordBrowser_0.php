@@ -2089,8 +2089,9 @@ class Utils_RecordBrowser extends Module {
 						$date_and_time, 
 						$user, 
 						array('value'=>$this->t($last_row['old_value']), 'attrs'=>'colspan="3" style="text-align:center;font-weight:bold;"'),
-						'', 
-						'');
+						array('value'=>'', 'dummy'=>true),
+						array('value'=>'', 'dummy'=>true)
+					);
                 } else {
                     if (!isset($field_hash[$k])) continue;
                     $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
@@ -2115,8 +2116,8 @@ class Utils_RecordBrowser extends Module {
 			Base_RegionalSettingsCommon::time2reg($created['created_on']),
 			$created['created_by']!==null?Utils_RecordBrowserCommon::get_user_label($created['created_by']):'',
 			array('value'=>$this->t('RECORD CREATED'), 'attrs'=>'colspan="3" style="text-align:center;font-weight:bold;"'),
-			null,
-			null
+			array('value'=>'', 'dummy'=>true),
+			array('value'=>'', 'dummy'=>true)
 		);
 
 
