@@ -276,8 +276,6 @@ class Utils_Attachment extends Module {
 		$custom_label = $this->get_html_of_module($button_theme, array('browse'), 'display');
 		$gb->set_custom_label($custom_label, 'style="width:100%;"');
 
-		eval_js('utils_attachment_show_hide_buttons();');
-
 		$this->display_module($gb);
 	}
 	

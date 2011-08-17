@@ -49,15 +49,19 @@ utils_attachment_collapse_all = function() {
 	utils_attachment_show_hide_buttons();
 };
 
-init_note_expandable = function(id) {
+init_note_expandable = function(id, skipTimed) {
 	var el = $("note_"+id);
 	if (el.clientHeight<el.scrollHeight) {
 		$("utils_attachment_less_"+id).hide();
 		$("utils_attachment_more_"+id).show();
 		expandable_notes[id] = id;
 		expandable_notes_amount++;
+		utils_attachment_show_hide_buttons();
 	} else {
 		$("utils_attachment_more_"+id).hide();
 		$("utils_attachment_less_"+id).hide();
+		if (!skipTimed) {
+			setTimeout('init_note_expandable('+id+', 1);', 500);
+		}
 	}
 };
