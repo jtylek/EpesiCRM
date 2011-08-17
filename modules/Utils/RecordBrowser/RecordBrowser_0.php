@@ -857,8 +857,6 @@ class Utils_RecordBrowser extends Module {
 				}
                 $row_data[] = $value;
             }
-//          if ($this->browse_mode == 'recent')
-//              $row_data[] = $row['visited_on'];
 
             $gb_row->add_data_array($row_data);
             if (!$pdf && $this->disabled['actions']!==true) {
@@ -2034,7 +2032,7 @@ class Utils_RecordBrowser extends Module {
 //              $gb_row->add_action('href="javascript:apply_changes_to_'.$k.'()"', 'Apply', null, 'apply');
                 $gb_row->add_data(
                     Base_RegionalSettingsCommon::time2reg($row['edited_on']),
-                    $row['edited_by']!==null?Base_UserCommon::get_user_login($row['edited_by']):'',
+                    $row['edited_by']!==null?Utils_RecordBrowserCommon::get_user_label($row['edited_by']):'',
                     $field_hash[$k],
                     $old,
                     $new

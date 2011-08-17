@@ -102,6 +102,13 @@ class Utils_Attachment extends Module {
 	public function display_author_column($x=true) {
 		$this->author = $x;
 	}
+	
+	public function get_user_label($uid) {
+        if (ModuleManager::is_installed('CRM_Contacts')>=0)
+			return CRM_ContactsCommon::get_user_label($uid);
+		else
+			Base_UserCommon::get_user_login($uid);
+	}
 
 	public function body($arg=null, $rb=null) {
 		if(isset($arg) && isset($rb)) {
@@ -120,7 +127,7 @@ class Utils_Attachment extends Module {
 		if($vd)
 			$cols[] = array('name'=>$this->t('Deleted'),'order'=>'ual.deleted','width'=>5);
 		if($this->author)
-			$cols[] = array('name'=>$this->t('User'), 'order'=>'note_by','width'=>5);
+			$cols[] = array('name'=>$this->t('User'), 'order'=>'note_by','width'=>5, 'wrapmode'=>'nowrap');
 		if (is_array($this->group)) $cols[] = array('name'=>$this->t('Source'),'width'=>5, 'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>1,'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Note'), 'width'=>70);
@@ -138,10 +145,10 @@ class Utils_Attachment extends Module {
 			}
 		}
 		if($vd) {
-			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by, ual.func AS search_func, ual.args AS search_func_args FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)';
+			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by, ual.func AS search_func, ual.args AS search_func_args FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)';
 			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual WHERE (false OR ual.local='.$group.')';
 		} else {
-			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by, ual.func AS search_func, ual.args AS search_func_args FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0';
+			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by, ual.func AS search_func, ual.args AS search_func_args FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0';
 			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual WHERE (false OR ual.local='.$group.') AND ual.deleted=0';
 		}
 		$gb->set_default_order(array($this->t('Date')=>'DESC'));
@@ -175,7 +182,7 @@ class Utils_Attachment extends Module {
 			if($row['original']!=='') {
 				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 				if(file_exists($f_filename)) {
-					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
+					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($this->get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 					$view_link = '';
 					$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
 					if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
@@ -194,7 +201,7 @@ class Utils_Attachment extends Module {
 			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
 			$info = $this->t('Owner: %s',array($row['permission_owner'])).'<br>'.
 				$this->t('Permission: %s',array($perm)).'<hr>'.
-				$this->t('Last edited by %s<br>on %s<br>Number of edits: %d',array($row['note_by'],$note_on_time,$row['note_revision']));
+				$this->t('Last edited by %s<br>on %s<br>Number of edits: %d',array($this->get_user_label($row['note_by']),$note_on_time,$row['note_revision']));
 			$r->add_info($info);
 			if(Base_AclCommon::i_am_admin() ||
 			 	$row['permission_by']==Acl::get_user() ||
@@ -229,7 +236,7 @@ class Utils_Attachment extends Module {
 			if($vd)
 				$arr[] = ($row['deleted']?'<a '.$this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),array($row['id'])).' '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to restore')).'>'.$this->t('yes').'</a>':$this->t('no'));
 			if($this->author)
-				$arr[] = $row['note_by'];
+				$arr[] = $this->get_user_label($row['note_by']);
 			if (is_array($this->group)) {
 				$callback = unserialize($row['search_func']);
 				if (is_callable($callback)) {
@@ -302,7 +309,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function paste() {
-		$oryg = DB::GetRow('SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE '.Utils_AttachmentCommon::get_where($_SESSION['attachment_copy']['group'],false).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.id=%d',array($_SESSION['attachment_copy']['id']));
+		$oryg = DB::GetRow('SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE '.Utils_AttachmentCommon::get_where($_SESSION['attachment_copy']['group'],false).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.id=%d',array($_SESSION['attachment_copy']['id']));
 		$local = $this->get_data_dir().$_SESSION['attachment_copy']['group'];
 		$file = $local.'/'.$_SESSION['attachment_copy']['id'].'_'.$oryg['file_revision'];
 		if(file_exists($file)) {
@@ -370,7 +377,7 @@ class Utils_Attachment extends Module {
 			return $this->pop_box0();
 		}
 
-		$row = DB::GetRow('SELECT uaf.id as file_id,ual.permission_by,ual.permission,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE ual.id=%d AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)',array($id));
+		$row = DB::GetRow('SELECT uaf.id as file_id,ual.permission_by,ual.permission,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE ual.id=%d AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)',array($id));
 
 		if(Base_AclCommon::i_am_admin() ||
 			$row['permission_by']==Acl::get_user() ||
@@ -390,7 +397,7 @@ class Utils_Attachment extends Module {
 		
 		// display images inline
 
-		$th->assign('upload_by',$row['upload_by']);
+		$th->assign('upload_by',$this->get_user_label($row['upload_by']));
 		$th->assign('upload_on',Base_RegionalSettingsCommon::time2reg($row['upload_on']));
 
 
@@ -452,12 +459,12 @@ class Utils_Attachment extends Module {
 		$gb->set_table_columns(array(
 				array('name'=>$this->t('Revision'), 'order'=>'uac.revision','width'=>10),
 				array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>25),
-				array('name'=>$this->t('Who'), 'order'=>'note_by','width'=>25),
+				array('name'=>$this->t('Who'), 'order'=>'note_by','width'=>25, 'wrapmode'=>'nowrap'),
 				array('name'=>$this->t('Note'), 'order'=>'uac.text')
 			));
 		$gb->set_default_order(array($this->t('Date')=>'DESC'));
 
-		$ret = $gb->query_order_limit('SELECT ual.permission_by,ual.permission,uac.revision,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text FROM utils_attachment_note uac INNER JOIN utils_attachment_link ual ON ual.id=uac.attach_id WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
+		$ret = $gb->query_order_limit('SELECT ual.permission_by,ual.permission,uac.revision,uac.created_on as note_on,uac.created_by as note_by,uac.text FROM utils_attachment_note uac INNER JOIN utils_attachment_link ual ON ual.id=uac.attach_id WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
 			if(Base_AclCommon::i_am_admin() ||
@@ -466,7 +473,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
 				$r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),'restore');
-			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_by'],$row['text']);
+			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$this->get_user_label($row['note_by']),$row['text']);
 		}
 		$th->assign('note_edition',$this->get_html_of_module($gb));
 
@@ -481,7 +488,7 @@ class Utils_Attachment extends Module {
 			));
 		$gb->set_default_order(array($this->t('Date')=>'DESC'));
 
-		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.local,ual.permission_by,ual.permission,uaf.attach_id as id,uaf.revision as file_revision,uaf.created_on as upload_on,(SELECT l.login FROM user_login l WHERE uaf.created_by=l.id) as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
+		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.local,ual.permission_by,ual.permission,uaf.attach_id as id,uaf.revision as file_revision,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
 			if(Base_AclCommon::i_am_admin() ||
@@ -491,7 +498,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==2 && $this->private_write))
 				$r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore attached file to this version?'),array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
 			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
-			$r->add_data($row['file_revision'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['upload_by'],$file);
+			$r->add_data($row['file_revision'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$this->get_user_label($row['upload_by']),$file);
 		}
 		$th->assign('file_uploads',$this->get_html_of_module($gb));
 

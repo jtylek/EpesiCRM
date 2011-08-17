@@ -27,10 +27,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return self::access_contact('browse');
 	}
 	public static function get_user_label($user_id, $nolink=false) {
-		$user = CRM_ContactsCommon::get_contact_by_user_id($user_id);
-		if ($user===null) $user = Base_UserCommon::get_user_login($user_id);
-		else $user = CRM_ContactsCommon::contact_format_no_company($user, $nolink);
-		return $user;
+		static $cache=array();
+		if (!isset($cache[$user_id][$nolink])) {
+			$user = CRM_ContactsCommon::get_contact_by_user_id($user_id);
+			if ($user===null) $cache[$user_id][$nolink] = Base_UserCommon::get_user_login($user_id);
+			else $cache[$user_id][$nolink] = CRM_ContactsCommon::contact_format_no_company($user, $nolink);
+		}
+		return $cache[$user_id][$nolink];
 		
 	}
     public static function get_contact_by_user_id($uid) {
