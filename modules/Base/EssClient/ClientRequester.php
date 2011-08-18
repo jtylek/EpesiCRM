@@ -17,39 +17,48 @@ class ClientRequester implements IClient {
     }
 
     public function download_prepare($order_ids) {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     public function download_prepared_file($file_hash) {
-        return $this->call(__FUNCTION__, func_get_args(), false);
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args, false);
     }
 
     public function modules_list($start, $amount) {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     public function modules_list_total_amount() {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     public function module_get_info($module_id) {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     public function register_installation_confirm() {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     public function register_installation_request($data) {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     public function installation_status() {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     public function installation_registered_data() {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     public function set_client_license_key($license_key) {
@@ -57,11 +66,13 @@ class ClientRequester implements IClient {
     }
 
     public function order_submit($modules) {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     public function orders_list() {
-        return $this->call(__FUNCTION__, func_get_args());
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
     }
 
     protected function call($function, $params, $serialize_response = true) {
