@@ -59,9 +59,9 @@ class CRM_PhoneCall extends Module {
 		if ($conf['future']!=-1)
 			$crits['<=date_and_time'] = date('Y-m-d 23:59:59', strtotime('+'.$conf['future'].' day'));
 		$conds = array(
-									array(	array('field'=>'contact_name', 'width'=>20, 'cut'=>14),
-											array('field'=>'phone_number', 'width'=>1, 'cut'=>15),
-											array('field'=>'status', 'width'=>1)
+									array(	array('field'=>'contact_name', 'width'=>14),
+											array('field'=>'phone_number', 'width'=>20),
+											array('field'=>'status', 'width'=>8)
 										),
 									$crits,
 									array('status'=>'ASC','date_and_time'=>'ASC','priority'=>'DESC'),

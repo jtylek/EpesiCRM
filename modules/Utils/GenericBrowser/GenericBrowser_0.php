@@ -862,13 +862,16 @@ class Utils_GenericBrowser extends Module {
 
 		$headers = array();
 		if ($this->en_actions) {
-			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: 1%;"');
-			else $headers[count($this->columns)] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: 1%;"');
+			$max_actions = 0; // Possibly improve it to calculate it during adding actions
+			foreach($this->actions as $i=>$v) if (count($v)>$max_actions) $max_actions = count($v);
+			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;"');
+			else $headers[count($this->columns)] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;"');
 		}
 
 		$all_width = 0;
 		foreach($this->columns as $k=>$v) {
 			if (!isset($this->columns[$k]['width'])) $this->columns[$k]['width'] = 100;
+			if (strpos($this->columns[$k]['width'], 'px')!==false) continue;
 			$all_width += $this->columns[$k]['width'];
 			if (isset($v['quickjump'])) {
 				$quickjump = $this->set_module_variable('quickjump',$v['quickjump']);
@@ -889,7 +892,7 @@ class Utils_GenericBrowser extends Module {
 			else $sort = '';
 			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
 			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
-			if ($this->absolute_width) $headers[$i]['attrs'] = 'width="'.$v['width'].'" ';
+			if ($this->absolute_width || strpos($v['width'], 'px')!==false) $headers[$i]['attrs'] = 'width="'.$v['width'].'" ';
 			else $headers[$i]['attrs'] = 'width="'.intval(100*$v['width']/$all_width).'%" ';
 			$headers[$i]['attrs'] .= 'nowrap="1" ';
 			if (isset($v['attrs'])) $headers[$i]['attrs'] .= $v['attrs'].' ';
@@ -933,7 +936,7 @@ class Utils_GenericBrowser extends Module {
 				if (!is_array($v)) $v = array('value'=>$v);
 				$col[$k]['label'] = $v['value'];
 				$col[$k]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
-				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td"';
+				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td" onmouseover="table_overflow_show(this);"';
 				if (isset($quickjump_col) && $k==$quickjump_col) $col[$k]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';
 				$col[$k]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';

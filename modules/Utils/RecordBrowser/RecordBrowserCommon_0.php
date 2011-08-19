@@ -1798,6 +1798,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     public static function cut_string($str, $len, $tooltip=true, &$cut=null) {
+		return $str;
         if ($len==-1) return $str;
         $ret = '';
         $strings = explode('<br>',$str);

@@ -55,9 +55,9 @@ class CRM_Tasks extends Module {
 			$crits['|customers'] = array($me['id']);
 		}
 		$conds = array(
-									array(	array('field'=>'title', 'width'=>20, 'cut'=>16, 'callback'=>array('CRM_TasksCommon','display_title_with_mark')),
-											array('field'=>'deadline', 'width'=>1),
-											array('field'=>'status', 'width'=>1)
+									array(	array('field'=>'title', 'width'=>20, 'callback'=>array('CRM_TasksCommon','display_title_with_mark')),
+											array('field'=>'deadline', 'width'=>10),
+											array('field'=>'status', 'width'=>6)
 										),
 									$crits,
 									array('deadline'=>'ASC','status'=>'ASC','priority'=>'DESC'),

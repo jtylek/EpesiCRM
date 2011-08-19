@@ -35,7 +35,6 @@ class Utils_RecordBrowser extends Module {
     private $add_in_table = false;
     private $custom_filters = array();
     private $default_order = array();
-    private $cut = array();
     private $more_table_properties = array();
     private $fullscreen_table = false;
     private $amount_of_records = 0;
@@ -111,10 +110,6 @@ class Utils_RecordBrowser extends Module {
 
     public function set_additional_actions_method($callback) {
         $this->additional_actions_method = $callback;
-    }
-
-    public function set_cut_lengths($ar) {
-        $this->cut = $ar;
     }
 
     public function set_table_column_order($arg) {
@@ -557,16 +552,16 @@ class Utils_RecordBrowser extends Module {
         }
 
         if ($special) {
-            $table_columns = array(array('name'=>$this->t('Select'), 'width'=>1));
+            $table_columns = array(array('name'=>$this->t('Select'), 'width'=>'40px'));
         } else {
             $table_columns = array();
             if (!$pdf && !$admin && $this->favorites) {
-                $fav = array('name'=>$this->t('Fav'), 'width'=>1);
+                $fav = array('name'=>$this->t('Fav'), 'width'=>'24px');
                 if (!isset($this->force_order)) $fav['order'] = ':Fav';
                 $table_columns[] = $fav;
             }
             if (!$pdf && !$admin && $this->watchdog)
-                $table_columns[] = array('name'=>$this->t('Sub'), 'width'=>1);
+                $table_columns[] = array('name'=>$this->t('Sub'), 'width'=>'24px');
         }
         if (!$this->disabled['quickjump']) $quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         else $quickjump = '';
@@ -585,8 +580,10 @@ class Utils_RecordBrowser extends Module {
             if (!$pdf && !isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
             if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp' || $args['type']=='time') && !$this->add_in_table) || $args['type']=='commondata') {
                 $arr['wrapmode'] = 'nowrap';
-                $arr['width'] = 1;
-            }
+                $arr['width'] = 5;
+            } else {
+                $arr['width'] = 12;
+			}
             if (isset($this->more_table_properties[$args['id']])) {
                 foreach (array('name','wrapmode','width') as $v)
                     if (isset($this->more_table_properties[$args['id']][$v])) $arr[$v] = $this->more_table_properties[$args['id']][$v];
@@ -818,9 +815,6 @@ class Utils_RecordBrowser extends Module {
                 $field = $hash[$argsid];
                 $args = $this->table_rows[$field];
                 $value = $this->get_val($field, $row, ($special || $pdf), $args);
-                if (isset($this->cut[$args['id']])) {
-                    $value = Utils_RecordBrowserCommon::cut_string($value,$this->cut[$args['id']]);
-                }
                 if (strip_tags($value)=='') $value .= '&nbsp;';
                 if ($args['style']=='currency' || $args['style']=='number') $value = array('style'=>'text-align:right;','value'=>$value);
                 if ($grid_enabled && !in_array($args['type'], array('calculated','multiselect'))) {
@@ -1997,11 +1991,11 @@ class Utils_RecordBrowser extends Module {
     public function dirty_read_changes($id, $time_from) {
         print('<b>'.$this->t('The following changes were applied to this record while you were editing it.<br>Please revise this data and make sure to keep this record most accurate.').'</b><br>');
         $gb_cha = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__changes');
-        $table_columns_changes = array( array('name'=>$this->t('Date'), 'width'=>1, 'wrapmode'=>'nowrap'),
-                                        array('name'=>$this->t('Username'), 'width'=>1, 'wrapmode'=>'nowrap'),
-                                        array('name'=>$this->t('Field'), 'width'=>1, 'wrapmode'=>'nowrap'),
-                                        array('name'=>$this->t('Old value'), 'width'=>1, 'wrapmode'=>'nowrap'),
-                                        array('name'=>$this->t('New value'), 'width'=>1, 'wrapmode'=>'nowrap'));
+        $table_columns_changes = array( array('name'=>$this->t('Date'), 'width'=>10, 'wrapmode'=>'nowrap'),
+                                        array('name'=>$this->t('Username'), 'width'=>10, 'wrapmode'=>'nowrap'),
+                                        array('name'=>$this->t('Field'), 'width'=>10, 'wrapmode'=>'nowrap'),
+                                        array('name'=>$this->t('Old value'), 'width'=>10, 'wrapmode'=>'nowrap'),
+                                        array('name'=>$this->t('New value'), 'width'=>10, 'wrapmode'=>'nowrap'));
         $gb_cha->set_table_columns( $table_columns_changes );
 
         $created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
@@ -2054,11 +2048,11 @@ class Utils_RecordBrowser extends Module {
         $gb_cha = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__changes');
 		$form = $this->init_module('Libs_QuickForm');
 
-        $table_columns_changes = array( array('name'=>$this->t('Date'), 'width'=>1, 'wrapmode'=>'nowrap'),
-                                        array('name'=>$this->t('Username'), 'width'=>1, 'wrapmode'=>'nowrap'),
-                                        array('name'=>$this->t('Field'), 'width'=>1, 'wrapmode'=>'nowrap'),
-                                        array('name'=>$this->t('Old value'), 'width'=>1, 'wrapmode'=>'nowrap'),
-                                        array('name'=>$this->t('New value'), 'width'=>1, 'wrapmode'=>'nowrap'));
+        $table_columns_changes = array( array('name'=>$this->t('Date'), 'width'=>10, 'wrapmode'=>'nowrap'),
+                                        array('name'=>$this->t('Username'), 'width'=>10, 'wrapmode'=>'nowrap'),
+                                        array('name'=>$this->t('Field'), 'width'=>10, 'wrapmode'=>'nowrap'),
+                                        array('name'=>$this->t('Old value'), 'width'=>10, 'wrapmode'=>'nowrap'),
+                                        array('name'=>$this->t('New value'), 'width'=>10, 'wrapmode'=>'nowrap'));
 
         $gb_cha->set_table_columns( $table_columns_changes );
 
@@ -2316,15 +2310,13 @@ class Utils_RecordBrowser extends Module {
         foreach($this->table_rows as $field => $args)
             $field_hash[$args['id']] = $field;
         $header = array();
-        $cut = array();
         $callbacks = array();
         foreach($cols as $k=>$v) {
-            if (isset($v['cut'])) $cut[] = $v['cut'];
-            else $cut[] = -1;
             if (isset($v['callback'])) $callbacks[] = $v['callback'];
             else $callbacks[] = null;
             if (is_array($v)) {
-                $arr = array('name'=>$this->ts($field_hash[$v['field']]), 'width'=>$v['width']); // TRSL
+                $arr = array('name'=>$this->ts($field_hash[$v['field']])); // TRSL
+				if (isset($v['width'])) $arr['width'] = $v['width'];
                 $cols[$k] = $v['field'];
             } else {
                 $arr = array('name'=>$this->ts($field_hash[$v])); // TRSL
@@ -2360,7 +2352,7 @@ class Utils_RecordBrowser extends Module {
             foreach($cols as $k=>$w) {
                 if (!isset($callbacks[$k])) $s = $this->get_val($field_hash[$w], $v, false, $this->table_rows[$field_hash[$w]]);
                 else $s = call_user_func($callbacks[$k], $v);
-                $arr[] = Utils_RecordBrowserCommon::cut_string($s, $cut[$k]);
+                $arr[] = $s;
             }
             $gb_row->add_data_array($arr);
             if (is_callable($info)) {

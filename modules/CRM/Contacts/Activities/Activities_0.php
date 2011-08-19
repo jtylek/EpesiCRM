@@ -128,12 +128,12 @@ class CRM_Contacts_Activities extends Module {
 	
 	public function display_activities($events, $tasks, $phonecalls){
 		$gb = $this->init_module('Utils/GenericBrowser','activities','activities');
-		$gb->set_table_columns(array(	array('name'=>$this->t('Type'), 'wrapmode'=>'nowrap', 'width'=>1),
+		$gb->set_table_columns(array(	array('name'=>$this->t('Type'), 'wrapmode'=>'nowrap', 'width'=>8),
 										array('name'=>$this->t('Subject'), 'width'=>20),
-										array('name'=>$this->t('Date/Deadline'), 'wrapmode'=>'nowrap', 'width'=>1),
+										array('name'=>$this->t('Date/Deadline'), 'wrapmode'=>'nowrap', 'width'=>8),
 										array('name'=>$this->t('Employees'), 'width'=>11),
 										array('name'=>$this->t('Customers'), 'width'=>11),
-										array('name'=>$this->t('Attachments'), 'width'=>3)
+										array('name'=>$this->t('Attachments'), 'width'=>4)
 										));
 		$amount = 0;
 		if ($this->display['events']) $amount += count($events);

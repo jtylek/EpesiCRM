@@ -113,6 +113,21 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 
 		Base_ThemeCommon::display_smarty($th,'Utils/GenericBrowser','mobile');
 	}
+	
+	public static function hide_overflow_div(){
+		eval_js('table_overflow_hide();');
+	}
+
+	public static function init_overflow_div(){
+		if(!isset($_SESSION['client']['utils_genericbrowser']['div_exists'])) {
+			load_js('modules/Utils/GenericBrowser/js/table_overflow.js');
+			eval_js('Utils_GenericBrowser__overflow_div();',false);
+			$_SESSION['client']['utils_genericbrowser']['div_exists'] = true;
+		}
+		on_exit(array('Utils_GenericBrowserCommon', 'hide_overflow_div'),null,false);
+	}
 }
+
+Utils_GenericBrowserCommon::init_overflow_div();
 
 ?>

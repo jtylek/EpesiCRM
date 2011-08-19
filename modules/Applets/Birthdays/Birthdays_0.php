@@ -35,9 +35,9 @@ public function applet($conf,$opts) {
 		
 		// 1st - table field names
 		$cols = array(
-							array('field'=>'last_name', 'width'=>15, 'cut'=>18),
-							array('field'=>'first_name', 'width'=>15, 'cut'=>18),
-							array('field'=>'birth_date', 'width'=>15, 'cut'=>18)
+							array('field'=>'last_name', 'width'=>15),
+							array('field'=>'first_name', 'width'=>15),
+							array('field'=>'birth_date', 'width'=>15)
 						);
 		// 2nd - criteria (filter)
 		// TO DO - filter date - today through today+2 weeks

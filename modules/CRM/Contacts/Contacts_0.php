@@ -20,9 +20,9 @@ class CRM_Contacts extends Module {
 		$mode = 'contact';
 		$rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
 		$conds = array(
-									array(	array('field'=>'last_name', 'width'=>10, 'cut'=>15),
-											array('field'=>'first_name', 'width'=>10, 'cut'=>15),
-											array('field'=>'company_name', 'width'=>10, 'cut'=>15)
+									array(	array('field'=>'last_name', 'width'=>10),
+											array('field'=>'first_name', 'width'=>10),
+											array('field'=>'company_name', 'width'=>10)
 										),
 									$conf['conds']=='fav'?array(':Fav'=>1):array(':Recent'=>1),
 									array('last_name'=>'ASC','first_name'=>'ASC','company_name'=>'ASC'),
@@ -60,8 +60,6 @@ class CRM_Contacts extends Module {
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
 										'permission'=>'0'));
-//		$this->rb->set_cut_lengths(array('company_name'=>30));
-//		$this->rb->set_header_properties(array('company_name'=>array('name'=>'Company Name Replacement','width'=>1)));
 		if ($mode=='contact') {
 			$fcallback = array('CRM_ContactsCommon','company_format_default');
 			$this->rb->set_custom_filter('company_name', array('type'=>'autoselect','label'=>$this->t('Company Name'),'args'=>array(), 'args_2'=>array(array('CRM_ContactsCommon','autoselect_company_suggestbox'), array(array(), $fcallback)), 'args_3'=>$fcallback, 'trans_callback'=>array('CRM_ContactsCommon','autoselect_company_filter_trans')));

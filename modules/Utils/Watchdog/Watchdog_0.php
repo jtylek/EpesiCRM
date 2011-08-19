@@ -41,8 +41,8 @@ class Utils_Watchdog extends Module {
 			return;
 		}
 		$header = array(
-					array('name'=>$this->t('Cat.'),'width'=>1),
-					array('name'=>$this->t('Title'))
+					array('name'=>$this->t('Cat.'),'width'=>5),
+					array('name'=>$this->t('Title'),'width'=>15)
 					);
 		if (count($categories)==1) {
 			$title = call_user_func($methods[$categories[0]]);

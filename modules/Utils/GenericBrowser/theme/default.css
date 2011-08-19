@@ -173,6 +173,9 @@ table.Utils_GenericBrowser > thead > tr > th {
     border-bottom: 1px solid #FFFFFF;
 	color: #FFFFFF;
     vertical-align: middle;
+
+	overflow: hidden;
+	text-overflow: ellipsis;
 	
 	/* css3 blue gradient */
 	background: #7b9cbd; /* Old browsers */
@@ -264,6 +267,8 @@ table.Utils_GenericBrowser > tbody > tr:hover {
     height: 18px;
     padding-left: 3px;
     padding-right: 3px;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .Utils_GenericBrowser__td a img {
@@ -622,4 +627,13 @@ table.Utils_GenericBrowser__navigation img {
 
 #Utils_GenericBrowser__navigation .nav_per_page {
 	padding-right: 10px;
+}
+
+.Utils_GenericBrowser__overflow_div {
+	background-color: white;
+	border: 1px solid black;
+}
+
+.Utils_GenericBrowser__overflow_div_content {
+	padding: 4px 3px 3px;
 }

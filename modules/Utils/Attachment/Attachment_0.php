@@ -127,11 +127,11 @@ class Utils_Attachment extends Module {
 		if($vd)
 			$cols[] = array('name'=>$this->t('Deleted'),'order'=>'ual.deleted','width'=>5);
 		if($this->author)
-			$cols[] = array('name'=>$this->t('User'), 'order'=>'note_by','width'=>5, 'wrapmode'=>'nowrap');
+			$cols[] = array('name'=>$this->t('User'), 'order'=>'note_by','width'=>12, 'wrapmode'=>'nowrap');
 		if (is_array($this->group)) $cols[] = array('name'=>$this->t('Source'),'width'=>5, 'wrapmode'=>'nowrap');
-		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>1,'wrapmode'=>'nowrap');
+		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>10,'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Note'), 'width'=>70);
-		$cols[] = array('name'=>$this->t('Attachment'), 'order'=>'uaf.original','width'=>5);
+		$cols[] = array('name'=>$this->t('Attachment'), 'order'=>'uaf.original','width'=>10);
 		$gb->set_table_columns($cols);
 
 		if (!is_array($this->group)) $group = DB::qstr($this->group);

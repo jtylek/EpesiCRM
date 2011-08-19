@@ -41,8 +41,8 @@ class CRM_Meeting extends Module {
 			$crits['|customers'] = array($me['id']);
 		}
 		$conds = array(
-									array(	array('field'=>'title', 'width'=>20, 'cut'=>16, 'callback'=>array('CRM_MeetingCommon','display_title_with_mark')),
-											array('field'=>'status', 'width'=>1)
+									array(	array('field'=>'title', 'width'=>14, 'callback'=>array('CRM_MeetingCommon','display_title_with_mark')),
+											array('field'=>'status', 'width'=>4)
 										),
 									$crits,
 									array('date'=>'ASC','time'=>'ASC','status'=>'ASC','priority'=>'DESC'),
