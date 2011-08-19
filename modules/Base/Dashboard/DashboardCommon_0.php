@@ -73,6 +73,7 @@ class Base_DashboardCommon extends ModuleCommon {
 		$j = 0;
 		$html = '';
 		foreach($app_cap as $name=>$cap) {
+			if (!$cap) continue;
 			$j++;
 			$th = Base_ThemeCommon::init_smarty();
 			$id = str_replace('_','-',$name);
@@ -83,7 +84,7 @@ class Base_DashboardCommon extends ModuleCommon {
 					'</div>');
 			$th->assign('handle_class','handle');
 
-			$th->assign('caption',Base_LangCommon::ts('Base_Dashboard',$cap?$cap:$name));
+			$th->assign('caption',Base_LangCommon::ts('Base_Dashboard',$cap));
 			$th->assign('color',$colors[0]);
 
 			$remove_button = Base_DashboardCommon::get_remove_applet_button($id, false);
