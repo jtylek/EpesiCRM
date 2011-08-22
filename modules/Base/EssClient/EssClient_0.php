@@ -14,14 +14,19 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_EssClient extends Module {
 
     public function body() {
-        
+
     }
 
+    /**
+     * for tests only.
+     */
     public function clear_license_key() {
         Variable::set("license_key", '');
     }
 
     public function admin() {
+        if (!Base_AclCommon::i_am_sa())
+            return;
         if ($this->is_back()) {
             $this->parent->reset();
         }
@@ -148,12 +153,6 @@ class Base_EssClient extends Module {
         }
 
         if ($edit) {
-            if ($data) {
-                $f->setDefaults($data);
-            } else {
-                $f->setDefaults(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()));
-            }
-
             if ($f->validate()) {
                 $ret = $f->exportValues();
 
@@ -174,6 +173,14 @@ class Base_EssClient extends Module {
                 print('<div style="color: ' . $color . '">' . $this->t($text) . '</div>');
                 Base_StatusBarCommon::message($this->t($text));
             } else {
+                // set defaults
+                if ($data) {
+                    $f->setDefaults($data);
+                } else {
+                    print($this->t('<span style="color:gray">Data below was auto-filled from Main Company\'s and first Super administrator\'s data.<br/>Make sure that data is correct and change if necessary.</span>'));
+                    $defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
+                    $f->setDefaults($defaults);
+                }
                 Base_ActionBarCommon::add('send', $data ? 'Update' : 'Register', $f->get_submit_form_href());
                 if ($data && isset($data['status']) && $data['status'] == 'Confirmed')
                     print($this->t('<div style="color: red">If you update company data, you need to confirm your installation once again!</div>'));

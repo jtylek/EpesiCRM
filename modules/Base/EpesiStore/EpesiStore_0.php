@@ -23,6 +23,8 @@ class Base_EpesiStore extends Module {
     }
 
     public function admin() {
+        if (!Base_AclCommon::i_am_sa())
+            return;
         if ($this->is_back()) {
             return $this->parent->reset();
         }

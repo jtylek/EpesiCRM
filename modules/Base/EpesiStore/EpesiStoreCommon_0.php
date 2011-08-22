@@ -17,7 +17,9 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     const DOWNLOAD_QUEUE_VAR = 'queue';
 
     public static function admin_caption() {
-        return "Epesi Store";
+        if (Base_AclCommon::i_am_sa())
+            return "Epesi Store";
+        return null;
     }
 
     public static function get_cart() {

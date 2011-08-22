@@ -15,6 +15,43 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     const SERVER_ADDRESS = 'http://ess.epesibim.com/';
     const VAR_LICENSE_KEY = 'license_key';
 
+    public static function menu() {
+        if (!Base_AclCommon::i_am_sa())
+            return;
+        $text = 'Epesi registration';
+        if (!self::get_license_key()) {
+            $text = 'Register Epesi!';
+        }
+        return array('Help' => array('__submenu__' => 1, $text => array('__function__' => 'admin')));
+    }
+
+    /**
+     * Get first(by id) user that is super administrator and get it's first
+     * and last name from crm_contacts
+     *
+     * This function uses DB query to get users and generally it should be
+     * easier way to get super admin.
+     *
+     * @return array with keys admin_email, admin_first_name, admin_last_name
+     */
+    public static function get_possible_admin() {
+        $users = DB::GetAll('select id, mail from user_login inner join user_password on user_login_id = id');
+        $arr = array();
+        foreach ($users as $u) {
+            if (Base_AclCommon::is_user_in_group(
+                            Base_AclCommon::get_acl_user_id($u['id']), 'Super administrator')) {
+                $x = array('admin_email' => $u['mail']);
+                $contact = CRM_ContactsCommon::get_contact_by_user_id($u['id']);
+                if ($contact) {
+                    $x['admin_first_name'] = $contact['first_name'];
+                    $x['admin_last_name'] = $contact['last_name'];
+                }
+                return $x;
+            }
+        }
+        return null;
+    }
+
     public static function get_license_key() {
         return Variable::get(self::VAR_LICENSE_KEY, false);
     }
@@ -44,7 +81,9 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function admin_caption() {
-        return "Epesi Services Server";
+        if (Base_AclCommon::i_am_sa())
+            return "Epesi Registration";
+        return null;
     }
 
 }
