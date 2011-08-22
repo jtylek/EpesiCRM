@@ -39,7 +39,6 @@
 
 .Utils_RecordBrowser__View_entry .long_label {
     text-align: left;
-    width: 20%;
 }
 
 .Utils_RecordBrowser__View_entry .data {
@@ -73,12 +72,13 @@
     padding-right: 4px;
 }
 
-.Utils_RecordBrowser__View_entry .long_data {
-    width: 80%;
+.Utils_RecordBrowser__View_entry .email .long_data {
+    width: auto;
 }
 
 .Utils_RecordBrowser__View_entry table.view .long_data {
-    border-right: 1px solid #B3B3B3;
+    border-top: 1px solid #B3B3B3;
+    border-left: 1px solid #B3B3B3;
 }
 
 .Utils_RecordBrowser__View_entry table.edit .long_data {

@@ -72,7 +72,7 @@
 <div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
 
 {* Outside table *}
-<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+<table class="Utils_RecordBrowser__View_entry email" cellpadding="0" cellspacing="0" border="0">
 	<tbody>
 		<tr>
 			{assign var=x value=1}
@@ -144,6 +144,8 @@
 				{foreach key=k item=f from=$longfields name=fields}
 					<tr>
 						<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
+					</tr>
+					<tr>
 						<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 					</tr>
 				{/foreach}
