@@ -802,6 +802,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $diff[$args['id']] = $old;
         }
         if (!$dont_notify && !empty($diff)) {
+			$diff = self::record_processing($tab, $diff, 'edit_changes');
             DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array((($date==null)?date('Y-m-d G:i:s'):$date), Acl::get_user(), $id));
             $edit_id = DB::Insert_ID(''.$tab.'_edit_history','id');
             foreach($diff as $k=>$v) {
