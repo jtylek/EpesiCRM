@@ -12,6 +12,7 @@ table_overflow_show = function (e_td) {
 		e_tip.clonePosition(e_td,{setHeight: false, setWidth: false, offsetTop: -1, offsetLeft: -1});
 		e_tip.show();
 		if (e_tip.clientWidth<=e_td.clientWidth) e_tip.hide(); // Work-around for firefox, because it cannot handle scrollWidth in <td>
+		table_overflow_hide_delayed();
 	}
 };
 table_overflow_stop_hide = function() {
