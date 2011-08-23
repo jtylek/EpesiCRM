@@ -176,8 +176,8 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
     public static function display_direction($record, $nolink, $desc) {
         if($record['direction'])
-            return '<=';
-        return '=>';
+            return '<div class="direction"><</div>';
+        return '<div class="direction">></div>';
     }
 
     public static function display_record_id($r, $nolink=false) {

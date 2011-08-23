@@ -1028,6 +1028,18 @@ hr.line {
 
 
 	/* Add / Remove buttons */
+		.direction,
+		
+		#related_companies__add_selected,
+		#related_companies__add_all,
+		#related_companies__remove_all,
+		#related_companies__remove_selected,
+		
+		#group__add_selected,
+		#group__add_all,
+		#group__remove_all,
+		#group__remove_selected,
+		
 		#assigned_to__add_selected,
 		#assigned_to__add_all,
 		#assigned_to__remove_all,
