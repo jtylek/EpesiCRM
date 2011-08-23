@@ -115,7 +115,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 	}
 	
 	public static function hide_overflow_div(){
-		eval_js('table_overflow_hide();');
+		eval_js('table_overflow_hide(utils_genericbrowser__hide_current);');
 	}
 
 	public static function init_overflow_div(){

@@ -557,7 +557,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             case 'checkbox': $f = DB::dict()->ActualType('I1'); break;
             case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
         }
-        if (!isset($f)) trigger_error('Database column for type '.$type.' undefined.',E_USER_ERROR);
         return $f;
     }
     public static function new_browse_mode_details_callback($tab, $mod, $func) {
