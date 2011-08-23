@@ -1678,6 +1678,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($edit_id));
 		$event_display .= '<table border="0"><tr><td><b>'.self::ts('Field').'</b></td><td><b>'.self::ts('Old value').'</b></td><td><b>'.self::ts('New value').'</b></td></tr>';
 		$r2 = $r;
+		self::init($tab); // because get_user_label messes up
 		foreach ($edit_details as $k=>$v) {
 			$k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
 			if (!isset(self::$hash[$k])) continue;
