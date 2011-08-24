@@ -31,7 +31,7 @@ class Base_EssClient extends Module {
             $this->parent->reset();
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-        Base_ActionBarCommon::add('delete', 'Clear license key', $this->create_callback_href(array($this, 'clear_license_key')));
+//        Base_ActionBarCommon::add('delete', 'Clear license key', $this->create_callback_href(array($this, 'clear_license_key')));
 
         if (Base_EssClientCommon::get_license_key() == "") {
             $this->register_form();
