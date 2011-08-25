@@ -10,7 +10,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if(!SET_SESSION) {
     global $_SESSION;
-    $_SESSION = array();
+    if(!isset($_SESSION) || !is_array($_SESSION))
+    	$_SESSION = array();
     return;
 }
 
