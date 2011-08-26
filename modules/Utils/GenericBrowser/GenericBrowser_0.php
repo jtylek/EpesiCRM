@@ -936,7 +936,9 @@ class Utils_GenericBrowser extends Module {
 				if (!is_array($v)) $v = array('value'=>$v);
 				$col[$k]['label'] = $v['value'];
 				$col[$k]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
-				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td" onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this);"';
+				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td"';
+				if (!isset($v['overflow_box']) || $v['overflow_box'])
+					$col[$k]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this);"';
 				if (isset($quickjump_col) && $k==$quickjump_col) $col[$k]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';
 				$col[$k]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';

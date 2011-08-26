@@ -247,7 +247,7 @@ class Utils_Attachment extends Module {
 				}
 			}
 			$arr[] = $regional_note_on;
-			$arr[] = $text;
+			$arr[] = array('value'=>$text, 'overflow_box'=>false);
 			$arr[] = $file;
 			$r->add_data_array($arr);
 
