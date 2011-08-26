@@ -18,7 +18,14 @@ table_overflow_show = function (e_td) {
 			$("table_overflow_content").appendChild(e_td.firstChild);
 		}
 		utils_genericbrowser__last_td = e_td;
-		e_tip.clonePosition(e_td,{setHeight: false, setWidth: false, offsetTop: -1, offsetLeft: -1});
+		
+		e_td.innerHTML = $("table_overflow_content").innerHTML; // fix for cell height
+		var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+		var leftOffset = -1;
+		if (is_chrome)
+			leftOffset = 0;
+		
+		e_tip.clonePosition(e_td,{setHeight: false, setWidth: false, offsetTop: -1, offsetLeft: leftOffset});
 		e_tip.show();
 		if (e_tip.clientWidth<=e_td.clientWidth) {
 			utils_genericbrowser__hidetip = true;
@@ -42,6 +49,7 @@ table_overflow_hide = function (current) {
 	var e_tip = $("table_overflow");
 	if (!e_tip) return;
 	if (utils_genericbrowser__last_td) {
+		utils_genericbrowser__last_td.innerHTML = '';
 		while ($("table_overflow_content").childNodes.length>0) {
 			utils_genericbrowser__last_td.appendChild($("table_overflow_content").firstChild);
 		}
