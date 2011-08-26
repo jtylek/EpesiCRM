@@ -59,7 +59,7 @@ class CRM_AssetsCommon extends ModuleCommon {
         }
         if($r['category']<=4) {
             if(isset($arr)) ksort($arr);
-            return isset($arr) ? implode(' ', $arr) : Base_LangCommon::ts('No info');
+            return isset($arr) ? implode(' ', $arr) : Base_LangCommon::ts('CRM_Assets','No info');
         }
 
         return Base_LangCommon::ts('CRM_Assets','This is non-categorized asset.');
