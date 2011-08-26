@@ -20,8 +20,10 @@ table_overflow_show = function (e_td) {
 		utils_genericbrowser__last_td = e_td;
 		e_tip.clonePosition(e_td,{setHeight: false, setWidth: false, offsetTop: -1, offsetLeft: -1});
 		e_tip.show();
-		if (e_tip.clientWidth<=e_td.clientWidth) table_overflow_hide(utils_genericbrowser__hide_current); // Work-around for firefox, because it cannot handle scrollWidth in <td>
-		else table_overflow_hide_delayed();
+		if (e_tip.clientWidth<=e_td.clientWidth) {
+			utils_genericbrowser__hidetip = true;
+			table_overflow_hide(utils_genericbrowser__hide_current); // Work-around for firefox, because it cannot handle scrollWidth in <td>
+		} else table_overflow_hide_delayed();
 	}
 };
 table_overflow_stop_hide = function() {
