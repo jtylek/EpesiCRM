@@ -21,11 +21,11 @@ table_overflow_show = function (e_td) {
 		
 		e_td.innerHTML = $("table_overflow_content").innerHTML; // fix for cell height
 		var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
-		var leftOffset = -1;
+		var leftOffset = 0;
 		if (is_chrome)
-			leftOffset = 0;
+			leftOffset = +1;
 		
-		e_tip.clonePosition(e_td,{setHeight: false, setWidth: false, offsetTop: -1, offsetLeft: leftOffset});
+		e_tip.clonePosition(e_td,{setHeight: false, setWidth: false, offsetTop: 0, offsetLeft: leftOffset});
 		e_tip.show();
 		if (e_tip.clientWidth<=e_td.clientWidth) {
 			utils_genericbrowser__hidetip = true;
