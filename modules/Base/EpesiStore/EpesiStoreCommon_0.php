@@ -86,14 +86,31 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return array_slice($modules, $offset, $amount);
     }
 
-    public static function get_module_info($module_id) {
+    public static function get_module_info($module_id, $force = false) {
         $modules_cache = Module::static_get_module_variable(self::MOD_PATH, 'modules_info', array());
-        if (isset($modules_cache[$module_id]))
+        if ($force == false && isset($modules_cache[$module_id]))
             return $modules_cache[$module_id];
         // if not - request server
         $modules_cache[$module_id] = Base_EssClientCommon::server()->module_get_info($module_id);
         Module::static_set_module_variable(self::MOD_PATH, 'modules_info', $modules_cache);
+        // update in module list
+        $modules_list = Module::static_get_module_variable(self::MOD_PATH, 'modules_list', array());
+        foreach($modules_list as $k => $v) {
+            if($v['id'] == $module_id) {
+                $modules_list[$k] = $modules_cache[$module_id];
+                Module::static_set_module_variable(self::MOD_PATH, 'modules_list', $modules_list);
+                break;
+            }
+        }
         return $modules_cache[$module_id];
+    }
+
+    public static function get_downloaded_modules() {
+        return DB::GetAll('SELECT * FROM epesi_store_modules');
+    }
+
+    public static function add_downloaded_module($module_id, $version, $order_id) {
+        DB::Execute('INSERT INTO epesi_store_modules(module_id, version, order_id) VALUES (%d, %d, %d)', array($module_id, $version, $order_id));
     }
 
 }

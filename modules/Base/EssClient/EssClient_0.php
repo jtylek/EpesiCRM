@@ -37,20 +37,30 @@ class Base_EssClient extends Module {
             $this->register_form();
             Base_EssClientCommon::server(true);
         }
-        if (Base_EssClientCommon::get_license_key()) {
-            print($this->t('Your installation is registered.') . '<br/>');
-            $data = Base_EssClientCommon::server()->installation_registered_data();
-            $data['license_key'] = Base_EssClientCommon::get_license_key();
-            $data['status'] = Base_EssClientCommon::server()->installation_status();
-            // handle different status messages
-            if (strcasecmp($data['status'], "new") == 0 || strcasecmp($data['status'], "updated") == 0) {
-                print($this->t('<div style="color: red">Wait for your company data validation by our service and come back here to confirm installation!</div>'));
+        try {
+            if (Base_EssClientCommon::get_license_key()) {
+                $data = Base_EssClientCommon::server()->installation_registered_data();
+                if ($data) {
+                    print($this->t('Your installation is registered.') . '<br/>');
+                    $data['license_key'] = Base_EssClientCommon::get_license_key();
+                    $data['status'] = Base_EssClientCommon::server()->installation_status();
+                    // handle different status messages
+                    if (strcasecmp($data['status'], "new") == 0 || strcasecmp($data['status'], "updated") == 0) {
+                        print($this->t('<div style="color: red">Wait for your company data validation by our service and come back here to confirm installation!</div>'));
+                    }
+                    if (strcasecmp($data['status'], "validated") == 0) {
+                        print('<a class="button" ' . $this->create_callback_href(array($this, 'confirm_installation')) . '>' . $this->t('Confirm Installation') . '</a><br/>');
+                    }
+                    Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'navigate'), array('register_push_main', array($data))));
+                    $this->register_form(false, $data);
+                } else {
+                    print($this->t('You have client id, but we don\'t. Maybe your epesi installation needs update.<br/>Please contact Epesi staff.'));
+                    Base_ActionBarCommon::add('delete', 'Clear license key', $this->create_callback_href(array($this, 'clear_license_key')));
+                }
             }
-            if (strcasecmp($data['status'], "validated") == 0) {
-                print('<a class="button" ' . $this->create_callback_href(array($this, 'confirm_installation')) . '>' . $this->t('Confirm Installation') . '</a><br/>');
-            }
-            Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'navigate'), array('register_push_main', array($data))));
-            $this->register_form(false, $data);
+        } catch (Exception $e) {
+            print $e->getMessage();
+            return;
         }
     }
 

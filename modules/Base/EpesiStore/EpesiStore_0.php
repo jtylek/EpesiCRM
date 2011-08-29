@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EpesiStore extends Module {
     const refresh_info_text = 'Data is stored until close or refresh of browser\'s Epesi window or tab';
+    const modules_changed_on_server_text = 'Some modules has changed on server. This is updated list.';
     const VAR_download_status = 'download_status';
 
     protected $banned_columns_module = array('id', 'owner_id', 'path');
@@ -36,6 +37,7 @@ class Base_EpesiStore extends Module {
             $this->display_module($m, null, 'register_form');
         } else {
             $this->cart_button();
+            Base_ActionBarCommon::add('history', $this->t('Downloaded modules'), $this->create_callback_href(array($this, 'navigate'), array('downloaded_modules_form')));
             Base_ActionBarCommon::add('history', $this->t('Orders'), $this->create_callback_href(array($this, 'navigate'), array('orders_form')));
             $this->store_form();
         }
@@ -43,6 +45,9 @@ class Base_EpesiStore extends Module {
 
     public function store_form() {
         $total = Base_EpesiStoreCommon::modules_total_amount();
+        if ($total === false) {
+            print($this->t('Some error occured. Probably you are not registered client. Go to Admin / Register Epesi'));
+        }
         if ($total) {
             /* @var $gb Utils_GenericBrowser */
             $gb = $this->init_module('Utils/GenericBrowser', null, 'moduleslist');
@@ -67,22 +72,38 @@ class Base_EpesiStore extends Module {
         $this->back_button();
 
         $items = Base_EpesiStoreCommon::get_cart();
-        $total_price = 0;
         if (count($items) == 0) {
             print($this->t('Cart is empty!'));
             return;
         }
-        $gb = $this->init_module('Utils/GenericBrowser', null, 'cartlist');
-        $gb = $this->GB_module($gb, $items, array($this, 'GB_row_additional_actions_cart'));
+        // sum total price
+        $total_price = 0;
         foreach ($items as $x) {
             $total_price += $x['price'];
         }
-
-        // handle buy
+        // buy form
         $f = $this->init_module('Libs/QuickForm');
         $f->addElement('static', 'price', null, $this->t('Total price') . ': ' . $total_price);
         $f->addElement('submit', 'submit', $this->t('Buy!'));
+        // if buy clicked check for any changes on server
+        $buy = false;
+        $changed = false;
         if ($f->validate() && $f->exportValue('submited')) {
+            $items2 = array();
+            foreach ($items as $r) {
+                $items2[] = Base_EpesiStoreCommon::get_module_info($r['id'], true);
+            }
+            if ($items == $items2) {
+                $buy = true;
+            } else {
+                // mark that something has changed on server
+                $changed = true;
+                $items = $items2;
+                Base_EpesiStoreCommon::set_cart($items2);
+            }
+        }
+        // everything matches on server - buy
+        if ($buy) {
             $modules = array();
             $module_names = array();
             foreach ($items as $r) {
@@ -90,11 +111,18 @@ class Base_EpesiStore extends Module {
                 $module_names[$r['id']] = $r['name'];
             }
             $ret = Base_EssClientCommon::server()->order_submit($modules);
-            foreach ($ret as $id => $success) {
-                print("$module_names[$id] - <span style=\"color: " . ($success ? "green" : "gray") . "\">" . $this->t($success ? 'Ordered' : 'Not ordered') . "</span><br/>");
+            foreach ($ret as $id => $info) {
+                $success = $info === true ? true : false;
+                $message = is_string($info) ? ' (' . $this->t($info) . ')' : "";
+                print("$module_names[$id] - <span style=\"color: " . ($success ? "green" : "gray") . "\">" . $this->t($success ? 'Ordered' : 'Not ordered') . "$message</span><br/>");
             }
             Base_EpesiStoreCommon::empty_cart();
         } else {
+            $gb = $this->init_module('Utils/GenericBrowser', null, 'cartlist');
+            $gb = $this->GB_module($gb, $items, array($this, 'GB_row_additional_actions_cart'));
+            if ($changed) {
+                print('<span style="color:red">' . $this->t(self::modules_changed_on_server_text) . '</span>');
+            }
             $this->display_module($gb);
             $f->display();
         }
@@ -223,9 +251,29 @@ class Base_EpesiStore extends Module {
         foreach ($orders as $d) {
             $mod = Base_EpesiStoreCommon::get_module_info($d['module_id']);
             $all_files = array_merge($all_files, explode(',', $mod['path']));
+            // store info about module in db
+            Base_EpesiStoreCommon::add_downloaded_module($d['module_id'], $mod['version'], $d['id']);
         }
         print(implode('<br/>', $all_files));
         Base_EpesiStoreCommon::empty_download_queue();
+    }
+
+    public function downloaded_modules_form() {
+        $this->back_button();
+        $modules = Base_EpesiStoreCommon::get_downloaded_modules();
+        $items = array();
+        foreach ($modules as $m) {
+            $mod = Base_EpesiStoreCommon::get_module_info($m['module_id']);
+            $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($mod));
+            $it = array(
+                'module' => "<a $tooltip>{$mod['name']}</a>",
+                'installed_version' => $m['version'],
+                'recent_version' => $mod['version']);
+            $items[] = $it;
+        }
+        $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadedmoduleslist');
+        $gb = $this->GB_generic($gb, $items);
+        $this->display_module($gb);
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
@@ -275,21 +323,30 @@ class Base_EpesiStore extends Module {
         $row->add_action($this->create_callback_href(array($this, 'download_dequeue_item'), array($data)), 'delete');
     }
 
-    protected function GB_generic(Utils_GenericBrowser $gb, array $items, $banned_columns, $row_data_transform_callback, $row_additional_actions_callback) {
+    protected function GB_row_additional_actions_downloaded_modules($row, $data) {
+        if ($data['installed_version'] < $data['version'])
+            $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), $this->t('Queue download'));
+    }
+
+    protected function GB_generic(Utils_GenericBrowser $gb, array $items, $banned_columns = array(), $row_data_transform_callback = null, $row_additional_actions_callback = null) {
         if (count($items)) {
             // add column headers
-            $first_el = call_user_func($row_data_transform_callback, reset($items));
+            $first_el = reset($items);
+            if ($row_data_transform_callback != null)
+                $first_el = call_user_func($row_data_transform_callback, $first_el);
             $columns = array();
             foreach ($first_el as $k => $v) {
                 if (in_array($k, $banned_columns))
                     continue;
-                $columns[] = array('name' => ucwords($k));
+                $columns[] = array('name' => ucwords(str_replace('_', ' ', $k)));
             }
             $gb->set_table_columns($columns);
             // add elements
             foreach ($items as $r) {
                 $v = array();
-                $r_modified = call_user_func($row_data_transform_callback, $r);
+                $r_modified = $r;
+                if ($row_data_transform_callback != null)
+                    $r_modified = call_user_func($row_data_transform_callback, $r);
                 foreach ($r_modified as $k => $x) {
                     if (in_array($k, $banned_columns))
                         continue;
@@ -298,7 +355,8 @@ class Base_EpesiStore extends Module {
                 /* @var $row Utils_GenericBrowser_Row_Object */
                 $row = $gb->get_new_row();
                 $row->add_data_array($v);
-                call_user_func($row_additional_actions_callback, $row, $r);
+                if ($row_additional_actions_callback != null)
+                    call_user_func($row_additional_actions_callback, $row, $r);
             }
         }
         return $gb;

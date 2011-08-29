@@ -95,7 +95,7 @@ interface IClient {
      * Submit order to server to buy modules.
      * 
      * @param array $modules array of module ids
-     * @return array Array of booleans module_id => success?
+     * @return array Array of mixed values. True on success, False or string message on error.
      */
     function order_submit($modules);
 
