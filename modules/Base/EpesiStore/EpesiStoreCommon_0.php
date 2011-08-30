@@ -110,7 +110,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function add_downloaded_module($module_id, $version, $order_id) {
-        DB::Execute('INSERT INTO epesi_store_modules(module_id, version, order_id) VALUES (%d, %d, %d)', array($module_id, $version, $order_id));
+        DB::Execute('REPLACE INTO epesi_store_modules(module_id, version, order_id) VALUES (%d, %d, %d)', array($module_id, $version, $order_id));
     }
 
 }
