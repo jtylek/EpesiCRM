@@ -202,6 +202,19 @@ class CRM_Roundcube extends Module {
         return 'Roundcube Mail Client';
     }
 
+	public function mail_body_addon($rec) {
+		$theme = $this->init_module('Base_Theme');
+		$theme->assign('email', $rec);
+		$theme->display('mail_body');
+	}
+	
+	public function mail_headers_addon($rec) {
+		$theme = $this->init_module('Base_Theme');
+		$rec['headers_data'] = Utils_RecordBrowserCommon::get_val('rc_mails', 'headers_data', $rec, false, null);
+		$theme->assign('email', $rec);
+		$theme->display('mail_headers');
+	}
+	
 }
 
 ?>

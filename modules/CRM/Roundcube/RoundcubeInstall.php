@@ -121,14 +121,6 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'required'=>false
             ),
             array(
-                'name'=>'Headers',
-                'type'=>'calculated',
-                'extra'=>false,
-                'visible'=>false,
-                'required'=>false,
-                'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_headers')
-            ),
-            array(
                 'name'=>'Body',
                 'type'=>'long text',
                 'extra'=>false,
@@ -156,7 +148,6 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_mails', 'Mails');
         Utils_RecordBrowserCommon::set_access_callback('rc_mails', array('CRM_RoundcubeCommon', 'access_mails'));
-        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', 'Attachments');
 		Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'mails'));
 
         $fields = array(
@@ -180,7 +171,10 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails_assoc', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_mails_assoc', 'Mails Associations');
         Utils_RecordBrowserCommon::set_access_callback('rc_mails_assoc', array('CRM_RoundcubeCommon', 'access_mails_assoc'));
+		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_body_addon', 'Body');
         Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon', 'Associated records');
+        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', 'Attachments');
+		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_headers_addon', 'Headers');
 
         @DB::DropTable('rc_mails_attachments');
         DB::CreateTable('rc_mails_attachments','

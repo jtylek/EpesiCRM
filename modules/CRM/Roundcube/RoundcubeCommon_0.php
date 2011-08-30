@@ -150,11 +150,6 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $form->addElement('static', $field, $label,'<iframe id="rc_mail_body" src="modules/CRM/Roundcube/get_body.php?'.http_build_query(array('id'=>$rb->record['id'])).'" style="width:100%;border:0" border="0"></iframe>');
     }
 
-    public static function QFfield_headers(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        Libs_LeightboxCommon::display('mail_headers',$rb->record['headers_data'],Base_LangCommon::ts('CRM_Roundcube','Mail Headers'));
-        $form->addElement('static', $field, $label,'<a '.Libs_LeightboxCommon::get_open_href('mail_headers').'>'.Base_LangCommon::ts('CRM_Roundcube','display').'</a>');
-    }
-
     public static function QFfield_attachments(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
     }
 
