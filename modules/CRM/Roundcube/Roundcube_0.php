@@ -204,6 +204,7 @@ class CRM_Roundcube extends Module {
 
 	public function mail_body_addon($rec) {
 		$theme = $this->init_module('Base_Theme');
+		$rec['body'] = Utils_RecordBrowserCommon::get_val('rc_mails', 'body', $rec, false, null);
 		$theme->assign('email', $rec);
 		$theme->display('mail_body');
 	}
