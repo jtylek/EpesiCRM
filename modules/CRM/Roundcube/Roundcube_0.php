@@ -204,14 +204,14 @@ class CRM_Roundcube extends Module {
 
 	public function mail_body_addon($rec) {
 		$theme = $this->init_module('Base_Theme');
-		$rec['body'] = Utils_RecordBrowserCommon::get_val('rc_mails', 'body', $rec, false, null);
+		$rec['body'] = '<iframe id="rc_mail_body" src="modules/CRM/Roundcube/get_html.php?'.http_build_query(array('id'=>$rec['id'])).'" style="width:100%;border:0" border="0"></iframe>';
 		$theme->assign('email', $rec);
 		$theme->display('mail_body');
 	}
 	
 	public function mail_headers_addon($rec) {
 		$theme = $this->init_module('Base_Theme');
-		$rec['headers_data'] = Utils_RecordBrowserCommon::get_val('rc_mails', 'headers_data', $rec, false, null);
+		$rec['headers_data'] = '<iframe id="rc_mail_body" src="modules/CRM/Roundcube/get_html.php?'.http_build_query(array('id'=>$rec['id'], 'field'=>'headers')).'" style="width:100%;border:0" border="0"></iframe>';
 		$theme->assign('email', $rec);
 		$theme->display('mail_headers');
 	}
