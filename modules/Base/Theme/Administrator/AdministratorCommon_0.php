@@ -19,5 +19,15 @@ class Base_Theme_AdministratorCommon extends Base_AdminModuleCommon {
 	public static function body_access() {
 		return Base_AclCommon::i_am_admin();
 	}
+	
+	public static function themeup_selected_modules() {
+		$cur = DB::GetAssoc('SELECT module, id FROM base_theme_themeup');
+		foreach ($cur as $m=>$v)
+			Base_ThemeCommon::install_default_theme($m);
+	}
+
 }
+
+Base_Theme_AdministratorCommon::themeup_selected_modules();
+
 ?>

@@ -51,8 +51,40 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 				Base_ActionBarCommon::add('edit','Manage templates',$this->create_callback_href(array($this,'download_template')));
 			}
 		}
-				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-				Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+
+		Base_ActionBarCommon::add('settings', 'Developer Settings', $this->create_callback_href(array($this, 'select_themeup_modules')));
+	}
+	
+	public function select_themeup_modules() {
+		if ($this->is_back())
+			return false;
+		$mod = DB::Execute('SELECT * FROM modules ORDER BY name');
+		$cur = DB::GetAssoc('SELECT module, id FROM base_theme_themeup');
+		
+		$form = $this->init_module('Libs_QuickForm');
+		
+		$form->addElement('header', 'header', $this->t('Automatically update theme files in /data of selected modules on every processing'));
+		while ($m = $mod->FetchRow()) {
+			$form->addElement('checkbox', $m['name'], $m['name']);
+		}
+		$form->setDefaults($cur);
+
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		
+		if ($form->validate()) {
+			$vals = $form->exportValues();
+			unset($vals['submited']);
+			DB::Execute('DELETE FROM base_theme_themeup');
+			foreach ($vals as $k=>$v)
+				if ($v) DB::Execute('INSERT INTO base_theme_themeup(module) VALUES (%s)', array($k));
+			return false;
+		}
+		
+		$form->display();
+		return true;
 	}
 	
 	public function upload_template($file, $oryginal_file) {
