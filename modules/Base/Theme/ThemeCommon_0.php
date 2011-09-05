@@ -109,6 +109,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	public static function install_default_theme($mod_name,$version=0) {
 		$directory = 'modules/'.str_replace('_','/',$mod_name).'/theme_'.$version;
 		if (!is_dir($directory)) $directory = 'modules/'.str_replace('_','/',$mod_name).'/theme';
+		if (!is_dir($directory)) return;
 		$mod_name = str_replace('_','/',$mod_name);
 		$data_dir = DATA_DIR.'/Base_Theme/templates/default';
 		$content = scandir($directory);
