@@ -174,8 +174,11 @@
 
 #multiselect .form-element,
 #multiselect .to-element {
-    width: 50%;
     height: 100%;
+}
+
+#multiselect .buttons-cell {
+	width: 58px;
 }
 
 #multiselect .form-element {
