@@ -174,7 +174,7 @@ class Base_Setup extends Module {
                     if(!$simple) eval_js("original_select[\"$entry\"] = $installed");
 
 					$c[$path[count($path)-1]] = array();
-					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right '.($tooltip?Utils_TooltipCommon::open_tag_attrs($tooltip,false):'').'>' . $ele->toHtml() . '</td></tr></table>';
+					$c[$path[count($path)-1]]['name'] = '<table width="400px"><tr><td align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td width="100px" align=right '.($tooltip?Utils_TooltipCommon::open_tag_attrs($tooltip,false):'').'>' . $ele->toHtml() . '</td></tr></table>';
 					$c[$path[count($path)-1]]['sub'] = array();
 					array_push($def, array('installed['.$entry.']'=>$installed));
 

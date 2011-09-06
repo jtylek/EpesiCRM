@@ -96,12 +96,6 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		}
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
-        $edit = $this->get_unique_href_variable('edit_user');
-        if($edit!=null) {
-            $this->edit_user_form($edit);
-            return;
-        }
-
         $gb = & $this->init_module('Utils/GenericBrowser',null,'user_list');
         //$gb->set_module_variable('adv_search',false);
 
@@ -134,7 +128,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
                 $groups = Base_AclCommon::get_user_groups_names($uid);
                 if($groups===false) continue; //skip if you don't have privileges
 
-                $gb_row = array('<a '.$this->create_unique_href(array('edit_user'=>$row['id'])).'>'.$row['login'].'</a>');
+                $gb_row = array('<a '.$this->create_callback_href(array($this,'edit_user_form'),array($row['id'])).'>'.$row['login'].'</a>');
                 if($is_contacts) {
                     $c = CRM_ContactsCommon::get_contact_by_user_id($row['id']);
                     $gb_row[] = $c?CRM_ContactsCommon::contact_format_default($c):'---';
@@ -157,7 +151,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         }
         $qf->display();
 //      print('<a '.$this->create_unique_href(array('edit_user'=>-1)).'>'.$this->t('Add new user').'</a>');
-        Base_ActionBarCommon::add('add','New user',$this->create_unique_href(array('edit_user'=>-1)));
+        Base_ActionBarCommon::add('add','New user',$this->create_callback_href(array($this,'edit_user_form'), array(-1)));
     }
 
     public function log_as_user($id) {
@@ -166,6 +160,8 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     }
 
     public function edit_user_form($edit_id) {
+		if ($this->is_back())
+			return false;
         $form = & $this->init_module('Libs/QuickForm',$this->t(($edit_id>=0)?'Applying changes':'Creating new user'));
         
         //create new user
@@ -222,11 +218,12 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
         if($form->validate()) {
             if($form->process(array(&$this, 'submit_edit_user_form')))
-                $this->set_back_location();
+                return false;
         } else $form->display();
 
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
         Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		return true;
     }
 
     public function submit_edit_user_form($data) {

@@ -8,6 +8,10 @@ table.root {
 	width: auto;
 }
 
+a.root_item_link_down,
+a.root_item_link_right {
+	cursor: default;
+}
 
 a.root_item_link_down,
 a.root_item_link_down:hover {
@@ -169,6 +173,7 @@ table.root a.root_item_link_down {
 }
 
 td.item {
+	width: 150px;
 	margin: 0px;
 	padding: 0px;
 	vertical-align: middle;
@@ -229,6 +234,7 @@ a.root_item_link_right {
 
 .submenu {
 	border: 1px solid #8FC98F;
+	width: 150px;
 }
 
 a.root_item_link:hover,

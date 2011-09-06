@@ -117,6 +117,8 @@ class Base_Search extends Module {
 		$form->addElement('submit', 'quick_search_submit', $this->t('Search'), array('class'=>'mini_submit'));
 
 		$theme =  & $this->pack_module('Base/Theme');
+		$theme->assign('submit_href', $form->get_submit_form_href());
+		$theme->assign('submit_label', $this->t('Search'));
 		$form->assign_theme('form', $theme);
 		$theme->assign('form_mini', 'yes');
 		$theme->display('Search');

@@ -29,6 +29,20 @@ hideAllNow = function(menu, submenu) {
 	last_open[menu] = -1;
 }
 
+selected_menu_item = function(menu, a_tag) {
+	new Effect.Morph(a_tag, {
+		style: 'background-color: #4FD64F;',
+		duration: 0.3
+	});
+	new Effect.Morph(a_tag, {
+		style: 'background-color: #4F864F;',
+		duration: 0.3,
+		delay: 0.3,
+		afterFinish: function() {a_tag.style.backgroundColor = "";}
+	});
+	setTimeout("hideAllNow(\'"+menu+"\', 0);", 600);
+}
+
 custom_show = function(menu, submenu) {
 	if(timeout[menu][submenu] != null) {
 		clearTimeout(timeout[menu][submenu]);
@@ -91,7 +105,7 @@ CustomMenubar = function(id, _layout) {
 
 	this.addSplit = function( ) {
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
-			menu_string[this.id] += '<tr><td class=splitter></td></tr>'; /*<hr class=custom_split>*/
+			menu_string[this.id] += '<tr><td class="splitter"></td></tr>'; /*<hr class=custom_split>*/
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
@@ -100,7 +114,7 @@ CustomMenubar = function(id, _layout) {
 				} else {
 					this.init = 0;
 				}
-				menu_string[this.id] += '<td class=item><a href=# class=root_item_link>-|||-</a></td>';
+				menu_string[this.id] += '<td class=item><a class=root_item_link>-|||-</a></td>';
 			}
 		}
 	}
@@ -110,7 +124,7 @@ CustomMenubar = function(id, _layout) {
 			if(icon) {
 				menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
 			}
-			menu_string[this.id] += '<a href="'+address+'" class=root_item_link>' + title + '</a>';
+			menu_string[this.id] += '<a href="'+address+'" class=root_item_link onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
 			menu_string[this.id] += '</td></tr>';
 		} else {
 			if(this.depth == 0 ) {
@@ -126,9 +140,9 @@ CustomMenubar = function(id, _layout) {
 					menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
 				}
 				if( this.depth == 0) {
-					menu_string[this.id] += '<a href="'+address+'" class=root_item_link_none>' + title + '</a>';
+					menu_string[this.id] += '<a href="'+address+'" class=root_item_link_none onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
 				} else {
-					menu_string[this.id] += '<a href="'+address+'" class=root_item_link>' + title + '</a>';
+					menu_string[this.id] += '<a href="'+address+'" class=root_item_link onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
 				}
 				menu_string[this.id] += '</td>';
 			}
@@ -140,9 +154,9 @@ CustomMenubar = function(id, _layout) {
 			menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
 		}
 		if(layout[this.id] == 'horizontal' && this.depth == 0) {
-			menu_string[this.id] += '<a  href=# class=root_item_link_down><div class=root_item_link_down_arrow_box><div class=root_item_link_down_arrow_icon></div><div class=root_item_link_down_arrow>' + title + '</div></div></a>';
+			menu_string[this.id] += '<a class=root_item_link_down><div class=root_item_link_down_arrow_box><div class=root_item_link_down_arrow_icon></div><div class=root_item_link_down_arrow>' + title + '</div></div></a>';
 		} else {
-			menu_string[this.id] += '<a  href=# class=root_item_link_right><div class=root_item_link_right_arrow>' + title + '</div></a>';
+			menu_string[this.id] += '<a class=root_item_link_right><div class=root_item_link_right_arrow>' + title + '</div></a>';
 		}
 		menu_string[this.id] += '</td>';
 

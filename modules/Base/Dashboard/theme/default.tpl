@@ -20,7 +20,20 @@
                 	{/if}
                 	{* 18px/icon + 2px base *}
                     <td class="header title {$handle_class} {$color}">{$caption}</td>
-                    <td class="header controls {$color}" nowrap="1">
+					{assign var=actions_width value=8}
+					{if isset($href)}
+						{assign var=actions_width value=$actions_width+18}
+					{/if}
+					{if isset($toggle)}
+						{assign var=actions_width value=$actions_width+18}
+					{/if}
+					{if isset($configure)}
+						{assign var=actions_width value=$actions_width+18}
+					{/if}
+					{if isset($remove)}
+						{assign var=actions_width value=$actions_width+18}
+					{/if}
+                    <td class="header controls {$color}" nowrap="1" width="{$actions_width}px">
 						{if isset($href)}
 							{$__link.href.open}
 							<img src="{$theme_dir}/Base/Dashboard/resize.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/resize-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/resize.png';" width="14" height="14" alt="R" border="0">

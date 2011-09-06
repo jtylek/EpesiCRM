@@ -1,21 +1,21 @@
-<div class="week-menu">
-	<table class="week-menu" border="0" cellpadding="0" cellspacing="0"><tr>
-		<td class="empty">
+<div class="navigation-menu">
+	<table border="0" cellpadding="0" cellspacing="0"><tr>
+		<td class="trash_cell">
 			<div id="{$trash_id}" class="trash">
 				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils/Calendar/trash.png"></div>
 				<div class="text">{$trash_label}</div>
 			</div>
 		</td>
-		<td style="width: 10px;"></td>
-		<td><a class="button" {$prev7_href}>{$prev7_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev2.png"></a></td>
-		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>
-		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
-		<td><a class="button" {$next_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$next_label}</a></td>
-		<td><a class="button" {$next7_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next2.png">&nbsp;&nbsp;{$next7_label}</a></td>
-		<td style="width: 10px;"></td>
-		<td>{$popup_calendar}</td>
 		<td class="empty"></td>
-		<td>{$navigation_bar_additions}</td>
+		<td class="button_cell"><a class="button" {$prev7_href}>{$prev7_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev2.png"></a></td>
+		<td class="button_cell"><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>
+		<td class="button_cell"><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
+		<td class="button_cell"><a class="button" {$next_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$next_label}</a></td>
+		<td class="button_cell"><a class="button" {$next7_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next2.png">&nbsp;&nbsp;{$next7_label}</a></td>
+		<td style="width: 10px;"></td>
+		<td class="button_cell">{$popup_calendar}</td>
+		<td class="empty"></td>
+		<td class="button_cell">{$navigation_bar_additions}</td>
 	</tr></table>
 </div>
  
@@ -27,6 +27,18 @@
 <div style="padding: 5px; background-color: #FFFFFF;">
 
 	<table cellspacing=0 id="Utils_Calendar__week">
+		<thead>
+			<tr>
+				<th style="width:90px;"></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+			</tr>
+		</thead>
 {* shows month *}
 		<tr>
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils/Calendar/icon-week.png" width="32" height="32" border="0"><br>{$week_view_label}</td>

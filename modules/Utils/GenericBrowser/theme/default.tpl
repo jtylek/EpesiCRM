@@ -34,8 +34,8 @@
 				{/if}
 			</td>
 			<!-- Advanced / Simple Search -->
-			<td id="generic_browser_search" style="text-align: right;">
-				{if isset($form_data_search)}
+			{if isset($form_data_search)}
+				<td id="generic_browser_search" style="text-align: right;">
 					<div class="IEfix">
 					{$form_data_search.javascript}
 
@@ -83,8 +83,8 @@
 					{/if}
 					</form>
 					</div>
-				{/if}
-			</td>
+				</td>
+			{/if}
 		</tr>
 	</tbody>
 </table>

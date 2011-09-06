@@ -30,7 +30,10 @@ table_overflow_show = function (e_td) {
 		if (e_tip.clientWidth<=e_td.clientWidth) {
 			utils_genericbrowser__hidetip = true;
 			table_overflow_hide(utils_genericbrowser__hide_current); // Work-around for firefox, because it cannot handle scrollWidth in <td>
-		} else table_overflow_hide_delayed();
+		} else {
+			if(navigator.userAgent.match(/(iPad|iPod|iPhone)/i) == null)
+				table_overflow_hide_delayed();
+		}
 	}
 };
 table_overflow_stop_hide = function() {
@@ -71,5 +74,8 @@ Utils_GenericBrowser__overflow_div = function() {
 	body = body[0];
 	document.body.appendChild(div);
 	div.onmouseout = table_overflow_hide_delayed;
-	div.onmouseover = table_overflow_stop_hide;
+	if(navigator.userAgent.match(/(iPad|iPod|iPhone)/i) == null)
+		div.onmouseover = table_overflow_stop_hide;
+	else
+		div.onmouseover = table_overflow_hide_delayed;
 };

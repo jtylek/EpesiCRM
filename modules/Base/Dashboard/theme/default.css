@@ -32,12 +32,12 @@
 #dashboard .container {
 	width: 100%;
 	border: none;
+	table-layout: fixed;
 	background-color: #FFFFFF;
 }
 
 
 #dashboard .controls {
-	width: 30%;
 	text-align: right;
 }
 
@@ -49,11 +49,13 @@
 	text-align: left;
 	vertical-align: middle;
 	padding-bottom: 3px;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 #dashboard .controls a {
 	color: #FFFFFF;
-	padding-left: 3px;
+	padding-left: 1px;
 }
 
 #dashboard .actions a {
@@ -138,3 +140,13 @@
 	color: black;
 }
 
+#dashboard_applets_filter {
+    border: 1px solid #B3B3B3;
+    border-radius: 6px 6px 6px 6px;
+    color: #000000;
+    font-size: 11px;
+    height: 16px;
+    padding-left: 5px;
+	margin-left: 9px;
+    width: 95%;
+}

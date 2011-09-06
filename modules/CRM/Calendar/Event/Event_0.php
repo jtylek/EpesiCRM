@@ -221,10 +221,16 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		eval_js('hide_calendar_event_handlers_popup = function() {'.
 			'if(var_hide_calendar_event_handlers_popup==1){'.
 				'$("calendar_event_handlers_popup").style.display="none";'.
+				'$("calendar_event_handlers_trigger").innerHTML=calendar_event_handlers_message_default;'.
 				'if(calendar_event_handlers_changed==1){'.
 					$form->get_submit_form_js().
+					'$("calendar_event_handlers_trigger").innerHTML=calendar_event_handlers_message_processing;'.
 				'}'.
 			'}'.
+		'}');
+		eval_js('show_calendar_event_handlers_popup = function() {'.
+			'$("calendar_event_handlers_popup").style.display="";'.
+			'$("calendar_event_handlers_trigger").innerHTML=calendar_event_handlers_message_confirm;'.
 		'}');
 
 		$selected = $this->get_module_variable('events_handlers', $default);
@@ -251,6 +257,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('elements_name', $elements_name);
 		$theme->assign('label', $label);
+
+		eval_js('calendar_event_handlers_message_default="'.$label.'";');
+		eval_js('calendar_event_handlers_message_processing="'.$this->t('Processing...').'";');
+		eval_js('calendar_event_handlers_message_confirm="'.$this->t('Save selection').'";');
+
 		$form->assign_theme('form', $theme);
 		ob_start();
 		$theme->display('custom_event_handlers_form');

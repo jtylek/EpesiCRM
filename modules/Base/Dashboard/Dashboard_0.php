@@ -124,8 +124,8 @@ class Base_Dashboard extends Module {
 			print('</td>');
 			print('<td id="dashboard" style="vertical-align:top;">');
 			$search_caption = $this->t('Search applets...');
-			print('<input type="text" id="dashboard_applets_filter" style="color:#555;width:100%;" value="'.$search_caption.'" onblur="dashboard_prepare_filter_box(0,\''.$search_caption.'\')" onfocus="dashboard_prepare_filter_box(1,\''.$search_caption.'\')" onkeyup="dashboard_filter_applets()">');
-			print('<div id="dashboard_applets_new_scroll" style="overflow-y:auto;overflow-x: hidden;height:200px;padding-bottom:10px;vertical-align:top">');
+			print('<input type="text" id="dashboard_applets_filter" style="color:#555;width:90%;" value="'.$search_caption.'" onblur="dashboard_prepare_filter_box(0,\''.$search_caption.'\')" onfocus="dashboard_prepare_filter_box(1,\''.$search_caption.'\')" onkeyup="dashboard_filter_applets()">');
+			print('<div id="dashboard_applets_new_scroll" style="overflow-y:auto;overflow-x: hidden;height:200px;vertical-align:top">');
 			print('<div id="dashboard_applets_new" style="vertical-align:top">');
 
 			print(Base_DashboardCommon::get_installed_applets_html());
@@ -133,7 +133,7 @@ class Base_Dashboard extends Module {
 			print('</div>');
 			print('</div>');
 			print('</td></tr></table>');
-			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-140)+"px";');
+			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
 		}
 	}
 	

@@ -264,7 +264,8 @@
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
-/*	background-color: #FFFFFF;*/
+/*	background-color: #FFFFFF;
+*/
 	padding: 0px;
 	cursor: pointer;
 }
@@ -326,7 +327,8 @@
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
-/*	background-color: #E6ECF2;*/
+/*	background-color: #E6ECF2;
+*/
 	padding: 0px;
 	cursor: pointer;
 
@@ -342,97 +344,4 @@
 
 #Utils_Calendar__week td.inter_today_weekend div.inner:hover {
 	background-color: #e6cfcf;
-}
-
-/* menu */
-
-div.week-menu {
-	padding-bottom: 0px;
-	/*border-bottom: 4px solid #B3B3B3;*/
-}
-
-div.week-menu img {
-	vertical-align:top;
-}
-
-div.week-menu a.button {
-    font-weight: normal;
-    color: #FFFFFF;
-    width: 135px;
-    height: 26px;
-	padding-top: 4px;
-    display: block;
-    border: 0px;
-    text-align: center;
-}
-
-div.week-menu a.button img {
-	vertical-align: middle;
-	width: 20px;
-	height: 20px;
-	border: none;
-}
-
-div.week-menu a.button {line-height:: 0px\0/;}
-
-div.week-menu a.button:hover {
-
-}
-
-div.week-menu table.week-menu {
-	width: 98%;
-}
-
-div.week-menu table.week-menu td {
-	padding-left: 3px;
-	padding-right: 3px;
-}
-
-div.week-menu .empty {
-	width: 50%;
-}
-
-/* trash */
-
-div.week-menu .trash {
-	display: block;
-	margin: 5px auto auto 0px;
-	padding: 4px;
-	height: 32px;
-	width: 128px;
-	border: 1px solid #F0F0F0;
-}
-
-div.week-menu .trash .icon {
-	display: block;
-	float: left;
-	width: 32px;
-	height: 32px;
-}
-
-div.week-menu .trash .text {
-	display: block;
-	float: left;
-	width: 96px;
-	height: 32px;
-	color: #F0F0F0;
-	vertical-align: middle;
-	text-align: center;
-}
-
-div.week-menu .trash:hover {
-	background-color: #F0F0F0;
-	border-top: 1px solid #B3B3B3;
-	border-left: 1px solid #B3B3B3;
-	border-right: 1px solid #FFFFFF;
-	border-bottom: 1px solid #FFFFFF;
-}
-
-div.week-menu .trash:hover .text {
-	color: #777777;
-}
-
-div.week-menu .trash:hover img {
-	padding-top: 1px;
-	padding-left: 1px;
 }

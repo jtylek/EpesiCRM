@@ -163,7 +163,6 @@ class Base_Admin extends Module {
 
 		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 
-		Base_ThemeCommon::install_default_theme($this->get_type());
 		$theme =  & $this->pack_module('Base/Theme');
 
 		$form->assign_theme('form', $theme);

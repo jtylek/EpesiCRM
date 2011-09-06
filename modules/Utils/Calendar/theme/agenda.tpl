@@ -2,10 +2,9 @@
 
 <table style="width:98%">
 	<tr>
-		<td style="width:25%">
-			&nbsp;
+		<td>
 		</td>
-		<td style="width:50%">
+		<td style="width:400px;">
 			<table id="Utils_Calendar__agenda" border="0" cellspacing="0" cellpadding="0">
 				<tbody>
 					<tr>
@@ -18,7 +17,9 @@
 				</tbody>
 			</table>
 		</td>
-		<td style="float:right;">
+		<td>
+		</td>
+		<td class="button_cell">
 			{$navigation_bar_additions}
 		</td>
 	</tr>

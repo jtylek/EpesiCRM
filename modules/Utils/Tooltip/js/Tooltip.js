@@ -80,6 +80,7 @@ Utils_Tooltip__create_block = function(template) {
 	body = document.getElementsByTagName('body');
 	body = body[0];
 	document.body.appendChild(div);
+	div.onmouseover = Utils_Tooltip__hideTip;
 }
 
 Utils_Tooltip__leightbox_mode = function(o) {

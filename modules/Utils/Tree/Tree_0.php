@@ -85,9 +85,9 @@ class Utils_Tree extends Module {
 				else
 				$ret .= '<td class=utils_tree_opener_inactive><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'opener_inactive.gif').'"></td>';
 				if(isset($v['selected']) && $v['selected'] == 1)
-					$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
+					$ret .= "<td class=utils_tree_node_content_selected>".$v['name']."</td>";
 				else
-					$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
+					$ret .= "<td class=utils_tree_node_content>".$v['name']."</td>";
 				if(isset($v['visible']) && $v['visible'] == 1 && $path!==null)
 					array_push($this->_opened_paths, $path);
 				if(isset($v['opened']) && $v['opened'] == 1 && is_array($v['sub']) && !empty($v['sub']))
