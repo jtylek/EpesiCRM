@@ -279,6 +279,7 @@ table.Utils_GenericBrowser > tbody > tr:hover {
 	vertical-align: top;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .Utils_GenericBrowser__td a img {
@@ -654,4 +655,5 @@ table.Utils_GenericBrowser__navigation img {
 
 .Utils_GenericBrowser__overflow_div_content {
 	padding: 3px;
+	max-width: 400px;
 }
