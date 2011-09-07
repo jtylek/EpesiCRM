@@ -6,6 +6,14 @@
 	/* end css3 shadow border*/
 }
 
+.Utils_GenericBrowser__td .direction {
+	width: 20px;
+	margin: auto;
+	text-align: center;
+	color: white;
+	padding: 0px 0px 2px 0px;
+}
+
 .GenericBrowser_letters {
 	background-color: white;
 	height: 22px;
