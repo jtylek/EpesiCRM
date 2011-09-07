@@ -95,14 +95,53 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         Module::static_set_module_variable(self::MOD_PATH, 'modules_info', $modules_cache);
         // update in module list
         $modules_list = Module::static_get_module_variable(self::MOD_PATH, 'modules_list', array());
-        foreach($modules_list as $k => $v) {
-            if($v['id'] == $module_id) {
+        foreach ($modules_list as $k => $v) {
+            if ($v['id'] == $module_id) {
                 $modules_list[$k] = $modules_cache[$module_id];
                 Module::static_set_module_variable(self::MOD_PATH, 'modules_list', $modules_list);
                 break;
             }
         }
         return $modules_cache[$module_id];
+    }
+
+    /**
+     * Download and extract package of modules.
+     * @param array $orders_ids orders ids
+     * @return string|true string with error message, true on success
+     */
+    public static function download_package($orders_ids) {
+        $hash = Base_EssClientCommon::server()->download_prepare($orders_ids);
+        if ($hash === false) {
+            return 'Prepare error';
+        }
+        // download file and check sum
+        $file_contents = Base_EssClientCommon::server()->download_prepared_file($hash);
+        if (sha1($file_contents) !== $hash) {
+            return 'File hash error';
+        }
+        // make temp destination filename
+        $destfile = self::Instance()->get_data_dir() . time();
+        $i = 0;
+        while (file_exists("{$destfile}{$i}.zip"))
+            $i++;
+        $destfile .= "{$i}.zip";
+        // store file
+        if (file_put_contents($destfile, $file_contents) === false) {
+            return 'File store error';
+        }
+        // extract
+        if (class_exists('ZipArchive')) {
+            $zip = new ZipArchive();
+            if (filesize($destfile) == 0 || $zip->open($destfile) != true || $zip->extractTo('./') == false) {
+                return 'Archive error';
+            } else {
+                $zip->close();
+            }
+        } else {
+            return 'Please enable zip extension in server configuration!';
+        }
+        return true;
     }
 
     public static function get_downloaded_modules() {

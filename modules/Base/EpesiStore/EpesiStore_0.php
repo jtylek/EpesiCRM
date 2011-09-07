@@ -14,7 +14,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_EpesiStore extends Module {
     const refresh_info_text = 'Data is stored until close or refresh of browser\'s Epesi window or tab';
     const modules_changed_on_server_text = 'Some modules has changed on server. This is updated list.';
-    const VAR_download_status = 'download_status';
 
     protected $banned_columns_module = array('id', 'owner_id', 'path');
     protected $banned_columns_order = array('id', 'installation_id');
@@ -130,6 +129,13 @@ class Base_EpesiStore extends Module {
 
     public function cart_add_item($r) {
         $items = Base_EpesiStoreCommon::get_cart();
+        // user module id to compare orders in cart
+        if (!isset($r['id']))
+            return;
+        foreach ($items as $it) {
+            if (isset($it['id']) && $it['id'] == $r['id'])
+                return;
+        }
         $items[] = $r;
         Base_EpesiStoreCommon::set_cart($items);
     }
@@ -163,6 +169,13 @@ class Base_EpesiStore extends Module {
      */
     public function download_queue_item($r) {
         $q = Base_EpesiStoreCommon::get_download_queue();
+        // use order id to compare is it in queue already
+        if (!isset($r['id']))
+            return;
+        foreach ($q as $x) {
+            if (isset($x['id']) && $x['id'] == $r['id'])
+                return;
+        }
         $q[] = $r;
         Base_EpesiStoreCommon::set_download_queue($q);
     }
@@ -218,39 +231,10 @@ class Base_EpesiStore extends Module {
         foreach ($orders as $o) {
             $orders_ids[] = $o['id'];
         }
-        $hash = Base_EssClientCommon::server()->download_prepare($orders_ids);
-        if ($hash === false) {
-            print('Prepare error');
-            return;
-        }
-        // download file and check sum
-        $file_contents = Base_EssClientCommon::server()->download_prepared_file($hash);
-        if (sha1($file_contents) !== $hash) {
-            print("File hash error $hash " . sha1($file_contents));
-            return;
-        }
-        // make temp destination filename
-        $destfile = $this->get_data_dir() . time();
-        $i = 0;
-        while (file_exists("{$destfile}{$i}.zip"))
-            $i++;
-        $destfile .= "{$i}.zip";
-        // store file
-        if (file_put_contents($destfile, $file_contents) === false) {
-            print('File store error');
-            return;
-        }
-        // extract
-        if (class_exists('ZipArchive')) {
-            $zip = new ZipArchive();
-            if (filesize($destfile) == 0 || $zip->open($destfile) != true || $zip->extractTo('./') == false) {
-                $text .= $this->t("Archive error!") . '<br/>';
-                return;
-            } else {
-                $zip->close();
-            }
-        } else {
-            $text .= $this->t("Please enable zip extension in server configuration!") . '<br/>';
+        // download and extract
+        $ret = Base_EpesiStoreCommon::download_package($orders_ids);
+        if (is_string($ret)) {
+            print($this->t($ret));
             return;
         }
         // show download status
@@ -266,7 +250,38 @@ class Base_EpesiStore extends Module {
             // store info about module in db
             Base_EpesiStoreCommon::add_downloaded_module($d['module_id'], $mod['version'], $d['id']);
         }
-        print(implode('<br/>', $all_files));
+        // check for epesi modules
+        $modules = array();
+        $string = 'modules/';
+        $str_length = strlen($string);
+        foreach ($all_files as $f) {
+            if (is_dir($f) && substr_compare($f, $string, 0, $str_length) == 0) {
+                $module_dir = substr($f, $str_length);
+                $module_name = str_replace(DIRECTORY_SEPARATOR, '_', trim($module_dir, DIRECTORY_SEPARATOR));
+                if (ModuleManager::exists($module_name)) {
+                    $modules[] = $module_name;
+                }
+            }
+        }
+        // remove each file under module path
+        foreach ($modules as $mod) {
+            $modxx = 'modules/' . $mod;
+            foreach ($all_files as $k => $v) {
+                if (strstr($v, $modxx)) {
+                    unset($all_files[$k]);
+                }
+            }
+        }
+        // print info
+        if (count($modules)) {
+            print($this->t('Modules:') . '<br/>');
+            print(implode('<br/>', $modules));
+            print('<br/><br/>');
+        }
+        if (count($all_files)) {
+            print($this->t('Other files:') . '<br/>');
+            print(implode('<br/>', $all_files));
+        }
         Base_EpesiStoreCommon::empty_download_queue();
     }
 
@@ -322,7 +337,8 @@ class Base_EpesiStore extends Module {
     protected function GB_row_data_transform_module(array $data) {
         if ($data['price'] == 0)
             $data['price'] = $this->t('Free');
-
+        if (isset($data['active']))
+            unset($data['active']);
         return $data;
     }
 
