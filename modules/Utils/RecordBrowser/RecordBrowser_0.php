@@ -990,6 +990,7 @@ class Utils_RecordBrowser extends Module {
             $id = $this->get_module_variable('id');
             $this->unset_module_variable('id');
         }
+		$id = intVal($id);
         self::$browsed_records = null;
 
         Utils_RecordBrowserCommon::$cols_order = array();
