@@ -170,10 +170,11 @@ table.root a.root_item_link_down {
 	padding: 0px;
 	width: 100%;
 	z-index: 1000;
+	table-layout: auto;
 }
 
 td.item {
-	width: 150px;
+	width: 100%;
 	margin: 0px;
 	padding: 0px;
 	vertical-align: middle;
@@ -234,7 +235,6 @@ a.root_item_link_right {
 
 .submenu {
 	border: 1px solid #8FC98F;
-	width: 150px;
 }
 
 a.root_item_link:hover,
