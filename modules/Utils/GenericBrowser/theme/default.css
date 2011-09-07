@@ -31,19 +31,19 @@
 
 /* search */
 
-.Utils_GenericBrowser__search {
-    margin-top: 5px;
-    margin-bottom: 5px;
+.letters-search {
+    width: 100%;
+	padding: 5px 8px;
 }
 
-.Utils_GenericBrowser__search .label {
+.letters-search .label {
     background-color: #336699;
     color: white;
     padding-left: 10px;
     padding-right: 10px;
 }
 
-.Utils_GenericBrowser__search input {
+.letters-search input {
     background-color: #e6ecf2;
     background-color: white;
     height: 28px;
@@ -60,11 +60,11 @@
 	/* end border radius */
 }
 
-.Utils_GenericBrowser__search input:focus {
+.letters-search input:focus {
     background-color: #ffffa5;
 }
 
-.Utils_GenericBrowser__search .submit input {
+.letters-search .submit input {
     width: 100px;
     height: 30px;
     border: none;
@@ -97,7 +97,7 @@
 	/* end css3 shadow border*/
 }
 
-.Utils_GenericBrowser__search .submit input:hover {
+.letters-search .submit input:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
@@ -110,11 +110,11 @@
 	/* end light css3 green background gradient */
 }
 
-.Utils_GenericBrowser__search .advanced {
+.letters-search .advanced {
     padding-left: 6px;
 }
 
-.Utils_GenericBrowser__search .advanced a.button {
+.letters-search .advanced a.button {
 	height: 23px;
 	padding: 4px 0px 3px 0px;
     width: 150px;
@@ -142,7 +142,7 @@
 	/* end css3 shadow border*/
 }
 
-.Utils_GenericBrowser__search .advanced a.button:hover {
+.letters-search .advanced a.button:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
@@ -357,17 +357,11 @@ table.Utils_GenericBrowser__navigation img {
 
 /* letter links */
 
-#letters-search {
-    width: 100%;
-	padding: 0px 8px 0px 8px;
-}
-
-#letters-search .letters {
+.letters-search .letters {
     text-align: left;
-    width: auto;
 }
 
-#letters-search .reset {
+.letters-search .reset {
     text-align: left;
 }
 
@@ -377,7 +371,7 @@ table.Utils_GenericBrowser__navigation img {
 	color: white;
 }
 
-#letters-search .letters .all {
+.letters-search .letters .all {
     width: auto;
     padding: 0px 5px 2px 7px;
 	color: white;
@@ -405,7 +399,7 @@ table.Utils_GenericBrowser__navigation img {
 	box-shadow: 1px 1px 3px gray;
 	/* end css3 shadow border*/
 }
-#letters-search .letters .all:hover {
+.letters-search .letters .all:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
@@ -417,12 +411,12 @@ table.Utils_GenericBrowser__navigation img {
 	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
 	/* end light css3 green background gradient */
 }
-#letters-search .letters .letter {
+.letters-search .letters .letter {
     width: 14px;
 }
 
-#letters-search .letters a,
-#letters-search .letters span {
+.letters-search .letters a,
+.letters-search .letters span {
     margin: 2px 3px;
     display: block;
     float: left;
@@ -455,8 +449,8 @@ table.Utils_GenericBrowser__navigation img {
 	box-shadow: 1px 1px 3px gray;
 	/* end css3 shadow border*/
 }
-#letters-search .letters a:hover,
-#letters-search .letters span:hover {
+.letters-search .letters a:hover,
+.letters-search .letters span:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
@@ -477,7 +471,7 @@ table.Utils_GenericBrowser__navigation img {
     margin-left: 50px;
 }
 
-#letters-search .letters .abc {
+.letters-search .letters .abc {
     height: 19px;
 	padding: 4px 0px 7px 0px;
     line-height: 20px;
@@ -512,7 +506,7 @@ table.Utils_GenericBrowser__navigation img {
 	/* end css3 shadow border*/
 }
 
-#letters-search .letters .abc:hover {
+.letters-search .letters .abc:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
@@ -546,6 +540,8 @@ table.Utils_GenericBrowser__navigation img {
 #Utils_GenericBrowser__navigation {
 	height: 23px;
 	vertical-align: middle;
+	width:100%;
+	table-layout: auto;
 }
 
 .nav_pagin select,
@@ -573,6 +569,15 @@ table.Utils_GenericBrowser__navigation img {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9c9c9c', endColorstr='#666666',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #9c9c9c 0%,#858585 49%,#666666 51%,#939393 100%); /* W3C */
 	/* gray v1 css3 background gradient */
+}
+
+#Utils_GenericBrowser__navigation td.nav_summary {
+	width: 160px;
+	text-align: center;
+}
+
+#Utils_GenericBrowser__navigation td.nav_button {
+	width: 96px;
 }
 
 #Utils_GenericBrowser__navigation .nav_button a {

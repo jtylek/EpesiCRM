@@ -337,41 +337,42 @@
 }
 
 /*** automulti ***/
-#automulti {
+.automulti {
     width: 100%;
     height: 100%;
+	table-layout: auto;
 }
 
-#automulti td {
+.automulti td {
     text-align: center;
 }
 
-#automulti .main-element {
+.automulti .main-element {
     width: 100%;
     height: 100%;
 }
 
-#automulti .search-element {
+.automulti .search-element {
     width: 90%;
 }
 
-#automulti .search-element input {
+.automulti .search-element input {
     width: 100%;
 }
 
-#automulti .main-element select {
+.automulti .main-element select {
     width: 100%;
     min-width: 300px;
     height: 70px;
 }
 
-#automulti .button,
-#automulti .button:hover {
+.automulti .button,
+.automulti .button:hover {
     background-image: none;
     width: 50px;
 }
 
-#automulti .button input {
+.automulti .button input {
     width: 50px;
     width: 50px !important;
     height: 20px;
@@ -379,7 +380,7 @@
     border: none;
 }
 
-#automulti .enabled input {
+.automulti .enabled input {
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -426,7 +427,7 @@
 	/* end css3 shadow border*/
 }
 
-#automulti .disabled input {
+.automulti .disabled input {
 	/* gray v2 css3 background gradient */
 	background: #b2b2b2; /* Old browsers */
 	background: -moz-linear-gradient(top, #b2b2b2 0%, #9b9b9b 49%, #7c7c7c 51%, #a8a8a8 100%); /* FF3.6+ */
@@ -461,7 +462,7 @@
 	/* end css3 shadow border*/
 }
 
-#automulti .enabled input:hover {
+.automulti .enabled input:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */
@@ -474,7 +475,7 @@
 	/* end light css3 green background gradient */
 }
 
-#automulti .enabled input:focus {
+.automulti .enabled input:focus {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%, #226622 100%); /* FF3.6+ */

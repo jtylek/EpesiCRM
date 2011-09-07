@@ -1,6 +1,5 @@
 .Utils_RecordBrowser__View_entry {
     width: 100%;
-	table-layout: fixed;
 }
 
 .Utils_RecordBrowser__View_entry table.view {
@@ -16,7 +15,6 @@
 
 .Utils_RecordBrowser__View_entry table {
     width: 100%;
-	table-layout: fixed;
 }
 
 .Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }

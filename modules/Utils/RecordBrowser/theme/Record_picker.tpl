@@ -16,7 +16,12 @@
 					</div>
 				</div>
 			</td>
+			<td>
+			</td>
 			<td class="filters">
 				{$filters}
 			</td>
+		</tr>
+	</tbody>
+</table>
 {$table}

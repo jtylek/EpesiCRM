@@ -276,7 +276,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
             }
 			$mainElement .= $tabs . '</select>';
 
-			$strHtml .= $tabs . '<table id="automulti">';
+			$strHtml .= $tabs . '<table class="automulti">';
             $strHtml .= $tabs . '<tr>'.
             			$tabs . '<td class="search-element">' . $searchElement . '</td>'.
 						($this->search_button? $tabs.'<td>'.$this->search_button.'</td>' : '').
