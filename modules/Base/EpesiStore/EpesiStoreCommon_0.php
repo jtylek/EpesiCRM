@@ -144,6 +144,18 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return true;
     }
 
+    public static function download_all_downloaded() {
+        $mods = self::get_downloaded_modules();
+        if (!count($mods))
+            return true;
+        
+        $order_ids = array();
+        foreach($mods as $m) {
+            $order_ids[] = $m['order_id'];
+        }
+        return self::download_package($order_ids);
+    }
+
     public static function get_downloaded_modules() {
         return DB::GetAll('SELECT * FROM epesi_store_modules');
     }

@@ -285,9 +285,19 @@ class Base_EpesiStore extends Module {
         Base_EpesiStoreCommon::empty_download_queue();
     }
 
+    public function redownload_modules() {
+         $ret = Base_EpesiStoreCommon::download_all_downloaded();
+         if($ret) {
+             print($this->t('All modules downloaded and extracted.'));
+         } else {
+             print($this->t($ret));
+         }
+    }
+
     public function downloaded_modules_form() {
         $this->back_button();
         $this->download_button(false);
+        Base_ActionBarCommon::add('clone', 'Download all', $this->create_callback_href(array($this, 'redownload_modules')));
         // get orders and transform to associative array
         $orders_list = Base_EssClientCommon::server()->orders_list();
         $orders = array();
