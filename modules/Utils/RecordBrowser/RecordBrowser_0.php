@@ -921,7 +921,7 @@ class Utils_RecordBrowser extends Module {
             $first = true;
             foreach($visible_cols as $k => $v) {
                 if (isset($data[$k])) {
-                    $row_data[] = $data[$k]['error'].$data[$k]['html'];
+                    $row_data[] = array('value'=>$data[$k]['error'].$data[$k]['html'], 'overflow_box'=>false);
                     if ($first) eval_js('focus_on_field = "'.$k.'";');
                     $first = false;
                 } else $row_data[] = '&nbsp;';
