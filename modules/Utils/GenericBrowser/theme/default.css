@@ -657,4 +657,5 @@ table.Utils_GenericBrowser__navigation img {
 .Utils_GenericBrowser__overflow_div_content {
 	padding: 3px;
 	max-width: 400px;
+	word-wrap: break-word;
 }
