@@ -575,6 +575,7 @@ table.Utils_GenericBrowser__navigation img {
 #Utils_GenericBrowser__navigation td.nav_summary {
 	width: 160px;
 	text-align: center;
+	white-space: nowrap;
 }
 
 #Utils_GenericBrowser__navigation td.nav_button {
