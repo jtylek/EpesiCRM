@@ -340,11 +340,14 @@
 .automulti {
     width: 100%;
     height: 100%;
-	table-layout: auto;
 }
 
 .automulti td {
     text-align: center;
+}
+
+.automulti td.search {
+    width: 28px;
 }
 
 .automulti .main-element {
@@ -369,12 +372,11 @@
 .automulti .button,
 .automulti .button:hover {
     background-image: none;
-    width: 50px;
+    width: 80px;
+	display: table-cell;
 }
 
 .automulti .button input {
-    width: 50px;
-    width: 50px !important;
     height: 20px;
     color: #FFFFFF;
     border: none;
