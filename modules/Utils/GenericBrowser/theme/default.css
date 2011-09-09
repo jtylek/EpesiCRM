@@ -43,7 +43,7 @@
     padding-right: 10px;
 }
 
-.letters-search input {
+.letters-search .search-box input {
     background-color: #e6ecf2;
     background-color: white;
     height: 28px;

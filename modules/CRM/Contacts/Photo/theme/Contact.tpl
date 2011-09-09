@@ -5,6 +5,7 @@
 {assign var=count value=0}
 {php}
 	$this->_tpl_vars['multiselects'] = array();
+	load_css($this->_tpl_vars['theme_dir'].'/Utils/RecordBrowser/View_entry.css');
 {/php}
 {foreach key=k item=f from=$fields name=fields}
 	{if $f.type!="multiselect"}
@@ -27,7 +28,7 @@
 	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
 {/php}
 
-<table class="CRM_Contacts__table" border="0" cellpadding="0" cellspacing="0">
+<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
 			<td class="arrow" style="padding-left: 20px;">
@@ -80,7 +81,7 @@
 <div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
 
 {* Outside table *}
-<table id="CRM_Contacts__Contact" cellpadding="0" cellspacing="0" border="0">
+<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
 	<tbody>
 		<tr>
 			<td class="left-column">

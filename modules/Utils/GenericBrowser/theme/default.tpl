@@ -22,24 +22,24 @@
 				</td>
 			{/if}
 			<!-- QuickJump -->
-			<td class="letters" width="65px">
-				{if isset($letter_links)}
-				<div class="abc" onclick="quick_jump_letters('{$id}');">ABC</div>
-				<div id="quick_jump_letters_{$id}" class="quick_jump_letters" 
-					{if $quickjump_to==''} 
-						style="display: none;"
-					{/if}
-					>
-					<div class="css3_content_shadow GenericBrowser_letters">
-							{if isset($letter_links)}
-							{foreach key=k item=link from=$letter_links}
-							{$link}
-							{/foreach}
-							{/if}
+			{if isset($letter_links)}
+				<td class="letters" width="65px">
+					<div class="abc" onclick="quick_jump_letters('{$id}');">ABC</div>
+					<div id="quick_jump_letters_{$id}" class="quick_jump_letters" 
+						{if $quickjump_to==''} 
+							style="display: none;"
+						{/if}
+						>
+						<div class="css3_content_shadow GenericBrowser_letters">
+								{if isset($letter_links)}
+								{foreach key=k item=link from=$letter_links}
+								{$link}
+								{/foreach}
+								{/if}
+						</div>
 					</div>
-				</div>
-				{/if}
-			</td>
+				</td>
+			{/if}
 			<td>
 			</td>
 			<!-- Advanced / Simple Search -->
@@ -48,7 +48,7 @@
 					{if isset($form_data_search.show_all)}
 						<td class="submit" style="width:120px;">{$form_data_search.show_all.html}</td>
 					{/if}
-					<td style="width:110px;">{$form_data_search.search.html}</td>
+					<td class="search-box" style="width:110px;">{$form_data_search.search.html}</td>
 					<td class="submit" style="width:112px;">{$form_data_search.submit_search.html}</td>
 					<td class="advanced" style="width:151px;">{$adv_search}</td>
 				{else}

@@ -1,4 +1,8 @@
-<table class="CRM_Tasks__table" border="0" cellpadding="0" cellspacing="0">
+{php}
+	load_css($this->_tpl_vars['theme_dir'].'/Utils/RecordBrowser/View_entry.css');
+{/php}
+
+<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
 			<td class="arrow" style="padding-left: 20px;">
@@ -45,7 +49,7 @@
 		<div class="css3_content_shadow">
 
 <div style="background-color: white; padding: 5px;">
-	<table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+	<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
 		<tbody>
 			<tr>
 				{* LEFT column *}

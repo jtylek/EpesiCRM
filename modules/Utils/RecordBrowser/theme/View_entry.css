@@ -94,6 +94,10 @@
     width: 100%;
 }
 
+.Utils_RecordBrowser__View_entry .data input {
+	padding-right: 0px; /* iPad fix for fields extending over the <td> element */
+}
+
 .Utils_RecordBrowser__View_entry .time input,
 .Utils_RecordBrowser__View_entry .time select,
 .Utils_RecordBrowser__View_entry .timestamp input,
@@ -200,4 +204,9 @@
     color: #777777;
     text-align: right;
     padding-right: 20px;
+}
+
+.Utils_RecordBrowser__View_entry .left-column,
+.Utils_RecordBrowser__View_entry .right-column {
+	vertical-align: top;
 }

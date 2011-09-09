@@ -2,8 +2,9 @@
 	$this->_tpl_vars['fdow'] = Utils_PopupCalendarCommon::get_first_day_of_week();
 	$this->_tpl_vars['fdow']--;
 	if ($this->_tpl_vars['fdow']<0) $this->_tpl_vars['fdow']+=7;
+	load_css($this->_tpl_vars['theme_dir'].'/Utils/RecordBrowser/View_entry.css');
 {/php}
-<table class="CRM_Calendar_Event__header" border="0" cellpadding="0" cellspacing="0">
+<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
 			<td class="arrow" style="padding-left: 20px;">
@@ -45,7 +46,7 @@
 {if isset($click2fill)}
     {$click2fill}
 {/if}
-<div id="CRM_Calendar_Event_Personal">
+<div class="CRM_Calendar_Event_Personal">
 
 <!-- SHADIW BEGIN-->
 	<div class="layer" style="padding: 9px; width: 98%;">
@@ -53,7 +54,7 @@
 <!-- -->
 
 <div style="background-color: white; padding: 5px;">
-    <table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
+    <table class="Utils_RecordBrowser__View_entry" cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
         <tbody>
             <tr>
                 {if $action == 'view'}
@@ -63,21 +64,30 @@
                         <tbody>
                             <tr>
                                 <td class="weekday green">{$day_details.start.weekday}</td>
-                                <td></td>
-                                <td class="weekday green">{if $event_info.start_date != $event_info.end_date}{$day_details.end.weekday}{/if}</td>
+								{if $event_info.start_date != $event_info.end_date}
+									{assign var=colspan value=3}
+									<td class="weekday green">&nbsp;-&nbsp;</td>
+									<td class="weekday green">{$day_details.end.weekday}</td>
+								{else}
+									{assign var=colspan value=1}
+								{/if}
                             </tr>
                             <tr>
                                 <td class="day black">{$day_details.start.day}</td>
-                                <td class="day black">{if $event_info.start_date != $event_info.end_date}&nbsp;-&nbsp;{/if}</td>
-                                <td class="day black">{if $event_info.start_date != $event_info.end_date}{$day_details.end.day}{/if}</td>
+								{if $event_info.start_date != $event_info.end_date}
+									<td class="day black">&nbsp;-&nbsp;</td>
+									<td class="day black">{$day_details.end.day}</td>
+								{/if}
                             </tr>
                             <tr>
                                 <td class="month blue">{$day_details.start.month}&nbsp;{$day_details.start.year}</td>
-                                <td></td>
-                                <td class="month blue">{if $event_info.start_date != $event_info.end_date}{$day_details.end.month}&nbsp;{$day_details.start.year}{/if}</td>
+								{if $event_info.start_date != $event_info.end_date}
+									<td></td>
+									<td class="month blue">{$day_details.end.month}&nbsp;{$day_details.start.year}</td>
+								{/if}
                             </tr>
                             <tr>
-                                <td colspan="3" class="time black">
+                                <td colspan="{$colspan}" class="time black">
                                     {if $event_info.start_time != "timeless"}
                                         {$event_info.start_time}&nbsp;-&nbsp;{$event_info.end_time}
                                     {else}
@@ -86,7 +96,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="3" class="duration dark-gray">
+                                <td colspan="{$colspan}" class="duration dark-gray">
                                     {if $event_info.start_time != "timeless"}
                                         {$event_info.duration}
                                     {/if}

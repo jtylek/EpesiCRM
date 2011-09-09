@@ -1,3 +1,7 @@
+{php}
+	load_css($this->_tpl_vars['theme_dir'].'/Utils/RecordBrowser/View_entry.css');
+{/php}
+
 {* Get total number of fields to display *}
 {foreach key=k item=f from=$fields name=fields}
 	{assign var=count value=$smarty.foreach.fields.total}
@@ -10,7 +14,7 @@
 {/if}
 {assign var=x value=0}
 
-<table class="CRM_Contacts__table" border="0" cellpadding="0" cellspacing="0">
+<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
 			<td class="arrow" style="padding-left: 20px;">
@@ -63,7 +67,7 @@
 <div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
 
 {* Outside table *}
-<table id="CRM_Contacts__View_entry" cellpadding="0" cellspacing="0" border="0">
+<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
 	<tbody>
 		<tr>
 			<td class="left-column">
