@@ -604,6 +604,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$id = explode('_', $id);
 		$id = reset($id);
 		$r = Utils_RecordBrowserCommon::get_record('crm_meeting', $id);
+		if (!self::access_meeting('edit', $r)) return false;
 		$sp_start = explode(' ', date('Y-m-d H:i:s', $start));
 		$values = array();
 		$values['date'] = $sp_start[0];
@@ -625,6 +626,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	public static function crm_event_delete($id) {
 		$id = explode('_', $id);
 		$id = reset($id);
+		if (!self::access_meeting('delete', self::get_meeting($id))) return false;
 		Utils_RecordBrowserCommon::delete_record('crm_meeting',$id);
 		$r = Utils_RecordBrowserCommon::get_record('crm_meeting', $id);
 		if ($r['recurrence_type']>0) 
@@ -715,14 +717,21 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$next['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next['title'];
 
 		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'view', array('day'=>$day));
-		$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'edit');
-//		$next['delete_action'] = Module::create_confirm_href(Base_LangCommon::ts('Premium_SchoolRegister','Are you sure you want to delete this '.$type.'?'),array('delete_'.$type=>$record['id']));
 
-		$r_new = $r;
-		if ($r['status']==0) $r_new['status'] = 1;
-		if ($r['status']<=1) $next['actions'] = array(
-			array('icon'=>Base_ThemeCommon::get_template_file('CRM/Meeting', 'close_event.png'), 'href'=>self::get_status_change_leightbox_href($r_new, false, array('id'=>'status')))
-		);
+		if (self::access_meeting('edit', $r)!==false) {
+			$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'edit');
+			if ($r['status']<=1) {
+				$r_new = $r;
+				if ($r['status']==0) $r_new['status'] = 1;
+				$next['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM/Meeting', 'close_event.png'), 'href'=>self::get_status_change_leightbox_href($r_new, false, array('id'=>'status'))));
+			}
+		} else {
+			$next['edit_action'] = false;
+			$next['move_action'] = false;
+		}
+		if (self::access_meeting('delete', $r)==false)
+			$next['delete_action'] = false;
+//		$next['delete_action'] = Module::create_confirm_href(Base_LangCommon::ts('Premium_SchoolRegister','Are you sure you want to delete this '.$type.'?'),array('delete_'.$type=>$record['id']));
 
         $start_time = Base_RegionalSettingsCommon::time2reg($next['start'],2,false,$r['duration']!=-1);
         $event_date = Base_RegionalSettingsCommon::time2reg($next['start'],false,3,$r['duration']!=-1);

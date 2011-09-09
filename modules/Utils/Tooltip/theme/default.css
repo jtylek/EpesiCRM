@@ -34,3 +34,7 @@
 #tooltip_div .border2 {
 	_border: 1px solid #336699;
 }
+
+#tooltip_layer_div table {
+	table-layout: auto;
+}

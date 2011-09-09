@@ -480,11 +480,13 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 
 	public static function crm_event_delete($id) {
+		if (!self::access_phonecall('delete', self::get_phonecall($id))) return false;
 		Utils_RecordBrowserCommon::delete_record('phonecall',$id);
 		return true;
 	}
 	public static function crm_event_update($id, $start, $duration, $timeless) {
 		if ($timeless) return false;
+		if (!self::access_phonecall('edit', self::get_phonecall($id))) return false;
 		$values = array('date_and_time'=>date('Y-m-d H:i:s', $start));
 		Utils_RecordBrowserCommon::update_record('phonecall', $id, $values);
 		return true;
@@ -547,7 +549,16 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$next['color'] = 'gray';
 
 		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('phonecall', $r['id'], 'view');
-		$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('phonecall', $r['id'], 'edit');
+
+		if (self::access_phonecall('edit', $r)!==false)
+			$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('phonecall', $r['id'], 'edit');
+		else {
+			$next['edit_action'] = false;
+			$next['move_action'] = false;
+		}
+		if (self::access_phonecall('delete', $r)==false)
+			$next['delete_action'] = false;
+
 //		$next['delete_action'] = Module::create_confirm_href(Base_LangCommon::ts('Premium_SchoolRegister','Are you sure you want to delete this '.$type.'?'),array('delete_'.$type=>$record['id']));
 
 /*		$r_new = $r;

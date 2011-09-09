@@ -361,11 +361,13 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 
 	public static function crm_event_delete($id) {
+		if (!self::access_task('delete', self::get_task($id))) return false;
 		Utils_RecordBrowserCommon::delete_record('task',$id);
 		return true;
 	}
 	public static function crm_event_update($id, $start, $duration, $timeless) {
 		if (!$timeless) return false;
+		if (!self::access_task('edit', self::get_task($id))) return false;
 		$values = array('deadline'=>date('Y-m-d', $start));
 		Utils_RecordBrowserCommon::update_record('task', $id, $values);
 		return true;
@@ -430,8 +432,14 @@ class CRM_TasksCommon extends ModuleCommon {
 			$next['color'] = 'gray';
 
 		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('task', $r['id'], 'view');
-		$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('task', $r['id'], 'edit');
-//		$next['delete_action'] = Module::create_confirm_href(Base_LangCommon::ts('Premium_SchoolRegister','Are you sure you want to delete this '.$type.'?'),array('delete_'.$type=>$record['id']));
+		if (self::access_task('edit', $r)!==false)
+			$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('task', $r['id'], 'edit');
+		else {
+			$next['edit_action'] = false;
+			$next['move_action'] = false;
+		}
+		if (self::access_task('delete', $r)==false)
+			$next['delete_action'] = false;
 
 /*		$r_new = $r;
 		if ($r['status']==0) $r_new['status'] = 1;

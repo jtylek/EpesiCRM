@@ -58,7 +58,7 @@
             <tr>
                 {if $action == 'view'}
                 <!-- NEW HEADER -->
-                <td rowspan="2">
+                <td rowspan="2" style="width:143px;">
                     <table border="0" class="header-new">
                         <tbody>
                             <tr>

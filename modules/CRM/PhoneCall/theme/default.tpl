@@ -87,6 +87,13 @@
 				{* RIGHT column *}
 				<td style="width: 50%; vertical-align: top;">
 					<table cellpadding="0" cellspacing="0" border="0" class="form {if $action == 'view'}view{else}edit{/if}">
+						<thead>
+							<tr>
+								<th style="width:20%;"></th>
+								<th style="width:25px;"></th>
+								<th></th>
+							</tr>
+						</thead>
 {*						<tr>
 							<td class="label" style="width: 20%;">
 								&nbsp;
