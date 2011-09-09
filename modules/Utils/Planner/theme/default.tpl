@@ -2,19 +2,19 @@
 {if (isset($form_data.prev_week))}
 	<table id="Utils_Planner__navigation">
 		<tr>
-			<td class="nav_button">
+			<td class="nav_button child_button">
 				{$form_data.prev_week.html}
 			</td>
-			<td class="nav_button">
+			<td class="nav_button child_button">
 				{$form_data.prev_day.html}
 			</td>
-			<td class="nav_button">
+			<td class="nav_button child_button">
 				{$form_data.today.html}
 			</td>
-			<td class="nav_button">
+			<td class="nav_button child_button">
 				{$form_data.next_day.html}
 			</td>
-			<td class="nav_button">
+			<td class="nav_button child_button">
 				{$form_data.next_week.html}
 			</td>
 			<td>
