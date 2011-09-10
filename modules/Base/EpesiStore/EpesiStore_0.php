@@ -231,8 +231,17 @@ class Base_EpesiStore extends Module {
         foreach ($orders as $o) {
             $orders_ids[] = $o['id'];
         }
-        // download and extract
-        $ret = Base_EpesiStoreCommon::download_package($orders_ids);
+        // download
+        $file = null;
+        $ret = Base_EpesiStoreCommon::download_package($orders_ids, $file);
+        if (is_string($ret)) {
+            print($this->t($ret));
+            return;
+        }
+        if ($file === null)
+            return;
+        // extract
+        $ret = Base_EpesiStoreCommon::extract_package($file);
         if (is_string($ret)) {
             print($this->t($ret));
             return;
@@ -240,15 +249,14 @@ class Base_EpesiStore extends Module {
         // show download status
         $this->back_button(2);
         print($this->t('Download process succeed!') . '<br/>');
-        print($this->t('Now you can install some of new modules!') . '<br/>');
-        print($this->t('New files or directories:') . '<br/>');
+        print($this->t('Now you can install some of new modules!') . '<br/><br/>');
         // list all files
         $all_files = array();
         foreach ($orders as $d) {
             $mod = Base_EpesiStoreCommon::get_module_info($d['module_id']);
             $all_files = array_merge($all_files, explode(',', $mod['path']));
             // store info about module in db
-            Base_EpesiStoreCommon::add_downloaded_module($d['module_id'], $mod['version'], $d['id']);
+            Base_EpesiStoreCommon::add_downloaded_module($d['module_id'], $mod['version'], $d['id'], $file);
         }
         // check for epesi modules
         $modules = array();
@@ -257,9 +265,10 @@ class Base_EpesiStore extends Module {
         foreach ($all_files as $f) {
             if (is_dir($f) && substr_compare($f, $string, 0, $str_length) == 0) {
                 $module_dir = substr($f, $str_length);
-                $module_name = str_replace(DIRECTORY_SEPARATOR, '_', trim($module_dir, DIRECTORY_SEPARATOR));
-                if (ModuleManager::exists($module_name)) {
-                    $modules[] = $module_name;
+                // module path with slashes Test/Module
+                $module_path = trim($module_dir, DIRECTORY_SEPARATOR);
+                if (ModuleManager::exists(str_replace(DIRECTORY_SEPARATOR, '_', $module_path))) {
+                    $modules[] = $module_path;
                 }
             }
         }
@@ -279,25 +288,32 @@ class Base_EpesiStore extends Module {
             print('<br/><br/>');
         }
         if (count($all_files)) {
-            print($this->t('Other files:') . '<br/>');
+            print($this->t('Other files downloaded:') . '<br/>');
             print(implode('<br/>', $all_files));
         }
         Base_EpesiStoreCommon::empty_download_queue();
     }
 
     public function redownload_modules() {
-         $ret = Base_EpesiStoreCommon::download_all_downloaded();
-         if($ret) {
-             print($this->t('All modules downloaded and extracted.'));
-         } else {
-             print($this->t($ret));
-         }
+        $ret = Base_EpesiStoreCommon::download_all_downloaded();
+        // print status
+        print('<h3>' . $this->t('Re-Download modules') . '</h3>');
+        if (count($ret['old']))
+            print('<p>' . count($ret['old']) . $this->t(' modules extracted from files.') . '</p>');
+        if (count($ret['new']))
+            print('<p>' . count($ret['new']) . $this->t(' modules downloaded from server.') . '</p>');
+        if (count($ret['error'])) {
+            print($this->t('<p>Errors:<br/>'));
+            foreach ($ret['error'] as $msg => $modules) {
+                print($msg . ' - ' . count($modules) . 'modules<br/>');
+            }
+        }
     }
 
     public function downloaded_modules_form() {
         $this->back_button();
         $this->download_button(false);
-        Base_ActionBarCommon::add('clone', 'Download all', $this->create_callback_href(array($this, 'redownload_modules')));
+        Base_ActionBarCommon::add('clone', 'Re-Download all modules', $this->create_confirm_callback_href($this->t("Are you sure?"), array($this, 'redownload_modules')));
         // get orders and transform to associative array
         $orders_list = Base_EssClientCommon::server()->orders_list();
         $orders = array();
