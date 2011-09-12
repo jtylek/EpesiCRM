@@ -86,6 +86,12 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return array_slice($modules, $offset, $amount);
     }
 
+    /**
+     * Get module info from cache or server.
+     * @param numeric $module_id module id
+     * @param boolean $force set true to force query to server
+     * @return array modules data array
+     */
     public static function get_module_info($module_id, $force = false) {
         $modules_cache = Module::static_get_module_variable(self::MOD_PATH, 'modules_info', array());
         if ($force == false && isset($modules_cache[$module_id]))
@@ -137,6 +143,11 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return true;
     }
 
+    /**
+     * Extract package from file under EpesiStore module data directory
+     * @param string $filename filename with extension
+     * @return true|string true on success, string message on error
+     */
     public static function extract_package($filename) {
         $destfile = self::Instance()->get_data_dir() . $filename;
         if (!file_exists($destfile))
@@ -156,8 +167,9 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     /**
-     * Extract from archives and download modules, that have been previously downloaded
-     * @return array 'old' => modules, 'new' => modules, 'error' => modules
+     * Extract from archives and download modules, that have been previously downloaded.
+     * Useful to extract files after epesi update.
+     * @return array 'old' => modules, 'new' => modules, 'error' => array(error_message => modules, ...)
      */
     public static function download_all_downloaded() {
         $return = array('old' => array(), 'new' => array(), 'error' => array());
