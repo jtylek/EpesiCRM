@@ -79,7 +79,7 @@ class Utils_Watchdog extends Module {
 					$data['title']
 				);
 			}
-			$gb_row->add_action(Utils_WatchdogCommon::get_confirm_change_subscr_href($v, $k),'<img src="'.Base_ThemeCommon::get_template_file('Utils/Watchdog','unsubscribe_small_new_events.png').'" border="0" />',$this->t('Click to unsubscribe'));
+			$gb_row->add_action(Utils_WatchdogCommon::get_confirm_change_subscr_href($v, $k),'Unsubscribe',$this->t('Click to unsubscribe'), Base_ThemeCommon::get_template_file('Utils/Watchdog','unsubscribe_small_new_events.png'));
 			$gb_row->add_action($data['view_href'],'View');
 			if ($only_new || Utils_WatchdogCommon::check_if_notified($v, $k)!==true) {
 //				$gb_row->add_action($this->create_callback_href(array($this,'notified'), array($v, $k)),'Restore','Mark as read');

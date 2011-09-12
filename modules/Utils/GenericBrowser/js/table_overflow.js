@@ -3,14 +3,14 @@ var utils_genericbrowser__last_td = false;
 var utils_genericbrowser__hide_current = 0;
 var utils_genericbrowser__firefox_fix = false;
 
-table_overflow_show = function (e_td) {
+table_overflow_show = function (e_td, force) {
 	var e_tip = $("table_overflow");
 	if (!e_tip) return;
 	// *** firefox fix ***
 	if (utils_genericbrowser__firefox_fix == e_td) return; 
 	utils_genericbrowser__firefox_fix = e_td;
 	// *** firefox fix ***
-	if (e_td.scrollHeight>e_td.clientHeight || e_td.scrollWidth>e_td.clientWidth) {
+	if (force || e_td.scrollHeight>e_td.clientHeight || e_td.scrollWidth>e_td.clientWidth) {
 		if (utils_genericbrowser__last_td) table_overflow_hide(utils_genericbrowser__hide_current);
 		e_tip.style.minWidth = e_td.clientWidth+"px";
 		e_tip.style.minHeight = e_td.clientHeight+"px";

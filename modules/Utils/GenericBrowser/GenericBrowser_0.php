@@ -909,23 +909,29 @@ class Utils_GenericBrowser extends Module {
 			if ($this->en_actions) {
 				if ($actions_position==0) $column_no = -1;
 				else $column_no = count($this->columns);
+				$col[$column_no]['attrs'] = '';
 				if (!empty($this->actions[$i])) {
 					uksort($this->actions[$i], array($this,'sort_actions'));
 					$actions = '';
 					foreach($this->actions[$i] as $icon=>$arr) {
 						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
 					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print') {
-							$actions .= '<img src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser',$icon.($arr['off']?'-off':'').'.png').'" border="0" width="14" height="14">';
+							$actions .= '<img class="action_button" src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser',$icon.($arr['off']?'-off':'').'.png').'" border="0">';
 					    } elseif(file_exists($icon)) {
-							$actions .= '<img src="'.$icon.'" border="0" width="14" height="14">';
+							$actions .= '<img class="action_button" src="'.$icon.'" border="0">';
 					    } else {
 							$actions .= $arr['label'];
 					    }
 						$actions .= '</a>';
 					}
 					$col[$column_no]['label'] = $actions;
+					
+					// Add overflow_box to actions
+					$settings = Base_User_SettingsCommon::get('Utils_GenericBrowser', 'zoom_actions');
+					if ($settings==2 || ($settings==1 && detect_iphone()))
+						$col[$column_no]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,true);"';
 				} else $col[$column_no]['label'] = '&nbsp;';
-				$col[$column_no]['attrs'] = 'nowrap="nowrap"'.' class="Utils_GenericBrowser__td"';
+				$col[$column_no]['attrs'] .= 'nowrap="nowrap"'.' class="Utils_GenericBrowser__td"';
 			}
 			foreach($r as $k=>$v) {
 				if (is_array($v) && isset($v['dummy'])) $v['style'] = 'display:none;';

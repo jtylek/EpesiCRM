@@ -659,3 +659,14 @@ table.Utils_GenericBrowser__navigation img {
 	max-width: 400px;
 	word-wrap: break-word;
 }
+
+.Utils_GenericBrowser img.action_button {
+	width: 14px;
+	height: 14px;
+}
+
+.Utils_GenericBrowser__overflow_div_content img.action_button {
+	width: 28px;
+	height: 28px;
+	padding-right: 8px;
+}
