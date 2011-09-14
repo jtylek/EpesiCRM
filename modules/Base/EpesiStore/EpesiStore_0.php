@@ -415,6 +415,9 @@ class Base_EpesiStore extends Module {
         // paid
         if (isset($data['paid']))
             $data['paid'] = $this->t($data['paid'] ? 'Yes' : 'No');
+        // active
+        if (isset($data['active']))
+            $data['active'] = $this->t($data['active'] ? 'Yes' : 'No');
         // downloaded
         if (isset($data['downloaded']))
             $data['downloaded'] = $this->t($data['downloaded'] ? 'Yes' : 'No');
@@ -436,7 +439,7 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_orders($row, $data) {
-        if ($data['paid'] && !$data['downloaded'])
+        if ($data['paid'] && $data['active'] && !$data['downloaded'])
             $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), $this->t('Queue download'));
     }
 

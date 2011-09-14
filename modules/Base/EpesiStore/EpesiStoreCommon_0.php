@@ -119,7 +119,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
      */
     public static function download_package($orders_ids, &$filename = false) {
         $hash = Base_EssClientCommon::server()->download_prepare($orders_ids);
-        if ($hash === false) {
+        if (!$hash) {
             return 'Prepare error';
         }
         // download file and check sum

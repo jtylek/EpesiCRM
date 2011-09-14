@@ -52,7 +52,7 @@ interface IClient {
      * Use this function before get_module_file() to generate package on server side.
      * 
      * @param array $order_ids Order ids to download in one file
-     * @return string|false file sha1 sum or false on error
+     * @return string|null file sha1 sum or null on error
      */
     function download_prepare($order_ids);
 
