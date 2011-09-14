@@ -127,6 +127,10 @@ class Base_EpesiStore extends Module {
         }
     }
 
+    /**
+     * Add module to cart
+     * @param array $r modules data
+     */
     public function cart_add_item($r) {
         $items = Base_EpesiStoreCommon::get_cart();
         // user module id to compare orders in cart
@@ -140,6 +144,10 @@ class Base_EpesiStore extends Module {
         Base_EpesiStoreCommon::set_cart($items);
     }
 
+    /**
+     * Remove module from cart
+     * @param array $r modules data
+     */
     public function cart_remove_item($r) {
         $items = Base_EpesiStoreCommon::get_cart();
         $key = array_search($r, $items);
@@ -158,10 +166,35 @@ class Base_EpesiStore extends Module {
             print($this->t('You don\'t have any orders'));
             return;
         }
+        $dd = array();
+        $to_download = array();
+        foreach (Base_EpesiStoreCommon::get_downloaded_modules() as $d) {
+            $dd[$d['order_id']] = true;
+        }
+        foreach ($orders as & $o) {
+            $o['downloaded'] = isset($dd[$o['id']]);
+            if (!isset($dd[$o['id']]))
+                $to_download[] = $o;
+        }
+        if (count($to_download)) {
+            Base_ActionBarCommon::add('', 'Instant download all new', $this->create_callback_href(array($this, 'download_orders'), array($to_download)));
+        }
 
         $gb = $this->init_module('Utils/GenericBrowser', null, 'orderslist');
         $this->GB_order($gb, $orders, array($this, 'GB_row_additional_actions_orders'));
         $this->display_module($gb);
+    }
+
+    /**
+     * Navigate to direct download of specified orders
+     * @param array $orders array of orders data arrays
+     */
+    public function download_orders($orders) {
+        Base_EpesiStoreCommon::empty_download_queue();
+        foreach ($orders as $o) {
+            $this->download_queue_item($o);
+        }
+        $this->navigate('download_process');
     }
 
     /**
@@ -221,6 +254,9 @@ class Base_EpesiStore extends Module {
         }
     }
 
+    /**
+     * Process download of items from download queue and empty queue.
+     */
     public function download_process() {
         $this->back_button();
         $orders = Base_EpesiStoreCommon::get_download_queue();
@@ -294,6 +330,10 @@ class Base_EpesiStore extends Module {
         Base_EpesiStoreCommon::empty_download_queue();
     }
 
+    /**
+     * Extract modules from archives already downloaded and download modules if needed.
+     * Show status message after.
+     */
     public function redownload_modules() {
         $ret = Base_EpesiStoreCommon::download_all_downloaded();
         // print status
@@ -375,6 +415,9 @@ class Base_EpesiStore extends Module {
         // paid
         if (isset($data['paid']))
             $data['paid'] = $this->t($data['paid'] ? 'Yes' : 'No');
+        // downloaded
+        if (isset($data['downloaded']))
+            $data['downloaded'] = $this->t($data['downloaded'] ? 'Yes' : 'No');
         // module info
         $module = Base_EpesiStoreCommon::get_module_info($data['module_id']);
         $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($module));
@@ -393,7 +436,7 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_orders($row, $data) {
-        if ($data['paid'])
+        if ($data['paid'] && !$data['downloaded'])
             $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), $this->t('Queue download'));
     }
 
