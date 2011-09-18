@@ -12,8 +12,38 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EpesiStore extends Module {
-    const refresh_info_text = 'Data is stored until close or refresh of browser\'s Epesi window or tab';
-    const modules_changed_on_server_text = 'Some modules has changed on server. This is updated list.';
+    // actionbar buttons
+    const button_cart = 'Cart';
+    const button_clear_list = 'Clear list';
+    const button_downloaded_modules = 'Check updates';
+    const button_downloads = 'Downloads';
+    const button_instant_download_orders = 'Instant download all new';
+    const button_orders = 'Orders';
+    const button_proceed_download = 'Proceed download';
+    const button_redownload = 'Re-Download all modules';
+    const button_update_all_modules = 'Update all';
+    // text in forms
+    const text_refresh_info = 'Data is stored until close or refresh of browser\'s Epesi window or tab';
+    const text_modules_changed_on_server = 'Some modules has changed on server. This is updated list.';
+    const text_not_registered = 'Some error occured. Probably you are not registered client. Go to Admin / Register Epesi';
+    const text_empty = 'Empty';
+    const text_cart_is_empty = 'Cart is empty!';
+    const text_price_summary = 'Total price';
+    const text_buy = 'Buy!';
+    const text_order_success = 'Ordered';
+    const text_order_failure = 'Not ordered';
+    const text_orders_list_empty = 'You don\'t have any orders';
+    const text_download_process_success = 'Download process succeed!';
+    const text_download_process_new_modules = 'New modules:';
+    const text_download_process_new_other_files = 'Other files downloaded:';
+    const text_redownload_modules_header = 'Re-Download modules';
+    const text_redownload_modules_confirm_question = 'Are you sure?';
+    const text_redownload_modules_count_extracted = 'modules extracted from files';
+    const text_redownload_modules_count_downloaded = 'modules downloaded from server';
+    const text_downloaded_modules_header = '<h3>This is the list of downloaded modules:</h3>';
+    // colors
+    const color_success = 'green';
+    const color_failure = 'gray';
 
     protected $banned_columns_module = array('id', 'owner_id', 'path');
     protected $banned_columns_order = array('id', 'installation_id');
@@ -36,8 +66,8 @@ class Base_EpesiStore extends Module {
             $this->display_module($m, null, 'register_form');
         } else {
             $this->cart_button();
-            Base_ActionBarCommon::add('search', $this->t('Check updates'), $this->create_callback_href(array($this, 'navigate'), array('downloaded_modules_form')));
-            Base_ActionBarCommon::add('view', $this->t('Orders'), $this->create_callback_href(array($this, 'navigate'), array('orders_form')));
+            Base_ActionBarCommon::add('search', $this->t(self::button_downloaded_modules), $this->create_callback_href(array($this, 'navigate'), array('downloaded_modules_form')));
+            Base_ActionBarCommon::add('view', $this->t(self::button_orders), $this->create_callback_href(array($this, 'navigate'), array('orders_form')));
             $this->store_form();
         }
     }
@@ -45,7 +75,7 @@ class Base_EpesiStore extends Module {
     public function store_form() {
         $total = Base_EpesiStoreCommon::modules_total_amount();
         if ($total === false) {
-            print($this->t('Some error occured. Probably you are not registered client. Go to Admin / Register Epesi'));
+            print($this->t(self::text_not_registered));
         }
         if ($total) {
             /* @var $gb Utils_GenericBrowser */
@@ -62,9 +92,9 @@ class Base_EpesiStore extends Module {
         $cart = Base_EpesiStoreCommon::get_cart();
         $amount = count($cart);
         if ($amount == 0)
-            $amount = $this->t('Empty');
-        $label = $this->t('Cart');
-        Base_ActionBarCommon::add('folder', "$label ($amount)", $this->create_callback_href(array($this, 'navigate'), array('cart_form')), $this->t(self::refresh_info_text));
+            $amount = $this->t(self::text_empty);
+        $label = $this->t(self::button_cart);
+        Base_ActionBarCommon::add('folder', "$label ($amount)", $this->create_callback_href(array($this, 'navigate'), array('cart_form')), $this->t(self::text_refresh_info));
     }
 
     public function cart_form() {
@@ -72,7 +102,7 @@ class Base_EpesiStore extends Module {
 
         $items = Base_EpesiStoreCommon::get_cart();
         if (count($items) == 0) {
-            print($this->t('Cart is empty!'));
+            print($this->t(self::text_cart_is_empty));
             return;
         }
         // sum total price
@@ -82,8 +112,8 @@ class Base_EpesiStore extends Module {
         }
         // buy form
         $f = $this->init_module('Libs/QuickForm');
-        $f->addElement('static', 'price', null, $this->t('Total price') . ': ' . $total_price);
-        $f->addElement('submit', 'submit', $this->t('Buy!'));
+        $f->addElement('static', 'price', null, $this->t(self::text_price_summary) . ': ' . $total_price);
+        $f->addElement('submit', 'submit', $this->t(self::text_buy));
         // if buy clicked check for any changes on server
         $buy = false;
         $changed = false;
@@ -113,14 +143,14 @@ class Base_EpesiStore extends Module {
             foreach ($ret as $id => $info) {
                 $success = $info === true ? true : false;
                 $message = is_string($info) ? ' (' . $this->t($info) . ')' : "";
-                print("$module_names[$id] - <span style=\"color: " . ($success ? "green" : "gray") . "\">" . $this->t($success ? 'Ordered' : 'Not ordered') . "$message</span><br/>");
+                print("$module_names[$id] - <span style=\"color: " . ($success ? self::color_success : self::color_failure) . "\">" . $this->t($success ? self::text_order_success : self::text_order_failure) . "$message</span><br/>");
             }
             Base_EpesiStoreCommon::empty_cart();
         } else {
             $gb = $this->init_module('Utils/GenericBrowser', null, 'cartlist');
             $gb = $this->GB_module($gb, $items, array($this, 'GB_row_additional_actions_cart'));
             if ($changed) {
-                print('<span style="color:red">' . $this->t(self::modules_changed_on_server_text) . '</span>');
+                print('<span style="color:red">' . $this->t(self::text_modules_changed_on_server) . '</span>');
             }
             $this->display_module($gb);
             $f->display();
@@ -163,7 +193,7 @@ class Base_EpesiStore extends Module {
 
         $orders = Base_EssClientCommon::server()->orders_list();
         if (count($orders) == 0) {
-            print($this->t('You don\'t have any orders'));
+            print($this->t(self::text_orders_list_empty));
             return;
         }
         $dd = array();
@@ -177,7 +207,7 @@ class Base_EpesiStore extends Module {
                 $to_download[] = $o;
         }
         if (count($to_download)) {
-            Base_ActionBarCommon::add('', 'Instant download all new', $this->create_callback_href(array($this, 'download_orders'), array($to_download)));
+            Base_ActionBarCommon::add('favorites', self::button_instant_download_orders, $this->create_callback_href(array($this, 'download_orders'), array($to_download)));
         }
 
         $gb = $this->init_module('Utils/GenericBrowser', null, 'orderslist');
@@ -229,7 +259,7 @@ class Base_EpesiStore extends Module {
      * @param boolean $display_empty set to false to not display button when list is empty.
      */
     public function download_button($display_empty = true) {
-        $download = $this->t('Downloads');
+        $download = $this->t(self::button_downloads);
         $count = count(Base_EpesiStoreCommon::get_download_queue());
 
         if ($display_empty || $count) {
@@ -246,8 +276,8 @@ class Base_EpesiStore extends Module {
             print($this->t('No items'));
             return;
         } else {
-            Base_ActionBarCommon::add('delete', 'Clear list', $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
-            Base_ActionBarCommon::add('clone', 'Proceed download', $this->create_callback_href(array($this, 'navigate'), array('download_process')));
+            Base_ActionBarCommon::add('delete', self::button_clear_list, $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
+            Base_ActionBarCommon::add('clone', self::button_proceed_download, $this->create_callback_href(array($this, 'navigate'), array('download_process')));
             $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadslist');
             $gb = $this->GB_order($gb, $downloads, array($this, 'GB_row_additional_actions_downloads'));
             $this->display_module($gb);
@@ -284,8 +314,7 @@ class Base_EpesiStore extends Module {
         }
         // show download status
         $this->back_button(2);
-        print($this->t('Download process succeed!') . '<br/>');
-        print($this->t('Now you can install some of new modules!') . '<br/><br/>');
+        print($this->t(self::text_download_process_success) . '<br/><br/>');
         // list all files
         $all_files = array();
         foreach ($orders as $d) {
@@ -319,12 +348,12 @@ class Base_EpesiStore extends Module {
         }
         // print info
         if (count($modules)) {
-            print($this->t('Modules:') . '<br/>');
+            print($this->t(self::text_download_process_new_modules) . '<br/>');
             print(implode('<br/>', $modules));
             print('<br/><br/>');
         }
         if (count($all_files)) {
-            print($this->t('Other files downloaded:') . '<br/>');
+            print($this->t(self::text_download_process_new_other_files) . '<br/>');
             print(implode('<br/>', $all_files));
         }
         Base_EpesiStoreCommon::empty_download_queue();
@@ -337,11 +366,11 @@ class Base_EpesiStore extends Module {
     public function redownload_modules() {
         $ret = Base_EpesiStoreCommon::download_all_downloaded();
         // print status
-        print('<h3>' . $this->t('Re-Download modules') . '</h3>');
+        print('<h3>' . $this->t(self::text_redownload_modules_header) . '</h3>');
         if (count($ret['old']))
-            print('<p>' . count($ret['old']) . $this->t(' modules extracted from files.') . '</p>');
+            print('<p>' . count($ret['old']) . ' ' . $this->t(self::text_redownload_modules_count_extracted) . '</p>');
         if (count($ret['new']))
-            print('<p>' . count($ret['new']) . $this->t(' modules downloaded from server.') . '</p>');
+            print('<p>' . count($ret['new']) . ' ' . $this->t(self::text_redownload_modules_count_downloaded) . '</p>');
         if (count($ret['error'])) {
             print($this->t('<p>Errors:<br/>'));
             foreach ($ret['error'] as $msg => $modules) {
@@ -353,7 +382,7 @@ class Base_EpesiStore extends Module {
     public function downloaded_modules_form() {
         $this->back_button();
         $this->download_button(false);
-        Base_ActionBarCommon::add('clone', 'Re-Download all modules', $this->create_confirm_callback_href($this->t("Are you sure?"), array($this, 'redownload_modules')));
+        Base_ActionBarCommon::add('clone', self::button_redownload, $this->create_confirm_callback_href($this->t(self::text_redownload_modules_confirm_question), array($this, 'redownload_modules')));
         // get orders and transform to associative array
         $orders_list = Base_EssClientCommon::server()->orders_list();
         $orders = array();
@@ -377,9 +406,9 @@ class Base_EpesiStore extends Module {
             $items[] = $it;
         }
         if (isset($to_update) && count($to_update)) {
-            Base_ActionBarCommon::add('all', $this->t('Update all'), $this->create_callback_href(array($this, 'update_all_modules'), array($to_update)));
+            Base_ActionBarCommon::add('all', $this->t(self::button_update_all_modules), $this->create_callback_href(array($this, 'update_all_modules'), array($to_update)));
         }
-        print($this->t('<h3>This is the list of downloaded modules:</h3>'));
+        print($this->t(self::text_downloaded_modules_header));
         $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadedmoduleslist');
         $gb = $this->GB_generic($gb, $items, array('order'), null, array($this, 'GB_row_additional_actions_downloaded_modules'));
         $this->display_module($gb);
