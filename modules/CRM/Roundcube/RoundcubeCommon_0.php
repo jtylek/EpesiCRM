@@ -28,18 +28,40 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         return array();
     }
 
+    public static function QFfield_account_name(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+        $form->addElement('text', $field, $label,array('id'=>$field));
+        $form->registerRule($field,'function','check_account_name','CRM_RoundcubeCommon');
+        $form->addRule($field,Base_LangCommon::ts('CRM_Roundcube','Account Name already in use'),$field,isset($rb->record['id'])?$rb->record['id']:null);
+        $form->setDefaults(array($field=>$default));
+        load_js('modules/CRM/Roundcube/utils.js');
+        eval_js('CRM_RC.filled_smtp_message=\''.Epesi::escapeJS(Base_LangCommon::ts('CRM_Roundcube','SMTP login and password was filled with imap account details. Please change them if needed.'),false,true).'\';CRM_RC.edit_form()');
+        if($mode=='view') $form->freeze(array($field));
+    }
+
+    public static function check_account_name($o,$d) {
+    	if($d!==null) {
+    		if(!DB::GetOne('SELECT 1 FROM rc_accounts_data_1 WHERE f_account_name=%s AND f_epesi_user=%d AND id!=%d',array($o,Acl::get_user(),$d)))
+    			return true;
+    	} else {
+    		if(!DB::GetOne('SELECT 1 FROM rc_accounts_data_1 WHERE f_account_name=%s AND f_epesi_user=%d',array($o,Acl::get_user())))
+    			return true;
+    	}
+    	return false;
+    }
+    
+    
     public static function QFfield_epesi_user(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('select', $field, $label,array($default=>Base_UserCommon::get_user_login($default)))->freeze();
         $form->setDefaults(array($field=>$default));
     }
 
-	public static function display_password($r, $nolink=null, $desc=array()) {
+    public static function display_password($r, $nolink=null, $desc=array()) {
 		if ($r[$desc['id']]) return '******';
 		else return '';
 	}
 
     public static function QFfield_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        $form->addElement('password', $field, $label);
+        $form->addElement('password', $field, $label,array('id'=>$field));
         $form->setDefaults(array($field=>$default));
         $form->addRule($field,Base_LangCommon::ts('Libs_QuickForm','Field required'),'required');
         if($mode=='view') $form->freeze(array($field));
@@ -47,7 +69,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
     public static function QFfield_smtp_auth(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         eval_js_once('var smtp_auth_change = function(val){if(val){$("smtp_login").enable();$("smtp_pass").enable();$("smtp_security").enable();}else{$("smtp_login").disable();$("smtp_pass").disable();$("smtp_security").disable();}}');
-        $form->addElement('checkbox', $field, $label,'',array('onChange'=>'smtp_auth_change(this.checked)'));
+        $form->addElement('checkbox', $field, $label,'',array('onChange'=>'smtp_auth_change(this.checked)','id'=>$field));
         $form->setDefaults(array($field=>$default));
         eval_js('smtp_auth_change('.($default?1:0).')');
         if($mode=='view') $form->freeze(array($field));

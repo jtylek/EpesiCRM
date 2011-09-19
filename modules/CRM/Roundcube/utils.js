@@ -19,6 +19,42 @@ update_msg_num: function(applet_id,accid,cache) {
 			},
 			parameters:{acc_id:accid}});
 	}
+},
+filled_smtp_message:'',
+edit_form: function() {
+	$('account_name').observe('blur',function() {
+		if($('login').value=='')
+			$('login').value = $('account_name').value; 
+		if($('email').value=='')
+			$('email').value = $('account_name').value; 
+	});
+	$('email').observe('blur',function() {
+		if($('account_name').value=='')
+			$('account_name').value = $('email').value; 
+		if($('login').value=='')
+			$('login').value = $('email').value; 
+	});
+	$('login').observe('blur',function() {
+		if($('account_name').value=='')
+			$('account_name').value = $('login').value; 
+		if($('email').value=='')
+			$('email').value = $('login').value; 
+	});
+	$('server').observe('blur',function() {
+		if($('smtp_server').value=='')
+			$('smtp_server').value = $('server').value; 
+	});
+	$('smtp_server').observe('blur',function() {
+		if($('server').value=='')
+			$('server').value = $('smtp_server').value; 
+	});
+	$('smtp_auth').observe('change',function() {
+		if($('smtp_auth').checked && $('smtp_login').value=='' && $('smtp_pass').value=='') {
+			$('smtp_login').value = $('login').value;
+			$('smtp_pass').value = $('password').value;
+			alert(CRM_RC.filled_smtp_message);
+		}
+	});
 }
 };
 
