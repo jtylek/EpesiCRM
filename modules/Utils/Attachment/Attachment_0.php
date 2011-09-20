@@ -324,9 +324,11 @@ class Utils_Attachment extends Module {
 
 		if(isset($_SESSION['attachment_cut']) && $_SESSION['attachment_cut']) {
 			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($_SESSION['attachment_copy']['id']));			
+			if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_r_'.$_SESSION['attachment_copy']['id']);				
 		}
 
 		unset($_SESSION['attachment_copy']);
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_p_'.$id);
 	}
 
 	public function get_file($row, & $view_link = '') {
@@ -540,7 +542,8 @@ class Utils_Attachment extends Module {
 	}
 	
 	public function restore($id) {
-		DB::Execute('UPDATE utils_attachment_link SET deleted=0 WHERE id=%d',array($id));	
+		DB::Execute('UPDATE utils_attachment_link SET deleted=0 WHERE id=%d',array($id));
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_r_'.$id);
 	}
 
 	public function restore_note($id,$rev) {
@@ -549,6 +552,7 @@ class Utils_Attachment extends Module {
 		$rev2 = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
 		DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($text,$id,$rev2+1,Acl::get_user()));
 		DB::CompleteTrans();
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_r_'.$id);
 	}
 
 	public function restore_file($id,$rev) {
@@ -560,6 +564,7 @@ class Utils_Attachment extends Module {
 		DB::CompleteTrans();
 		$local = $this->get_data_dir().$this->group.'/'.$id.'_';
 		copy($local.$rev,$local.$rev2);
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_r_'.$id);
 	}
 
 	public function pop_box0() {

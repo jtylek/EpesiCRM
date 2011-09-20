@@ -1744,6 +1744,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                     case '-':
                                         $action = 'deleted';
                                         break;
+                                    case 'r':
+                                        $action = 'restored';
+                                        break;
+                                    case 'p':
+                                        $action = 'pasted';
+                                        break;
                                     default:
                                         $event_display = self::ts($param[1]);
                                 }
