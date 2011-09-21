@@ -1724,7 +1724,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($rid!==null) {
             $r = self::get_record($tab, $rid);
             if ($r===null) return null;
-			if (!self::get_access($tab, 'view', $r) return null;
+			if (!self::get_access($tab, 'view', $r)) return null;
             if (is_array($label)) $label = call_user_func($label, $r, true);
             else $label = $r[$label];
             $ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid).$label;
