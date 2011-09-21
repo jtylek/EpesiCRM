@@ -1053,7 +1053,7 @@ class Utils_RecordBrowser extends Module {
             Base_ActionBarCommon::add('clone', 'Click 2 Fill', 'href="javascript:void(0)" onclick="c2f()"');
         }
 
-        if ($mode!='add' && !$this->record[':active'] && !Base_AclCommon::i_am_admin()) return $this->back();
+//        if ($mode!='add' && !$this->record[':active'] && !Base_AclCommon::i_am_admin()) return $this->back();
 
         $tb = $this->init_module('Utils/TabbedBrowser', null, 'recordbrowser_addons');
 		if ($mode=='history') $tb->set_inline_display();

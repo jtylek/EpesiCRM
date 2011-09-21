@@ -1287,7 +1287,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_access($tab, $action, $record=null, $crits=null){
         if (self::$admin_access && Base_AclCommon::i_am_admin()) {
             $ret = true;
-        } else {
+        } elseif (!$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
+			return false;
+		} else {
             static $cache = array();
             if (!isset($cache[$tab])) $cache[$tab] = $access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab)));
             else $access_callback = $cache[$tab];
@@ -1400,6 +1402,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::check_table_name($tab);
         $current = DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id));
 		if ($current==($state?1:0)) return;
+        Utils_WatchdogCommon::new_event($tab,$id,$state?'R':'D');
         DB::Execute('UPDATE '.$tab.'_data_1 SET active=%d WHERE id=%d',array($state?1:0,$id));
         DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
         $edit_id = DB::Insert_ID($tab.'_edit_history','id');
@@ -1513,16 +1516,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id, $action).'>';
             else self::$del_or_a = '';
         } else {
+			$ret = '';
+			$tip = '';
+			self::$del_or_a = '';
             if (!DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id))) {
+				$tip = self::ts('This record was deleted from the system, please edit current record or contact system administrator');
+                $ret = '<del>';
                 self::$del_or_a = '</del>';
-                $ret = '<del '.Utils_TooltipCommon::open_tag_attrs(self::ts('This record was deleted from the system, please edit current record or contact system administrator')).'>';
-            } elseif (!$nolink && !self::get_access($tab, 'view', self::get_record($tab, $id))) {
-                self::$del_or_a = '</span>';
-                $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(self::ts('You don\'t have permission to view this record.')).'>';
+            } 
+			if (!$nolink && !self::get_access($tab, 'view', self::get_record($tab, $id))) {
+                self::$del_or_a .= '</span>';
+                $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(self::ts('You don\'t have permission to view this record.').($tip?'<br />'.$tip:'')).'>'.$ret;
             } else {
-                self::$del_or_a = '</a>';
-                if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id, $action).'>';
-                else self::$del_or_a = '';
+                self::$del_or_a .= '</a>';
+                if (!$nolink) $ret = '<a '.($tip?Utils_TooltipCommon::open_tag_attrs($tip):'').' '.self::create_record_href($tab, $id, $action).'>'.$ret;
+                else self::$del_or_a .= '';
             }
         }
         return $ret;
@@ -1720,7 +1728,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             else $label = $r[$label];
             $ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid).$label;
             $close = Utils_RecordBrowserCommon::record_link_close_tag();
-            if ($close!='</a>') return null;
             $ret['title'] .= $close;
             $ret['view_href'] = Utils_RecordBrowserCommon::create_record_href($tab, $rid);
             $events_display = array();
@@ -1728,7 +1735,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach ($events as $v) {
                 $param = explode('_', $v);
                 switch ($param[0]) {
-                    case 'C':   $event_display = self::ts('Record created by %s, on %s', array('<b>'.self::get_user_label($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
+                    case 'C':   $event_display = self::ts('Record %s by %s, on %s', array('<b>'.self::ts('created').'</b>', '<b>'.self::get_user_label($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
+                                break;
+                    case 'D':   $event_display = self::ts('Record %s by %s, on %s', array('<b>'.self::ts('deleted').'</b>', '<b>'.self::get_user_label($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
+                                break;
+                    case 'R':   $event_display = self::ts('Record %s by %s, on %s', array('<b>'.self::ts('restored').'</b>', '<b>'.self::get_user_label($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
                                 break;
                     case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r['id'], $param[1] ,$details);
                                 break;
