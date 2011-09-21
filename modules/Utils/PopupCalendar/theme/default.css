@@ -23,16 +23,22 @@
 }
 
 #Utils_PopupCalendar table.menu .prev {
-	text-align: left;
+	text-align: center;
+	width: 25px;
 }
 
-#Utils_PopupCalendar table.menu .month {
+#Utils_PopupCalendar table.menu .label {
 	text-align: center;
-	width: 100%;
 }
 
 #Utils_PopupCalendar table.menu .next {
-	text-align: right;
+	text-align: center;
+	width: 25px;
+}
+
+#Utils_PopupCalendar table.menu .close {
+	text-align: center;
+	width: 25px;
 }
 
 /* calendar */
