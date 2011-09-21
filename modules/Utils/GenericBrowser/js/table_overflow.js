@@ -19,7 +19,7 @@ table_overflow_show = function (e_td, force) {
 		}
 		utils_genericbrowser__last_td = e_td;
 		
-		e_td.innerHTML = $("table_overflow_content").innerHTML; // fix for cell height
+		e_td.innerHTML = $("table_overflow_content").innerHTML; // fix for cell height, TODO: find  a way to keep size without copying html, nodes ids are messing up
 		var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 		var leftOffset = -2;
 		if (is_chrome)
