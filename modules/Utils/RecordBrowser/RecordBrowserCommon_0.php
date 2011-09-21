@@ -1287,7 +1287,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_access($tab, $action, $record=null, $crits=null){
         if (self::$admin_access && Base_AclCommon::i_am_admin()) {
             $ret = true;
-        } elseif (!$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
+        } elseif (isset($record[':active']) && !$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
 			return false;
 		} else {
             static $cache = array();
@@ -1724,6 +1724,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($rid!==null) {
             $r = self::get_record($tab, $rid);
             if ($r===null) return null;
+			if (!self::get_access($tab, 'view', $r) return null;
             if (is_array($label)) $label = call_user_func($label, $r, true);
             else $label = $r[$label];
             $ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid).$label;
