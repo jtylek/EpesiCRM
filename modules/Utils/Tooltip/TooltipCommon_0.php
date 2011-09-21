@@ -47,7 +47,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string HTML tag attributes
 	 */
-	public static function open_tag_attrs( $tip, $help=true, $max_width=300 ) {
+	public static function open_tag_attrs( $tip, $help=true, $max_width=500 ) {
 		if(MOBILE_DEVICE) return '';
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
