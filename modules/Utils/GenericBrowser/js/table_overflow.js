@@ -65,7 +65,7 @@ Utils_GenericBrowser__overflow_div = function() {
 	div.id = "table_overflow";
 	div.style.position = "absolute";
 	div.style.display = "none";
-	div.style.zIndex = 900;
+	div.style.zIndex = 9;
 	div.style.left = 0;
 	div.style.top = 0;
 	div.innerHTML = "<div id=\'table_overflow_content\' class=\'Utils_GenericBrowser__overflow_div_content\'></div>";
