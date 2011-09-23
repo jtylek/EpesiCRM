@@ -105,10 +105,10 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             $cols[] = array('name'=>$this->t('Contact'), 'width'=>27);
         $cols[] = array('name'=>$this->t('Active'), 'order'=>'u.active', 'width'=>5);
         $cols[] = array('name'=>$this->t('Mail'), 'order'=>'p.mail', 'width'=>20,'search'=>'mail');
-        $cols[] = array('name'=>$this->t('Access'),'width'=>27);
+        $cols[] = array('name'=>$this->t('Access'),'width'=>'27');
 
         if(Base_AclCommon::i_am_sa())
-            $cols[] = array('name'=>$this->t('Actions'),'width'=>5);
+            $cols[] = array('name'=>$this->t('Actions'),'width'=>'80px');
         $gb->set_table_columns($cols);
 
         $gb->set_default_order(array($this->t('Login')=>'ASC'));
@@ -160,8 +160,14 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     }
 
     public function edit_user_form($edit_id) {
-		if ($this->is_back())
+		if ($this->is_back()) {
+			if($this->parent->get_type()!='Base_Admin') {
+				$x = ModuleManager::get_instance('/Base_Box|0');
+				if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+				$x->pop_main();
+			}
 			return false;
+		}
         $form = & $this->init_module('Libs/QuickForm',$this->t(($edit_id>=0)?'Applying changes':'Creating new user'));
         
         //create new user
@@ -217,12 +223,21 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addRule(array('username',$this->create_unique_key('edit_user')), $this->t('Username already taken'), 'check_username');
 
         if($form->validate()) {
-            if($form->process(array(&$this, 'submit_edit_user_form')))
+            if($form->process(array(&$this, 'submit_edit_user_form'))) {
+				if($this->parent->get_type()!='Base_Admin') {
+					$x = ModuleManager::get_instance('/Base_Box|0');
+					if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+					$x->pop_main();
+				}
                 return false;
+			}
         } else $form->display();
 
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
         Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		if(Base_AclCommon::i_am_sa() && $edit_id>=0)
+			Base_ActionBarCommon::add('settings', 'Log as user', $this->create_callback_href(array($this,'log_as_user'),$edit_id));
+			
 		return true;
     }
 

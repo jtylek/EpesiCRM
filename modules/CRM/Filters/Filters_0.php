@@ -80,7 +80,7 @@ class CRM_Filters extends Module {
 	public function manage_filters() {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main($this->get_type(),'edit');
+		$x->push_main($this->get_type(),'edit', array(false));
 	}
 
 /*	public function get() {
@@ -94,7 +94,10 @@ class CRM_Filters extends Module {
 		return $this->get_module_variable('profile_desc');
 	}*/
 
-	public function edit() {
+	public function edit($user_settings_nav=true) {
+		if ($user_settings_nav)
+			Base_ActionBarCommon::add('back','Back',$this->create_main_href('Base_User_Settings'));
+
 		Base_ActionBarCommon::add('add','Add preset',$this->create_callback_href(array($this,'edit_group')));
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'edit');

@@ -209,6 +209,8 @@ class CRM_Roundcube extends Module {
     ////////////////////////////////////////////////////////////
     //account management
     public function account_manager() {
+		Base_ActionBarCommon::add('back','Back',$this->create_main_href('Base_User_Settings'));
+		
         $this->rb = $this->init_module('Utils/RecordBrowser','rc_accounts','rc_accounts');
         $this->rb->set_defaults(array('epesi_user'=>Acl::get_user()));
         $order = array(array('login'=>'DESC'), array('epesi_user'=>Acl::get_user()),array('epesi_user'=>false));
