@@ -579,7 +579,7 @@ class Utils_GenericBrowser extends Module {
 		}
 	}
 
-	private function sort_data(& $data, & $js=null, & $actions=null){
+	private function sort_data(& $data, & $js=null, & $actions=null, & $row_attrs=null){
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		if(($order = $this->get_order()) && $order=$order[0]) {
 			$col = array();
@@ -603,21 +603,25 @@ class Utils_GenericBrowser extends Module {
 
 			asort($col);
 			$data2 = array();
-			$actions2 = array();
 			$js2 = array();
+			$actions2 = array();
+			$row_attrs2 = array();
 			foreach($col as $j=>$v) {
 				$data2[] = $data[$j];
 				if (isset($js)) $js2[] = $js[$j];
 				if (isset($actions)) $actions2[] = $actions[$j];
+				if (isset($row_attrs)) $row_attrs2[] = $row_attrs[$j];
 			}
 			if($order['direction']!='ASC') {
 				$data2 = array_reverse($data2);
 				$js2 = array_reverse($js2);
 				$actions2 = array_reverse($actions2);
+				$row_attrs2 = array_reverse($row_attrs2);
 			}
 			$data = $data2;
 			$js = $js2;
 			$actions = $actions2;
+			$row_attrs = $row_attrs2;
 		}
 	}
 	/**
@@ -661,8 +665,9 @@ class Utils_GenericBrowser extends Module {
 	public function automatic_display($paging=true){
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		$rows = array();
-		$actions = array();
 		$js = array();
+		$actions = array();
+		$row_attrs = array();
 		foreach($this->columns as $k=>$v)
 			if (isset($v['search'])) $this->columns[$k]['search'] = $k;
 		foreach($this->rows as $k=>$v){
@@ -670,13 +675,15 @@ class Utils_GenericBrowser extends Module {
 				$rows[] = $v;
 				$js[] = isset($this->rows_jses[$k])?$this->rows_jses[$k]:array();
 				$actions[] = isset($this->actions[$k])?$this->actions[$k]:array();
+				$row_attrs[] = isset($this->row_attrs[$k])?$this->row_attrs[$k]:array();
 			}
 		}
-		$this->sort_data($rows, $js, $actions);
+		$this->sort_data($rows, $js, $actions, $row_attrs);
 
 		$this->rows = array();
 		$this->rows_jses = array();
 		$this->actions = array();
+		$this->row_attrs = array();
 		if ($paging) $limit = $this->get_limit(count($rows));
 		$id = 0;
 		foreach($rows as $k=>$v) {
@@ -684,6 +691,7 @@ class Utils_GenericBrowser extends Module {
 				$this->rows[] = $v;
 				$this->rows_jses[] = $js[$k];
 				$this->actions[] = $actions[$k];
+				$this->row_attrs[] = $row_attrs[$k];
 			}
 			$id++;
 		}
