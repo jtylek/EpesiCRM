@@ -85,7 +85,7 @@ class Base_EssClient extends Module {
         $f = $this->init_module('Libs/QuickForm');
 
         $admin_email_tooltip = '<img ' .
-                Utils_TooltipCommon::open_tag_attrs($this->t("This email will be used to send registation link and to contact Administator directly."))
+                Utils_TooltipCommon::open_tag_attrs($this->t("This email will be used to send registation link and to contact Administator directly."), false)
                 . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
 
         if ($edit) {
@@ -187,7 +187,7 @@ class Base_EssClient extends Module {
                 if ($data) {
                     $f->setDefaults($data);
                 } else {
-                    print($this->t('<span style="color:gray">Data below was auto-filled from Main Company\'s and first Super administrator\'s data.<br/>Make sure that data is correct and change if necessary.</span>'));
+                    print($this->t('<span style="color:gray">Data below was auto-filled from Main Company\'s and first Super administrator\'s data.<br/>Make sure that the data is correct and change it if necessary.</span>'));
                     $defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
                     $f->setDefaults($defaults);
                 }
