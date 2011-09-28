@@ -152,6 +152,7 @@
 #Base_ActionBar #panel div.icon .icon_print     { background-position:   0px -128px; margin: auto;}
 #Base_ActionBar #panel div.icon .icon_reply     { background-position: -32px -128px; margin: auto;}
 #Base_ActionBar #panel div.icon .icon_report    { background-position: -64px -128px; margin: auto;}
+#Base_ActionBar #panel div.icon .icon_retry     { background-position: -32px -160px; margin: auto;} /* FIXME */
 #Base_ActionBar #panel div.icon .icon_save      { background-position: -96px -128px; margin: auto;}
 #Base_ActionBar #panel div.icon .icon_scan      { background-position:   0px -160px; margin: auto;}
 #Base_ActionBar #panel div.icon .icon_search    { background-position: -32px -160px; margin: auto;}

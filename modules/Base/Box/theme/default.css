@@ -863,3 +863,27 @@ hr.line {
 	/* end gradients */
 
 /* end Global styles */
+
+.important_notice {
+	width: 750px;
+	background-color: white;
+	font-size: 14px;
+	line-height: 20px;
+	text-align: left;
+	box-shadow: 0 0 8px black;
+	padding: 5px 8px;
+	top: 20px;
+	position: relative;
+}
+
+.important_notice_frame {
+	width: auto;
+	background-color: white;
+	font-size: 14px;
+	line-height: 20px;
+	text-align: left;
+	box-shadow: 0 0 3px black;
+	padding: 5px 8px;
+	margin-top: 3px;
+	margin-bottom: 3px;
+}

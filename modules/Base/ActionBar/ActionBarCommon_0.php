@@ -36,11 +36,12 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'settings'	=> 16,
 			'scan'		=> 17,
 			'filter'	=> 18,
-			'send'		=> 19,
-			'new-mail'	=> 20,
-			'attach'	=> 21,
-			'reply'		=> 22,
-			'forward'	=> 23);
+			'retry'		=> 19,
+			'send'		=> 20,
+			'new-mail'	=> 21,
+			'attach'	=> 22,
+			'reply'		=> 23,
+			'forward'	=> 24);
 
 	public static function user_settings(){
 		return array('Misc'=>array(
