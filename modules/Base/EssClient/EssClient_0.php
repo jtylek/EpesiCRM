@@ -76,7 +76,7 @@ class Base_EssClient extends Module {
 						print('</div>');
                     }
 					print('</div>');
-                    Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'register_form'), array($data)));
+                    Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'register_form'), array(true, $data)));
                 } else {
 					$email = Base_EssClientCommon::get_support_email();
 
