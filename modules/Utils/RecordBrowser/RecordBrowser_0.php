@@ -240,6 +240,11 @@ class Utils_RecordBrowser extends Module {
         if ($this->recent>0) $opts['recent'] = $this->t('Recent');
         if ($this->favorites) $opts['favorites'] = $this->t('Favorites');
         if ($this->watchdog) $opts['watchdog'] = $this->t('Subscribed');
+		
+		if ($this->data_gb->show_all()) {
+			$this->set_module_variable('browse_mode', 'all');
+		}
+
         if (count($opts)>1) {
             if ($this->disabled['browse_mode'])
                 $this->browse_mode='all';
@@ -303,6 +308,7 @@ class Utils_RecordBrowser extends Module {
 //        $this->data_gb->form_s->updateAttributes(array('onsubmit'=>$form_sub));
 //	      $form->updateAttributes(array('onsubmit'=>$form_sub));
 
+		$empty_defaults = array();
         $filters = array();
         $text_filters = array();
         foreach ($filters_all as $filter) {
@@ -310,6 +316,12 @@ class Utils_RecordBrowser extends Module {
             $field_id = 'filter__'.$filter_id;
             if (isset($this->custom_filters[$filter_id])) {
                 $f = $this->custom_filters[$filter_id];
+				if ($this->data_gb->show_all()) {
+					if (isset($f['trans'])) {
+						foreach ($f['trans'] as $k=>$v)
+							if (empty($v)) $empty_defaults[$field_id] = $k;
+					}
+				}
                 if (!isset($f['label'])) $f['label'] = $filter;
                 if (!isset($f['args'])) $f['args'] = null;
                 if (!isset($f['args_2'])) $f['args_2'] = null;
@@ -398,6 +410,11 @@ class Utils_RecordBrowser extends Module {
             $filters[] = $filter_id;
         }
         $form->addElement('submit', 'submit', $this->t('Show'));
+
+		if ($this->data_gb->show_all()) {
+			$this->set_module_variable('def_filter', $empty_defaults);
+			print('<span style="display:none;">'.microtime(true).'</span>');
+		}
         $def_filt = $this->get_module_variable('def_filter', array());
 
         $this->crits = array();
@@ -532,6 +549,7 @@ class Utils_RecordBrowser extends Module {
         }
         if ($this->data_gb!==null) $gb = $this->data_gb;
         else $gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
+		
         if ($special) {
             $gb_per_page = Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page');
             $gb->set_per_page(Base_User_SettingsCommon::get('Utils/RecordBrowser/RecordPicker','per_page'));

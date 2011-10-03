@@ -847,6 +847,7 @@ class Utils_GenericBrowser extends Module {
 				$values = $this->form_s->exportValues();
 				if (isset($values['show_all_pressed']) && $values['show_all_pressed']) {
 					$this->set_module_variable('search',array());
+					$this->set_module_variable('show_all_triggered',true);
 					location(array());
 					return;
 				}
@@ -1024,6 +1025,11 @@ class Utils_GenericBrowser extends Module {
 			$theme->display($template,true);
 		else
 			$theme->display();
+		$this->set_module_variable('show_all_triggered',false);
+	}
+	
+	public function show_all() {
+		return $this->get_module_variable('show_all_triggered',false);
 	}
 
 	private function summary() {
