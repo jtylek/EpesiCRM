@@ -41,7 +41,7 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, $args);
     }
 
-    public function register_installation_confirm() {
+    public function register_installation_confirm($key) {
         $args = func_get_args();
         return $this->call(__FUNCTION__, $args);
     }

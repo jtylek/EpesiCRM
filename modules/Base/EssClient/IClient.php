@@ -44,9 +44,10 @@ interface IClient {
     /**
      * Confirm client id.
      *
+     * @param string $key confirmation key
      * @return boolean true on success, false on failure
      */
-    function register_installation_confirm();
+    function register_installation_confirm($key);
 
     /**
      * Use this function before get_module_file() to generate package on server side.
