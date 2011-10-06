@@ -1685,6 +1685,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$details) return $event_display;
 		$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($edit_id));
 		$event_display .= '<table border="0"><tr><td><b>'.self::ts('Field').'</b></td><td><b>'.self::ts('Old value').'</b></td><td><b>'.self::ts('New value').'</b></td></tr>';
+		foreach ($r as $k=>$v) {
+			if (isset(self::$hash[$k]) && self::$table_rows[self::$hash[$k]]['type']=='multiselect')
+				$r[$k] = self::decode_multi($r[$k]); // We have to decode all fields, because access and some display relay on it, regardless which field changed
+		}
 		$r2 = $r;
 		self::init($tab); // because get_user_label messes up
 		foreach ($edit_details as $k=>$v) {
@@ -1692,7 +1696,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!isset(self::$hash[$k])) continue;
 			if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') {
 				$v = $edit_details[$k] = self::decode_multi($v);
-				$r[$k] = self::decode_multi($r[$k]);
+//				$r[$k] = self::decode_multi($r[$k]);
 			}
 			$r2[$k] = $v;
 		}
