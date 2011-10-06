@@ -299,6 +299,7 @@ class Utils_RecordBrowser extends Module {
                 if (isset($filters_set[$v['id']])) unset($filters_set[$v['id']]);
             }
         }
+        if (!$this->data_gb) $this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
         if (empty($filters_all)) {
             $this->crits = array();
             return '';
