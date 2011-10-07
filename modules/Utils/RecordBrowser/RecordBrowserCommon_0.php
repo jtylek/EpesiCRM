@@ -1740,6 +1740,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $ret['view_href'] = Utils_RecordBrowserCommon::create_record_href($tab, $rid);
             $events_display = array();
             $events = array_reverse($events);
+            $other_events = array();
             foreach ($events as $v) {
                 $param = explode('_', $v);
                 switch ($param[0]) {
@@ -1770,15 +1771,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                         $action = 'pasted';
                                         break;
                                     default:
-                                        $event_display = self::ts($param[1]);
+                                	if (!isset($other_events[$param[1]])) $other_events[$param[1]] = 0;
+                                	$other_events[$param[1]]++;
+                                	$event_display = null;
+                                	break;
                                 }
                                 if($event_display===false)
                                     $event_display = self::ts('<b>Note '.$action.'<b>');
                                 break;
                     default:    $event_display = '<b>'.self::ts($v).'</b>';
                 }
-                $events_display[] = $event_display;
+                if ($event_display) $events_display[] = $event_display;
             }
+            foreach ($other_events as $k=>$v)
+        	$events_display[] = self::ts($k).($v>1?' ['.$v.']':'');
             $ret['events'] = implode($details?'<hr>':'<br>',array_reverse($events_display));
         }
         return $ret;
