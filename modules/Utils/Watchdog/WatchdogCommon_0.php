@@ -103,15 +103,17 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}
 		$mail_users = DB::GetAssoc('SELECT user_id, user_id FROM utils_watchdog_subscription AS uws INNER JOIN base_user_settings AS bus ON uws.user_id=bus.user_login_id AND category_id=%d AND internal_id=%s AND bus.module=%s AND bus.variable=%s AND bus.value=%s', array($category_id, $id, 'Utils_Watchdog', 'email', serialize('1')));
 
-		$email_data = self::display_events($category_id, array($event_id=>$message), $id);
+		$c_user = Acl::get_user();
 		foreach ($mail_users as $m) {
-				if ($m==Acl::get_user()) continue;
+				Acl::set_user($m);
+				$email_data = self::display_events($category_id, array($event_id=>$message), $id);
 				$contact = Utils_RecordBrowserCommon::get_id('contact', 'login', $m);
 				if (!$contact) continue;
 				$email = Utils_RecordBrowserCommon::get_value('contact', $contact, 'email');
 				if (!$email) continue;
 				Base_MailCommon::send($email,Base_LangCommon::ts('Utils_Watchdog', 'Epesi notification - %s - %s', array($email_data['category'], strip_tags($email_data['title']))),$email_data['events'], null, null, true);
 		}
+		Acl::set_user($c_user);
 	}
 	// *************************** Subscription manipulation *******************
 	public static function user_purge_notifications($user_id, $category_name, $time=null) {

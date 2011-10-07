@@ -1348,6 +1348,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
     }
 	public static function get_user_label($uid) {
+	if (!$uid) return 'front-end user';
         if (ModuleManager::is_installed('CRM_Contacts')>=0)
 			return CRM_ContactsCommon::get_user_label($uid);
 		else
@@ -1682,7 +1683,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$event_display = 'Error, Invalid event: '.$edit_id;
 		if (!$edit_info) return $event_display;
 
-		$event_display = self::ts('Record edited by %s, on %s', array($edit_info['edited_by']!==null?'<b>'.self::get_user_label($edit_info['edited_by']).'</b>':'', '<b>'.Base_RegionalSettingsCommon::time2reg($edit_info['edited_on']).'</b>'));
+		$event_display = self::ts('Record edited by %s, on %s', array($edit_info['edited_by']!==null?'<b>'.self::get_user_label($edit_info['edited_by']).'</b>':'front-end user', '<b>'.Base_RegionalSettingsCommon::time2reg($edit_info['edited_on']).'</b>'));
 		if (!$details) return $event_display;
 		$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($edit_id));
 		$event_display .= '<table border="0"><tr><td><b>'.self::ts('Field').'</b></td><td><b>'.self::ts('Old value').'</b></td><td><b>'.self::ts('New value').'</b></td></tr>';
