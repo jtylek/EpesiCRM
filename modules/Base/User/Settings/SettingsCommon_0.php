@@ -132,7 +132,6 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	}
 
 	public static function get_users_settings($module,$name){
-		if (!Acl::is_user()) return null;
 		$module = str_replace('/','_',$module);
 		$vals = array();
 		$ret = DB::Execute('SELECT user_login_id, value FROM base_user_settings WHERE module=%s AND variable=%s', array($module, $name));
