@@ -711,6 +711,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function new_record( $tab, $values = array()) {
         self::init($tab);
+        $user = Acl::get_user();
 
 		$for_processing = $values;
 		foreach(self::$table_rows as $field=>$args)
@@ -725,7 +726,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::init($tab);
         $fields = 'created_on,created_by,active';
         $fields_types = '%T,%d,%d';
-        $vals = array(date('Y-m-d G:i:s'), Acl::get_user(), 1);
+        $vals = array(date('Y-m-d H:i:s'), $user, 1);
         foreach(self::$table_rows as $field => $args) {
             if (!isset($values[$args['id']]) || $values[$args['id']]==='') continue;
 			if (!is_array($values[$args['id']])) $values[$args['id']] = trim($values[$args['id']]);
@@ -741,9 +742,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         DB::Execute('INSERT INTO '.$tab.'_data_1 ('.$fields.') VALUES ('.$fields_types.')',$vals);
         $id = DB::Insert_ID($tab.'_data_1', 'id');
-        self::add_recent_entry($tab, Acl::get_user(), $id);
+        if ($user) self::add_recent_entry($tab, $user, $id);
         if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_fav'))
-            DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
+            DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array($user, $id));
 		self::init($tab);
 		foreach(self::$table_rows as $field=>$args)
 			if ($args['type']==='multiselect') {
