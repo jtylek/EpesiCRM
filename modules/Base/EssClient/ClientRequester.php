@@ -16,6 +16,10 @@ class ClientRequester implements IClient {
         $this->server = $server;
     }
 
+    public function set_client_license_key($license_key) {
+        $this->license_key = $license_key;
+    }
+
     public function download_prepare($order_ids) {
         $args = func_get_args();
         return $this->call(__FUNCTION__, $args);
@@ -61,10 +65,6 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, $args);
     }
 
-    public function set_client_license_key($license_key) {
-        $this->license_key = $license_key;
-    }
-
     public function order_submit($modules) {
         $args = func_get_args();
         return $this->call(__FUNCTION__, $args);
@@ -76,22 +76,64 @@ class ClientRequester implements IClient {
     }
 
     protected function call($function, $params, $serialize_response = true) {
-        $err_msg = '';
-        $post = http_build_query(
+        // PREPARE POST DATA
+        $post_data = http_build_query(
                 array(
                     IClient::param_function => $function,
                     IClient::param_installation_key => $this->license_key,
                     IClient::param_serialize => $serialize_response,
                     IClient::param_arguments => serialize($params)
                 ));
-        $ch = curl_init($this->server);
+        // CHECK CURL
+        $curl_loaded = false !== array_search('curl', get_loaded_extensions());
+        // REQUEST
+        $output = $curl_loaded ?
+                $this->curl_call($post_data) :
+                $this->fgc_call($post_data);
+        // RETURN OUTPUT
+        if ($serialize_response) {
+            // handle unserialization error
+            if ($output == serialize(false))
+                return false;
+            $r = @unserialize($output);
+            if ($r === false)
+                throw new ErrorException("Unserialize error $output");
+            return $r;
+        } else
+            return $output;
+    }
 
+    protected function fgc_call($post_data) {
+        $http['method'] = 'POST';
+        $http['header'] = 'Content-Type: application/x-www-form-urlencoded';
+        $http['content'] = $post_data;
+        
+        set_error_handler(create_function('$code, $message', 'throw new ErrorException($message);'));
+        $exception = null;
+        $output = false;
+        try {
+            $output = @file_get_contents($this->server, false, stream_context_create(array('http' => $http)));
+        } catch (ErrorException $e) {
+            $exception = $e;
+        }
+        restore_error_handler();
+        if ($output === false) {
+            if ($exception)
+                throw $exception;
+            else
+                throw new ErrorException("File get contents unknown error");
+        }
+        return $output;
+    }
+
+    protected function curl_call($post_data) {
+        $ch = curl_init($this->server);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 //        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 //        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
@@ -104,24 +146,13 @@ class ClientRequester implements IClient {
         if ($errno != '') {
             throw new ErrorException("cURL error: $errno");
         }
-
         if ($response_code == '404') {
             throw new ErrorException("Server not available!");
         }
         if ($response_code == '403') {
             throw new ErrorException("Authentication failed!");
         }
-
-        if ($serialize_response) {
-            // handle unserialization error
-            if ($output == serialize(false))
-                return false;
-            $r = @unserialize($output);
-            if ($r === false)
-                throw new ErrorException("Unserialize error $output");
-            return $r;
-        } else
-            return $output;
+        return $output;
     }
 
 }
