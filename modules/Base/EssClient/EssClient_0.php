@@ -14,7 +14,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_EssClient extends Module {
 
     public function body() {
-
+        // When user gets here from Menu/Help we need pop_main
+        // When from admin panel we need parent->reset()
+        if ($this->is_back()) {
+            $this->pop_main();
+        }
+        $this->admin();
     }
 
     /**
