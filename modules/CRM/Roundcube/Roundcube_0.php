@@ -19,9 +19,16 @@ class CRM_Roundcube extends Module {
         $def_id = $this->get_module_variable('default',null);
         foreach($accounts as $a) {
             if($def===null) $def = $a;
-            if($def_id===null && $a['default_account']) $def = $a;
-            elseif($a['id']==$def_id) $def = $a;
-            Base_ActionBarCommon::add('add',($def==$a?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['server']);
+            if($def_id===null && $a['default_account']) {
+                $def = $a;
+                break;
+            } elseif($a['id']==$def_id) {
+                $def = $a;
+                break;
+            }
+        }
+        foreach($accounts as $a) {
+            Base_ActionBarCommon::add('add',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['server']);
         }
         if($def===null) {
 			print('<h1><a '.$this->create_callback_href(array($this,'push_settings'),array('E-mail Accounts')).'>Please set your e-mail account</a></h1>');
