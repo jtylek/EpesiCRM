@@ -50,6 +50,10 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		if(MOBILE_DEVICE) return '';
 		return 'class="lbOn" rel="'.$id.'" href="javascript:void(0)"';
 	}
+	
+	public static function close($id) {
+		eval_js('leightbox_deactivate(\''.$id.'\')');
+	}
 }
 
 ?>

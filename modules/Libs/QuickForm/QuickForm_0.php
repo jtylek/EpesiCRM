@@ -85,17 +85,17 @@ class Libs_QuickForm extends Module {
 		return $return;
 	}
 	
-	public function get_submit_form_js($submited=true, $indicator=null) {
+	public function get_submit_form_js($submited=true, $indicator=null, $queue=false) {
 		if (!is_object($this->qf))
 			throw new Exception("QuickFrom object doesn't exists");
 		$form_name = $this->qf->getAttribute('name');
-		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator); 
+		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator,$queue); 
 	}
 	public function get_submit_form_href($submited=true, $indicator=null) {
 		 return ' href="javascript:void(0)" onClick="'.$this->get_submit_form_js($submited,$indicator).'" ';
 	}
 
-	public function get_submit_form_js_by_name($form_name, $submited, $indicator) {
+	public function get_submit_form_js_by_name($form_name, $submited, $indicator, $queue=false) {
 		if (!is_array($form_name)) $form_name = array($form_name);
 		if(!isset($indicator)) $indicator='processing...';
 		$fast = "+'&".http_build_query(array('__action_module__'=>$this->get_parent_path()))."'"; 
@@ -110,7 +110,7 @@ class Libs_QuickForm extends Module {
 			$chj .= "$('".addslashes($f)."').serialize()";
 			if ($submited) $post .= "$('".addslashes($f)."').submited.value=0;";
 		}
-		$s = $pre."_chj(".$chj.$fast.",'".Epesi::escapeJS($indicator)."');".$post;
+		$s = $pre."_chj(".$chj.$fast.",'".Epesi::escapeJS($indicator)."','".($queue?'queue':'')."');".$post;
 		return $s;
 	}
 
