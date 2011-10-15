@@ -2781,6 +2781,69 @@ Base_ThemeCommon::uninstall_default_theme('Utils_Attachment_Administrator');
 Base_SetupCommon::refresh_available_modules();
 
 }
+
+$versions[] = '1.2.1';
+function update_from_1_2_0_to_1_2_1() {
+    $tbls = DB::MetaTables('TABLE',true);
+
+    if (ModuleManager::is_installed('Base_Theme_Administrator')>=0) {
+        if(!in_array('base_theme_themeup',$tbls))
+        DB::CreateTable('base_theme_themeup',
+	    'id I4 AUTO KEY,'.
+    	    'module C(128)',
+        	array('constraints'=>''));
+    }
+
+if(ModuleManager::is_installed('CRM_Contacts')>=0) {
+    if(!DB::GetOne('SELECT 1 FROM recordbrowser_datatype WHERE type="email"'))
+	Utils_RecordBrowserCommon::register_datatype('email', 'CRM_ContactsCommon', 'email_datatype');
+    Utils_RecordBrowserCommon::set_QFfield_callback('contact', 'Email', 'CRM_ContactsCommon::QFfield_unique_email');
+    Utils_RecordBrowserCommon::set_QFfield_callback('company', 'Email', 'CRM_ContactsCommon::QFfield_unique_email');
+}
+if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
+    Utils_RecordBrowserCommon::set_QFfield_callback('rc_multiple_emails', 'Email', 'CRM_ContactsCommon::QFfield_unique_email');
+}
+
+if (ModuleManager::is_installed('CRM/Roundcube')>=0) {
+	Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon');
+	Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon');
+
+	Utils_RecordBrowserCommon::delete_record_field('rc_mails', 'Headers');
+	Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_body_addon', 'Body');
+	Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon', 'Associated records');
+	Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', 'Attachments');
+	Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_headers_addon', 'Headers');
+
+        if(!DB::GetOne('SELECT 1 FROM rc_accounts_field WHERE field="Account Name"')) {
+        	Utils_RecordBrowserCommon::new_record_field('rc_accounts',
+	        	array('name'=>'Account Name',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>32, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_account_name'), 'position'=>'Email'));
+        	DB::Execute('UPDATE rc_accounts_data_1 SET f_account_name=f_email');
+        }
+	Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'mails'));
+}
+
+if (ModuleManager::is_installed('Base_EpesiStore')>=1) {
+    if(!in_array('epesi_store_modules',$tbls))
+    DB::CreateTable('epesi_store_modules','
+        module_id I4 PRIMARY KEY,
+        version I4,
+        order_id I4 NOTNULL');
+
+    $d = DB::dict();
+    $x = $d->ChangeTableSQL('epesi_store_modules','
+        module_id I4 PRIMARY KEY,
+        version I4,
+        order_id I4 NOTNULL,
+        file C(20)');
+    if($x) $d->ExecuteSQLArray($x);
+
+}
+
+if (ModuleManager::is_installed('CRM_MailClient')==-1) {
+    Utils_WatchdogCommon::unregister_category('crm_mailclient');
+}
+
+}
 //=========================================================================
 
 try {
