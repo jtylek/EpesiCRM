@@ -2219,7 +2219,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $val = $defaults[$args['id']];
                 else
                     $val = null;
-                call_user_func_array($ff, array(&$qf, $args['id'], $label, $mode, $val, $args, null, null));
+				$mobile_rb = new Utils_RecordBrowserMobile($tab, $rec);
+                call_user_func_array($ff, array(&$qf, $args['id'], $label, $mode, $val, $args, $mobile_rb, null));
                 if($mode=='edit')
                     unset($defaults[$args['id']]);
                 continue;
@@ -2437,4 +2438,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return true;
     }
 }
+
+class Utils_RecordBrowserMobile { // mini class to simulate full RB object, TODO: consider passing tab and record as statics linked to RBCommon instead
+	public $tab;
+	public $record;
+	
+	public function __construct($tab, $record) {
+		$this->tab = $tab;
+		$this->record = $record;
+	}
+}
+
 ?>
