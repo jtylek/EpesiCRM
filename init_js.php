@@ -18,6 +18,8 @@ if(defined('CID')) {
 
 require_once('include/session.php');
 
+header("Content-type: text/javascript");
+
 $client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
 $client_id_next = $client_id+1;
 if($client_id_next==5) $client_id_next=0;
