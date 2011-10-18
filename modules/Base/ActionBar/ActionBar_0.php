@@ -1,4 +1,4 @@
-<?php
+7<?php
 /**
  * ActionBar
  * 
@@ -28,7 +28,7 @@ class Base_ActionBar extends Module {
 		if (!isset(Base_ActionBarCommon::$available_icons[$a['icon']])) return 1;
 		if (!isset(Base_ActionBarCommon::$available_icons[$b['icon']])) return -1;
 		$ret = Base_ActionBarCommon::$available_icons[$a['icon']]-Base_ActionBarCommon::$available_icons[$b['icon']];
-		if($ret==0) $ret = strcmp($a['label'],$b['label']);
+		if($ret==0) $ret = strcmp(strip_tags($a['label']),strip_tags($b['label']));
 		return $ret;
 	}
 
