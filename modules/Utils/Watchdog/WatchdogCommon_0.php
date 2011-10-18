@@ -107,6 +107,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		foreach ($mail_users as $m) {
 				Acl::set_user($m);
 				$email_data = self::display_events($category_id, array($event_id=>$message), $id);
+				if (!$email_data) continue;
 				$contact = Utils_RecordBrowserCommon::get_id('contact', 'login', $m);
 				if (!$contact) continue;
 				$email = Utils_RecordBrowserCommon::get_value('contact', $contact, 'email');
