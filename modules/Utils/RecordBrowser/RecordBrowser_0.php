@@ -1022,10 +1022,10 @@ class Utils_RecordBrowser extends Module {
         if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
 
         $this->init();
-		if (is_numeric($id))
+		if (is_numeric($id)) {
 			$id = intVal($id);
 			self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
-		else {
+		} else {
 			self::$last_record = $this->record = $id;
 			$id = $this->record['id'];
 		}
