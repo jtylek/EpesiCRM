@@ -1010,7 +1010,6 @@ class Utils_RecordBrowser extends Module {
             $id = $this->get_module_variable('id');
             $this->unset_module_variable('id');
         }
-		$id = intVal($id);
         self::$browsed_records = null;
 
         Utils_RecordBrowserCommon::$cols_order = array();
@@ -1024,6 +1023,7 @@ class Utils_RecordBrowser extends Module {
 
         $this->init();
 		if (is_numeric($id))
+			$id = intVal($id);
 			self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
 		else {
 			self::$last_record = $this->record = $id;
@@ -2152,7 +2152,7 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('select', 'historical_view_pick_date', $this->t('View the record as of'), $dates_select, array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");', 'id'=>'historical_view_pick_date'));
 		$form->setDefaults(array('historical_view_pick_date'=>$created['created_on']));
 		$form->display();
-		$this->view_entry('history', $created['id']);
+		$this->view_entry('history', $created);
 		$tb->end_tab();
 
 		
