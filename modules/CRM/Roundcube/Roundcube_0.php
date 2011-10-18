@@ -16,9 +16,11 @@ class CRM_Roundcube extends Module {
     public function body($params2=array(),$def_account_id=null) {
         $accounts = Utils_RecordBrowserCommon::get_records('rc_accounts',array('epesi_user'=>Acl::get_user()));
         $def = null;
-        $def_id = $this->get_module_variable('default',null);
+        $user_def = null;
+        $def_id = $this->get_module_variable('default',$def_account_id);
         foreach($accounts as $a) {
             if($def===null) $def = $a;
+            if($a['default_account']) $user_def = $a;
             if($def_id===null && $a['default_account']) {
                 $def = $a;
                 break;
@@ -28,7 +30,7 @@ class CRM_Roundcube extends Module {
             }
         }
         foreach($accounts as $a) {
-            Base_ActionBarCommon::add('add',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['server'],$a==$def?-1:0);
+            Base_ActionBarCommon::add('add',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['server'],$a==$user_def?-1:0);
         }
         if($def===null) {
 			print('<h1><a '.$this->create_callback_href(array($this,'push_settings'),array('E-mail Accounts')).'>Please set your e-mail account</a></h1>');
