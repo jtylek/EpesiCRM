@@ -2152,7 +2152,7 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('select', 'historical_view_pick_date', $this->t('View the record as of'), $dates_select, array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");', 'id'=>'historical_view_pick_date'));
 		$form->setDefaults(array('historical_view_pick_date'=>$created['created_on']));
 		$form->display();
-		$this->view_entry('history', $created);
+		$this->view_entry('history', $created['id']);
 		$tb->end_tab();
 
 		
