@@ -12,6 +12,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EssClientCommon extends Base_AdminModuleCommon {
+//    const SERVER_ADDRESS = 'http://localhost/epesi/modules/Custom/ESS/serv/';
 //    const SERVER_ADDRESS = 'http://localhost/epesi/tools/EpesiServiceServer/';
     const SERVER_ADDRESS = 'http://ess.epesibim.com/';
     const VAR_LICENSE_KEY = 'license_key';
@@ -23,7 +24,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         if (!self::get_license_key()) {
             $text = 'Register Epesi!';
         }
-        return array('Help' => array('__submenu__' => 1, $text => array('__function__' => 'admin')));
+        return array('Help' => array('__submenu__' => 1, $text => array()));
     }
 
     /**

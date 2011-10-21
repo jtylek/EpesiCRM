@@ -61,7 +61,10 @@ class Base_EssClient extends Module {
 						print('</div>');
 						print($this->t('You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.'));
                     }
-                    if (strcasecmp($data['status'], "confirmed") == 0 || strcasecmp($data['status'], "confirmed (update)") == 0) {
+// For new version of server
+//                    if (strcasecmp($data['status'], "new_confirmed") == 0 || strcasecmp($data['status'], "updated_confirmed") == 0) {
+// now united into one to work on both
+                    if (strcasecmp($data['status'], "confirmed") == 0 || strcasecmp($data['status'], "confirmed (update)") == 0 || strcasecmp($data['status'], "new_confirmed") == 0 || strcasecmp($data['status'], "updated_confirmed") == 0) {
 						print('<div class="important_notice_frame">');
                         print('<span style="font-weight:bold;">'.
 							$this->t('Status:').
