@@ -813,7 +813,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
             Utils_WatchdogCommon::new_event($tab,$id,'E_'.$edit_id);
         }
-        DB::CompleteTrans();
+        return DB::CompleteTrans();
     }
     public static function add_recent_entry($tab, $user_id ,$id){
         self::check_table_name($tab);
