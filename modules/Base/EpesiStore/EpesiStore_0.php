@@ -45,7 +45,7 @@ class Base_EpesiStore extends Module {
     const color_success = 'green';
     const color_failure = 'gray';
 
-    protected $banned_columns_module = array('id', 'owner_id', 'path');
+    protected $banned_columns_module = array('id', 'owner_id', 'path', 'files');
     protected $banned_columns_order = array('id', 'installation_id');
 
     public function body() {
