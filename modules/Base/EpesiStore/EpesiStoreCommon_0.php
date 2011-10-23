@@ -52,7 +52,10 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if ($r['description'])
             $x[] = "<b>Description:</b><br/>{$r['description']}";
         $x[] = "<b>Repository:</b> {$r['repository']}";
-        $x[] = "<b>Files:</b><br/>{$r['path']}";
+        if(isset($r['path']))
+            $x[] = "<b>Files:</b><br/>{$r['path']}";
+        if(isset($r['files']))
+            $x[] = "<b>Files:</b><br/>{$r['files']}";
         $x[] = "<b>Price:</b> {$r['price']}";
         $x[] = "<b>Version:</b> {$r['version']}";
         $x[] = "<b>Active:</b> {$r['active']}";
