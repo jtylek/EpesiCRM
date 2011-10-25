@@ -764,7 +764,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function QFfield_email(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode=='add' || $mode=='edit') {
-            $form->addElement('text', $field, $label);
+            $form->addElement('text', $field, $label, array('id'=>$field));
             $form->addRule($field, Base_LangCommon::ts('CRM_Contacts','Invalid e-mail address'), 'email');//'/^[\._a-zA-Z0-9\-]+@[\.a-zA-Z0-9\-]+\.[a-zA-Z]{2,3}$/');
             if ($mode=='edit') $form->setDefaults(array($field=>$default));
         } else {
