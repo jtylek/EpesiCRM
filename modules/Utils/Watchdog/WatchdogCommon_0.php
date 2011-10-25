@@ -105,6 +105,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 
 		$c_user = Acl::get_user();
 		foreach ($mail_users as $m) {
+				if ($m==$c_user) continue;
 				Acl::set_user($m);
 				$email_data = self::display_events($category_id, array($event_id=>$message), $id);
 				if (!$email_data) continue;
