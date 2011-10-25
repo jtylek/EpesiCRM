@@ -40,10 +40,10 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
     public static function check_account_name($o,$d) {
     	if($d!==null) {
-    		if(!DB::GetOne('SELECT 1 FROM rc_accounts_data_1 WHERE f_account_name=%s AND f_epesi_user=%d AND id!=%d',array($o,Acl::get_user(),$d)))
+    		if(!DB::GetOne('SELECT 1 FROM rc_accounts_data_1 WHERE active=1 AND f_account_name=%s AND f_epesi_user=%d AND id!=%d',array($o,Acl::get_user(),$d)))
     			return true;
     	} else {
-    		if(!DB::GetOne('SELECT 1 FROM rc_accounts_data_1 WHERE f_account_name=%s AND f_epesi_user=%d',array($o,Acl::get_user())))
+    		if(!DB::GetOne('SELECT 1 FROM rc_accounts_data_1 WHERE active=1 AND f_account_name=%s AND f_epesi_user=%d',array($o,Acl::get_user())))
     			return true;
     	}
     	return false;
