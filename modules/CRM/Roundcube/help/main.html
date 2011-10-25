@@ -1,0 +1,114 @@
+<html>
+<head>
+</head>
+<body>
+<!-- -----------------------------------------------INTRODUCTION--------------------------------------------------- -->
+If you want to use your e-mail account while working with epesi, you can use our built-in Roundcube e-mail client. It allows you to write and send e-mails like any other client. On top of that there is an option to store your e-mails directly in epesi and attach it to all kinds of records. To learn more about Roundcube visit its <a target="_blank" href="http://roundcube.net">official site</a>.
+<!-- --------------------------------------------TABLE OF CONTENTS----------------------------------------------- -->
+<ol>
+	<li>
+		<a href="#add">Adding e-mail accounts</a>
+	</li>
+	<li>
+		<a href="#overview">E-mail client overview</a>
+	</li>
+	<li>
+		<a href="#archive">Archiving e-mails in epesi</a>
+	</li>
+	<li>
+		<a href="#display">Displaying archived e-mails</a>
+	</li>
+	<li>
+		<a href="#attach">Attaching archived e-mails to records</a>
+	</li>
+	<li>
+		<a href="#remove">Removing archived e-mails</a>
+	</li>
+</ol>
+<!-- -----------------------------------------------ADDING ACCOUNTS--------------------------------------------------- -->
+<h1><a name="add">Adding e-mail accounts</a></h1>
+<table>
+<tr style="vertical-align:top;">
+<td>
+<img src="roundcube_accounts01.png" />
+</td>
+<td>
+To start using functionalities described in this section you need to have an e-mail account and add its specifications to epesi. To do this go to Menu -> My settings -> Control panel. While there choose "E-mail Accounts" button (on the picture). Here you can see the list of your e-mail accounts that have been added to epesi. If you're in this section for the first time, it will probably be empty.
+</td>
+</tr>
+</table>
+<table>
+<tr style="vertical-align:top;">
+<td>
+<img src="roundcube_accounts02.png" />
+</td>
+<td>
+To add your account, click the "New" button from Action Bar (on the picture). It will direct you to a filling form described below.
+</td>
+</tr>
+</table>
+Enter all the required data into the filling form. Information about the servers, authorisation and security should be available to you at your e-mail provider. Your password won't be accessible to any other epesi user.
+<br /><img src="roundcube_accounts04.png" />
+<ol>
+	<li>
+	<span style="font-weight:bold;">General info.</span> Fields in this section provide basic information about created account. <span style="font-weight:bold;">Epesi User</span> indicates who will this account will be attached to. For normal epesi users this field cannot be changed and it points on the current user. In <span style="font-weight:bold;">E-mail</span> you should enter e-mail address for the account you are adding. <span style="font-weight:bold;">Account Name</span> serves as an indicator for the user, which shall help in quick distinguishing between accounts.
+	</li>
+	<li>
+	<span style="font-weight:bold;">Server specification.</span> Enter here the name of your e-mail pop/imap server, your login and password for this server (all three required) and specify the security level (either none, SSL or TLS).
+	</li>
+	<li>
+	<span style="font-weight:bold;">Smtp server specification.</span> Specify the name of smtp server of your e-mail account. If login, password and security level are the same for both pop/imap and smtp protocol, you can leave the rest of the fields in this section empty. In other case, check "Smtp Auth" and enter data for smtp.
+	</li>
+	<li>
+	<span style="font-weight:bold;">Default account.</span> Check this option if you want this account to be your main one. This means that it will be displayed as default in epesi Roundcube client and will be the default account for sending e-mails. You can have only one e-mail account set as default.
+	</li>
+	<li>
+	<span style="font-weight:bold;">Advanced options.</span> There are a few additional options available here. <span style="font-weight:bold;">Archive on sending</span> - if this option is checked, all your e-mails sent while using epesi Roundcube client will be automatically archived in epesi.<span style="font-weight:bold;">IMAP Root</span> and <span style="font-weight:bold;">IMAP Delimiter</span> shall be filled if you are using IMAP server that is configured in a way that requires these two. Again, you should be informed about the necessity of these options by your e-mail provider.
+	</li>
+</ol>
+After successful adding your e-mail account will be displayed as a record in "E-mail Accounts" section of control panel, as in the picture below.
+<img src="roundcube_accounts06.png" />
+<!-- -----------------------------------------------OVERVIEW--------------------------------------------------- -->
+<h1><a name="overview">E-mail client overview</a></h1>
+When you have your e-mail account added, you can start using built-in Roundcube Mail Client in epesi. To view, write and send e-mails go to Menu -> E-mail.
+<img src="roundcube_overview01.png" />
+<ol>
+ <li>
+ Here you can switch between your e-mail accounts. The names displayed are the ones you entered as "Account Name" while <a href="#add">configuring your e-mail accounts</a>. Currently active account is the one with its name underlined and in bold. Only e-mails from this account are displayed below.
+ </li>
+ <li>
+ Here you can switch between managing your messages (E-mail), stored addresses (Address Book) and preferences (Settings). The default view (displayed on picture) is browsing e-mails.
+ </li>
+ <li>
+ Various options - hover mouse over the icons to see their descriptions. Some of these options are only active when there is an e-mail selected (you can select it in the area 5). 
+ </li>
+ <li>
+ Here is the list of the folders available on your account. You can find here not only standard folders available on every account, like Inbox or Trash, but also some custom ones, which you can add and remove using Roundcube. Note the ones marked as "Epesi Archive" and "Epesi Sent Archive" - the mailes stored there are available directly from epesi. Archiving e-mails is described in details below. You can switch between folders by clicking on their names. All e-mails from the selected folder are displayed to the right (area 5).
+ </li>
+ <li>
+ In this area all e-mails from selected folder are displayed in a shortened form. Click once to select an e-mail (and see it in preview pane) or click twice to open it. Unread ones are in bold with a blue dot to the left, yellow star to the right means that the e-mail is flagged and paperclip icon indicates that the e-mail has some attachments. There are several selecting options and checkbox for preview pane at the bottom of this area.
+ </li>
+ <li>
+ Preview pane serves as a tool to take quick looks at the content of e-mails. You can hide it by unchecking the "Preview pane" option above it.
+ </li>
+</ol>
+You can find more detailed information about using Roundcube on its <a target="_blank" href="http://trac.roundcube.net/wiki/User_Guide_EN">official site</a>. For a video manual you can go <a target="_blank" href="http://www.youtube.com/watch?v=-NfdPNxoCts">here</a>.
+<!-- -----------------------------------------------ARCHIVING--------------------------------------------------- -->
+<!--
+<h1><a name="archive">Archiving e-mails in epesi</a></h1>
+(placeholder)
+<!-- -----------------------------------------------DISPLAY--------------------------------------------------- -->
+<!--
+<h1><a name="display">Displaying archived e-mails</a></h1>
+(placeholder)
+<!-- -----------------------------------------------ATTTACHING--------------------------------------------------- -->
+<!--
+<h1><a name="attach">Attaching archived e-mails to records</a></h1>
+(placeholder)
+<!-- -----------------------------------------------REMOVING--------------------------------------------------- -->
+<!--
+<h1><a name="remove">Removing archived e-mails</a></h1>
+(placeholder)
+-->
+</body>
+</html>
