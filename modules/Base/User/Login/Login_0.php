@@ -18,28 +18,11 @@ class Base_User_Login extends Module {
 	public function construct() {
 	}
 
-	private function new_autologin_id() {
-		$uid = Acl::get_user();
-		$user = Base_UserCommon::get_my_user_login();
-		$autologin_id = md5(mt_rand().(isset($_COOKIE['autologin_id'])?$_COOKIE['autologin_id']:md5($user.$uid)).mt_rand());
-		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
-		DB::Execute('UPDATE user_password SET autologin_id=%s WHERE user_login_id=%d',array($autologin_id,$uid));
-	}
-
 	private function autologin() {
-		if(isset($_COOKIE['autologin_id'])) {
-			$arr = explode(' ',$_COOKIE['autologin_id']);
-			if(count($arr)==2) {
-				list($user,$autologin_id) = $arr;
-				$ret = DB::GetOne('SELECT p.autologin_id FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($user));
-				if($ret && $ret==$autologin_id) {
-					Base_User_LoginCommon::set_logged($user);
-					$this->new_autologin_id();
-					location(array());
-					return true;
-				}
-			}
-		}
+	        if(Base_User_LoginCommon::autologin()) {
+	            location(array());
+	            return true;
+	        }
 		return false;
 	}
 
@@ -62,8 +45,7 @@ class Base_User_Login extends Module {
 		$theme->assign('is_demo', DEMO_MODE);
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {
-				DB::Execute('UPDATE user_password SET autologin_id=\'\' WHERE user_login_id=%d',array(Acl::get_user()));
-				Acl::set_user();
+			        Base_User_LoginCommon::logout();
 				eval_js('document.location=\'index.php\';',false);
 			} else {
 				$theme->assign('logged_as', '<div class="logged_as">'.$this->t('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
@@ -117,7 +99,7 @@ class Base_User_Login extends Module {
 			Base_User_LoginCommon::set_logged($user);
 
 			if($autologin)
-				$this->new_autologin_id();
+				Base_User_LoginCommon::new_autologin_id();
 
 			location(array());
 		} else {

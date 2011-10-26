@@ -154,36 +154,46 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 	
 	public static function mobile_menu() {
 		if(Acl::is_user())
-			return array('Logout'=>array('func'=>'mobile_logout','weight'=>100));
+			return array('Logout'=>array('func'=>'logout','weight'=>100));
 		return array('Login'=>'mobile_login');
 	}
 	
-	public static function mobile_logout() {
-		DB::Execute('UPDATE user_password SET mobile_autologin_id=\'\' WHERE user_login_id=%d',array(Acl::get_user()));
+	public static function logout() {
+		if(isset($_COOKIE['autologin_id'])) {
+			$arr = explode(' ',$_COOKIE['autologin_id']);
+			if(count($arr)==2) {
+				list($user,$autologin_id) = $arr;
+				if($user==Base_UserCommon::get_my_user_login())
+                        		DB::Execute('DELETE FROM user_autologin WHERE autologin_id=%s AND user_login_id=%d',array($autologin_id,Acl::get_user()));
+                        }
+                }
 		Acl::set_user();
 		return false;
 	}
 	
-	private static function mobile_new_autologin_id() {
+	public static function new_autologin_id() {
 		$uid = Acl::get_user();
 		$user = Base_UserCommon::get_my_user_login();
-		$autologin_id = md5(mt_rand().(isset($_COOKIE['mobile_autologin_id'])?$_COOKIE['mobile_autologin_id']:md5($user.$uid)).mt_rand());
-		setcookie('mobile_autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
-		DB::Execute('UPDATE user_password SET mobile_autologin_id=%s WHERE user_login_id=%d',array($autologin_id,$uid));
+		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
+		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
+		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)',array($uid,$autologin_id,$_SERVER['REMOTE_ADDR'],time()));
 	}
 
-	public static function mobile_autologin() {
-		if(isset($_COOKIE['mobile_autologin_id'])) {
-			$arr = explode(' ',$_COOKIE['mobile_autologin_id']);
+	public static function autologin() {
+		if(isset($_COOKIE['autologin_id'])) {
+			$arr = explode(' ',$_COOKIE['autologin_id']);
 			if(count($arr)==2) {
 				list($user,$autologin_id) = $arr;
-				$ret = DB::GetOne('SELECT p.mobile_autologin_id FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($user));
-				if($ret && $ret==$autologin_id) {
+				$ret = DB::GetOne('SELECT 1 FROM user_login u JOIN user_autologin p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1 AND p.autologin_id=%s', array($user,$autologin_id));
+				if($ret) {
 					Base_User_LoginCommon::set_logged($user);
-					self::mobile_new_autologin_id();
+                        		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
+                        		DB::Execute('UPDATE user_autologin SET last_log=%T WHERE user_login_id=%d AND autologin_id=%s',array(time(),Acl::get_user(),$autologin_id));
+                        		return true;
 				}
 			}
 		}
+		return false;
 	}
 
 	public static function mobile_login() {
@@ -212,7 +222,7 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 
 		if($qf->validate()) {
 			self::set_logged($qf->exportValue('username'));
-			self::mobile_new_autologin_id();
+			self::new_autologin_id();
 			return false;
 		}
 		$qf->display();
@@ -220,6 +230,6 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 }
 
 if(!Acl::is_user())
-	Base_User_LoginCommon::mobile_autologin();
+	Base_User_LoginCommon::autologin();
 
 ?>

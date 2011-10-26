@@ -34,6 +34,13 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addRule('mail', $this->t('Field required'), 'required');
         $form->addRule('mail', $this->t('Not valid e-mail address'), 'email');
 
+        //autologin
+        $ret = DB::GetAll('SELECT autologin_id,description,last_log FROM user_autologin WHERE user_login_id=%d',array(Acl::get_user()));
+        if($ret)
+            $form->addElement('header', null, $this->t('Delete autologin'));
+        foreach($ret as $row)
+            $form->addElement('checkbox','delete_autologin['.$row['autologin_id'].']',$row['description'],Base_RegionalSettingsCommon::time2reg($row['last_log']));
+
         //confirmation
         $form->addElement('header', null, $this->t('Confirmation'));
         $form->addElement('password','old_pass', $this->t('Old password'));
@@ -71,6 +78,9 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         }
         $new_pass = $data['new_pass'];
         $mail = $data['mail'];
+        
+        foreach($data['delete_autologin'] as $key=>$val)
+            if($val) DB::Execute('DELETE from user_autologin WHERE autologin_id=%s AND user_login_id=%d',array($key,Acl::get_user()));
 
         $user_id = Acl::get_user();
         if($user_id===null) {
