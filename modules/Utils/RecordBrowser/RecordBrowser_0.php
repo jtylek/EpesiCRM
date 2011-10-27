@@ -1036,7 +1036,7 @@ class Utils_RecordBrowser extends Module {
 
         $access = $this->get_access($mode=='history'?'view':$mode, isset($this->record)?$this->record:$this->custom_defaults);
         if ($mode=='edit' || $mode=='add')
-            $this->view_fields_permission = $this->get_access('view', isset($this->record)?$this->record:$this->custom_defaults);
+            $this->view_fields_permission = $this->get_access($mode, isset($this->record)?$this->record:$this->custom_defaults);
         else
             $this->view_fields_permission = $access;
 
