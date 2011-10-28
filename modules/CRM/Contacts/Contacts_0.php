@@ -59,7 +59,7 @@ class CRM_Contacts extends Module {
 		$this->rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
-										'permission'=>'0'));
+										'permission'=>Base_User_SettingsCommon::get('CRM_Common','default_record_permission')));
 		if ($mode=='contact') {
 			$fcallback = array('CRM_ContactsCommon','company_format_default');
 			$this->rb->set_custom_filter('company_name', array('type'=>'autoselect','label'=>$this->t('Company Name'),'args'=>array(), 'args_2'=>array(array('CRM_ContactsCommon','autoselect_company_suggestbox'), array(array(), $fcallback)), 'args_3'=>$fcallback, 'trans_callback'=>array('CRM_ContactsCommon','autoselect_company_filter_trans')));

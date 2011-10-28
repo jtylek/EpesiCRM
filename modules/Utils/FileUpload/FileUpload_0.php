@@ -24,7 +24,7 @@ class Utils_FileUpload extends Module {
 	public function construct($req=true) {
 		$this->added_upload_elem = false;
 		$this->form = & $this->init_module('Libs/QuickForm', array(Base_LangCommon::ts($this->get_type(),'Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
-		$this->form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe" name="upload_iframe" src="" style="display:none"></iframe>');
+		$this->form->addElement('static','upload_iframe',null,'<iframe frameborder="0" id="upload_iframe" name="upload_iframe" src="" style="display:none"></iframe>');
 		$this->form->addElement('hidden','required',$req?'1':'0');
 		$this->form->addElement('hidden','cid',CID);
 	}
@@ -58,12 +58,16 @@ class Utils_FileUpload extends Module {
 	 */
 	public function & __call($func_name, $args) {
 		if (is_object($this->form))
-			$return = & call_user_func_array(array($this->form, $func_name), $args);
+			$return = &call_user_func_array(array(& $this->form, $func_name), $args);
 		else
 			trigger_error("QuickFrom object doesn't exists", E_USER_ERROR);
 		return $return;
 	}
 
+	public function accept(&$r) {
+		$this->form->accept($r);
+	}
+	
 	/**
 	 * Assigns method to submit action.
 	 * This method will recieve three arguments:

@@ -167,3 +167,11 @@
     text-align: right;
     padding-right: 20px;
 }
+
+.attachment_full_note_edit table {
+	width: 800px;
+}
+
+.attachment_full_note_edit .element {
+	width: 20%;
+}

@@ -131,7 +131,7 @@ class Utils_Attachment extends Module {
 		if (is_array($this->group)) $cols[] = array('name'=>$this->t('Source'),'width'=>5, 'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>10,'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Note'), 'width'=>70);
-		$cols[] = array('name'=>$this->t('Attachment'), 'order'=>'uaf.original','width'=>10);
+		$cols[] = array('name'=>$this->t('Attachment'), 'order'=>'uaf.original','width'=>'85px');
 		$gb->set_table_columns($cols);
 
 		if (!is_array($this->group)) $group = DB::qstr($this->group);
@@ -168,6 +168,81 @@ class Utils_Attachment extends Module {
 		eval_js('notes_collapse_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse.gif').'";');
 		eval_js('notes_expand_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand_gray.gif').'";');
 		eval_js('notes_collapse_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse_gray.gif').'";');
+
+		$button_theme = $this->init_module('Base_Theme');
+		if($this->public_write && !is_array($this->group)) {
+		eval_js('	
+			function getTotalTopOffet( e ) {
+				var ret = 0;
+				while( e != null ) {
+					ret += e.offsetTop;
+					e = e.offsetParent;
+				}
+				return ret;
+			}');
+			$button_theme->assign('new_note',array(
+				'label'=>$this->t('New note'),
+				'href'=>'href="javascript:void(0);" onclick=\'$("attachments_new_note").style.display="";scrollBy(0, -2000); scrollBy(0, getY($("attachments_new_note"))-140);\''
+			));
+
+			$r = $gb->get_new_row();
+			$new_note_form = $this->get_edit_form();
+			
+			$new_note_form->set_submit_callback(array($this, 'submit_attach'));
+			if ($new_note_form->validate()) {
+				$new_note_form->process(array($new_note_form,'submit_parent'));
+				location(array());
+				return;
+			}
+			
+			$new_note_form->addElement('button', 'save', $this->t('Submit'), array('onclick'=>$new_note_form->get_submit_form_js()));
+			
+			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
+			$new_note_form->accept($renderer); 
+			$form_data = $renderer->toArray();
+
+			$gb->set_prefix($form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden'].$form_data['upload_iframe']['html']);
+			$gb->set_postfix('</form>');
+
+			$inline_form_theme = $this->init_module('Base_Theme');
+			$inline_form_theme->assign('form', $form_data);
+			ob_start();
+			$inline_form_theme->display('inline_form');
+			$fields = ob_get_clean();
+
+			$arr = array();
+			$count = 3;
+			if($vd)
+				$count++;
+			if($this->author)
+				$count++;
+			$arr[] = array('value'=>$fields, 'overflow_box'=>false, 'style'=>'white-space: normal;', 'attrs'=>'colspan="'.$count.'"');
+			if($vd)
+				$arr[] = '';
+			if($this->author)
+				$arr[] = '';
+			$arr[] = '';
+			$arr[] = '';
+
+			$r->set_attrs('id="attachments_new_note" style="display:none;"');
+			
+			$r->add_data_array($arr);
+
+			if(isset($_SESSION['attachment_copy'])) {
+				$button_theme->assign('paste',array(
+					'label'=>$this->t('Paste note'),
+					'href'=>Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste'))
+				));
+			}
+			if(Base_AclCommon::i_am_admin()) {
+				$button_theme->assign('show_deleted',array(
+					'label'=>$this->t('Show deleted notes'),
+					'default'=>($vd?'checked="1"':''),
+					'show'=>$this->create_callback_href_js(array($this,'show_deleted'),array(true)),
+					'hide'=>$this->create_callback_href_js(array($this,'show_deleted'),array(false))
+				));
+			}
+		}
 
 		while($row = $ret->FetchRow()) {
 			if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
@@ -252,28 +327,6 @@ class Utils_Attachment extends Module {
 			$r->add_data_array($arr);
 
 			eval_js('init_note_expandable('.$row['id'].');');
-		}
-		$button_theme = $this->init_module('Base_Theme');
-		if($this->public_write && !is_array($this->group)) {
-			$button_theme->assign('new_note',array(
-				'label'=>$this->t('New note'),
-				'href'=>$this->create_callback_href(array($this,'edit_note_queue'))
-			));
-
-			if(isset($_SESSION['attachment_copy'])) {
-				$button_theme->assign('paste',array(
-					'label'=>$this->t('Paste note'),
-					'href'=>Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste'))
-				));
-			}
-			if(Base_AclCommon::i_am_admin()) {
-				$button_theme->assign('show_deleted',array(
-					'label'=>$this->t('Show deleted notes'),
-					'default'=>($vd?'checked="1"':''),
-					'show'=>$this->create_callback_href_js(array($this,'show_deleted'),array(true)),
-					'hide'=>$this->create_callback_href_js(array($this,'show_deleted'),array(false))
-				));
-			}
 		}
 
 		$button_theme->assign('expand_collapse',array(
@@ -582,49 +635,58 @@ class Utils_Attachment extends Module {
 	public function edit_note_queue($id=null) {
 		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
+	
+	public function get_edit_form($id=null) {
+		$form = & $this->init_module('Utils/FileUpload',array(false));
+		if(isset($id))
+			$form->addElement('header', 'upload', $this->t('Edit note').': '.$this->add_header);
+		else
+			$form->addElement('header', 'upload', $this->t('Attach note').': '.$this->add_header);
+		$fck = $form->addElement('ckeditor', 'note', $this->t('Note'));
+		$fck->setFCKProps('99%','200');
+		
+		$form->addRule('note',$this->t('Maximal lenght of note exceeded'),'maxlength',65535);
+		$form->set_upload_button_caption('Save');
+		if($form->getSubmitValue('note')=='' && !$form->is_file())
+			$form->addRule('note',$this->t('Please enter note or choose file'),'required');
+
+		$form->addElement('select','permission',$this->t('Permission'),array($this->t('Public'),$this->t('Protected'),$this->t('Private')));
+		$form->addElement('checkbox','sticky',$this->t('Sticky'));
+
+		if(isset($id))
+			$form->addElement('header',null,$this->t('Replace attachment with file'));
+
+		$form->add_upload_element();
+		
+		if($this->max_file_size)
+			$form->set_max_file_size($this->max_file_size);
+
+		if(isset($id)) {
+			$row = DB::GetRow('SELECT l.sticky,x.text,l.permission FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
+			$form->setDefaults(array('note'=>$row['text'],'permission'=>$row['permission'],'sticky'=>$row['sticky']));
+		} else {
+			$form->setDefaults(array('permission'=>Base_User_SettingsCommon::get('Utils_Attachment','default_permission')));
+		}
+
+		$this->ret_attach = true;
+		return $form;
+	}
 
 	public function edit_note($id=null) {
 		if(!$this->is_back()) {
-			$form = & $this->init_module('Utils/FileUpload',array(false));
-			if(isset($id))
-				$form->addElement('header', 'upload', $this->t('Edit note').': '.$this->add_header);
-			else
-				$form->addElement('header', 'upload', $this->t('Attach note').': '.$this->add_header);
-			$fck = $form->addElement('ckeditor', 'note', $this->t('Note'));
-			$fck->setFCKProps('800','300');
-			
-    		$form->addRule('note',$this->t('Maximal lenght of note exceeded'),'maxlength',65535);
-			$form->set_upload_button_caption('Save');
-			if($form->getSubmitValue('note')=='' && !$form->is_file())
-				$form->addRule('note',$this->t('Please enter note or choose file'),'required');
-
-			$form->addElement('select','permission',$this->t('Permission'),array($this->t('Public'),$this->t('Protected'),$this->t('Private')));
-			$form->addElement('checkbox','sticky',$this->t('Sticky'));
-
-			if(isset($id))
-				$form->addElement('header',null,$this->t('Replace attachment with file'));
-
-			$form->add_upload_element();
-			
-			if($this->max_file_size)
-				$form->set_max_file_size($this->max_file_size);
-
-			if(isset($id)) {
-				$row = DB::GetRow('SELECT l.sticky,x.text,l.permission FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
-				$form->setDefaults(array('note'=>$row['text'],'permission'=>$row['permission'],'sticky'=>$row['sticky']));
-			} else {
-			
-				$form->setDefaults(array('permission'=>Base_User_SettingsCommon::get('Utils_Attachment','default_permission')));
-			}
+			$form = $this->get_edit_form($id);
 
 			Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
-			$this->ret_attach = true;
-			if(isset($id))
+			Base_ThemeCommon::load_css('Utils/Attachment', 'view');
+			print('<div class="attachment_full_note_edit">');
+			if(isset($id)) {
+				$row = DB::GetRow('SELECT l.sticky,x.text,l.permission FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
 				$this->display_module($form, array( array($this,'submit_edit'),$id,$row['text']));
-			else
+			} else
 				$this->display_module($form, array( array($this,'submit_attach') ));
+			print('</div>');
 		} else {
 			$this->ret_attach = false;
 		}

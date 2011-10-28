@@ -1,0 +1,43 @@
+<table>
+	<tr>
+		<td>
+			{$form.file.error}
+		</td>
+		<td>
+			{$form.sticky.error}
+		</td>
+		<td>
+			{$form.permission.error}
+		</td>
+		<td>
+			{$form.save.error}
+		</td>
+	</tr>
+	<tr>
+		<td>
+			{$form.file.label}
+			{$form.file.html}
+		</td>
+		<td>
+			{$form.sticky.label}
+			{$form.sticky.html}
+		</td>
+		<td>
+			{$form.permission.label}
+			{$form.permission.html}
+		</td>
+		<td>
+			{$form.save.html}
+		</td>
+	</tr>
+	<tr>
+		<td colspan="4">
+			{$form.note.error}
+		</td>
+	</tr>
+	<tr>
+		<td colspan="4">
+			{$form.note.html}
+		</td>
+	</tr>
+</table>
