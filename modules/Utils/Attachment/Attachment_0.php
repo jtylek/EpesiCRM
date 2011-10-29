@@ -171,15 +171,6 @@ class Utils_Attachment extends Module {
 
 		$button_theme = $this->init_module('Base_Theme');
 		if($this->public_write && !is_array($this->group)) {
-		eval_js('	
-			function getTotalTopOffet( e ) {
-				var ret = 0;
-				while( e != null ) {
-					ret += e.offsetTop;
-					e = e.offsetParent;
-				}
-				return ret;
-			}');
 			$button_theme->assign('new_note',array(
 				'label'=>$this->t('New note'),
 				'href'=>'href="javascript:void(0);" onclick=\'$("attachments_new_note").style.display="";scrollBy(0, -2000); scrollBy(0, getTotalTopOffet($("attachments_new_note"))-140);\''
@@ -196,6 +187,7 @@ class Utils_Attachment extends Module {
 			}
 			
 			$new_note_form->addElement('button', 'save', $this->t('Submit'), array('onclick'=>$new_note_form->get_submit_form_js()));
+			$new_note_form->addElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>'$("attachments_new_note").style.display="none";'));
 			
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 			$new_note_form->accept($renderer); 

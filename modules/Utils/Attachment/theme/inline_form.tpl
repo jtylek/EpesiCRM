@@ -1,4 +1,4 @@
-<table>
+<table style="width:100%">
 	<tr>
 		<td>
 			{$form.file.error}
@@ -28,6 +28,7 @@
 		</td>
 		<td>
 			{$form.save.html}
+			{$form.cancel.html}
 		</td>
 	</tr>
 	<tr>

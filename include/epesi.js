@@ -192,3 +192,12 @@ onCreate: function(x,y) { //hack
 onException: function(req, e){
 	alert(e);
 }});
+function getTotalTopOffet(e) {
+	var ret=0;
+	while (e!=null) {
+		ret += e.offsetTop;
+		e = e.offsetParent;
+	}
+	return ret;
+};
+
