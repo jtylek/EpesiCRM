@@ -182,7 +182,7 @@ class Utils_Attachment extends Module {
 			}');
 			$button_theme->assign('new_note',array(
 				'label'=>$this->t('New note'),
-				'href'=>'href="javascript:void(0);" onclick=\'$("attachments_new_note").style.display="";scrollBy(0, -2000); scrollBy(0, getY($("attachments_new_note"))-140);\''
+				'href'=>'href="javascript:void(0);" onclick=\'$("attachments_new_note").style.display="";scrollBy(0, -2000); scrollBy(0, getTotalTopOffet($("attachments_new_note"))-140);\''
 			));
 
 			$r = $gb->get_new_row();
