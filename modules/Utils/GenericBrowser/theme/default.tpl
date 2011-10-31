@@ -4,26 +4,19 @@
 
 <div>
 
-{if isset($form_data_search)}
-	{$form_data_search.javascript}
-
-	<form {$form_data_search.attributes}>
-	{$form_data_search.hidden}
-{/if}
-
 {if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search)}
-<table class="letters-search" border="0" cellpadding="0" cellspacing="0">
+<table class="letters-search" border="0" cellpadding="0" cellspacing="0" style="table-layout:auto;">
 	<tbody>
 		<tr>
 			<!-- Custom label -->
 			{if (isset($custom_label) && $custom_label)}
-				<td class="letter_search_icon" {$custom_label_args}>
+				<td class="letter_search_icon" {$custom_label_args} style="width:1px;">
 				<nobr>{$custom_label}</nobr>
 				</td>
 			{/if}
 			<!-- QuickJump -->
 			{if isset($letter_links)}
-				<td class="letters" width="65px">
+				<td class="letters" style="width:1px;">
 					<div class="abc" onclick="quick_jump_letters('{$id}');">ABC</div>
 					<div id="quick_jump_letters_{$id}" class="quick_jump_letters" 
 						{if $quickjump_to==''} 
@@ -41,44 +34,47 @@
 				</td>
 			{/if}
 			<td>
+				&nbsp;
 			</td>
 			<!-- Advanced / Simple Search -->
 			{if isset($form_data_search)}
-				{if isset($form_data_search.search)}
-					{if isset($form_data_search.show_all)}
-						<td class="submit" style="width:120px;">{$form_data_search.show_all.html}</td>
-					{/if}
-					<td class="search-box" style="width:110px;">{$form_data_search.search.html}</td>
-					<td class="submit" style="width:112px;">{$form_data_search.submit_search.html}</td>
-					<td class="advanced" style="width:151px;">{$adv_search}</td>
-				{else}
-					{php}
-						$cols = $this->get_template_vars('cols');
-						$search_fields = $this->get_template_vars('search_fields');
-						foreach($cols as $k=>$v){
-							if(isset($search_fields[$k]))
-								$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$k];
-						}
-						$this->assign('cols',$cols);
-					{/php}
-					{if isset($form_data_search.submit_search)}
+				<td style="width:470px;">
+					{$form_data_search.javascript}
+
+					<form {$form_data_search.attributes}>
+					{$form_data_search.hidden}
+					{if isset($form_data_search.search)}
+						<span class="advanced" style="float:right;">{$adv_search}</span>
+						<span class="submit" style="float:right;">{$form_data_search.submit_search.html}</span>
+						<span class="search-box" style="float:right;">{$form_data_search.search.html}</span>
 						{if isset($form_data_search.show_all)}
-							<td class="submit" style="width:112px;">{$form_data_search.show_all.html}</td>
+							<span class="submit" style="float:right;">{$form_data_search.show_all.html}</span>
 						{/if}
-						<td class="submit" style="width:112px;">{$form_data_search.submit_search.html}</td>
-						<td class="advanced" style="width:151px;">{$adv_search}</td>
+					{else}
+						{php}
+							$cols = $this->get_template_vars('cols');
+							$search_fields = $this->get_template_vars('search_fields');
+							foreach($cols as $k=>$v){
+								if(isset($search_fields[$k]))
+									$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$k];
+							}
+							$this->assign('cols',$cols);
+						{/php}
+						{if isset($form_data_search.submit_search)}
+							<span class="advanced" style="float:right;">{$adv_search}</span>
+							<span class="submit" style="float:right;">{$form_data_search.submit_search.html}</span>
+							{if isset($form_data_search.show_all)}
+								<span class="submit" style="float:right;">{$form_data_search.show_all.html}</span>
+							{/if}
+						{/if}
 					{/if}
-				{/if}
+					</form>
+				</td>
 			{/if}
 		</tr>
 	</tbody>
 </table>
 {/if}
-
-{if isset($form_data_search)}
-	</form>
-{/if}
-
 
 <div class="table">
 	<div class="layer">
