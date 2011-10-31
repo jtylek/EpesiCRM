@@ -1,0 +1,55 @@
+.Utils_RB__changelist .header {
+	background-color: lightblue;
+}
+
+.Utils_RB__changelist .last_row td {
+	border-bottom: 2px solid black;
+}
+
+.Utils_RB__changelist td,
+.Utils_RB__changelist th {
+	padding: 4px;
+}
+
+table.Utils_RB__changelist {
+	border: 1px solid black;
+	width: 400px;
+}
+
+.Utils_RB__changelist .message {
+	text-align: center;
+	font-weight: bold;
+}
+
+.Utils_RB__changelist td {
+	border-right: 1px solid darkgray;
+	border-bottom: 1px solid darkgray;
+}
+
+.Utils_RB__changelist .user,
+.Utils_RB__changelist .timestamp {
+	border-right: none;
+	color: #777;
+	font-size: 9px;
+}
+
+.Utils_RB__changelist .timestamp {
+	text-align: right;
+}
+
+.Utils_RB__changelist a {
+	color: inherit;
+}
+
+.Utils_RB__changelist {
+	color: black;
+}
+
+.Utils_RB__changelist .field {
+	width: 30%;
+}
+
+.Utils_RB__changelist .data {
+	width: 35%;
+	word-wrap: break-word;
+}

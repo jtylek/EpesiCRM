@@ -1348,7 +1348,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
     }
 	public static function get_user_label($uid) {
-	if (!$uid) return 'front-end user';
+	if (!$uid) return self::ts('front-end user');
         if (ModuleManager::is_installed('CRM_Contacts')>=0)
 			return CRM_ContactsCommon::get_user_label($uid);
 		else
@@ -1680,13 +1680,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$r = self::get_record_revision($tab, $rid, $prev_rev);
 		} else $r = $rid;
 		$edit_info = DB::GetRow('SELECT * FROM '.$tab.'_edit_history WHERE id=%d',array($edit_id));
-		$event_display = 'Error, Invalid event: '.$edit_id;
+		$event_display = array('what'=>'Error, Invalid event: '.$edit_id);
 		if (!$edit_info) return $event_display;
 
-		$event_display = self::ts('Record edited by %s, on %s', array($edit_info['edited_by']!==null?'<b>'.self::get_user_label($edit_info['edited_by']).'</b>':'front-end user', '<b>'.Base_RegionalSettingsCommon::time2reg($edit_info['edited_on']).'</b>'));
+		$event_display = array(
+							'who'=>self::get_user_label($edit_info['edited_by']),
+							'when'=>Base_RegionalSettingsCommon::time2reg($edit_info['edited_on']),
+							'what'=>array()
+						);
 		if (!$details) return $event_display;
 		$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($edit_id));
-		$event_display .= '<table border="0"><tr><td><b>'.self::ts('Field').'</b></td><td><b>'.self::ts('Old value').'</b></td><td><b>'.self::ts('New value').'</b></td></tr>';
 		foreach ($r as $k=>$v) {
 			if (isset(self::$hash[$k]) && self::$table_rows[self::$hash[$k]]['type']=='multiselect')
 				$r[$k] = self::decode_multi($r[$k]); // We have to decode all fields, because access and some display relay on it, regardless which field changed
@@ -1709,10 +1712,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!$access[$k]) continue;
 			self::init($tab);
 			$field = self::$hash[$k];
-			$event_display .= '<tr valign="top"><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,$field).'</b></td>';
 			$params = self::$table_rows[$field];
-			$event_display .=   '<td>'.self::get_val($tab, $field, $r2, true, $params).'</td>'.
-								'<td>'.self::get_val($tab, $field, $r, true, $params).'</td></tr>';
+			$event_display['what'][] = array(
+										Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,$field),
+										self::get_val($tab, $field, $r2, true, $params),
+										self::get_val($tab, $field, $r, true, $params)
+									);
 		}
 		$r = $r2;
 		foreach ($edit_details as $k=>$v) {
@@ -1722,7 +1727,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$r[$k] = self::encode_multi($r[$k]);
 			}
 		}
-		$event_display .= '</table>';
 		return $event_display;
 	}
 	
@@ -1741,16 +1745,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $events_display = array();
             $events = array_reverse($events);
             $other_events = array();
+			$header = false;
             foreach ($events as $v) {
                 $param = explode('_', $v);
                 switch ($param[0]) {
-                    case 'C':   $event_display = self::ts('Record %s by %s, on %s', array('<b>'.self::ts('created').'</b>', '<b>'.self::get_user_label($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
-                                break;
-                    case 'D':   $event_display = self::ts('Record %s by %s, on %s', array('<b>'.self::ts('deleted').'</b>', '<b>'.self::get_user_label($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
-                                break;
-                    case 'R':   $event_display = self::ts('Record %s by %s, on %s', array('<b>'.self::ts('restored').'</b>', '<b>'.self::get_user_label($r['created_by']).'</b>', '<b>'.Base_RegionalSettingsCommon::time2reg($r['created_on']).'</b>'));
+                    case 'C':   $what = 'Created';
+                    case 'D':   if (!isset($what)) $what = 'Deleted';
+                    case 'R':   if (!isset($what)) $what = 'Restored';
+								$event_display = array(
+									'who'=> self::get_user_label($r['created_by']),
+									'when'=>Base_RegionalSettingsCommon::time2reg($r['created_on']),
+									'what'=>self::ts($what)
+									);
                                 break;
                     case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r['id'], $param[1] ,$details);
+								if (!empty($event_display['what'])) $header = true;
                                 break;
 
                     case 'N':   $event_display = false;
@@ -1777,15 +1786,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 	break;
                                 }
                                 if($event_display===false)
-                                    $event_display = self::ts('<b>Note '.$action.'<b>');
+                                    $event_display = array('what'=>self::ts('Note '.$action));
                                 break;
-                    default:    $event_display = '<b>'.self::ts($v).'</b>';
+                    default:    $event_display = array('what'=>self::ts($v));
                 }
                 if ($event_display) $events_display[] = $event_display;
             }
             foreach ($other_events as $k=>$v)
-        	$events_display[] = self::ts($k).($v>1?' ['.$v.']':'');
-            $ret['events'] = implode($details?'<hr>':'<br>',array_reverse($events_display));
+				$events_display[] = array('what'=>self::ts($k).($v>1?' ['.$v.']':''));
+
+			$theme = Base_ThemeCommon::init_smarty();
+
+			if ($header) {
+				$theme->assign('header', array(self::ts('Field'), self::ts('Old value'), self::ts('New value')));
+			}
+
+			$theme->assign('events', $events_display);
+
+			ob_start();
+			Base_ThemeCommon::display_smarty($theme,'Utils_RecordBrowser','changes_list');
+			$output = ob_get_clean();
+
+			$ret['events'] = $output;
         }
         return $ret;
     }
