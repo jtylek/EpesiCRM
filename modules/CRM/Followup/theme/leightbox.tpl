@@ -6,7 +6,7 @@
 				<td style="width:100px;background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
 					{$form_closecancel.label} <!-- STATUS -->
 				</td>
-				<td colspan="3" style="width:1px;">
+				<td colspan="3">
 					{$form_closecancel.html} <!-- SELECT -->
 				</td>
 			</tr>
