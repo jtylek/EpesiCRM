@@ -295,9 +295,14 @@ class Utils_RecordBrowser extends Module {
         $filters_all = array();
         foreach ($this->table_rows as $k=>$v) {
             if ((!isset($filters_set[$v['id']]) && $v['filter']) || (isset($filters_set[$v['id']]) && $filters_set[$v['id']])) {
-                $filters_all[] = $k;
+                $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($k));
+                $filters_all[$filter_id] = $k;
                 if (isset($filters_set[$v['id']])) unset($filters_set[$v['id']]);
             }
+        }
+        foreach($this->custom_filters as $key=>$val) {
+            if(!isset($filters_all[$key]))
+                $filters_all[$key] = $key;
         }
         if (!$this->data_gb) $this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
         if (empty($filters_all)) {
@@ -313,8 +318,7 @@ class Utils_RecordBrowser extends Module {
 		$empty_defaults = array();
         $filters = array();
         $text_filters = array();
-        foreach ($filters_all as $filter) {
-            $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
+        foreach ($filters_all as $filter_id=>$filter) {
             $field_id = 'filter__'.$filter_id;
             if (isset($this->custom_filters[$filter_id])) {
                 $f = $this->custom_filters[$filter_id];
