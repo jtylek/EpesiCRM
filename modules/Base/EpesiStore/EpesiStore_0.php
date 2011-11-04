@@ -17,7 +17,8 @@ class Base_EpesiStore extends Module {
     const button_clear_list = 'Clear list';
     const button_downloaded_modules = 'Check updates';
     const button_downloads = 'Downloads';
-    const button_instant_download_orders = 'Instant download all new';
+    const button_instant_download_modules = 'Instant download all new';
+    const button_my_modules = 'My modules';
     const button_orders = 'Orders';
     const button_proceed_download = 'Proceed download';
     const button_redownload = 'Re-Download all modules';
@@ -30,6 +31,7 @@ class Base_EpesiStore extends Module {
     const text_cart_is_empty = 'Cart is empty!';
     const text_price_summary = 'Total price';
     const text_buy = 'Buy!';
+    const text_my_modules_list_empty = 'You haven\'t bought any modules';
     const text_order_success = 'Ordered';
     const text_order_failure = 'Not ordered';
     const text_orders_list_empty = 'You don\'t have any orders';
@@ -68,6 +70,7 @@ class Base_EpesiStore extends Module {
             $this->cart_button();
             Base_ActionBarCommon::add('search', $this->t(self::button_downloaded_modules), $this->create_callback_href(array($this, 'navigate'), array('downloaded_modules_form')));
             Base_ActionBarCommon::add('view', $this->t(self::button_orders), $this->create_callback_href(array($this, 'navigate'), array('orders_form')));
+            Base_ActionBarCommon::add('view', $this->t(self::button_my_modules), $this->create_callback_href(array($this, 'navigate'), array('my_modules_form')));
             $this->store_form();
         }
     }
@@ -189,11 +192,24 @@ class Base_EpesiStore extends Module {
 
     public function orders_form() {
         $this->back_button();
-        $this->download_button();
 
         $orders = Base_EssClientCommon::server()->orders_list();
         if (count($orders) == 0) {
             print($this->t(self::text_orders_list_empty));
+            return;
+        }
+
+        $gb = $this->init_module('Utils/GenericBrowser', null, 'orderslist');
+        $this->GB_order($gb, $orders);
+        $this->display_module($gb);
+    }
+    
+    public function my_modules_form() {
+        $this->download_button();    
+        
+        $modules = Base_EssClientCommon::server()->bought_modules_list();
+        if(count($modules) == 0) {
+            print($this->t(self::text_my_modules_list_empty));
             return;
         }
         $dd = array();
@@ -201,28 +217,27 @@ class Base_EpesiStore extends Module {
         foreach (Base_EpesiStoreCommon::get_downloaded_modules() as $d) {
             $dd[$d['order_id']] = true;
         }
-        foreach ($orders as & $o) {
-            $o['downloaded'] = isset($dd[$o['id']]);
-            if (!isset($dd[$o['id']]))
-                $to_download[] = $o;
+        foreach ($modules as & $m) {
+            $m['downloaded'] = isset($dd[$m['id']]);
+            if (!isset($dd[$m['id']]))
+                $to_download[] = $m;
         }
         if (count($to_download)) {
-            Base_ActionBarCommon::add('favorites', self::button_instant_download_orders, $this->create_callback_href(array($this, 'download_orders'), array($to_download)));
+            Base_ActionBarCommon::add('favorites', self::button_instant_download_modules, $this->create_callback_href(array($this, 'download_modules'), array($to_download)));
         }
-
-        $gb = $this->init_module('Utils/GenericBrowser', null, 'orderslist');
-        $this->GB_order($gb, $orders, array($this, 'GB_row_additional_actions_orders'));
+        $gb = $this->init_module('Utils/GenericBrowser', null, 'mymoduleslist');
+        $this->GB_bought_modules($gb, $modules, array($this, 'GB_row_additional_actions_bought_modules'));
         $this->display_module($gb);
     }
 
     /**
-     * Navigate to direct download of specified orders
-     * @param array $orders array of orders data arrays
+     * Navigate to direct download of specified modules
+     * @param array $modules array of bought modules data arrays
      */
-    public function download_orders($orders) {
+    public function download_modules($modules) {
         Base_EpesiStoreCommon::empty_download_queue();
-        foreach ($orders as $o) {
-            $this->download_queue_item($o);
+        foreach ($modules as $m) {
+            $this->download_queue_item($m);
         }
         $this->navigate('download_process');
     }
@@ -279,7 +294,7 @@ class Base_EpesiStore extends Module {
             Base_ActionBarCommon::add('delete', self::button_clear_list, $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
             Base_ActionBarCommon::add('clone', self::button_proceed_download, $this->create_callback_href(array($this, 'navigate'), array('download_process')));
             $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadslist');
-            $gb = $this->GB_order($gb, $downloads, array($this, 'GB_row_additional_actions_downloads'));
+            $gb = $this->GB_bought_modules($gb, $downloads, array($this, 'GB_row_additional_actions_bought_modules'));
             $this->display_module($gb);
         }
     }
@@ -425,8 +440,12 @@ class Base_EpesiStore extends Module {
         return $this->GB_generic($gb, $items, $this->banned_columns_module, array($this, 'GB_row_data_transform_module'), $row_additional_actions_callback);
     }
 
-    protected function GB_order(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
-        return $this->GB_generic($gb, $items, $this->banned_columns_order, array($this, 'GB_row_data_transform_order'), $row_additional_actions_callback);
+    protected function GB_order(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback = null) {
+        return $this->GB_generic($gb, $items, $this->banned_columns_order, null, $row_additional_actions_callback);
+    }
+
+    protected function GB_bought_modules(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
+        return $this->GB_generic($gb, $items, $this->banned_columns_order, array($this, 'GB_row_data_transform_bought_modules'), $row_additional_actions_callback);
     }
 
     protected function GB_row_data_transform_module(array $data) {
@@ -437,7 +456,7 @@ class Base_EpesiStore extends Module {
         return $data;
     }
 
-    protected function GB_row_data_transform_order(array $data) {
+    protected function GB_row_data_transform_bought_modules(array $data) {
         // price
         if (isset($data['pay_price']) && $data['pay_price'] == 0)
             $data['pay_price'] = $this->t('Free');
@@ -451,25 +470,25 @@ class Base_EpesiStore extends Module {
         if (isset($data['downloaded']))
             $data['downloaded'] = $this->t($data['downloaded'] ? 'Yes' : 'No');
         // module info
-        $module = Base_EpesiStoreCommon::get_module_info($data['module_id']);
-        $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($module));
-        $data['module'] = "<a $tooltip>{$module['name']}</a>";
+//        $module = Base_EpesiStoreCommon::get_module_info($data['module_id']);
+//        $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($module));
+//        $data['module'] = "<a $tooltip>{$module['name']}</a>";
         unset($data['module_id']);
 
         return $data;
     }
 
     protected function GB_row_additional_actions_store($row, $data) {
-        $row->add_action($this->create_callback_href(array($this, 'cart_add_item'), array($data)), $this->t('Add to cart'));
+        $row->add_action($this->create_callback_href(array($this, 'cart_add_item'), array($data)), '+', $this->t('Add to cart'));
     }
 
     protected function GB_row_additional_actions_cart($row, $data) {
-        $row->add_action($this->create_callback_href(array($this, 'cart_remove_item'), array($data)), $this->t('Remove from cart'));
+        $row->add_action($this->create_callback_href(array($this, 'cart_remove_item'), array($data)), '--', $this->t('Remove from cart'));
     }
 
-    protected function GB_row_additional_actions_orders($row, $data) {
+    protected function GB_row_additional_actions_bought_modules($row, $data) {
         if ($data['paid'] && $data['active'] && !$data['downloaded'])
-            $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), $this->t('Queue download'));
+            $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', $this->t('Queue download'));
     }
 
     protected function GB_row_additional_actions_downloads($row, $data) {

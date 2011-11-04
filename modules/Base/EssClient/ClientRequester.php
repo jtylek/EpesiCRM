@@ -75,6 +75,11 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, $args);
     }
 
+    public function bought_modules_list() {
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
+    }
+
     protected function call($function, $params, $serialize_response = true) {
         // PREPARE POST DATA
         $post_data = http_build_query(

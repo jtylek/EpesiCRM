@@ -106,6 +106,13 @@ interface IClient {
      * @return array Array of orders
      */
     function orders_list();
+    
+    /**
+     * Get list of bought modules
+     * 
+     * @return array Array of bought modules
+     */
+    function bought_modules_list();
 }
 
 ?>
