@@ -230,7 +230,7 @@ class Base_EpesiStore extends Module {
         $this->GB_bought_modules($gb, $modules, array($this, 'GB_row_additional_actions_bought_modules'));
         $this->display_module($gb);
     }
-
+    
     /**
      * Navigate to direct download of specified modules
      * @param array $modules array of bought modules data arrays
@@ -285,12 +285,14 @@ class Base_EpesiStore extends Module {
         }
     }
 
+    /**
+     * Download form to show modules queued to download.
+     */
     public function download_form() {
         $this->back_button();
         $downloads = Base_EpesiStoreCommon::get_download_queue();
         if (count($downloads) == 0) {
             print($this->t('No items'));
-            return;
         } else {
             Base_ActionBarCommon::add('delete', self::button_clear_list, $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
             Base_ActionBarCommon::add('clone', self::button_proceed_download, $this->create_callback_href(array($this, 'navigate'), array('download_process')));
