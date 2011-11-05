@@ -24,6 +24,7 @@ class Base_EpesiStore extends Module {
     const button_redownload = 'Re-Download all modules';
     const button_update_all_modules = 'Update all';
     // text in forms
+    const text_no_modules_for_you = 'Unfortunately there is no modules available for You.';
     const text_refresh_info = 'Data is stored until close or refresh of browser\'s Epesi window or tab';
     const text_modules_changed_on_server = 'Some modules has changed on server. This is updated list.';
     const text_not_registered = 'Some error occured. Probably you are not registered client. Go to Admin / Register Epesi';
@@ -32,6 +33,7 @@ class Base_EpesiStore extends Module {
     const text_price_summary = 'Total price';
     const text_buy = 'Buy!';
     const text_my_modules_list_empty = 'You haven\'t bought any modules';
+    const text_downloaded_modules_list_empty = 'You haven\'t downloaded any modules';
     const text_order_success = 'Ordered';
     const text_order_failure = 'Not ordered';
     const text_orders_list_empty = 'You don\'t have any orders';
@@ -88,6 +90,8 @@ class Base_EpesiStore extends Module {
             $t = Base_EpesiStoreCommon::modules_list($x['offset'], $x['numrows']);
             $gb = $this->GB_module($gb, $t, array($this, 'GB_row_additional_actions_store'));
             $this->display_module($gb);
+        } else {
+            print($this->t(self::text_no_modules_for_you));
         }
     }
 
@@ -405,6 +409,10 @@ class Base_EpesiStore extends Module {
         $bought_modules = Base_EssClientCommon::server()->bought_modules_list();
         // get downloaded modules list
         $modules = Base_EpesiStoreCommon::get_downloaded_modules();
+        if(!count($modules)) {
+            print($this->t(self::text_downloaded_modules_list_empty));
+            return;
+        }
         $items = array();
         foreach ($modules as $m) {
             $mod = Base_EpesiStoreCommon::get_module_info($m['module_id']);

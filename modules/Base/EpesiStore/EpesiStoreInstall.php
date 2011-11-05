@@ -14,16 +14,16 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_EpesiStoreInstall extends ModuleInstall {
 
     public function install() {
-		$ret = true;
-		$ret &= DB::CreateTable('epesi_store_modules','
-			module_id I4 PRIMARY KEY,
-			version I4,
-			order_id I4 NOTNULL,
+        $ret = true;
+        $ret &= DB::CreateTable('epesi_store_modules', '
+            module_id I4 PRIMARY KEY,
+            version C(10),
+            order_id I4 NOTNULL,
             file C(20)');
-		if(!$ret){
-			print('Unable to create table epesi_store_modules.<br>');
-			return false;
-		}
+        if (!$ret) {
+            print('Unable to create table epesi_store_modules.<br>');
+            return false;
+        }
         if ($this->create_data_dir())
             return true;
         return false;
