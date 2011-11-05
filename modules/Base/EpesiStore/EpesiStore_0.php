@@ -47,11 +47,11 @@ class Base_EpesiStore extends Module {
     const color_success = 'green';
     const color_failure = 'gray';
 
-    protected $banned_columns_module = array('id', 'owner_id', 'path', 'files');
+    protected $banned_columns_module = array('id', 'owner_id', 'path', 'files', 'active');
     protected $banned_columns_order = array('id', 'installation_id');
 
     public function body() {
-
+        
     }
 
     public function admin() {
@@ -203,12 +203,13 @@ class Base_EpesiStore extends Module {
         $this->GB_order($gb, $orders);
         $this->display_module($gb);
     }
-    
+
     public function my_modules_form() {
-        $this->download_button();    
-        
+        $this->back_button();
+        $this->download_button();
+
         $modules = Base_EssClientCommon::server()->bought_modules_list();
-        if(count($modules) == 0) {
+        if (count($modules) == 0) {
             print($this->t(self::text_my_modules_list_empty));
             return;
         }
@@ -294,7 +295,7 @@ class Base_EpesiStore extends Module {
             Base_ActionBarCommon::add('delete', self::button_clear_list, $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
             Base_ActionBarCommon::add('clone', self::button_proceed_download, $this->create_callback_href(array($this, 'navigate'), array('download_process')));
             $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadslist');
-            $gb = $this->GB_bought_modules($gb, $downloads, array($this, 'GB_row_additional_actions_bought_modules'));
+            $gb = $this->GB_bought_modules($gb, $downloads, array($this, 'GB_row_additional_actions_downloads'));
             $this->display_module($gb);
         }
     }
@@ -304,17 +305,17 @@ class Base_EpesiStore extends Module {
      */
     public function download_process() {
         $this->back_button();
-        $orders = Base_EpesiStoreCommon::get_download_queue();
-        if (!count($orders)) {
+        $modules = Base_EpesiStoreCommon::get_download_queue();
+        if (!count($modules)) {
             return;
         }
-        $orders_ids = array();
-        foreach ($orders as $o) {
-            $orders_ids[] = $o['id'];
+        $modules_ids = array();
+        foreach ($modules as $o) {
+            $modules_ids[] = $o['id'];
         }
         // download
         $file = null;
-        $ret = Base_EpesiStoreCommon::download_package($orders_ids, $file);
+        $ret = Base_EpesiStoreCommon::download_package($modules_ids, $file);
         if (is_string($ret)) {
             print($this->t($ret));
             return;
@@ -332,11 +333,11 @@ class Base_EpesiStore extends Module {
         print($this->t(self::text_download_process_success) . '<br/><br/>');
         // list all files
         $all_files = array();
-        foreach ($orders as $d) {
-            $mod = Base_EpesiStoreCommon::get_module_info($d['module_id']);
-            $all_files = array_merge($all_files, explode(',', $mod['path']));
+        foreach ($modules as $d) {
+            $mod = Base_EpesiStoreCommon::get_module_info($d['module']);
+            $all_files = array_merge($all_files, $mod['files']);
             // store info about module in db
-            Base_EpesiStoreCommon::add_downloaded_module($d['module_id'], $mod['version'], $d['id'], $file);
+            Base_EpesiStoreCommon::add_downloaded_module($d['module'], $mod['version'], $d['id'], $file);
         }
         // check for epesi modules
         $modules = array();
@@ -398,12 +399,8 @@ class Base_EpesiStore extends Module {
         $this->back_button();
         $this->download_button(false);
         Base_ActionBarCommon::add('clone', self::button_redownload, $this->create_confirm_callback_href($this->t(self::text_redownload_modules_confirm_question), array($this, 'redownload_modules')));
-        // get orders and transform to associative array
-        $orders_list = Base_EssClientCommon::server()->orders_list();
-        $orders = array();
-        foreach ($orders_list as $x) {
-            $orders[$x['id']] = $x;
-        }
+        // get bought modules list
+        $bought_modules = Base_EssClientCommon::server()->bought_modules_list();
         // get downloaded modules list
         $modules = Base_EpesiStoreCommon::get_downloaded_modules();
         $items = array();
@@ -411,12 +408,12 @@ class Base_EpesiStore extends Module {
             $mod = Base_EpesiStoreCommon::get_module_info($m['module_id']);
             $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($mod));
             $it = array(
-                'order' => isset($orders[$m['order_id']]) ? $orders[$m['order_id']] : null,
-                'module' => "<a $tooltip>{$mod['name']}</a>",
+                'bought_module' => isset($bought_modules[$m['order_id']]) && $bought_modules[$m['order_id']]['active'] && $bought_modules[$m['order_id']]['paid'] ? $bought_modules[$m['order_id']] : null,
+                'module' => "<a $tooltip>{$mod['repository']} :: {$mod['name']}</a>",
                 'installed_version' => $m['version'],
                 'recent_version' => $mod['version']);
-            if (($it['installed_version'] < $it['recent_version']) && $it['order'] != null) {
-                $to_update[] = $it['order'];
+            if (($it['installed_version'] < $it['recent_version']) && $it['bought_module'] != null) {
+                $to_update[] = $it['bought_module'];
             }
             $items[] = $it;
         }
@@ -425,13 +422,13 @@ class Base_EpesiStore extends Module {
         }
         print($this->t(self::text_downloaded_modules_header));
         $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadedmoduleslist');
-        $gb = $this->GB_generic($gb, $items, array('order'), null, array($this, 'GB_row_additional_actions_downloaded_modules'));
+        $gb = $this->GB_generic($gb, $items, array('bought_module'), null, array($this, 'GB_row_additional_actions_downloaded_modules'));
         $this->display_module($gb);
     }
 
-    public function update_all_modules($orders) {
-        foreach ($orders as $o) {
-            $this->download_queue_item($o);
+    public function update_all_modules($bought_modules) {
+        foreach ($bought_modules as $m) {
+            $this->download_queue_item($m);
         }
         $this->navigate('download_form');
     }
@@ -457,9 +454,11 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_data_transform_bought_modules(array $data) {
-        // price
-        if (isset($data['pay_price']) && $data['pay_price'] == 0)
-            $data['pay_price'] = $this->t('Free');
+        // module name
+        if (isset($data['module'])) {
+            $mi = Base_EpesiStoreCommon::get_module_info($data['module']);
+            $data['module'] = $mi['repository'] . ' :: ' . $mi['name'];
+        }
         // paid
         if (isset($data['paid']))
             $data['paid'] = $this->t($data['paid'] ? 'Yes' : 'No');
@@ -483,7 +482,7 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_cart($row, $data) {
-        $row->add_action($this->create_callback_href(array($this, 'cart_remove_item'), array($data)), '--', $this->t('Remove from cart'));
+        $row->add_action($this->create_callback_href(array($this, 'cart_remove_item'), array($data)), 'delete', $this->t('Remove from cart'));
     }
 
     protected function GB_row_additional_actions_bought_modules($row, $data) {
@@ -497,7 +496,7 @@ class Base_EpesiStore extends Module {
 
     protected function GB_row_additional_actions_downloaded_modules($row, $data) {
         if ($data['installed_version'] < $data['recent_version'])
-            $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data['order'])), $this->t('Queue download'));
+            $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data['bought_module'])), '+', $this->t('Queue download'));
     }
 
     protected function GB_generic(Utils_GenericBrowser $gb, array $items, $banned_columns = array(), $row_data_transform_callback = null, $row_additional_actions_callback = null) {

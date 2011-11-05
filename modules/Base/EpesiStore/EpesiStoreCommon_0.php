@@ -55,7 +55,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if(isset($r['path']))
             $x[] = "<b>Files:</b><br/>{$r['path']}";
         if(isset($r['files']))
-            $x[] = "<b>Files:</b><br/>{$r['files']}";
+            $x[] = "<b>Files:</b><br/>" . implode("<br/>", $r['files']);
         $x[] = "<b>Price:</b> {$r['price']}";
         $x[] = "<b>Version:</b> {$r['version']}";
         $x[] = "<b>Active:</b> {$r['active']}";
@@ -116,12 +116,12 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     /**
      * Download and extract package of modules.
-     * @param array $orders_ids orders ids
+     * @param array $bought_modules_ids bought modules ids
      * @param var_reference $filename output parameter to pass filename of package
      * @return string|true string with error message, true on success
      */
-    public static function download_package($orders_ids, &$filename = false) {
-        $hash = Base_EssClientCommon::server()->download_prepare($orders_ids);
+    public static function download_package($bought_modules_ids, &$filename = false) {
+        $hash = Base_EssClientCommon::server()->download_prepare($bought_modules_ids);
         if (!$hash) {
             return 'Prepare error';
         }
@@ -235,12 +235,17 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return $return;
     }
 
+    /**
+     * Get downloaded modules list.
+     * Array keys are 'module_id', 'version', 'file' and 'order_id' as bought module id
+     * @return array of data. 
+     */
     public static function get_downloaded_modules() {
         return DB::GetAll('SELECT * FROM epesi_store_modules');
     }
 
-    public static function add_downloaded_module($module_id, $version, $order_id, $file) {
-        DB::Execute('REPLACE INTO epesi_store_modules(module_id, version, order_id, file) VALUES (%d, %d, %d, %s)', array($module_id, $version, $order_id, $file));
+    public static function add_downloaded_module($module_id, $version, $bought_module_id, $file) {
+        DB::Execute('REPLACE INTO epesi_store_modules(module_id, version, order_id, file) VALUES (%d, %d, %d, %s)', array($module_id, $version, $bought_module_id, $file));
     }
 
 }
