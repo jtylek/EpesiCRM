@@ -693,22 +693,12 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 }
 
 function update_from_1_0_0rc3_to_1_0_0rc4() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
 	if (ModuleManager::is_installed('Base/User/Login')>=0) {
 		PatchDBAddColumn('user_password','mobile_autologin_id','C(32)');
 	}
 }
 
 function update_from_1_0_0rc4_to_1_0_0rc5() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
 	//addons management
 	if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
 		PatchDBAddColumn('recordbrowser_addon','pos','I');
@@ -924,11 +914,6 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 }
 
 function update_from_1_0_0rc6_to_1_0_0() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
 	if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
 		PatchDBAddColumn('utils_watchdog_event','event_time','T');
 		DB::CreateIndex('utils_watchdog_event__cat_int__idx', 'utils_watchdog_event', array('category_id','internal_id'));
@@ -1070,11 +1055,6 @@ function update_from_1_0_0rc6_to_1_0_0() {
 }
 
 function update_from_1_0_0_to_1_0_1() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
 	if (ModuleManager::is_installed('Utils/RecordBrowser')>=0) {
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
 		foreach ($tabs as $t) {
@@ -1388,11 +1368,6 @@ function update_from_1_0_0_to_1_0_1() {
 }
 
 function update_from_1_0_1_to_1_0_2() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
 	if (ModuleManager::is_installed('CRM_MailClient')>=0) {
 
 		$tables = DB::MetaTables();
@@ -1445,12 +1420,6 @@ function update_from_1_0_1_to_1_0_2() {
 }
 
 function update_from_1_0_2_to_1_0_3() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
-
 	// Check if module is installed
 	if (ModuleManager::is_installed('CRM_Calendar')>=0) {
 		@DB::DropTable('crm_calendar_custom_events_handlers');
@@ -1466,12 +1435,6 @@ function update_from_1_0_2_to_1_0_3() {
 }
 
 function update_from_1_0_3_to_1_0_4() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
-
 	// Check if module is installed
 	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
 		DB::Execute("UPDATE company_field SET required=0 WHERE field='City'");
@@ -1495,11 +1458,6 @@ function update_from_1_0_3_to_1_0_4() {
 }
 
 function update_from_1_0_4_to_1_0_5() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
 	if (ModuleManager::is_installed('Base_Backup')>=0) {
 		DB::Execute('DELETE FROM modules WHERE name=%s',array('Base_Backup'));
 		@recursive_rmdir(DATA_DIR.'/Base_Backup');
@@ -1534,11 +1492,6 @@ function update_from_1_0_4_to_1_0_5() {
 }
 
 function update_from_1_0_6_to_1_0_7() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
 	if (ModuleManager::is_installed('Utils_RecordBrowser')!=-1) {
 		$tables = DB::MetaTables();
 		if(!in_array('recordbrowser_browse_mode_definitions',$tables))
@@ -1592,11 +1545,6 @@ function update_from_1_0_6_to_1_0_7() {
 }
 
 function update_from_1_0_8_to_1_0_8b() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
 	if (ModuleManager::is_installed('Apps_MailClient')!=-1 ||
 		ModuleManager::is_installed('Premium_Projects')!=-1) {
 		
@@ -1607,11 +1555,6 @@ function update_from_1_0_8_to_1_0_8b() {
 }
 
 function update_from_1_0_8b_to_1_0_9() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
     if (ModuleManager::is_installed('Premium_Projects_Tickets')>=0) {
         Utils_RecordBrowserCommon::new_record_field('premium_tickets',array('name'=>'Ticket Owner', 'type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Premium_Projects_TicketsCommon','users_crits'),'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('Premium_Projects_TicketsCommon','display_assigned_contacts'), 'required'=>true, 'extra'=>false, 'visible'=>true, 'position'=>'Project Name'));
 
@@ -1836,11 +1779,6 @@ function update_from_1_0_8b_to_1_0_9() {
 }
 
 function update_from_1_0_9_to_1_1_0() {
-    if (ModuleManager::is_installed('Base_ModuleDownloader')==-1) {
-        ob_start();
-        ModuleManager::install('Base_ModuleDownloader');    
-  		ob_end_clean();
-    }
 
     if(ModuleManager::is_installed('CRM_Calendar')>=0 && ModuleManager::is_installed('CRM_Meeting')>=0)
 	    CRM_CalendarCommon::new_event_handler('Meetings', array('CRM_MeetingCommon', 'crm_calendar_handler'));
