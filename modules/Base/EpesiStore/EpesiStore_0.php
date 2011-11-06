@@ -112,14 +112,8 @@ class Base_EpesiStore extends Module {
             print($this->t(self::text_cart_is_empty));
             return;
         }
-        // sum total price
-        $total_price = 0;
-        foreach ($items as $x) {
-            $total_price += $x['price'];
-        }
         // buy form
         $f = $this->init_module('Libs/QuickForm');
-        $f->addElement('static', 'price', null, $this->t(self::text_price_summary) . ': ' . $total_price);
         $f->addElement('submit', 'submit', $this->t(self::text_buy));
         // if buy clicked check for any changes on server
         $buy = false;
@@ -456,8 +450,6 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_data_transform_module(array $data) {
-        if ($data['price'] == 0)
-            $data['price'] = $this->t('Free');
         if (isset($data['active']))
             unset($data['active']);
         return $data;
