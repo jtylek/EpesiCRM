@@ -87,16 +87,16 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
             return "Epesi Registration";
         return null;
     }
-	
-	public static function get_support_email() {
-		$email = 'bugs@telaxus.com'; // FIXME
-		if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
-			$email = CRM_RoundcubeCommon::get_mailto_link($email);
-		} else {
-			$email = '<a href="mailto:'.$email.'">'.$email.'</a>';
-		}
-		return $email;
-	}
+
+    public static function get_support_email() {
+        $email = 'bugs@telaxus.com'; // FIXME
+        if (ModuleManager::is_installed('CRM_Roundcube') >= 0) {
+            $email = CRM_RoundcubeCommon::get_mailto_link($email);
+        } else {
+            $email = '<a href="mailto:' . $email . '">' . $email . '</a>';
+        }
+        return $email;
+    }
 
 }
 
