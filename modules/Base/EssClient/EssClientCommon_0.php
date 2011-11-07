@@ -14,7 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_EssClientCommon extends Base_AdminModuleCommon {
 //    const SERVER_ADDRESS = 'http://localhost/epesi/modules/Custom/ESS/serv/';
 //    const SERVER_ADDRESS = 'http://localhost/epesi/tools/EpesiServiceServer/';
-    const SERVER_ADDRESS = 'http://ess.epesibim.com/';
+    const SERVER_ADDRESS = 'https://ess.epesibim.com/';
     const VAR_LICENSE_KEY = 'license_key';
 
     public static function menu() {
