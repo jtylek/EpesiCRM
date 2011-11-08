@@ -30,9 +30,6 @@
    			<tr>
    				<td colspan="2" align="center" class="label"><strong>EPESI DEMO APPLICATION</strong></td>
    			</tr>
-   			<tr>
-   			        <td colspan="2" align="center" class="label">Please choose user (admin - admin user with language set to english, admin_pl - admin user with language set to polish, admin_ru - admin user with language set to russian...)</td>
-   			</tr>
 {/if}
                             <tr><td colspan="2" class="error"><span class="error">{$form_data.username.error}</span></td></tr>
                             <tr><td colspan="2" class="error"><span class="error">{$form_data.password.error}</span></td></tr>

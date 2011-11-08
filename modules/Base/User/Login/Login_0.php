@@ -70,11 +70,12 @@ class Base_User_Login extends Module {
 		$form->addElement('header', 'login_header', $this->t('Login'));
 		
 		if(DEMO_MODE) {
-    		$form->addElement('select', 'username', $this->t('Username'),array('admin'=>'admin','admin_pl'=>'admin_pl','admin_ru'=>'admin_ru'), array('id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
-	    	$form->addElement('hidden', 'password', 'admin');		
+			global $demo_users;
+			$form->addElement('select', 'username', $this->t('Username'), $demo_users, array('id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
+			$form->addElement('hidden', 'password', key($demo_users));
 		} else {
-    		$form->addElement('text', 'username', $this->t('Username'),array('id'=>'username'));
-	    	$form->addElement('password', 'password', $this->t('Password'));
+			$form->addElement('text', 'username', $this->t('Username'),array('id'=>'username'));
+			$form->addElement('password', 'password', $this->t('Password'));
 		}
 
 		// Display warning about storing a cookie
