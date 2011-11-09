@@ -19,7 +19,8 @@ class Utils_Calendar extends Module {
 				  'start_day'=>'8:00',
 				  'end_day'=>'17:00',
 				  'interval'=>'1:00',
-				  'default_date'=>null);
+				  'default_date'=>null,
+				  'head_col_width'=>'90px');
 	private $date; //current date
 	private $event_module;
 	private $tb;
@@ -486,6 +487,8 @@ class Utils_Calendar extends Module {
 
 		$theme->assign('trash_id','UCtrash');
 
+		$theme->assign('head_col_width',$this->settings['head_col_width']);
+
 		$navigation_bar_additions = '';
 		if (is_callable(array($this->event_module, 'get_navigation_bar_additions'))) {
 			$event_module_instance = $this->init_module($this->event_module);
@@ -649,6 +652,7 @@ class Utils_Calendar extends Module {
 
 		$theme->assign('header_month', $header_month);
 		$theme->assign('day_headers', $day_headers);
+		$theme->assign('head_col_width',$this->settings['head_col_width']);
 
 		//timeline and ids
 		$time_ids = array();

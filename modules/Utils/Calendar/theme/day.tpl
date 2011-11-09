@@ -33,7 +33,7 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 	<table cellspacing=0 id="Utils_Calendar__day">
 		<thead>
 			<tr>
-				<th style="width:90px;"></th>
+				<th style="width:{$head_col_width};"></th>
 				<th></th>
 			</tr>
 		</thead>

@@ -29,7 +29,7 @@
 	<table cellspacing=0 id="Utils_Calendar__week">
 		<thead>
 			<tr>
-				<th style="width:90px;"></th>
+				<th style="width:{$head_col_width};"></th>
 				<th></th>
 				<th></th>
 				<th></th>
