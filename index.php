@@ -88,7 +88,7 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 
 require_once('include/misc.php');
 
-if(detect_iphone()) {
+if(IPHONE) {
 	if(!isset($_GET['force_epesi'])) {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
