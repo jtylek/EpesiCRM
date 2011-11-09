@@ -145,7 +145,7 @@ class Apps_Shoutbox extends Module {
         	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
         	    $qf->freeze(array('to'));
 			//create text box
-			$qf->addElement($big?'textarea':'text','post',$this->t('Message'),'class="border_radius_6px" id="shoutbox_text'.($big?'_big':'').'"');
+			$qf->addElement($big?'textarea':'textarea','post',$this->t('Message'),'class="border_radius_6px" id="shoutbox_text'.($big?'_big':'').'"');
 			$qf->addRule('post',$this->t('Field required'),'required');
 			//create submit button
 			$qf->addElement('submit','submit_button',$this->t('Send'), 'id="shoutbox_button'.($big?'_big':'').'"');

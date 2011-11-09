@@ -30,59 +30,69 @@
 	unset($this->_tpl_vars['form_data']['next_week']);
 	{/php}
 {/if}
-<table cellpadding="0" cellspacing="0" border="0">
-	<tr>
-		<td style="vertical-align:top;">
-			<table id="Utils_Planner__grid">
+
+
+<div class="layer" style="padding: 9px; width: 98%;">
+	<div class="css3_content_shadow">
+		<div style="padding: 5px; background-color: #FFFFFF;">
+			<table cellpadding="0" cellspacing="0" border="0" id="Utils_Planner__table">
 				<tr>
-					<td/>
-					{foreach item=h key=k from=$headers}
-						<td class="header">
-							{$h}<br />
-							<input type="button" value="{$select_all_label}" onclick="{$select_all.$k}" />
-						</td>
-					{/foreach}
+					<td style="vertical-align:top;">
+						<table id="Utils_Planner__grid">
+							<tr>
+								<td/>
+								{foreach item=h key=k from=$headers}
+									<td class="header child_button">
+										<div>
+											{$h}<br />
+											<input type="button" value="{$select_all_label}" onclick="{$select_all.$k}" />
+										</div>
+									</td>
+								{/foreach}
+							</tr>
+							{foreach item=gl key=gk from=$grid_legend}
+								<tr>
+									<td class="grid_legend border_radius_3px" nowrap >
+										{$gl}
+									</td>
+									{foreach item=h key=k from=$headers}
+										<td {$grid_attrs.$gk.$k}>
+										</td>
+									{/foreach}
+								</tr>
+							{/foreach}
+						</table>
+					</td>
+					<td style="vertical-align:top;margin:5px;">
+						<table id="Utils_Planner__resource_table" class="border-spacing"cellpadding="0" cellspacing="0" border="0">
+							{foreach item=e key=k from=$form_data}
+								{if is_array($e) && isset($e.label)}
+									{if ($e.type=='automulti')}
+										<tr>
+											<td colspan="2" class="label" nowrap="1">{$e.label}</td>
+										</tr>
+										<tr>
+											<td colspan="2" class="data">{$e.error}{$e.html}</td>
+										</tr>
+									{else}
+										<tr>
+											<td class="label" nowrap="1">{$e.label}</td>
+											<td class="data">{$e.error}{$e.html}</td>
+										</tr>
+									{/if}
+								{/if}
+							{/foreach}
+							<tr>
+								<td colspan="2" class="label">{$time_frames.label}</td>
+							</tr>
+							<tr>
+								<td colspan="2" class="data">{$time_frames.html}</td>
+							</tr>
+						</table>
+					</td>
 				</tr>
-				{foreach item=gl key=gk from=$grid_legend}
-					<tr>
-						<td class="grid_legend">
-							{$gl}
-						</td>
-						{foreach item=h key=k from=$headers}
-							<td {$grid_attrs.$gk.$k}>
-							</td>
-						{/foreach}
-					</tr>
-				{/foreach}
 			</table>
-		</td>
-		<td style="vertical-align:top;margin:5px;">
-			<table id="Utils_Planner__resource_table" cellpadding="0" cellspacing="0" border="0">
-				{foreach item=e key=k from=$form_data}
-					{if is_array($e) && isset($e.label)}
-						{if ($e.type=='automulti')}
-							<tr>
-								<td colspan="2" class="label" nowrap="1">{$e.label}</td>
-							</tr>
-							<tr>
-								<td colspan="2" class="data">{$e.error}{$e.html}</td>
-							</tr>
-						{else}
-							<tr>
-								<td class="label" nowrap="1">{$e.label}</td>
-								<td class="data">{$e.error}{$e.html}</td>
-							</tr>
-						{/if}
-					{/if}
-				{/foreach}
-				<tr>
-					<td colspan="2" class="label">{$time_frames.label}</td>
-				</tr>
-				<tr>
-					<td colspan="2" class="data">{$time_frames.html}</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
+		</div>
+	</div>
+</div>
 {$form_close}

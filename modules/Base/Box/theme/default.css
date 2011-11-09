@@ -50,7 +50,9 @@ input, textarea, select {
 
 
 .child_button > input,
+.child_button > div > input,
 .button {
+	cursor: pointer;
     font-weight: normal;
     color: #FFFFFF;
     width: 100px;
@@ -117,6 +119,7 @@ input, textarea, select {
 }
 
 .child_button > input:hover,
+.child_button > div > input:hover,
 .button:hover,
 .button:focus {
 	/*light css3 green background gradient */

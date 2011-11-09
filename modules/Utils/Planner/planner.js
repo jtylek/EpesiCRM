@@ -33,7 +33,7 @@ function time_grid_mouse_down(from_time,day,switchd) {
 		switch_direction = 'unused';
 	if (switchd) switch_direction = switchd;
 	if (has_class(elem,'noconflict'))
-		elem.className = 'noconflict '+switch_direction;
+		elem.className = 'border_radius_3px noconflict '+switch_direction;
 	else
 		elem.className = 'conflict '+switch_direction;
 }
@@ -42,9 +42,9 @@ function time_grid_mouse_move(from_time,day) {
 	if (switch_direction=='') return;
 	elem = $(day+'__'+from_time);
 	if (has_class(elem,'noconflict'))
-		elem.className = 'noconflict '+switch_direction;
+		elem.className = 'border_radius_3px noconflict '+switch_direction;
 	else
-		elem.className = 'conflict '+switch_direction;
+		elem.className = 'border_radius_3px conflict '+switch_direction;
 }
 
 function time_grid_change_conflicts(from_time,day,conflict) {
