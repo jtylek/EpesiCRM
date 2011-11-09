@@ -482,6 +482,10 @@ function detect_iphone(){
   }
 }
 
+if(detect_iphone())
+	define('IPHONE',1);
+else
+	define('IPHONE',0);
 
 ////////////////////////////
 // strip epesi invalid html code
