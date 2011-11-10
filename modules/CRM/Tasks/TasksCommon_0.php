@@ -170,12 +170,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		return $ret;
 	}
     public static function display_title_with_mark($record) {
-		$me = CRM_ContactsCommon::get_my_record();
-		$ret = self::display_title($record, false);
-		if (!in_array($me['id'], $record['employees'])) return $ret;
-		$notified = Utils_WatchdogCommon::check_if_notified('task',$record['id']);
-		if ($notified!==true && $notified!==null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','notice.png').'" />'.$ret;
-		return $ret;
+		return self::display_title($record, false);
 	}
 	public static function display_status($record, $nolink, $desc) {
 		$prefix = 'crm_tasks_leightbox';
