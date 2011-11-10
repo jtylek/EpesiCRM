@@ -7,6 +7,11 @@
 	width: 100%;
 	border-right: 1px solid #B3B3B3;
 	border-bottom: 1px solid #B3B3B3;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
 
 #Utils_Calendar__day td {

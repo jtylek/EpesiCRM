@@ -472,7 +472,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			if (isset($_REQUEST['day'])) $values['date'] = $_REQUEST['day'];
 			$ret = array();
-			$start = strtotime($values['date'].' '.date('H:i:s', strtotime($values['time'])));
+			$start = strtotime($values['date'].' '.date('H:i:s', $values['time']));
 			$start_disp = strtotime(Base_RegionalSettingsCommon::time2reg($start,true,true,true,false));
 			$end = strtotime('+'.$values['duration'].' seconds', $start);
 			$ret['day_details'] = array('start'=>array(
@@ -481,7 +481,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 				'year'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'year', 'default_date'=>strtotime($values['date']))), array()).'>'.date('Y', $start_disp).'</a>', 
 				'weekday'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'week', 'default_date'=>strtotime($values['date']))), array()).'>'.date('l', $start_disp).'</a>'
 			));
-
 			$ret['event_info'] = array('start_time'=>Base_RegionalSettingsCommon::time2reg($start,2,false), 'end_time'=>Base_RegionalSettingsCommon::time2reg($end,2,false), 'duration'=>Base_RegionalSettingsCommon::seconds_to_words($values['duration']), 'start_date'=>'-', 'end_date'=>'-');
 			$ret['form_data']['timeless'] = array('label'=>'Timeless', 'html'=>'value');
 			$ret['toggle_duration'] = 'tog';

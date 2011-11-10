@@ -772,7 +772,7 @@ class Utils_Calendar extends Module {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
 		if ($diff<0) $diff += 7;
-		$currday = strtotime(date('Y-m-d',strtotime('-'.$diff.' days',$first_day_of_month)).' '.date('H:i:s',$first_day_of_month));
+		$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('-'.$diff.' days',$first_day_of_month)).' 12:00:00');
 		$curmonth = date('m', $date);
 
 		$month = array();
@@ -794,7 +794,8 @@ class Utils_Calendar extends Module {
 					$next['style'].= ' event-'.$colors[$mark[date('Y-m-d',$currday)]];
 				}
 				$week[] = $next;
-				$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$currday))+3600*24).' '.date('H:i:s',$currday));
+				//$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$currday))+3600*24).' '.date('H:i:s',$currday));
+				$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('+1 day',$currday)).' 12:00:00');
 			}
 			$month[] = array(
 							'week_label'=>$weekno,

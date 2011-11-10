@@ -20,6 +20,11 @@ p.event {
 /* classes for big table */
 
 #Utils_Calendar__year {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
 
 #Utils_Calendar__year td {
