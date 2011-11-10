@@ -40,7 +40,7 @@ if($_POST['cell_id']=='trash') {
 	ob_clean();
 	if($_POST['page_type']=='month') {
 		if(isset($ev['timeless'])) $cc[1]=(isset($ev['custom_row_key'])?$ev['custom_row_key']:'timeless');
-		else $cc[0] += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
+		else $cc[0] = strtotime(Base_RegionalSettingsCommon::time2reg($cc[0], true,true,true,false)) + $ev['start'] - strtotime(Base_RegionalSettingsCommon::time2reg($ev['start'], false,true,true,false));
 	} else {
 		$cc[0] += $ev['start']-strtotime(date('Y-m-d H:00:00',$ev['start']));
 	}

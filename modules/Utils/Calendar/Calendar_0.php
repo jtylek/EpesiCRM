@@ -772,7 +772,7 @@ class Utils_Calendar extends Module {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
 		if ($diff<0) $diff += 7;
-		$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('-'.$diff.' days',$first_day_of_month)).' 12:00:00');
+		$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('-'.$diff.' days',$first_day_of_month)).' 00:00:00');
 		$curmonth = date('m', $date);
 
 		$month = array();
@@ -794,8 +794,8 @@ class Utils_Calendar extends Module {
 					$next['style'].= ' event-'.$colors[$mark[date('Y-m-d',$currday)]];
 				}
 				$week[] = $next;
-				//$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$currday))+3600*24).' '.date('H:i:s',$currday));
-				$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('+1 day',$currday)).' 12:00:00');
+				//$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 00:00:00',$currday))+3600*24).' '.date('H:i:s',$currday));
+				$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('+1 day',$currday)).' 00:00:00');
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
@@ -879,7 +879,7 @@ class Utils_Calendar extends Module {
 				$ev_start = strtotime(Base_RegionalSettingsCommon::time2reg($ev['start'],true,true,true,false));
 			else
 				$ev_start = strtotime($ev['timeless']);
-			$ev_start = strtotime(date('Y-m-d',$ev_start));
+			$ev_start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev_start).' 00:00:00');
 			$dest_id = 'UCcell_'.$ev_start;
 			$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', 1);';
 		}
