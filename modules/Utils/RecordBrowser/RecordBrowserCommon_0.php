@@ -1533,7 +1533,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             } else {
                 self::$del_or_a .= '</a>';
                 if (!$nolink) $ret = '<a '.($tip?Utils_TooltipCommon::open_tag_attrs($tip):'').' '.self::create_record_href($tab, $id, $action).'>'.$ret;
-                else self::$del_or_a .= '';
+                else self::$del_or_a = '';
             }
         }
         return $ret;
