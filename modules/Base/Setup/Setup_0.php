@@ -31,6 +31,7 @@ class Base_Setup extends Module {
 		$tb = & $this->init_module('Utils/TabbedBrowser');
 		$tb->set_tab('Installed', array($this,'tab'),true);
 		$tb->set_tab('Not installed', array($this,'tab'),false);
+		$tb->set_tab('Search', array($this,'search'));
 		if(ModuleManager::is_installed('Base/EpesiStore')>=0)
         		$tb->set_tab('Buy new modules!', array($this,'store'));
         	$tb->tag();
@@ -64,12 +65,25 @@ class Base_Setup extends Module {
 				Epesi::redirect();
 		}
 	}
+	
+	public function search() {
+		$form = & $this->init_module('Libs/QuickForm','Searching','search');
+		$form -> addElement('text','search','Search');
+		$form -> addElement('submit',null,'OK');
+		$form->setDefaults(array('search'=>$this->get_module_variable('search')));
+	        $form->display();
+	        if($form->validate() || $this->get_module_variable('search')) {
+	            $a = $form->exportValue('search');
+	            $this->set_module_variable('search',$a);
+	            $this->tab(null,$a);
+	        }
+	}
 
-	public function tab($show_installed=null) {
+	public function tab($show_installed=null,$search=null) {
 		$post_install = & $this->get_module_variable('post-install');
 		if(!is_array($post_install)) {
 			//create default module form
-			$form = & $this->init_module('Libs/QuickForm','Processing modules');
+			$form = & $this->init_module('Libs/QuickForm','Processing modules','setup');
 			
 			$simple = Variable::get('simple_setup');
 
@@ -176,6 +190,7 @@ class Base_Setup extends Module {
 							Libs_LeightboxCommon::display($entry,$iii,'Additional info');
 						}
 					}
+					if(isset($search) && $search && stripos($info,$search)===false && stripos($entry,$search)===false) continue;
 
                     // Show Tooltip if module is required
                     $tooltip = null;
@@ -221,6 +236,7 @@ class Base_Setup extends Module {
 
 			$tree = & $this->init_module('Utils/Tree');
 			$tree->set_structure($structure);
+			$tree->set_inline_display();
 			if ($simple) $tree->open_all();
 			//$form->addElement('html', '<tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
 			$form->addElement('html', '<tr><td colspan=2>'.$this->get_html_of_module($tree).'</td></tr>');
