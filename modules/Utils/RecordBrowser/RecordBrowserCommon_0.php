@@ -2126,7 +2126,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case ':Edited_on':  $v = Base_RegionalSettingCommon::time2reg($v); break;
 					default: 			if (!is_array($v)) $v = array($v);
 										foreach ($v as $kk=>$vv)
-											$v[$kk] = self::get_val($tab, $k, array($k=>$vv));
+											$v[$kk] = self::get_val($tab, $k, array($k=>$vv), true);
 				}
 				foreach ($v as $kk=>$vv)
 					$v[$kk] = '<b>'.$vv.'</b>';
