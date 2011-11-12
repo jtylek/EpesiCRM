@@ -186,8 +186,8 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             attachment I1 DEFAULT 1',
             array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES rc_mails_data_1(ID)'));
 
-        Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'addon', 'Mails');
-        Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'addon', 'Mails');
+        Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'addon', 'e-mails');
+        Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'addon', 'e-mails');
 
 		$fields = array(
 			array('name'=>'Record Type', 		'type'=>'text', 'param'=>'64', 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
@@ -203,8 +203,8 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundube', 'icon.png'));
 		Utils_RecordBrowserCommon::set_access_callback('rc_multiple_emails', array('CRM_RoundcubeCommon', 'access_mail_addresses'));
 
-		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
-		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
+		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', 'e-mail addresses');
+		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', 'e-mail addresses');
 
 		$this->add_aco('access mails','Employee');
 		$this->add_aco('access client','Employee');

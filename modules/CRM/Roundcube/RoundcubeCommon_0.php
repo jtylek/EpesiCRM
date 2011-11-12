@@ -222,7 +222,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function new_addon($rs) {
-        Utils_RecordBrowserCommon::new_addon($rs, 'CRM/Roundcube', 'addon', 'Mails');
+        Utils_RecordBrowserCommon::new_addon($rs, 'CRM/Roundcube', 'addon', 'e-mails');
     }
 
     public static function delete_addon($rs) {
