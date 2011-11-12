@@ -21,29 +21,63 @@ class Base_Setup extends Module {
 	public function admin() {
 		$this->body();
 	}
-
+	
 	public function body() {
 		if($this->is_back() && $this->parent) {
 			$this->parent->reset();
 			return;
 		}
 
+		$tb = & $this->init_module('Utils/TabbedBrowser');
+		$tb->set_tab('Installed', array($this,'tab'),true);
+		$tb->set_tab('Not installed', array($this,'tab'),false);
+		if(ModuleManager::is_installed('Base/EpesiStore')>=0)
+        		$tb->set_tab('Buy new modules!', array($this,'store'));
+        	$tb->tag();
+		$this->display_module($tb);
+	
+		$post_install = & $this->get_module_variable('post-install');
+
+		if(is_array($post_install)) {
+			foreach($post_install as $i=>$v) {
+				ModuleManager::include_install($i);
+				$f = array($i.'Install','post_install');
+				$fs = array($i.'Install','post_install_process');
+				if(!is_callable($f) || !is_callable($fs)) {
+					unset($post_install[$i]);
+					continue;
+				}
+				$ret = call_user_func($f);
+				$form = $this->init_module('Libs/QuickForm',null,$i);
+				$form->addElement('header',null,'Post installation of '.str_replace('_','/',$i));
+				$form->add_array($ret);
+				$form->addElement('submit',null,'OK');
+				if($form->validate()) {
+					$form->process($fs);
+					unset($post_install[$i]);
+				} else {
+					$form->display();
+					break;
+				}
+			}
+			if(empty($post_install))
+				Epesi::redirect();
+		}
+	}
+
+	public function tab($show_installed=null) {
 		$post_install = & $this->get_module_variable('post-install');
 		if(!is_array($post_install)) {
 			//create default module form
 			$form = & $this->init_module('Libs/QuickForm','Processing modules');
+			
+			$simple = Variable::get('simple_setup');
 
 			//set defaults
-			$form->setDefaults(array (
-				'default_module' => Variable::get('default_module'),
-				'simple' => Variable::get('simple_setup'),
-				'anonymous_setup' => Variable::get('anonymous_setup')));
-
-			$form->addElement('header', 'install_module_header', 'Modules Administration');
-			//$form->addElement('checkbox','simple','Simple setup','',array('onChange'=>$form->get_submit_form_js(false)));
-			$form->addElement('select','simple','Setup type',array(1=>'Simple',0=>'Advanced'),array('onChange'=>$form->get_submit_form_js(false)));
-			$simple = $form->exportValue('simple');
-
+			if(!$simple)
+				$form->setDefaults(array (
+					'default_module' => Variable::get('default_module'),
+					'anonymous_setup' => Variable::get('anonymous_setup')));
 
 			//install module header
 			$form -> addElement('html','<tr><td colspan=2><br /><b>Please select modules to be installed/uninstalled.<br>For module details please click on "i" icon.</td></tr>');
@@ -118,6 +152,10 @@ class Base_Setup extends Module {
             }
 			foreach($module_dirs as $entry=>$versions) {
 					$installed = ModuleManager::is_installed($entry);
+					if($show_installed!==null) {
+					    if($show_installed===true && $installed<0) continue;
+					    if($show_installed===false && $installed>=0) continue;
+					}
 
 					$module_install_class = $entry.'Install';
 					$func_simple = array($module_install_class,'simple_setup');
@@ -216,34 +254,20 @@ class Base_Setup extends Module {
 				Base_ActionBarCommon::add('scan','Rebuild modules database',$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
 				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 				Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+				if($simple)
+					Base_ActionBarCommon::add('settings', 'Advanced view',$this->create_confirm_callback_href('Switch to advanced view?',array($this,'switch_simple'),false));
+				else
+					Base_ActionBarCommon::add('settings', 'Simple view',$this->create_callback_href(array($this,'switch_simple'),true));
 			}
 		}
-
-		if(is_array($post_install)) {
-			foreach($post_install as $i=>$v) {
-				ModuleManager::include_install($i);
-				$f = array($i.'Install','post_install');
-				$fs = array($i.'Install','post_install_process');
-				if(!is_callable($f) || !is_callable($fs)) {
-					unset($post_install[$i]);
-					continue;
-				}
-				$ret = call_user_func($f);
-				$form = $this->init_module('Libs/QuickForm',null,$i);
-				$form->addElement('header',null,'Post installation of '.str_replace('_','/',$i));
-				$form->add_array($ret);
-				$form->addElement('submit',null,'OK');
-				if($form->validate()) {
-					$form->process($fs);
-					unset($post_install[$i]);
-				} else {
-					$form->display();
-					break;
-				}
-			}
-			if(empty($post_install))
-				Epesi::redirect();
-		}
+	}
+	
+	public function store() {
+	    $this->pack_module('Base_EpesiStore',array(),'admin');
+	}
+	
+	public function switch_simple($a) {
+		Variable::set('simple_setup',$a);
 	}
 
 	public static function parse_modules_folder_refresh(){
