@@ -1,7 +1,7 @@
-#CRM_Contacts__Contact .photo img {
-	padding: 3px;
-	margin: 10px;
-	max-width:120px;
+.Utils_RecordBrowser__View_entry .photo img {
+	padding: 2px;
+	margin: 6px;
+	max-width:108px;
 	max-height:150px;
 	border: none;
 }
