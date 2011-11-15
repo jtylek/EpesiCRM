@@ -70,8 +70,8 @@ class Utils_GenericBrowser_Row_Object {
 	 * @param string href
 	 * @param string label
 	 */
-	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null,$off=false){
-		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,$tooltip,$icon,$off);
+	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null,$off=false,$size=1){
+		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,$tooltip,$icon,$off,$size);
 	}
 
 	/**
@@ -231,10 +231,10 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$off=false) {
+	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$off=false,$size=1) {
 		if (!isset($icon)) $icon = strtolower(trim($label));
 		if ($label==strip_tags($label)) $label = $this->t($label);
-		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip, 'off'=>$off);
+		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip, 'off'=>$off, 'size'=>$size);
 		$this->en_actions = true;
 	}
 
@@ -872,7 +872,13 @@ class Utils_GenericBrowser extends Module {
 		$headers = array();
 		if ($this->en_actions) {
 			$max_actions = 0; // Possibly improve it to calculate it during adding actions
-			foreach($this->actions as $i=>$v) if (count($v)>$max_actions) $max_actions = count($v);
+			foreach($this->actions as $i=>$v) {
+				$this_width = 0;
+				foreach ($v as $vv) {
+					$this_width += $vv['size'];
+				}
+				if ($this_width>$max_actions) $max_actions = $this_width;
+			}
 			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;"');
 			else $headers[count($this->columns)] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;"');
 		}
