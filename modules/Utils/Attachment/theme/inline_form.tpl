@@ -1,6 +1,6 @@
 <table style="width:100%">
 	<tr>
-		<td>
+		<td style="width:330px;">
 			{$form.file.error}
 		</td>
 		<td>
@@ -9,7 +9,7 @@
 		<td>
 			{$form.permission.error}
 		</td>
-		<td>
+		<td colspan="2" style="width:220px;">
 			{$form.save.error}
 		</td>
 	</tr>
@@ -28,16 +28,18 @@
 		</td>
 		<td>
 			{$form.save.html}
+		</td>
+		<td>
 			{$form.cancel.html}
 		</td>
 	</tr>
 	<tr>
-		<td colspan="4">
+		<td colspan="5">
 			{$form.note.error}
 		</td>
 	</tr>
 	<tr>
-		<td colspan="4">
+		<td colspan="5">
 			{$form.note.html}
 		</td>
 	</tr>

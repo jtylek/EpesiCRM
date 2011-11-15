@@ -186,8 +186,8 @@ class Utils_Attachment extends Module {
 				return;
 			}
 			
-			$new_note_form->addElement('button', 'save', $this->t('Submit'), array('onclick'=>$new_note_form->get_submit_form_js()));
-			$new_note_form->addElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>'$("attachments_new_note").style.display="none";'));
+			$new_note_form->addElement('button', 'save', $this->t('Submit'), array('class'=>'button', 'onclick'=>$new_note_form->get_submit_form_js()));
+			$new_note_form->addElement('button', 'cancel', $this->t('Cancel'), array('class'=>'button', 'onclick'=>'$("attachments_new_note").style.display="none";'));
 			
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 			$new_note_form->accept($renderer); 
