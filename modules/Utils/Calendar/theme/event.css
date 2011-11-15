@@ -31,13 +31,21 @@
 	overflow: hidden;
     color: black;
     font-size: 11px;
+	white-space: nowrap;
+	text-align: center;
 }
 
 #Utils_Calendar__event #event_title {
     display: block;
+	padding-left: 5px;
+	vertical-align: middle;
+	width: 100%;
+	overflow: hidden;
     color: black;
-    text-align: center;
     font-size: 11px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	text-align: left;
 }
 
 #Utils_Calendar__event #event_title a {
