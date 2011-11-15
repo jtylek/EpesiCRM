@@ -79,7 +79,7 @@ class Base_User_Login extends Module {
 		}
 
 		// Display warning about storing a cookie
-		$warning=$this->t('Keep this box unchecked if using a  public computer');
+		$warning=$this->t('Keep this box unchecked if using a public computer');
 		$form->addElement('static','warning',null,$warning);
 		$form->addElement('checkbox', 'autologin', '',$this->t('Remember me'));
 
