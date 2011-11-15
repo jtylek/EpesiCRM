@@ -75,7 +75,7 @@
 
 <!-- SHADOW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 98%;">
-		<div class="shadow_5px">
+		<div class="css3_content_shadow">
 <!-- -->
 
 <div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
@@ -93,7 +93,7 @@
 							<td class="label" nowrap>
 								{$form_data.create_company.label}
 							</td>
-							<td class="data create-company" style="width:1px">
+							<td class="data create-company" style="width:25px">
 								{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
 							</td>
 							<td class="data">
@@ -113,7 +113,7 @@
 						<tr>
 							<td class="label" align="left">{$form_data.login.label}</td>
 							{if isset($form_data.create_new_user)}
-								<td class="data create-company" style="width:1px" align="left">{$form_data.create_new_user.html}</td>
+								<td class="data create-company" style="width:25px" align="left">{$form_data.create_new_user.html}</td>
 							{/if}
 							<td class="data" {if !isset($form_data.create_new_user)}colspan="2" {/if}align="left" id="_login__data">{if isset($form_data.login.error)}<span class="error">{$form_data.login.error}</span>{/if}{$form_data.login.html}{if isset($form_data.new_login)}{$form_data.new_login.html}{/if}</td>
 						</tr>
@@ -211,9 +211,7 @@
 	eval_js('focus_by_id(\'last_name\');');
 {/php}
 
-</div>
 
-<!-- SHADOW END -->
+</div>
  		</div>
 	</div>
-<!-- -->
