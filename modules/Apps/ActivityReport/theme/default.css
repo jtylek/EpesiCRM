@@ -1,5 +1,4 @@
 #Apps_ActivityReport table {
-    width: 60%;
 }
 
 #Apps_ActivityReport td.column  { vertical-align: top; }
@@ -24,6 +23,7 @@
 
 #Apps_ActivityReport .data {
     text-align: left;
+	vertical-align: top;
     /*
 	width: 60%;
 	*/

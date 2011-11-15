@@ -136,7 +136,7 @@ class Apps_ActivityReport extends Module {
 										$action = $details['id']=='DELETED'?$this->t('Deleted'):$this->t('Restored');
 									} else {
 										$action = $this->t('Edited');
-										$action = '<a '.Utils_TooltipCommon::tooltip_leightbox_mode().' '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details'), array($row['tab'], $row['r_id'], $row['id']), 500).'>'.$action.'</a>';
+										$action = '<a '.Utils_TooltipCommon::tooltip_leightbox_mode().' '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details_label'), array($row['tab'], $row['r_id'], $row['id']), 500).'>'.$action.'</a>';
 									}
 									$r_id = $row['r_id'];
 									break;
@@ -170,6 +170,7 @@ class Apps_ActivityReport extends Module {
 					$action);
 			}
 		}
+		Base_ThemeCommon::load_css('Utils_RecordBrowser','changes_list');
 		$this->display_module($gb);
 	}
 	

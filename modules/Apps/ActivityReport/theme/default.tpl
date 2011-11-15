@@ -2,7 +2,7 @@
 
 <table id="Apps_ActivityReport">
 	<tr>
-		<td class="label">
+		<td class="label" style="width:400px;">
 			{$form_data.recordsets.label}
 		</td>
 		<td class="label">

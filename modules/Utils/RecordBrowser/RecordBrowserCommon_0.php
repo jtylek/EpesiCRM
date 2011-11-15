@@ -1729,6 +1729,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $event_display;
 	}
+
+    public static function get_edit_details_label($tab, $rid, $edit_id,$details = true) {
+		$ret = self::watchdog_label($tab, '', $rid, array('E_'.$edit_id), '', $details);
+		return $ret['events'];
+	}
 	
     public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null, $details = true) {
         $ret = array('category'=>$cat);
@@ -1737,7 +1742,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($r===null) return null;
 			if (!self::get_access($tab, 'view', $r)) return null;
             if (is_array($label)) $label = call_user_func($label, $r, true);
-            else $label = $r[$label];
+            elseif ($label) $label = $r[$label];
             $ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid).$label;
             $close = Utils_RecordBrowserCommon::record_link_close_tag();
             $ret['title'] .= $close;
