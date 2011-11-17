@@ -53,7 +53,7 @@ foreach ($cleanFrames as $day=>$v) {
 			if ($h) $duration .= $h.Base_LangCommon::ts('Utils_Planner','h').' ';
 			if ($min || !$duration) $duration .= $min.Base_LangCommon::ts('Utils_Planner','min');
 			$next = '<tr>'.
-						'<td>'.$headers[$day].'</td>'.
+						'<td style="width:90px">'.$headers[$day].'</td>'.
 						'<td>'.Utils_PlannerCommon::format_time($start*60).'</td>'.
 						'<td>'.Utils_PlannerCommon::format_time($t*60).'</td>'.
 						'<td>'.$duration.'</td>'.

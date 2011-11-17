@@ -280,7 +280,8 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
             $strHtml .= $tabs . '<tr>'.
             			$tabs . '<td class="search-element">' . $searchElement . '</td>'.
 						($this->search_button? $tabs.'<td class="search">'.$this->search_button.'</td>' : '<td></td>').
-						$tabs . '<td class="button disabled" id="automulti_button_style_'.$myName.'">'.'<input type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.$this->list_sep.'\');'.$this->on_remove_js_code.'" value="'.Base_LangCommon::ts('Libs_QuickForm','Remove').'">'.'</td>' .
+						$tabs . '<td width="80px;" class="child_button disabled" id="automulti_button_style_'.$myName.'">'.
+						'<input style="width:100%" type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.$this->list_sep.'\');'.$this->on_remove_js_code.'" value="'.Base_LangCommon::ts('Libs_QuickForm','Remove').'">'.'</td>' .
 								'</tr>';
 
 			$strHtml .= $tabs . '<tr><td class="main-element" colspan="3">' . $mainElement . '</td></tr></table>';
