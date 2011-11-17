@@ -79,6 +79,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $new_pass = $data['new_pass'];
         $mail = $data['mail'];
         
+        if(isset($data['delete_autologin']))
         foreach($data['delete_autologin'] as $key=>$val)
             if($val) DB::Execute('DELETE from user_autologin WHERE autologin_id=%s AND user_login_id=%d',array($key,Acl::get_user()));
 
