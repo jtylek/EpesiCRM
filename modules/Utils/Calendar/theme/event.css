@@ -4,6 +4,7 @@
     height: 100%;
     margin: 1px;
     background-repeat: repeat-x;
+    overflow: hidden;
 }
 
 #Utils_Calendar__event .handle {

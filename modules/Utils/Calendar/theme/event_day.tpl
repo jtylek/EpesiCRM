@@ -59,7 +59,7 @@
 {if !IPHONE}	    
         	        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info.png" onClick="event_menu('{$event_id}')" width="11" height="11" border="0"></span>
 {else}
-	                <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info_iphone.png" onClick="event_menu('{$event_id}')" width="28" height="28" border="0"></span>
+	                <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info_iphone.png" onClick="event_menu('{$event_id}')" width="26" height="26" border="0"></span>
 {/if}
 			<span id="event_time">{if isset($view_href)}<a {$view_href}>{/if}{$start_time}{if $duration} - {$end_time} ({$duration}){/if}{if isset($view_href)}</a>{/if}</span>
 		</div>
