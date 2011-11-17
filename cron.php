@@ -12,6 +12,14 @@ define('SET_SESSION',false);
 if(isset($argv))
 	define('EPESI_DIR','/');
 require_once('include.php');
+
+$lock = DATA_DIR.'/cron.lock';
+if(file_exists($lock) || filemtime($lock)<6*3600) die();
+file_put_contents($lock,'');
+function unlock() {
+    @unlink($lock);
+}
+
 set_time_limit(0);
 ini_set('memory_limit', '512M');
 ModuleManager::load_modules();
