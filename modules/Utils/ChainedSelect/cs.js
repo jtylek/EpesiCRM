@@ -94,12 +94,15 @@ ChainedSelect.prototype = {
 						for(y=0; y<new_opts.length; y++) {
 							opts[opts.length] = new Option(new_opts[y],y);
 						}
-					} else
+					} else {
 						for(y in new_opts) {
 							opts[opts.length] = new Option(new_opts[y],y);
 						}
+					}
 					if(typeof def_val != 'undefined')
 						obj.value = def_val;
+					else
+						obj.value = '';
 					setTimeout(obj.fire.bind(obj,'e_cs:load'),1);
 				}
 			}
