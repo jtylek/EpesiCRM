@@ -18,14 +18,16 @@ else {
 		return;
 	}
 		
-    $protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
+	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
 	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
-	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir)))) 
-		trigger_error('Detection of epesi directory failed. You cannot use virtual hosts with this configuration.',E_USER_ERROR);
-	$file_url = substr($script_filename,strlen($local_dir));
-	$dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
-	$dir = trim($dir_url,'/');
+	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir)))) {
+	    $dir = '';
+	} else {
+	    $file_url = substr($script_filename,strlen($local_dir));
+	    $dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
+	    $dir = trim($dir_url,'/');
+	}
     $req = $protocol.$_SERVER['HTTP_HOST'].'/'.$dir.($dir?'/':'');
     foreach($virtual_hosts as $h=>$dir) {
 		if(!is_string($h)) die('Invalid map.php file: not string host address');
@@ -33,11 +35,22 @@ else {
 		if(strlen($h)<2 || $h[0]!=='/' || $h[strlen($h)-1]!=='/')
 			$h = '/'.addcslashes($h,'/').'/i';
 		if(preg_match($h,$req)) {
-		    if($dir===false) die('Forbidden');
-	    	define('DATA_DIR',$dir);
+		    if(is_array($dir)) {
+			header('Location: /trial/expired.php?'.http_build_query(array('alias'=>$dir['alias'], 'error'=>$dir['error']))); //hardcoded, consider moving it to map.php
+			die();
+		    }
+		    if ($dir===false) {
+			die('Forbidden');
+		    }
+		    define('DATA_DIR',$dir);
 		    return;
 		}
     }
-    die('Invalid address');
+    if (is_dir('trial')) {
+	header('Location: /trial'); //hardcoded, consider moving it to map.php
+	die();
+    } else {
+	die('Invalid address');
+    }
 }
 ?>

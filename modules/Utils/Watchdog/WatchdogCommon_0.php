@@ -11,7 +11,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_WatchdogCommon extends ModuleCommon {
-	private static $log = true;
+	private static $log = false;
 
 	public static function user_settings() {
 		return array(

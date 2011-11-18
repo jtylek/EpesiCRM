@@ -1,7 +1,7 @@
 <?php
 require_once('include.php');
 
-if (DEMO_MODE) die('Feature unavailable');
+if (DEMO_MODE || TRIAL_MODE) die('Feature unavailable');
 
 $lpa = ModuleManager::get_load_priority_array();
 $load = array('Base_User'=>1,'Base_User_Login'=>1);
