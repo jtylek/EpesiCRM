@@ -36,7 +36,7 @@ else {
 			$h = '/'.addcslashes($h,'/').'/i';
 		if(preg_match($h,$req)) {
 		    if(is_array($dir)) {
-			header('Location: /trial/expired.php?'.http_build_query(array('alias'=>$dir['alias'], 'error'=>$dir['error']))); //hardcoded, consider moving it to map.php
+			header('Location: /hosting/expired.php?'.http_build_query(array('alias'=>$dir['alias'], 'error'=>$dir['error']))); //hardcoded, consider moving it to map.php
 			die();
 		    }
 		    if ($dir===false) {
@@ -46,8 +46,8 @@ else {
 		    return;
 		}
     }
-    if (is_dir('trial')) {
-	header('Location: /trial'); //hardcoded, consider moving it to map.php
+    if (is_dir('hosting')) {
+	header('Location: /hosting'); //hardcoded, consider moving it to map.php
 	die();
     } else {
 	die('Invalid address');
