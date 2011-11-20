@@ -36,7 +36,10 @@ else {
 			$h = '/'.addcslashes($h,'/').'/i';
 		if(preg_match($h,$req)) {
 		    if(is_array($dir)) {
-			header('Location: /hosting/expired.php?'.http_build_query(array('alias'=>$dir['alias'], 'error'=>$dir['error']))); //hardcoded, consider moving it to map.php
+			$header = 'Location: '.$dir['redirect'];
+			unset($dir['redirect']);
+			if (!empty($dir)) $header .= '?'.http_build_query($dir);
+			header($header);
 			die();
 		    }
 		    if ($dir===false) {
