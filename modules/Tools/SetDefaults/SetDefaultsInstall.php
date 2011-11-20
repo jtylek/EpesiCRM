@@ -38,7 +38,7 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 
 		//default note
 		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(4,'bcolor','nice-yellow'));
-		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)',  array(4,'text',Base_LangCommon::ts('Tools/SetDeaults','<p><strong>Congratulations!</strong><br />You just installed epesi BIM - Business Information Manager.</p><p>For more information, help and support please visit <a href="http://www.epesibim.com" target="_blank">www.epesibim.com</a></p><p><strong>Hotkeys support</strong><br />Ctrl+H - back to home page<br /><br />In modules utilizing Record Browser:<br />Contacts, Comapnies, Tasks, PhoneCalls<br />as well as Calendar, you can use the following hotkeys:<br />Ctrl+S - save record<br />Ctrl+N - new record<br />Ctrl+E - edit record<br />Esc - back/cancel<br />')));
+		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)',  array(4,'text',Base_LangCommon::ts('Tools/SetDeaults','<p><strong>Congratulations!</strong><br />You just installed epesi BIM - Business Information Manager.</p><p>For more information, help and support please visit <a href="http://www.epesibim.com" target="_blank">www.epesibim.com</a></p>')));
 		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(4,'title',Base_LangCommon::ts('Tools/SetDeaults','Welcome')));
 
 		// default favorites and subscriptions
