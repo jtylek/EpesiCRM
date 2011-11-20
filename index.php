@@ -185,6 +185,7 @@ Please choose epesi version:<ul>
             }
 
 		</style>
+		<?php print(TRACKING_CODE); ?>
 	</head>
 	<body>
 

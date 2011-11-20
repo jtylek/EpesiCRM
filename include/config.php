@@ -34,6 +34,7 @@ if(!defined('MEMCACHE_SESSION_SERVER')) define('MEMCACHE_SESSION_SERVER','');
 
 if(!defined('SUGGEST_DONATION')) define('SUGGEST_DONATION',0);
 if(!defined('CHECK_VERSION')) define('CHECK_VERSION',1);
+if(!defined('TRACKING_CODE')) define('TRACKING_CODE','');
 
 if(!defined('JS_OUTPUT')) define('JS_OUTPUT',0);
 if(!defined('SET_SESSION')) define('SET_SESSION',1);
