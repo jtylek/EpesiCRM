@@ -234,6 +234,8 @@ class Utils_Attachment extends Module {
 					'hide'=>$this->create_callback_href_js(array($this,'show_deleted'),array(false))
 				));
 			}
+			eval_js('if($("attachments_new_note").childNodes.length==11){$("attachments_new_note").removeChild($("attachments_new_note").childNodes[1]);$("attachments_new_note").childNodes[2].setAttribute("colspan", 5);}');
+			
 		}
 
 		while($row = $ret->FetchRow()) {
