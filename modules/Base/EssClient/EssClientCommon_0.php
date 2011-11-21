@@ -13,7 +13,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EssClientCommon extends Base_AdminModuleCommon {
 //    const SERVER_ADDRESS = 'http://localhost/epesi/modules/Custom/ESS/serv/';
-//    const SERVER_ADDRESS = 'http://localhost/epesi/tools/EpesiServiceServer/';
     const SERVER_ADDRESS = 'https://ess.epesibim.com/';
     const VAR_LICENSE_KEY = 'license_key';
 
@@ -82,10 +81,12 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return self::$client_requester;
     }
 
+    public static function admin_access() {
+        return Base_AclCommon::i_am_sa();
+    }
+
     public static function admin_caption() {
-        if (Base_AclCommon::i_am_sa())
-            return "Epesi Registration";
-        return null;
+        return "Epesi Registration";
     }
 
     public static function get_support_email() {
@@ -96,6 +97,30 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
             $email = '<a href="mailto:' . $email . '">' . $email . '</a>';
         }
         return $email;
+    }
+
+    public static function add_client_messages($messages) {
+        $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
+        foreach($msgs as $k => &$v) {
+            $v = array_merge($v, $messages[$k]);
+        }
+        Module::static_set_module_variable('Base/EssClient', 'messages', $msgs);
+    }
+
+    public static function format_client_messages($cleanup = true) {
+        $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
+        $ret = "";
+        foreach ($msgs[2] as $m)
+            $ret .= '<div style="background-color:#FFCCCC; border: 1px solid red">' . $m . '</div>';
+        foreach ($msgs[1] as $m)
+            $ret .= '<div style="background-color:#FFFFCC; border: 1px solid red">' . $m . '</div>';
+        foreach ($msgs[0] as $m)
+            $ret .= '<div style="background-color:#CCCCCC; border: 1px solid red">' . $m . '</div>';
+
+        if($cleanup) {
+            Module::static_unset_module_variable('Base/EssClient', 'messages');
+        }
+        return $ret;
     }
 
 }

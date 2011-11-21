@@ -16,10 +16,12 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     const CART_VAR = 'cart';
     const DOWNLOAD_QUEUE_VAR = 'queue';
 
+    public static function admin_access() {
+        return Base_AclCommon::i_am_sa();
+    }
+
     public static function admin_caption() {
-        if (Base_AclCommon::i_am_sa())
-            return "Epesi Store";
-        return null;
+        return "Epesi Store";
     }
 
     public static function get_cart() {
@@ -52,9 +54,9 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if ($r['description'])
             $x[] = "<b>Description:</b><br/>{$r['description']}";
         $x[] = "<b>Repository:</b> {$r['repository']}";
-        if(isset($r['path']))
+        if (isset($r['path']))
             $x[] = "<b>Files:</b><br/>{$r['path']}";
-        if(isset($r['files']))
+        if (isset($r['files']))
             $x[] = "<b>Files:</b><br/>" . implode("<br/>", $r['files']);
         $x[] = "<b>Price:</b> {$r['price']}";
         $x[] = "<b>Version:</b> {$r['version']}";

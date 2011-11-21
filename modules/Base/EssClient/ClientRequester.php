@@ -6,6 +6,7 @@ require_once 'IClient.php';
  * ClientRequester to perform Epesi Service Server clients requests.
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2011, Telaxus LLC
+ * @version 20111121
  */
 class ClientRequester implements IClient {
 
@@ -86,6 +87,7 @@ class ClientRequester implements IClient {
                 array(
                     IClient::param_function => $function,
                     IClient::param_installation_key => $this->license_key,
+                    IClient::param_client_version => IClient::client_version,
                     IClient::param_serialize => $serialize_response,
                     IClient::param_arguments => serialize($params)
                 ));
@@ -103,7 +105,15 @@ class ClientRequester implements IClient {
             $r = @unserialize($output);
             if ($r === false)
                 throw new ErrorException("Unserialize error $output");
-            return $r;
+            
+            // format client messages
+            if(isset($r[IClient::return_messages])) {
+                Base_EssClientCommon::add_client_messages($r[IClient::return_messages]);
+            }
+            if(isset($r[IClient::return_value]))
+                return $r[IClient::return_value];
+            else // assume old version of client
+                return $r;
         } else
             return $output;
     }
@@ -112,7 +122,7 @@ class ClientRequester implements IClient {
         $http['method'] = 'POST';
         $http['header'] = 'Content-Type: application/x-www-form-urlencoded';
         $http['content'] = $post_data;
-        
+
         set_error_handler(create_function('$code, $message', 'throw new ErrorException($message);'));
         $exception = null;
         $output = false;
