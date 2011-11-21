@@ -186,7 +186,7 @@ class Utils_Attachment extends Module {
 				return;
 			}
 			
-			$new_note_form->addElement('button', 'save', $this->t('Submit'), array('class'=>'button', 'onclick'=>$new_note_form->get_submit_form_js()));
+			$new_note_form->addElement('button', 'save', $this->t('Save note'), array('class'=>'button', 'onclick'=>$new_note_form->get_submit_form_js()));
 			$new_note_form->addElement('button', 'cancel', $this->t('Cancel'), array('class'=>'button', 'onclick'=>'$("attachments_new_note").style.display="none";'));
 			
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
@@ -648,7 +648,7 @@ class Utils_Attachment extends Module {
 		if(isset($id))
 			$form->addElement('header',null,$this->t('Replace attachment with file'));
 
-		$form->add_upload_element();
+		$form->add_upload_element($this->t('Attachment'));
 		
 		if($this->max_file_size)
 			$form->set_max_file_size($this->max_file_size);

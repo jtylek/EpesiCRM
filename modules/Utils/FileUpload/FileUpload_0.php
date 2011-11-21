@@ -98,7 +98,7 @@ class Utils_FileUpload extends Module {
 		$this->form->addElement('hidden','MAX_FILE_SIZE',$s);
 	}
 
-	public function add_upload_element() {
+	public function add_upload_element($label=null) {
 		if($this->added_upload_elem) return;
 		$this->added_upload_elem = true;
 
@@ -108,7 +108,7 @@ class Utils_FileUpload extends Module {
 		$s = $this->form->get_submit_form_js(false,Base_LangCommon::ts($this->get_type(),'Processing file...'));
 
 		$this->form->addElement('hidden','submit_js',$s);
-		$this->form->addElement('file', 'file', Base_LangCommon::ts($this->get_type(),'Specify file'));
+		$this->form->addElement('file', 'file', $label?$label:Base_LangCommon::ts($this->get_type(),'Specify file'));
 	}
 
 	public function get_submit_form_js() {
