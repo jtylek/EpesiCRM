@@ -14,11 +14,12 @@ if(isset($argv))
 require_once('include.php');
 
 $lock = DATA_DIR.'/cron.lock';
-if(file_exists($lock) || filemtime($lock)<6*3600) die();
+if(file_exists($lock) && filemtime($lock)>time()-6*3600) die();
 file_put_contents($lock,'');
 function unlock() {
     @unlink($lock);
 }
+register_shutdown_function('unlock');
 
 set_time_limit(0);
 ini_set('memory_limit', '512M');
