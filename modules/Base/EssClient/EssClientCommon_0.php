@@ -12,8 +12,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EssClientCommon extends Base_AdminModuleCommon {
-//    const SERVER_ADDRESS = 'http://localhost/epesi/modules/Custom/ESS/serv/';
-    const SERVER_ADDRESS = 'https://ess.epesibim.com/';
+    const SERVER_ADDRESS = 'http://localhost/epesi/modules/Custom/ESS/serv/';
+//    const SERVER_ADDRESS = 'https://ess.epesibim.com/';
     const VAR_LICENSE_KEY = 'license_key';
 
     public static function menu() {
@@ -101,23 +101,50 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     public static function add_client_messages($messages) {
         $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
-        foreach($msgs as $k => &$v) {
+        foreach ($msgs as $k => &$v) {
             $v = array_merge($v, $messages[$k]);
+            $v = array_unique($v);
         }
         Module::static_set_module_variable('Base/EssClient', 'messages', $msgs);
     }
+    
+    public static function client_messages_frame($only_frame = true) {
+        return '<div id="ess_messages_frame">' . ($only_frame ? '' : self::format_client_messages()) . '</div>';
+    }
 
+    public static function client_messages_load_by_js() {
+        eval_js('$("ess_messages_frame").innerHTML = ' . json_encode(self::format_client_messages()));
+    }
+    
     public static function format_client_messages($cleanup = true) {
         $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
-        $ret = "";
-        foreach ($msgs[2] as $m)
-            $ret .= '<div style="background-color:#FFCCCC; border: 1px solid red">' . $m . '</div>';
-        foreach ($msgs[1] as $m)
-            $ret .= '<div style="background-color:#FFFFCC; border: 1px solid red">' . $m . '</div>';
-        foreach ($msgs[0] as $m)
-            $ret .= '<div style="background-color:#CCCCCC; border: 1px solid red">' . $m . '</div>';
+        $ret = '';
+        // error msgs
+        if (count($msgs[2])) {
+            $ret .= '<div class="important_notice" style="background-color:#FFCCCC; margin: 10px; position: static">';
+            $ret .= Base_LangCommon::ts('Base/EssClient', 'Error messages from server:');
+            foreach ($msgs[2] as $m)
+                $ret .= '<div class="important_notice_frame">' . $m . '</div>';
+            $ret .= '</div>';
+        }
+        // warn msgs
+        if (count($msgs[1])) {
+            $ret .= '<div class="important_notice" style="background-color:#FFDD99; margin: 10px; position: static">';
+            $ret .= Base_LangCommon::ts('Base/EssClient', 'Warning messages from server:');
+            foreach ($msgs[1] as $m)
+                $ret .= '<div class="important_notice_frame">' . $m . '</div>';
+            $ret .= '</div>';
+        }
+        // info msgs
+        if (count($msgs[0])) {
+            $ret .= '<div class="important_notice" style="background-color:#DDFF99; margin: 10px; position: static">';
+            $ret .= Base_LangCommon::ts('Base/EssClient', 'Information messages from server:');
+            foreach ($msgs[0] as $m)
+                $ret .= '<div class="important_notice_frame">' . $m . '</div>';
+            $ret .= '</div>';
+        }
 
-        if($cleanup) {
+        if ($cleanup) {
             Module::static_unset_module_variable('Base/EssClient', 'messages');
         }
         return $ret;

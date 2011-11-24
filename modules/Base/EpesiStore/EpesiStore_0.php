@@ -64,6 +64,7 @@ class Base_EpesiStore extends Module {
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 
+        print Base_EssClientCommon::client_messages_frame();
         if (Base_EssClientCommon::get_license_key() == "") {
             // push main
             $m = $this->init_module('Base/EssClient');
@@ -75,6 +76,7 @@ class Base_EpesiStore extends Module {
             Base_ActionBarCommon::add('view', $this->t(self::button_my_modules), $this->create_callback_href(array($this, 'navigate'), array('my_modules_form')));
             $this->store_form();
         }
+        Base_EssClientCommon::client_messages_load_by_js();
     }
 
     public function store_form() {

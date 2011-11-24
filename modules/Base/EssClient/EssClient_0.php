@@ -38,6 +38,7 @@ class Base_EssClient extends Module {
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 //        Base_ActionBarCommon::add('delete', 'Clear license key', $this->create_callback_href(array($this, 'clear_license_key')));
 
+        print Base_EssClientCommon::client_messages_frame();
         if (Base_EssClientCommon::get_license_key() == "") {
             $this->terms_and_conditions();
             Base_EssClientCommon::server(true);
@@ -102,6 +103,7 @@ class Base_EssClient extends Module {
 			Base_ActionBarCommon::add('retry', 'Retry', $this->create_href(array()));
             return;
         }
+        Base_EssClientCommon::client_messages_load_by_js();
     }
 
     public function confirm_installation() {
