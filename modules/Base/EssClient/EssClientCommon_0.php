@@ -12,8 +12,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EssClientCommon extends Base_AdminModuleCommon {
-    const SERVER_ADDRESS = 'http://localhost/epesi/modules/Custom/ESS/serv/';
-//    const SERVER_ADDRESS = 'https://ess.epesibim.com/';
+    const SERVER_ADDRESS = 'https://ess.epesibim.com/';
     const VAR_LICENSE_KEY = 'license_key';
 
     public static function menu() {
@@ -109,7 +108,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
     
     public static function client_messages_frame($only_frame = true) {
-        return '<div id="ess_messages_frame">' . ($only_frame ? '' : self::format_client_messages()) . '</div>';
+        return '<div id="ess_messages_frame" style="padding: 10px">' . ($only_frame ? '' : self::format_client_messages()) . '</div>';
     }
 
     public static function client_messages_load_by_js() {
