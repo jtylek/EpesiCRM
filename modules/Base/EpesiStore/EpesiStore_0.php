@@ -230,7 +230,7 @@ class Base_EpesiStore extends Module {
         $this->GB_bought_modules($gb, $modules, array($this, 'GB_row_additional_actions_bought_modules'));
         $this->display_module($gb);
     }
-    
+
     /**
      * Navigate to direct download of specified modules
      * @param array $modules array of bought modules data arrays
@@ -405,7 +405,7 @@ class Base_EpesiStore extends Module {
         $bought_modules = Base_EssClientCommon::server()->bought_modules_list();
         // get downloaded modules list
         $modules = Base_EpesiStoreCommon::get_downloaded_modules();
-        if(!count($modules)) {
+        if (!count($modules)) {
             print($this->t(self::text_downloaded_modules_list_empty));
             return;
         }
@@ -439,16 +439,52 @@ class Base_EpesiStore extends Module {
         $this->navigate('download_form');
     }
 
+    protected function pay_button($order_id, $value, $curr_code) {
+//    <input type="hidden" name="url_ok" value="$aUrl[scheme]://$aUrl[host]$aUrl[path]?,return,payment&amp;status=OK" />
+//    <input type="hidden" name="url_error" value="$aUrl[scheme]://$aUrl[host]$aUrl[path]?,return,payment&amp;status=FAIL" />
+//    <input type="hidden" name="url_cancel" value="$aUrl[scheme]://$aUrl[host]$aUrl[path]?,return,payment&amp;status=CANCEL" />
+//
+//    <input type="hidden" name="first_name" value="$aOrder[sFirstName]" />
+//    <input type="hidden" name="last_name" value="$aOrder[sLastName]" />
+//    <input type="hidden" name="address_1" value="$aOrder[sStreet]" />
+//    <input type="hidden" name="city" value="$aOrder[sCity]" />
+//    <input type="hidden" name="postal_code" value="$aOrder[sZipCode]" />
+//    <input type="hidden" name="country" value="$aOrder[sCountryCode]" />
+//    <input type="hidden" name="email" value="$aOrder[sEmail]" />
+//    <input type="hidden" name="phone" value="$aOrder[sPhone]" />
+        return '
+<form style="display:inline" action="'. Base_EssClientCommon::get_payments_url() .'" method="post" id="formPayment'.$order_id.'">
+    <input type="hidden" name="record_id" value="'. $order_id .'" />
+    <input type="hidden" name="record_type" value="base_epesi_store" />
+    <input type="hidden" name="amount" value="'. $value .'" />
+    <input type="hidden" name="currency" value="'. $curr_code .'" />
+    <input type="hidden" name="description" value="Order ID '. $order_id .'" />
+    <input type="submit" name="submit" value="Pay" />
+</form>
+';
+    }
+
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
         return $this->GB_generic($gb, $items, $this->banned_columns_module, array($this, 'GB_row_data_transform_module'), $row_additional_actions_callback);
     }
 
     protected function GB_order(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback = null) {
-        return $this->GB_generic($gb, $items, $this->banned_columns_order, null, $row_additional_actions_callback);
+        return $this->GB_generic($gb, $items, $this->banned_columns_order, array($this, 'GB_row_data_transform_order'), $row_additional_actions_callback);
     }
 
     protected function GB_bought_modules(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
         return $this->GB_generic($gb, $items, $this->banned_columns_order, array($this, 'GB_row_data_transform_bought_modules'), $row_additional_actions_callback);
+    }
+
+    protected function GB_row_data_transform_order(array $data) {
+        $str = '';
+        foreach ($data['total_price'] as $curr_code => $amount) {
+            if (strlen($str))
+                $str .= '</br>';
+            $str .= $amount['display'] . ' ' . $this->pay_button($data['id'], $amount['value'], $curr_code);
+        }
+        $data['total_price'] = $str;
+        return $data;
     }
 
     protected function GB_row_data_transform_module(array $data) {
@@ -507,7 +543,7 @@ class Base_EpesiStore extends Module {
         if (count($items)) {
             // add column headers
             $first_el = reset($items);
-            if ($row_data_transform_callback != null)
+            if ($row_data_transform_callback != null && is_callable($row_data_transform_callback))
                 $first_el = call_user_func($row_data_transform_callback, $first_el);
             $columns = array();
             foreach ($first_el as $k => $v) {
@@ -520,7 +556,7 @@ class Base_EpesiStore extends Module {
             foreach ($items as $r) {
                 $v = array();
                 $r_modified = $r;
-                if ($row_data_transform_callback != null)
+                if ($row_data_transform_callback != null && is_callable($row_data_transform_callback))
                     $r_modified = call_user_func($row_data_transform_callback, $r);
                 foreach ($r_modified as $k => $x) {
                     if (in_array($k, $banned_columns))
@@ -530,7 +566,7 @@ class Base_EpesiStore extends Module {
                 /* @var $row Utils_GenericBrowser_Row_Object */
                 $row = $gb->get_new_row();
                 $row->add_data_array($v);
-                if ($row_additional_actions_callback != null)
+                if ($row_additional_actions_callback != null && is_callable($row_additional_actions_callback))
                     call_user_func($row_additional_actions_callback, $row, $r);
             }
         }

@@ -12,7 +12,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EssClientCommon extends Base_AdminModuleCommon {
-    const SERVER_ADDRESS = 'https://ess.epesibim.com/';
     const VAR_LICENSE_KEY = 'license_key';
 
     public static function menu() {
@@ -23,6 +22,15 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
             $text = 'Register Epesi!';
         }
         return array('Help' => array('__submenu__' => 1, $text => array()));
+    }
+    
+    public static function get_server_url() {
+//        return 'http://localhost/epesi/modules/Custom/ESS/serv/';
+        return 'https://ess.epesibim.com/';
+    }
+    
+    public static function get_payments_url() {
+        return 'http://localhost/epesi/modules/Premium/Payments/';
     }
 
     /**
@@ -74,7 +82,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
             $dir = self::Instance()->get_module_dir();
             require_once $dir . 'ClientRequester.php';
             // create object
-            self::$client_requester = new ClientRequester(self::SERVER_ADDRESS);
+            self::$client_requester = new ClientRequester(self::get_server_url());
             self::$client_requester->set_client_license_key(self::get_license_key());
         }
         return self::$client_requester;
@@ -108,7 +116,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
     
     public static function client_messages_frame($only_frame = true) {
-        return '<div id="ess_messages_frame" style="padding: 10px">' . ($only_frame ? '' : self::format_client_messages()) . '</div>';
+        return '<div id="ess_messages_frame">' . ($only_frame ? '' : self::format_client_messages()) . '</div>';
     }
 
     public static function client_messages_load_by_js() {
