@@ -64,6 +64,7 @@ class Base_MainModuleIndicator extends Module {
 		$form->addElement('checkbox','show_module_indicator',$this->t('Display module captions inside module'));
 
 		$form->addElement('header', 'upload', $this->t('Logo'));
+		$form->addElement('static','logo_size',$this->t('Logo image should be 193px by 83px in JPG/JPEG, GIF, PNG or BMP format'));
 		$form->add_upload_element();
 
 		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
