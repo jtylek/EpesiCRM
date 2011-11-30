@@ -8,7 +8,7 @@ starttable();
 require_once('auth.php');
 
 print("<center><b>PHP Console</b><hr />");
-$form = new HTML_QuickForm('loginform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
+$form = new HTML_QuickForm('loginform','post','phpconsole.php?'.http_build_query($_GET));
 $form->addElement('textarea','input','Input',array('style'=>'width:100%;height:200px'));
 $form->addRule('input','Field required','required');
 $form->addElement('submit',null,'Evaluate');

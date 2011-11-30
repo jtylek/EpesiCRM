@@ -47,10 +47,7 @@ function refresh(){
 function display_link($step)
 {
 		print ('<tr><td>'); // <div class="content">
-		print ('<div class="div-button" align="center"><a class="button" href="');
-		print $_SERVER['PHP_SELF'].'?step=';
-		print $step;
-		print ('">Next</a>');
+		print ('<div class="div-button" align="center"><a class="button" href="themeup.php?step='.$step.'">Next</a>');
 }
 
 function install_default_theme_common_files($dir,$f) {
