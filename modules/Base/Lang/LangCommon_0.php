@@ -129,6 +129,7 @@ class Base_LangCommon extends ModuleCommon {
 	}
 
 	public static function get_lang_code() {
+		if(defined('FORCE_LANG_CODE')) return FORCE_LANG_CODE;
 		static $lang_code;
 		if(!isset($lang_code)) {
 			if (!Acl::check('Data','View') ||
