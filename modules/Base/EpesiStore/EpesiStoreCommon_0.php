@@ -23,6 +23,50 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     public static function admin_caption() {
         return "Epesi Store";
     }
+    
+    protected static function get_payment_data_keys() {
+        // key = field name from contact => value = field name in settings
+        return array(
+            'first_name' => 'first_name',
+            'last_name' => 'last_name',
+            'address_1' => 'address_1',
+            'address_2' => 'address_2',
+            'city' => 'city',
+            'country' => 'country',
+            'postal_code' => 'postal_code',
+            'email' => 'email',
+            'mobile_phone' => 'phone');
+    }
+    
+    public static function get_payment_credentials() {
+        $keys = self::get_payment_data_keys();
+        $ret = array();
+        foreach($keys as $k) {
+            $ret[$k] = Base_User_SettingsCommon::get('Base_EpesiStore', $k);
+        }
+        return $ret;
+    }
+
+    public static function user_settings() {
+        $r = CRM_ContactsCommon::get_my_record();
+        // get default data from user contact
+        // key = field name from contact => value = field name in settings
+        $keys = self::get_payment_data_keys();
+        $values = array();
+        // do user setting entries from data
+        foreach ($keys as $k => $v) {
+            $x = array('name' => $v, 'label' => ucwords(str_replace('_', ' ', $v)), 'type' => 'text', 'default' => $r[$k]);
+            if($k == 'country') {
+                $x['type'] = 'select';
+                $x['values'] = Utils_CommonDataCommon::get_array('Countries');
+            }
+            $values[] = $x;
+        }
+        return array('Epesi Store' =>
+            array_merge(
+                    array(array('name' => 'payments_header', 'label' => '', 'type' => 'header', 'default' => Base_LangCommon::ts('Base_EpesiStore', 'Payment credentials')))
+                    , $values));
+    }
 
     public static function get_cart() {
         return Module::static_get_module_variable(self::MOD_PATH, self::CART_VAR, array());

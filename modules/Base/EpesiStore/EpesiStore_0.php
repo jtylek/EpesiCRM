@@ -192,6 +192,7 @@ class Base_EpesiStore extends Module {
 
     public function orders_form() {
         $this->back_button();
+        $this->payments_data_button();
 
         $orders = Base_EssClientCommon::server()->orders_list();
         if (count($orders) == 0) {
@@ -438,24 +439,36 @@ class Base_EpesiStore extends Module {
         }
         $this->navigate('download_form');
     }
+    
+    protected function payments_data_button() {
+//        Base_ActionBarCommon::add('filter', 'Payment data', $this->);
+    }
 
-    protected function pay_button($order_id, $value, $curr_code) {
-//    <input type="hidden" name="url_ok" value="$aUrl[scheme]://$aUrl[host]$aUrl[path]?,return,payment&amp;status=OK" />
-//    <input type="hidden" name="url_error" value="$aUrl[scheme]://$aUrl[host]$aUrl[path]?,return,payment&amp;status=FAIL" />
-//    <input type="hidden" name="url_cancel" value="$aUrl[scheme]://$aUrl[host]$aUrl[path]?,return,payment&amp;status=CANCEL" />
-//
-//    <input type="hidden" name="first_name" value="$aOrder[sFirstName]" />
-//    <input type="hidden" name="last_name" value="$aOrder[sLastName]" />
-//    <input type="hidden" name="address_1" value="$aOrder[sStreet]" />
-//    <input type="hidden" name="city" value="$aOrder[sCity]" />
-//    <input type="hidden" name="postal_code" value="$aOrder[sZipCode]" />
-//    <input type="hidden" name="country" value="$aOrder[sCountryCode]" />
-//    <input type="hidden" name="email" value="$aOrder[sEmail]" />
-//    <input type="hidden" name="phone" value="$aOrder[sPhone]" />
+    /**
+     * Get payment form with data and 'Pay' button only.
+     * @param numeric $order_id order id
+     * @param numeric $value cash amount to pay
+     * @param string $curr_code currency code
+     * @param array $credentials array of jsonencoded credentials to payment
+     * @return string payment form html
+     */
+    protected function pay_button($payment_url, $order_id, $value, $curr_code, $credentials) {
         return '
-<form style="display:inline" action="'. Base_EssClientCommon::get_payments_url() .'" method="post" id="formPayment'.$order_id.'">
+<form style="display:inline" target="blank" action="'. $payment_url .'" method="post" id="formPayment'.$order_id.'">
+    <input type="hidden" name="first_name" value="' . $credentials['first_name'] .'" />
+    <input type="hidden" name="last_name" value="' . $credentials['last_name'] . '" />
+    <input type="hidden" name="address_1" value="' . $credentials['address_1'] .'" />
+    <input type="hidden" name="address_2" value="' . $credentials['address_2'] .'" />
+    <input type="hidden" name="city" value="' . $credentials['city'] . '" />
+    <input type="hidden" name="postal_code" value="' . $credentials['postal_code'] .'" />
+    <input type="hidden" name="country" value="' . $credentials['country'] . '" />
+    <input type="hidden" name="email" value="' . $credentials['email'] . '" />
+    <input type="hidden" name="phone" value="' . $credentials['phone'] . '" />
+    <input type="hidden" name="url_ok" value="" />
+    <input type="hidden" name="url_error" value="" />
+    <input type="hidden" name="url_cancel" value="" />
     <input type="hidden" name="record_id" value="'. $order_id .'" />
-    <input type="hidden" name="record_type" value="base_epesi_store" />
+    <input type="hidden" name="record_type" value="ess_orders" />
     <input type="hidden" name="amount" value="'. $value .'" />
     <input type="hidden" name="currency" value="'. $curr_code .'" />
     <input type="hidden" name="description" value="Order ID '. $order_id .'" />
@@ -481,7 +494,7 @@ class Base_EpesiStore extends Module {
         foreach ($data['total_price'] as $curr_code => $amount) {
             if (strlen($str))
                 $str .= '</br>';
-            $str .= $amount['display'] . ' ' . $this->pay_button($data['id'], $amount['value'], $curr_code);
+            $str .= $amount['display'] . ' ' . $this->pay_button(Base_EssClientCommon::get_payments_url(), $data['id'], $amount['value'], $curr_code, Base_EpesiStoreCommon::get_payment_credentials());
         }
         $data['total_price'] = $str;
         return $data;
