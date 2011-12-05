@@ -9,14 +9,15 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-if(!MOBILE_DEVICE) {
-	Base_ThemeCommon::load_css('Libs/Leightbox','default',false);
-	load_js('modules/Libs/Leightbox/leightbox.js');
-}
-
 class Libs_LeightboxCommon extends ModuleCommon {
 	public static function get($id,$content,$header='',$big=0) {
 		if(MOBILE_DEVICE) return '';
+		static $init = true;
+		if ($init) {
+			Base_ThemeCommon::load_css('Libs/Leightbox','default',false);
+			load_js('modules/Libs/Leightbox/leightbox.js');
+			$init = false;
+		}
 		ob_start();
 		print('<div id="'.$id.'" big="1" class="leightbox">');
 		print('<input type="hidden" id="'.$id.'_bigsize" value="'.($big?1:0).'" />');
