@@ -1,11 +1,10 @@
 <?php
 
 /**
- * 
- * @author abukowski@telaxus.com
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Telaxus LLC
  * @license MIT
- * @version 0.1
+ * @version 20111207
  * @package epesi-Base
  * @subpackage EssClient
  */
@@ -47,60 +46,60 @@ class Base_EssClient extends Module {
             if (Base_EssClientCommon::get_license_key()) {
                 $data = Base_EssClientCommon::server()->installation_registered_data();
                 if ($data) {
-					print('<div class="important_notice">');
+                    print('<div class="important_notice">');
                     print($this->t('Thank you for registering your epesi installation.') . '<br/>');
                     $data['license_key'] = Base_EssClientCommon::get_license_key();
                     $data['status'] = Base_EssClientCommon::server()->installation_status();
                     // handle different status messages
-					//print($data['status'].'<br>');
+                    //print($data['status'].'<br>');
                     if (strcasecmp($data['status'], "new") == 0 || strcasecmp($data['status'], "updated") == 0) {
-						print('<div class="important_notice_frame">');
-                        print('<span style="font-weight:bold;">'.
-							$this->t('Status:').
-							'</span> '.
-							$this->t($data['status']).', '.$this->t('requires e-mail confirmation'));
-						print('</div>');
-						print($this->t('You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.'));
+                        print('<div class="important_notice_frame">');
+                        print('<span style="font-weight:bold;">' .
+                                $this->t('Status:') .
+                                '</span> ' .
+                                $this->t($data['status']) . ', ' . $this->t('requires e-mail confirmation'));
+                        print('</div>');
+                        print($this->t('You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.'));
                     }
 // For new version of server
 //                    if (strcasecmp($data['status'], "new_confirmed") == 0 || strcasecmp($data['status'], "updated_confirmed") == 0) {
 // now united into one to work on both
                     if (strcasecmp($data['status'], "confirmed") == 0 || strcasecmp($data['status'], "confirmed (update)") == 0 || strcasecmp($data['status'], "new_confirmed") == 0 || strcasecmp($data['status'], "updated_confirmed") == 0) {
-						print('<div class="important_notice_frame">');
-                        print('<span style="font-weight:bold;">'.
-							$this->t('Status:').
-							'</span> '.
-							$this->t($data['status']).', '.$this->t('awaiting verification'));
-						print('</div>');
-						print($this->t('Epesi team representative will verify the data you submited to avoid processing invalid information.'));
+                        print('<div class="important_notice_frame">');
+                        print('<span style="font-weight:bold;">' .
+                                $this->t('Status:') .
+                                '</span> ' .
+                                $this->t($data['status']) . ', ' . $this->t('awaiting verification'));
+                        print('</div>');
+                        print($this->t('Epesi team representative will verify the data you submited to avoid processing invalid information.'));
                     }
-					if (strcasecmp($data['status'], "validated") == 0) {
-						print('<div class="important_notice_frame">');
-                        print('<span style="font-weight:bold;">'.
-							$this->t('Status:').
-							'</span> '.
-							$this->t($data['status']));
-						print('</div>');
-						print($this->t('The registration process is complete.'));
-						print('</div>');
+                    if (strcasecmp($data['status'], "validated") == 0) {
+                        print('<div class="important_notice_frame">');
+                        print('<span style="font-weight:bold;">' .
+                                $this->t('Status:') .
+                                '</span> ' .
+                                $this->t($data['status']));
+                        print('</div>');
+                        print($this->t('The registration process is complete.'));
+                        print('</div>');
                     }
-					print('</div>');
+                    print('</div>');
                     Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'register_form'), array(true, $data)));
                 } else {
-					$email = Base_EssClientCommon::get_support_email();
+                    $email = Base_EssClientCommon::get_support_email();
 
-                    print('<div class="important_notice">'.$this->t('Your epesi ID is not recognized by Epesi Service Server. Please contact epesi team at %s.', array($email)).'</div>');
-                    Base_ActionBarCommon::add('delete', 'Revoke License Key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'),array($this, 'clear_license_key')));
+                    print('<div class="important_notice">' . $this->t('Your epesi ID is not recognized by Epesi Service Server. Please contact epesi team at %s.', array($email)) . '</div>');
+                    Base_ActionBarCommon::add('delete', 'Revoke License Key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array($this, 'clear_license_key')));
                 }
             }
         } catch (Exception $e) {
-			print('<div class="important_notice">'.$this->t('There was an error while trying to connect to Epesi Service Server. Please try again later.').'<br>');
-			print($this->t('If the problem persists, please contact us at %s', array('<a href="http://forum.epesibim.com/" target="_blank">http://forum.epesibim.com/</a>')).'<br>');
-			print('<br>');
-			print($this->t('Error message: ').'<br>');
-            print('<div class="important_notice_frame">'.$e->getMessage());
-			print('</div></div>');
-			Base_ActionBarCommon::add('retry', 'Retry', $this->create_href(array()));
+            print('<div class="important_notice">' . $this->t('There was an error while trying to connect to Epesi Service Server. Please try again later.') . '<br>');
+            print($this->t('If the problem persists, please contact us at %s', array('<a href="http://forum.epesibim.com/" target="_blank">http://forum.epesibim.com/</a>')) . '<br>');
+            print('<br>');
+            print($this->t('Error message: ') . '<br>');
+            print('<div class="important_notice_frame">' . $e->getMessage());
+            print('</div></div>');
+            Base_ActionBarCommon::add('retry', 'Retry', $this->create_href(array()));
             return;
         }
         Base_EssClientCommon::client_messages_load_by_js();
@@ -122,34 +121,34 @@ class Base_EssClient extends Module {
         $value = array_key_exists($variable, $data) ? $data[$variable] : '';
         $form->addElement('static', $variable, $this->t($label), $value);
     }
-	
-	protected function terms_and_conditions() {
-		if ($this->get_module_variable('t_and_c_accepted')) {
-			$this->register_form();
-			return;
-		}
 
-		$form = $this->init_module('Libs_QuickForm');
-		$form->addElement('checkbox', 'agree', $this->t('Agree to Terms and Conditions'));
-		$form->addRule('agree', $this->t('You must accept Terms and Conditions to proceed'), 'required');
-		$form->addElement('submit', 'submit', $this->t('Obtain Epesi License Key'), array('style'=>'width:200px'));
-		if ($form->validate()) {
-			$this->set_module_variable('t_and_c_accepted', true);
-			location(array());
-			return;
-		}
-		print('<div class="important_notice">');
-		print($this->t('Here you can register your epesi installation with epesi team, allowing you to browse and make purchases in Epesi Store. Your License Key will be used to identify your installation and allow you to download and use modules you purchase. Please understand that Epesi License Key shouldn\'t be copied to any other epesi installation and purchases and downloads you make using your Epesi License Key should be used for only this installation.'));
-		print('<br><br>');
-		print($this->t('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations should use single Epesi License Key.'));
-		print('<br><br>');
-		print($this->t('Full Terms and Conditions are available here:')); // FIXME
-		print('<center>');
-		$form->display();
-		print('</center>');
-		print('</div>');
-		return;
-	}
+    protected function terms_and_conditions() {
+        if ($this->get_module_variable('t_and_c_accepted')) {
+            $this->register_form();
+            return;
+        }
+
+        $form = $this->init_module('Libs_QuickForm');
+        $form->addElement('checkbox', 'agree', $this->t('Agree to Terms and Conditions'));
+        $form->addRule('agree', $this->t('You must accept Terms and Conditions to proceed'), 'required');
+        $form->addElement('submit', 'submit', $this->t('Obtain Epesi License Key'), array('style' => 'width:200px'));
+        if ($form->validate()) {
+            $this->set_module_variable('t_and_c_accepted', true);
+            location(array());
+            return;
+        }
+        print('<div class="important_notice">');
+        print($this->t('Here you can register your epesi installation with epesi team, allowing you to browse and make purchases in Epesi Store. Your License Key will be used to identify your installation and allow you to download and use modules you purchase. Please understand that Epesi License Key shouldn\'t be copied to any other epesi installation and purchases and downloads you make using your Epesi License Key should be used for only this installation.'));
+        print('<br><br>');
+        print($this->t('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations should use single Epesi License Key.'));
+        print('<br><br>');
+        print($this->t('Full Terms and Conditions are available here:')); // FIXME
+        print('<center>');
+        $form->display();
+        print('</center>');
+        print('</div>');
+        return;
+    }
 
     protected function register_form($edit = true, $data = null) {
         if ($this->is_back()) {
@@ -163,6 +162,9 @@ class Base_EssClient extends Module {
                 Utils_TooltipCommon::open_tag_attrs($this->t("This email will be used to send registation link and to contact Administator directly."), false)
                 . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
 
+        $reseller_tooltip = '<img ' .
+                Utils_TooltipCommon::open_tag_attrs($this->t("If you don't have Epesi Reseller login leave this field empty."), false)
+                . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
         if ($edit) {
             $f->addElement('text', 'company_name', $this->t('Company name'), array('maxlength' => 128));
             $f->addRule('company_name', $this->t('Field required'), 'required');
@@ -217,6 +219,9 @@ class Base_EssClient extends Module {
             $f->addRule('admin_email', $this->t('Field required'), 'required');
             $f->addRule('admin_email', $this->t('Max length exceeded'), 'maxlength', 128);
             $f->addRule('admin_email', $this->t('Invalid e-mail address'), 'email');
+
+            $f->addElement('text', 'reseller', $reseller_tooltip . $this->t('Epesi Reseller login'), array('maxlength' => 32));
+            $f->addRule('admin_first_name', $this->t('Max length exceeded'), 'maxlength', 32);
         } else {
             $this->add_static_field($f, 'status', 'Installation status', $data);
             $this->add_static_field($f, 'license_key', 'License key', $data);
@@ -244,46 +249,46 @@ class Base_EssClient extends Module {
                 $ret = Base_EssClientCommon::server()->register_installation_request($ret);
 
                 if (!$ret) {
-					$email = Base_EssClientCommon::get_support_email();
-					print('<div class="important_notice">');
-                    print('<div style="color:red">'.$this->t('There was an error processing your request.').'</div>'.
-							'<br>'.
-							$this->t(' Please try again later. If the problem persists, please contact us at %s.', array($email)));
-					print('</div>');
-					return true;
+                    $email = Base_EssClientCommon::get_support_email();
+                    print('<div class="important_notice">');
+                    print('<div style="color:red">' . $this->t('There was an error processing your request.') . '</div>' .
+                            '<br>' .
+                            $this->t(' Please try again later. If the problem persists, please contact us at %s.', array($email)));
+                    print('</div>');
+                    return true;
                 }
-				if (is_string($ret))
-					Base_EssClientCommon::set_license_key($ret);
-					
-				location(array());
-				return false;
+                if (is_string($ret))
+                    Base_EssClientCommon::set_license_key($ret);
+
+                location(array());
+                return false;
             }
-			// set defaults
-			print('<div class="important_notice">');
-			print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Service Server to provide us with contact information. The data sent to Epesi Service Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
-			print('<br>');
-			if ($data) {
-				$f->setDefaults($data);
-			} else {
-				print('<span style="color:gray;font-size:10px;">'.$this->t('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.').'</span>');
-				$defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
-				$f->setDefaults($defaults);
-			}
-			//Base_ActionBarCommon::add('send', $data ? 'Update' : 'Register', $f->get_submit_form_href());
-			if ($data && isset($data['status']) && $data['status'] == 'Confirmed')
-				print($this->t('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
-				print($this->t('<div style="color:tomato;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
-			print('<center>');
+            // set defaults
+            print('<div class="important_notice">');
+            print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Service Server to provide us with contact information. The data sent to Epesi Service Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
+            print('<br>');
+            if ($data) {
+                $f->setDefaults($data);
+            } else {
+                print('<span style="color:gray;font-size:10px;">' . $this->t('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
+                $defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
+                $f->setDefaults($defaults);
+            }
+            //Base_ActionBarCommon::add('send', $data ? 'Update' : 'Register', $f->get_submit_form_href());
+            if ($data && isset($data['status']) && $data['status'] == 'Confirmed')
+                print($this->t('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
+            print($this->t('<div style="color:tomato;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
+            print('<center>');
 
-			$f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
+            $f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
 
-			$f->display();
-			print('</center>');
-			print('</div>');
+            $f->display();
+            print('</center>');
+            print('</div>');
         } else {
             $f->display();
         }
-		return true;
+        return true;
     }
 
     public function navigate($func, $params = array()) {

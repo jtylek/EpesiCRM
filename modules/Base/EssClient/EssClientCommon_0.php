@@ -1,11 +1,10 @@
 <?php
 
 /**
- * 
- * @author abukowski@telaxus.com
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Telaxus LLC
  * @license MIT
- * @version 0.1
+ * @version 20111207
  * @package epesi-Base
  * @subpackage EssClient
  */
@@ -25,12 +24,11 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
     
     public static function get_server_url() {
-//        return 'http://localhost/epesi/modules/Custom/ESS/serv/';
         return 'https://ess.epesibim.com/';
     }
     
     public static function get_payments_url() {
-        return 'http://localhost/epesi/modules/Premium/Payments/';
+        return 'https://ess.epesibim.com/payments/';
     }
 
     /**
