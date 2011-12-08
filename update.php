@@ -2782,6 +2782,37 @@ if (ModuleManager::is_installed('CRM_MailClient')==-1) {
 }
 
 }
+
+$versions[] = '1.2.2';
+function update_from_1_2_1_to_1_2_2() {
+    $tbls = DB::MetaTables('TABLE',true);
+    if (ModuleManager::is_installed('Base_ModuleDownloader') >= 0) {
+        Base_ThemeCommon::uninstall_default_theme('Base/ModuleDownloader');
+        ModuleManager::remove_data_dir('Base/ModuleDownloader');
+        DB::Execute('DELETE FROM modules WHERE name=%s', 'Base_ModuleDownloader');
+    }
+
+    if (ModuleManager::is_installed('Base_User_Login')>=0 && array_key_exists('AUTOLOGIN_ID',DB::MetaColumnNames('user_password'))) {
+		$ret = @DB::CreateTable('user_autologin',"user_login_id I NOTNULL, autologin_id C(32) NOTNULL, last_log T, description C(64)",array('constraints' => ', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
+		if($ret===false) {
+			print('Invalid SQL query - user_autologin table install');
+			return false;
+		}
+        $e = DB::Execute('SELECT autologin_id,mobile_autologin_id,user_login_id FROM user_password');
+        while($r = $e->FetchRow()) {
+            if($r['autologin_id'])
+                DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id) VALUES(%d,%s)',array($r['user_login_id'],$r['autologin_id']));
+            if($r['mobile_autologin_id'])
+                DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id) VALUES(%d,%s)',array($r['user_login_id'],$r['mobile_autologin_id']));
+        }
+        PatchDBDropColumn('user_password','autologin_id');
+        PatchDBDropColumn('user_password','mobile_autologin_id');
+    }
+
+    if (ModuleManager::is_installed('Base_EpesiStore')>=0)
+        DB::Execute('ALTER TABLE `epesi_store_modules` MODIFY `version` varchar(10)');
+
+}
 //=========================================================================
 
 try {
