@@ -2812,6 +2812,12 @@ function update_from_1_2_1_to_1_2_2() {
     if (ModuleManager::is_installed('Base_EpesiStore')>=0)
         DB::Execute('ALTER TABLE `epesi_store_modules` MODIFY `version` varchar(10)');
 
+
+    if (ModuleManager::is_installed('CRM_Roundcube') >= 0) {
+        DB::Execute('UPDATE recordbrowser_addon SET label="e-mails" where label="Mails"');
+        DB::Execute('UPDATE recordbrowser_addon SET label="e-mail addresses" where label="Mail addresses"');
+    }
+
 }
 //=========================================================================
 
