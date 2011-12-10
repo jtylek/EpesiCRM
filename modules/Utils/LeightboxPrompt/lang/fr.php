@@ -5,5 +5,6 @@
  * @subpackage fr
  */
 global $translations;
-$translations['Applets_RssFeed']['Loading RSS...']='RSS en cours de chargement';
+$translations['Utils_LeightboxPrompt']['Cancel']='';
+$translations['Utils_LeightboxPrompt']['OK']='';
 ?>

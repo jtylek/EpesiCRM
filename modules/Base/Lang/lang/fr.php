@@ -5,5 +5,5 @@
  * @subpackage fr
  */
 global $translations;
-$translations['Applets_RssFeed']['Loading RSS...']='RSS en cours de chargement';
+$translations['Base_Lang']['loading...']='Chargement ...';
 ?>
