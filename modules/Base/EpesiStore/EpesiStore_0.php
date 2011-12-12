@@ -441,7 +441,14 @@ class Base_EpesiStore extends Module {
     }
     
     protected function payments_data_button() {
-//        Base_ActionBarCommon::add('filter', 'Payment data', $this->);
+        $href = $this->create_callback_href(array($this, 'navigate'), array('payments_show_user_settings'));
+        Base_ActionBarCommon::add('settings', 'Payment data', $href);
+    }
+    
+    public function payments_show_user_settings() {
+        $this->back_button();
+        $module_to_show = $this->init_module('Base/User/Settings');
+        $this->display_module($module_to_show, array('Epesi Store'));
     }
 
     /**
@@ -464,9 +471,6 @@ class Base_EpesiStore extends Module {
     <input type="hidden" name="country" value="' . $credentials['country'] . '" />
     <input type="hidden" name="email" value="' . $credentials['email'] . '" />
     <input type="hidden" name="phone" value="' . $credentials['phone'] . '" />
-    <input type="hidden" name="url_ok" value="" />
-    <input type="hidden" name="url_error" value="" />
-    <input type="hidden" name="url_cancel" value="" />
     <input type="hidden" name="record_id" value="'. $order_id .'" />
     <input type="hidden" name="record_type" value="ess_orders" />
     <input type="hidden" name="amount" value="'. $value .'" />
