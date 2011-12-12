@@ -295,14 +295,9 @@ class Utils_RecordBrowser extends Module {
         $filters_all = array();
         foreach ($this->table_rows as $k=>$v) {
             if ((!isset($filters_set[$v['id']]) && $v['filter']) || (isset($filters_set[$v['id']]) && $filters_set[$v['id']])) {
-                $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($k));
-                $filters_all[$filter_id] = $k;
+                $filters_all[] = $k;
                 if (isset($filters_set[$v['id']])) unset($filters_set[$v['id']]);
             }
-        }
-        foreach($this->custom_filters as $key=>$val) {
-            if(!isset($filters_all[$key]))
-                $filters_all[$key] = $key;
         }
         if (!$this->data_gb) $this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
         if (empty($filters_all)) {
@@ -318,7 +313,8 @@ class Utils_RecordBrowser extends Module {
 		$empty_defaults = array();
         $filters = array();
         $text_filters = array();
-        foreach ($filters_all as $filter_id=>$filter) {
+        foreach ($filters_all as $filter) {
+            $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
             $field_id = 'filter__'.$filter_id;
             if (isset($this->custom_filters[$filter_id])) {
                 $f = $this->custom_filters[$filter_id];
@@ -927,7 +923,7 @@ class Utils_RecordBrowser extends Module {
                     $this->show_add_in_table = true;
                 }
             }
-            $form->addElement('submit', 'submit_qanr', $this->t('Save'), array('style'=>'width:100%;height:19px;', 'class'=>'button'));
+            $form->addElement('submit', 'submit_qanr', $this->t('Submit'), array('style'=>'width:auto;'));
             $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
             $form->accept($renderer);
             $data = $renderer->toArray();
@@ -955,7 +951,7 @@ class Utils_RecordBrowser extends Module {
 //              $row_data[] = '&nbsp;';
 
             $gb_row = $gb->get_new_row();
-            $gb_row->add_action('',$data['submit_qanr']['html'],'', null, false, 4);
+            $gb_row->add_action('',$data['submit_qanr']['html'],'');
             $gb_row->set_attrs('id="add_in_table_row" style="display:'.($this->show_add_in_table?'':'none').';"');
             $gb_row->add_data_array($row_data);
         }
@@ -1014,6 +1010,7 @@ class Utils_RecordBrowser extends Module {
             $id = $this->get_module_variable('id');
             $this->unset_module_variable('id');
         }
+		$id = intVal($id);
         self::$browsed_records = null;
 
         Utils_RecordBrowserCommon::$cols_order = array();
@@ -1026,10 +1023,9 @@ class Utils_RecordBrowser extends Module {
         if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
 
         $this->init();
-		if (is_numeric($id)) {
-			$id = intVal($id);
+		if (is_numeric($id))
 			self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
-		} else {
+		else {
 			self::$last_record = $this->record = $id;
 			$id = $this->record['id'];
 		}
@@ -1503,7 +1499,7 @@ class Utils_RecordBrowser extends Module {
                                             $col_id = array();
                                             foreach ($col as $c) $col_id[] = preg_replace('/[^a-z0-9]/','_',strtolower($c));
                                             $rec_count = Utils_RecordBrowserCommon::get_records_count($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
-                                            if ($rec_count<=Utils_RecordBrowserCommon::$options_limit || $args['type']!='multiselect' || empty($multi_adv_params['format_callback'])) {
+                                            if ($rec_count<=Utils_RecordBrowserCommon::$options_limit) {
                                                 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
                                             } else {
                                                 $records = array();
@@ -1558,16 +1554,19 @@ class Utils_RecordBrowser extends Module {
 											$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $tab, $crits);
 
                                         }
-                                        if ($args['type']==='select') $comp = array(''=>'---')+$comp;
-                                        if ($rec_count>Utils_RecordBrowserCommon::$options_limit && $args['type']=='multiselect' && $multi_adv_params['format_callback']) {
+                                        if ($rec_count>Utils_RecordBrowserCommon::$options_limit) {
                                             $f_callback = $multi_adv_params['format_callback'];
-                                            $el = $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);                                
-
-											${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPicker',array());
-											$filters_defaults = isset($multi_adv_params['filters_defaults'])?$multi_adv_params['filters_defaults']:array();
-											$this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits,array(),array(),array(),$filters_defaults));
-											$el->set_search_button('<a '.${'rp_'.$args['id']}->create_open_href().' '.Utils_TooltipCommon::open_tag_attrs($this->t('Advanced Selection')).' href="javascript:void(0);"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','icon_zoom.jpg').'"></a>');
+                                            if ($args['type']=='multiselect') {
+                                                $el = $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);
+						${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPicker',array());
+						$filters_defaults = isset($multi_adv_params['filters_defaults'])?$multi_adv_params['filters_defaults']:array();
+						$this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits,array(),array(),array(),$filters_defaults));
+						$el->set_search_button('<a '.${'rp_'.$args['id']}->create_open_href().' '.Utils_TooltipCommon::open_tag_attrs($this->t('Advanced Selection')).' href="javascript:void(0);"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','icon_zoom.jpg').'"></a>');
+					    } else {
+					        $form->addElement('autoselect', $args['id'], $label, $comp, array(array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param'])), $f_callback);
+					    }
                                         } else {
+                                            if ($args['type']==='select') $comp = array(''=>'---')+$comp;
                                             $form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
                                         }
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
