@@ -27,7 +27,7 @@ class Base_EpesiStore extends Module {
     const text_no_modules_for_you = 'Unfortunately there is no modules available for You.';
     const text_refresh_info = 'Data is stored until close or refresh of browser\'s Epesi window or tab';
     const text_modules_changed_on_server = 'Some modules has changed on server. This is updated list.';
-    const text_not_registered = 'Some error occured. Probably you are not registered client. Go to Admin / Register Epesi';
+    const text_not_registered = 'Probably you are not registered client. Go to Admin / Register Epesi';
     const text_empty = 'Empty';
     const text_cart_is_empty = 'Cart is empty!';
     const text_price_summary = 'Total price';
@@ -83,17 +83,18 @@ class Base_EpesiStore extends Module {
         $total = Base_EpesiStoreCommon::modules_total_amount();
         if ($total === false) {
             print($this->t(self::text_not_registered));
-        }
-        if ($total) {
-            /* @var $gb Utils_GenericBrowser */
-            $gb = $this->init_module('Utils/GenericBrowser', null, 'moduleslist');
-            $x = $gb->get_limit($total);
-            // fetch data
-            $t = Base_EpesiStoreCommon::modules_list($x['offset'], $x['numrows']);
-            $gb = $this->GB_module($gb, $t, array($this, 'GB_row_additional_actions_store'));
-            $this->display_module($gb);
         } else {
-            print($this->t(self::text_no_modules_for_you));
+            if ($total) {
+                /* @var $gb Utils_GenericBrowser */
+                $gb = $this->init_module('Utils/GenericBrowser', null, 'moduleslist');
+                $x = $gb->get_limit($total);
+                // fetch data
+                $t = Base_EpesiStoreCommon::modules_list($x['offset'], $x['numrows']);
+                $gb = $this->GB_module($gb, $t, array($this, 'GB_row_additional_actions_store'));
+                $this->display_module($gb);
+            } else {
+                print($this->t(self::text_no_modules_for_you));
+            }
         }
     }
 
@@ -439,12 +440,12 @@ class Base_EpesiStore extends Module {
         }
         $this->navigate('download_form');
     }
-    
+
     protected function payments_data_button() {
         $href = $this->create_callback_href(array($this, 'navigate'), array('payments_show_user_settings'));
         Base_ActionBarCommon::add('settings', 'Payment data', $href);
     }
-    
+
     public function payments_show_user_settings() {
         $this->back_button();
         $module_to_show = $this->init_module('Base/User/Settings');
@@ -461,21 +462,21 @@ class Base_EpesiStore extends Module {
      */
     protected function pay_button($payment_url, $order_id, $value, $curr_code, $credentials) {
         return '
-<form style="display:inline" target="blank" action="'. $payment_url .'" method="post" id="formPayment'.$order_id.'">
-    <input type="hidden" name="first_name" value="' . $credentials['first_name'] .'" />
+<form style="display:inline" target="blank" action="' . $payment_url . '" method="post" id="formPayment' . $order_id . '">
+    <input type="hidden" name="first_name" value="' . $credentials['first_name'] . '" />
     <input type="hidden" name="last_name" value="' . $credentials['last_name'] . '" />
-    <input type="hidden" name="address_1" value="' . $credentials['address_1'] .'" />
-    <input type="hidden" name="address_2" value="' . $credentials['address_2'] .'" />
+    <input type="hidden" name="address_1" value="' . $credentials['address_1'] . '" />
+    <input type="hidden" name="address_2" value="' . $credentials['address_2'] . '" />
     <input type="hidden" name="city" value="' . $credentials['city'] . '" />
-    <input type="hidden" name="postal_code" value="' . $credentials['postal_code'] .'" />
+    <input type="hidden" name="postal_code" value="' . $credentials['postal_code'] . '" />
     <input type="hidden" name="country" value="' . $credentials['country'] . '" />
     <input type="hidden" name="email" value="' . $credentials['email'] . '" />
     <input type="hidden" name="phone" value="' . $credentials['phone'] . '" />
-    <input type="hidden" name="record_id" value="'. $order_id .'" />
+    <input type="hidden" name="record_id" value="' . $order_id . '" />
     <input type="hidden" name="record_type" value="ess_orders" />
-    <input type="hidden" name="amount" value="'. $value .'" />
-    <input type="hidden" name="currency" value="'. $curr_code .'" />
-    <input type="hidden" name="description" value="Order ID '. $order_id .'" />
+    <input type="hidden" name="amount" value="' . $value . '" />
+    <input type="hidden" name="currency" value="' . $curr_code . '" />
+    <input type="hidden" name="description" value="Order ID ' . $order_id . '" />
     <input type="submit" name="submit" value="Pay" />
 </form>
 ';
