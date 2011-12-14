@@ -359,11 +359,10 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 
             $myName = $this->getName();
 			$mod = $myName;
-			$this->setName($myName . 'from[]');
-			$this->_attributes['id'] = $myName . '__from';
-			$attrString = $this->_getAttrString($this->_attributes);
-			$attrArray = $this->getAttributes();
 			if (detect_mobile_device()) {
+				$this->setName($myName . '[]');
+				$attrString = $this->_getAttrString($this->_attributes);
+				
 				$strHtml = '<select' . $attrString . 'name="' . $myName . '" style="height:100%;" >'."\n";
 
 				foreach ($this->_options as $k=>$option) {
@@ -373,6 +372,10 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 
 				$strHtml .= '</select>';
 			} else {
+				$this->setName($myName . 'from[]');
+				$this->_attributes['id'] = $myName . '__from';
+				$attrString = $this->_getAttrString($this->_attributes);
+
 				$fromElement = '';
 				$fromElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');" ondblclick="ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');">'."\n";
 				if (isset($this->_values[0]) && preg_match('/'.addcslashes($this->list_sep,'/').'/i',$this->_values[0])) {
@@ -398,7 +401,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 				foreach ($this->_options as $option) {
 					if (is_array($this->_values) && in_array((string)$option['attr']['value'], $this->_values)) {
 						$toElement .= $tabs . "\t<option " . $this->_getAttrString($option['attr']) . ">" . $option['text'] . "</option>\n";
-						$list .= '__SEP__'.$option['attr']['value'];
+						$list .= $this->list_sep.$option['attr']['value'];
 					}
 				}
 				$toElement .= $tabs . '</select>';
@@ -466,7 +469,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
             $value = $this->getValue();
         }
 		if (!is_array($value)) {
-			$value = explode('__SEP__',$value);
+			$value = explode($this->list_sep,$value);
 			array_shift($value);
 		}
 //        foreach($cleanValue as $k=>$v) {
