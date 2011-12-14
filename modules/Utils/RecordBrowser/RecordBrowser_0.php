@@ -1010,7 +1010,6 @@ class Utils_RecordBrowser extends Module {
             $id = $this->get_module_variable('id');
             $this->unset_module_variable('id');
         }
-		$id = intVal($id);
         self::$browsed_records = null;
 
         Utils_RecordBrowserCommon::$cols_order = array();
@@ -1020,15 +1019,16 @@ class Utils_RecordBrowser extends Module {
             self::$clone_result = 'canceled';
             return $this->back();
         }
-        if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
 
         $this->init();
-		if (is_numeric($id))
+		if (is_numeric($id)) {
+	                $id = intVal($id);
 			self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
-		else {
+		} else {
 			self::$last_record = $this->record = $id;
-			$id = $this->record['id'];
+			$id = intVal($this->record['id']);
 		}
+        if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
 
         if($mode=='add')
             foreach ($defaults as $k=>$v)
