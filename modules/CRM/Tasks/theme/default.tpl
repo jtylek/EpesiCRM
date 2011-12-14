@@ -66,7 +66,7 @@
 						</tbody>
 					</table>
 					{* description *}
-					<table name="UtilsTasks" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0" style="border-right: none; border-bottom: none;">
+					<table name="UtilsTasks" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0" style="border-right: none; border-bottom: none; height: 83px">
 						<tbody>
 							<tr>
 								<td class="label" style="border-bottom: none; border-right: 1px solid #b3b3b3;">{$form_data.description.label}{if $form_data.description.required}*{/if}</td>
@@ -89,7 +89,7 @@
 						</tbody>
 					</table>
 					{* employees *}
-					<table name="UtilsTasks" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0" style="padding-top: 1px; border-top: none; border-right: 1px solid #b3b3b3;">
+					<table name="UtilsTasks" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0" style="padding-top: 1px; border-top: none; border-right: 1px solid #b3b3b3; height: 133px;">
 						<tbody>
 							<tr>
 								<td class="label" style="border-bottom: 1px solid white;">{$form_data.employees.label}{if $form_data.employees.required}*{/if}</td>

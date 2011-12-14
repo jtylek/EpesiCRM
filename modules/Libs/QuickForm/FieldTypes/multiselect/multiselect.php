@@ -363,69 +363,79 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$this->_attributes['id'] = $myName . '__from';
 			$attrString = $this->_getAttrString($this->_attributes);
 			$attrArray = $this->getAttributes();
-			$fromElement = '';
-            $fromElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');" ondblclick="ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');">'."\n";
-//			print_r($this->_values);
-			if (isset($this->_values[0]) && preg_match('/'.addcslashes($this->list_sep,'/').'/i',$this->_values[0])) {
-		        $this->_values = explode($this->list_sep,$this->_values[0]);
-		        array_shift($this->_values);
+			if (detect_mobile_device()) {
+				$strHtml = '<select' . $attrString . 'name="' . $myName . '" style="height:100%;" >'."\n";
+
+				foreach ($this->_options as $k=>$option) {
+					$selected = (is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values))?'selected="1" ':'';
+					$strHtml .= $tabs . '<option ' . $selected . $this->_getAttrString($this->_options[$k]['attr']) . '>' . $this->_options[$k]['text'] . '</option>'."\n";
+				}
+
+				$strHtml .= '</select>';
+			} else {
+				$fromElement = '';
+				$fromElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');" ondblclick="ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');">'."\n";
+				if (isset($this->_values[0]) && preg_match('/'.addcslashes($this->list_sep,'/').'/i',$this->_values[0])) {
+					$this->_values = explode($this->list_sep,$this->_values[0]);
+					array_shift($this->_values);
+				}
+				$i = 0;
+				foreach ($this->_options as $k=>$option) {
+					$this->keyhash[$i] = $this->_options[$k]['attr']['value'];
+					$kv = array_search($this->_options[$k]['attr']['value'], $this->_values);
+					$i++;
+					if (!(is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)))
+						$fromElement .= $tabs . "\t<option " . $this->_getAttrString($this->_options[$k]['attr']) . ">" . $this->_options[$k]['text'] . "</option>\n";
+				}
+				$fromElement .= $tabs . '</select>';
+
+				$toElement = '';
+				$this->setName($myName . 'to[]');
+				$this->_attributes['id'] = $myName . '__to';
+				$attrString = $this->_getAttrString($this->_attributes);
+				$toElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');" ondblclick="ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');">'."\n";
+				$list = '';
+				foreach ($this->_options as $option) {
+					if (is_array($this->_values) && in_array((string)$option['attr']['value'], $this->_values)) {
+						$toElement .= $tabs . "\t<option " . $this->_getAttrString($option['attr']) . ">" . $option['text'] . "</option>\n";
+						$list .= '__SEP__'.$option['attr']['value'];
+					}
+				}
+				$toElement .= $tabs . '</select>';
+
+				$buttons = array();
+				
+				load_js('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.js');
+				
+				$buttons['add_all'] = '<input id="'.$myName.'__add_all" type=button value=">>" onclick="'.
+									'ms_add_all(\''.$myName.'\', \''.$this->list_sep.'\');'.
+									'"/>';
+				$buttons['remove_all'] = '<input id="'.$myName.'__remove_all" align=center type=button value="<<" onclick="'.
+									'ms_remove_all(\''.$myName.'\', \''.$this->list_sep.'\');'.
+									'"/>';
+				$buttons['remove_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__from\');" id="'.$myName.'__remove_selected" type=button value="<" onclick="'.
+									'ms_remove_selected(\''.$myName.'\', \''.$this->list_sep.'\');'.
+									'"/>';
+				$buttons['add_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__to\');" id="'.$myName.'__add_selected" type=button value=">" onclick="'.
+									'ms_add_selected(\''.$myName.'\', \''.$this->list_sep.'\');'.
+									'"/>';
+
+				$strHtml .= $tabs . '<table id="multiselect">';
+				$strHtml .= $tabs . '<tr><td class="form-element">' . $fromElement . '</td>';
+
+				$strHtml .= $tabs . '<td class="buttons-cell"><table>' .
+							$tabs . '<tr><td >'.$buttons['add_selected'].'</td></tr>' .
+							$tabs . '<tr><td >'.$buttons['add_all'].'</td></tr>' .
+							$tabs . '<tr><td >'.$buttons['remove_all'].'</td></tr>' .
+							$tabs . '<tr><td >'.$buttons['remove_selected'].'</td></tr>' .
+							$tabs . '</table></td>';
+
+				$strHtml .= $tabs . '<td class="to-element">' . $toElement . '</td></tr></table>';
+
+				$this->setName($myName);
+				$attrString = $this->_getAttrString($this->_attributes);
+				$strHtml .= $tabs . '<input type="hidden" name="' . $myName . "\" value=\"".$list."\" />\n";
 			}
-			$i = 0;
-            foreach ($this->_options as $k=>$option) {
-            	$this->keyhash[$i] = $this->_options[$k]['attr']['value'];
-            	$kv = array_search($this->_options[$k]['attr']['value'], $this->_values);
-            	$i++;
-				if (!(is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)))
-                	$fromElement .= $tabs . "\t<option " . $this->_getAttrString($this->_options[$k]['attr']) . ">" . $this->_options[$k]['text'] . "</option>\n";
-            }
-			$fromElement .= $tabs . '</select>';
-
-			$toElement = '';
-			$this->setName($myName . 'to[]');
-			$this->_attributes['id'] = $myName . '__to';
-			$attrString = $this->_getAttrString($this->_attributes);
-			$toElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');" ondblclick="ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');">'."\n";
-			$list = '';
-			foreach ($this->_options as $option) {
-                if (is_array($this->_values) && in_array((string)$option['attr']['value'], $this->_values)) {
-	                $toElement .= $tabs . "\t<option " . $this->_getAttrString($option['attr']) . ">" . $option['text'] . "</option>\n";
-	                $list .= '__SEP__'.$option['attr']['value'];
-                }
-            }
-			$toElement .= $tabs . '</select>';
-
-			$buttons = array();
-			
-			load_js('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.js');
-			
-			$buttons['add_all'] = '<input id="'.$myName.'__add_all" type=button value=">>" onclick="'.
-								'ms_add_all(\''.$myName.'\', \''.$this->list_sep.'\');'.
-								'"/>';
-			$buttons['remove_all'] = '<input id="'.$myName.'__remove_all" align=center type=button value="<<" onclick="'.
-								'ms_remove_all(\''.$myName.'\', \''.$this->list_sep.'\');'.
-								'"/>';
-			$buttons['remove_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__from\');" id="'.$myName.'__remove_selected" type=button value="<" onclick="'.
-								'ms_remove_selected(\''.$myName.'\', \''.$this->list_sep.'\');'.
-								'"/>';
-			$buttons['add_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__to\');" id="'.$myName.'__add_selected" type=button value=">" onclick="'.
-								'ms_add_selected(\''.$myName.'\', \''.$this->list_sep.'\');'.
-								'"/>';
-
-			$strHtml .= $tabs . '<table id="multiselect">';
-            $strHtml .= $tabs . '<tr><td class="form-element">' . $fromElement . '</td>';
-
-			$strHtml .= $tabs . '<td class="buttons-cell"><table>' .
-						$tabs . '<tr><td >'.$buttons['add_selected'].'</td></tr>' .
-						$tabs . '<tr><td >'.$buttons['add_all'].'</td></tr>' .
-						$tabs . '<tr><td >'.$buttons['remove_all'].'</td></tr>' .
-						$tabs . '<tr><td >'.$buttons['remove_selected'].'</td></tr>' .
-						$tabs . '</table></td>';
-
-			$strHtml .= $tabs . '<td class="to-element">' . $toElement . '</td></tr></table>';
-
-			$this->setName($myName);
-			$attrString = $this->_getAttrString($this->_attributes);
-			$strHtml .= $tabs . '<input type="hidden" name="' . $myName . "\" value=\"".$list."\" />\n";
 //			print_r($this->_options);
 			return $strHtml;
         }
@@ -455,12 +465,14 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
         if (is_null($value)) {
             $value = $this->getValue();
         }
-        $cleanValue = explode('__SEP__',$value);
-        array_shift($cleanValue);
+		if (!is_array($value)) {
+			$value = explode('__SEP__',$value);
+			array_shift($value);
+		}
 //        foreach($cleanValue as $k=>$v) {
 //        	$cleanValue[$k] = $this->_options[$v]['attr']['value'];
 //        }
-		return $this->_prepareValue($cleanValue, $assoc);
+		return $this->_prepareValue($value, $assoc);
     }
 
     function onQuickFormEvent($event, $arg, &$caller)
