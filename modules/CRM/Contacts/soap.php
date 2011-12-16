@@ -117,7 +117,7 @@ class EpesiContacts
 				}
 			} else {
 				$uid = Base_UserCommon::get_user_id($user);
-				Acl::set_user($uid);
+				Acl::set_user($uid, true);
 			}
 		}
 		return $error;

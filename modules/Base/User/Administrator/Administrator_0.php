@@ -166,7 +166,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     }
 
     public function log_as_user($id) {
-        Acl::set_user($id); //tag who is logged
+        Acl::set_user($id, true); //tag who is logged
         Epesi::redirect();
     }
 

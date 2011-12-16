@@ -49,7 +49,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 
 	public static function set_logged($user) {
 		$uid = Base_UserCommon::get_user_id($user);
-		Acl::set_user($uid); //tag who is logged
+		Acl::set_user($uid, true); //tag who is logged
 	}
 
 	
@@ -167,7 +167,7 @@ This e-mail was automatically generated and you do not need to respond to it.", 
                         		DB::Execute('DELETE FROM user_autologin WHERE autologin_id=%s AND user_login_id=%d',array($autologin_id,Acl::get_user()));
                         }
                 }
-		Acl::set_user();
+		Acl::set_user(null, true);
 		return false;
 	}
 	

@@ -43,14 +43,18 @@ class Acl {
 	 * 
 	 * @return string
 	 */
+	private static $cached_user = false;
 	public static function get_user() {
-		return isset($_SESSION['user'])?$_SESSION['user']:null;
+		if (self::$cached_user==false) self::$cached_user = isset($_SESSION['user'])?$_SESSION['user']:null;
+		return self::$cached_user;
 	}
     
     	/**
 	 * Set currently logged user
 	 */
-	public static function set_user($a=null) {
+	public static function set_user($a=null, $real=false) {
+		self::$cached_user = $a;
+		if (!$real) return;
 		if(isset($a))
 			$_SESSION['user'] = $a;
 		else

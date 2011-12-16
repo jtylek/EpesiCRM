@@ -156,7 +156,7 @@ class FirstRun extends Module {
 			return false;
 		}
 
-		Acl::set_user($user_id);
+		Acl::set_user($user_id, true);
 		$uid = Base_AclCommon::get_acl_user_id(Acl::get_user());
 		if($uid !== false) {
 			$groups_old = Base_AclCommon::get_user_groups($uid);
