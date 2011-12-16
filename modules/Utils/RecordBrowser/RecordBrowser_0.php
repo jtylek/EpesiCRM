@@ -1034,6 +1034,7 @@ class Utils_RecordBrowser extends Module {
             foreach ($defaults as $k=>$v)
                 $this->custom_defaults[$k] = $v;
 
+		$this->custom_defaults['created_by'] = Acl::get_user();
         $access = $this->get_access($mode=='history'?'view':$mode, isset($this->record)?$this->record:$this->custom_defaults);
         if ($mode=='edit' || $mode=='add')
             $this->view_fields_permission = $this->get_access('view', isset($this->record)?$this->record:$this->custom_defaults);
