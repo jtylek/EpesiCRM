@@ -1030,11 +1030,15 @@ class Utils_RecordBrowser extends Module {
 		}
         if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
 
-        if($mode=='add')
+        if($mode=='add') {
             foreach ($defaults as $k=>$v)
                 $this->custom_defaults[$k] = $v;
+            foreach($this->table_rows as $field => $args)
+                if (!isset($this->custom_defaults[$args['id']]))
+					$this->custom_defaults[$args['id']] = '';
+			$this->custom_defaults['created_by'] = Acl::get_user();
+		}
 
-		$this->custom_defaults['created_by'] = Acl::get_user();
         $access = $this->get_access($mode=='history'?'view':$mode, isset($this->record)?$this->record:$this->custom_defaults);
         if ($mode=='edit' || $mode=='add')
             $this->view_fields_permission = $this->get_access('view', isset($this->record)?$this->record:$this->custom_defaults);
