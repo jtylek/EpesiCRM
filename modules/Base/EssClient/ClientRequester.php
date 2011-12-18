@@ -67,6 +67,10 @@ class ClientRequester implements IClient {
     }
 
     public function order_submit($modules) {
+	if (TRIAL_MODE) {
+		Base_EssClientCommon::add_client_messages(array(array(), array(), array('Your installation is locked, you can\'t download new modules. Switching to hosting will enable you to unlock your installation.')));
+		return array();
+	}
         $args = func_get_args();
         return $this->call(__FUNCTION__, $args);
     }
@@ -146,7 +150,6 @@ class ClientRequester implements IClient {
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
