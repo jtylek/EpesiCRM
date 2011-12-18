@@ -203,7 +203,7 @@ Please choose epesi version:<ul>
 						<td><img src="images/logo.gif" alt="logo" width="550" height="200" border="0"></td>
 					</tr>
 					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText">Starting epesi ...</span></td>
+						<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>
 					</tr>
 					<tr>
 						<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>

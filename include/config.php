@@ -43,6 +43,8 @@ if(!defined('FIRST_RUN')) define('FIRST_RUN','FirstRun');
 if(!defined('TRIAL_MODE')) define('TRIAL_MODE',0);
 if(!defined('DEMO_MODE')) define('DEMO_MODE',0);
 
+if(!defined('STARTING_MESSAGE')) define('STARTING_MESSAGE','Starting epesi ...');
+
 //other
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
 date_default_timezone_set(SYSTEM_TIMEZONE);
