@@ -435,7 +435,7 @@ class Base_EpesiStore extends Module {
         print($this->t(self::text_downloaded_modules_header));
         $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadedmoduleslist');
         $gb = $this->GB_generic($gb, $items, array('bought_module'), null, array($this, 'GB_row_additional_actions_downloaded_modules'));
-//        $this->display_module($gb);
+        $this->display_module($gb);
     }
 
     public function update_all_modules($bought_modules) {
