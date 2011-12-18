@@ -416,6 +416,8 @@ class Base_EpesiStore extends Module {
         $items = array();
         foreach ($modules as $m) {
             $mod = Base_EpesiStoreCommon::get_module_info($m['module_id']);
+            if (!$mod)
+                continue;
             $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($mod));
             $it = array(
                 'bought_module' => isset($bought_modules[$m['order_id']]) && $bought_modules[$m['order_id']]['active'] && $bought_modules[$m['order_id']]['paid'] ? $bought_modules[$m['order_id']] : null,
@@ -433,7 +435,7 @@ class Base_EpesiStore extends Module {
         print($this->t(self::text_downloaded_modules_header));
         $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadedmoduleslist');
         $gb = $this->GB_generic($gb, $items, array('bought_module'), null, array($this, 'GB_row_additional_actions_downloaded_modules'));
-        $this->display_module($gb);
+//        $this->display_module($gb);
     }
 
     public function update_all_modules($bought_modules) {

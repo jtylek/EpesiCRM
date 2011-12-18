@@ -67,10 +67,10 @@ class ClientRequester implements IClient {
     }
 
     public function order_submit($modules) {
-	if (TRIAL_MODE) {
-		Base_EssClientCommon::add_client_messages(array(array(), array(), array('Your installation is locked, you can\'t download new modules. Switching to paid hosting will enable you to unlock your installation and purchase and download new modules.')));
-		return array();
-	}
+        if (TRIAL_MODE) {
+            Base_EssClientCommon::add_client_messages(array(array(), array(), array('Your installation is locked, you can\'t download new modules. Switching to paid hosting will enable you to unlock your installation and purchase and download new modules.')));
+            return array();
+        }
         $args = func_get_args();
         return $this->call(__FUNCTION__, $args);
     }
@@ -86,40 +86,59 @@ class ClientRequester implements IClient {
     }
 
     protected function call($function, $params, $serialize_response = true) {
-        // PREPARE POST DATA
-        $post_data = http_build_query(
-                array(
-                    IClient::param_function => $function,
-                    IClient::param_installation_key => $this->license_key,
-                    IClient::param_client_version => IClient::client_version,
-                    IClient::param_serialize => $serialize_response,
-                    IClient::param_arguments => serialize($params)
+        $post_data = $this->prepare_data_to_request($function, $params, $serialize_response);
+        $response = $this->request_server($post_data);
+        return $this->return_response_value_handling_user_messages($serialize_response, $response);
+    }
+
+    protected function prepare_data_to_request($function, & $params, $serialize_response) {
+        return http_build_query(
+                        array(
+                            IClient::param_function => $function,
+                            IClient::param_installation_key => $this->license_key,
+                            IClient::param_client_version => IClient::client_version,
+                            IClient::param_serialize => $serialize_response,
+                            IClient::param_arguments => serialize($params)
                 ));
-        // CHECK CURL
-        $curl_loaded = false !== array_search('curl', get_loaded_extensions());
-        // REQUEST
-        $output = $curl_loaded ?
-                $this->curl_call($post_data) :
-                $this->fgc_call($post_data);
-        // RETURN OUTPUT
-        if ($serialize_response) {
-            // handle unserialization error
-            if ($output == serialize(false))
-                return false;
-            $r = @unserialize($output);
-            if ($r === false)
-                throw new ErrorException("Unserialize error $output");
-            
-            // format client messages
-            if(isset($r[IClient::return_messages])) {
-                Base_EssClientCommon::add_client_messages($r[IClient::return_messages]);
-            }
-            if(isset($r[IClient::return_value]))
-                return $r[IClient::return_value];
-            else // assume old version of client
-                return $r;
-        } else
-            return $output;
+    }
+
+    protected function request_server(& $post_data) {
+        if ($this->is_curl_loaded())
+            return $this->curl_call($post_data);
+        else
+            return $this->fgc_call($post_data);
+    }
+
+    protected function return_response_value_handling_user_messages($serialized, &$response) {
+        if ($serialized) {
+            $unserialized_response = $this->unserialize_response($response);
+            $this->extract_user_messages($unserialized_response);
+            return $unserialized_response[IClient::return_value];
+        }
+        return $response;
+    }
+
+    protected function is_curl_loaded() {
+        return false !== array_search('curl', get_loaded_extensions());
+    }
+
+    protected function unserialize_response(& $response) {
+        // if unserialized response is false
+        if ($response == serialize(false))
+            return false;
+        // check if there was an unserialize error
+        $ur = @unserialize($response);
+        if ($ur === false)
+            throw new ErrorException("Unserialize error $response");
+
+        return $ur;
+    }
+
+    protected function extract_user_messages(& $response) {
+        // format client messages
+        if (isset($response[IClient::return_messages])) {
+            Base_EssClientCommon::add_client_messages($response[IClient::return_messages]);
+        }
     }
 
     protected function fgc_call($post_data) {
