@@ -137,6 +137,7 @@ class Base_EpesiStore extends Module {
         }
         // everything matches on server - buy
         if ($buy) {
+            print Base_EssClientCommon::client_messages_frame();
             $modules = array();
             $module_names = array();
             foreach ($items as $r) {
@@ -150,6 +151,7 @@ class Base_EpesiStore extends Module {
                 print("$module_names[$id] - <span style=\"color: " . ($success ? self::color_success : self::color_failure) . "\">" . $this->t($success ? self::text_order_success : self::text_order_failure) . "$message</span><br/>");
             }
             Base_EpesiStoreCommon::empty_cart();
+            Base_EssClientCommon::client_messages_load_by_js();
         } else {
             $gb = $this->init_module('Utils/GenericBrowser', null, 'cartlist');
             $gb = $this->GB_module($gb, $items, array($this, 'GB_row_additional_actions_cart'));
