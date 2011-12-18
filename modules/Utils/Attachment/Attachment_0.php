@@ -234,7 +234,8 @@ class Utils_Attachment extends Module {
 					'hide'=>$this->create_callback_href_js(array($this,'show_deleted'),array(false))
 				));
 			}
-			eval_js('if($("attachments_new_note").childNodes.length==11){$("attachments_new_note").removeChild($("attachments_new_note").childNodes[1]);$("attachments_new_note").childNodes[2].setAttribute("colspan", 5);}');
+			$col_span = $vd?6:5;
+			eval_js('if($("attachments_new_note").childNodes.length=='.($vd?13:11).'){var n_delete=1;var n_expand=2;if($("attachments_new_note").childNodes[1].getAttribute("colspan")){n_delete=3;n_expand=1;}$("attachments_new_note").removeChild($("attachments_new_note").childNodes[n_delete]);$("attachments_new_note").childNodes[n_expand].setAttribute("colspan", '.$col_span.');}');
 			
 		}
 
