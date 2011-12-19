@@ -27,11 +27,11 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	 * For internal use only.
 	 */
 	public static function admin_access() {
-		return !TRIAL_MODE && !DEMO_MODE;
+		return !DEMO_MODE;
 	}
 
 	public static function admin_access_levels() {
-		return (!TRIAL_MODE && !DEMO_MODE)?false:null;
+		return !DEMO_MODE?false:null;
 	}
 
 	/**

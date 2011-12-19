@@ -40,6 +40,7 @@ if(!defined('MOBILE_DEVICE')) define('MOBILE_DEVICE',0);
 
 if(!defined('FIRST_RUN')) define('FIRST_RUN','FirstRun');
 
+if(!defined('HOSTING_MODE')) define('HOSTING_MODE',0);
 if(!defined('TRIAL_MODE')) define('TRIAL_MODE',0);
 if(!defined('DEMO_MODE')) define('DEMO_MODE',0);
 
