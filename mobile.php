@@ -11,10 +11,7 @@
 define('MOBILE_DEVICE',1);
 define('CID',false);
 require_once('include.php');
-if(detect_iphone())
-	define('IPHONE',1);
-else
-	define('IPHONE',0);
+
 ModuleManager::load_modules();
 
 class LinkEntry {
