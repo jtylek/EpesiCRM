@@ -1,21 +1,21 @@
 <table width="100%">
 	<tr>
 		<td style="width:110px;">
-			<a class="attachment_add_new" {$new_note.href}><img border="0" src="{$theme_dir}/Base/ActionBar/icons/add-small.png" />
+			<a class="attachment_add_new" {$new_note.href}><img src="{$theme_dir}/Base/ActionBar/icons/add-small.png" />
 				<div class="attachment_div_add_new">
 					{$new_note.label}
 				</div>
 			</a>
 		</td>
 		<td style="width:110px;" id="{$expand_collapse.e_id}">
-			<a class="attachment_add_new" {$expand_collapse.e_href}><img border="0" src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
+			<a class="attachment_add_new" {$expand_collapse.e_href}><img src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
 				<div class="attachment_div_add_new">
 					{$expand_collapse.e_label}
 				</div>
 			</a>
 		</td>
 		<td style="width:110px;display:none;" id="{$expand_collapse.c_id}">
-			<a class="attachment_add_new" {$expand_collapse.c_href}><img border="0" src="{$theme_dir}/Base/ActionBar/icons/collapse_big.png" />
+			<a class="attachment_add_new" {$expand_collapse.c_href}><img src="{$theme_dir}/Base/ActionBar/icons/collapse_big.png" />
 				<div class="attachment_div_add_new">
 					{$expand_collapse.c_label}
 				</div>
@@ -30,15 +30,14 @@
 			</a>
 		</td>
 	{/if}
-
 		<td>
 		</td>
 	{if isset($show_deleted)}
-		<td style="width:25px;" nowrap="1">
-			<input type="checkbox" {$show_deleted.default} onChange="if(this.checked){$show_deleted.show} else {$show_deleted.hide}" />
-		</td>
-		<td style="width:95px;background:#336699;padding:5px;" nowrap="1">
+		<td style="width:105px;background:#336699;padding:5px;nowrap;">
 			{$show_deleted.label}
+		</td>
+		<td style="width:25px;nowrap;">
+			<input type="checkbox" {$show_deleted.default} onChange="if(this.checked){$show_deleted.show} else {$show_deleted.hide}" />
 		</td>
 	{/if}
 	</tr>

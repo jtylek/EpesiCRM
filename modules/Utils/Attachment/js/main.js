@@ -4,7 +4,7 @@ var expanded_notes = 0;
 
 utils_attachment_show_hide_buttons = function () {
 	if (expandable_notes.length==0) {
-		$("expand_all_button").hide();
+		$("expand_all_button").show();
 		$("collapse_all_button").hide();
 		return;
 	}	
