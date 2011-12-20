@@ -188,7 +188,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 * @return bool true on success, false otherwise
 	 */
 	public static function save_admin($module,$name,$value){
-		if (!self::Instance()->acl_check('set defaults')) return false;
+		//if (!self::Instance()->acl_check('set defaults')) return false;
 		//if ($value === null) $value = 0;
 		$module = str_replace('/','_',$module);
 		$def = self::get_default($module,$name);
