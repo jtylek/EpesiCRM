@@ -1,6 +1,22 @@
 <table style="width:100%">
 	<tr>
-		<td colspan="2" style="width:220px;">
+		<td width="105px">
+			{$form.save.html}
+		</td>
+		<td width="105px">
+			{$form.cancel.html}
+		</td>
+		<td colspan="3" align="right">
+			{$form.sticky.label}
+			{$form.sticky.html}
+			{$form.permission.label}
+			{$form.permission.html}
+			{$form.file.label}
+			{$form.file.html}
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="width:210px;">
 			{$form.save.error}
 		</td>
 		<td>
@@ -14,33 +30,12 @@
 		</td>
 	</tr>
 	<tr>
-		<td>
-			{$form.save.html}
-		</td>
-		<td>
-			{$form.cancel.html}
-		</td>
-		<td></td>
-		<td></td>
-		</td>
-		<td style="width:110px;" align="right"> 
-			{$form.sticky.label}
-			{$form.sticky.html}
-			{$form.permission.label}
-			{$form.permission.html}
-		</td>
-		<td style="width:110px;" align="right">
-			{$form.file.label}
-			{$form.file.html}
-		</td>
-	</tr>
-	<tr>
 		<td colspan="5">
 			{$form.note.error}
 		</td>
 	</tr>
 	<tr>
-		<td colspan="6">
+		<td colspan="5">
 			{$form.note.html}
 		</td>
 	</tr>
