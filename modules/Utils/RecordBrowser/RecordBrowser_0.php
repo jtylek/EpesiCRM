@@ -1257,6 +1257,7 @@ class Utils_RecordBrowser extends Module {
         $row = true;
         if ($mode=='view')
             print("</form>\n");
+        $tab_counter=-1;
         while ($row) {
             $row = $ret->FetchRow();
             if ($row) $pos = $row['position'];
@@ -1274,6 +1275,7 @@ class Utils_RecordBrowser extends Module {
             $cols = $row['param'];
             $last_page = $pos;
             if ($row) $label = $row['field'];
+            $tab_counter++;
         }
         if ($mode!='add' && $mode!='edit' && $mode!='history') {
             $ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
@@ -1297,8 +1299,8 @@ class Utils_RecordBrowser extends Module {
         $this->display_module($tb);
         $tb->tag();
         if ($this->switch_to_addon!==null) {
+            if($tab_counter<0) $tab_counter=0;
             $ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
-            $tab_counter=0;
             while ($row = $ret->FetchRow()) {
                 if (ModuleManager::is_installed($row['module'])==-1) continue;
                 if (is_callable(explode('::',$row['label']))) {
