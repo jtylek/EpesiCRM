@@ -174,6 +174,7 @@ hr.line {
     /*margin-top: 97px;*/
     width: 100%;
     padding: 0px;
+    border-top: 1px solid transparent;
     /*text-align: center;*/
 }
 
@@ -875,8 +876,7 @@ hr.line {
 	text-align: left;
 	box-shadow: 0 0 8px black;
 	padding: 5px 8px;
-	top: 20px;
-	position: relative;
+	margin: 20px;
 }
 
 .important_notice_frame {
