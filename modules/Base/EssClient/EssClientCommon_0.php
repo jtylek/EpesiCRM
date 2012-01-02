@@ -126,7 +126,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         $ret = '';
         // error msgs
         if (count($msgs[2])) {
-            $ret .= '<div class="important_notice" style="background-color:#FFCCCC; margin: 10px; position: static">';
+            $ret .= '<div class="important_notice" style="background-color:#FFCCCC">';
             $ret .= Base_LangCommon::ts('Base/EssClient', 'Error messages from server:');
             foreach ($msgs[2] as $m)
                 $ret .= '<div class="important_notice_frame">' . $m . '</div>';
@@ -134,7 +134,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         }
         // warn msgs
         if (count($msgs[1])) {
-            $ret .= '<div class="important_notice" style="background-color:#FFDD99; margin: 10px; position: static">';
+            $ret .= '<div class="important_notice" style="background-color:#FFDD99">';
             $ret .= Base_LangCommon::ts('Base/EssClient', 'Warning messages from server:');
             foreach ($msgs[1] as $m)
                 $ret .= '<div class="important_notice_frame">' . $m . '</div>';
@@ -142,7 +142,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         }
         // info msgs
         if (count($msgs[0])) {
-            $ret .= '<div class="important_notice" style="background-color:#DDFF99; margin: 10px; position: static">';
+            $ret .= '<div class="important_notice" style="background-color:#DDFF99">';
             $ret .= Base_LangCommon::ts('Base/EssClient', 'Information messages from server:');
             foreach ($msgs[0] as $m)
                 $ret .= '<div class="important_notice_frame">' . $m . '</div>';
