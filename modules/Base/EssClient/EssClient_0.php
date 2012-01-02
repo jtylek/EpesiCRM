@@ -35,7 +35,6 @@ class Base_EssClient extends Module {
             $this->parent->reset();
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-//        Base_ActionBarCommon::add('delete', 'Clear license key', $this->create_callback_href(array($this, 'clear_license_key')));
 
         print Base_EssClientCommon::client_messages_frame();
         if (Base_EssClientCommon::get_license_key() == "") {
@@ -51,7 +50,6 @@ class Base_EssClient extends Module {
                     $data['license_key'] = Base_EssClientCommon::get_license_key();
                     $data['status'] = Base_EssClientCommon::server()->installation_status();
                     // handle different status messages
-                    //print($data['status'].'<br>');
                     if (strcasecmp($data['status'], "new") == 0 || strcasecmp($data['status'], "updated") == 0) {
                         print('<div class="important_notice_frame">');
                         print('<span style="font-weight:bold;">' .
@@ -61,9 +59,6 @@ class Base_EssClient extends Module {
                         print('</div>');
                         print($this->t('You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.'));
                     }
-// For new version of server
-//                    if (strcasecmp($data['status'], "new_confirmed") == 0 || strcasecmp($data['status'], "updated_confirmed") == 0) {
-// now united into one to work on both
                     if (strcasecmp($data['status'], "confirmed") == 0 || strcasecmp($data['status'], "confirmed (update)") == 0 || strcasecmp($data['status'], "new_confirmed") == 0 || strcasecmp($data['status'], "updated_confirmed") == 0) {
                         print('<div class="important_notice_frame">');
                         print('<span style="font-weight:bold;">' .
@@ -248,21 +243,15 @@ class Base_EssClient extends Module {
 
                 $ret = Base_EssClientCommon::server()->register_installation_request($ret);
 
-                if (!$ret) {
-                    $email = Base_EssClientCommon::get_support_email();
-                    print('<div class="important_notice">');
-                    print('<div style="color:red">' . $this->t('There was an error processing your request.') . '</div>' .
-                            '<br>' .
-                            $this->t(' Please try again later. If the problem persists, please contact us at %s.', array($email)));
-                    print('</div>');
-                    return true;
-                }
-                if (is_string($ret))
-                    Base_EssClientCommon::set_license_key($ret);
+                if ($ret) {
+                    if (is_string($ret))
+                        Base_EssClientCommon::set_license_key($ret);
 
-                location(array());
-                return false;
+                    location(array());
+                    return false;
+                }
             }
+            print Base_EssClientCommon::client_messages_frame(false);
             // set defaults
             print('<div class="important_notice">');
             print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Service Server to provide us with contact information. The data sent to Epesi Service Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
@@ -275,9 +264,11 @@ class Base_EssClient extends Module {
                 $f->setDefaults($defaults);
             }
             //Base_ActionBarCommon::add('send', $data ? 'Update' : 'Register', $f->get_submit_form_href());
-            if ($data && isset($data['status']) && $data['status'] == 'Confirmed')
-                print($this->t('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
-            print($this->t('<div style="color:tomato;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
+            if ($data) {
+                if (isset($data['status']) && strcasecmp($data['status'], 'Confirmed') == 0)
+                    print($this->t('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
+                print($this->t('<div style="color:tomato;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
+            }
             print('<center>');
 
             $f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
