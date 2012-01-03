@@ -585,9 +585,9 @@ table.Utils_GenericBrowser__navigation img {
 #Utils_GenericBrowser__navigation .nav_button a {
 	display: block;
 	color: white;
-	width: 70px;
+	width: 80px;
 	height: 15px;
-	padding: 0px 10px 2px 10px;
+	padding: 0px 5px 2px 5px;
 	margin: auto 4px;
 	
 	/*dark css3 green background gradient */
@@ -631,11 +631,20 @@ table.Utils_GenericBrowser__navigation img {
 	margin: 0px 2px;
 }
 
-#Utils_GenericBrowser__navigation .nav_button .nav_div1 {
+#Utils_GenericBrowser__navigation .nav_button .nav_left_arrow {
 	float: left;
+	margin-top: 1px;
 }
-#Utils_GenericBrowser__navigation .nav_button .nav_div2 {
+#Utils_GenericBrowser__navigation .nav_button .nav_left_label {
+	margin-left: 20px;
+}
+
+#Utils_GenericBrowser__navigation .nav_button .nav_right_arrow {
 	float: right;
+	margin-top: 1px;
+}
+#Utils_GenericBrowser__navigation .nav_button .nav_right_label {
+	float: left;
 }
 
 #Utils_GenericBrowser__navigation .nav_button img {

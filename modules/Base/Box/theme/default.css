@@ -439,6 +439,7 @@ hr.line {
 	color: #FFFFFF;
     padding-left: 1px;
     padding-right: 1px;
+	white-space: nowrap;
 }
 
 #top_bar #top_bar_1 .donate a:hover {
@@ -773,11 +774,7 @@ hr.line {
 .layer .shadow-middle	.right	{ background-image: url('images/shadow/r.png' ); }
 
 .help_label {
-	vertical-align: top;
-	width: 42px;
-	display: inline;
-	text-align: center;
-	padding-left: 6px;
+	margin-left: 17px;
 }
 
 .help {
@@ -795,6 +792,7 @@ hr.line {
     border: none;
 	width: 14px;
 	height: 14px;
+	float: left;
 }
 
 .help:hover {
