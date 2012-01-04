@@ -42,7 +42,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 	
 		//form
 		$form->addElement('header',null, $this->t('Mail settings'));
-		$form->addElement('select','mail_method', $this->t('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'), 'onChange="'.$form->get_submit_form_js(false).'"');
+		$form->addElement('select','mail_method', $this->t('Choose method'), array('smtp'=>$this->t('remote smtp server'), 'mail'=>$this->t('local php.ini settings')), 'onChange="'.$form->get_submit_form_js(false).'"');
 		
 		$form->addElement('text','mail_from_addr', $this->t('Administrator e-mail address'));
 		$form->addRule('mail_from_addr', $this->t('This isn\'t valid e-mail address'), 'email');

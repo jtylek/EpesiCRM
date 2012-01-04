@@ -61,7 +61,7 @@ class CRM_LoginAudit extends Module {
 			while(($row=$ret->FetchRow())) {
 				$c = CRM_ContactsCommon::get_contact_by_user_id($row['user_login_id']);
                 $ulogin = Base_UserCommon::get_user_login($row['user_login_id']);
-                $uid = 'Contact not set';
+                $uid = $this->t('Contact not set');
                 if($c) {
                         $uid = $c['first_name'].' '.$c['last_name'];
                         }

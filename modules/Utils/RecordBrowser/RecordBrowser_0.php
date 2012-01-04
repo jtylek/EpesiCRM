@@ -2289,13 +2289,13 @@ class Utils_RecordBrowser extends Module {
 		}
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
-        $ret = DB::Execute('SELECT tab FROM recordbrowser_table_properties');
+        $ret = DB::Execute('SELECT tab, caption FROM recordbrowser_table_properties');
         $form = $this->init_module('Libs/QuickForm');
         $opts = array();
         $first = false;
         while ($row=$ret->FetchRow()) {
             if (!$first) $first = $row['tab'];
-            $opts[$row['tab']] = ucfirst(preg_replace('/[^a-z0-9]/','_',$row['tab']));
+            $opts[$row['tab']] = $this->t($row['caption']);
         }
         $form->addElement('select', 'recordset', $this->t('Record Set'), $opts, array('onchange'=>$form->get_submit_form_js()));
         if ($form->validate()) {

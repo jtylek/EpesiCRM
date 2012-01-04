@@ -271,10 +271,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 	public static function admin_access_levels() {
 		return array(
-			'records'=>array('label'=>'Manage records', 'values'=>array(0=>'No access', 1=>'View', 2=>'Full'), 'default'=>1),
-			'fields'=>array('label'=>'Manage fields', 'values'=>array(0=>'No access', 1=>'View', 2=>'Full'), 'default'=>1),
-			'addons'=>array('label'=>'Manage addons', 'values'=>array(0=>'No access', 1=>'View', 2=>'Full'), 'default'=>2),
-			'pattern'=>array('label'=>'Clipboard pattern', 'values'=>array(0=>'No access', 1=>'View', 2=>'Full'), 'default'=>2)
+			'records'=>array('label'=>'Manage records', 'values'=>array(0=>self::ts('No access'), 1=>self::ts('View'), 2=>self::ts('Full')), 'default'=>1),
+			'fields'=>array('label'=>'Manage fields', 'values'=>array(0=>self::ts('No access'), 1=>self::ts('View'), 2=>self::ts('Full')), 'default'=>1),
+			'addons'=>array('label'=>'Manage addons', 'values'=>array(0=>self::ts('No access'), 1=>self::ts('View'), 2=>self::ts('Full')), 'default'=>2),
+			'pattern'=>array('label'=>'Clipboard pattern', 'values'=>array(0=>self::ts('No access'), 1=>self::ts('View'), 2=>self::ts('Full')), 'default'=>2)
 		);
 	}
     public static function init($tab, $admin=false, $force=false) {

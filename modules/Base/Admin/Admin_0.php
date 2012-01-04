@@ -52,7 +52,7 @@ class Base_Admin extends Module {
 			$mod_ok[$caption] = $name;
 		}
 		if (Base_AclCommon::i_am_sa())
-			$mod_ok['Admin Panel Access'] = 'Base_Admin';
+			$mod_ok[$this->t('Admin Panel Access')] = 'Base_Admin';
 
 		uksort($mod_ok,'strcasecmp');
 		
