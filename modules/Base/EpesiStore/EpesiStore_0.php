@@ -503,7 +503,12 @@ class Base_EpesiStore extends Module {
         foreach ($data['total_price'] as $curr_code => $amount) {
             if (strlen($str))
                 $str .= '</br>';
-            $str .= $amount['display'] . ' ' . $this->pay_button(Base_EssClientCommon::get_payments_url(), $data['id'], $amount['value'], $curr_code, Base_EpesiStoreCommon::get_payment_credentials());
+            if ($amount['value']) {
+                $pay_button = $this->pay_button(Base_EssClientCommon::get_payments_url(), $data['id'], $amount['value'], $curr_code, Base_EpesiStoreCommon::get_payment_credentials());
+                $str .= $amount['display'] . ' ' . $pay_button;
+            } else {
+                $str .= $this->t('Free');
+            }
         }
         $data['total_price'] = $str;
         return $data;
