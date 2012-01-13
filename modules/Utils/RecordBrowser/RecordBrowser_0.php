@@ -995,6 +995,8 @@ class Utils_RecordBrowser extends Module {
     public function view_entry_with_REQUEST($mode='view', $id = null, $defaults = array(), $show_actions=true, $request=array()) {
         foreach ($request as $k=>$v)
             $_REQUEST[$k] = $v;
+        if(isset($_REQUEST['switch_to_addon']))
+	        $this->switch_to_addon = $_REQUEST['switch_to_addon'];
         return $this->view_entry($mode, $id, $defaults, $show_actions);
     }
     public function view_entry($mode='view', $id = null, $defaults = array(), $show_actions=true) {
@@ -1312,7 +1314,8 @@ class Utils_RecordBrowser extends Module {
                 $tab_counter++;
             }
             $tb->switch_tab($this->switch_to_addon);
-            location(array());
+            if(!isset($_REQUEST['switch_to_addon_break']))
+	            location(array('switch_to_addon_break'=>1));
         }
         if ($mode=='add' || $mode=='edit' || $mode=='history') {
             print("</form>\n");
