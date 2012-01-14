@@ -534,6 +534,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::$clear_get_val_cache = true;
 		if ($alter) {
 			$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($definition['name']));
+			die('!'.$exists.$tab.print_r(DB::GetAll('SELEcT * FROM contact_field'),true));
 			if ($exists) return;
 		}
 
@@ -1027,7 +1028,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					self::init($tab2);
 					$det = explode('/', $col2);
 					$col2 = explode('|', $det[0]);
-					self::init($tab);
+					//self::init($tab);
 					if (!is_array($v)) $v = array($v);
 					$poss_vals = '';
 					$col2s = array();
@@ -1344,7 +1345,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
 			if (!isset($r[$k]) && $k[strlen($k)-1]==']') {
 				list($field, $sub_field) = explode('[', trim($k, ']'));
+				self::init($tab);
 				$sub_tab = self::$table_rows[self::$hash[$field]]['ref_table'];
+				if (!isset($r[$field])) $r[$field] = 0;
 				if (is_array($r[$field])) {
 					$r[$k] = array();
 					foreach ($r[$field] as $f_v)
