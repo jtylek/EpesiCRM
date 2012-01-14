@@ -2,7 +2,6 @@
 	$this->_tpl_vars['fdow'] = Utils_PopupCalendarCommon::get_first_day_of_week();
 	$this->_tpl_vars['fdow']--;
 	if ($this->_tpl_vars['fdow']<0) $this->_tpl_vars['fdow']+=7;
-	load_css($this->_tpl_vars['theme_dir'].'/Utils/RecordBrowser/View_entry.css');
 {/php}
 <table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>

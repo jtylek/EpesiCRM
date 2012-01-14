@@ -14,12 +14,8 @@ class CRM_CalendarCommon extends ModuleCommon {
 	public static $last_added = null;
 	public static $mode = 'none';
 
-	public static function body_access() {
-		return self::Instance()->acl_check('access');
-	}
-	
 	public static function menu() {
-		if(self::Instance()->acl_check('access'))
+		if (Utils_RecordBrowserCommon::get_access('crm_meeting','browse'))
 			return array('CRM'=>array('__submenu__'=>1,'Calendar'=>array()));
 		else
 			return array();

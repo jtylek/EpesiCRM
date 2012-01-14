@@ -1,7 +1,3 @@
-{php}
-	load_css($this->_tpl_vars['theme_dir'].'/Utils/RecordBrowser/View_entry.css');
-{/php}
-
 {* Get total number of fields to display *}
 {assign var=count value=0}
 {php}

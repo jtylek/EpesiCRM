@@ -269,18 +269,8 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 		Utils_CommonDataCommon::extend_array('Bugtrack_Status',array('new'=>'New','inprog'=>'In Progress','cl'=>'Closed'),true,true);
 
 
-	if(ModuleManager::is_installed('CRM_PhoneCall')>=0) {
-		Acl::add_aco('CRM_PhoneCall','view protected notes','Employee');
-		Acl::add_aco('CRM_PhoneCall','view public notes','Employee');
-		Acl::add_aco('CRM_PhoneCall','edit protected notes','Employee Administrator');
-		Acl::add_aco('CRM_PhoneCall','edit public notes','Employee');
-	}
 	//tasks
 	if(ModuleManager::is_installed('Utils_Tasks')>=0) {
-		Acl::add_aco('Utils_Tasks','view protected notes','Employee');
-		Acl::add_aco('Utils_Tasks','view public notes','Employee');
-		Acl::add_aco('Utils_Tasks','edit protected notes','Employee Administrator');
-		Acl::add_aco('Utils_Tasks','edit public notes','Employee');
 
 		$fields = array(
 			array('name'=>'Title', 				'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_TasksCommon','display_title')),
@@ -308,8 +298,13 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('Utils/Tasks', 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('task', 5);
 		Utils_RecordBrowserCommon::set_caption('task', 'Tasks');
-		Utils_RecordBrowserCommon::set_access_callback('task', array('Utils_TasksCommon', 'access_task'));
 		Utils_RecordBrowserCommon::new_addon('task', 'Utils/Tasks', 'task_attachment_addon', 'Notes');
+
+		Utils_RecordBrowserCommon::add_access('task', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('task', 'add', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('task', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('task', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('task', 'delete', array('EMPLOYEE','GROUP:manager'));
 
 		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed'), true);
 		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
@@ -536,7 +531,7 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 		DB::Execute('UPDATE task_field SET param="contact::First Name|Last Name;::;CRM_TasksCommon::customers_crits" WHERE field="Customers"');
 		DB::Execute('UPDATE recordbrowser_addon SET module="CRM_Tasks" WHERE tab="task"');
 		DB::Execute('UPDATE task_callback SET module="CRM_TasksCommon" WHERE module="Utils_TasksCommon"');
-		DB::Execute('UPDATE recordbrowser_table_properties SET tpl="CRM_Tasks__default", icon="CRM_Tasks__icon.png", access_callback="CRM_TasksCommon::access_task" WHERE tab="task"');
+		DB::Execute('UPDATE recordbrowser_table_properties SET tpl="CRM_Tasks__default", icon="CRM_Tasks__icon.png" WHERE tab="task"');
 		DB::Execute('DELETE FROM task_data WHERE field="Page id"');
 		DB::Execute('DELETE FROM task_field WHERE field="Page id"');
 		Acl::add_aco('CRM_Tasks','browse tasks',array('Employee'));
@@ -547,15 +542,6 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 		Acl::del_aco('Utils_Tasks','view task');
 		Acl::del_aco('Utils_Tasks','edit task');
 		Acl::del_aco('Utils_Tasks','delete task');
-
-		Acl::add_aco('CRM_Tasks','view protected notes','Employee');
-		Acl::add_aco('CRM_Tasks','view public notes','Employee');
-		Acl::add_aco('CRM_Tasks','edit protected notes','Employee Administrator');
-		Acl::add_aco('CRM_Tasks','edit public notes','Employee');
-		Acl::del_aco('Utils_Tasks','view protected notes','Employee');
-		Acl::del_aco('Utils_Tasks','view public notes','Employee');
-		Acl::del_aco('Utils_Tasks','edit protected notes','Employee Administrator');
-		Acl::del_aco('Utils_Tasks','edit public notes','Employee');
 
 		Utils_RecordBrowserCommon::enable_watchdog('task', array('CRM_TasksCommon','watchdog_label'));
 		DB::DropTable('task_employees_notified');
@@ -2016,7 +2002,11 @@ function update_from_1_1_1_to_1_1_2() {
 		Utils_RecordBrowserCommon::set_favorites('rc_multiple_emails', true);
 		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', 'Mail addresses');
 		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundube', 'icon.png'));
-		Utils_RecordBrowserCommon::set_access_callback('rc_multiple_emails', array('CRM_RoundcubeCommon', 'access_mail_addresses'));
+
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'EMPLOYEE', array(), array('record_type', 'record_id'));
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'add', 'EMPLOYEE', array(), array('record_type', 'record_id'));
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'edit', 'EMPLOYEE', array(), array('record_type', 'record_id'));
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'delete', 'EMPLOYEE');
 
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
@@ -2609,11 +2599,10 @@ function update_from_1_1_6_to_1_1_7() {
     }
 
     if(ModuleManager::is_installed('Data_TaxRates')>=0) {
-	    Utils_RecordBrowserCommon::set_access_callback('data_tax_rates', array('Data_TaxRatesCommon', 'access_tax_rates'));
-    	Acl::add_aco('Data_TaxRates', 'browse tax rates',array('Employee Manager'));
-	    Acl::add_aco('Data_TaxRates', 'view tax rate',array('Employee Manager'));
-    	Acl::add_aco('Data_TaxRates', 'edit tax rate',array('Employee Manager'));
-	    Acl::add_aco('Data_TaxRates', 'delete tax rate',array('Employee Manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'view', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'add', array('EMPLOYEE','GROUP:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'edit', array('EMPLOYEE','GROUP:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'delete', array('EMPLOYEE','GROUP:manager'));
     }
 
     if(ModuleManager::is_installed('Premium_Timesheet')>=0) {

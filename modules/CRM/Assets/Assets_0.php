@@ -39,13 +39,6 @@ class CRM_Assets extends Module {
         $this->display_module($rb, array(array('company'=>array($arg['id'])), array('company'=>false, 'active'=>true), array('asset_name'=>'ASC')), 'show_data');
     }
 
-    public function assets_attachment_addon($arg) {
-        $a = $this->init_module('Utils/Attachment',array('crm_assets/'.$arg['id']));
-        $a->set_view_func(array('CRM_AssetsCommon','search_format'), array($arg['id']));
-        $a->additional_header($arg['asset_name'].' ('.$arg['asset_id'].')');
-        $this->display_module($a);
-    }
-
     public function caption() {
         if(isset($this->rb)) return $this->rb->caption();
     }

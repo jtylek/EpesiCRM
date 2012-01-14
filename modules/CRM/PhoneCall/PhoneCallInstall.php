@@ -46,28 +46,23 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_icon('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('phonecall', 5);
 		Utils_RecordBrowserCommon::set_caption('phonecall', 'Phone Calls');
-		Utils_RecordBrowserCommon::set_access_callback('phonecall', array('CRM_PhoneCallCommon', 'access_phonecall'));
 		Utils_RecordBrowserCommon::enable_watchdog('phonecall', array('CRM_PhoneCallCommon','watchdog_label'));
 // ************ addons ************** //
-		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon', 'Notes');
+		Utils_AttachmentCommon::new_addon('phonecall');
 		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'messanger_addon', 'Alerts');
         CRM_RoundcubeCommon::new_addon('phonecall');
 // ************ other ************** //
 		CRM_CalendarCommon::new_event_handler('Phonecalls', array('CRM_PhoneCallCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('phone', 'CRM_PhoneCallCommon', 'phone_bbcode');
 
-		$this->add_aco('browse phonecalls',array('Employee'));
-		$this->add_aco('view phonecall',array('Employee'));
-		$this->add_aco('edit phonecall',array('Employee'));
-		$this->add_aco('delete phonecall',array('Employee Manager'));
-
-		$this->add_aco('view protected notes','Employee');
-		$this->add_aco('view public notes','Employee');
-		$this->add_aco('edit protected notes','Employee Administrator');
-		$this->add_aco('edit public notes','Employee');
-
 		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0)
 			Utils_RecordBrowserCommon::new_record_field('phonecall', 'Opportunity', 'select', true, false, 'premium_salesopportunity::Opportunity Name;Premium_SalesOpportunityCommon::crm_opportunity_reference_crits', '', false);
+
+		Utils_RecordBrowserCommon::add_access('phonecall', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('phonecall', 'add', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('phonecall', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('phonecall', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('phonecall', 'delete', array('EMPLOYEE','GROUP:manager'));
 
 		return true;
 	}
@@ -76,7 +71,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		CRM_CalendarCommon::delete_event_handler('Phonecalls');
         CRM_RoundcubeCommon::delete_addon('phonecall');
 		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
-		Utils_RecordBrowserCommon::delete_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon');
+		Utils_AttachmentCommon::delete_addon('phonecall');
 		Utils_AttachmentCommon::persistent_mass_delete('phonecall/');
 		Utils_RecordBrowserCommon::unregister_processing_callback('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
 		Utils_RecordBrowserCommon::uninstall_recordset('phonecall');

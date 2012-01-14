@@ -23,15 +23,6 @@ class Tests_Bugtrack extends Module {
 		if (isset($this->rb)) return $this->rb->caption();
 	}
 
-public function bugtrack_attachment_addon($arg){
-		$a = $this->init_module('Utils/Attachment',array('bugtrack/'.$arg['id']));
-		$a->set_view_func(array('Tests_BugtrackCommon','search_format'),array($arg['id']));
-		//$a->additional_header('Bugtrack Project: '.$arg['Project Name']);
-		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
-		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
-		$this->display_module($a);
-	}
-
 public function company_bugtrack_addon($arg){
 		$rb = $this->init_module('Utils/RecordBrowser','bugtrack');
 		$proj = array(array('company_name'=>$arg['id']), array('company_name'=>false), array('Fav'=>'DESC'));

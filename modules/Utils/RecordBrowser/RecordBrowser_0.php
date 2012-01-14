@@ -25,7 +25,6 @@ class Utils_RecordBrowser extends Module {
     private $favorites = false;
     private $full_history = true;
     private $crits = array();
-    private $access_callback;
     private $noneditable_fields = array();
     private $add_button = null;
     private $more_add_button_stuff = '';
@@ -479,10 +478,10 @@ class Utils_RecordBrowser extends Module {
                         $args = $this->table_rows[$filter];
                         $str = explode(';', $args['param']);
                         $ref = explode('::', $str[0]);
-                        if ($ref[0]!='' && isset($ref[1])) $this->crits['_":Ref:'.$args['id']] = DB::Concat(DB::qstr($vals['filter__'.$filter_id]),DB::qstr('%'));;
+                        if ($ref[0]!='' && isset($ref[1])) $this->crits['_"'.$args['id'].'['.$args['ref_field'].']'] = DB::Concat(DB::qstr($vals['filter__'.$filter_id]),DB::qstr('%'));;
                         if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
 							$val = array_pop(explode('/',$vals['filter__'.$filter_id]));
-                            if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_":RefCD:'.$args['id']] = DB::Concat(DB::qstr($val),DB::qstr('%'));;
+                            if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_"'.$args['id'].'['.$args['ref_field'].']'] = DB::Concat(DB::qstr($val),DB::qstr('%'));;
                         }
                     }
                 }
@@ -587,13 +586,12 @@ class Utils_RecordBrowser extends Module {
         else $quickjump = '';
 
         $hash = array();
-        $access = $this->get_access('browse');
         $query_cols = array();
 		$width_sum = 0;
         foreach($this->table_rows as $field => $args) {
             $hash[$args['id']] = $field;
             if ($field === 'id') continue;
-            if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) || !$access[$args['id']]) continue;
+            if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false))) continue;
             if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
             $query_cols[] = $args['id'];
             $arr = array('name'=>$args['name']);
@@ -619,10 +617,10 @@ class Utils_RecordBrowser extends Module {
             if (!$pdf && !$this->disabled['search']) $each[] = 'search';
             foreach ($each as $e) {
                 if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr[$e] = $args['id'];
-                if ($ref[0]!='' && isset($ref[1])) $arr[$e] = '__Ref__'.$args['id'];
-                if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
-                    if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr[$e] = '__RefCD__'.$args['id'];
-                    else unset($arr[$e]);
+				
+                if (isset($args['ref_field'])) $arr[$e] = $args['id'];
+                if ($args['commondata'] && (!is_array($args['param']) || strpos($args['param']['array_id'],':')===false)) {
+                    $arr[$e] = $args['id'];
                 }
             }
             if (isset($arr['quickjump'])) $arr['quickjump'] = '"~'.$arr['quickjump'];
@@ -675,25 +673,24 @@ class Utils_RecordBrowser extends Module {
 		}
         if ($gb->is_adv_search_on()) {
             foreach ($search as $k=>$v) {
-                $k = str_replace(array('__Ref__','__RefCD__'),array(':Ref:',':RefCD:'),$k);
-                $type = explode(':',$k);
+				$args = $this->table_rows[$hash[$k]];
+				if ($args['commondata']) $k = $k.'[]';
+				elseif (isset($args['ref_field'])) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
                 if ($k[0]=='"') {
                     $search_res['~_'.$k] = $v;
                     continue;
                 }
-                if (isset($type[1]) && $type[1]=='RefCD') {
-                    $search_res[$k] = $v;
-                    continue;
-                }
                 if (is_array($v)) $v = $v[0];
                 $v = explode(' ', $v);
-
-    //          $r = array();
-    //          foreach ($v as $w)
-    //              $r[] = DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'));
-    //          $search_res['~"'.$k] = $r;
-                foreach ($v as $w)
-                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~"'.$k =>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'))));
+                foreach ($v as $w) {
+					if (!$args['commondata']) {
+						$w = DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'));
+						$op = '"';
+					} else {
+						$op = '';
+					}
+                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~'.$op.$k =>$w));
+				}
             }
         } else {
             $val = reset($search);
@@ -703,21 +700,25 @@ class Utils_RecordBrowser extends Module {
             $leftovers = array();
             foreach ($val2 as $vv) {
                 foreach ($search as $k=>$v) {
-					$k = str_replace(array('__Ref__','__RefCD__'),array(':Ref:',':RefCD:'),$k);
                     if ($v!=$val) {
                         $leftovers[$k] = $v;
                         continue;
                     }
-                    $type = explode(':',$k);
                     if ($k[0]=='"') {
                         $search_res['~_'.$k] = $vv;
                         continue;
                     }
-                    if (isset($type[1]) && $type[1]=='RefCD') {
-                        $search_res[$k] = $vv;
-                        continue;
-                    }
-                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~"'.$k =>DB::Concat(DB::qstr('%'),DB::qstr($vv),DB::qstr('%'))));
+					$args = $this->table_rows[$hash[trim($k, '(|')]];
+					if ($args['commondata']) $k = $k.'[]';
+					elseif (isset($args['ref_field'])) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
+					if (!$args['commondata']) {
+						$w = DB::Concat(DB::qstr('%'),DB::qstr($vv),DB::qstr('%'));
+						$op = '"';
+					} else {
+						$w = $vv;
+						$op = '';
+					}
+                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~'.$op.$k =>$w));
                 }
             }
             $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $leftovers);
@@ -744,8 +745,8 @@ class Utils_RecordBrowser extends Module {
             self::$admin_filter = $form->exportValue('show_records');
             $this->set_module_variable('admin_filter', self::$admin_filter);
             if (self::$admin_filter==0) self::$admin_filter = '';
-            if (self::$admin_filter==1) self::$admin_filter = ' AND active=1';
-            if (self::$admin_filter==2) self::$admin_filter = ' AND active=0';
+            if (self::$admin_filter==1) self::$admin_filter = 'active=1 AND ';
+            if (self::$admin_filter==2) self::$admin_filter = 'active=0 AND ';
             $form->display();
         }
         if (isset($this->force_order)) $order = $this->force_order;
@@ -827,8 +828,8 @@ class Utils_RecordBrowser extends Module {
             }
             $r_access = $this->get_access('view', $row);
             foreach($query_cols as $k=>$argsid) {
-                if (!$access[$argsid]) continue;
-				if (!$r_access[$argsid]) {
+				if (!isset($r_access[$argsid])) trigger_error(serialize($r_access));
+				if (!$r_access || !$r_access[$argsid]) {
 					$row_data[] = '';
 					continue;
 				}
@@ -901,7 +902,7 @@ class Utils_RecordBrowser extends Module {
 
             $visible_cols = array();
             foreach($this->table_rows as $field => $args){
-                if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) || !$access[$args['id']]) continue;
+                if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false))) continue;
                 if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
                 $visible_cols[$args['id']] = true;
             }
@@ -923,7 +924,7 @@ class Utils_RecordBrowser extends Module {
                     $this->show_add_in_table = true;
                 }
             }
-            $form->addElement('submit', 'submit_qanr', $this->t('Submit'), array('style'=>'width:auto;'));
+            $form->addElement('submit', 'submit_qanr', $this->t('Save'), array('style'=>'width:100%;height:19px;', 'class'=>'button'));
             $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
             $form->accept($renderer);
             $data = $renderer->toArray();
@@ -951,7 +952,7 @@ class Utils_RecordBrowser extends Module {
 //              $row_data[] = '&nbsp;';
 
             $gb_row = $gb->get_new_row();
-            $gb_row->add_action('',$data['submit_qanr']['html'],'');
+            $gb_row->add_action('',$data['submit_qanr']['html'],'', null, false, 4);
             $gb_row->set_attrs('id="add_in_table_row" style="display:'.($this->show_add_in_table?'':'none').';"');
             $gb_row->add_data_array($row_data);
         }
@@ -1154,7 +1155,7 @@ class Utils_RecordBrowser extends Module {
                 if ($this->get_access('delete',$this->record)) {
                     Base_ActionBarCommon::add('delete', 'Delete', $this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array($this,'delete_record'),array($id)));
                 }
-                if ($this->get_access('clone',$this->record)) {
+                if ($this->get_access('add',$this->record)) {
                     Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->t('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
                 }
                 if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back'])))
@@ -1368,6 +1369,7 @@ class Utils_RecordBrowser extends Module {
             $tpl = '';
             if (self::$mode=='view') print('<form>');
         }
+		if ($tpl) Base_ThemeCommon::load_css('Utils_RecordBrowser','View_entry');
         $theme->display(($tpl!=='')?$tpl:'View_entry', ($tpl!==''));
         if (!$main_page && self::$mode=='view') print('</form>');
     }
@@ -1470,7 +1472,7 @@ class Utils_RecordBrowser extends Module {
                     case 'commondata':  $param = explode('::',$args['param']['array_id']);
                                         foreach ($param as $k=>$v) if ($k!=0) $param[$k] = preg_replace('/[^a-z0-9]/','_',strtolower($v));
 										$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $args['param']['array_id']);
-                                        $form->addElement($args['type'], $args['id'], $label, $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
+                                        $form->addElement($args['type'], $args['id'], $label, $param, array(), array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
                                         if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
                                         break;
                     case 'select':

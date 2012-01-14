@@ -41,10 +41,9 @@ class CRM_MeetingInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_icon('crm_meeting', Base_ThemeCommon::get_template_filename('CRM/Meeting', 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('crm_meeting', 10);
 		Utils_RecordBrowserCommon::set_caption('crm_meeting', 'Meetings');
-		Utils_RecordBrowserCommon::set_access_callback('crm_meeting', array('CRM_MeetingCommon', 'access_meeting'));
 		Utils_RecordBrowserCommon::enable_watchdog('crm_meeting', array('CRM_MeetingCommon','watchdog_label'));
 // ************ addons ************** //
-		Utils_RecordBrowserCommon::new_addon('crm_meeting', 'CRM/Meeting', 'meeting_attachment_addon', 'Notes');
+		Utils_AttachmentCommon::new_addon('crm_meeting');
 		Utils_RecordBrowserCommon::new_addon('crm_meeting', 'CRM/Meeting', 'messanger_addon', 'Alerts');
 // ************ other ************** //
 		CRM_CalendarCommon::new_event_handler('Meetings', array('CRM_MeetingCommon', 'crm_calendar_handler'));
@@ -52,24 +51,20 @@ class CRM_MeetingInstall extends ModuleInstall {
 
 		Utils_BBCodeCommon::new_bbcode('meeting', 'CRM_MeetingCommon', 'meeting_bbcode');
 
-		$this->add_aco('browse meetings',array('Employee'));
-		$this->add_aco('view meeting',array('Employee'));
-		$this->add_aco('edit meeting',array('Employee'));
-		$this->add_aco('delete meeting',array('Employee Manager'));
-
-		$this->add_aco('view protected notes','Employee');
-		$this->add_aco('view public notes','Employee');
-		$this->add_aco('edit protected notes','Employee Administrator');
-		$this->add_aco('edit public notes','Employee');
-
 		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0)
 			Utils_RecordBrowserCommon::new_record_field('crm_meeting', 'Opportunity', 'select', true, false, 'premium_salesopportunity::Opportunity Name;Premium_SalesOpportunityCommon::crm_opportunity_reference_crits', '', false);
+
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'add', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', array('EMPLOYEE','GROUP:manager'));
 
 		return true;
 	}
 
 	public function uninstall() {
-		Utils_RecordBrowserCommon::delete_addon('crm_meeting', 'CRM/Meeting', 'meeting_attachment_addon');
+		Utils_AttachmentCommon::delete_addon('crm_meeting');
 		Utils_RecordBrowserCommon::delete_addon('crm_meeting', 'CRM/Meeting', 'messanger_addon');
 
         CRM_RoundcubeCommon::delete_addon('crm_meeting');

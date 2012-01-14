@@ -87,9 +87,9 @@ if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="")
 				$str = explode(';', $args['param']);
 			}
 			$ref = explode('::', $str[0]);
-			if ($ref[0]!='' && isset($ref[1])) $search_crits[$chr.'"~:Ref:'.$c] = $search_string;
+			if ($ref[0]!='' && isset($ref[1])) $search_crits[$chr.'"~'.$c.'['.$args['ref_field'].']'] = $search_string;
 			if ($args['type']=='commondata' || $ref[0]=='__COMMON__')
-				if (!isset($ref[1]) || $ref[0]=='__COMMON__') $search_crits[$chr.':RefCD:'.$c] = $search_string;
+				if (!isset($ref[1]) || $ref[0]=='__COMMON__') $search_crits[$chr.$c.'['.$args['ref_field'].']'] = $search_string;
 		}
 	}
 	$crits = self::merge_crits($crits, $search_crits);

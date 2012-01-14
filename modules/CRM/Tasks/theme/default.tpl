@@ -1,7 +1,3 @@
-{php}
-	load_css($this->_tpl_vars['theme_dir'].'/Utils/RecordBrowser/View_entry.css');
-{/php}
-
 <table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>

@@ -12,13 +12,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     public static function menu() {
-	    if(self::Instance()->acl_check('access client')) {
-            return array('E-mail'=>array());
-        }
+		if (Utils_RecordBrowserCommon::get_access('rc_accounts', 'browse'))
+			return array('E-mail'=>array());
         return array();
     }
 	public static function addon_access() {
-		return CRM_ContactsCommon::access_contact('browse');
+		return Utils_RecordBrowserCommon::get_access('contact','browse');
 	}
 
     public static function user_settings() {
@@ -135,38 +134,6 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         return $param;
     }
 
-    public static function access_mails($action, $param=null) {
-        $i = self::Instance();
-	    if(!$i->acl_check('access mails')) return false;
-        switch ($action) {
-            case 'browse_crits':    return true;
-            case 'browse':  return true;
-            case 'view':    return array('headers_data'=>false);
-            case 'clone':
-            case 'add':
-            case 'edit':    return false;
-            case 'delete':  return true;
-        }
-        return false;
-
-    }
-
-    public static function access_mails_assoc($action, $param=null) {
-        $i = self::Instance();
-	    if(!$i->acl_check('access mails')) return false;
-        switch ($action) {
-            case 'browse_crits':    return true;
-            case 'browse':  return true;
-            case 'view':    return array('recordset'=>false);
-            case 'clone':
-            case 'add':
-            case 'edit':    return false;
-            case 'delete':  return true;
-        }
-        return false;
-
-    }
-
     public static function QFfield_body(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         //$form->addElement('static', $field, $label,DB::GetOne('SELECT f_body FROM rc_mails_data_1 WHERE id=%d',array($rb->record['id'])));
         $form->addElement('static', $field, $label,'<iframe id="rc_mail_body" src="modules/CRM/Roundcube/get_html.php?'.http_build_query(array('id'=>$rb->record['id'])).'" style="width:100%;border:0" border="0"></iframe>');
@@ -227,20 +194,6 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
     public static function delete_addon($rs) {
         Utils_RecordBrowserCommon::delete_addon($rs, 'CRM/Roundcube', 'addon');
-    }
-
-	public static function access_mail_addresses($action, $param=null){
-		$i = self::Instance();
-		switch ($action) {
-			case 'browse_crits':	return true;
-			case 'browse':	return true;
-			case 'view':	return array('record_type'=>false,'record_id'=>false);
-			case 'clone':
-			case 'add':
-			case 'edit':	
-			case 'delete':	return true;
-		}
-		return false;
     }
 
 	public static function new_mail_addresses_addon($table) {

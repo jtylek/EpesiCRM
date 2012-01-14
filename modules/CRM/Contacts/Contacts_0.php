@@ -274,35 +274,6 @@ class CRM_Contacts extends Module {
 		}
 	}
 
-	public function company_attachment_addon($arg){
-		$a = $this->init_module('Utils/Attachment',array('company/'.$arg['id']));
-		$a->set_view_func(array('CRM_ContactsCommon','search_format_company'),array($arg['id']));
-		$a->enable_watchdog('company',$arg['id']);
-		$a->additional_header('Company: '.$arg['company_name']);
-		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
-		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
-		$this->display_module($a);
-	}
-
-	public function contact_attachment_addon($arg){
-		$a = $this->init_module('Utils/Attachment',array('contact/'.$arg['id']));
-		$a->set_view_func(array('CRM_ContactsCommon','search_format_contact'),array($arg['id']));
-		$a->enable_watchdog('contact',$arg['id']);
-		$companies = array();
-		if($arg['company_name']) {
-			$company = CRM_ContactsCommon::get_company($arg['company_name']);
-			$companies[] = $company['company_name'].($company['short_name']?' ('.$company['short_name'].')':'');
-		}
-		foreach($arg['related_companies'] as $comp) {
-			$company = CRM_ContactsCommon::get_company($comp);
-			$companies[] = $company['company_name'].($company['short_name']?' ('.$company['short_name'].')':'');
-		}
-		$a->additional_header($this->t('%s %s from %s',array($arg['first_name'],$arg['last_name'],implode(', ',$companies))));
-		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
-		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
-		$this->display_module($a);
-	}
-	
 	public function edit_user_form($user_id) {
 		if (!$this->isset_module_variable('last_location')) $this->set_module_variable('last_location',isset($_REQUEST['__location'])?$_REQUEST['__location']:true);
 		$m = $this->init_module('Base/User/Administrator');

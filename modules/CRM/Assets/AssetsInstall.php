@@ -174,11 +174,12 @@ class CRM_AssetsInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::set_quickjump('crm_assets', 'Asset Name');
         Utils_RecordBrowserCommon::set_icon('crm_assets', Base_ThemeCommon::get_template_filename('CRM/Assets', 'icon.png'));
         Utils_RecordBrowserCommon::register_processing_callback('crm_assets', array('CRM_AssetsCommon', 'process_request'));
-    //        Utils_RecordBrowserCommon::set_access_callback('crm_assets', array('CRM_AssetsCommon', 'access_assets'));
         Utils_RecordBrowserCommon::enable_watchdog('crm_assets', array('CRM_AssetsCommon','watchdog_label'));
 
+		Utils_RecordBrowserCommon::add_default_access('crm_assets');
+
         Utils_RecordBrowserCommon::new_addon('company', 'CRM/Assets', 'assets_addon', 'Assets');
-        Utils_RecordBrowserCommon::new_addon('crm_assets', 'CRM/Assets', 'assets_attachment_addon', 'Notes');
+		Utils_AttachmentCommon::new_addon('crm_assets');
 
         return true;
     }
@@ -188,7 +189,7 @@ class CRM_AssetsInstall extends ModuleInstall {
         Utils_CommonDataCommon::remove('crm_assets_monitor_type');
         Utils_CommonDataCommon::remove('crm_assets_printer_type');
         Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Assets', 'assets_addon');
-        Utils_RecordBrowserCommon::delete_addon('crm_assets', 'CRM/Assets', 'assets_attachment_addon');
+		Utils_AttachmentCommon::delete_addon('crm_assets');
         Utils_AttachmentCommon::persistent_mass_delete('crm_assets');
         Utils_RecordBrowserCommon::uninstall_recordset('crm_assets');
         Utils_RecordBrowserCommon::unregister_processing_callback('crm_assets', array('CRM_AssetsCommon', 'process_request'));

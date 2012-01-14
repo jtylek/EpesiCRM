@@ -5,7 +5,6 @@
 {assign var=count value=0}
 {php}
 	$this->_tpl_vars['multiselects'] = array();
-	load_css($this->_tpl_vars['theme_dir'].'/Utils/RecordBrowser/View_entry.css');
 {/php}
 {foreach key=k item=f from=$fields name=fields}
 	{if $f.type!="multiselect"}

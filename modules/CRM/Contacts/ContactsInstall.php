@@ -81,7 +81,6 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('company', 15);
 		Utils_RecordBrowserCommon::set_caption('company', 'Companies');
 		Utils_RecordBrowserCommon::set_icon('company', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'companies.png'));
-		Utils_RecordBrowserCommon::set_access_callback('company', array('CRM_ContactsCommon', 'access_company'));
 		Utils_RecordBrowserCommon::enable_watchdog('company', array('CRM_ContactsCommon','company_watchdog_label'));
         Utils_RecordBrowserCommon::set_clipboard_pattern('company', "%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {phone}<BR>}\n%{fax. {fax}<BR>}\n%{{web_address}<BR>}");
 // ************ contacts settings ************** //
@@ -92,40 +91,44 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('contact', 15);
 		Utils_RecordBrowserCommon::set_caption('contact', 'Contacts');
 		Utils_RecordBrowserCommon::set_icon('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'icon.png'));
-		Utils_RecordBrowserCommon::set_access_callback('contact', array('CRM_ContactsCommon', 'access_contact'));
 		Utils_RecordBrowserCommon::enable_watchdog('contact', array('CRM_ContactsCommon','contact_watchdog_label'));
         Utils_RecordBrowserCommon::set_clipboard_pattern('contact', "%{{first_name} {last_name}<BR>}\n%{{title}<BR>}\n%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {work_phone}<BR>}\n%{{email}<BR>}");
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
-		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes');
-		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
+		Utils_AttachmentCommon::new_addon('company');
+		Utils_AttachmentCommon::new_addon('contact');
 // ************ other ************** //
-		Utils_CommonDataCommon::new_array('Companies_Groups',array('customer'=>'Customer','vendor'=>'Vendor','other'=>'Other'),true,true);
+		Utils_CommonDataCommon::new_array('Companies_Groups',array('customer'=>'Customer','vendor'=>'Vendor','other'=>'Other','manager'=>'Manager'),true,true);
 		Utils_CommonDataCommon::new_array('Contacts_Groups',array('office'=>'Office Staff','field'=>'Field Staff','custm'=>'Customer'),true,true);
 		
 		Utils_BBCodeCommon::new_bbcode('contact', 'CRM_ContactsCommon', 'contact_bbcode');
 		Utils_BBCodeCommon::new_bbcode('company', 'CRM_ContactsCommon', 'company_bbcode');
 
-		$this->add_aco('browse contacts',array('Employee'));
-		$this->add_aco('view contact',array('Employee'));
-		$this->add_aco('edit contact',array('Employee'));
-		$this->add_aco('edit my company contacts',array('Employee Administrator'));
-		$this->add_aco('delete contact',array('Employee Manager'));
-
-		$this->add_aco('browse companies',array('Employee'));
-		$this->add_aco('view company',array('Employee'));
-		$this->add_aco('edit company',array('Employee'));
-		$this->add_aco('edit my company',array('Employee Administrator'));
-		$this->add_aco('delete company',array('Employee Manager'));
-		
-		$this->add_aco('"new" actions',array('Employee'));
-
-		$this->add_aco('view protected notes','Employee');
-		$this->add_aco('view public notes','Employee');
-		$this->add_aco('edit protected notes','Employee Administrator');
-		$this->add_aco('edit public notes','Employee');
+		self::install_permissions();
 
 		return true;
+	}
+	
+	public static function install_permissions() {
+		Utils_RecordBrowserCommon::wipe_access('company');
+		Utils_RecordBrowserCommon::add_access('company', 'view', 'EMPLOYEE', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('company', 'view', 'ALL', array('id'=>'USER_COMPANY'));
+		Utils_RecordBrowserCommon::add_access('company', 'add', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('company', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('company', 'edit', array('ALL','GROUP:manager'), array('id'=>'USER_COMPANY'));
+		Utils_RecordBrowserCommon::add_access('company', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('company', 'delete', array('EMPLOYEE','GROUP:manager'));
+
+		Utils_RecordBrowserCommon::wipe_access('contact');
+		Utils_RecordBrowserCommon::add_access('contact', 'view', 'EMPLOYEE', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('contact', 'view', 'ALL', array('login'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('contact', 'add', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID'), array('group', 'login'));
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('login'=>'USER_ID'), array('group', 'login'));
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ALL','GROUP:manager'), array('company_name'=>'USER_COMPANY'), array('company_name'));
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('EMPLOYEE','GROUP:manager'), array());
+		Utils_RecordBrowserCommon::add_access('contact', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('contact', 'delete', array('EMPLOYEE','GROUP:manager'));
 	}
 
 	public function uninstall() {
@@ -133,10 +136,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::unregister_datatype('crm_company');
 		Utils_RecordBrowserCommon::unregister_datatype('crm_contact');
 		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
-		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon');
-		Utils_AttachmentCommon::persistent_mass_delete('contact/');
-		Utils_AttachmentCommon::persistent_mass_delete('company/');
-		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Contacts', 'contact_attachment_addon');
+		Utils_AttachmentCommon::delete_addon('company');
+		Utils_AttachmentCommon::delete_addon('contact');
 		Utils_RecordBrowserCommon::uninstall_recordset('company');
 		Utils_RecordBrowserCommon::uninstall_recordset('contact');
 		Utils_CommonDataCommon::remove('Contacts_Groups');

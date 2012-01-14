@@ -22,22 +22,6 @@ class Tests_BugtrackCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::create_linked_label('bugtrack', 'Project Name', $v['id']);
 	}
 	
-
-    public static function access_bugtrack($action, $param){
-		$i = self::Instance();
-		switch ($action) {
-			case 'browse_crits':	if (!$i->acl_check('browse bugtrack')) return false;
-									return true;		
-			case 'browse':	return true;
-			case 'view':	return true;
-			case 'clone':	return true;
-			case 'add':
-			case 'edit':	return $i->acl_check('edit bugtrack');
-			case 'delete':	return $i->acl_check('delete bugtrack');
-		}
-		return false;
-    }
-    
     public static function menu() {
 		return array('Projects'=>array('__submenu__'=>1,'Bugtrack'=>array()));
 	}

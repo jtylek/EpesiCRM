@@ -23,14 +23,13 @@ class Data_TaxRatesInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::install_new_recordset('data_tax_rates', $fields);
 		
 		Utils_RecordBrowserCommon::set_caption('data_tax_rates', 'Tax Rates');
-		Utils_RecordBrowserCommon::set_access_callback('data_tax_rates', array('Data_TaxRatesCommon', 'access_tax_rates'));
 		Utils_RecordBrowserCommon::set_icon('data_tax_rates', Base_ThemeCommon::get_template_filename('Data/TaxRates', 'icon.png'));
 
-		$this->add_aco('browse tax rates',array('Employee'));
-		$this->add_aco('view tax rate',array('Employee'));
-		$this->add_aco('edit tax rate',array('Employee Manager'));
-		$this->add_aco('delete tax rate',array('Employee Manager'));
-				
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'view', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'add', array('EMPLOYEE','GROUP:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'edit', array('EMPLOYEE','GROUP:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'delete', array('EMPLOYEE','GROUP:manager'));
+
 		return true;
 	}
 	

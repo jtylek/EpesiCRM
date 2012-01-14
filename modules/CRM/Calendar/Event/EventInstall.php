@@ -14,12 +14,6 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 
 	public function install() {
 		Base_ThemeCommon::install_default_theme('CRM/Calendar/Event');
-
-		$this->add_aco('view protected notes','Employee');
-		$this->add_aco('view public notes','Employee');
-		$this->add_aco('edit protected notes','Employee Administrator');
-		$this->add_aco('edit public notes','Employee');
-
 		return true;
 	}
 

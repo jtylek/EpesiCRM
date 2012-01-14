@@ -24,7 +24,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         print(Base_LangCommon::ts('CRM_Contacts','Your user doesn\'t have contact, please assign one'));
     }
 	public static function contact_attachment_addon_access() {
-		return self::access_contact('browse');
+		return Utils_RecordBrowserCommon::get_access('contact','browse');
 	}
 	public static function get_user_label($user_id, $nolink=false) {
 		static $cache=array();
@@ -71,74 +71,22 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function get_my_record() {
         $me = self::get_contact_by_user_id(Acl::get_user());
-        if ($me===null) $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>null, 'related_companies'=>array(), 'login'=>-1);
+        if ($me===null) $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>null, 'related_companies'=>array(), 'login'=>-1, 'group'=>array());
         return $me;
     }
-    public static function access_company($action, $param=null){
-        $i = self::Instance();
-        switch ($action) {
-            case 'browse_crits':    if ($i->acl_check('browse companies')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
-                                    $me = self::get_my_record();
-                                    if ($me) return array('company_name'=>$me['company_name']);
-                                    return false;
-            case 'browse':  return $i->acl_check('browse companies');
-            case 'view':    if ($i->acl_check('view company') && ($param['permission']!=2 || $param['created_by']==Acl::get_user())) return true;
-                            $me = self::get_my_record();
-                            if ($me && $param['id']==$me['company_name']) return true;
-                            return false;
-            case 'clone':
-            case 'add':     return $i->acl_check('edit company');
-            case 'edit':    if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
-                            $me = self::get_my_record();
-                            if ($me && $param['id']==$me['company_name'] && $i->acl_check('edit my company')) return true; //my company
-                            if (!$i->acl_check('edit company')) return false;
-							return array('permission'=>$param['created_by']==Acl::get_user());
-            case 'delete':  if ($param['created_by']==Acl::get_user()) return true;
-                            return $i->acl_check('delete company');
-        }
-        return false;
-    }
-    public static function access_contact($action, $param=null){
-        $i = self::Instance();
-        switch ($action) {
-            case 'browse_crits':    if ($i->acl_check('browse contacts')) return array('(!permission'=>2, '|login'=>Acl::get_user(), '|:Created_by'=>Acl::get_user());
-                                    else return array('login'=>Acl::get_user());
-            case 'browse':  return $i->acl_check('browse contacts');
-            case 'view':    if (!$i->acl_check('view contact')) {
-                                return $param['login']==Acl::get_user();
-                            }
-                            return ($param['permission']!=2 || $param['login']==Acl::get_user() || $param['created_by']==Acl::get_user());
-            case 'clone':
-            case 'add':     return $i->acl_check('edit contact');
-            case 'edit':    if ($param['login']==Acl::get_user()) return true; //me
-                            if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
-                            if ($i->acl_check('edit contact')) return array('permission'=>$param['created_by']==Acl::get_user());
-                            if ($i->acl_check('edit my company contacts')) {
-                                $me = self::get_my_record();
-                                if($param['company_name']==$me['company_name']) return true;
-                            }
-                            return false;
-            case 'delete':  if ($param['created_by']==Acl::get_user()) return true;
-                            return $i->acl_check('delete company');
-        }
-        return false;
-    }
-
     /*--------------------------------------------------------------------*/
     public static function menu() {
         $ret = array();
 		$opts = array();
-		if (self::access_contact('browse'))
+		$br_contact = Utils_RecordBrowserCommon::get_access('contact','browse');
+		$br_company = Utils_RecordBrowserCommon::get_access('company','browse');
+		if ($br_contact===true || !isset($br_contact['login']))
 			$opts['Contacts'] = array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
-		if (self::access_company('browse'))
+		if ($br_company===true || !isset($br_company['id']))
 			$opts['Companies'] = array('mode'=>'company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
 		if (!empty($opts)) {
 			$opts['__submenu__'] = 1;
-			$ret['CRM'] = array(
-                '__submenu__'=>1,
-                'Contacts'=>array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png'),
-                'Companies'=>array('mode'=>'company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png')
-			);
+			$ret['CRM'] = $opts;
  		}
 		
         $ret['My settings']=array('__submenu__'=>1);
@@ -405,7 +353,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     public static function company_get_tooltip($record) {
 		if (!$record[':active']) return '';
-		if (!self::access_company('view', $record)) return '';
+		if (!Utils_RecordBrowserCommon::get_access('company', 'view', $record)) return '';
         if(isset($record['group']) && is_array($record['group'])) {
             $group = Utils_CommonDataCommon::get_nodes('Companies_Groups',$record['group']);
             if($group)
@@ -442,7 +390,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function contact_get_tooltip($record) {
 		if (!$record[':active']) return '';
-		if (!self::access_contact('view', $record)) return '';
+		if (!Utils_RecordBrowserCommon::get_access('contact', 'view', $record)) return '';
         if(!is_array($record) || empty($record) || !isset($record['work_phone'])) return '';
         if(isset($record['group']) && is_array($record['group'])) {
             $group = Utils_CommonDataCommon::get_nodes('Contacts_Groups',$record['group']);
@@ -1208,7 +1156,10 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 
     public static function applet_caption() {
-        return "Contacts";
+		$br_contact = Utils_RecordBrowserCommon::get_access('contact','browse');
+		if ($br_contact===true || !isset($br_contact['login']))
+			return "Contacts";
+		return false;
     }
 
     public static function applet_info() {

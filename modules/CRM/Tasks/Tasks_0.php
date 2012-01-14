@@ -70,18 +70,6 @@ class CRM_Tasks extends Module {
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 
-
-
-	public function task_attachment_addon($arg){
-		$a = $this->init_module('Utils/Attachment',array('task/'.$arg['id']));
-		$a->set_view_func(array('CRM_TasksCommon','search_format'),array($arg['id']));
-		$a->enable_watchdog('task',$arg['id']);
-		$a->additional_header($this->t('Task: %s',array($arg['title'])));
-		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
-		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
-		$this->display_module($a);
-	}
-	
 	public function messanger_addon($arg) {
 		$emp = array();
 		$ret = CRM_ContactsCommon::get_contacts(array('id'=>$arg['employees']), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));

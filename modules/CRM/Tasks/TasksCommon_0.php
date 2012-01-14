@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_TasksCommon extends ModuleCommon {
 	public static function applet_caption() {
-		if(self::Instance()->acl_check('browse tasks'))
+		if (Utils_RecordBrowserCommon::get_access('task','browse'))
 			return "Tasks";
 	}
 
@@ -65,7 +65,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 
 	public static function menu() {
-		if(self::Instance()->acl_check('browse tasks'))
+		if (Utils_RecordBrowserCommon::get_access('task','browse'))
 			return array('CRM'=>array('__submenu__'=>1,'Tasks'=>array()));
 		else
 			return array();
@@ -81,32 +81,6 @@ class CRM_TasksCommon extends ModuleCommon {
 
 	public static function get_task($id) {
 		return Utils_RecordBrowserCommon::get_record('task', $id);
-	}
-
-	public static function access_task($action, $param=null){
-		$i = self::Instance();
-		switch ($action) {
-			case 'browse_crits':	$me = CRM_ContactsCommon::get_my_record();
-									return array('(!permission'=>2, '|employees'=>$me['id']);
-			case 'browse':	if (!$i->acl_check('browse tasks')) return false;
-							return true;
-			case 'view':	if (!$i->acl_check('view task')) return false;
-							$me = CRM_ContactsCommon::get_my_record();
-							return ($param['permission']!=2 || isset($param['employees'][$me['id']]));
-			case 'clone':
-			case 'add':		return $i->acl_check('edit task');
-			case 'edit':	$me = CRM_ContactsCommon::get_my_record();
-							if ($param['permission']>=1 &&
-								!in_array($me['id'],$param['employees']) &&
-								!in_array($me['id'],$param['customers'])) return false;
-							if ($i->acl_check('edit task')) return true;
-							return false;
-			case 'delete':	if ($i->acl_check('delete task')) return true;
-							$me = CRM_ContactsCommon::get_my_record();
-							if ($me['login']==$param['created_by']) return true;
-							return false;
-		}
-		return false;
 	}
 
 	public static function applet_settings() {
@@ -179,7 +153,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 		if ($v>=3 || $nolink) return $status[$v];
 		CRM_FollowupCommon::drawLeightbox($prefix);
-		if (!self::access_task('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
+		if (!Utils_RecordBrowserCommon::get_access('task', 'edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
 			unset($_REQUEST['form_name']);
 			$v = $_REQUEST['closecancel'];
@@ -356,13 +330,13 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 
 	public static function crm_event_delete($id) {
-		if (!self::access_task('delete', self::get_task($id))) return false;
+		if (!Utils_RecordBrowserCommon::get_access('task','delete', self::get_task($id))) return false;
 		Utils_RecordBrowserCommon::delete_record('task',$id);
 		return true;
 	}
 	public static function crm_event_update($id, $start, $duration, $timeless) {
 		if (!$timeless) return false;
-		if (!self::access_task('edit', self::get_task($id))) return false;
+		if (!Utils_RecordBrowserCommon::get_access('task','edit', self::get_task($id))) return false;
 		$values = array('deadline'=>date('Y-m-d', $start));
 		Utils_RecordBrowserCommon::update_record('task', $id, $values);
 		return true;
@@ -427,13 +401,13 @@ class CRM_TasksCommon extends ModuleCommon {
 			$next['color'] = 'gray';
 
 		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('task', $r['id'], 'view');
-		if (self::access_task('edit', $r)!==false)
+		if (Utils_RecordBrowserCommon::get_access('task','edit', $r)!==false)
 			$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('task', $r['id'], 'edit');
 		else {
 			$next['edit_action'] = false;
 			$next['move_action'] = false;
 		}
-		if (self::access_task('delete', $r)==false)
+		if (Utils_RecordBrowserCommon::get_access('task','delete', $r)==false)
 			$next['delete_action'] = false;
 
 /*		$r_new = $r;

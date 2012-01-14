@@ -12,7 +12,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_AssetsCommon extends ModuleCommon {
     public static function menu() {
-        return array('CRM'=>array('__submenu__'=>1,'Assets'=>array()));
+		if (Utils_RecordBrowserCommon::get_access('crm_assets','browse'))
+			return array('CRM'=>array('__submenu__'=>1,'Assets'=>array()));
+		else
+			return array();
     }
 
     public static function display_asset_id($r, $nolink) {

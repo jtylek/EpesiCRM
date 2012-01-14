@@ -63,7 +63,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	}
 	
 	public static function applet_caption() {
-		if(self::Instance()->acl_check('browse meetings'))
+		if (Utils_RecordBrowserCommon::get_access('crm_meeting','browse'))
 			return "Meetings";
 	}
 
@@ -293,7 +293,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	}
 
 	public static function menu() {
-		if(self::Instance()->acl_check('browse meetings'))
+		if (Utils_RecordBrowserCommon::get_access('crm_meeting','browse'))
 			return array('CRM'=>array('__submenu__'=>1,'Meetings'=>array()));
 		else
 			return array();
@@ -305,32 +305,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 	public static function get_meeting($id) {
 		return Utils_RecordBrowserCommon::get_record('crm_meeting', $id);
-	}
-
-	public static function access_meeting($action, $param=null){
-		$i = self::Instance();
-		switch ($action) {
-			case 'browse_crits':	$me = CRM_ContactsCommon::get_my_record();
-									return array('(!permission'=>2, '|employees'=>$me['id']);
-			case 'browse':	if (!$i->acl_check('browse meetings')) return false;
-							return true;
-			case 'view':	if (!$i->acl_check('view meeting')) return false;
-							$me = CRM_ContactsCommon::get_my_record();
-							return ($param['permission']!=2 || isset($param['employees'][$me['id']]));
-			case 'clone':
-			case 'add':		return $i->acl_check('edit meeting');
-			case 'edit':	$me = CRM_ContactsCommon::get_my_record();
-							if ($param['permission']>=1 &&
-								!in_array($me['id'],$param['employees']) &&
-								!in_array($me['id'],$param['customers'])) return false;
-							if ($i->acl_check('edit meeting')) return true;
-							return false;
-			case 'delete':	if ($i->acl_check('delete meeting')) return true;
-							$me = CRM_ContactsCommon::get_my_record();
-							if ($me['login']==$param['created_by']) return true;
-							return false;
-		}
-		return false;
 	}
 
 	public static function applet_settings() {
@@ -396,7 +370,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
-		if (!self::access_meeting('edit', $record) && !Base_AclCommon::i_am_admin()) return false;
+		if (!Utils_RecordBrowserCommon::get_access('crm_meeting','edit', $record) && !Base_AclCommon::i_am_admin()) return false;
 		if ($v>=2) return false;
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
 			unset($_REQUEST['form_name']);
@@ -603,7 +577,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$id = explode('_', $id);
 		$id = reset($id);
 		$r = Utils_RecordBrowserCommon::get_record('crm_meeting', $id);
-		if (!self::access_meeting('edit', $r)) return false;
+		if (!Utils_RecordBrowserCommon::get_access('crm_meeting', 'edit', $r)) return false;
 		$sp_start = explode(' ', date('Y-m-d H:i:s', $start));
 		$values = array();
 		$values['date'] = $sp_start[0];
@@ -625,7 +599,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	public static function crm_event_delete($id) {
 		$id = explode('_', $id);
 		$id = reset($id);
-		if (!self::access_meeting('delete', self::get_meeting($id))) return false;
+		if (!Utils_RecordBrowserCommon::get_access('crm_meeting','delete', self::get_meeting($id))) return false;
 		Utils_RecordBrowserCommon::delete_record('crm_meeting',$id);
 		$r = Utils_RecordBrowserCommon::get_record('crm_meeting', $id);
 		if ($r['recurrence_type']>0) 
@@ -717,7 +691,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'view', array('day'=>$day));
 
-		if (self::access_meeting('edit', $r)!==false) {
+		if (Utils_RecordBrowserCommon::get_access('crm_meeting','edit', $r)!==false) {
 			$next['edit_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'edit');
 			if ($r['status']<=1) {
 				$r_new = $r;
@@ -728,7 +702,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$next['edit_action'] = false;
 			$next['move_action'] = false;
 		}
-		if (self::access_meeting('delete', $r)==false)
+		if (Utils_RecordBrowserCommon::get_access('crm_meeting','delete', $r)==false)
 			$next['delete_action'] = false;
 //		$next['delete_action'] = Module::create_confirm_href(Base_LangCommon::ts('Premium_SchoolRegister','Are you sure you want to delete this '.$type.'?'),array('delete_'.$type=>$record['id']));
 

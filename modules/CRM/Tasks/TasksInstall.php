@@ -38,28 +38,23 @@ class CRM_TasksInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('task', 5);
 		Utils_RecordBrowserCommon::set_caption('task', 'Tasks');
-		Utils_RecordBrowserCommon::set_access_callback('task', array('CRM_TasksCommon', 'access_task'));
 		Utils_RecordBrowserCommon::enable_watchdog('task', array('CRM_TasksCommon','watchdog_label'));
 // ************ addons ************** //
-		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'task_attachment_addon', 'Notes');
+		Utils_AttachmentCommon::new_addon('task');
 		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'messanger_addon', 'Alerts');
 // ************ other ************** //
 		CRM_CalendarCommon::new_event_handler('Tasks', array('CRM_TasksCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('task', 'CRM_TasksCommon', 'task_bbcode');
         CRM_RoundcubeCommon::new_addon('task');
 
-		$this->add_aco('browse tasks',array('Employee'));
-		$this->add_aco('view task',array('Employee'));
-		$this->add_aco('edit task',array('Employee'));
-		$this->add_aco('delete task',array('Employee Manager'));
-
-		$this->add_aco('view protected notes','Employee');
-		$this->add_aco('view public notes','Employee');
-		$this->add_aco('edit protected notes','Employee Administrator');
-		$this->add_aco('edit public notes','Employee');
-
 		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0)
 			Utils_RecordBrowserCommon::new_record_field('task', 'Opportunity', 'select', true, false, 'premium_salesopportunity::Opportunity Name;Premium_SalesOpportunityCommon::crm_opportunity_reference_crits', '', false);
+
+		Utils_RecordBrowserCommon::add_access('task', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('task', 'add', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('task', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('task', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('task', 'delete', array('EMPLOYEE','GROUP:manager'));
 
 		return true;
 	}
@@ -67,6 +62,7 @@ class CRM_TasksInstall extends ModuleInstall {
 	public function uninstall() {
 		CRM_CalendarCommon::delete_event_handler('Tasks');
         CRM_RoundcubeCommon::delete_addon('task');
+		Utils_AttachmentCommon::delete_addon('task');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Tasks');
 		Utils_RecordBrowserCommon::unregister_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::uninstall_recordset('task');

@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Contacts_ActivitiesCommon extends ModuleCommon {
 	public static function contact_activities_access() {
-		return CRM_ContactsCommon::access_contact('browse');
+		return Utils_RecordBrowserCommon::get_access('contact','browse');
 	}
 
 }

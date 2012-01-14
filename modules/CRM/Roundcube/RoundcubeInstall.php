@@ -148,7 +148,6 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_mails', 'Mails');
-        Utils_RecordBrowserCommon::set_access_callback('rc_mails', array('CRM_RoundcubeCommon', 'access_mails'));
 		Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'mails'));
 
         $fields = array(
@@ -171,7 +170,6 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails_assoc', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_mails_assoc', 'Mails Associations');
-        Utils_RecordBrowserCommon::set_access_callback('rc_mails_assoc', array('CRM_RoundcubeCommon', 'access_mails_assoc'));
 		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_body_addon', 'Body');
         Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon', 'Associated records');
         Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', 'Attachments');
@@ -190,8 +188,8 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'addon', 'e-mails');
 
 		$fields = array(
-			array('name'=>'Record Type', 		'type'=>'text', 'param'=>'64', 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
-			array('name'=>'Record ID', 		'type'=>'integer', 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
+			array('name'=>'Record Type', 	'type'=>'hidden', 'param'=>Utils_RecordBrowserCommon::actual_db_type('text',64), 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
+			array('name'=>'Record ID', 		'type'=>'hidden', 'param'=>Utils_RecordBrowserCommon::actual_db_type('integer'), 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
 			array('name'=>'Nickname', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_nickname')),
 			array('name'=>'Email', 			'type'=>'email', 'required'=>true, 'param'=>array('unique'=>true), 'extra'=>false, 'visible'=>true)
 		);
@@ -201,15 +199,27 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_favorites('rc_multiple_emails', true);
 		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', 'Mail addresses');
 		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundube', 'icon.png'));
-		Utils_RecordBrowserCommon::set_access_callback('rc_multiple_emails', array('CRM_RoundcubeCommon', 'access_mail_addresses'));
 
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', 'e-mail addresses');
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', 'e-mail addresses');
 
-		$this->add_aco('access mails','Employee');
-		$this->add_aco('access client','Employee');
-
         Variable::set('crm_roundcube_global_signature',"Message sent with EpesiBIM - managing business your way!<br /><a href=\"http://www.epesibim.com\">http://www.epesibim.com</a>");
+
+		Utils_RecordBrowserCommon::add_access('rc_accounts', 'view', 'EMPLOYEE', array('epesi_user'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('rc_accounts', 'add', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('rc_accounts', 'edit', 'EMPLOYEE', array(), array('epesi_user'));
+		Utils_RecordBrowserCommon::add_access('rc_accounts', 'delete', 'EMPLOYEE', array('epesi_user'=>'USER_ID'));
+
+		Utils_RecordBrowserCommon::add_access('rc_mails', 'view', 'EMPLOYEE', array(), array('headers_data'));
+		Utils_RecordBrowserCommon::add_access('rc_mails', 'delete', 'EMPLOYEE');
+
+		Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'view', 'EMPLOYEE', array(), array('recordset'));
+		Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'delete', 'EMPLOYEE');
+
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'add', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'edit', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'delete', 'EMPLOYEE');
 
         return true;
     }

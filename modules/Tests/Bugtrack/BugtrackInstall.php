@@ -30,30 +30,25 @@ class Tests_BugtrackInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('bugtrack', 15);
 		Utils_RecordBrowserCommon::set_caption('bugtrack', 'Bugtrack');
 		Utils_RecordBrowserCommon::set_icon('bugtrack', Base_ThemeCommon::get_template_filename('Tests/Bugtrack', 'icon.png'));
-		Utils_RecordBrowserCommon::set_access_callback('bugtrack', array('Tests_BugtrackCommon', 'access_bugtrack'));
 		
 // ************ addons ************** //
-		Utils_RecordBrowserCommon::new_addon('bugtrack', 'Tests/Bugtrack', 'bugtrack_attachment_addon', 'Notes');
+		Utils_AttachmentCommon::new_addon('bugtrack');
 		Utils_RecordBrowserCommon::new_addon('company', 'Tests/Bugtrack', 'company_bugtrack_addon', 'Bugtrack');
 
 // ************ other ************** //	
 		Utils_CommonDataCommon::new_array('Bugtrack_Status',array('new'=>'New','inprog'=>'In Progress','cl'=>'Closed'),true,true);
-		
-		$this->add_aco('browse bugtrack',array('Employee'));
-		$this->add_aco('view bugtrack',array('Employee'));
-		$this->add_aco('edit bugtrack',array('Employee'));
-		$this->add_aco('delete bugtrack',array('Employee Manager'));
 
-		$this->add_aco('view protected notes','Employee');
-		$this->add_aco('view public notes','Employee');
-		$this->add_aco('edit protected notes','Employee Administrator');
-		$this->add_aco('edit public notes','Employee');
-		
+		Utils_RecordBrowserCommon::add_access('bugtrack', 'view', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('bugtrack', 'add', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('bugtrack', 'edit', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('bugtrack', 'delete', array('EMPLOYEE', 'GROUP:manager'));
+
 		return true;
 	}
 	
 	public function uninstall() {
 		Utils_RecordBrowserCommon::delete_addon('company', 'Tests/Bugtrack', 'company_bugtrack_addon');
+		Utils_AttachmentCommon::delete_addon('bugtrack');
 		Utils_RecordBrowserCommon::uninstall_recordset('bugtrack');
 		Utils_CommonDataCommon::remove('Bugtrack_Status');
 		return true;
