@@ -79,7 +79,6 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = array();
 		$opts = array();
 		$br_contact = Utils_RecordBrowserCommon::get_access('contact','browse');
-		foreach ($br_contact as $k=>$v) $br_contact[trim($k,'^')] = $v;
 		$br_company = Utils_RecordBrowserCommon::get_access('company','browse');
 		if ($br_contact===true || !isset($br_contact['login']))
 			$opts['Contacts'] = array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
