@@ -1455,7 +1455,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				
 				// move to CRM_Contacts, using "user clearance callback"
 				$me = CRM_ContactsCommon::get_my_record(); 
-				if ($me['company_name']==CRM_ContactsCommon::get_main_company()) $user_clearance[] = 'EMPLOYEE';
+				$mc = CRM_ContactsCommon::get_main_company();
+				if ($me['company_name']==$mc || in_array($mc, $me['related_companies'])) $user_clearance[] = 'EMPLOYEE';
 				foreach ($me['group'] as $g) {
 					$user_clearance[] = 'GROUP:'.$g;
 				}
