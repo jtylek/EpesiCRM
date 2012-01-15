@@ -534,7 +534,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::$clear_get_val_cache = true;
 		if ($alter) {
 			$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($definition['name']));
-			die('!'.$exists.$tab.print_r(DB::GetAll('SELEcT * FROM contact_field'),true));
 			if ($exists) return;
 		}
 
