@@ -1063,6 +1063,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$v = $allowed_cd;
 				$k = $ref;
 			} 
+		self::init($tab);
             if (!isset(self::$table_rows[$k]) && $k[0]!=':' && $k!=='id' && !isset(self::$table_rows[self::$hash[$k]])) continue; //failsafe
             if ($k[0]==':') {
                 switch ($k) {
