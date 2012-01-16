@@ -90,6 +90,7 @@ input, textarea, select {
 .logged_as {
 	float: left;
 	width: 154px;
+    height: 21px;
 	padding-top: 0px;
 	margin-right: 6px;
 	text-align: center;
