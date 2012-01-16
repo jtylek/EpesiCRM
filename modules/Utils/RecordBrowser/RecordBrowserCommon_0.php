@@ -1062,7 +1062,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				}
 				$v = $allowed_cd;
 				$k = $ref;
-			} 
+			}
 		self::init($tab);
             if (!isset(self::$table_rows[$k]) && $k[0]!=':' && $k!=='id' && !isset(self::$table_rows[self::$hash[$k]])) continue; //failsafe
             if ($k[0]==':') {
@@ -1156,6 +1156,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($or_started) $having .= ')';
 		if ($group_or) $having  .= '))';
         $orderby = array();
+        self::init($tab);
         foreach($order as $v){
             if ($v['order'][0]!=':' && !isset(self::$table_rows[$v['order']])) continue; //failsafe
             if ($v['order'][0]==':') {
@@ -1278,6 +1279,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
         }
         $records = array();
+        self::init($tab);
         if (!empty($cols)) {
             foreach($cols as $k=>$v) {
                 if (isset(self::$hash[$v])) $cols[$k] = self::$table_rows[self::$hash[$v]];
