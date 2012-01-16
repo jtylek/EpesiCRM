@@ -124,8 +124,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::add_access('contact', 'view', 'ALL', array('login'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('contact', 'add', 'EMPLOYEE');
 		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID'), array('group', 'login'));
-		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('login'=>'USER_ID'), array('group', 'login'));
-		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ALL','GROUP:manager'), array('company_name'=>'USER_COMPANY'), array('company_name'));
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('login'=>'USER_ID'), array('company_name', 'related_companies', 'group', 'login'));
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ALL','GROUP:manager'), array('company_name'=>'USER_COMPANY'), array('login', 'company_name', 'related_companies'));
 		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('EMPLOYEE','GROUP:manager'), array());
 		Utils_RecordBrowserCommon::add_access('contact', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('contact', 'delete', array('EMPLOYEE','GROUP:manager'));
