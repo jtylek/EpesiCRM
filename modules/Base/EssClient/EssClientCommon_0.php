@@ -42,7 +42,6 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
      */
     public static function get_possible_admin() {
         $users = DB::GetAll('select id, mail from user_login inner join user_password on user_login_id = id');
-        $arr = array();
         foreach ($users as $u) {
             if (Base_AclCommon::is_user_in_group(
                             Base_AclCommon::get_acl_user_id($u['id']), 'Super administrator')) {
@@ -59,7 +58,12 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function get_license_key() {
-        return Variable::get(self::VAR_LICENSE_KEY, false);
+        $ret = Variable::get(self::VAR_LICENSE_KEY, false);
+        if(is_array($ret)) {
+            $serv = self::get_server_url();
+            $ret = array_key_exists($serv, $ret) ? $ret[$serv] : '';
+        }
+        return $ret;
     }
 
     public static function set_license_key($license_key) {

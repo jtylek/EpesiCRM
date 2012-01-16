@@ -37,6 +37,7 @@ class Base_EssClient extends Module {
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 
         print Base_EssClientCommon::client_messages_frame();
+        
         if (Base_EssClientCommon::get_license_key() == "") {
             $this->terms_and_conditions();
             Base_EssClientCommon::server(true);
