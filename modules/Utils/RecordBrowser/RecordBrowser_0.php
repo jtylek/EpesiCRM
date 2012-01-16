@@ -828,7 +828,6 @@ class Utils_RecordBrowser extends Module {
             }
             $r_access = $this->get_access('view', $row);
             foreach($query_cols as $k=>$argsid) {
-				if (!isset($r_access[$argsid])) trigger_error(serialize($r_access));
 				if (!$r_access || !$r_access[$argsid]) {
 					$row_data[] = '';
 					continue;
