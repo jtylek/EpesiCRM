@@ -1367,7 +1367,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 case '>=': $result = ($r[$k] >= $v); break;
                 case '<': $result = ($r[$k] < $v); break;
                 case '<=': $result = ($r[$k] <= $v); break;
-                case '==': $result = stristr((string)$r[$k],(string)$v);
+                case '==': $result = ($r[$k] == $v);
             }
             if ($negative) $result = !$result;
             if ($or_started) $or_result |= $result;
