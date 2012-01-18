@@ -910,10 +910,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $a;
     }
     public static function build_query( $tab, $crits = null, $admin = false, $order = array()) {
-        $key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
+        $cache_key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
         static $cache = array();
         self::init($tab, $admin);
-		if (isset($cache[$key])) return $cache[$key];
+		if (isset($cache[$cache_key])) return $cache[$cache_key];
         if (!$tab) return false;
 		$postgre = (strcasecmp(DATABASE_DRIVER,"postgres")===0);
         $having = '';
@@ -1210,10 +1210,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_tab = str_replace('('.$tab.'_data_1 AS r'.')',$tab.'_data_1 AS r',$final_tab);
         $default_filter = (class_exists('Utils_RecordBrowser') && isset(Utils_RecordBrowser::$admin_filter))?Utils_RecordBrowser::$admin_filter:'';
         $ret = array('sql'=>' '.$final_tab.' WHERE '.($admin?$default_filter:'active=1 AND ').$having.$orderby,'vals'=>$vals);
-        return $cache[$key] = $ret;
+        return $cache[$cache_key] = $ret;
     }
-    public static function get_records_count( $tab, $crits = null, $admin = false) {
-        $par = self::build_query($tab, $crits, $admin);
+    public static function get_records_count( $tab, $crits = null, $admin = false, $order=array()) {
+        $par = self::build_query($tab, $crits, $admin, $order);
         if (empty($par) || !$par) return 0;
         return DB::GetOne('SELECT COUNT(*) FROM'.$par['sql'], $par['vals']);
     }

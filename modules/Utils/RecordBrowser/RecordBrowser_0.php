@@ -751,7 +751,7 @@ class Utils_RecordBrowser extends Module {
         }
         if (isset($this->force_order)) $order = $this->force_order;
 
-        $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin);
+        $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin, $order);
 
 		if (!$this->disabled['pdf'] && !$pdf && $this->amount_of_records<200 && Base_AclCommon::i_am_admin()) {
 			$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
