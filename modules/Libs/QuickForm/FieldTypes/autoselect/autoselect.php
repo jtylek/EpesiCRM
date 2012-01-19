@@ -92,7 +92,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 
 			$val = $this->getValue();
 			if (isset($val[0]) && $val[0]!='' && !isset($this->__options[$val[0]])) {
-				$label = call_user_func_array($this->more_opts_format, array($val[0]));
+				$label = call_user_func_array($this->more_opts_format, array($val[0], $this->more_opts_args));
 				if ($label!==null) $this->addOption(strip_tags($label), $val[0]);
 			}
 				

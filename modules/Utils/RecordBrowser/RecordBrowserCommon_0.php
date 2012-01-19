@@ -2140,9 +2140,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return $ret;
     }
-
-    public static function automulti_suggestbox($str, $tab, $crits, $f_callback, $param) {
+	
+	public static function autoselect_label($id, $def) {
+		$param = $def[3];
         $param = explode(';', $param);
+        $ref = explode('::', $param[0]);
+		return self::create_default_linked_label($ref[0], $id, true, false);
+	}
+
+    public static function automulti_suggestbox($str, $tab, $crits, $f_callback, $params) {
+        $param = explode(';', $params);
         $ref = explode('::', $param[0]);
         $fields = explode('|', $ref[1]);
         $crits = array();
@@ -2155,7 +2162,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $records = self::get_records($ref[0], $crits, array(), array(), 10);
         $ret = array();
         foreach ($records as $r) {
-			if ($f_callback) $ret[$r['id']] = call_user_func($f_callback, $r);
+			if ($f_callback) $ret[$r['id']] = call_user_func($f_callback, $r['id'], array($tab, $crits, $f_callback, $params));
 			else $ret[$r['id']] = self::create_default_linked_label($ref[0], $r['id'], true, false);
 		}
         return $ret;

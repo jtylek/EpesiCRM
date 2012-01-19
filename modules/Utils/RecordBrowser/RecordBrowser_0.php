@@ -1565,17 +1565,18 @@ class Utils_RecordBrowser extends Module {
 											$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type'], $tab, $crits);
 
                                         }
-                                        if ($rec_count>Utils_RecordBrowserCommon::$options_limit) {
-                                            $f_callback = $multi_adv_params['format_callback'];
-                                            if ($args['type']=='multiselect') {
-                                                $el = $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);
-						${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPicker',array());
-						$filters_defaults = isset($multi_adv_params['filters_defaults'])?$multi_adv_params['filters_defaults']:array();
-						$this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits,array(),array(),array(),$filters_defaults));
-						$el->set_search_button('<a '.${'rp_'.$args['id']}->create_open_href().' '.Utils_TooltipCommon::open_tag_attrs($this->t('Advanced Selection')).' href="javascript:void(0);"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','icon_zoom.jpg').'"></a>');
-					    } else {
-					        $form->addElement('autoselect', $args['id'], $label, $comp, array(array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param'])), $f_callback);
-					    }
+										if ($rec_count>Utils_RecordBrowserCommon::$options_limit) {
+											$f_callback = $multi_adv_params['format_callback'];
+											if ($args['type']=='multiselect') {
+												$el = $form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);
+												${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPicker',array());
+												$filters_defaults = isset($multi_adv_params['filters_defaults'])?$multi_adv_params['filters_defaults']:array();
+												$this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits,array(),array(),array(),$filters_defaults));
+												$el->set_search_button('<a '.${'rp_'.$args['id']}->create_open_href().' '.Utils_TooltipCommon::open_tag_attrs($this->t('Advanced Selection')).' href="javascript:void(0);"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','icon_zoom.jpg').'"></a>');
+												} else {
+													if (empty($f_callback)) $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
+													$form->addElement('autoselect', $args['id'], $label, $comp, array(array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param'])), $f_callback);
+												}
                                         } else {
                                             if ($args['type']==='select') $comp = array(''=>'---')+$comp;
                                             $form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
