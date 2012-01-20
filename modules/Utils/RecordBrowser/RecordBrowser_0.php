@@ -1298,7 +1298,6 @@ class Utils_RecordBrowser extends Module {
                 else $tb->set_tab($this->t($row['label']),array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
             }
         }
-        $this->display_module($tb);
         $tb->tag();
         if ($this->switch_to_addon!==null) {
             if($tab_counter<0) $tab_counter=0;
@@ -1314,12 +1313,11 @@ class Utils_RecordBrowser extends Module {
                 $tab_counter++;
             }
             $tb->switch_tab($this->switch_to_addon);
-            if(!isset($_REQUEST['switch_to_addon_break']))
-	            location(array('switch_to_addon_break'=>1));
         }
         if ($mode=='add' || $mode=='edit' || $mode=='history') {
             print("</form>\n");
         }
+        $this->display_module($tb);
 
         return true;
     } //view_entry
