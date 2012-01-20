@@ -1355,7 +1355,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					foreach ($r[$field] as $f_v)
 						$r[$k][] = self::get_value($sub_tab, $f_v, $sub_field);
 				} else {
-					$r[$k] = self::get_value($sub_tab, $r[$field], $sub_field);
+					if ($r[$field]) $r[$k] = self::get_value($sub_tab, $r[$field], $sub_field);
+					else $r[$k] = '';
+					if (substr($r[$k], 0, 2)=='__') $r[$k] = self::decode_multi($r[$k]); // FIXME need better check
 				}
 			}
             $result = false;
