@@ -996,7 +996,7 @@ class Utils_RecordBrowser extends Module {
         foreach ($request as $k=>$v)
             $_REQUEST[$k] = $v;
         if(isset($_REQUEST['switch_to_addon']))
-	        $this->switch_to_addon = $_REQUEST['switch_to_addon'];
+	        $this->switch_to_addon = $this->get_module_variable('switch_to_addon',$_REQUEST['switch_to_addon']);
         return $this->view_entry($mode, $id, $defaults, $show_actions);
     }
     public function view_entry($mode='view', $id = null, $defaults = array(), $show_actions=true) {
@@ -1300,7 +1300,8 @@ class Utils_RecordBrowser extends Module {
         }
         $this->display_module($tb);
         $tb->tag();
-        if ($this->switch_to_addon!==null) {
+        if ($this->switch_to_addon) {
+    	    $this->set_module_variable('switch_to_addon',false);
             if($tab_counter<0) $tab_counter=0;
             $ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
             while ($row = $ret->FetchRow()) {
@@ -1314,8 +1315,7 @@ class Utils_RecordBrowser extends Module {
                 $tab_counter++;
             }
             $tb->switch_tab($this->switch_to_addon);
-            if(!isset($_REQUEST['switch_to_addon_break']))
-	            location(array('switch_to_addon_break'=>1));
+            location(array());
         }
         if ($mode=='add' || $mode=='edit' || $mode=='history') {
             print("</form>\n");
