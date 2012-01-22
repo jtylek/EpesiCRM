@@ -62,7 +62,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::add_access('phonecall', 'add', 'EMPLOYEE');
 		Utils_RecordBrowserCommon::add_access('phonecall', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'));
 		Utils_RecordBrowserCommon::add_access('phonecall', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('phonecall', 'delete', array('EMPLOYEE','GROUP:manager'));
+		Utils_RecordBrowserCommon::add_access('phonecall', 'delete', array('EMPLOYEE','CLEARANCE:manager'));
 
 		return true;
 	}

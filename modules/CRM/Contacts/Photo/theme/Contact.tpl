@@ -108,19 +108,11 @@
 								</tr>
 							{/if}
 						{/if}
-						{* login *}
-						<tr>
-							<td class="label" align="left">{$form_data.login.label}</td>
-							{if isset($form_data.create_new_user)}
-								<td class="data create-company" style="width:25px" align="left">{$form_data.create_new_user.html}</td>
-							{/if}
-							<td class="data" {if !isset($form_data.create_new_user)}colspan="2" {/if}align="left" id="_login__data">{if isset($form_data.login.error)}<span class="error">{$form_data.login.error}</span>{/if}{$form_data.login.html}{if isset($form_data.new_login)}{$form_data.new_login.html}{/if}</td>
-						</tr>
 						{assign var=x value=1}
 						{if $action=='view'}
-							{assign var=y value=2}
+							{assign var=y value=1}
 						{else}
-							{assign var=y value=3}
+							{assign var=y value=2}
 						{/if}
 						{foreach key=k item=f from=$fields name=fields}
 							{if $f.type!="multiselect" && $f.element!="login"}
@@ -128,14 +120,14 @@
 									{assign var=focus value=$f.element}
 								{/if}
 
-								{if $y==1}
+								{if $y==1 && $x==2}
 								<td class="column" style="width: {$cols_percent}%;">
 									<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 								{/if}
 										<tr>
 											<td class="label">{$f.label}{if $f.required}*{/if}</td>
 											<td colspan="2" class="data {$f.style}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
-											{if $y==1 && isset($photo_link)}
+											{if $y==1 && $x==2 && isset($photo_link)}
 												<td rowspan="{$rows}" style="width:120px;">
 													<a class="photo" {$photo_link}>
 														<img  class="shadow_5px_left" src="{$photo_src}" >
