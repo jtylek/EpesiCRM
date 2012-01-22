@@ -997,7 +997,8 @@ class CRM_ContactsCommon extends ModuleCommon {
                 $values['login'] = Base_UserCommon::get_user_id($values['username']);
 				Base_AclCommon::change_privileges($values['login'], array(Base_AclCommon::get_group_id('Employee')));
             } else {
-				Base_User_LoginCommon::change_user_preferences($values['login'], $values['email'], $values['set_password']);
+        			if ($values['login'])
+					Base_User_LoginCommon::change_user_preferences($values['login'], $values['email'], $values['set_password']);
 			}
 			unset($values['username']);
 			unset($values['set_password']);
