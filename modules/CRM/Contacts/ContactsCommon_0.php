@@ -733,15 +733,18 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 	public static function QFfield_username(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if ($mode=='view') return;
+        if (!Base_AclCommon::i_am_admin()) return;
 		$form->addElement('text', $field, $label, array('id'=>$field));
 		$form->addFormRule(array('CRM_ContactsCommon','check_new_username'));
 	}
     public static function QFfield_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if ($mode=='view') return;
+        if (!Base_AclCommon::i_am_admin()) return;
 		$form->addElement('password', $field, $label, array('id'=>$field));
 	}
     public static function QFfield_repassword(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if ($mode=='view') return;
+        if (!Base_AclCommon::i_am_admin()) return;
 		$form->addElement('password', $field, $label, array('id'=>$field));
 		$form->addFormRule(array('CRM_ContactsCommon', 'check_pass'));
 	}
@@ -750,9 +753,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return array('set_password'=>Base_LangCommon::ts('CRM_Contacts','Passwords don\'t match'));
 	}
     public static function QFfield_admin(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+        if ($mode=='view') return;
+        if (!Base_AclCommon::i_am_admin()) return;
 		return;
 	}
     public static function QFfield_clearance(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+        if (!Base_AclCommon::i_am_admin()) return;
 		$data = Utils_CommonDataCommon::get_translated_tree('Contacts/Clearance');
 		if (!is_array($data)) $data = array();
 		$form->addElement('multiselect', $field, $label, $data, array('id'=>$field));
@@ -760,6 +766,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 	}
     public static function QFfield_login(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+        if (!Base_AclCommon::i_am_admin()) return;
         if ($mode=='view') {
 			if (!$default) return;
             $form->addElement('static', $field, $label);
