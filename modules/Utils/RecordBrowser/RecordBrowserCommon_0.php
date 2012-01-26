@@ -1734,23 +1734,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $has_access = self::get_access($tab, 'view', self::get_record($tab, $id));
             $is_active = DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id));
 
-            if ($has_access) {
-                if (!$is_active) {
-    				$tip = self::ts('This record was deleted from the system, please edit current record or contact system administrator');
-                    $ret = '<del>';
-                    self::$del_or_a = '</del>';                    
-                }
-            } else {
-                $tip = self::ts('You don\'t have permission to view this record.');
+			if (!$is_active) {
+				$tip = self::ts('This record was deleted from the system, please edit current record or contact system administrator');
+				$ret = '<del>';
+				self::$del_or_a = '</del>';                    
+			}
+            if (!$has_access) {
+                $tip = ($tip?'<br>':'').self::ts('You don\'t have permission to view this record.');
             }
             $tip = $tip ? Utils_TooltipCommon::open_tag_attrs($tip) : '';
             if (!$nolink) {
                 if($has_access) {
                     $href = self::create_record_href($tab, $id, $action);
-                    $ret = "<a $tip $href>" . $ret;
+                    $ret = '<a '.$tip.' '.$href.'>'.$ret;
                     self::$del_or_a .= '</a>';
                 } else {
-                    $ret = "<span $tip>" . $ret;
+                    $ret = '<span '.$tip.'>'.$ret;
                     self::$del_or_a .= '</span>';
                 }
             }
