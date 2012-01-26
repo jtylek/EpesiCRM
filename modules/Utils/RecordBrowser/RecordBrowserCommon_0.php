@@ -1736,13 +1736,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $ret = '<del>';
                 self::$del_or_a = '</del>';
             } 
-			if (!$nolink && !self::get_access($tab, 'view', self::get_record($tab, $id))) {
-                self::$del_or_a .= '</span>';
-                $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(self::ts('You don\'t have permission to view this record.').($tip?'<br />'.$tip:'')).'>'.$ret;
-            } else {
+			if (!$nolink) {
+                if(!self::get_access($tab, 'view', self::get_record($tab, $id))) {
+                    self::$del_or_a .= '</span>';
+                    $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(self::ts('You don\'t have permission to view this record.').($tip?'<br />'.$tip:'')).'>'.$ret;
+                }
                 self::$del_or_a .= '</a>';
-                if (!$nolink) $ret = '<a '.($tip?Utils_TooltipCommon::open_tag_attrs($tip):'').' '.self::create_record_href($tab, $id, $action).'>'.$ret;
-                else self::$del_or_a = '';
+                $ret = '<a '.($tip?Utils_TooltipCommon::open_tag_attrs($tip):'').' '.self::create_record_href($tab, $id, $action).'>'.$ret;
             }
         }
         return $ret;
