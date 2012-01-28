@@ -37,7 +37,7 @@ class Utils_RecordBrowser extends Module {
     private $more_table_properties = array();
     private $fullscreen_table = false;
     private $amount_of_records = 0;
-    private $switch_to_addon = null;
+    private $switch_to_addon = 0;
     private $additional_caption = '';
     private $enable_export = false;
 	private $search_calculated_callback = false;
@@ -1260,25 +1260,35 @@ class Utils_RecordBrowser extends Module {
         if ($mode=='view')
             print("</form>\n");
         $tab_counter=-1;
+		$default_tab = null;
         while ($row) {
             $row = $ret->FetchRow();
             if ($row) $pos = $row['position'];
             else $pos = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field WHERE active=1')+1;
 
             $valid_page = false;
+			$hide_page = ($mode=='view' && Base_User_SettingsCommon::get('Utils/RecordBrowser','hide_empty'));
             foreach($this->table_rows as $field => $args) {
                 if (!isset($data[$args['id']]) || $data[$args['id']]['type']=='hidden') continue;
                 if ($args['position'] >= $last_page && ($pos+1 == -1 || $args['position'] < $pos+1)) {
                     $valid_page = true;
+					if ($hide_page && !$this->field_is_empty($record, $args['id'])) $hide_page = false;
                     break;
                 }
             }
-            if ($valid_page && $pos - $last_page>1) $tb->set_tab($this->ts($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols), $js); // TRSL
+            if ($valid_page && $pos - $last_page>1) {
+				$tb->set_tab($this->ts($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols), $js); // TRSL
+				if ($hide_page) {
+					eval_js('$("'.$tb->get_tab_id($this->ts($label)).'").style.display="none";');
+					if ($default_tab===($tab_counter+1) || $tb->get_tab()==($tab_counter+1)) $default_tab = $tab_counter+2;
+				}
+			}
             $cols = $row['param'];
             $last_page = $pos;
             if ($row) $label = $row['field'];
             $tab_counter++;
         }
+		if ($default_tab!==null) $tb->set_default_tab($default_tab);
         if ($mode!='add' && $mode!='edit' && $mode!='history') {
             $ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
             $addons_mod = array();
@@ -1323,6 +1333,11 @@ class Utils_RecordBrowser extends Module {
 
         return true;
     } //view_entry
+	
+	public function field_is_empty($r, $f) {
+		if (is_array($r[$f])) return empty($r[$f]);
+		return $r[$f]=='';
+	}
 
     public function broken_addon(){
         print('Addon is broken, please contact system administrator.');
@@ -1378,7 +1393,6 @@ class Utils_RecordBrowser extends Module {
     }
 
     public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
-        //$init_js = '';
         foreach($this->table_rows as $field => $args){
             if (isset($this->view_fields_permission[$args['id']]) && !$this->view_fields_permission[$args['id']]) continue;
             if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
@@ -1393,6 +1407,9 @@ class Utils_RecordBrowser extends Module {
                 $form->setDefaults(array($args['id']=>$record[$args['id']]));
                 continue;
             }
+			if ($mode=='view' && Base_User_SettingsCommon::get('Utils/RecordBrowser','hide_empty') && $this->field_is_empty($record, $args['id'])) {
+				eval_js('var e=$("_'.$args['id'].'__data");if(e)e.parentNode.style.display="none";');
+			}
             $label = '<span id="_'.$args['id'].'__label">'.$this->ts($args['name']).'</span>'; // TRSL
             if (isset($this->QFfield_callback_table[$field])) {
 				//$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
@@ -1588,7 +1605,6 @@ class Utils_RecordBrowser extends Module {
             if ($args['required'])
                 $form->addRule($args['id'], $this->t('Field required'), 'required');
         }
-        //eval_js($init_js);
     }
     public function update_record($id,$values) {
         Utils_RecordBrowserCommon::update_record($this->tab, $id, $values);

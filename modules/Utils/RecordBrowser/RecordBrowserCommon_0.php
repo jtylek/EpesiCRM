@@ -199,6 +199,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_settings = array();
         $subscribe_settings = array();
         $final_settings[] = array('name'=>'add_in_table_shown','label'=>'Quick new record - show by default','type'=>'checkbox','default'=>0);
+        $final_settings[] = array('name'=>'hide_empty','label'=>'Hide empty fields','type'=>'checkbox','default'=>0);
         $final_settings[] = array('name'=>'grid','label'=>'Grid edit (experimental)','type'=>'checkbox','default'=>0);
         $final_settings[] = array('name'=>'header_default_view','label'=>'Default data view','type'=>'header');
         $final_settings = array_merge($final_settings,$settings[0]);
@@ -910,6 +911,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $a;
     }
     public static function build_query( $tab, $crits = null, $admin = false, $order = array()) {
+		if (!is_array($order)) $order = array();
         $cache_key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
         static $cache = array();
         self::init($tab, $admin);

@@ -26,7 +26,8 @@ class Utils_TabbedBrowser extends Module {
 		else {
 			$this->page = $this->get_module_variable('page', 0);
 			$this->unset_module_variable('force');
-		}	
+		}
+	
 		$lpage = $this->get_module_variable('last_page', -1);
 	}
 	
@@ -46,7 +47,6 @@ class Utils_TabbedBrowser extends Module {
 		$i = 0;
 		if($this->page>=count($this->tabs)) $this->page=0;
 		$this->max = count($this->tabs);
-		$path = escapeJS($this->get_path());
 		$body = '';
 		$submenus = array();
 		foreach($this->tabs as $caption=>$val) {
@@ -122,6 +122,11 @@ class Utils_TabbedBrowser extends Module {
 		return $body;
 	}
 	
+	public function get_tab_id($caption) {
+		if (!isset($this->tabs[$caption])) return null;
+		return escapeJS($this->get_path(),true,false).'_c'.$this->tabs[$caption]['id'];
+	}
+	
 	private function get_link($i, $val, $caption, $parent=null) {
 		if ($parent===null) $parent = '';
 		else $parent = ' parent_menu="'.$parent.'"';
@@ -129,11 +134,11 @@ class Utils_TabbedBrowser extends Module {
 		if($this->page==$i) $selected = ' class="tabbed_browser_selected"';
 			else $selected = ' class="tabbed_browser_unselected"';
 		if (isset($val['href']) && $val['href'])
-			$link = '<span id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'"'.$parent.' '.$val['href'].'>'.$caption.'</span>';
+			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' '.$val['href'].'>'.$caption.'</span>';
 		elseif ($val['js'])
-			$link = '<span id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.'>'.$caption.'</span>';
+			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.'>'.$caption.'</span>';
 		else
-			$link = '<span id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.'</span>';
+			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.'</span>';
 		return $link;
 	}
 	
@@ -155,6 +160,7 @@ class Utils_TabbedBrowser extends Module {
 	 * @param method method that will be called when tab is displayed
 	 */
 	public function set_tab($caption, $function,$args=array(),$js=false) {
+		$this->tabs[$caption]['id'] = count($this->tabs);
 		$this->tabs[$caption]['func'] = & $function;
 		$this->tabs[$caption]['args'] = $args;
 		$this->tabs[$caption]['js'] = $js;
@@ -173,7 +179,6 @@ class Utils_TabbedBrowser extends Module {
 	}
 	
 	public function get_tab() {
-		if($this->page>=count($this->tabs)) $this->page=0;
 		return $this->page;
 	}
 	
