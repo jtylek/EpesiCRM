@@ -454,7 +454,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
     {
     	$html = '';
     	foreach($this->_options as $k=>$v)
-	        if (in_array($v['attr']['value'],$this->_values)) $html .= empty($v['text'])? '&nbsp;':'<span>'.$v['text'].'</span><br />';
+	        if (in_array($v['attr']['value'],$this->_values)) $html .= ($html?'<br />':'').empty($v['text'])? '&nbsp;':'<span>'.$v['text'].'</span>';
         return $html;
     }
 
