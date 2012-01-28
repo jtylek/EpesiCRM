@@ -294,8 +294,6 @@ table.Utils_GenericBrowser > tbody > td img {
 
 table.Utils_GenericBrowser__navigation {
     width: 100%;
-    padding-left: 20px;
-    padding-right: 20px;
 }
 
 table.Utils_GenericBrowser__navigation img {
@@ -585,10 +583,10 @@ table.Utils_GenericBrowser__navigation img {
 #Utils_GenericBrowser__navigation .nav_button a {
 	display: block;
 	color: white;
-	width: 80px;
-	height: 15px;
-	padding: 0px 5px 2px 5px;
-	margin: auto 4px;
+	width: 82px;
+	height: 19px;
+	padding: 4px 5px 2px 5px;
+	margin-right: 4px;
 	
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
@@ -600,18 +598,6 @@ table.Utils_GenericBrowser__navigation img {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64B164', endColorstr='#307030',GradientType=0); /* IE6-9 */
 	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
 	/* end dark css3 green background gradient */
-	
-	/* border radius */
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	border-radius: 6px;
-	/* end border radius */
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px black;
-	-moz-box-shadow: 1px 1px 3px black;
-	box-shadow: 1px 1px 3px black;
-	/* end css3 shadow border*/
 }
 
 #Utils_GenericBrowser__navigation .nav_button a:hover {
