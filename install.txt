@@ -42,8 +42,8 @@ Installation
 •	Download the latest version of easyinstall script from http://sourceforge.net/projects/epesi/
 •	Place the file in the directory from which epesi will be run. There is no need to download the entire epesiBIM application as a compressed file. This easy install script automatically connects to SourceForge server, downloads the latest version, verifies it, decompresses files on the server, sets proper directory permissions and starts epesi setup.
 •	Accept license agreement and the setup wizard will guide you through all steps which includes creation of the configuration file config.php, necessary directories within data directory, tables, superadmin user account and password and default data etc.
-•	When asked which version you would like to install choose CRM or CRM with Bugtracker. Base and Full is for advanced users willing to play with epesi framework.
-•	When installing CRM or CRM with Bugtracker version you will be prompted for Main Company information including the address etc.
+•	When asked which version you would like to install choose CRM, CRM with Bugtracker or CRM with Sales Opportunity. Base and Full is for advanced users willing to play with epesi framework.
+•	When installing CRM, CRM with Bugtracker or CRM with Sales Opportunity version you will be prompted for Main Company information including the address etc.
 •	Finally the setup scans all available modules and you will be greeted with the default dashboard. The installation is complete.
 •	Create new users as new contacts and explore the application.
 
