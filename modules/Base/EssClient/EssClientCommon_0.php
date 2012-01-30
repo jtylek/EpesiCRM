@@ -108,6 +108,10 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return $email;
     }
 
+    /**
+     * Add client messages
+     * @param array $messages Array of arrays in order info, warning, error
+     */
     public static function add_client_messages($messages) {
         $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
         foreach ($msgs as $k => &$v) {

@@ -128,8 +128,10 @@ class ClientRequester implements IClient {
             return false;
         // check if there was an unserialize error
         $ur = @unserialize($response);
-        if ($ur === false)
-            throw new ErrorException("Unserialize error $response");
+        if ($ur === false) {
+            Base_EssClientCommon::add_client_messages(array(array(), array(), array('server error' => 'External server error occured. Please report this at ' . Base_EssClientCommon::get_support_email())));
+//            throw new ErrorException("Unserialize error $response");
+        }
 
         return $ur;
     }
