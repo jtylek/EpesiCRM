@@ -481,6 +481,7 @@ class Base_EpesiStore extends Module {
     <input type="hidden" name="amount" value="' . $value . '" />
     <input type="hidden" name="currency" value="' . $curr_code . '" />
     <input type="hidden" name="description" value="Order ID ' . $order_id . '" />
+    <input type="hidden" name="auto_process" value="1" />
     <input type="submit" name="submit" value="Pay" />
 </form>
 ';
