@@ -102,13 +102,13 @@ class epesi_contacts_addressbook_backend extends rcube_addressbook
     }
     if($m_cols) {
         if($strict)
-            $ret = DB::Execute('SELECT c.id as ID,c.f_first_name as firstname, c.f_last_name as surname, m.f_email as memails, m.id as mid, '.implode(', ',$m_cols).' FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type=\'contact\') WHERE c.active=1 AND (CAST(c.f_permission AS decimal)<2 OR c.created_by=%d) AND ('.implode('='.DB::qstr($value).' OR ',$m_cols).'='.DB::qstr($value).' OR c.f_first_name=%s OR c.f_last_name=%s OR m.f_email=%s) ORDER BY c.f_last_name,c.f_first_name',array($E_SESSION['user'],$value,$value,$value));
+            $ret = DB::Execute('SELECT c.id as ID,c.f_first_name as firstname, c.f_last_name as surname, m.f_email as memails, m.id as mid,com.f_company_name, '.implode(', ',$m_cols).' FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type=\'contact\') LEFT JOIN company_data_1 com ON com.id=c.f_company_name WHERE c.active=1 AND (CAST(c.f_permission AS decimal)<2 OR c.created_by=%d) AND ('.implode('='.DB::qstr($value).' OR ',$m_cols).'='.DB::qstr($value).' OR c.f_first_name=%s OR c.f_last_name=%s OR m.f_email=%s) ORDER BY c.f_last_name,c.f_first_name',array($E_SESSION['user'],$value,$value,$value));
         else
-            $ret = DB::Execute('SELECT c.id as ID,c.f_first_name as firstname, c.f_last_name as surname, m.f_email as memails, m.id as mid, '.implode(', ',$m_cols).' FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type=\'contact\') WHERE c.active=1 AND (CAST(c.f_permission AS decimal)<2 OR c.created_by=%d) AND ('.implode(' LIKE '.DB::concat(DB::qstr("%%"),DB::qstr($value),DB::qstr("%%")).' OR ',$m_cols).' LIKE '.DB::concat(DB::qstr("%%"),DB::qstr($value),DB::qstr("%%")).' OR c.f_first_name LIKE '.DB::concat(DB::qstr("%%"),'%s',DB::qstr("%%")).' OR c.f_last_name LIKE '.DB::concat(DB::qstr("%%"),'%s',DB::qstr("%%")).' OR m.f_email LIKE '.DB::concat(DB::qstr("%%"),'%s',DB::qstr("%%")).') ORDER BY c.f_last_name,c.f_first_name',array($E_SESSION['user'],$value,$value,$value));
+            $ret = DB::Execute('SELECT c.id as ID,c.f_first_name as firstname, c.f_last_name as surname, m.f_email as memails, m.id as mid,com.f_company_name, '.implode(', ',$m_cols).' FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type=\'contact\') LEFT JOIN company_data_1 com ON com.id=c.f_company_name WHERE c.active=1 AND (CAST(c.f_permission AS decimal)<2 OR c.created_by=%d) AND ('.implode(' LIKE '.DB::concat(DB::qstr("%%"),DB::qstr($value),DB::qstr("%%")).' OR ',$m_cols).' LIKE '.DB::concat(DB::qstr("%%"),DB::qstr($value),DB::qstr("%%")).' OR c.f_first_name LIKE '.DB::concat(DB::qstr("%%"),'%s',DB::qstr("%%")).' OR c.f_last_name LIKE '.DB::concat(DB::qstr("%%"),'%s',DB::qstr("%%")).' OR m.f_email LIKE '.DB::concat(DB::qstr("%%"),'%s',DB::qstr("%%")).') ORDER BY c.f_last_name,c.f_first_name',array($E_SESSION['user'],$value,$value,$value));
         $done_ids = array();
         while($row = $ret->FetchRow()) {
             if(!isset($row['ID']) && isset($row['id'])) $row['ID'] = $row['id'];
-            $row2 = array('name'=>$row['surname'].' '.$row['firstname']);
+            $row2 = array('name'=>$row['surname'].' '.$row['firstname'].($row['f_company_name']?' ('.$row['f_company_name'].')':''));
             $id = $row['ID'];
             if(!isset($done_ids[$id])) {
                 $done_ids[$id] = 1;
@@ -172,13 +172,13 @@ class epesi_contacts_addressbook_backend extends rcube_addressbook
         $fields = DB::GetCol('SELECT field FROM contact_field WHERE field LIKE \'%mail%\' ORDER BY field');
         if(!$fields) return false;
         if(!isset($fields[$pos])) $pos = 0;
-        $m = 'f_'.preg_replace('/[^a-z0-9]/','_',strtolower($fields[$pos]));
-        $ret = DB::GetRow('SELECT id as ID,f_first_name as firstname, f_last_name as surname, '.$m.' as email FROM contact_data_1 WHERE active=1 AND id=%d AND '.$m.'!=\'\'  AND '.$m.' is not null AND (CAST(f_permission as decimal)<2 OR created_by=%d)',array($id,$E_SESSION['user']));
+        $m = 'c.f_'.preg_replace('/[^a-z0-9]/','_',strtolower($fields[$pos]));
+        $ret = DB::GetRow('SELECT c.id as ID,c.f_first_name as firstname, c.f_last_name as surname,com.f_company_name, '.$m.' as email FROM contact_data_1 c LEFT JOIN company_data_1 com ON com.id=c.f_company_name WHERE c.active=1 AND c.id=%d AND '.$m.'!=\'\'  AND '.$m.' is not null AND (CAST(c.f_permission as decimal)<2 OR c.created_by=%d)',array($id,$E_SESSION['user']));
     } else {
-        $ret = DB::GetRow('SELECT id as ID,f_first_name as firstname, f_last_name as surname, (SELECT me.f_email FROM rc_multiple_emails_data_1 me WHERE me.id=%d) as email FROM contact_data_1 WHERE active=1 AND id=%d AND (CAST(f_permission as decimal)<2 OR created_by=%d)',array(-$pos,$id,$E_SESSION['user']));
+        $ret = DB::GetRow('SELECT c.id as ID,c.f_first_name as firstname, c.f_last_name as surname,com.f_company_name, (SELECT me.f_email FROM rc_multiple_emails_data_1 me WHERE me.id=%d) as email FROM contact_data_1 c LEFT JOIN company_data_1 com ON com.id=c.f_company_name WHERE c.active=1 AND c.id=%d AND (CAST(c.f_permission as decimal)<2 OR c.created_by=%d)',array(-$pos,$id,$E_SESSION['user']));
     }
     if(!$ret) return false;
-    $ret['name'] = $ret['surname'].' '.$ret['firstname'];
+    $ret['name'] = $ret['surname'].' '.$ret['firstname'].($ret['f_company_name']?' ('.$ret['f_company_name'].')':'');
     if(!isset($ret['ID']) && isset($ret['id'])) $ret['ID'] = $ret['id'];
     $this->result = new rcube_result_set(1);
     $this->result->add($ret);
