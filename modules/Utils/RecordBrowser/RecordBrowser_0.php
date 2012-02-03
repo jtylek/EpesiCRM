@@ -2318,6 +2318,7 @@ class Utils_RecordBrowser extends Module {
             if (!$first) $first = $row['tab'];
             $opts[$row['tab']] = $this->t($row['caption']);
         }
+		asort($opts);
         $form->addElement('select', 'recordset', $this->t('Record Set'), $opts, array('onchange'=>$form->get_submit_form_js()));
         if ($form->validate()) {
             $tab = $form->exportValue('recordset');

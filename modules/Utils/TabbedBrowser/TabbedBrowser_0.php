@@ -200,6 +200,7 @@ class Utils_TabbedBrowser extends Module {
 	public function start_tab($caption) {
 		ob_start();
 		$this->caption = $caption;
+		$this->tabs[$this->caption]['id'] = count($this->tabs);
 	}
 
 	public function set_href($href) {
