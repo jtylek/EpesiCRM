@@ -61,6 +61,7 @@ class epesi_init extends rcube_plugin
     rcmail::get_instance()->config->set('date_today',$time);        
     
     $this->add_hook('message_outgoing_body', array($this, 'add_signature'));
+    $this->add_hook('user_create', array($this, 'lookup_user_name'));
   }
   
   public function add_signature($b) {
@@ -72,5 +73,13 @@ class epesi_init extends rcube_plugin
     }
     return $b;
   }
+
+    function lookup_user_name($args)
+    {
+        $rec = CRM_ContactsCommon::get_my_record();
+        $args['user_name'] = $rec['first_name'].' '.$rec['last_name'];
+        $args['user_email'] = $args['user_email'];
+        return $args;
+    }
 
 }

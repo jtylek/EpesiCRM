@@ -260,7 +260,7 @@ $rcmail_config['dont_override'] = array();
 // 1 - many identities with possibility to edit all params but not email address
 // 2 - one identity with possibility to edit all params
 // 3 - one identity with possibility to edit all params but not email address
-$rcmail_config['identities_level'] = 0;
+$rcmail_config['identities_level'] = 3;
 
 // mime magic database
 $rcmail_config['mime_magic'] = '/usr/share/misc/magic';
@@ -275,7 +275,7 @@ $rcmail_config['email_dns_check'] = false;
 // List of active plugins (in plugins/ directory)
 $rcmail_config['plugins'] = array('epesi_init','epesi_autologon','epesi_autorelogon','epesi_addressbook','epesi_mailto','additional_message_headers','epesi_archive','markasjunk');
 
-$rcmail_config['additional_message_headers'] = array('Epesi-User'=>DB::GetOne('SELECT login FROM user_login WHERE id=%d',array($E_SESSION['user'])),'From'=>$account['f_email']);
+$rcmail_config['additional_message_headers'] = array('Epesi-User'=>DB::GetOne('SELECT login FROM user_login WHERE id=%d',array($E_SESSION['user'])));
 
 // ----------------------------------
 // USER INTERFACE
