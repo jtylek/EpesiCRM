@@ -923,11 +923,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_tab = $tab.'_data_1 AS r';
         $vals = array();
         if (!$crits) $crits = array();
-        $access = self::get_access($tab, 'browse', null, $crits);
-        if ($access===false) return array();
-        elseif ($access!==true && is_array($access)) {
-            $crits = self::merge_crits($crits, $access);
-        }
+		if (!$admin) {
+			$access = self::get_access($tab, 'browse', null, $crits);
+			if ($access===false) return array();
+			elseif ($access!==true && is_array($access)) {
+				$crits = self::merge_crits($crits, $access);
+			}
+		}
         $iter = 0;
         self::init($tab, $admin);
         foreach($order as $k=>$v) {

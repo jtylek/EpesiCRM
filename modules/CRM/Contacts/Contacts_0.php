@@ -135,7 +135,7 @@ class CRM_Contacts extends Module {
 			return false;
 		}
 		$qf = $this->init_module('Libs/QuickForm',null,'my_company');
-		$companies = CRM_ContactsCommon::get_companies(array(), array(), array('company_name'=>'ASC'));
+		$companies = CRM_ContactsCommon::get_companies(array(), array(), array('company_name'=>'ASC'), array(), true);
 		$x = array();
 		foreach($companies as $c)
 			$x['s'.$c['id']] = $c['company_name'];//.' ('.$c['short_name'].')'
