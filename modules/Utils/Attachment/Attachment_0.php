@@ -505,7 +505,7 @@ class Utils_Attachment extends Module {
 		$th = $this->init_module('Base/Theme');
 		$th->assign('note_edition_header', $this->t('Note edit history'));
 
-		$gb = $this->init_module('Utils/GenericBrowser',null,'hn'.md5($this->group));
+		$gb = $this->init_module('Utils/GenericBrowser',null,'hn'.md5(serialize($this->group)));
 		$gb->set_table_columns(array(
 				array('name'=>$this->t('Revision'), 'order'=>'uac.revision','width'=>10),
 				array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>25),
@@ -529,7 +529,7 @@ class Utils_Attachment extends Module {
 
 		$th->assign('file_uploads_header',$this->t('File uploads history'));
 
-		$gb = $this->init_module('Utils/GenericBrowser',null,'hua'.md5($this->group));
+		$gb = $this->init_module('Utils/GenericBrowser',null,'hua'.md5(serialize($this->group)));
 		$gb->set_table_columns(array(
 				array('name'=>$this->t('Revision'), 'order'=>'file_revision','width'=>10),
 				array('name'=>$this->t('Date'), 'order'=>'upload_on','width'=>25),
@@ -554,7 +554,7 @@ class Utils_Attachment extends Module {
 
 		$th->assign('file_access_header',$this->t('File access history'));
 
-		$gb = $this->init_module('Utils/GenericBrowser',null,'hda'.md5($this->group));
+		$gb = $this->init_module('Utils/GenericBrowser',null,'hda'.md5(serialize($this->group)));
 		$gb->set_table_columns(array(
 				array('name'=>$this->t('Create date'), 'order'=>'created_on','width'=>15),
 				array('name'=>$this->t('Download date'), 'order'=>'download_on','width'=>15),
