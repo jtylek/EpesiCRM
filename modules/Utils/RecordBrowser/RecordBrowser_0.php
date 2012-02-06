@@ -1408,7 +1408,7 @@ class Utils_RecordBrowser extends Module {
                 continue;
             }
 			if ($mode=='view' && Base_User_SettingsCommon::get('Utils/RecordBrowser','hide_empty') && $this->field_is_empty($record, $args['id'])) {
-				eval_js('var e=$("_'.$args['id'].'__data");if(e)e.parentNode.style.display="none";');
+				eval_js('var e=$("_'.$args['id'].'__data");if(e)e.up("tr").style.display="none";');
 			}
             $label = '<span id="_'.$args['id'].'__label">'.$this->ts($args['name']).'</span>'; // TRSL
             if (isset($this->QFfield_callback_table[$field])) {

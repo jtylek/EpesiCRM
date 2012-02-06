@@ -75,7 +75,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Set Password', 	'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_password')),
 			array('name'=>'Confirm Password','type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_repassword')),
 			array('name'=>'Admin', 			'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_admin')),
-			array('name'=>'Clearance', 		'type'=>'multiselect', 'required'=>false, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Contacts/Clearance'), 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_clearance'))
+			array('name'=>'Access', 		'type'=>'multiselect', 'required'=>false, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Contacts/Access'), 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_access'))
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('contact', $fields);
         DB::CreateIndex('contact_data_1__f_login_idx','contact_data_1','f_login,active');
@@ -106,7 +106,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 // ************ other ************** //
 		Utils_CommonDataCommon::new_array('Companies_Groups',array('customer'=>'Customer','vendor'=>'Vendor','other'=>'Other','manager'=>'Manager'),true,true);
 		Utils_CommonDataCommon::new_array('Contacts_Groups',array('office'=>'Office Staff','field'=>'Field Staff','custm'=>'Customer'),true,true);
-		Utils_CommonDataCommon::new_array('Contacts/Clearance',array('manager'=>'Manager'));
+		Utils_CommonDataCommon::new_array('Contacts/Access',array('manager'=>'Manager'));
 		
 		Utils_BBCodeCommon::new_bbcode('contact', 'CRM_ContactsCommon', 'contact_bbcode');
 		Utils_BBCodeCommon::new_bbcode('company', 'CRM_ContactsCommon', 'company_bbcode');
@@ -122,20 +122,20 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::add_access('company', 'view', 'ALL', array('id'=>'USER_COMPANY'));
 		Utils_RecordBrowserCommon::add_access('company', 'add', 'EMPLOYEE');
 		Utils_RecordBrowserCommon::add_access('company', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('company', 'edit', array('ALL','CLEARANCE:manager'), array('id'=>'USER_COMPANY'));
+		Utils_RecordBrowserCommon::add_access('company', 'edit', array('ALL','ACCESS:manager'), array('id'=>'USER_COMPANY'));
 		Utils_RecordBrowserCommon::add_access('company', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('company', 'delete', array('EMPLOYEE','CLEARANCE:manager'));
+		Utils_RecordBrowserCommon::add_access('company', 'delete', array('EMPLOYEE','ACCESS:manager'));
 
 		Utils_RecordBrowserCommon::wipe_access('contact');
 		Utils_RecordBrowserCommon::add_access('contact', 'view', 'EMPLOYEE', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('contact', 'view', 'ALL', array('login'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('contact', 'add', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID'), array('group', 'login'));
-		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('login'=>'USER_ID'), array('company_name', 'related_companies', 'group', 'login'));
-		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ALL','CLEARANCE:manager'), array('company_name'=>'USER_COMPANY'), array('login', 'company_name', 'related_companies'));
-		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('EMPLOYEE','CLEARANCE:manager'), array());
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID'), array('access', 'login'));
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('login'=>'USER_ID'), array('company_name', 'related_companies', 'access', 'login'));
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ALL','ACCESS:manager'), array('company_name'=>'USER_COMPANY'), array('login', 'company_name', 'related_companies'));
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('EMPLOYEE','ACCESS:manager'), array());
 		Utils_RecordBrowserCommon::add_access('contact', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('contact', 'delete', array('EMPLOYEE','CLEARANCE:manager'));
+		Utils_RecordBrowserCommon::add_access('contact', 'delete', array('EMPLOYEE','ACCESS:manager'));
 	}
 
 	public function uninstall() {

@@ -757,9 +757,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!Base_AclCommon::i_am_admin()) return;
 		return;
 	}
-    public static function QFfield_clearance(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+    public static function QFfield_access(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if (!Base_AclCommon::i_am_admin()) return;
-		$data = Utils_CommonDataCommon::get_translated_tree('Contacts/Clearance');
+		$data = Utils_CommonDataCommon::get_translated_tree('Contacts/Access');
 		if (!is_array($data)) $data = array();
 		$form->addElement('multiselect', $field, $label, $data, array('id'=>$field));
 		//print_r($default);
@@ -823,8 +823,8 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->addElement('select', $field, $label, $users, array('id'=>'crm_contacts_select_user'));
             $form->setDefaults(array($field=>$default));
 			eval_js('new_user_textfield = function(){'.
-					'$("username").parentNode.parentNode.style.display = ($("crm_contacts_select_user").value=="new"?"":"none");'.
-					'$("set_password").parentNode.parentNode.style.display = $("confirm_password").parentNode.parentNode.style.display = $("clearance__from").parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'$("username").up("tr").style.display = ($("crm_contacts_select_user").value=="new"?"":"none");'.
+					'$("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("access__from").parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
 					'}');
 			eval_js('new_user_textfield();');
 			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');

@@ -304,7 +304,7 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 		Utils_RecordBrowserCommon::add_access('task', 'add', 'EMPLOYEE');
 		Utils_RecordBrowserCommon::add_access('task', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
 		Utils_RecordBrowserCommon::add_access('task', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('task', 'delete', array('EMPLOYEE','CLEARANCE:manager'));
+		Utils_RecordBrowserCommon::add_access('task', 'delete', array('EMPLOYEE','ACCESS:manager'));
 
 		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed'), true);
 		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
@@ -2600,9 +2600,9 @@ function update_from_1_1_6_to_1_1_7() {
 
     if(ModuleManager::is_installed('Data_TaxRates')>=0) {
 		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'view', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'add', array('EMPLOYEE','CLEARANCE:manager'));
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'edit', array('EMPLOYEE','CLEARANCE:manager'));
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'delete', array('EMPLOYEE','CLEARANCE:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'add', array('EMPLOYEE','ACCESS:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'edit', array('EMPLOYEE','ACCESS:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'delete', array('EMPLOYEE','ACCESS:manager'));
     }
 
     if(ModuleManager::is_installed('Premium_Timesheet')>=0) {

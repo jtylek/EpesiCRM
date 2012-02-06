@@ -1458,16 +1458,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!isset($cache[$tab])) {
 				self::check_table_name($tab);
 				$user_clearance = array('ALL');
+				$sa = Base_AclCommon::i_am_sa();
 				if (Base_AclCommon::i_am_admin()) $user_clearance[] = 'ADMIN';
-				if (Base_AclCommon::i_am_sa()) $user_clearance[] = 'SUPERADMIN';
+				if ($sa) $user_clearance[] = 'SUPERADMIN';
 				
 				// move to CRM_Contacts, using "user clearance callback"
 				$me = CRM_ContactsCommon::get_my_record(); 
 				$mc = CRM_ContactsCommon::get_main_company();
-				if ($me['id']!=-1) {
-					if ($me['company_name']==$mc || in_array($mc, $me['related_companies'])) $user_clearance[] = 'EMPLOYEE';
-					foreach ($me['clearance'] as $g) {
-						$user_clearance[] = 'CLEARANCE:'.$g;
+				if ($sa || $me['id']!=-1) {
+					if ($sa || $me['company_name']==$mc || in_array($mc, $me['related_companies'])) $user_clearance[] = 'EMPLOYEE';
+					if ($sa) $access = array_keys(Utils_CommonDataCommon::get_array('Contacts/Access'));
+					else $access = $me['access'];
+					foreach ($access as $g) {
+						$user_clearance[] = 'ACCESS:'.$g;
 					}
 				}
 				// move to CRM_Contacts, using "user clearance callback"

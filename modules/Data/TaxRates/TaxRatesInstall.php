@@ -26,9 +26,9 @@ class Data_TaxRatesInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_icon('data_tax_rates', Base_ThemeCommon::get_template_filename('Data/TaxRates', 'icon.png'));
 
 		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'view', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'add', array('EMPLOYEE','CLEARANCE:manager'));
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'edit', array('EMPLOYEE','CLEARANCE:manager'));
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'delete', array('EMPLOYEE','CLEARANCE:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'add', array('EMPLOYEE','ACCESS:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'edit', array('EMPLOYEE','ACCESS:manager'));
+		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'delete', array('EMPLOYEE','ACCESS:manager'));
 
 		return true;
 	}
