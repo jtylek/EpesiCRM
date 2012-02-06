@@ -147,6 +147,7 @@ Please choose epesi version:<ul>
 		<script type="text/javascript" src="<?php print($jsses_src)?>"></script>
 
 		<style type="text/css">
+			<?php if (DIRECTION_RTL) print('body { direction: rtl; }'); ?>
 			#epesiStatus {
   				/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
   				position: absolute;
@@ -187,7 +188,7 @@ Please choose epesi version:<ul>
 		</style>
 		<?php print(TRACKING_CODE); ?>
 	</head>
-	<body>
+	<body <?php if (DIRECTION_RTL) print('class="epesi_rtl"'); ?> >
 
 		<div id="body_content">
 			<div id="main_content"></div>

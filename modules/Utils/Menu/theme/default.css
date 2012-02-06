@@ -127,10 +127,38 @@ a.root_item_link_right {
 
 }
 
+.epesi_rtl a.root_item_link_none,
+.epesi_rtl a.root_item_link_right,
+.epesi_rtl a.root_item_link,
+.epesi_rtl a.root_item_link_down {
+	text-align: right;
+}
+
+
 .root_item_link_right_arrow {
 	padding: 0px 25px 0px 29px;
 	background: url("Utils/Menu/arrow.png") no-repeat center right;
 	_background: url("Utils/Menu/arrow.gif") no-repeat center right;
+}
+
+a.root_item_link:hover .root_item_link_right_arrow,
+a.root_item_link_none:hover .root_item_link_right_arrow,
+a.root_item_link_right:hover .root_item_link_right_arrow {
+	padding: 0px 25px 0px 29px;
+	background: url("Utils/Menu/arrow_hover.png") no-repeat center right;
+	_background: url("Utils/Menu/arrow_hover.gif") no-repeat center right;
+}
+
+.epesi_rtl .root_item_link_right_arrow {
+	padding: 0px 29px 0px 25px;
+	background: url("Utils/Menu/arrow_left.png") no-repeat center left;
+}
+
+.epesi_rtl a.root_item_link:hover .root_item_link_right_arrow,
+.epesi_rtl a.root_item_link_none:hover .root_item_link_right_arrow,
+.epesi_rtl a.root_item_link_right:hover .root_item_link_right_arrow {
+	padding: 0px 25px 0px 29px;
+	background: url("Utils/Menu/arrow_left_hover.png") no-repeat center left;
 }
 
 img.link_bullet {
@@ -145,6 +173,10 @@ img.link_bullet {
     height: 29px;
 	float: left;
 	background-color: silver;
+}
+
+.epesi_rtl .item_sub .link_icon_box {
+	float: right;
 }
 
 img.link_icon {
@@ -250,12 +282,4 @@ a.root_item_link_right:hover {
 	/*background-image: url('Utils/Menu/menu-icon-back.png');
 	background-repeat: no-repeat;*/
 	background-image: none;
-}
-
-a.root_item_link:hover .root_item_link_right_arrow,
-a.root_item_link_none:hover .root_item_link_right_arrow,
-a.root_item_link_right:hover .root_item_link_right_arrow {
-	padding: 0px 25px 0px 29px;
-	background: url("Utils/Menu/arrow_hover.png") no-repeat center right;
-	_background: url("Utils/Menu/arrow_hover.gif") no-repeat center right;
 }

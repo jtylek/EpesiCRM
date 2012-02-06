@@ -64,7 +64,8 @@ custom_show = function(menu, submenu) {
 		else
         		elem.style.position = 'absolute';
 		elem.style.zIndex = 1000;
-		elem.clonePosition(elem.parentNode,{setWidth:false, setHeight:false, offsetTop:0});
+		//elem.clonePosition(elem.parentNode,{setWidth:false, setHeight:false, offsetTop:0});
+		// above line, when commented out, fixed the major menu issue with rtl direction, both lrt and rtl works perfectly well with this line out, on IE, Firefox and Chrome
 	}
 }
 

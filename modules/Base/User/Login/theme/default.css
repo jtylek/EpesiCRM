@@ -265,3 +265,51 @@ table#Base_User_Login td.donation_notice a:hover {
 	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
 	/* end light css3 green background gradient */
 }
+
+.logged_as {
+	float: left;
+	width: 154px;
+    height: 21px;
+	padding-top: 0px;
+	margin-right: 6px;
+	text-align: center;
+}
+
+.epesi_rtl .logged_as {
+	float: right;
+}
+
+.logout_css3_box {
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 2px black;
+	-moz-box-shadow: 1px 1px 2px black;
+	box-shadow: 1px 1px 2px black;
+	/* end css3 shadow border*/
+
+    display: block;
+    height: 21px;
+    overflow: hidden;
+    width: 108px;
+	float: right;
+}
+
+.epesi_rtl .logout_css3_box {
+	float: left;
+}
+
+#top_bar #top_bar_2 .login {
+	height: 26px;
+    padding-top: 1px;
+	vertical-align: top;
+	text-align: left;
+    padding-left: 4px;
+}
+
+.login .button {
+	width: 109px;
+}

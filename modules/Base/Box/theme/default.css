@@ -87,33 +87,6 @@ input, textarea, select {
 	/* end dark css3 green background gradient */
 }
 
-.logged_as {
-	float: left;
-	width: 154px;
-    height: 21px;
-	padding-top: 0px;
-	margin-right: 6px;
-	text-align: center;
-}
-
-.logout_css3_box {
-	/* border radius */
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	border-radius: 6px;
-	/* end border radius */
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 2px black;
-	-moz-box-shadow: 1px 1px 2px black;
-	box-shadow: 1px 1px 2px black;
-	/* end css3 shadow border*/
-
-    display: block;
-    height: 21px;
-    overflow: hidden;
-    width: 108px;
-}
-
 .child_button > input,
 .button input {
     cursor: pointer;
@@ -284,7 +257,7 @@ hr.line {
 	height: 22px;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	margin: 0 9px 0 auto;
+	margin: 0 0 0 auto;
 	}
 
 #top_bar #top_bar_1 .home-bar {
@@ -659,11 +632,11 @@ hr.line {
 }
 
 .shadow_css3_login-search-td_border  {
-	width: 282px;
+	width: 277px;
 	height: 83px;
 	margin: 0px;
 	background-color: #fff;
-	padding: 0px;
+	padding-right: 5px;
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 3px gray;
 	-moz-box-shadow: 1px 1px 3px gray;
@@ -687,18 +660,6 @@ hr.line {
 
 }
 
-
-#top_bar #top_bar_2 .login {
-	height: 26px;
-    padding-top: 1px;
-	vertical-align: top;
-	text-align: left;
-    padding-left: 9px;
-}
-
-.login .button {
-	width: 109px;
-}
 
 #top_bar #top_bar_2 .search {
 	height: 20px;

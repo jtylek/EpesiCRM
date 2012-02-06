@@ -46,7 +46,7 @@ table#Base_Search__Search input {
 	color: #000000;
 	border: 1px solid #b3b3b3;
 	/*width: 173px;*/
-	width: 156px;
+	width: 152px;
 	height: 16px;
 	font-size: 11px;
 	padding-left: 5px;
@@ -57,6 +57,11 @@ table#Base_Search__Search input {
 	border-radius: 6px;
 	/* end border radius */
 }
+
+.epesi_rtl table#Base_Search__Search input {
+	margin-left: 10px;
+}
+
 table#Base_Search__Search input:focus {
 	background-color: #FFFFA5;
 }
@@ -194,4 +199,26 @@ table#Base_Search__Search td.data select {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5ada5a', endColorstr='#308630',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%); /* W3C */
 	/* end light css3 green background gradient */
+}
+
+.search_button_css3_box {
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 2px black;
+	-moz-box-shadow: 1px 1px 2px black;
+	box-shadow: 1px 1px 2px black;
+	/* end css3 shadow border*/
+
+    display: block;
+    height: 21px;
+    overflow: hidden;
+    width: 108px;
+}
+
+.epesi_rtl .search_button_css3_box {
+	margin-right: 1px;
 }
