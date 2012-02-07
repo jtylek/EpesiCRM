@@ -21,7 +21,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 	}
 
     public static function user_settings() {
-	    if(self::Instance()->acl_check('access client')) {
+	    if(Utils_RecordBrowserCommon::get_access('rc_accounts', 'browse')) {
             return array('E-mail Accounts'=>'account_manager');
         }
         return array();
