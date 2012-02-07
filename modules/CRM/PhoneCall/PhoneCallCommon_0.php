@@ -390,7 +390,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	//////////////////////////
 	// mobile devices
 	public static function mobile_menu() {
-		if(!self::Instance()->acl_check('browse phonecalls'))
+		if(!Utils_RecordBrowserCommon::get_access('phonecall','browse'))
 			return array();
 		return array('Phone Calls'=>array('func'=>'mobile_phone_calls','color'=>'blue'));
 	}

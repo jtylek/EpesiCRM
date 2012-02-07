@@ -31,7 +31,6 @@ class Tests_BugtrackCommon extends ModuleCommon {
 	}
 
 	public static function search_format($id) {
-		if(!self::Instance()->acl_check('browse bugtrack')) return false;
 		$row = Utils_RecordBrowserCommon::get_records('bugtrack',array('id'=>$id));
 		if(!$row) return false;
 		$row = array_pop($row);

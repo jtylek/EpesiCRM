@@ -95,10 +95,6 @@ class CRM_TasksCommon extends ModuleCommon {
 			));
 	}
 	
-	public static function body_access() {
-		return self::Instance()->acl_check('browse tasks');
-	}
-	
 	public static function employees_crits(){
 		return array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company()));
 	}
@@ -249,7 +245,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 	
 	public static function search_format($id) {
-		if(!self::Instance()->acl_check('browse tasks')) return false;
+		if(!Utils_RecordBrowserCommon::get_access('task','browse')) return false;
 		$row = self::get_tasks(array('id'=>$id));
 		if(!$row) return false;
 		$row = array_pop($row);
@@ -273,7 +269,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	// mobile devices
 
 	public static function mobile_menu() {
-		if(!self::Instance()->acl_check('browse tasks'))
+		if(!Utils_RecordBrowserCommon::get_access('task','browse'))
 			return array();
 		return array('Tasks'=>array('func'=>'mobile_tasks','color'=>'blue'));
 	}

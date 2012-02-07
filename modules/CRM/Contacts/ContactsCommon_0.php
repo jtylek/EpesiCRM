@@ -95,10 +95,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         if($me['id']!=-1) {
             $ret['My settings']['My Contact']=array('mode'=>'my_contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
         }
-        if(self::Instance()->acl_check('view company')) {
-			$me = CRM_ContactsCommon::get_main_company();
-			if (!empty($me))
-				$ret['My settings']['Main Company']=array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
+		$me = CRM_ContactsCommon::get_main_company();
+        if(!empty($me) && Utils_RecordBrowserCommon::get_access('company', 'view', self::get_company($me))) {
+			$ret['My settings']['Main Company']=array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
         }
         if(count($ret['My settings'])==1)
             unset($ret['My settings']);
@@ -929,11 +928,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$emp = array($me['id']);
 				$cus = array('C:'.$values['id']);
 				$ret = array();
-				if(self::Instance()->acl_check('"new" actions')) {
-					if (ModuleManager::is_installed('CRM/Meeting')!==-1) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
-					if (ModuleManager::is_installed('CRM/Tasks')!==-1) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-					if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'C:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
-				}
+				if (ModuleManager::is_installed('CRM/Meeting')!==-1 && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
+				if (ModuleManager::is_installed('CRM/Tasks')!==-1 && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+				if (ModuleManager::is_installed('CRM/PhoneCall')!==-1 && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'C:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 				$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('company/'.$values['id']);
 				return $ret;
 			case 'adding':
@@ -962,11 +959,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$ret['new']['crm_filter'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','Set CRM Filter')).' '.Module::create_href(array('set_crm_filter'=>1)).'>F</a>';
 			if (isset($_REQUEST['set_crm_filter']))
 				CRM_FiltersCommon::set_profile('c'.$values['id']);
-            if(self::Instance()->acl_check('"new" actions')) {
-                if (ModuleManager::is_installed('CRM/Meeting')!==-1) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
-                if (ModuleManager::is_installed('CRM/Tasks')!==-1) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-                if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
-            }
+			if (ModuleManager::is_installed('CRM/Meeting')!==-1 && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
+			if (ModuleManager::is_installed('CRM/Tasks')!==-1 && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+			if (ModuleManager::is_installed('CRM/PhoneCall')!==-1 && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('contact/'.$values['id']);
             return $ret;
         case 'adding':
@@ -1015,7 +1010,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 
     public static function search_format_contact($id) {
-        if(!self::Instance()->acl_check('browse contacts')) return false;
+        if(!Utils_RecordBrowserCommon::get_access('contact','browse')) return false;
         $row = self::get_contacts(array('id'=>$id));
         if(!$row) return false;
         $row = array_pop($row);
@@ -1023,7 +1018,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 
     public static function search_format_company($id) {
-        if(!self::Instance()->acl_check('browse companies')) return false;
+        if(!Utils_RecordBrowserCommon::get_access('company','browse')) return false;
         $row = self::get_companies(array('id'=>$id));
         if(!$row) return false;
         $row = array_pop($row);
@@ -1032,7 +1027,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     public static function search($word){
         $ret = array();
-        if(self::Instance()->acl_check('browse contacts')) {
+        if(Utils_RecordBrowserCommon::get_access('contact','browse')) {
             $wo = explode(' ', $word);
 
             $crits = array();
@@ -1044,7 +1039,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             foreach ($result as $row)
                 $ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('contact', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Contact #%d, %s %s', array($row['id'], $row['first_name'], $row['last_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
         }
-        if(self::Instance()->acl_check('browse companies')) {
+        if(Utils_RecordBrowserCommon::get_access('company','browse')) {
             $result = self::get_companies(array('"~company_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
             foreach ($result as $row)

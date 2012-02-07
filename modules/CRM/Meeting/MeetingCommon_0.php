@@ -824,7 +824,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 	public static function search($word){
 		$ret = array();
-		if(self::Instance()->acl_check('browse meetings')) {
+		if(Utils_RecordBrowserCommon::get_access('crm_meeting','browse')) {
 			$result = Utils_RecordBrowserCommon::get_records('crm_meeting',array('(~"title'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\''), '|~"description'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row) {
@@ -853,7 +853,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	// mobile devices
 
 	public static function mobile_menu() {
-		if(!self::Instance()->acl_check('browse meetings'))
+		if(!Utils_RecordBrowserCommon::get_access('crm_meeting','browse'))
 			return array();
 		return array('Meetings'=>array('func'=>'mobile_meetings','color'=>'blue'));
 	}
