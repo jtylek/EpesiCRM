@@ -16,15 +16,10 @@ class Base_Theme_AdministratorInstall extends ModuleInstall {
 		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		$this->create_data_dir();
-		DB::CreateTable('base_theme_themeup',
-			'id I4 AUTO KEY,'.
-			'module C(128)',
-			array('constraints'=>''));
 		return true;
 	}
 	
 	public function uninstall() {
-		DB::DropTable('base_theme_themeup');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}
