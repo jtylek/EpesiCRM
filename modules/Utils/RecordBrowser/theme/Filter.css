@@ -1,3 +1,12 @@
+.Utils_RecordBrowser__Filter > table {
+	margin-left: auto;
+	margin-right: 0;
+}
+.epesi_rtl .Utils_RecordBrowser__Filter > table {
+	margin-left: 0;
+	margin-right: auto;
+}
+
 #Utils_RecordBrowser__Filter {
     width: 100%;
     display: block;
@@ -28,9 +37,7 @@
 /* data */
 
 .Utils_RecordBrowser__Filter .data {
-    border-top: 1px solid #B3B3B3;
-    border-bottom: 1px solid #B3B3B3;
-    border-right: 1px solid #B3B3B3;
+    border: 1px solid #B3B3B3;
     padding-left: 2px;
     padding-right: 2px;
 }
@@ -69,6 +76,12 @@
 	display: block;
     float: right;
     padding-right: 8px;
+}
+
+.epesi_rtl #Utils_RecordBrowser__Filter .buttons,
+.epesi_rtl #Utils_RecordBrowser__Filter .buttons_disabled {
+    padding-left: 8px;
+    float: left;
 }
 
 .Utils_RecordBrowser__Filter .buttons input,

@@ -53,6 +53,16 @@
 	white-space: nowrap;
 }
 
+.epesi_rtl #dashboard .controls {
+	text-align: left;
+}
+.epesi_rtl #dashboard .actions {
+	text-align: right;
+}
+.epesi_rtl #dashboard .title {
+	text-align: right;
+}
+
 #dashboard .controls a {
 	color: #FFFFFF;
 	padding-left: 1px;

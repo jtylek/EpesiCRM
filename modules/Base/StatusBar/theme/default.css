@@ -40,10 +40,10 @@
 }
 
 .Base_StatusBar td.sb_image {
-	text-align: right;
+	text-align: center;
 	vertical-align: middle;
     height: 80px;
-	width:50px;
+	width: 69px;
 }
 
 .Base_StatusBar td.sb_text {

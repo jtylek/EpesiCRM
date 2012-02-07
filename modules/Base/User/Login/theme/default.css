@@ -137,12 +137,22 @@ table#Base_User_Login td.label {
 	height: 30px;
 	font-size: 11px;
 	color: #000000;
+	text-align: right;
 }
 
 table#Base_User_Login td.input {
 	font-weight: normal;
 	width: 325px;
 	height: 30px;
+	text-align: left;
+}
+
+.epesi_rtl table#Base_User_Login td.label {
+	text-align: left;
+}
+
+.epesi_rtl table#Base_User_Login td.input {
+	text-align: right;
 }
 
 table#Base_User_Login td.input input {

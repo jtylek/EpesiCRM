@@ -34,6 +34,10 @@ ul.Utils_TabbedBrowser {
 	margin-bottom: 0px;
 }
 
+.epesi_rtl ul.Utils_TabbedBrowser {
+	text-align: right;
+}
+
 ul.Utils_TabbedBrowser li {
 	display: inline;
 	white-space: nowrap;

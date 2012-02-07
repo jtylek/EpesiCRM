@@ -174,7 +174,7 @@ table.Utils_GenericBrowser a.button {
 table.Utils_GenericBrowser > thead > tr > th {
     font-weight: normal;
     background-repeat: repeat-x;
-    text-align: center;
+    text-align: left;
     height: 23px;
     /*border-top: 1px solid #B3B3B3;*/
     border-right: 1px solid #B3B3B3;
@@ -196,13 +196,16 @@ table.Utils_GenericBrowser > thead > tr > th {
 	background: linear-gradient(top, #7b9cbd 0%,#7b9cbd 50%,#336699 51%,#7b9cbd 100%); /* W3C */
 	/* end css3  gradient */
 }
+.epesi_rtl table.Utils_GenericBrowser > thead > tr > th {
+    text-align: right;
+}
+
 table.Utils_GenericBrowser > thead > tr > th > .GB_margin {
 	margin: 0px 40% auto 5px;
 }
 table.Utils_GenericBrowser > thead > tr > th > span {
 	color: #FFFFFF;
 	display: block;
-	float: left;
     height: 20px;
     line-height: 20px;
     margin-left: 3px;
@@ -281,6 +284,9 @@ table.Utils_GenericBrowser > tbody > tr:hover {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+.epesi_rtl .Utils_GenericBrowser__td {
+    text-align: right;
+}
 
 .Utils_GenericBrowser__td a img {
 	margin: 0 1px;
@@ -289,17 +295,6 @@ table.Utils_GenericBrowser > tbody > tr:hover {
 table.Utils_GenericBrowser > tbody > td img {
 	vertical-align: middle;
 }
-
-/* Navigation */
-
-table.Utils_GenericBrowser__navigation {
-    width: 100%;
-}
-
-table.Utils_GenericBrowser__navigation img {
-    vertical-align: middle;
-}
-
 
 /* add new record browser*/
 .record_browser_add_new {
@@ -466,7 +461,7 @@ table.Utils_GenericBrowser__navigation img {
 .quick_jump_letters {
     z-index: 1005;
     position: absolute;
-    margin-left: 34px;
+    margin-right: 50px;
     margin-left: 50px;
 }
 
@@ -640,6 +635,17 @@ table.Utils_GenericBrowser__navigation img {
 #Utils_GenericBrowser__navigation .nav_per_page {
 	padding-right: 10px;
 }
+
+.epesi_rtl #Utils_GenericBrowser__navigation img {
+	-moz-transform: scaleX(-1);
+	-o-transform: scaleX(-1);
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+	filter: FlipH;
+	-ms-filter: "FlipH";
+}
+
+
 
 .Utils_GenericBrowser__overflow_div {
     background-color: white;
