@@ -128,11 +128,10 @@ class CRM_Roundcube extends Module {
         
         $rb = $this->init_module('Utils/RecordBrowser','rc_mails','rc_mails');
         $rb->set_header_properties(array(
-                        'direction'=>array('width'=>5),
                         'date'=>array('width'=>10),
-                        'employee'=>array('width'=>20),
-                        'contacts'=>array('width'=>20),
-                        'subject'=>array('width'=>40),
+                        'employee'=>array('name'=>$this->t('Archived by'),'width'=>20),
+                        'contacts'=>array('name'=>$this->t('Involved contacts'), 'width'=>20),
+                        'subject'=>array('name'=>$this->t('Message'),'width'=>40),
                         'attachments'=>array('width'=>5)
         ));
         $rb->set_button(false);

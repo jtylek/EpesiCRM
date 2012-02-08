@@ -147,7 +147,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function display_subject($record, $nolink, $desc) {
-		return Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
+		return Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink).'<br />From: '.$record['from'].'<br />To: '.$record['to'];
 	}
 
     public static function QFfield_direction(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {

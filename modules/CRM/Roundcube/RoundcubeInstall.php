@@ -82,16 +82,6 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'visible'=>true
             ),
             array(
-                'name'=>'Direction',
-                'type'=>'text',
-                'param'=>1,
-                'extra'=>false,
-                'visible'=>true,
-                'required'=>true,
-                'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_direction'),
-                'display_callback'=>array('CRM_RoundcubeCommon','display_direction')
-            ),
-            array(
                 'name'=>'Employee',
                 'type'=>'crm_contact',
                 'param'=>array('field_type'=>'select'),
