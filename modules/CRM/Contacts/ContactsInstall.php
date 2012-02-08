@@ -123,6 +123,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::add_access('company', 'add', 'EMPLOYEE');
 		Utils_RecordBrowserCommon::add_access('company', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('company', 'edit', array('ALL','ACCESS:manager'), array('id'=>'USER_COMPANY'));
+		Utils_RecordBrowserCommon::add_access('company', 'edit', array('EMPLOYEE','ACCESS:manager'), array());
 		Utils_RecordBrowserCommon::add_access('company', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('company', 'delete', array('EMPLOYEE','ACCESS:manager'));
 
