@@ -28,7 +28,7 @@
                         <tbody>
 {if $is_demo}
    			<tr>
-   				<td colspan="2" align="center" class="label"><strong>EPESI DEMO APPLICATION</strong></td>
+   				<td colspan="2" align="center"><strong>EPESI DEMO APPLICATION</strong></td>
    			</tr>
 {/if}
                             <tr><td colspan="2" class="error"><span class="error">{$form_data.username.error}</span></td></tr>
