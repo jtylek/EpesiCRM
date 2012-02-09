@@ -405,12 +405,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'old_value X',
                     array('constraints'=>', FOREIGN KEY (edit_id) REFERENCES '.$tab.'_edit_history(id)'));
         DB::CreateTable($tab.'_favorite',
-                    'id I AUTO KEY,'.
+                    'fav_id I AUTO KEY,'.
                     $tab.'_id I,'.
                     'user_id I',
                     array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id), FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'_data_1(id)'));
         DB::CreateTable($tab.'_recent',
-                    'id I AUTO KEY,'.
+                    'recent_id I AUTO KEY,'.
                     $tab.'_id I,'.
                     'user_id I,'.
                     'visited_on T',
