@@ -480,7 +480,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('DELETE FROM '.$tab.'_field WHERE field=%s', array($field));
 		$f_id = self::$table_rows[$field]['id'];
         @DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.$f_id);
-		DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE block_field=%s', array($f_id));
+		@DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE block_field=%s', array($f_id));
         self::init($tab, false, true);
     }
 
