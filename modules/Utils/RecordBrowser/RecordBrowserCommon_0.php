@@ -405,10 +405,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'old_value X',
                     array('constraints'=>', FOREIGN KEY (edit_id) REFERENCES '.$tab.'_edit_history(id)'));
         DB::CreateTable($tab.'_favorite',
+                    'id I AUTO KEY,'.
                     $tab.'_id I,'.
                     'user_id I',
                     array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id), FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'_data_1(id)'));
         DB::CreateTable($tab.'_recent',
+                    'id I AUTO KEY,'.
                     $tab.'_id I,'.
                     'user_id I,'.
                     'visited_on T',
@@ -1432,9 +1434,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function wipe_access($tab) {
 		if (!self::check_table_name($tab, false, false)) return;
-		DB::Execute('TRUNCATE '.$tab.'_access_clearance');
-		DB::Execute('TRUNCATE '.$tab.'_access_fields');
-		DB::Execute('TRUNCATE '.$tab.'_access');
+		DB::Execute('DELETE FROM '.$tab.'_access_clearance');
+		DB::Execute('DELETE FROM '.$tab.'_access_fields');
+		DB::Execute('DELETE FROM '.$tab.'_access');
 	}
 	public static function add_access($tab, $action, $clearance, $crits=array(), $blocked_fields=array()) {
 		if (!self::check_table_name($tab, false, false)) return;
