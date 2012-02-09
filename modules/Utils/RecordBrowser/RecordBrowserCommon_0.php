@@ -869,7 +869,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         array($user_id,
                         $row['visited_on']));
         }
-        DB::Execute('INSERT INTO '.$tab.'_recent VALUES (%d, %d, %T)',
+        DB::Execute('INSERT INTO '.$tab.'_recent ('.$tab.'_id, user_id, visited_on) VALUES (%d, %d, %T)',
                     array($id,
                     $user_id,
                     date('Y-m-d H:i:s')));
