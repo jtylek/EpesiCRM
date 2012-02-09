@@ -254,7 +254,7 @@ class Utils_Attachment extends Module {
 				if(file_exists($f_filename)) {
 					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($this->get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 					$view_link = '';
-					$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
+					$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img height="16px" src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
 					if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
 						$inline_img = '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
 				} else {
@@ -318,7 +318,7 @@ class Utils_Attachment extends Module {
 			}
 			$arr[] = $regional_note_on;
 			$arr[] = array('value'=>$text, 'overflow_box'=>false, 'style'=>'white-space: normal;');
-			$arr[] = $file;
+			$arr[] = array('value'=>$file, 'style'=>'text-align: center;');
 			$r->add_data_array($arr);
 
 			eval_js('init_note_expandable('.$row['id'].');');
