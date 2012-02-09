@@ -1779,7 +1779,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if(!$rec) return '';
         $tpro = DB::GetRow('SELECT caption,description_callback FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
         if(!$tpro) return '';
-        $cap = $tpro['caption'];
+        $cap = self::ts($tpro['caption']);
         if(!$cap) $cap = $tab;
         $descr = $tpro['description_callback'];
         if($descr) {

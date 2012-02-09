@@ -750,6 +750,7 @@ class Utils_RecordBrowser extends Module {
             $form->display();
         }
         if (isset($this->force_order)) $order = $this->force_order;
+        if (!$order) $order = array();
 
         $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin, $order);
 
