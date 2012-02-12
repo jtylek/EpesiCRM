@@ -198,7 +198,7 @@ class Base_ThemeCommon extends ModuleCommon {
 		if(!is_readable($f)) {
 			$f = DATA_DIR.'/Base_Theme/templates/default/'.$filename;
 			if(!is_readable($f))
-				throw new Exception('No such template file: '.$filename);
+				return null;
 		}
 		return $f;
 	}
@@ -215,11 +215,11 @@ class Base_ThemeCommon extends ModuleCommon {
 		if(!isset($module_name)) 
 			trigger_error('Invalid argument for load_css, no module was specified.',E_USER_ERROR);
 		
-		try {
-			$css = self::get_template_file($module_name,$css_name.'.css');
+		$css = self::get_template_file($module_name,$css_name.'.css');
+		if ($css) {
 			load_css($css,self::get_template_dir().'__css.php');
 			return true;
-		} catch(Exception $e) {
+		} else {
 			if($trig_error) trigger_error('Invalid css specified: '.$module_name.'/'.$css_name.'.css',E_USER_ERROR);
 			return false;
 		}

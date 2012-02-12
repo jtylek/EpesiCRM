@@ -61,11 +61,7 @@ class Base_Admin extends Module {
 			if (method_exists($name.'Common','admin_icon')) {
 				$icon = call_user_func(array($name.'Common','admin_icon'));
 			} else {
-				try {
-					$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
-				} catch(Exception $e) {
-					$icon = null;
-				}
+				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
 			}
 			$buttons[]= array('link'=>'<a '.$this->create_callback_href(array($this, 'set_module'), array($name)).'>'.$caption.'</a>',
 						'icon'=>$icon);
@@ -110,11 +106,7 @@ class Base_Admin extends Module {
 			if (method_exists($name.'Common','admin_icon')) {
 				$icon = call_user_func(array($name.'Common','admin_icon'));
 			} else {
-				try {
-					$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
-				} catch(Exception $e) {
-					$icon = null;
-				}
+				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
 			}
 			$button_id = $name.'__button';
 			$enable_field = $name.'_enable';

@@ -55,29 +55,23 @@ class Base_Menu extends Module {
 			if($k=='__split__')
 				$menu->add_split();
 			else {
-				if(array_key_exists('__submenu__', $arr))
-					$icon = Base_ThemeCommon::get_template_file('Base_Menu', 'folder.png');
-				else
-					$icon = Base_ThemeCommon::get_template_file('Base_Menu', 'element.png');
+				$icon = null;
 				if(array_key_exists('__icon_small__',$arr)) {
-					try {
-						$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon_small__']);
-					} catch(Exception $e) {
-					}
+					$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon_small__']);
 					unset($arr['__icon_small__']);
 					unset($arr['__icon__']);
 				} else if(array_key_exists('__icon__',$arr)) {
-					try {
-						$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon__']);
-					} catch(Exception $e) {
-					}
+					$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon__']);
 					unset($arr['__icon__']);
 				} else {
-					try {
-						if(isset($arr['parent_module']) && is_string($arr['parent_module']))
-							$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], 'icon-small.png');
-					} catch(Exception $e) {
-					}
+					if(isset($arr['parent_module']) && is_string($arr['parent_module']))
+						$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], 'icon-small.png');
+				}
+				if (!$icon) {
+					if(array_key_exists('__submenu__', $arr))
+						$icon = Base_ThemeCommon::get_template_file('Base_Menu', 'folder.png');
+					else
+						$icon = Base_ThemeCommon::get_template_file('Base_Menu', 'element.png');
 				}
 				unset($arr['parent_module']);
 

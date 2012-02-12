@@ -215,13 +215,8 @@ class Base_User_Settings extends Module {
                 }
             }
             if(!$icon)
-                foreach($arg['module_names'] as $m) {
-                    try {
-                        $icon = Base_ThemeCommon::get_template_file($m,'icon.png');
-                        break;
-                    } catch(Exception $e) {}
-                }
-            if(!$icon) $icon = '';
+                foreach($arg['module_names'] as $m)
+                    $icon = Base_ThemeCommon::get_template_file($m,'icon.png');
             $buttons[]= array('link'=>'<a '.$arg['action'].'>'.$this->t($caption).'</a>','module'=>$arg['module_names'],'icon'=>$icon);
         }
         $theme =  & $this->pack_module('Base/Theme');

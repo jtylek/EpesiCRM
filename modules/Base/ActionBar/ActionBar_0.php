@@ -92,14 +92,11 @@ class Base_ActionBar extends Module {
 						else
 							$ii['open'] = '<a '.Base_MenuCommon::create_href($this,$arr).'>';
 						$ii['close'] = '</a>';
-						try {
-							if(isset($v['link']['__icon__']))
-								$icon = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
-							else
-								$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						} catch(Exception $e) {
-							$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
-						}
+						if(isset($v['link']['__icon__']))
+							$icon = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
+						else
+							$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
+						if (!$icon) $icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
 						$ii['icon'] = $icon;
 						$launcher[] = $ii;
 					}
@@ -115,14 +112,13 @@ class Base_ActionBar extends Module {
 							$ii['open'] = '<a onClick="actionbar_launchpad_deactivate();'.Base_MenuCommon::create_href_js($this,$arr).'" href="javascript:void(0)">';
 						}
 						$ii['close'] = '</a>';
-						try {
-							if(isset($v['link']['__icon__']))
-								$icon = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
-							else
-								$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						} catch(Exception $e) {
-							$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
-						}
+
+						if(isset($v['link']['__icon__']))
+							$icon = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
+						else
+							$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
+						if (!$icon) $icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
+
 						$ii['icon'] = $icon;
 						self::$launchpad[] = $ii;
 					}
