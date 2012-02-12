@@ -131,7 +131,6 @@ class Utils_Attachment extends Module {
 		if (is_array($this->group)) $cols[] = array('name'=>$this->t('Source'),'width'=>5, 'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>10,'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Note'), 'width'=>70);
-		$cols[] = array('name'=>$this->t('Attachment'), 'order'=>'uaf.original','width'=>'85px');
 		$gb->set_table_columns($cols);
 
 		if (!is_array($this->group)) $group = DB::qstr($this->group);
@@ -203,7 +202,7 @@ class Utils_Attachment extends Module {
 			$fields = ob_get_clean();
 
 			$arr = array();
-			$count = 3;
+			$count = 2;
 			if($vd)
 				$count++;
 			if($this->author)
@@ -213,7 +212,6 @@ class Utils_Attachment extends Module {
 				$arr[] = '';
 			if($this->author)
 				$arr[] = '';
-			$arr[] = '';
 			$arr[] = '';
 
 			$r->set_attrs('id="attachments_new_note" style="display:none;"');
@@ -234,8 +232,8 @@ class Utils_Attachment extends Module {
 					'hide'=>$this->create_callback_href_js(array($this,'show_deleted'),array(false))
 				));
 			}
-			$col_span = $vd?6:5;
-			eval_js('if($("attachments_new_note").childNodes.length=='.($vd?13:11).'){var n_delete=1;var n_expand=2;if($("attachments_new_note").childNodes[1].getAttribute("colspan")){n_delete=3;n_expand=1;}$("attachments_new_note").removeChild($("attachments_new_note").childNodes[n_delete]);$("attachments_new_note").childNodes[n_expand].setAttribute("colspan", '.$col_span.');}');
+			$col_span = $vd?5:4;
+			eval_js('if($("attachments_new_note").childNodes.length=='.($vd?11:9).'){var n_delete=1;var n_expand=2;if($("attachments_new_note").childNodes[1].getAttribute("colspan")){n_delete=3;n_expand=1;}$("attachments_new_note").removeChild($("attachments_new_note").childNodes[n_delete]);$("attachments_new_note").childNodes[n_expand].setAttribute("colspan", '.$col_span.');}');
 			
 		}
 
@@ -254,14 +252,14 @@ class Utils_Attachment extends Module {
 				if(file_exists($f_filename)) {
 					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($this->get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 					$view_link = '';
-					$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img height="16px" src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
+					$r->add_action($this->get_file($row,$view_link),'Attachment',$filetooltip,Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png'), 10);
 					if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
 						$inline_img = '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
 				} else {
-					$file = 'missing file: '.$f_filename;
+					$r->add_action('','Attachment',$this->t('Missing file: %s',$f_filename),Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png'), 10);
 				}
 			} else {
-				$file = '';
+				$r->add_action('','Attachment',$this->t('No attachment'),Base_ThemeCommon::get_template_file($this->get_type(),'z-attach-off.png'), 10);
 			}
 
 			static $def_permissions = array('Public','Protected','Private');
@@ -281,8 +279,10 @@ class Utils_Attachment extends Module {
 				if(!isset($row['deleted']) || !$row['deleted']) {
     				$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
     				$r->add_action($this->create_confirm_callback_href($this->t('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
-    			} else
-    			    $r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore');
+    			} else {
+    				$r->add_action('','edit',$this->t('You cannot edit deleted notes'),null,0,true);
+    			    $r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore', null,null, -1);
+				}
 			}
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
@@ -290,14 +290,14 @@ class Utils_Attachment extends Module {
 			$text = trim(Utils_BBCodeCommon::parse($row['text']));
 
 			if(!isset($row['deleted']) || !$row['deleted']) {
-        		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
-		    	$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'));
+        		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
+		    	$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
 		    }
 			
 			if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text;
 
-			$r->add_action('style="dispaly:none;" href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'));
-			$r->add_action('style="dispaly:none;" href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')" id="utils_attachment_less_'.$row['id'].'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), false, 0);
+			$r->add_action('style="dispaly:none;" href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 5);
+			$r->add_action('style="dispaly:none;" href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')" id="utils_attachment_less_'.$row['id'].'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 5, false, 0);
 
 			$text = '<div style="height:18px;" id="note_'.$row['id'].'" class="note_field">'.$text.$inline_img.'</div>';
 
@@ -318,7 +318,6 @@ class Utils_Attachment extends Module {
 			}
 			$arr[] = $regional_note_on;
 			$arr[] = array('value'=>$text, 'overflow_box'=>false, 'style'=>'white-space: normal;');
-			$arr[] = array('value'=>$file, 'style'=>'text-align: center;');
 			$r->add_data_array($arr);
 
 			eval_js('init_note_expandable('.$row['id'].');');

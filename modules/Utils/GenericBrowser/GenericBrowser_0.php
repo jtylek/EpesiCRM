@@ -70,8 +70,8 @@ class Utils_GenericBrowser_Row_Object {
 	 * @param string href
 	 * @param string label
 	 */
-	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null,$off=false,$size=1){
-		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,$tooltip,$icon,$off,$size);
+	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null,$order=0,$off=false,$size=1){
+		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,$tooltip,$icon,$order,$off,$size);
 	}
 
 	/**
@@ -231,10 +231,16 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$off=false,$size=1) {
+	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$order=0,$off=false,$size=1) {
 		if (!isset($icon)) $icon = strtolower(trim($label));
 		if ($label==strip_tags($label)) $label = $this->t($label);
-		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip, 'off'=>$off, 'size'=>$size);
+		switch ($icon) {
+			case 'view': $order = -3; break;
+			case 'edit': $order = -2; break;
+			case 'delete': $order = -1; break;
+			case 'info': $order = 1000; break;
+		}
+		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip, 'off'=>$off, 'size'=>$size, 'order'=>$order);
 		$this->en_actions = true;
 	}
 
@@ -714,16 +720,7 @@ class Utils_GenericBrowser extends Module {
 
   	//internal use
   	public function sort_actions($a,$b) {
-		static $ca = array("view"=>0, "edit"=>1, "delete"=>2);
-		if($a=='info') return 1;
-		if($b=='info') return -1;
-		if(isset($ca[$a])) {
-			if(isset($ca[$b])) return $ca[$a]-$ca[$b];
-			return -1;
-		} elseif(isset($ca[$b]))
-			return 1;
-		else
-			return strcasecmp($a,$b);
+		return $a['order']-$b['order'];
 	}
 
 	public function force_per_page($i) {
@@ -926,7 +923,7 @@ class Utils_GenericBrowser extends Module {
 				else $column_no = count($this->columns);
 				$col[$column_no]['attrs'] = '';
 				if (!empty($this->actions[$i])) {
-					uksort($this->actions[$i], array($this,'sort_actions'));
+					uasort($this->actions[$i], array($this,'sort_actions'));
 					$actions = '';
 					foreach($this->actions[$i] as $icon=>$arr) {
 						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
