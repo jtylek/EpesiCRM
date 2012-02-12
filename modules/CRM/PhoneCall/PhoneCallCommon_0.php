@@ -323,7 +323,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (!isset($values['other_customer'])) $related[] = $values['customer'];
 			foreach ($related as $v) {
 				if ($mode==='edit' && in_array($v, $old_related)) continue;
-				$subs = Utils_WatchdogCommon::get_subscribers('contact',$v);
+				if (!is_numeric($v)) {
+					list($t, $id) = explode(':', $v);
+				} else {
+					$t = 'P';
+					$id = $v;
+				}
+				if ($t=='P') $t = 'contact'; else $t = 'company';
+				$subs = Utils_WatchdogCommon::get_subscribers($t,$id);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'phonecall',$values['id']);
 			}
