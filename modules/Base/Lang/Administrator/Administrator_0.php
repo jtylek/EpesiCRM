@@ -77,7 +77,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 						'	cid: Epesi.client_id'.
 						'},'.
 						'onSuccess:function(t) {'.
-							'$(span_id).style.color = "black";'.
+							'if($(span_id))$(span_id).style.color = "black";'.
 						'}'.
 					'});'.
 				'}');
