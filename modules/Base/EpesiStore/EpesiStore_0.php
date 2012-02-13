@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EpesiStore extends Module {
     // actionbar buttons
+
     const button_cart = 'Cart';
     const button_clear_list = 'Clear list';
     const button_downloaded_modules = 'Check updates';
@@ -37,6 +38,7 @@ class Base_EpesiStore extends Module {
     const text_order_success = 'Ordered';
     const text_order_failure = 'Not ordered';
     const text_orders_list_empty = 'You don\'t have any orders';
+    const text_go_to_orders = 'Go to orders';
     const text_download_process_success = 'Download process succeed!';
     const text_download_process_new_modules = 'New modules:';
     const text_download_process_new_other_files = 'Other files downloaded:';
@@ -150,6 +152,8 @@ class Base_EpesiStore extends Module {
                 $message = is_string($info) ? ' (' . $this->t($info) . ')' : "";
                 print("$module_names[$id] - <span style=\"color: " . ($success ? self::color_success : self::color_failure) . "\">" . $this->t($success ? self::text_order_success : self::text_order_failure) . "$message</span><br/>");
             }
+            $orders_link = $this->create_callback_href(array($this, 'navigate'), array('orders_form'));
+            print("<br/><a $orders_link>" . $this->t(self::text_go_to_orders) . "</a>");
             Base_EpesiStoreCommon::empty_cart();
             Base_EssClientCommon::client_messages_load_by_js();
         } else {
@@ -197,15 +201,16 @@ class Base_EpesiStore extends Module {
         $this->back_button();
         $this->payments_data_button();
 
+        print(Base_EssClientCommon::client_messages_frame());
         $orders = Base_EssClientCommon::server()->orders_list();
         if (count($orders) == 0) {
             print($this->t(self::text_orders_list_empty));
-            return;
+        } else {
+            $gb = $this->init_module('Utils/GenericBrowser', null, 'orderslist');
+            $this->GB_order($gb, $orders);
+            $this->display_module($gb);
         }
-
-        $gb = $this->init_module('Utils/GenericBrowser', null, 'orderslist');
-        $this->GB_order($gb, $orders);
-        $this->display_module($gb);
+        Base_EssClientCommon::client_messages_load_by_js();
     }
 
     public function my_modules_form() {
