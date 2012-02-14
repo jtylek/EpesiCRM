@@ -133,11 +133,20 @@ class Base_EssClient extends Module {
             location(array());
             return;
         }
-        print('<div class="important_notice">');
-        print($this->t('Here you can register your epesi installation with epesi team, allowing you to browse and make purchases in Epesi Store. Your License Key will be used to identify your installation and allow you to download and use modules you purchase. Please understand that Epesi License Key shouldn\'t be copied to any other epesi installation and purchases and downloads you make using your Epesi License Key should be used for only this installation.'));
+		
+        print('<div class="important_notice" style="-moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px;">');
+		print('<center><H1>');
+		print($this->t('epesiBIM Registration'));
+		print('</H1></center><br>');
+        print($this->t('Registration of your epesi installation with '));
+		print('<a href="http://www.telaxus.com" target="_blank">Telaxus LLC </a>');
+		print($this->t('will allow you to browse and make purchases in <strong>Epesi Store</strong> and receive notifications via e-mail about important updates.<br> Once the registration is complete you will receive a <strong>License Key</strong>. '));
+		print($this->t('This unique License Key will be used to identify your installation and allow you to download and use modules you purchase. Please note that <strong>Epesi License Key</strong> can not be copied to any other epesi installation. '));
+		print($this->t('All purchases and downloads you make using your Epesi License Key can be used for this installation only.'));
         print('<br><br>');
-        print($this->t('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations should use single Epesi License Key.'));
-        print('<br><br>');
+        print($this->t('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations can use the same Epesi License Key. '));
+        print($this->t('Sharing your license key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
+		print('<br><br>');
         print($this->t('Full Terms and Conditions are available here:')); // FIXME
         print('<center>');
         $form->display();
