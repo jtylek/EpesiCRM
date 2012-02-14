@@ -1357,7 +1357,7 @@ class Utils_RecordBrowser extends Module {
                                     'element'=>$args['id'],
                                     'advanced'=>isset($this->advanced[$args['id']])?$this->advanced[$args['id']]:'',
                                     'html'=>$data[$args['id']]['html'],
-                                    'style'=>$args['style'],
+                                    'style'=>$args['style'].($data[$args['id']]['frozen']?' frozen':''),
                                     'error'=>isset($data[$args['id']]['error'])?$data[$args['id']]['error']:null,
                                     'required'=>isset($args['required'])?$args['required']:null,
                                     'type'=>$args['type']);
@@ -1408,7 +1408,7 @@ class Utils_RecordBrowser extends Module {
                 $form->setDefaults(array($args['id']=>$record[$args['id']]));
                 continue;
             }
-			if ($mode=='view' && Base_User_SettingsCommon::get('Utils/RecordBrowser','hide_empty') && $this->field_is_empty($record, $args['id'])) {
+			if ($mode=='view' && Base_User_SettingsCommon::get('Utils/RecordBrowser','hide_empty') && $this->field_is_empty($record, $args['id']) && $args['type']!='checkbox') {
 				eval_js('var e=$("_'.$args['id'].'__data");if(e)e.up("tr").style.display="none";');
 			}
             $label = '<span id="_'.$args['id'].'__label">'.$this->ts($args['name']).'</span>'; // TRSL
@@ -1436,7 +1436,7 @@ class Utils_RecordBrowser extends Module {
                                         }
                                         $val = @$this->get_val($field, $values, true, $args);
                                         if (!$val) $val = '['.$this->t('formula').']';
-                                        $form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calculated_id($this->tab, $args['id'], $id).'">'.$val.'</div>'));
+                                        $form->setDefaults(array($args['id']=>'<div class="static_field" id="'.Utils_RecordBrowserCommon::get_calculated_id($this->tab, $args['id'], $id).'">'.$val.'</div>'));
                                         break;
                     case 'integer':
                     case 'float':       $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
@@ -1603,8 +1603,12 @@ class Utils_RecordBrowser extends Module {
                                         break;
                 }
             }
-            if ($args['required'])
+            if ($args['required']) {
                 $form->addRule($args['id'], $this->t('Field required'), 'required');
+				$el = $form->getElement($args['id']);
+				if (!PEAR::isError($el))
+					$el->setAttribute('placeholder', $this->t('Field required'));
+			}
         }
     }
     public function update_record($id,$values) {

@@ -255,6 +255,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 
 			$searchElement = '';
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_automulti','get_autocomplete_suggestbox'), array($this->_options_callback, $this->_options_callback_args, $this->_format_callback));
+			$search->setAttribute('placeholder', Base_LangCommon::ts('Libs/QuickForm','Start typing to search...'));
 			$search->on_hide_js('if($("__autocomplete_id_'.$myName.'__search").value!=""){automulti_on_hide("'.$myName.'","'.$this->list_sep.'");'.$this->on_add_js_code.'}');
 			
 			$searchElement .= $tabs . $search->toHtml()."\n";
@@ -280,7 +281,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
             $strHtml .= $tabs . '<tr>'.
             			$tabs . '<td class="search-element">' . $searchElement . '</td>'.
 						($this->search_button? $tabs.'<td class="search">'.$this->search_button.'</td>' : '<td></td>').
-						$tabs . '<td width="80px;" class="child_button disabled" id="automulti_button_style_'.$myName.'">'.
+						$tabs . '<td width="80px;" class="button disabled" id="automulti_button_style_'.$myName.'">'.
 						'<input style="width:100%" type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.$this->list_sep.'\');'.$this->on_remove_js_code.'" value="'.Base_LangCommon::ts('Libs_QuickForm','Remove').'">'.'</td>' .
 								'</tr>';
 

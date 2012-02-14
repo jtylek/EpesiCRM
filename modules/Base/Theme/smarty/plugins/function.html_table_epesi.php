@@ -137,7 +137,10 @@ function smarty_function_html_table_epesi($params, &$smarty)
         $output .= "<thead><tr>\n";
 
         for ($r=0; $r<$cols_count; $r++) {
-            $output .= '<th' . smarty_function_html_table_cycle('th', $th_attr, $r) . '>';
+			if ($r==0) $class = 'class="first"';
+			elseif ($r==$cols_count-1) $class = 'class="last"';
+			else $class = '';
+            $output .= '<th' . smarty_function_html_table_cycle('th', $th_attr, $r) . ' '.$class.'>';
             $output .= $cols[$r];
             $output .= "</th>\n";
         }

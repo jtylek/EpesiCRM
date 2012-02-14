@@ -7,7 +7,12 @@
 }
 
 #dashboard .Utils_GenericBrowser th {
-	height: 20px;}
+	height: 20px;
+}
+#dashboard .Utils_GenericBrowser th a,
+#dashboard .Utils_GenericBrowser th span {
+	padding-top: 0;
+}
 
 #dashboard .applet {
 }
@@ -142,9 +147,6 @@
 
 #dashboard #Utils_GenericBrowser__navigation {
 	height: 15px;
-}
-#dashboard #Utils_GenericBrowser__navigation .nav_background {
-	border: 1px solid red;
 	background: none;
 	font-size: 100%;
 	color: black;

@@ -76,8 +76,8 @@ ChainedSelect.prototype = {
 				var obj = $(dest_id);
 				var opts = obj.options;
                 if(new_opts == false) {
-                //    obj.setAttribute("oldDisplayValue", obj.style.display);
-                    obj.style.display = "none";
+                    obj.setAttribute("oldDisplayValue", obj.style.display);
+                //    obj.style.display = "none";
                     return;
                 } else {
                  //   var val = obj.getAttribute("oldDisplayValue");

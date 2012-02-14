@@ -77,7 +77,7 @@
 		<div class="css3_content_shadow">
 <!-- -->
 
-<div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
+<div class="Utils_RecordBrowser__container">
 
 {* Outside table *}
 <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
@@ -92,7 +92,7 @@
 							<td class="label" nowrap>
 								{$form_data.create_company.label}
 							</td>
-							<td class="data create-company" style="width:25px">
+							<td class="create-company" style="width:20px">
 								{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
 							</td>
 							<td class="data">
@@ -137,7 +137,7 @@
 										</tr>
 								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
 									{if $x>$no_empty}
-										<tr>
+										<tr style="display:none;">
 											<td class="label">&nbsp;</td>
 											<td colspan="2" class="data">&nbsp;</td>
 										</tr>

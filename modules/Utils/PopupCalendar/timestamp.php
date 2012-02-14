@@ -70,9 +70,9 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$this->_options['language'] = $lang_code;
 		if (!isset($this->_options['date'])) $this->_options['date'] = true;
 
+		$this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
 		if ($this->_options['date'])
 			$this->_elements['__datepicker'] = new HTML_QuickForm_datepicker('__datepicker', null, $this->getAttributes());
-		$this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
 	}
 
 	// }}}
@@ -104,8 +104,9 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		include_once('HTML/QuickForm/Renderer/Default.php');
 		$renderer = new HTML_QuickForm_Renderer_Default();
 		$renderer->setElementTemplate('{element}');
+		$renderer->setGroupElementTemplate('<div>{element}</div>', $this->_elementName);
 		parent::accept($renderer);
-		return $renderer->toHtml();
+		return str_replace('&nbsp;','',$renderer->toHtml());
 	}
 
 	function onQuickFormEvent($event, $arg, &$caller) {

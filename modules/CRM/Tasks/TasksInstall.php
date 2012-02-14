@@ -33,7 +33,6 @@ class CRM_TasksInstall extends ModuleInstall {
 			array('name'=>'Deadline',			'type'=>'date', 'extra'=>false, 'visible'=>true)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
-		Utils_RecordBrowserCommon::set_tpl('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'default'));
 		Utils_RecordBrowserCommon::register_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('task', 5);

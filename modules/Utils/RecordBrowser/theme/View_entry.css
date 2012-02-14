@@ -2,9 +2,17 @@
     width: 100%;
 }
 
+.Utils_RecordBrowser__container {
+	background-color: #D9D9D9;
+	padding: 2px 2px 2px 2px; 
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+}
+
+.Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }
+
 .Utils_RecordBrowser__View_entry table.view {
-    border-top: 1px solid #B3B3B3;
-    border-right:  1px solid #B3B3B3;
     width: 100%;
 }
 
@@ -13,29 +21,37 @@
     width: 100%;
 }
 
-.Utils_RecordBrowser__View_entry table {
+.Utils_RecordBrowser__View_entry table.edit,
+.Utils_RecordBrowser__View_entry table.view {
     width: 100%;
+	border-spacing: 4px;
 }
 
-.Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }
-
 .Utils_RecordBrowser__View_entry .label {
-    background-color: #336699;
+	background: #3f6a8c; /* Old browsers */
+	background: -moz-linear-gradient(top,  #3f6a8c 0%, #5087b2 50%, #3f6a8c 51%, #335772 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3f6a8c), color-stop(50%,#5087b2), color-stop(51%,#3f6a8c), color-stop(100%,#335772)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* IE10+ */
+	background: linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f6a8c', endColorstr='#335772',GradientType=0 ); /* IE6-9 */
+
+/*    background-color: #336699;*/
     color: #FFFFFF;
-    border-bottom: 1px solid #B3B3B3;
+	-webkit-border-radius: 4px 0 0 4px;
+	-moz-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
     height: 20px;
     vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;
     width: 150px;
     text-align: left;
+	-webkit-box-shadow: inset 1px 1px 1px black;
+	-moz-box-shadow: inset 1px 1px 1px black;
+	box-shadow: inset 1px 1px 1px black;
 }
-
-/*
-.Utils_RecordBrowser__View_entry table.edit .label {
-    border: 2px solid white;
-}
-*/
 
 .Utils_RecordBrowser__View_entry .long_label {
     text-align: left;
@@ -45,9 +61,12 @@
 .Utils_RecordBrowser__View_entry .data {
     text-align: left;
 	word-wrap: break-word;
-    /*
-	width: 60%;
-	*/
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+	-webkit-box-shadow: inset 1px 1px 1px black;
+	-moz-box-shadow: inset 1px 1px 1px black;
+	box-shadow: inset 1px 1px 1px black;
 }
 
 .Utils_RecordBrowser__View_entry .currency {
@@ -59,9 +78,8 @@
 }
 
 .Utils_RecordBrowser__View_entry table.view .data {
-    border-bottom: 1px solid #B3B3B3;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding: 3px 5px;
+	background-color: #EEEEEE;
 }
 
 .Utils_RecordBrowser__View_entry table.view .data img {
@@ -70,8 +88,7 @@
 
 .Utils_RecordBrowser__View_entry table.edit .data {
     border-bottom: none;
-    padding-left: 4px;
-    padding-right: 4px;
+	background-color: #FFFFF9;
 }
 
 .Utils_RecordBrowser__View_entry .long_data {
@@ -86,24 +103,120 @@
     border-right: none;
 }
 
+.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input,
 .Utils_RecordBrowser__View_entry .data select,
 .Utils_RecordBrowser__View_entry .data textarea {
+	width: 99%;
+	height: 14px;
+    background-color: #FFFFF9;
     border: 0px;
-    background-color: #e6ecf2;
-    width: 100%;
+	padding: 3px 5px;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
 }
 
+.Utils_RecordBrowser__View_entry .data > textarea {
+	height: 63px;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input[disabled],
+.Utils_RecordBrowser__View_entry .data select[disabled],
+.Utils_RecordBrowser__View_entry .data textarea[disabled] {
+    background-color: #EEEEEE;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input,
+.Utils_RecordBrowser__View_entry .data textarea {
+	-webkit-box-shadow: inset 1px 1px 1px black;
+	-moz-box-shadow: inset 1px 1px 1px black;
+	box-shadow: inset 1px 1px 1px black;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input {
 	padding-right: 0px; /* iPad fix for fields extending over the <td> element */
 }
 
-.Utils_RecordBrowser__View_entry .time input,
-.Utils_RecordBrowser__View_entry .time select,
-.Utils_RecordBrowser__View_entry .timestamp input,
-.Utils_RecordBrowser__View_entry .timestamp select {
-    width: auto;
+.Utils_RecordBrowser__View_entry table.edit .frozen .static_field {
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 }
+
+.Utils_RecordBrowser__View_entry .data input::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data select::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data textarea::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data input::-moz-placeholder,
+.Utils_RecordBrowser__View_entry .data select::-moz-placeholder,
+.Utils_RecordBrowser__View_entry .data textarea::-moz-placeholder {
+    color: #FF4429;
+}
+
+.Utils_RecordBrowser__View_entry .data select {
+	height: 18px;
+	padding: 0;
+	margin-left: 2px;
+	margin-top: 2px;
+}
+
+/* currency END */
+.Utils_RecordBrowser__View_entry .currency_amount input {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+}
+/* currency START */
+
+/* automulti START */
+.Utils_RecordBrowser__View_entry table.edit .automulti select {
+	height: 80px;
+}
+.Utils_RecordBrowser__View_entry table.edit .automulti td {
+	padding: 0;
+}
+.Utils_RecordBrowser__View_entry table.edit .automulti input[type="text"]{
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+    border-radius: 0px;
+}
+.Utils_RecordBrowser__View_entry table.edit .automulti input[type="button"]{
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+    border-radius: 6px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+.Utils_RecordBrowser__View_entry .data .automulti input::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data .automulti input::-moz-placeholder {
+    color: #AAAAAA;
+}
+/* automulti END */
+/* timestamp START */
+.Utils_RecordBrowser__View_entry .timestamp div {
+	float: right;
+}
+.Utils_RecordBrowser__View_entry .timestamp div:last-child {
+	float: none;
+	margin-right: 130px;
+}
+.Utils_RecordBrowser__View_entry .timestamp div:last-child input {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+}
+/* timestamp END */
 
 .Utils_RecordBrowser__View_entry .data input[type="checkbox"],
 .Utils_RecordBrowser__View_entry .data input[type="radio"] {
@@ -113,22 +226,13 @@
 .Utils_RecordBrowser__View_entry .data input:focus,
 .Utils_RecordBrowser__View_entry .data select:focus,
 .Utils_RecordBrowser__View_entry .data textarea:focus {
-    /*background-color: #f2f2e6;
-    background-color: #ffffa5;*/
     background-color: #ffffa5;
 }
 
 .Utils_RecordBrowser__View_entry #multiselect .form-element select,
 .Utils_RecordBrowser__View_entry #multiselect .to-element select {
-    /*width: 150px;*/
     width: 100%;
     height: 100px;
-}
-
-.Utils_RecordBrowser__View_entry .data input#due_date {
-    display: block;
-    margin-top: 1px;
-    float: left;
 }
 
 .Utils_RecordBrowser__View_entry .data a.button {

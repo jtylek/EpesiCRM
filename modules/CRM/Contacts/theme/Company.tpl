@@ -60,7 +60,7 @@
 		<div class="css3_content_shadow">
 <!-- -->
 
-<div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
+<div class="Utils_RecordBrowser__container">
 
 {* Outside table *}
 <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
@@ -77,7 +77,7 @@
 								{assign var=focus value=$f.element}
 							{/if}
 							<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
-							<td class="data" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+							<td class="data {$f.style}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 							{assign var=x value=$x+1}
 							{* If more than half records displayed start new table - second column table *}
 							{if $x >= $rows and $i==0}
@@ -101,16 +101,6 @@
 							<td class="label">&nbsp;</td>
 						{/if}
 					</tr>
-					{if isset($form_data.create_company)}
-					<tr>
-						<td class="label" nowrap>
-							{$form_data.create_company.label}
-						</td>
-						<td class="data create-company">
-							{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
-						</td>
-					</tr>
-					{/if}
 				</table>
 			</td>
 		</tr>

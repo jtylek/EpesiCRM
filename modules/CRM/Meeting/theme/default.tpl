@@ -52,7 +52,7 @@
 		<div class="css3_content_shadow">
 <!-- -->
 
-<div style="background-color: white; padding: 5px;">
+<div class="Utils_RecordBrowser__container">
     <table class="Utils_RecordBrowser__View_entry" cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
         <tbody>
             <tr>

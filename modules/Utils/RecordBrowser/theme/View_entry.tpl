@@ -69,7 +69,7 @@
 	<div class="layer" style="padding: 9px; width: 98%;">
 		<div class="css3_content_shadow">
 
-<div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
+<div class="Utils_RecordBrowser__container">
 
 {* Outside table *}
 <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
@@ -93,7 +93,7 @@
 							</tr>
 					{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
 						{if $x>$no_empty}
-							<tr>
+							<tr style="display:none;">
 								<td class="label">&nbsp;</td>
 								<td class="data">&nbsp;</td>
 							</tr>
@@ -123,7 +123,7 @@
 							</tr>
 					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 						{if $x>$mss_no_empty}
-							<tr>
+							<tr style="display:none;">
 								<td class="label">&nbsp;</td>
 								<td class="data">&nbsp;</td>
 							</tr>
