@@ -6,6 +6,8 @@
 	-moz-box-shadow: 0px -2px 3px #303030;
 	box-shadow: 0px -2px 3px #303030;
 	/* end css3 shadow */
+    position: relative;
+    z-index: 2;
 }
 
 .Utils_TabbedBrowser_div {
@@ -56,6 +58,8 @@ ul.Utils_TabbedBrowser li span.tabbed_browser_selected {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7b9cbd', endColorstr='#7b9cbd',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #7b9cbd 0%,#5982ac 50%,#336699 51%,#7b9cbd 100%); /* W3C */
 	/*dark css3 blue background gradient */
+    position: relative;
+    z-index: 3;
 
 }
 ul.Utils_TabbedBrowser li span.tabbed_browser_selected:hover {
@@ -67,6 +71,8 @@ ul.Utils_TabbedBrowser li span {
 	margin-right: 0px;
 	text-decoration: none;
 	padding: 8px 10px 8px 10px;
+    position: relative;
+    z-index: 1;
 	
 	/*dark css3 green background image gradient */
 	background: #709c70; /* Old browsers */
