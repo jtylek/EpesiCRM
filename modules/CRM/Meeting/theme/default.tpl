@@ -1,3 +1,25 @@
+{assign var=count value=0}
+{php}
+	$this->_tpl_vars['multiselects'] = array();
+{/php}
+{foreach key=k item=f from=$fields name=fields}
+	{if $f.type!="multiselect"}
+		{assign var=count value=$count+1}
+	{else}
+		{php}
+			$this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
+		{/php}
+	{/if}
+{/foreach}
+{php}
+	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
+	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
+	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
+	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
+	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
+	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
+	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
+{/php}
 {php}
 	$this->_tpl_vars['fdow'] = Utils_PopupCalendarCommon::get_first_day_of_week();
 	$this->_tpl_vars['fdow']--;
@@ -58,7 +80,7 @@
             <tr>
                 {if $action == 'view'}
                 <!-- NEW HEADER -->
-                <td rowspan="2" style="width:143px;">
+                <td rowspan="3" style="width:143px;">
                     <table border="0" class="header-new">
                         <tbody>
                             <tr>
@@ -111,65 +133,15 @@
                     <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
                             <tr>
-                                <td class="group_bottom label title" align="left" style="width: 20%;">{$form_data.title.label}</td>
-                                <td class="group_bottom data title" align="left" style="width: 80%" id="_title__data"><span class="error">{$form_data.title.error}</span>
+                                <td class="group_bottom label title" align="left">{$form_data.title.label}</td>
+                                <td class="group_bottom data title" align="left" id="_title__data"><span class="error">{$form_data.title.error}</span>
                                     {$form_data.title.html}
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
-                    {* description *}
-                    <table style="height:100%" name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
-                        <tbody>
-                            <tr>
-                                <td class="label" style="border-bottom: none; border-right: none;">{$form_data.description.label}</td>
-                            </tr>
-                            <tr>
-                                <td class="data" style="vertical-align: top; border-right: none; padding: 3px 4px 3px 0px;" id="_description__data">
-                                    {if $action == 'view'}<div style="padding-left: 2px; white-space: normal; overflow: auto;">{/if}
-                                        {$form_data.description.html}
-                                    {if $action == 'view'}</div>{/if}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-                <!-- -->
-                <!-- RIGHT -->
-                <td style="width: 50%; height: 101px; vertical-align: top;">
-                    {* start - end *}
-                    {if $action != 'view'}
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
-                        <tbody>
-                                <tr>
-                                    <td class="label" style="border-right: 1px solid #b3b3b3; width: 40%; height: 21px;">{$form_data.date.label}</td>
-                                </tr>
-                                <tr>
-                                    <td class="data" style="border-right: 1px solid #b3b3b3; height: 20px; "><span class="error">{$form_data.date.error}</span><div class="time_s" style="float: left; width: 200px; text-align: center;" id="_date__data">{$form_data.date.html}</div><span id="time_s" id="_time__data">{$form_data.time.html}</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="label" style="width: 60%; padding-right: 0px; height: 21px; vertical-align: top;"><div style="float: left; margin-top: 3px;">{$form_data.duration.label} / {$form_data.end_time.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$form_data.toggle.html}</div></td>
-                                </tr>
-                                <tr>
-                                    <td class="data" style="height: 20px;">
-                                        <div id="crm_calendar_duration_block"><span class="error">{$form_data.duration.error}</span><div style="float: left; width: 200px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div></div>
-                                        <div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
-                                    </td>
-                                </tr>
-                        </tbody>
-                    </table>
-                    {/if}
-                    {* timeless permission priority color *}
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
-                        <tbody>
-                            <tr>
-                                <td class="label" align="left" style="width: 20%;">{$form_data.timeless.label}</td>
-                                <td class="data" align="left" style="width: 80%;" colspan="2" id="_timeless__data">{$form_data.timeless.html}</td>
-                            </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.permission.label}</td>
-                                <td class="data permission" align="left" colspan="2" id="_permission__data">
-					<span class="error">{$form_data.permission.error}</span>
+                                <td class="data permission" align="left" id="_permission__data">
+									<span class="error">{$form_data.permission.error}</span>
                                     {if $action=='view'}
                                         <div class="icon permission_{$raw_data.permission}"></div>
                                     {/if}
@@ -178,8 +150,8 @@
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.priority.label}</td>
-                                <td class="data priority" align="left" colspan="2" id="_priority__data">
-					<span class="error">{$form_data.priority.error}</span>
+                                <td class="data priority" align="left" id="_priority__data">
+									<span class="error">{$form_data.priority.error}</span>
                                     {if $action=='view'}
                                         <div class="icon priority_{$raw_data.priority}"></div>
                                     {/if}
@@ -188,14 +160,49 @@
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.status.label}</td>
-                                <td class="data status" align="left" colspan="2" id="_status__data">
-					<span class="error">{$form_data.status.error}</span>
+                                <td class="data status" align="left" id="_status__data">
+									<span class="error">{$form_data.status.error}</span>
                                     {if $action=='view'}
                                         <div class="icon status_{$raw_data.status}"></div>
                                     {/if}
                                     {$form_data.status.html}
                                 </td>
                             </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <!-- -->
+                <!-- RIGHT -->
+                <td style="width: 50%; height: 101px; vertical-align: top;">
+                    <table style="table-layout: auto;" name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
+                        <tbody>
+                    {* start - end *}
+                    {if $action != 'view'}
+                                <tr>
+                                    <td class="label">{$form_data.date.label}</td>
+                                    <td colspan="2" class="data timestamp">
+										<span class="error">{$form_data.date.error}</span>
+										<div id="time_s" id="_time__data">{$form_data.time.html}</div>
+										<div class="time_s" id="_date__data">{$form_data.date.html}</div>
+									</td>
+                                </tr>
+                    {/if}
+                            <tr>
+                                <td class="label" align="left">{$form_data.timeless.label}</td>
+                                <td class="data" align="left" colspan="2" id="_timeless__data">{$form_data.timeless.html}</td>
+                            </tr>
+                    {if $action != 'view'}
+                                <tr id="duration_end_date__data_">
+                                    <td class="label">
+										{$form_data.duration.label} / {$form_data.end_time.label}
+									</td>
+                                    <td colspan="2" class="data" style="height: 20px;">
+										<div class="toggle_button">{$form_data.toggle.html}</div>
+                                        <div id="crm_calendar_duration_block"><span class="error">{$form_data.duration.error}</span><div style="margin-right: 105px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div></div>
+                                        <div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
+                                    </td>
+                                </tr>
+                    {/if}
                             <tr>
                                 <td class="label" align="left">{$form_data.recurrence_type.label}</td>
                                 <td class="data" align="left" colspan="2" id="_recurrence_type__data">
@@ -213,12 +220,12 @@
 				    </tr>
 			    {/if}
                             <tr id="recurrence_end_date_row">
-                                <td class="label" align="left">{$form_data.recurrence_end.label}</td>
+                                <td class="label" align="left" style="width:25%">{$form_data.recurrence_end.label}</td>
                                 {if isset($form_data.recurrence_end_checkbox)}
-									<td class="data" align="left" style="width:10px;" id="_recurrence_end_checkbox__data">
+									<td align="left" style="width:1px;" id="_recurrence_end_checkbox__data">
 										{$form_data.recurrence_end_checkbox.html}
 									</td>
-								<td class="data" align="left" id="_recurrence_end__data">
+								<td class="data" align="left" id="_recurrence_end__data" style="width:99%;">
 								{else}
                                 <td class="data" align="left" id="_recurrence_end__data" colspan="2">
 								{/if}
@@ -292,22 +299,48 @@
                     </table>
                 </td>
             </tr>
-            <tr>
-                <td colspan="2" style="vertical-align: top;">
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" style="border-right: 1px solid #b3b3b3;" cellspacing="0" cellpadding="0" border="0">
-                        <tbody>
-                            <tr>
-                                <td class="label" style="width: 50%; border-bottom: none; border-right: 1px solid #b3b3b3;">{$form_data.employees.label}</td>
-                                <td class="label" style="width: 50%; padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.customers.label}</div></td>
-                            </tr>
-                            <tr>
-                                <td class="data" id="_employees__data" style="vertical-align: top; border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
-                                <td class="data" id="_customers__data" style="vertical-align: top;"><span class="error">{$form_data.customers.error}</span>{$form_data.customers.html}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
+			{if !empty($multiselects)}
+				<tr>
+					{assign var=x value=1}
+					{assign var=y value=1}
+					{foreach key=k item=f from=$multiselects name=fields}
+						{if $y==1}
+						<td class="column" style="width: {$cols_percent}%;">
+							<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+						{/if}
+								<tr>
+									<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
+									<td class="data {$f.style}" id="_{$f.element}__data">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+								</tr>
+						{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
+							{if $x>$mss_no_empty}
+								<tr style="display:none;">
+									<td class="label">&nbsp;</td>
+									<td class="data">&nbsp;</td>
+								</tr>
+							{/if}
+							{assign var=y value=1}
+							{assign var=x value=$x+1}
+							</table>
+						</td>
+						{else}
+							{assign var=y value=$y+1}
+						{/if}
+					{/foreach}
+				</tr>
+			{/if}
+			<tr>
+				<td colspan="2">
+				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+					{foreach key=k item=f from=$longfields name=fields}
+						<tr>
+							<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
+							<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+						</tr>
+					{/foreach}
+				</table>
+				</td>
+			</tr>
             {if $action=='add'}
             <tr>
                 <td style="width: 50%; vertical-align: top;" colspan=2>
@@ -335,8 +368,8 @@
                             </table>
                         </div>
                 </td>
-	   </tr>
-          {/if}
+			</tr>
+			{/if}
         </tbody>
     </table>
 </div>

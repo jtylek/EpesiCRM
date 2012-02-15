@@ -210,14 +210,14 @@
 }
 /* automulti END */
 /* timestamp START */
-.Utils_RecordBrowser__View_entry .timestamp div {
+.Utils_RecordBrowser__View_entry .timestamp > div {
 	float: right;
 }
-.Utils_RecordBrowser__View_entry .timestamp div:last-child {
+.Utils_RecordBrowser__View_entry .timestamp > div:last-child {
 	float: none;
 	margin-right: 130px;
 }
-.Utils_RecordBrowser__View_entry .timestamp div:last-child input {
+.Utils_RecordBrowser__View_entry .timestamp > div:last-child input {
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;

@@ -150,15 +150,12 @@ class CRM_MeetingCommon extends ModuleCommon {
 					'if(val){'.
 					'cal_style = \'none\';'.
 					'}else{'.
-					'cal_style = \'block\';'.
+					'cal_style = \'\';'.
 					'}'.
-					'var db = $(\'duration\');'.
+					'var db = $(\'duration_end_date__data_\');'.
 					'if(db) db.style.display = cal_style;'.
-					'var te = $(\'time_e\');'.
-					'if(te) te.style.display = cal_style;'.
 					'var ts = $(\'time_s\');'.
 					'if(ts) ts.style.display = cal_style;'.
-					'tdb.style.display = cal_style;'.
 				'}');
 			$form->addElement('button', 'toggle', Base_LangCommon::ts('Utils_RecordBrowser','Toggle'), array('onclick'=>'crm_calendar_duration_switcher()', 'id'=>'toggle_duration_button', 'class'=>'button'));
 			$form->addElement('checkbox', 'timeless', Base_LangCommon::ts('Utils_RecordBrowser','Timeless'), null, array('onClick'=>'crm_calendar_event_timeless(this.checked)', 'id'=>'timeless'));
@@ -253,10 +250,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('datepicker', $field, Base_LangCommon::ts('Utils_RecordBrowser','Recurrence End Date'), array('id'=>$field));
 			eval_js('recurrence_end_switch = function(arg){'.
-				'reds = $("recurrence_end_date_span");'.
-				'if (arg) reds.style.display="";'.
+				'reds = $("recurrence_end");'.
+				'if (arg) reds.disabled="";'.
 				'else {'.
-					'reds.style.display="none";'.
+					'reds.disabled="1";'.
 					'$("recurrence_end").value="";'.
 				'}'.
 			'}');

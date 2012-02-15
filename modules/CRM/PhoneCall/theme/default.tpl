@@ -87,7 +87,7 @@
 							{if $action == 'view'}
 									<tr>
 										<td class="label" style="width: 20%;">{$form_data.customer.label}</td>
-										<td class="data" style="width: 80%;" colspan="2" id="_customer__data">
+										<td class="data" style="width: 80%;" colspan="2" id="_customer__data_mod">
 											<span class="error">
 												{$form_data.customer.error}
 											</span>
@@ -96,7 +96,7 @@
 									</tr>
 									<tr>
 										<td class="label">{$form_data.phone.label}</td>
-										<td class="data" colspan="2" id="_phone__data">
+										<td class="data" colspan="2" id="_phone__data_mod">
 											<span class="error">
 												{$form_data.phone.error}
 											</span>
