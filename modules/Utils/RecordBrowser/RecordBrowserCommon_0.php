@@ -1383,10 +1383,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $cache[$tab.'__'.$id] = true;
     }
 	public static function decode_access($str) {
-		$me = CRM_ContactsCommon::get_my_record();
+		if (is_numeric($str)) return $str;
 		if ($str=='USER_ID') return Acl::get_user();
+		$me = CRM_ContactsCommon::get_my_record();
 		if ($str=='USER') return $me['id'];
-		if ($str=='USER_COMPANY') return $me['id'];
+		if ($str=='USER_COMPANY') return $me['company_name'];
 		return $str;
 	}
 	public static function parse_access_crits($str) {
