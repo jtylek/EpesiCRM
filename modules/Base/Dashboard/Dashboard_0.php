@@ -76,7 +76,6 @@ class Base_Dashboard extends Module {
 					return;
 				}
 			}
-			$this->tb->start_tab($this->t('Add new Tab'));
 			eval_js('edit_dashboard_tab=function(id){if(get_new_dashboard_tab_name("'.$this->t('Enter label for the Dashboard tab').'","'.$this->t('Label cannot be empty').'",id)){'.$f->get_submit_form_js().'}}');
 		}
 
