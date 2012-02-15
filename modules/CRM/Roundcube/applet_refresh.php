@@ -25,7 +25,9 @@ if($uns) {
     $err = imap_errors();
     if(!$l || $err) die('error reading messages overview');
     foreach($l as $msg) {
-        	$unseen[] = htmlspecialchars(imap_utf8($msg->from)).': <i>'.htmlspecialchars(imap_utf8($msg->subject)).'</i>';
+        $from = isset($msg->from) ? $msg->from : '<unknown>';
+        $subject = isset($msg->subject) ? $msg->subject : '<no subject>';
+        $unseen[] = htmlspecialchars(imap_utf8($from)).': <i>'.htmlspecialchars(imap_utf8($subject)).'</i>';
     }
 }
 print(Utils_TooltipCommon::create(count($unseen),implode('<br />',$unseen)));
