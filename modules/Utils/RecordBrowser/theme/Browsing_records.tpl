@@ -3,16 +3,22 @@
 	<tbody>
 		<tr>
 			{if isset($caption)}
-				<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
-				<td class="name">
-					{if isset($form_data)}
-						{$form_open}
-					{/if}
-					{$caption}
-					{if isset($form_data)}
-							{$form_data.browse_mode.html}
-						{$form_close}
-					{/if}
+				<td style="width:100px;">
+					<div class="name">
+						<img alt=" " class="icon" src="{$icon}" width="32" height="32" border="0">
+						<div class="label">
+							{if isset($form_data)}
+								{$form_open}
+							{/if}
+							{$caption}
+							{if isset($form_data)}
+									{$form_data.browse_mode.html}
+								{$form_close}
+							{/if}
+						</div>
+					</div>
+				</td>
+				<td style="width:100%;">
 				</td>
 			{/if}
     		<td class="filters">

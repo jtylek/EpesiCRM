@@ -1273,7 +1273,7 @@ class Utils_RecordBrowser extends Module {
                 if (!isset($data[$args['id']]) || $data[$args['id']]['type']=='hidden') continue;
                 if ($args['position'] >= $last_page && ($pos+1 == -1 || $args['position'] < $pos+1)) {
                     $valid_page = true;
-					if ($hide_page && !$this->field_is_empty($record, $args['id'])) $hide_page = false;
+					if ($hide_page && !$this->field_is_empty($this->record, $args['id'])) $hide_page = false;
                     break;
                 }
             }

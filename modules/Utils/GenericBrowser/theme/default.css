@@ -621,6 +621,10 @@ table.Utils_GenericBrowser > tbody > td img {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64B164', endColorstr='#307030',GradientType=0); /* IE6-9 */
 	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
 	/* end dark css3 green background gradient */
+	
+	-webkit-box-shadow: 2px 0px 3px -1px black,-2px 0px 3px -1px black;
+	-moz-box-shadow: 2px 0px 3px -1px black,-2px 0px 3px -1px black;
+	box-shadow: 2px 0px 3px -1px black,-2px 0px 3px -1px black;
 }
 
 #Utils_GenericBrowser__navigation .nav_button a:hover {
