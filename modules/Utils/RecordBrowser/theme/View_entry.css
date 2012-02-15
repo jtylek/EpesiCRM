@@ -79,7 +79,7 @@
 
 .Utils_RecordBrowser__View_entry table.view .data {
     padding: 3px 5px;
-	background-color: #EEEEEE;
+	background-color: #F8F8F8;
 }
 
 .Utils_RecordBrowser__View_entry table.view .data img {
@@ -145,10 +145,16 @@
 	padding-right: 0px; /* iPad fix for fields extending over the <td> element */
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen .static_field {
+.Utils_RecordBrowser__View_entry .frozen .static_field {
+	padding: 0px;
+	margin: 0px;
+	background: none;
 	-webkit-box-shadow: none;
 	-moz-box-shadow: none;
 	box-shadow: none;
+}
+.Utils_RecordBrowser__View_entry table.view .frozen .static_field {
+	width: 100%;
 }
 
 .Utils_RecordBrowser__View_entry .data input::-webkit-input-placeholder,

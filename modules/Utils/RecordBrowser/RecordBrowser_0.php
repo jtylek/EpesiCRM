@@ -1604,10 +1604,13 @@ class Utils_RecordBrowser extends Module {
                 }
             }
             if ($args['required']) {
-                $form->addRule($args['id'], $this->t('Field required'), 'required');
 				$el = $form->getElement($args['id']);
-				if (!PEAR::isError($el))
-					$el->setAttribute('placeholder', $this->t('Field required'));
+				if (!PEAR::isError($el)) {
+					if ($el->getType()!='static') {
+						$form->addRule($args['id'], $this->t('Field required'), 'required');
+						$el->setAttribute('placeholder', $this->t('Field required'));
+					}
+				}
 			}
         }
     }
