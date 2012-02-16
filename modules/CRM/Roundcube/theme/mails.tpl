@@ -49,6 +49,11 @@
 				{if isset($history_tooltip)}
 					&nbsp;&nbsp;&nbsp;{$history_tooltip}
 				{/if}
+				{if isset($new)}
+					{foreach item=n from=$new}
+						&nbsp;&nbsp;&nbsp;{$n}
+					{/foreach}
+				{/if}
 			</td>
 		</tr>
 	</tbody>
@@ -83,7 +88,11 @@
 					{/if}
 							<tr>
 								<td class="label">{$f.label}{if $f.required}*{/if}</td>
-								<td class="data {$f.style}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+								<td class="data {$f.style}" id="_{$f.element}__data">
+									<div style="position:relative;">
+										{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+									</div>
+								</td>
 							</tr>
 					{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
 						{if $x>$no_empty}
@@ -109,11 +118,15 @@
 				{foreach key=k item=f from=$multiselects name=fields}
 					{if $y==1}
 					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+						<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 					{/if}
 							<tr>
 								<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
-								<td class="data {$f.style}" id="_{$f.element}__data">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+								<td class="data {$f.style}" id="_{$f.element}__data">
+									<div style="position:relative;">
+										{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+									</div>
+								</td>
 							</tr>
 					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 						{if $x>$mss_no_empty}
@@ -134,14 +147,18 @@
 		{/if}
 		<tr>
 			<td colspan="2">
-			<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+			<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 				{foreach key=k item=f from=$longfields name=fields}
 					{if $f.element!="body"}
 						<tr>
 							<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
 						</tr>
 						<tr>
-							<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+							<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">
+								<div style="position:relative;">
+									{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+								</div>
+							</td>
 						</tr>
 					{/if}
 				{/foreach}

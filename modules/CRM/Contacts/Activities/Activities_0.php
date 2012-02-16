@@ -164,7 +164,7 @@ class CRM_Contacts_Activities extends Module {
 			$gb_row = $gb->get_new_row();
 			if($ev['start'] == $maxt) {
 				$v = array_shift($events);
-				if($i>=$limit['offset']) {
+				if($i>=$limit['offset'] && $v) {
 //					$employees = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=%d', array($v['id']));
 //					$customers = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=%d', array($v['id']));
 					$event = CRM_MeetingCommon::crm_event_get($v['id']);
@@ -183,7 +183,7 @@ class CRM_Contacts_Activities extends Module {
 				}
 			} elseif($t['deadline'] == $maxt) {
 				$v = array_shift($tasks);
-				if($i>=$limit['offset']) {
+				if($i>=$limit['offset'] && $v) {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', isset($info)?$info:$v['id']));
 					$gb_row->add_data(	$this->t('Task'), 
 								CRM_TasksCommon::display_title($v, false), 
@@ -195,7 +195,7 @@ class CRM_Contacts_Activities extends Module {
 				}
 			} else {
 				$v = array_shift($phonecalls);
-				if($i>=$limit['offset']) {
+				if($i>=$limit['offset'] && $v) {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', isset($info)?$info:$v['id']));
 					$gb_row->add_data(	$this->t('Phone Call'), 
 								CRM_PhoneCallCommon::display_subject($v), 

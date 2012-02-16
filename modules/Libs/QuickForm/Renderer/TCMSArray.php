@@ -264,7 +264,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
             'type'      => $element->getType(),
             'frozen'    => $element->isFrozen(),
             'required'  => $required,
-           	'error'		=> '<span style="color: #ff0000" id="'.htmlspecialchars($err_id).'"></span>'
+           	'error'		=> '<span class="form_error" id="'.htmlspecialchars($err_id).'"></span>'
         );
         
         // render label(s)

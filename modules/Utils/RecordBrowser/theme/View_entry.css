@@ -79,7 +79,7 @@
 
 .Utils_RecordBrowser__View_entry table.view .data {
     padding: 3px 5px;
-	background-color: #F8F8F8;
+	background-color: #F1F1F1;
 }
 
 .Utils_RecordBrowser__View_entry table.view .data img {
@@ -118,7 +118,7 @@
     border-radius: 0 4px 4px 0;
 }
 
-.Utils_RecordBrowser__View_entry .data > textarea {
+.Utils_RecordBrowser__View_entry .data textarea {
 	height: 63px;
 }
 
@@ -173,6 +173,53 @@
 	margin-top: 2px;
 }
 
+.Utils_RecordBrowser__View_entry .form_error img {
+	margin-left: 5px;
+	border: none;
+}
+.Utils_RecordBrowser__View_entry .form_error a {
+	color: white;
+	text-decoration: underline;
+}
+.Utils_RecordBrowser__View_entry .form_error a:hover {
+	color: #CCCCCC;
+}
+.Utils_RecordBrowser__View_entry .form_error:not(:empty) {
+	color: white !important; 
+	position: absolute;
+	right: 0px;
+	display: block;
+	height: 15px;
+	margin: 0;
+	padding: 3px 5px 2px 15px;
+	font-weight: bold;
+	z-index: 5;
+	white-space: nowrap;
+	vertical-align: top;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+	-webkit-box-shadow: inset 1px 1px 1px #111;
+	-moz-box-shadow: inset 1px 1px 1px #111;
+	box-shadow: inset 1px 1px 1px #111;
+
+	background: #a72527; /* Old browsers */
+	background: -moz-linear-gradient(top,  #a72527 0%, #d32f32 50%, #a72527 51%, #881e20 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a72527), color-stop(50%,#d32f32), color-stop(51%,#a72527), color-stop(100%,#881e20)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #a72527 0%,#d32f32 50%,#a72527 51%,#881e20 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #a72527 0%,#d32f32 50%,#a72527 51%,#881e20 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #a72527 0%,#d32f32 50%,#a72527 51%,#881e20 100%); /* IE10+ */
+	background: linear-gradient(top,  #a72527 0%,#d32f32 50%,#a72527 51%,#881e20 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a72527', endColorstr='#881e20',GradientType=0 ); /* IE6-9 */
+}
+
+.Utils_RecordBrowser__View_entry .longfields .form_error,
+.Utils_RecordBrowser__View_entry .multiselects .form_error {
+	-webkit-border-radius: 0 4px 0 4px;
+	-moz-border-radius: 0 4px 0 4px;
+    border-radius: 0 4px 0 4px;
+}
+
 /* currency END */
 .Utils_RecordBrowser__View_entry .currency_amount input {
 	-webkit-border-radius: 0;
@@ -210,14 +257,14 @@
 }
 /* automulti END */
 /* timestamp START */
-.Utils_RecordBrowser__View_entry .timestamp > div {
+.Utils_RecordBrowser__View_entry .timestamp > div > div {
 	float: right;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div:last-child {
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child {
 	float: none;
 	margin-right: 130px;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div:last-child input {
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input {
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;

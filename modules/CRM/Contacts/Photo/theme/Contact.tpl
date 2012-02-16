@@ -90,16 +90,18 @@
 								{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
 							</td>
 							<td class="data">
-								{if isset($form_data.create_company_name.error)}<span class="error">{$form_data.create_company_name.error}</span>{/if}{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
+								<div style="position:relative;">
+									{if isset($form_data.create_company_name.error)}{$form_data.create_company_name.error}{/if}{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
+								</div>
 							</td>
 						</tr>
 						{else}
 							{if $action == 'edit'}
 								{* empty *}
-								<tr>
+{*								<tr style="display:none;">
 									<td class="label" align="left">&nbsp;</td>
 									<td class="data" colspan="2" align="left">&nbsp;</td>
-								</tr>
+								</tr>*}
 							{/if}
 						{/if}
 						{assign var=x value=1}
@@ -115,19 +117,16 @@
 								{/if}
 
 								{if $y==1 && $x==2}
-								<td class="column" style="width: {$cols_percent}%;">
+								<td class="column" {if $action=='view'}style="width: 43%;"{else}style="width: 50%;" colspan="2"{/if}>
 									<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 								{/if}
 										<tr>
 											<td class="label">{$f.label}{if $f.required}*{/if}</td>
-											<td colspan="2" class="data {$f.style}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
-											{if $y==1 && $x==2 && isset($photo_link)}
-												<td rowspan="{$rows}" style="width:120px;">
-													<a class="photo" {$photo_link}>
-														<img  class="shadow_5px_left" src="{$photo_src}" >
-													</a>
-												</td>
-											{/if}
+											<td colspan="2" class="data {$f.style}" id="_{$f.element}__data">
+												<div style="position:relative;">
+													{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+												</div>
+											</td>
 										</tr>
 								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
 									{if $x>$no_empty}
@@ -145,6 +144,13 @@
 								{/if}
 							{/if}
 						{/foreach}
+			{if $action=='view'}
+			<td style="width:128px;">
+				<a class="photo" {$photo_link}>
+					<img  class="shadow_5px_left" src="{$photo_src}" >
+				</a>
+			</td>
+			{/if}
 		</tr>
 		{if !empty($multiselects)}
 			<tr>
@@ -152,12 +158,16 @@
 				{assign var=y value=1}
 				{foreach key=k item=f from=$multiselects name=fields}
 					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+					<td class="column" style="width: {$cols_percent}%;" {if $x==2}colspan="2"{/if}>
+						<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 					{/if}
 							<tr>
 								<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
-								<td class="data {$f.style}" id="_{$f.element}__data">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+								<td class="data {$f.style}" id="_{$f.element}__data">
+									<div style="position:relative;">
+										{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+									</div>
+								</td>
 							</tr>
 					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 						{if $x>$mss_no_empty}
@@ -177,12 +187,16 @@
 			</tr>
 		{/if}
 		<tr>
-			<td colspan="2">
-			<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+			<td colspan="3">
+			<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 				{foreach key=k item=f from=$longfields name=fields}
 					<tr>
 						<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
-						<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+						<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">
+							<div style="position:relative;">
+								{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+							</div>
+						</td>
 					</tr>
 				{/foreach}
 			</table>

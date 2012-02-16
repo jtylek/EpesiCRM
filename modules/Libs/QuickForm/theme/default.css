@@ -517,6 +517,10 @@ div.autocomplete ul li {
   height:14px;
   cursor:pointer;
 }
+
+.form_error {
+	color: #ff0000;
+}
 /*
 select.autoselect_search_tip {
 	color: #999999;

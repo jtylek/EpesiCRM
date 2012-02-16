@@ -74,37 +74,45 @@
 							<tr>
 								<td class="label" align="left" style="width: 25%;">{$form_data.subject.label}{if $form_data.subject.required}*{/if}</td>
 								<td class="data" align="left" colspan="2" id="_subject__data">
-									<span class="error">{$form_data.subject.error}</span>
-									{$form_data.subject.html}
+									<div style="position:relative;">
+										<span class="error">{$form_data.subject.error}</span>
+										{$form_data.subject.html}
+									</div>
 								</td>
 							</tr>
 							{if $action == 'view'}
 									<tr>
 										<td class="label" style="width: 20%;">{$form_data.customer.label}</td>
 										<td class="data" style="width: 80%;" colspan="2" id="_customer__data_mod">
-											<span class="error">
-												{$form_data.customer.error}
-											</span>
-											{if $raw_data.other_customer}{$form_data.other_customer_name.html}{else}{$form_data.customer.html}{/if}&nbsp;
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.customer.error}
+												</span>
+												{if $raw_data.other_customer}{$form_data.other_customer_name.html}{else}{$form_data.customer.html}{/if}&nbsp;
+											</div>
 										</td>
 									</tr>
 									<tr>
 										<td class="label">{$form_data.phone.label}</td>
 										<td class="data" colspan="2" id="_phone__data_mod">
-											<span class="error">
-												{$form_data.phone.error}
-											</span>
-											{if $raw_data.other_phone}{$form_data.other_phone_number.html}{else}{$form_data.phone.html}{/if}&nbsp;
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.phone.error}
+												</span>
+												{if $raw_data.other_phone}{$form_data.other_phone_number.html}{else}{$form_data.phone.html}{/if}&nbsp;
+											</div>
 										</td>
 									</tr>
 							{else}
 									<tr>
 										<td class="label" style="width: 20%;">{$form_data.customer.label}{if $form_data.customer.required}*{/if}</td>
 										<td class="data" style="width: 80%;" colspan="2" id="_customer__data">
-											<span class="error">
-												{$form_data.customer.error}
-											</span>
-											{$form_data.customer.html}{if $action == 'view'}&nbsp;{/if}
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.customer.error}
+												</span>
+												{$form_data.customer.html}{if $action == 'view'}&nbsp;{/if}
+											</div>
 										</td>
 									</tr>
 									<tr>
@@ -113,19 +121,23 @@
 											{$form_data.other_customer.html}
 										</td>
 										<td class="data" style="width:99%;" id="_other_customer_name__data">
-											<span class="error">
-												{$form_data.other_customer_name.error}
-											</span>
-											{$form_data.other_customer_name.html}{if $action == 'view'}&nbsp;{/if}
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.other_customer_name.error}
+												</span>
+												{$form_data.other_customer_name.html}{if $action == 'view'}&nbsp;{/if}
+											</div>
 										</td>
 									</tr>
 									<tr>
 										<td class="label">{$form_data.phone.label}{if $form_data.phone.required}*{/if}</td>
 										<td class="data" colspan="2" id="_phone__data">
-											<span class="error">
-												{$form_data.phone.error}
-											</span>
-											{$form_data.phone.html}{if $action == 'view'}&nbsp;{/if}
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.phone.error}
+												</span>
+												{$form_data.phone.html}{if $action == 'view'}&nbsp;{/if}
+											</div>
 										</td>
 									</tr>
 									<tr>
@@ -134,10 +146,12 @@
 											{$form_data.other_phone.html}
 										</td>
 										<td class="data" id="_other_phone_number__data">
-											<span class="error">
-												{$form_data.other_phone_number.error}
-											</span>
-											{$form_data.other_phone_number.html}{if $action == 'view'}&nbsp;{/if}
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.other_phone_number.error}
+												</span>
+												{$form_data.other_phone_number.html}{if $action == 'view'}&nbsp;{/if}
+											</div>
 										</td>
 									</tr>
 							{/if}
@@ -149,36 +163,46 @@
 					<table cellpadding="0" cellspacing="0" border="0" class="form {if $action == 'view'}view{else}edit{/if}">
 						<tr>
 							<td class="label" align="left">{$form_data.date_and_time.label}{if $form_data.date_and_time.required}*{/if}</td>
-							<td class="data timestamp" id="_date_and_time__data" align="left" style="padding-bottom: 2px;"><span class="error">{$form_data.date_and_time.error}</span>{$form_data.date_and_time.html}{if $action == 'view'}&nbsp;{/if}</td>
+							<td class="data timestamp" id="_date_and_time__data" align="left" style="padding-bottom: 2px;">
+								<div style="position:relative;">
+									<span class="error">{$form_data.date_and_time.error}</span>{$form_data.date_and_time.html}{if $action == 'view'}&nbsp;{/if}
+								</div>
+							</td>
 						</tr>
 						<tr>
 							<td class="label" align="left">{$form_data.status.label}{if $form_data.status.required}*{/if}</td>
 							<td class="data status" align="left" id="_status__data">
-								<span class="error">{$form_data.status.error}</span>
-								{if $action=='view'}
-									<div class="icon status_{$raw_data.status}"></div>
-								{/if}
-								{$form_data.status.html}{if $action == 'view'}&nbsp;{/if}
+								<div style="position:relative;">
+									<span class="error">{$form_data.status.error}</span>
+									{if $action=='view'}
+										<div class="icon status_{$raw_data.status}"></div>
+									{/if}
+									{$form_data.status.html}{if $action == 'view'}&nbsp;{/if}
+								</div>
 							</td>
 						</tr>
 						<tr>
 							<td class="label" align="left">{$form_data.permission.label}{if $form_data.permission.required}*{/if}</td>
 							<td class="data permission" align="left" id="_permission__data">
-								<span class="error">{$form_data.permission.error}</span>
-								{if $action=='view'}
-									<div class="icon permission_{$raw_data.permission}"></div>
-								{/if}
-								{$form_data.permission.html}{if $action == 'view'}&nbsp;{/if}
+								<div style="position:relative;">
+									<span class="error">{$form_data.permission.error}</span>
+									{if $action=='view'}
+										<div class="icon permission_{$raw_data.permission}"></div>
+									{/if}
+									{$form_data.permission.html}{if $action == 'view'}&nbsp;{/if}
+								</div>
 							</td>
 						</tr>
 						<tr>
 							<td class="label" align="left">{$form_data.priority.label}{if $form_data.priority.required}*{/if}</td>
 							<td class="data priority" align="left" id="_priority__data">
-								<span class="error">{$form_data.priority.error}</span>
-								{if $action=='view'}
-									<div class="icon priority_{$raw_data.priority}"></div>
-								{/if}
-								{$form_data.priority.html}{if $action == 'view'}&nbsp;{/if}
+								<div style="position:relative;">
+									<span class="error">{$form_data.priority.error}</span>
+									{if $action=='view'}
+										<div class="icon priority_{$raw_data.priority}"></div>
+									{/if}
+									{$form_data.priority.html}{if $action == 'view'}&nbsp;{/if}
+								</div>
 							</td>
 						</tr>
 						{foreach key=k item=f from=$fields name=fields}
@@ -199,8 +223,10 @@
 							<tr>
 								<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
 								<td class="data" align="left">
-									<span class="error">{$f.error}</span>
-									{$f.html}
+									<div style="position:relative;">
+										<span class="error">{$f.error}</span>
+										{$f.html}
+									</div>
 								</td>
 							</tr>
 							{/if}
@@ -215,11 +241,15 @@
 					{foreach key=k item=f from=$multiselects name=fields}
 						{if $y==1}
 						<td class="column" style="width: {$cols_percent}%;">
-							<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+							<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 						{/if}
 								<tr>
 									<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
-									<td class="data {$f.style}" id="_{$f.element}__data">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+									<td class="data {$f.style}" id="_{$f.element}__data">
+										<div style="position:relative;">
+											{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+										</div>
+									</td>
 								</tr>
 						{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 							{if $x>$mss_no_empty}
@@ -240,11 +270,15 @@
 			{/if}
 			<tr>
 				<td colspan="2">
-				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+				<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 					{foreach key=k item=f from=$longfields name=fields}
 						<tr>
 							<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
-							<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+							<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">
+								<div style="position:relative;">
+									{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+								</div>
+							</td>
 						</tr>
 					{/foreach}
 				</table>

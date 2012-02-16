@@ -80,7 +80,6 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::install_new_recordset('contact', $fields);
         DB::CreateIndex('contact_data_1__f_login_idx','contact_data_1','f_login,active');
 // ************ company settings ************** //
-		Utils_RecordBrowserCommon::set_tpl('company', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Company'));
 		Utils_RecordBrowserCommon::register_processing_callback('company', array('CRM_ContactsCommon', 'submit_company'));
 		Utils_RecordBrowserCommon::set_quickjump('company', 'Company Name');
 		Utils_RecordBrowserCommon::set_favorites('company', true);

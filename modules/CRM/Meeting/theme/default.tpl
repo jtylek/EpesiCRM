@@ -128,38 +128,47 @@
                         <tbody>
                             <tr>
                                 <td class="group_bottom label title" align="left">{$form_data.title.label}</td>
-                                <td class="group_bottom data title" align="left" id="_title__data"><span class="error">{$form_data.title.error}</span>
-                                    {$form_data.title.html}
+                                <td class="group_bottom data title" align="left" id="_title__data">
+									<div style="position:relative;">
+										<span class="error">{$form_data.title.error}</span>
+										{$form_data.title.html}
+									</div>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.permission.label}</td>
                                 <td class="data permission" align="left" id="_permission__data">
-									<span class="error">{$form_data.permission.error}</span>
-                                    {if $action=='view'}
-                                        <div class="icon permission_{$raw_data.permission}"></div>
-                                    {/if}
-                                    {$form_data.permission.html}
+									<div style="position:relative;">
+										<span class="error">{$form_data.permission.error}</span>
+										{if $action=='view'}
+											<div class="icon permission_{$raw_data.permission}"></div>
+										{/if}
+										{$form_data.permission.html}
+									</div>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.priority.label}</td>
                                 <td class="data priority" align="left" id="_priority__data">
-									<span class="error">{$form_data.priority.error}</span>
-                                    {if $action=='view'}
-                                        <div class="icon priority_{$raw_data.priority}"></div>
-                                    {/if}
-                                    {$form_data.priority.html}
+									<div style="position:relative;">
+										<span class="error">{$form_data.priority.error}</span>
+										{if $action=='view'}
+											<div class="icon priority_{$raw_data.priority}"></div>
+										{/if}
+										{$form_data.priority.html}
+									</div>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.status.label}</td>
                                 <td class="data status" align="left" id="_status__data">
-									<span class="error">{$form_data.status.error}</span>
-                                    {if $action=='view'}
-                                        <div class="icon status_{$raw_data.status}"></div>
-                                    {/if}
-                                    {$form_data.status.html}
+									<div style="position:relative;">
+										<span class="error">{$form_data.status.error}</span>
+										{if $action=='view'}
+											<div class="icon status_{$raw_data.status}"></div>
+										{/if}
+										{$form_data.status.html}
+									</div>
                                 </td>
                             </tr>
                         </tbody>
@@ -175,9 +184,11 @@
                                 <tr>
                                     <td class="label">{$form_data.date.label}</td>
                                     <td colspan="2" class="data timestamp">
-										<span class="error">{$form_data.date.error}</span>
-										<div id="time_s" id="_time__data">{$form_data.time.html}</div>
-										<div class="time_s" id="_date__data">{$form_data.date.html}</div>
+										<div style="position:relative;">
+											<span class="error">{$form_data.date.error}</span>
+											<div id="time_s" id="_time__data">{$form_data.time.html}</div>
+											<div class="time_s" id="_date__data">{$form_data.date.html}</div>
+										</div>
 									</td>
                                 </tr>
                     {/if}
@@ -191,9 +202,13 @@
 										{$form_data.duration.label} / {$form_data.end_time.label}
 									</td>
                                     <td colspan="2" class="data" style="height: 20px;">
-										<div class="toggle_button">{$form_data.toggle.html}</div>
-                                        <div id="crm_calendar_duration_block"><span class="error">{$form_data.duration.error}</span><div style="margin-right: 105px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div></div>
-                                        <div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
+										<div style="position:relative;">
+											<div class="toggle_button">{$form_data.toggle.html}</div>
+											<div id="crm_calendar_duration_block">
+													<span class="error">{$form_data.duration.error}</span><div style="margin-right: 105px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div>
+											</div>
+											<div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
+										</div>
                                     </td>
                                 </tr>
                     {/if}
@@ -231,39 +246,41 @@
                             <tr id="recurrence_hash_row">
                                 <td class="label" align="left">{$form_data.recurrence_hash.label}</td>
                                 <td class="data" align="left" colspan="2" id="_recurrence_hash__data">
-					<span class="error">{$form_data.recurrence_hash.error}</span>
-									<table>
-										<tr>
-											{if $fdow<=0}<td>{$form_data.recurrence_hash_0.label}</td>{/if}
-											{if $fdow<=1}<td>{$form_data.recurrence_hash_1.label}</td>{/if}
-											{if $fdow<=2}<td>{$form_data.recurrence_hash_2.label}</td>{/if}
-											{if $fdow<=3}<td>{$form_data.recurrence_hash_3.label}</td>{/if}
-											{if $fdow<=4}<td>{$form_data.recurrence_hash_4.label}</td>{/if}
-											{if $fdow<=5}<td>{$form_data.recurrence_hash_5.label}</td>{/if}
-											<td>{$form_data.recurrence_hash_6.label}</td>
-											{if $fdow>0}<td>{$form_data.recurrence_hash_0.label}</td>{/if}
-											{if $fdow>1}<td>{$form_data.recurrence_hash_1.label}</td>{/if}
-											{if $fdow>2}<td>{$form_data.recurrence_hash_2.label}</td>{/if}
-											{if $fdow>3}<td>{$form_data.recurrence_hash_3.label}</td>{/if}
-											{if $fdow>4}<td>{$form_data.recurrence_hash_4.label}</td>{/if}
-											{if $fdow>5}<td>{$form_data.recurrence_hash_5.label}</td>{/if}
-										</tr>
-										<tr>
-											{if $fdow<=0}<td>{$form_data.recurrence_hash_0.html}</td>{/if}
-											{if $fdow<=1}<td>{$form_data.recurrence_hash_1.html}</td>{/if}
-											{if $fdow<=2}<td>{$form_data.recurrence_hash_2.html}</td>{/if}
-											{if $fdow<=3}<td>{$form_data.recurrence_hash_3.html}</td>{/if}
-											{if $fdow<=4}<td>{$form_data.recurrence_hash_4.html}</td>{/if}
-											{if $fdow<=5}<td>{$form_data.recurrence_hash_5.html}</td>{/if}
-											<td>{$form_data.recurrence_hash_6.html}</td>
-											{if $fdow>0}<td>{$form_data.recurrence_hash_0.html}</td>{/if}
-											{if $fdow>1}<td>{$form_data.recurrence_hash_1.html}</td>{/if}
-											{if $fdow>2}<td>{$form_data.recurrence_hash_2.html}</td>{/if}
-											{if $fdow>3}<td>{$form_data.recurrence_hash_3.html}</td>{/if}
-											{if $fdow>4}<td>{$form_data.recurrence_hash_4.html}</td>{/if}
-											{if $fdow>5}<td>{$form_data.recurrence_hash_5.html}</td>{/if}
-										</tr>
-									</table>
+									<div style="position:relative;">
+										<span class="error">{$form_data.recurrence_hash.error}</span>
+										<table>
+											<tr>
+												{if $fdow<=0}<td>{$form_data.recurrence_hash_0.label}</td>{/if}
+												{if $fdow<=1}<td>{$form_data.recurrence_hash_1.label}</td>{/if}
+												{if $fdow<=2}<td>{$form_data.recurrence_hash_2.label}</td>{/if}
+												{if $fdow<=3}<td>{$form_data.recurrence_hash_3.label}</td>{/if}
+												{if $fdow<=4}<td>{$form_data.recurrence_hash_4.label}</td>{/if}
+												{if $fdow<=5}<td>{$form_data.recurrence_hash_5.label}</td>{/if}
+												<td>{$form_data.recurrence_hash_6.label}</td>
+												{if $fdow>0}<td>{$form_data.recurrence_hash_0.label}</td>{/if}
+												{if $fdow>1}<td>{$form_data.recurrence_hash_1.label}</td>{/if}
+												{if $fdow>2}<td>{$form_data.recurrence_hash_2.label}</td>{/if}
+												{if $fdow>3}<td>{$form_data.recurrence_hash_3.label}</td>{/if}
+												{if $fdow>4}<td>{$form_data.recurrence_hash_4.label}</td>{/if}
+												{if $fdow>5}<td>{$form_data.recurrence_hash_5.label}</td>{/if}
+											</tr>
+											<tr>
+												{if $fdow<=0}<td>{$form_data.recurrence_hash_0.html}</td>{/if}
+												{if $fdow<=1}<td>{$form_data.recurrence_hash_1.html}</td>{/if}
+												{if $fdow<=2}<td>{$form_data.recurrence_hash_2.html}</td>{/if}
+												{if $fdow<=3}<td>{$form_data.recurrence_hash_3.html}</td>{/if}
+												{if $fdow<=4}<td>{$form_data.recurrence_hash_4.html}</td>{/if}
+												{if $fdow<=5}<td>{$form_data.recurrence_hash_5.html}</td>{/if}
+												<td>{$form_data.recurrence_hash_6.html}</td>
+												{if $fdow>0}<td>{$form_data.recurrence_hash_0.html}</td>{/if}
+												{if $fdow>1}<td>{$form_data.recurrence_hash_1.html}</td>{/if}
+												{if $fdow>2}<td>{$form_data.recurrence_hash_2.html}</td>{/if}
+												{if $fdow>3}<td>{$form_data.recurrence_hash_3.html}</td>{/if}
+												{if $fdow>4}<td>{$form_data.recurrence_hash_4.html}</td>{/if}
+												{if $fdow>5}<td>{$form_data.recurrence_hash_5.html}</td>{/if}
+											</tr>
+										</table>
+									</div>
 								</td>
                             </tr>
 				{foreach key=k item=f from=$fields name=fields}
@@ -283,8 +300,10 @@
 					<tr>
 						<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
 						<td class="data" align="left" colspan="2"  id="_{$f.element}__data">
-							<span class="error">{$f.error}</span>
-							{$f.html}
+							<div style="position:relative;">
+								<span class="error">{$f.error}</span>
+								{$f.html}
+							</div>
 						</td>
 					</tr>
 					{/if}
@@ -300,11 +319,15 @@
 					{foreach key=k item=f from=$multiselects name=fields}
 						{if $y==1}
 						<td class="column" style="width: {$cols_percent}%;">
-							<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+							<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 						{/if}
 								<tr>
 									<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
-									<td class="data {$f.style}" id="_{$f.element}__data">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+									<td class="data {$f.style}" id="_{$f.element}__data">
+										<div style="position:relative;">
+											{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+										</div>
+									</td>
 								</tr>
 						{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 							{if $x>$mss_no_empty}
@@ -325,11 +348,15 @@
 			{/if}
 			<tr>
 				<td colspan="2">
-				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+				<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 					{foreach key=k item=f from=$longfields name=fields}
 						<tr>
 							<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
-							<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+							<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">
+								<div style="position:relative;">
+									{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+								</div>
+							</td>
 						</tr>
 					{/foreach}
 				</table>
@@ -343,7 +370,11 @@
                                 <tbody>
                                     <tr>
                                         <td class="label" align="left" style="width: 30%;">{$form_data.messenger_on.label}*</td>
-                                        <td class="data" align="left" style="width: 70%;"><span class="error">{$form_data.messenger_on.error}</span>{$form_data.messenger_on.html}</td>
+                                        <td class="data" align="left" style="width: 70%;">
+											<div style="position:relative;">
+												<span class="error">{$form_data.messenger_on.error}</span>{$form_data.messenger_on.html}
+											</div>
+										</td>
 	                                </tr>
     	                        </tbody>
         	                </table>
@@ -352,11 +383,19 @@
                                 <tbody>
                                     <tr>
                                         <td class="label" align="left" style="width: 30%;">{$form_data.messenger_before.label}*</td>
-                                        <td class="data" align="left" style="width: 70%;"><span class="error">{$form_data.messenger_before.error}</span>{$form_data.messenger_before.html}</td>
+                                        <td class="data" align="left" style="width: 70%;">
+											<div style="position:relative;">
+												<span class="error">{$form_data.messenger_before.error}</span>{$form_data.messenger_before.html}
+											</div>
+										</td>
                                     </tr>
                                     <tr>
                                         <td class="label" align="left">{$form_data.messenger_message.label}*</td>
-                                        <td class="data smalltext" align="left"><span class="error">{$form_data.messenger_message.error}</span>{$form_data.messenger_message.html}</td>
+                                        <td class="data smalltext" align="left">
+											<div style="position:relative;">
+												<span class="error">{$form_data.messenger_message.error}</span>{$form_data.messenger_message.html}
+											</div>
+										</td>
                                     </tr>
                                 </tbody>
                             </table>

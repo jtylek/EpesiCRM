@@ -823,7 +823,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->setDefaults(array($field=>$default));
 			eval_js('new_user_textfield = function(){'.
 					'$("username").up("tr").style.display = ($("crm_contacts_select_user").value=="new"?"":"none");'.
-					'$("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("access__from").parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'$("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
 					'}');
 			eval_js('new_user_textfield();');
 			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
