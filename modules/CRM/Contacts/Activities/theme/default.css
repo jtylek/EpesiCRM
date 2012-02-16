@@ -12,21 +12,13 @@
     vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;
-    width: 150px;
+    width: 100px;
     text-align: left;
 }
-
-/*
-#CRM_Contacts_Activities table.edit .label {
-    border: 2px solid white;
-}
-*/
 
 #CRM_Contacts_Activities .data {
     text-align: left;
-    /*
-	width: 60%;
-	*/
+    width: 20px;
 }
 
 #CRM_Contacts_Activities .actions {
