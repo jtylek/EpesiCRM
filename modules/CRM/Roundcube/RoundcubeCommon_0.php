@@ -241,7 +241,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 	public static function get_mailto_link($v) {
         if(isset($_REQUEST['rc_mailto'])) {
             $x = ModuleManager::get_instance('/Base_Box|0');
-            $x->push_main('CRM_Roundcube','new_mail',array($v));
+            $x->push_main('CRM_Roundcube','new_mail',array($_REQUEST['rc_mailto']));
             unset($_REQUEST['rc_mailto']);
         }
         $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
