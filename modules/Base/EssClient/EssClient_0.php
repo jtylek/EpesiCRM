@@ -21,9 +21,6 @@ class Base_EssClient extends Module {
         $this->admin();
     }
 
-    /**
-     * for tests only.
-     */
     public function clear_license_key() {
         Variable::set("license_key", '');
     }
@@ -101,24 +98,12 @@ class Base_EssClient extends Module {
         Base_EssClientCommon::client_messages_load_by_js();
     }
 
-    public function confirm_installation() {
-        $r = Base_EssClientCommon::server()->register_installation_confirm();
-        $color = $r ? 'green' : 'red';
-        $text = $r ? 'Installation confirmed!' : 'Confirmation error!';
-        print('<div style="color: ' . $color . '">' . $this->t($text) . '</div>');
-    }
-
     public function edit_data() {
         $data = Base_EssClientCommon::server()->installation_registered_data();
         $this->navigate('register', array($data));
     }
 
-    protected function add_static_field($form, $variable, $label, $data) {
-        $value = array_key_exists($variable, $data) ? $data[$variable] : '';
-        $form->addElement('static', $variable, $this->t($label), $value);
-    }
-
-    protected function terms_and_conditions() {
+    private function terms_and_conditions() {
         if ($this->get_module_variable('t_and_c_accepted')) {
             $this->register_form();
             return;
@@ -155,7 +140,12 @@ class Base_EssClient extends Module {
         return;
     }
 
-    protected function register_form($edit = true, $data = null) {
+    private function add_static_field($form, $variable, $label, $data) {
+        $value = array_key_exists($variable, $data) ? $data[$variable] : '';
+        $form->addElement('static', $variable, $this->t($label), $value);
+    }
+
+    private function register_form($edit = true, $data = null) {
         if ($this->is_back()) {
             return false;
         }

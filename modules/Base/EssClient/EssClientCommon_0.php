@@ -11,6 +11,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EssClientCommon extends Base_AdminModuleCommon {
+
     const VAR_LICENSE_KEY = 'license_key';
 
     public static function menu() {
@@ -22,11 +23,11 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         }
         return array('Help' => array('__submenu__' => 1, $text => array()));
     }
-    
+
     public static function get_server_url() {
         return 'https://ess.epesibim.com/';
     }
-    
+
     public static function get_payments_url() {
         return 'https://ess.epesibim.com/payments/';
     }
@@ -59,9 +60,14 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     public static function get_license_key() {
         $ret = Variable::get(self::VAR_LICENSE_KEY, false);
-        if(is_array($ret)) {
+        if (is_array($ret)) {
             $serv = self::get_server_url();
-            $ret = array_key_exists($serv, $ret) ? $ret[$serv] : '';
+            $key = '';
+            if (isset($ret['default']))
+                $key = $ret['default'];
+            if (isset($ret[$serv]))
+                $key = $ret[$serv];
+            return $key;
         }
         return $ret;
     }
@@ -108,6 +114,18 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return $email;
     }
 
+    public static function add_client_message_error($message) {
+        self::add_client_messages(array(array(), array(), array($message)));
+    }
+
+    public static function add_client_message_warning($message) {
+        self::add_client_messages(array(array(), array($message), array()));
+    }
+
+    public static function add_client_message_info($message) {
+        self::add_client_messages(array(array($message), array(), array()));
+    }
+
     /**
      * Add client messages
      * @param array $messages Array of arrays in order info, warning, error
@@ -120,7 +138,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         }
         Module::static_set_module_variable('Base/EssClient', 'messages', $msgs);
     }
-    
+
     public static function client_messages_frame($only_frame = true) {
         return '<div id="ess_messages_frame">' . ($only_frame ? '' : self::format_client_messages()) . '</div>';
     }
@@ -128,37 +146,28 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     public static function client_messages_load_by_js() {
         eval_js('$("ess_messages_frame").innerHTML = ' . json_encode(self::format_client_messages()));
     }
-    
-    public static function format_client_messages($cleanup = true) {
+
+    private static function format_client_messages($cleanup = true) {
         $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
-        $ret = '';
-        // error msgs
-        if (count($msgs[2])) {
-            $ret .= '<div class="important_notice" style="background-color:#FFCCCC">';
-            $ret .= Base_LangCommon::ts('Base/EssClient', 'Error messages from server:');
-            foreach ($msgs[2] as $m)
-                $ret .= '<div class="important_notice_frame">' . $m . '</div>';
-            $ret .= '</div>';
-        }
-        // warn msgs
-        if (count($msgs[1])) {
-            $ret .= '<div class="important_notice" style="background-color:#FFDD99">';
-            $ret .= Base_LangCommon::ts('Base/EssClient', 'Warning messages from server:');
-            foreach ($msgs[1] as $m)
-                $ret .= '<div class="important_notice_frame">' . $m . '</div>';
-            $ret .= '</div>';
-        }
-        // info msgs
-        if (count($msgs[0])) {
-            $ret .= '<div class="important_notice" style="background-color:#DDFF99">';
-            $ret .= Base_LangCommon::ts('Base/EssClient', 'Information messages from server:');
-            foreach ($msgs[0] as $m)
-                $ret .= '<div class="important_notice_frame">' . $m . '</div>';
-            $ret .= '</div>';
-        }
+
+        $ret = self::format_messages_frame('#FFCCCC', 'Error messages:', $msgs[2])
+                . self::format_messages_frame('#FFDD99', 'Warning messages:', $msgs[1])
+                . self::format_messages_frame('#DDFF99', 'Information messages:', $msgs[0]);
 
         if ($cleanup) {
             Module::static_unset_module_variable('Base/EssClient', 'messages');
+        }
+        return $ret;
+    }
+
+    private static function format_messages_frame($bg_color, $title, $messages) {
+        $ret = '';
+        if (count($messages)) {
+            $ret .= '<div class="important_notice" style="background-color:' . $bg_color . '">';
+            $ret .= Base_LangCommon::ts('Base/EssClient', $title);
+            foreach ($messages as $m)
+                $ret .= '<div class="important_notice_frame">' . $m . '</div>';
+            $ret .= '</div>';
         }
         return $ret;
     }

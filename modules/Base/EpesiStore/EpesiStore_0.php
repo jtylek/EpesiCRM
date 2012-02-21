@@ -70,7 +70,7 @@ class Base_EpesiStore extends Module {
         if (Base_EssClientCommon::get_license_key() == "") {
             // push main
             $m = $this->init_module('Base/EssClient');
-            $this->display_module($m, null, 'register_form');
+            $this->display_module($m, null, 'admin');
         } else {
             $this->cart_button();
             Base_ActionBarCommon::add('search', $this->t(self::button_downloaded_modules), $this->create_callback_href(array($this, 'navigate'), array('downloaded_modules_form')));
@@ -409,7 +409,6 @@ class Base_EpesiStore extends Module {
     public function downloaded_modules_form() {
         $this->back_button();
         $this->download_button(false);
-        Base_ActionBarCommon::add('clone', self::button_redownload, $this->create_confirm_callback_href($this->t(self::text_redownload_modules_confirm_question), array($this, 'redownload_modules')));
         // get bought modules list
         $bought_modules = Base_EssClientCommon::server()->bought_modules_list();
         // get downloaded modules list
@@ -434,6 +433,10 @@ class Base_EpesiStore extends Module {
             }
             $items[] = $it;
         }
+        print(Base_EssClientCommon::client_messages_frame(false));
+        if(!$items)
+            return;
+        Base_ActionBarCommon::add('clone', self::button_redownload, $this->create_confirm_callback_href($this->t(self::text_redownload_modules_confirm_question), array($this, 'redownload_modules')));
         if (isset($to_update) && count($to_update)) {
             Base_ActionBarCommon::add('all', $this->t(self::button_update_all_modules), $this->create_callback_href(array($this, 'update_all_modules'), array($to_update)));
         }

@@ -68,7 +68,7 @@ class ClientRequester implements IClient {
 
     public function order_submit($modules) {
         if (TRIAL_MODE) {
-            Base_EssClientCommon::add_client_messages(array(array(), array(), array('Your installation is locked, you can\'t download new modules. Switching to paid hosting will enable you to unlock your installation and purchase and download new modules.')));
+            Base_EssClientCommon::add_client_message_error('Your installation is locked, you can\'t download new modules. Switching to paid hosting will enable you to unlock your installation and purchase and download new modules.');
             return array();
         }
         $args = func_get_args();
@@ -87,8 +87,13 @@ class ClientRequester implements IClient {
 
     protected function call($function, $params, $serialize_response = true) {
         $post_data = $this->prepare_data_to_request($function, $params, $serialize_response);
-        $response = $this->request_server($post_data);
-        return $this->return_response_value_handling_user_messages($serialize_response, $response);
+        try {
+            $response = $this->request_server($post_data);
+            return $this->return_response_value_handling_user_messages($serialize_response, $response);
+        } catch (ErrorException $e) {
+            Base_EssClientCommon::add_client_message_error($e->getMessage());
+            return null;
+        }
     }
 
     protected function prepare_data_to_request($function, & $params, $serialize_response) {
@@ -127,12 +132,12 @@ class ClientRequester implements IClient {
         if ($response == serialize(false))
             return false;
         // check if there was an unserialize error
-        $ur = @unserialize($response);
-        if ($ur === false) {
-            Base_EssClientCommon::add_client_messages(array(array(), array(), array('server error' => 'External server error occured. Please report this at ' . Base_EssClientCommon::get_support_email())));
+        $unserialized_response = @unserialize($response);
+        if ($unserialized_response === false) {
+            Base_EssClientCommon::add_client_message_error('External server error occured. Please report this at ' . Base_EssClientCommon::get_support_email());
         }
 
-        return $ur;
+        return $unserialized_response;
     }
 
     protected function extract_user_messages(& $response) {
@@ -151,7 +156,7 @@ class ClientRequester implements IClient {
         $exception = null;
         $output = false;
         try {
-            $output = @file_get_contents($this->server, false, stream_context_create(array('http' => $http)));
+            $output = file_get_contents($this->server, false, stream_context_create(array('http' => $http)));
         } catch (ErrorException $e) {
             $exception = $e;
         }
@@ -177,7 +182,6 @@ class ClientRequester implements IClient {
 
         $output = curl_exec($ch);
         $errno = curl_error($ch);
-        $av_speed = curl_getinfo($ch, CURLINFO_SPEED_DOWNLOAD);
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
