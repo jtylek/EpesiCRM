@@ -279,7 +279,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		);
 	}
 	public static function get_field_id($f) {
-		return preg_replace('/[^a-z0-9]/','_',strtolower($f));
+		return preg_replace('/[^|a-z0-9]/','_',strtolower($f));
 	}
     public static function init($tab, $admin=false, $force=false) {
         static $cache = array();
@@ -533,6 +533,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (isset($definition['QFfield_callback'])) self::set_QFfield_callback($tab, $definition['name'], $definition['QFfield_callback']);
 //      $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false, $pos = null
 
+		if (strpos($definition['name'],'|')!==false) trigger_error('Invalid field name (character | is not allowed):'.$definition['name'], E_USER_ERROR);
         self::check_table_name($tab);
         self::$clear_get_val_cache = true;
 		if ($alter) {
