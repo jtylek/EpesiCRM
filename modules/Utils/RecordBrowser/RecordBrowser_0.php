@@ -424,17 +424,14 @@ class Utils_RecordBrowser extends Module {
 
         $external_filters = array();
 
-        $dont_hide = $this->get_module_variable('dont_hide', false);
-        if (!isset($_REQUEST['__location']) || !$_REQUEST['__location']) $dont_hide = false;
+        $dont_hide = Base_User_SettingsCommon::get('Utils/RecordBrowser',$this->tab.'_show_filters');
 
         $ret = DB::Execute('SELECT * FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($this->tab));
         while ($row = $ret->FetchRow()) {
             $m = $this->init_module($row['module']);
-            $next_dont_hide = false;
+            $next_dont_hide = false; // FIXME deprecated, to be removed
             $this->display_module($m, array(& $form, & $external_filters, & $vals, & $this->crits, & $next_dont_hide, $this), $row['func']);
-            $dont_hide |= $next_dont_hide;
         }
-        $this->set_module_variable('dont_hide', $dont_hide);
 
         $vals = $form->exportValues();
 
@@ -507,8 +504,9 @@ class Utils_RecordBrowser extends Module {
         $theme = $this->init_module('Base/Theme');
         $form->assign_theme('form',$theme);
         $theme->assign('filters', $filters);
-        $theme->assign('show_filters', $this->t('Show filters'));
-        $theme->assign('hide_filters', $this->t('Hide filters'));
+		load_js('modules/Utils/RecordBrowser/filters.js');
+        $theme->assign('show_filters', array('attrs'=>'onclick="rb_show_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="show_filter_b_'.$f_id.'"','label'=>$this->t('Show filters')));
+        $theme->assign('hide_filters', array('attrs'=>'onclick="rb_hide_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="hide_filter_b_'.$f_id.'"','label'=>$this->t('Hide filters')));
         $theme->assign('id', $f_id);
         if (!$this->isset_module_variable('filters_defaults'))
             $this->set_module_variable('filters_defaults', $this->crits);

@@ -195,6 +195,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $settings[2][] = array('name'=>$row['tab'].'_auto_subs','label'=>$row['caption'],'type'=>'select','values'=>array('Disabled', 'Enabled'),'default'=>0);
 //              $settings[3][] = array('name'=>$row['tab'].'_subs_category','label'=>$row['caption'],'type'=>'select','values'=>array('Disabled', 'Enabled'),'default'=>0);
             }
+			$settings[0][] = array('name'=>$row['tab'].'_show_filters','label'=>'','type'=>'hidden','default'=>0);
         }
         $final_settings = array();
         $subscribe_settings = array();

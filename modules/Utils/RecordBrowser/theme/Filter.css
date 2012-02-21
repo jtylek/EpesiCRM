@@ -1,16 +1,12 @@
 .Utils_RecordBrowser__Filter > table {
 	margin-left: auto;
 	margin-right: 0;
+	border-spacing: 1px;
 }
 .epesi_rtl .Utils_RecordBrowser__Filter > table {
 	margin-left: 0;
 	margin-right: auto;
-}
-
-#Utils_RecordBrowser__Filter {
-    width: 100%;
-    display: block;
-    height: 23px;
+	border-spacing: 1px;
 }
 
 .Utils_RecordBrowser__Filter {
@@ -23,35 +19,64 @@
 /* label */
 
 .Utils_RecordBrowser__Filter .label {
-    background-color: #336699;
     color: #FFFFFF;
-    border-top: 1px solid #B3B3B3;
-    border-bottom: 1px solid #B3B3B3;
-    border-right: 1px solid #B3B3B3;
-    height: 20px;
+    height: 28px;
     vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;
+
+	-webkit-border-radius: 4px 0 0 4px;
+	-moz-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+	-webkit-box-shadow: inset 1px 1px 1px #333355;
+	-moz-box-shadow: inset 1px 1px 1px #333355;
+	box-shadow: inset 1px 1px 1px #333355;
+
+	background: #3f6a8c; /* Old browsers */
+	background: -moz-linear-gradient(top,  #3f6a8c 0%, #5087b2 50%, #3f6a8c 51%, #335772 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3f6a8c), color-stop(50%,#5087b2), color-stop(51%,#3f6a8c), color-stop(100%,#335772)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* IE10+ */
+	background: linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f6a8c', endColorstr='#335772',GradientType=0 ); /* IE6-9 */
 }
 
 /* data */
 
 .Utils_RecordBrowser__Filter .data {
-    border: 1px solid #B3B3B3;
-    padding-left: 2px;
-    padding-right: 2px;
+	text-align: left;
+    background-color: #FFFFF9;
+	
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+	-webkit-box-shadow: inset 1px 1px 1px #777;
+	-moz-box-shadow: inset 1px 1px 1px #777;
+	box-shadow: inset 1px 1px 1px #777;
 }
 
-.Utils_RecordBrowser__Filter .data select {
-	padding: 7px 0px 6px 0px;
-}
 .Utils_RecordBrowser__Filter .data input,
-.Utils_RecordBrowser__Filter .data select,
-.Utils_RecordBrowser__Filter .data textarea {
-    border: 0px;
-    background-color: #e6ecf2;
-    width: 100%;
+.Utils_RecordBrowser__Filter .data select {
+    background-color: #FFFFF9;
+    border: none;
+    width: 100px;
+	height: 24px;
+	font-size: 13px;
+	margin-left: 2px;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
 }
+.Utils_RecordBrowser__Filter .data select {
+	margin-right: 2px;
+	height: 26px;
+    width: 98px;
+}
+.Utils_RecordBrowser__Filter .data select {
+	padding: 4px 0;
+}
+
 
 .Utils_RecordBrowser__Filter .data input[type='checkbox'] {
     width: auto;

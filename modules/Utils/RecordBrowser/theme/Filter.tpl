@@ -1,16 +1,7 @@
 <div id="Utils_RecordBrowser__Filter">
-{if isset($dont_hide)}
-	{php}
-		eval_js_once('show_filters = 1');
-	{/php}
-{else}
-	{php}
-		eval_js_once('show_filters = 0');
-	{/php}
-{/if}
 	<div class="buttons">
-		<input type="button" {if isset($dont_hide)}style="display: none;"{/if} onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='block';this.style.display='none';document.getElementById('hide_filter_b_{$id}').style.display='block';show_filters=1;" id="show_filter_b_{$id}" value="{$show_filters}">
-		<input type="button" {if !isset($dont_hide)}style="display: none;"{/if} onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='none';this.style.display='none';document.getElementById('show_filter_b_{$id}').style.display='block';show_filters=0;" id="hide_filter_b_{$id}" value="{$hide_filters}">
+		<input type="button" {if isset($dont_hide)}style="display: none;"{/if} {$show_filters.attrs} value="{$show_filters.label}">
+		<input type="button" {if !isset($dont_hide)}style="display: none;"{/if} {$hide_filters.attrs} value="{$hide_filters.label}">
 	</div>
 </div>
 
@@ -39,7 +30,7 @@
 					<tr>
 				{/if}
 				<td class="label">{$form_data.$f.label}</td>
-				<td class="data" style="width:100px;">{$form_data.$f.html}</td>
+				<td class="data">{$form_data.$f.html}</td>
 				{assign var=x value=$x+1}
 			{/foreach}
 			{if $first==1}
