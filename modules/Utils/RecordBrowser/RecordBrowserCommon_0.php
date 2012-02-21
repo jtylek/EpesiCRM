@@ -471,6 +471,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::DropTable($tab.'_edit_history');
         DB::DropTable($tab.'_field');
         DB::DropTable($tab.'_data_1');
+        DB::DropTable($tab.'_access_clearance');
+		DB::DropTable($tab.'_access_fields');
+		DB::DropTable($tab.'_access');
         DB::Execute('DELETE FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
         return true;
     }
