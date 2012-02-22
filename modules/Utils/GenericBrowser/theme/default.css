@@ -207,6 +207,7 @@ table.Utils_GenericBrowser > thead > tr > th {
 
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
 	
 	/* css3 blue gradient */
 	background: #3f6a8c; /* Old browsers */
