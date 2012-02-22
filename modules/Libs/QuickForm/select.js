@@ -20,6 +20,13 @@ function typeAhead() {
          var selectElem = evt.srcElement;
          // get typed character ASCII value
          var charCode = evt.keyCode;
+		 // detect tab keys
+		 if (charCode==9) {
+			// clear the accumulated string
+			typeAheadInfo.accumString = '';
+			// exit
+			return;
+		 }
          // get the actual character, converted to uppercase
          var newChar =  String.fromCharCode(charCode).toUpperCase();
          // append new character to accumString storage
