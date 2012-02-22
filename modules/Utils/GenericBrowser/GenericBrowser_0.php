@@ -780,8 +780,8 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$this->form_s->addElement('text','search',$this->t('Keyword'), array('onfocus'=>'if (this.value=="'.$this->t('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->t('search keyword...').'";'));
-					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->t('search keyword...')));
+					$this->form_s->addElement('text','search',$this->t('Keyword'), array('placeholder'=>$this->t('search keyword...')));
+					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:''));
 					$search_on=true;
 					break;
 				}
@@ -796,9 +796,9 @@ class Utils_GenericBrowser extends Module {
 				}
 				if (isset($v['search'])) {
 					$this->form_s->addElement('hidden','search__'.$v['search'],'');
-					$default = isset($search[$v['search']])?$search[$v['search']]:$this->t('search keyword...');
+					$default = isset($search[$v['search']])?$search[$v['search']]:'';
 					$this->form_s->setDefaults(array('search__'.$v['search']=>$default));
-					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" onfocus="if (this.value==\''.$this->t('search keyword...').'\') this.value=\'\';" onblur="if (this.value==\'\') this.value=\''.$this->t('search keyword...').'\'; document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
+					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" placeholder="'.$this->t('search keyword...').'" onblur="document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
 					$search_fields[$k+$mov] = $in;
 					$search_on=true;
 				}
@@ -900,9 +900,9 @@ class Utils_GenericBrowser extends Module {
 			}
 			if(isset($v['order'])) $is_order = true;
 			if(!isset($headers[$i])) $headers[$i] = array('label'=>'');
-			if (!$adv_history && $v['name']==$order[0]['column']) $sort = 'style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;"';
-			else $sort = '';
-			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
+			if (!$adv_history && $v['name']==$order[0]['column']) $label = '<span style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;">'.$v['name'].'</span>';
+			else $label = $v['name'];
+			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . $label . '</a>':$label).(isset($v['append'])?$v['append']:'');
 			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
 			if ($this->absolute_width || strpos($v['width'], 'px')!==false) $headers[$i]['attrs'] = 'width="'.$v['width'].'" ';
 			else $headers[$i]['attrs'] = 'width="'.intval(100*$v['width']/$all_width).'%" ';

@@ -76,6 +76,13 @@
 </table>
 {/if}
 
+{php}
+	$cols = $this->get_template_vars('cols');
+	foreach($cols as $k=>$v)
+		$cols[$k]['label'] = '<span>'.$cols[$k]['label'].'</span>';
+	$this->assign('cols',$cols);
+{/php}
+
 <div class="table">
 	<div class="layer">
 		<div class="css3_content_shadow">

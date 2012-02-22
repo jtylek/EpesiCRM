@@ -440,7 +440,12 @@ class Utils_RecordBrowser extends Module {
             $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
             $field_id = 'filter__'.$filter_id;
             if (isset($this->custom_filters[$filter_id])) {
-                if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='__NULL__';
+                if (!isset($vals['filter__'.$filter_id])) {
+					if ($this->custom_filters[$filter_id]['type']!='autoselect')
+						$vals['filter__'.$filter_id]='__NULL__';
+					else
+						$vals['filter__'.$filter_id]='';
+				}
                 if (isset($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]])) {
                     foreach($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]] as $k=>$v)
                         $this->crits[$k] = $v;

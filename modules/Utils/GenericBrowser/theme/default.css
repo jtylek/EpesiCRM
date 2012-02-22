@@ -198,7 +198,7 @@ table.Utils_GenericBrowser > thead > tr > th {
     font-weight: normal;
     background-repeat: repeat-x;
     text-align: left;
-    height: 25px;
+    min-height: 25px;
     /*border-top: 1px solid #B3B3B3;*/
     border-right: 1px solid #B3B3B3;
     border-bottom: 1px solid #FFFFFF;
@@ -228,18 +228,20 @@ table.Utils_GenericBrowser > thead > tr > th > .GB_margin {
 	margin: 0px 40% auto 5px;
 }
 
-table.Utils_GenericBrowser > thead > tr > th > span,
-table.Utils_GenericBrowser > thead > tr > th a {
+table.Utils_GenericBrowser > thead > tr > th > span {
 	color: #FFFFFF;
-	padding-top: 3px;
     display: block;
 	height: 100%;
     line-height: 20px;
-    padding-left: 3px;
-    padding-right: 3px;
+    padding: 3px 10px 3px 3px;
+}
+table.Utils_GenericBrowser > thead > tr > th a {
+	color: #FFFFFF;
+	width: 120%;
+	display: block;
 }
 
-table.Utils_GenericBrowser > thead > tr > th a:hover {	
+table.Utils_GenericBrowser > thead > tr > th:hover {	
 	/* css3 blue gradient - reverse */
 background: #5b8eb5; /* Old browsers */
 background: -moz-linear-gradient(top,  #5b8eb5 0%, #77a2c3 50%, #5b8eb5 51%, #4b7fa7 100%); /* FF3.6+ */
@@ -260,16 +262,15 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5b8eb5', end
 	background: none !important;
 }
 
-
-
 table.Utils_GenericBrowser > thead > tr > th input {
     display: block;
-    background-color: #e6ecf2;
     width: 100%;
-    border-left: 0px;
-    border-right: 1px solid #b3b3b3;
-    border-bottom: 1px solid #b3b3b3;
-    border-top: 1px solid #b3b3b3;
+    border: 0px;
+	padding: 3px;
+    background-color: #FFFFF9;
+	-webkit-box-shadow: inset 1px 1px 1px #333;
+	-moz-box-shadow: inset 1px 1px 1px #333;
+	box-shadow: inset 1px 1px 1px #333;
 }
 
 table.Utils_GenericBrowser > thead > tr > th input:focus {
