@@ -7,7 +7,7 @@
  * @version 20111121
  */
 interface IClient {
-    const client_version = 1;
+    const client_version = 2;
     const MESSAGES_INFO = 0;
     const MESSAGES_WARN = 1;
     const MESSAGES_ERROR = 2;
@@ -58,12 +58,12 @@ interface IClient {
     function register_installation_confirm($key);
 
     /**
-     * Use this function before get_module_file() to generate package on server side.
+     * Use this function before download_prepared_file() to generate package on server side.
      * 
-     * @param array $order_ids Order ids to download in one file
+     * @param array $module_license_ids Ids of module licenses to download in one file
      * @return string|null file sha1 sum or null on error
      */
-    function download_prepare($order_ids);
+    function download_prepare($module_license_ids);
 
     /**
      * Download package file contents.
@@ -114,13 +114,13 @@ interface IClient {
      * @return array Array of orders
      */
     function orders_list();
-    
+
     /**
-     * Get list of bought modules
+     * Get list of module licenses
      * 
-     * @return array Array of bought modules
+     * @return array Array of module licenses
      */
-    function bought_modules_list();
+    function module_licenses_list();
 }
 
 ?>

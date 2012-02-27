@@ -12,6 +12,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
+
     const MOD_PATH = 'Base_EpesiStoreCommon';
     const CART_VAR = 'cart';
     const DOWNLOAD_QUEUE_VAR = 'queue';
@@ -23,7 +24,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     public static function admin_caption() {
         return "Epesi Store";
     }
-    
+
     protected static function get_payment_data_keys() {
         // key = field name from contact => value = field name in settings
         return array(
@@ -37,11 +38,11 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             'email' => 'email',
             'mobile_phone' => 'phone');
     }
-    
+
     public static function get_payment_credentials() {
         $keys = self::get_payment_data_keys();
         $ret = array();
-        foreach($keys as $k) {
+        foreach ($keys as $k) {
             $ret[$k] = Base_User_SettingsCommon::get('Base_EpesiStore', $k);
         }
         return $ret;
@@ -56,7 +57,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         // do user setting entries from data
         foreach ($keys as $k => $v) {
             $x = array('name' => $v, 'label' => ucwords(str_replace('_', ' ', $v)), 'type' => 'text', 'default' => $r[$k]);
-            if($k == 'country') {
+            if ($k == 'country') {
                 $x['type'] = 'select';
                 $x['values'] = Utils_CommonDataCommon::get_array('Countries');
             }
@@ -162,57 +163,54 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     /**
      * Download and extract package of modules.
-     * @param array $bought_modules_ids bought modules ids
-     * @param var_reference $filename output parameter to pass filename of package
-     * @return string|true string with error message, true on success
+     * @param array $module_licenses_ids module licenses ids
+     * @return string filename of package
      */
-    public static function download_package($bought_modules_ids, &$filename = false) {
-        $hash = Base_EssClientCommon::server()->download_prepare($bought_modules_ids);
-        if (!$hash) {
-            return 'Prepare error';
-        }
+    public static function download_package($module_licenses_ids) {
+        $hash = Base_EssClientCommon::server()->download_prepare($module_licenses_ids);
+        if (!$hash)
+            throw new ErrorException("Prepare error");
         // download file and check sum
         $file_contents = Base_EssClientCommon::server()->download_prepared_file($hash);
-        if (sha1($file_contents) !== $hash) {
-            return 'File hash error';
-        }
-        // make temp destination filename
+        if (sha1($file_contents) !== $hash)
+            throw new ErrorException('File hash error');
+
+        $destfile = self::make_temp_filename();
+        // store file
+        if (file_put_contents($destfile, $file_contents) === false)
+            throw new ErrorException("File store error ($destfile)");
+
+        return basename($destfile);
+    }
+
+    private static function make_temp_filename() {
         $destfile = self::Instance()->get_data_dir() . time();
         $i = 0;
         while (file_exists("{$destfile}{$i}.zip"))
             $i++;
         $destfile .= "{$i}.zip";
-        // store file
-        if (file_put_contents($destfile, $file_contents) === false) {
-            return 'File store error';
-        }
-        if ($filename !== false) {
-            $filename = basename($destfile);
-        }
-        return true;
+        return $destfile;
     }
 
     /**
      * Extract package from file under EpesiStore module data directory
      * @param string $filename filename with extension
-     * @return true|string true on success, string message on error
      */
     public static function extract_package($filename) {
         $destfile = self::Instance()->get_data_dir() . $filename;
         if (!file_exists($destfile))
-            return "file $destfile not exists";
+            throw new ErrorException("file $destfile not exists");
         // extract
         if (class_exists('ZipArchive')) {
             $zip = new ZipArchive();
             if (filesize($destfile) == 0 || $zip->open($destfile) !== true || $zip->extractTo('./') == false) {
-                return 'Archive error';
+                throw new ErrorException('Archive error');
             } else {
                 $zip->close();
             }
         } else {
-            return 'Please enable zip extension in server configuration!';
+            throw new ErrorException('Please enable zip extension in server configuration!');
         }
-        return true;
     }
 
     /**
@@ -226,7 +224,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if (!count($mods))
             return true;
 
-        $orders_to_download = array();
+        $modules_to_download = array();
         $files = array();
         foreach ($mods as $m) {
             if ($m['file']) {
@@ -234,64 +232,64 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                     $files[$m['file']] = array();
                 $files[$m['file']][] = $m;
             } else {
-                $orders_to_download[] = $m;
+                $modules_to_download[] = $m;
             }
         }
         // extract files
-        foreach ($files as $file => $orders) {
-            $ret = self::extract_package($file);
-            if ($ret === true) {
-                $return['old'] = array_merge($return['old'], $orders);
-            } else {
-                // no file or some error -> add order to download
-                $orders_to_download = array_merge($orders_to_download, $orders);
+        foreach ($files as $file => $downloaded_modules_data) {
+            try {
+                extract_package($file);
+                $return['old'] = array_merge($return['old'], $downloaded_modules_data);
+            } catch (ErrorException $e) {
+                $modules_to_download = array_merge($modules_to_download, $downloaded_modules_data);
             }
         }
-        // download modules
-        if (!count($orders_to_download)) {
+        // download necessary modules
+        if (!count($modules_to_download)) {
             return $return;
         }
-        $order_ids = array();
-        foreach ($orders_to_download as $o) {
-            $order_ids[] = $o['order_id'];
+        $module_licenses_ids = array();
+        foreach ($modules_to_download as $o) {
+            $module_licenses_ids[] = $o['module_license_id'];
         }
-        $new_file = null;
-        $ret = self::download_package($order_ids, $new_file);
-        if (is_string($ret)) {
-            if (isset($return['error'][$ret]))
-                $return['error'][$ret] = array_merge($return['error'][$ret], $orders_to_download);
-            else
-                $return['error'][$ret] = $orders_to_download;
-        }
-        if ($new_file !== null) {
-            $ret = self::extract_package($new_file);
-            if ($ret === true) {
-                foreach ($orders_to_download as &$o) {
-                    self::add_downloaded_module($o['module_id'], $o['version'], $o['order_id'], $new_file);
-                    $o['file'] = $new_file;
-                }
-                $return['new'] = array_merge($return['new'], $orders_to_download);
-            } else {
-                if (isset($return['error'][$ret]))
-                    $return['error'][$ret] = array_merge($return['error'][$ret], $orders_to_download);
-                else
-                    $return['error'][$ret] = $orders_to_download;
+        try {
+            $new_file = self::download_package($module_licenses_ids);
+            self::extract_package($new_file);
+            foreach ($modules_to_download as &$o) {
+                self::add_downloaded_module($o['module_id'], $o['version'], $o['order_id'], $new_file);
+                $o['file'] = $new_file;
             }
+            $return['new'] = array_merge($return['new'], $modules_to_download);
+        } catch (ErrorException $e) {
+            $msg = $e->getMessage();
+            if (isset($return['error'][$msg]))
+                $return['error'][$msg] = array_merge($return['error'][$msg], $modules_to_download);
+            else
+                $return['error'][$msg] = $modules_to_download;
         }
         return $return;
     }
 
     /**
      * Get downloaded modules list.
-     * Array keys are 'module_id', 'version', 'file' and 'order_id' as bought module id
+     * Array keys are 'module_id', 'version', 'file' and 'module_license_id' as bought module id
      * @return array of data. 
      */
     public static function get_downloaded_modules() {
-        return DB::GetAll('SELECT * FROM epesi_store_modules');
+        $records = DB::GetAll('SELECT * FROM epesi_store_modules');
+        // TODO: remove this column name substitution
+        foreach ($records as & $r) {
+            if (isset($r['order_id'])) {
+                $r['module_license_id'] = $r['order_id'];
+                unset($r['order_id']);
+            }
+        }
+        return $records;
     }
 
-    public static function add_downloaded_module($module_id, $version, $bought_module_id, $file) {
-        DB::Execute('REPLACE INTO epesi_store_modules(module_id, version, order_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $bought_module_id, $file));
+    public static function add_downloaded_module($module_id, $version, $module_license_id, $file) {
+        // TODO: change column name in db
+        DB::Execute('REPLACE INTO epesi_store_modules(module_id, version, order_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $module_license_id, $file));
     }
 
 }
