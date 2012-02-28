@@ -372,69 +372,95 @@ class Base_EpesiStore extends Module {
         $this->display_module($gb);
     }
 
-    //TODO: refactor this
     public function form_process_downloading() {
         $this->back_button();
+
         $module_licenses = Base_EpesiStoreCommon::get_download_queue();
-        if (!count($module_licenses)) {
-            return;
-        }
-        $module_licenses_ids = array();
+        $status = $this->_download_modules($module_licenses);
         foreach ($module_licenses as $ml) {
-            $module_licenses_ids[] = $ml['id'];
+            $this->display_download_status_info($ml, $status[$ml['id']]);
+            if ($status[$ml['id']] === true) {
+                $this->download_dequeue_item($ml);
+            }
         }
-        // download
-        $file = null;
-        try {
-            $file = Base_EpesiStoreCommon::download_package($module_licenses_ids);
-            Base_EpesiStoreCommon::extract_package($file);
-            // show download status
+        if (!count(Base_EpesiStoreCommon::get_download_queue()))
             $this->back_button(2);
-            print($this->t('Download process succeed!') . '<br/><br/>');
-            // list all files
-            $all_files = array();
-            foreach ($module_licenses as $d) {
-                $mod = Base_EpesiStoreCommon::get_module_info($d['module']);
-                $all_files = array_merge($all_files, $mod['files']);
-                // store info about module in db
-                Base_EpesiStoreCommon::add_downloaded_module($d['module'], $mod['version'], $d['id'], $file);
+    }
+
+    private function _download_modules($module_licenses) {
+        if (!count($module_licenses))
+            return array();
+
+        $status = array();
+        foreach ($module_licenses as $ml) {
+            try {
+                Base_EpesiStoreCommon::download_module($ml);
+                $status[$ml['id']] = true;
+            } catch (ErrorException $e) {
+                $status[$ml['id']] = $e->getMessage();
             }
-            // check for epesi modules
-            $module_licenses = array();
-            $string = 'modules/';
-            $str_length = strlen($string);
-            foreach ($all_files as $f) {
-                if (is_dir($f) && substr_compare($f, $string, 0, $str_length) == 0) {
-                    $module_dir = substr($f, $str_length);
-                    // module path with slashes Test/Module
-                    $module_path = trim($module_dir, DIRECTORY_SEPARATOR);
-                    if (ModuleManager::exists(str_replace(DIRECTORY_SEPARATOR, '_', $module_path))) {
-                        $module_licenses[] = $module_path;
-                    }
+        }
+        return $status;
+    }
+
+    private function display_download_status_info($module_license, $status_info) {
+        $module_info = Base_EpesiStoreCommon::get_module_info($module_license['module']);
+        if ($status_info === true)
+            $status_info = $this->t('Success!');
+        print("<b>{$module_info['name']}</b> - $status_info<br/>");
+        $all_files = $module_info['files'];
+        $modules = $this->_extract_modules_names($all_files);
+        $this->_print_module_list($modules);
+        $this->_print_other_files_list($all_files);
+    }
+
+    private function _extract_modules_names(& $all_files) {
+        $modules = array();
+        $module_prefix = 'modules_install/';
+        $str_length = strlen($module_prefix);
+        foreach ($all_files as $f) {
+            if (is_dir($f) && substr_compare($f, $module_prefix, 0, $str_length) == 0) {
+                $module_dir = substr($f, $str_length);
+                // module path with slashes Test/Module
+                $module_path = trim($module_dir, DIRECTORY_SEPARATOR);
+                if (ModuleManager::exists(str_replace(DIRECTORY_SEPARATOR, '_', $module_path))) {
+                    $modules[] = $module_path;
                 }
             }
-            // remove each file under module path
-            foreach ($module_licenses as $mod) {
-                $modxx = 'modules/' . $mod;
-                foreach ($all_files as $k => $v) {
-                    if (strstr($v, $modxx)) {
-                        unset($all_files[$k]);
-                    }
+        }
+        // remove each file under module path
+        foreach ($modules as $mod) {
+            $modxx = $module_prefix . $mod;
+            foreach ($all_files as $k => $v) {
+                if (strpos($v, $modxx) === 0) {
+                    unset($all_files[$k]);
                 }
             }
-            // print info
-            if (count($module_licenses)) {
-                print($this->t('New modules:') . '<br/>');
-                print(implode('<br/>', $module_licenses));
-                print('<br/><br/>');
-            }
-            if (count($all_files)) {
-                print($this->t('Other files downloaded:') . '<br/>');
-                print(implode('<br/>', $all_files));
-            }
-            Base_EpesiStoreCommon::empty_download_queue();
-        } catch (ErrorException $e) {
-            print($this->t($e->getMessage()));
+        }
+        return $modules;
+    }
+
+    private function _print_module_list($modules) {
+        if (!count($modules))
+            return;
+
+        print($this->t("Modules:") . '<br/>');
+        foreach ($modules as $mod) {
+            $this->display_module_entry($mod);
+        }
+    }
+
+    private function display_module_entry($module) {
+        print(htmlspecialchars($module) . '<br/>');
+    }
+
+    private function _print_other_files_list($other_files) {
+        if (!count($other_files))
+            return;
+
+        print($this->t('Other files:') . '<br/>');
+        foreach ($other_files as $file) {
+            print(htmlspecialchars($file) . '<br/>');
         }
     }
 
@@ -458,14 +484,7 @@ class Base_EpesiStore extends Module {
         }
     }
 
-    public function update_all_modules($bought_modules) {
-        foreach ($bought_modules as $m) {
-            $this->download_queue_item($m);
-        }
-        $this->navigate('form_downloads');
-    }
-
-    protected function payments_data_button() {
+    private function payments_data_button() {
         $href = $this->create_callback_href(array($this, 'navigate'), array('payments_show_user_settings'));
         Base_ActionBarCommon::add('settings', 'Payment data', $href);
     }
@@ -486,7 +505,7 @@ class Base_EpesiStore extends Module {
      */
     private function pay_button($payment_url, $order_id, $value, $curr_code, $credentials) {
         $payment_url = $payment_url;
-        foreach($credentials as & $c)
+        foreach ($credentials as & $c)
             $c = htmlspecialchars($c);
 
         return '
@@ -580,8 +599,8 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_your_modules($row, $data) {
-        if ($data['paid'] && $data['active'] && $this->_module_license_needs_install_or_update($data))
-            $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', $this->t('Queue download'));
+//        if ($data['paid'] && $data['active'] && $this->_module_license_needs_install_or_update($data))
+        $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', $this->t('Queue download'));
     }
 
     protected function GB_row_additional_actions_downloads($row, $data) {
