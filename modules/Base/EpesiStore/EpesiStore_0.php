@@ -485,8 +485,13 @@ class Base_EpesiStore extends Module {
      * @return string payment form html
      */
     private function pay_button($payment_url, $order_id, $value, $curr_code, $credentials) {
+        $payment_url = $payment_url;
+        foreach($credentials as & $c)
+            $c = htmlspecialchars($c);
+
         return '
 <form style="display:inline" target="blank" action="' . $payment_url . '" method="post" id="formPayment' . $order_id . '">
+    <input type="hidden" name="action_url" value="' . $payment_url . '" />
     <input type="hidden" name="first_name" value="' . $credentials['first_name'] . '" />
     <input type="hidden" name="last_name" value="' . $credentials['last_name'] . '" />
     <input type="hidden" name="address_1" value="' . $credentials['address_1'] . '" />
@@ -496,11 +501,11 @@ class Base_EpesiStore extends Module {
     <input type="hidden" name="country" value="' . $credentials['country'] . '" />
     <input type="hidden" name="email" value="' . $credentials['email'] . '" />
     <input type="hidden" name="phone" value="' . $credentials['phone'] . '" />
-    <input type="hidden" name="record_id" value="' . $order_id . '" />
+    <input type="hidden" name="record_id" value="' . htmlspecialchars($order_id) . '" />
     <input type="hidden" name="record_type" value="ess_orders" />
-    <input type="hidden" name="amount" value="' . $value . '" />
-    <input type="hidden" name="currency" value="' . $curr_code . '" />
-    <input type="hidden" name="description" value="Order ID ' . $order_id . '" />
+    <input type="hidden" name="amount" value="' . htmlspecialchars($value) . '" />
+    <input type="hidden" name="currency" value="' . htmlspecialchars($curr_code) . '" />
+    <input type="hidden" name="description" value="Order ID ' . htmlspecialchars($order_id) . '" />
     <input type="hidden" name="auto_process" value="1" />
     <input type="submit" name="submit" value="Pay" />
 </form>
