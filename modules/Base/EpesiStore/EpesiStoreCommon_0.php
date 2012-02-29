@@ -169,17 +169,22 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     private static function download_module_file($module_license) {
-        $hash = Base_EssClientCommon::server()->download_prepare($module_license['id']);
-        if (!$hash)
+        $hash_or_url = Base_EssClientCommon::server()->download_prepare($module_license['id']);
+        if (!$hash_or_url)
             throw new ErrorException("Prepare error");
-        $file_contents = Base_EssClientCommon::server()->download_prepared_file($hash);
-        if (sha1($file_contents) !== $hash)
+        $file_contents = Base_EssClientCommon::server()->download_prepared_file($hash_or_url);
+        // check hash if it wasn't external package
+        if (!self::is_url($hash_or_url) && sha1($file_contents) !== $hash_or_url)
             throw new ErrorException('File hash error');
-        $destfile = self::make_temp_filename();
         // store file
+        $destfile = self::make_temp_filename();
         if (file_put_contents($destfile, $file_contents) === false)
             throw new ErrorException("File store error ($destfile)");
         return basename($destfile);
+    }
+    
+    private static function is_url($string) {
+        return false !== strpos($string, "://");
     }
 
     private static function make_temp_filename() {

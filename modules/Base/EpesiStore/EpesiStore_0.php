@@ -210,7 +210,7 @@ class Base_EpesiStore extends Module {
         if ($f->validate() && $f->exportValue('submited')) {
             $recent_items = $this->_cart_items_on_server($items);
             if ($recent_items == $items) {
-                $this->form_buy_items($response);
+                $this->form_buy_items($items);
             } else {
                 print('<span style="color:red">' . $this->t('Some modules has changed on server. This is updated list.') . '</span>');
                 Base_EpesiStoreCommon::set_cart($recent_items);
@@ -236,7 +236,7 @@ class Base_EpesiStore extends Module {
 
         $server_response = $this->_order_submit($items);
         $this->client_messages();
-        $this->display_order_submit_response($server_response);
+        $this->display_order_submit_response($items, $server_response);
     }
 
     private function display_order_submit_response($ordered_items, $server_response) {
@@ -292,6 +292,7 @@ class Base_EpesiStore extends Module {
 
     public function form_orders() {
         $this->back_button();
+        $this->navigation_button_your_modules();
         $this->payments_data_button();
 
         $orders = Base_EssClientCommon::server()->orders_list();
@@ -318,7 +319,7 @@ class Base_EpesiStore extends Module {
         foreach ($module_licenses as $m) {
             $this->download_queue_item($m);
         }
-        $this->navigate('form_process_downloading');
+        $this->process_downloading();
     }
 
     /**
@@ -358,7 +359,7 @@ class Base_EpesiStore extends Module {
     }
 
     private function navigation_button_process_downloading() {
-        Base_ActionBarCommon::add('clone', $this->t('Proceed download'), $this->href_navigate('form_process_downloading'));
+        Base_ActionBarCommon::add('clone', $this->t('Proceed download'), $this->create_callback_href(array($this, 'process_downloading')));
     }
 
     private function display_downloads($download_items) {
@@ -372,19 +373,15 @@ class Base_EpesiStore extends Module {
         $this->display_module($gb);
     }
 
-    public function form_process_downloading() {
-        $this->back_button();
-
+    public function process_downloading() {
         $module_licenses = Base_EpesiStoreCommon::get_download_queue();
         $status = $this->_download_modules($module_licenses);
         foreach ($module_licenses as $ml) {
-            $this->display_download_status_info($ml, $status[$ml['id']]);
             if ($status[$ml['id']] === true) {
                 $this->download_dequeue_item($ml);
             }
         }
-        if (!count(Base_EpesiStoreCommon::get_download_queue()))
-            $this->back_button(2);
+        $this->navigate('form_downloaded_status', array($module_licenses, $status));
     }
 
     private function _download_modules($module_licenses) {
@@ -403,6 +400,14 @@ class Base_EpesiStore extends Module {
         return $status;
     }
 
+    public function form_downloaded_status($module_licenses, $status) {
+        $times_back = count(Base_EpesiStoreCommon::get_download_queue()) == 0 ? 2 : 1;
+        $this->back_button($times_back);
+        foreach ($module_licenses as $ml) {
+            $this->display_download_status_info($ml, $status[$ml['id']]);
+        }
+    }
+
     private function display_download_status_info($module_license, $status_info) {
         $module_info = Base_EpesiStoreCommon::get_module_info($module_license['module']);
         if ($status_info === true)
@@ -416,7 +421,7 @@ class Base_EpesiStore extends Module {
 
     private function _extract_modules_names(& $all_files) {
         $modules = array();
-        $module_prefix = 'modules_install/';
+        $module_prefix = 'modules/';
         $str_length = strlen($module_prefix);
         foreach ($all_files as $f) {
             if (is_dir($f) && substr_compare($f, $module_prefix, 0, $str_length) == 0) {
@@ -451,7 +456,15 @@ class Base_EpesiStore extends Module {
     }
 
     private function display_module_entry($module) {
-        print(htmlspecialchars($module) . '<br/>');
+        $installed = (ModuleManager::is_installed($module) >= 0);
+        $install_href = $installed ? '' : $this->create_callback_href(array($this, '_install_module'), array($module));
+        $install_link = " - " . ($install_href ? "<a $install_href>" . $this->t('Install module') . "</a>" : 'Module already installed');
+        print(htmlspecialchars($module) . "$install_link<br/>");
+    }
+
+    public function _install_module($module) {
+        $module = str_replace('/', '_', $module);
+        ModuleManager::install($module);
     }
 
     private function _print_other_files_list($other_files) {
@@ -486,7 +499,7 @@ class Base_EpesiStore extends Module {
 
     private function payments_data_button() {
         $href = $this->create_callback_href(array($this, 'navigate'), array('payments_show_user_settings'));
-        Base_ActionBarCommon::add('settings', 'Payment data', $href);
+        Base_ActionBarCommon::add('settings', 'Payment data', $href, $this->t('Here you can edit your default credentials used to payments'));
     }
 
     public function payments_show_user_settings() {

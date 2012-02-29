@@ -88,7 +88,7 @@ class ClientRequester implements IClient {
     protected function call($function, $params, $serialize_response = true) {
         $post_data = $this->prepare_data_to_request($function, $params, $serialize_response);
         try {
-            $response = $this->request_server($post_data);
+            $response = $this->request_server($post_data, !$serialize_response);
             return $this->return_response_value_handling_user_messages($serialize_response, $response);
         } catch (ErrorException $e) {
             Base_EssClientCommon::add_client_message_error($e->getMessage());
@@ -107,8 +107,8 @@ class ClientRequester implements IClient {
                 ));
     }
 
-    protected function request_server(& $post_data) {
-        if ($this->is_curl_loaded())
+    protected function request_server(& $post_data, $force_fgc = false) {
+        if ($this->is_curl_loaded() && !$force_fgc)
             return $this->curl_call($post_data);
         else
             return $this->fgc_call($post_data);
