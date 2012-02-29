@@ -71,7 +71,8 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 			array('name'=>'Utils/Shortcut', 'version'=>0), 
 			array('name'=>'Utils/BBCode', 'version'=>0), 
 			array('name'=>'Utils/Tooltip', 'version'=>0), 
-			array('name'=>'Utils/BookmarkBrowser', 'version'=>0), 
+			array('name'=>'Utils/RecordBrowser/RecordPickerFS', 'version'=>0),
+			array('name'=>'Utils/RecordBrowser/RecordPicker', 'version'=>0),
 			array('name'=>'Utils/GenericBrowser', 'version'=>0), 
 			array('name'=>'Utils/TabbedBrowser', 'version'=>0), 
 			array('name'=>'Utils/Watchdog', 'version'=>0), 
@@ -85,8 +86,8 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Module to browse and modify records.');
 	}
 	
-	public static function simple_setup() {
-		return false;
+	public function simple_setup() {
+		return 'epesi Core';
 	}
 	
 	public function version() {

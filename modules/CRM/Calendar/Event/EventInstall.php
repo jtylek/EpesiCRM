@@ -48,7 +48,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return false;
+		return 'CRM';
 	}
 
 }

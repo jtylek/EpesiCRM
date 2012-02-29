@@ -35,6 +35,10 @@ class Base_Menu_QuickAccessInstall extends ModuleInstall {
 				array('name'=>'Base/Theme','version'=>0),  
 				array('name'=>'Base/Acl','version'=>0));
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 }
 
 ?>

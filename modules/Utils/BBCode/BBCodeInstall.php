@@ -37,7 +37,7 @@ class Utils_BBCodeInstall extends ModuleInstall {
 	}
 
 	public function simple_setup() {
-		return false;
+		return 'epesi Core';
 	}
 	public function requires($v) {
 		return array(

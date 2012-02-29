@@ -36,7 +36,6 @@ $translations['Base_Menu_QuickAccess']['Tests: Generic Browser']='Tests: Allgeme
 $translations['Base_Menu_QuickAccess']['Tests: Image']='Tests: Bild';
 $translations['Base_Menu_QuickAccess']['Tests: Lang']='Tests: Sprache';
 $translations['Base_Menu_QuickAccess']['Tests: Leightbox page']='Tests: Leightbox-Seite';
-$translations['Base_Menu_QuickAccess']['Tests: Lytebox page']='Tests: Lytebox Seite';
 $translations['Base_Menu_QuickAccess']['Tests: Menu']='Tests: Menü';
 $translations['Base_Menu_QuickAccess']['Tests: QuickForm page']='Tests: QuickForm Seite';
 $translations['Base_Menu_QuickAccess']['Tests: Shared Unique Href']='Tests: Gemeinsame eindeutige HRefs';

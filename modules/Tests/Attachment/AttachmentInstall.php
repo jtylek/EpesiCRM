@@ -21,5 +21,8 @@ class Tests_AttachmentInstall extends ModuleInstall{
 		return array(array('name'=>'Utils/CatFile','version'=>0),
 			array('name'=>'Utils/Attachment','version'=>0));
 	}
+    public static function simple_setup() {
+        return false;
+    }
 } 
 ?>

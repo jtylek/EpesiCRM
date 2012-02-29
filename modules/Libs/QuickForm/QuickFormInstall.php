@@ -29,6 +29,9 @@ class Libs_QuickFormInstall extends ModuleInstall {
 		array('name'=>'Base/Lang','version'=>0),
 		array('name'=>'Base/Theme','version'=>0));
 	}
+    public static function simple_setup() {
+        return false;
+    }
 }
 
 ?>

@@ -30,7 +30,6 @@ class Base_EssClientInstall extends ModuleInstall {
             array('name' => 'Base/Admin', 'version' => 0),
             array('name' => 'Base/Lang', 'version' => 0),
             array('name' => 'Base/Menu', 'version' => 0),
-            array('name' => 'CRM/Contacts', 'version' => 0),
             array('name' => 'Libs/QuickForm', 'version' => 0));
     }
 
@@ -42,7 +41,7 @@ class Base_EssClientInstall extends ModuleInstall {
     }
 
     public static function simple_setup() {
-        return false;
+        return 'epesi Core';
     }
 
 }

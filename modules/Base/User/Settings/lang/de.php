@@ -805,7 +805,6 @@ $translations['Base_User_Settings']['Tests: Generic Browser']='Tests: Allgemeine
 $translations['Base_User_Settings']['Tests: Image']='Tests: Bild';
 $translations['Base_User_Settings']['Tests: Lang']='Tests: Sprache';
 $translations['Base_User_Settings']['Tests: Leightbox page']='Tests: Leightbox-Seite';
-$translations['Base_User_Settings']['Tests: Lytebox page']='Tests: Lytebox Seite';
 $translations['Base_User_Settings']['Tests: Menu']='Tests: Menü';
 $translations['Base_User_Settings']['Tests: QuickForm page']='Tests: QuickForm Seite';
 $translations['Base_User_Settings']['Tests: Shared Unique Href']='Tests: Gemeinsame eindeutige HRefs';

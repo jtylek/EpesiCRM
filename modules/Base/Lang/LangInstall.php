@@ -34,6 +34,10 @@ class Base_LangInstall extends ModuleInstall {
 	public function requires($v) {
 		return array();
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 	
 }
 ?>

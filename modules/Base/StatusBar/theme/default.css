@@ -1,15 +1,19 @@
-.Base_StatusBar__error_message {
-	background-color: #993333;
-    color: #FFFFFF;
+#statusbar_content {
+	background: white;
+	height: 100%;
+	padding: 5px;
+	border-radius: 10px;
 }
 
-.Base_StatusBar__warning_message {
-	background-color: #EE5555;
+.Base_StatusBar img {
+	position: absolute;
+	left: 30px;
+	top: 35px;
+	z-index: 2002;
 }
 
 .Base_StatusBar {
 	z-index: 2001;
-	width: 200px;
   	position: fixed;
 	left: 50%;
 	top: 30%;
@@ -20,35 +24,50 @@
 
 .Base_StatusBar div.layer {
     padding: 10px;
+	width: 210px;
 }
-.Base_StatusBar .border_radius_6px{
-	overflow: hidden;
-}
-.Base_StatusBar table {
-    width: 100%;
+
+.Base_StatusBar .message {
+	width: 140px;
+	height: 45px;
+	line-height: 20px;
+	padding-left: 60px;
+	padding-top: 25px;
+
     font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
 	font-size: 14px;
 	font-weight: bold;
-	/*color: #339933;*/
 	color: #336699;
-	/*border: 1px solid #339933;*/
-    /*border: 0px solid #7fb37f;*/
-    border: 5px solid white;
-    /*background-color: #cfe6cf;
-    background-color: #e6f2e6;*/
-	background-color: #bbe6c5;
+	
+	text-shadow: 1px 1px 2px #bbb;
+	
+	background-repeat: no-repeat;
+	background-position: 15px 50%;
+
+	border-radius: 6px;
+	
+	box-shadow: inset 2px 2px 4px #777;
 }
 
-.Base_StatusBar td.sb_image {
-	text-align: center;
-	vertical-align: middle;
-    height: 80px;
-	width: 69px;
+.Base_StatusBar .message .message {
+	margin-left: -60px;
+	margin-top: -25px;
 }
 
-.Base_StatusBar td.sb_text {
-	text-align: center;
-	vertical-align: middle;
-    height: auto;
-	width: auto;
+.Base_StatusBar .loading.message {
+	background-image: url('Base/StatusBar/loader.gif');
+	background-color: #EEEEBB;
+}
+.Base_StatusBar .normal.message {
+	background-image: none;
+	background-color: #EEEEBB;
+}
+.Base_StatusBar .warning.message {
+	background-image: none;
+	background-color: #EECC77;
+	color: #000000;
+}
+.Base_StatusBar .error.message {
+	background-color: #993333;
+    color: #FFFFFF;
 }

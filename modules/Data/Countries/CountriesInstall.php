@@ -686,6 +686,10 @@ class Data_CountriesInstall extends ModuleInstall {
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Utils/CommonData','version'=>0));
 	}
+
+	public function simple_setup() {
+        return 'epesi Core';
+	}
 }
 
 ?>

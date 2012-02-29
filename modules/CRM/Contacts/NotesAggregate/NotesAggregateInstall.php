@@ -48,7 +48,7 @@ class CRM_Contacts_NotesAggregateInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return true;
+        return array('package'=>'CRM', 'option'=>'Notes aggregate');
 	}
 	
 }

@@ -36,6 +36,6 @@ For security reasons it is recommened that you login immediately and change your
 This e-mail was automatically generated and you do not need to respond to it.']='';
 $translations['Base_User_Login']['Keep this box unchecked if using a  public computer']='';
 $translations['Base_User_Login']['donation']='';
-$translations['Base_User_Login']['If you find our software useful, please support us by making a %s.<br>Your funding will help to ensure continued development of this project.']='Jeżeli używasz tej aplikacji proszę wesprzyj nasz projekt przez %s. Twoja pomoc pozwoli nam kontunuawać pracę nad aplikacją.';
+$translations['Base_User_Login']['If you find our software useful, please support us by making a %s.<br>Your funding will help to ensure continued development of this project.']='Jeżeli używasz tej aplikacji proszę wesprzyj nasz projekt przez %s. Twoja pomoc pozwoli nam kontynuować pracę nad aplikacją.';
 $translations['Base_User_Login']['Mail with password sent.']='';
 ?>

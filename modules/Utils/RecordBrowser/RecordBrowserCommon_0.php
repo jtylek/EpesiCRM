@@ -1390,9 +1390,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function decode_access($str) {
 		if (is_numeric($str)) return $str;
 		if ($str=='USER_ID') return Acl::get_user();
-		$me = CRM_ContactsCommon::get_my_record();
-		if ($str=='USER') return $me['id'];
-		if ($str=='USER_COMPANY') return $me['company_name'];
+		if (class_exists('CRM_ContactsCommon')) {
+			$me = CRM_ContactsCommon::get_my_record();
+			if ($str=='USER') return $me['id'];
+			if ($str=='USER_COMPANY') return $me['company_name'];
+		}
 		return $str;
 	}
 	public static function parse_access_crits($str) {
@@ -1469,14 +1471,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if ($sa) $user_clearance[] = 'SUPERADMIN';
 				
 				// move to CRM_Contacts, using "user clearance callback"
-				$me = CRM_ContactsCommon::get_my_record(); 
-				$mc = CRM_ContactsCommon::get_main_company();
-				if ($sa || $me['id']!=-1) {
-					if ($sa || $me['company_name']==$mc || in_array($mc, $me['related_companies'])) $user_clearance[] = 'EMPLOYEE';
-					if ($sa) $access = array_keys(Utils_CommonDataCommon::get_array('Contacts/Access'));
-					else $access = $me['access'];
-					foreach ($access as $g) {
-						$user_clearance[] = 'ACCESS:'.$g;
+				if (class_exists('CRM_ContactsCommon')) {
+					$me = CRM_ContactsCommon::get_my_record(); 
+					$mc = CRM_ContactsCommon::get_main_company();
+					if ($sa || $me['id']!=-1) {
+						if ($sa || $me['company_name']==$mc || in_array($mc, $me['related_companies'])) $user_clearance[] = 'EMPLOYEE';
+						if ($sa) $access = array_keys(Utils_CommonDataCommon::get_array('Contacts/Access'));
+						else $access = $me['access'];
+						foreach ($access as $g) {
+							$user_clearance[] = 'ACCESS:'.$g;
+						}
 					}
 				}
 				// move to CRM_Contacts, using "user clearance callback"
@@ -1569,20 +1573,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			DB::Execute('DELETE FROM '.$tab.'_favorite WHERE user_id=%d AND '.$tab.'_id=%d', array(Acl::get_user(), $id));
 		}
     }
-	public static function get_user_label($uid) {
-	if (!$uid) return self::ts('front-end user');
-        if (ModuleManager::is_installed('CRM_Contacts')>=0)
-			return CRM_ContactsCommon::get_user_label($uid);
-		else
-			Base_UserCommon::get_user_login($uid);
-	}
     public static function get_html_record_info($tab, $id){
         if (is_numeric($id)) $info = Utils_RecordBrowserCommon::get_record_info($tab, $id);
         else $info = $id;
         if (isset($info['id'])) $id = $info['id'];
 
         // If CRM Module is not installed get user login only
-        $created_by = self::get_user_label($info['created_by']);
+        $created_by = Base_UserCommon::get_user_label($info['created_by']);
         $htmlinfo=array(
                     'Record ID:'=>$id,
                     'Created by:'=>$created_by,
@@ -1590,7 +1587,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         );
         if ($info['edited_on']!==null) {
             $htmlinfo=$htmlinfo+array(
-                    'Edited by:'=>$info['edited_by']!==null?self::get_user_label($info['edited_by']):'',
+                    'Edited by:'=>$info['edited_by']!==null?Base_UserCommon::get_user_label($info['edited_by']):'',
                     'Edited on:'=>Base_RegionalSettingsCommon::time2reg($info['edited_on'])
                         );
         }
@@ -1915,7 +1912,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$edit_info) return $event_display;
 
 		$event_display = array(
-							'who'=>self::get_user_label($edit_info['edited_by']),
+							'who'=>Base_UserCommon::get_user_label($edit_info['edited_by']),
 							'when'=>Base_RegionalSettingsCommon::time2reg($edit_info['edited_on']),
 							'what'=>array()
 						);
@@ -1989,7 +1986,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case 'D':   if (!isset($what)) $what = 'Deleted';
                     case 'R':   if (!isset($what)) $what = 'Restored';
 								$event_display = array(
-									'who'=> self::get_user_label($r['created_by']),
+									'who'=> Base_UserCommon::get_user_label($r['created_by']),
 									'when'=>Base_RegionalSettingsCommon::time2reg($r['created_on']),
 									'what'=>self::ts($what)
 									);

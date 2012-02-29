@@ -29,6 +29,10 @@ class Base_Mail_ContactUsInstall extends ModuleInstall {
 			array('name'=>'Base/StatusBar', 'version'=>0),
 			array('name'=>'Base/User/Login', 'version'=>0));
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 }
 
 ?>

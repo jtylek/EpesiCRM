@@ -54,6 +54,10 @@ class Base_User_LoginInstall extends ModuleInstall {
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/Mail', 'version'=>0));
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 }
 
 ?>

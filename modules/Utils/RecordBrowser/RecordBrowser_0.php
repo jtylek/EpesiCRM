@@ -2095,7 +2095,7 @@ class Utils_RecordBrowser extends Module {
 //              $gb_row->add_action('href="javascript:apply_changes_to_'.$k.'()"', 'Apply', null, 'apply');
                 $gb_row->add_data(
                     Base_RegionalSettingsCommon::time2reg($row['edited_on']),
-                    $row['edited_by']!==null?Utils_RecordBrowserCommon::get_user_label($row['edited_by']):'',
+                    $row['edited_by']!==null?Base_UserCommon::get_user_label($row['edited_by']):'',
                     $field_hash[$k],
                     $old,
                     $new
@@ -2137,7 +2137,7 @@ class Utils_RecordBrowser extends Module {
 		$dates_select = array();
 		$tb_path = escapeJS($tb->get_path());
         while ($row = $ret->FetchRow()) {
-			$user = Utils_RecordBrowserCommon::get_user_label($row['edited_by']);
+			$user = Base_UserCommon::get_user_label($row['edited_by']);
 			$date_and_time = Base_RegionalSettingsCommon::time2reg($row['edited_on']);
 			$dates_select[$row['edited_on']] = $date_and_time;
             $changed = array();
@@ -2178,7 +2178,7 @@ class Utils_RecordBrowser extends Module {
 		$gb_row = $gb_cha->get_new_row();
 		$gb_row->add_data(
 			Base_RegionalSettingsCommon::time2reg($created['created_on']),
-			$created['created_by']!==null?Utils_RecordBrowserCommon::get_user_label($created['created_by']):'',
+			$created['created_by']!==null?Base_UserCommon::get_user_label($created['created_by']):'',
 			array('value'=>$this->t('RECORD CREATED'), 'attrs'=>'colspan="3" style="text-align:center;font-weight:bold;"'),
 			array('value'=>'', 'dummy'=>true),
 			array('value'=>'', 'dummy'=>true)

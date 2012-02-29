@@ -36,6 +36,10 @@ class Base_MenuInstall extends ModuleInstall {
 			array('name'=>'Utils/Menu','version'=>0)
 		);
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 }
 
 ?>

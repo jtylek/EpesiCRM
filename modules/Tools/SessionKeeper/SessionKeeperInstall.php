@@ -38,7 +38,7 @@ class Tools_SessionKeeperInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return true;
+		return 'epesi Core';
 	}
 	
 }

@@ -25,9 +25,7 @@ class Utils_RecordBrowser_RecordPickerFSInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array(
-			array('name'=>'Utils/RecordBrowser', 'version'=>0)
-		); 
+		return array(); 
 	}
 	
 	public static function info() {
@@ -38,7 +36,7 @@ class Utils_RecordBrowser_RecordPickerFSInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return false;
+		return 'epesi Core';
 	}
 	
 }

@@ -51,7 +51,7 @@ class CRM_Contacts_ActivitiesInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return true;
+		return 'CRM';
 	}
 	
 }

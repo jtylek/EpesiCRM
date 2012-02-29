@@ -41,7 +41,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return true;
+		return 'epesi Core';
 	}
 
 	public function requires($v) {

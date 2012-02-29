@@ -372,7 +372,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                 'City'=>$record['city'],
                 'Zone'=>$record['zone']?Utils_CommonDataCommon::get_value('Countries/'.$record['country'].'/'.$record['zone']):'---',
                 'Country'=>Utils_CommonDataCommon::get_value('Countries/'.$record['country']),
-                'Postal Code'=>$record['postal_code']),'Utils_RecordBrowser');
+                'Postal Code'=>$record['postal_code']),'Utils_RecordBrowser:company');
     }
     public static function company_format_default($record,$nolink=false) {
         if (is_numeric($record)) $record = self::get_company($record);
@@ -414,7 +414,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                 'Country'=>Utils_CommonDataCommon::get_value('Countries/'.$record['country']),
                 'Postal Code'=>$record['postal_code'],
                 'Group'=>$group
-                ),'Utils_RecordBrowser');
+                ),'Utils_RecordBrowser:contact');
     }
     public static function contact_format_default($record, $nolink=false){
         if (is_numeric($record)) $record = self::get_contact($record);
@@ -1108,6 +1108,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 				);
         }
         return  Utils_TooltipCommon::format_info_tooltip($htmlinfo,'CRM_Contacts');
+		// For automatic translation
+		// Base_LangCommon::ts('CRM_Contacts','Record ID:');
+		// Base_LangCommon::ts('CRM_Contacts','Created by:');
+		// Base_LangCommon::ts('CRM_Contacts','Created on:');
+		// Base_LangCommon::ts('CRM_Contacts','Edited by:');
+		// Base_LangCommon::ts('CRM_Contacts','Edited on:');
     }
 
     private static function copy_company_data_subroutine($values) {

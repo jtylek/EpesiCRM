@@ -649,7 +649,6 @@ $translations['Base_User_Settings']['Tests: Generic Browser']='Tests: Explorateu
 $translations['Base_User_Settings']['Tests: Image']='Tests: Image';
 $translations['Base_User_Settings']['Tests: Lang']='Tests: langage';
 $translations['Base_User_Settings']['Tests: Leightbox page']='Tests: Page Leightbox';
-$translations['Base_User_Settings']['Tests: Lytebox page']='Tests: Page Lytebox';
 $translations['Base_User_Settings']['Tests: Menu']='Tests: Menu';
 $translations['Base_User_Settings']['Tests: QuickForm page']='Tests: Page de Formulaire rapide';
 $translations['Base_User_Settings']['Tests: Shared Unique Href']='Tests: Partager une Href unique';

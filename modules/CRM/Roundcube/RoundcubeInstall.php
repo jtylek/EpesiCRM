@@ -215,14 +215,14 @@ class CRM_RoundcubeInstall extends ModuleInstall {
     }
 
     public function uninstall() {
-        DB::DropTable('rc_users');
         DB::DropTable('rc_identities');
-        DB::DropTable('rc_contacts');
-        DB::DropTable('rc_contactgroups');
-        DB::DropTable('rc_contactgroupmembers');
         DB::DropTable('rc_session');
         DB::DropTable('rc_cache');
         DB::DropTable('rc_messages');
+        DB::DropTable('rc_contactgroupmembers');
+        DB::DropTable('rc_contactgroups');
+        DB::DropTable('rc_contacts');
+        DB::DropTable('rc_users');
 
         Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon');
         Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Roundcube', 'addon');
@@ -261,7 +261,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
     }
 
     public static function simple_setup() {
-        return true;
+        return 'CRM';
     }
 
 }

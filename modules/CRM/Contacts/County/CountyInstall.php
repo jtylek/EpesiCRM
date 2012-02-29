@@ -48,7 +48,7 @@ class CRM_Contacts_CountyInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return true;
+        return array('package'=>'CRM', 'option'=>'County');
 	}
 
 	public function version() {

@@ -48,7 +48,6 @@ $translations['Base_Menu']['Generic Browser']='Üldine lehitseja';
 $translations['Base_Menu']['Image']='Pilt';
 $translations['Base_Menu']['Lang']='Keel';
 $translations['Base_Menu']['Leightbox page']='Lyetbox lehekülg';
-$translations['Base_Menu']['Lytebox page']='Lyetbox lehekülg';
 $translations['Base_Menu']['QuickForm page']='Kiirvormi leht';
 $translations['Base_Menu']['Shared Unique Href']='Jagatud unikaalne viide';
 $translations['Base_Menu']['Tabbed Browser']='vahelehtedega lehitseja';

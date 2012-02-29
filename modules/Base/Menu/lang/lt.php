@@ -17,7 +17,6 @@ $translations['Base_Menu']['Generic Browser']='Bendrinė naršyklė';
 $translations['Base_Menu']['Image']='Vaizdas';
 $translations['Base_Menu']['Lang']='Kalba';
 $translations['Base_Menu']['Leightbox page']='';
-$translations['Base_Menu']['Lytebox page']='';
 $translations['Base_Menu']['QuickForm page']='Greitos formos puslapis';
 $translations['Base_Menu']['Shared Unique Href']='';
 $translations['Base_Menu']['Tabbed Browser']='Žymeklių naršyklė';

@@ -99,7 +99,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return true;
+		return 'CRM';
 	}
 
 	public function version() {

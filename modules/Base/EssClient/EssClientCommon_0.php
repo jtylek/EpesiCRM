@@ -47,11 +47,13 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
             if (Base_AclCommon::is_user_in_group(
                             Base_AclCommon::get_acl_user_id($u['id']), 'Super administrator')) {
                 $x = array('admin_email' => $u['mail']);
-                $contact = CRM_ContactsCommon::get_contact_by_user_id($u['id']);
-                if ($contact) {
-                    $x['admin_first_name'] = $contact['first_name'];
-                    $x['admin_last_name'] = $contact['last_name'];
-                }
+				if (ModuleManager::is_installed('CRM_Contacts')>-1) {
+					$contact = CRM_ContactsCommon::get_contact_by_user_id($u['id']);
+					if ($contact) {
+						$x['admin_first_name'] = $contact['first_name'];
+						$x['admin_last_name'] = $contact['last_name'];
+					}
+				}
                 return $x;
             }
         }

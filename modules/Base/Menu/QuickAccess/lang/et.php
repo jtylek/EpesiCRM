@@ -39,7 +39,6 @@ $translations['Base_Menu_QuickAccess']['Tests: Generic Browser']='Testid: Üldin
 $translations['Base_Menu_QuickAccess']['Tests: Image']='Testid: Pilt';
 $translations['Base_Menu_QuickAccess']['Tests: Lang']='Testid: keel';
 $translations['Base_Menu_QuickAccess']['Tests: Leightbox page']='Testid: Leigtbox leht';
-$translations['Base_Menu_QuickAccess']['Tests: Lytebox page']='Testid: Lytebox leht';
 $translations['Base_Menu_QuickAccess']['Tests: Menu']='testid: Menüü';
 $translations['Base_Menu_QuickAccess']['Tests: QuickForm page']='Testid: Kiirvormi leht';
 $translations['Base_Menu_QuickAccess']['Tests: Shared Unique Href']='Testid:  Jagatud unikaalne viide';

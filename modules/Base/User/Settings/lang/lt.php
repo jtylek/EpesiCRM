@@ -768,7 +768,6 @@ $translations['Base_User_Settings']['Tests: Generic Browser']='';
 $translations['Base_User_Settings']['Tests: Image']='';
 $translations['Base_User_Settings']['Tests: Lang']='';
 $translations['Base_User_Settings']['Tests: Leightbox page']='';
-$translations['Base_User_Settings']['Tests: Lytebox page']='';
 $translations['Base_User_Settings']['Tests: Menu']='';
 $translations['Base_User_Settings']['Tests: QuickForm page']='';
 $translations['Base_User_Settings']['Tests: Shared Unique Href']='';

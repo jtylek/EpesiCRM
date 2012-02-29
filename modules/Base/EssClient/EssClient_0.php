@@ -259,9 +259,11 @@ class Base_EssClient extends Module {
             if ($data) {
                 $f->setDefaults($data);
             } else {
-                print('<span style="color:gray;font-size:10px;">' . $this->t('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
-                $defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
-                $f->setDefaults($defaults);
+				if (ModuleManager::is_installed('CRM_Contacts')>-1) {
+					print('<span style="color:gray;font-size:10px;">' . $this->t('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
+					$defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
+					$f->setDefaults($defaults);
+				}
             }
             //Base_ActionBarCommon::add('send', $data ? 'Update' : 'Register', $f->get_submit_form_href());
             if ($data) {

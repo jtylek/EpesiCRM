@@ -45,7 +45,7 @@ class CRM_FaxInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return true;
+        return array('package'=>'CRM', 'option'=>'Fax');
 	}
 	
 }

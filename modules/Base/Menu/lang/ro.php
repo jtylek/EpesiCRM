@@ -41,7 +41,6 @@ $translations['Base_Menu']['Generic Browser']='Browser generic';
 $translations['Base_Menu']['Image']='Imagine';
 $translations['Base_Menu']['Lang']='Linba';
 $translations['Base_Menu']['Leightbox page']='Pagina <Leightbox>';
-$translations['Base_Menu']['Lytebox page']='Pagina <Lytebox>';
 $translations['Base_Menu']['QuickForm page']='Pagina <Quickform>';
 $translations['Base_Menu']['Shared Unique Href']='Href unic partajat';
 $translations['Base_Menu']['Tabbed Browser']='Browser cu tab-uri';

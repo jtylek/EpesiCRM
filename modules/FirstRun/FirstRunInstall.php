@@ -33,6 +33,9 @@ class FirstRunInstall extends ModuleInstall {
 			array('name'=>'Utils/Wizard','version'=>0),
 			array('name'=>'Base/Lang','version'=>0));
 	}
+	public static function simple_setup() {
+		return false;
+	}
 }
 
 ?>

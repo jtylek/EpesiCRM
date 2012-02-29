@@ -25,7 +25,7 @@ class TestsInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return true;
+		return false;
 	}
 	
 	public function version() {
@@ -33,7 +33,6 @@ class TestsInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-		    array('name'=>'Tests/BookmarkBrowser','version'=>0),
 		    array('name'=>'Tests/Calendar','version'=>0),
 		    array('name'=>'Tests/Callbacks','version'=>0),
 		    array('name'=>'Tests/Colorpicker','version'=>0),
@@ -42,7 +41,6 @@ class TestsInstall extends ModuleInstall {
 		    array('name'=>'Tests/Image','version'=>0),
 		    array('name'=>'Tests/Lang','version'=>0),
 		    array('name'=>'Tests/Leightbox','version'=>0),
-		    array('name'=>'Tests/Lytebox','version'=>0),
 		    array('name'=>'Tests/QuickForm','version'=>0),
 		    array('name'=>'Tests/Menu','version'=>0),
 //		    array('name'=>'Tests/OpenFlashChart','version'=>0),

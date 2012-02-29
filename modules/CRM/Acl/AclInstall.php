@@ -37,5 +37,9 @@ class CRM_AclInstall extends ModuleInstall {
 					array('name'=>'Base/Acl','version'=>0),
 					array('name'=>'Base/User','version'=>0));
 	}
+
+	public static function simple_setup() {
+		return false;
+	}
 }
 ?>

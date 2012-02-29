@@ -69,7 +69,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Home Zone', 		'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Home Country'), 'extra'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name'=>'Home Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Birth Date', 	'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
-			array('name'=>'Login Info',		'type'=>'page_split', 'param'=>1),
+			array('name'=>'Login Panel',	'type'=>'page_split', 'param'=>1),
 			array('name'=>'Login', 			'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_login'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_login'), 'style'=>''),
 			array('name'=>'Username', 		'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_username')),
 			array('name'=>'Set Password', 	'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_password')),
@@ -142,6 +142,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Contacts');
 		Utils_RecordBrowserCommon::unregister_datatype('crm_company');
 		Utils_RecordBrowserCommon::unregister_datatype('crm_contact');
+		Utils_RecordBrowserCommon::unregister_datatype('crm_company_contact');
+		Utils_RecordBrowserCommon::unregister_datatype('email');
 		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
 		Utils_AttachmentCommon::delete_addon('company');
 		Utils_AttachmentCommon::delete_addon('contact');
@@ -170,7 +172,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return true;
+		return 'CRM';
 	}
 
 	public function version() {

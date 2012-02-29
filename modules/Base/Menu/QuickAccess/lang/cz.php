@@ -32,7 +32,6 @@ $translations['Base_Menu_QuickAccess']['Tests: Generic Browser']='Testy: Všeobe
 $translations['Base_Menu_QuickAccess']['Tests: Image']='Testy: Obrázek';
 $translations['Base_Menu_QuickAccess']['Tests: Lang']='Testy: Jazyk';
 $translations['Base_Menu_QuickAccess']['Tests: Leightbox page']='Testy: Stránka Leightboxu';
-$translations['Base_Menu_QuickAccess']['Tests: Lytebox page']='Testy: Stránka Lyteboxu';
 $translations['Base_Menu_QuickAccess']['Tests: Menu']='Testy: Menu';
 $translations['Base_Menu_QuickAccess']['Tests: QuickForm page']='Testy: Stránka QuickFormu';
 $translations['Base_Menu_QuickAccess']['Tests: Shared Unique Href']='Testy: Sdílený unikátní Href';

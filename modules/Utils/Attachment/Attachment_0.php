@@ -103,13 +103,6 @@ class Utils_Attachment extends Module {
 		$this->author = $x;
 	}
 	
-	public function get_user_label($uid) {
-        if (ModuleManager::is_installed('CRM_Contacts')>=0)
-			return CRM_ContactsCommon::get_user_label($uid);
-		else
-			Base_UserCommon::get_user_login($uid);
-	}
-
 	public function body($arg=null, $rb=null) {
 		if(isset($arg) && isset($rb)) {
 			$this->group = $rb->tab.'/'.$arg['id'];
@@ -250,7 +243,7 @@ class Utils_Attachment extends Module {
 			if($row['original']!=='') {
 				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 				if(file_exists($f_filename)) {
-					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($this->get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
+					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array(Base_UserCommon::get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 					$view_link = '';
 					$r->add_action($this->get_file($row,$view_link),'Attachment',$filetooltip,Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png'), 10);
 					if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
@@ -269,7 +262,7 @@ class Utils_Attachment extends Module {
 			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
 			$info = $this->t('Owner: %s',array($row['permission_owner'])).'<br>'.
 				$this->t('Permission: %s',array($perm)).'<hr>'.
-				$this->t('Last edited by %s<br>on %s<br>Number of edits: %d',array($this->get_user_label($row['note_by']),$note_on_time,$row['note_revision']));
+				$this->t('Last edited by %s<br>on %s<br>Number of edits: %d',array(Base_UserCommon::get_user_label($row['note_by']),$note_on_time,$row['note_revision']));
 			$r->add_info($info);
 			if(Base_AclCommon::i_am_admin() ||
 			 	$row['permission_by']==Acl::get_user() ||
@@ -306,7 +299,7 @@ class Utils_Attachment extends Module {
 			if($vd)
 				$arr[] = ($row['deleted']?'<a '.$this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),array($row['id'])).' '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to restore')).'>'.$this->t('yes').'</a>':$this->t('no'));
 			if($this->author)
-				$arr[] = $this->get_user_label($row['note_by']);
+				$arr[] = Base_UserCommon::get_user_label($row['note_by']);
 			if (is_array($this->group)) {
 				$callback = unserialize($row['search_func']);
 				if (is_callable($callback)) {
@@ -446,7 +439,7 @@ class Utils_Attachment extends Module {
 		
 		// display images inline
 
-		$th->assign('upload_by',$this->get_user_label($row['upload_by']));
+		$th->assign('upload_by',Base_UserCommon::get_user_label($row['upload_by']));
 		$th->assign('upload_on',Base_RegionalSettingsCommon::time2reg($row['upload_on']));
 
 
@@ -522,7 +515,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
 				$r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),'restore');
-			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$this->get_user_label($row['note_by']),$row['text']);
+			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),Base_UserCommon::get_user_label($row['note_by']),$row['text']);
 		}
 		$th->assign('note_edition',$this->get_html_of_module($gb));
 
@@ -547,7 +540,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==2 && $this->private_write))
 				$r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore attached file to this version?'),array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
 			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
-			$r->add_data($row['file_revision'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$this->get_user_label($row['upload_by']),$file);
+			$r->add_data($row['file_revision'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),Base_UserCommon::get_user_label($row['upload_by']),$file);
 		}
 		$th->assign('file_uploads',$this->get_html_of_module($gb));
 

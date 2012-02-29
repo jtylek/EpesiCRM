@@ -36,6 +36,10 @@ class Base_SearchInstall extends ModuleInstall {
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Box','version'=>0));
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 }
 
 ?>

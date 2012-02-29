@@ -51,5 +51,9 @@ class Base_SetupInstall extends ModuleInstall {
 			array('name'=>'Utils/Tree','version'=>0)
 		);
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 }
 ?>

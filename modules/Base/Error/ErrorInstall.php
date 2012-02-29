@@ -45,6 +45,9 @@ class Base_ErrorInstall extends ModuleInstall {
 			array('name'=>'Base/Acl', 'version'=>0));
 	}
 	
+	public function simple_setup() {
+        return array('package'=>'epesi Core', 'option'=>'Error reporting');
+	}
 }	
 
 ?>

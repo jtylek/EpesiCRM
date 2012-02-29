@@ -28,7 +28,7 @@ class BaseInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return true;
+		return 'epesi Core';
 	}
 
 	public function version() {

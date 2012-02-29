@@ -33,6 +33,10 @@ class Base_HomePageInstall extends ModuleInstall {
 		return array('1.0');
 	}
 
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
+
 	public function requires($v) {
 		return array(array('name'=>'Base/Box','version'=>0), 
 			array('name'=>'Base/Lang', 'version'=>0),

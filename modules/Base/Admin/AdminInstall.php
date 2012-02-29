@@ -36,6 +36,10 @@ class Base_AdminInstall extends ModuleInstall {
 		return array('1.0.0');
 	}
 
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
+
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Theme','version'=>0),

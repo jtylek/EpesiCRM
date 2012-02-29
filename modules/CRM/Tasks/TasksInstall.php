@@ -95,7 +95,7 @@ class CRM_TasksInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return true;
+		return 'CRM';
 	}
 }
 

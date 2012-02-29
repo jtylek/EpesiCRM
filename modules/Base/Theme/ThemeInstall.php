@@ -62,6 +62,10 @@ class Base_ThemeInstall extends ModuleInstall {
 	public function requires($v) {
 		return array();
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 }
 
 ?>

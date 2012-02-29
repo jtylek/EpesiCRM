@@ -38,6 +38,10 @@ class Base_User_AdministratorInstall extends ModuleInstall {
 			array('name'=>'Base/User/Login','version'=>0), 
 			array('name'=>'Base/Lang','version'=>0));
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 }
 
 ?>

@@ -42,9 +42,9 @@ class CRM_CommonInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return false;
+		return 'CRM';
 	}
-	
+
 }
 
 ?>

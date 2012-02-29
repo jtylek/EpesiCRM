@@ -42,7 +42,7 @@ class CRM_WhoIsOnlineInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return true;
+		return 'CRM';
 	}
 
 }

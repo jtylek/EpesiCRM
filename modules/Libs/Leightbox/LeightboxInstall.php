@@ -28,6 +28,9 @@ class Libs_LeightboxInstall extends ModuleInstall {
 		return array(array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Libs/ScriptAculoUs','version'=>0));
 	}
+    public static function simple_setup() {
+        return false;
+    }
 }
 
 ?>

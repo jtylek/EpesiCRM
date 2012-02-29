@@ -41,7 +41,6 @@ $translations['Base_Menu']['Generic Browser']='';
 $translations['Base_Menu']['Image']='';
 $translations['Base_Menu']['Lang']='';
 $translations['Base_Menu']['Leightbox page']='';
-$translations['Base_Menu']['Lytebox page']='';
 $translations['Base_Menu']['QuickForm page']='';
 $translations['Base_Menu']['Shared Unique Href']='';
 $translations['Base_Menu']['Tabbed Browser']='';

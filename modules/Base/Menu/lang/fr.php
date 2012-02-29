@@ -17,7 +17,6 @@ $translations['Base_Menu']['Generic Browser']='Explorateur générique';
 $translations['Base_Menu']['Image']='Image';
 $translations['Base_Menu']['Lang']='Language';
 $translations['Base_Menu']['Leightbox page']='Page Leightbox';
-$translations['Base_Menu']['Lytebox page']='Page Lytebox';
 $translations['Base_Menu']['QuickForm page']='Page QuickForm';
 $translations['Base_Menu']['Shared Unique Href']='Partager une Href unique ';
 $translations['Base_Menu']['Tabbed Browser']='Explorateur à onglets';

@@ -49,6 +49,10 @@ class Data_TaxRatesInstall extends ModuleInstall {
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Utils/RecordBrowser','version'=>0));
 	}
+
+	public function simple_setup() {
+        return false;
+	}
 }
 
 ?>

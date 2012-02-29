@@ -41,6 +41,9 @@ class Libs_TCPDFInstall extends ModuleInstall {
 					array('name'=>'Base/Lang', 'version'=>0)
 					);
 	}
+    public static function simple_setup() {
+        return false;
+    }
 }
 
 ?>

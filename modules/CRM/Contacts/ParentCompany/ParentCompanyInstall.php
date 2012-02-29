@@ -42,7 +42,7 @@ class CRM_Contacts_ParentCompanyInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return true;
+        return array('package'=>'CRM', 'option'=>'Parent company');
 	}
 	
 }

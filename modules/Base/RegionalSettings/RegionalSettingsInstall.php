@@ -44,7 +44,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return false;
+		return 'epesi Core';
 	}
 
 	/////////////////////////////////////////////////////////////////////
@@ -124,6 +124,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','default_country',$val['default_country']);
 		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','default_state',isset($val['default_state'])?$val['default_state']:'');
 	}
+
 }
 
 ?>

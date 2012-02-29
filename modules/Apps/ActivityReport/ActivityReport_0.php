@@ -20,7 +20,7 @@ class Apps_ActivityReport extends Module {
 
 		$users = DB::GetAssoc('SELECT id, id FROM user_login WHERE active=1');
 		foreach ($users as $k=>$u)
-			$users[$k] = CRM_ContactsCommon::get_user_label($u, true);
+			$users[$k] = Base_UserCommon::get_user_label($u, true);
 		asort($users);
 		$users = array(''=>'['.$this->t('All').']')+$users;
 		$form->addElement('select', 'user', $this->t('User'), $users);
@@ -127,7 +127,7 @@ class Apps_ActivityReport extends Module {
 			$limit = $gb->get_limit($limit);
 			$ret = DB::SelectLimit('SELECT * FROM ('.$tables.') AS tmp ORDER BY edited_on DESC', $limit['numrows'], $limit['offset']);
 			while ($row=$ret->FetchRow()) {
-				$user = CRM_ContactsCommon::get_user_label($row['edited_by']);
+				$user = Base_UserCommon::get_user_label($row['edited_by']);
 				$action = '';
 				$link = '';
 				switch ($row['action']) {

@@ -41,5 +41,9 @@ class Base_BoxInstall extends ModuleInstall {
 			array('name'=>'Base/Theme/Administrator', 'version'=>0)
 		);
 	}
+
+	public function simple_setup() {
+		return 'epesi Core';
+	}
 }
 ?>

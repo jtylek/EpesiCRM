@@ -56,6 +56,10 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 		Variable::set('default_lang',$v['lang_code']);
 		Variable::set('allow_lang_change',isset($v['allow_change']) && $v['allow_change']);
 	}
+
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
 }
 
 ?>

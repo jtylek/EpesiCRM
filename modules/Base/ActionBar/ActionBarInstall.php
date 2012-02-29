@@ -30,6 +30,10 @@ class Base_ActionBarInstall extends ModuleInstall {
 		return array("1.0");
 	}
 
+	public static function simple_setup() {
+		return 'epesi Core';
+	}
+
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),

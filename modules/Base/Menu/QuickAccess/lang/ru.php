@@ -36,7 +36,6 @@ $translations['Base_Menu_QuickAccess']['Tests: Generic Browser']='Тесты: В
 $translations['Base_Menu_QuickAccess']['Tests: Image']='Тесты: Изображение';
 $translations['Base_Menu_QuickAccess']['Tests: Lang']='Тесты: Язык';
 $translations['Base_Menu_QuickAccess']['Tests: Leightbox page']='Тесты: Страница эскизов';
-$translations['Base_Menu_QuickAccess']['Tests: Lytebox page']='Тесты: Страница эскизов';
 $translations['Base_Menu_QuickAccess']['Tests: Menu']='Тесты: Меню';
 $translations['Base_Menu_QuickAccess']['Tests: QuickForm page']='Тесты: Страница Быстрой формы';
 $translations['Base_Menu_QuickAccess']['Tests: Shared Unique Href']='Тесты: Общие уникальные ссылки';

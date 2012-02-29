@@ -28,6 +28,10 @@ class CRM_Contacts_AccountManagerInstall extends ModuleInstall {
 	public function version() {
 		return array("1.0");
 	}
+
+	public static function simple_setup() {
+        return array('package'=>'CRM', 'option'=>'Account Manager');
+	}
 	
 	public function requires($v) {
 		return array(
@@ -40,10 +44,6 @@ class CRM_Contacts_AccountManagerInstall extends ModuleInstall {
 			'Description'=>'Account Manager field for Companies',
 			'Author'=>'Arkadiusz Bisaga <abisaga@telaxus.com>',
 			'License'=>'MIT');
-	}
-	
-	public static function simple_setup() {
-		return true;
 	}
 	
 }

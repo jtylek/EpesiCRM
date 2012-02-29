@@ -49,14 +49,17 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function user_settings() {
-        $r = CRM_ContactsCommon::get_my_record();
         // get default data from user contact
+		if (ModuleManager::is_installed('CRM_Contacts')>-1)
+			$r = CRM_ContactsCommon::get_my_record();
+		else
+			$r = array();
         // key = field name from contact => value = field name in settings
         $keys = self::get_payment_data_keys();
         $values = array();
         // do user setting entries from data
         foreach ($keys as $k => $v) {
-            $x = array('name' => $v, 'label' => ucwords(str_replace('_', ' ', $v)), 'type' => 'text', 'default' => $r[$k]);
+            $x = array('name' => $v, 'label' => ucwords(str_replace('_', ' ', $v)), 'type' => 'text', 'default' => isset($r[$k])?$r[$k]:'');
             if ($k == 'country') {
                 $x['type'] = 'select';
                 $x['values'] = Utils_CommonDataCommon::get_array('Countries');
