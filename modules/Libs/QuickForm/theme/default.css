@@ -512,10 +512,13 @@ div.autocomplete ul {
 div.autocomplete ul li.selected { background-color: #CCFFCC;}
 
 div.autocomplete ul li {
-  display:block;
-  padding:2px;
-  height:14px;
-  cursor:pointer;
+	display:block;
+	padding:2px;
+	height:14px;
+	cursor:pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .form_error {
