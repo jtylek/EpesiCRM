@@ -11,7 +11,7 @@
 	cursor: pointer;
 	float: left;
 	height: 21px;
-	padding: 9px;
+	padding: 9px 18px;
 	border: 1px solid #666;
 	margin-right: 10px;
 	font-size: 17px;
@@ -38,7 +38,7 @@
 
 .Base_Setup .filters > div.selected {
 	color: black;
-	padding: 10px 8px 8px 10px;	
+	padding: 10px 17px 8px 19px;	
 
 	-webkit-box-shadow: inset 1px 1px 5px gray;
 	-moz-box-shadow: inset 1px 1px 5px gray;
