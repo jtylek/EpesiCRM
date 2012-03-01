@@ -233,6 +233,7 @@ class Base_EpesiStore extends Module {
 
     private function form_buy_items($items) {
         $this->navigation_button_orders();
+        $this->navigation_button_your_modules();
 
         $server_response = $this->_order_submit($items);
         $this->client_messages();
@@ -612,8 +613,8 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_your_modules($row, $data) {
-//        if ($data['paid'] && $data['active'] && $this->_module_license_needs_install_or_update($data))
-        $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', $this->t('Queue download'));
+        if ($data['paid'] && $data['active'] && $this->_module_license_needs_install_or_update($data))
+            $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', $this->t('Queue download'));
     }
 
     protected function GB_row_additional_actions_downloads($row, $data) {
