@@ -80,7 +80,7 @@ class Base_UserCommon extends ModuleCommon {
 	}
 
 	public static function get_user_label($uid) {
-		if (!$uid) return self::ts('front-end user');
+		if (!$uid) return Base_LangCommon::ts('Base_User', 'front-end user');
         if (ModuleManager::is_installed('CRM_Contacts')>=0)
 			return CRM_ContactsCommon::get_user_label($uid);
 		else
