@@ -77,6 +77,8 @@
 								</div>
 							{/if}
 						{/foreach}
+						<!-- force space underneath options -->
+						<div style="height: 1px;width: 1px;position: absolute;bottom: -40px;"></div>
 					</div>
 				{/if}
 			</div>
