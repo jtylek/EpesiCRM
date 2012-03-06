@@ -773,7 +773,7 @@ class Utils_RecordBrowser_Reports extends Module {
 						$i=0;
 						foreach ($results as $v) {
 							if (is_array($v[$c])) $v[$c] = reset($v[$c]);
-							$val = (int)strip_tags($v[$c]);
+							$val = (float)strip_tags($v[$c]);
 							$total += $val;
 							if (!isset($this->cols_total[$c][$i])) $this->cols_total[$c][$i] = 0;
 							$this->cols_total[$c][$i] += $val;
@@ -917,11 +917,11 @@ class Utils_RecordBrowser_Reports extends Module {
 					if($ref_rec) {
 						if (is_array($v[$ref_rec]))
 							$v[$ref_rec] = array_pop($v[$ref_rec]);
-						$val = (int)strip_tags($v[$ref_rec]);
+						$val = (float)strip_tags($v[$ref_rec]);
 					} else {
 						if (is_array($v))
 							$v = array_pop($v);
-						$val = (int)strip_tags($v);
+						$val = (float)strip_tags($v);
 					}
 					$arr[] = $val;
 					if($max<$val) $max=$val;
