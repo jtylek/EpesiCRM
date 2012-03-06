@@ -614,7 +614,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				foreach ($results as & $res_ref) {
 					if (is_array($res_ref))
 						$res_ref = array_pop($res_ref);
-					$val = (int)strip_tags($res_ref);
+					$val = (float)strip_tags($res_ref);
 					$arr[] = $val;
 					if($this->format=='currency') {
 						if($max2<$val) $max2=$val;
@@ -638,7 +638,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					$arr = array();
 					foreach ($results as $v) {
 						if (is_array($v[$c])) $v[$c] = reset($v[$c]);
-						$val = (int)strip_tags($v[$c]);
+						$val = (float)strip_tags($v[$c]);
 						$arr[] = $val;
 						if($this->format[$c]=='currency') {
 							if($max2<$val) $max2=$val;
