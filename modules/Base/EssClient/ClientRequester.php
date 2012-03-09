@@ -85,8 +85,13 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, $args);
     }
 
+    public function get_module_as_file_post_data_array($hash_or_url) {
+        $args = func_get_args();
+        return $this->prepare_post_data('download_prepared_file', $args, false);
+    }
+
     protected function call($function, $params, $serialize_response = true) {
-        $post_data = $this->prepare_data_to_request($function, $params, $serialize_response);
+        $post_data = $this->build_query_post_data($function, $params, $serialize_response);
         try {
             $response = $this->request_server($post_data, !$serialize_response);
             return $this->return_response_value_handling_user_messages($serialize_response, $response);
@@ -96,15 +101,18 @@ class ClientRequester implements IClient {
         }
     }
 
-    protected function prepare_data_to_request($function, & $params, $serialize_response) {
-        return http_build_query(
-                        array(
-                            IClient::param_function => $function,
-                            IClient::param_installation_key => $this->license_key,
-                            IClient::param_client_version => IClient::client_version,
-                            IClient::param_serialize => $serialize_response,
-                            IClient::param_arguments => serialize($params)
-                ));
+    private function build_query_post_data($function, & $params, $serialize_response) {
+        return http_build_query($this->prepare_post_data($function, $params, $serialize_response));
+    }
+
+    private function prepare_post_data($function, & $params, $serialize_response) {
+        return array(
+            IClient::param_function => $function,
+            IClient::param_installation_key => $this->license_key,
+            IClient::param_client_version => IClient::client_version,
+            IClient::param_serialize => $serialize_response,
+            IClient::param_arguments => serialize($params)
+        );
     }
 
     protected function request_server(& $post_data, $force_fgc = false) {

@@ -354,8 +354,10 @@ class Base_EpesiStore extends Module {
     public function form_downloads() {
         $this->back_button();
         $downloads = Base_EpesiStoreCommon::get_download_queue();
-        if (count($downloads))
+        if (count($downloads)) {
             $this->navigation_button_process_downloading();
+            $this->navigation_button_download_file_locally();
+        }
         $this->display_downloads($downloads);
     }
 
@@ -368,10 +370,24 @@ class Base_EpesiStore extends Module {
             print($this->t('No items'));
             return;
         }
+        $this->client_messages();
         Base_ActionBarCommon::add('delete', $this->t('Clear list'), $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
         $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadslist');
         $gb = $this->GB_module_licenses($gb, $download_items, array($this, 'GB_row_additional_actions_downloads'));
         $this->display_module($gb);
+    }
+
+    public function download_as_zip($module_license) {
+        $hash_or_url = Base_EssClientCommon::server()->download_prepare($module_license['id']);
+        $post_data = Base_EssClientCommon::server()->get_module_as_file_post_data_array($hash_or_url);
+        $str = '<form method="post" id = "' . $hash_or_url . '" action="' . Base_EssClientCommon::get_server_url() . '">';
+        foreach ($post_data as $key => $value) {
+            $key = htmlspecialchars($key);
+            $value = htmlspecialchars($value);
+            $str .= '<input type="hidden" name="' . $key . '" value="' . $value . '"/>';
+        }
+        print($str);
+        eval_js('$("' . $hash_or_url . '").submit();');
     }
 
     public function process_downloading() {
@@ -402,6 +418,7 @@ class Base_EpesiStore extends Module {
     }
 
     public function form_downloaded_status($module_licenses, $status) {
+        $this->client_messages();
         $times_back = count(Base_EpesiStoreCommon::get_download_queue()) == 0 ? 2 : 1;
         $this->back_button($times_back);
         foreach ($module_licenses as $ml) {
@@ -586,7 +603,7 @@ class Base_EpesiStore extends Module {
         if (isset($data['module'])) {
             $mi = Base_EpesiStoreCommon::get_module_info($data['module']);
             $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($mi));
-            $data['module'] = "<a $tooltip>{$mi['repository']} :: {$mi['name']}</a>";
+            $data['module'] = "<a $tooltip>{$mi['name']}</a>";
         }
         // paid
         if (isset($data['paid'])) {
@@ -613,12 +630,13 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_your_modules($row, $data) {
-        if ($data['paid'] && $data['active'] && $this->_module_license_needs_install_or_update($data))
+//        if ($data['paid'] && $data['active'] && $this->_module_license_needs_install_or_update($data))
             $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', $this->t('Queue download'));
     }
 
     protected function GB_row_additional_actions_downloads($row, $data) {
         $row->add_action($this->create_callback_href(array($this, 'download_dequeue_item'), array($data)), 'delete');
+        $row->add_action($this->create_callback_href(array($this, 'download_as_zip'), array($data)), 'append data', 'Download as zip file');
     }
 
     protected function GB_generic(Utils_GenericBrowser $gb, array $items, $banned_columns = array(), $row_data_transform_callback = null, $row_additional_actions_callback = null) {

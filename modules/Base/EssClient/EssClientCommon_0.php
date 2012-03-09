@@ -84,7 +84,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     /**
      * Get server connection object to perform requests
      * @param boolean $recreate_object force to recreate object
-     * @return IClient server requester
+     * @return ClientRequester server requester
      */
     public static function server($recreate_object = false) {
         if (self::$client_requester == null || $recreate_object == true) {
