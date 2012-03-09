@@ -289,8 +289,8 @@ class Utils_Attachment extends Module {
 			
 			if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text;
 
-			$r->add_action('style="dispaly:none;" href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 5);
-			$r->add_action('style="dispaly:none;" href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')" id="utils_attachment_less_'.$row['id'].'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 5, false, 0);
+            $r->add_action('style="display:none;" href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 5);
+			$r->add_action('style="display:none;" href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')" id="utils_attachment_less_'.$row['id'].'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 5, false, 0);
 
 			$text = '<div style="height:18px;" id="note_'.$row['id'].'" class="note_field">'.$text.$inline_img.'</div>';
 
