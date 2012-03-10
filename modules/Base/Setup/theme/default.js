@@ -51,6 +51,10 @@ base_setup__hide_actions = function (name, option) {
 }
 
 base_setup__filter_by = function (attr) {
+	if (base_setup__last_options)
+		base_setup__hide_options(base_setup__last_options);
+	if (base_setup__last_actions)
+		base_setup__hide_actions(base_setup__last_actions, base_setup__last_actions_option);
 	$('Base_Setup__filter_'+base_setup__last_filter).className="";
 	$('Base_Setup__filter_'+attr).className="selected";
 	base_setup__last_filter = attr;

@@ -2,9 +2,9 @@
 /**
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
- * @license Commercial
+ * @license MIT
  * @version 1.0
- * @package epesi-premium
+ * @package epesi-lang
  * @subpackage timesheet
  */
 if(!isset($_POST['module']) || !isset($_POST['original']) || !isset($_POST['new']) || !isset($_POST['cid']))

@@ -215,6 +215,12 @@ class Utils_RecordBrowser extends Module {
         }
 //        if ($this->watchdog) Utils_WatchdogCommon::add_actionbar_change_subscription_button($this->tab); // Leave it out for now
         $this->is_on_main_page = true;
+
+        $this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
+
+        if (!$this->disabled['filters']) $filters = $this->show_filters($filters_set);
+        else $filters = '';
+
         if ($this->get_access('add',$this->custom_defaults)!==false && $this->add_button!==false) {
             if (!$this->multiple_defaults) {
                 if ($this->add_button===null) {
@@ -227,11 +233,6 @@ class Utils_RecordBrowser extends Module {
                 Base_ActionBarCommon::add('add','New', Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true));
             }
         }
-
-        $this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
-
-        if (!$this->disabled['filters']) $filters = $this->show_filters($filters_set);
-        else $filters = '';
 
         $this->crits = $this->crits+$crits;
 
@@ -655,7 +656,6 @@ class Utils_RecordBrowser extends Module {
 			if ($this->browse_mode != 'recent')
 				$gb->set_default_order($clean_order, $this->changed_view);
 		}
-
 
         if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false) {
             $custom_label = '';
@@ -1269,6 +1269,7 @@ class Utils_RecordBrowser extends Module {
         if ($mode=='view')
             print("</form>\n");
         $tab_counter=-1;
+		$additional_tabs = 0;
 		$default_tab = null;
         while ($row) {
             $row = $ret->FetchRow();
@@ -1290,7 +1291,8 @@ class Utils_RecordBrowser extends Module {
 				if ($hide_page) {
 					eval_js('$("'.$tb->get_tab_id($this->ts($label)).'").style.display="none";');
 					if ($default_tab===($tab_counter+1) || $tb->get_tab()==($tab_counter+1)) $default_tab = $tab_counter+2;
-				}
+				} else
+					$additional_tabs++;
 			}
             $cols = $row['param'];
             $last_page = $pos;
@@ -1298,7 +1300,7 @@ class Utils_RecordBrowser extends Module {
             $tab_counter++;
         }
 		if ($default_tab!==null) $tb->set_default_tab($default_tab);
-        if ($mode!='add' && $mode!='edit' && $mode!='history') {
+        if ($mode!='history') {
             $ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
             $addons_mod = array();
             while ($row = $ret->FetchRow()) {
@@ -1306,10 +1308,13 @@ class Utils_RecordBrowser extends Module {
                 if (is_callable(explode('::',$row['label']))) {
                     $result = call_user_func(explode('::',$row['label']), $this->record, $this);
                     if (!isset($result['show'])) $result['show']=true;
+					if (($mode=='add' || $mode=='edit') && (!isset($result['show_in_edit']) || !$result['show_in_edit'])) continue;
                     if ($result['show']==false) continue;
                     if (!isset($result['label'])) $result['label']='';
                     $row['label'] = $result['label'];
-                }
+                } else {
+					if ($mode=='add' || $mode=='edit') continue;
+				}
                 $mod_id = md5(serialize($row));
 				if (method_exists($row['module'].'Common',$row['func'].'_access') && !call_user_func(array($row['module'].'Common',$row['func'].'_access'), $this->record, $this)) continue;
                 $addons_mod[$mod_id] = $this->init_module($row['module']);
@@ -1317,6 +1322,8 @@ class Utils_RecordBrowser extends Module {
                 else $tb->set_tab($this->t($row['label']),array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
             }
         }
+        if ($additional_tabs==0 && ($mode=='add' || $mode=='edit' || $mode=='history'))
+            print("</form>\n");
         $this->display_module($tb);
         $tb->tag();
         if ($this->switch_to_addon) {
@@ -1327,7 +1334,7 @@ class Utils_RecordBrowser extends Module {
                 if (ModuleManager::is_installed($row['module'])==-1) continue;
                 if (is_callable(explode('::',$row['label']))) {
                     $result = call_user_func(explode('::',$row['label']), $this->record);
-                    if ($result['show']==false) continue;
+                    if (isset($result['show']) && $result['show']==false) continue;
                     $row['label'] = $result['label'];
                 }
                 if ($row['label']==$this->switch_to_addon) $this->switch_to_addon = $tab_counter;
@@ -1336,9 +1343,8 @@ class Utils_RecordBrowser extends Module {
             $tb->switch_tab($this->switch_to_addon);
             location(array());
         }
-        if ($mode=='add' || $mode=='edit' || $mode=='history') {
+        if ($additional_tabs!=0 && ($mode=='add' || $mode=='edit' || $mode=='history'))
             print("</form>\n");
-        }
 
         return true;
     } //view_entry

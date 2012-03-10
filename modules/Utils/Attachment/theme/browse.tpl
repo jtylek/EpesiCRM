@@ -33,10 +33,10 @@
 		<td>
 		</td>
 	{if isset($show_deleted)}
-		<td style="width:105px;background:#336699;padding:5px;nowrap;">
+		<td class="epesi_label">
 			{$show_deleted.label}
 		</td>
-		<td style="width:25px;nowrap;">
+		<td class="epesi_data" style="width:25px;nowrap;">
 			<input type="checkbox" {$show_deleted.default} onChange="if(this.checked){$show_deleted.show} else {$show_deleted.hide}" />
 		</td>
 	{/if}

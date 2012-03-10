@@ -52,6 +52,11 @@
 	-moz-box-shadow: inset 1px 1px 1px #333355;
 	box-shadow: inset 1px 1px 1px #333355;
 }
+.Utils_RecordBrowser__View_entry .label_top{
+	-webkit-border-radius: 4px 4px 0 0;
+	-moz-border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0;
+}
 
 .Utils_RecordBrowser__View_entry .long_label {
     text-align: left;

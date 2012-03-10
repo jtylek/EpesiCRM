@@ -202,10 +202,10 @@ class Utils_Attachment extends Module {
 				$count++;
 			$arr[] = array('value'=>$fields, 'overflow_box'=>false, 'style'=>'white-space: normal;', 'attrs'=>'colspan="'.$count.'"');
 			if($vd)
-				$arr[] = '';
+				$arr[] = array('value'=>'', 'overflow_box'=>false, 'style'=>'display:none;');
 			if($this->author)
-				$arr[] = '';
-			$arr[] = '';
+				$arr[] = array('value'=>'', 'overflow_box'=>false, 'style'=>'display:none;');
+			$arr[] = array('value'=>'', 'overflow_box'=>false, 'style'=>'display:none;');
 
 			$r->set_attrs('id="attachments_new_note" style="display:none;"');
 			
@@ -249,7 +249,7 @@ class Utils_Attachment extends Module {
 					if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
 						$inline_img = '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
 				} else {
-					$r->add_action('','Attachment',$this->t('Missing file: %s',$f_filename),Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png'), 10);
+					$r->add_action('','Attachment',$this->t('Missing file: %s',array($f_filename)),Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png'), 10);
 				}
 			} else {
 				$r->add_action('','Attachment',$this->t('No attachment'),Base_ThemeCommon::get_template_file($this->get_type(),'z-attach-off.png'), 10);
@@ -327,7 +327,7 @@ class Utils_Attachment extends Module {
 
 		$custom_label = $this->get_html_of_module($button_theme, array('browse'), 'display');
 		$gb->set_custom_label($custom_label, 'style="width:100%;"');
-
+		
 		$this->display_module($gb);
 	}
 	

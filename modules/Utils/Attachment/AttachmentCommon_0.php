@@ -137,6 +137,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return $attachs;
 	}
 
+	public static function move_notes($from_group, $to_group) {
+		DB::Execute('UPDATE utils_attachment_link SET local=%s WHERE local=%s', array($from_group, $to_group));
+		if (is_dir(self::Instance()->get_data_dir().$to_group)) rename(self::Instance()->get_data_dir().$to_group, self::Instance()->get_data_dir().$from_group);
+	}
+
 }
 
 ?>

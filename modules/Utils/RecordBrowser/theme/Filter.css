@@ -85,7 +85,6 @@
 .Utils_RecordBrowser__Filter .data input:focus,
 .Utils_RecordBrowser__Filter .data select:focus,
 .Utils_RecordBrowser__Filter .data textarea:focus {
-    background-color: #f2f2e6;
     background-color: #ffffa5;
 }
 

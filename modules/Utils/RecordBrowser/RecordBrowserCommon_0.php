@@ -638,7 +638,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function set_addon_pos($tab, $module, $func, $pos) {
         $module = str_replace('/','_',$module);
         $old_pos = DB::GetOne('SELECT pos FROM recordbrowser_addon WHERE tab=%s AND module=%s AND func=%s', array($tab, $module, $func));
-        DB::Execute('UPDATE recordbrowser_addon SET pos=%d WHERE tab=%s AND pos=%d', array($old_pos, $tab, $pos));
+		if ($old_pos>$pos)
+			DB::Execute('UPDATE recordbrowser_addon SET pos=pos+1 WHERE tab=%s AND pos>=%d AND pos<%d', array($tab, $pos, $old_pos));
+		else
+			DB::Execute('UPDATE recordbrowser_addon SET pos=pos-1 WHERE tab=%s AND pos<=%d AND pos>%d', array($tab, $pos, $old_pos));
         DB::Execute('UPDATE recordbrowser_addon SET pos=%d WHERE tab=%s AND module=%s AND func=%s', array($pos, $tab, $module, $func));
     }
     public static function register_datatype($type, $module, $func) {
