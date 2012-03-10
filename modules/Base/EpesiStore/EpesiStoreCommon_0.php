@@ -50,16 +50,16 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     public static function user_settings() {
         // get default data from user contact
-		if (ModuleManager::is_installed('CRM_Contacts')>-1)
-			$r = CRM_ContactsCommon::get_my_record();
-		else
-			$r = array();
+        if (ModuleManager::is_installed('CRM_Contacts') > -1)
+            $r = CRM_ContactsCommon::get_my_record();
+        else
+            $r = array();
         // key = field name from contact => value = field name in settings
         $keys = self::get_payment_data_keys();
         $values = array();
         // do user setting entries from data
         foreach ($keys as $k => $v) {
-            $x = array('name' => $v, 'label' => ucwords(str_replace('_', ' ', $v)), 'type' => 'text', 'default' => isset($r[$k])?$r[$k]:'');
+            $x = array('name' => $v, 'label' => ucwords(str_replace('_', ' ', $v)), 'type' => 'text', 'default' => isset($r[$k]) ? $r[$k] : '');
             if ($k == 'country') {
                 $x['type'] = 'select';
                 $x['values'] = Utils_CommonDataCommon::get_array('Countries');
@@ -96,23 +96,25 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return Module::static_set_module_variable(self::MOD_PATH, self::DOWNLOAD_QUEUE_VAR, array());
     }
 
+    /**
+     * Format info table about module.
+     * Used with Ajax request from EpesiStore_0.php file
+     * @param array $r modules data
+     * @return string html with table
+     */
     public static function module_format_info($r) {
-        $x = array();
-        $x[] = "<big><strong>{$r['name']}</strong></big>";
-        if ($r['description'])
-            $x[] = "<b>Description:</b><br/>{$r['description']}";
-        $x[] = "<b>Repository:</b> {$r['repository']}";
-        if (isset($r['path']))
-            $x[] = "<b>Files:</b><br/>{$r['path']}";
-        if (isset($r['files']))
-            $x[] = "<b>Files:</b><br/>" . implode("<br/>", $r['files']);
-        $x[] = "<b>Price:</b> {$r['price']}";
-        $x[] = "<b>Version:</b> {$r['version']}";
-        $x[] = "<b>Active:</b> {$r['active']}";
-
-        return implode('<br/>', $x);
+        if (isset($r['id']))
+            unset($r['id']);
+        if (isset($r['active']))
+            $r['active'] = Base_LangCommon::ts('Base_EpesiStore', $r['active'] ? 'Yes' : 'No');
+        $r['files'] = implode("<br/>", $r['files']);
+        return Utils_TooltipCommon::format_info_tooltip($r, "Base_EpesiStore");
     }
 
+    /**
+     * Get total number of available modules.
+     * @return int number of modules
+     */
     public static function modules_total_amount() {
         $total = Module::static_get_module_variable(self::MOD_PATH, 'modules_total_amount');
         if ($total === null) {
@@ -122,6 +124,12 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return $total;
     }
 
+    /**
+     * Cached modules listing in some range
+     * @param int $offset starting module
+     * @param int $amount number of items
+     * @return array modules data
+     */
     public static function modules_list($offset, $amount) {
         $modules = Module::static_get_module_variable(self::MOD_PATH, 'modules_list', array());
         $start = $offset;
@@ -164,11 +172,14 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return $modules_cache[$module_id];
     }
 
+    /**
+     * Download module to epesi installation.
+     * @param array $module_license module license data
+     */
     public static function download_module($module_license) {
         $file = self::download_module_file($module_license);
         self::extract_module_file($file);
         self::store_info_about_downloaded_module($module_license, $file);
-        return $file;
     }
 
     private static function download_module_file($module_license) {
@@ -185,7 +196,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             throw new ErrorException("File store error ($destfile)");
         return basename($destfile);
     }
-    
+
     private static function is_url($string) {
         return false !== strpos($string, "://");
     }
@@ -219,60 +230,6 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     private static function store_info_about_downloaded_module($module_license, $file) {
         $module_info = self::get_module_info($module_license['module']);
         Base_EpesiStoreCommon::add_downloaded_module($module_info['id'], $module_info['version'], $module_license['id'], $file);
-    }
-
-    /**
-     * Extract from archives and download modules, that have been previously downloaded.
-     * Useful to extract files after epesi update.
-     * @return array 'old' => modules, 'new' => modules, 'error' => array(error_message => modules, ...)
-     */
-    public static function download_all_downloaded() {
-        $return = array('old' => array(), 'new' => array(), 'error' => array());
-        $mods = self::get_downloaded_modules();
-        if (!count($mods))
-            return true;
-
-        $modules_to_download = array();
-        $files = array();
-        foreach ($mods as $m) {
-            if ($m['file']) {
-                if (!isset($files[$m['file']]))
-                    $files[$m['file']] = array();
-                $files[$m['file']][] = $m;
-            } else {
-                $modules_to_download[] = $m;
-            }
-        }
-        // extract files
-        foreach ($files as $file => $downloaded_modules_data) {
-            try {
-                extract_package($file);
-                $return['old'] = array_merge($return['old'], $downloaded_modules_data);
-            } catch (ErrorException $e) {
-                $modules_to_download = array_merge($modules_to_download, $downloaded_modules_data);
-            }
-        }
-        // download necessary modules
-        if (!count($modules_to_download)) {
-            return $return;
-        }
-        foreach ($modules_to_download as $o) {
-            try {
-                $file = self::download_module($o['module_license_id']);
-                foreach ($modules_to_download as &$o) {
-                    self::add_downloaded_module($o['module_id'], $o['version'], $o['order_id'], $new_file);
-                    $o['file'] = $new_file;
-                }
-                $return['new'] = array_merge($return['new'], $modules_to_download);
-            } catch (ErrorException $e) {
-                $msg = $e->getMessage();
-                if (isset($return['error'][$msg]))
-                    $return['error'][$msg] = array_merge($return['error'][$msg], $modules_to_download);
-                else
-                    $return['error'][$msg] = $modules_to_download;
-            }
-        }
-        return $return;
     }
 
     /**

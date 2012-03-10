@@ -41,6 +41,11 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, $args);
     }
 
+    public function modules_list_all() {
+        $args = func_get_args();
+        return $this->call(__FUNCTION__, $args);
+    }
+
     public function module_get_info($module_id) {
         $args = func_get_args();
         return $this->call(__FUNCTION__, $args);

@@ -4,10 +4,11 @@
  * Use this interface to perform clients requests to Epesi Service Server.
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2011, Telaxus LLC
- * @version 20111121
+ * @version 20120310
  */
 interface IClient {
-    const client_version = 2;
+
+    const client_version = 3;
     const MESSAGES_INFO = 0;
     const MESSAGES_WARN = 1;
     const MESSAGES_ERROR = 2;
@@ -74,7 +75,7 @@ interface IClient {
     function download_prepared_file($file_hash);
 
     /**
-     * Request module additional info.
+     * Request module info.
      *
      * @todo specify returned array
      * @param string $module_id unique identifier of module package
@@ -86,10 +87,9 @@ interface IClient {
      * Request list of available modules in specific range.
      * Useful in Tabbed browsing in GenericBrowser.
      *
-     * @todo specify module array fields
      * @param int $start number of first record
      * @param int $amount amount of records
-     * @return array|false array of modules with info or false on error
+     * @return array|false array of modules or false on error
      */
     function modules_list($start, $amount);
 
@@ -99,6 +99,12 @@ interface IClient {
      * @return int|false amount or false on error
      */
     function modules_list_total_amount();
+
+    /**
+     * Request all available modules to client
+     * @return array|false array of modules of false on error
+     */
+    function modules_list_all();
 
     /**
      * Submit order to server to buy modules.

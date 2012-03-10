@@ -495,26 +495,6 @@ class Base_EpesiStore extends Module {
         }
     }
 
-    /**
-     * Extract modules from archives already downloaded and download modules if needed.
-     * Show status message after.
-     */
-    public function redownload_modules() {
-        $ret = Base_EpesiStoreCommon::download_all_downloaded();
-        // print status
-        print('<h3>' . $this->t('Re-Download modules') . '</h3>');
-        if (count($ret['old']))
-            print('<p>' . count($ret['old']) . ' ' . $this->t('modules extracted from files') . '</p>');
-        if (count($ret['new']))
-            print('<p>' . count($ret['new']) . ' ' . $this->t('modules downloaded from server') . '</p>');
-        if (count($ret['error'])) {
-            print($this->t('<p>Errors:<br/>'));
-            foreach ($ret['error'] as $msg => $modules) {
-                print($msg . ' - ' . count($modules) . 'modules<br/>');
-            }
-        }
-    }
-
     private function payments_data_button() {
         $href = $this->create_callback_href(array($this, 'navigate'), array('payments_show_user_settings'));
         Base_ActionBarCommon::add('settings', 'Payment data', $href, $this->t('Here you can edit your default credentials used to payments'));
@@ -630,7 +610,7 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_your_modules($row, $data) {
-//        if ($data['paid'] && $data['active'] && $this->_module_license_needs_install_or_update($data))
+        if ($data['paid'] && $data['active'] && $this->_module_license_needs_install_or_update($data))
             $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', $this->t('Queue download'));
     }
 
@@ -675,7 +655,9 @@ class Base_EpesiStore extends Module {
 
     private function href_navigate($func) {
         $args = func_get_args();
-        array_shift($args);
+        $func = array_shift($args);
+        if (!$func)
+            throw new ErrorException("Function to navigate not defined.");
         return $this->create_callback_href(array($this, 'navigate'), array($func, $args));
     }
 
