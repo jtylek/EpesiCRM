@@ -141,7 +141,23 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		DB::Execute('UPDATE utils_attachment_link SET local=%s WHERE local=%s', array($from_group, $to_group));
 		if (is_dir(self::Instance()->get_data_dir().$to_group)) rename(self::Instance()->get_data_dir().$to_group, self::Instance()->get_data_dir().$from_group);
 	}
+	
+	public static function is_image($note) {
+		return preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$note['original']);
+	}
 
+	public static function create_remote($file_id, $description, $expires_on) {
+		$r = DB::GetRow('SELECT id, token FROM utils_attachment_download WHERE remote=1 AND attach_file_id=%d AND created_by=%d',array($file_id,Acl::get_user()));
+		if (!empty($r)) {
+			$id = $r['id'];
+			$token = $r['token'];
+		} else {
+			$token = md5(Acl::get_user().$expires_on);
+			DB::Execute('INSERT INTO utils_attachment_download(remote,attach_file_id,created_by,created_on,expires_on,description,token) VALUES (1,%d,%d,%T,%T,%s,%s)',array($file_id,Acl::get_user(),time(),$expires_on,$description,$token));
+			$id = DB::Insert_ID('utils_attachment_download','id');
+		}
+		return get_epesi_url().'/modules/Utils/Attachment/get_remote.php?'.http_build_query(array('id'=>$id,'token'=>$token));
+	}
 }
 
 ?>

@@ -48,6 +48,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			attach_file_id I4 NOTNULL,
 			created_by I4,
 			created_on T,
+			expires_on T,
 			remote I1 DEFAULT 0,
 			download_on T DEFTIMESTAMP,
 			ip_address C(32),

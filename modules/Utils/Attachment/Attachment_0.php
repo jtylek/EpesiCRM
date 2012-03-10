@@ -246,7 +246,7 @@ class Utils_Attachment extends Module {
 					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array(Base_UserCommon::get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 					$view_link = '';
 					$r->add_action($this->get_file($row,$view_link),'Attachment',$filetooltip,Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png'), 10);
-					if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
+					if(Utils_AttachmentCommon::is_image($row) && $view_link)
 						$inline_img = '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
 				} else {
 					$r->add_action('','Attachment',$this->t('Missing file: %s',array($f_filename)),Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png'), 10);
