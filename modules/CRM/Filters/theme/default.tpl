@@ -5,138 +5,65 @@
         <!-- MY -->
         <td>
 
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 120px;">
-		<div class="content_shadow">
-<!-- -->
-
 	    {$__link.my.open}
-		<div class="big-button">
+		<div class="epesi_big_button">
             {if $display_icon}
             <img src="{$theme_dir}/CRM/Filters/my.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
-                <div style="height: 5px;"></div>
                 <span>{$__link.my.text}</span>
             {/if}
         </div>
 	    {$__link.my.close}
-
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
 
         </td>
 
         <!-- ALL -->
         <td>
 
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 120px;">
-		<div class="content_shadow">
-<!-- -->
-
 	    {$__link.all.open}
-		<div class="big-button">
+		<div class="epesi_big_button">
             {if $display_icon}
             <img src="{$theme_dir}/CRM/Filters/all.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
-                <div style="height: 5px;"></div>
                 <span>{$__link.all.text}</span>
             {/if}
         </div>
 	    {$__link.all.close}
 
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
-
         </td>
 
         <!-- MANAGE FILTERS -->
         <td>
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 120px;">
-		<div class="content_shadow">
-<!-- -->
-
-
 
 	    {$__link.manage.open}
-		<div class="big-button">
+		<div class="epesi_big_button">
             {if $display_icon}
             <img src="{$theme_dir}/CRM/Filters/manage.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
-                <div style="height: 5px;"></div>
                 <span>{$__link.manage.text}</span>
             {/if}
         </div>
 	    {$__link.manage.close}
 
-
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
-
         </td>
     </tr>
-        <td colspan="3" style="text-align: center;">{$contacts}</td>
+        <td colspan="3" style="text-align: center;">
+			{$contacts_open}
+				{$contacts_data.crm_filter_contact.label}{$contacts_data.crm_filter_contact.html}<span class="child_button">{$contacts_data.submit.html}</span>
+			{$contacts_close}
+		</td>
     </tr>
 </table>
 
 <br>
 
 {if !empty($filters)}
-	<table id="CRM_Filters" cellspacing="0" cellpadding="0">
+	<table id="CRM_Filters" cellspacing="0" cellpadding="0" style="width:300px;">
 		<tr>
-			<td colspan="4" class="Filters_header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</td>
+			<td colspan="4" class="epesi_label header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</td>
 		</tr>
 		<tr>
 
@@ -146,36 +73,11 @@
 
 			<td>
 
-	<!-- SHADIW BEGIN -->
-		<div class="layer" style="padding: 8px; width: 120px;">
-			<div class="content_shadow">
-	<!-- -->
-
 			{$p.open}
-			<div class="big-button">
+			<div class="epesi_big_button">
 				<span class="text">{$p.title}</span>
-				<span class="desc">{$p.description}</span>
 			</div>
 			{$p.close}
-
-	<!-- SHADOW END -->
-			</div>
-			<div class="shadow-top">
-				<div class="left"></div>
-				<div class="center"></div>
-				<div class="right"></div>
-			</div>
-			<div class="shadow-middle">
-				<div class="left"></div>
-				<div class="right"></div>
-			</div>
-			<div class="shadow-bottom">
-				<div class="left"></div>
-				<div class="center"></div>
-				<div class="right"></div>
-			</div>
-		</div>
-	<!-- -->
 
 		</td>
 

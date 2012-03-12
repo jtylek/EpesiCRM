@@ -16,7 +16,6 @@ function libs_leightbox_resize(elem) {
 		}
 		//s.border = '10px solid #b3b3b3';
 		s.padding = '0px';
-		s.background = 'white';
 	}
 
 	else {
@@ -26,6 +25,5 @@ function libs_leightbox_resize(elem) {
 		s.height = '100%';
 		s.border = '0px';
 		s.padding = '0px';
-		s.background = '#f0f0f0';
 	}
 }

@@ -2,14 +2,13 @@
 
 <table id="Base_Admin__access" cellspacing="0" cellpadding="0">
 	<tr>
-		<td colspan="4" class="header">{$header}</td>
+		<td colspan="4" class="epesi_label header">{$header}</td>
 	</tr>
 	{assign var=x value=0}
 	{foreach key=key item=button from=$buttons}
 	{assign var=x value=$x+1}
-		<td class="big-button_container">
-			<div class="css3_content_shadow_users" id="{$button.id}">
-			<div class="big-button">
+		<td class="big_button_container">
+			<div class="epesi_big_button" id="{$button.id}">
 				<table>
 					<tr>
 						<td class="bb_icon">
@@ -50,8 +49,6 @@
 					</tr>
 				</table>
 			</div>
- 		</div>
-
 		</td>
 
 	<!-- $key holds name of the module -->

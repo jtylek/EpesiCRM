@@ -1,23 +1,21 @@
 <center>
 <BR>
 {$form_open}
-	<table id="CRM_Filters" cellspacing="0" cellpadding="0" width="600px">
+	<table id="CRM_Filters" cellpadding="0" style="width:600px; border-spacing: 3px;">
 			<tr>
-				<td style="width:100px;background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
+				<td class="epesi_label" style="width:20%;">
 					{$form_closecancel.label} <!-- STATUS -->
 				</td>
-				<td colspan="3">
+				<td class="epesi_data" style="width:30%;">
 					{$form_closecancel.html} <!-- SELECT -->
 				</td>
 			</tr>
 			<tr>
-				<td style="background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
+				<td class="epesi_label">
 					{$form_note.label} <!-- 1 note -->
 				</td>
-				<td colspan="3">
-					<div class="crm_followup_leightbox_note">
-						{$form_note.html} <!-- 2 note input -->
-					</div>
+				<td colspan="3" class="epesi_data textarea" style="width:80%;">
+					{$form_note.html} <!-- 2 note input -->
 				</td>
 			</tr>
 	</table>
@@ -25,52 +23,40 @@
 	<table id="CRM_Filters" cellspacing="0" cellpadding="0">	
 		<tr>
 			<td valign="top">
-				<div class="panel">
-					{$new_meeting.open}
-					<div class="panel_div">
-						<div class="icon">
-							<div class="div_icon"><img src="{$theme_dir}/CRM/Calendar/icon.png" alt="" align="middle" border="0" width="32" height="32"></div>
-							<table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$new_meeting.text}</td></tr></table>
-						</div>
-					</div>
-					{$new_meeting.close}
+				{$new_meeting.open}
+				<div class="epesi_big_button">
+					<img src="{$theme_dir}/CRM/Calendar/icon.png" alt="" align="middle" border="0" width="32" height="32">
+					<span>{$new_meeting.text}</span>
 				</div>
+				{$new_meeting.close}
 			</td>
 
 			<td valign="top">
-				<div class="panel">
-					{$new_task.open}
-					<div class="panel_div">
-						<div class="div_icon">
-							<div class="div_icon"><img src="{$theme_dir}/CRM/Tasks/icon.png" alt="" align="middle" border="0" width="32" height="32"></div>
-							<table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$new_task.text}</td></tr></table>
-						</div>
-					</div>
-					{$new_task.close}
+				{$new_task.open}
+				<div class="epesi_big_button">
+					<img src="{$theme_dir}/CRM/Tasks/icon.png" alt="" align="middle" border="0" width="32" height="32">
+					<span>{$new_task.text}</span>
 				</div>
+				{$new_task.close}
 			</td>
 
 			<td valign="top">
-				<div class="panel">
-					{$new_phonecall.open}
-					<div class="panel_div">
-						<div class="div_icon"><img src="{$theme_dir}/CRM/PhoneCall/icon.png" alt="" align="middle" border="0" width="32" height="32"></div>
-						<table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$new_phonecall.text}</td></tr></table>
-					</div>
-					{$new_phonecall.close}
+				{$new_phonecall.open}
+				<div class="epesi_big_button">
+					<img src="{$theme_dir}/CRM/PhoneCall/icon.png" alt="" align="middle" border="0" width="32" height="32">
+					<span>{$new_phonecall.text}</span>
 				</div>
+				{$new_phonecall.close}
 			</td>
 			
 			
 			<td valign="top">
-				<div class="panel"></div>
-					{$just_close.open}
-					<div class="panel_div">
-						<div class="div_icon"><img src="{$theme_dir}/Base/ActionBar/icons/save.png" alt="" align="middle" border="0" width="32" height="32"></div>
-						<table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$just_close.text}</td></tr></table>
-					</div>
-					{$just_close.close}
+				{$just_close.open}
+				<div class="epesi_big_button">
+					<img src="{$theme_dir}/Base/ActionBar/icons/save.png" alt="" align="middle" border="0" width="32" height="32">
+					<span>{$just_close.text}</span>
 				</div>
+				{$just_close.close}
 			</td>
 		</tr>
 	</table>

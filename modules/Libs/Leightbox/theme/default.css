@@ -131,14 +131,15 @@
 	overflow-y: auto;
 	
 	/* gray css3 gradient */
-	background: #f5f6f6; /* Old browsers */
-	background: -moz-linear-gradient(top, #f5f6f6 0%, #dbdce2 21%, #b8bac6 49%, #dddfe3 80%, #f5f6f6 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f5f6f6), color-stop(21%,#dbdce2), color-stop(49%,#b8bac6), color-stop(80%,#dddfe3), color-stop(100%,#f5f6f6)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top, #f5f6f6 0%,#dbdce2 21%,#b8bac6 49%,#dddfe3 80%,#f5f6f6 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(top, #f5f6f6 0%,#dbdce2 21%,#b8bac6 49%,#dddfe3 80%,#f5f6f6 100%); /* Opera11.10+ */
-	background: -ms-linear-gradient(top, #f5f6f6 0%,#dbdce2 21%,#b8bac6 49%,#dddfe3 80%,#f5f6f6 100%); /* IE10+ */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5f6f6', endColorstr='#f5f6f6',GradientType=0 ); /* IE6-9 */
-	background: linear-gradient(top, #f5f6f6 0%,#dbdce2 21%,#b8bac6 49%,#dddfe3 80%,#f5f6f6 100%); /* W3C */
+	background: rgb(224,224,224); /* Old browsers */
+	background: -moz-linear-gradient(top,  rgba(224,224,224,1) 0%, rgba(197,198,207,1) 20%, rgba(203,204,211,1) 38%, rgba(224,224,224,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(224,224,224,1)), color-stop(20%,rgba(197,198,207,1)), color-stop(38%,rgba(203,204,211,1)), color-stop(100%,rgba(224,224,224,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  rgba(224,224,224,1) 0%,rgba(197,198,207,1) 20%,rgba(203,204,211,1) 38%,rgba(224,224,224,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  rgba(224,224,224,1) 0%,rgba(197,198,207,1) 20%,rgba(203,204,211,1) 38%,rgba(224,224,224,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  rgba(224,224,224,1) 0%,rgba(197,198,207,1) 20%,rgba(203,204,211,1) 38%,rgba(224,224,224,1) 100%); /* IE10+ */
+	background: linear-gradient(top,  rgba(224,224,224,1) 0%,rgba(197,198,207,1) 20%,rgba(203,204,211,1) 38%,rgba(224,224,224,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e0e0e0', endColorstr='#e0e0e0',GradientType=0 ); /* IE6-9 */
+
 	/* gray css3 gradient */
 	
 	/* css3 shadow border*/

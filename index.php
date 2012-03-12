@@ -150,7 +150,7 @@ Please choose epesi version:<ul>
 			<?php if (DIRECTION_RTL) print('body { direction: rtl; }'); ?>
 			#epesiStatus {
   				/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
-  				position: absolute;
+  				position: fixed;
   				left: 50%; top: 30%;
                 margin-left: -280px;
   				/* all */

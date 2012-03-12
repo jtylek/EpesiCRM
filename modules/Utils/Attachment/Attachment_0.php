@@ -396,6 +396,11 @@ class Utils_Attachment extends Module {
 		if(!file_exists($f_filename)) return 'missing file: '.$f_filename;
 		$th->assign('file_size',$this->t('File size: %s',array(filesize_hr($f_filename))));
 
+		$th->assign('labels',array(
+			'filename'=>$this->t('Filename'),
+			'file_size'=>$this->t('File size')
+		));
+
 		$getters = ModuleManager::call_common_methods('attachment_getters');
 		$custom_getters = array();
 		foreach($getters as $mod=>$arr) {

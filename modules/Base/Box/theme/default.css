@@ -833,9 +833,12 @@ hr.line {
 	font-size: 14px;
 	line-height: 20px;
 	text-align: left;
-	box-shadow: 0 0 8px black;
 	padding: 5px 8px;
 	margin: 20px;
+
+	-webkit-box-shadow: 0 0 8px black;
+	-moz-box-shadow: 0 0 8px black;
+	box-shadow: 0 0 8px black;
 }
 
 .important_notice_frame {
@@ -844,10 +847,86 @@ hr.line {
 	font-size: 14px;
 	line-height: 20px;
 	text-align: left;
-	box-shadow: 0 0 3px black;
 	padding: 5px 8px;
 	margin-top: 3px;
 	margin-bottom: 3px;
+
+	-webkit-box-shadow: 0 0 3px black;
+	-moz-box-shadow: 0 0 3px black;
+	box-shadow: 0 0 3px black;
+}
+
+.epesi_big_button > span,
+.epesi_big_button > div {
+	height: 26px;
+	width: 60px;
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+}
+
+.epesi_big_button > span:only-child,
+.epesi_big_button > div:only-child {
+	height: 55px;
+}
+
+.epesi_big_button {
+	cursor: pointer;
+	padding: 10px 13px;
+	margin: 7px;
+	border: 1px solid #999;
+	min-width: 60px;
+	text-align: center;
+	font-weight: bold;
+
+	-webkit-transition: background-color 0.2s linear;
+	-moz-transition: background-color 0.2s linear;
+	-o-transition: background-color 0.2s linear;
+
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+
+	-webkit-box-shadow: inset -1px -1px 5px gray, 1px 1px 1px #444;
+	-moz-box-shadow: inset -1px -1px 5px gray, 1px 1px 1px #444;
+	box-shadow: inset -1px -1px 5px gray, 1px 1px 1px #444;
+
+	background-image: -moz-linear-gradient(top,  rgba(241,242,255,0.95) 0%, rgba(255,255,255,0) 75%); /* FF3.6+ */
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(241,242,255,0.95)), color-stop(75%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+	background-image: -webkit-linear-gradient(top,  rgba(241,242,255,0.95) 0%,rgba(255,255,255,0) 75%); /* Chrome10+,Safari5.1+ */
+	background-image: -o-linear-gradient(top,  rgba(241,242,255,0.95) 0%,rgba(255,255,255,0) 75%); /* Opera 11.10+ */
+	background-image: -ms-linear-gradient(top,  rgba(241,242,255,0.95) 0%,rgba(255,255,255,0) 75%); /* IE10+ */
+	background-image: linear-gradient(top,  rgba(241,242,255,0.95) 0%,rgba(255,255,255,0) 75%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f1f2ff', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
+
+	background-color: #ddd;
+}
+
+.epesi_big_button:hover {
+	background-color: #bbf;
+}
+
+.epesi_big_button > img {
+	display: block;
+	margin: 2px auto 3px;
+}
+
+.epesi_big_button.bigger {
+	min-width: 90px;
+	min-height: 80px;
+}
+.epesi_big_button.bigger > span,
+.epesi_big_button.bigger > div {
+	width: 90px;
+	height: 39px;
+}
+.epesi_big_button.bigger > span:only-child,
+.epesi_big_button.bigger > div:only-child {
+	height: 80px;
+}
+.epesi_big_button.bigger > img {
+	display: block;
+	margin: 7px auto 3px;
 }
 
 .epesi_label {
@@ -875,6 +954,18 @@ hr.line {
 	background: -ms-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* IE10+ */
 	background: linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f6a8c', endColorstr='#335772',GradientType=0 ); /* IE6-9 */
+}
+
+.epesi_label.header {
+	font-weight: bold;
+	height: 25px;
+	text-align: center;
+
+	/* border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius */	
 }
 
 .epesi_data {

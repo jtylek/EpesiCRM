@@ -27,8 +27,7 @@ class Libs_LeightboxCommon extends ModuleCommon {
 			's.left = \'5%\';'.
 			's.width = \'90%\';'.
 			's.height = \'90%\';'.
-			's.padding = \'0px\';'.
-			's.background = \'white\';');
+			's.padding = \'0px\';');
 			
 		}
 		$smarty = Base_ThemeCommon::init_smarty();
