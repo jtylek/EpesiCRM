@@ -6,6 +6,7 @@ body {
     font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
 	font-size: 11px;
 	background-color: #F0F0F0;
+	position: relative; /* needed by prototype 1.7 for clone position */
 }
 
 /* for debug uncomment following lines */
