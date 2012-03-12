@@ -30,10 +30,11 @@ foreach($cols as $k=>$col) {
 	if (!$col['visible'] && (!isset($info[$col['id']]) || !$info[$col['id']])) continue;
 	if (isset($info[$col['id']]) && !$info[$col['id']]) continue;
 	if(count($cols_out)==$order_num) $order=$col['id'];
+	$col['name'] = Base_LangCommon::ts('Utils_RecordBrowser:'.$table,$col['name']);
 	if($type!='recent')
-		$cols_out[] = array('name'=>$col['name'], 'order'=>$col['id'], 'record'=>$col);
+		$cols_out[] = array('name'=>$col['name'], 'order'=>$col['id'], 'record'=>$col, 'key'=>$k);
 	else
-		$cols_out[] = array('name'=>$col['name'], 'record'=>$col);
+		$cols_out[] = array('name'=>$col['name'], 'record'=>$col, 'key'=>$k);
 }
 
 //views
@@ -132,7 +133,7 @@ foreach($data as $v) {
 		$row = array();
 	foreach($cols_out as $col) {
 		$i = array_key_exists($col['record']['id'],$info);
-		$val = Utils_RecordBrowserCommon::get_val($table,$col['name'],$v,IPHONE,$col['record']);
+		$val = Utils_RecordBrowserCommon::get_val($table,$col['key'],$v,IPHONE,$col['record']);
 		if(IPHONE) {
 			if($val==='') continue;
 			if($type!='recent' && $col['record']['id'] == $letter_col && $letter!==$val{0}) {
