@@ -1056,7 +1056,7 @@ hr.line {
 .epesi_grey_board > table {
 	width: 100%;
 	border-spacing: 3px;
-	background-color: #E0E0E0;
+	background-color: #CCC;
 	border: 2px solid transparent;
 
 	-webkit-box-shadow: 1px 1px 5px black;
