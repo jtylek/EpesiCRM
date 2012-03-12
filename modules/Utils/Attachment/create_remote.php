@@ -21,6 +21,7 @@ else
 define('CID', $cid);
 define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
+ModuleManager::load_modules();
 
 $public = Module::static_get_module_variable($path,'public',false);
 $protected = Module::static_get_module_variable($path,'protected',false);
@@ -30,4 +31,5 @@ if(!Acl::is_user())
 
 $t = time()+3600*24*7;
 print(Utils_AttachmentCommon::create_remote($file_id, $description, $t));
+
 ?>
