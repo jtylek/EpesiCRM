@@ -157,13 +157,8 @@ hr.line {
 }
 
 #body_content {
-/*    position: relative;*/
-   /* position: absolute; */
-    margin-top: 123px;
-    /*margin-top: 97px;*/
+    padding-top: 123px;
     width: 100%;
-    padding: 0px;
-    /*text-align: center;*/
 }
 
 #main_content {
