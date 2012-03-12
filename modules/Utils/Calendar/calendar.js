@@ -124,7 +124,8 @@ add_event_tag:function(dest,ev) {
 		}
 		if(offset<ch.length) offset = ch.length;
 		if(ch.indexOf(ev.id)<0) ch.push(ev.id);
-		cell.setAttribute('events_children',ch.toJSON());
+		if(cell.hasAttribute('events_children'))
+			cell.setAttribute('events_children',ch.toJSON());
 
 		if(cell.hasAttribute('join_rows')) {
 			max_cut = parseInt(ev.getAttribute('max_cut'));
