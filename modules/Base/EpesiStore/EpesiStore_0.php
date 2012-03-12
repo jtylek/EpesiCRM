@@ -506,40 +506,14 @@ class Base_EpesiStore extends Module {
         $this->display_module($module_to_show, array('Epesi Store'));
     }
 
-    /**
-     * Get payment form with data and 'Pay' button only.
-     * @param numeric $order_id order id
-     * @param numeric $value cash amount to pay
-     * @param string $curr_code currency code
-     * @param array $credentials array of jsonencoded credentials to payment
-     * @return string payment form html
-     */
-    private function pay_button($payment_url, $order_id, $value, $curr_code, $credentials) {
-        $payment_url = $payment_url;
-        foreach ($credentials as & $c)
-            $c = htmlspecialchars($c);
+    public function form_payment_frame($order_id, $value, $curr_code) {
+        $this->back_button();
+        $this->payments_data_button();
 
-        return '
-<form style="display:inline" target="blank" action="' . $payment_url . '" method="post" id="formPayment' . $order_id . '">
-    <input type="hidden" name="action_url" value="' . $payment_url . '" />
-    <input type="hidden" name="first_name" value="' . $credentials['first_name'] . '" />
-    <input type="hidden" name="last_name" value="' . $credentials['last_name'] . '" />
-    <input type="hidden" name="address_1" value="' . $credentials['address_1'] . '" />
-    <input type="hidden" name="address_2" value="' . $credentials['address_2'] . '" />
-    <input type="hidden" name="city" value="' . $credentials['city'] . '" />
-    <input type="hidden" name="postal_code" value="' . $credentials['postal_code'] . '" />
-    <input type="hidden" name="country" value="' . $credentials['country'] . '" />
-    <input type="hidden" name="email" value="' . $credentials['email'] . '" />
-    <input type="hidden" name="phone" value="' . $credentials['phone'] . '" />
-    <input type="hidden" name="record_id" value="' . htmlspecialchars($order_id) . '" />
-    <input type="hidden" name="record_type" value="ess_orders" />
-    <input type="hidden" name="amount" value="' . htmlspecialchars($value) . '" />
-    <input type="hidden" name="currency" value="' . htmlspecialchars($curr_code) . '" />
-    <input type="hidden" name="description" value="Order ID ' . htmlspecialchars($order_id) . '" />
-    <input type="hidden" name="auto_process" value="1" />
-    <input type="submit" name="submit" value="Pay" />
-</form>
-';
+        $url = 'modules/Base/EpesiStore/payment_frame.php';
+        $params = http_build_query(array('order_id' => $order_id, 'value' => $value, 'curr_code' => $curr_code, 'user' => Acl::get_user()));
+        $iframe = '<iframe id="payment_frame" style="width:100%; border: 0; height:600px;" name="payment_frame" src="' . "$url?$params" . '"></iframe>';
+        print($iframe);
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
@@ -560,7 +534,8 @@ class Base_EpesiStore extends Module {
         foreach ($data['price'] as $curr_code => $amount) {
             $total[] = $amount['display_total'];
             if ($amount['to_pay']) {
-                $pay_button = $this->pay_button(Base_EssClientCommon::get_payments_url(), $data['id'], $amount['to_pay'], $curr_code, Base_EpesiStoreCommon::get_payment_credentials());
+                $href = $this->href_navigate('form_payment_frame', $data['id'], $amount['to_pay'], $curr_code);
+                $pay_button = "<button $href>Pay</button>";
                 $to_pay[] = $amount['display_to_pay'] . ' ' . $pay_button;
             } else {
                 $to_pay[] = $this->t('Paid');

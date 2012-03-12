@@ -6,14 +6,17 @@ define('PER_PAGE', 50);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
+$user = isset($_GET['user']) ? $_GET['user'] : null;
 $order_id = isset($_GET['order_id']) ? $_GET['order_id'] : null;
 $value = isset($_GET['value']) ? $_GET['value'] : null;
 $curr_code = isset($_GET['curr_code']) ? $_GET['curr_code'] : null;
 
-//if ($order_id === null || $value === null || $curr_code === null) {
-//    print 'Not enough parameters';
-//    return;
-//}
+if ($user === null || $order_id === null || $value === null || $curr_code === null) {
+    print 'Not enough parameters';
+    return;
+}
+
+Acl::set_user($user);
 
 $payment_url = Base_EssClientCommon::get_payments_url();
 $credentials = Base_EpesiStoreCommon::get_payment_credentials();
@@ -21,7 +24,7 @@ foreach ($credentials as & $c)
     $c = htmlspecialchars($c);
 
 echo '
-<form style="display:inline" action="' . $payment_url . '" method="post" id="formPayment">
+<form action="' . $payment_url . '" method="post" name="formPayment">
     <input type="hidden" name="action_url" value="' . $payment_url . '" />
     <input type="hidden" name="first_name" value="' . $credentials['first_name'] . '" />
     <input type="hidden" name="last_name" value="' . $credentials['last_name'] . '" />
@@ -38,11 +41,8 @@ echo '
     <input type="hidden" name="currency" value="' . htmlspecialchars($curr_code) . '" />
     <input type="hidden" name="description" value="Order ID ' . htmlspecialchars($order_id) . '" />
     <input type="hidden" name="auto_process" value="1" />
-    <input type="submit" name="submit" value="Pay" />
 </form>
 ';
 
-// TODO: doesn't work here
-eval_js('$("formPayment").submit();');
-
+print('<script type="text/javascript">document.formPayment.submit();</script>');
 ?>
