@@ -1125,6 +1125,9 @@ class CRM_ContactsCommon extends ModuleCommon {
          * must check if it was submitted. If yes - do action. If it wasn't
          * we should come back to initial state - do not print LB.
          */
+        if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) ) {
+            if($values['company_name']) Base_ActionBarCommon::add('edit', 'Copy company data', Module::create_href(array('UCD'=>true)));
+        }
         if(isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) {
             $ucd = Module::static_get_module_variable('CRM/Contacts', 'UCD', 0);
             $ucd ++;
@@ -1192,10 +1195,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 
             Libs_LeightboxCommon::display($lid, $html);
             Base_ActionBarCommon::add('edit', 'Copy company data', Libs_LeightboxCommon::get_open_href($lid));
-            eval_js('leightbox_activate(\''.$lid.'\')');
-        }
-        if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) ) {
-            if($values['company_name']) Base_ActionBarCommon::add('edit', 'Copy company data', Module::create_href(array('UCD'=>true)));
+            if (isset($_REQUEST['UCD'])) eval_js('leightbox_activate(\''.$lid.'\')');
+			unset($_REQUEST['UCD']);
         }
     }
 
