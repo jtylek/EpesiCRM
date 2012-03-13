@@ -169,6 +169,7 @@ class Base_User_Login extends Module {
 		$subject = $this->t('Password recovery');
 		$message = $this->t('This e-mail is to inform you that someone requested password recovery for account set on your e-mail address.
 You can reset your password by entering: %s - in next mail we will sent you new password.
+
 If it wasn\'t you, just ignore this e-mail.
 
 This e-mail was automatically generated and you do not need to respond to it.', array(get_epesi_url().'/modules/Base/User/Login/reset_pass.php?hash='.$hash));
