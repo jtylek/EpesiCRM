@@ -22,6 +22,7 @@ class CRM_Contacts_PhotoCommon extends ModuleCommon {
         		$file = $in->get_data_dir() . $filename;
             } else {
 				$file = Base_ThemeCommon::get_template_file('CRM/Contacts/Photo','placeholder.png');
+				$ret['photo_note'] = Base_LangCommon::ts('CRM/Contacts/Photo','Click to change');
             }
 			$ret['photo_link'] = Module::create_href(array('upload_new_photo'=>$values['id'])).' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts/Photo','Click to change the photo'), false);
 			$ret['photo_src'] = $file;

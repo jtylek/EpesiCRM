@@ -549,6 +549,7 @@ hr.line {
 	margin: 0px;
 	background-color: #fff;
 	padding: 0px;
+	overflow: hidden;
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 6px gray;
 	-moz-box-shadow: 1px 1px 6px gray;
@@ -899,11 +900,11 @@ hr.line {
 	background-image: linear-gradient(top,  rgba(241,242,255,0.95) 0%,rgba(255,255,255,0) 75%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f1f2ff', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
 
-	background-color: #ddd;
+	background-color: #DDD;
 }
 
 .epesi_big_button:hover {
-	background-color: #bbf;
+	background-color: #9E9;
 }
 
 .epesi_big_button > img {

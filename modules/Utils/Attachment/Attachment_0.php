@@ -240,20 +240,26 @@ class Utils_Attachment extends Module {
 
 
 			$inline_img = '';
+			$link_href = '';
+			$link_img = '';
 			if($row['original']!=='') {
 				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 				if(file_exists($f_filename)) {
 					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array(Base_UserCommon::get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 					$view_link = '';
-					$r->add_action($this->get_file($row,$view_link),'Attachment',$filetooltip,Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png'), 10);
+					$link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.$this->get_file($row,$view_link);
+					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png');
 					if(Utils_AttachmentCommon::is_image($row) && $view_link)
 						$inline_img = '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
 				} else {
-					$r->add_action('','Attachment',$this->t('Missing file: %s',array($f_filename)),Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png'), 10);
+					$link_href = Utils_TooltipCommon::open_tag_attrs($this->t('Missing file: %s',array($f_filename)));
+					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach-off.png');
 				}
-			} else {
-				$r->add_action('','Attachment',$this->t('No attachment'),Base_ThemeCommon::get_template_file($this->get_type(),'z-attach-off.png'), 10);
 			}
+			if ($link_href)
+				$icon = '<a style="margin-right: 3px; float:left;" '.$link_href.'><img src="'.$link_img.'"></a>';
+			else
+				$icon = '';
 
 			static $def_permissions = array('Public','Protected','Private');
 			$perm = $this->t($def_permissions[$row['permission']]);
@@ -287,6 +293,7 @@ class Utils_Attachment extends Module {
 		    	$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
 		    }
 			
+			$text = $icon.$text;
 			if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text;
 
             $r->add_action('style="display:none;" href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 5);

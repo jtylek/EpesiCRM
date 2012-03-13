@@ -145,9 +145,16 @@
 							{/if}
 						{/foreach}
 			{if $action=='view'}
-			<td style="width:128px;">
+			<td style="width:128px;vertical-align:top;">
 				<a class="photo" {$photo_link}>
 					<img  class="shadow_5px_left" src="{$photo_src}" >
+					{if isset($photo_note)}
+						<div class="photo_note">
+							{$photo_note}
+						</div>
+					{/if}
+					<div class="overlay">
+					</div>
 				</a>
 			</td>
 			{/if}

@@ -234,6 +234,10 @@
 /* currency START */
 
 /* automulti START */
+
+.Utils_RecordBrowser__View_entry table.edit .automulti {
+	background-color: rgba(0, 0, 0, 0.15);
+}
 .Utils_RecordBrowser__View_entry table.edit .automulti select {
 	height: 80px;
 }

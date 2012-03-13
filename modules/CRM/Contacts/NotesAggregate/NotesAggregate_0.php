@@ -37,7 +37,6 @@ class CRM_Contacts_NotesAggregate extends Module {
 		
 		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
 			$attachment_groups[] = 'contact/'.$contact['id'];
-		print_r($attachment_groups);
 
 		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
 		$this->display_module($a);

@@ -955,7 +955,7 @@ class Utils_RecordBrowser extends Module {
 //              $row_data[] = '&nbsp;';
 
             $gb_row = $gb->get_new_row();
-            $gb_row->add_action('',$data['submit_qanr']['html'],'', null, false, 4);
+            $gb_row->add_action('',$data['submit_qanr']['html'],'', null, 0, false, 7);
             $gb_row->set_attrs('id="add_in_table_row" style="display:'.($this->show_add_in_table?'':'none').';"');
             $gb_row->add_data_array($row_data);
         }
@@ -1604,7 +1604,7 @@ class Utils_RecordBrowser extends Module {
 												${'rp_'.$args['id']} = $this->init_module('Utils/RecordBrowser/RecordPicker',array());
 												$filters_defaults = isset($multi_adv_params['filters_defaults'])?$multi_adv_params['filters_defaults']:array();
 												$this->display_module(${'rp_'.$args['id']}, array($this->tab,$args['id'],$multi_adv_params['format_callback'],$crits,array(),array(),array(),$filters_defaults));
-												$el->set_search_button('<a '.${'rp_'.$args['id']}->create_open_href().' '.Utils_TooltipCommon::open_tag_attrs($this->t('Advanced Selection')).' href="javascript:void(0);"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','icon_zoom.jpg').'"></a>');
+												$el->set_search_button('<a '.${'rp_'.$args['id']}->create_open_href().' '.Utils_TooltipCommon::open_tag_attrs($this->t('Advanced Selection')).' href="javascript:void(0);"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','icon_zoom.png').'"></a>');
 												} else {
 													if (empty($f_callback)) $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
 													$form->addElement('autoselect', $args['id'], $label, $comp, array(array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param'])), $f_callback);

@@ -1,6 +1,6 @@
 <center>
 
-<table id="Base_ActionBar" cellspacing="0" cellpadding="0" style="margin: 10px;">
+<table id="Base_ActionBar__launchpad" cellspacing="0" cellpadding="0" style="margin: 10px;">
 	<tr>
 	{assign var=x value=0}
     {foreach item=i from=$icons}

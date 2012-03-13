@@ -1,5 +1,6 @@
 <table width="100%">
 	<tr>
+		{if isset($new_note)}
 		<td style="width:110px;">
 			<a class="attachment_add_new" {$new_note.href}><img src="{$theme_dir}/Base/ActionBar/icons/add-small.png" />
 				<div class="attachment_div_add_new">
@@ -7,6 +8,7 @@
 				</div>
 			</a>
 		</td>
+		{/if}
 		<td style="width:110px;" id="{$expand_collapse.e_id}">
 			<a class="attachment_add_new" {$expand_collapse.e_href}><img src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
 				<div class="attachment_div_add_new">
