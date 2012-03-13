@@ -25,7 +25,11 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return "Epesi Store";
     }
 
-    protected static function get_payment_data_keys() {
+    public static function get_modules_all_available() {
+        return Base_EssClientCommon::server()->modules_list_all();
+    }
+
+    private static function get_payment_data_keys() {
         // key = field name from contact => value = field name in settings
         return array(
             'first_name' => 'first_name',
@@ -230,6 +234,63 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     private static function store_info_about_downloaded_module($module_license, $file) {
         $module_info = self::get_module_info($module_license['module']);
         Base_EpesiStoreCommon::add_downloaded_module($module_info['id'], $module_info['version'], $module_license['id'], $file);
+    }
+
+    private static function _is_module_bought($module_id, $module_licenses) {
+        foreach ($module_licenses as $m) {
+            if ($m['module'] == $module_id)
+                return true;
+        }
+        return false;
+    }
+
+    private static function _is_module_paid($module_id, $module_licenses) {
+        foreach ($module_licenses as $m) {
+            if ($m['module'] == $module_id)
+                return $m['paid'];
+        }
+        return false;
+    }
+
+    const ACTION_BUY = 'buy';
+    const ACTION_PAY = 'pay';
+    const ACTION_DOWNLOAD = 'download';
+    const ACTION_INSTALL = 'install';
+
+    public static function next_possible_action($module_id) {
+        $module_licenses = Base_EssClientCommon::server()->module_licenses_list();
+        if (!self::_is_module_bought($module_id, $module_licenses))
+            return self::ACTION_BUY;
+        if (!self::_is_module_paid($module_id, $module_licenses))
+            return self::ACTION_PAY;
+        // TODO: implement rest
+    }
+
+    public static function one_click_order_push_main_payment($module_id) {
+        $ret_message = null;
+        $response = Base_EssClientCommon::server()->order_submit($module_id);
+
+        // find order with that module
+        $orders = Base_EssClientCommon::server()->orders_list();
+        foreach ($orders as $o) {
+            if (false === array_search($module_id, $o['modules']))
+                continue;
+            // order should contain only one 'currency => value' pair. Take first
+            $keys = array_keys($o['price']);
+            $currency = reset($keys);
+            $value = $o['price'][$currency]['to_pay'];
+            $mi = self::get_module_info($module_id);
+            $x = ModuleManager::get_instance('/Base_Box|0');
+            if (!$x)
+                trigger_error('There is no base box module instance', E_USER_ERROR);
+            $ret_message = true;
+            $x->push_main('Base_EpesiStore', 'form_payment_frame', array($o['id'], $value, $currency, $mi['name']));
+            break;
+        }
+        if (!$ret_message) {
+            $ret_message = $response[$module_id] === false ? 'Unrecognized error' : $response[$module_id];
+        }
+        return $ret_message;
     }
 
     /**

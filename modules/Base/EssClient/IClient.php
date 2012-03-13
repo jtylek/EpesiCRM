@@ -109,10 +109,10 @@ interface IClient {
     /**
      * Submit order to server to buy modules.
      * 
-     * @param array $modules array of module ids
-     * @return array Array of mixed values. True on success, False or string message on error.
+     * @param array $modules_ids array of module ids
+     * @return array Array of mixed values. One is 'order_id'=>order_id, rest - key is module id, value is true on success, false or string message on error.
      */
-    function order_submit($modules);
+    function order_submit($modules_ids);
 
     /**
      * Get list of orders

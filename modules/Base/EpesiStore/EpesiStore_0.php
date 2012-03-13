@@ -206,7 +206,6 @@ class Base_EpesiStore extends Module {
         }
 
         $f = $this->init_module('Libs/QuickForm');
-        $f->addElement('submit', 'submit', $this->t('Buy!'));
         if ($f->validate() && $f->exportValue('submited')) {
             $recent_items = $this->_cart_items_on_server($items);
             if ($recent_items == $items) {
@@ -219,6 +218,7 @@ class Base_EpesiStore extends Module {
             }
         } else {
             $this->display_cart_items($items);
+            Base_ActionBarCommon::add('folder', 'Buy!', $f->get_submit_form_href());
             $f->display();
         }
     }
@@ -241,24 +241,20 @@ class Base_EpesiStore extends Module {
     }
 
     private function display_order_submit_response($ordered_items, $server_response) {
-        $module_names = array();
         foreach ($ordered_items as $r) {
-            $module_names[$r['id']] = $r['name'];
-        }
-
-        foreach ($server_response as $id => $info) {
+            $info = & $server_response[$r['id']];
             $success = $info === true ? true : false;
             $message = is_string($info) ? ' (' . $this->t($info) . ')' : "";
-            print("$module_names[$id] - <span style=\"color: " . ($success ? self::color_success : self::color_failure) . "\">" . $this->t($success ? 'Ordered' : 'Not ordered') . "$message</span><br/>");
+            print("{$r['name']} - <span style=\"color: " . ($success ? self::color_success : self::color_failure) . "\">" . $this->t($success ? 'Ordered' : 'Not ordered') . "$message</span><br/>");
         }
     }
 
     private function _order_submit($items) {
-        $modules = array();
+        $modules_ids = array();
         foreach ($items as $r)
-            $modules[] = $r['id'];
+            $modules_ids[] = $r['id'];
         Base_EpesiStoreCommon::empty_cart();
-        return Base_EssClientCommon::server()->order_submit($modules);
+        return Base_EssClientCommon::server()->order_submit($modules_ids);
     }
 
     /**
@@ -506,12 +502,13 @@ class Base_EpesiStore extends Module {
         $this->display_module($module_to_show, array('Epesi Store'));
     }
 
-    public function form_payment_frame($order_id, $value, $curr_code) {
+    public function form_payment_frame($order_id, $value, $curr_code, $modules = null) {
         $this->back_button();
         $this->payments_data_button();
 
         $url = 'modules/Base/EpesiStore/payment_frame.php';
-        $params = http_build_query(array('order_id' => $order_id, 'value' => $value, 'curr_code' => $curr_code, 'user' => Acl::get_user()));
+        $description = $modules ? "Payment for: $modules" : null;
+        $params = http_build_query(array('order_id' => $order_id, 'value' => $value, 'curr_code' => $curr_code, 'user' => Acl::get_user(), 'description' => $description));
         $iframe = '<iframe id="payment_frame" style="width:100%; border: 0; height:600px;" name="payment_frame" src="' . "$url?$params" . '"></iframe>';
         print($iframe);
     }
@@ -529,14 +526,21 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_data_transform_order(array $data) {
+        // change module ids to names
+        foreach ($data['modules'] as & $m) {
+            $mi = Base_EpesiStoreCommon::get_module_info($m);
+            $m = $mi['name'];
+        }
+        $data['modules'] = implode(', ', $data['modules']);
+        // handle prices
         $total = array();
         $to_pay = array();
         foreach ($data['price'] as $curr_code => $amount) {
             $total[] = $amount['display_total'];
             if ($amount['to_pay']) {
-                $href = $this->href_navigate('form_payment_frame', $data['id'], $amount['to_pay'], $curr_code);
-                $pay_button = "<button $href>Pay</button>";
-                $to_pay[] = $amount['display_to_pay'] . ' ' . $pay_button;
+                $href = $this->href_navigate('form_payment_frame', $data['id'], $amount['to_pay'], $curr_code, $data['modules']);
+                $pay_button = "<button $href>Pay {$amount['display_to_pay']}</button>";
+                $to_pay[] = $pay_button;
             } else {
                 $to_pay[] = $this->t('Paid');
             }
@@ -553,13 +557,16 @@ class Base_EpesiStore extends Module {
         return $data;
     }
 
+    private function module_info_tooltip($module_id) {
+        $mi = Base_EpesiStoreCommon::get_module_info($module_id);
+        $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($mi));
+        return "<a $tooltip>{$mi['name']}</a>";
+    }
+
     protected function GB_row_data_transform_module_licenses(array $data) {
         // module name
-        if (isset($data['module'])) {
-            $mi = Base_EpesiStoreCommon::get_module_info($data['module']);
-            $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($mi));
-            $data['module'] = "<a $tooltip>{$mi['name']}</a>";
-        }
+        if (isset($data['module']))
+            $data['module'] = $this->module_info_tooltip($data['module']);
         // paid
         if (isset($data['paid'])) {
             if (!$data['paid']) {

@@ -186,7 +186,7 @@ class ClientRequester implements IClient {
 
     protected function curl_call($post_data) {
         $ch = curl_init($this->server);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_VERBOSE, 0);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

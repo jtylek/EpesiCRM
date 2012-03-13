@@ -15,10 +15,15 @@ if ($user === null || $order_id === null || $value === null || $curr_code === nu
     print 'Not enough parameters';
     return;
 }
+$description = isset($_GET['description']) ? $_GET['description'] : null;
+if (!$description)
+    $description = "Order ID $order_id";
+$description = htmlspecialchars($description);
 
 Acl::set_user($user);
 
 $payment_url = Base_EssClientCommon::get_payments_url();
+$payment_url .= '?' . http_build_query(array('hide_page_banner' => '1'));
 $credentials = Base_EpesiStoreCommon::get_payment_credentials();
 foreach ($credentials as & $c)
     $c = htmlspecialchars($c);
@@ -39,7 +44,7 @@ echo '
     <input type="hidden" name="record_type" value="ess_orders" />
     <input type="hidden" name="amount" value="' . htmlspecialchars($value) . '" />
     <input type="hidden" name="currency" value="' . htmlspecialchars($curr_code) . '" />
-    <input type="hidden" name="description" value="Order ID ' . htmlspecialchars($order_id) . '" />
+    <input type="hidden" name="description" value="' . $description . '" />
     <input type="hidden" name="auto_process" value="1" />
 </form>
 ';
