@@ -25,7 +25,7 @@ if(!Acl::is_user()) {
 }
 
 $default = $_POST['default_dash'];
-if($default && !Acl::check('Base_Dashboard','set default dashboard')) {
+if($default && !Base_AdminCommon::get_access('Base_Dashboard')) {
 	Epesi::alert('Permission denied');
 	Epesi::send_output();
 	exit();
