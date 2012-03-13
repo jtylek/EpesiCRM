@@ -156,25 +156,26 @@ class Base_User_Login extends Module {
 			return false;
  		}
 
-		$pass = generate_password();
-
 		$user_id = Base_UserCommon::get_user_id($username);
+		DB::Execute('DELETE FROM user_reset_pass WHERE created_on<%T',array(time()-3600*2));
+		
 		if($user_id===false) {
 			print('No such user!');
 			return false;
 		}
+		$hash = md5($user_id.''.time());
+		DB::Execute('INSERT INTO user_reset_pass(user_login_id,hash_id,created_on) VALUES (%d,%s,%T)',array($user_id, $hash,time()));
+		
+		$subject = $this->t('Password recovery');
+		$message = $this->t('This e-mail is to inform you that someone requested password recovery for account set on your e-mail address.
+You can reset your password by entering: %s - in next mail we will sent you new password.
+If it wasn\'t you, just ignore this e-mail.
 
-		if(!DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array(md5($pass), $user_id))) {
-			print($this->t('Unable to update password for user %s.',array($username)));
-			return false;
-		}
-
-		if(!Base_User_LoginCommon::send_mail_with_password($username, $pass, $mail)) {
-			print($this->t('Unable to send e-mail with password. Mail module configuration invalid. Please contact system administrator.'));
-			return false;
-		}
+This e-mail was automatically generated and you do not need to respond to it.', array(get_epesi_url().'/modules/Base/User/Login/reset_pass.php?hash='.$hash));
+		$sendMail = Base_MailCommon::send($mail, $subject, $message);
 
 		return true;
 	}
+
 }
 ?>

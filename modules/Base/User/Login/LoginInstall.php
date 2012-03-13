@@ -31,6 +31,11 @@ class Base_User_LoginInstall extends ModuleInstall {
 			print('Invalid SQL query - user_login_ban table install');
 			return false;
 		}
+		$ret = DB::CreateTable('user_reset_pass',"user_login_id I NOTNULL, hash_id C(32) NOTNULL, created_on T DEFTIMESTAMP",array('constraints' => ', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
+		if($ret===false) {
+			print('Invalid SQL query - user_autologin table install');
+			return false;
+		}
 		Variable::set('host_ban_time',300);
 		Base_ThemeCommon::install_default_theme('Base/User/Login');
 		return true;
@@ -39,7 +44,7 @@ class Base_User_LoginInstall extends ModuleInstall {
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('Base/User/Login');
 		Variable::delete('host_ban_time');
-		return DB::DropTable('user_password') && DB::DropTable('user_login_ban') && DB::DropTable('user_autologin');
+		return DB::DropTable('user_password') && DB::DropTable('user_login_ban') && DB::DropTable('user_autologin') && DB::DropTable('user_reset_pass');
 	}
 
 	public function version() {

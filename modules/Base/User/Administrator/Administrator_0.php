@@ -96,6 +96,33 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     public function check_old_pass($pass) {
         return Base_User_LoginCommon::check_login(Base_UserCommon::get_my_user_login(), $pass);
     }
+    
+    public function change_email_header() {
+		if($this->is_back())
+			return false;
+	
+		$form = & $this->init_module('Libs/QuickForm',$this->t('Saving settings'));
+		
+		//pass
+		$form->addElement('header', null, $this->t('Change e-mail header'));
+		$form->addElement('textarea', 'emailHeader', $this->t('Enter e-mail header:'), array('size' => 50, 'maxlength' => 255));
+	
+		
+		if ($form->validate()) {
+			$emailHeader = $form->exportValue('emailHeader');
+			Variable::set('add_user_email_header',$emailHeader);
+			return false;
+		}
+
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		
+		$emailHeader = Variable::get('add_user_email_header','');
+		$form->setDefaults(array('emailHeader'=>$emailHeader));
+		$form->display();
+		
+		return true;
+    } 
 
     public function admin() {
 		if($this->is_back()) {
@@ -106,6 +133,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			return;
 		}
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('edit',$this->t('E-mail header'),$this->create_callback_href(array($this,'change_email_header')));
 
         $gb = & $this->init_module('Utils/GenericBrowser',null,'user_list');
         //$gb->set_module_variable('adv_search',false);
