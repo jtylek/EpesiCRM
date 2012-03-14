@@ -143,7 +143,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function copy_notes($from_group, $to_group) {
-		$notes = Utils_AttachmentCommon::get($from_group);
+		$notes = self::get($from_group);
+		$mapping = array();
 		foreach ($notes as $n) {
 			$file = self::Instance()->get_data_dir().$from_group.'/'.$n['id'].'_'.$n['file_revision'];
 			if(file_exists($file)) {
@@ -152,8 +153,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			} else {
 				$file2 = null;
 			}
-			$id = @Utils_AttachmentCommon::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$file2);
+			$mapping[$n['id']] = @Utils_AttachmentCommon::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$file2);
 		}
+		return $mapping;
 	}
 	
 	public static function is_image($note) {
@@ -161,12 +163,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function create_remote($file_id, $description, $expires_on) {
-		$r = DB::GetRow('SELECT id, token FROM utils_attachment_download WHERE remote=1 AND attach_file_id=%d AND created_by=%d',array($file_id,Acl::get_user()));
+		$r = DB::GetRow('SELECT id, token FROM utils_attachment_download WHERE remote=1 AND attach_file_id=%d',array($file_id));
 		if (!empty($r)) {
 			$id = $r['id'];
 			$token = $r['token'];
 		} else {
-			$token = md5(Acl::get_user().$expires_on);
+			$token = md5($file_id.$expires_on);
 			DB::Execute('INSERT INTO utils_attachment_download(remote,attach_file_id,created_by,created_on,expires_on,description,token) VALUES (1,%d,%d,%T,%T,%s,%s)',array($file_id,Acl::get_user(),time(),$expires_on,$description,$token));
 			$id = DB::Insert_ID('utils_attachment_download','id');
 		}
