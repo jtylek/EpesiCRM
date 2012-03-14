@@ -956,6 +956,11 @@ hr.line {
 	background: linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f6a8c', endColorstr='#335772',GradientType=0 ); /* IE6-9 */
 }
+.epesi_rtl .epesi_label {
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+}
 
 .epesi_label.header {
 	font-weight: bold;
@@ -974,13 +979,22 @@ hr.line {
     background-color: #FFFFF9;
 	width: 102px;
 	
-	-webkit-border-radius: 0 4px 4px 0;
-	-moz-border-radius: 0 4px 4px 0;
-    border-radius: 0 4px 4px 0;
 	-webkit-box-shadow: inset 1px 1px 1px #777;
 	-moz-box-shadow: inset 1px 1px 1px #777;
 	box-shadow: inset 1px 1px 1px #777;
 }
+.epesi_data {
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+}
+.epesi_rtl .epesi_data {
+	text-align: right;
+	-webkit-border-radius: 4px 0 0 4px;
+	-moz-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+}
+
 .epesi_data select {
 	margin-right: 2px;
 	height: 22px;
@@ -1074,6 +1088,9 @@ hr.line {
 	-webkit-border-radius: 0px;
 	-moz-border-radius: 0px;
     border-radius: 0px;
+}
+.epesi_rtl .epesi_data.automulti input[type="checkbox"]{
+	float: right;
 }
 .epesi_data.automulti input[type="button"]{
 	height: 100%;

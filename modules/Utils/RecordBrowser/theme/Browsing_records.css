@@ -14,6 +14,10 @@
 	margin-left: 40px;
 	margin-top: 2px;
 }
+.epesi_rtl #Browsing_records .name .label {
+	margin-left: 0px;
+	margin-right: 40px;
+}
 
 #Browsing_records .name {
     text-align: left;
@@ -25,6 +29,7 @@
     vertical-align: top;
 	
 	margin-left: 10px;
+	margin-right: 10px;
 	padding: 3px 18px;
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;

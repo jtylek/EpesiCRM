@@ -12,10 +12,12 @@
 }
 .epesi_rtl #Base_ActionBar .panel_div_left.epesi_big_button {
 	margin-left: 5px;
+	margin-right: 0px;
 	float: right;
 }
 .epesi_rtl #Base_ActionBar .panel_div_right.epesi_big_button {
 	margin-right: 5px;
+	margin-left: 0px;
 	float: left;
 }
 
@@ -31,6 +33,9 @@
 	margin-left: 0px;
 	margin-right: 0px;
 	width: 63px; 
+}
+.epesi_rtl #launchpad_button_section #Base_ActionBar .panel_div_right.epesi_big_button {
+	margin-left: -2px;
 }
 
 #Base_ActionBar .epesi_big_button > span {

@@ -1,5 +1,6 @@
 .Base_Setup {
 	margin-left: 45px;
+	margin-right: 45px;
 }
 
 .Base_Setup .filters {
@@ -36,6 +37,9 @@
 	background: linear-gradient(top,  #efefef 0%,#e7e7e7 40%,#dbdbdb 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#dbdbdb',GradientType=0 ); /* IE6-9 */
 }
+.epesi_rtl .Base_Setup .filters > div {
+	float: right;
+}
 
 .Base_Setup .filters > div.selected {
 	color: black;
@@ -70,7 +74,9 @@
 	-moz-box-shadow: 1px 1px 6px gray;
 	box-shadow: 1px 1px 6px gray;
 }
-
+.epesi_rtl #Base_Setup .big-button {
+	float: right;
+}
 #Base_Setup .big-button,
 #Base_Setup .toggle_options {
 	/* css3 gray 2color gradient */
@@ -160,6 +166,10 @@
 	box-shadow: 1px 1px 3px gray;
 	/* end css3 shadow border*/
 }
+.epesi_rtl #Base_Setup .big-button .action {
+	padding-right: 0px;
+	padding-left: 6px;
+}
 
 #Base_Setup .big-button .action img {
 	position: absolute;
@@ -175,6 +185,10 @@
     min-height: 20px;
 	margin-top: 0px;
 	margin-right: 6px;
+	margin-left: 10px;
+}
+.epesi_rtl #Base_Setup .big-button .options .action {
+	float: left;
 }
 
 #Base_Setup .big-button .subaction {
@@ -183,6 +197,10 @@
 	height: 30px;
 	padding-right: 6px;
 	position: relative;
+}
+.epesi_rtl #Base_Setup .big-button .subaction {
+	padding-right: 0px;
+	padding-left: 6px;
 }
 
 #Base_Setup .big-button .subaction:first-child {
@@ -239,13 +257,20 @@
 
 #Base_Setup .option_label {
 	width: 150px;
-	padding: 7px 0px 7px 10px;
+	padding: 7px 10px 7px 10px;
 	text-align: left;
+}
+.epesi_rtl #Base_Setup .option_label {
+	text-align: right;
 }
 #Base_Setup .option_action {
 	width: 110px;
 	float: right;
 	padding: 2px 0px 2px 0;
+}
+.epesi_rtl #Base_Setup .option_action {
+	float: left;
+	margin-left: -6px;
 }
 
 #Base_Setup .message {

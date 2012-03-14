@@ -52,6 +52,11 @@
 	-moz-box-shadow: inset 1px 1px 1px #333355;
 	box-shadow: inset 1px 1px 1px #333355;
 }
+.epesi_rtl .Utils_RecordBrowser__View_entry .label {
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+}
 .Utils_RecordBrowser__View_entry .label_top{
 	-webkit-border-radius: 4px 4px 0 0;
 	-moz-border-radius: 4px 4px 0 0;
@@ -72,6 +77,11 @@
 	-webkit-box-shadow: inset 1px 1px 1px #777;
 	-moz-box-shadow: inset 1px 1px 1px #777;
 	box-shadow: inset 1px 1px 1px #777;
+}
+.epesi_rtl .Utils_RecordBrowser__View_entry .data {
+	-webkit-border-radius: 4px 0 0 4px;
+	-moz-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
 }
 
 .Utils_RecordBrowser__View_entry .currency {
@@ -320,6 +330,10 @@
 	margin-left: 40px;
 	margin-top: 3px;
 }
+.epesi_rtl .Utils_RecordBrowser__table .name .label {
+	margin-left: 0px;
+	margin-right: 40px;
+}
 
 .Utils_RecordBrowser__table .name {
 	width: auto;
@@ -332,6 +346,7 @@
     vertical-align: top;
 	
 	margin-left: 12px;
+	margin-right: 12px;
 	padding: 3px 18px;
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;

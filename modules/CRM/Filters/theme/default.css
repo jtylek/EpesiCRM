@@ -6,6 +6,9 @@
     bottom: 18px;
 	background: url("Base/Box/filter_icon.png") no-repeat right;
 }
+.epesi_rtl .filter_icon_img {
+    left: 0px;
+}
 #top_bar #top_bar_2 .filter {
     padding-top: 5px;
 	padding-left: 2px;
@@ -15,10 +18,11 @@
     cursor: pointer;
     display: block;
     height: 21px;
-    width: 277px;
+    width: 273px;
     padding-top: 6px;
     text-align: center;
 	line-height: 15px;
+	margin-left: 2px;
 }
 
 #top_bar #top_bar_2 .filter a.disabled {
