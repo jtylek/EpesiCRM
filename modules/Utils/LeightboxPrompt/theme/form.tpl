@@ -1,19 +1,21 @@
+{php}
+	//print_r($this->_tpl_vars);
+{/php}
+
 <br>
 {$form_open}
-<table id="Utils_LeightboxPrompt__form" cellspacing="0" cellpadding="0" style="width:70%">
+<table id="Utils_LeightboxPrompt__form" style="border-spacing:3px;width:70%;" cellpadding="0">
 	{foreach item=e from=$form_data}
 		{if isset($e.label) && !is_string($e) && $e.type!='hidden' && $e.name!='submit' && $e.name!='cancel'}
 			<tr>
-			    <td rowspan="2" class="label" nowrap="1">
-			    	{$e.label}
+			    <td class="epesi_label" style="width:30%;" nowrap="1">
+						{$e.label}
 				</td>
-				<td style="color:red;padding-left:5px;text-align:left;">
-					{$e.error}
-			    </td>
-			</tr>
-			<tr>
-				<td style="padding-left:5px;" id="{$e.name}__leightbox_prompt__data_span">
-					{$e.html}
+				<td class="epesi_data{if $e.type=='static' || $e.frozen==1} static_field{/if}{if $e.type=='group'} timestamp{/if}" style="width:70%;">
+					<div style="position:relative;" id="{$e.name}__leightbox_prompt__data_span">
+						{$e.error}
+						{$e.html}
+					</div>
 				</td>
 			</tr>
 		{/if}

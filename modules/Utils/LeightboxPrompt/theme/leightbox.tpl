@@ -5,18 +5,14 @@
 	<tr>
 	{foreach item=b from=$buttons}
         <td>
-			<div class="leightbox_shadow_css3">
-
-			    {$b.open}
-				<div class="big-button">
-					{if ($b.icon)}
-						<img src="{$b.icon}" alt="" align="middle" border="0" width="32" height="32">
-					{/if}
-			        <div style="height: 5px;"></div>
-			        <table class="icon_table_text"><tr class="icon_tr_text"><td class="icon_td_text">{$b.label}</td></tr></table>
-		        </div>
-			    {$b.close}
-		 	</div>
+			{$b.open}
+			<div class="epesi_big_button">
+				{if ($b.icon)}
+					<img src="{$b.icon}" alt="" align="middle" border="0" width="32" height="32">
+				{/if}
+				<span>{$b.label}</span>
+			</div>
+			{$b.close}
         </td>
 		{assign var=x value=$x+1}
 		{if ($x==6)}
