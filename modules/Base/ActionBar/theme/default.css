@@ -24,7 +24,7 @@
 	margin: 0px 0px 4px;
 	height: 74px;
 	width: auto;
-	width: 64px;
+	min-width: 64px;
 }
 
 #launchpad_button_section #Base_ActionBar .panel_div_right.epesi_big_button {
@@ -36,7 +36,8 @@
 #Base_ActionBar .epesi_big_button > span {
 	font-weight: normal;
 	padding: 0px 2px 0px;
-	width: 60px;
+	min-width: 56px;
+	width: auto;
 	height: 34px;
 	line-height: 11px;
 }
