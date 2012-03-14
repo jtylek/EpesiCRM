@@ -41,11 +41,12 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 			$str .= $this->_getTabs() .
 					'<div style="margin-right:5px; width:40px; position:relative; float:right;"><select style="width:40px;" name="__'.str_replace(array('[',']'),'',$name).'__currency" id="__'.$id.'__currency">';
 
-			$curs = DB::GetAssoc('SELECT id, symbol FROM utils_currency ORDER BY code');
-			foreach ($curs as $k=>$v) {
-				$str .= '<option value="'.$k.'"';
-				if ($k==$this->currency) $str .= ' selected="1"';
-				$str .= '>'.$v.'</option>';
+			$curs = DB::GetAll('SELECT id, symbol, active FROM utils_currency ORDER BY code');
+			foreach ($curs as $v) {
+				if ($v['id']!=$this->currency && !$v['active']) continue;
+				$str .= '<option value="'.$v['id'].'"';
+				if ($v['id']==$this->currency) $str .= ' selected="1"';
+				$str .= '>'.$v['symbol'].'</option>';
 			}
 			$str .= '</select></div>';
 
