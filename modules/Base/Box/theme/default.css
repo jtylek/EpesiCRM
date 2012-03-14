@@ -900,7 +900,7 @@ hr.line {
 	background-image: linear-gradient(top,  rgba(241,242,255,0.95) 0%,rgba(255,255,255,0) 75%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f1f2ff', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
 
-	background-color: #DDD;
+	background-color: #FFF;
 }
 
 .epesi_big_button:hover {
