@@ -103,16 +103,14 @@
                             </tr>
                             <tr>
                                 <td colspan="{$colspan}" class="time black">
-                                    {if $event_info.start_time != "timeless"}
+                                    {if isset($event_info)}
                                         {$event_info.start_time}&nbsp;-&nbsp;{$event_info.end_time}
-                                    {else}
-                                        timeless
                                     {/if}
                                 </td>
                             </tr>
                             <tr>
                                 <td colspan="{$colspan}" class="duration dark-gray">
-                                    {if $event_info.start_time != "timeless"}
+                                    {if isset($event_info)}
                                         {$event_info.duration}
                                     {/if}
                                 </td>

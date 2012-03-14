@@ -150,6 +150,7 @@ class Utils_RecordBrowser extends Module {
         self::$rb_obj = $this;
         $this->tab = & $this->get_module_variable('tab', $tab);
         if ($this->tab!==null) Utils_RecordBrowserCommon::check_table_name($this->tab);
+		load_js('modules/Utils/RecordBrowser/main.js');
     }
 
     public function init($admin=false, $force=false) {
