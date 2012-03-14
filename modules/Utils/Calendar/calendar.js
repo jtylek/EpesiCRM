@@ -71,7 +71,7 @@ remove_event_tag:function(prev_node,ev) {
 				cell.removeAttribute('events_children');
 			} else {
 				reload = reload.concat(prev_ch);
-				cell.setAttribute('events_children',prev_ch.toJSON());
+				cell.setAttribute('events_children',Object.toJSON(prev_ch));
 			}
 		}
 
@@ -124,8 +124,7 @@ add_event_tag:function(dest,ev) {
 		}
 		if(offset<ch.length) offset = ch.length;
 		if(ch.indexOf(ev.id)<0) ch.push(ev.id);
-		if(cell.hasAttribute('events_children'))
-			cell.setAttribute('events_children',ch.toJSON());
+		cell.setAttribute('events_children',Object.toJSON(ch));
 
 		if(cell.hasAttribute('join_rows')) {
 			max_cut = parseInt(ev.getAttribute('max_cut'));
@@ -163,7 +162,7 @@ add_event_tag:function(dest,ev) {
 			err_evs = new Array();
 		}
 		err_evs.push(ev.id);
-		dest.setAttribute("too_many_events",err_evs.toJSON());
+		dest.setAttribute("too_many_events",Object.toJSON(err_evs));
 		ev.style.display='none';
 	} else {
 		if(dest.hasAttribute("too_many_events")) {
