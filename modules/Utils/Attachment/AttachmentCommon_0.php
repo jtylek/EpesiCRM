@@ -141,6 +141,20 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		DB::Execute('UPDATE utils_attachment_link SET local=%s WHERE local=%s', array($from_group, $to_group));
 		if (is_dir(self::Instance()->get_data_dir().$to_group)) rename(self::Instance()->get_data_dir().$to_group, self::Instance()->get_data_dir().$from_group);
 	}
+
+	public static function copy_notes($from_group, $to_group) {
+		$notes = Utils_AttachmentCommon::get($from_group);
+		foreach ($notes as $n) {
+			$file = self::Instance()->get_data_dir().$from_group.'/'.$n['id'].'_'.$n['file_revision'];
+			if(file_exists($file)) {
+				$file2 = $file.'_tmp';
+				copy($file,$file2);
+			} else {
+				$file2 = null;
+			}
+			$id = @Utils_AttachmentCommon::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$file2);
+		}
+	}
 	
 	public static function is_image($note) {
 		return preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$note['original']);
