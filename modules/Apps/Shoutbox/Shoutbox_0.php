@@ -81,8 +81,9 @@ class Apps_Shoutbox extends Module {
         // $gb->set_default_order(array($this->t('Date')=>'DESC'));
 
         $myid = Acl::get_user();
-		$query = 'SELECT base_user_login_id, to_user_login_id, message, posted_on FROM apps_shoutbox_messages WHERE ('.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).')'.$date_where.' ORDER BY posted_on DESC';
-        $query_qty = 'SELECT count(id) FROM apps_shoutbox_messages WHERE ('.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).')'.$date_where;
+		$where = '('.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.') OR (to_user_login_id is null AND base_user_login_id='.$uid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).')'.$date_where;
+		$query = 'SELECT base_user_login_id, to_user_login_id, message, posted_on FROM apps_shoutbox_messages WHERE '.$where.' ORDER BY posted_on DESC';
+        $query_qty = 'SELECT count(id) FROM apps_shoutbox_messages WHERE '.$where;
 
 		$ret = $gb->query_order_limit($query, $query_qty);
 
