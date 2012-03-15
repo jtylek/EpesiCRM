@@ -13,6 +13,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
+    const ACTION_BUY = 'buy';
+    const ACTION_PAY = 'pay';
+    const ACTION_DOWNLOAD = 'download';
+    const ACTION_UPDATE = 'update';
+    const ACTION_INSTALL = 'install';
+    //
     const MOD_PATH = 'Base_EpesiStoreCommon';
     const CART_VAR = 'cart';
     const DOWNLOAD_QUEUE_VAR = 'queue';
@@ -252,10 +258,14 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return false;
     }
 
-    const ACTION_BUY = 'buy';
-    const ACTION_PAY = 'pay';
-    const ACTION_DOWNLOAD = 'download';
-    const ACTION_INSTALL = 'install';
+    private static function _is_module_downloaded($module_id) {
+        return false !== self::get_downloaded_module_version($module_id);
+    }
+
+    private static function _is_module_up_to_date($module_id) {
+        $mi = self::get_module_info($module_id);
+        return $mi['version'] >= self::get_downloaded_module_version($module_id);
+    }
 
     public static function next_possible_action($module_id) {
         $module_licenses = Base_EssClientCommon::server()->module_licenses_list();
@@ -263,7 +273,12 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             return self::ACTION_BUY;
         if (!self::_is_module_paid($module_id, $module_licenses))
             return self::ACTION_PAY;
-        // TODO: implement rest
+        if (!self::_is_module_downloaded($module_id))
+            return self::ACTION_DOWNLOAD;
+        if (!self::_is_module_up_to_date($module_id))
+            return self::ACTION_UPDATE;
+
+        return self::ACTION_INSTALL;
     }
 
     public static function one_click_order_push_main_payment($module_id) {
@@ -291,6 +306,15 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             $ret_message = $response[$module_id] === false ? 'Unrecognized error' : $response[$module_id];
         }
         return $ret_message;
+    }
+
+    /**
+     * Get downloaded module version
+     * @param int $module_id
+     * @return string version 
+     */
+    public static function get_downloaded_module_version($module_id) {
+        return DB::GetOne('SELECT `version` FROM epesi_store_modules WHERE `module_id` = %d', array($module_id));
     }
 
     /**
