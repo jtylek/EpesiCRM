@@ -16,8 +16,10 @@ class CRM_Meeting extends Module {
 	public function body() {
 		$this->rb = $this->init_module('Utils/RecordBrowser','crm_meeting','crm_meeting');
 		$me = CRM_ContactsCommon::get_my_record();
+		$this->rb->set_custom_filter('status',array('type'=>'checkbox','label'=>$this->t('Display closed meetings'),'trans'=>array('__NULL__'=>array('!status'=>array(3,4)),1=>array())));
 		$this->rb->set_filters_defaults(array('employees'=>$this->rb->crm_perspective_default()));
 		$this->rb->set_defaults(array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1, 'date'=>date('Y-m-d'), 'time'=>date('H:i:s'), 'duration'=>3600));
+		$this->rb->set_default_order(array('date'=>'ASC', 'time'=>'ASC', 'status'=>'DESC'));
 		$this->display_module($this->rb);
 	}
 
