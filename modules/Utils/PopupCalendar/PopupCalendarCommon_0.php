@@ -53,7 +53,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		$cal_out = ob_get_clean();
 
 
-		print('<div id="'.$entry.'" class="utils_popupcalendar_popup" style="display:none;z-index:2050;">'.
+		print('<div id="'.$entry.'" class="utils_popupcalendar_popup" style="display:none;z-index:2050;width:1px;">'.
 			$cal_out.
 			'</div>');
 
