@@ -12,6 +12,18 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_LoginAudit extends Module {
 
+	public function applet() {
+		$query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name FROM base_login_audit b WHERE b.user_login_id='.Acl::get_user().' ORDER BY b.start_time DESC';
+		
+		$ret = DB::SelectLimit($query, 1, 1);
+		if($row = $ret->FetchRow()) {
+			$ok1 = $row['ip_address'] == $_SERVER['REMOTE_ADDR']; 
+			$ok2 = DB::GetOne('SELECT 1 FROM base_login_audit b WHERE (SELECT MIN(b2.start_time) FROM base_login_audit b2 WHERE b2.ip_address=%s)<b.start_time AND (SELECT MAX(b3.start_time) FROM base_login_audit b3 WHERE b3.ip_address=%s)>b.start_time AND b.ip_address!=%s',array($row['ip_address'],$row['ip_address'],$row['ip_address']));
+			$ok = $ok1 || $ok2;
+			print(($ok?'<div style="padding:7px;">':'<div style="padding:7px;background-color: red; color:white; font-weight:bold;">').$this->t('On: %s',array($row['start_time'])).'<br />'.$this->t('Host name: %s',array($row['host_name'])).'<br />'.$this->t('IP address: %s',array( $row['ip_address'])).'</div>');
+		}
+	}
+	
     public function admin() {
 		if($this->is_back()) {
 			if($this->parent->get_type()=='Base_Admin')
