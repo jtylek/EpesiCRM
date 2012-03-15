@@ -31,14 +31,14 @@ class Apps_Shoutbox extends Module {
 
 		$qf = & $this->init_module('Libs/QuickForm');
 
-        $myid = Acl::get_user();
   	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-       	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id!=%d ORDER BY name',array($myid));			    
+       	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 ORDER BY name');
 	    } else
-   		    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id!=%d ORDER BY login',array($myid));
+   		    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 ORDER BY login');
    		$qf->addElement('select','user',$this->t('User'),array('all'=>$this->t('-- all --'))+$emps);
    		$qf->addElement('datepicker','from_date',$this->t('From'));
    		$qf->addElement('datepicker','to_date',$this->t('To'));
+   		$qf->addElement('text','search',$this->t('Search for'));
 		$qf->addElement('submit','submit_button',$this->t('Filter'));
 	    
 	    $to_date = & $this->get_module_variable('to_date');
@@ -51,6 +51,7 @@ class Apps_Shoutbox extends Module {
 			$from_date = $qf->exportValue('from_date');
 			$to_date = $qf->exportValue('to_date');
 			$user = $qf->exportValue('user');
+			$search_word = $qf->exportValue('search');
 		}
 
 	    $qf->assign_theme('form', $th);
@@ -61,6 +62,12 @@ class Apps_Shoutbox extends Module {
 		    $date_where .= 'AND posted_on>='.DB::DBDate($from_date);
 		if($to_date)
 		    $date_where .= 'AND posted_on<='.DB::DBDate($to_date);
+		if (isset($search_word) && $search_word) {
+			$search_word = explode(' ',$search_word);
+			foreach ($search_word as $word) {
+				if ($word) $date_where .= ' AND message '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr(htmlspecialchars($word,ENT_QUOTES,'UTF-8')),DB::qstr('%'));
+			}
+		}
 
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'shoutbox_history');
 

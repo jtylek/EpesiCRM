@@ -1,8 +1,25 @@
 <div id="shoutbox_big_container">
 {$form_open}
-<table border="0" style="width:100%">
-<tr><td style="width:70px;text-align:right;padding-right:5px"><b>{$form_data.to.label}</b></td><td>{$form_data.to.html}</td><td></td></tr>
-<tr><td style="width:70px;text-align:right;padding-right:5px"><b>{$form_data.post.label}</b></td><td>{$form_data.post.html}</td><td style="width:95px;vertical-align:middle;">{$form_data.submit_button.html}</td></tr>
+<table border="0" style="width:500px">
+	<tr>
+		<td class="epesi_label" style="width:70px;">
+			{$form_data.to.label}
+		</td>
+		<td class="epesi_data">
+			{$form_data.to.html}
+		</td>
+		<td class="child_button">
+			{$form_data.submit_button.html}
+		</td>
+	</tr>
+	<tr>
+		<td class="epesi_label" style="width:70px;">
+			{$form_data.post.label}
+		</td>
+		<td class="epesi_data" colspan="2">
+			{$form_data.post.html}
+		</td>
+	</tr>
 </table>
 {$form_close}
 {$board}

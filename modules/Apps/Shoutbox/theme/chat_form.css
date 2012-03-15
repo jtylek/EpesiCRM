@@ -31,11 +31,11 @@
 #shoutbox_text:focus {
 	background-color: #FFFFA5;
 }
-#__autocomplete_id_to__search,
-#__to_select_span #to {
+.Apps_Shoutbox__dashboard #__autocomplete_id_to__search,
+.Apps_Shoutbox__dashboard #__to_select_span #to {
     margin: 7px auto auto 5px;
 }
-#__autocomplete_id_to__search {
+.Apps_Shoutbox__dashboard #__autocomplete_id_to__search {
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -43,8 +43,8 @@
 	/* end border radius */
 	padding: 2px 5px;
 }
-#__autocomplete_id_to__search:focus,
-#__to_select_span #to:focus {
+.Apps_Shoutbox__dashboard #__autocomplete_id_to__search:focus,
+.Apps_Shoutbox__dashboard #__to_select_span #to:focus {
 	background-color: #FFFFA5;
 }
 
