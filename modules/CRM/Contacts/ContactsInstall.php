@@ -109,6 +109,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 		
 		Utils_BBCodeCommon::new_bbcode('contact', 'CRM_ContactsCommon', 'contact_bbcode');
 		Utils_BBCodeCommon::new_bbcode('company', 'CRM_ContactsCommon', 'company_bbcode');
+		
+		Base_AclCommon::add_clearance_callback(array('CRM_ContactsCommon','crm_clearance'));
 
 		self::install_permissions();
 
@@ -139,6 +141,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+		Base_AclCommon::remove_clearance_callback(array('CRM_ContactsCommon','crm_clearance'));
+
 		Base_ThemeCommon::uninstall_default_theme('CRM/Contacts');
 		Utils_RecordBrowserCommon::unregister_datatype('crm_company');
 		Utils_RecordBrowserCommon::unregister_datatype('crm_contact');

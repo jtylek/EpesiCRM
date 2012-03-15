@@ -15,11 +15,17 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AclInstall extends ModuleInstall {
 	public function install() {
+		DB::CreateTable('base_acl_clearance',
+			'id I4 AUTO KEY,'.
+			'callback C(128)',
+			array('constraints' => ''));
+		DB::Execute('INSERT INTO base_acl_clearance (callback) VALUES (%s)', array('Base_AclCommon::basic_clearance'));
 		Base_LangCommon::install_translations($this->get_type());
 		return true;
 	}
 	
 	public function uninstall() {
+		DB::DropTable('base_acl_clearance');
 		return true;
 	}
 	

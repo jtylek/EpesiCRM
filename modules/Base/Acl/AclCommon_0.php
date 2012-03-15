@@ -235,6 +235,37 @@ class Base_AclCommon extends ModuleCommon {
 		return Acl::$gacl->add_object('Users', $username, $username, 1, 0, 'ARO') &&
 			Acl::$gacl->add_group_object(Acl::$gacl->get_group_id('User'), 'Users', $username);
 	}
+	
+	public static function basic_clearance($all=false) {
+		$user_clearance = array('ALL');
+		if ($all || Base_AclCommon::i_am_admin()) $user_clearance[] = 'ADMIN';
+		if ($all || Base_AclCommon::i_am_sa()) $user_clearance[] = 'SUPERADMIN';
+		return $user_clearance;
+	}
+	public static function add_clearance_callback($callback) {
+		if (is_array($callback)) $callback = implode('::', $callback);
+		self::remove_clearance_callback($callback);
+		DB::Execute('INSERT INTO base_acl_clearance (callback) VALUES (%s)', array($callback));
+	}
+	public static function remove_clearance_callback($callback) {
+		if (is_array($callback)) $callback = implode('::', $callback);
+		DB::Execute('DELETE FROM base_acl_clearance WHERE callback=%s', array($callback));
+	}
+	
+	public static function get_clearance($all=false) {
+		static $cache = array();
+		if (!isset($cache[$all])) {
+			$ret = DB::Execute('SELECT * FROM base_acl_clearance');
+			$clearance = array();
+			while ($row = $ret->FetchRow()) {
+				$callback = explode('::', $row['callback']);
+				$new = call_user_func($callback, $all);
+				$clearance = array_merge($clearance, $new);
+			}
+			$cache[$all] = $clearance;
+		}
+		return $cache[$all];
+	}
 }
 
 ?>

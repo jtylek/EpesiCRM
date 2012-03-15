@@ -1393,7 +1393,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function decode_access($str) {
 		if (is_numeric($str)) return $str;
 		if ($str=='USER_ID') return Acl::get_user();
-		if (class_exists('CRM_ContactsCommon')) {
+		if (class_exists('CRM_ContactsCommon')) { // FIXME should be moved to CRM_Cotnacts, but only after editor is ready and there's synatx to retrieve all needed info
 			$me = CRM_ContactsCommon::get_my_record();
 			if ($str=='USER') return $me['id'];
 			if ($str=='USER_COMPANY') return $me['company_name'];
@@ -1468,25 +1468,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			static $cache = array();
 			if (!isset($cache[$tab])) {
 				self::check_table_name($tab);
-				$user_clearance = array('ALL');
-				$sa = Base_AclCommon::i_am_sa();
-				if (Base_AclCommon::i_am_admin()) $user_clearance[] = 'ADMIN';
-				if ($sa) $user_clearance[] = 'SUPERADMIN';
-				
-				// move to CRM_Contacts, using "user clearance callback"
-				if (class_exists('CRM_ContactsCommon')) {
-					$me = CRM_ContactsCommon::get_my_record(); 
-					$mc = CRM_ContactsCommon::get_main_company();
-					if ($sa || $me['id']!=-1) {
-						if ($sa || $me['company_name']==$mc || in_array($mc, $me['related_companies'])) $user_clearance[] = 'EMPLOYEE';
-						if ($sa) $access = array_keys(Utils_CommonDataCommon::get_array('Contacts/Access'));
-						else $access = $me['access'];
-						foreach ($access as $g) {
-							$user_clearance[] = 'ACCESS:'.$g;
-						}
-					}
-				}
-				// move to CRM_Contacts, using "user clearance callback"
+				$user_clearance = Base_AclCommon::get_clearance();
 				
 				$r = DB::Execute('SELECT * FROM '.$tab.'_access AS acs WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($user_clearance), 'clearance!=%s')).')', $user_clearance);
 				$crits = array('view'=>null, 'edit'=>null, 'delete'=>null, 'add'=>null);

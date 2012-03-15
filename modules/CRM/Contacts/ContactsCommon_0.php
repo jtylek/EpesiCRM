@@ -14,6 +14,22 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_ContactsCommon extends ModuleCommon {
     public static $paste_or_new = 'new';
 
+    public static function crm_clearance($all = false) {
+		$clearance = array();
+		$all |= Base_AclCommon::i_am_sa();
+		$me = CRM_ContactsCommon::get_my_record(); 
+		$mc = CRM_ContactsCommon::get_main_company();
+		if ($all || $me['id']!=-1) {
+			if ($all || $me['company_name']==$mc || in_array($mc, $me['related_companies'])) $clearance[] = 'EMPLOYEE';
+			if ($all) $access = array_keys(Utils_CommonDataCommon::get_array('Contacts/Access'));
+			else $access = $me['access'];
+			foreach ($access as $g) {
+				$clearance[] = 'ACCESS:'.$g;
+			}
+		}
+		return $clearance;
+	}
+
     public static function get_contacts($crits = array(), $cols = array(), $order = array(), $limit = array()) {
         return Utils_RecordBrowserCommon::get_records('contact', $crits, array(), $order, $limit);
     }
