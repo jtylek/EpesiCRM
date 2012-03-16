@@ -97,7 +97,7 @@ class Libs_QuickForm extends Module {
 
 	public function get_submit_form_js_by_name($form_name, $submited, $indicator, $queue=false) {
 		if (!is_array($form_name)) $form_name = array($form_name);
-		if(!isset($indicator)) $indicator='processing...';
+		if(!isset($indicator)) $indicator=Base_LangCommon::ts('Libs_QuickForm','processing...');
 		$fast = "+'&".http_build_query(array('__action_module__'=>$this->get_parent_path()))."'"; 
 		$pre = '';
 		$chj = '';

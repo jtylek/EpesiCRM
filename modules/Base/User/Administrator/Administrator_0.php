@@ -53,7 +53,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
         #$form->addElement('submit', 'submit_button', $this->t('OK'));
 
-        if($form->validate_with_message('Setting saved','Problem encountered')) {
+        if($form->validate_with_message('Setting saved',$this->t('Problem encountered'))) {
             if($form->process(array(&$this, 'submit_user_preferences'))){
 				if (Acl::check('Base_User_Settings', 'access'))
 					Base_BoxCommon::location('Base_User_Settings');
