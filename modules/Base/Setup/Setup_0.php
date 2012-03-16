@@ -249,6 +249,7 @@ class Base_Setup extends Module {
 				$package['is_required'][$structure[$r]['key']] = $structure[$r]['key'];
 			}
 		}
+		
 		$sorted = array();
 		foreach ($packages as $key=>$p) {
 			if ($key===0) continue;
@@ -261,6 +262,7 @@ class Base_Setup extends Module {
 				$sorted[$name]['buttons'] = array();
 				$sorted[$name]['options'] = array();
 				$sorted[$name]['status'] = $this->t('Options only');
+				$sorted[$name]['filter'] = array('available');
 				$sorted[$name]['style'] = 'disabled';
 				$sorted[$name]['installed'] = null;
 				$sorted[$name]['instalable'] = 0;
@@ -298,14 +300,17 @@ class Base_Setup extends Module {
 			switch (true) {
 				case $p['installed']===false:
 					$style = 'available';
+					$filter = array('available');
 					$status = $this->t('Available'); 
 					break;
 				case $p['installed']===true:
 					$style = 'install';
+					$filter = array('installed');
 					$status = $this->t('Installed');
 					break;
 				case $p['installed']==='partial':
 					$style = 'problem';
+					$filter = array('installed');
 					$status = $this->t('Partially');
 					break;
 			}
@@ -318,6 +323,7 @@ class Base_Setup extends Module {
 				$sorted[$name]['installed'] = $p['installed'];
 				$sorted[$name]['instalable'] = 1;
 				$sorted[$name]['uninstalable'] = empty($p['is_required']);
+				$sorted[$name]['filter'] = $filter;
 			} else {
 				$sorted[$name]['options'][$option] = array(
 				'name' => $this->t($option),
@@ -326,16 +332,19 @@ class Base_Setup extends Module {
 				'style' => $style);
 			}
 		}
-		foreach ($sorted as $name=>$v)
-			ksort($sorted[$name]['options']);
-		
-		uasort($sorted, array($this, 'simple_setup_sort'));
-		
 		$filters = array(
 			$this->t('All') => '',
 			$this->t('Installed') => 'installed',
 			$this->t('Available') => 'available'
 		);
+		if (ModuleManager::is_installed('Base_EpesiStore')>=0) {
+			$this->add_store_products($sorted, $filters);
+		}
+
+		foreach ($sorted as $name=>$v)
+			ksort($sorted[$name]['options']);
+		
+		uasort($sorted, array($this, 'simple_setup_sort'));
 		
 		$t = $this->init_module('Base/Theme');
 		$t->assign('packages', $sorted);
@@ -344,7 +353,27 @@ class Base_Setup extends Module {
 		
 		$t->display();
 	}
-	
+
+	public function add_store_products(& $sorted, & $filters) {
+		$store = Base_EpesiStoreCommon::get_modules_all_available();
+		foreach ($store as $s) {
+			$name = $s['name'];
+			$sorted[$name] = array();
+			$sorted[$name]['name'] = $this->t($name);
+			$sorted[$name]['modules'] = array();
+			$sorted[$name]['buttons'] = array();
+			$sorted[$name]['options'] = array();
+			$sorted[$name]['status'] = $this->t('Options only');
+			$sorted[$name]['style'] = 'disabled';
+			$sorted[$name]['filter'] = array('store');
+			$sorted[$name]['installed'] = null;
+			$sorted[$name]['instalable'] = 0;
+			$sorted[$name]['uninstalable'] = 0;
+		}
+		$filters[$this->t('Updates')] = 'updates';
+		$filters[$this->t('Store')] = 'store';
+	}
+
 	public function simple_setup_sort($a, $b) {
 		if ($a['name'] === 'epesi Core') return -1;
 		if ($b['name'] === 'epesi Core') return 1;

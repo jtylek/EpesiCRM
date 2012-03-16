@@ -15,7 +15,7 @@
 	
 	<div id="Base_Setup">
 		{foreach key=name item=package from=$packages}
-			<div class="big-button" style="position:relative;" {if $package.installed}installed{else}available{/if}="1">
+			<div class="big-button" style="position:relative;"{foreach item=f from=$package.filter} {$f}="1"{/foreach}>
 				<div class="package_label">
 					{$package.name}
 				</div>
