@@ -32,6 +32,7 @@ require_once('include/module_install.php');
 require_once('include/module_common.php');
 require_once('include/module.php');
 require_once('include/module_manager.php');
+require_once('include/patches.php');
 if(JS_OUTPUT)
 	ob_end_clean();
 ?>

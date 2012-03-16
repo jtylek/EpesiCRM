@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * @author Adam Bukowski <abukowski@telaxus.com>
+ * @version 0.1
+ * @copyright Copyright &copy; 2012, Telaxus LLC
+ * @license SPL
+ * @package epesi-base
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
