@@ -200,7 +200,7 @@ class Utils_Attachment extends Module {
 				$count++;
 			if($this->author)
 				$count++;
-			$arr[] = array('value'=>$fields, 'overflow_box'=>false, 'style'=>'white-space: normal;', 'attrs'=>'colspan="'.$count.'"');
+			$arr[] = array('value'=>$fields, 'overflow_box'=>false, 'attrs'=>'colspan="'.$count.'"');
 			if($vd)
 				$arr[] = array('value'=>'', 'overflow_box'=>false, 'style'=>'display:none;');
 			if($this->author)
@@ -317,7 +317,7 @@ class Utils_Attachment extends Module {
 				}
 			}
 			$arr[] = $regional_note_on;
-			$arr[] = array('value'=>$text, 'overflow_box'=>false, 'style'=>'white-space: normal;');
+			$arr[] = array('value'=>$text, 'overflow_box'=>false);
 			$r->add_data_array($arr);
 
 			eval_js('init_note_expandable('.$row['id'].');');

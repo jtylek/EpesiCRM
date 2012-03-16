@@ -18,6 +18,14 @@ class Apps_Shoutbox extends Module {
 		if(Base_AclCommon::i_am_admin())
 			Base_ActionBarCommon::add('delete','Clear shoutbox',$this->create_callback_href(array($this,'delete_all')));
 		*/
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		if ($this->is_back()) {
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if (!$x)
+				trigger_error('There is no base box module instance', E_USER_ERROR);
+			$x->pop_main();
+			return;
+		}
 		
 		$tb = & $this->init_module('Utils/TabbedBrowser');
 		$tb->set_tab($this->t('Chat'), array($this,'chat'),true,null);
@@ -94,7 +102,12 @@ class Apps_Shoutbox extends Module {
     				$tologin = Base_UserCommon::get_user_login($row['to_user_login_id']);
     		    else
     		        $tologin = $this->t('-- all --');
-                $gb->add_row('<span class="author">'.$ulogin.'</span>','<span class="author">'.$tologin.'</span>',Utils_BBCodeCommon::parse($row['message']),Base_RegionalSettingsCommon::time2reg($row['posted_on']));
+                $gb->add_row(
+					'<span class="author">'.$ulogin.'</span>',
+					'<span class="author">'.$tologin.'</span>',
+					array('value'=>Utils_BBCodeCommon::parse($row['message']), 'overflow_box'=>false),
+					Base_RegionalSettingsCommon::time2reg($row['posted_on'])
+				);
 			}
 
         $gb->set_inline_display(true);
@@ -184,6 +197,7 @@ class Apps_Shoutbox extends Module {
 		}
 
 		$theme->assign('board','<div id=\'shoutbox_board'.($big?'_big':'').'\'></div>');
+		$theme->assign('header', $this->t('Shoutbox'));
    		$theme->display('chat_form'.($big?'_big':''));
 
 		//if shoutbox is diplayed, call myFunctions->refresh from refresh.php file every 5s

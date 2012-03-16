@@ -1,3 +1,8 @@
+</center>
+<div class="epesi_caption">
+	{$header}
+</div>
+<center>
 <div id="shoutbox_big_container">
 {$form_open}
 <table border="0" style="width:500px">

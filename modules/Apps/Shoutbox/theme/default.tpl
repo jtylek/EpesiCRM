@@ -1,4 +1,8 @@
-<div id="shoutbox-content" style="text-align:left;padding-left:10px;">
+</center>
+<div class="epesi_caption">
+	{$header}
+</div>
+<div id="shoutbox-content" style="text-align:left;padding:0 10px 0;">
 	{$form_open}
 		<table>
 			<tr>
@@ -36,3 +40,4 @@
 </div>
 
 {$messages}
+<center>
