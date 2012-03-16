@@ -14,6 +14,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_Login extends Module {
+	private $theme;
 
 	public function construct() {
 	}
@@ -38,19 +39,22 @@ class Base_User_Login extends Module {
 			}
 		}
 
-		$theme =  & $this->pack_module('Base/Theme');
+		$this->theme =  & $this->pack_module('Base/Theme');
 
 		//if logged
-		$theme->assign('is_logged_in', Acl::is_user());
-		$theme->assign('is_demo', DEMO_MODE);
+		$this->theme->assign('is_logged_in', Acl::is_user());
+		$this->theme->assign('is_demo', DEMO_MODE);
+		if (SUGGEST_DONATION) {
+			$this->theme->assign('donation_note', $this->t('If you find our software useful, please support us by making a %s.<br>Your funding will help to ensure continued development of this project.', array('<a href="http://www.epesibim.com/cost" target="_blank">'.$this->t('donation').'</a>')));
+		}
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {
 			        Base_User_LoginCommon::logout();
 				eval_js('document.location=\'index.php\';',false);
 			} else {
-				$theme->assign('logged_as', '<div class="logged_as">'.$this->t('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
-				$theme->assign('logout', '<div class="logout_css3_box"><a class="logout_icon" '.$this->create_unique_href(array('logout'=>1)).'>'.$this->t('Logout').'<div class="logout_icon_img"></div></a></div>');
-				$theme->display();
+				$this->theme->assign('logged_as', '<div class="logged_as">'.$this->t('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
+				$this->theme->assign('logout', '<div class="logout_css3_box"><a class="logout_icon" '.$this->create_unique_href(array('logout'=>1)).'>'.$this->t('Logout').'<div class="logout_icon_img"></div></a></div>');
+				$this->theme->display();
 			}
 			return;
 		}
@@ -61,6 +65,11 @@ class Base_User_Login extends Module {
 		//if recover pass
 		if($this->get_module_variable_or_unique_href_variable('mail_recover_pass')=='1') {
 			$this->recover_pass();
+			return;
+		}
+		if (isset($_REQUEST['password_recovered'])) {
+			$this->theme->assign('message', $this->t('An e-mail with a new password has been sent.').'<br><a href="'.get_epesi_url().'">'.$this->t('Login').'</a>');
+			$this->theme->display();
 			return;
 		}
 		if($this->autologin()) return;
@@ -104,11 +113,9 @@ class Base_User_Login extends Module {
 
 			location(array());
 		} else {
-			$form->assign_theme('form', $theme);
-			if (SUGGEST_DONATION) {
-				$theme->assign('donation_note', $this->t('If you find our software useful, please support us by making a %s.<br>Your funding will help to ensure continued development of this project.', array('<a href="http://www.epesibim.com/cost" target="_blank">'.$this->t('donation').'</a>')));
-			}
-			$theme->display();
+			$form->assign_theme('form', $this->theme);
+			$this->theme->assign('mode', 'login');
+			$this->theme->display();
 
 			eval_js("focus_by_id('username')");
 		}
@@ -137,8 +144,14 @@ class Base_User_Login extends Module {
 
 		if($form->validate()) {
 			if($form->process(array(&$this, 'submit_recover')))
-				print($this->t('Mail with password sent.').' <a '.$this->create_back_href().'>'.$this->t('Login').'</a>');
-		} else $form->display();
+				$this->theme->assign('message', $this->t('Password reset instructions were sent.').'<br><a '.$this->create_back_href().'>'.$this->t('Login').'</a>');
+		} else {
+			$this->theme->assign('mode', 'recover_pass');
+			$form->assign_theme('form', $this->theme);
+			eval_js("focus_by_id('username')");
+		}
+
+		$this->theme->display();
 	}
 
 	public static function check_username_mail_valid($username, $form) {
@@ -167,12 +180,15 @@ class Base_User_Login extends Module {
 		DB::Execute('INSERT INTO user_reset_pass(user_login_id,hash_id,created_on) VALUES (%d,%s,%T)',array($user_id, $hash,time()));
 		
 		$subject = $this->t('Password recovery');
-		$message = $this->t('This e-mail is to inform you that someone requested password recovery for account set on your e-mail address.
-You can reset your password by entering: %s - in next mail we will sent you new password.
+		$message = $this->t('A password reset for the account with the e-mail address %s has been requested. 
+If you did not use the Password Recovery form, simply ignore this e-mail and your password will remain unchanged.
 
-If it wasn\'t you, just ignore this e-mail.
+If you want to reset your password, visit the following URL:
+%s
 
-This e-mail was automatically generated and you do not need to respond to it.', array(get_epesi_url().'/modules/Base/User/Login/reset_pass.php?hash='.$hash));
+This e-mail was generated automatically and you do not need to respond to it.', array(
+	$mail,
+	get_epesi_url().'/modules/Base/User/Login/reset_pass.php?hash='.$hash));
 		$sendMail = Base_MailCommon::send($mail, $subject, $message);
 
 		return true;

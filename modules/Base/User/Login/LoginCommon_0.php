@@ -80,17 +80,23 @@ class Base_User_LoginCommon extends ModuleCommon {
 	 * @param string password
 	 * @param string destination mail address
 	 */
-	public static function send_mail_with_password($username, $pass, $mail) {
+	public static function send_mail_with_password($username, $pass, $mail, $recovery=false) {
 		$url = get_epesi_url();
 		$subject = Base_LangCommon::ts('Base_User_Login','Your account at %s',array($url));
 		$header = Variable::get('add_user_email_header','');
-		$body = ($header?$header."\n\n":'').Base_LangCommon::ts('Base_User_Login', 'This e-mail is to inform you that a user account was setup for you at: %s
-Your login name is: %s
+		$body = ($header?$header."\n\n":'');
+		if ($recovery)
+			$body .= Base_LangCommon::ts('Base_User_Login', 'This e-mail is to inform you that your password at %s has been reset.', array($url));
+		else
+			$body .= Base_LangCommon::ts('Base_User_Login', 'This e-mail is to inform you that a user account was setup for you at: %s', array($url));
+		$body .= Base_LangCommon::ts('Base_User_Login', '
+
+Your username is: %s
 Your password is: %s
 
-For security reasons it is recommened that you login immediately and change your password.
+For security reasons it is recommened that you log in immediately and change your password.
 
-This e-mail was automatically generated and you do not need to respond to it.', array($url,$username,$pass));
+This e-mail was generated automatically and you do not need to respond to it.', array($username,$pass));
 		
 		return Base_MailCommon::send($mail, $subject, $body);
 	}

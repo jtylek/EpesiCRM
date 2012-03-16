@@ -86,7 +86,8 @@ table#Base_User_Login td.input input:focus {
 	background-color: #FFFFA5;
 }
 
-table#Base_User_Login input.submit {
+table#Base_User_Login td.submit_button input {
+	font-size: 11px;
 	color: #FFFFFF;
 	border: 0px;
 	width: 100px;
@@ -162,10 +163,6 @@ table#Base_User_Login td.input input {
 table#Base_User_Login td.submit_button {
 	text-align: center;
 	height: 35px;
-}
-
-table#Base_User_Login td.submit_button input {
-	font-size: 11px;
 }
 
 table#Base_User_Login td.header_tail {
@@ -322,4 +319,16 @@ table#Base_User_Login td.donation_notice a:hover {
 
 .login .button {
 	width: 109px;
+}
+
+table#Base_User_Login .message {
+	text-align: center;
+	line-height: 22px;
+	font-size: 16px;
+	height: 135px;
+}
+table#Base_User_Login .message a {
+	text-align: center;
+	line-height: 22px;
+	font-size: 16px;
 }

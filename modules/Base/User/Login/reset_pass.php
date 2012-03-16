@@ -21,8 +21,10 @@ if(!DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', a
 	die(Base_LangCommon::ts('Base_User_Login','Unable to update password for user %s.',array($username)));
 }
 
-if(!Base_User_LoginCommon::send_mail_with_password(Base_UserCommon::get_user_login($user_id), $pass, Base_User_LoginCommon::get_mail($user_id))) {
+if(!Base_User_LoginCommon::send_mail_with_password(Base_UserCommon::get_user_login($user_id), $pass, Base_User_LoginCommon::get_mail($user_id), true)) {
 	die(Base_LangCommon::ts('Base_User_Login','Unable to send e-mail with password. Mail module configuration invalid. Please contact system administrator.'));
 }
 DB::Execute('DELETE FROM user_reset_pass WHERE hash_id =%s', array($_GET['hash']));
-header('Location: '.get_epesi_url());
+header('Location: '.get_epesi_url().'?'.http_build_query(array('password_recovered'=>1)));
+
+?>

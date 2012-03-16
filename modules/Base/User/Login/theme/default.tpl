@@ -17,34 +17,64 @@
 	<div class="layer" style="padding: 9px; width: 552px;">
 		<div class="css3_content_shadow">
 
-	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0">
+	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0" style="height: 507px;">
             <tbody>
 	    	<tr>
 				<td colspan="2" class="header_tail"><img border="0" src="{$theme_dir}/images/logo.gif" width="550" height="200"></td>
 			</tr>
             <tr>
                 <td class="gradient">
-                    <table cellspacing="0" cellpadding="0" border="0">
+                    <table cellspacing="0" cellpadding="0" border="0" style="width:100%;table-layout: auto;">
                         <tbody>
 {if $is_demo}
    			<tr>
    				<td colspan="2" align="center"><strong>EPESI DEMO APPLICATION</strong></td>
    			</tr>
 {/if}
+					{if isset($message)}
+						<tr>
+							<td class="message">
+								{$message}
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" class="autologin"></td>
+						</tr>
+					{else}
+						{if $mode=='recover_pass'}
+                            <tr><td colspan="2" class="error"><span class="error">{$form_data.username.error}</span></td></tr>
+                            <tr><td colspan="2" class="error"><span class="error">{$form_data.mail.error}</span></td></tr>
+							<tr>
+								<td class="label">{$form_data.username.label}&nbsp;&nbsp;</td>
+								<td class="input">{$form_data.username.html}</td>
+							</tr>
+							<tr>
+								<td class="label">{$form_data.mail.label}&nbsp;&nbsp;</td>
+								<td class="input">{$form_data.mail.html}</td>
+							</tr>
+							<tr><td colspan="2" class="submit_button">{$form_data.buttons.html}</td></tr>
+							<tr>
+								<td colspan="2" class="autologin"></td>
+							</tr>
+						{else}
                             <tr><td colspan="2" class="error"><span class="error">{$form_data.username.error}</span></td></tr>
                             <tr><td colspan="2" class="error"><span class="error">{$form_data.password.error}</span></td></tr>
-                        <tr>
-                            <td class="label">{$form_data.username.label}&nbsp;&nbsp;</td>
-                            <td class="input">{$form_data.username.html}</td>
-                        </tr>
-                        <tr>
-                            <td class="label">{$form_data.password.label}&nbsp;&nbsp;</td>
-                            <td class="input">{$form_data.password.html}</td>
-                        </tr>
-                        <tr><td colspan="2" class="submit_button">{$form_data.submit_button.html}</td></tr>
-                        <tr>
-                            <td colspan="2" class="autologin">{$form_data.autologin.html}</td>
-                        </tr>
+							<tr>
+								<td class="label">{$form_data.username.label}&nbsp;&nbsp;</td>
+								<td class="input">{$form_data.username.html}</td>
+							</tr>
+							<tr>
+								<td class="label">{$form_data.password.label}&nbsp;&nbsp;</td>
+								<td class="input">{$form_data.password.html}</td>
+							</tr>
+							<tr>
+								<td colspan="2" class="submit_button">{$form_data.submit_button.html}</td>
+							</tr>
+							<tr>
+								<td colspan="2" class="autologin">{$form_data.autologin.html}</td>
+							</tr>
+						{/if}
+					{/if}
 			<tr>
 			    <td colspan="2" class="autologin">{$form_data.warning.html}</td>
                         </tr>
