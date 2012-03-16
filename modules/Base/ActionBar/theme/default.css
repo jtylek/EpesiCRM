@@ -41,8 +41,7 @@
 #Base_ActionBar .epesi_big_button > span {
 	font-weight: normal;
 	padding: 0px 2px 0px;
-	min-width: 56px;
-	width: auto;
+	width: 56px;
 	height: 34px;
 	line-height: 11px;
 }

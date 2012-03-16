@@ -29,10 +29,9 @@
 
 .Base_StatusBar .message {
 	width: 140px;
-	height: 45px;
+	min-height: 20px;
 	line-height: 20px;
-	padding-left: 60px;
-	padding-top: 25px;
+	padding: 25px 0 25px 60px;
 
     font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
 	font-size: 14px;
@@ -52,6 +51,7 @@
 .Base_StatusBar .message .message {
 	margin-left: -60px;
 	margin-top: -25px;
+	margin-bottom: -25px;
 }
 
 .Base_StatusBar .loading.message {
@@ -64,7 +64,7 @@
 }
 .Base_StatusBar .warning.message {
 	background-image: none;
-	background-color: #EECC77;
+	background-color: #FFEE66;
 	color: #000000;
 }
 .Base_StatusBar .error.message {
