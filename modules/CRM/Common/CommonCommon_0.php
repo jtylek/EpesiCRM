@@ -43,5 +43,14 @@ class CRM_CommonCommon extends ModuleCommon {
 				return $title;
 		}
 	}
+
+	public static function status_filter($rb) {
+		$sts = Utils_CommonDataCommon::get_translated_array('CRM/Status',true);
+		$trans = array('__NULL__'=>array(), '__NO_CLOSED__'=>array('!status'=>array(3,4)));
+		foreach ($sts as $k=>$v)
+			$trans[$k] = array('status'=>$k);
+		$rb->set_custom_filter('status',array('type'=>'select','label'=>Base_LangCommon::ts('CRM_Common','Status'),'args'=>array('__NULL__'=>'['.Base_LangCommon::ts('CRM_Common','All').']','__NO_CLOSED__'=>'['.Base_LangCommon::ts('CRM_Common','Not closed').']')+$sts,'trans'=>$trans));
+	}
+
 }
 ?>
