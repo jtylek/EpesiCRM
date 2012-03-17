@@ -237,9 +237,9 @@ class Base_AclCommon extends ModuleCommon {
 	}
 	
 	public static function basic_clearance($all=false) {
-		$user_clearance = array('ALL');
-		if ($all || Base_AclCommon::i_am_admin()) $user_clearance[] = 'ADMIN';
-		if ($all || Base_AclCommon::i_am_sa()) $user_clearance[] = 'SUPERADMIN';
+		$user_clearance = array(Base_LangCommon::ts('Base_Acl','All users')=>'ALL');
+		if ($all || Base_AclCommon::i_am_admin()) $user_clearance[Base_LangCommon::ts('Base_Acl','Admin')] = 'ADMIN';
+		if ($all || Base_AclCommon::i_am_sa()) $user_clearance[Base_LangCommon::ts('Base_Acl','Superadmin')] = 'SUPERADMIN';
 		return $user_clearance;
 	}
 	public static function add_clearance_callback($callback) {

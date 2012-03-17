@@ -276,6 +276,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			'records'=>array('label'=>'Manage records', 'values'=>array(0=>self::ts('No access'), 1=>self::ts('View'), 2=>self::ts('Full')), 'default'=>1),
 			'fields'=>array('label'=>'Manage fields', 'values'=>array(0=>self::ts('No access'), 1=>self::ts('View'), 2=>self::ts('Full')), 'default'=>1),
 			'addons'=>array('label'=>'Manage addons', 'values'=>array(0=>self::ts('No access'), 1=>self::ts('View'), 2=>self::ts('Full')), 'default'=>2),
+			'permissions'=>array('label'=>'Permissions', 'values'=>array(0=>self::ts('No access'), 1=>self::ts('View'), 2=>self::ts('Full')), 'default'=>1),
 			'pattern'=>array('label'=>'Clipboard pattern', 'values'=>array(0=>self::ts('No access'), 1=>self::ts('View'), 2=>self::ts('Full')), 'default'=>2)
 		);
 	}
@@ -1390,24 +1391,34 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($or_started && !$or_result) return $cache[$tab.'__'.$id] = false;
         return $cache[$tab.'__'.$id] = true;
     }
-	public static function decode_access($str) {
+	public static function decode_access($str, $manage_permissions=false) {
 		if (is_numeric($str)) return $str;
-		if ($str=='USER_ID') return Acl::get_user();
-		if (class_exists('CRM_ContactsCommon')) { // FIXME should be moved to CRM_Cotnacts, but only after editor is ready and there's synatx to retrieve all needed info
-			$me = CRM_ContactsCommon::get_my_record();
-			if ($str=='USER') return $me['id'];
-			if ($str=='USER_COMPANY') return $me['company_name'];
+		// FIXME should be moved to CRM_Contacts, but only after editor is ready and there's synatx to retrieve all needed info
+		if ($manage_permissions) {
+			if ($str=='USER_ID') return self::ts('User Login');
+			if (class_exists('CRM_ContactsCommon')) { 
+				$me = CRM_ContactsCommon::get_my_record();
+				if ($str=='USER') return self::ts('User Contact');
+				if ($str=='USER_COMPANY') return self::ts('User Company');
+			}
+		} else {
+			if ($str=='USER_ID') return Acl::get_user();
+			if (class_exists('CRM_ContactsCommon')) {
+				$me = CRM_ContactsCommon::get_my_record();
+				if ($str=='USER') return $me['id'];
+				if ($str=='USER_COMPANY') return $me['company_name'];
+			}
 		}
 		return $str;
 	}
-	public static function parse_access_crits($str) {
+	public static function parse_access_crits($str, $manage_permissions=false) {
 		$ret = unserialize($str);
 		foreach ($ret as $k=>$v) {
 			if (!is_array($v)) {
-				$ret[$k] = self::decode_access($v);
+				$ret[$k] = self::decode_access($v, $manage_permissions);
 			} else {
 				foreach ($v as $kw=>$w) {
-					$ret[$k][$kw] = self::decode_access($w);
+					$ret[$k][$kw] = self::decode_access($w, $manage_permissions);
 				}
 			}
 		}
@@ -1427,7 +1438,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$vals = array();
 		if ($clearance!=null) {
 			$sql .= ' WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($clearance), 'clearance!=%s')).')';
-			$vals = $clearance;
+			$vals = array_values($clearance);
 		}
 		if ($action!='') {
 			if ($sql) $sql .= ' AND ';
@@ -1449,6 +1460,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM '.$tab.'_access_fields');
 		DB::Execute('DELETE FROM '.$tab.'_access');
 	}
+	public static function delete_access($tab, $id) {
+		if (!self::check_table_name($tab, false, false)) return;
+		DB::Execute('DELETE FROM '.$tab.'_access_clearance WHERE rule_id=%d', array($id));
+		DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE rule_id=%d', array($id));
+		DB::Execute('DELETE FROM '.$tab.'_access WHERE id=%d', array($id));
+	}
 	public static function add_access($tab, $action, $clearance, $crits=array(), $blocked_fields=array()) {
 		if (!self::check_table_name($tab, false, false)) return;
 		DB::Execute('INSERT INTO '.$tab.'_access (crits, action) VALUES (%s, %s)', array(serialize($crits), $action));
@@ -1458,6 +1475,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			DB::Execute('INSERT INTO '.$tab.'_access_clearance (rule_id, clearance) VALUES (%d, %s)', array($rule_id, $c));
 		foreach ($blocked_fields as $f)
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($rule_id, $f));
+	}
+	public static function update_access($tab, $id, $action, $clearance, $crits=array(), $blocked_fields=array()) {
+		DB::Execute('UPDATE '.$tab.'_access SET crits=%s, action=%s WHERE id=%d', array(serialize($crits), $action, $id));
+		if (!is_array($clearance)) $clearance = array($clearance);
+		DB::Execute('DELETE FROM '.$tab.'_access_clearance WHERE rule_id=%d', array($id));
+		DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE rule_id=%d', array($id));
+		foreach ($clearance as $c)
+			DB::Execute('INSERT INTO '.$tab.'_access_clearance (rule_id, clearance) VALUES (%d, %s)', array($id, $c));
+		foreach ($blocked_fields as $f)
+			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($id, $f));
 	}
     public static function get_access($tab, $action, $record=null, $crits=null){
         if (self::$admin_access && Base_AclCommon::i_am_admin()) {
@@ -1470,7 +1497,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				self::check_table_name($tab);
 				$user_clearance = Base_AclCommon::get_clearance();
 				
-				$r = DB::Execute('SELECT * FROM '.$tab.'_access AS acs WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($user_clearance), 'clearance!=%s')).')', $user_clearance);
+				$r = DB::Execute('SELECT * FROM '.$tab.'_access AS acs WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($user_clearance), 'clearance!=%s')).')', array_values($user_clearance));
 				$crits = array('view'=>null, 'edit'=>null, 'delete'=>null, 'add'=>null);
 				$crits_raw = array('view'=>array(), 'edit'=>array(), 'delete'=>array(), 'add'=>array());
 				$fields = array();
@@ -1792,6 +1819,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $ret;
     }
     public static function create_linked_label_r($tab, $col, $r, $nolink=false){
+		if (!isset($r['id'])) return $r[$col];
         $id = $r['id'];
         if (!is_numeric($id)) return '';
         self::init($tab);
@@ -2279,7 +2307,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return self::ts('No additional information');
 	}
 	
-	public static function crits_to_words($tab, $crits) {
+	public static function crits_to_words($tab, $crits, $inline_joints=true) {
 		$ret = array();
 		$or_started = false;
         foreach($crits as $k=>$v){
@@ -2305,9 +2333,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 			$next = '';
 			if (!empty($ret)) {
-				if ($or_start) $ret[] = self::ts('and');
-				elseif ($or) $next .= self::ts('or').' ';
-				else $next .= self::ts('and').' ';
+				if ($or_start) $joint = 'and';
+				elseif ($or) $joint = 'or';
+				else $joint = 'and';
+				if ($inline_joints) $next .= self::ts($joint).' ';
+				else $ret[] = $joint;
 			}
 
             if ($k[0]==':') {
@@ -2331,8 +2361,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 			$operand = 'is ';
 			if ($negative) $operand .= '<i>not</i> ';
-			if ($v=='') $operand = self::ts($operand.'empty');
-			else {
+			if ($v==='') {
+				$next .= self::ts($operand.'empty');
+			} else {
 				switch ($operator) {
 					case '<':	$operand .= 'smaller than'; break;
 					case '<=':	$operand .= 'smaller or equal to'; break;
@@ -2346,9 +2377,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				
 				switch ($k) {
 					case 'id':			if (!is_array($v)) $v = array($v); break;
-					case ':Created_on': $v = Base_RegionalSettingCommon::time2reg($v); break;
-                    case ':Created_by': $v = Base_UserCommon::get_user_login($v); break;
-                    case ':Edited_on':  $v = Base_RegionalSettingCommon::time2reg($v); break;
+					case ':Created_on': $v = array(Base_RegionalSettingCommon::time2reg($v)); break;
+                    case ':Created_by': $v = array(is_numeric($v)?Base_UserCommon::get_user_login($v):$v); break;
+                    case ':Edited_on':  $v = array(Base_RegionalSettingCommon::time2reg($v)); break;
 					default: 			if (!is_array($v)) $v = array($v);
 										foreach ($v as $kk=>$vv)
 											$v[$kk] = self::get_val($tab, $k, array($k=>$vv), true);

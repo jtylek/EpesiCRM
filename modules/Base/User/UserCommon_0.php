@@ -65,6 +65,7 @@ class Base_UserCommon extends ModuleCommon {
 	 * @return string username
 	 */
 	public static function get_user_login($id) {
+		if (!is_numeric($id)) return $id;
 		return DB::GetOne('SELECT login FROM user_login WHERE id=%d', array($id));
 	}
 

@@ -20,11 +20,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record(); 
 		$mc = CRM_ContactsCommon::get_main_company();
 		if ($all || $me['id']!=-1) {
-			if ($all || $me['company_name']==$mc || in_array($mc, $me['related_companies'])) $clearance[] = 'EMPLOYEE';
-			if ($all) $access = array_keys(Utils_CommonDataCommon::get_array('Contacts/Access'));
+			if ($all || $me['company_name']==$mc || in_array($mc, $me['related_companies'])) $clearance[Base_LangCommon::ts('Base_Acl','Employee')] = 'EMPLOYEE';
+			$access_vals = Utils_CommonDataCommon::get_array('Contacts/Access', true);
+			if ($all) $access = array_keys($access_vals);
 			else $access = $me['access'];
 			foreach ($access as $g) {
-				$clearance[] = 'ACCESS:'.$g;
+				$clearance[Base_LangCommon::ts('Base_Acl','Access').': '.$access_vals[$g]] = 'ACCESS:'.$g;
 			}
 		}
 		return $clearance;
@@ -276,6 +277,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     public static function display_company_contact($record, $nolink, $desc) {
         $v = $record[$desc['id']];
+		if (!is_array($v) && $v[1]!=':') return $v;
         $def = '';
         if (!is_array($v)) $v = array($v);
 		if (count($v)>100) return count($v).' '.Base_LangCommon::ts('CRM_Contacts','values');
@@ -637,7 +639,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         if ($desc!==null) $v = $record[$desc['id']];
         elseif(is_array($record)) $v = $record['id'];
         else $v = $record;
-        if ((!is_numeric($v) && !is_array($v)) || $v==-1) return '---';
+        if (!is_numeric($v) && !is_array($v)) return $v;
+		if ($v==-1) return '---';
         $def = '';
         $first = true;
         if (!is_array($v)) $v = array($v);
@@ -933,7 +936,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             return '---';
         else {
             $login = Base_UserCommon::get_user_login($v);
-            if (!$nolink && Base_AclCommon::i_am_admin()) return '<a '.Module::create_href(array('crm_contacts_edit_user'=>$v)).'>'.$login.'</a>';
+            if (!$nolink && Base_AclCommon::i_am_admin() && is_numeric($v)) return '<a '.Module::create_href(array('crm_contacts_edit_user'=>$v)).'>'.$login.'</a>';
             else return $login;
         }
     }

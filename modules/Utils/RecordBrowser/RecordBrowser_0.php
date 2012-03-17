@@ -1659,6 +1659,12 @@ class Utils_RecordBrowser extends Module {
 			'args'=>array()
 		),
 		array(
+			'access'=>'permissions',
+			'func'=>array($this, 'manage_permissions'),
+			'label'=>'Permissions',
+			'args'=>array()
+		),
+		array(
 			'access'=>'pattern',
 			'func'=>array($this, 'setup_clipboard_pattern'),
 			'label'=>'Clipboard Pattern',
@@ -2486,6 +2492,257 @@ class Utils_RecordBrowser extends Module {
         $theme->display('search_by_id');
         return $ret;
     }
+	
+	public function manage_permissions() {
+		$this->init();
+        $gb = $this->init_module('Utils/GenericBrowser','permissions_'.$this->tab, 'permissions_'.$this->tab);
+		$gb->set_table_columns(array(
+				array('name'=>$this->t('Access type'), 'width'=>'100px'),
+				array('name'=>$this->t('Clearance required'), 'width'=>'30'),
+				array('name'=>$this->t('Applies to records'), 'width'=>'60'),
+				array('name'=>$this->t('Fields'), 'width'=>'100px')
+		));
+		$ret = DB::Execute('SELECT * FROM '.$this->tab.'_access AS acs ORDER BY action DESC');
+		
+		$tmp = DB::GetAll('SELECT * FROM '.$this->tab.'_access_clearance AS acs');
+		$clearance = array();
+		foreach ($tmp as $t) $clearance[$t['rule_id']][] = $t['clearance'];
+		
+		$tmp = DB::GetAll('SELECT * FROM '.$this->tab.'_access_fields AS acs');
+		$fields = array();
+		foreach ($tmp as $t) $fields[$t['rule_id']][] = $t['block_field'];
+		
+		$all_clearances = array_flip(Base_AclCommon::get_clearance(true));
+		$all_fields = array();
+		foreach ($this->table_rows as $v)
+			$all_fields[$v['id']] = $v['name'];
+		$actions = $this->get_permission_actions();
+		while ($row = $ret->FetchRow()) {
+			if (!isset($clearance[$row['id']])) $clearance[$row['id']] = array();
+			if (!isset($fields[$row['id']])) $fields[$row['id']] = array();
+			$gb_row = $gb->get_new_row();
+			$action = $actions[$row['action']];
+			$crits = Utils_RecordBrowserCommon::parse_access_crits($row['crits'], true);
+			$crits = Utils_RecordBrowserCommon::crits_to_words($this->tab, $crits, false);
+			$crits_text = '';
+			foreach ($crits as $c) {
+				switch ($c) {
+					case 'and': $crits_text .= '<span class="joint">'.$this->t('and').'</span><br>'; break;
+					case 'or': $crits_text .= '<span class="joint">'.$this->t('or').'</span> '; break;
+					default: $crits_text .= $c.' ';
+				}
+			}
+			foreach ($fields[$row['id']] as $k=>$v)
+				$fields[$row['id']][$k] = $all_fields[$v];
+			foreach ($clearance[$row['id']] as $k=>$v)
+				$clearance[$row['id']][$k] = $all_clearances[$v];
+			$c_all_fields = count($all_fields);
+			$c_fields = count($fields[$row['id']]);
 
+			$props = ($c_all_fields-$c_fields)/$c_all_fields;
+			$color = dechex(255-68*$props).dechex(187+68*$props).'BB';
+			$fields_value = ($c_all_fields-$c_fields).' / '.$c_all_fields;
+			if ($props!=1) $fields_value = Utils_TooltipCommon::create($fields_value, '<b>'.$this->t('Blocked fields').':</b><hr>'.implode('<br>',$fields[$row['id']]), false);
+			$gb_row->add_data(
+				$action, 
+				'<span class="Utils_RecordBrowser__permissions_crits">'.implode(' <span class="joint">'.$this->t('and').'</span><br>',$clearance[$row['id']]).'</span>', 
+				'<span class="Utils_RecordBrowser__permissions_crits">'.$crits_text.'</span>', 
+				array('style'=>'background-color:#'.$color, 'value'=>$fields_value)
+			);
+			if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) {
+				$gb_row->add_action($this->create_callback_href(array($this, 'edit_permissions_rule'), array($row['id'])), 'edit', 'Edit');
+				$gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this rule?'), array($this, 'delete_permissions_rule'), array($row['id'])), 'delete', 'Delete');
+			}
+		}
+		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) 
+			Base_ActionBarCommon::add('add','Add new rule', $this->create_callback_href(array($this, 'edit_permissions_rule'), array(null)));
+		Base_ThemeCommon::load_css('Utils_RecordBrowser', 'edit_permissions');
+		$this->display_module($gb);
+		eval_js('utils_recordbrowser__crits_initialized = false;');
+	}
+	public function delete_permissions_rule($id) {
+		Utils_RecordBrowserCommon::delete_access($this->tab, $id);
+		return false;
+	}
+	
+	public function edit_permissions_rule($id = null) {
+		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')!=2) return false;
+        if ($this->is_back())
+            return false;
+		$all_clearances = array(''=>'---')+array_flip(Base_AclCommon::get_clearance(true));
+		$all_fields = array();
+		$this->init();
+		foreach ($this->table_rows as $v)
+			$all_fields[$v['id']] = $v['name'];
+		$operators = array(
+			'='=>$this->t('equal'), 
+			'!'=>$this->t('not equal'), 
+			'>'=>'>',
+			'>='=>'>=',
+			'<'=>'<',
+			'<='=>'<='
+		);
+
+		$form = $this->init_module('Libs_QuickForm');
+		$theme = $this->init_module('Base_Theme');
+		
+		$counts = array(
+			'clearance'=>5,
+			'ands'=>5,
+			'ors'=>10
+		);
+		
+		$actions = $this->get_permission_actions();
+		$form->addElement('select', 'action', $this->t('Action'), $actions);
+		
+		$special_fields = array(':Created_by'=>$this->t('created by'));
+
+		for ($i=0; $i<$counts['clearance']; $i++)
+			$form->addElement('select', 'clearance_'.$i, $this->t('Clearance'), $all_clearances);
+		$current_or = array();
+		$current_and = 0;
+		for ($i=0; $i<$counts['ands']; $i++) {
+			$current_or[$i] = 0;
+			for ($j=0; $j<$counts['ors']; $j++) {
+				$form->addElement('select', 'crits_'.$i.'_'.$j.'_field', $this->t('Crits'), array(''=>'---')+$special_fields+$all_fields);
+				$form->addElement('select', 'crits_'.$i.'_'.$j.'_op', $this->t('Operator'), array(''=>'---')+$operators);
+				$form->addElement('text', 'crits_'.$i.'_'.$j.'_value', $this->t('Value'));
+			}
+		}
+		$defaults = array();
+		foreach ($all_fields as $k=>$v) {
+			$defaults['field_'.$k] = 1;
+			$form->addElement('checkbox', 'field_'.$k, Base_LangCommon::ts('Utils_RecordBrowser:'.$this->tab,$v));
+		}
+		$theme->assign('labels', array(
+			'and' => '<span class="joint">'.$this->t('and').'</span>',
+			'or' => '<span class="joint">'.$this->t('or').'</span>',
+			'caption' => $id?$this->t('Edit permission rule'):$this->t('Add permission rule'),
+			'clearance' => $this->t('Clearance requried'),
+			'fields' => $this->t('Fields allowed'),
+			'crits' => $this->t('Criteria required'),
+			'add_clearance' => $this->t('Add clearance'),
+			'add_or' => $this->t('Add criteria (or)'),
+			'add_and' => $this->t('Add criteria (and)')
+ 		));
+		load_js('modules/Utils/RecordBrowser/edit_permissions.js');
+		$current_clearance = 0;
+		if ($id!==null) {
+			$row = DB::GetRow('SELECT * FROM '.$this->tab.'_access AS acs WHERE id=%d', array($id));
+			
+			$defaults['action'] = $row['action'];
+			$crits = unserialize($row['crits']);
+			$i = 0;
+			$j = 0;
+			$or = false;
+			$first = true;
+			foreach ($crits as $k=>$v) {
+				$operator = '=';
+				while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
+					if ($k[0]=='!') $operator = '!';
+					if ($k[0]=='(' && $or) $or = false;
+					if ($k[0]=='|') $or = true;
+					if ($k[0]=='<') $operator = '<';
+					if ($k[0]=='>') $operator = '>';
+					if ($k[0]=='~') $operator = DB::like();
+					if ($k[1]=='=' && $operator!=DB::like()) {
+						$operator .= '=';
+						$k = substr($k, 2);
+					} else $k = substr($k, 1);
+				}
+				if (!$first) {
+					if ($or) $j++;
+					else {
+						$current_or[$i] += $j;
+						$j = 0;
+						$i++;
+					}
+				} else {
+					$first = false;
+				}
+				$defaults['crits_'.$i.'_'.$j.'_field'] = $k;
+				$defaults['crits_'.$i.'_'.$j.'_op'] = $operator;
+				$defaults['crits_'.$i.'_'.$j.'_value'] = $v;
+			}
+			$current_or[$i] += $j;
+			$current_and += $i;
+			
+			$i = 0;
+			$tmp = DB::GetAll('SELECT * FROM '.$this->tab.'_access_clearance AS acs WHERE rule_id=%d', array($id));
+			foreach ($tmp as $t) {
+				$defaults['clearance_'.$i] = $t['clearance'];
+				$i++;
+			}
+			$current_clearance += $i-1;
+			
+			$tmp = DB::GetAll('SELECT * FROM '.$this->tab.'_access_fields AS acs WHERE rule_id=%d', array($id));
+			foreach ($tmp as $t) {
+				unset($defaults['field_'.$t['block_field']]);
+			}
+		}
+
+		eval_js('utils_recordbrowser__init_clearance('.$current_clearance.', '.$counts['clearance'].')');
+		eval_js('utils_recordbrowser__init_crits_and('.$current_and.', '.$counts['ands'].')');
+		for ($i=0; $i<$counts['ands']; $i++)
+				eval_js('utils_recordbrowser__init_crits_or('.$i.', '.$current_or[$i].', '.$counts['ors'].')');
+		eval_js('utils_recordbrowser__crits_initialized = true;');
+
+		$form->setDefaults($defaults);
+		
+		if ($form->validate()) {
+			$vals = $form->exportValues();
+			$action = $vals['action'];
+
+			$clearance = array();
+			for ($i=0; $i<$counts['clearance']; $i++)
+				if ($vals['clearance_'.$i]) $clearance[] = $vals['clearance_'.$i];
+			
+			$crits = array();
+			for ($i=0; $i<$counts['ands']; $i++) {
+				$or = '(';
+				for ($j=0; $j<$counts['ors']; $j++) {
+					if ($vals['crits_'.$i.'_'.$j.'_field'] && $vals['crits_'.$i.'_'.$j.'_op']) {
+						if (!isset($operators[$vals['crits_'.$i.'_'.$j.'_op']])) trigger_error('Fatal error',E_USER_ERROR);
+						if (!isset($all_fields[$vals['crits_'.$i.'_'.$j.'_field']])) trigger_error('Fatal error',E_USER_ERROR);
+						$op = $vals['crits_'.$i.'_'.$j.'_op'];
+						if ($op=='=') $op = '';
+						$next = array($or.$op.$vals['crits_'.$i.'_'.$j.'_field'] => $vals['crits_'.$i.'_'.$j.'_value']);
+						$crits = Utils_RecordBrowserCommon::merge_crits($crits, $next);
+					}
+					$or = '|';
+				}
+			}
+
+			$blocked_fields = array();
+			foreach ($all_fields as $k=>$v) {
+				if (isset($vals['field_'.$k])) continue;
+				$blocked_fields[] = $k;
+			}
+			
+			if ($id===null)
+				Utils_RecordBrowserCommon::add_access($this->tab, $action, $clearance, $crits, $blocked_fields);
+			else
+				Utils_RecordBrowserCommon::update_access($this->tab, $id, $action, $clearance, $crits, $blocked_fields);
+			return false;
+		}
+		
+		$form->assign_theme('form', $theme);
+		$theme->assign('fields', $all_fields);
+		$theme->assign('counts', $counts);
+		
+		$theme->display('edit_permissions');
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('delete', 'Cancel', $this->create_back_href());
+		return true;
+	}
+	
+	private function get_permission_actions() {
+		return array(
+			'view'=>$this->t('View'),
+			'edit'=>$this->t('Edit'),
+			'add'=>$this->t('Add'),
+			'delete'=>$this->t('Delete')
+		);
+	}
 }
 ?>
