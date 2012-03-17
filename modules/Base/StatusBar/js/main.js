@@ -24,6 +24,7 @@ updateEpesiIndicatorFunction=function(){
 	Epesi.indicator_text='statusbar_text';
 	Epesi.indicator='Base_StatusBar';
 	$('epesiStatus').style.visibility='hidden';
+	$('main_content').style.display='';
 	statbar = $('Base_StatusBar');
 	statbar.onclick = Function("if(!Epesi.procOn)statusbar_fade();");
 	statbar.style.display='none';
