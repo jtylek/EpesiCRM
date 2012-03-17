@@ -1,0 +1,39 @@
+.Utils_RecordBrowser__permissions_crits {
+	line-height: 16px;
+}
+
+.Utils_RecordBrowser__permissions_crits .joint,
+.RecordBrowser__edit_permissions .joint {
+	color: #999;
+	display: inline-block;
+	margin: 0 6px;
+}
+
+.RecordBrowser__edit_permissions select,
+.RecordBrowser__edit_permissions input {
+	width: auto;
+}
+
+.RecordBrowser__edit_permissions_crits {
+	overflow-x: scroll;
+}
+
+.RecordBrowser__edit_permissions_crits select,
+.RecordBrowser__edit_permissions_crits input {
+	font-size: 9px;
+}
+
+.RecordBrowser__edit_permissions .field {
+	display: inline-block;
+	height: 20px;
+	width: 120px;
+	line-height: 20px;
+}
+.RecordBrowser__edit_permissions .field input{
+	float: left;
+	margin: 0 5px 0 0;
+}
+
+.RecordBrowser__edit_permissions .button {
+	margin: 2px;
+}
