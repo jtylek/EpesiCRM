@@ -9,62 +9,72 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Patches {
+class PatchUtil {
 
     static function apply_new() {
-        
-    }
+        set_time_limit(0);
+        $logfile = DATA_DIR . '/patches_log.txt';
+        $fh = fopen($logfile, 'a');
+        if ($fh === false)
+            throw ErrorException("Can't open patches log file " . $logfile);
 
-    static function list_all() {
-        $patches = self::list_all_core();
-        $modules_list = array_keys(ModuleManager::$modules);
-        foreach ($modules_list as $module) {
-            $x = self::list_all_for_module($module);
-            $patches = array_merge($patches, $x);
+        fwrite($fh, "========= " . date("Y/m/d H:i:s") . " =========\n");
+        $patches = self::list_patches();
+        foreach ($patches as $p) {
+            $p->apply();
+            fwrite($fh, $p->get_apply_log());
         }
         return $patches;
     }
 
-    static function list_new() {
-        $patches = self::list_all();
-        return self::remove_applied($patches);
+    static function list_patches($only_new = true) {
+        $patches = self::list_core($only_new);
+        $modules_list = array_keys(ModuleManager::$modules);
+        foreach ($modules_list as $module) {
+            $x = self::list_for_module($module, $only_new);
+            $patches = array_merge($patches, $x);
+        }
+        self::_sort_patches_by_date($patches);
+        return $patches;
     }
 
-    static function list_all_for_module($module) {
-        return self::list_patches(self::module_patches_path($module));
+    static function list_for_module($module, $only_new = true) {
+        return self::_list_patches(self::_module_patches_path($module), $only_new);
     }
 
-    static function list_new_for_module($module) {
-        $patches = self::list_all_for_module($module);
-        return self::remove_applied($patches);
+    static function list_core($only_new = true) {
+        $patches = self::_list_patches('patches/', $only_new, true);
+        return $patches;
     }
 
-    static function list_all_core() {
-        return self::list_patches('patches/');
-    }
-
-    static function list_new_core() {
-        $patches = self::list_all_core();
-        return self::remove_applied($patches);
-    }
-
-    static function list_patches($directory) {
+    private static function _list_patches($directory, $only_new = false, $legacy = false) {
         if (!is_dir($directory))
             return array();
+
+        $patches_db = new PatchesDB();
 
         $patches = array();
         $directory = rtrim($directory, '/\\') . DIRECTORY_SEPARATOR;
         $d = dir($directory);
         while (false !== ($entry = $d->read())) {
             $entry = $directory . $entry;
-            if (self::is_patch_file($entry))
-                $patches[] = new Patch($entry);
+            if (self::_is_patch_file($entry)) {
+                $x = new Patch($entry, $patches_db);
+                $x->set_legacy($legacy);
+                if ($only_new) {
+                    if (!$x->was_applied())
+                        $patches[] = $x;
+                } else {
+                    $patches[] = $x;
+                }
+            }
         }
         $d->close();
+        self::_sort_patches_by_date($patches);
         return $patches;
     }
 
-    private static function is_patch_file($file) {
+    private static function _is_patch_file($file) {
         if (!is_file($file))
             return false;
         if (basename($file) == 'index.php')
@@ -73,20 +83,34 @@ class Patches {
         return strtolower($ext) == 'php';
     }
 
-    private static function remove_applied(array $patches) {
-        foreach ($patches as $k => $p) {
-            if (self::was_applied($p))
-                unset($patches[$k]);
-        }
-        return $patches;
-    }
-
-    private static function module_patches_path($module) {
+    private static function _module_patches_path($module) {
         return 'modules/' . ModuleManager::get_module_dir_path($module) . '/patches/';
     }
 
-    static function was_applied(Patch $patch) {
-        return 1 == DB::GetOne('SELECT 1 FROM patches WHERE id=%s', array($patch->get_identifier()));
+    private static function _sort_patches_by_date(array & $patches) {
+        usort($patches, array('Patch', 'cmp_by_date'));
+    }
+
+}
+
+class PatchesDB {
+
+    function __construct() {
+        $this->_check_table();
+    }
+
+    private function _check_table() {
+        $tables_db = DB::MetaTables();
+        if (!in_array('patches', $tables_db))
+            DB::CreateTable('patches', "id C(32) KEY NOTNULL"); //md5 id
+    }
+
+    public function was_applied($identifier) {
+        return 1 == DB::GetOne('SELECT 1 FROM patches WHERE id=%s', array($identifier));
+    }
+
+    public function mark_applied($identifier) {
+        DB::Execute('INSERT INTO patches VALUES(%s)', array($identifier));
     }
 
 }
@@ -94,16 +118,33 @@ class Patches {
 class Patch {
 
     private $creation_date;
+    private $module;
     private $short_description;
     private $file;
+    private $DB;
+    private $legacy;
+    private $apply_log;
+    private $apply_success;
+    private $apply_error;
 
-    function __construct($file) {
+    function __construct($file, PatchesDB $db, $is_legacy = false) {
         $this->file = $file;
+        $this->_parse_module();
         $this->_parse_filename();
+        $this->DB = $db;
+        $this->legacy = $is_legacy;
+    }
+
+    static function cmp_by_date($patch1, $patch2) {
+        strcmp($patch1->get_creation_date(), $patch2->get_creation_date());
     }
 
     function get_creation_date() {
         return $this->creation_date;
+    }
+
+    function get_module() {
+        return $this->module ? $this->module : 'epesi core';
     }
 
     function get_short_description() {
@@ -111,25 +152,85 @@ class Patch {
     }
 
     function apply() {
-        if (file_exists($this->file))
+        if (!file_exists($this->file))
+            return false;
+        
+        ob_start();
+        try {
             include $this->file;
+            $this->mark_applied();
+        } catch (Exception $e) {
+            $this->apply_error = "Line: {$e->getLine()} - {$e->getMessage()}";
+        }
+        $output = ob_get_clean();
+        $success = $this->apply_error ? 'ERROR' : 'OK';
+        $this->apply_log = "[md5: {$this->get_identifier()}] [$success] {$this->get_file()}\n";
+        if($output)
+            $this->apply_log .= " === OUTPUT ===\n$output\n === END OUTPUT ===\n";
+        if($this->apply_error) {
+            $this->apply_log .= "ERROR {$this->apply_error} \n";
+            $this->apply_success = false;
+            return false;
+        }
+        $this->apply_success = true;
+        return true;
+    }
+
+    function mark_applied() {
+        $this->DB->mark_applied($this->get_identifier());
+    }
+
+    function was_applied() {
+        return $this->DB->was_applied($this->get_identifier());
     }
 
     function get_identifier() {
-        return md5('tools/'.$this->file);
+        $str = $this->legacy ? 'tools/' . $this->file : $this->file;
+        return md5($str);
+    }
+
+    function get_legacy() {
+        return $this->legacy;
+    }
+
+    function set_legacy($legacy) {
+        $this->legacy = $legacy;
+    }
+
+    function get_file() {
+        return $this->file;
+    }
+    
+    function get_apply_log() {
+        return $this->apply_log;
+    }
+    
+    function get_apply_success() {
+        return $this->apply_success;
+    }
+    
+    function get_apply_error_msg() {
+        return $this->apply_error;
+    }
+
+    private function _parse_module() {
+        $dirname = pathinfo($this->file, PATHINFO_DIRNAME);
+        $modules_dir = 'modules/';
+        if (strpos($dirname, $modules_dir) === 0)
+            $this->module = substr($dirname, strlen($modules_dir), -strlen('/patches'));
     }
 
     private function _parse_filename() {
-        $tokens = basename($this->file, '.php');
-        $sep_pos = strpos($tokens, '_');
+        $filename = pathinfo($this->file, PATHINFO_FILENAME);
+        $sep_pos = strpos($filename, '_');
         if ($sep_pos === false) {
-            $this->set_short_description($tokens);
+            $this->set_short_description($filename);
         }
         try {
-            $this->set_creation_date(substr($tokens, 0, $sep_pos));
-            $this->set_short_description(substr($tokens, $sep_pos + 1));
+            $this->set_creation_date(substr($filename, 0, $sep_pos));
+            $this->set_short_description(substr($filename, $sep_pos + 1));
         } catch (Exception $e) {
-            $this->set_short_description($tokens);
+            $this->set_short_description($filename);
         }
     }
 
