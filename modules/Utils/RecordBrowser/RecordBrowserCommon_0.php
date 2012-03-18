@@ -2312,26 +2312,44 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$or_started = false;
         foreach($crits as $k=>$v){
             self::init($tab, false);
+			$next = '';
             $negative = $noquotes = $or_start = $or = false;
             $operator = '=';
             while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
-                if ($k[0]=='!') $negative = true;
-                if ($k[0]=='"') $noquotes = true;
-                if ($k[0]=='(') $or_start = true;
-                if ($k[0]=='|') $or = true;
-                if ($k[0]=='<') $operator = '<';
-                if ($k[0]=='>') $operator = '>';
-                if ($k[0]=='~') $operator = DB::like();
-                if ($k[1]=='=' && $operator!=DB::like()) {
-                    $operator .= '=';
-                    $k = substr($k, 2);
-                } else $k = substr($k, 1);
-                if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word. Crits:'.print_r($crits,true), E_USER_ERROR);
-            }
-            $or |= $or_start;
+				if ($k[0]=='!') $negative = true;
+				if ($k[0]=='"') $noquotes = true;
+				if ($k[0]=='(') $or_start = true;
+				if ($k[0]=='|') $or = true;
+				if ($k[0]=='<') $operator = '<';
+				if ($k[0]=='>') $operator = '>';
+				if ($k[0]=='~') $operator = DB::like();
+				if ($k[1]=='=' && $operator!=DB::like()) {
+					$operator .= '=';
+					$k = substr($k, 2);
+				} else $k = substr($k, 1);
+				if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word. Crits:'.print_r($crits,true), E_USER_ERROR);
+			}
+			$or |= $or_start;
+
+			if (!isset($r[$k]) && $k[strlen($k)-1]==']') {
+				list($ref, $sub_field) = explode('[', trim($k, ']'));
+				$args = self::$table_rows[self::$hash[$ref]];
+				$commondata = $args['commondata'];
+				if (!$commondata) {
+					if (!isset($args['ref_table'])) trigger_error('Invalid crits, field '.$ref.' is not a reference; crits: '.print_r($crits,true),E_USER_ERROR);
+					$is_multiselect = ($args['type']=='multiselect');
+					$tab2 = $tab;
+					$col2 = $k;
+					$tab = $args['ref_table'];
+					$k = $sub_field;
+
+					self::init($tab2);
+					$next .= '<b>'.Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,self::$table_rows[self::$hash[$ref]]['name']).'</b> '.' is set to record with ';
+				}
+			}
+
             if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[$k]) && !isset(self::$table_rows[self::$hash[$k]])) continue; //failsafe
 
-			$next = '';
 			if (!empty($ret)) {
 				if ($or_start) $joint = 'and';
 				elseif ($or) $joint = 'or';
@@ -2348,18 +2366,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case ':Recent'  :   	$next .= self::ts('was'.((!$v || ($negative && $v))?'n\'t':'').' <b>recently</b> viewed');
 											$ret[] = $next;
 											continue;
-                    case ':Created_on'  :	$next .= '<b>'.self::ts('created on').'</b> ';
+                    case ':Created_on'  :	$next .= '<b>'.self::ts('Created on').'</b> ';
 											break;
-                    case ':Created_by'  :	$next .= '<b>'.self::ts('created by').'</b> ';
+                    case ':Created_by'  :	$next .= '<b>'.self::ts('Created by').'</b> ';
 											break;
-                    case ':Edited_on'   :	$next .= '<b>'.self::ts('edited on').'</b> ';
+                    case ':Edited_on'   :	$next .= '<b>'.self::ts('Edited on').'</b> ';
 											break;
 				}
 			} else {
 				if ($k=='id') $next .= '<b>'.self::ts('ID').'</b> ';
 				else $next .= '<b>'.Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,self::$table_rows[self::$hash[$k]]['name']).'</b> ';
 			}
-			$operand = 'is ';
+			$operand = '';
+			if (!isset($tab2)) $operand .= 'is ';
 			if ($negative) $operand .= '<i>not</i> ';
 			if ($v==='') {
 				$next .= self::ts($operand.'empty');
@@ -2381,8 +2400,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case ':Created_by': $v = array(is_numeric($v)?Base_UserCommon::get_user_login($v):$v); break;
                     case ':Edited_on':  $v = array(Base_RegionalSettingCommon::time2reg($v)); break;
 					default: 			if (!is_array($v)) $v = array($v);
-										foreach ($v as $kk=>$vv)
+										$args = self::$table_rows[self::$hash[$k]];
+										foreach ($v as $kk=>$vv) {
+											if (!is_numeric($vv) && !$args['commondata'] && isset($args['ref_table'])) {
+												$v[$kk] = $vv;
+												continue;
+											}
 											$v[$kk] = self::get_val($tab, $k, array($k=>$vv), true);
+										}	
 				}
 				foreach ($v as $kk=>$vv)
 					$v[$kk] = '<b>'.$vv.'</b>';
@@ -2390,6 +2415,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 
 			$ret[] = $next;
+			if (isset($tab2)) {
+				$tab = $tab2;
+				unset($tab2);
+			}
 		}
 //		$ret[] = print_r($crits,true);
 		return $ret;

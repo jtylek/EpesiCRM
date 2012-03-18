@@ -6,6 +6,23 @@ utils_recordbrowser__clearance_max = 0;
 utils_recordbrowser__crits_ors_max = 0;
 utils_recordbrowser__crits_ands_max = 0;
 
+utils_recordbrowser__field_values = {"":{}};
+
+utils_recordbrowser__update_field_values = function (row, j) {
+	var list = $('crits_'+row+'_'+j+'_value');
+	for(i = (list.length-1); i >= 0; i--) {
+		list.options[i] = null;
+	}
+	i = 0;
+	selected_field = $('crits_'+row+'_'+j+'_field').value;
+	for(k in utils_recordbrowser__field_values[selected_field]) {
+		list.options[i] = new Option();
+		list.options[i].value = k;
+		list.options[i].text = utils_recordbrowser__field_values[selected_field][k];
+		i++;
+	}
+}
+
 var utils_recordbrowser__crits_initialized;
 
 utils_recordbrowser__init_clearance = function (current, max) {
@@ -55,3 +72,4 @@ utils_recordbrowser__add_or = function (row) {
 		$('add_or_'+row).style.display = 'none';
 	$('div_crits_or_'+row+'_'+utils_recordbrowser__crits_ors[row]).style.display = '';
 }
+

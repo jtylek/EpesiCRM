@@ -2565,10 +2565,13 @@ class Utils_RecordBrowser extends Module {
 		return false;
 	}
 	
+	private static $date_values = array('-1 year'=>'1 year back','-6 months'=>'6 months back','-3 months'=>'3 months back','-2 months'=>'2 months back','-1 month'=>'1 month back','-2 weeks'=>'2 weeks back','-1 week'=>'1 week back','-6 days'=>'6 days back','-5 days'=>'5 days back','-4 days'=>'4 days back','-3 days'=>'3 days back','-2 days'=>'2 days back','-1 days'=>'1 days back','today'=>'current day','+1 days'=>'1 days forward','+2 days'=>'2 days forward','+3 days'=>'3 days forward','+4 days'=>'4 days forward','+5 days'=>'5 days forward','+6 days'=>'6 days forward','+1 week'=>'1 week forward','+2 weeks'=>'2 weeks forward','+1 month'=>'1 month forward','+2 months'=>'2 months forward','+3 months'=>'3 months forward','+6 months'=>'6 months forward','+1 year'=>'1 year forward');
 	public function edit_permissions_rule($id = null) {
 		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')!=2) return false;
-        if ($this->is_back())
+        if ($this->is_back()) {
             return false;
+		}
+		load_js('modules/Utils/RecordBrowser/edit_permissions.js');
 		$all_clearances = array(''=>'---')+array_flip(Base_AclCommon::get_clearance(true));
 		$all_fields = array();
 		$this->init();
@@ -2595,8 +2598,23 @@ class Utils_RecordBrowser extends Module {
 		$actions = $this->get_permission_actions();
 		$form->addElement('select', 'action', $this->t('Action'), $actions);
 		
-		$special_fields = array(':Created_by'=>$this->t('created by'));
+		$fields_permissions = $all_fields;
 
+		foreach ($all_fields as $k=>$v) {
+			if ($this->table_rows[$v]['type']=='calculated' || $this->table_rows[$v]['type']=='hidden') unset($all_fields[$k]);
+			else $this->manage_permissions_set_field_values($k);
+		}
+
+		$all_fields = array(
+			':Created_by'=>$this->t('Created by'),
+			':Created_on'=>$this->t('Created on'),
+			':Edited_on'=>$this->t('Edited on')
+		) + $all_fields;
+		
+		$this->manage_permissions_set_field_values(':Created_by', array('USER_ID'=>$this->t('User Login')));
+		$this->manage_permissions_set_field_values(':Created_on', self::$date_values);
+		$this->manage_permissions_set_field_values(':Edited_on', self::$date_values);
+		
 		for ($i=0; $i<$counts['clearance']; $i++)
 			$form->addElement('select', 'clearance_'.$i, $this->t('Clearance'), $all_clearances);
 		$current_or = array();
@@ -2604,13 +2622,14 @@ class Utils_RecordBrowser extends Module {
 		for ($i=0; $i<$counts['ands']; $i++) {
 			$current_or[$i] = 0;
 			for ($j=0; $j<$counts['ors']; $j++) {
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_field', $this->t('Crits'), array(''=>'---')+$special_fields+$all_fields);
+				$form->addElement('select', 'crits_'.$i.'_'.$j.'_field', $this->t('Crits'), array(''=>'---')+$all_fields, array('onchange'=>'utils_recordbrowser__update_field_values('.$i.', '.$j.');', 'id'=>'crits_'.$i.'_'.$j.'_field'));
 				$form->addElement('select', 'crits_'.$i.'_'.$j.'_op', $this->t('Operator'), array(''=>'---')+$operators);
-				$form->addElement('text', 'crits_'.$i.'_'.$j.'_value', $this->t('Value'));
+				$form->addElement('select', 'crits_'.$i.'_'.$j.'_value', $this->t('Value'), array(), array('id'=>'crits_'.$i.'_'.$j.'_value'));
+				eval_js('utils_recordbrowser__update_field_values('.$i.', '.$j.');');
 			}
 		}
 		$defaults = array();
-		foreach ($all_fields as $k=>$v) {
+		foreach ($fields_permissions as $k=>$v) {
 			$defaults['field_'.$k] = 1;
 			$form->addElement('checkbox', 'field_'.$k, Base_LangCommon::ts('Utils_RecordBrowser:'.$this->tab,$v));
 		}
@@ -2625,7 +2644,6 @@ class Utils_RecordBrowser extends Module {
 			'add_or' => $this->t('Add criteria (or)'),
 			'add_and' => $this->t('Add criteria (and)')
  		));
-		load_js('modules/Utils/RecordBrowser/edit_permissions.js');
 		$current_clearance = 0;
 		if ($id!==null) {
 			$row = DB::GetRow('SELECT * FROM '.$this->tab.'_access AS acs WHERE id=%d', array($id));
@@ -2662,7 +2680,8 @@ class Utils_RecordBrowser extends Module {
 				}
 				$defaults['crits_'.$i.'_'.$j.'_field'] = $k;
 				$defaults['crits_'.$i.'_'.$j.'_op'] = $operator;
-				$defaults['crits_'.$i.'_'.$j.'_value'] = $v;
+				eval_js('$("crits_'.$i.'_'.$j.'_value").value = "'.$v.'";');
+				//$defaults['crits_'.$i.'_'.$j.'_value'] = $v;
 			}
 			$current_or[$i] += $j;
 			$current_and += $i;
@@ -2680,12 +2699,6 @@ class Utils_RecordBrowser extends Module {
 				unset($defaults['field_'.$t['block_field']]);
 			}
 		}
-
-		eval_js('utils_recordbrowser__init_clearance('.$current_clearance.', '.$counts['clearance'].')');
-		eval_js('utils_recordbrowser__init_crits_and('.$current_and.', '.$counts['ands'].')');
-		for ($i=0; $i<$counts['ands']; $i++)
-				eval_js('utils_recordbrowser__init_crits_or('.$i.', '.$current_or[$i].', '.$counts['ors'].')');
-		eval_js('utils_recordbrowser__crits_initialized = true;');
 
 		$form->setDefaults($defaults);
 		
@@ -2714,7 +2727,7 @@ class Utils_RecordBrowser extends Module {
 			}
 
 			$blocked_fields = array();
-			foreach ($all_fields as $k=>$v) {
+			foreach ($fields_permissions as $k=>$v) {
 				if (isset($vals['field_'.$k])) continue;
 				$blocked_fields[] = $k;
 			}
@@ -2725,9 +2738,15 @@ class Utils_RecordBrowser extends Module {
 				Utils_RecordBrowserCommon::update_access($this->tab, $id, $action, $clearance, $crits, $blocked_fields);
 			return false;
 		}
+
+		eval_js('utils_recordbrowser__init_clearance('.$current_clearance.', '.$counts['clearance'].')');
+		eval_js('utils_recordbrowser__init_crits_and('.$current_and.', '.$counts['ands'].')');
+		for ($i=0; $i<$counts['ands']; $i++)
+				eval_js('utils_recordbrowser__init_crits_or('.$i.', '.$current_or[$i].', '.$counts['ors'].')');
+		eval_js('utils_recordbrowser__crits_initialized = true;');
 		
 		$form->assign_theme('form', $theme);
-		$theme->assign('fields', $all_fields);
+		$theme->assign('fields', $fields_permissions);
 		$theme->assign('counts', $counts);
 		
 		$theme->display('edit_permissions');
@@ -2743,6 +2762,47 @@ class Utils_RecordBrowser extends Module {
 			'add'=>$this->t('Add'),
 			'delete'=>$this->t('Delete')
 		);
+	}
+	
+	private function manage_permissions_set_field_values($field, $arr=null) {
+		static $all_fields = array();
+		if (empty($all_fields))
+			foreach ($this->table_rows as $v)
+				$all_fields[$v['id']] = $v['name'];
+		if ($arr===null) {
+			$args = $this->table_rows[$all_fields[$field]];
+			$arr = array(''=>'['.$this->t('empty').']');
+			switch (true) {
+				case $args['commondata']:
+					$array_id = is_array($args['param']) ? $args['param']['array_id'] : $args['ref_table'];
+					if (strpos($array_id, '::')===false) 
+						$arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, $args['param']['order_by_key']);
+					break;
+				case isset($args['ref_table']) && $args['ref_table']=='contact':
+					$arr = $arr + array('USER'=>$this->t('User Contact'));
+					break;
+				case isset($args['ref_table']) && $args['ref_table']=='company':
+					$arr = $arr + array('USER_COMPANY'=>$this->t('User Company'));
+					break;
+				case $this->tab=='contact' && $field=='login' ||
+					 $this->tab=='rc_accounts' && $field=='epesi_user': // just a quickfix, better solution will be needed
+					$arr = $arr + array('USER_ID'=>$this->t('User Login'));
+					break;
+				case $args['type']=='date' || $args['type']=='timestamp':
+					$arr = $arr + self::$date_values;
+					break;
+				case ($args['type']=='multiselect' || $args['type']=='select') && (!isset($args['ref_table']) || !$args['ref_table']):
+					$arr = $arr + array('USER'=>$this->t('User Contact'));
+					$arr = $arr + array('USER_COMPANY'=>$this->t('User Company'));
+					break;
+				case $args['type']=='checkbox':
+					$arr = array('1'=>$this->t('Yes'),'0'=>$this->t('No'));
+					break;
+			}
+		}
+		foreach ($arr as $k=>$v)
+			$arr[$k] = '"'.$k.'":"'.$v.'"';
+		eval_js('utils_recordbrowser__field_values["'.$field.'"] = {'.implode(',',$arr).'};');
 	}
 }
 ?>

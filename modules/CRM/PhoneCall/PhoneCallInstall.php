@@ -47,6 +47,8 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('phonecall', 5);
 		Utils_RecordBrowserCommon::set_caption('phonecall', 'Phone Calls');
 		Utils_RecordBrowserCommon::enable_watchdog('phonecall', array('CRM_PhoneCallCommon','watchdog_label'));
+		
+		DB::Execute('UPDATE phonecall_field SET type=%s WHERE field=%s', array('select', 'Customer'));
 // ************ addons ************** //
 		Utils_AttachmentCommon::new_addon('phonecall');
 		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'messanger_addon', 'Alerts');
