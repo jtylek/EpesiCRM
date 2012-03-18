@@ -26,6 +26,14 @@ class PatchUtil {
         }
         return $patches;
     }
+    
+    static function mark_applied($module) {
+        $patches = self::list_for_module($module);
+        foreach($patches as $patch) {
+            $patch->mark_applied();
+        }
+        return $patches;
+    }
 
     static function list_patches($only_new = true) {
         $patches = self::list_core($only_new);

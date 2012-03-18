@@ -28,19 +28,19 @@ class ModuleManager {
 	 *
 	 * Do not use directly.
 	 *
-	 * @param string module name
+	 * @param string $module_class_name module class name - underscore separated
 	 */
-	public static final function include_install($class_name) {
-		if(isset(self::$modules_install[$class_name])) return;
-		$path = self::get_module_dir_path($class_name);
-		$file = self::get_module_file_name($class_name);
+	public static final function include_install($module_class_name) {
+		if(isset(self::$modules_install[$module_class_name])) return;
+		$path = self::get_module_dir_path($module_class_name);
+		$file = self::get_module_file_name($module_class_name);
 		ob_start();
 		require_once ('modules/' . $path . '/' . $file . 'Install.php');
 		ob_end_clean();
-		$x = $class_name.'Install';
+		$x = $module_class_name.'Install';
 		if(!(class_exists($x) && in_array($x, get_declared_classes())) || !array_key_exists('ModuleInstall',class_parents($x)))
 			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
-		self::$modules_install[$class_name] = new $x($class_name);
+		self::$modules_install[$module_class_name] = new $x($module_class_name);
 	}
 
 	/**
@@ -212,28 +212,27 @@ class ModuleManager {
 	}
 
 	/**
-	 * Returns directory path to the module including module main directory.
+	 * Returns directory path of the module. Also this is module name.
 	 *
-	 * @param string module name
-	 * @return string directory path to the module
+	 * @param string $module module name or class name - both / and _ separated
+	 * @return string directory path of the module without modules/ prefix
 	 */
-	public static final function get_module_dir_path($name) {
-		return str_replace('_', '/',$name);
+	public static final function get_module_dir_path($module) {
+		return str_replace('_', '/',$module);
 	}
 
 	/**
 	 * Returns main filename part of the module.
 	 *
-	 * Module named Box, instance 1:
+	 * Module class named Base_Box
 	 * get_module_file_name returns 'Box'
-	 *
-	 * Note that file names always contain some other parts like 'Box_0.php'
-	 *
-	 * @return string directory path to the module
+	 * @param string $module module name or class name. 
+	 * @return string final portion of module name
 	 */
-	public static final function get_module_file_name($name) {
-		$ret = strrchr($name,'_');
-		return ($ret)? substr($ret,1):$name;
+	public static final function get_module_file_name($module) {
+        $module_class_name = self::get_module_class_name($module);
+		$ret = strrchr($module_class_name,'_');
+		return ($ret)? substr($ret,1):$module_class_name;
 	}
 
 	/**
@@ -273,14 +272,13 @@ class ModuleManager {
 	}
 
 	/**
-	 * Check if module passed as first parameter with version passed as second parameter can be found in Modules' directory.
-	 *
-	 * @return bool true if module was found, false otherwise
+	 * Check if module install file exists
+	 * @param string $module module name or module class name - both / and _ separated.
+	 * @return bool true if file was found, false otherwise
 	 */
-	public static final function exists($mod) {
-		$path = self::get_module_dir_path($mod);
-		$file = self::get_module_file_name($mod);
-		//print_r($file);
+	public static final function exists($module) {
+		$path = self::get_module_dir_path($module);
+		$file = self::get_module_file_name($module);
 		return file_exists('modules/' . $path . '/' . $file . 'Install.php');
 	}
 
@@ -290,12 +288,12 @@ class ModuleManager {
 	 *
 	 * Do not use directly.
 	 *
-	 * @param string module name
-	 * @param integer module version
+	 * @param string $module_class_name module class name - underscore separated.
+	 * @param integer $version module version
 	 * @param array modules list
 	 */
-	public static final function register($mod, $version, & $module_table) {
-		$module_table[$mod] = $version;
+	public static final function register($module_class_name, $version, & $module_table) {
+		$module_table[$module_class_name] = $version;
 	}
 
 	/**
@@ -304,26 +302,26 @@ class ModuleManager {
 	 *
 	 * Do not use directly.
 	 *
-	 * @param string module name
+	 * @param string $module_class_name module class name - underscore separated.
 	 * @param integer module version
 	 * @param array modules list
 	 */
-	public static final function unregister($mod, & $module_table) {
-		unset($module_table[$mod]);
+	public static final function unregister($module_class_name, & $module_table) {
+		unset($module_table[$module_class_name]);
 	}
 
 	/**
 	 * Checks if module is installed.
 	 *
-	 * @param string module name
+	 * @param string $module module name or module class name - both / and _ separated.
 	 * @return integer version of installed module or -1 when it's not installed
 	 */
-	public static final function is_installed($module_to_install) {
-		$module_to_install = str_replace('/','_',$module_to_install);
-		if (isset (self::$modules) && array_key_exists($module_to_install, self::$modules))
-			return self::$modules[$module_to_install];
-		return -1;
-	}
+	public static final function is_installed($module) {
+        $module_class_name = self::get_module_class_name($module);
+        if (isset(self::$modules) && array_key_exists($module_class_name, self::$modules))
+            return self::$modules[$module_class_name];
+        return -1;
+    }
 
 	/**
 	 * This function performs upgrade process when it is requested by Setup module.
@@ -450,16 +448,20 @@ class ModuleManager {
 		self::$processed_modules['downgrade'][$module] = $to_version;
 		return true;
 	}
+    
+    private static final function get_module_class_name($module) {
+        return str_replace('/', '_', $module);
+    }
 
 	/**
 	 * Installs module given as first parameter.
 	 * Additionally, this function calls upgrade to version given as second parameter.
 	 *
-	 * @param string module name
-	 * @param integer module version
+	 * @param string $module module name or module class name - both / and _ separated.
+	 * @param integer $version module version
 	 * @return bool true if installation success, false otherwise
 	 */
-	public static final function install($module_to_install, $version=null, $check=null, $include_common=true) {
+	public static final function install($module, $version=null, $check=null, $include_common=true) {
 		if($check===null) {
 			if(defined('UPDATING_EPESI'))
 				$check=false;
@@ -468,12 +470,14 @@ class ModuleManager {
 		}
 		$debug = '<div class="green" style="text-align: left;">';
 
+        $module_class_name = self::get_module_class_name($module);
+        
 		//already installed?
-		$debug .= '<b>' . $module_to_install . '</b>' .': is installed?<br>';
+		$debug .= '<b>' . $module_class_name . '</b>' .': is installed?<br>';
 
-		self :: include_install($module_to_install);
+		self::include_install($module_class_name);
 
-		$func_version = array(self::$modules_install[$module_to_install], 'version');
+		$func_version = array(self::$modules_install[$module_class_name], 'version');
 		if(is_callable($func_version))
 			$inst_ver = call_user_func($func_version);
 		else
@@ -485,45 +489,39 @@ class ModuleManager {
 			$version = $inst_ver-1;
 		} else {
 			if($inst_ver<$version) {
-				print($debug.'Module ' . '<b>' . $module_to_install . '</b>' .' is too old. Please download newer version<br>');
+				print($debug.'Module ' . '<b>' . $module_class_name . '</b>' .' is too old. Please download newer version<br>');
 				return false;
 			}
 		}
 
-		if(self::is_installed($module_to_install)>=$version)
+		if(self::is_installed($module_class_name)>=$version)
 			return true;
 
-		if (!self :: exists($module_to_install,$version))
+		if (!self :: exists($module_class_name,$version))
 			return false;
 
 		//check dependecies
-		if(!self::satisfy_dependencies($module_to_install,$version,$check)) {
-			print($debug.'<b>' . $module_to_install . '</b>' . ': dependencies not satisfied.<br>');
+		if(!self::satisfy_dependencies($module_class_name,$version,$check)) {
+			print($debug.'<b>' . $module_class_name . '</b>' . ': dependencies not satisfied.<br>');
 			return false;
 		}
 
-/*		print($module_to_install.': creating data dir<br>');
-		if (!self::create_data_dir($module_to_install)) {
-			print($module_to_install.': unable to create data directory.<br>');
-			return false;
-		}
-*/
-		$debug .= '<b>' . $module_to_install . '</b>' . ': calling install method<br>';
+		$debug .= '<b>' . $module_class_name . '</b>' . ': calling install method<br>';
         if(preg_match('/^mysql/i',DATABASE_DRIVER))
             DB::Execute('SET FOREIGN_KEY_CHECKS = 0');
 		//call install script and fill database
 		if(!call_user_func(array (
-			self::$modules_install[$module_to_install],
+			self::$modules_install[$module_class_name],
 			'install'
 		))) {
-			$debug .= '<b>' . $module_to_install . '</b>' . ': failed install, calling uninstall<br>';
+			$debug .= '<b>' . $module_class_name . '</b>' . ': failed install, calling uninstall<br>';
 			call_user_func(array (
-				self::$modules_install[$module_to_install],
+				self::$modules_install[$module_class_name],
 				'uninstall'
 			));
-			Acl::del_aco_section($module_to_install);
-			self::remove_data_dir($module_to_install);
-			print($debug.'<b>' . $module_to_install . '</b>' . ': uninstalled<br>');
+			Acl::del_aco_section($module_class_name);
+			self::remove_data_dir($module_class_name);
+			print($debug.'<b>' . $module_class_name . '</b>' . ': uninstalled<br>');
             if(preg_match('/^mysql/i',DATABASE_DRIVER))
                 DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
 			return false;
@@ -531,41 +529,43 @@ class ModuleManager {
         if(preg_match('/^mysql/i',DATABASE_DRIVER))
             DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
 
-		$debug .= '<b>' . $module_to_install . '</b>' . ': registering<br>';
-		$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_to_install);
+		$debug .= '<b>' . $module_class_name . '</b>' . ': registering<br>';
+		$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_class_name);
 		if (!$ret) {
-			print ($debug.'<b>' . $module_to_install . '</b>' . ' module installation failed: database<br>');
+			print ($debug.'<b>' . $module_class_name . '</b>' . ' module installation failed: database<br>');
 			return false;
 		}
 
-		self :: register($module_to_install, 0, self::$modules);
+		self::register($module_class_name, $version, self::$modules);
+
+        PatchUtil::mark_applied($module_class_name);
 
 		if ($check) {
-			$debug .= '<b>' . $module_to_install . '</b>' . ': rewriting priorities<br>';
+			$debug .= '<b>' . $module_class_name . '</b>' . ': rewriting priorities<br>';
 			self::create_load_priority_array();
 		}
 
-		print ('<b>' . $module_to_install . '</b>' . ' module installed!<br>');
+		print ('<b>' . $module_class_name . '</b>' . ' module installed!<br>');
 
 		if($version!=0) {
-			$debug .= '<b>' . $module_to_install . '</b>' . ': upgrades...<br>';
-			$up = self::upgrade($module_to_install, $version);
+			$debug .= '<b>' . $module_class_name . '</b>' . ': upgrades...<br>';
+			$up = self::upgrade($module_class_name, $version);
 			if(!$up) {
 				print($debug);
 				return false;
 			}
 		}
-		self::$not_loaded_modules[] = array('name'=>$module_to_install,'version'=>$version);
+		self::$not_loaded_modules[] = array('name'=>$module_class_name,'version'=>$version);
 
 		//$debug .= '<b>' . $module_to_install . '</b>' . ': deps ok, including common class<br>';
 		if($include_common) {
-            self::include_common($module_to_install,$version);
+            self::include_common($module_class_name,$version);
 //    		self::create_common_cache();
         }
         if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
 
 		//$debug .= '</div>';
-		self::$processed_modules['install'][$module_to_install] = $version;
+		self::$processed_modules['install'][$module_class_name] = $version;
 		return true;
 
 	}
