@@ -7,9 +7,11 @@ utils_recordbrowser__crits_ors_max = 0;
 utils_recordbrowser__crits_ands_max = 0;
 
 utils_recordbrowser__field_values = {"":{}};
+utils_recordbrowser__field_sub_values = {};
 
 utils_recordbrowser__update_field_values = function (row, j) {
 	var list = $('crits_'+row+'_'+j+'_value');
+	if (!list) return;
 	for(i = (list.length-1); i >= 0; i--) {
 		list.options[i] = null;
 	}
@@ -20,6 +22,29 @@ utils_recordbrowser__update_field_values = function (row, j) {
 		list.options[i].value = k;
 		list.options[i].text = utils_recordbrowser__field_values[selected_field][k];
 		i++;
+	}
+	utils_recordbrowser__update_field_sub_values(row, j);
+}
+
+utils_recordbrowser__update_field_sub_values = function (row, j) {
+	var list = $('crits_'+row+'_'+j+'_sub_value');
+	if (!list) return;
+	selected_field = $('crits_'+row+'_'+j+'_field').value;
+	selected_value = $('crits_'+row+'_'+j+'_value').value;
+	for(i = (list.length-1); i >= 0; i--) {
+		list.options[i] = null;
+	}
+	if (utils_recordbrowser__field_sub_values[selected_field+'__'+selected_value]) {
+		i = 0;
+		for(k in utils_recordbrowser__field_sub_values[selected_field+'__'+selected_value]) {
+			list.options[i] = new Option();
+			list.options[i].value = k;
+			list.options[i].text = utils_recordbrowser__field_sub_values[selected_field+'__'+selected_value][k];
+			i++;
+		}
+		$('crits_'+row+'_'+j+'_sub_value').style.display='';
+	} else {
+		$('crits_'+row+'_'+j+'_sub_value').style.display='none';
 	}
 }
 

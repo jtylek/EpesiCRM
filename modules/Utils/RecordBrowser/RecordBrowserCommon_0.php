@@ -2342,9 +2342,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$col2 = $k;
 					$tab = $args['ref_table'];
 					$k = $sub_field;
-
-					self::init($tab2);
-					$next .= '<b>'.Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,self::$table_rows[self::$hash[$ref]]['name']).'</b> '.' is set to record with ';
+					
+					$f_dis = self::$table_rows[self::$hash[$ref]]['name'];
+					self::init($tab);
+					$next .= '<b>'.Base_LangCommon::ts('Utils_RecordBrowser:'.$tab,$f_dis).'</b> '.' is set to record with ';
 				}
 			}
 

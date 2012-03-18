@@ -60,8 +60,10 @@
 								{assign var=op value="crits_$i$u$j$op"} 
 								{assign var=value value="_value"} 
 								{assign var=value value="crits_$i$u$j$value"} 
+								{assign var=sub_value value="_sub_value"} 
+								{assign var=sub_value value="crits_$i$u$j$sub_value"} 
 
-								{$form_data.$field.html}{$form_data.$op.html}{$form_data.$value.html}
+								{$form_data.$field.html}{$form_data.$op.html}{$form_data.$value.html}{$form_data.$sub_value.html}
 							</span>
 						{/section}
 						<div id="add_or_{$i}" class="button" style="display:inline-block;" onclick="utils_recordbrowser__add_or({$i});">{$labels.add_or}</div>

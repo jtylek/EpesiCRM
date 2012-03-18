@@ -2577,6 +2577,7 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		foreach ($this->table_rows as $v)
 			$all_fields[$v['id']] = $v['name'];
+		$js = '';
 		$operators = array(
 			'='=>$this->t('equal'), 
 			'!'=>$this->t('not equal'), 
@@ -2624,8 +2625,9 @@ class Utils_RecordBrowser extends Module {
 			for ($j=0; $j<$counts['ors']; $j++) {
 				$form->addElement('select', 'crits_'.$i.'_'.$j.'_field', $this->t('Crits'), array(''=>'---')+$all_fields, array('onchange'=>'utils_recordbrowser__update_field_values('.$i.', '.$j.');', 'id'=>'crits_'.$i.'_'.$j.'_field'));
 				$form->addElement('select', 'crits_'.$i.'_'.$j.'_op', $this->t('Operator'), array(''=>'---')+$operators);
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_value', $this->t('Value'), array(), array('id'=>'crits_'.$i.'_'.$j.'_value'));
-				eval_js('utils_recordbrowser__update_field_values('.$i.', '.$j.');');
+				$form->addElement('select', 'crits_'.$i.'_'.$j.'_value', $this->t('Value'), array(), array('id'=>'crits_'.$i.'_'.$j.'_value', 'onchange'=>'utils_recordbrowser__update_field_sub_values('.$i.', '.$j.');'));
+				$form->addElement('select', 'crits_'.$i.'_'.$j.'_sub_value', $this->t('Subrecord Value'), array(), array('id'=>'crits_'.$i.'_'.$j.'_sub_value', 'style'=>'display:none;'));
+				$js .= 'utils_recordbrowser__update_field_values('.$i.', '.$j.');';
 			}
 		}
 		$defaults = array();
@@ -2645,6 +2647,7 @@ class Utils_RecordBrowser extends Module {
 			'add_and' => $this->t('Add criteria (and)')
  		));
 		$current_clearance = 0;
+		$sub_values = array();
 		if ($id!==null) {
 			$row = DB::GetRow('SELECT * FROM '.$this->tab.'_access AS acs WHERE id=%d', array($id));
 			
@@ -2678,10 +2681,15 @@ class Utils_RecordBrowser extends Module {
 				} else {
 					$first = false;
 				}
+				$sub_value = null;
+				if (!isset($r[$k]) && $k[strlen($k)-1]==']') {
+					$sub_value = $v;
+					list($k, $v) = explode('[', trim($k, ']'));
+				}
 				$defaults['crits_'.$i.'_'.$j.'_field'] = $k;
 				$defaults['crits_'.$i.'_'.$j.'_op'] = $operator;
-				eval_js('$("crits_'.$i.'_'.$j.'_value").value = "'.$v.'";');
-				//$defaults['crits_'.$i.'_'.$j.'_value'] = $v;
+				$js .= '$("crits_'.$i.'_'.$j.'_value").value = "'.$v.'";';
+				if ($sub_value!==null) $sub_values['crits_'.$i.'_'.$j.'_sub_value'] = $sub_value;
 			}
 			$current_or[$i] += $j;
 			$current_and += $i;
@@ -2699,6 +2707,11 @@ class Utils_RecordBrowser extends Module {
 				unset($defaults['field_'.$t['block_field']]);
 			}
 		}
+		for ($i=0; $i<$counts['ands']; $i++)
+			for ($j=0; $j<$counts['ors']; $j++)
+				$js .= 'utils_recordbrowser__update_field_sub_values('.$i.', '.$j.');';
+		foreach ($sub_values as $k=>$v)
+			$js .= '$("'.$k.'").value = "'.$v.'";';
 
 		$form->setDefaults($defaults);
 		
@@ -2719,6 +2732,10 @@ class Utils_RecordBrowser extends Module {
 						if (!isset($all_fields[$vals['crits_'.$i.'_'.$j.'_field']])) trigger_error('Fatal error',E_USER_ERROR);
 						$op = $vals['crits_'.$i.'_'.$j.'_op'];
 						if ($op=='=') $op = '';
+						if (isset($vals['crits_'.$i.'_'.$j.'_sub_value'])) {
+							$vals['crits_'.$i.'_'.$j.'_field'] = $vals['crits_'.$i.'_'.$j.'_field'].'['.$vals['crits_'.$i.'_'.$j.'_value'].']';
+							$vals['crits_'.$i.'_'.$j.'_value'] = $vals['crits_'.$i.'_'.$j.'_sub_value'];
+						}
 						$next = array($or.$op.$vals['crits_'.$i.'_'.$j.'_field'] => $vals['crits_'.$i.'_'.$j.'_value']);
 						$crits = Utils_RecordBrowserCommon::merge_crits($crits, $next);
 					}
@@ -2738,6 +2755,8 @@ class Utils_RecordBrowser extends Module {
 				Utils_RecordBrowserCommon::update_access($this->tab, $id, $action, $clearance, $crits, $blocked_fields);
 			return false;
 		}
+		
+		eval_js($js);
 
 		eval_js('utils_recordbrowser__init_clearance('.$current_clearance.', '.$counts['clearance'].')');
 		eval_js('utils_recordbrowser__init_crits_and('.$current_and.', '.$counts['ands'].')');
@@ -2765,44 +2784,72 @@ class Utils_RecordBrowser extends Module {
 	}
 	
 	private function manage_permissions_set_field_values($field, $arr=null) {
-		static $all_fields = array();
-		if (empty($all_fields))
-			foreach ($this->table_rows as $v)
-				$all_fields[$v['id']] = $v['name'];
 		if ($arr===null) {
-			$args = $this->table_rows[$all_fields[$field]];
-			$arr = array(''=>'['.$this->t('empty').']');
-			switch (true) {
-				case $args['commondata']:
-					$array_id = is_array($args['param']) ? $args['param']['array_id'] : $args['ref_table'];
-					if (strpos($array_id, '::')===false) 
-						$arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, $args['param']['order_by_key']);
-					break;
-				case isset($args['ref_table']) && $args['ref_table']=='contact':
-					$arr = $arr + array('USER'=>$this->t('User Contact'));
-					break;
-				case isset($args['ref_table']) && $args['ref_table']=='company':
-					$arr = $arr + array('USER_COMPANY'=>$this->t('User Company'));
-					break;
-				case $this->tab=='contact' && $field=='login' ||
-					 $this->tab=='rc_accounts' && $field=='epesi_user': // just a quickfix, better solution will be needed
-					$arr = $arr + array('USER_ID'=>$this->t('User Login'));
-					break;
-				case $args['type']=='date' || $args['type']=='timestamp':
-					$arr = $arr + self::$date_values;
-					break;
-				case ($args['type']=='multiselect' || $args['type']=='select') && (!isset($args['ref_table']) || !$args['ref_table']):
-					$arr = $arr + array('USER'=>$this->t('User Contact'));
-					$arr = $arr + array('USER_COMPANY'=>$this->t('User Company'));
-					break;
-				case $args['type']=='checkbox':
-					$arr = array('1'=>$this->t('Yes'),'0'=>$this->t('No'));
-					break;
-			}
+			$arr = $this->permissions_get_field_values($field, true);
 		}
 		foreach ($arr as $k=>$v)
 			$arr[$k] = '"'.$k.'":"'.$v.'"';
 		eval_js('utils_recordbrowser__field_values["'.$field.'"] = {'.implode(',',$arr).'};');
+	}
+	
+	private function permissions_get_field_values($field, $in_depth=true) {
+		static $all_fields = array();
+		if (!isset($all_fields[$this->tab]))
+			foreach ($this->table_rows as $v)
+				$all_fields[$this->tab][$v['id']] = $v['name'];
+		$args = $this->table_rows[$all_fields[$this->tab][$field]];
+		$arr = array(''=>'['.$this->t('empty').']');
+		switch (true) {
+			case $args['commondata']:
+				$array_id = is_array($args['param']) ? $args['param']['array_id'] : $args['ref_table'];
+				if (strpos($array_id, '::')===false) 
+					$arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, $args['param']['order_by_key']);
+				break;
+			case $this->tab=='contact' && $field=='login' ||
+				 $this->tab=='rc_accounts' && $field=='epesi_user': // just a quickfix, better solution will be needed
+				$arr = $arr + array('USER_ID'=>$this->t('User Login'));
+				break;
+			case $args['type']=='date' || $args['type']=='timestamp':
+				$arr = $arr + self::$date_values;
+				break;
+			case ($args['type']=='multiselect' || $args['type']=='select') && (!isset($args['ref_table']) || !$args['ref_table']):
+				$arr = $arr + array('USER'=>$this->t('User Contact'));
+				$arr = $arr + array('USER_COMPANY'=>$this->t('User Company'));
+				break;
+			case $args['type']=='checkbox':
+				$arr = array('1'=>$this->t('Yes'),'0'=>$this->t('No'));
+				break;
+			case $args['type']=='select' && isset($args['ref_table']):
+				if ($args['ref_table']=='contact') $arr = $arr + array('USER'=>$this->t('User Contact'));
+				if ($args['ref_table']=='company') $arr = $arr + array('USER_COMPANY'=>$this->t('User Company'));
+				if (!$in_depth) continue;
+
+				$last_tab = $this->tab;
+				$this->tab = $args['ref_table'];
+				$this->init();
+				if (!isset($all_fields[$this->tab]))
+					foreach ($this->table_rows as $v)
+						$all_fields[$this->tab][$v['id']] = $v['name'];
+						
+
+				foreach ($all_fields[$this->tab] as $k=>$v) {
+					if ($this->table_rows[$v]['type']=='calculated' || $this->table_rows[$v]['type']=='hidden') unset($all_fields[$this->tab][$k]);
+					else {
+						$arr2 = $this->permissions_get_field_values($k, false, $this->tab);
+						foreach ($arr2 as $k2=>$v2)
+							$arr2[$k2] = '"'.$k2.'":"'.$v2.'"';
+						eval_js('utils_recordbrowser__field_sub_values["'.$field.'__'.$k.'"] = {'.implode(',',$arr2).'};');
+					}
+				}
+				foreach ($all_fields[$this->tab] as $k=>$v) {
+					$arr[$k] = $this->t(' records with %s set to ', array($this->ts($v)));
+				}
+
+				$this->tab = $last_tab;
+				$this->init();
+				break;
+		}
+		return $arr;
 	}
 }
 ?>
