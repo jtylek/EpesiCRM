@@ -29,6 +29,7 @@ var Epesi = {
 	updateIndicator: function() {
 		var s = $(Epesi.indicator);
 		if(s) s.style.visibility = Epesi.procOn ? 'visible' : 'hidden';
+		if (!Epesi.procOn) $('main_content').style.display = '';
 	},
 	updateIndicatorText: function(text) {
 		$(Epesi.indicator_text).innerHTML = text;
