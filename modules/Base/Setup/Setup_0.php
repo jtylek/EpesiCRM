@@ -353,6 +353,10 @@ class Base_Setup extends Module {
 		
 		$t->display();
 	}
+    
+    public static function response_callback($ret) {
+        var_dump($ret);
+    }
 
 	public function add_store_products(& $sorted, & $filters) {
 		$store = Base_EpesiStoreCommon::get_modules_all_available();
@@ -361,7 +365,8 @@ class Base_Setup extends Module {
 			$sorted[$name] = array();
 			$sorted[$name]['name'] = $this->t($name);
 			$sorted[$name]['modules'] = array();
-			$sorted[$name]['buttons'] = array();
+            $buttons = array(array('label'=>$this->t(Base_EpesiStoreCommon::next_possible_action($s['id'])),'style'=>'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback'))));
+			$sorted[$name]['buttons'] = $buttons;
 			$sorted[$name]['options'] = array();
 			$sorted[$name]['status'] = $this->t('Options only');
 			$sorted[$name]['style'] = 'disabled';

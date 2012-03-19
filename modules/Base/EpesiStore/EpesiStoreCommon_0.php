@@ -185,11 +185,17 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     /**
      * Download module to epesi installation.
      * @param array $module_license module license data
+     * @return mixed string with error message or true on success
      */
     public static function download_module($module_license) {
-        $file = self::download_module_file($module_license);
-        self::extract_module_file($file);
-        self::store_info_about_downloaded_module($module_license, $file);
+        try {
+            $file = self::download_module_file($module_license);
+            self::extract_module_file($file);
+            self::store_info_about_downloaded_module($module_license, $file);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        return true;
     }
 
     private static function download_module_file($module_license) {
@@ -239,23 +245,35 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     private static function store_info_about_downloaded_module($module_license, $file) {
         $module_info = self::get_module_info($module_license['module']);
-        Base_EpesiStoreCommon::add_downloaded_module($module_info['id'], $module_info['version'], $module_license['id'], $file);
+        self::add_downloaded_module($module_info['id'], $module_info['version'], $module_license['id'], $file);
     }
 
-    private static function _is_module_bought($module_id, $module_licenses) {
+    private static function _active_module_license_for_module($module_id) {
+        static $module_licenses = null;
+        if ($module_licenses === null)
+            $module_licenses = Base_EssClientCommon::server()->module_licenses_list();
         foreach ($module_licenses as $m) {
-            if ($m['module'] == $module_id)
-                return true;
+            if ($m['module'] == $module_id && $m['active'] == true) {
+                return $m;
+            }
         }
         return false;
     }
 
-    private static function _is_module_paid($module_id, $module_licenses) {
-        foreach ($module_licenses as $m) {
-            if ($m['module'] == $module_id)
-                return $m['paid'];
-        }
-        return false;
+    private static function _is_module_free($module_id) {
+        $mi = self::get_module_info($module_id);
+        return strtolower($mi['price']) == 'free';
+    }
+
+    private static function _is_module_license_active($module_id) {
+        return false !== self::_active_module_license_for_module($module_id);
+    }
+
+    private static function _is_module_paid($module_id) {
+        $ml = self::_active_module_license_for_module($module_id);
+        if ($ml === false || $ml['active'] == false)
+            return false;
+        return $ml['paid'];
     }
 
     private static function _is_module_downloaded($module_id) {
@@ -264,14 +282,13 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     private static function _is_module_up_to_date($module_id) {
         $mi = self::get_module_info($module_id);
-        return $mi['version'] >= self::get_downloaded_module_version($module_id);
+        return $mi['version'] <= self::get_downloaded_module_version($module_id);
     }
 
     public static function next_possible_action($module_id) {
-        $module_licenses = Base_EssClientCommon::server()->module_licenses_list();
-        if (!self::_is_module_bought($module_id, $module_licenses))
+        if (!self::_is_module_license_active($module_id))
             return self::ACTION_BUY;
-        if (!self::_is_module_paid($module_id, $module_licenses))
+        if (!self::_is_module_paid($module_id))
             return self::ACTION_PAY;
         if (!self::_is_module_downloaded($module_id))
             return self::ACTION_DOWNLOAD;
@@ -281,39 +298,73 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return self::ACTION_INSTALL;
     }
 
-    public static function one_click_order_push_main_payment($module_id) {
-        $ret_message = null;
-        $response = Base_EssClientCommon::server()->order_submit($module_id);
+    public static function next_possible_action_href($module_id, $response_callback = null) {
+        $action = self::next_possible_action($module_id);
+        return self::action_href($module_id, $action, $response_callback);
+    }
 
-        // find order with that module
+    public static function action_href($module_id, $action, $response_callback = null) {
+        return self::_base_box()->get_main_module()->create_callback_href(array('Base_EpesiStoreCommon', 'handle_module_action'), array($module_id, $action, $response_callback));
+    }
+
+    public static function handle_module_action($module_id, $action, $response_callback = null) {
+        $return = null;
+        switch ($action) {
+            case self::ACTION_BUY:
+                $response = Base_EssClientCommon::server()->order_submit($module_id);
+                $return = $response[$module_id];
+                break;
+            case self::ACTION_PAY:
+                $response_callback = null;
+                var_dump(self::_push_main_payments_for_module($module_id));
+                break;
+            case self::ACTION_DOWNLOAD:
+            case self::ACTION_UPDATE:
+                $mi = self::_active_module_license_for_module($module_id);
+                if ($mi !== false)
+                    $return = self::download_module($mi);
+                else
+                    $return = false;
+                break;
+            case self::ACTION_INSTALL:
+                break;
+        }
+        if (is_callable($response_callback)) {
+            call_user_func($response_callback, $return);
+            return;
+        }
+        return $return;
+    }
+
+    private static function _push_main_payments_for_module($module_id) {
+        $module_license = self::_active_module_license_for_module($module_id);
+        if ($module_license === false)
+            return false;
+        $module_license_id = $module_license['id'];
         $orders = Base_EssClientCommon::server()->orders_list();
         foreach ($orders as $o) {
-            if (false === array_search($module_id, $o['modules']))
+            if (false === array_search($module_license_id, $o['modules']))
                 continue;
             // order should contain only one 'currency => value' pair. Take first
             $keys = array_keys($o['price']);
             $currency = reset($keys);
             $value = $o['price'][$currency]['to_pay'];
             $mi = self::get_module_info($module_id);
-            $x = ModuleManager::get_instance('/Base_Box|0');
-            if (!$x)
-                trigger_error('There is no base box module instance', E_USER_ERROR);
-            $ret_message = true;
-            $x->push_main('Base_EpesiStore', 'form_payment_frame', array($o['id'], $value, $currency, $mi['name']));
-            break;
+            self::_base_box()->push_main('Base_EpesiStore', 'form_payment_frame', array($o['id'], $value, $currency, $mi['name']));
+            return true;
         }
-        if (!$ret_message) {
-            $ret_message = $response[$module_id] === false ? 'Unrecognized error' : $response[$module_id];
-        }
-        return $ret_message;
+        return false;
     }
 
-    /**
-     * Get downloaded module version
-     * @param int $module_id
-     * @return string version 
-     */
-    public static function get_downloaded_module_version($module_id) {
+    /** @return Base_Box */
+    private static function _base_box() {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        if (!$x)
+            trigger_error('There is no base box module instance', E_USER_ERROR);
+        return $x;
+    }
+
+    private static function get_downloaded_module_version($module_id) {
         return DB::GetOne('SELECT `version` FROM epesi_store_modules WHERE `module_id` = %d', array($module_id));
     }
 
@@ -334,7 +385,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return $records;
     }
 
-    public static function add_downloaded_module($module_id, $version, $module_license_id, $file) {
+    private static function add_downloaded_module($module_id, $version, $module_license_id, $file) {
         // TODO: change column name in db
         DB::Execute('REPLACE INTO epesi_store_modules(module_id, version, order_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $module_license_id, $file));
     }

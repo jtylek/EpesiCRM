@@ -403,12 +403,7 @@ class Base_EpesiStore extends Module {
 
         $status = array();
         foreach ($module_licenses as $ml) {
-            try {
-                Base_EpesiStoreCommon::download_module($ml);
-                $status[$ml['id']] = true;
-            } catch (ErrorException $e) {
-                $status[$ml['id']] = $e->getMessage();
-            }
+            $status[$ml['id']] = Base_EpesiStoreCommon::download_module($ml);
         }
         return $status;
     }
