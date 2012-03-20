@@ -32,9 +32,7 @@
 {/if}
 
 
-<div class="layer" style="padding: 9px; width: 98%;">
-	<div class="css3_content_shadow">
-		<div style="padding: 5px; background-color: #FFFFFF;">
+		<div class="epesi_grey_board">
 			<table cellpadding="0" cellspacing="0" border="0" id="Utils_Planner__table">
 				<tr>
 					<td style="vertical-align:top;width:700px;">
@@ -52,7 +50,7 @@
 							</tr>
 							{foreach item=gl key=gk from=$grid_legend}
 								<tr>
-									<td class="grid_legend border_radius_3px" nowrap >
+									<td class="grid_legend epesi_label" nowrap >
 										{$gl}
 									</td>
 									{foreach item=h key=k from=$headers}
@@ -63,21 +61,35 @@
 							{/foreach}
 						</table>
 					</td>
-					<td style="vertical-align:top;margin:5px;width:250px;">
+					<td style="vertical-align:top;margin:5px;width:250px;min-width:250px;">
 						<table id="Utils_Planner__resource_table" class="border-spacing" cellpadding="0" cellspacing="0" border="0">
 							{foreach item=e key=k from=$form_data}
 								{if is_array($e) && isset($e.label)}
 									{if ($e.type=='automulti')}
 										<tr>
-											<td colspan="2" class="label" nowrap="1">{$e.label}</td>
+											<td colspan="2" class="epesi_label" nowrap="1">
+											    {$e.label}
+											</td>
 										</tr>
 										<tr>
-											<td colspan="2" class="data">{$e.error}{$e.html}</td>
+											<td colspan="2" class="epesi_data">
+											    <div style="position: relative;">
+												    {$e.error}
+												    {$e.html}
+											    </div>
+											</td>
 										</tr>
 									{else}
 										<tr>
-											<td class="label" nowrap="1">{$e.label}</td>
-											<td class="data">{$e.error}{$e.html}</td>
+											<td class="epesi_label" nowrap="1">
+											    {$e.label}
+											</td>
+											<td class="epesi_data">
+											    <div style="position: relative;">
+												{$e.error}
+												{$e.html}
+											    </div>
+											</td>
 										</tr>
 									{/if}
 								{/if}
@@ -93,6 +105,5 @@
 				</tr>
 			</table>
 		</div>
-	</div>
-</div>
+
 {$form_close}

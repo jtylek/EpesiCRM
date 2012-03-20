@@ -1,8 +1,3 @@
-#Utils_Planner__table {
-    border-bottom: 1px solid #B3B3B3;
-    border-right: 1px solid #B3B3B3;
-    width: 100%;}
-
 #Utils_Planner__grid .header {
 	vertical-align: middle;
 	border: 1px solid #B3B3B3;
@@ -40,18 +35,17 @@
 
 #Utils_Planner__grid .header > div > input {
 	width: 80%;
+	min-width: 0px;
 	height: auto;
 	margin:  2px auto auto auto;
 }
 
-#Utils_Planner__grid .grid_legend {
-	color: white;
-	background-color: #336699;
-	border-top: 1px solid #B3B3B3;
+#Utils_Planner__grid .epesi_label.grid_legend {
 	padding: 0px 4px;
 	height: 29px;
 	text-align: center;
 	vertical-align: middle;
+	width: auto;
 }
 
 #Utils_Planner__grid .used {
@@ -74,6 +68,20 @@
 	background-color: #FFBBBB;
 }
 
+#Utils_Planner__resource_table {
+	border-spacing: 3px;
+	width: 100%;
+}
+#Utils_Planner__resource_table .epesi_label {
+	width: 100px;;
+}
+#Utils_Planner__resource_table .epesi_data {
+    width: 150px;
+}
+#Utils_Planner__resource_table .epesi_data input,
+#Utils_Planner__resource_table .epesi_data select {
+    width: 97%;
+}
 #Utils_Planner__resource_table option.conflict,
 #Utils_Planner__resource_table select.conflict {
 	background-color: #FFBBBB;
@@ -83,125 +91,18 @@
 #Utils_Planner__resource_table select.noconflict {
     background-color: #FFFFFF;
 }
-/*
-#Utils_Planner__resource_table .label {
-    background-color: #336699;
-    color: #FFFFFF;
-    border-bottom: 1px solid #B3B3B3;
-    height: 20px;
-    vertical-align: middle;
-    padding-left: 5px;
-    padding-right: 5px;
-    width: 50px;
-    text-align: left;
-}
-
-#Utils_Planner__resource_table .data {
-    text-align: left;
-}*/
-
 #Utils_Planner__time_frames table {
 	width: 100%;
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* global*/
-table.border-spacing {
-	border-spacing: 1px;
-	width: 100%;
-}
-
-/*label*/
-td.label {
-    background-color: #336699;
-    color: #FFFFFF;
-    vertical-align: middle;
-	padding: 6px 2px 6px 5px;
-	margin: 1px 1px 1px 5px;
-    width: auto;
-    text-align: left;
-	/* border radius */
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	/* end border radius */
-}
-/*end label*/
-
-
-
-/*data*/
-td.data {
-	padding-right: 4px;
-}
-
-td.search-element > input,
-td.data > select,
-td.main-element > select,
-td.main-element > input,
-td.data > input {
-	background-color: #E0EDE0;
-    border: 1px solid #B3B3B3;
-    overflow: hidden;
-	width: 99%;
-	padding: 5px 0 4px 0px;
-	margin-left: 2px;
-	
-	/* border radius */
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	/* end border radius */
-}
-
-td.search-element > input:focus,
-td.data > select:focus,
-td.main-element > select:focus,
-td.main-element > input:focus,
-td.data > input:focus {
-	background-color: #FFFFA5;
-}
-
-td.data > input {
-	width: 98%;
-	padding: 6px 0 5px 0px;
-}
-/* end data */
-
-
-
-
-/* ponad global */
-#custom_location,
-#ignore_conflicts,
-#custom_course_checkbox {
-	width: auto;
-}
-
 #Utils_Planner__time_frames .time_frames {
-	background-color: #F2F2F2;
-	/* border radius */
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	/* end border radius */
+    background-color: #F2F2F2;
+    /* border radius */
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    /* end border radius */
 }
 
 
