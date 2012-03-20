@@ -138,7 +138,9 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $gb = & $this->init_module('Utils/GenericBrowser',null,'user_list');
         //$gb->set_module_variable('adv_search',false);
 
-        $cols = array(array('name'=>$this->t('Login'), 'order'=>'u.login', 'width'=>20,'search'=>'login'));
+        $cols = array();
+    	$cols[] = array('name'=>$this->t('ID'), 'order'=>'u.id', 'width'=>6,'search'=>'id');
+    	$cols[] = array('name'=>$this->t('Login'), 'order'=>'u.login', 'width'=>20,'search'=>'login');
         $is_contacts = ModuleManager::is_installed('CRM/Contacts')>=0;
         if($is_contacts)
             $cols[] = array('name'=>$this->t('Contact'), 'width'=>27);
@@ -167,7 +169,9 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
                 $groups = Base_AclCommon::get_user_groups_names($uid);
                 if($groups===false) continue; //skip if you don't have privileges
 
-                $gb_row = array('<a '.$this->create_callback_href(array($this,'edit_user_form'),array($row['id'])).'>'.$row['login'].'</a>');
+                $gb_row = array();
+                $gb_row[] = $row['id'];
+                $gb_row[] = '<a '.$this->create_callback_href(array($this,'edit_user_form'),array($row['id'])).'>'.$row['login'].'</a>';
                 if($is_contacts) {
                     $c = CRM_ContactsCommon::get_contact_by_user_id($row['id']);
                     $gb_row[] = $c?CRM_ContactsCommon::contact_format_default($c):'---';
