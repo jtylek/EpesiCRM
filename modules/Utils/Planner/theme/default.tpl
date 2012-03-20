@@ -67,7 +67,7 @@
 								{if is_array($e) && isset($e.label)}
 									{if ($e.type=='automulti')}
 										<tr>
-											<td colspan="2" class="epesi_label" nowrap="1">
+											<td colspan="2" class="epesi_label top" nowrap="1">
 											    {$e.label}
 											</td>
 										</tr>
@@ -95,7 +95,7 @@
 								{/if}
 							{/foreach}
 							<tr>
-								<td colspan="2" class="label">{$time_frames.label}</td>
+								<td colspan="2" class="epesi_label top">{$time_frames.label}</td>
 							</tr>
 							<tr>
 								<td colspan="2" class="data">{$time_frames.html}</td>
