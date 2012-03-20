@@ -78,7 +78,7 @@
 #Utils_Planner__resource_table .epesi_data {
     width: 150px;
 }
-#Utils_Planner__resource_table .epesi_data input,
+#Utils_Planner__resource_table .epesi_data input[type="text"],
 #Utils_Planner__resource_table .epesi_data select {
     width: 97%;
 }
