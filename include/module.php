@@ -494,7 +494,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final function create_callback_href($func,$args=null,$indicator=null,$mode=null) {
+	public final function create_callback_href($func,$args=array(),$indicator=null,$mode=null) {
 		$name = $this->create_callback_name($func,$args);
 		return $this->create_callback_href_with_id($name,$func,$args,$indicator,$mode);
 	}
@@ -514,12 +514,12 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final function create_callback_href_js($func,$args=null,$indicator=null,$mode=null) {
+	public final function create_callback_href_js($func,$args=array(),$indicator=null,$mode=null) {
 		$name = $this->create_callback_name($func,$args);
 		return $this->create_callback_href_with_id_js($name,$func,$args,$indicator,$mode);
 	}
 
-	public final function call_callback_href($func,$args=null) {
+	public final function call_callback_href($func,$args=array()) {
 		$name = 'callback_'.$this->create_callback_name($func,$args);
 		$this->set_callback($name,$func,$args);
 		location(array($this->create_unique_key($name)=>1));
@@ -544,7 +544,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final function create_confirm_callback_href($confirm, $func, $args=null,$indicator=null,$mode=null) {
+	public final function create_confirm_callback_href($confirm, $func, $args=array(),$indicator=null,$mode=null) {
 		$name = $this->create_callback_name($func,$args);
 		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator,$mode);
 	}
@@ -559,7 +559,7 @@ abstract class Module extends ModulePrimitive {
 			} else
 				trigger_error('Invalid callback function', E_USER_ERROR);
 		}
-		if(!is_array($args)) $args = $args === null ? array() : array($args);
+		if(!is_array($args)) $args = array($args);
 		$callbacks = & $this->get_module_variable('__callbacks__',array());
 		if(isset($callbacks[$name])) unset($callbacks[$name]); //it is required, because we need to place [$name] at the end of array
 		$callbacks[$name] = array('func'=>$func,'args'=>$args);
@@ -578,7 +578,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string
 	 */
-	public final function create_callback_href_with_id($name, $func, $args=null,$indicator=null,$mode=null) {
+	public final function create_callback_href_with_id($name, $func, $args=array(),$indicator=null,$mode=null) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
 		return $this->create_unique_href(array($name=>1),$indicator,$mode);
@@ -597,7 +597,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string
 	 */
-	public final function create_callback_href_with_id_js($name, $func, $args=null,$indicator=null,$mode=null) {
+	public final function create_callback_href_with_id_js($name, $func, $args=array(),$indicator=null,$mode=null) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
 		return $this->create_unique_href_js(array($name=>1),$indicator,$mode);
@@ -620,7 +620,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $mode block, allow, queue click on simutanous click
 	 * @return string
 	 */
-	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args=null, $indicator=null,$mode=null) {
+	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args=array(), $indicator=null,$mode=null) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
 		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator,$mode);
