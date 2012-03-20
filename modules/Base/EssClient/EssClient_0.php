@@ -81,12 +81,12 @@ class Base_EssClient extends Module {
                 } else {
                     $email = Base_EssClientCommon::get_support_email();
 
-                    print('<div class="important_notice">' . $this->t('Your epesi ID is not recognized by Epesi Service Server. Please contact epesi team at %s.', array($email)) . '</div>');
+                    print('<div class="important_notice">' . $this->t('Your epesi ID is not recognized by Epesi Store Server. Please contact epesi team at %s.', array($email)) . '</div>');
                     Base_ActionBarCommon::add('delete', 'Revoke License Key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array($this, 'clear_license_key')));
                 }
             }
         } catch (Exception $e) {
-            print('<div class="important_notice">' . $this->t('There was an error while trying to connect to Epesi Service Server. Please try again later.') . '<br>');
+            print('<div class="important_notice">' . $this->t('There was an error while trying to connect to Epesi Store Server. Please try again later.') . '<br>');
             print($this->t('If the problem persists, please contact us at %s', array('<a href="http://forum.epesibim.com/" target="_blank">http://forum.epesibim.com/</a>')) . '<br>');
             print('<br>');
             print($this->t('Error message: ') . '<br>');
@@ -132,7 +132,9 @@ class Base_EssClient extends Module {
         print($this->t('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations can use the same Epesi License Key. '));
         print($this->t('Sharing your license key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
 		print('<br><br>');
-        print($this->t('Full Terms and Conditions are available here:')); // FIXME
+        print($this->t('Full Terms and Conditions are available here:'));
+		$url = get_epesi_url().'/modules/Base/EssClient/tos/tos.php';
+        print('<br><a target="_blank" href="'.$url.'">'.$url.'</a>');
         print('<center>');
         $form->display();
         print('</center>');
@@ -254,7 +256,7 @@ class Base_EssClient extends Module {
             print Base_EssClientCommon::client_messages_frame(false);
             // set defaults
             print('<div class="important_notice">');
-            print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Service Server to provide us with contact information. The data sent to Epesi Service Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
+            print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
             print('<br>');
             if ($data) {
                 $f->setDefaults($data);

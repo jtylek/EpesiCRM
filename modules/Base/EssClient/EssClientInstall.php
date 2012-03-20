@@ -29,7 +29,8 @@ class Base_EssClientInstall extends ModuleInstall {
         return array(
             array('name' => 'Base/Admin', 'version' => 0),
             array('name' => 'Base/Lang', 'version' => 0),
-            array('name' => 'Base/Menu', 'version' => 0),
+			array('name' => 'Base/Menu', 'version' => 0),
+  			array('name' => 'Utils/FrontPage','version' => 0),
             array('name' => 'Libs/QuickForm', 'version' => 0));
     }
 
