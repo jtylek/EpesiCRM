@@ -9,7 +9,7 @@
 <div class="Base_Setup">
 	<div class="filters">
 		{foreach key=label item=attr from=$filters}
-			<div id="Base_Setup__filter_{$attr}" {if !$attr}class="selected"{/if} onclick="base_setup__filter_by('{$attr}');">{$label}</div>
+			<div id="Base_Setup__filter_{$attr.arg}" {if !$attr.arg}class="selected"{/if} {if isset($attr.attrs)}{$attr.attrs}{/if} onclick="base_setup__filter_by('{$attr.arg}');">{$label}</div>
 		{/foreach}
 	</div>
 	

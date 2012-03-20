@@ -54,6 +54,14 @@ class Base_BoxCommon extends ModuleCommon {
 	public static function location($module,$function=null,array $arguments=null,array $constructor_args=null,array $other_href_args=array()) {
 		return location(array_merge($other_href_args,Base_BoxCommon::create_href_array(null, $module, $function, $arguments, $constructor_args)));	
 	}
+	
+	public function push_module($module=null,$func=null,$args=null,$constr_args=null,$name=null) {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        if (!$x)
+            trigger_error('There is no base box module instance', E_USER_ERROR);
+        $x->push_main($module, $func, $args, $constr_args, $name);
+        return false;
+	}
 }
 
 Module::register_method("create_main_href",array("Base_BoxCommon","create_href"));

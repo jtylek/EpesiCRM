@@ -333,9 +333,9 @@ class Base_Setup extends Module {
 			}
 		}
 		$filters = array(
-			$this->t('All') => '',
-			$this->t('Installed') => 'installed',
-			$this->t('Available') => 'available'
+			$this->t('All') => array('arg'=>''),
+			$this->t('Installed') => array('arg'=>'installed'),
+			$this->t('Available') => array('arg'=>'available')
 		);
 		if (ModuleManager::is_installed('Base_EpesiStore')>=0) {
 			$this->add_store_products($sorted, $filters);
@@ -357,26 +357,44 @@ class Base_Setup extends Module {
     public static function response_callback($ret) {
         var_dump($ret);
     }
+	
+	public static function jump_to_epesi_registration() {
+		Base_BoxCommon::push_module('Base_EssClient');
+		return false;
+	}
 
 	public function add_store_products(& $sorted, & $filters) {
+	
+//	Base_EssClientCommon::set_license_key('OGtsfJSvtruAZO8mSKwV2Eu6pe7aSKdrbWjGqBCj36udV2PxNMSQaMWQ1e1UzfLa');
+		$registered = Base_EssClientCommon::get_license_key();
+		$filters_attrs = '';
+		if (!$registered) {
+			$msg = $this->t('To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?');
+			$filters_attrs = $this->create_confirm_callback_href($msg, array($this, 'jump_to_epesi_registration'));
+		}
+		$filters[$this->t('Updates')] = array('arg'=>'updates', 'attrs'=>$filters_attrs);
+		$filters[$this->t('Store')] = array('arg'=>'store', 'attrs'=>$filters_attrs);
+		if (!$registered) 
+			return;
+		
 		$store = Base_EpesiStoreCommon::get_modules_all_available();
 		foreach ($store as $s) {
 			$name = $s['name'];
+//			print_r($s);
+//			print(Base_EpesiStoreCommon::next_possible_action_href($s['id']));
 			$sorted[$name] = array();
 			$sorted[$name]['name'] = $this->t($name);
 			$sorted[$name]['modules'] = array();
             $buttons = array(array('label'=>$this->t(Base_EpesiStoreCommon::next_possible_action($s['id'])),'style'=>'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback'))));
 			$sorted[$name]['buttons'] = $buttons;
 			$sorted[$name]['options'] = array();
-			$sorted[$name]['status'] = $this->t('Options only');
-			$sorted[$name]['style'] = 'disabled';
+			$sorted[$name]['status'] = $this->t('Price: '.$s['price']);
+			$sorted[$name]['style'] = 'problem';
 			$sorted[$name]['filter'] = array('store');
 			$sorted[$name]['installed'] = null;
 			$sorted[$name]['instalable'] = 0;
 			$sorted[$name]['uninstalable'] = 0;
 		}
-		$filters[$this->t('Updates')] = 'updates';
-		$filters[$this->t('Store')] = 'store';
 	}
 
 	public function simple_setup_sort($a, $b) {
