@@ -277,7 +277,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     public static function display_company_contact($record, $nolink, $desc) {
         $v = $record[$desc['id']];
-		if (!is_array($v) && $v[1]!=':') return $v;
+		if (!is_array($v) && isset($v[1]) && $v[1]!=':') return $v;
         $def = '';
         if (!is_array($v)) $v = array($v);
 		if (count($v)>100) return count($v).' '.Base_LangCommon::ts('CRM_Contacts','values');
