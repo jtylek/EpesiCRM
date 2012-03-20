@@ -21,10 +21,6 @@ class Base_EssClient extends Module {
         $this->admin();
     }
 
-    public function clear_license_key() {
-        Variable::set("license_key", '');
-    }
-
     public function admin() {
         if (!Base_AclCommon::i_am_sa())
             return;
@@ -46,7 +42,7 @@ class Base_EssClient extends Module {
                     print('<div class="important_notice">');
                     print($this->t('Thank you for registering your epesi installation.') . '<br/>');
                     $data['license_key'] = Base_EssClientCommon::get_license_key();
-                    $data['status'] = Base_EssClientCommon::server()->installation_status();
+                    $data['status'] = Base_EssClientCommon::get_installation_status();
                     // handle different status messages
                     if (strcasecmp($data['status'], "new") == 0 || strcasecmp($data['status'], "updated") == 0) {
                         print('<div class="important_notice_frame">');
@@ -77,12 +73,12 @@ class Base_EssClient extends Module {
                         print('</div>');
                     }
                     print('</div>');
-                    Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'register_form'), array(true, $data)));
+                    Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'register_form'), array($data)));
                 } else {
                     $email = Base_EssClientCommon::get_support_email();
 
                     print('<div class="important_notice">' . $this->t('Your epesi ID is not recognized by Epesi Store Server. Please contact epesi team at %s.', array($email)) . '</div>');
-                    Base_ActionBarCommon::add('delete', 'Revoke License Key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array($this, 'clear_license_key')));
+                    Base_ActionBarCommon::add('delete', 'Revoke License Key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
                 }
             }
         } catch (Exception $e) {
@@ -96,11 +92,6 @@ class Base_EssClient extends Module {
             return;
         }
         Base_EssClientCommon::client_messages_load_by_js();
-    }
-
-    public function edit_data() {
-        $data = Base_EssClientCommon::server()->installation_registered_data();
-        $this->navigate('register', array($data));
     }
 
     private function terms_and_conditions() {
@@ -142,12 +133,7 @@ class Base_EssClient extends Module {
         return;
     }
 
-    private function add_static_field($form, $variable, $label, $data) {
-        $value = array_key_exists($variable, $data) ? $data[$variable] : '';
-        $form->addElement('static', $variable, $this->t($label), $value);
-    }
-
-    private function register_form($edit = true, $data = null) {
+    public function register_form($data = null) {
         if ($this->is_back()) {
             return false;
         }
@@ -162,127 +148,104 @@ class Base_EssClient extends Module {
         $reseller_tooltip = '<img ' .
                 Utils_TooltipCommon::open_tag_attrs($this->t("If you don't have Epesi Reseller login leave this field empty."), false)
                 . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
-        if ($edit) {
-            $f->addElement('text', 'company_name', $this->t('Company name'), array('maxlength' => 128));
-            $f->addRule('company_name', $this->t('Field required'), 'required');
-            $f->addRule('company_name', $this->t('Max length exceeded'), 'maxlength', 128);
 
-            $f->addElement('text', 'short_name', $this->t('Short name'), array('maxlength' => 64));
-            $f->addRule('short_name', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'company_name', $this->t('Company name'), array('maxlength' => 128));
+        $f->addRule('company_name', $this->t('Field required'), 'required');
+        $f->addRule('company_name', $this->t('Max length exceeded'), 'maxlength', 128);
 
-            $f->addElement('text', 'phone', $this->t('Phone'), array('maxlength' => 64));
-            $f->addRule('phone', $this->t('Field required'), 'required');
-            $f->addRule('phone', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'short_name', $this->t('Short name'), array('maxlength' => 64));
+        $f->addRule('short_name', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'fax', $this->t('Fax'), array('maxlength' => 64));
-            $f->addRule('fax', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'phone', $this->t('Phone'), array('maxlength' => 64));
+        $f->addRule('phone', $this->t('Field required'), 'required');
+        $f->addRule('phone', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'email', $this->t('Company email'), array('maxlength' => 128));
-            $f->addRule('email', $this->t('Field required'), 'required');
-            $f->addRule('email', $this->t('Max length exceeded'), 'maxlength', 128);
-            $f->addRule('email', $this->t('Invalid e-mail address'), 'email');
+        $f->addElement('text', 'fax', $this->t('Fax'), array('maxlength' => 64));
+        $f->addRule('fax', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'web_address', $this->t('Web address'), array('maxlength' => 64));
-            $f->addRule('web_address', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'email', $this->t('Company email'), array('maxlength' => 128));
+        $f->addRule('email', $this->t('Field required'), 'required');
+        $f->addRule('email', $this->t('Max length exceeded'), 'maxlength', 128);
+        $f->addRule('email', $this->t('Invalid e-mail address'), 'email');
 
-            $f->addElement('text', 'address_1', $this->t('Address 1'), array('maxlength' => 64));
-            $f->addRule('address_1', $this->t('Field required'), 'required');
-            $f->addRule('address_1', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'web_address', $this->t('Web address'), array('maxlength' => 64));
+        $f->addRule('web_address', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'address_2', $this->t('Address 2'), array('maxlength' => 64));
-            $f->addRule('address_2', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'address_1', $this->t('Address 1'), array('maxlength' => 64));
+        $f->addRule('address_1', $this->t('Field required'), 'required');
+        $f->addRule('address_1', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'city', $this->t('City'), array('maxlength' => 64));
-            $f->addRule('city', $this->t('Field required'), 'required');
-            $f->addRule('city', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'address_2', $this->t('Address 2'), array('maxlength' => 64));
+        $f->addRule('address_2', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('commondata', 'country', $this->t('Country'), 'Countries');
-            $f->addRule('country', $this->t('Field required'), 'required');
-            $f->addElement('commondata', 'zone', $this->t('Zone'), array('Countries', 'country'), array('empty_option' => true));
+        $f->addElement('text', 'city', $this->t('City'), array('maxlength' => 64));
+        $f->addRule('city', $this->t('Field required'), 'required');
+        $f->addRule('city', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'postal_code', $this->t('Postal Code'), array('maxlength' => 64));
-            $f->addRule('postal_code', $this->t('Field required'), 'required');
-            $f->addRule('postal_code', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('commondata', 'country', $this->t('Country'), 'Countries');
+        $f->addRule('country', $this->t('Field required'), 'required');
+        $f->addElement('commondata', 'zone', $this->t('Zone'), array('Countries', 'country'), array('empty_option' => true));
 
-            $f->addElement('text', 'admin_first_name', $this->t('Administrator\'s first name'), array('maxlength' => 64));
-            $f->addRule('admin_first_name', $this->t('Field required'), 'required');
-            $f->addRule('admin_first_name', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'postal_code', $this->t('Postal Code'), array('maxlength' => 64));
+        $f->addRule('postal_code', $this->t('Field required'), 'required');
+        $f->addRule('postal_code', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'admin_last_name', $this->t('Administrator\'s last name'), array('maxlength' => 64));
-            $f->addRule('admin_last_name', $this->t('Field required'), 'required');
-            $f->addRule('admin_last_name', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'admin_first_name', $this->t('Administrator\'s first name'), array('maxlength' => 64));
+        $f->addRule('admin_first_name', $this->t('Field required'), 'required');
+        $f->addRule('admin_first_name', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'admin_email', $admin_email_tooltip . $this->t('Administrator\'s email'), array('maxlength' => 128));
-            $f->addRule('admin_email', $this->t('Field required'), 'required');
-            $f->addRule('admin_email', $this->t('Max length exceeded'), 'maxlength', 128);
-            $f->addRule('admin_email', $this->t('Invalid e-mail address'), 'email');
+        $f->addElement('text', 'admin_last_name', $this->t('Administrator\'s last name'), array('maxlength' => 64));
+        $f->addRule('admin_last_name', $this->t('Field required'), 'required');
+        $f->addRule('admin_last_name', $this->t('Max length exceeded'), 'maxlength', 64);
 
-            $f->addElement('text', 'reseller', $reseller_tooltip . $this->t('Epesi Reseller login'), array('maxlength' => 32));
-            $f->addRule('admin_first_name', $this->t('Max length exceeded'), 'maxlength', 32);
-        } else {
-            $this->add_static_field($f, 'status', 'Installation status', $data);
-            $this->add_static_field($f, 'license_key', 'License key', $data);
-            $this->add_static_field($f, 'company_name', 'Company name', $data);
-            $this->add_static_field($f, 'short_name', 'Short name', $data);
-            $this->add_static_field($f, 'phone', 'Phone', $data);
-            $this->add_static_field($f, 'fax', 'Fax', $data);
-            $this->add_static_field($f, 'email', 'Company email', $data);
-            $this->add_static_field($f, 'web_address', 'Web address', $data);
-            $this->add_static_field($f, 'address_1', 'Address 1', $data);
-            $this->add_static_field($f, 'address_2', 'Address 2', $data);
-            $this->add_static_field($f, 'city', 'City', $data);
-            $f->addElement('static', 'country', $this->t('Country'), isset($data['country']) ? Utils_CommonDataCommon::get_value('Countries/' . $data['country'], true) : '');
-            $f->addElement('static', 'zone', $this->t('Zone'), isset($data['country']) && isset($data['zone']) ? Utils_CommonDataCommon::get_value('Countries/' . $data['country'] . '/' . $data['zone'], true) : '');
-            $this->add_static_field($f, 'postal_code', 'Postal Code', $data);
-            $this->add_static_field($f, 'admin_first_name', 'Administator first name', $data);
-            $this->add_static_field($f, 'admin_last_name', 'Administator last name', $data);
-            $f->addElement('static', 'admin_email', $admin_email_tooltip . $this->t('Administrator\'s email'), isset($data['admin_email']) ? $data['admin_email'] : '');
+        $f->addElement('text', 'admin_email', $admin_email_tooltip . $this->t('Administrator\'s email'), array('maxlength' => 128));
+        $f->addRule('admin_email', $this->t('Field required'), 'required');
+        $f->addRule('admin_email', $this->t('Max length exceeded'), 'maxlength', 128);
+        $f->addRule('admin_email', $this->t('Invalid e-mail address'), 'email');
+
+        $f->addElement('text', 'reseller', $reseller_tooltip . $this->t('Epesi Reseller login'), array('maxlength' => 32));
+        $f->addRule('admin_first_name', $this->t('Max length exceeded'), 'maxlength', 32);
+
+        if ($f->validate()) {
+            $ret = $f->exportValues();
+
+            $ret = Base_EssClientCommon::server()->register_installation_request($ret);
+
+            if ($ret) {
+                if (is_string($ret))
+                    Base_EssClientCommon::set_license_key($ret);
+
+                location(array());
+                return false;
+            }
         }
-
-        if ($edit) {
-            if ($f->validate()) {
-                $ret = $f->exportValues();
-
-                $ret = Base_EssClientCommon::server()->register_installation_request($ret);
-
-                if ($ret) {
-                    if (is_string($ret))
-                        Base_EssClientCommon::set_license_key($ret);
-
-                    location(array());
-                    return false;
-                }
-            }
-            print Base_EssClientCommon::client_messages_frame(false);
-            // set defaults
-            print('<div class="important_notice">');
-            print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
-            print('<br>');
-            if ($data) {
-                $f->setDefaults($data);
-            } else {
-				if (ModuleManager::is_installed('CRM_Contacts')>-1) {
-					print('<span style="color:gray;font-size:10px;">' . $this->t('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
-					$defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
-					$f->setDefaults($defaults);
-				}
-            }
-            //Base_ActionBarCommon::add('send', $data ? 'Update' : 'Register', $f->get_submit_form_href());
-            if ($data) {
-                if (isset($data['status']) && strcasecmp($data['status'], 'Confirmed') == 0)
-                    print($this->t('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
-                print($this->t('<div style="color:tomato;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
-            }
-            print('<center>');
-
-            $f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
-
-            $f->display();
-            print('</center>');
-            print('</div>');
+        print Base_EssClientCommon::client_messages_frame(false);
+        // set defaults
+        print('<div class="important_notice">');
+        print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
+        print('<br>');
+        if ($data) {
+            $f->setDefaults($data);
         } else {
-            $f->display();
+            if (ModuleManager::is_installed('CRM_Contacts') > -1) {
+                print('<span style="color:gray;font-size:10px;">' . $this->t('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
+                $defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
+                $f->setDefaults($defaults);
+            }
         }
+        //Base_ActionBarCommon::add('send', $data ? 'Update' : 'Register', $f->get_submit_form_href());
+        if ($data) {
+            if (isset($data['status']) && strcasecmp($data['status'], 'Confirmed') == 0)
+                print($this->t('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
+            print($this->t('<div style="color:tomato;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
+        }
+        print('<center>');
+
+        $f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
+
+        $f->display();
+        print('</center>');
+        print('</div>');
         return true;
     }
 

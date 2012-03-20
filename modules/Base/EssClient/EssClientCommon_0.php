@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     const VAR_LICENSE_KEY = 'license_key';
+    const VAR_INSTALLATION_STATUS = 'ess_installations_status';
 
     public static function menu() {
         if (!Base_AclCommon::i_am_sa())
@@ -47,17 +48,37 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
             if (Base_AclCommon::is_user_in_group(
                             Base_AclCommon::get_acl_user_id($u['id']), 'Super administrator')) {
                 $x = array('admin_email' => $u['mail']);
-				if (ModuleManager::is_installed('CRM_Contacts')>-1) {
-					$contact = CRM_ContactsCommon::get_contact_by_user_id($u['id']);
-					if ($contact) {
-						$x['admin_first_name'] = $contact['first_name'];
-						$x['admin_last_name'] = $contact['last_name'];
-					}
-				}
+                if (ModuleManager::is_installed('CRM_Contacts') > -1) {
+                    $contact = CRM_ContactsCommon::get_contact_by_user_id($u['id']);
+                    if ($contact) {
+                        $x['admin_first_name'] = $contact['first_name'];
+                        $x['admin_last_name'] = $contact['last_name'];
+                    }
+                }
                 return $x;
             }
         }
         return null;
+    }
+
+    public static function is_registered($check_status = true) {
+        if (!$check_status)
+            return false != self::get_license_key();
+
+        $status = self::get_installation_status();
+        if (strpos($status, 'confirmed') !== false
+                || $status == 'validated')
+            return true;
+        return false;
+    }
+
+    public static function get_installation_status($clear_cache = false) {
+        $status = $clear_cache === false ? Variable::get(self::VAR_INSTALLATION_STATUS, false) : null;
+        if (!$status) {
+            $status = self::server()->installation_status();
+            Variable::set(self::VAR_INSTALLATION_STATUS, $status);
+        }
+        return $status;
     }
 
     public static function get_license_key() {
@@ -65,8 +86,6 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         if (is_array($ret)) {
             $serv = self::get_server_url();
             $key = '';
-            if (isset($ret['default']))
-                $key = $ret['default'];
             if (isset($ret[$serv]))
                 $key = $ret[$serv];
             return $key;
@@ -78,6 +97,16 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return Variable::set(self::VAR_LICENSE_KEY, $license_key);
     }
 
+    public static function clear_license_key($only_current = true) {
+        $license_keys = Variable::get(self::VAR_LICENSE_KEY, false);
+        if(!$only_current || !is_array($license_keys)) {
+            Variable::delete(self::VAR_LICENSE_KEY, false);
+            return;
+        }
+        unset($license_keys[self::get_server_url()]);
+        Variable::set(self::VAR_LICENSE_KEY, $license_keys);
+    }
+    
     /** @var IClient */
     protected static $client_requester = null;
 

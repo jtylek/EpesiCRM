@@ -304,7 +304,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function action_href($module_id, $action, $response_callback = null) {
-        return self::_base_box()->get_main_module()->create_callback_href(array('Base_EpesiStoreCommon', 'handle_module_action'), array($module_id, $action, $response_callback));
+        return Base_BoxCommon::main_module_instance()->create_callback_href(array('Base_EpesiStoreCommon', 'handle_module_action'), array($module_id, $action, $response_callback));
     }
 
     public static function handle_module_action($module_id, $action, $response_callback = null) {
@@ -350,18 +350,10 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             $currency = reset($keys);
             $value = $o['price'][$currency]['to_pay'];
             $mi = self::get_module_info($module_id);
-            self::_base_box()->push_main('Base_EpesiStore', 'form_payment_frame', array($o['id'], $value, $currency, $mi['name']));
+            Base_BoxCommon::push_module('Base_EpesiStore', 'form_payment_frame', array($o['id'], $value, $currency, $mi['name']));
             return true;
         }
         return false;
-    }
-
-    /** @return Base_Box */
-    private static function _base_box() {
-        $x = ModuleManager::get_instance('/Base_Box|0');
-        if (!$x)
-            trigger_error('There is no base box module instance', E_USER_ERROR);
-        return $x;
     }
 
     private static function get_downloaded_module_version($module_id) {
