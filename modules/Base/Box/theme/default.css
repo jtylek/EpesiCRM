@@ -982,7 +982,7 @@ hr.line {
 
 .epesi_data {
 	text-align: left;
-    background-color: #FFFFF9;
+	background-color: #FFFFF9;
 	width: 102px;
 	
 	-webkit-box-shadow: inset 1px 1px 1px #777;
@@ -1012,7 +1012,8 @@ hr.line {
 
 
 .epesi_data input[type='checkbox'] {
-    width: auto;
+    width: 13px;
+    height: 13px;
 }
 
 .epesi_data input:focus,
