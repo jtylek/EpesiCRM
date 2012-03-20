@@ -32,7 +32,11 @@
 			</a>
 		</td>
 	{/if}
-		<td>
+		<td style="color:#000000">
+		
+			{$form_open}
+			{$form_data.filter_user.label}{$form_data.filter_user.html}&nbsp;&nbsp;{$form_data.filter_start.label}{$form_data.filter_start.html}&nbsp;&nbsp;{$form_data.filter_end.label}{$form_data.filter_end.html}&nbsp;&nbsp;{$form_data.submit_button.label}{$form_data.submit_button.html}<br />
+			{$form_close}		
 		</td>
 	{if isset($show_deleted)}
 		<td class="epesi_label">
