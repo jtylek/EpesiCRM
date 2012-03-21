@@ -25,7 +25,7 @@ class Libs_CKEditorCommon extends ModuleCommon {
     public static function QFfield_cb(&$form, $field, $label, $mode, $default) {
         if ($mode=='add' || $mode=='edit') {
             $fck = $form->addElement('ckeditor', $field, $label);
-            $fck->setFCKProps('800','300',true);
+            $fck->setFCKProps('99%','300',true);
             if ($mode=='edit') $form->setDefaults(array($field=>$default));
         } else {
             $form->addElement('static', $field, $label);
