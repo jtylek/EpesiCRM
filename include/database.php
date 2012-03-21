@@ -31,7 +31,7 @@ class DB {
 	 */
 	public static function Connect() {
 		if(isset(self::$ado)) { //return forced new adodb connection
-			$new = & NewADOConnection(DATABASE_DRIVER);
+			$new = NewADOConnection(DATABASE_DRIVER);
 			$new->autoRollback = true; // default is false 
 			if(!@$new->NConnect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
     			die("Connect to database failed");
@@ -39,7 +39,7 @@ class DB {
 	    		$new->Execute('SET NAMES "utf8"');
 			return $new;
 		}
-		self::$ado = & NewADOConnection(DATABASE_DRIVER);
+		self::$ado = NewADOConnection(DATABASE_DRIVER);
 		self::$ado->autoRollback = true; // default is false 
 //		$errh = DB::$ado->raiseErrorFn;
 //		DB::$ado->raiseErrorFn = false;
@@ -75,14 +75,14 @@ class DB {
 	}
 	
 	public static function DropTable($name) {
-		$dict = &self::dict();
+		$dict = self::dict();
 		$arr = $dict->DropTableSQL($name);
 		$ret = $dict->ExecuteSQLArray($arr);
 		return $ret==2;
 	}
 	
 	public static function CreateTable($name, $cols, $opts=null) {
-		$dict = &self::dict();
+		$dict = self::dict();
 		$def_opts = array('postgres'=>' WITH OIDS','mysql' => ' ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci');
 		$arr = $dict->CreateTableSQL($name,$cols,isset($opts)?array_merge($def_opts,$opts):$def_opts);
 		if($arr===false) return false;
@@ -92,14 +92,14 @@ class DB {
 	}
 	
 	public static function DropIndex($name,$tab=null) {
-		$dict = &self::dict();
+		$dict = self::dict();
 		$arr = $dict->DropIndexSQL($name,$tab);
 		$ret = $dict->ExecuteSQLArray($arr);
 		return $ret==2;
 	}
 	
 	public static function CreateIndex($name, $tab, $cols, $opts=null) {
-		$dict = &self::dict();
+		$dict = self::dict();
 		$arr = $dict->CreateIndexSQL($name,$tab,$cols, $opts);
 		if($arr===false) return false;
 		$ret = $dict->ExecuteSQLArray($arr);
