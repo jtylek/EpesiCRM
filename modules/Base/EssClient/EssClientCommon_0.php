@@ -94,7 +94,17 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function set_license_key($license_key) {
-        return Variable::set(self::VAR_LICENSE_KEY, $license_key);
+        $keys = Variable::get(self::VAR_LICENSE_KEY, false);
+        if($keys) {
+            if(is_array($keys)) {
+                $keys[self::get_server_url()] = $license_key;
+            } else {
+                $keys = array(self::get_server_url() => $license_key);
+            }
+        } else {
+            $keys = array(self::get_server_url() => $license_key);
+        }
+        return Variable::set(self::VAR_LICENSE_KEY, $keys);
     }
 
     public static function clear_license_key($only_current = true) {

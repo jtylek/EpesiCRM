@@ -30,55 +30,47 @@ class Base_EssClient extends Module {
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 
         print Base_EssClientCommon::client_messages_frame();
-        
-        if (Base_EssClientCommon::get_license_key() == "") {
+
+        if (Base_EssClientCommon::is_registered(false) == false) {
             $this->terms_and_conditions();
             Base_EssClientCommon::server(true);
         }
         try {
-            if (Base_EssClientCommon::get_license_key()) {
+            if (Base_EssClientCommon::is_registered(false)) {
                 $data = Base_EssClientCommon::server()->installation_registered_data();
                 if ($data) {
-                    print('<div class="important_notice">');
-                    print($this->t('Thank you for registering your epesi installation.') . '<br/>');
                     $data['license_key'] = Base_EssClientCommon::get_license_key();
                     $data['status'] = Base_EssClientCommon::get_installation_status();
-                    // handle different status messages
+                    ///////// Status ////////
+                    print('<div class="important_notice">');
+                    print('<div style="margin: 5px">' . $this->t('Thank you for registering your epesi installation.') . '</div>');
+                    $status_description = '';
+                    $verbose_description = '';
                     if (strcasecmp($data['status'], "new") == 0 || strcasecmp($data['status'], "updated") == 0) {
-                        print('<div class="important_notice_frame">');
-                        print('<span style="font-weight:bold;">' .
-                                $this->t('Status:') .
-                                '</span> ' .
-                                $this->t($data['status']) . ', ' . $this->t('requires e-mail confirmation'));
-                        print('</div>');
-                        print($this->t('You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.'));
+                        $status_description = 'waiting for e-mail confirmation';
+                        $verbose_description = 'You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.';
                     }
                     if (strcasecmp($data['status'], "confirmed") == 0 || strcasecmp($data['status'], "confirmed (update)") == 0 || strcasecmp($data['status'], "new_confirmed") == 0 || strcasecmp($data['status'], "updated_confirmed") == 0) {
-                        print('<div class="important_notice_frame">');
-                        print('<span style="font-weight:bold;">' .
-                                $this->t('Status:') .
-                                '</span> ' .
-                                $this->t($data['status']) . ', ' . $this->t('awaiting verification'));
-                        print('</div>');
-                        print($this->t('Epesi team representative will verify the data you submited to avoid processing invalid information.'));
+                        $status_description = 'awaiting verification';
+                        $verbose_description = 'Epesi team representative will verify the data you submited to avoid processing invalid information.';
                     }
                     if (strcasecmp($data['status'], "validated") == 0) {
-                        print('<div class="important_notice_frame">');
-                        print('<span style="font-weight:bold;">' .
-                                $this->t('Status:') .
-                                '</span> ' .
-                                $this->t($data['status']));
-                        print('</div>');
-                        print($this->t('The registration process is complete.'));
-                        print('</div>');
+                        $status_description = 'registration done';
+                        $verbose_description = 'The registration process is complete.';
                     }
+                    print('<div class="important_notice_frame"><span style="font-weight:bold;">' . $this->t('License key: ') .
+                            '</span>' . $data['license_key'] . '<br/>');
+                    print('<span style="font-weight:bold;">' . $this->t('Status: ') .
+                            '</span>' . $this->t($status_description) . '</div>');
+                    print('<div style="margin: 5px">' . $this->t($verbose_description) . '</div>');
                     print('</div>');
                     Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'register_form'), array($data)));
                 } else {
                     $email = Base_EssClientCommon::get_support_email();
 
                     print('<div class="important_notice">' . $this->t('Your epesi ID is not recognized by Epesi Store Server. Please contact epesi team at %s.', array($email)) . '</div>');
-                    Base_ActionBarCommon::add('delete', 'Revoke License Key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
+                    Base_ActionBarCommon::add('edit', 'Edit license key', $this->create_callback_href(array($this, 'license_key_form')));
+                    Base_ActionBarCommon::add('delete', 'Revoke license key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
                 }
             }
         } catch (Exception $e) {
@@ -109,23 +101,23 @@ class Base_EssClient extends Module {
             location(array());
             return;
         }
-		
+
         print('<div class="important_notice" style="-moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px;">');
-		print('<center><H1>');
-		print($this->t('epesiBIM Registration'));
-		print('</H1></center><br>');
+        print('<center><H1>');
+        print($this->t('epesiBIM Registration'));
+        print('</H1></center><br>');
         print($this->t('Registration of your epesi installation with '));
-		print('<a href="http://www.telaxus.com" target="_blank">Telaxus LLC </a>');
-		print($this->t('will allow you to browse and make purchases in <strong>Epesi Store</strong> and receive notifications via e-mail about important updates.<br> Once the registration is complete you will receive a <strong>License Key</strong>. '));
-		print($this->t('This unique License Key will be used to identify your installation and allow you to download and use modules you purchase. Please note that <strong>Epesi License Key</strong> can not be copied to any other epesi installation. '));
-		print($this->t('All purchases and downloads you make using your Epesi License Key can be used for this installation only.'));
+        print('<a href="http://www.telaxus.com" target="_blank">Telaxus LLC </a>');
+        print($this->t('will allow you to browse and make purchases in <strong>Epesi Store</strong> and receive notifications via e-mail about important updates.<br> Once the registration is complete you will receive a <strong>License Key</strong>. '));
+        print($this->t('This unique License Key will be used to identify your installation and allow you to download and use modules you purchase. Please note that <strong>Epesi License Key</strong> can not be copied to any other epesi installation. '));
+        print($this->t('All purchases and downloads you make using your Epesi License Key can be used for this installation only.'));
         print('<br><br>');
         print($this->t('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations can use the same Epesi License Key. '));
         print($this->t('Sharing your license key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
-		print('<br><br>');
+        print('<br><br>');
         print($this->t('Full Terms and Conditions are available here:'));
-		$url = get_epesi_url().'/modules/Base/EssClient/tos/tos.php';
-        print('<br><a target="_blank" href="'.$url.'">'.$url.'</a>');
+        $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
+        print('<br><a target="_blank" href="' . $url . '">' . $url . '</a>');
         print('<center>');
         $form->display();
         print('</center>');
@@ -138,6 +130,7 @@ class Base_EssClient extends Module {
             return false;
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        Base_ActionBarCommon::add('edit', 'Edit license key', $this->create_callback_href(array($this, 'license_key_form')));
 
         $f = $this->init_module('Libs/QuickForm');
 
@@ -249,15 +242,28 @@ class Base_EssClient extends Module {
         return true;
     }
 
-    public function navigate($func, $params = array()) {
-        $x = ModuleManager::get_instance('/Base_Box|0');
-        if (!$x)
-            trigger_error('There is no base box module instance', E_USER_ERROR);
-        $x->push_main('Base/EssClient', $func, $params);
-        return false;
+    public function license_key_form() {
+        if ($this->is_back()) {
+            return false;
+        }
+        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+
+        $f = $this->init_module('Libs/QuickForm');
+
+        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64));
+        if ($f->validate()) {
+            $x = $f->exportValues();
+            Base_EssClientCommon::set_license_key($x['license_key']);
+            return false;
+        }
+
+        $f->setDefaults(array('license_key' => Base_EssClientCommon::get_license_key()));
+        Base_ActionBarCommon::add('save', 'Save', $f->get_submit_form_href());
+        $f->display();
+        return true;
     }
 
-    public function pop_main() {
+    private function pop_main() {
         $x = ModuleManager::get_instance('/Base_Box|0');
         if (!$x)
             trigger_error('There is no base box module instance', E_USER_ERROR);
