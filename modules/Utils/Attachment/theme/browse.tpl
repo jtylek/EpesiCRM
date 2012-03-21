@@ -1,4 +1,6 @@
-<table width="100%">
+{$form_open}
+
+<table class="Utils_Attachment__borwse_panel">
 	<tr>
 		{if isset($new_note)}
 		<td style="width:110px;">
@@ -32,11 +34,25 @@
 			</a>
 		</td>
 	{/if}
-		<td style="color:#000000">
-		
-			{$form_open}
-			{$form_data.filter_user.label}{$form_data.filter_user.html}&nbsp;&nbsp;{$form_data.filter_start.label}{$form_data.filter_start.html}&nbsp;&nbsp;{$form_data.filter_end.label}{$form_data.filter_end.html}&nbsp;&nbsp;{$form_data.submit_button.label}{$form_data.submit_button.html}<br />
-			{$form_close}		
+		<td style="width:100%;">
+		</td>
+		<td class="epesi_label">
+			{$form_data.filter_user.label}
+		</td>
+		<td class="epesi_data" style="min-width:80px;">
+			{$form_data.filter_user.html}
+		</td>
+		<td class="epesi_label">
+			{$form_data.filter_start.label}
+		</td>
+		<td class="epesi_data">
+			{$form_data.filter_start.html}
+		</td>
+		<td class="epesi_label">
+			{$form_data.filter_end.label}
+		</td>
+		<td class="epesi_data">
+			{$form_data.filter_end.html}
 		</td>
 	{if isset($show_deleted)}
 		<td class="epesi_label">
@@ -46,5 +62,10 @@
 			<input type="checkbox" {$show_deleted.default} onChange="if(this.checked){$show_deleted.show} else {$show_deleted.hide}" />
 		</td>
 	{/if}
+		<td class="child_button">
+			{$form_data.submit_button.html}
+		</td>
 	</tr>
 </table>
+
+{$form_close}		

@@ -62,3 +62,16 @@
 	margin-top:2px;
 }
 
+.Utils_Attachment__borwse_panel {
+	width: 100%;
+	table-layout: auto;
+}
+
+.Utils_Attachment__borwse_panel td,
+.Utils_Attachment__borwse_panel td.epesi_label {
+	width: 1px;
+}
+
+.Utils_Attachment__borwse_panel td.child_button input {
+	height: 100%
+}
