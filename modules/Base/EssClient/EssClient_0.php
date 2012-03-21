@@ -31,12 +31,12 @@ class Base_EssClient extends Module {
 
         print Base_EssClientCommon::client_messages_frame();
 
-        if (Base_EssClientCommon::is_registered(false) == false) {
+        if (Base_EssClientCommon::has_license_key() == false) {
             $this->terms_and_conditions();
             Base_EssClientCommon::server(true);
         }
         try {
-            if (Base_EssClientCommon::is_registered(false)) {
+            if (Base_EssClientCommon::has_license_key()) {
                 $data = Base_EssClientCommon::server()->installation_registered_data();
                 if ($data) {
                     $data['license_key'] = Base_EssClientCommon::get_license_key();

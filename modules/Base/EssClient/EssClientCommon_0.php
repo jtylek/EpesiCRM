@@ -61,10 +61,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return null;
     }
 
-    public static function is_registered($check_status = true) {
-        if (!$check_status)
-            return false != self::get_license_key();
-
+    public static function is_registered() {
         $status = self::get_installation_status();
         if (strpos($status, 'confirmed') !== false
                 || $status == 'validated')
@@ -74,11 +71,15 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     public static function get_installation_status($clear_cache = false) {
         $status = $clear_cache === false ? Variable::get(self::VAR_INSTALLATION_STATUS, false) : null;
-        if (!$status) {
+        if (!$status && self::has_license_key()) {
             $status = self::server()->installation_status();
             Variable::set(self::VAR_INSTALLATION_STATUS, $status);
         }
         return $status;
+    }
+    
+    public static function has_license_key() {
+        return self::get_license_key() != false;
     }
 
     public static function get_license_key() {
