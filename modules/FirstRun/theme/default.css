@@ -62,7 +62,7 @@ body#FirstRun {
 }
 
 #FirstRun #banner .image {
-    background-image: url("images/logo-small.gif");
+    background-image: url("images/logo-small.png");
     background-repeat: repeat-x;
     width: 193px;
     height: 68px;

@@ -201,7 +201,7 @@ Please choose epesi version:<ul>
 			<div id="epesiStatus">
 				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
 					<tr>
-						<td><img src="images/logo.gif" alt="logo" width="550" height="200" border="0"></td>
+						<td><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></td>
 					</tr>
 					<tr>
 						<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>
