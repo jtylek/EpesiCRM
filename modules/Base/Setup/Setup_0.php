@@ -272,7 +272,7 @@ class Base_Setup extends Module {
 			$buttons = array();
 			$status = '';
 			if ($p['installed']===true || $p['installed']==='partial') {
-				if ($key!='epesi Core' && empty($p['is_required'])) {
+				if ($key!='EPESI Core' && empty($p['is_required'])) {
 					$mods = $p['modules'];
 					foreach ($p['also_uninstall'] as $pp)
 						$mods[] = $pp;
@@ -284,7 +284,7 @@ class Base_Setup extends Module {
 					}
 					$buttons[] = array('label'=>$this->t('Uninstall'),'style'=>'uninstall','href'=>$this->create_confirm_callback_href($this->t('Are you sure you want to uninstall this package and remove all associated data?'),array($this, 'simple_uninstall'), array($mods)));
 				} else {
-					if ($key=='epesi Core') $message = $this->t('epesi Core can not be uninstalled');
+					if ($key=='EPESI Core') $message = $this->t('EPESI Core can not be uninstalled');
 					elseif (empty($p['is_required'])) $message = $this->t('This package can not be uninstalled');
 					else {
 						$required = array();
@@ -398,8 +398,8 @@ class Base_Setup extends Module {
 	}
 
 	public function simple_setup_sort($a, $b) {
-		if ($a['name'] === 'epesi Core') return -1;
-		if ($b['name'] === 'epesi Core') return 1;
+		if ($a['name'] === 'EPESI Core') return -1;
+		if ($b['name'] === 'EPESI Core') return 1;
 		$cmp = strcasecmp($a['name'], $b['name']);
 		$cmp = $cmp<0? -1:1;
 		if ($a['installed'] === $b['installed']) return $cmp;

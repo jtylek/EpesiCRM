@@ -44,7 +44,7 @@ class Applets_WeatherInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-        return array('package'=>'epesi Core', 'option'=>'Additional applets');
+        return array('package'=>'EPESI Core', 'option'=>'Additional applets');
 	}
 }
 

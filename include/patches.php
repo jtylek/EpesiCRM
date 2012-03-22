@@ -152,7 +152,7 @@ class Patch {
     }
 
     function get_module() {
-        return $this->module ? $this->module : 'epesi core';
+        return $this->module ? $this->module : 'EPESI Core';
     }
 
     function get_short_description() {

@@ -56,7 +56,7 @@ class Base_EpesiStoreInstall extends ModuleInstall {
     }
 
     public static function simple_setup() {
-        return array('package'=>'epesi Core');
+        return array('package'=>'EPESI Core');
     }
 
 }

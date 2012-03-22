@@ -57,7 +57,7 @@ class Base_MailInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return 'epesi Core';
+		return 'EPESI Core';
 	}
 }
 

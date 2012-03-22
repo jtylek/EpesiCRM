@@ -50,7 +50,7 @@ class FirstRun extends Module {
 			/////////////////////////////////////////////////////////////
 			$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
 			$f = & $wizard->begin_page();
-			$f->addElement('header', null, $this->t('Welcome to epesi first run wizard'));
+			$f->addElement('header', null, $this->t('Welcome to EPESI first run wizard'));
 			$f->setDefaults(array('setup_type'=>key($this->ini)));
 			foreach($this->ini as $name=>$pkgs)
 				$f->addElement('radio', 'setup_type', '', $this->t($name), $name);

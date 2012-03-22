@@ -46,7 +46,7 @@ class Base_ErrorInstall extends ModuleInstall {
 	}
 	
 	public function simple_setup() {
-        return array('package'=>'epesi Core', 'option'=>'Error reporting');
+        return array('package'=>'EPESI Core', 'option'=>'Error reporting');
 	}
 }	
 

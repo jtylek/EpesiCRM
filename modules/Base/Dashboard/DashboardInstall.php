@@ -123,7 +123,7 @@ class Base_DashboardInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return 'epesi Core';
+		return 'EPESI Core';
 	}
 	
 }

@@ -28,12 +28,12 @@ if (!isset($matches[1])) {
 	return;
 }
 if(version_compare(EPESI_VERSION, $matches[1])>=0) {
-	print(Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION)), Base_LangCommon::ts('Base_Box','You are using most up-to-date version of epesi.'), false));
+	print(Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION)), Base_LangCommon::ts('Base_Box','You are using most up-to-date version of EPESI.'), false));
 	return;
 }
 
-if (Base_AclCommon::i_am_sa()) $tooltip = Base_LangCommon::ts('Base_Box','There\'s a new version of epesi available for download, click to go to download page.');
-else $tooltip = Base_LangCommon::ts('Base_Box','There\'s a new version of epesi available for download. Please contact your administrator.');
+if (Base_AclCommon::i_am_sa()) $tooltip = Base_LangCommon::ts('Base_Box','There\'s a new version of EPESI available for download, click to go to download page.');
+else $tooltip = Base_LangCommon::ts('Base_Box','There\'s a new version of EPESI available for download. Please contact your administrator.');
 
 $message = Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s <b>(Update Available!)</b>',array(EPESI_VERSION)), $tooltip, false);
 

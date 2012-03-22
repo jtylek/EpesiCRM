@@ -90,7 +90,7 @@ class CRM_Contacts extends Module {
 			$c = CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company());
 			print('<h2>'.$this->t('"%s" contacts',array($c['company_name'])).'</h2>');
 		} else
-			print('<h2>'.$this->t('Epesi users').'</h2>');
+			print('<h2>'.$this->t('EPESI users').'</h2>');
 
 		$logins = DB::GetAssoc('SELECT id,login FROM user_login');
 		$ccc = CRM_ContactsCommon::get_contacts(array('login'=>array_keys($logins)));

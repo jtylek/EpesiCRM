@@ -36,7 +36,7 @@ class Utils_RecordBrowser_RecordPickerInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return 'epesi Core';
+		return 'EPESI Core';
 	}
 	
 }
