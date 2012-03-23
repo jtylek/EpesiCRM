@@ -144,7 +144,12 @@ class Patch {
     }
 
     static function cmp_by_date($patch1, $patch2) {
-        strcmp($patch1->get_creation_date(), $patch2->get_creation_date());
+        $p1_date = $patch1->get_creation_date();
+        $p2_date = $patch2->get_creation_date();
+        if (!$p1_date && !$p2_date) return strcmp($patch1->file, $patch2->file);
+        if (!$p1_date) return -1;
+        if (!$p2_date) return 1;
+        return strcmp($patch1->get_creation_date(), $patch2->get_creation_date());
     }
 
     function get_creation_date() {
