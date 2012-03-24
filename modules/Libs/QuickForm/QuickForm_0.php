@@ -300,5 +300,21 @@ class Libs_QuickForm extends Module {
 		}
 		$this->add_array($arr,$js);
 	}
+	
+	public function add_error_closing_buttons() {
+		$elements = array_keys($this->getSubmitValues());
+		foreach ($elements as $e) {
+			$err = $this->getElementError($e);
+			if ($err) $this->setElementError($e, $err.' <a href="javascript:void(0);" onclick="this.parentNode.innerHTML=\'\'"><img src="'.Base_ThemeCommon::get_template_file('Libs_QuickForm','close.png').'"></a>');
+		}
+	}
+
+	public function display_as_column() {
+		$t = $this->init_module('Base_Theme');
+		$this->add_error_closing_buttons();
+		$this->assign_theme('form', $t);
+		$t->display('column');
+	}
+
 }
 ?>

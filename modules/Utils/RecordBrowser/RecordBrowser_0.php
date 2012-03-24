@@ -1143,11 +1143,8 @@ class Utils_RecordBrowser extends Module {
             }
             $this->dirty_read_changes($id, $time_from);
         }
-		$elements = array_keys($form->getSubmitValues());
-		foreach ($elements as $e) {
-			$err = $form->getElementError($e);
-			if ($err) $form->setElementError($e, $err.' <a href="javascript:void(0);" onclick="this.parentNode.innerHTML=\'\'"><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','close.png').'"></a>');
-		}
+		$form->add_error_closing_buttons();
+
         if (($mode=='edit' || $mode=='add') && $show_actions!==false) {
             Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
         }

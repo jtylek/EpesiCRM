@@ -831,6 +831,7 @@ hr.line {
 .important_notice {
 	width: 750px;
 	background-color: #E0E0E0;
+	display: block;
 	font-size: 14px;
 	line-height: 20px;
 	text-align: left;
@@ -869,10 +870,13 @@ hr.line {
 	border-radius: 8px;
 }
 
-.popup_notice {
+#ess_messages_frame {
 	position: fixed;
 	bottom: 5px;
 	right: 5px;
+}
+
+.popup_notice {
 	width: 300px;
 	border: 1px solid gray;
 	text-align: left;
@@ -979,7 +983,7 @@ hr.line {
 
 .epesi_label {
     color: #FFFFFF;
-    height: 20px;
+    height: 19px;
     vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;
@@ -1031,6 +1035,9 @@ hr.line {
 	text-align: left;
 	background-color: #FFFFF9;
 	width: 102px;
+	height: 20px;
+	padding: 0;
+	border-spacing: 0;
 	
 	-webkit-box-shadow: inset 1px 1px 1px #777;
 	-moz-box-shadow: inset 1px 1px 1px #777;
@@ -1046,6 +1053,9 @@ hr.line {
 	-webkit-border-radius: 4px 0 0 4px;
 	-moz-border-radius: 4px 0 0 4px;
     border-radius: 4px 0 0 4px;
+}
+.epesi_data > div {
+	height: 20px;
 }
 
 .epesi_data select {
@@ -1073,7 +1083,7 @@ hr.line {
 .epesi_data select,
 .epesi_data textarea {
 	width: 97%;
-	height: 100%;
+	height: 14px;
     background-color: #FFFFF9;
     border: 0px;
 	padding: 3px 5px;
@@ -1164,6 +1174,7 @@ hr.line {
 /* automulti END */
 .epesi_data .form_error img {
 	margin-left: 5px;
+	margin-top: 1px;
 	border: none;
 }
 .epesi_data .form_error a {
@@ -1178,7 +1189,8 @@ hr.line {
 	position: absolute;
 	right: 0px;
 	display: block;
-	height: 15px;
+	height: 16px;
+	line-height: 16px;
 	margin: 0;
 	padding: 3px 5px 2px 15px;
 	font-weight: bold;

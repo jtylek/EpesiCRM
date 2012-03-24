@@ -69,9 +69,9 @@ class Base_EssClient extends Module {
                     $email = Base_EssClientCommon::get_support_email();
 
                     print('<div class="important_notice">' . $this->t('Your epesi ID is not recognized by Epesi Store Server. Please contact epesi team at %s.', array($email)) . '</div>');
-                    Base_ActionBarCommon::add('edit', 'Edit license key', $this->create_callback_href(array($this, 'license_key_form')));
                     Base_ActionBarCommon::add('delete', 'Revoke license key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
                 }
+                Base_ActionBarCommon::add('edit', 'Edit license key', $this->create_callback_href(array($this, 'license_key_form')));
             }
         } catch (Exception $e) {
             print('<div class="important_notice">' . $this->t('There was an error while trying to connect to Epesi Store Server. Please try again later.') . '<br>');
@@ -92,8 +92,9 @@ class Base_EssClient extends Module {
             return;
         }
 
+        Base_ActionBarCommon::add('edit', 'Enter license key', $this->create_callback_href(array($this, 'license_key_form')));
         $form = $this->init_module('Libs_QuickForm');
-        $form->addElement('checkbox', 'agree', $this->t('Agree to Terms and Conditions'));
+        $form->addElement('checkbox', 'agree', $this->t('I agree to Terms and Conditions'));
         $form->addRule('agree', $this->t('You must accept Terms and Conditions to proceed'), 'required');
         $form->addElement('submit', 'submit', $this->t('Obtain Epesi License Key'), array('style' => 'width:200px'));
         if ($form->validate()) {
@@ -117,7 +118,7 @@ class Base_EssClient extends Module {
         print('<br><br>');
         print($this->t('Full Terms and Conditions are available here:'));
         $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
-        print('<br><a target="_blank" href="' . $url . '">' . $url . '</a>');
+        print(' <a target="_blank" href="' . $url . '">' . $this->t('Terms and Conditions') . '</a>');
         print('<center>');
         $form->display();
         print('</center>');
@@ -130,7 +131,6 @@ class Base_EssClient extends Module {
             return false;
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-        Base_ActionBarCommon::add('edit', 'Edit license key', $this->create_callback_href(array($this, 'license_key_form')));
 
         $f = $this->init_module('Libs/QuickForm');
 
@@ -230,13 +230,14 @@ class Base_EssClient extends Module {
         if ($data) {
             if (isset($data['status']) && strcasecmp($data['status'], 'Confirmed') == 0)
                 print($this->t('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
-            print($this->t('<div style="color:tomato;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
+            print($this->t('<div style="color:red;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
         }
         print('<center>');
 
-        $f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
+//        $f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
+		Base_ActionBarCommon::add('save', $data ? 'Update' : 'Register', $f->get_submit_form_href());
 
-        $f->display();
+        $f->display_as_column();
         print('</center>');
         print('</div>');
         return true;
@@ -250,7 +251,7 @@ class Base_EssClient extends Module {
 
         $f = $this->init_module('Libs/QuickForm');
 
-        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64));
+        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64, 'style'=>'width:450px;'));
         if ($f->validate()) {
             $x = $f->exportValues();
             Base_EssClientCommon::set_license_key($x['license_key']);
@@ -259,7 +260,10 @@ class Base_EssClient extends Module {
 
         $f->setDefaults(array('license_key' => Base_EssClientCommon::get_license_key()));
         Base_ActionBarCommon::add('save', 'Save', $f->get_submit_form_href());
-        $f->display();
+		print('<span class="important_notice"><center>');
+		print($this->t('On this screen you can manually set your License Key for this installation. This feature should only be used in case of system recovery or migration. If you are uncertain how to use this feature, it\'s best to leave this screen immediately.').'<br><br>');
+        $f->display_as_column();
+		print('</center></span>');
         return true;
     }
 
