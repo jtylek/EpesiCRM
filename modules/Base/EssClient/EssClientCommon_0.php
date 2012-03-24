@@ -206,10 +206,10 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     private static function format_messages_frame($bg_color, $title, $messages) {
         $ret = '';
         if (count($messages)) {
-            $ret .= '<div class="important_notice" style="background-color:' . $bg_color . '">';
+            $ret .= '<div class="popup_notice" style="background-color:' . $bg_color . '">';
             $ret .= Base_LangCommon::ts('Base/EssClient', $title);
             foreach ($messages as $m)
-                $ret .= '<div class="important_notice_frame">' . $m . '</div>';
+                $ret .= '<div class="popup_notice_frame">' . $m . '</div>';
             $ret .= '</div>';
         }
         return $ret;

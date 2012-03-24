@@ -16,10 +16,12 @@ class Base_AboutInstall extends ModuleInstall {
 
 	public function install() {
 		Base_LangCommon::install_translations($this->get_type());
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}
 	

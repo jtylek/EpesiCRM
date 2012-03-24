@@ -14,6 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_EpesiStoreInstall extends ModuleInstall {
 
     public function install() {
+		Base_ThemeCommon::install_default_theme($this->get_type());
         $ret = true;
         $ret &= DB::CreateTable('epesi_store_modules', '
             module_id I4 PRIMARY KEY,
@@ -30,6 +31,7 @@ class Base_EpesiStoreInstall extends ModuleInstall {
     }
 
     public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
         DB::DropTable('epesi_store_modules');
         $this->remove_data_dir();
         return true;

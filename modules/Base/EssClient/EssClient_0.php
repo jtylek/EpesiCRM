@@ -102,7 +102,7 @@ class Base_EssClient extends Module {
             return;
         }
 
-        print('<div class="important_notice" style="-moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px;">');
+        print('<div class="important_notice">');
         print('<center><H1>');
         print($this->t('epesiBIM Registration'));
         print('</H1></center><br>');
