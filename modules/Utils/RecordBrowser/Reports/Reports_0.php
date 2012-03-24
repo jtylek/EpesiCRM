@@ -156,10 +156,9 @@ class Utils_RecordBrowser_Reports extends Module {
 		if (isset($format['row_desc'])) $css_class .= ' row-desc';
 		if (isset($format['total_all'])) $css_class .= ' total-all';
 		elseif (isset($format['total'])) $css_class .= ' total';
-		$attrs .= ' class="'.$css_class.'"';
 		$ret = implode('<br>',$ret);
 		if ($this->pdf) $ret = array('value'=>$ret, 'style'=>$format, 'attrs'=>'');
-		else $ret = array('value'=>$ret, 'style'=>$style, 'attrs'=>$attrs);
+		else $ret = array('value'=>$ret, 'style'=>$style, 'attrs'=>$attrs, 'class'=>$css_class);
 		return $ret;
 	}
 
@@ -583,7 +582,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$gb_row = $this->gb->get_new_row();
 				$gb_row->add_data_array($grow);
 			}
-			$this->display_module($this->gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));
+			$this->display_module($this->gb);
 		}
 	}
 

@@ -959,7 +959,7 @@ class Utils_GenericBrowser extends Module {
 					if (!isset($v['style'])) $v['style'] = '';
 					$v['style'] .= 'white-space: normal;';
 				}
-				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td"';
+				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td '.(isset($v['class'])?$v['class']:'').'"';
 				$col[$k]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
 				if (isset($quickjump_col) && $k==$quickjump_col) $col[$k]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';

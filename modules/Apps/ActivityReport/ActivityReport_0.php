@@ -36,7 +36,8 @@ class Apps_ActivityReport extends Module {
 		$form->addElement('datepicker', 'start_date', $this->t('Start Date'));
 		$form->addElement('datepicker', 'end_date', $this->t('End Date'));
 
-		$form->addElement('submit', 'submit', $this->t('Show'));
+		//$form->addElement('submit', 'submit', $this->t('Show'));
+		Base_ActionBarCommon::add('search', 'Show', $form->get_submit_form_href());
 
 		$filters = $this->get_module_variable('filters', array('user'=>'', 'new'=>1, 'edit'=>1, 'delete_restore'=>1, 'recordsets'=>array_keys($rb_tabs), 'start_date'=>date('Y-m-01'), 'end_date'=>date('Y-m-d')));
 		
