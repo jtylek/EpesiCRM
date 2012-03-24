@@ -26,10 +26,10 @@ class PatchUtil {
         }
         return $patches;
     }
-    
+
     static function mark_applied($module) {
         $patches = self::list_for_module($module);
-        foreach($patches as $patch) {
+        foreach ($patches as $patch) {
             $patch->mark_applied();
         }
         return $patches;
@@ -146,10 +146,13 @@ class Patch {
     static function cmp_by_date($patch1, $patch2) {
         $p1_date = $patch1->get_creation_date();
         $p2_date = $patch2->get_creation_date();
-        if (!$p1_date && !$p2_date) return strcmp($patch1->file, $patch2->file);
-        if (!$p1_date) return -1;
-        if (!$p2_date) return 1;
-        return strcmp($patch1->get_creation_date(), $patch2->get_creation_date());
+        if (!$p1_date && !$p2_date)
+            return strcmp($patch1->file, $patch2->file);
+        if (!$p1_date)
+            return -1;
+        if (!$p2_date)
+            return 1;
+        return strcmp($p1_date, $p2_date);
     }
 
     function get_creation_date() {
@@ -167,7 +170,7 @@ class Patch {
     function apply() {
         if (!file_exists($this->file))
             return false;
-        
+
         ob_start();
         try {
             include $this->file;
@@ -178,9 +181,9 @@ class Patch {
         $output = ob_get_clean();
         $success = $this->apply_error ? 'ERROR' : 'OK';
         $this->apply_log = "[md5: {$this->get_identifier()}] [$success] {$this->get_file()}\n";
-        if($output)
+        if ($output)
             $this->apply_log .= " === OUTPUT ===\n$output\n === END OUTPUT ===\n";
-        if($this->apply_error) {
+        if ($this->apply_error) {
             $this->apply_log .= "ERROR {$this->apply_error} \n";
             $this->apply_success = false;
             return false;
@@ -213,15 +216,15 @@ class Patch {
     function get_file() {
         return $this->file;
     }
-    
+
     function get_apply_log() {
         return $this->apply_log;
     }
-    
+
     function get_apply_success() {
         return $this->apply_success;
     }
-    
+
     function get_apply_error_msg() {
         return $this->apply_error;
     }
