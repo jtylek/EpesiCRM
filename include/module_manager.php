@@ -449,7 +449,7 @@ class ModuleManager {
 		return true;
 	}
     
-    private static final function get_module_class_name($module) {
+    public static final function get_module_class_name($module) {
         return str_replace('/', '_', $module);
     }
 
