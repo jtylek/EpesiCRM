@@ -269,7 +269,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d', array($id));
     }
     public static function admin_caption() {
-        return 'Records Sets';
+        return 'Record Browser';
     }
 	public static function admin_access_levels() {
 		return array(
