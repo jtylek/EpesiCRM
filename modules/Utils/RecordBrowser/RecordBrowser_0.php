@@ -2543,7 +2543,7 @@ class Utils_RecordBrowser extends Module {
 			$gb_row->add_data(
 				$action, 
 				'<span class="Utils_RecordBrowser__permissions_crits">'.implode(' <span class="joint">'.$this->t('and').'</span><br>',$clearance[$row['id']]).'</span>', 
-				'<span class="Utils_RecordBrowser__permissions_crits">'.$crits_text.'</span>', 
+				array('value'=>'<span class="Utils_RecordBrowser__permissions_crits">'.$crits_text.'</span>', 'overflow_box'=>false), 
 				array('style'=>'background-color:#'.$color, 'value'=>$fields_value)
 			);
 			if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) {

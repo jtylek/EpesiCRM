@@ -36,8 +36,23 @@ class Base_EpesiStore extends Module {
         }
         $this->back_button();
 
-        $this->form_main_store();
+		$setup = $this->init_module('Base_Setup');
+		if (Variable::get('simple_setup')) {
+			$this->display_module($setup, array(), 'admin');
+			return;
+		}
+		
+		Base_ActionBarCommon::add('settings', 'Simple view',$this->create_callback_href(array($this,'switch_simple'),true));
+		$tb = $this->init_module('Utils_TabbedBrowser');
+		$tb->set_tab('Epesi Store', array($this, 'form_main_store'),array());
+		$tb->set_tab('Modules Setup', array($setup, 'admin'),array(true));
+		$tb->tag();
+		$this->display_module($tb);
     }
+	public function switch_simple($a) {
+		Variable::set('simple_setup',$a);
+		location(array());
+	}
 
     private function client_messages() {
         print(Base_EssClientCommon::client_messages_frame(false));
@@ -94,7 +109,7 @@ class Base_EpesiStore extends Module {
         Base_ActionBarCommon::add('search', $this->t('Your modules'), $this->href_navigate('form_your_modules'), $this->t($tooltip));
     }
 
-    private function form_main_store() {
+    public function form_main_store() {
         $this->client_messages_frame_only();
         if ($this->is_registered()) {
             $this->navigation_buttons();

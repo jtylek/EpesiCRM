@@ -1,7 +1,6 @@
 {php}
 	eval_js('var base_setup__last_filter;');
 	eval_js('base_setup__preprocess_filter = base_setup__last_filter;');
-	eval_js('base_setup__last_filter = "";');
 	load_js($this->get_template_vars('theme_dir').'/Base/Setup/default.js');
 	eval_js('if(base_setup__preprocess_filter!=null)base_setup__filter_by(base_setup__preprocess_filter);');
 {/php}
@@ -9,7 +8,7 @@
 <div class="Base_Setup">
 	<div class="filters">
 		{foreach key=label item=attr from=$filters}
-			<div id="Base_Setup__filter_{$attr.arg}" {if !$attr.arg}class="selected"{/if} {if isset($attr.attrs)}{$attr.attrs}{/if} onclick="base_setup__filter_by('{$attr.arg}');">{$label}</div>
+			<div id="Base_Setup__filter_{$attr.arg}" {if isset($attr.attrs)}{$attr.attrs}{/if} onclick="base_setup__filter_by('{$attr.arg}');">{$label}</div>
 		{/foreach}
 	</div>
 	

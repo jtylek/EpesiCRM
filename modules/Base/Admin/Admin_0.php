@@ -47,7 +47,7 @@ class Base_Admin extends Module {
 		foreach($cmr as $name=>$caption) {
 			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
 			if (Base_AdminCommon::get_access($name)==false) continue;
-			if(!isset($caption)) $caption = $name.' module';
+			if(!isset($caption)) continue;
 			else $caption = $this->t($caption);
 			$mod_ok[$caption] = $name;
 		}

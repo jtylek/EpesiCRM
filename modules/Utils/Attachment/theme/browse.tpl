@@ -1,6 +1,6 @@
 {$form_open}
 
-<table class="Utils_Attachment__borwse_panel">
+<table class="Utils_Attachment__browse_panel">
 	<tr>
 		{if isset($new_note)}
 		<td style="width:110px;">

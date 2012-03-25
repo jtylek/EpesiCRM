@@ -18,16 +18,17 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Base_Setup extends Module {
 	private $store = false;
+	public $default_filter = '';
 
 	public function construct() {
 		$this->store = ModuleManager::is_installed('Base/EpesiStore');
 	}
 
-	public function admin() {
-		$this->body();
+	public function admin($store=false) {
+		$this->body($store);
 	}
 	
-	public function body() {
+	public function body($store=false) {
 		if($this->is_back() && $this->parent) {
 			$this->parent->reset();
 			return;
@@ -68,12 +69,12 @@ class Base_Setup extends Module {
 		$simple = Variable::get('simple_setup');
 
 		Base_ActionBarCommon::add('scan','Rebuild modules database',$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		if (!$store) Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 		
 		if ($simple)
 			$this->simple_setup();
 		else
-			$this->advanced_setup();
+			$this->advanced_setup($store);
 	}
 
 	public function get_module_dirs() {
@@ -93,7 +94,7 @@ class Base_Setup extends Module {
 		return $module_dirs;
 	}
 
-	public function advanced_setup() {
+	public function advanced_setup($store=false) {
 		//create default module form
 		$form = & $this->init_module('Libs/QuickForm','Processing modules','setup');
 		
@@ -194,7 +195,7 @@ class Base_Setup extends Module {
 		}
 		$form->display();
 		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
-		Base_ActionBarCommon::add('settings', 'Simple view',$this->create_callback_href(array($this,'switch_simple'),true));
+		if (!$store) Base_ActionBarCommon::add('settings', 'Simple view',$this->create_callback_href(array($this,'switch_simple'),true));
 	}
 
 	public function simple_setup() {
@@ -351,6 +352,7 @@ class Base_Setup extends Module {
 		$t->assign('filters', $filters);
 		$t->assign('labels', array('options'=>$this->t('Optional')));
 		
+		eval_js('base_setup__last_filter = "'.$this->default_filter.'";');
 		$t->display();
 	}
     
@@ -462,6 +464,7 @@ class Base_Setup extends Module {
 	
 	public function switch_simple($a) {
 		Variable::set('simple_setup',$a);
+		location(array());
 	}
 
 	public static function parse_modules_folder_refresh(){

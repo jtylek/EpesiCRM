@@ -939,9 +939,9 @@ hr.line {
 	-moz-border-radius: 6px;
 	border-radius: 6px;
 
-	-webkit-box-shadow: inset -1px -1px 5px gray, 1px 1px 1px #444;
-	-moz-box-shadow: inset -1px -1px 5px gray, 1px 1px 1px #444;
-	box-shadow: inset -1px -1px 5px gray, 1px 1px 1px #444;
+	-webkit-box-shadow: inset -1px -1px 3px gray, 1px 1px 1px #444;
+	-moz-box-shadow: inset -1px -1px 3px gray, 1px 1px 1px #444;
+	box-shadow: inset -1px -1px 3px gray, 1px 1px 1px #444;
 
 	background-image: -moz-linear-gradient(top,  rgba(241,242,255,0.95) 0%, rgba(255,255,255,0) 75%); /* FF3.6+ */
 	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(241,242,255,0.95)), color-stop(75%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
