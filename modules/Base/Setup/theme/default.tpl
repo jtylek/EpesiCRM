@@ -16,9 +16,23 @@
 	<div id="Base_Setup">
 		{foreach key=name item=package from=$packages}
 			<div class="big-button" style="position:relative;"{foreach item=f from=$package.filter} {$f}="1"{/foreach}>
-				<div class="package_label">
-					{$package.name}
-				</div>
+				{if $package.url}
+					<a href="javascript:void(0);" onclick="base_setup__package_description('{$package.url}','{$package.name}');">
+				{/if}
+					<div class="package_label">
+						{$package.name}
+					</div>
+					{if $package.icon}
+						<img class="package_icon" src="{$package.icon}">
+					{/if}
+				{if $package.url}
+					</a>
+				{/if}
+				{if $package.version}
+					<div class="version">
+						{$package.version}
+					</div>
+				{/if}
 				<div class="actions">
 					<div id="show_actions_{$name}" class="action {$package.style}" onclick="base_setup__show_actions('{$name}');">
 						{$package.status}{if !empty($package.buttons)}<img src="{$theme_dir}/Base/Setup/config.png">{/if}

@@ -65,8 +65,16 @@ base_setup__filter_by = function (attr) {
 				if (div.style.display!='') Effect.Appear(div, {duration:0.4});
 			} else {
 				div.style.display='none';
-//				if (div.style.display!='none') Effect.DropOut(div, {duration:0.4});
 			}
 		}
 	}
+}
+
+base_setup__package_description = function (url,package_name) {
+	$('Base_Setup__module_name').innerHTML = package_name;
+	leightbox_activate('base_setup__module_desc_leightbox');
+	var iframe = $('Base_Setup__module_description');
+	iframe.src = url;
+	iframe.style.height = (iframe.parentNode.parentNode.clientHeight-35)+'px';
+	iframe.style.width = '100%';
 }

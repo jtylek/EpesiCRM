@@ -227,7 +227,7 @@ class Base_Setup extends Module {
 
 		$packages = array();
 		foreach ($structure as $s) {
-			if (!isset($packages[$s['key']])) $packages[$s['key']] = array('also_uninstall'=>array(), 'modules'=>array(), 'is_required'=>array(), 'installed'=>null);
+			if (!isset($packages[$s['key']])) $packages[$s['key']] = array('also_uninstall'=>array(), 'modules'=>array(), 'is_required'=>array(), 'installed'=>null, 'icon'=>false, 'version'=>null, 'url'=>null);
 			$package = & $packages[$s['key']];
 			$package['modules'][] = $s['module'];
 			$package['name'] = $s['package'];
@@ -248,6 +248,12 @@ class Base_Setup extends Module {
 				if ($structure[$r]['package']==$s['package']) continue;
 				$package['is_required'][$structure[$r]['key']] = $structure[$r]['key'];
 			}
+			if (isset($s['icon']))
+				$package['icon'] = Base_ThemeCommon::get_template_file($s['module'], 'package-icon.png');
+			if (isset($s['version']))
+				$package['version'] = $this->t('Ver. %s',array($s['version']));
+			if (isset($s['url']))
+				$package['url'] = $s['url'];
 		}
 		
 		$sorted = array();
@@ -309,7 +315,7 @@ class Base_Setup extends Module {
 					$status = $this->t('Installed');
 					break;
 				case $p['installed']==='partial':
-					$style = 'problem';
+					$style = 'partial-install';
 					$filter = array('installed');
 					$status = $this->t('Partially');
 					break;
@@ -324,6 +330,9 @@ class Base_Setup extends Module {
 				$sorted[$name]['instalable'] = 1;
 				$sorted[$name]['uninstalable'] = empty($p['is_required']);
 				$sorted[$name]['filter'] = $filter;
+				$sorted[$name]['icon'] = $p['icon'];
+				$sorted[$name]['version'] = $p['version'];
+				$sorted[$name]['url'] = $p['url'];
 			} else {
 				$sorted[$name]['options'][$option] = array(
 				'name' => $this->t($option),
@@ -340,6 +349,8 @@ class Base_Setup extends Module {
 		if (ModuleManager::is_installed('Base_EpesiStore')>=0) {
 			$this->add_store_products($sorted, $filters);
 		}
+		Libs_LeightboxCommon::display('base_setup__module_desc_leightbox','<iframe style="border: none;" id="Base_Setup__module_description"></iframe>','<span id="Base_Setup__module_name"></span>', true);
+		print('<span '.Libs_LeightboxCommon::get_open_href('base_setup__module_desc_leightbox').' style="display:none;"></span>');
 
 		foreach ($sorted as $name=>$v)
 			ksort($sorted[$name]['options']);
@@ -380,16 +391,20 @@ class Base_Setup extends Module {
 		$store = Base_EpesiStoreCommon::get_modules_all_available();
 		foreach ($store as $s) {
 			$name = $s['name'];
-//			print_r($s);
-//			print(Base_EpesiStoreCommon::next_possible_action_href($s['id']));
 			$sorted[$name] = array();
 			$sorted[$name]['name'] = $this->t($name);
 			$sorted[$name]['modules'] = array();
-            $buttons = array(array('label'=>$this->t(Base_EpesiStoreCommon::next_possible_action($s['id'])),'style'=>'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback'))));
+			$label = $this->t(ucfirst($this->t(Base_EpesiStoreCommon::next_possible_action($s['id']))));
+            $buttons = array(array('label'=>$label,'style'=>'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback'))));
 			$sorted[$name]['buttons'] = $buttons;
 			$sorted[$name]['options'] = array();
-			$sorted[$name]['status'] = $this->t('Price: '.$s['price']);
-			$sorted[$name]['style'] = 'problem';
+			if (isset($s['paid'])) {
+				$sorted[$name]['status'] = $this->t('Purchased');
+				$sorted[$name]['style'] = 'problem';
+			} else {
+				$sorted[$name]['status'] = $this->t('Price: '.$s['price']);
+				$sorted[$name]['style'] = 'store';
+			}
 			$sorted[$name]['filter'] = array('store');
 			$sorted[$name]['installed'] = null;
 			$sorted[$name]['instalable'] = 0;
