@@ -26,6 +26,7 @@ class Base_EssClient extends Module {
             return;
         if ($this->is_back()) {
             $this->parent->reset();
+            return;
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 
@@ -71,6 +72,8 @@ class Base_EssClient extends Module {
                     print('<div class="important_notice">' . $this->t('Your epesi ID is not recognized by Epesi Store Server. Please contact epesi team at %s.', array($email)) . '</div>');
                     Base_ActionBarCommon::add('delete', 'Revoke license key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
                 }
+                $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
+                print(' <a target="_blank" href="' . $url . '">' . $this->t('Terms and Conditions') . '</a>');
                 Base_ActionBarCommon::add('edit', 'Edit license key', $this->create_callback_href(array($this, 'license_key_form')));
             }
         } catch (Exception $e) {

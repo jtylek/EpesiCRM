@@ -65,7 +65,7 @@ class Base_Setup extends Module {
 		if(is_array($post_install)) 
 			return;
 
-		$simple = Variable::get('simple_setup');
+		$simple = Base_SetupCommon::is_simple_setup();
 
 		Base_ActionBarCommon::add('scan','Rebuild modules database',$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
 		if (!$store) Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
@@ -375,9 +375,7 @@ class Base_Setup extends Module {
 	}
 
 	public function add_store_products(& $sorted, & $filters) {
-	
-//	Base_EssClientCommon::set_license_key('OGtsfJSvtruAZO8mSKwV2Eu6pe7aSKdrbWjGqBCj36udV2PxNMSQaMWQ1e1UzfLa');
-		$registered = Base_EssClientCommon::get_license_key();
+		$registered = Base_EssClientCommon::is_registered();
 		$filters_attrs = '';
 		if (!$registered) {
 			$msg = $this->t('To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?');
@@ -478,10 +476,10 @@ class Base_Setup extends Module {
 	    $this->pack_module('Base_EpesiStore',array(),'admin');
 	}
 	
-	public function switch_simple($a) {
-		Variable::set('simple_setup',$a);
-		location(array());
-	}
+	public function switch_simple($value) {
+        Base_SetupCommon::set_simple_setup($value);
+        location(array());
+    }
 
 	public static function parse_modules_folder_refresh(){
 		Base_SetupCommon::refresh_available_modules();

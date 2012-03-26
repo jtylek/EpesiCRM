@@ -32,27 +32,29 @@ class Base_EpesiStore extends Module {
         if (!$this->has_access())
             return;
         if ($this->is_back()) {
-            return $this->parent->reset();
+            $this->parent->reset();
+            return;
         }
         $this->back_button();
 
-		$setup = $this->init_module('Base_Setup');
-		if (Variable::get('simple_setup')) {
-			$this->display_module($setup, array(), 'admin');
-			return;
-		}
-		
-		Base_ActionBarCommon::add('settings', 'Simple view',$this->create_callback_href(array($this,'switch_simple'),true));
-		$tb = $this->init_module('Utils_TabbedBrowser');
-		$tb->set_tab('Epesi Store', array($this, 'form_main_store'),array());
-		$tb->set_tab('Modules Setup', array($setup, 'admin'),array(true));
-		$tb->tag();
-		$this->display_module($tb);
+        $setup = $this->init_module('Base_Setup');
+        if (Base_SetupCommon::is_simple_setup()) {
+            $this->display_module($setup, array(true), 'admin');
+            return;
+        }
+
+        Base_ActionBarCommon::add('settings', 'Simple view', $this->create_callback_href(array($this, 'switch_simple'), true));
+        $tb = $this->init_module('Utils_TabbedBrowser');
+        $tb->set_tab('Epesi Store', array($this, 'form_main_store'), array());
+        $tb->set_tab('Modules Setup', array($setup, 'admin'), array(true));
+        $tb->tag();
+        $this->display_module($tb);
     }
-	public function switch_simple($a) {
-		Variable::set('simple_setup',$a);
-		location(array());
-	}
+
+    public function switch_simple($value) {
+        Base_SetupCommon::set_simple_setup($value);
+        location(array());
+    }
 
     private function client_messages() {
         print(Base_EssClientCommon::client_messages_frame(false));

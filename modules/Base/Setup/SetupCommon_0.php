@@ -27,6 +27,14 @@ class Base_SetupCommon extends ModuleCommon {
 		if (ModuleManager::is_installed('Base_EpesiStore')>=0) return null;
 		return 'Modules Administration';
 	}
+    
+    public static function is_simple_setup() {
+        return Variable::get('simple_setup');
+    }
+    
+    public static function set_simple_setup($value) {
+        Variable::set('simple_setup', $value);
+    }
 	
 	public static function refresh_available_modules() {
 		$module_dirs = ModuleManager::list_modules();
