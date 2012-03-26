@@ -53,7 +53,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 				$c = $c[1];
 			}
 		}
-		$v=str_replace('.', self::get_decimal_point(), round($v,self::get_precission($c)));
+		$v=str_replace('.', self::get_decimal_point($c), round($v,self::get_precission($c)));
 		return $v.'__'.$c;
 	}
 
@@ -67,7 +67,8 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 					));
 	}
 	
-	public static function get_decimal_point() {
+	public static function get_decimal_point($c = null) {
+	    if ($c!==null) return DB::GetOne('SELECT decimal_sign FROM utils_currency WHERE id=%d', array($c));
 		static $cache = null;
 		if ($cache==null) $cache = DB::GetOne('SELECT decimal_sign FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField','decimal_point')));
 		return $cache;
