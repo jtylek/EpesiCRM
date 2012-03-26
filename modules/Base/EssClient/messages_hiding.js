@@ -1,4 +1,4 @@
-var hidden_messages = {};
+var discarded_messages = {};
 var client_messages_frame_id;
 
 function set_client_messages_frame_id(id) {
@@ -6,7 +6,7 @@ function set_client_messages_frame_id(id) {
     $(id+"_hide").onclick = function() {
         toggle_client_messages_frame();
     }
-    $(id+"_show_hidden").onclick = function() {
+    $(id+"_show_discarded").onclick = function() {
         show_all_client_messages();
     }
     client_messages_add_discard_buttons();
@@ -50,12 +50,12 @@ function toggle_client_messages_frame() {
 function hide_client_message(object) {
     if(!object)
         return;
-    hidden_messages[object.innerHTML] = 1;
+    discarded_messages[object.innerHTML] = 1;
     show_client_messages();
 }
 
 function show_all_client_messages() {
-    hidden_messages = {};
+    discarded_messages = {};
     show_client_messages();
 }
 
@@ -66,11 +66,11 @@ function show_client_messages() {
     var childs = messages_frame.childElements();
     // hide buttons
     $(client_messages_frame_id+"_hide").hide();
-    $(client_messages_frame_id+"_show_hidden").hide();
+    $(client_messages_frame_id+"_show_discarded").hide();
     if(!childs.length)
         return;
         
-    var hidden = 0;
+    var discarded = 0;
     var total_displayed = 0;
     for(var i = 0; i < childs.length; i++) {
         if(!childs[i].hasClassName("popup_notice"))
@@ -79,9 +79,9 @@ function show_client_messages() {
         var total = single_messages.length;
         var displayed = 0;
         for(var j = 0; j < total; j++) {
-            if(hidden_messages[single_messages[j].innerHTML]) {
+            if(discarded_messages[single_messages[j].innerHTML]) {
                 single_messages[j].hide();
-                hidden++;
+                discarded++;
             } else {
                 single_messages[j].show();
                 displayed++;
@@ -96,7 +96,7 @@ function show_client_messages() {
     if(total_displayed)
         $(client_messages_frame_id+"_hide").show();
 
-    if(messages_frame.visible() && hidden)
-        $(client_messages_frame_id+"_show_hidden").show();
+    if(messages_frame.visible() && discarded)
+        $(client_messages_frame_id+"_show_discarded").show();
         
 }
