@@ -78,7 +78,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         }
         return $status;
     }
-    
+
     public static function has_license_key() {
         return self::get_license_key() != false;
     }
@@ -97,8 +97,8 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     public static function set_license_key($license_key) {
         $keys = Variable::get(self::VAR_LICENSE_KEY, false);
-        if($keys) {
-            if(is_array($keys)) {
+        if ($keys) {
+            if (is_array($keys)) {
                 $keys[self::get_server_url()] = $license_key;
             } else {
                 $keys = array(self::get_server_url() => $license_key);
@@ -111,14 +111,14 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     public static function clear_license_key($only_current = true) {
         $license_keys = Variable::get(self::VAR_LICENSE_KEY, false);
-        if(!$only_current || !is_array($license_keys)) {
+        if (!$only_current || !is_array($license_keys)) {
             Variable::delete(self::VAR_LICENSE_KEY, false);
             return;
         }
         unset($license_keys[self::get_server_url()]);
         Variable::set(self::VAR_LICENSE_KEY, $license_keys);
     }
-    
+
     /** @var IClient */
     protected static $client_requester = null;
 
@@ -182,12 +182,23 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         Module::static_set_module_variable('Base/EssClient', 'messages', $msgs);
     }
 
-    public static function client_messages_frame($only_frame = true) {
-        return '<div id="ess_messages_frame">' . ($only_frame ? '' : self::format_client_messages()) . '</div>';
+    public static function client_messages_frame($only_frame = true, $load_by_js = true) {
+        $content = $load_by_js ? '' : self::format_client_messages();
+        $buttons = '';
+        if ($load_by_js) {
+            self::client_messages_load_by_js();
+            $hide_all = Base_LangCommon::ts('Base/EssClient', 'Hide messages');
+            $show_discarded = Base_LangCommon::ts('Base/EssClient', 'Show discarded');
+            $buttons .= "<div class=\"button\" id=\"client_messages_frame_hide\">$hide_all</div>";
+            $buttons .= "<div class=\"button\" id=\"client_messages_frame_show_discarded\">$show_discarded</div>";
+        }
+        return '<div id="client_messages_frame"><div id="client_messages_frame_content">' . $content . '</div>' . $buttons . '</div>';
     }
 
     public static function client_messages_load_by_js() {
-        eval_js('$("ess_messages_frame").innerHTML = ' . json_encode(self::format_client_messages()));
+        load_js(__DIR__ . '/messages_hiding.js');
+        eval_js('$("client_messages_frame_content").innerHTML = ' . json_encode(self::format_client_messages()));
+        eval_js('set_client_messages_frame_id("client_messages_frame");');
     }
 
     private static function format_client_messages($cleanup = true) {

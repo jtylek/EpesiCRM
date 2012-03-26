@@ -870,10 +870,26 @@ hr.line {
 	border-radius: 8px;
 }
 
-#ess_messages_frame {
+#client_messages_frame {
 	position: fixed;
-	bottom: 5px;
-	right: 5px;
+	bottom: 0px;
+	right: 0px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    z-index: 1500;
+    overflow-x: auto;
+    max-height: 100%;
+    width: 350px;    
+}
+
+#client_messages_frame_hide {
+    float: right;
+    margin-right: 10px;
+}
+
+#client_messages_frame_show_discarded {
+    float: right;
+    margin-right: 10px;
 }
 
 .popup_notice {
@@ -883,6 +899,8 @@ hr.line {
 	padding: 8px;
 	font-size: 13px;
 	z-index: 1500;
+    background-color: white;
+    margin: 10px;
 
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -898,6 +916,8 @@ hr.line {
 	background: white;
 	border: 1px solid gray;
 	margin: 3px -3px 0;
+    position: relative;
+    padding-bottom: 10px;
 
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -906,6 +926,15 @@ hr.line {
 	-webkit-box-shadow: inset 1px 1px 2px #999;
 	-moz-box-shadow: inset 1px 1px 2px #999;
 	box-shadow: inset 1px 1px 2px #999;
+}
+
+.popup_notice_frame_close_button {
+    cursor: pointer;
+    font-weight: bold;
+    position: absolute;
+    bottom: 0px;
+    right: 5px;
+    font-size: 80%;
 }
 
 .epesi_big_button > span,
