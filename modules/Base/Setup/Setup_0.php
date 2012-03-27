@@ -251,7 +251,7 @@ class Base_Setup extends Module {
 			if (isset($s['icon']))
 				$package['icon'] = Base_ThemeCommon::get_template_file($s['module'], 'package-icon.png');
 			if (isset($s['version']))
-				$package['version'] = $this->t('Ver. %s',array($s['version']));
+				$package['version'] = $s['version'];
 			if (isset($s['url']))
 				$package['url'] = $s['url'];
 		}
@@ -360,6 +360,7 @@ class Base_Setup extends Module {
 		$t = $this->init_module('Base/Theme');
 		$t->assign('packages', $sorted);
 		$t->assign('filters', $filters);
+		$t->assign('version_label', $this->t('Ver. '));
 		$t->assign('labels', array('options'=>$this->t('Optional')));
 		
 		$t->display();
@@ -372,17 +373,17 @@ class Base_Setup extends Module {
 			Base_StatusBarCommon::message($msg, 'error');
 		} else {
 			switch ($action) {
-				case self::ACTION_BUY:
+				case Base_EpesiStoreCommon::ACTION_BUY:
 					$msg = Base_LangCommon::ts('Base_Setup', 'Purchase successful');
 					break;
-				case self::ACTION_PAY:
+				case Base_EpesiStoreCommon::ACTION_PAY:
 					$msg = Base_LangCommon::ts('Base_Setup', 'Payment successful');
 					break;
-				case self::ACTION_DOWNLOAD:
-				case self::ACTION_UPDATE:
+				case Base_EpesiStoreCommon::ACTION_DOWNLOAD:
+				case Base_EpesiStoreCommon::ACTION_UPDATE:
 					$msg = Base_LangCommon::ts('Base_Setup', 'Download successful');
 					break;
-				case self::ACTION_INSTALL:
+				case Base_EpesiStoreCommon::ACTION_INSTALL:
 					$msg = Base_LangCommon::ts('Base_Setup', 'Install successful');
 					break;
 			}
@@ -396,7 +397,7 @@ class Base_Setup extends Module {
 	}
 
 	public function add_store_products(& $sorted, & $filters) {
-		$registered = Base_EssClientCommon::is_registered() || true;
+		$registered = Base_EssClientCommon::is_registered();
 		$filters_attrs = '';
 		if (!$registered) {
 			$msg = $this->t('To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?');
@@ -413,21 +414,31 @@ class Base_Setup extends Module {
             return;
 		foreach ($store as $s) {
 			$name = $s['name'];
+			$label = Base_EpesiStoreCommon::next_possible_action($s['id']);
+			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['price']==0) {
+				$s['price'] = $this->t('Free');
+				$label = 'obtain license';
+			}
+			$b_label = $this->t(ucfirst($label));
+            $button = array('label'=>$b_label,'style'=>$label==Base_EpesiStoreCommon::ACTION_UPDATE?'problem':'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback')));
+			if (isset($sorted[$name]) && ($label==Base_EpesiStoreCommon::ACTION_INSTALL || $label==Base_EpesiStoreCommon::ACTION_UPDATE)) {
+				$sorted[$name]['filter'][] = 'store';
+				if ($label==Base_EpesiStoreCommon::ACTION_UPDATE) $sorted[$name]['buttons'][] = $button;
+				continue;
+			}
 			$sorted[$name] = array();
 			$sorted[$name]['name'] = $this->t($name);
 			$sorted[$name]['modules'] = array();
-			$label = $this->t(ucfirst($this->t(Base_EpesiStoreCommon::next_possible_action($s['id']))));
-            $buttons = array(array('label'=>$label,'style'=>'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback'))));
-			$sorted[$name]['buttons'] = $buttons;
 			$sorted[$name]['options'] = array();
 			if (isset($s['paid'])) {
 				$sorted[$name]['status'] = $this->t('Purchased');
 				$sorted[$name]['style'] = 'problem';
 			} else {
-				$sorted[$name]['status'] = $this->t('Price: '.$s['price']);
+				$sorted[$name]['status'] = $this->t('Price: %s', array($s['price']));
 				$sorted[$name]['style'] = 'store';
 			}
-			$sorted[$name]['version'] = $this->t('Ver. %s', array($s['version']));
+			$sorted[$name]['buttons'] = array($button);
+			$sorted[$name]['version'] = $s['version'];
 			$sorted[$name]['url'] = $s['description_url'];
 			$sorted[$name]['filter'] = array('store');
 			$sorted[$name]['installed'] = null;
@@ -479,13 +490,16 @@ class Base_Setup extends Module {
 			Base_StatusBarCommon::message('Feature unavailable in DEMO','warning');
 			return;
 		}
+		$module_dirs = $this->get_module_dirs();
 		ob_start();
-		foreach ($modules as $k)
-			if (!ModuleManager::install($k)) {
+		foreach ($modules as $k) {
+			$versions = array_keys($module_dirs[$k]);
+			if (!ModuleManager::install($k, max($versions))) {
 				ob_end_clean();
 				Base_StatusBarCommon::message('Couldn\'t install the package.','error');
 				return false;
 			}
+		}
 		ob_end_clean();
 		Base_StatusBarCommon::message('Package installed.');
 		

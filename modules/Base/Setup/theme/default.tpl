@@ -30,7 +30,7 @@
 				{/if}
 				{if $package.version}
 					<div class="version">
-						{$package.version}
+						{$version_label}{$package.version}
 					</div>
 				{/if}
 				<div class="actions">
