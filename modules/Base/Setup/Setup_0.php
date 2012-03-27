@@ -381,6 +381,7 @@ class Base_Setup extends Module {
 					break;
 				case Base_EpesiStoreCommon::ACTION_DOWNLOAD:
 				case Base_EpesiStoreCommon::ACTION_UPDATE:
+					Base_SetupCommon::refresh_available_modules();
 					$msg = Base_LangCommon::ts('Base_Setup', 'Download successful');
 					break;
 				case Base_EpesiStoreCommon::ACTION_INSTALL:
@@ -414,8 +415,9 @@ class Base_Setup extends Module {
             return;
 		foreach ($store as $s) {
 			$name = $s['name'];
+
 			$label = Base_EpesiStoreCommon::next_possible_action($s['id']);
-			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['price']==0) {
+			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['price']===0) {
 				$s['price'] = $this->t('Free');
 				$label = 'obtain license';
 			}
@@ -423,14 +425,21 @@ class Base_Setup extends Module {
             $button = array('label'=>$b_label,'style'=>$label==Base_EpesiStoreCommon::ACTION_UPDATE?'problem':'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback')));
 			if (isset($sorted[$name]) && ($label==Base_EpesiStoreCommon::ACTION_INSTALL || $label==Base_EpesiStoreCommon::ACTION_UPDATE)) {
 				$sorted[$name]['filter'][] = 'store';
-				if ($label==Base_EpesiStoreCommon::ACTION_UPDATE) $sorted[$name]['buttons'][] = $button;
+				if ($label==Base_EpesiStoreCommon::ACTION_UPDATE) {
+					$sorted[$name]['buttons'][] = $button;
+					$sorted[$name]['filter'][] = 'updates';
+				}
+				$sorted[$name]['url'] = $s['description_url'];
+				$sorted[$name]['icon'] = $s['icon_url'];
 				continue;
 			}
 			$sorted[$name] = array();
+			$sorted[$name]['url'] = $s['description_url'];
+			$sorted[$name]['icon'] = $s['icon_url'];
 			$sorted[$name]['name'] = $this->t($name);
 			$sorted[$name]['modules'] = array();
 			$sorted[$name]['options'] = array();
-			if (isset($s['paid'])) {
+			if (isset($s['paid']) && $s['paid']) {
 				$sorted[$name]['status'] = $this->t('Purchased');
 				$sorted[$name]['style'] = 'problem';
 			} else {
@@ -439,7 +448,6 @@ class Base_Setup extends Module {
 			}
 			$sorted[$name]['buttons'] = array($button);
 			$sorted[$name]['version'] = $s['version'];
-			$sorted[$name]['url'] = $s['description_url'];
 			$sorted[$name]['filter'] = array('store');
 			$sorted[$name]['installed'] = null;
 			$sorted[$name]['instalable'] = 0;
