@@ -118,6 +118,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if (isset($r['active']))
             $r['active'] = Base_LangCommon::ts('Base_EpesiStore', $r['active'] ? 'Yes' : 'No');
         $r['files'] = implode("<br/>", $r['files']);
+        unset($r['icon_url']);
+        unset($r['description_url']);
         return Utils_TooltipCommon::format_info_tooltip($r, "Base_EpesiStore");
     }
 

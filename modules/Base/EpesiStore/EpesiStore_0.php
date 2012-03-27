@@ -383,7 +383,7 @@ class Base_EpesiStore extends Module {
     public function download_as_zip($module_license) {
         $hash_or_url = Base_EssClientCommon::server()->download_prepare($module_license['id']);
         $this->client_messages();
-        if(!$hash_or_url)
+        if (!$hash_or_url)
             return;
         $post_data = Base_EssClientCommon::server()->get_module_as_file_post_data_array($hash_or_url);
         $str = '<form method="post" id = "' . $hash_or_url . '" action="' . Base_EssClientCommon::get_server_url() . '">';
@@ -559,6 +559,14 @@ class Base_EpesiStore extends Module {
     protected function GB_row_data_transform_module(array $data) {
         if (isset($data['active']))
             unset($data['active']);
+        if (isset($data['icon_url']) && $data['icon_url'])
+            $data['name'] = "<img style=\"float: right\" src=\"{$data['icon_url']}\" alt=\"{$data['name']} icon\"/>" . $data['name'];
+        unset($data['icon_url']);
+
+        if (isset($data['description_url']) && $data['description_url'])
+            $data['description'] = "<a target=\"_blank\" href=\"{$data['description_url']}\">{$data['description']}</a>";
+        unset($data['description_url']);
+        
         return $data;
     }
 
@@ -567,7 +575,7 @@ class Base_EpesiStore extends Module {
         $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($mi));
         return "<a $tooltip>{$mi['name']}</a>";
     }
-    
+
     private function _module_is_active($module_id) {
         $mi = Base_EpesiStoreCommon::get_module_info($module_id);
         return $mi['active'];
