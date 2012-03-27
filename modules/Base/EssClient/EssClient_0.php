@@ -73,7 +73,7 @@ class Base_EssClient extends Module {
                     Base_ActionBarCommon::add('delete', 'Revoke license key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
                 }
                 $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
-                print(' <a target="_blank" href="' . $url . '">' . $this->t('Terms and Conditions') . '</a>');
+                Base_ActionBarCommon::add('search', 'Terms & Conditions', 'target="_blank" href="' . $url . '"');
                 Base_ActionBarCommon::add('edit', 'Edit license key', $this->create_callback_href(array($this, 'license_key_form')));
             }
         } catch (Exception $e) {

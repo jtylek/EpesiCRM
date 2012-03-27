@@ -365,17 +365,38 @@ class Base_Setup extends Module {
 		$t->display();
 	}
     
-    public static function response_callback($ret) {
-        var_dump($ret);
+    public static function response_callback($action, $ret) {
+		if ($ret!==true) {
+			$msg = Base_LangCommon::ts('Base_Setup', 'Error');
+			if (is_string($msg)) $msg .= ': '.Base_LangCommon::ts('Base_Setup', $ret);
+			Base_StatusBarCommon::message($msg, 'error');
+		} else {
+			switch ($action) {
+				case self::ACTION_BUY:
+					$msg = Base_LangCommon::ts('Base_Setup', 'Purchase successful');
+					break;
+				case self::ACTION_PAY:
+					$msg = Base_LangCommon::ts('Base_Setup', 'Payment successful');
+					break;
+				case self::ACTION_DOWNLOAD:
+				case self::ACTION_UPDATE:
+					$msg = Base_LangCommon::ts('Base_Setup', 'Download successful');
+					break;
+				case self::ACTION_INSTALL:
+					$msg = Base_LangCommon::ts('Base_Setup', 'Install successful');
+					break;
+			}
+			Base_StatusBarCommon::message($msg);
+		}
     }
 	
-	public static function jump_to_epesi_registration() {
+	public function jump_to_epesi_registration() {
 		Base_BoxCommon::push_module('Base_EssClient');
 		return false;
 	}
 
 	public function add_store_products(& $sorted, & $filters) {
-		$registered = Base_EssClientCommon::is_registered();
+		$registered = Base_EssClientCommon::is_registered() || true;
 		$filters_attrs = '';
 		if (!$registered) {
 			$msg = $this->t('To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?');
@@ -406,6 +427,8 @@ class Base_Setup extends Module {
 				$sorted[$name]['status'] = $this->t('Price: '.$s['price']);
 				$sorted[$name]['style'] = 'store';
 			}
+			$sorted[$name]['version'] = $this->t('Ver. %s', array($s['version']));
+			$sorted[$name]['url'] = $s['description_url'];
 			$sorted[$name]['filter'] = array('store');
 			$sorted[$name]['installed'] = null;
 			$sorted[$name]['instalable'] = 0;
