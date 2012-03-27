@@ -57,15 +57,7 @@ class Base_EpesiStore extends Module {
     }
 
     private function client_messages() {
-        print(Base_EssClientCommon::client_messages_frame(false));
-    }
-
-    private function client_messages_frame_only() {
         print(Base_EssClientCommon::client_messages_frame());
-    }
-
-    private function client_messages_load_by_js() {
-        Base_EssClientCommon::client_messages_load_by_js();
     }
 
     private function is_registered() {
@@ -112,14 +104,13 @@ class Base_EpesiStore extends Module {
     }
 
     public function form_main_store() {
-        $this->client_messages_frame_only();
         if ($this->is_registered()) {
             $this->navigation_buttons();
             $this->display_modules();
         } else {
             $this->display_registration_form();
         }
-        $this->client_messages_load_by_js();
+        $this->client_messages();
     }
 
     private function display_modules() {
@@ -383,7 +374,6 @@ class Base_EpesiStore extends Module {
             print($this->t('No items'));
             return;
         }
-        $this->client_messages();
         Base_ActionBarCommon::add('delete', $this->t('Clear list'), $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
         $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadslist');
         $gb = $this->GB_module_licenses($gb, $download_items, array($this, 'GB_row_additional_actions_downloads'));
@@ -392,6 +382,9 @@ class Base_EpesiStore extends Module {
 
     public function download_as_zip($module_license) {
         $hash_or_url = Base_EssClientCommon::server()->download_prepare($module_license['id']);
+        $this->client_messages();
+        if(!$hash_or_url)
+            return;
         $post_data = Base_EssClientCommon::server()->get_module_as_file_post_data_array($hash_or_url);
         $str = '<form method="post" id = "' . $hash_or_url . '" action="' . Base_EssClientCommon::get_server_url() . '">';
         foreach ($post_data as $key => $value) {
@@ -574,6 +567,11 @@ class Base_EpesiStore extends Module {
         $tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array('Base_EpesiStoreCommon', 'module_format_info'), array($mi));
         return "<a $tooltip>{$mi['name']}</a>";
     }
+    
+    private function _module_is_active($module_id) {
+        $mi = Base_EpesiStoreCommon::get_module_info($module_id);
+        return $mi['active'];
+    }
 
     protected function GB_row_data_transform_module_licenses(array $data) {
         // module name
@@ -604,7 +602,8 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_your_modules($row, $data) {
-        if ($data['paid'] && $data['active'] && $this->_module_license_needs_install_or_update($data))
+        if ($data['paid'] && $data['active'] && $this->_module_is_active($data['module'])
+                && $this->_module_license_needs_install_or_update($data))
             $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', $this->t('Queue download'));
     }
 

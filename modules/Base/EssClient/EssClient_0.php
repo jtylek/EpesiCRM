@@ -30,8 +30,6 @@ class Base_EssClient extends Module {
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 
-        print Base_EssClientCommon::client_messages_frame();
-
         if (Base_EssClientCommon::has_license_key() == false) {
             $this->terms_and_conditions();
             Base_EssClientCommon::server(true);
@@ -86,7 +84,7 @@ class Base_EssClient extends Module {
             Base_ActionBarCommon::add('retry', 'Retry', $this->create_href(array()));
             return;
         }
-        Base_EssClientCommon::client_messages_load_by_js();
+        print Base_EssClientCommon::client_messages_frame();
     }
 
     private function terms_and_conditions() {
@@ -215,7 +213,7 @@ class Base_EssClient extends Module {
                 return false;
             }
         }
-        print Base_EssClientCommon::client_messages_frame(false);
+        print Base_EssClientCommon::client_messages_frame();
         // set defaults
         print('<div class="important_notice">');
         print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));

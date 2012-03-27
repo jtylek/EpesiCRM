@@ -408,7 +408,7 @@ class Base_Setup extends Module {
 			return;
 		
 		$store = Base_EpesiStoreCommon::get_modules_all_available();
-        print Base_EssClientCommon::client_messages_frame(false);
+        print Base_EssClientCommon::client_messages_frame();
         if(!$store)
             return;
 		foreach ($store as $s) {

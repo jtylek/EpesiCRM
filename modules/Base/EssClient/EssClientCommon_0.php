@@ -182,7 +182,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         Module::static_set_module_variable('Base/EssClient', 'messages', $msgs);
     }
 
-    public static function client_messages_frame($only_frame = true, $load_by_js = true) {
+    public static function client_messages_frame($load_by_js = true) {
         $content = $load_by_js ? '' : self::format_client_messages();
         $buttons = '';
         if ($load_by_js) {
