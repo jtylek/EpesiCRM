@@ -26,7 +26,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function get_server_url() {
-//        return 'http://localhost/epesi/modules/Custom/ESS/serv/';
+        return 'http://localhost/epesi/modules/Custom/ESS/serv/';
         return 'https://ess.epesibim.com/';
     }
 
@@ -70,7 +70,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return false;
     }
 
-    public static function get_installation_status($clear_cache = false) {
+    public static function get_installation_status($clear_cache = true) {
         $status = $clear_cache === false ? Variable::get(self::VAR_INSTALLATION_STATUS, false) : null;
         if (!$status && self::has_license_key()) {
             $status = self::server()->installation_status();
