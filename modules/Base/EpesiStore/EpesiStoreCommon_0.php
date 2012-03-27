@@ -310,15 +310,21 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function handle_module_action($module_id, $action, $response_callback = null) {
+        if(Base_BoxCommon::main_module_instance()->is_back())
+            return false;
         $return = null;
         switch ($action) {
             case self::ACTION_BUY:
                 $response = Base_EssClientCommon::server()->order_submit($module_id);
                 $return = $response[$module_id];
-                break;
+                if($return !== true)
+                    break;
             case self::ACTION_PAY:
-                $response_callback = null;
-                $return = self::_push_main_payments_for_module($module_id);
+                $return = self::_display_payments_for_module($module_id);
+                if ($return === true) {
+                    Base_ActionBarCommon::add('back', 'Back', Base_BoxCommon::main_module_instance()->create_back_href());
+                    return true;
+                }
                 break;
             case self::ACTION_DOWNLOAD:
             case self::ACTION_UPDATE:
@@ -338,7 +344,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return $return;
     }
 
-    private static function _push_main_payments_for_module($module_id) {
+    private static function _display_payments_for_module($module_id) {
         $module_license = self::_active_module_license_for_module($module_id);
         if ($module_license === false)
             return false;
@@ -352,10 +358,12 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             $currency = reset($keys);
             $value = $o['price'][$currency]['to_pay'];
             $mi = self::get_module_info($module_id);
-            Base_BoxCommon::push_module('Base_EpesiStore', 'form_payment_frame', array($o['id'], $value, $currency, $mi['name']));
+            $main_module = Base_BoxCommon::main_module_instance();
+            $store = $main_module->init_module('Base/EpesiStore');
+            $main_module->display_module($store, array($o['id'], $value, $currency, $mi['name']), 'form_payment_frame');
             return true;
         }
-        return false;
+        return "No orders with such module to perform payment";
     }
 
     private static function get_downloaded_module_version($module_id) {
