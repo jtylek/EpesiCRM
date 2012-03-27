@@ -316,7 +316,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 break;
             case self::ACTION_PAY:
                 $response_callback = null;
-                var_dump(self::_push_main_payments_for_module($module_id));
+                $return = self::_push_main_payments_for_module($module_id);
                 break;
             case self::ACTION_DOWNLOAD:
             case self::ACTION_UPDATE:
@@ -330,7 +330,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 break;
         }
         if (is_callable($response_callback)) {
-            call_user_func($response_callback, $return);
+            call_user_func($response_callback, $action, $return);
             return;
         }
         return $return;
