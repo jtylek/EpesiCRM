@@ -177,19 +177,20 @@ class Base_EpesiStore extends Module {
     private function _modules_to_download_and_update($module_licenses) {
         $to_download = array();
         foreach ($module_licenses as $ml) {
-            if ($this->_module_license_needs_install_or_update($ml))
+            if ($this->_module_license_needs_download_or_update($ml))
                 $to_download[] = $ml;
         }
         return $to_download;
     }
 
-    private function _module_license_needs_install_or_update($module_license) {
-        return !$module_license['downloaded_version'] ||
-                $this->_version_is_newer($module_license['downloaded_version'], $module_license['current_version']);
+    private function _module_license_needs_download_or_update($module_license) {
+        return !$module_license['downloaded_version']
+                || !Base_EpesiStoreCommon::is_module_downloaded($module_license['module'])
+                || $this->_version_is_newer($module_license['downloaded_version'], $module_license['current_version']);
     }
 
     private function _version_is_newer($old_version, $new_version) {
-        return $old_version < $new_version;
+        return Base_EpesiStoreCommon::version_compare($old_version, $new_version) < 0;
     }
 
     public function form_cart() {
@@ -566,7 +567,7 @@ class Base_EpesiStore extends Module {
         if (isset($data['description_url']) && $data['description_url'])
             $data['description'] = "<a target=\"_blank\" href=\"{$data['description_url']}\">{$data['description']}</a>";
         unset($data['description_url']);
-        
+
         return $data;
     }
 
@@ -611,7 +612,7 @@ class Base_EpesiStore extends Module {
 
     protected function GB_row_additional_actions_your_modules($row, $data) {
         if ($data['paid'] && $data['active'] && $this->_module_is_active($data['module'])
-                && $this->_module_license_needs_install_or_update($data))
+                && $this->_module_license_needs_download_or_update($data))
             $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', $this->t('Queue download'));
     }
 

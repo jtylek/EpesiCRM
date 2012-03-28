@@ -449,6 +449,8 @@ class Base_Setup extends Module {
 			$sorted[$name]['buttons'] = array($button);
 			$sorted[$name]['version'] = $s['version'];
 			$sorted[$name]['filter'] = array('store');
+            if($label == Base_EpesiStoreCommon::ACTION_UPDATE)
+                $sorted[$name]['filter'][] = 'updates';
 			$sorted[$name]['installed'] = null;
 			$sorted[$name]['instalable'] = 0;
 			$sorted[$name]['uninstalable'] = 0;

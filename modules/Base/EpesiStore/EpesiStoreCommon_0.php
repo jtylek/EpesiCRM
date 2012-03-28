@@ -262,11 +262,6 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return false;
     }
 
-    private static function _is_module_free($module_id) {
-        $mi = self::get_module_info($module_id);
-        return strtolower($mi['price']) == 'free';
-    }
-
     private static function _is_module_license_active($module_id) {
         return false !== self::_active_module_license_for_module($module_id);
     }
@@ -279,12 +274,27 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     private static function _is_module_downloaded($module_id) {
-        return false !== self::get_downloaded_module_version($module_id);
+        return false !== self::get_downloaded_module_version($module_id)
+                && self::is_module_downloaded($module_id);
     }
 
     private static function _is_module_up_to_date($module_id) {
         $mi = self::get_module_info($module_id);
-        return $mi['version'] <= self::get_downloaded_module_version($module_id);
+        return 0 >= self::version_compare($mi['version'], self::get_downloaded_module_version($module_id));
+    }
+
+    /**
+     * compare version of modules
+     * @param string $v1 version param 1
+     * @param string $v2 version param 2
+     * @return int 1 when $v1 > $v2; -1 when $v1 < $v2; 0 when equal
+     */
+    public static function version_compare($v1, $v2) {
+        if ($v1 > $v2)
+            return 1;
+        if ($v1 < $v2)
+            return -1;
+        return 0;
     }
 
     public static function next_possible_action($module_id) {
@@ -310,14 +320,14 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function handle_module_action($module_id, $action, $response_callback = null) {
-        if(Base_BoxCommon::main_module_instance()->is_back())
+        if (Base_BoxCommon::main_module_instance()->is_back())
             return false;
         $return = null;
         switch ($action) {
             case self::ACTION_BUY:
                 $response = Base_EssClientCommon::server()->order_submit($module_id);
                 $return = $response[$module_id];
-                if($return !== true)
+                if ($return !== true)
                     break;
             case self::ACTION_PAY:
                 $return = self::_display_payments_for_module($module_id);
@@ -364,6 +374,45 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             return true;
         }
         return "No orders with such module to perform payment";
+    }
+
+    private static function crc_file_matches($file, $crc) {
+        if(!is_readable($file))
+            return false;
+        $file_crc = hexdec(hash_file("crc32b", $file));
+        if($file_crc == $crc)
+            return true;
+        // crc may be negative - sprintf as unsigned
+        return $file_crc == sprintf("%u", $crc);
+    }
+
+    /**
+     * Check if:
+     * 1. zipped package is present in data dir
+     * 2. files in zipped package matches files in epesi installation
+     * to compare files crc32b is used which is present if stat info of zip file
+     * @param int $module_id
+     * @return boolean true when above requirements are satisfied, false otherwise
+     */
+    public static function is_module_downloaded($module_id) {
+        $file = DB::GetOne('SELECT `file` FROM epesi_store_modules WHERE `module_id`=%s', array($module_id));
+        if (!$file)
+            return false;
+        $file = self::Instance()->get_data_dir() . $file;
+        $zip = new ZipArchive();
+        if($zip->open($file) !== true)
+            return false;
+        
+        $ret = true;
+        for($i = 0; $i < $zip->numFiles; $i++) {
+            $stat = $zip->statIndex($i);
+            if(!self::crc_file_matches($stat['name'], $stat['crc'])) {
+                $ret = false;
+                break;
+            }
+        }
+        $zip->close();
+        return $ret;
     }
 
     private static function get_downloaded_module_version($module_id) {
