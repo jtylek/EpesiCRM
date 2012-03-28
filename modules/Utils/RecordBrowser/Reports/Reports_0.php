@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_Reports extends Module {
-	private static $colours = array('#00FFFF','#008000','#000080', '#808000', '#008080', '#0000FF','#00FF00','#800080','#FF00FF','#800000','#FF0000','#C0C0C0','#808080','#000000','#FFFF00');
+	private static $colours = array('#00ddcc','#009900','#cccc00','#1188ff','#990000','#ff00ff','#000000','#555555','#bbbbbb','#0000cc');
 	private $ref_records = array();
 	private $ref_record_display_callback = null;
 	private $paging = false;
@@ -630,9 +630,11 @@ class Utils_RecordBrowser_Reports extends Module {
 					$num = true;
 				}
 			} else {
+			    $color = 0;
 				foreach ($this->categories as $q=>$c) {
 					$bar = new OFC_Charts_Line();
-					$bar->set_colour(self::$colours[$q%count(self::$colours)]);
+					$bar->set_colour(self::$colours[$color%count(self::$colours)]);
+					$color++;
 					$bar->set_key(strip_tags($c),10);
 					$arr = array();
 					foreach ($results as $v) {
@@ -729,13 +731,15 @@ class Utils_RecordBrowser_Reports extends Module {
 			$num = false;
 			$col_total=array();
 
+            $color = 0;
 			foreach($this->ref_records as $k=>$r) {
 				$results = call_user_func($this->display_cell_callback, $r);
 
 				$ref_rec = call_user_func($this->ref_record_display_callback, $r,true);
 
 				$bar = new OFC_Charts_Bar_Glass();
-				$bar->set_colour(self::$colours[$k%count(self::$colours)]);
+				$bar->set_colour(self::$colours[$color%count(self::$colours)]);
+				$color++;
 				$bar->set_key(strip_tags($ref_rec),10);
 
 				if(empty($this->categories)) {
@@ -762,7 +766,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					}
 				} else {
 					$bar_c = new OFC_Charts_Bar_Glass();
-					$bar_c->set_colour(self::$colours[$k%count(self::$colours)]);
+					$bar_c->set_colour(self::$colours[$color%count(self::$colours)]);
 					$bar_c->set_key(strip_tags($ref_rec),10);
 					$arr = array();
 					$arr_c = array();
@@ -904,12 +908,14 @@ class Utils_RecordBrowser_Reports extends Module {
 			$f->set_x_axis($x_ax);
 			$max = 5;
 
+            $color = 0;
 			foreach($this->ref_records as $q=>$r) {
 				$results = call_user_func($this->display_cell_callback, $r);
 
 				$title2 = strip_tags(call_user_func($this->ref_record_display_callback, $r,true));
 				$bar = new OFC_Charts_Line();
-				$bar->set_colour(self::$colours[$q%count(self::$colours)]);
+				$bar->set_colour(self::$colours[$color%count(self::$colours)]);
+				$color++;
 				$bar->set_key($title2,10);
 				$arr = array();
 				foreach ($results as $v) {
