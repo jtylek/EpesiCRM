@@ -24,8 +24,8 @@ class CRM_Contacts extends Module {
 											array('field'=>'first_name', 'width'=>10),
 											array('field'=>'company_name', 'width'=>10)
 										),
-									$conf['conds']=='fav'?array(':Fav'=>1):array(':Recent'=>1),
-									array('last_name'=>'ASC','first_name'=>'ASC','company_name'=>'ASC'),
+									array(':Recent'=>1),
+									array(':Visited_on'=>'DESC','last_name'=>'ASC','first_name'=>'ASC','company_name'=>'ASC'),
 									array('CRM_ContactsCommon','applet_info_format'),
 									15,
 									$conf,

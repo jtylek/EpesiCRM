@@ -1222,7 +1222,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function applet_caption() {
 		$br_contact = Utils_RecordBrowserCommon::get_access('contact','browse');
 		if ($br_contact===true || !isset($br_contact['login']))
-			return "Contacts";
+			return "Recent Contacts";
 		return false;
     }
 
@@ -1231,8 +1231,8 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 
     public static function applet_settings() {
-        return array_merge(Utils_RecordBrowserCommon::applet_settings(),array(
-                array('name'=>'conds','label'=>'Display','type'=>'select','default'=>'fav','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('fav'=>'Favorites','rec'=>'Recent'))));
+        return array_merge(Utils_RecordBrowserCommon::applet_settings(),array());
+//                array('name'=>'conds','label'=>'Display','type'=>'select','default'=>'fav','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('fav'=>'Favorites','rec'=>'Recent'))));
     }
 	public static function user_settings() {
 		$opts = array(

@@ -127,6 +127,7 @@ Utils_CommonData_freeze.prototype = {
 			});
 	},
 	on_request: function(t) {
+		if (!t.responseText) return;
 		var val = t.responseText.evalJSON();
 		$(this.id+'_label').innerHTML = val;
 		setTimeout(this.obj.fire.bind(this.obj,'e_u_cd:load'),1);

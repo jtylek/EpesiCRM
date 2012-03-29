@@ -16,7 +16,7 @@ require_once('../../../include.php');
 ModuleManager::load_modules();
 
 $ret = Utils_CommonDataCommon::get_value($_POST['value'],true);
-if(!$ret) $ret = '';
+if(!$ret) $ret = array();
 print(json_encode($ret));
 exit();
 ?>
