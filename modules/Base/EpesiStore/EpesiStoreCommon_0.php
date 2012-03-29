@@ -379,7 +379,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     private static function crc_file_matches($file, $crc) {
         if(!is_readable($file))
             return false;
-        $file_crc = hexdec(hash_file("crc32b", $file));
+        $file_crc = hexdec(@hash_file("crc32b", $file));
         if($file_crc == $crc)
             return true;
         // crc may be negative - sprintf as unsigned
