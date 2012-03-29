@@ -400,6 +400,7 @@ class Base_Setup extends Module {
 			$filters_attrs = $this->create_confirm_callback_href($msg, array($this, 'jump_to_epesi_registration'));
 		}
 		$filters[$this->t('Updates')] = array('arg'=>'updates', 'attrs'=>$filters_attrs);
+		$filters[$this->t('My Purchases')] = array('arg'=>'purchases', 'attrs'=>$filters_attrs);
 		$filters[$this->t('Store')] = array('arg'=>'store', 'attrs'=>$filters_attrs);
 		if (!$registered) 
 			return;
@@ -419,10 +420,11 @@ class Base_Setup extends Module {
 			$b_label = $this->t(ucfirst($label));
             $button = array('label'=>$b_label,'style'=>$label==Base_EpesiStoreCommon::ACTION_UPDATE?'problem':'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback')));
 			if (isset($sorted[$name]) && ($label==Base_EpesiStoreCommon::ACTION_INSTALL || $label==Base_EpesiStoreCommon::ACTION_UPDATE)) {
-				$sorted[$name]['filter'][] = 'store';
+				$sorted[$name]['filter'][] = 'purchases';
 				if ($label==Base_EpesiStoreCommon::ACTION_UPDATE) {
 					$sorted[$name]['buttons'][] = $button;
 					$sorted[$name]['filter'][] = 'updates';
+					$sorted[$name]['style'] = 'problem';
 				}
 				$sorted[$name]['url'] = $s['description_url'];
 				$sorted[$name]['icon'] = $s['icon_url'];
@@ -437,13 +439,14 @@ class Base_Setup extends Module {
 			if (isset($s['paid']) && $s['paid']) {
 				$sorted[$name]['status'] = $this->t('Purchased');
 				$sorted[$name]['style'] = 'problem';
+				$sorted[$name]['filter'] = array('purchases');
 			} else {
 				$sorted[$name]['status'] = $this->t('Price: %s', array($s['price']));
 				$sorted[$name]['style'] = 'store';
+				$sorted[$name]['filter'] = array('store');
 			}
 			$sorted[$name]['buttons'] = array($button);
 			$sorted[$name]['version'] = $s['version'];
-			$sorted[$name]['filter'] = array('store');
             if($label == Base_EpesiStoreCommon::ACTION_UPDATE || $label == Base_EpesiStoreCommon::ACTION_DOWNLOAD)
                 $sorted[$name]['filter'][] = 'updates';
 			$sorted[$name]['installed'] = null;

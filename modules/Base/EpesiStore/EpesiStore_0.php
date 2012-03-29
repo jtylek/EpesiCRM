@@ -39,7 +39,10 @@ class Base_EpesiStore extends Module {
 
         $setup = $this->init_module('Base_Setup');
         if (Base_SetupCommon::is_simple_setup()) {
-			eval_js('base_setup__last_filter="'.(Base_EpesiStoreCommon::is_update_available()?'updates':'store').'";');
+			if (!$this->isset_module_variable('filter_set')) {
+				eval_js('base_setup__last_filter="'.(Base_EpesiStoreCommon::is_update_available()?'updates':'store').'";');
+				$this->set_module_variable('filter_set', true);
+			}
             $this->display_module($setup, array(true), 'admin');
             return;
         }
