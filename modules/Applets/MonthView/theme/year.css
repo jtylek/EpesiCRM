@@ -250,6 +250,7 @@ div.month-applet-menu a.button {
     font-weight: normal;
     color: #FFFFFF;
     width: 25px;
+	min-width: 0;
     line-height: 20px;
     display: block;
 	background-color: #336699;
