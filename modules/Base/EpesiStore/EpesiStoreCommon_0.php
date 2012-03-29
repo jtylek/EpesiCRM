@@ -262,6 +262,11 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return false;
     }
 
+    private static function _is_module_free($module_id) {
+        $mi = self::get_module_info($module_id);
+        return $mi['price'] == "0";
+    }
+    
     private static function _is_module_license_active($module_id) {
         return false !== self::_active_module_license_for_module($module_id);
     }
@@ -330,6 +335,10 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 if ($return !== true)
                     break;
             case self::ACTION_PAY:
+                if (self::_is_module_free($module_id)) {
+                    $return = true;
+                    break;
+                }
                 $return = self::_display_payments_for_module($module_id);
                 if ($return === true) {
                     Base_ActionBarCommon::add('back', 'Back', Base_BoxCommon::main_module_instance()->create_back_href());

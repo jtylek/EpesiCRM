@@ -26,12 +26,11 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function get_server_url() {
-//        return 'http://localhost/epesi/modules/Custom/ESS/serv/';
-        return 'https://ess.epesibim.com/';
+        return 'https://ess.epe.si/';
     }
 
     public static function get_payments_url() {
-        return 'https://ess.epesibim.com/payments/';
+        return 'https://ess.epe.si/payments/';
     }
 
     /**
