@@ -1052,6 +1052,9 @@ hr.line {
 	font-weight: bold;
 	height: 25px;
 	text-align: center;
+	width: 100%;
+    line-height: 25px;
+    font-size: 13px;
 
 	/* border radius */
 	-webkit-border-radius: 6px;
@@ -1107,7 +1110,6 @@ hr.line {
 .epesi_data textarea:focus {
     background-color: #ffffa5;
 }
-.epesi_data.static_field,
 .epesi_data input,
 .epesi_data select,
 .epesi_data textarea {
@@ -1142,6 +1144,10 @@ hr.line {
 	-webkit-box-shadow: inset 1px 1px 1px #777;
 	-moz-box-shadow: inset 1px 1px 1px #777;
 	box-shadow: inset 1px 1px 1px #777;
+}
+.epesi_data.static_field {
+    line-height: 22px;
+    padding-left: 5px;
 }
 
 .epesi_data.static_field,

@@ -145,6 +145,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     * @var bool
     */
     var $staticLabels = false;
+    var $inline_errors = false;
 
    /**
     * Constructor
@@ -163,6 +164,9 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 //		eval_js($js);
     } // end constructor
 
+    public function set_inline_errors($inline_errors=true) {
+        $this->inline_errors = $inline_errors;
+    }
 
    /**
     * Returns the resultant array
@@ -264,7 +268,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
             'type'      => $element->getType(),
             'frozen'    => $element->isFrozen(),
             'required'  => $required,
-           	'error'		=> '<span class="form_error" id="'.htmlspecialchars($err_id).'"></span>'
+           	'error'		=> '<span class="form_error" id="'.htmlspecialchars($err_id).'">'.($this->inline_errors?$error:'').'</span>'
         );
         
         // render label(s)
@@ -294,7 +298,8 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
         }
         //*** The New Error JS
 //        $js = "HTML_QuickForm_Renderer_TCMSArray_error(\"".htmlspecialchars($err_id)."\", \"".$error."\")";
-  	eval_js('seterror(\''.$err_id.'\',\''.addslashes($error).'\')');
+    if (!$this->inline_errors)
+      	eval_js('seterror(\''.$err_id.'\',\''.addslashes($error).'\')');
         return $ret;
     }
 
