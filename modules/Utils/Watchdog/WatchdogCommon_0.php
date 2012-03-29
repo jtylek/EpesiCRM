@@ -131,7 +131,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$last_event = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d', array($id,$category_id));
 		if ($last_event===null || $last_event===false) $last_event = -1;
 		DB::Execute('UPDATE utils_watchdog_subscription SET last_seen_event=%d WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($last_event,$user_id,$id,$category_id));
-		DB::Execute('DELETE FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d AND id<(SELECT MIN(last_seen_event) FROM utils_watchdog_subscription WHERE internal_id=%d AND category_id=%d)', array($id,$category_id,$id,$category_id));
+		DB::Execute('DELETE FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d AND (id<(SELECT MIN(last_seen_event) FROM utils_watchdog_subscription WHERE internal_id=%d AND category_id=%d) OR event_time<=%T)', array($id,$category_id,$id,$category_id, date('Y-m-d H:i:s', strtotime('-3 month'))));
 	}
 
 	public static function user_subscribe($user_id, $category_name, $id) {
@@ -179,6 +179,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if ($last_event===false || $last_event===null) $last_event=-1;
 		if ($last_seen==$last_event) return true;
 		$ret = array();
+		
 		$missed_events = DB::Execute('SELECT id,message FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d AND id>%d ORDER BY id ASC', array($id,$category_id,$last_seen));
 		while ($row = $missed_events->FetchRow())
 			$ret[$row['id']] = $row['message'];
