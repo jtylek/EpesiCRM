@@ -773,7 +773,6 @@ class Utils_RecordBrowser extends Module {
 
         if ($pdf) $limit = null;
 		else $limit = $gb->get_limit($this->amount_of_records);
-
         $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 
         if ((Base_AclCommon::i_am_admin() && $this->fullscreen_table) || $this->enable_export)
@@ -2409,6 +2408,7 @@ class Utils_RecordBrowser extends Module {
 
         $clean_order = array();
         foreach($order as $k=>$v) {
+    	    if ($k==':Visited_on') $field_hash[$k] = $k;
             $clean_order[] = array('column'=>$field_hash[$k],'order'=>$field_hash[$k],'direction'=>$v);
         }
         if ($limit!=null && !isset($conf['force_limit'])) {

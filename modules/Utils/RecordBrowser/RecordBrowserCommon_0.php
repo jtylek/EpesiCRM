@@ -1994,8 +1994,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $events_display = array();
             $events = array_reverse($events);
             $other_events = array();
-			$header = false;
+            $header = false;
             foreach ($events as $v) {
+        	if (count($events_display)>20) {
+        		$other_events[self::ts('And more...')] = 1;
+        		break;
+        	}
                 $param = explode('_', $v);
                 switch ($param[0]) {
                     case 'C':   $what = 'Created';
@@ -2008,7 +2012,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									);
                                 break;
                     case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r['id'], $param[1] ,$details);
-								if (!empty($event_display['what'])) $header = true;
+				if (!empty($event_display['what'])) $header = true;
                                 break;
 
                     case 'N':   $event_display = false;
@@ -2042,7 +2046,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if ($event_display) $events_display[] = $event_display;
             }
             foreach ($other_events as $k=>$v)
-				$events_display[] = array('what'=>self::ts($k).($v>1?' ['.$v.']':''));
+		$events_display[] = array('what'=>self::ts($k).($v>1?' ['.$v.']':''));
 
 			$theme = Base_ThemeCommon::init_smarty();
 
