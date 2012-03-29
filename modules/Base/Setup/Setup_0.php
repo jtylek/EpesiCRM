@@ -17,12 +17,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * This class provides for administration of modules.
  */
 class Base_Setup extends Module {
-	private $store = false;
-
-	public function construct() {
-		$this->store = ModuleManager::is_installed('Base/EpesiStore');
-	}
-
 	public function admin($store=false) {
 		$this->body($store);
 	}
@@ -382,6 +376,7 @@ class Base_Setup extends Module {
 				case Base_EpesiStoreCommon::ACTION_DOWNLOAD:
 				case Base_EpesiStoreCommon::ACTION_UPDATE:
 					Base_SetupCommon::refresh_available_modules();
+					Base_BoxCommon::update_version_check_indicator(true);
 					$msg = Base_LangCommon::ts('Base_Setup', 'Download successful');
 					break;
 				case Base_EpesiStoreCommon::ACTION_INSTALL:
@@ -449,7 +444,7 @@ class Base_Setup extends Module {
 			$sorted[$name]['buttons'] = array($button);
 			$sorted[$name]['version'] = $s['version'];
 			$sorted[$name]['filter'] = array('store');
-            if($label == Base_EpesiStoreCommon::ACTION_UPDATE)
+            if($label == Base_EpesiStoreCommon::ACTION_UPDATE || $label == Base_EpesiStoreCommon::ACTION_DOWNLOAD)
                 $sorted[$name]['filter'][] = 'updates';
 			$sorted[$name]['installed'] = null;
 			$sorted[$name]['instalable'] = 0;

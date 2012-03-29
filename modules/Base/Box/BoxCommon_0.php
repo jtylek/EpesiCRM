@@ -59,6 +59,21 @@ class Base_BoxCommon extends ModuleCommon {
         self::_base_box_instance()->push_main($module, $func, $args, $constr_args, $name);
         return false;
     }
+	
+	public static function update_version_check_indicator($force=false) {
+		if (CHECK_VERSION && ModuleManager::is_installed('Base/EpesiStore')>=0) {
+			$version_no = Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION));
+			load_js('modules/Base/Box/check_for_new_version.js');
+			if ($force) eval_js('$("epesi_new_version").done = false;');
+			eval_js('check_for_new_version();');
+			$version_no = '<span id="epesi_new_version">'.Utils_TooltipCommon::create($version_no, Base_LangCommon::ts('Base_Box','Checking if there are updates available...'), false).'</span>';
+			if (isset($_REQUEST['go_to_epesi_store_for_updates'])) {
+				Base_BoxCommon::push_module('Base_EpesiStore', 'admin');
+				return;
+			}
+		}
+		return $version_no;
+	}
 
     /**
      * Get instance of module that is currently on top.

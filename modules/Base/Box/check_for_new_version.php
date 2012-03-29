@@ -16,28 +16,22 @@ define('READ_ONLY_SESSION',1);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-$lastest_version = @file_get_contents('http://www.epesi.org/installer/config.ini');
-if (!$lastest_version) {
-	print(Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION)).'<b>!</b>', Base_LangCommon::ts('Base_Box','Could not retrieve new version information.'), false));
-	return;
-}
+$registered = Base_EssClientCommon::is_registered();
+if (!$registered) return;
 
-preg_match('/epesi\-([^\-]*)\-rev/ms', $lastest_version, $matches);
-if (!isset($matches[1])) {
-	print(Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION)).'<b>!</b>', Base_LangCommon::ts('Base_Box','Could not retrieve new version information.'), false));
-	return;
-}
-if(version_compare(EPESI_VERSION, $matches[1])>=0) {
+$updates = Base_EpesiStoreCommon::is_update_available();
+
+if(!$updates) {
 	print(Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION)), Base_LangCommon::ts('Base_Box','You are using most up-to-date version of EPESI.'), false));
 	return;
 }
 
-if (Base_AclCommon::i_am_sa()) $tooltip = Base_LangCommon::ts('Base_Box','There\'s a new version of EPESI available for download, click to go to download page.');
-else $tooltip = Base_LangCommon::ts('Base_Box','There\'s a new version of EPESI available for download. Please contact your administrator.');
+if (Base_AclCommon::i_am_sa()) $tooltip = Base_LangCommon::ts('Base_Box','There are updates available for download, click to go to EPESI store.');
+else $tooltip = Base_LangCommon::ts('Base_Box','There are updates available for download. Please contact your administrator.');
 
 $message = Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s <b>(Update Available!)</b>',array(EPESI_VERSION)), $tooltip, false);
 
-if (Base_AclCommon::i_am_sa()) $message = '<a href="http://sourceforge.net/projects/epesi/files/" target="_blank" class="version">'.$message.'</a>';
+if (Base_AclCommon::i_am_sa()) $message = '<a '.Module::create_href(array('go_to_epesi_store_for_updates'=>true)).'class="version">'.$message.'</a>';
 
 print($message);
 ?>

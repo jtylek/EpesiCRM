@@ -440,7 +440,23 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         // TODO: change column name in db
         DB::Execute('REPLACE INTO epesi_store_modules(module_id, version, order_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $module_license_id, $file));
     }
-
+	
+	public static function is_update_available() {
+		$store = self::get_modules_all_available();
+		if(!$store)	return false;
+		static $updates = null;
+		if ($updates===null) {
+			$updates = false;
+			foreach ($store as $s) {
+				$label = self::next_possible_action($s['id']);
+				if ($label==self::ACTION_UPDATE) {
+					$updates = true;
+					break;
+				}
+			}
+		}
+		return $updates;
+	}
 }
 
 ?>
