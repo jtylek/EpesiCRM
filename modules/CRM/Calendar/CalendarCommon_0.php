@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_CalendarCommon extends ModuleCommon {
 	public static $last_added = null;
 	public static $mode = 'none';
+	public static $events_limit = 100;
 
 	public static function menu() {
 		if (Utils_RecordBrowserCommon::get_access('crm_meeting','browse'))

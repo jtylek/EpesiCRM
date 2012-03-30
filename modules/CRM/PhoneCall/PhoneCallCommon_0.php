@@ -481,7 +481,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$crits['<=date_and_time'] = $end;
 		$crits['>=date_and_time'] = $start;
 		
-		$ret = Utils_RecordBrowserCommon::get_records('phonecall', $crits, array(), array(), 50);
+		$ret = Utils_RecordBrowserCommon::get_records('phonecall', $crits, array(), array(), CRM_CalendarCommon::$events_limit);
 
 		$result = array();
 		foreach ($ret as $r)

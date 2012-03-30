@@ -152,13 +152,19 @@ add_event_tag:function(dest,ev) {
 			var i = date.indexOf('_');
 			if(i>0) date = date.substr(0,i);
 			b.href = 'javascript:Utils_Calendar.go_to_day("'+date+'")';
-			b.innerHTML = 'too many events - please see daily view';
+			b.innerHTML = 'Too many events - switch to Day view';
 			b.style.position = 'absolute';
-			b.style.backgroundColor='red';
-//			b.setOpacity(0.6);
+			b.style.backgroundColor='#FFCCCC';
+			b.style.color='red';
+			b.style.height='29px';
+			b.style.lineHeight='29px';
+			b.style.fontSize='15px';
+			b.style.fontWeight='bold';
+			b.style.border='2px solid red';
 			b.style.zIndex=20;
 			ev.parentNode.appendChild(b);
 			b.clonePosition(dest);
+			b.style.width=(parseInt(b.style.width)-4)+'px';
 			err_evs = new Array();
 		}
 		err_evs.push(ev.id);
@@ -174,12 +180,13 @@ add_event_tag:function(dest,ev) {
 			err_evs.each(function(id) {
 				$(id).style.display='block';
 			});
+		} else {
 		}
 		ev.style.zIndex=5+offset;
 		ev.clonePosition(dest, {setHeight: false, setWidth: false, offsetLeft: (offset_step*offset)});
+		ev.show();
 	}
 	ev.setAttribute('last_cell',dest.id);
-	ev.show();
 
 
 	Utils_Calendar.reload_event_tag(reload);

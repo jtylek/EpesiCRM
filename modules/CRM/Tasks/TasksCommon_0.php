@@ -361,7 +361,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$crits['<=deadline'] = $end;
 		$crits['>=deadline'] = $start;
 		
-		$ret = Utils_RecordBrowserCommon::get_records('task', $crits, array(), array(), 50);
+		$ret = Utils_RecordBrowserCommon::get_records('task', $crits, array(), array(), CRM_CalendarCommon::$events_limit);
 
 		$result = array();
 		foreach ($ret as $r)

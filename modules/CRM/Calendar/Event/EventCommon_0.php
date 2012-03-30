@@ -67,11 +67,11 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				}
 				$result[] = $v;
 				$count++;
-				if ($count==50) break;
+				if ($count==CRM_CalendarCommon::$events_limit) break;
 			}
-			if ($count==50) break;
+			if ($count==CRM_CalendarCommon::$events_limit) break;
 		}
-		if ($count==50) print('<b>There were too many events to display on the Calendar, please change CRM Filter</b>');
+		if ($count==CRM_CalendarCommon::$events_limit) print('<b>There were too many events to display on the Calendar, please change CRM Filter</b>');
 		return $result;
 	}
 
