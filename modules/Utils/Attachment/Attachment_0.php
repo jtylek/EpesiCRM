@@ -328,7 +328,7 @@ class Utils_Attachment extends Module {
 
 			if(!isset($row['deleted']) || !$row['deleted']) {
         		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
-		    	$r->add_action($this->create_callback_href(array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
+		    	$r->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to cut this note?'), array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
 		    }
 			
 			$text = $icon.$text;
