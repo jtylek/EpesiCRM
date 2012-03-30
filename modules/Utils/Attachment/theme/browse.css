@@ -72,14 +72,10 @@
 	width: 1px;
 }
 
-.Utils_Attachment__browse_panel td.child_button input {
-	height: 30px;
-}
-
 .Utils_Attachment__browse_panel td.epesi_data select {
 	height: 100%;
 }
 .Utils_Attachment__browse_panel td.epesi_data input[type="text"] {
-	height: 28px;
+	height: 16px;
 	width: 80px;
 }
