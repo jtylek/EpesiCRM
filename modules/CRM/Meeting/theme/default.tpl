@@ -125,7 +125,7 @@
                     <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
                             <tr>
-                                <td class="group_bottom label title" align="left">{$form_data.title.label}</td>
+                                <td class="group_bottom label title" align="left">{$form_data.title.label}{if $form_data.title.required}*{/if}</td>
                                 <td class="group_bottom data title" align="left" id="_title__data">
 									<div style="position:relative;">
 										<span class="error">{$form_data.title.error}</span>
@@ -134,7 +134,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="label" align="left">{$form_data.permission.label}</td>
+                                <td class="label" align="left">{$form_data.permission.label}{if $form_data.permission.required}*{/if}</td>
                                 <td class="data permission" align="left" id="_permission__data">
 									<div style="position:relative;">
 										<span class="error">{$form_data.permission.error}</span>
@@ -146,7 +146,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="label" align="left">{$form_data.priority.label}</td>
+                                <td class="label" align="left">{$form_data.priority.label}{if $form_data.priority.required}*{/if}</td>
                                 <td class="data priority" align="left" id="_priority__data">
 									<div style="position:relative;">
 										<span class="error">{$form_data.priority.error}</span>
@@ -158,7 +158,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="label" align="left">{$form_data.status.label}</td>
+                                <td class="label" align="left">{$form_data.status.label}{if $form_data.status.required}*{/if}</td>
                                 <td class="data status" align="left" id="_status__data">
 									<div style="position:relative;">
 										<span class="error">{$form_data.status.error}</span>
@@ -180,7 +180,7 @@
                     {* start - end *}
                     {if $action != 'view'}
                                 <tr>
-                                    <td class="label">{$form_data.date.label}</td>
+                                    <td class="label">{$form_data.date.label}{if $form_data.date.required}*{/if}</td>
                                     <td colspan="2" class="data timestamp">
 										<div style="position:relative;">
 											<span class="error">{$form_data.date.error}</span>
@@ -191,7 +191,7 @@
                                 </tr>
                     {/if}
                             <tr>
-                                <td class="label" align="left">{$form_data.timeless.label}</td>
+                                <td class="label" align="left">{$form_data.timeless.label}{if $form_data.timeless.required}*{/if}</td>
                                 <td class="data" align="left" colspan="2" id="_timeless__data">{$form_data.timeless.html}</td>
                             </tr>
                     {if $action != 'view'}
