@@ -149,23 +149,20 @@ class Utils_Attachment extends Module {
 	//	$form->display();
 		$filter_user = $form->exportValue('filter_user');
 		$filter_text = $form->exportValue('filter_text');
-		$where = '';
-		if($filter_user && is_numeric($filter_user)) {
-			$where .= ' AND uac.created_by='.$filter_user;
-		}
-		if($filter_text) {
-			$where .= ' AND uac.text '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($filter_text),DB::qstr('%'));
-		}
-		
-		
 		$filter_start = $form->exportValue('filter_start');
-		if($filter_start) {
-			$where .= ' AND uac.created_on >= '.DB::qstr($filter_start);
-		}
 		$filter_end = $form->exportValue('filter_end');
-		if($filter_end) {
+
+		$where = '';
+		if($filter_user && is_numeric($filter_user))
+			$where .= ' AND uac.created_by='.$filter_user;
+		if($filter_text) 
+			$where .= ' AND uac.text '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($filter_text),DB::qstr('%'));
+		if($filter_start)
+			$where .= ' AND uac.created_on >= '.DB::qstr($filter_start);
+		if($filter_end)
 			$where .= ' AND uac.created_on <= '.DB::qstr($filter_end.' 23:59:59');
-		}
+		if (!$vd)
+			$where = ' AND ual.deleted=0'.$where;
 		
 		
 		$gb = $this->init_module('Utils/GenericBrowser',null,md5(serialize($this->group)));
@@ -178,15 +175,12 @@ class Utils_Attachment extends Module {
 		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>10,'wrapmode'=>'nowrap');
 		$cols[] = array('name'=>$this->t('Note'), 'width'=>70);
 		$gb->set_table_columns($cols);
-
-		if($vd) {
-			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by, ual.func AS search_func, ual.args AS search_func_args FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)'.$where;
-			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE (false OR ual.local='.$group.')'.$where;
-		} else {
-			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by, ual.func AS search_func, ual.args AS search_func_args FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0'.$where;
-			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND ual.deleted=0'.$where;
-		}
 		
+
+		$query_from = ' FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE ual.local='.$group.' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)'.$where;
+		$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by, ual.func AS search_func, ual.args AS search_func_args'.$query_from;
+		$query_lim = 'SELECT count(ual.id)'.$query_from;
+
 		$gb->set_default_order(array($this->t('Date')=>'DESC'));
 
 		$query_order = $gb->get_query_order('ual.sticky DESC');
