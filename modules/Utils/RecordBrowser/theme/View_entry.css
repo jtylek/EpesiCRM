@@ -43,6 +43,7 @@
 	-moz-border-radius: 4px 0 0 4px;
     border-radius: 4px 0 0 4px;
     height: 20px;
+	white-space: nowrap;
     vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;

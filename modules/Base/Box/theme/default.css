@@ -1018,6 +1018,7 @@ hr.line {
     padding-right: 5px;
     width: 100px;
     text-align: left;
+	white-space: nowrap;
 
 	-webkit-border-radius: 4px 0 0 4px;
 	-moz-border-radius: 4px 0 0 4px;

@@ -1,6 +1,48 @@
 {$form_open}
-
+<div style="white-space: normal;">
+<div style="float:right;">
 <table class="Utils_Attachment__browse_panel">
+	<tr>
+		<td class="epesi_label">
+			{$form_data.filter_text.label}
+		</td>
+		<td class="epesi_data" style="min-width:80px;">
+			{$form_data.filter_text.html}
+		</td>
+		<td class="epesi_label">
+			{$form_data.filter_user.label}
+		</td>
+		<td class="epesi_data" style="min-width:80px;">
+			{$form_data.filter_user.html}
+		</td>
+		<td class="epesi_label">
+			{$form_data.filter_start.label}
+		</td>
+		<td class="epesi_data">
+			{$form_data.filter_start.html}
+		</td>
+		<td class="epesi_label">
+			{$form_data.filter_end.label}
+		</td>
+		<td class="epesi_data">
+			{$form_data.filter_end.html}
+		</td>
+	{if isset($show_deleted)}
+		<td class="epesi_label">
+			{$show_deleted.label}
+		</td>
+		<td class="epesi_data" style="width:25px;nowrap;">
+			<input type="checkbox" {$show_deleted.default} onChange="if(this.checked){$show_deleted.show} else {$show_deleted.hide}" />
+		</td>
+	{/if}
+		<td class="child_button">
+			{$form_data.submit_button.html}
+		</td>
+	</tr>
+</table>
+</div>
+<div style="float:left;">
+<table class="Utils_Attachment__browse_panel" style="width:1px;">
 	<tr>
 		{if isset($new_note)}
 		<td style="width:110px;">
@@ -34,38 +76,8 @@
 			</a>
 		</td>
 	{/if}
-		<td style="width:100%;">
-		</td>
-		<td class="epesi_label">
-			{$form_data.filter_user.label}
-		</td>
-		<td class="epesi_data" style="min-width:80px;">
-			{$form_data.filter_user.html}
-		</td>
-		<td class="epesi_label">
-			{$form_data.filter_start.label}
-		</td>
-		<td class="epesi_data">
-			{$form_data.filter_start.html}
-		</td>
-		<td class="epesi_label">
-			{$form_data.filter_end.label}
-		</td>
-		<td class="epesi_data">
-			{$form_data.filter_end.html}
-		</td>
-	{if isset($show_deleted)}
-		<td class="epesi_label">
-			{$show_deleted.label}
-		</td>
-		<td class="epesi_data" style="width:25px;nowrap;">
-			<input type="checkbox" {$show_deleted.default} onChange="if(this.checked){$show_deleted.show} else {$show_deleted.hide}" />
-		</td>
-	{/if}
-		<td class="child_button">
-			{$form_data.submit_button.html}
-		</td>
 	</tr>
 </table>
-
+</div>
+</div>
 {$form_close}		

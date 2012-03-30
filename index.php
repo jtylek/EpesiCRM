@@ -133,6 +133,7 @@ Please choose epesi version:<ul>
 
 		<head profile="http://www.w3.org/2005/11/profile">
 		<link rel="icon" type="image/png" href="images/favicon.png" />
+		<link rel="apple-touch-icon" href="images/apple-favicon.png" />
 		<title>Epesi</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=8" />

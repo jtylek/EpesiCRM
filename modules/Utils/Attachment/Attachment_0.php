@@ -129,31 +129,32 @@ class Utils_Attachment extends Module {
 		
 		/////tutaj form
 		$form = & $this->init_module('Libs/QuickForm');
-		if($vd) {
-			$query = 'SELECT uac.created_by as note_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) GROUP BY uac.created_by';
-		} else {
-			$query = 'SELECT uac.created_by as note_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0 GROUP BY uac.created_by';
-		}
+		$query = 'SELECT uac.created_by as note_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) '.($vd?'':'AND ual.deleted=0 ').'GROUP BY uac.created_by';
 		$emp_ids = DB::GetCol($query);
 		$emps = array();
 		if($emp_ids) {
   	    	if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-		   	 	$emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id IN ('.implode(',',$emp_ids).') ORDER BY name');
+		   	 	$emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name'),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 AND l.id IN ('.implode(',',$emp_ids).') ORDER BY name');
 			} else{
 				$emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id IN ('.implode(',',$emp_ids).') ORDER BY login');
 			}
 		}	
-	    $form->addElement("select", "filter_user", $this->t("Filter by user:  "), array(''=>'---')+$emps);
+	    $form->addElement("text", "filter_text", $this->t("Search"), array('placeholder'=>$this->t('Keyword...')));
+	    $form->addElement("select", "filter_user", $this->t("Filter by user"), array(''=>'---')+$emps);
 		
-		$form->addElement("datepicker", "filter_start", $this->t("Start date: "));
-		$form->addElement("datepicker", "filter_end", $this->t("End date: "));
+		$form->addElement("datepicker", "filter_start", $this->t("Start date"));
+		$form->addElement("datepicker", "filter_end", $this->t("End date"));
 		
 		$form->addElement('submit', 'submit_button', $this->t('Filter'));
 	//	$form->display();
 		$filter_user = $form->exportValue('filter_user');
+		$filter_text = $form->exportValue('filter_text');
 		$where = '';
 		if($filter_user && is_numeric($filter_user)) {
 			$where .= ' AND uac.created_by='.$filter_user;
+		}
+		if($filter_text) {
+			$where .= ' AND uac.text '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($filter_text),DB::qstr('%'));
 		}
 		
 		

@@ -280,6 +280,7 @@ table#Base_User_Login td.donation_notice a:hover {
 	padding-top: 0px;
 	margin-right: 6px;
 	text-align: center;
+	line-height: 12px;
 }
 
 .epesi_rtl .logged_as {
