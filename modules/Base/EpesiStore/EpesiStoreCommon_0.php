@@ -194,6 +194,9 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             $file = self::download_module_file($module_license);
             self::extract_module_file($file);
             self::store_info_about_downloaded_module($module_license, $file);
+            
+            self::apply_patches();
+            Base_LangCommon::update_langs();
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -248,6 +251,15 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     private static function store_info_about_downloaded_module($module_license, $file) {
         $module_info = self::get_module_info($module_license['module']);
         self::add_downloaded_module($module_info['id'], $module_info['version'], $module_license['id'], $file);
+    }
+    
+    private static function apply_patches() {
+        $patches = PatchUtil::apply_new();
+        foreach($patches as $patch) {
+            if(!$patch->get_apply_success()) {
+                Base_EssClientCommon::add_client_message_error("Patch apply error. See patches log for more information (EPESI_DIR/data/patches_log.txt)");
+            }
+        }
     }
 
     private static function _active_module_license_for_module($module_id) {

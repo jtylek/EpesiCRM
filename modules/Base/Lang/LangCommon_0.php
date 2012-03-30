@@ -35,7 +35,7 @@ class Base_LangCommon extends ModuleCommon {
 	 * @param string string to translate
 	 * @return string
 	 */
-	 public static function ts($group, $original, array $arg=array()) {
+	public static function ts($group, $original, array $arg=array()) {
 		if (!$original) return '';
 		if (self::$tools_installed===null) $tools_installed = (ModuleManager::is_installed('Develop_Translations')>=0);
 		global $translations;
@@ -189,13 +189,74 @@ class Base_LangCommon extends ModuleCommon {
 		$ls_langs = scandir(DATA_DIR.'/Base_Lang/base');
 		$langs = array();
 		foreach ($ls_langs as $entry)
-			if (preg_match('/.\.php$/i', $entry)) {
-				$lang = substr($entry,0,-4);
+			if (pathinfo($entry, PATHINFO_EXTENSION) == 'php') {
+				$lang = pathinfo($entry, PATHINFO_FILENAME);
 				$langs[] = $lang;
 			}
 		file_put_contents(DATA_DIR.'/Base_Lang/cache',implode(',',$langs));
 	}
-	
+    
+    private static function backup_langs_files() {
+        $data_dir = self::Instance()->get_data_dir() . 'base/';
+        $content = scandir($data_dir);
+        $date = date('Y_m_d__H_i_s');
+        foreach ($content as $name) {
+            if ($name == '.' || $name == '..')
+                continue;
+            if (strtolower(pathinfo($name, PATHINFO_EXTENSION)) != 'php')
+                continue;
+            $langcode = strtolower(pathinfo($name, PATHINFO_FILENAME));
+            if (!$langcode)
+                continue;
+            rename($data_dir . $name, $data_dir . $name . '.backup.' . $date);
+        }
+    }
+    
+    private static function get_lang_files_of_installed_modules() {
+        $ret = DB::Execute('SELECT * FROM modules');
+        $files = array();
+        while ($row = $ret->FetchRow()) {
+            $mod_name = $row[0];
+            if ($mod_name == 'Base')
+                continue;
+            if ($mod_name == 'Tests')
+                continue;
+            $directory = 'modules/' . str_replace('_', '/', $mod_name) . '/lang';
+            if (!is_dir($directory))
+                continue;
+            $content = scandir($directory);
+            foreach ($content as $name) {
+                if ($name == '.' || $name == '..' || preg_match('/^[\.~]/', $name))
+                    continue;
+                if (strtolower(pathinfo($name, PATHINFO_EXTENSION)) != 'php')
+                    continue;
+                $langcode = strtolower(pathinfo($name, PATHINFO_FILENAME));
+                if (!array_key_exists($langcode, $files))
+                    $files[$langcode] = array();
+                $files[$langcode][] = "$directory/$name";
+            }
+        }
+        return $files;
+    }
+    
+    public static function update_langs() {
+        error_log('Langup started on ' . date('Y-m-d H:i:s') . ' (admin site) by user with id ' . Acl::get_user() . "\n", 3, 'data/langup.log');
+        self::backup_langs_files();
+        $files = self::get_lang_files_of_installed_modules();
+
+        global $translations;
+        $trans_backup = $translations;
+        foreach ($files as $langcode => $file_array) {
+            $translations = array();
+            foreach ($file_array as $file) {
+                include($file);
+            }
+            self::save($langcode);
+        }
+        $translations = $trans_backup;
+        self::refresh_cache();
+    }
+
 // ********************************************************************\
 // Translation of text with one argument only
 // The directory is parsed using debug_backtrace

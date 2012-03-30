@@ -11,6 +11,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class PatchUtil {
 
+    /**
+     * Apply all new patches
+     * @return Patch[] array of patches applied
+     * @throws ErrorException when log file is unavailable
+     */
     static function apply_new() {
         set_time_limit(0);
         $logfile = DATA_DIR . '/patches_log.txt';
