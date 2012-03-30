@@ -180,11 +180,13 @@ class Base_User_Login extends Module {
 		DB::Execute('INSERT INTO user_reset_pass(user_login_id,hash_id,created_on) VALUES (%d,%s,%T)',array($user_id, $hash,time()));
 		
 		$subject = $this->t('Password recovery');
-		$message = $this->t('A password reset for the account with the e-mail address %s has been requested. 
-If you did not use the Password Recovery form, simply ignore this e-mail and your password will remain unchanged.
+		$message = $this->t('A password recovery for the account with the e-mail address %s has been requested. 
 
 If you want to reset your password, visit the following URL:
 %s
+or just ignore this message and your login and password will remain unchanged.
+
+If you did not use the Password Recovery form, inform your administrator about a potential unauthorized attempt to login using your credentials.
 
 This e-mail was generated automatically and you do not need to respond to it.', array(
 	$mail,
