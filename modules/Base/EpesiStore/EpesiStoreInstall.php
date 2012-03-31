@@ -2,10 +2,10 @@
 
 /**
  * 
- * @author pbukowski@telaxus.com
+ * @author abukowski@telaxus.com
  * @copyright Telaxus LLC
  * @license MIT
- * @version 0.1
+ * @version 1.0
  * @package epesi-Base
  * @subpackage EpesiStore
  */
@@ -38,7 +38,7 @@ class Base_EpesiStoreInstall extends ModuleInstall {
     }
 
     public function version() {
-        return array("0.1");
+        return array("1.0");
     }
 
     public function requires($v) {
