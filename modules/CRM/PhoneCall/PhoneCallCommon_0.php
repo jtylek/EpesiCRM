@@ -41,7 +41,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				}
 				$id = strtolower(str_replace(' ','_',$nr));
 				$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
-				$phone = $l.': '.$cus[$id];
+				$phone = $l.': '.(isset($cus[$id])?$cus[$id]:'error');
 			} else $phone = Base_LangCommon::ts('CRM/PhoneCall','Other').': '.$r['other_phone_number'];
 		} else {
 			$customer = $r['other_customer_name'];

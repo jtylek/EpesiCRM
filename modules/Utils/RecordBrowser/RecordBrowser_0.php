@@ -242,7 +242,7 @@ class Utils_RecordBrowser extends Module {
         $opts = array('all'=>$this->t('All'));
         if ($this->recent>0) $opts['recent'] = $this->t('Recent');
         if ($this->favorites) $opts['favorites'] = $this->t('Favorites');
-        if ($this->watchdog) $opts['watchdog'] = $this->t('Subscribed');
+        if ($this->watchdog) $opts['watchdog'] = $this->t('Watched');
 		
 		if ($this->data_gb->show_all()) {
 			$this->set_module_variable('browse_mode', 'all');
@@ -580,12 +580,12 @@ class Utils_RecordBrowser extends Module {
         } else {
             $table_columns = array();
             if (!$pdf && !$admin && $this->favorites) {
-                $fav = array('name'=>$this->t('Fav'), 'width'=>'24px');
+                $fav = array('name'=>'', 'width'=>'24px');
                 if (!isset($this->force_order)) $fav['order'] = ':Fav';
                 $table_columns[] = $fav;
             }
             if (!$pdf && !$admin && $this->watchdog)
-                $table_columns[] = array('name'=>$this->t('Sub'), 'width'=>'24px');
+                $table_columns[] = array('name'=>'', 'width'=>'24px');
         }
         if (!$this->disabled['quickjump']) $quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         else $quickjump = '';
@@ -826,7 +826,6 @@ class Utils_RecordBrowser extends Module {
             if ($special) {
                 $element = $this->get_module_variable('element');
                 $format = $this->get_module_variable('format_func');
-//              $row_data= array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\');"><img border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
                 $row_data = array('<input type="checkbox" id="leightbox_rpicker_'.$element.'_'.$row['id'].'" formated_name="'.(is_callable($format)?strip_tags(call_user_func($format, $row, true)):'').'" />');
                 $rpicker_ind[] = $row['id'];
             }

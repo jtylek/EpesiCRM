@@ -63,8 +63,9 @@ a.root_item_link {
 	text-decoration: none;
 	white-space: nowrap;
 	z-index: 1000;
-	padding-top: 7px;
-	padding-bottom: 7px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	line-height: 13px;
 }
 
 a.root_item_link_down {
@@ -122,9 +123,9 @@ a.root_item_link_right {
 	text-decoration: none;
 	white-space: nowrap;
 	z-index: 1000;
-	padding-top: 7px;
-	padding-bottom: 7px;
-
+	padding-top: 8px;
+	padding-bottom: 8px;
+	line-height: 13px;
 }
 
 .epesi_rtl a.root_item_link_none,

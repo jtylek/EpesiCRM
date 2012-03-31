@@ -1302,6 +1302,38 @@ class CRM_ContactsCommon extends ModuleCommon {
 			return array('company', $comp['id']);
 		return false;
 	}
+	public static function display_contacts_with_notification($recordset, $record, $nolink, $desc) {
+		$icon_on = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','This person is up to date with all changes made to this record.')).' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png').'"';
+		$icon_off = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','This person has notifications pending about changes made to this record.')).' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png').'"';
+		$icon_none = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','This person is not watching this record.')).' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','not_watching_small.png').'"';
+		$v = $record[$desc['id']];
+		$def = '';
+		$first = true;
+		$param = explode(';',$desc['param']);
+		if (!is_array($v) && !is_numeric($v)) return $v;
+		if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+		else $callback = explode('::', $param[1]);
+		if (!is_array($v)) $v = array($v);
+		foreach($v as $k=>$w){
+			if ($w=='') break;
+			if ($first) $first = false;
+			else $def .= '<br>';
+			$contact = CRM_ContactsCommon::get_contact($w);
+			if (!$nolink) {
+				if ($contact['login']=='') $icon = $icon_none;
+				else {
+					$icon = Utils_WatchdogCommon::user_check_if_notified($contact['login'],$recordset,$record['id']);
+					if ($icon===null) $icon = $icon_none;
+					elseif ($icon===true) $icon = $icon_on;
+					else $icon = $icon_off;
+				}
+				$def .= '<img style="margin-right:4px;" '.$icon.' />';
+			}
+			$def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, $contact, $nolink));
+		}
+		if (!$def) 	$def = '---';
+		return $def;
+	}
 
     //////////////////////////
     // mobile devices

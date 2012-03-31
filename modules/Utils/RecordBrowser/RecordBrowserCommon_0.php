@@ -186,7 +186,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $options = array('all'=>'All');
                 if ($row['favorites']) $options['favorites'] = 'Favorites';
                 if ($row['recent']) $options['recent'] = 'Recent';
-                if (Utils_WatchdogCommon::category_exists($row['tab'])) $options['watchdog'] = 'Subscribed';
+                if (Utils_WatchdogCommon::category_exists($row['tab'])) $options['watchdog'] = 'Watched';
                 $settings[0][] = array('name'=>$row['tab'].'_default_view','label'=>$row['caption'],'type'=>'select','values'=>$options,'default'=>'all');
             }
             if ($row['favorites'])

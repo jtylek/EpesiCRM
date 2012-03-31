@@ -46,12 +46,12 @@ class Utils_Watchdog extends Module {
 					);
 		if (count($categories)==1) {
 			$title = call_user_func($methods[$categories[0]]);
-			$opts['title'] = Base_LangCommon::ts('Utils/Watchdog','Subscriptions - ').$title['category'];
+			$opts['title'] = Base_LangCommon::ts('Utils/Watchdog','Watchdog - ').$title['category'];
 			$header = array(array('name'=>$this->t('Title')));
 		} elseif (count($categories)==count($methods)) {
-			$opts['title'] = Base_LangCommon::ts('Utils/Watchdog','Subscriptions - All');
+			$opts['title'] = Base_LangCommon::ts('Utils/Watchdog','Watchdog - All');
 		} else {
-			$opts['title'] = Base_LangCommon::ts('Utils/Watchdog','Subscriptions - Selection');
+			$opts['title'] = Base_LangCommon::ts('Utils/Watchdog','Watchdog - Selection');
 		}
 		if (isset($conf['only_new']) && $conf['only_new']) $only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
 		else $only_new = '';
@@ -68,7 +68,6 @@ class Utils_Watchdog extends Module {
 			$data = call_user_func($methods[$v], $k, $changes);
 			if ($data==null) continue;
 			$gb_row = $gb->get_new_row();
-//			Utils_WatchdogCommon::get_change_subscription_icon($v,$k),
 			if (count($categories)==1) {
 				$gb_row->add_data(
 					$data['title']
@@ -79,13 +78,12 @@ class Utils_Watchdog extends Module {
 					$data['title']
 				);
 			}
-			$gb_row->add_action(Utils_WatchdogCommon::get_confirm_change_subscr_href($v, $k),'Unsubscribe',$this->t('Click to unsubscribe'), Base_ThemeCommon::get_template_file('Utils/Watchdog','unsubscribe_small_new_events.png'));
+			$gb_row->add_action(Utils_WatchdogCommon::get_confirm_change_subscr_href($v, $k),'Stop Watching',$this->t('Click to stop watching this record for changes'), Base_ThemeCommon::get_template_file('Utils/Watchdog','watching_small_new_events.png'));
 			$gb_row->add_action($data['view_href'],'View');
 			if ($only_new || Utils_WatchdogCommon::check_if_notified($v, $k)!==true) {
-//				$gb_row->add_action($this->create_callback_href(array($this,'notified'), array($v, $k)),'Restore','Mark as read');
 				$gb_row->set_attrs('name="watchdog_table_row_'.$v.'__'.$k.'"');
 				load_js('modules/Utils/Watchdog/applet_mark_as_read.js');
-				$gb_row->add_action('href="javascript:void(0);" onclick="watchdog_applet_mark_as_read(\''.$v.'__'.$k.'\')"','Restore',$this->t('Mark as read'));
+				$gb_row->add_action('href="javascript:void(0);" onclick="watchdog_applet_mark_as_read(\''.$v.'__'.$k.'\')"',Base_ThemeCommon::get_template_file('Utils/Watchdog','mark_as_read.png'),$this->t('Mark as read'));
 				$something_to_purge = true;
 			}
 			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events'], true);
@@ -96,7 +94,7 @@ class Utils_Watchdog extends Module {
 		if ($records_qty>15 && $count==15)
 			print($this->t('Displaying %s of %s records', array($count, $records_qty)));
 		$this->set_module_variable('display_at_time', time());
-		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Mark all entries as read')).' '.$this->create_confirm_callback_href($this->t('This will update all of your subscriptions status in selected categories, are you sure you want to continue?'),array($this,'purge_subscriptions_applet'), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
+		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Mark all entries as read')).' '.$this->create_confirm_callback_href($this->t('This will mark all entries in selected categories as read, are you sure you want to continue?'),array($this,'purge_subscriptions_applet'), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
 		$this->display_module($gb);
 	}
 

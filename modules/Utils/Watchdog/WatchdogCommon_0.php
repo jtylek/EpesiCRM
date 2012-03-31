@@ -22,7 +22,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	}
 
 	public static function applet_caption() {
-		return "Subscriptions";
+		return "Watchdog";
 	}
 	public static function applet_info() {
 		return "Helps tracking changes made in the system";
@@ -159,7 +159,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				if ($user_id==Acl::get_user()) self::notified($category_name, $id);
 			}
 		}
-		if (self::$log) error_log('User '.$user_id.' '.($already_subscribed?'un':'').'subscribed to '.$category_name.':'.$id."\n",3,'data/subscriptions.log');
+		if (self::$log) error_log('User '.$user_id.' '.($already_subscribed?'un-':'').'watched '.$category_name.':'.$id."\n",3,'data/subscriptions.log');
 	}
 
 	public static function user_unsubscribe($user_id, $category_name, $id) {
@@ -187,7 +187,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	}
 	
 	public static function user_get_confirm_change_subscr_href($user, $category_name, $id=null) {
-		return Module::create_confirm_href(Base_LangCommon::ts('Utils/Watchdog','Are you sure you want to unsubscribe this record?'),self::user_get_change_subscr_href_array($user, $category_name, $id));
+		return Module::create_confirm_href(Base_LangCommon::ts('Utils/Watchdog','Are you sure you want to stop watching this record?'),self::user_get_change_subscr_href_array($user, $category_name, $id));
 	}
 	public static function user_get_change_subscr_href($user, $category_name, $id=null) {
 		return Module::create_href(self::user_get_change_subscr_href_array($user, $category_name, $id));
@@ -234,16 +234,17 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return self::user_get_confirm_change_subscr_href(Acl::get_user(), $category_name, $id);
 	}
 	public static function add_actionbar_change_subscription_button($category_name, $id=null) {
+		return; // function disabled
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		$href = self::get_change_subscr_href($category_name, $id);
 		$subscribed = self::check_if_user_subscribes(Acl::get_user(), $category_id, $id);
 		if ($subscribed) {
-			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','unsubscribe_big.png');
-			$label = 'Unsubscribe';
+			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','unwatch_big.png');
+			$label = 'Stop Watching';
 		} else {
-			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','subscribe_big.png');
-			$label = 'Subscribe';
+			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watch_big.png');
+			$label = 'Watch';
 		}
 		Base_ActionBarCommon::add($icon,$label,$href);
 	}
@@ -268,16 +269,16 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$tag_id = 'watchdog_sub_button_'.$category_name.'_'.$id;
 		$href = ' onclick="utils_watchdog_set_subscribe('.(($last_seen===null)?1:0).',\''.$category_name.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"';
 		if ($last_seen===null) {
-			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','subscribe_small.png');
-			$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','Click to subscribe this record.'));
+			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','not_watching_small.png');
+			$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','Click to watch this record for changes.'));
 		} else {
 			if ($last_seen===true) {
-				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','unsubscribe_small.png');
-				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are subscribing this record. Click to unsubscribe.'));
+				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png');
+				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are watching this record, click to stop watching this record for changes.'));
 			} else {
-				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','unsubscribe_small_new_events.png');
+				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
 				$ev = self::display_events($category_id, $last_seen, $id);
-				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are subscribing this record. Click to unsubscribe.<br>The following changes were made since the last time you were viewing this record:<br><br>%s',array($ev['events'])));
+				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are watching this record, click to stop watching this record for changes.').'<br>'.Base_LangCommon::ts('Utils_Watchdog','The following changes were made since the last time you were viewing this record:<br><br>%s',array($ev['events'])));
 			}
 		}
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
@@ -296,7 +297,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			if (!is_array($changes)) $changes = array();
 			$data = call_user_func($methods[$v['category_id']], $v['internal_id'], $changes, false);
 			if ($data==null) continue;
-			$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = Base_LangCommon::ts('Utils_Watchdog','<b>Subscriptions - %s:</b>', array($data['category'])).' '.$data['title'];
+			$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = Base_LangCommon::ts('Utils_Watchdog','<b>Watchdog - %s:</b>', array($data['category'])).' '.$data['title'];
 			if (isset($data['events']) && $data['events'])
 				$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] .= '<br><font size=-5 color=gray>'.$data['events'].'</font>';
 		}

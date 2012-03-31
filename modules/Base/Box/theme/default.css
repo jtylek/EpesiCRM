@@ -1088,7 +1088,7 @@ hr.line {
     border-radius: 4px 0 0 4px;
 }
 .epesi_data > div {
-	height: 20px;
+	min-height: 20px;
 }
 
 .epesi_data select {

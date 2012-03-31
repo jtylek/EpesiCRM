@@ -319,36 +319,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		else return array();
 	}
 	public static function display_employees($record, $nolink, $desc) {
-		$icon_on = Base_ThemeCommon::get_template_file('images/active_on.png');
-		$icon_off = Base_ThemeCommon::get_template_file('images/active_off.png');
-		$icon_none = Base_ThemeCommon::get_template_file('images/active_off2.png');
-		$v = $record[$desc['id']];
-		$def = '';
-		$first = true;
-		$param = explode(';',$desc['param']);
-		if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
-		else $callback = explode('::', $param[1]);
-		if (!is_array($v)) $v = array($v);
-		foreach($v as $k=>$w){
-			if ($w=='') break;
-			if ($first) $first = false;
-			else $def .= '<br>';
-			$contact = CRM_ContactsCommon::get_contact($w);
-			if (!$nolink) {
-				if ($contact['login']=='') $icon = $icon_none;
-				else {
-//					trigger_error(print_r($record,true));
-					$icon = Utils_WatchdogCommon::user_check_if_notified($contact['login'],'crm_meeting',$record['id']);
-					if ($icon===null) $icon = $icon_none;
-					elseif ($icon===true) $icon = $icon_on;
-					else $icon = $icon_off;
-				}
-				$def .= '<img src="'.$icon.'" />';
-			}
-			$def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, $contact, $nolink));
-		}
-		if (!$def) 	$def = '---';
-		return $def;
+		return CRM_ContactsCommon::display_contacts_with_notification('crm_meeting', $record, $nolink, $desc);
 	}
     public static function display_title($record, $nolink=false) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('crm_meeting', 'Title', $record, $nolink);
