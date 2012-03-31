@@ -2810,6 +2810,11 @@ function update_from_1_2_1_to_1_2_2() {
 }
 //=========================================================================
 
+$versions[] = '1.3';
+function update_from_1_2_2_to_1_3() {
+	PatchUtil::apply_new();
+}
+
 try {
 $cur_ver = Variable::get('version');
 } catch(Exception $s) {
@@ -2823,11 +2828,13 @@ require_once('include.php');
 @set_time_limit(0);
 
 //restore innodb tables in case of db reimport
-$tbls = DB::MetaTables('TABLE',true);
-foreach($tbls as $t) {
-    $tbl = DB::GetRow('SHOW CREATE TABLE '.$t);
-    if(!isset($tbl[1]) || preg_match('/ENGINE=myisam/i',$tbl[1]))
-        DB::Execute('ALTER TABLE '.$t.' ENGINE = INNODB');
+if (strcasecmp(DATABASE_DRIVER,"postgres")!==0) {
+	$tbls = DB::MetaTables('TABLE',true);
+	foreach($tbls as $t) {
+		$tbl = DB::GetRow('SHOW CREATE TABLE '.$t);
+		if(!isset($tbl[1]) || preg_match('/ENGINE=myisam/i',$tbl[1]))
+			DB::Execute('ALTER TABLE '.$t.' ENGINE = INNODB');
+	}
 }
 
 ModuleManager::create_common_cache();
