@@ -99,7 +99,7 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 	var $hasGenID = true;
 	var $_genIDSQL = "SELECT NEXTVAL('%s')";
 	var $_genSeqSQL = "CREATE SEQUENCE %s START %s";
-	var $_dropSeqSQL = "DROP SEQUENCE %s";
+	var $_dropSeqSQL = "DROP SEQUENCE IF EXISTS %s";
 	var $metaDefaultsSQL = "SELECT d.adnum as num, d.adsrc as def from pg_attrdef d, pg_class c where d.adrelid=c.oid and c.relname='%s' order by d.adnum";
 	var $random = 'random()';		/// random function
 	var $autoRollback = true; // apparently pgsql does not autorollback properly before php 4.3.4

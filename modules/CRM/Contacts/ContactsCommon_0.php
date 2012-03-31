@@ -777,6 +777,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
     public static function QFfield_access(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if (!Base_AclCommon::i_am_admin()) return;
+        if ($mode=='view' && !Utils_RecordBrowser::$last_record['login']) return;
 		$data = Utils_CommonDataCommon::get_translated_tree('Contacts/Access');
 		if (!is_array($data)) $data = array();
 		$form->addElement('multiselect', $field, $label, $data, array('id'=>$field));

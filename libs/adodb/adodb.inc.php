@@ -1082,7 +1082,7 @@
 	function DropSequence($seqname='adodbseq')
 	{
 		if (empty($this->_dropSeqSQL)) return false;
-		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
+		return @$this->Execute(sprintf($this->_dropSeqSQL,$seqname));
 	}
 
 	/**

@@ -200,7 +200,7 @@ class CRM_Filters extends Module {
 			Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 			Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
 
-			$form->display();
+			$form->display_as_column();
 		}
 
 		return true;

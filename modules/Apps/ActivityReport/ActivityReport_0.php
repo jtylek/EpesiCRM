@@ -80,11 +80,11 @@ class Apps_ActivityReport extends Module {
 		}
 		if (isset($filters['edit'])) {
 			if (!isset($filters['delete_restore'])) {
-				$e_where[] = ' ehd.field!="id"';
+				$e_where[] = ' ehd.field!='.DB::qstr('id');
 			}
 		} else {
 			if (isset($filters['delete_restore'])) {
-				$e_where[] = ' ehd.field="id"';
+				$e_where[] = ' ehd.field='.DB::qstr('id');
 			}
 		}
 		$an_where = $af_where;
@@ -109,22 +109,22 @@ class Apps_ActivityReport extends Module {
 
 		// **** files ****
 		if (isset($filters['file']))
-			$tables[] = 'SELECT uaf.revision AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, "" AS tab, "file" AS action FROM utils_attachment_file uaf LEFT JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE original!="" AND '.$af_where;
+			$tables[] = 'SELECT uaf.revision AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('file').' AS action FROM utils_attachment_file uaf LEFT JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE original!='.DB::qstr('').' AND '.$af_where;
 		// **** notes ****
 		if (isset($filters['note']))
-			$tables[] = 'SELECT uan.revision AS id,uan.created_on AS edited_on,uan.created_by AS edited_by, ual.local AS r_id, "" AS tab, "note" AS action FROM utils_attachment_note uan LEFT JOIN utils_attachment_link ual ON uan.attach_id=ual.id WHERE '.$an_where;
+			$tables[] = 'SELECT uan.revision AS id,uan.created_on AS edited_on,uan.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('note').' AS action FROM utils_attachment_note uan LEFT JOIN utils_attachment_link ual ON uan.attach_id=ual.id WHERE '.$an_where;
 		// **** edit ****
 		if (isset($filters['edit']) || isset($filters['delete_restore']))
 			foreach($rb_tabs as $k=>$t)
-				$tables[] = 'SELECT id, edited_on, edited_by, '.$k.'_id as r_id, "'.$k.'" as tab, "edit" as action FROM '.$k.'_edit_history eh LEFT JOIN '.$k.'_edit_history_data ehd ON ehd.edit_id=eh.id'.$e_where;
+				$tables[] = 'SELECT id, edited_on, edited_by, '.$k.'_id as r_id, '.DB::qstr($k).' as tab, '.DB::qstr('edit').' as action FROM '.$k.'_edit_history eh LEFT JOIN '.$k.'_edit_history_data ehd ON ehd.edit_id=eh.id'.$e_where;
 		// **** create ****
 		if (isset($filters['new']))
 			foreach($rb_tabs as $k=>$t)
-				$tables[] = 'SELECT 0 AS id, created_on AS edited_on, created_by AS edited_by, id as r_id, "'.$k.'" as tab, "create" as action FROM '.$k.'_data_1'.$c_where;
+				$tables[] = 'SELECT 0 AS id, created_on AS edited_on, created_by AS edited_by, id as r_id, '.DB::qstr($k).' as tab, '.DB::qstr('create').' as action FROM '.$k.'_data_1'.$c_where;
 	
 		if (!empty($tables)) {
 			$tables = implode(' UNION ', $tables);
-			$limit = DB::GetOne('SELECT COUNT(*) FROM ('.$tables.') AS tmp ORDER BY edited_on DESC');
+			$limit = DB::GetOne('SELECT COUNT(*) FROM ('.$tables.') AS tmp');
 			$limit = $gb->get_limit($limit);
 			$ret = DB::SelectLimit('SELECT * FROM ('.$tables.') AS tmp ORDER BY edited_on DESC', $limit['numrows'], $limit['offset']);
 			while ($row=$ret->FetchRow()) {

@@ -29,11 +29,6 @@ foreach ($tables as $tab) {
 
 Utils_RecordBrowserCommon::new_record_field('contact', array('name'=>'Login Panel',		'type'=>'page_split', 'param'=>1));
 
-$pos = DB::GetOne('SELECT position FROM contact_field WHERE field=%s', array('Login'));
-DB::Execute('UPDATE contact_field SET position=position-1 WHERE position>%d', array($pos));
-$pos = DB::GetOne('SELECT MAX(position) FROM contact_field');
-DB::Execute('UPDATE contact_field SET position=%d, style=%s WHERE field=%s', array($pos+1,'','Login'));
-
 $fields = array(
 	array('name'=>'Username', 		'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_username')),
 	array('name'=>'Set Password', 	'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_password')),
@@ -44,6 +39,11 @@ $fields = array(
 
 foreach ($fields as $f)
 	Utils_RecordBrowserCommon::new_record_field('contact', $f);
+
+$pos = DB::GetOne('SELECT position FROM contact_field WHERE field=%s', array('Login'));
+$pos2 = DB::GetOne('SELECT position FROM contact_field WHERE field=%s', array('Username'));
+DB::Execute('UPDATE contact_field SET position=position-1 WHERE position>%d AND position<%d', array($pos, $pos2));
+DB::Execute('UPDATE contact_field SET position=%d, style=%s WHERE field=%s', array($pos2-1,'','Login'));
 
 Utils_CommonDataCommon::extend_array('Contacts/Access',array('manager'=>'Manager'));
 

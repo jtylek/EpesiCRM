@@ -1,14 +1,16 @@
 {$form_open}
 
-		{php}
-			//print_r($this->_tpl_vars['form_data']);
-		{/php}
-<table style="border-spacing: 3px;">
+{foreach from=$form_data.header item=h}
+	<div class="epesi_label header" style="width:700px;">
+		{$h}
+	</div>
+{/foreach}
+<table style="border-spacing: 3px; width:500px;">
 	{foreach from=$form_data item=f}
 		{if is_array($f) && isset($f.type) && $f.type!='hidden' && $f.type!='button' && $f.type!='submit'}
 		<tr>
 			<td class="epesi_label" style="white-space: nowrap;">
-				{$f.label}
+				{$f.label}{if $f.required}*{/if}
 			</td>
 			<td class="epesi_data" style="min-width: 200px;">
 				<div style="position: relative;">
