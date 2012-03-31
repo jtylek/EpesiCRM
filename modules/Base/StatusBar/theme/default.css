@@ -60,7 +60,7 @@
 }
 .Base_StatusBar .normal.message {
 	background-image: none;
-	background-color: #EEEEBB;
+	background-color: #EEEEFF;
 }
 .Base_StatusBar .warning.message {
 	background-image: none;
@@ -68,6 +68,7 @@
 	color: #000000;
 }
 .Base_StatusBar .error.message {
+	background-image: none;
 	background-color: #993333;
     color: #FFFFFF;
 }
