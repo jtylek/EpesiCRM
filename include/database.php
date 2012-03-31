@@ -34,21 +34,22 @@ class DB {
 			$new = NewADOConnection(DATABASE_DRIVER);
 			$new->autoRollback = true; // default is false 
 			if(!@$new->NConnect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
-    			die("Connect to database failed");
-            if(strcasecmp(DATABASE_DRIVER,"postgres")!==0)
-	    		$new->Execute('SET NAMES "utf8"');
-			return $new;
+				die("Connect to database failed");
+		} else {
+			self::$ado = NewADOConnection(DATABASE_DRIVER);
+			self::$ado->autoRollback = true; // default is false 
+			if(!@self::$ado->Connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
+					die("Connect to database failed");
+			$new = self::$ado;
 		}
-		self::$ado = NewADOConnection(DATABASE_DRIVER);
-		self::$ado->autoRollback = true; // default is false 
-//		$errh = DB::$ado->raiseErrorFn;
-//		DB::$ado->raiseErrorFn = false;
-		if(!@self::$ado->Connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
-    			die("Connect to database failed");
-//  		DB::$ado->raiseErrorFn = $errh;
-        if(strcasecmp(DATABASE_DRIVER,"postgres")!==0)
-    		self::$ado->Execute('SET NAMES "utf8"');
-	//        DB::Execute('SET CHARACTER SET utf8');
+        if(strcasecmp(DATABASE_DRIVER,"postgres")!==0) {
+			// For MySQL
+    		$new->Execute('SET NAMES "utf8"');
+		} else {
+			// For PostgreSQL
+			$new->Execute('SET bytea_output = "escape";');
+		}
+		return $new;
 	}
 
 	/**
