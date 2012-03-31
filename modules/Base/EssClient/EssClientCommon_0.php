@@ -18,9 +18,9 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     public static function menu() {
         if (!Base_AclCommon::i_am_sa())
             return;
-        $text = 'Epesi registration';
+        $text = 'EPESI registration';
         if (!self::get_license_key()) {
-            $text = 'Register Epesi!';
+            $text = 'Register EPESI!';
         }
         return array('Help' => array('__submenu__' => 1, $text => array()));
     }
@@ -143,7 +143,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function admin_caption() {
-        return "Epesi Registration";
+        return "EPESI Registration";
     }
 
     public static function get_support_email() {
