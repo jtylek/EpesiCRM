@@ -16,7 +16,7 @@ date_default_timezone_set(SYSTEM_TIMEZONE);
 <html>
 <head>
 	  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-	  <title>epesi setup</title>
+	  <title>EPESI setup</title>
 	  <link href="setup.css" type="text/css" rel="stylesheet"/>
 </head>
 <body>
@@ -45,7 +45,7 @@ if(file_exists('easyinstall.php')){
 
 
 if(trim(ini_get("safe_mode")))
-	die('You cannot use epesi with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and will be removed in PHP 6.0.');
+	die('You cannot use EPESI with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and will be removed in PHP 6.0.');
 
 if(file_exists(DATA_DIR.'/config.php'))
 	die('Cannot write into '.DATA_DIR.'/config.php file. Please delete this file.');
@@ -57,13 +57,13 @@ if(!is_writable(DATA_DIR))
 require_once('modules/Libs/QuickForm/requires.php');
 
 if(!isset($_GET['license'])) {
-	print('<h1>Welcome to epesi framework setup!<br></h1><div class="license">');
+	print('<h1>Welcome to EPESI setup!<br></h1><div class="license">');
 	license();
 		print('</div><CENTER><br><h2>By clicking on Accept button you agree to the above License terms.</h2>');
 		print('<br><a class="button" href="setup.php?license=1">Accept</a></CENTER>');
 } elseif(!isset($_GET['htaccess'])) {
 	ob_start();
-	print('<h1>Welcome to epesi framework setup!<br></h1><h2>Hosting compatibility:</h2><br><div class="license">');
+	print('<h1>Welcome to EPESI setup!<br></h1><h2>Hosting compatibility:</h2><br><div class="license">');
 	if(check_htaccess()) {
 		$_GET['htaccess'] = 1;
 		ob_end_clean();
@@ -201,7 +201,7 @@ function check_htaccess() {
 	if(!isset($ret)) {
 		unlink('data/.htaccess');
 		unlink('data/test.php');
-		print('Unable to check epesi root .htaccess file hosting compatibility. You should tweak it yourself. <br>Suggested .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
+		print('Unable to check EPESI root .htaccess file hosting compatibility. You should tweak it yourself. <br>Suggested .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
 		return false;
 	}
 	if($ret!=="OK") {
@@ -219,13 +219,13 @@ function check_htaccess() {
 		if($ret!=="OK") {
 			unlink('data/.htaccess');
 			unlink('data/test.php');
-			print('Your hosting is not compatible with default epesi root .htaccess file. You should tweak it yourself. <br>Default .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
+			print('Your hosting is not compatible with default EPESI root .htaccess file. You should tweak it yourself. <br>Default .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
 			return false;
 		}
 	}
 	if(!is_writable('.')) {
 		unlink('data/test.php');
-		print('Your hosting is compatible with default epesi root .htaccess file, but installer cannot write to epesi root directory. You should paste following text to .htaccess file manually.<pre>'.file_get_contents('data/.htaccess').'</pre>');
+		print('Your hosting is compatible with default EPESI root .htaccess file, but installer cannot write to EPESI root directory. You should paste following text to .htaccess file manually.<pre>'.file_get_contents('data/.htaccess').'</pre>');
 		unlink('data/.htaccess');
 		return false;
 	}
@@ -327,7 +327,7 @@ define(\'GZIP_HISTORY\',1);
 define(\'MINIFY_ENCODE\',1);
 
 /*
- * Show donation links in epesi
+ * Show donation links in EPESI
  */
 define(\'SUGGEST_DONATION\',1);
 

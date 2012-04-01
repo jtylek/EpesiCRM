@@ -2815,17 +2815,17 @@ function update_from_1_2_2_to_1_3() {
 	PatchUtil::apply_new();
 }
 
-try {
-$cur_ver = Variable::get('version');
-} catch(Exception $s) {
-$cur_ver = '0.8.5';
-}
 $go=false;
 $last_ver = '';
 define('CID',false);
 define('UPDATING_EPESI',true);
 require_once('include.php');
 @set_time_limit(0);
+try {
+$cur_ver = Variable::get('version');
+} catch(Exception $s) {
+$cur_ver = '0.8.5';
+}
 
 //restore innodb tables in case of db reimport
 if (strcasecmp(DATABASE_DRIVER,"postgres")!==0) {

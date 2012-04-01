@@ -195,7 +195,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function client_messages_load_by_js() {
-        load_js(__DIR__ . '/messages_hiding.js');
+        load_js(dirname(__FILE__) . '/messages_hiding.js');
         eval_js('$("client_messages_frame_content").innerHTML = ' . json_encode(self::format_client_messages()));
         eval_js('set_client_messages_frame_id("client_messages_frame");');
     }
