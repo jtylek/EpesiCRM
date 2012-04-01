@@ -7,7 +7,7 @@
  * @license MIT
  * @package epesi-base
  */
-defined("_VALID_ACCESS") || die('Direct access forbidden');
+defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 
 include_once('include/misc.php');
 
@@ -2815,17 +2815,20 @@ function update_from_1_2_2_to_1_3() {
 	PatchUtil::apply_new();
 }
 
+define('CID',false);
+define('UPDATING_EPESI',true);
+require_once('include.php');
+ModuleManager::load_modules();
+@set_time_limit(0);
+
 try {
 $cur_ver = Variable::get('version');
 } catch(Exception $s) {
 $cur_ver = '0.8.5';
 }
+if ($cur_ver==EPESI_VERSION && !Base_AclCommon::i_am_sa()) die('Unauthorized access');
 $go=false;
 $last_ver = '';
-define('CID',false);
-define('UPDATING_EPESI',true);
-require_once('include.php');
-@set_time_limit(0);
 
 //restore innodb tables in case of db reimport
 if (strcasecmp(DATABASE_DRIVER,"postgres")!==0) {
@@ -2857,11 +2860,12 @@ foreach($versions as $v) {
 @unlink(DATA_DIR.'/cache/common.php');
 @recursive_rmdir(DATA_DIR.'/cache/minify');
 
-ModuleManager::create_load_priority_array();
-
 themeup();
 langup();
 Base_ThemeCommon::create_cache();
+ModuleManager::create_load_priority_array();
 
 Variable::set('version',EPESI_VERSION);
+
+if (!isset($_GET['up'])) print('Tool finished sucesfully');
 ?>
