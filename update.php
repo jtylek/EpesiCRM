@@ -2285,7 +2285,7 @@ function update_from_1_1_4_to_1_1_5() {
     }
     
     if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-        $pp = DB::GetOne('SELECT 1 FROM company_field WHERE field="Parent Company"');
+        $pp = DB::GetOne('SELECT 1 FROM company_field WHERE field=%s', array('Parent Company'));
         if($pp) {
             if (ModuleManager::is_installed('CRM_Contacts_ParentCompany')==-1) {
                 DB::Execute('INSERT INTO modules(name,version,priority) VALUES ("CRM_Contacts_ParentCompany",0,0)');
@@ -2300,7 +2300,7 @@ function update_from_1_1_4_to_1_1_5() {
 
     ob_start();
     ModuleManager::install('Libs_CKEditor');
-    DB::Execute('DELETE FROM modules WHERE name="Libs_FCKeditor"');
+    DB::Execute('DELETE FROM modules WHERE name=%s', array('Libs_FCKeditor'));
     ob_end_clean();
 
     if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
@@ -2458,7 +2458,7 @@ function update_from_1_1_5_to_1_1_6() {
 		ModuleManager::remove_data_dir('Libs_Lytebox');
     }
 
-    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Apps_StaticPage')) && !is_dir('modules/Apps/StaticPage')) {
+    if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Apps_StaticPage'))) {
         DB::Execute('DELETE FROM modules WHERE name=%s',array('Apps_StaticPage'));
         Base_ThemeCommon::uninstall_default_theme('Apps_StaticPage');
 		ModuleManager::remove_data_dir('Apps_StaticPage');
@@ -2722,7 +2722,7 @@ function update_from_1_2_0_to_1_2_1() {
     }
 
 if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-    if(!DB::GetOne('SELECT 1 FROM recordbrowser_datatype WHERE type="email"'))
+    if(!DB::GetOne('SELECT 1 FROM recordbrowser_datatype WHERE type=%s', array('email')))
 	Utils_RecordBrowserCommon::register_datatype('email', 'CRM_ContactsCommon', 'email_datatype');
     Utils_RecordBrowserCommon::set_QFfield_callback('contact', 'Email', 'CRM_ContactsCommon::QFfield_unique_email');
     Utils_RecordBrowserCommon::set_QFfield_callback('company', 'Email', 'CRM_ContactsCommon::QFfield_unique_email');
@@ -2741,7 +2741,7 @@ if (ModuleManager::is_installed('CRM/Roundcube')>=0) {
 	Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', 'Attachments');
 	Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_headers_addon', 'Headers');
 
-        if(!DB::GetOne('SELECT 1 FROM rc_accounts_field WHERE field="Account Name"')) {
+        if(!DB::GetOne('SELECT 1 FROM rc_accounts_field WHERE field=%s', array('Account Name'))) {
         	Utils_RecordBrowserCommon::new_record_field('rc_accounts',
 	        	array('name'=>'Account Name',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>32, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_account_name'), 'position'=>'Email'));
         	DB::Execute('UPDATE rc_accounts_data_1 SET f_account_name=f_email');
@@ -2803,8 +2803,8 @@ function update_from_1_2_1_to_1_2_2() {
 
 
     if (ModuleManager::is_installed('CRM_Roundcube') >= 0) {
-        DB::Execute('UPDATE recordbrowser_addon SET label="e-mails" where label="Mails"');
-        DB::Execute('UPDATE recordbrowser_addon SET label="e-mail addresses" where label="Mail addresses"');
+        DB::Execute('UPDATE recordbrowser_addon SET label=%s where label=%s', array('e-mails','Mails'));
+        DB::Execute('UPDATE recordbrowser_addon SET label=%s where label=%s', array('e-mail addresses', 'Mail addresses'));
     }
 
 }
@@ -2815,20 +2815,17 @@ function update_from_1_2_2_to_1_3() {
 	PatchUtil::apply_new();
 }
 
-define('CID',false);
-define('UPDATING_EPESI',true);
-require_once('include.php');
-ModuleManager::load_modules();
-@set_time_limit(0);
-
 try {
 $cur_ver = Variable::get('version');
 } catch(Exception $s) {
 $cur_ver = '0.8.5';
 }
-if ($cur_ver==EPESI_VERSION && !Base_AclCommon::i_am_sa()) die('Unauthorized access');
 $go=false;
 $last_ver = '';
+define('CID',false);
+define('UPDATING_EPESI',true);
+require_once('include.php');
+@set_time_limit(0);
 
 //restore innodb tables in case of db reimport
 if (strcasecmp(DATABASE_DRIVER,"postgres")!==0) {
@@ -2859,6 +2856,8 @@ foreach($versions as $v) {
 }
 @unlink(DATA_DIR.'/cache/common.php');
 @recursive_rmdir(DATA_DIR.'/cache/minify');
+
+if ($cur_ver==EPESI_VERSION && !Base_AclCommon::i_am_sa()) die('Unauthorized access');
 
 themeup();
 langup();
