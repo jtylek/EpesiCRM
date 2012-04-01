@@ -363,7 +363,7 @@ class Base_Setup extends Module {
     public static function response_callback($action, $ret) {
 		if ($ret!==true) {
 			$msg = Base_LangCommon::ts('Base_Setup', 'Error');
-			if (is_string($msg)) $msg .= ': '.Base_LangCommon::ts('Base_Setup', $ret);
+			if (is_string($ret) && $ret) $msg .= ': '.Base_LangCommon::ts('Base_Setup', $ret);
 			Base_StatusBarCommon::message($msg, 'error');
 		} else {
 			switch ($action) {

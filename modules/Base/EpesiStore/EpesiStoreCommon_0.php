@@ -343,7 +343,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         switch ($action) {
             case self::ACTION_BUY:
                 $response = Base_EssClientCommon::server()->order_submit($module_id);
-                $return = $response[$module_id];
+                $return = isset($response[$module_id])?$response[$module_id]:false;
                 if ($return !== true)
                     break;
             case self::ACTION_PAY:

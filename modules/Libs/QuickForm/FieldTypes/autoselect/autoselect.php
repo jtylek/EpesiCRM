@@ -97,7 +97,8 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			}
 				
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
-			$strHtml .= '<option value="">'.Base_LangCommon::ts('Libs/QuickForm','Start typing to search...').'</option>';
+			$hint = Base_LangCommon::ts('Libs/QuickForm','Start typing to search...');
+			$strHtml .= '<option value="">'.$hint.'</option>';
 //			eval_js('set_style_for_search_tip = function(el){if($(el).value=="__SEARCH_TIP__")$(el).className="autoselect_search_tip";else $(el).className=""}');
 //			eval_js('set_style_for_search_tip("'.$myName.'");');
 //			eval_js('Event.observe("'.$myName.'", "change", function (){set_style_for_search_tip("'.$myName.'");});');
@@ -110,7 +111,8 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
             }
 			$strHtml .= $tabs . '</select>';
 
-			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args));
+			$text_attrs = array('placeholder'=>$hint);
+			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args), $text_attrs);
 			$search->on_hide_js('autoselect_on_hide("'.$myName.'",'.($mode?'1':'0').');'.$this->on_hide_js_code);
 
 			if ($mode==0) eval_js('Event.observe("'.$myName.'","change",function(){if($("'.$myName.'").value=="")autoselect_start_searching("'.$myName.'");});');

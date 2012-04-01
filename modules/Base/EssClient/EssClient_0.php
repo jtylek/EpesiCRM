@@ -93,7 +93,6 @@ class Base_EssClient extends Module {
             return;
         }
 
-        Base_ActionBarCommon::add('edit', 'Enter license key', $this->create_callback_href(array($this, 'license_key_form')));
         $form = $this->init_module('Libs_QuickForm');
         $form->addElement('checkbox', 'agree', $this->t('I agree to Terms and Conditions'));
         $form->addRule('agree', $this->t('You must accept Terms and Conditions to proceed'), 'required');
@@ -116,6 +115,8 @@ class Base_EssClient extends Module {
         print('<br><br>');
         print($this->t('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations can use the same Epesi License Key. '));
         print($this->t('Sharing your license key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
+        print('<br><br>');
+        print($this->t('If you already have a License Key for this installation, you can enter it here:').' <a '.$this->create_callback_href(array($this, 'license_key_form')).'>'.$this->t('enter license key').'</a>');
         print('<br><br>');
         print($this->t('Full Terms and Conditions are available here:'));
         $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
@@ -235,8 +236,7 @@ class Base_EssClient extends Module {
         }
         print('<center>');
 
-//        $f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
-		Base_ActionBarCommon::add('save', $data ? 'Update' : 'Register', $f->get_submit_form_href());
+        $f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
 
         $f->display_as_column();
         print('</center>');
@@ -252,7 +252,7 @@ class Base_EssClient extends Module {
 
         $f = $this->init_module('Libs/QuickForm');
 
-        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64, 'style'=>'width:450px;'));
+        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64, 'style'=>'width:380px;'));
         if ($f->validate()) {
             $x = $f->exportValues();
             Base_EssClientCommon::set_license_key($x['license_key']);

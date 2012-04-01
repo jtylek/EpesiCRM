@@ -38,7 +38,7 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 
 		//default note
 		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(4,'bcolor','nice-yellow'));
-		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)',  array(4,'text',Base_LangCommon::ts('Tools/SetDeaults','<p><strong>Congratulations!</strong><br />You just installed EPESI!</p><p>For more information, help and support please visit <a href="http://www.epesibim.com" target="_blank">www.epesibim.com</a></p>')));
+		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)',  array(4,'text',Base_LangCommon::ts('Tools/SetDeaults','<div><strong>Congratulations!</strong><br />You just installed EPESI!</div><div>For more information, help and support please visit <a href="http://epe.si" target="_blank">EPESI website</a></div>')));
 		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(4,'title',Base_LangCommon::ts('Tools/SetDeaults','Welcome')));
 
 		// default favorites and subscriptions

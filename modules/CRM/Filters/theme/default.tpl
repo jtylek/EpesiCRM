@@ -52,7 +52,7 @@
     </tr>
         <td colspan="3" style="text-align: center;">
 			{$contacts_open}
-				{$contacts_data.crm_filter_contact.label}{$contacts_data.crm_filter_contact.html}<span class="child_button">{$contacts_data.submit.html}</span>
+				{$contacts_data.crm_filter_contact.label}&nbsp;<span class="filters-autoselect">{$contacts_data.crm_filter_contact.html}</span>&nbsp;<span class="child_button">{$contacts_data.submit.html}</span>
 			{$contacts_close}
 		</td>
     </tr>

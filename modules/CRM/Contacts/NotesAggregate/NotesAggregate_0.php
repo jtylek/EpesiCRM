@@ -26,7 +26,7 @@ class CRM_Contacts_NotesAggregate extends Module {
 		}
 		
 		if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
-			$ret = DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_customer = "P:'.$contact['id'].'"');
+			$ret = DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_customer = %s', array('P:'.$contact['id']));
 			while ($row = $ret->FetchRow()) $attachment_groups[] = 'phonecall/'.$row['id'];
 		}
 		

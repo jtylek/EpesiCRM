@@ -206,11 +206,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_settings = array_merge($final_settings,$settings[0]);
         $final_settings[] = array('name'=>'header_auto_fav','label'=>'Automatically add to favorites records created by me','type'=>'header');
         $final_settings = array_merge($final_settings,$settings[1]);
-        $subscribe_settings[] = array('name'=>'header_auto_subscriptions','label'=>'Auto-subscribe to records created by me','type'=>'header');
+        $subscribe_settings[] = array('name'=>'header_auto_subscriptions','label'=>'Automatically watch records created by me','type'=>'header');
         $subscribe_settings = array_merge($subscribe_settings,$settings[2]);
 //      $final_settings[] = array('name'=>'header_category_subscriptions','label'=>'Auto-subscribe to all new records','type'=>'header');
 //      $final_settings = array_merge($final_settings,$settings[3]);
-        return array('Browsing records'=>$final_settings, 'Subscriptions'=>$subscribe_settings);
+        return array('Browsing records'=>$final_settings, 'Watchdog'=>$subscribe_settings);
     }
     public static function check_table_name($tab, $flush=false, $failure_on_missing=true){
         static $tables = null;
@@ -1407,8 +1407,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($str=='USER_ID') return Acl::get_user();
 			if (class_exists('CRM_ContactsCommon')) {
 				$me = CRM_ContactsCommon::get_my_record();
-				if ($str=='USER') return $me['id'];
-				if ($str=='USER_COMPANY') return $me['company_name'];
+				if ($str=='USER') return $me['id']?$me['id']:-1;
+				if ($str=='USER_COMPANY') return $me['company_name']?$me['company_name']:-1;
 			}
 		}
 		return $str;

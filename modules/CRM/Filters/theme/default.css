@@ -51,3 +51,7 @@
 	/* gray v1 css3 background gradient */
 }
 
+#CRM_Filters .filters-autoselect input,
+#CRM_Filters .filters-autoselect select {
+	width: 180px;
+}

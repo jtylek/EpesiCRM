@@ -6,7 +6,7 @@
 	{foreach key=key item=button from=$buttons}
 	{assign var=x value=$x+1}
 		<td>
-			<div class="css3_content_shadow_users">
+			<div>
 			{$__link.buttons.$key.link.open}
 			<div class="epesi_big_button bigger">
 				{if isset($button.icon)}

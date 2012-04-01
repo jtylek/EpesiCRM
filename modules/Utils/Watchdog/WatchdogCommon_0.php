@@ -15,7 +15,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 
 	public static function user_settings() {
 		return array(
-			'Subscriptions'=>array(
+			'Watchdog'=>array(
 				array('name'=>'email', 'label'=>'Send e-mail on new events', 'type'=>'checkbox', 'default'=>false)
 			)
 		);
