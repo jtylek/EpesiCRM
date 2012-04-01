@@ -2523,7 +2523,7 @@ function update_from_1_1_5_to_1_1_6() {
 		Utils_CommonDataCommon::remove('Bugtrack_Status');
     }
 
-    $tests = array('Attachment', 'BookmarkBrowser', 'Calendar', 'Callbacks', 'Callbacks_a', 'Codepress', 'Colorpicker', 'Comment', 'GenericBrowser', 'Image', 'Lang', 'Leightbox', 'Lytebox', 'Menu', 'OpenFlashChart', 'QuickForm', 'Report', 'Search', 'SharedUniqueHref', 'SharedUniqueHref_a', 'TabbedBrowser', 'Tooltip', 'Wizard');
+    $tests = array('Attachment', 'BookmarkBrowser', 'Calendar', 'Callbacks', 'Callbacks_a', 'Codepress', 'Colorpicker', 'Comment', 'GenericBrowser', 'Image', 'Lang', 'Leightbox', 'Lytebox', 'Menu', 'OpenFlashChart', 'QuickForm', 'Report', 'Search', 'SharedUniqueHref', 'SharedUniqueHref_a', 'TabbedBrowser', 'Tooltip', 'Wizard','Calendar_Event');
     foreach($tests as $t) {
         if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Tests_'.$t)) && !is_dir('modules/Tests/'.str_replace('_','/',$t))) {
             DB::Execute('DELETE FROM modules WHERE name=%s',array('Tests_'.$t));

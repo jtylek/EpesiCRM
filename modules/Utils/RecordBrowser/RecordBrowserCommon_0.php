@@ -1176,14 +1176,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach($order as $v){
             if ($v['order'][0]!=':' && !isset(self::$table_rows[$v['order']])) continue; //failsafe
             if ($v['order'][0]==':') {
+				if (!is_numeric(Acl::get_user())) trigger_error('Invalid user id.');
                 switch ($v['order']) {
                     case ':Fav' :
-                        $orderby[] = ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d) '.$v['direction'];
-                        $vals[]=Acl::get_user();
+                        $orderby[] = ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id='.Acl::get_user().') '.$v['direction'];
                         break;
                     case ':Visited_on'  :
-                        $orderby[] = ' (SELECT visited_on FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d) '.$v['direction'];
-                        $vals[]=Acl::get_user();
+                        $orderby[] = ' (SELECT visited_on FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id='.Acl::get_user().') '.$v['direction'];
                         break;
                     case ':Edited_on'   :
                         $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
