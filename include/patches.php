@@ -256,7 +256,7 @@ class Patch {
     }
 
     private function set_creation_date($creation_date) {
-        if (DateTime::createFromFormat("Ymd", $creation_date) === false)
+        if (!is_numeric($creation_date))
             throw new Exception("Wrong patch creation date - use this filename scheme: YYYYMMDD_short_description.php");
         $this->creation_date = $creation_date;
     }
