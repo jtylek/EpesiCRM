@@ -106,7 +106,7 @@ class Base_EssClient extends Module {
 
         print('<div class="important_notice">');
         print('<center><H1>');
-        print($this->t('epesiBIM Registration'));
+        print($this->t('EPESI Registration'));
         print('</H1></center><br>');
         print($this->t('Registration of your epesi installation with '));
         print('<a href="http://www.telaxus.com" target="_blank">Telaxus LLC </a>');
