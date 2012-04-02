@@ -11,4 +11,5 @@ $translations['Libs_QuickForm']['Remove']='Ta bort';
 $translations['Libs_QuickForm']['This is not valid number']='Detta är inte ett giltigt nummer';
 $translations['Libs_QuickForm']['Minimum %d letters are required.']='Minst %d bokstäver krävs.';
 $translations['Libs_QuickForm']['No records founds']='Inga poster hittades';
+$translations['Libs_QuickForm']['Start typing to search...']='';
 ?>

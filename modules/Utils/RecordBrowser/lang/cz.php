@@ -188,4 +188,5 @@ $translations['Utils_RecordBrowser']['Called method']='Volaná metoda';
 $translations['Utils_RecordBrowser']['Enable']='Zapnout';
 $translations['Utils_RecordBrowser']['This is html pattern. All html tags are allowed.<br/>Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.<br/><br/>Conditional use:<br/>%%{lorem {keyword} ipsum {keyword2}}<br/>lorem ipsum will be shown only when at least one of keywords has value. Nested conditions are allowed.<br/><br/>Normal use:<br/>%%{{keyword}}<br/><br/>Keywords:<br/>']='Toto je html vzorec. Všechny html tagy jsou povoleny.<br/>Užijte &lt;pre&gt; nějaký text &lt;/pre&gt; pro vygenerování textu identického.<br/><br/>Podmíněčné užití:<br/>%%{lorem {keyword} ipsum {keyword2}}<br/>lorem ipsum bude zobrazeno pouze tehdy, je-li poslední slovo heslem.<br/><br/>Normální užití:<br/>%%{{keyword}}<br/><br/>Hesla:<br/>';
 $translations['Utils_RecordBrowser']['Pattern']='Vzorec';
+$translations['Utils_RecordBrowser']['Add new']='Přidat nový';
 ?>

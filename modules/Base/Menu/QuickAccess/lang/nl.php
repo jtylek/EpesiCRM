@@ -39,6 +39,7 @@ $translations['Base_Menu_QuickAccess']['Tests: Generic Browser']='Tests: Algemen
 $translations['Base_Menu_QuickAccess']['Tests: Image']='Tests: Plaatje';
 $translations['Base_Menu_QuickAccess']['Tests: Lang']='Tests: Taal';
 $translations['Base_Menu_QuickAccess']['Tests: Leightbox page']='Tests: Leightbox-pagina';
+$translations['Base_Menu_QuickAccess']['Tests: Lytebox page']='Tests: Lytebox pagina';
 $translations['Base_Menu_QuickAccess']['Tests: Menu']='Tests: Menu';
 $translations['Base_Menu_QuickAccess']['Tests: QuickForm page']='Tests: QuickForm pagina';
 $translations['Base_Menu_QuickAccess']['Tests: Shared Unique Href']='Tests: Algemene unieke HRefs';

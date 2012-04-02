@@ -19,6 +19,7 @@ $translations['Utils_RecordBrowser:crm_meeting']['Recurrence type']='Повто�
 $translations['Utils_RecordBrowser:crm_meeting']['Recurrence end']='Повторение окончания';
 $translations['Utils_RecordBrowser:crm_meeting']['Recurrence hash']='Повторение хэша';
 $translations['Utils_RecordBrowser:crm_meeting']['Opportunity']='Продажа';
+$translations['Utils_RecordBrowser:crm_meeting']['Contacts']='Контакты';
 $translations['CRM_Meeting']['---']='';
 $translations['CRM_Meeting']['5 minutes']=' 5 минут';
 $translations['CRM_Meeting']['15 minutes']='15 минут';

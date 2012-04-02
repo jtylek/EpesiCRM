@@ -40,4 +40,15 @@ $translations['CRM_PhoneCall']['Contact:']='Kontakt:';
 $translations['CRM_PhoneCall']['Company:']='Ettevõte:';
 $translations['CRM_PhoneCall']['Subject:']='Teema:';
 $translations['CRM_PhoneCall']['Date and Time:']='Kuupäev ja kellaaeg:';
+$translations['Utils_RecordBrowser:phonecall']['Phone Number']='Telefoninumber';
+$translations['Utils_RecordBrowser:phonecall']['Status']='Olek';
+$translations['Utils_RecordBrowser:phonecall']['Employees']='Töötajad';
+$translations['Utils_RecordBrowser:phonecall']['Subject']='Teema';
+$translations['Utils_RecordBrowser:phonecall']['Permission']='Õigus';
+$translations['Utils_RecordBrowser:phonecall']['Priority']='Tähtsus';
+$translations['Utils_RecordBrowser:phonecall']['Phone']='Telefon';
+$translations['Utils_RecordBrowser:phonecall']['Other Phone']='Muu telefon';
+$translations['Utils_RecordBrowser:phonecall']['Other Phone Number']='Muu telefoni number';
+$translations['Utils_RecordBrowser:phonecall']['Date and Time']='Kuupäev ja kellaaeg';
+$translations['Utils_RecordBrowser:phonecall']['Description']='Kirjeldus';
 ?>

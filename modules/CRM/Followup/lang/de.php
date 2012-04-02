@@ -5,6 +5,6 @@
  * @subpackage de
  */
 global $translations;
-$translations['CRM_Followup']['Status']='';
+$translations['CRM_Followup']['Status']='Status';
 $translations['CRM_Followup']['Note']='Notiz';
 ?>

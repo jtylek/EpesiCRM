@@ -25,4 +25,11 @@ $translations['Base_Admin']['Default user settings']='Configuración de Usuario 
 $translations['Base_Admin']['Modules Administration']='Administración de Módulos';
 $translations['Base_Admin']['Default dashboard']='Tablero predeterminado';
 $translations['Base_Admin']['Common data']='Datos comunes';
+$translations['Base_Admin']['Maintenance mode']='Modo Mantenimiento';
+$translations['Base_Admin']['Projects planner']='Planificador de Proyectos';
+$translations['Base_Admin']['Module indicator settings']='Configuración de indicadores de módulo';
+$translations['Base_Admin']['Mail client settings']='Configuración de Cliente de correo';
+$translations['Base_Admin']['Warehouse']='Depósito';
+$translations['Base_Admin']['eCommerce']='Comercio-e';
+$translations['Base_Admin']['Relations Administration']='Administración de relaciones';
 ?>

@@ -7,4 +7,6 @@
 global $translations;
 $translations['Base_RegionalSettings']['Country']='Land';
 $translations['Base_RegionalSettings']['State']='Staten';
+$translations['Base_RegionalSettings']['%s hour(s) ']='';
+$translations['Base_RegionalSettings']['%s minutes']='';
 ?>

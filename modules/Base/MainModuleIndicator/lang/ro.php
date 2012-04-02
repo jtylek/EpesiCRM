@@ -67,4 +67,6 @@ $translations['Base_MainModuleIndicator']['My settings: Calendar']='Setarile mel
 $translations['Base_MainModuleIndicator']['Mail client']='Client mail';
 $translations['Base_MainModuleIndicator']['My settings: Default data view']='Setarile mele: Vizualizare implicita date';
 $translations['Base_MainModuleIndicator']['My settings: Browsing Records']='Setarile mele: Rasfoire inregistrari';
+$translations['Base_MainModuleIndicator']['Administration: Download modules']='Administrare: Descarca module';
+$translations['Base_MainModuleIndicator']['Meetings: New record']='Sedinte: inregistrare noua';
 ?>

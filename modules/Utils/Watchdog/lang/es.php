@@ -15,4 +15,5 @@ $translations['Utils_Watchdog']['Click to unsubscribe']='Clic para desuscribir';
 $translations['Utils_Watchdog']['Mark as read']='Marcar como leído';
 $translations['Utils_Watchdog']['Mark all entries as read']='Marcar todas las entradas como leídas';
 $translations['Utils_Watchdog']['This will update all of your subscriptions status in selected categories, are you sure you want to continue?']='Esto actualizará todos los estados de suscripción en las categorías seleccionadas, está seguro que desea continuar?';
+$translations['Utils_Watchdog']['Displaying %s of %s records']='Mostrando %s de %s registros';
 ?>

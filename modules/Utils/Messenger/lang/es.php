@@ -27,4 +27,6 @@ $translations['Utils_Messenger']['1 hour']='1 hora';
 $translations['Utils_Messenger']['4 hours']='4 horas';
 $translations['Utils_Messenger']['12 hours']='12 horas';
 $translations['Utils_Messenger']['24 hours']='24 horas';
+$translations['Utils_Messenger']['Turn off alarm']='Apagar Alarma';
+$translations['Utils_Messenger']['Hold on']='Esperar';
 ?>

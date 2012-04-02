@@ -40,4 +40,17 @@ $translations['CRM_PhoneCall']['Date and Time:']='Datum a čas:';
 $translations['CRM_PhoneCall']['Status:']='Stav:';
 $translations['CRM_PhoneCall']['Permission:']='Oprávnění:';
 $translations['CRM_PhoneCall']['Priority:']='Priorita:';
+$translations['Utils_RecordBrowser:phonecall']['Contact Name']='Jméno kontaktu';
+$translations['Utils_RecordBrowser:phonecall']['Phone Number']='Telefonní číslo';
+$translations['Utils_RecordBrowser:phonecall']['Status']='Stav';
+$translations['Utils_RecordBrowser:phonecall']['Opportunity']='Příležitost';
+$translations['Utils_RecordBrowser:phonecall']['Employees']='Zaměstnanci';
+$translations['Utils_RecordBrowser:phonecall']['Subject']='Předmět';
+$translations['Utils_RecordBrowser:phonecall']['Permission']='Oprávnění';
+$translations['Utils_RecordBrowser:phonecall']['Priority']='Priorita';
+$translations['Utils_RecordBrowser:phonecall']['Phone']='Telefon';
+$translations['Utils_RecordBrowser:phonecall']['Other Phone']='Druhý telefon';
+$translations['Utils_RecordBrowser:phonecall']['Other Phone Number']='Číslo druhého telefonu';
+$translations['Utils_RecordBrowser:phonecall']['Date and Time']='Datum a čas';
+$translations['Utils_RecordBrowser:phonecall']['Description']='Popis';
 ?>

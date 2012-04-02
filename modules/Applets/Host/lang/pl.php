@@ -5,5 +5,5 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Applets_Host']['OK']='Potwierdź';
+$translations['Applets_Host']['OK']='OK';
 ?>

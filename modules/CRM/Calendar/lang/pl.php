@@ -14,7 +14,7 @@ $translations['CRM_Calendar']['Daily agenda']='';
 $translations['CRM_Calendar']['CRM Filters: %s']='';
 $translations['CRM_Calendar']['Week agenda']='';
 $translations['CRM_Calendar']['Weekly agenda']='';
-$translations['CRM_Calendar']['Weekly_agenda']='';
+$translations['CRM_Calendar']['Weekly_agenda']='Terminarz tygodniowy';
 $translations['CRM_Calendar']['Agenda']='Agenda';
 $translations['CRM_Calendar']['Events']='Wydarzenia';
 $translations['CRM_Calendar']['Event updated']='';
@@ -24,6 +24,7 @@ $translations['CRM_Calendar']['Medical Appointments']='';
 $translations['CRM_Calendar']['Type']='Typ';
 $translations['CRM_Calendar']['Task']='Zadanie';
 $translations['CRM_Calendar']['Phonecall']='Telefon';
-$translations['CRM_Calendar']['Ticket']='Ticket';
+$translations['CRM_Calendar']['Ticket']='Bilet';
 $translations['CRM_Calendar']['New Event']='Nowe wydarzenie';
+$translations['CRM_Calendar']['Monthly_agenda']='Terminarz miesięczny';
 ?>

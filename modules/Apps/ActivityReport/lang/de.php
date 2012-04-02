@@ -19,7 +19,10 @@ $translations['Apps_ActivityReport']['Show']='Zeigen';
 $translations['Apps_ActivityReport']['Date']='Datum';
 $translations['Apps_ActivityReport']['Type']='Typ';
 $translations['Apps_ActivityReport']['Actions taken']='Getroffene Masnahmen';
-$translations['Apps_ActivityReport']['Label']='';
+$translations['Apps_ActivityReport']['Label']='Beschriftung';
 $translations['Apps_ActivityReport']['Created']='Erstellt am';
 $translations['Apps_ActivityReport']['Edited']='Bearbeitet';
+$translations['Apps_ActivityReport']['Deleted']='Gelöscht';
+$translations['Apps_ActivityReport']['Access restricted']='Zugang eingeschränkt';
+$translations['Apps_ActivityReport']['Restored']='Wiederhergestellt';
 ?>

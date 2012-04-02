@@ -371,4 +371,6 @@ $translations['Utils_CommonData']['French Southern Territories']='Terr. Francés
 $translations['Utils_CommonData']['New node']='Nuevo nodo';
 $translations['Utils_CommonData']['Specified key already exists']='Clave especificada ya existe';
 $translations['Utils_CommonData']['Specified contains invalid character "/"']='Lo especificado contiene un caracter inválido "/"';
+$translations['Utils_CommonData']['SSL']='SSL';
+$translations['Utils_CommonData']['TLS']='TLS';
 ?>

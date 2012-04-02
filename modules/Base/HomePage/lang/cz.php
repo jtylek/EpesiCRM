@@ -5,5 +5,5 @@
  * @subpackage cz
  */
 global $translations;
-$translations['Base_HomePage']['Home page saved']='Domovská stránka uložena';
+$translations['Base_HomePage']['Home page saved']='Hlavní strana zálohována';
 ?>

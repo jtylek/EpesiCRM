@@ -30,4 +30,16 @@ $translations['CRM_PhoneCall']['Priority:']='Prioritetas:';
 $translations['CRM_PhoneCall']['Mobile Phone']='Mobilus telefonas';
 $translations['CRM_PhoneCall']['Phonecalls']='Skambučiai';
 $translations['CRM_PhoneCall']['Field required']='Reikalingas laukas';
+$translations['Utils_RecordBrowser:phonecall']['Contact Name']='Kontaktinis asmuo';
+$translations['Utils_RecordBrowser:phonecall']['Phone Number']='Telefono numeris';
+$translations['Utils_RecordBrowser:phonecall']['Status']='Statusas';
+$translations['Utils_RecordBrowser:phonecall']['Employees']='Darbuotojai';
+$translations['Utils_RecordBrowser:phonecall']['Subject']='Tėma';
+$translations['Utils_RecordBrowser:phonecall']['Permission']='Leidimas';
+$translations['Utils_RecordBrowser:phonecall']['Priority']='Prioritetas';
+$translations['Utils_RecordBrowser:phonecall']['Phone']='Telefonas';
+$translations['Utils_RecordBrowser:phonecall']['Other Phone']='Kitas telefonas';
+$translations['Utils_RecordBrowser:phonecall']['Other Phone Number']='Kitas telefono Nr.';
+$translations['Utils_RecordBrowser:phonecall']['Date and Time']='Data ir laikas';
+$translations['Utils_RecordBrowser:phonecall']['Description']='Užduoties apibūdinimas';
 ?>

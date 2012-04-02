@@ -5,6 +5,6 @@
  * @subpackage ro
  */
 global $translations;
-$translations['Utils_LeightboxPrompt']['Cancel']='Anuleaza';
+$translations['Utils_LeightboxPrompt']['Cancel']='Anulez';
 $translations['Utils_LeightboxPrompt']['OK']='OK';
 ?>

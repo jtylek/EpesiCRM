@@ -19,7 +19,9 @@ $translations['CRM_Filters']['Users in category']='Usuarios en la categoría';
 $translations['CRM_Filters']['Default perspective']='Perspectiva predeterminada';
 $translations['CRM_Filters']['Show all contacts in Perspective selection']='Mostrar todos los contactos en la Perspectiva seleccionada';
 $translations['CRM_Filters']['Field required']='Campo requerido';
-$translations['CRM_Filters']['New preset']='';
+$translations['CRM_Filters']['New preset']='Nuevo Preset';
 $translations['CRM_Filters']['Max length of field exceeded']='Tamaño máximo de campo excedido';
 $translations['CRM_Filters']['Group with this name already exists']='El nombre de Grupo ya existe';
+$translations['CRM_Filters']['Delete this group?']='Eliminar este grupo?';
+$translations['CRM_Filters']['Edit group "%s"']='Editar grupo "%s"';
 ?>

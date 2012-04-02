@@ -5,6 +5,6 @@
  * @subpackage de
  */
 global $translations;
-$translations['Libs_Leightbox']['Close']='';
-$translations['Libs_Leightbox']['Resize']='';
+$translations['Libs_Leightbox']['Close']='Schließen';
+$translations['Libs_Leightbox']['Resize']='Größe ändern';
 ?>

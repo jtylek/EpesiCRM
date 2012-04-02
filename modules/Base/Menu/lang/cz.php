@@ -37,6 +37,7 @@ $translations['Base_Menu']['Generic Browser']='Všeobecný prohlížeč';
 $translations['Base_Menu']['Image']='Obrázek';
 $translations['Base_Menu']['Lang']='Jazyk';
 $translations['Base_Menu']['Leightbox page']='Stránka Leightboxu';
+$translations['Base_Menu']['Lytebox page']='Stránka Lyteboxu';
 $translations['Base_Menu']['QuickForm page']='Stránka QuickFormu';
 $translations['Base_Menu']['Shared Unique Href']='Sdílené unikátní Href';
 $translations['Base_Menu']['Tabbed Browser']='Panelový prohlížeč';

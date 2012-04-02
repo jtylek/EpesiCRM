@@ -5,5 +5,5 @@
  * @subpackage de
  */
 global $translations;
-$translations['Base_HomePage']['Home page saved']='';
+$translations['Base_HomePage']['Home page saved']='Startseite gespeichert';
 ?>

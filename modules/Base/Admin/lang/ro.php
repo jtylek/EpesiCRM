@@ -25,4 +25,9 @@ $translations['Base_Admin']['PHP & SQL Errors to mail']='Trimite pe mail erori P
 $translations['Base_Admin']['Module indicator settings']='Setari indicator module';
 $translations['Base_Admin']['Printing options']='Optiuni imprimare';
 $translations['Base_Admin']['Mail client settings']='Setari client mail';
+$translations['Base_Admin']['Download modules']='Descarca module';
+$translations['Base_Admin']['Currencies']='Monede';
+$translations['Base_Admin']['Title and logo']='Titlu si logo';
+$translations['Base_Admin']['Static pages']='Pagini statice';
+$translations['Base_Admin']['Outgoing mail global signature']='';
 ?>

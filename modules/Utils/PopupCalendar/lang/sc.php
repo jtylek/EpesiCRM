@@ -26,5 +26,4 @@ $translations['Utils_PopupCalendar']['Thu']='星期四';
 $translations['Utils_PopupCalendar']['Fri']='星期五';
 $translations['Utils_PopupCalendar']['Sat']='星期六';
 $translations['Utils_PopupCalendar']['Example date: %s']='示例日期：%s';
-$translations['Utils_PopupCalendar']['Select year']='';
 ?>

@@ -14,6 +14,7 @@ $translations['CRM_Filters']['Filters']='筛选器';
 $translations['CRM_Filters']['Filters: ']='筛选器：';
 $translations['CRM_Filters']['%s']='%s';
 $translations['CRM_Filters']['Manage presets']='';
+$translations['CRM_Filters']['Show']='';
 $translations['CRM_Filters']['Saved Presets']='';
 $translations['CRM_Filters']['Perspective']='';
 $translations['CRM_Filters']['Perspective: ']='';

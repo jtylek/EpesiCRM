@@ -52,4 +52,13 @@ $translations['Utils_Attachment']['Method description']='Rodzaj akcji';
 $translations['Utils_Attachment']['Remote']='Zdalny';
 $translations['Utils_Attachment']['Add new']='Dodaj notkę';
 $translations['Utils_Attachment']['Source']='Źródło';
+$translations['Utils_Attachment']['Show deleted notes']='Pokaż usunięte notki';
+$translations['Utils_Attachment']['Deleted']='Usunięte';
+$translations['Utils_Attachment']['Maximal lenght of note exceeded']='Przekroczona maksymalna długość notki';
+$translations['Utils_Attachment']['no']='nie';
+$translations['Utils_Attachment']['Do you want to restore this entry?']='Czy chcesz przywrócić ten wpis?';
+$translations['Utils_Attachment']['Click to restore']='Kliknij by przywrócić';
+$translations['Utils_Attachment']['yes']='tak';
+$translations['Utils_Attachment']['Expand All']='';
+$translations['Utils_Attachment']['Collapse All']='';
 ?>

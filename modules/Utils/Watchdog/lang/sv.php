@@ -24,4 +24,5 @@ $translations['Utils_Watchdog']['You are subscribing this record. Click to unsub
 $translations['Utils_Watchdog']['Mark all entries as read']='Markera alla poster läsas som';
 $translations['Utils_Watchdog']['This will update all of your subscriptions status in selected categories, are you sure you want to continue?']='Detta kommer att uppdatera alla dina prenumerationer status inom vissa kategorier, är du säker på att du vill fortsätta?';
 $translations['Utils_Watchdog']['Are you sure you want to unsubscribe this record?']='Är du säker på att du vill lämna denna post?';
+$translations['Utils_Watchdog']['Subscriptions - All']='';
 ?>

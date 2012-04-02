@@ -205,4 +205,5 @@ $translations['Base_Dashboard']['Events']='Události';
 $translations['Base_Dashboard']['Mails']='Zprávy';
 $translations['Base_Dashboard']['Phonecalls']='Hovory';
 $translations['Base_Dashboard']['Subscriptions display settings']='Nastavení zobrazení přiřazení';
+$translations['Base_Dashboard']['Sales Opportunities']='Obchodní příležitosti';
 ?>

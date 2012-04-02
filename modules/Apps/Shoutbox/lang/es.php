@@ -15,4 +15,10 @@ $translations['Apps_Shoutbox']['User']='Usuario';
 $translations['Apps_Shoutbox']['From']='De';
 $translations['Apps_Shoutbox']['Filter']='Filtro';
 $translations['Apps_Shoutbox']['Date']='Fecha';
+$translations['Apps_Shoutbox']['Chat']='Chat';
+$translations['Apps_Shoutbox']['History']='Historial';
+$translations['Apps_Shoutbox']['Post']='Enviar';
+$translations['Apps_Shoutbox']['Submit']='Enviar';
+$translations['Apps_Shoutbox']['<span class="time">[%s]</span> <span class="author">%s</span>: %s']='<span class="time">[%s]</span> <span class="author">%s</span>: %s';
+$translations['Apps_Shoutbox']['Clear shoutbox']='Limpiar Shoutbox';
 ?>

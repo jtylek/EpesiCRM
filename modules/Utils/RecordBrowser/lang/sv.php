@@ -394,4 +394,6 @@ $translations['Utils_RecordBrowser']['Record ID']='Post-ID';
 $translations['Utils_RecordBrowser']['Customer']='Kund';
 $translations['Utils_RecordBrowser']['Other Customer']='Andra kunder';
 $translations['Utils_RecordBrowser']['Other Customer Name']='Andra Kundnamn';
+$translations['Utils_RecordBrowser']['Display all records']='';
+$translations['Utils_RecordBrowser']['Record ID:']='';
 ?>

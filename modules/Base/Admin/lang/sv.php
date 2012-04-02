@@ -30,4 +30,5 @@ $translations['Base_Admin']['Currencies']='Valutor';
 $translations['Base_Admin']['Title and logo']='Titel och logotyp';
 $translations['Base_Admin']['Static pages']='Statiska sidor';
 $translations['Base_Admin']['Tax Rates']='Skattesatser';
+$translations['Base_Admin']['Outgoing mail global signature']='';
 ?>

@@ -41,4 +41,5 @@ Av säkerhetsskäl rekommenderas att du genast loggar in och ändrar ditt lösen
 
 Detta meddelande skapades automatiskt, du behöver inte svara på det.';
 $translations['Base_User_Login']['Keep this box unchecked if using a  public computer']='Håll rutan tom om du använder en offentlig dator';
+$translations['Base_User_Login']['Warning: Unable to send e-mail with password. Check Mail module configuration.']='Varning: Det går inte att skicka e-post med lösenord. Granska e-postmodulkonfigurationen.';
 ?>

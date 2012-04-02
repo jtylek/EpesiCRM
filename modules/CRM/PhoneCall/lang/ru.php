@@ -20,6 +20,7 @@ $translations['Utils_RecordBrowser:phonecall']['Priority']='Приоритет';
 $translations['Utils_RecordBrowser:phonecall']['Opportunity']='Продажа';
 $translations['Utils_RecordBrowser:phonecall']['Related to']='Связано с';
 $translations['Utils_RecordBrowser:phonecall']['Employees']='Сотрудники';
+$translations['Utils_RecordBrowser:phonecall']['Other Phone Number']='Номер другого телефона';
 $translations['CRM_PhoneCall']['Display closed records']='Отобразить закрытые записи';
 $translations['CRM_PhoneCall']['Work Phone']='Рабочий телефон';
 $translations['CRM_PhoneCall']['Mobile Phone']='Мобильный телефон';

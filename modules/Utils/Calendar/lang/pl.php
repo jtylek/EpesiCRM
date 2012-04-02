@@ -5,8 +5,8 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Utils_Calendar']['Timeless']='Bezterminowe';
-$translations['Utils_Calendar']['Agenda']='Agenda';
+$translations['Utils_Calendar']['Timeless']='Całodniowe';
+$translations['Utils_Calendar']['Agenda']='Terminarz';
 $translations['Utils_Calendar']['Day']='Dzień';
 $translations['Utils_Calendar']['Week']='Tydzień';
 $translations['Utils_Calendar']['Month']='Miesiąc';
@@ -34,7 +34,7 @@ $translations['Utils_Calendar']['Title']='Tytuł';
 $translations['Utils_Calendar']['Description']='Opis';
 $translations['Utils_Calendar']['Assigned to']='Przydzielne do';
 $translations['Utils_Calendar']['Related with']='Związane z';
-$translations['Utils_Calendar']['timeless']='bezterminowe';
+$translations['Utils_Calendar']['timeless']='całodniowe';
 $translations['Utils_Calendar']['%d:%s']='%d:%s';
 $translations['Utils_Calendar']['Delete this event?']='Usunąć to wydarzenie?';
 $translations['Utils_Calendar']['%d day(s) %d:%s']='%d dni %d:%s';
@@ -74,11 +74,12 @@ $translations['Utils_Calendar']['Sep']='Wrz';
 $translations['Utils_Calendar']['Mar']='Mar';
 $translations['Utils_Calendar']['Apr']='Kwi';
 $translations['Utils_Calendar']['Feb']='Lut';
+$translations['Utils_Calendar']['Jul']='Lip';
 $translations['Utils_Calendar']['Nov']='Lis';
 $translations['Utils_Calendar']['Dec']='Gru';
 $translations['Utils_Calendar']['Oct']='Paź';
 $translations['Utils_Calendar']['Tuesday']='Wtorek';
 $translations['Utils_Calendar']['Jan']='Sty';
 $translations['Utils_Calendar']['Jun']='Cze';
-$translations['Utils_Calendar']['Jul']='Lip';
+$translations['Utils_Calendar']['Click to show / hide menu']='Kliknij by wyświetlić / ukryć menu';
 ?>

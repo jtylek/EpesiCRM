@@ -41,6 +41,7 @@ $translations['Base_Menu']['Generic Browser']='Внутренний обозре
 $translations['Base_Menu']['Image']='Изображение';
 $translations['Base_Menu']['Lang']='Язык';
 $translations['Base_Menu']['Leightbox page']='Страница эскизов';
+$translations['Base_Menu']['Lytebox page']='Страница эскизов';
 $translations['Base_Menu']['QuickForm page']='Страница быстрых форм';
 $translations['Base_Menu']['Shared Unique Href']='Общие уникальные ссылки';
 $translations['Base_Menu']['Tabbed Browser']='Обозреватель вкладок';

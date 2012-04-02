@@ -31,4 +31,13 @@ $translations['CRM_Tasks']['Task: %s']='Darbas: %s';
 $translations['CRM_Tasks']['Not set']='';
 $translations['CRM_Tasks']['Yes']='';
 $translations['CRM_Tasks']['Task (attachment) #%d, %s']='';
+$translations['Utils_RecordBrowser:task']['Title']='Pavadinimas';
+$translations['Utils_RecordBrowser:task']['Deadline']='Atlikti iki';
+$translations['Utils_RecordBrowser:task']['Status']='Statusas';
+$translations['Utils_RecordBrowser:task']['Employees']='Darbuotojai';
+$translations['Utils_RecordBrowser:task']['Priority']='Prioritetas';
+$translations['Utils_RecordBrowser:task']['Customers']='Klientai';
+$translations['Utils_RecordBrowser:task']['Longterm']='Ilgalaikis';
+$translations['Utils_RecordBrowser:task']['Description']='Užduoties apibūdinimas';
+$translations['Utils_RecordBrowser:task']['Permission']='Leidimas';
 ?>

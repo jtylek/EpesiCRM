@@ -30,4 +30,24 @@ $translations['CRM_PhoneCall']['You must fill either \'Contact\' or \'Other Cont
 $translations['CRM_PhoneCall']['You must fill either \'Phone\' or \'Other Phone\' field']='Trebuie sa completati fie campul \'Telefon\' fie \'Alt telefon\'';
 $translations['CRM_PhoneCall']['Field required']='Camp obligatoriu';
 $translations['CRM_PhoneCall']['Phonecalls']='Apeluri';
+$translations['CRM_PhoneCall']['New Meeting']='Sedinta noua';
+$translations['CRM_PhoneCall']['Save']='';
+$translations['CRM_PhoneCall']['Open']='';
+$translations['CRM_PhoneCall']['In Progress']='';
+$translations['CRM_PhoneCall']['On Hold']='';
+$translations['CRM_PhoneCall']['Phonecall']='';
+$translations['Utils_RecordBrowser:phonecall']['Contact Name']='Nume contact';
+$translations['Utils_RecordBrowser:phonecall']['Phone Number']='Numar telefon';
+$translations['Utils_RecordBrowser:phonecall']['Status']='Stare';
+$translations['Utils_RecordBrowser:phonecall']['Call']='';
+$translations['Utils_RecordBrowser:phonecall']['Customer']='';
+$translations['Utils_RecordBrowser:phonecall']['Subject']='Subiect';
+$translations['Utils_RecordBrowser:phonecall']['Description']='Descriere';
+$translations['Utils_RecordBrowser:phonecall']['Assigned to']='';
+$translations['Utils_RecordBrowser:phonecall']['Date and Time']='Data si ora';
+$translations['Utils_RecordBrowser:phonecall']['Permission']='Permisiuni';
+$translations['Utils_RecordBrowser:phonecall']['Priority']='Prioritate';
+$translations['Utils_RecordBrowser:phonecall']['Employees']='Angajati';
+$translations['Utils_RecordBrowser:phonecall']['Opportunity']='Oportunitate';
+$translations['Utils_RecordBrowser:phonecall']['Phone']='Telefon';
 ?>

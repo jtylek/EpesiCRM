@@ -22,4 +22,6 @@ $translations['Apps_ActivityReport']['Label']='Etiqueta';
 $translations['Apps_ActivityReport']['Actions taken']='Acción tomada';
 $translations['Apps_ActivityReport']['Edited']='Editado';
 $translations['Apps_ActivityReport']['Created']='Creado';
+$translations['Apps_ActivityReport']['Restored']='Restaurado';
+$translations['Apps_ActivityReport']['Deleted']='Eliminado';
 ?>

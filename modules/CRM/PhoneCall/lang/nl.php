@@ -26,4 +26,14 @@ $translations['CRM_PhoneCall']['Date and Time:']='';
 $translations['CRM_PhoneCall']['Status:']='';
 $translations['CRM_PhoneCall']['Permission:']='';
 $translations['CRM_PhoneCall']['Priority:']='';
+$translations['Utils_RecordBrowser:phonecall']['Contact Name']='Contact Naam';
+$translations['Utils_RecordBrowser:phonecall']['Phone Number']='Telefoonnummer';
+$translations['Utils_RecordBrowser:phonecall']['Status']='Status';
+$translations['Utils_RecordBrowser:phonecall']['Employees']='Werknemers';
+$translations['Utils_RecordBrowser:phonecall']['Subject']='Onderwerp';
+$translations['Utils_RecordBrowser:phonecall']['Permission']='Toestemming';
+$translations['Utils_RecordBrowser:phonecall']['Priority']='Prioriteit';
+$translations['Utils_RecordBrowser:phonecall']['Phone']='Telefoon';
+$translations['Utils_RecordBrowser:phonecall']['Date and Time']='Datum en Tijd';
+$translations['Utils_RecordBrowser:phonecall']['Description']='';
 ?>

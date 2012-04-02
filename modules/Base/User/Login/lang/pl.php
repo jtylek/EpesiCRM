@@ -8,10 +8,10 @@ global $translations;
 $translations['Base_User_Login']['Logged as %s']='Zalogowany jako %s';
 $translations['Base_User_Login']['Logout']='Wyloguj';
 $translations['Base_User_Login']['Logging in']='Trwa logowanie';
-$translations['Base_User_Login']['Login']='Zaloguj';
+$translations['Base_User_Login']['Login']='Login ';
 $translations['Base_User_Login']['Username']='Użytkownik';
 $translations['Base_User_Login']['Password']='Hasło';
-$translations['Base_User_Login']['Keep this box unchecked if using a public computer']='Pozostaw to pole niezaznaczone jeśli używasz publicznego komputera';
+$translations['Base_User_Login']['Don\'t check this box if you are using public computer!']='Nie zaznaczaj tego pola jeżeli używasz publicznego komputera';
 $translations['Base_User_Login']['Remember me']='Pamiętaj mnie';
 $translations['Base_User_Login']['Recover password']='Odzyskaj hasło';
 $translations['Base_User_Login']['Login or password incorrect']='Użytkownik lub hasło nieprawidłowe';
@@ -36,6 +36,7 @@ For security reasons it is recommened that you login immediately and change your
 This e-mail was automatically generated and you do not need to respond to it.']='';
 $translations['Base_User_Login']['Keep this box unchecked if using a  public computer']='';
 $translations['Base_User_Login']['donation']='';
-$translations['Base_User_Login']['If you find our software useful, please support us by making a %s.<br>Your funding will help to ensure continued development of this project.']='Jeżeli używasz tej aplikacji proszę wesprzyj nasz projekt przez %s. Twoja pomoc pozwoli nam kontynuować pracę nad aplikacją.';
+$translations['Base_User_Login']['If you find our software useful, please support us by making a %s.<br>Your funding will help to ensure continued development of this project.']='Jeżeli używasz tej aplikacji proszę wesprzyj nasz projekt przez $s. Twoja pomoc pozwoli nam kontunuawać pracę nad aplikacją.';
 $translations['Base_User_Login']['Mail with password sent.']='';
+$translations['Base_User_Login']['Keep this box unchecked if using a public computer']='';
 ?>

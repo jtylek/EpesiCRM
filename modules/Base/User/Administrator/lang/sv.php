@@ -7,7 +7,7 @@
 global $translations;
 $translations['Base_User_Administrator']['Login']='Inloggning';
 $translations['Base_User_Administrator']['Mail']='Post';
-$translations['Base_User_Administrator']['Access']='Access';
+$translations['Base_User_Administrator']['Access']='Åtkomst';
 $translations['Base_User_Administrator']['Ban time after 3 failed logins']='Bantid efter tre misslyckade inloggningar';
 $translations['Base_User_Administrator']['disabled']='avaktiverad';
 $translations['Base_User_Administrator']['10 seconds']='10 sekunder';

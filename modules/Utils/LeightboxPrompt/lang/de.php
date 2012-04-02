@@ -6,5 +6,5 @@
  */
 global $translations;
 $translations['Utils_LeightboxPrompt']['Cancel']='Abbrechen';
-$translations['Utils_LeightboxPrompt']['OK']='';
+$translations['Utils_LeightboxPrompt']['OK']='OK';
 ?>

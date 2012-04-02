@@ -29,4 +29,8 @@ $translations['CRM_Filters']['Saved Presets']='Zapisane filtry';
 $translations['CRM_Filters']['Perspective']='Perspektywa';
 $translations['CRM_Filters']['Perspective: ']='Perspektywa:';
 $translations['CRM_Filters']['Show']='Pokaż';
+$translations['CRM_Filters']['Default perspective']='Domyślna perspektywa';
+$translations['CRM_Filters']['Show all contacts in Perspective selection']='Pokaż wszystkie kontakty przy wyborze Perspektywy';
+$translations['CRM_Filters']['New preset']='Nowy zestaw';
+$translations['CRM_Filters']['Group with this name already exists']='Grupa z taką nazwą już istnieje';
 ?>

@@ -30,6 +30,7 @@ $translations['CRM_Tasks']['Permission:']='Permisos:';
 $translations['CRM_Tasks']['Priority:']='Prioridad:';
 $translations['CRM_Tasks']['Task Deadline: %s']='Fecha límite de Tarea: %s';
 $translations['CRM_Tasks']['Title: %s']='Título: %s';
+$translations['CRM_Tasks']['Not set']='No definido';
 $translations['Utils_RecordBrowser:task']['Employees']='Empleados';
 $translations['Utils_RecordBrowser:task']['Priority']='Prioridad';
 $translations['Utils_RecordBrowser:task']['Title']='Título';
@@ -39,4 +40,6 @@ $translations['Utils_RecordBrowser:task']['Longterm']='Largo Plazo';
 $translations['Utils_RecordBrowser:task']['Deadline']='Fecha límite';
 $translations['Utils_RecordBrowser:task']['Description']='Descripción';
 $translations['Utils_RecordBrowser:task']['Permission']='Permisos';
+$translations['Utils_RecordBrowser:task']['Task']='Tarea';
+$translations['Utils_RecordBrowser:task']['Assigned to']='Asignado a';
 ?>

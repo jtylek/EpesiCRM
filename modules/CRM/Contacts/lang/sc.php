@@ -14,12 +14,12 @@ $translations['CRM_Contacts']['Click here to search this location using google m
 $translations['CRM_Contacts']['New Event']='新日程';
 $translations['CRM_Contacts']['New Task']='新任务';
 $translations['CRM_Contacts']['New Phonecall']='新通话';
-$translations['CRM_Contacts']['New Note']='';
 $translations['CRM_Contacts']['<br/>This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would You like to copy to company contacts:']='<br/>本次操作将用从公司记录中的数据更新该公司内的所有联系人的数据。<br/><br/>请检查哪些数据需要更新到联系人中：';
 $translations['CRM_Contacts']['Confirm']='确认';
 $translations['CRM_Contacts']['Cancel']='取消';
-$translations['CRM_Contacts']['Invalid e-mail address']='';
-$translations['CRM_Contacts']['Set CRM Filter']='';
+$translations['CRM_Contacts']['Companies']='';
+$translations['CRM_Contacts']['Contacts']='';
+$translations['CRM_Contacts']['P']='';
 $translations['Utils_RecordBrowser:company']['Company Name']='公司名称';
 $translations['Utils_RecordBrowser:company']['Short Name']='简称';
 $translations['Utils_RecordBrowser:company']['Phone']='电话';

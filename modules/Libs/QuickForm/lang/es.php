@@ -12,4 +12,5 @@ $translations['Libs_QuickForm']['This is not valid number']='No es un número v�
 $translations['Libs_QuickForm']['Text too long']='Texto demasiado largo';
 $translations['Libs_QuickForm']['Field required']='Campo requerido';
 $translations['Libs_QuickForm']['Must be a number']='Debe ser un número';
+$translations['Libs_QuickForm']['No records founds']='No se encontraron registros';
 ?>

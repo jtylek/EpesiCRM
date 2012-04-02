@@ -14,4 +14,7 @@ $translations['Apps_Shoutbox']['Shoutbox History']='Chattruteistorik';
 $translations['Apps_Shoutbox']['User']='Användare';
 $translations['Apps_Shoutbox']['Message']='Meddelande';
 $translations['Apps_Shoutbox']['Date']='Datum';
+$translations['Apps_Shoutbox']['To']='';
+$translations['Apps_Shoutbox']['-- all --']='';
+$translations['Apps_Shoutbox']['Send']='';
 ?>

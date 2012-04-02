@@ -50,6 +50,7 @@ $translations['Utils_RecordBrowser:contact']['Home Zone']='Регион';
 $translations['Utils_RecordBrowser:contact']['Home Postal Code']='Почтовый индекс';
 $translations['Utils_RecordBrowser:contact']['Birth Date']='Дата рождения';
 $translations['Utils_RecordBrowser:contact']['Details']='Детали';
+$translations['Utils_RecordBrowser:contact']['Language']='Язык';
 $translations['CRM_Contacts']['Add contact']='Добавить контакт';
 $translations['CRM_Contacts']['Choose main company']='Выберете главную компанию';
 $translations['CRM_Contacts']['%s %s from %s']='%s %s от %s';

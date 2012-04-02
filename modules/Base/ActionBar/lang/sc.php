@@ -29,5 +29,11 @@ $translations['Base_ActionBar']['Add contact']='增加联系人';
 $translations['Base_ActionBar']['Print']='打印';
 $translations['Base_ActionBar']['Add event']='添加日程';
 $translations['Base_ActionBar']['Cancel']='取消';
-$translations['Base_ActionBar']['Click 2 Fill']='';
+$translations['Base_ActionBar'][' Calendar']='日历';
+$translations['Base_ActionBar'][' Contacts']='联系人';
+$translations['Base_ActionBar'][' Companies']='公司';
+$translations['Base_ActionBar'][' Phone Calls']='通话';
+$translations['Base_ActionBar'][' Tasks']='任务';
+$translations['Base_ActionBar']['关注']='订阅';
+$translations['Base_ActionBar']['Config']='';
 ?>

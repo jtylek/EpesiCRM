@@ -7,7 +7,7 @@
 global $translations;
 $translations['FirstRun']['Welcome to epesi first run wizard']='Witamy w programie instalacyjnym epesi';
 $translations['FirstRun']['CRM installation']='Instalacja CRM';
-$translations['FirstRun']['CRM and Sales Opportunity']='';
+$translations['FirstRun']['CRM and Sales Opportunity']='CRM i Oferty Handlowe';
 $translations['FirstRun']['CRM and Bug Tracker installation']='';
 $translations['FirstRun']['Full installation']='Pełna Instalacja';
 $translations['FirstRun']['Please enter administrator user login and password']='Prosze podać nazwę i hasło administratora';

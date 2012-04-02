@@ -22,4 +22,7 @@ $translations['Apps_ActivityReport']['Label']='Etykieta';
 $translations['Apps_ActivityReport']['Actions taken']='Podjęte działania';
 $translations['Apps_ActivityReport']['Created']='Stworzony';
 $translations['Apps_ActivityReport']['Edited']='Edytowany';
+$translations['Apps_ActivityReport']['Deleted']='Usunięty';
+$translations['Apps_ActivityReport']['Access restricted']='Dostęp ograniczony';
+$translations['Apps_ActivityReport']['Restored']='Przywrócony';
 ?>

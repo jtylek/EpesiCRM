@@ -36,6 +36,7 @@ $translations['Base_Menu_QuickAccess']['Tests: Generic Browser']='Test: Allmän 
 $translations['Base_Menu_QuickAccess']['Tests: Image']='Test: Image';
 $translations['Base_Menu_QuickAccess']['Tests: Lang']='Test: Lang';
 $translations['Base_Menu_QuickAccess']['Tests: Leightbox page']='Test: Leightbox-sida';
+$translations['Base_Menu_QuickAccess']['Tests: Lytebox page']='Test: Lytebox-sida';
 $translations['Base_Menu_QuickAccess']['Tests: Menu']='Tester: Meny';
 $translations['Base_Menu_QuickAccess']['Tests: QuickForm page']='Test: QuickForm-sida';
 $translations['Base_Menu_QuickAccess']['Tests: Shared Unique Href']='Tester: Delade Unika href';
@@ -64,4 +65,5 @@ $translations['Base_Menu_QuickAccess']['Messenger alerts']='Medelandevarningar';
 $translations['Base_Menu_QuickAccess']['My settings: My Contact']='Mina inställningar: Min Kontakt';
 $translations['Base_Menu_QuickAccess']['CRM: Assets']='CRM: Tillgångar';
 $translations['Base_Menu_QuickAccess']['Import...']='Importera ...';
+$translations['Base_Menu_QuickAccess']['Reports: User Activity Report']='';
 ?>

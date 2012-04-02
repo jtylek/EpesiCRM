@@ -39,4 +39,15 @@ $translations['CRM_Tasks']['Permission:']='Tillstånd:';
 $translations['CRM_Tasks']['Priority:']='Prioritering:';
 $translations['CRM_Tasks']['Yes']='Ja';
 $translations['CRM_Tasks']['Not set']='Inte satt';
+$translations['Utils_RecordBrowser:task']['Title']='Titel';
+$translations['Utils_RecordBrowser:task']['Deadline']='Sista dag';
+$translations['Utils_RecordBrowser:task']['Status']='Status';
+$translations['Utils_RecordBrowser:task']['Task']='';
+$translations['Utils_RecordBrowser:task']['Description']='Beskrivning';
+$translations['Utils_RecordBrowser:task']['Assigned to']='';
+$translations['Utils_RecordBrowser:task']['Customers']='Kunder';
+$translations['Utils_RecordBrowser:task']['Longterm']='Långvariga';
+$translations['Utils_RecordBrowser:task']['Permission']='Tillstånd';
+$translations['Utils_RecordBrowser:task']['Priority']='Prioritet';
+$translations['Utils_RecordBrowser:task']['Employees']='Anställda';
 ?>

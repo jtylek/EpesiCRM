@@ -40,4 +40,5 @@ Parola: %s
 Din motive de securitate este recomandat sa va logati imediat si sa modoficati parola.
 
 Acest e-mail a fost generat automat si nu etse nevoie sa raspundeti.';
+$translations['Base_User_Login']['Keep this box unchecked if using a  public computer']='Lasati casute NEbifata daca utilizati un computer public';
 ?>

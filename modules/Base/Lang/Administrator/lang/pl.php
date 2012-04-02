@@ -13,4 +13,11 @@ $translations['Base_Lang_Administrator']['Translated']='Przetłumaczone';
 $translations['Base_Lang_Administrator']['OK']='Potwierdź';
 $translations['Base_Lang_Administrator']['Cancel']='Anuluj';
 $translations['Base_Lang_Administrator']['Filter']='Filtr';
+$translations['Base_Lang_Administrator']['Creating new langpack...']='Tworzenie nowej paczki językowej...';
+$translations['Base_Lang_Administrator']['Create new langpack']='Utwórz nową paczkę językową';
+$translations['Base_Lang_Administrator']['Language code']='Kod języka';
+$translations['Base_Lang_Administrator']['Specified langpack already exists']='Podana paczka językowa już istnieje';
+$translations['Base_Lang_Administrator']['Field required']='Pole wymagane';
+$translations['Base_Lang_Administrator']['Create']='Utwórz';
+$translations['Base_Lang_Administrator']['Languages Administration']='Zarządzanie językami';
 ?>

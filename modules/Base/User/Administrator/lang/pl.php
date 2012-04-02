@@ -56,7 +56,7 @@ $translations['Base_User_Administrator']['Yes']='Tak';
 $translations['Base_User_Administrator']['No']='Nie';
 $translations['Base_User_Administrator']['yes']='tak';
 $translations['Base_User_Administrator']['no']='nie';
-$translations['Base_User_Administrator']['Log as user']='';
+$translations['Base_User_Administrator']['Log as user']='Zaloguj się jako użytkownik';
 $translations['Base_User_Administrator']['Actions']='Akcje';
 $translations['Base_User_Administrator']['Contact']='Kontakt';
 ?>

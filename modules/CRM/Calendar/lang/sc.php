@@ -6,7 +6,5 @@
  */
 global $translations;
 $translations['CRM_Calendar']['Start']='开始';
-$translations['CRM_Calendar']['Title']='标题';
-$translations['CRM_Calendar']['Meeting']='';
-$translations['CRM_Calendar']['Type']='';
+$translations['CRM_Calendar']['Title']='名称';
 ?>

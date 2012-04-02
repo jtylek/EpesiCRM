@@ -43,4 +43,8 @@ $translations['Utils_GenericBrowser']['Install']='Instalar';
 $translations['Utils_GenericBrowser']['Restore']='Restaurar';
 $translations['Utils_GenericBrowser']['restore']='restaurar';
 $translations['Utils_GenericBrowser']['Activate']='Activar';
+$translations['Utils_GenericBrowser']['Unsubscribe']='Desuscribir';
+$translations['Utils_GenericBrowser']['Show all']='Mostrar todo';
+$translations['Utils_GenericBrowser']['Expand']='Expandir';
+$translations['Utils_GenericBrowser']['Collapse']='Ocultar';
 ?>

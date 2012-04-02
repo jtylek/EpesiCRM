@@ -42,4 +42,5 @@ $translations['Utils_GenericBrowser']['Page (%s to %s)']='Sida (%s till %s)';
 $translations['Utils_GenericBrowser']['Append data']='Lägg till data';
 $translations['Utils_GenericBrowser']['copy']='kopia';
 $translations['Utils_GenericBrowser']['cut']='skär';
+$translations['Utils_GenericBrowser']['Show all']='';
 ?>

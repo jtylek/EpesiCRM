@@ -5,5 +5,5 @@
  * @subpackage de
  */
 global $translations;
-$translations['Utils_RecordBrowser_RecordPicker']['Select']='';
+$translations['Utils_RecordBrowser_RecordPicker']['Select']='Wählen';
 ?>

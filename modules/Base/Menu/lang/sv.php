@@ -41,6 +41,7 @@ $translations['Base_Menu']['Generic Browser']='Allmän Bläddrare';
 $translations['Base_Menu']['Image']='Bild';
 $translations['Base_Menu']['Lang']='Språk';
 $translations['Base_Menu']['Leightbox page']='Leightbox-sida';
+$translations['Base_Menu']['Lytebox page']='Lytebox-sida';
 $translations['Base_Menu']['QuickForm page']='QuickForm-sida';
 $translations['Base_Menu']['Shared Unique Href']='Delade Unika HREF';
 $translations['Base_Menu']['Tabbed Browser']='Flikbläddrare';
@@ -70,4 +71,5 @@ $translations['Base_Menu']['Main Company']='Huvudföretag';
 $translations['Base_Menu']['My Contact']='Min kontakt';
 $translations['Base_Menu']['Assets']='Tillgångar';
 $translations['Base_Menu']['Import...']='Importera ...';
+$translations['Base_Menu']['User Activity Report']='';
 ?>

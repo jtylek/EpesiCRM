@@ -1,0 +1,80 @@
+<?php
+/**
+ * Translation file
+ * @package epesi-translations
+ * @subpackage ro
+ */
+global $translations;
+$translations['Utils_Calendar']['Show next week']='Arata saptamana viitoare';
+$translations['Utils_Calendar']['Start']='Inceput';
+$translations['Utils_Calendar']['Duration']='Durata';
+$translations['Utils_Calendar']['Title']='Titlu';
+$translations['Utils_Calendar']['Timeless']='La orice ora';
+$translations['Utils_Calendar']['Agenda']='Agenda';
+$translations['Utils_Calendar']['Day']='Zi';
+$translations['Utils_Calendar']['Week']='Saptamana';
+$translations['Utils_Calendar']['Month']='Luna';
+$translations['Utils_Calendar']['Year']='An';
+$translations['Utils_Calendar']['Next week']='Saptamana viitoare';
+$translations['Utils_Calendar']['Next day']='Maine';
+$translations['Utils_Calendar']['Today']='Azi';
+$translations['Utils_Calendar']['Previous day']='Ieri';
+$translations['Utils_Calendar']['Previous week']='Saptamana trecuta';
+$translations['Utils_Calendar']['Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event']='Dublu clic pentru a adauga un eveniment';
+$translations['Utils_Calendar']['Week calendar']='Calendar saptamanal';
+$translations['Utils_Calendar']['Add event']='Adauga eveniment';
+$translations['Utils_Calendar']['Next year']='Anul viitor';
+$translations['Utils_Calendar']['Next month']='Luna viitoare';
+$translations['Utils_Calendar']['Previous month']='Luna trecuta';
+$translations['Utils_Calendar']['Previous year']='Anul trecut';
+$translations['Utils_Calendar']['Month calendar']='Calendar lunar';
+$translations['Utils_Calendar']['Day calendar']='Calendar zilnic';
+$translations['Utils_Calendar']['From']='De la';
+$translations['Utils_Calendar']['To']='Pana la';
+$translations['Utils_Calendar']['Show']='Arata';
+$translations['Utils_Calendar']['Description']='Descriere';
+$translations['Utils_Calendar']['Assigned to']='Atribuit lui';
+$translations['Utils_Calendar']['Related with']='In legatura cu';
+$translations['Utils_Calendar']['timeless']='la orice ora';
+$translations['Utils_Calendar']['%d:%s']='';
+$translations['Utils_Calendar']['Delete this event?']='Sterg acest eveniment?';
+$translations['Utils_Calendar']['%d day(s) %d:%s']='%d zi(le) %d:%s';
+$translations['Utils_Calendar']['00:%s']='';
+$translations['Utils_Calendar']['%d sec']='';
+$translations['Utils_Calendar']['Year calendar']='Calendar - an';
+$translations['Utils_Calendar']['Aug']='Aug';
+$translations['Utils_Calendar']['Sun']='Duminica';
+$translations['Utils_Calendar']['Mon']='Luni';
+$translations['Utils_Calendar']['Tue']='Marti';
+$translations['Utils_Calendar']['Wed']='Miercuri';
+$translations['Utils_Calendar']['Thu']='Joi';
+$translations['Utils_Calendar']['Fri']='Vineri';
+$translations['Utils_Calendar']['Sat']='Sambata';
+$translations['Utils_Calendar']['Yesterday']='Ieri';
+$translations['Utils_Calendar']['Tomorrow']='Maine';
+$translations['Utils_Calendar']['August']='August';
+$translations['Utils_Calendar']['January']='Ianuarie';
+$translations['Utils_Calendar']['February']='Februarie';
+$translations['Utils_Calendar']['March']='Martie';
+$translations['Utils_Calendar']['April']='Aprilie';
+$translations['Utils_Calendar']['May']='Mai';
+$translations['Utils_Calendar']['June']='Iunie';
+$translations['Utils_Calendar']['July']='Iulie';
+$translations['Utils_Calendar']['September']='Septembrie';
+$translations['Utils_Calendar']['October']='Octombrie';
+$translations['Utils_Calendar']['November']='Noiembrie';
+$translations['Utils_Calendar']['December']='Decembrie';
+$translations['Utils_Calendar']['Friday']='Vineri';
+$translations['Utils_Calendar']['Saturday']='Sambata';
+$translations['Utils_Calendar']['Sunday']='Duminica';
+$translations['Utils_Calendar']['Monday']='Luni';
+$translations['Utils_Calendar']['Thursday']='Joi';
+$translations['Utils_Calendar']['Wednesday']='Miercuri';
+$translations['Utils_Calendar']['Drag and drop<br>to delete']='Cos de gunoi';
+$translations['Utils_Calendar']['Sep']='Sept';
+$translations['Utils_Calendar']['Mar']='Mar';
+$translations['Utils_Calendar']['Apr']='Apr';
+$translations['Utils_Calendar']['Jan']='Ian';
+$translations['Utils_Calendar']['Tuesday']='Marti';
+$translations['Utils_Calendar']['Click to show / hide menu']='Clic pentru a arata / ascunde meniul';
+?>

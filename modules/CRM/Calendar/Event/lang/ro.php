@@ -128,4 +128,16 @@ $translations['CRM_Calendar_Event']['Popup message']='Mesaj alerta';
 $translations['CRM_Calendar_Event']['Alert me']='Alerteaza-ma';
 $translations['CRM_Calendar_Event']['You have to select your contact to set alarm on it']='Trebuie sa selectati cantactul dvs. pentru a seta alarma pentru el.';
 $translations['CRM_Calendar_Event']['No end date']='Fara data de terminare';
+$translations['CRM_Calendar_Event']['Date']='';
+$translations['CRM_Calendar_Event']['Assigned to']='';
+$translations['CRM_Calendar_Event']['Contacts']='';
+$translations['CRM_Calendar_Event']['phonecall']='';
+$translations['CRM_Calendar_Event']['Task']='';
+$translations['CRM_Calendar_Event']['Meetings']='Sedinte';
+$translations['CRM_Calendar_Event']['Tasks']='Sarcini';
+$translations['CRM_Calendar_Event']['Phonecalls']='Convorbiri telefonice';
+$translations['CRM_Calendar_Event']['Tickets']='Bilete';
+$translations['CRM_Calendar_Event']['All']='Toate';
+$translations['CRM_Calendar_Event']['Processing...']='Prelucrez...';
+$translations['CRM_Calendar_Event']['Save selection']='Salveaza selectia';
 ?>

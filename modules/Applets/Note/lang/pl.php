@@ -6,4 +6,5 @@
  */
 global $translations;
 $translations['Applets_Note']['Note']='Notka';
+$translations['Applets_Note']['Text to display']='Wyświetlany tekst';
 ?>

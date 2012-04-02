@@ -174,4 +174,11 @@ $translations['Base_Dashboard']['Proyectos']='Proyectos';
 $translations['Base_Dashboard']['Subscriptions display settings']='Configuración de Suscripciones - Display';
 $translations['Base_Dashboard']['settings']='configuración';
 $translations['Base_Dashboard']['display settings']='configuración - display';
+$translations['Base_Dashboard']['Add new Tab']='Agregar nueva Pestaña';
+$translations['Base_Dashboard']['Calc display settings']='Configuración de Reloj - Display';
+$translations['Base_Dashboard']['Number of news']='Número de noticias';
+$translations['Base_Dashboard']['Title (leave empty for RSS feed value)']='Título (dejar en blanco para valor de RSS)';
+$translations['Base_Dashboard']['Invalid RSS feed or server has disabled url_fopen support']='Fuente RSS inválida o el servidor ha deshabilitado el soporte url_fopen';
+$translations['Base_Dashboard']['Invalid address']='Dirección inválida';
+$translations['Base_Dashboard']['Display closed meetings']='Mostrar reuniones terminadas';
 ?>

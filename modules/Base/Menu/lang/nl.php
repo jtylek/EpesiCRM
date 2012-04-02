@@ -17,6 +17,7 @@ $translations['Base_Menu']['Generic Browser']='Algemene Browser';
 $translations['Base_Menu']['Image']='Plaatje';
 $translations['Base_Menu']['Lang']='Taal';
 $translations['Base_Menu']['Leightbox page']='Leightbox Pagina';
+$translations['Base_Menu']['Lytebox page']='Lytebox Pagina';
 $translations['Base_Menu']['QuickForm page']='QuickForm Pagina';
 $translations['Base_Menu']['Shared Unique Href']='Algemene unieke HRefs';
 $translations['Base_Menu']['Tabbed Browser']='Tabbed Browser';

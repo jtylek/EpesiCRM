@@ -28,4 +28,13 @@ $translations['CRM_Tasks']['Display tasks marked as']='';
 $translations['CRM_Tasks']['Both']='';
 $translations['CRM_Tasks']['Short term']='';
 $translations['CRM_Tasks']['Long term']='';
+$translations['Utils_RecordBrowser:task']['Title']='Titel';
+$translations['Utils_RecordBrowser:task']['Deadline']='Moet afgerond';
+$translations['Utils_RecordBrowser:task']['Status']='Status';
+$translations['Utils_RecordBrowser:task']['Employees']='Werknemers';
+$translations['Utils_RecordBrowser:task']['Priority']='Prioriteit';
+$translations['Utils_RecordBrowser:task']['Customers']='Clienten';
+$translations['Utils_RecordBrowser:task']['Longterm']='Lange termijn';
+$translations['Utils_RecordBrowser:task']['Description']='';
+$translations['Utils_RecordBrowser:task']['Permission']='Toestemming';
 ?>

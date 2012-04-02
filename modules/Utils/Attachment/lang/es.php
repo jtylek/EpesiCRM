@@ -48,4 +48,10 @@ $translations['Utils_Attachment']['Method description']='Descripción del métod
 $translations['Utils_Attachment']['Remote']='Remoto';
 $translations['Utils_Attachment']['Edit note']='Editar Nota';
 $translations['Utils_Attachment']['Replace attachment with file']='Reemplazar adjunto con archivo';
+$translations['Utils_Attachment']['Paste note']='Pegar Nota';
+$translations['Utils_Attachment']['Save note']='Guardar nota';
+$translations['Utils_Attachment']['Cancel']='Cancelar';
+$translations['Utils_Attachment']['Show deleted notes']='Mostrar notas eliminadas';
+$translations['Utils_Attachment']['Expand All']='Expandir todo';
+$translations['Utils_Attachment']['Collapse All']='Ocultar todo';
 ?>

@@ -19,10 +19,10 @@ $translations['CRM_Contacts_Activities']['Task']='Zadanie';
 $translations['CRM_Contacts_Activities']['Closed']='Zamknięty';
 $translations['CRM_Contacts_Activities']['Phone Call']='Telefon';
 $translations['CRM_Contacts_Activities']['No deadline']='';
-$translations['CRM_Contacts_Activities']['Show']='';
-$translations['CRM_Contacts_Activities']['Activities date']='';
-$translations['CRM_Contacts_Activities']['Future']='';
-$translations['CRM_Contacts_Activities']['Past']='';
-$translations['CRM_Contacts_Activities']['All time']='';
+$translations['CRM_Contacts_Activities']['Show']='Pokaż';
+$translations['CRM_Contacts_Activities']['Activities date']='Data wydarzeń';
+$translations['CRM_Contacts_Activities']['Future']='Przyszłe';
+$translations['CRM_Contacts_Activities']['Past']='Przeszłe';
+$translations['CRM_Contacts_Activities']['All time']='Wszystkie';
 $translations['CRM_Contacts_Activities']['Attachments']='Załączniki';
 ?>

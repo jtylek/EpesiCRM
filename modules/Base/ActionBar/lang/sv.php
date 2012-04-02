@@ -94,4 +94,15 @@ $translations['Base_ActionBar']['Attach Screenshot']='Bifoga skärmdump';
 $translations['Base_ActionBar']['Copy company data']='Kopiera företagsinformation';
 $translations['Base_ActionBar']['Copy']='Kopiera';
 $translations['Base_ActionBar']['New alert']='Ny varning';
+$translations['Base_ActionBar'][' Calendar']='Kalender';
+$translations['Base_ActionBar'][' Contacts']='Kontakter';
+$translations['Base_ActionBar'][' Companies']='Företag';
+$translations['Base_ActionBar'][' Phone Calls']='Telefonsamtal';
+$translations['Base_ActionBar'][' Tasks']='Uppgifter';
+$translations['Base_ActionBar'][' Projects']='Projekt';
+$translations['Base_ActionBar'][' Change Orders']='Ändra Beställningar';
+$translations['Base_ActionBar'][' Lift Equipment']='Lyft Utrustning';
+$translations['Base_ActionBar'][' Project Planner']='Projektplanerare';
+$translations['Base_ActionBar']['Config']='';
+$translations['Base_ActionBar']['Refresh languages']='';
 ?>

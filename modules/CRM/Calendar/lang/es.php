@@ -20,4 +20,5 @@ $translations['CRM_Calendar']['Agenda']='Agenda';
 $translations['CRM_Calendar']['Weekly agenda']='Agenda Semanal';
 $translations['CRM_Calendar']['CRM Filters: %s']='Filtros CRM: %s';
 $translations['CRM_Calendar']['Monthly agenda']='Agenda Mensual';
+$translations['CRM_Calendar']['Daily agenda']='Agenda Diaria';
 ?>

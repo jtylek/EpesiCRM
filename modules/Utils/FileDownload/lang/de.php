@@ -5,5 +5,5 @@
  * @subpackage de
  */
 global $translations;
-$translations['Utils_FileDownload']['Download finished']='';
+$translations['Utils_FileDownload']['Download finished']='Download beendet';
 ?>

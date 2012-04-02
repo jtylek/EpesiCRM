@@ -5,5 +5,5 @@
  * @subpackage pl
  */
 global $translations;
-$translations['Base_HomePage']['Home page saved']='Strona domowa zapisana';
+$translations['Base_HomePage']['Home page saved']='Strona startowa zapisana';
 ?>

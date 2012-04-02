@@ -5,11 +5,11 @@
  * @subpackage de
  */
 global $translations;
-$translations['Utils_PopupCalendar']['Select date']='Wähle Datum';
+$translations['Utils_PopupCalendar']['Select date']='Datum auswählen';
 $translations['Utils_PopupCalendar']['Example date: %s']='Beispiel Datum: %s';
-$translations['Utils_PopupCalendar']['Select month']='Wähle Monat';
-$translations['Utils_PopupCalendar']['Select year']='Wähle Jahr';
-$translations['Utils_PopupCalendar']['Calendar']='';
+$translations['Utils_PopupCalendar']['Select month']='Monat auswählen';
+$translations['Utils_PopupCalendar']['Select year']='Jahr auswählen';
+$translations['Utils_PopupCalendar']['Calendar']='Kalender';
 $translations['Utils_PopupCalendar']['January']='Januar';
 $translations['Utils_PopupCalendar']['February']='Februar';
 $translations['Utils_PopupCalendar']['March']='März';

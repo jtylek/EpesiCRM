@@ -5,12 +5,12 @@
  * @subpackage de
  */
 global $translations;
-$translations['Utils_CurrencyField']['Example value: %s']='';
-$translations['Utils_CurrencyField']['After']='Später';
-$translations['Utils_CurrencyField']['Before']='Vorher';
+$translations['Utils_CurrencyField']['Example value: %s']='Beispiel Wert: %s';
+$translations['Utils_CurrencyField']['After']='Am Ende';
+$translations['Utils_CurrencyField']['Before']='Am Anfang';
 $translations['Utils_CurrencyField']['Yes']='Ja';
 $translations['Utils_CurrencyField']['No']='Nein';
-$translations['Utils_CurrencyField']['Code']='Code';
+$translations['Utils_CurrencyField']['Code']='Kennung';
 $translations['Utils_CurrencyField']['Symbol']='Symbol';
 $translations['Utils_CurrencyField']['Symbol position']='Position des Symbols';
 $translations['Utils_CurrencyField']['Decimal sign']='Dezimalzeichen';

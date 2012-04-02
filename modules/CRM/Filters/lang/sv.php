@@ -24,4 +24,9 @@ $translations['CRM_Filters']['Filter: %s']='Filter: %s';
 $translations['CRM_Filters']['%s']='%s';
 $translations['CRM_Filters']['Saved Filters']='Sparade Filter';
 $translations['CRM_Filters']['Filters: ']='Filter:';
+$translations['CRM_Filters']['Manage presets']='';
+$translations['CRM_Filters']['Show']='';
+$translations['CRM_Filters']['Saved Presets']='';
+$translations['CRM_Filters']['Perspective']='';
+$translations['CRM_Filters']['Perspective: ']='';
 ?>

@@ -10,4 +10,5 @@ $translations['Utils_FileUpload']['Processing file...']='Przetwarzanie pliku...'
 $translations['Utils_FileUpload']['Specify file']='Podaj plik';
 $translations['Utils_FileUpload']['Upload status']='Stan ładowania';
 $translations['Utils_FileUpload']['Upload']='Załaduj';
+$translations['Utils_FileUpload']['uploading...']='wysyłanie danych...';
 ?>

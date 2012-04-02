@@ -24,5 +24,4 @@ $translations['Base_Admin']['Printing options']='打印选项';
 $translations['Base_Admin']['Records Sets']='记录设置';
 $translations['Base_Admin']['Title and logo']='标题和图标';
 $translations['Base_Admin']['Modules settings']='模块设置';
-$translations['Base_Admin']['Download modules']='';
 ?>

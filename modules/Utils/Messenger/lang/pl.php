@@ -26,4 +26,5 @@ $translations['Utils_Messenger']['1 hour']='1 godzinę';
 $translations['Utils_Messenger']['4 hours']='4 godziny';
 $translations['Utils_Messenger']['12 hours']='12 godzin';
 $translations['Utils_Messenger']['24 hours']='24 godziny';
+$translations['Utils_Messenger']['Purge all done alerts?']='Wyczyścić wszystkie skończone powiadomienia?';
 ?>

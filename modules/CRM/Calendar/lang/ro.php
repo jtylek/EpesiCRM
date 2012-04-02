@@ -19,4 +19,11 @@ $translations['CRM_Calendar']['Agenda']='Agenda';
 $translations['CRM_Calendar']['Events']='Evenimente';
 $translations['CRM_Calendar']['Event updated']='Eveniment actualizat';
 $translations['CRM_Calendar']['Event moved']='Eveniment mutat';
+$translations['CRM_Calendar']['Meeting']='Sedinte';
+$translations['CRM_Calendar']['Task']='Sarcini';
+$translations['CRM_Calendar']['Phonecall']='convorbire telefonica';
+$translations['CRM_Calendar']['Ticket']='Bilet';
+$translations['CRM_Calendar']['New Event']='Eveniment nou';
+$translations['CRM_Calendar']['Type']='Tip';
+$translations['CRM_Calendar']['Monthly_agenda']='Agenda lunara';
 ?>
