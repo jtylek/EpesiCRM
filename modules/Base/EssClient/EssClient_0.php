@@ -16,7 +16,7 @@ class Base_EssClient extends Module {
         // When user gets here from Menu/Help we need pop_main
         // When from admin panel we need parent->reset()
         if ($this->is_back()) {
-            $this->pop_main();
+            Base_BoxCommon::pop_main();
         }
         $this->admin();
     }
@@ -29,6 +29,7 @@ class Base_EssClient extends Module {
             return;
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        Base_ActionBarCommon::add('settings', 'SSL settings', $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array('Base_EssClient', 'no_ssl_settings')));
 
         if (Base_EssClientCommon::has_license_key() == false) {
             $this->terms_and_conditions();
@@ -116,7 +117,7 @@ class Base_EssClient extends Module {
         print($this->t('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations can use the same Epesi License Key. '));
         print($this->t('Sharing your license key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
         print('<br><br>');
-        print($this->t('If you already have a License Key for this installation, you can enter it here:').' <a '.$this->create_callback_href(array($this, 'license_key_form')).'>'.$this->t('enter license key').'</a>');
+        print($this->t('If you already have a License Key for this installation, you can enter it here:') . ' <a ' . $this->create_callback_href(array($this, 'license_key_form')) . '>' . $this->t('enter license key') . '</a>');
         print('<br><br>');
         print($this->t('Full Terms and Conditions are available here:'));
         $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
@@ -251,7 +252,7 @@ class Base_EssClient extends Module {
 
         $f = $this->init_module('Libs/QuickForm');
 
-        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64, 'style'=>'width:380px;'));
+        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64, 'style' => 'width:380px;'));
         if ($f->validate()) {
             $x = $f->exportValues();
             Base_EssClientCommon::set_license_key($x['license_key']);
@@ -260,18 +261,29 @@ class Base_EssClient extends Module {
 
         $f->setDefaults(array('license_key' => Base_EssClientCommon::get_license_key()));
         Base_ActionBarCommon::add('save', 'Save', $f->get_submit_form_href());
-		print('<span class="important_notice"><center>');
-		print($this->t('On this screen you can manually set your License Key for this installation. This feature should only be used in case of system recovery or migration. If you are uncertain how to use this feature, it\'s best to leave this screen immediately.').'<br><br>');
+        print('<span class="important_notice"><center>');
+        print($this->t('On this screen you can manually set your License Key for this installation. This feature should only be used in case of system recovery or migration. If you are uncertain how to use this feature, it\'s best to leave this screen immediately.') . '<br><br>');
         $f->display_as_column();
-		print('</center></span>');
+        print('</center></span>');
         return true;
     }
 
-    private function pop_main() {
-        $x = ModuleManager::get_instance('/Base_Box|0');
-        if (!$x)
-            trigger_error('There is no base box module instance', E_USER_ERROR);
-        $x->pop_main();
+    public function no_ssl_settings() {
+        $f = $this->init_module("Libs/QuickForm");
+        $f->addElement('checkbox', 'allow', 'Allow unsecure connection');
+        Base_ActionBarCommon::add('back', 'Back', Base_BoxCommon::pop_main_href());
+        Base_ActionBarCommon::add('save', 'Save', $f->get_submit_form_href());
+        if ($f->validate()) {
+            $x = $f->exportValues();
+            $allow = false;
+            if (isset($x['allow']) && $x['allow'])
+                $allow = true;
+            Base_EssClientCommon::set_no_ssl_allow($allow);
+            Base_BoxCommon::pop_main();
+            return;
+        }
+        $f->setDefaults(array('allow' => Base_EssClientCommon::is_no_ssl_allowed()));
+        $f->display();
     }
 
 }

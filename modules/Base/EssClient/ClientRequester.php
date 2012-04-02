@@ -2,6 +2,10 @@
 
 require_once 'IClient.php';
 
+class SecureConnectionException extends Exception {
+    
+}
+
 /**
  * ClientRequester to perform Epesi Service Server clients requests.
  * @author Adam Bukowski <abukowski@telaxus.com>
@@ -12,6 +16,7 @@ class ClientRequester implements IClient {
 
     protected $server;
     protected $license_key;
+    private $secure = true;
 
     public function __construct($server) {
         $this->server = $server;
@@ -97,15 +102,40 @@ class ClientRequester implements IClient {
 
     protected function call($function, $params, $serialize_response = true) {
         $post_data = $this->build_query_post_data($function, $params, $serialize_response);
-        try {
-            $response = $this->request_server($post_data, !$serialize_response);
-            return $this->return_response_value_handling_user_messages($serialize_response, $response);
-        } catch (ErrorException $e) {
-            Base_EssClientCommon::add_client_message_error($e->getMessage());
-            return null;
+        $try_times = 3;
+        while ($try_times--) {
+            try {
+                if ($this->secure_connection() == false)
+                    Base_EssClientCommon::add_client_message_warning("Used unsecure connection!");
+                $response = $this->request_server($post_data, !$serialize_response);
+                return $this->return_response_value_handling_user_messages($serialize_response, $response);
+            } catch (SecureConnectionException $e) {
+                if (!Base_EssClientCommon::is_no_ssl_allowed()) {
+                    $disable_link_href = Base_BoxCommon::main_module_instance()->create_callback_href(array('Base_BoxCommon', 'push_module'), array('Base_EssClient', 'no_ssl_settings'));
+                    $disable_msg = "<br/>Or disable secure connection here: <a $disable_link_href>SSL settings</a>";
+                    Base_EssClientCommon::add_client_message_error($e->getMessage() . $disable_msg);
+                } else {
+                    $this->disable_secure_connection();
+                    continue;
+                }
+            } catch (ErrorException $e) {
+                Base_EssClientCommon::add_client_message_error($e->getMessage());
+                return null;
+            }
         }
+        if (!$try_times)
+            Base_EssClientCommon::add_client_message_error("Connection try limit exceeded");
     }
 
+    private function disable_secure_connection() {
+        $this->secure = false;
+        $this->server = str_replace('https:', 'http:', $this->server);
+    }
+
+    private function secure_connection() {
+        return preg_match("/^https.*/", $this->server);
+    }
+    
     private function build_query_post_data($function, & $params, $serialize_response) {
         return http_build_query($this->prepare_post_data($function, $params, $serialize_response));
     }
@@ -162,6 +192,9 @@ class ClientRequester implements IClient {
     }
 
     protected function fgc_call($post_data) {
+        if ($this->secure_connection() && !extension_loaded('openssl'))
+            throw new SecureConnectionException("Your server doesn't support ssl connection. Please load extension 'openssl.'");
+
         $http['method'] = 'POST';
         $http['header'] = 'Content-Type: application/x-www-form-urlencoded';
         $http['content'] = $post_data;

@@ -155,7 +155,15 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         }
         return $email;
     }
+    
+    public static function set_no_ssl_allow($allow = true) {
+        Variable::set('ess_no_ssl', $allow);
+    }
 
+    public static function is_no_ssl_allowed() {
+        return Variable::get('ess_no_ssl', false);
+    }
+    
     public static function add_client_message_error($message) {
         self::add_client_messages(array(array(), array(), array($message)));
     }

@@ -59,6 +59,14 @@ class Base_BoxCommon extends ModuleCommon {
         self::_base_box_instance()->push_main($module, $func, $args, $constr_args, $name);
         return false;
     }
+    
+    public static function pop_main() {
+        self::_base_box_instance()->pop_main();
+    }
+    
+    public static function pop_main_href() {
+        return self::main_module_instance()->create_callback_href(array('Base_BoxCommon', 'pop_main'));
+    }
 	
 	public static function update_version_check_indicator($force=false) {
 		$version_no = Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION));
