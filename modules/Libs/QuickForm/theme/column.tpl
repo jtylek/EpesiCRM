@@ -9,10 +9,10 @@
 	{foreach from=$form_data item=f}
 		{if is_array($f) && isset($f.type) && $f.type!='hidden' && $f.type!='button' && $f.type!='submit'}
 		<tr>
-			<td class="epesi_label" style="white-space: nowrap;">
+			<td class="epesi_label" style="width: 150px;white-space: nowrap;">
 				{$f.label}{if $f.required}*{/if}
 			</td>
-			<td class="epesi_data" style="min-width: 200px;">
+			<td class="epesi_data" style="width: 350px;">
 				<div style="position: relative;">
 					{$f.error}
 					{$f.html}

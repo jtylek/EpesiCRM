@@ -253,7 +253,7 @@ class Base_EssClient extends Module {
 
         $f = $this->init_module('Libs/QuickForm');
 
-        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64, 'style' => 'width:380px;'));
+        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64, 'style' => 'width:395px;'));
         if ($f->validate()) {
             $x = $f->exportValues();
             Base_EssClientCommon::set_license_key($x['license_key']);
