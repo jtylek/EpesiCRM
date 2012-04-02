@@ -286,7 +286,7 @@ class Base_EssClient extends Module {
         $f->setDefaults(array('allow' => Base_EssClientCommon::is_no_ssl_allowed()));
         
         print('<div class="important_notice">');
-        print($this->t("Disabling secure connection cause that your vulnerable data will be transferred NOT encrypted. This allows anyone to read your private license key, which you are obligated to not reveal. Any use of license key on several EPESI installations will be noticed and will cause invalidation of it."));
+        print($this->t("Allowing unsecure connection will cause all the data to be transferred without encryption. This creates opportunity for third parties to capture the data being transmitted, including your License Key. Please note that License Key should be kept confidential and that using the same License Key on several EPESI installations is a direct violation of Terms of Service and will result in termination of the License Key."));
         print('<center>');
         $f->display();
         print('</center>');
