@@ -5,6 +5,6 @@
  * @subpackage fr
  */
 global $translations;
-$translations['Libs_Leightbox']['Close']='Fermer';
-$translations['Libs_Leightbox']['Resize']='Redimansionner';
+$translations['Libs_Leightbox']['Close']='';
+$translations['Libs_Leightbox']['Resize']='';
 ?>

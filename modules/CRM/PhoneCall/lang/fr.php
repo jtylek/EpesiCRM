@@ -6,16 +6,16 @@
  */
 global $translations;
 $translations['Utils_RecordBrowser:phonecall']['Contact Name']='Nom du contact';
-$translations['Utils_RecordBrowser:phonecall']['Phone Number']='NumÈro de tÈlÈphone';
+$translations['Utils_RecordBrowser:phonecall']['Phone Number']='Num√©ro de t√©l√©phone';
 $translations['Utils_RecordBrowser:phonecall']['Status']='Etat';
-$translations['Utils_RecordBrowser:phonecall']['Employees']='EmployÈes';
+$translations['Utils_RecordBrowser:phonecall']['Employees']='Employ√©es';
 $translations['Utils_RecordBrowser:phonecall']['Related to']='';
 $translations['Utils_RecordBrowser:phonecall']['Subject']='Sujet';
 $translations['Utils_RecordBrowser:phonecall']['Date and Time']='Date et heure';
 $translations['Utils_RecordBrowser:phonecall']['Opportunity']='';
 $translations['Utils_RecordBrowser:phonecall']['Permission']='Permission';
-$translations['Utils_RecordBrowser:phonecall']['Priority']='PrioritÈ';
-$translations['Utils_RecordBrowser:phonecall']['Phone']='TÈlÈphone';
+$translations['Utils_RecordBrowser:phonecall']['Priority']='Priorit√©';
+$translations['Utils_RecordBrowser:phonecall']['Phone']='T√©l√©phone';
 $translations['CRM_PhoneCall']['Phonecalls']='Appels';
 $translations['CRM_PhoneCall']['New Meeting']='Nouvelle r√©union';
 $translations['CRM_PhoneCall']['New Task']='Nouvelle t√¢che';

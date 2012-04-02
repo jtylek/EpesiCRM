@@ -6,7 +6,7 @@
  */
 global $translations;
 $translations['Utils_Watchdog']['Subscribe']='S\'abonner';
-$translations['Utils_Watchdog']['You are subscribing this record. Click to unsubscribe.']='Vous vous abonnez à cette info. Cliquez pour vous désabonner.';
+$translations['Utils_Watchdog']['You are subscribing this record. Click to unsubscribe.']='Vous vous abonnez Ã  cette info. Cliquez pour vous dÃ©sabonner.';
 $translations['Utils_Watchdog']['Cat.']='';
 $translations['Utils_Watchdog']['Title']='';
 $translations['Utils_Watchdog']['Subscriptions - All']='Abonnement - Tout';

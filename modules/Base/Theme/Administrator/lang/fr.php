@@ -5,7 +5,7 @@
  * @subpackage fr
  */
 global $translations;
-$translations['Base_Theme_Administrator']['Choose template']='Choisir le modèle';
-$translations['Base_Theme_Administrator']['Preload selected template images']='Charger les images des modèles choisis';
-$translations['Base_Theme_Administrator']['Preload default template images']='Charger les images des modèles par défaut';
+$translations['Base_Theme_Administrator']['Choose template']='Choisir le modÃ¨le';
+$translations['Base_Theme_Administrator']['Preload selected template images']='Charger les images des modÃ¨les choisis';
+$translations['Base_Theme_Administrator']['Preload default template images']='Charger les images des modÃ¨les par dÃ©faut';
 ?>

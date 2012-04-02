@@ -6,8 +6,8 @@
  */
 global $translations;
 $translations['Utils_Attachment']['Public']='Public';
-$translations['Utils_Attachment']['Protected']='Protégé';
-$translations['Utils_Attachment']['Private']='Privé';
+$translations['Utils_Attachment']['Protected']='ProtÃ©gÃ©';
+$translations['Utils_Attachment']['Private']='PrivÃ©';
 $translations['Utils_Attachment']['User']='Utilisateur';
 $translations['Utils_Attachment']['Date']='Date';
 $translations['Utils_Attachment']['Note']='Note';

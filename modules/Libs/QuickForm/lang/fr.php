@@ -9,7 +9,8 @@ $translations['Libs_QuickForm']['denotes required field']='indique un champ obli
 $translations['Libs_QuickForm']['Left']='gauche';
 $translations['Libs_QuickForm']['Right']='droite';
 $translations['Libs_QuickForm']['Text too long']='Texte trop long';
-$translations['Libs_QuickForm']['Field required']='Champ nécessaire';
+$translations['Libs_QuickForm']['Field required']='Champ nÃ©cessaire';
 $translations['Libs_QuickForm']['Remove']='Enlever';
-$translations['Libs_QuickForm']['Start typing to search...']='Entrez du texte pour faire une recherche';
+$translations['Libs_QuickForm']['processing...']='';
+$translations['Libs_QuickForm']['Start typing to search...']='';
 ?>

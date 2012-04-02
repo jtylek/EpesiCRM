@@ -6,6 +6,6 @@
  */
 global $translations;
 $translations['Utils_FileUpload']['Uploading file...']='Fichier en cours de chargement (upload)';
-$translations['Utils_FileUpload']['Processing file...']='Fichier en cours de traitement …';
-$translations['Utils_FileUpload']['Specify file']='Préciser le fichier';
+$translations['Utils_FileUpload']['Processing file...']='Fichier en cours de traitement â€¦';
+$translations['Utils_FileUpload']['Specify file']='PrÃ©ciser le fichier';
 ?>

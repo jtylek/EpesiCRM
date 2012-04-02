@@ -5,7 +5,7 @@
  * @subpackage fr
  */
 global $translations;
-$translations['CRM_Calendar']['Start']='Démarrer';
+$translations['CRM_Calendar']['Start']='DÃ©marrer';
 $translations['CRM_Calendar']['Title']='Titre';
 $translations['CRM_Calendar']['Meeting']='';
 $translations['CRM_Calendar']['Type']='';

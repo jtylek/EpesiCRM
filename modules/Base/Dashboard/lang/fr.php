@@ -6,18 +6,18 @@
  */
 global $translations;
 $translations['Base_Dashboard']['Clock']='Horloge';
-$translations['Base_Dashboard']['Fullscreen']='Plein écran';
+$translations['Base_Dashboard']['Fullscreen']='Plein Ã©cran';
 $translations['Base_Dashboard']['Remove']='Enlever';
 $translations['Base_Dashboard']['Delete this applet?']='Effacer cette applet';
 $translations['Base_Dashboard']['Configure']='Configure';
 $translations['Base_Dashboard']['Note']='Note';
 $translations['Base_Dashboard']['Toggle']='Basculer';
 $translations['Base_Dashboard']['Tasks']='Taches';
-$translations['Base_Dashboard']['Phone Calls']='Appels téléphoniques';
+$translations['Base_Dashboard']['Phone Calls']='Appels tÃ©lÃ©phoniques';
 $translations['Base_Dashboard']['Agenda']='Agenda';
 $translations['Base_Dashboard']['RSS Feed']='Fil RSS';
-$translations['Base_Dashboard']['Caption']='Légende';
-$translations['Base_Dashboard']['Delete this tab and all applets assigned to it?']='Effacer ce tab et tous les applets qui lui sont attribués ?';
+$translations['Base_Dashboard']['Caption']='LÃ©gende';
+$translations['Base_Dashboard']['Delete this tab and all applets assigned to it?']='Effacer ce tab et tous les applets qui lui sont attribuÃ©s ?';
 $translations['Base_Dashboard']['Subscriptions']='';
 $translations['Base_Dashboard']['Shoutbox']='';
 $translations['Base_Dashboard']['Sales Opportunities']='';

@@ -5,5 +5,5 @@
  * @subpackage fr
  */
 global $translations;
-$translations['Base_Lang']['loading...']='';
+$translations['Base_EpesiStore']['Payment credentials']='';
 ?>

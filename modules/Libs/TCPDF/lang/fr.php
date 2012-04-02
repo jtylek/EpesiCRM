@@ -5,6 +5,6 @@
  * @subpackage fr
  */
 global $translations;
-$translations['Libs_TCPDF']['Upload company logo']='Upload du logo Société';
-$translations['Libs_TCPDF']['Upload']='Télécharger - up';
+$translations['Libs_TCPDF']['Upload company logo']='Upload du logo SociÃ©tÃ©';
+$translations['Libs_TCPDF']['Upload']='TÃ©lÃ©charger - up';
 ?>
