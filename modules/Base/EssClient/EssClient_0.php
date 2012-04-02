@@ -29,7 +29,8 @@ class Base_EssClient extends Module {
             return;
         }
         Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-        Base_ActionBarCommon::add('settings', 'SSL settings', $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array('Base_EssClient', 'no_ssl_settings')));
+        if (Base_EssClientCommon::is_no_ssl_allowed())
+            Base_ActionBarCommon::add('settings', 'SSL settings', $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array('Base_EssClient', 'no_ssl_settings')));
 
         if (Base_EssClientCommon::has_license_key() == false) {
             $this->terms_and_conditions();
@@ -283,7 +284,13 @@ class Base_EssClient extends Module {
             return;
         }
         $f->setDefaults(array('allow' => Base_EssClientCommon::is_no_ssl_allowed()));
+        
+        print('<div class="important_notice">');
+        print($this->t("Disabling secure connection cause that your vulnerable data will be transferred NOT encrypted. This allows anyone to read your private license key, which you are obligated to not reveal. Any use of license key on several EPESI installations will be noticed and will cause invalidation of it."));
+        print('<center>');
         $f->display();
+        print('</center>');
+        print('</div>');
     }
 
 }
