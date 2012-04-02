@@ -83,7 +83,7 @@ class Utils_Watchdog extends Module {
 			if ($only_new || Utils_WatchdogCommon::check_if_notified($v, $k)!==true) {
 				$gb_row->set_attrs('name="watchdog_table_row_'.$v.'__'.$k.'"');
 				load_js('modules/Utils/Watchdog/applet_mark_as_read.js');
-				$gb_row->add_action('href="javascript:void(0);" onclick="watchdog_applet_mark_as_read(\''.$v.'__'.$k.'\')"',Base_ThemeCommon::get_template_file('Utils/Watchdog','mark_as_read.png'),$this->t('Mark as read'));
+                $gb_row->add_action('href="javascript:void(0);" onclick="watchdog_applet_mark_as_read(\''.$v.'__'.$k.'\')"','Mark as Read',$this->t('Mark as read'),Base_ThemeCommon::get_template_file('Utils/Watchdog','mark_as_read.png'));
 				$something_to_purge = true;
 			}
 			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events'], true);
