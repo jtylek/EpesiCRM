@@ -214,7 +214,6 @@ class Base_EssClient extends Module {
                 return false;
             }
         }
-        print Base_EssClientCommon::client_messages_frame();
         // set defaults
         print('<div class="important_notice">');
         print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
