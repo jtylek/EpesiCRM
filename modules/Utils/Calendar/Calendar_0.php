@@ -795,7 +795,7 @@ class Utils_Calendar extends Module {
 				}
 				$week[] = $next;
 				//$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 00:00:00',$currday))+3600*24).' '.date('H:i:s',$currday));
-				$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('+1 day',$currday)).' 00:00:00');
+				$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('+1 day',strtotime(Base_RegionalSettingsCommon::time2reg($currday,true,true,true,false)))).' 00:00:00');
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
