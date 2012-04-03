@@ -17,12 +17,16 @@ require_once('../../../include.php');
 ModuleManager::load_modules();
 
 $registered = Base_EssClientCommon::is_registered();
-if (!$registered) return;
+$ver = Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION));
+if (!$registered) {
+    print($ver);
+    return;
+}
 
 $updates = Base_EpesiStoreCommon::is_update_available();
 
 if(!$updates) {
-	print(Utils_TooltipCommon::create(Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION)), Base_LangCommon::ts('Base_Box','You are using most up-to-date version of EPESI.'), false));
+	print(Utils_TooltipCommon::create($ver, Base_LangCommon::ts('Base_Box','You are using most up-to-date version of EPESI.'), false));
 	return;
 }
 
