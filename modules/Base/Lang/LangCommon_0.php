@@ -240,6 +240,7 @@ class Base_LangCommon extends ModuleCommon {
     }
     
     public static function update_langs() {
+        set_time_limit(0);
         error_log('Langup started on ' . date('Y-m-d H:i:s') . ' (admin site) by user with id ' . Acl::get_user() . "\n", 3, 'data/langup.log');
         self::backup_langs_files();
         $files = self::get_lang_files_of_installed_modules();
