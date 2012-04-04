@@ -2669,9 +2669,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 if (empty($multi_adv_params['order'])) natcasesort($comp);
                             }
                             if ($args['type']==='select') $comp = array(''=>'---')+$comp;
-                            $form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
+                            $qf->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
                             if($id!==false)
-                                $form->setDefaults(array($args['id']=>$rec[$args['id']]));
+                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
                             break;
                 case 'date':        $qf->addElement('date',$args['id'],$label,array('format'=>'d M Y', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5, 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
                             if(isset($rec[$args['id']]) && $rec[$args['id']] && $id!==false)
