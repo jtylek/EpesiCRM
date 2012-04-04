@@ -172,27 +172,44 @@ class Patch {
         return $this->short_description;
     }
 
+    private static $current_patch = null;
+
+    static function error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
+        if (!(error_reporting() & $errno))
+            return;
+        if (!self::$current_patch)
+            return;
+        self::$current_patch->apply_error .= "Error occured.\nFile: $errfile\nLine: $errline\nMessage: $errstr\n";
+    }
+
+    private function output_bufferring_interrupted($str) {
+        return "Patch output buffering interrupted. Maybe die or exit function was used.\nFile: {$this->file}\nOutput buffer: $str";
+    }
+
     function apply() {
         if (!file_exists($this->file))
             return false;
 
-        ob_start();
+        self::$current_patch = $this;
+        set_error_handler(array('Patch', 'error_handler'));
+        ob_start(array($this, 'output_bufferring_interrupted'));
         try {
             include $this->file;
-            $this->mark_applied();
         } catch (Exception $e) {
-            $this->apply_error = "Line: {$e->getLine()} - {$e->getMessage()}";
+            $this->apply_error = "Exception occured.\nFile: {$e->getFile()}\nLine: {$e->getLine()}\nMessage: {$e->getMessage()}";
         }
         $output = ob_get_clean();
+        restore_error_handler();
         $success = $this->apply_error ? 'ERROR' : 'OK';
         $this->apply_log = "[md5: {$this->get_identifier()}] [$success] {$this->get_file()}\n";
         if ($output)
             $this->apply_log .= " === OUTPUT ===\n$output\n === END OUTPUT ===\n";
         if ($this->apply_error) {
-            $this->apply_log .= "ERROR {$this->apply_error} \n";
+            $this->apply_log .= " !!! ERROR !!!\n{$this->apply_error}\n !!! END ERROR !!!\n";
             $this->apply_success = false;
             return false;
         }
+        $this->mark_applied();
         $this->apply_success = true;
         return true;
     }
