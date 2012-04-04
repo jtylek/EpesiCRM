@@ -107,6 +107,10 @@ class Utils_Attachment extends Module {
 		if(isset($arg) && isset($rb)) {
 			$this->group = $rb->tab.'/'.$arg['id'];
 			$this->add_header = $rb->caption();
+			if(Utils_WatchdogCommon::get_category_id($rb->tab)!==null) {
+				$this->watchdog_category = $rb->tab;
+				$this->watchdog_id = $arg['id'];
+			}
 			$this->set_view_func(array('Utils_RecordBrowserCommon','create_default_linked_label'),array($rb->tab, $arg['id']));
 		}
 		if(!isset($this->group)) trigger_error('Key not given to attachment module',E_USER_ERROR);
