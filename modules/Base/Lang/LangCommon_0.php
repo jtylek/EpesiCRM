@@ -190,7 +190,7 @@ class Base_LangCommon extends ModuleCommon {
 		$langs = array();
 		foreach ($ls_langs as $entry)
 			if (pathinfo($entry, PATHINFO_EXTENSION) == 'php') {
-				$lang = pathinfo($entry, PATHINFO_FILENAME);
+				$lang = basename($entry, '.php');
 				$langs[] = $lang;
 			}
 		file_put_contents(DATA_DIR.'/Base_Lang/cache',implode(',',$langs));
@@ -205,7 +205,7 @@ class Base_LangCommon extends ModuleCommon {
                 continue;
             if (strtolower(pathinfo($name, PATHINFO_EXTENSION)) != 'php')
                 continue;
-            $langcode = strtolower(pathinfo($name, PATHINFO_FILENAME));
+            $langcode = basename($name, '.php');
             if (!$langcode)
                 continue;
             rename($data_dir . $name, $data_dir . $name . '.backup.' . $date);
@@ -228,9 +228,10 @@ class Base_LangCommon extends ModuleCommon {
             foreach ($content as $name) {
                 if ($name == '.' || $name == '..' || preg_match('/^[\.~]/', $name))
                     continue;
-                if (strtolower(pathinfo($name, PATHINFO_EXTENSION)) != 'php')
+                $extension = pathinfo($name, PATHINFO_EXTENSION);
+                if (strtolower($extension) != 'php')
                     continue;
-                $langcode = strtolower(pathinfo($name, PATHINFO_FILENAME));
+                $langcode = strtolower(basename($name, ".$extension"));
                 if (!array_key_exists($langcode, $files))
                     $files[$langcode] = array();
                 $files[$langcode][] = "$directory/$name";

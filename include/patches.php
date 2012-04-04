@@ -259,7 +259,8 @@ class Patch {
     }
 
     private function _parse_filename() {
-        $filename = pathinfo($this->file, PATHINFO_FILENAME);
+        // to preserve compatibility PHP < 5.2
+        $filename = basename($this->file, '.' . pathinfo($this->file, PATHINFO_EXTENSION));
         $sep_pos = strpos($filename, '_');
         if ($sep_pos === false) {
             $this->set_short_description($filename);
