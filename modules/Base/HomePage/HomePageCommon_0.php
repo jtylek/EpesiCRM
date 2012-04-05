@@ -79,9 +79,13 @@ if(isset($_REQUEST['Base_HomePage_load'])) {
 	else
 		$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));
 } elseif(isset($_REQUEST['Base_HomePage_save'])) {
-	Base_HomePageCommon::save();
-	unset($_REQUEST['box_main_href']);
-	Base_StatusBarCommon::message(Base_LangCommon::ts('Base_HomePage','Home page saved'));
+	if (DEMO_MODE) {
+		Base_StatusBarCommon::message(Base_LangCommon::ts('Base_HomePage','You can\'t change home page in demo mode'), 'warning');
+	} else {
+		Base_HomePageCommon::save();
+		unset($_REQUEST['box_main_href']);
+		Base_StatusBarCommon::message(Base_LangCommon::ts('Base_HomePage','Home page saved'));
+	}
 }
 
 on_init(array('Base_HomePageCommon','login_check_init'));
