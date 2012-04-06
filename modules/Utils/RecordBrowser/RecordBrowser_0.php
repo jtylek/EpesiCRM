@@ -2408,6 +2408,8 @@ class Utils_RecordBrowser extends Module {
         $clean_order = array();
         foreach($order as $k=>$v) {
     	    if ($k==':Visited_on') $field_hash[$k] = $k;
+    	    if ($k==':Fav') $field_hash[$k] = $k;
+    	    if ($k==':Edited_on') $field_hash[$k] = $k;
             $clean_order[] = array('column'=>$field_hash[$k],'order'=>$field_hash[$k],'direction'=>$v);
         }
         if ($limit!=null && !isset($conf['force_limit'])) {
