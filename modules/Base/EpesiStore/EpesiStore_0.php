@@ -565,7 +565,7 @@ class Base_EpesiStore extends Module {
         if (isset($data['active']))
             unset($data['active']);
         if (isset($data['icon_url']) && $data['icon_url'])
-            $data['name'] = "<img style=\"float: right\" src=\"{$data['icon_url']}\" alt=\"{$data['name']} icon\"/>" . $data['name'];
+            $data['name'] = "<img style=\"max-height: 30px; float: right\" src=\"{$data['icon_url']}\" alt=\"{$data['name']} icon\"/>" . $data['name'];
         unset($data['icon_url']);
 
         if (isset($data['description_url']) && $data['description_url'])
