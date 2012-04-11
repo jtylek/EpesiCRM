@@ -1040,7 +1040,7 @@ class Utils_RecordBrowser extends Module {
                 $this->custom_defaults[$k] = $v;
             foreach($this->table_rows as $field => $args)
                 if (!isset($this->custom_defaults[$args['id']]))
-					$this->custom_defaults[$args['id']] = '';
+					$this->custom_defaults[$args['id']] = $args['type'] == 'multiselect' ? array() : '';
 			$this->custom_defaults['created_by'] = Acl::get_user();
 		}
 

@@ -1018,9 +1018,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					foreach ($ret as $kkk=>$vvv)
 						foreach ($v as $w) if ($w!='') {
 							if ($operator==DB::like())
-								$w = '/'.preg_quote($w).'/i';
+								$w = '/'.preg_quote($w, '/').'/i';
 							else
-								$w = '/^'.preg_quote($w).'$/i';
+								$w = '/^'.preg_quote($w, '/').'$/i';
 							if (preg_match($w,$vvv)!==0) {
 								$allowed_cd[] = $kkk;
 								break;
