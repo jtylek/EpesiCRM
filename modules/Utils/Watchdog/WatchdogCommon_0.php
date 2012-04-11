@@ -177,7 +177,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if ($last_seen===false || $last_seen===null) return null;
 		$last_event = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d', array($id,$category_id));
 		if ($last_event===false || $last_event===null) $last_event=-1;
-		if ($last_seen==$last_event) return true;
+		if ($last_seen==$last_event || $last_event==-1) return true;
 		$ret = array();
 		
 		$missed_events = DB::Execute('SELECT id,message FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d AND id>%d ORDER BY id ASC', array($id,$category_id,$last_seen));
