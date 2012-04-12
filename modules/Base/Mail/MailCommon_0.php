@@ -40,7 +40,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	
 	public static function check_sending_method($critical=false) {
 		$msg = false;
-		if (Variable::get('mail_method') != 'smtp') {
+		if (Variable::get('mail_method') != 'smtp' && HOSTING_MODE) {
 			$msg = Base_LangCommon::ts('Base_Mail','Mail server configuration error');
 		}
 		if ($msg) Base_StatusBarCommon::message($msg,'error');
@@ -73,8 +73,8 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 			$mailer->Username = Variable::get('mail_user');
 			$mailer->Password = Variable::get('mail_password');
 			$mailer->SMTPAuth = Variable::get('mail_auth');
-		} else {
-			if ($critical) return false;
+		} elseif (HOSTING_MODE) {
+			if (!$critical) return false;
 		}
 		
 		if(is_array($to))
