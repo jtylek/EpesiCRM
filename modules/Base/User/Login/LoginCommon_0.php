@@ -98,7 +98,7 @@ For security reasons it is recommened that you log in immediately and change you
 
 This e-mail was generated automatically and you do not need to respond to it.', array($username,$pass));
 		
-		return Base_MailCommon::send($mail, $subject, $body);
+		return Base_MailCommon::send_critical($mail, $subject, $body);
 	}
 	
 	/**

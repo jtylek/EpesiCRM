@@ -87,7 +87,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		if($method=='smtp') {
 			Variable::set('mail_host', $data['mail_host']);
 			
-			$auth = $data['mail_auth'];
+			$auth = isset($data['mail_auth']) && $data['mail_auth'];
 			Variable::set('mail_auth', $auth);
 			if($auth) {
 				Variable::set('mail_user', $data['mail_user']);

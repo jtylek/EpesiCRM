@@ -191,7 +191,7 @@ If you did not use the Password Recovery form, inform your administrator about a
 This e-mail was generated automatically and you do not need to respond to it.', array(
 	$mail,
 	get_epesi_url().'/modules/Base/User/Login/reset_pass.php?hash='.$hash));
-		$sendMail = Base_MailCommon::send($mail, $subject, $message);
+		$sendMail = Base_MailCommon::send_critical($mail, $subject, $message);
 
 		return true;
 	}
