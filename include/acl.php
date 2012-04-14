@@ -67,7 +67,7 @@ class Acl {
 	 * @return bool 
 	 */
 	public static function is_user() {
-		return isset($_SESSION['user']);
+		return isset($_SESSION['user']) || self::$cached_user!=false;
 	}
 	
 	/**
