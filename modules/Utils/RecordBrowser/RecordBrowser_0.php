@@ -619,7 +619,7 @@ class Utils_RecordBrowser extends Module {
             $ref = explode('::', $str[0]);
             $each = array();
             if (!$pdf && $quickjump!=='' && $args['name']===$quickjump) $each[] = 'quickjump';
-            if (!$pdf && !$this->disabled['search']) $each[] = 'search';
+            if (!$pdf && !$this->disabled['search'] && $args['type']!='calculated') $each[] = 'search';
             foreach ($each as $e) {
                 if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr[$e] = $args['id'];
 				
