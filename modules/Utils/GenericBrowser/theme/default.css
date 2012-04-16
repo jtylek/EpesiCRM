@@ -185,8 +185,9 @@ table.Utils_GenericBrowser > thead > tr > th:last-child {
 	border-radius: 0;
 }
 
-table.Utils_GenericBrowser input[type="text"] {
-	width: 95%;
+table.Utils_GenericBrowser input[type="text"],
+table.Utils_GenericBrowser select {
+	width: 90%;
 }
 
 table.Utils_GenericBrowser a.button {
