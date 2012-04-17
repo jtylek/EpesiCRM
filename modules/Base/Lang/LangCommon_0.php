@@ -19,7 +19,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * Http server user should have write access to those files.
  */
 class Base_LangCommon extends ModuleCommon {
-	private static $tools_installed = null;
 	/**
 	 * Use this function to translate desired string. Translation link is never shown.
 	 * This function can be used with static functions, it doesn't require
@@ -36,8 +35,9 @@ class Base_LangCommon extends ModuleCommon {
 	 * @return string
 	 */
 	public static function ts($group, $original, array $arg=array()) {
+        static $tools_installed = null;
 		if (!$original) return '';
-		if (self::$tools_installed===null) $tools_installed = (ModuleManager::is_installed('Develop_Translations')>=0);
+		if ($tools_installed===null) $tools_installed = (ModuleManager::is_installed('Develop_Translations')>=0);
 		global $translations;
 		global $custom_translations;
 		if(is_string($group))
