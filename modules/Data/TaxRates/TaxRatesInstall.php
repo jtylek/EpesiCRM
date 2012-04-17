@@ -21,6 +21,8 @@ class Data_TaxRatesInstall extends ModuleInstall {
 		);
 
 		Utils_RecordBrowserCommon::install_new_recordset('data_tax_rates', $fields);
+
+		Utils_RecordBrowserCommon::new_record('data_tax_rates', array('name'=>'Non-taxable', 'percentage'=>0));
 		
 		Utils_RecordBrowserCommon::set_caption('data_tax_rates', 'Tax Rates');
 		Utils_RecordBrowserCommon::set_icon('data_tax_rates', Base_ThemeCommon::get_template_filename('Data/TaxRates', 'icon.png'));
