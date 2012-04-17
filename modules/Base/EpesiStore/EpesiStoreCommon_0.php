@@ -59,6 +59,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function user_settings() {
+        set_time_limit(0);
         // get default data from user contact
         if (ModuleManager::is_installed('CRM_Contacts') > -1)
             $r = CRM_ContactsCommon::get_my_record();
@@ -72,7 +73,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             $x = array('name' => $v, 'label' => ucwords(str_replace('_', ' ', $v)), 'type' => 'text', 'default' => isset($r[$k]) ? $r[$k] : '');
             if ($k == 'country') {
                 $x['type'] = 'select';
-                $x['values'] = Utils_CommonDataCommon::get_array('Countries');
+                $x['values'] = Utils_CommonDataCommon::get_translated_array('Countries');
             }
             $values[] = $x;
         }

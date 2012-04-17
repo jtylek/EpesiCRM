@@ -571,6 +571,18 @@ class Base_EpesiStore extends Module {
         if (isset($data['description_url']) && $data['description_url'])
             $data['description'] = "<a target=\"_blank\" href=\"{$data['description_url']}\">{$data['description']}</a>";
         unset($data['description_url']);
+        
+        $required_modules = & $data['required_modules'];
+        if (isset($required_modules)) {
+            foreach($required_modules as $k => & $m) {
+                $mi = Base_EpesiStoreCommon::get_module_info($m);
+                if($mi)
+                    $m = "{$mi['repository']}::{$mi['name']}";
+                else
+                    unset($required_modules[$k]);
+            }
+            $required_modules = implode(', ', $required_modules);
+        }
 
         return $data;
     }

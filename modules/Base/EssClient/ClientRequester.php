@@ -177,8 +177,8 @@ class ClientRequester implements IClient {
         // check if there was an unserialize error
         $unserialized_response = @unserialize($response);
         if ($unserialized_response === false) {
-            $msger = Utils_TooltipCommon::create('External server error occured. ', $response);
-            Base_EssClientCommon::add_client_message_error($msger . 'Please report this at ' . Base_EssClientCommon::get_support_email());
+            // TODO: error signature or date
+            Base_EssClientCommon::add_client_message_error('External server error occured. Please report this at ' . Base_EssClientCommon::get_support_email());
         }
 
         return $unserialized_response;

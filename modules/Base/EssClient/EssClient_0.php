@@ -47,17 +47,12 @@ class Base_EssClient extends Module {
                     print('<div style="margin: 5px">' . $this->t('Thank you for registering your epesi installation.') . '</div>');
                     $status_description = '';
                     $verbose_description = '';
-                    if (strcasecmp($data['status'], "new") == 0 || strcasecmp($data['status'], "updated") == 0) {
+                    if (stripos($data['status'], 'confirmed') !== false || stripos($data['status'], 'validated') !== false) {
+                        $status_description = 'registration done';
+                        $verbose_description = 'The registration process is complete.';                        
+                    } else {
                         $status_description = 'waiting for e-mail confirmation';
                         $verbose_description = 'You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.';
-                    }
-                    if (strcasecmp($data['status'], "confirmed") == 0 || strcasecmp($data['status'], "confirmed (update)") == 0 || strcasecmp($data['status'], "new_confirmed") == 0 || strcasecmp($data['status'], "updated_confirmed") == 0) {
-                        $status_description = 'awaiting verification';
-                        $verbose_description = 'Epesi team representative will verify the data you submited to avoid processing invalid information.';
-                    }
-                    if (strcasecmp($data['status'], "validated") == 0) {
-                        $status_description = 'registration done';
-                        $verbose_description = 'The registration process is complete.';
                     }
                     print('<div class="important_notice_frame"><span style="font-weight:bold;">' . $this->t('License key: ') .
                             '</span>' . $data['license_key'] . '<br/>');
