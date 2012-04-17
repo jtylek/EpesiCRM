@@ -58,7 +58,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $param = explode(';',$args['param']);
                 $pp = explode('::',$param[0]);
                 $tab = $pp[0];
-                if (isset($pp[1])) $col = $pp[1]; else return $val;
+                if (isset($pp[1])) $col = $pp[1];
+                else trigger_error("\"param\" attribute of field \"$field\" is not valid. Please set <recordset>::<field>");
                 if (!is_array($val)) $val = array($val);
 //              if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_translated_array($col, true);
                 $ret = '';
