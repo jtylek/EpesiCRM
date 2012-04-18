@@ -2492,6 +2492,7 @@ class Utils_RecordBrowser extends Module {
     }
 	
 	public function manage_permissions() {
+		$this->help('Permissions Editor','permissions');
 		$this->init();
         $gb = $this->init_module('Utils/GenericBrowser','permissions_'.$this->tab, 'permissions_'.$this->tab);
 		$gb->set_table_columns(array(
@@ -2540,7 +2541,7 @@ class Utils_RecordBrowser extends Module {
 			$props = ($c_all_fields-$c_fields)/$c_all_fields;
 			$color = dechex(255-68*$props).dechex(187+68*$props).'BB';
 			$fields_value = ($c_all_fields-$c_fields).' / '.$c_all_fields;
-			if ($props!=1) $fields_value = Utils_TooltipCommon::create($fields_value, '<b>'.$this->t('Blocked fields').':</b><hr>'.implode('<br>',$fields[$row['id']]), false);
+			if ($props!=1) $fields_value = Utils_TooltipCommon::create($fields_value, '<b>'.$this->t('Excluded fields').':</b><hr>'.implode('<br>',$fields[$row['id']]), false);
 			$gb_row->add_data(
 				$action, 
 				'<span class="Utils_RecordBrowser__permissions_crits">'.implode(' <span class="joint">'.$this->t('and').'</span><br>',$clearance[$row['id']]).'</span>', 

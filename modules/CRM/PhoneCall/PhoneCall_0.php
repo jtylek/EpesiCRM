@@ -16,7 +16,7 @@ class CRM_PhoneCall extends Module {
 	private $rb = null;
 
 	public function body() {
-		$this->help('main','Phone Call Help');
+		$this->help('Phone Call Help','main');
 
 		$this->rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
 		$me = CRM_ContactsCommon::get_my_record();
