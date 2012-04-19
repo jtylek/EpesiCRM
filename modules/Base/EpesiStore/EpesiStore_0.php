@@ -50,8 +50,8 @@ class Base_EpesiStore extends Module {
         Base_ActionBarCommon::add('settings', 'Simple view', $this->create_callback_href(array($this, 'switch_simple'), true));
         $tb = $this->init_module('Utils_TabbedBrowser');
         $tb->set_tab('Epesi Store', array($this, 'form_main_store'), array());
-        $tb->start_tab('Modules Setup');
         $setup->set_inline_display(true);
+        $tb->start_tab('Modules Setup');
         $this->display_module($setup, array(true), 'admin');
         $tb->end_tab();
         $tb->tag();
@@ -137,7 +137,7 @@ class Base_EpesiStore extends Module {
 
     private function display_registration_form() {
         $m = $this->init_module('Base/EssClient');
-        $this->display_module($m, null, 'admin');
+        $this->display_module($m, array(true), 'admin');
     }
 
     public function form_your_modules() {

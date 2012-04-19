@@ -21,14 +21,14 @@ class Base_EssClient extends Module {
         $this->admin();
     }
 
-    public function admin() {
+    public function admin($store=false) {
         if (!Base_AclCommon::i_am_sa())
             return;
         if ($this->is_back()) {
             $this->parent->reset();
             return;
         }
-        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        if(!$store) Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
         if (Base_EssClientCommon::is_no_ssl_allowed())
             Base_ActionBarCommon::add('settings', 'SSL settings', $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array('Base_EssClient', 'no_ssl_settings')));
 
