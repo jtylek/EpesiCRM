@@ -80,6 +80,12 @@ class Base_Theme extends Module {
 
 		Base_ThemeCommon::display_smarty($this->smarty,$module_name,$user_template,$fullname);
 	}
+	
+	public function get_html($user_template=null,$fullname=false) {
+		ob_start();
+		$this->display($user_template,$fullname);
+		return ob_get_clean();
+	}
 
 	/**
 	 * Returns instance of smarty object which is assigned to this Theme instance.

@@ -53,6 +53,11 @@
 			</a>
 		</td>
 		{/if}
+		{if isset($multiple_attachments)}
+		<td style="width:110px;">
+			{$multiple_attachments}
+		</td>
+		{/if}
 		<td style="width:110px;" id="{$expand_collapse.e_id}">
 			<a class="attachment_add_new" {$expand_collapse.e_href}><img src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
 				<div class="attachment_div_add_new">

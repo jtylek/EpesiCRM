@@ -131,7 +131,7 @@ class Utils_Attachment extends Module {
 			}
 		}
 		
-		/////tutaj form
+		//form filtrow
 		$form = & $this->init_module('Libs/QuickForm');
 		$query = 'SELECT uac.created_by as note_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) '.($vd?'':'AND ual.deleted=0 ').'GROUP BY uac.created_by';
 		$emp_ids = DB::GetCol($query);
@@ -209,6 +209,12 @@ class Utils_Attachment extends Module {
 				'label'=>$this->t('New note'),
 				'href'=>'href="javascript:void(0);" onclick=\'$("attachments_new_note").style.display="";scrollBy(0, -2000); scrollBy(0, getTotalTopOffet($("attachments_new_note"))-140);\''
 			));
+				if(ModuleManager::is_installed('Premium/MultipleAttachments')>=0){
+				$multipleAttachments = $this->init_module('Premium/MultipleAttachments');				
+				$multipleAttachments->set_inline_display(true);
+				$button_theme->assign('multiple_attachments',$this->get_html_of_module($multipleAttachments,array($this->group, $this->permission, $this->func, $this->args, $this->add_func, $this->add_args)));
+				
+			}
 
 			$r = $gb->get_new_row();
 			$new_note_form = $this->get_edit_form();
