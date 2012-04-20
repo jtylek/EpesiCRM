@@ -176,7 +176,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return 'CRM';
+		return array('package'=>'CRM', 'icon'=>true);
 	}
 
 	public function version() {
