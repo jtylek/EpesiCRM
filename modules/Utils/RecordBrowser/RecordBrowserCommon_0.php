@@ -1179,6 +1179,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($v['order'][0]==':') {
 				if (!is_numeric(Acl::get_user())) trigger_error('Invalid user id.');
                 switch ($v['order']) {
+                    case ':id':
+                        $orderby[] = ' id ' . $v['direction'];
                     case ':Fav' :
                         $orderby[] = ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id='.Acl::get_user().') '.$v['direction'];
                         break;
