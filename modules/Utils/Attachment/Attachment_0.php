@@ -212,7 +212,7 @@ class Utils_Attachment extends Module {
 				if(ModuleManager::is_installed('Premium/MultipleAttachments')>=0){
 				$multipleAttachments = $this->init_module('Premium/MultipleAttachments');				
 				$multipleAttachments->set_inline_display(true);
-				$button_theme->assign('multiple_attachments',$this->get_html_of_module($multipleAttachments,array($this->group, $this->permission, $this->func, $this->args, $this->add_func, $this->add_args)));
+				$button_theme->assign('multiple_attachments',$this->get_html_of_module($multipleAttachments,array($this->group, $this->func, $this->args, $this->add_func, $this->add_args)));
 				
 			}
 
