@@ -1670,7 +1670,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::check_table_name($tab);
         $x = ModuleManager::get_instance('/Base_Box|0');
         if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-        if (Utils_RecordBrowser::$clone_result!==null) {
+        if (class_exists('Utils_RecordBrowser') && Utils_RecordBrowser::$clone_result!==null) {
             if (is_numeric(Utils_RecordBrowser::$clone_result)) $x->push_main('Utils/RecordBrowser','view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
             Utils_RecordBrowser::$clone_result = null;
         }
