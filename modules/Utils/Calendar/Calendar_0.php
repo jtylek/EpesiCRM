@@ -252,7 +252,13 @@ class Utils_Calendar extends Module {
 	}
 
 	public function body($arg = null) {
-		load_js($this->get_module_dir().'calendar.js');
+		load_js($this->get_module_dir().'jquery-1.7.2.min.js');
+		load_js($this->get_module_dir().'jquery-ui-1.8.18.custom.min.js');
+		load_js($this->get_module_dir().'calendar-jq.js');
+		Base_ThemeCommon::load_css('Utils_Calendar', 'jquery-ui');
+
+//		load_js($this->get_module_dir().'calendar.js');
+
 		$this->js('Utils_Calendar.day_href = \''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'switch','time'=>'__DATE__', 'tab'=>'Day')),false).'\'');
 		if(isset($this->tb)) {
 			$this->display_module($this->tb);
