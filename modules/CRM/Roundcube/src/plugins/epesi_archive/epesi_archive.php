@@ -8,6 +8,7 @@ class epesi_archive extends rcube_plugin
   function init()
   {
     global $account;
+    
 
     $rcmail = rcmail::get_instance();
     $this->register_action('plugin.epesi_archive', array($this, 'request_action'));
@@ -142,6 +143,8 @@ class epesi_archive extends rcube_plugin
   private function archive($uids,$verbose=true) {
     global $E_SESSION;
     $rcmail = rcmail::get_instance();
+    $path = getcwd();
+    chdir(str_replace('/modules/CRM/Roundcube/src','',$path));
 
     $msgs = array();    
     foreach($uids as $uid) {
@@ -273,6 +276,7 @@ class epesi_archive extends rcube_plugin
         }
     }
     
+    chdir($path);
     return true;
   }
 
