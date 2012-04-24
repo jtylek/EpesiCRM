@@ -359,7 +359,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			$values = $record;
 			$values['date_and_time'] = date('Y-m-d H:i:s');
-			$values['title'] = Base_LangCommon::ts('CRM/Meeting','Follow up: ').$values['title'];
+			$values['title'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['title'];
 			$values['status'] = 0;
 
 			if ($action != 'none') {		
@@ -430,7 +430,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$ret['duration_block_id'] = '1';
 			$ret['event_end_block_id'] = '2';
 
-			$values['title'] = Base_LangCommon::ts('CRM_Meeting','Follow up: ').$values['title'];
+			$values['title'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['title'];
 			$values['status'] = 0;
 			$cus = reset($values['customers']);
 			if (ModuleManager::is_installed('CRM/Meeting')>=0) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Meeting','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';

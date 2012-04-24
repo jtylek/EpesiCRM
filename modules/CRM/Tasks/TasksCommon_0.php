@@ -140,7 +140,7 @@ class CRM_TasksCommon extends ModuleCommon {
 
 			$values = $record;
 			$values['date_and_time'] = date('Y-m-d H:i:s');
-			$values['title'] = Base_LangCommon::ts('CRM/Tasks','Follow up: ').$values['title'];
+			$values['title'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['title'];
 			$values['status'] = 0;
 
 			if ($action != 'none') {		
@@ -171,7 +171,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record();
 		switch ($mode) {
 		case 'display':
-			$values['title'] = Base_LangCommon::ts('CRM_Tasks','Follow up: ').$values['title'];
+			$values['title'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['title'];
 			$values['status'] = 0;
 			$values['deadline'] = date('Y-m-d', strtotime('+1 day'));
 			$ret = array();

@@ -22,32 +22,34 @@ class CRM_FollowupCommon extends ModuleCommon {
 	}
 
 	public static function add_tracing_notes($dest_rset, $dest_id, $dest_label, $linkto_rset, $linkto_id, $linkto_label) {
+		$after = Base_LangCommon::ts('CRM_Followup','Follow up after: ');
+		$follow = Base_LangCommon::ts('CRM_Followup','Follow up: ');
 		switch ($dest_rset) {
 			case 'phonecall':
 				$fwd_note_path = 'phonecall/'.$dest_id; 
-				$bck_note = 'Follow up after: [phone='.$dest_id.']'.$dest_label.'[/phone]'; 
+				$bck_note = $after.'[phone='.$dest_id.']'.$dest_label.'[/phone]'; 
 				break;
 			case 'meeting': 
 				$fwd_note_path = 'crm_meeting/'.$dest_id; 
-				$bck_note = 'Follow up after: [meeting='.$dest_id.']'.$dest_label.'[/meeting]'; 
+				$bck_note = $after.'[meeting='.$dest_id.']'.$dest_label.'[/meeting]'; 
 				break;
 			case 'task': 
 				$fwd_note_path = 'task/'.$dest_id; 
-				$bck_note = 'Follow up after: [task='.$dest_id.']'.$dest_label.'[/task]'; 
+				$bck_note = $after.'[task='.$dest_id.']'.$dest_label.'[/task]'; 
 				break;
 		}
 		switch ($linkto_rset) {
 			case 'phonecall': 
 				$bck_note_path = 'phonecall/'.$linkto_id; 
-				$fwd_note = 'Follow up: [phone='.$linkto_id.']'.$linkto_label.'[/phone]'; 
+				$fwd_note = $follow.'[phone='.$linkto_id.']'.$linkto_label.'[/phone]'; 
 				break;
 			case 'meeting': 
 				$bck_note_path = 'crm_meeting/'.$linkto_id; 
-				$fwd_note = 'Follow up: [meeting='.$linkto_id.']'.$linkto_label.'[/meeting]'; 
+				$fwd_note = $follow.'[meeting='.$linkto_id.']'.$linkto_label.'[/meeting]'; 
 				break;
 			case 'task': 
 				$bck_note_path = 'task/'.$linkto_id; 
-				$fwd_note = 'Follow up: [task='.$linkto_id.']'.$linkto_label.'[/task]'; 
+				$fwd_note = $follow.'[task='.$linkto_id.']'.$linkto_label.'[/task]'; 
 				break;
 		}
 		Utils_AttachmentCommon::add($fwd_note_path,0,Acl::get_user(),$fwd_note);
@@ -67,21 +69,21 @@ class CRM_FollowupCommon extends ModuleCommon {
 			eval_js_once($prefix.'_followups_deactivate = function(){leightbox_deactivate(\''.$prefix.'_followups_leightbox\');}');
 	
 			if ($meetings) {
-				$theme->assign('new_meeting',array('open'=>'<a id="'.$prefix.'_new_meeting_button" onclick="'.$prefix.'_set_action(\'new_meeting\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'New Meeting'),'close'=>'</a>'));
+				$theme->assign('new_meeting',array('open'=>'<a id="'.$prefix.'_new_meeting_button" onclick="'.$prefix.'_set_action(\'new_meeting\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM_Followup', 'New Meeting'),'close'=>'</a>'));
 				eval_js('Event.observe(\''.$prefix.'_new_meeting_button\',\'click\', '.$prefix.'_followups_deactivate)');
 			}
 
 			if ($tasks) {
-				$theme->assign('new_task',array('open'=>'<a id="'.$prefix.'_new_task_button" onclick="'.$prefix.'_set_action(\'new_task\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'New Task'),'close'=>'</a>'));
+				$theme->assign('new_task',array('open'=>'<a id="'.$prefix.'_new_task_button" onclick="'.$prefix.'_set_action(\'new_task\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM_Followup', 'New Task'),'close'=>'</a>'));
 				eval_js('Event.observe(\''.$prefix.'_new_task_button\',\'click\', '.$prefix.'_followups_deactivate)');
 			}
 
 			if ($phonecall) {
-				$theme->assign('new_phonecall',array('open'=>'<a id="'.$prefix.'_new_phonecall_button" onclick="'.$prefix.'_set_action(\'new_phonecall\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'New Phone Call'),'close'=>'</a>'));
+				$theme->assign('new_phonecall',array('open'=>'<a id="'.$prefix.'_new_phonecall_button" onclick="'.$prefix.'_set_action(\'new_phonecall\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM_Followup', 'New Phone Call'),'close'=>'</a>'));
 				eval_js('Event.observe(\''.$prefix.'_new_phonecall_button\',\'click\', '.$prefix.'_followups_deactivate)');
 			}
 
-			$theme->assign('just_close',array('open'=>'<a id="'.$prefix.'_just_close_button" onclick="'.$prefix.'_set_action(\'none\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'Save'),'close'=>'</a>'));
+			$theme->assign('just_close',array('open'=>'<a id="'.$prefix.'_just_close_button" onclick="'.$prefix.'_set_action(\'none\');'.$prefix.'_submit_form();">','text'=>Base_LangCommon::ts('CRM_Followup', 'Save'),'close'=>'</a>'));
 			eval_js('Event.observe(\''.$prefix.'_just_close_button\',\'click\', '.$prefix.'_followups_deactivate)');
 
 			eval_js($prefix.'_submit_form = function () {'.
@@ -103,11 +105,11 @@ class CRM_FollowupCommon extends ModuleCommon {
 			$theme->assign('form_closecancel',	array(
 							'label'=>Base_LangCommon::ts('CRM_Followup','Status'),
 							'html'=>'<select name="closecancel" id="'.$prefix.'_closecancel" value="0">'.
-								'<option value="0">'.Base_LangCommon::ts('CRM/PhoneCall', 'Open').'</option>'.
-								'<option value="1">'.Base_LangCommon::ts('CRM/PhoneCall', 'In Progress').'</option>'.
-								'<option value="2">'.Base_LangCommon::ts('CRM/PhoneCall', 'On Hold').'</option>'.
-								'<option value="3" selected="1">'.Base_LangCommon::ts('CRM/PhoneCall', 'Close').'</option>'.
-								'<option value="4">'.Base_LangCommon::ts('CRM/PhoneCall', 'Canceled').'</option>'.
+								'<option value="0">'.Base_LangCommon::ts('CRM_Followup', 'Open').'</option>'.
+								'<option value="1">'.Base_LangCommon::ts('CRM_Followup', 'In Progress').'</option>'.
+								'<option value="2">'.Base_LangCommon::ts('CRM_Followup', 'On Hold').'</option>'.
+								'<option value="3" selected="1">'.Base_LangCommon::ts('CRM_Followup', 'Close').'</option>'.
+								'<option value="4">'.Base_LangCommon::ts('CRM_Followup', 'Canceled').'</option>'.
 							'</select>'));
 			$theme->assign('form_note',			array(
 							'label'=>Base_LangCommon::ts('CRM_Followup','Note'),
@@ -117,7 +119,7 @@ class CRM_FollowupCommon extends ModuleCommon {
 			Base_ThemeCommon::display_smarty($theme,'CRM_Followup','leightbox');
 			$profiles_out = ob_get_clean();
 
-			Libs_LeightboxCommon::display($prefix.'_followups_leightbox',$profiles_out,Base_LangCommon::ts('CRM/PhoneCall', 'Follow up'));
+			Libs_LeightboxCommon::display($prefix.'_followups_leightbox',$profiles_out,Base_LangCommon::ts('CRM_Followup', 'Follow up'));
 		}
 	}
 

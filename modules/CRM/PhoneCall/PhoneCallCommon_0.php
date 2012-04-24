@@ -272,11 +272,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 			$values = $record;
 			$values['date_and_time'] = date('Y-m-d H:i:s');
-			$values['title'] = Base_LangCommon::ts('CRM/PhoneCall','Follow up: ').$values['subject'];
+			$values['title'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['subject'];
 			$values['status'] = 0;
 
 			if ($action != 'none') {
-				$values['subject'] = Base_LangCommon::ts('CRM/PhoneCall','Follow up: ').$values['subject'];
+				$values['subject'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['subject'];
 				$values['follow_up'] = array('phonecall',$record['id'],$record['subject']);
 				$x = ModuleManager::get_instance('/Base_Box|0');
 				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customer'],'status'=>0,'follow_up'=>$values['follow_up'])), array('task'));
@@ -301,7 +301,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		switch ($mode) {
 		case 'display':
 			$values['date_and_time'] = date('Y-m-d H:i:s');
-			$values['subject'] = Base_LangCommon::ts('CRM/PhoneCall','Follow up: ').$values['subject'];
+			$values['subject'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['subject'];
 			$values['status'] = 0;
 			$ret = array();
 			if (ModuleManager::is_installed('CRM/Meeting')>=0) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customer'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
