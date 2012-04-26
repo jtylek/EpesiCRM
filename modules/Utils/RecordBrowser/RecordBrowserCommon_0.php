@@ -827,6 +827,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $diff = array();
         self::init($tab);
         foreach(self::$table_rows as $field => $args){
+			if ($args['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$args['param'])===0) continue; // FIXME move DB definiton to *_field table
             if ($args['id']=='id') continue;
             if (!isset($values[$args['id']])) {
                 if ($all_fields) $values[$args['id']] = '';
