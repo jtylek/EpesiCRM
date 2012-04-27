@@ -22,7 +22,7 @@ if (isset($_GET['field']) && $_GET['field']=='headers') {
 }
 
 if(!$html) die('Invalid e-mail id.');
-$images = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1 AND type LIKE "image/%"',array($_GET['id']));
+$images = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1 AND type '.DB::like().' %s',array($_GET['id'], 'image/%'));
 foreach($images as $k=>&$n)
     $n = '<img src="get.php?'.http_build_query(array('mime_id'=>$k,'mail_id'=>$_GET['id'])).'" onload="fix_height();"/><br />';
 $html = str_ireplace('<img ','<img onload="fix_height();" ',$html);
