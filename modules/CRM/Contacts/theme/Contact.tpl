@@ -1,7 +1,3 @@
-{if isset($form_data.paste_company_info)}
-	{$form_data.paste_company_info.html}
-{/if}
-
 {assign var=count value=0}
 {php}
 	$this->_tpl_vars['multiselects'] = array();

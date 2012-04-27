@@ -261,16 +261,11 @@ class CRM_Contacts extends Module {
 		CRM_ContactsCommon::$paste_or_new = $company;
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
 		$this->rb = $rb;
-		$ret = $rb->view_entry('add', null, array('company_name'=>array($company),
+		$this->display_module($rb, array('add', null, array('company_name'=>array($company),
 												'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 												'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),											
-												'permission'=>'0'));
+												'permission'=>'0')), 'view_entry');
 		$this->set_module_variable('view_or_add', 'add');
-		if ($ret==false) {
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			return $x->pop_main();
-		}
 	}
 
 	public function edit_user_form($user_id) {

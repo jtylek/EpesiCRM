@@ -807,23 +807,22 @@ class CRM_ContactsCommon extends ModuleCommon {
             } else {
                 $comp = self::get_company(self::$paste_or_new);
                 $paste_company_info =
-                    'document.getElementsByName("address_1")[0].value="'.$comp['address_1'].'";'.
-                    'document.getElementsByName("address_2")[0].value="'.$comp['address_2'].'";'.
-                    'document.getElementsByName("work_phone")[0].value="'.$comp['phone'].'";'.
-                    'document.getElementsByName("fax")[0].value="'.$comp['fax'].'";'.
-                    'document.getElementsByName("city")[0].value="'.$comp['city'].'";'.
-                    'document.getElementsByName("postal_code")[0].value="'.$comp['postal_code'].'";'.
+                    'document.getElementsByName(\'address_1\')[0].value=\''.$comp['address_1'].'\';'.
+                    'document.getElementsByName(\'address_2\')[0].value=\''.$comp['address_2'].'\';'.
+                    'document.getElementsByName(\'work_phone\')[0].value=\''.$comp['phone'].'\';'.
+                    'document.getElementsByName(\'fax\')[0].value=\''.$comp['fax'].'\';'.
+                    'document.getElementsByName(\'city\')[0].value=\''.$comp['city'].'\';'.
+                    'document.getElementsByName(\'postal_code\')[0].value=\''.$comp['postal_code'].'\';'.
                     'var country = $(\'country\');'.
-                    'var k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['country'].'") break; else k++;'.
+                    'var k = 0; while (k < country.options.length) if (country.options[k].value==\''.$comp['country'].'\') break; else k++;'.
                     'country.selectedIndex = k;'.
                     'country.fire(\'e_u_cd:load\');'.
-                    'setTimeout("'.
-                    'var zone = $(\'zone\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\''.$comp['zone'].'\') break; else k++;'.
+                    'setTimeout(\''.
+                    'var zone = $(\\\'zone\\\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\\\''.$comp['zone'].'\\\') break; else k++;'.
                     'zone.selectedIndex = k;'.
-                    '",900);'.
-                    'document.getElementsByName("web_address")[0].value="'.$comp['web_address'].'";';
-                ;
-                $form->addElement('button', 'paste_company_info', Base_LangCommon::ts('CRM_Contacts','Paste Company Info'), array('onClick'=>$paste_company_info));
+                    '\',900);'.
+                    'document.getElementsByName(\'web_address\')[0].value=\''.$comp['web_address'].'\';';
+                Base_ActionBarCommon::add('add', Base_LangCommon::ts('CRM_Contacts','Paste Company Info'), 'href="javascript:void(0);" onclick="'.$paste_company_info.'"');
             }
         }
         if (($default!=='' && !Base_AclCommon::i_am_admin()) || $mode=='view') {
