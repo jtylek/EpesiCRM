@@ -542,6 +542,7 @@ class Base_EpesiStore extends Module {
     protected function GB_row_data_transform_order(array $data) {
         // change module ids to names
         foreach ($data['modules'] as & $m) {
+            // TODO !!! $m to jest numer licencji a nie modulu
             $mi = Base_EpesiStoreCommon::get_module_info($m);
             $m = $mi['name'];
         }
