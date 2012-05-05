@@ -78,7 +78,6 @@ interface IClient {
     /**
      * Request module info.
      *
-     * @todo specify returned array
      * @param string $module_id unique identifier of module package
      * @return array|false array with module info or false on error
      */
