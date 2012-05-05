@@ -197,6 +197,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             self::store_info_about_downloaded_module($module_license, $file);
             
             self::apply_patches();
+            ModuleManager::create_common_cache();
+            Base_ThemeCommon::themeup();
             Base_LangCommon::update_langs();
         } catch (Exception $e) {
             return $e->getMessage();

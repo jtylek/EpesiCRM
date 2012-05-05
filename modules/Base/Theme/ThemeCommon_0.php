@@ -303,7 +303,45 @@ class Base_ThemeCommon extends ModuleCommon {
 		}
 	}
 
-	/**
+    public static function themeup() {
+        $data_dir = self::Instance()->get_data_dir() . 'templates/default/';
+        $content = scandir($data_dir);
+        foreach ($content as $name) {
+            if ($name == '.' || $name == '..')
+                continue;
+            recursive_rmdir($data_dir . $name);
+        }
+
+        $ret = DB::Execute('SELECT * FROM modules');
+        while ($row = $ret->FetchRow()) {
+            $directory = 'modules/' . str_replace('_', '/', $row[0]) . '/theme_' . $row['version'];
+            if (!is_dir($directory))
+                $directory = 'modules/' . str_replace('_', '/', $row[0]) . '/theme';
+            $mod_name = $row[0];
+            $data_dir = DATA_DIR . '/Base_Theme/templates/default';
+            if (!is_dir($directory))
+                continue;
+            $content = scandir($directory);
+
+            $mod_name = str_replace('_', '/', $mod_name);
+            $mod_path = explode('/', $mod_name);
+            $sum = '';
+            foreach ($mod_path as $p) {
+                $sum .= '/' . $p;
+                @mkdir($data_dir . $sum);
+            }
+            foreach ($content as $name) {
+                if ($name == '.' || $name == '..' || preg_match('/^[\.~]/', $name))
+                    continue;
+                recursive_copy($directory . '/' . $name, $data_dir . '/' . $mod_name . '/' . $name);
+            }
+        }
+
+        self::install_default_theme_common_files('modules/Base/Theme/', 'images');
+        self::create_cache();
+    }
+
+    /**
 	 * For internal use only.
 	 */
 	public static function parse_links($key, $val, $flat=true) {

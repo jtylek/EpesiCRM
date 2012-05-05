@@ -104,9 +104,62 @@ class PatchUtil {
         usort($patches, array('Patch', 'cmp_by_date'));
     }
 
+// ******************* Database Patch functions *************
+    function db_add_column($table_name, $table_column, $table_column_def) {
+        // First check if table needs to be altered
+        if (!array_key_exists(strtoupper($table_column), DB::MetaColumnNames($table_name))) {
+            $q = DB::dict()->AddColumnSQL($table_name, $table_column . ' ' . $table_column_def);
+            foreach ($q as $qq)
+                DB::Execute($qq);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function db_drop_column($table_name, $table_column) {
+        // First check if table needs to be altered
+        if (array_key_exists(strtoupper($table_column), DB::MetaColumnNames($table_name))) {
+            $q = DB::dict()->DropColumnSQL($table_name, $table_column);
+            foreach ($q as $qq)
+                DB::Execute($qq);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function db_rename_column($table_name, $old_table_column, $new_table_column, $table_column_def) {
+        // First check if column exists
+        if (array_key_exists(strtoupper($old_table_column), DB::MetaColumnNames($table_name))) {
+            $q = DB::dict()->RenameColumnSQL($table_name, $old_table_column, $new_table_column, $new_table_column . ' ' . $table_column_def);
+            foreach ($q as $qq)
+                DB::Execute($qq);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function db_alter_column($table_name, $table_column_name, $table_column_def) {
+        // First check if column exists
+        if (array_key_exists(strtoupper($table_column_name), DB::MetaColumnNames($table_name))) {
+            $q = DB::dict()->AlterColumnSQL($table_name, $table_column_name . ' ' . $table_column_def);
+            foreach ($q as $qq)
+                DB::Execute($qq);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
 
 class PatchesDB {
+
+    function PatchesDB() {
+        $this->_check_table();
+    }
 
     function __construct() {
         $this->_check_table();
