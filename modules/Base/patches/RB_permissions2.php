@@ -64,7 +64,7 @@ while ($row = $ret->FetchRow()) {
 	}
 }
 
-PatchDBDropColumn('recordbrowser_table_properties','access_callback');
+PatchUtil::db_drop_column('recordbrowser_table_properties','access_callback');
 
 
 Utils_RecordBrowserCommon::add_default_access('crm_assets');

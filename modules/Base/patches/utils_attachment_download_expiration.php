@@ -1,7 +1,7 @@
 <?php
 if (ModuleManager::is_installed('Utils_Attachment')==-1) return;
 
-PatchDBAddColumn('utils_attachment_download','expires_on','T');
+PatchUtil::db_add_column('utils_attachment_download','expires_on','T');
 
 $ret = DB::Execute('SELECT * FROM utils_attachment_download');
 while ($row = $ret->FetchRow()) {
