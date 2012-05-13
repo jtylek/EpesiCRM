@@ -585,7 +585,7 @@ class Utils_RecordBrowser extends Module {
                 $table_columns[] = $fav;
             }
             if (!$pdf && !$admin && $this->watchdog)
-                $table_columns[] = array('name'=>'&nbsp;', 'width'=>'24px');
+                $table_columns[] = array('name'=>'', 'width'=>'24px');
         }
         if (!$this->disabled['quickjump']) $quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         else $quickjump = '';
