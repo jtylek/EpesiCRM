@@ -470,13 +470,13 @@ delete_event:function(eid,mpath,ecid) {
 	});
 },
 destroy:function() {
-	if(Utils_Calendar.ids==null) return;
+/*	if(Utils_Calendar.ids==null) return;
         jQuery('.utils_calendar_event').draggable('destroy');
 	jQuery.each(Utils_Calendar.ids,function(i,id) {
 		var cell = Utils_Calendar.jq_id('UCcell_'+id);
 		if(cell.length) cell.droppable('destroy');
 	});
-        Utils_Calendar.jq_id('UCtrash').droppable('destroy');
+        Utils_Calendar.jq_id('UCtrash').droppable('destroy');*/
 	delete(Utils_Calendar.ids);
 	Utils_Calendar.ids=null;
 	delete(Utils_Calendar.children_events);
