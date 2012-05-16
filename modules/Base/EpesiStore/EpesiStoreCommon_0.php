@@ -279,7 +279,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     private static function _is_module_free($module_id) {
         $mi = self::get_module_info($module_id);
-        return $mi['price'] == "0";
+        return $mi['total_price'] == "0";
     }
     
     private static function _is_module_license_active($module_id) {

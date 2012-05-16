@@ -8,8 +8,7 @@
  */
 interface IClient {
 
-    const client_version = 3;
-//    const client_version = 4;
+    const client_version = 4;
     const MESSAGES_INFO = 0;
     const MESSAGES_WARN = 1;
     const MESSAGES_ERROR = 2;

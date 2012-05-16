@@ -34,7 +34,7 @@
 					</div>
 				{/if}
 				<div class="actions">
-					<div id="show_actions_{$name}" class="action {$package.style}" onclick="base_setup__show_actions('{$name}');">
+					<div id="show_actions_{$name}" {$package.buttons_tooltip} class="action {$package.style}" onclick="base_setup__show_actions('{$name}');">
 						{$package.status}{if !empty($package.buttons)}<img src="{$theme_dir}/Base/Setup/config.png">{/if}
 					</div>
 				{if !empty($package.buttons)}

@@ -429,6 +429,13 @@
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f4ad66', endColorstr='#f3a659',GradientType=0 ); /* IE6-9 */
 }
 
+.price_summary table {
+    width: 100%;
+}
+
+.price_summary td {
+    background-color: white;
+}
 /*
 Installed (green)
 

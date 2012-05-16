@@ -413,8 +413,8 @@ class Base_Setup extends Module {
 			$name = $s['name'];
 
 			$label = Base_EpesiStoreCommon::next_possible_action($s['id']);
-			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['price']===0) {
-				$s['price'] = $this->t('Free');
+			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['total_price']===0) {
+				$s['total_price'] = $this->t('Free');
 				$label = 'obtain license';
 			}
 			$b_label = $this->t(ucfirst($label));
@@ -436,12 +436,15 @@ class Base_Setup extends Module {
 			$sorted[$name]['name'] = $this->t($name);
 			$sorted[$name]['modules'] = array();
 			$sorted[$name]['options'] = array();
+            $buttons_tooltip = $this->included_modules_text($s);
+            $buttons_tooltip = $buttons_tooltip ? Utils_TooltipCommon::open_tag_attrs($buttons_tooltip, false) : '';
+            $sorted[$name]['buttons_tooltip'] = $buttons_tooltip;
 			if (isset($s['paid']) && $s['paid']) {
 				$sorted[$name]['status'] = $this->t('Purchased');
 				$sorted[$name]['style'] = 'problem';
 				$sorted[$name]['filter'] = array('purchases');
 			} else {
-				$sorted[$name]['status'] = $this->t('Price: %s', array($s['price']));
+				$sorted[$name]['status'] = $this->t('Price: %s', array($s['total_price']));
 				$sorted[$name]['style'] = 'store';
 				$sorted[$name]['filter'] = array('store');
 			}
@@ -455,6 +458,23 @@ class Base_Setup extends Module {
 		}
 	}
 
+    private function included_modules_text($module) {
+        $text = '';
+        if ($module['required_modules']) {
+            $text .= $this->t("With this module you will get license for these modules:");
+            $arr = array($module['name'] => $module['price']);
+            foreach ($module['required_modules'] as $rm_id) {
+                $mod = Base_EpesiStoreCommon::get_module_info($rm_id);
+                $arr[$mod['name']] = $mod['price'];
+            }
+            $text .= "<table class=\"price_summary\">";
+            foreach($arr as $name => $price)
+                $text .= "<tr><td>$name</td><td>$price</td></tr>";
+            $text .= "</table>";
+        }
+        return $text;
+    }
+    
 	public function simple_setup_sort($a, $b) {
 		if ($a['name'] === 'EPESI Core') return -1;
 		if ($b['name'] === 'EPESI Core') return 1;
