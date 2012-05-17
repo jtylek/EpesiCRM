@@ -654,6 +654,39 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $def;
     }
     public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc, $rb, $display_callbacks) {
+        if (($mode=='add' || $mode=='edit') && $rb->tab==='contact') {
+            if (self::$paste_or_new=='new') {
+                $form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, 'onClick="$(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','Create a new company for this contact')));
+                $form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
+                $form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
+                if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
+                eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
+                        'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
+                        'function update_create_company_name_field() {'.
+                            'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
+                        '}');
+                eval_js('$("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+            } else {
+                $comp = self::get_company(self::$paste_or_new);
+                $paste_company_info =
+                    'document.getElementsByName(\'address_1\')[0].value=\''.$comp['address_1'].'\';'.
+                    'document.getElementsByName(\'address_2\')[0].value=\''.$comp['address_2'].'\';'.
+                    'document.getElementsByName(\'work_phone\')[0].value=\''.$comp['phone'].'\';'.
+                    'document.getElementsByName(\'fax\')[0].value=\''.$comp['fax'].'\';'.
+                    'document.getElementsByName(\'city\')[0].value=\''.$comp['city'].'\';'.
+                    'document.getElementsByName(\'postal_code\')[0].value=\''.$comp['postal_code'].'\';'.
+                    'var country = $(\'country\');'.
+                    'var k = 0; while (k < country.options.length) if (country.options[k].value==\''.$comp['country'].'\') break; else k++;'.
+                    'country.selectedIndex = k;'.
+                    'country.fire(\'e_u_cd:load\');'.
+                    'setTimeout(\''.
+                    'var zone = $(\\\'zone\\\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\\\''.$comp['zone'].'\\\') break; else k++;'.
+                    'zone.selectedIndex = k;'.
+                    '\',900);'.
+                    'document.getElementsByName(\'web_address\')[0].value=\''.$comp['web_address'].'\';';
+                Base_ActionBarCommon::add('add', Base_LangCommon::ts('CRM_Contacts','Paste Company Info'), 'href="javascript:void(0);" onclick="'.$paste_company_info.'"');
+            }
+        }
         $comp = array();
         $param = explode(';',$desc['param']);
         if ($mode=='add' || $mode=='edit') {
@@ -791,39 +824,6 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->addElement('static', $field, $label);
             $form->setDefaults(array($field=>self::display_login(array('login'=>$default), null, array('id'=>'login'))));
             return;
-        }
-        if ($mode=='add' || $mode=='edit') {
-            if (self::$paste_or_new=='new') {
-                $form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, 'onClick="$(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','Create a new company for this contact')));
-                $form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
-                $form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
-                if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
-                eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
-                        'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
-                        'function update_create_company_name_field() {'.
-                            'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
-                        '}');
-                eval_js('$("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
-            } else {
-                $comp = self::get_company(self::$paste_or_new);
-                $paste_company_info =
-                    'document.getElementsByName(\'address_1\')[0].value=\''.$comp['address_1'].'\';'.
-                    'document.getElementsByName(\'address_2\')[0].value=\''.$comp['address_2'].'\';'.
-                    'document.getElementsByName(\'work_phone\')[0].value=\''.$comp['phone'].'\';'.
-                    'document.getElementsByName(\'fax\')[0].value=\''.$comp['fax'].'\';'.
-                    'document.getElementsByName(\'city\')[0].value=\''.$comp['city'].'\';'.
-                    'document.getElementsByName(\'postal_code\')[0].value=\''.$comp['postal_code'].'\';'.
-                    'var country = $(\'country\');'.
-                    'var k = 0; while (k < country.options.length) if (country.options[k].value==\''.$comp['country'].'\') break; else k++;'.
-                    'country.selectedIndex = k;'.
-                    'country.fire(\'e_u_cd:load\');'.
-                    'setTimeout(\''.
-                    'var zone = $(\\\'zone\\\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\\\''.$comp['zone'].'\\\') break; else k++;'.
-                    'zone.selectedIndex = k;'.
-                    '\',900);'.
-                    'document.getElementsByName(\'web_address\')[0].value=\''.$comp['web_address'].'\';';
-                Base_ActionBarCommon::add('add', Base_LangCommon::ts('CRM_Contacts','Paste Company Info'), 'href="javascript:void(0);" onclick="'.$paste_company_info.'"');
-            }
         }
         if (($default!=='' && !Base_AclCommon::i_am_admin()) || $mode=='view') {
             $form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'---'));
