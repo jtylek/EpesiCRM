@@ -654,7 +654,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $def;
     }
     public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc, $rb, $display_callbacks) {
-        if (($mode=='add' || $mode=='edit') && $rb->tab==='contact') {
+        if (($mode=='add' || $mode=='edit') && is_object($rb) && $rb->tab==='contact') {
             if (self::$paste_or_new=='new') {
                 $form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, 'onClick="$(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Contacts','Create a new company for this contact')));
                 $form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
