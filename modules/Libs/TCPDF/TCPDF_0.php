@@ -92,7 +92,7 @@ class Libs_TCPDF extends Module {
 		
 	public function add_actionbar_icon($filename) {
 		if ($this->pdf_ready){
-			Base_ActionBarCommon::add('save','Download PDF','href="'.$this->get_href($filename).'"');
+			Base_ActionBarCommon::add('save','Download PDF','target="_blank" href="'.$this->get_href($filename).'"');
 		} else {
 			Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'start_preparing_pdf')));
 		}
