@@ -250,7 +250,6 @@ class epesi_archive extends rcube_plugin
                 $attachment = 1;
             DB::Execute('INSERT INTO rc_mails_attachments(mail_id,type,name,mime_id,attachment) VALUES(%d,%s,%s,%s,%b)',array($id,$m->mimetype,$m->filename,$mime_map[$m->mime_id],$attachment));
             if(!file_exists($attachments_dir.$id)) mkdir($attachments_dir.$id);
-            error_log(getcwd().' '.$attachments_dir.$id.'/'.$mime_map[$m->mime_id]."\n",3,'/tmp/atta');
             $fp = fopen($attachments_dir.$id.'/'.$mime_map[$m->mime_id],'w');
             $msg->get_part_content($m->mime_id,$fp);
             fclose($fp);
