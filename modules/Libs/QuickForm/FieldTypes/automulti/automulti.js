@@ -50,6 +50,7 @@ automulti_add_value = function (element, list_sep, value, label) {
 		list.options[i] = new Option();
 		list.options[i].value = value;
 		list.options[i].text = label;
+		if(typeof iphone != "undefined") list.options[i].selected = true;
 		val_holder = document.getElementsByName(element)[0];
 		val_holder.value += list_sep;
 		val_holder.value += value;
