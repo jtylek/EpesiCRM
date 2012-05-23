@@ -214,6 +214,9 @@ Please choose epesi version:<ul>
 			</div>	
 		</div>
 		<script type="text/javascript" src="init_js.php?<?php print(http_build_query($_GET));?>"></script>
+		<?php if(IPHONE) { ?>
+		<script type="text/javascript">iphone=true</script>
+		<?php } ?>
 	</body>
 </html>
 <?php
