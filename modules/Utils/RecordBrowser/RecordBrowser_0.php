@@ -758,10 +758,10 @@ class Utils_RecordBrowser extends Module {
 
         $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin, $order);
 
+		$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
 		if (!$this->disabled['pdf'] && !$pdf && $this->amount_of_records<200 && Base_AclCommon::i_am_admin()) {
 			Base_ActionBarCommon::add('print', 'Print', 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
 		}
-		$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
 		$_SESSION['client']['utils_recordbrowser'][$key] = array(
 			'tab'=>$this->tab,
 			'crits'=>$crits,
