@@ -761,15 +761,15 @@ class Utils_RecordBrowser extends Module {
 		if (!$this->disabled['pdf'] && !$pdf && $this->amount_of_records<200 && Base_AclCommon::i_am_admin()) {
 			$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
 			Base_ActionBarCommon::add('print', 'Print', 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
-			$_SESSION['client']['utils_recordbrowser'][$key] = array(
-				'tab'=>$this->tab,
-				'crits'=>$crits,
-				'cols'=>$cols,
-				'order'=>$order,
-				'admin'=>$admin,
-				'more_table_properties'=>$this->more_table_properties
-			);
 		}
+		$_SESSION['client']['utils_recordbrowser'][$key] = array(
+			'tab'=>$this->tab,
+			'crits'=>$crits,
+			'cols'=>$cols,
+			'order'=>$order,
+			'admin'=>$admin,
+			'more_table_properties'=>$this->more_table_properties
+		);
 
         if ($pdf) $limit = null;
 		else $limit = $gb->get_limit($this->amount_of_records);
