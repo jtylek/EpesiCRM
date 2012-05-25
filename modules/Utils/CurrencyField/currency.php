@@ -36,7 +36,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 				$this->updateAttributes(array('id'=>$id));
 			}
 			
-			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField', 'decimal_point')));
+			$this->dec_digits = DB::GetOne('SELECT MAX(decimals) FROM utils_currency');
 
 			$str .= $this->_getTabs() .
 					'<div style="margin-right:5px; width:40px; position:relative; float:right;"><select style="width:40px;" name="__'.str_replace(array('[',']'),'',$name).'__currency" id="__'.$id.'__currency">';

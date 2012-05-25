@@ -74,6 +74,10 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $cache;
 	}
 	
+	public static function get_thousand_point($c) {
+		return DB::GetOne('SELECT thousand_sign FROM utils_currency WHERE id=%d', array($c));
+	}
+	
 	public static function get_id_by_code($code) {
 		static $cache;
 		if(!isset($cache)) $cache = array();
@@ -104,6 +108,17 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	
 	public static function admin_caption() {
 		return 'Currencies';
+	}
+	
+	public static function get_symbol($arg) {
+		static $cache = array();
+		if (!isset($cache[$arg])) $cache[$arg] = DB::GetOne('SELECT symbol FROM utils_currency WHERE id=%d', array($arg));
+		return $cache[$arg];
+	}
+	public static function get_symbol_position($arg) {
+		static $cache = array();
+		if (!isset($cache[$arg])) $cache[$arg] = DB::GetOne('SELECT pos_before FROM utils_currency WHERE id=%d', array($arg));
+		return $cache[$arg];
 	}
 }
 
