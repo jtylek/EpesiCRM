@@ -1749,9 +1749,6 @@ class Utils_RecordBrowser extends Module {
         $form->addRule('label', $this->t('"ID" as page name is not allowed.'), 'check_if_no_id');
         $form->setDefaults(array('label'=>$id));
 
-		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
-		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
-
         if($form->validate()) {
             $data = $form->exportValues();
             foreach($data as $key=>$val)
@@ -1762,6 +1759,9 @@ class Utils_RecordBrowser extends Module {
             return false;
         }
         $form->display();
+		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
+		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+
         return true;
     }
     public function setup_clipboard_pattern() {
@@ -1979,9 +1979,6 @@ class Utils_RecordBrowser extends Module {
 			$form->setDefaults(array('QFfield_callback'=>$QFfield_callbacback));
 		}
 
-		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
-		Base_ActionBarCommon::add('back', 'Cancel', $this->create_back_href());
-		
         if ($form->validate()) {
             $data = $form->exportValues();
             $data['field'] = trim($data['field']);
@@ -2051,6 +2048,9 @@ class Utils_RecordBrowser extends Module {
             return false;
         }
         $form->display();
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('back', 'Cancel', $this->create_back_href());
+		
         return true;
     }
     public function check_if_no_id($arg){
