@@ -540,11 +540,18 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_data_transform_order(array $data) {
+        static $module_licenses = null;
+        if ($module_licenses === null) {
+            $module_licenses = Base_EssClientCommon::server()->module_licenses_list();
+        }
         // change module ids to names
-        foreach ($data['modules'] as & $m) {
-            // TODO !!! $m to jest numer licencji a nie modulu
-            $mi = Base_EpesiStoreCommon::get_module_info($m);
-            $m = $mi['name'];
+        foreach ($data['modules'] as & $m) { // $m is module_license
+            $mod_id = isset($module_licenses[$m]) ? $module_licenses[$m]['module'] : null;
+            $m = $this->t('[license not found]');
+            if($mod_id !== null) {
+                $mi = Base_EpesiStoreCommon::get_module_info($mod_id);
+                $m = $mi['name'];
+            }
         }
         $data['modules'] = implode(', ', $data['modules']);
         // handle prices
