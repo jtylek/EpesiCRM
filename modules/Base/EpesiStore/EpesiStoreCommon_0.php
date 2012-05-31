@@ -419,7 +419,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
      * @return boolean true when above requirements are satisfied, false otherwise
      */
     public static function is_module_downloaded($module_id) {
-        $file = DB::GetOne('SELECT `file` FROM epesi_store_modules WHERE `module_id`=%s', array($module_id));
+        $file = DB::GetOne('SELECT file FROM epesi_store_modules WHERE module_id=%s', array($module_id));
         if (!$file)
             return false;
         $file = self::Instance()->get_data_dir() . $file;
@@ -440,7 +440,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     private static function get_downloaded_module_version($module_id) {
-        return DB::GetOne('SELECT `version` FROM epesi_store_modules WHERE `module_id` = %d', array($module_id));
+        return DB::GetOne('SELECT version FROM epesi_store_modules WHERE module_id = %d', array($module_id));
     }
 
     /**
@@ -462,7 +462,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     private static function add_downloaded_module($module_id, $version, $module_license_id, $file) {
         // TODO: change column name in db
-        DB::Execute('REPLACE INTO epesi_store_modules(module_id, version, order_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $module_license_id, $file));
+        DB::Execute('DELETE FROM epesi_store_modules WHERE module_id=%d', array($module_id));
+        DB::Execute('INSERT INTO epesi_store_modules(module_id, version, order_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $module_license_id, $file));
     }
 	
 	public static function is_update_available() {
