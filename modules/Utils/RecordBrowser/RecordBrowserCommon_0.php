@@ -385,7 +385,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, visible, position) VALUES(\'id\', \'foreign index\', 0, 0, 1)');
         DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'General\', \'page_split\', 0, 2)');
-        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'Details\', \'page_split\', 0, 3)');
 
 		$fields_sql = '';
         foreach ($fields as $v)
@@ -553,10 +552,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::StartTrans();
         if (is_string($definition['position'])) $definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($definition['position']))+1;
         if ($definition['position']===null || $definition['position']===false) {
-            if ($definition['extra'])
-                $definition['position'] = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
-            else
-                $definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array('Details'));
+            $definition['position'] = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
         }
         DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($definition['position']));
         DB::CompleteTrans();
@@ -2317,6 +2313,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return self::ts('No additional information');
 	}
 	
+	public static $date_values = array('-1 year'=>'1 year back','-6 months'=>'6 months back','-3 months'=>'3 months back','-2 months'=>'2 months back','-1 month'=>'1 month back','-2 weeks'=>'2 weeks back','-1 week'=>'1 week back','-6 days'=>'6 days back','-5 days'=>'5 days back','-4 days'=>'4 days back','-3 days'=>'3 days back','-2 days'=>'2 days back','-1 days'=>'1 days back','today'=>'current day','+1 days'=>'1 days forward','+2 days'=>'2 days forward','+3 days'=>'3 days forward','+4 days'=>'4 days forward','+5 days'=>'5 days forward','+6 days'=>'6 days forward','+1 week'=>'1 week forward','+2 weeks'=>'2 weeks forward','+1 month'=>'1 month forward','+2 months'=>'2 months forward','+3 months'=>'3 months forward','+6 months'=>'6 months forward','+1 year'=>'1 year forward');
 	public static function crits_to_words($tab, $crits, $inline_joints=true) {
 		$ret = array();
 		$or_started = false;
@@ -2407,10 +2404,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				
 				switch ($k) {
 					case 'id':			if (!is_array($v)) $v = array($v); break;
-					case ':Created_on': $v = array(Base_RegionalSettingCommon::time2reg($v)); break;
                     case ':Created_by': $v = array(is_numeric($v)?Base_UserCommon::get_user_login($v):$v); break;
-                    case ':Edited_on':  $v = array(Base_RegionalSettingCommon::time2reg($v)); break;
-					default: 			if (!is_array($v)) $v = array($v);
+					case ':Created_on': 
+                    case ':Edited_on':  if (isset(self::$date_values[$v])) $v = array(self::$date_values[$v]);
+										else $v = array(Base_RegionalSettingCommon::time2reg($v)); break;
+					default: 			if (isset(self::$date_values[$v])) {
+											$v = array(self::$date_values[$v]);
+											break;
+										}
+										if (!is_array($v)) $v = array($v);
 										$args = self::$table_rows[self::$hash[$k]];
 										foreach ($v as $kk=>$vv) {
 											if (!is_numeric($vv) && !$args['commondata'] && isset($args['ref_table'])) {

@@ -1255,12 +1255,15 @@ class Utils_RecordBrowser extends Module {
         print($data['javascript'].'<form '.$data['attributes'].'>'.$data['hidden']."\n");
 
         $last_page = DB::GetOne('SELECT MIN(position) FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field != \'General\'');
+		if (!$last_page) $last_page = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field')+1;
         $label = DB::GetRow('SELECT field, param FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
-        $cols = $label['param'];
-        $label = $label['field'];
+		if ($label) {
+			$cols = $label['param'];
+			$label = $label['field'];
+		} else $cols = false;
 
         $this->view_entry_details(1, $last_page, $data, $theme, true);
-        $ret = DB::Execute('SELECT position, field, param FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d', array($last_page));
+        $ret = DB::Execute('SELECT position, field, param FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d ORDER BY position', array($last_page));
         $row = true;
         if ($mode=='view')
             print("</form>\n");
@@ -2565,7 +2568,6 @@ class Utils_RecordBrowser extends Module {
 		return false;
 	}
 	
-	private static $date_values = array('-1 year'=>'1 year back','-6 months'=>'6 months back','-3 months'=>'3 months back','-2 months'=>'2 months back','-1 month'=>'1 month back','-2 weeks'=>'2 weeks back','-1 week'=>'1 week back','-6 days'=>'6 days back','-5 days'=>'5 days back','-4 days'=>'4 days back','-3 days'=>'3 days back','-2 days'=>'2 days back','-1 days'=>'1 days back','today'=>'current day','+1 days'=>'1 days forward','+2 days'=>'2 days forward','+3 days'=>'3 days forward','+4 days'=>'4 days forward','+5 days'=>'5 days forward','+6 days'=>'6 days forward','+1 week'=>'1 week forward','+2 weeks'=>'2 weeks forward','+1 month'=>'1 month forward','+2 months'=>'2 months forward','+3 months'=>'3 months forward','+6 months'=>'6 months forward','+1 year'=>'1 year forward');
 	public function edit_permissions_rule($id = null) {
 		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')!=2) return false;
         if ($this->is_back()) {
@@ -2575,8 +2577,8 @@ class Utils_RecordBrowser extends Module {
 		$all_clearances = array(''=>'---')+array_flip(Base_AclCommon::get_clearance(true));
 		$all_fields = array();
 		$this->init();
-		foreach ($this->table_rows as $v)
-			$all_fields[$v['id']] = $v['name'];
+		foreach ($this->table_rows as $k=>$v)
+			$all_fields[$v['id']] = $k;
 		$js = '';
 		$operators = array(
 			'='=>$this->t('equal'), 
@@ -2611,15 +2613,32 @@ class Utils_RecordBrowser extends Module {
 			':Created_on'=>$this->t('Created on'),
 			':Edited_on'=>$this->t('Edited on')
 		) + $all_fields;
+		if ($this->tab=='contact' || $this->tab=='company')
+			$all_fields = array('id'=>$this->t('ID')) + $all_fields;
 		
 		$this->manage_permissions_set_field_values(':Created_by', array('USER_ID'=>$this->t('User Login')));
-		$this->manage_permissions_set_field_values(':Created_on', self::$date_values);
-		$this->manage_permissions_set_field_values(':Edited_on', self::$date_values);
+		$this->manage_permissions_set_field_values(':Created_on', Utils_RecordBrowserCommon::$date_values);
+		$this->manage_permissions_set_field_values(':Edited_on', Utils_RecordBrowserCommon::$date_values);
+		if ($this->tab=='contact')
+			$this->manage_permissions_set_field_values('id', array('USER'=>$this->t('User Contact')));
+		if ($this->tab=='company')
+			$this->manage_permissions_set_field_values('id', array('USER_COMPANY'=>$this->t('User Company')));
 		
 		for ($i=0; $i<$counts['clearance']; $i++)
 			$form->addElement('select', 'clearance_'.$i, $this->t('Clearance'), $all_clearances);
 		$current_or = array();
 		$current_and = 0;
+		
+		foreach ($all_fields as $k=>$v) {
+			if (isset($this->table_rows[$v])) {
+				$v = $this->table_rows[$v]['name'];
+				$group = 'Utils_RecordBrowser:'.$this->tab;
+			} else {
+				$group = 'Utils_RecordBrowser';
+			}
+			$all_fields[$k] = Base_LangCommon::ts($group,$v);
+		}
+		
 		for ($i=0; $i<$counts['ands']; $i++) {
 			$current_or[$i] = 0;
 			for ($j=0; $j<$counts['ors']; $j++) {
@@ -2633,7 +2652,7 @@ class Utils_RecordBrowser extends Module {
 		$defaults = array();
 		foreach ($fields_permissions as $k=>$v) {
 			$defaults['field_'.$k] = 1;
-			$form->addElement('checkbox', 'field_'.$k, Base_LangCommon::ts('Utils_RecordBrowser:'.$this->tab,$v));
+			$form->addElement('checkbox', 'field_'.$k, Base_LangCommon::ts('Utils_RecordBrowser:'.$this->tab,$this->table_rows[$v]['name']));
 		}
 		$theme->assign('labels', array(
 			'and' => '<span class="joint">'.$this->t('and').'</span>',
@@ -2795,8 +2814,8 @@ class Utils_RecordBrowser extends Module {
 	private function permissions_get_field_values($field, $in_depth=true) {
 		static $all_fields = array();
 		if (!isset($all_fields[$this->tab]))
-			foreach ($this->table_rows as $v)
-				$all_fields[$this->tab][$v['id']] = $v['name'];
+			foreach ($this->table_rows as $k=>$v)
+				$all_fields[$this->tab][$v['id']] = $k;
 		$args = $this->table_rows[$all_fields[$this->tab][$field]];
 		$arr = array(''=>'['.$this->t('empty').']');
 		switch (true) {
@@ -2810,7 +2829,7 @@ class Utils_RecordBrowser extends Module {
 				$arr = $arr + array('USER_ID'=>$this->t('User Login'));
 				break;
 			case $args['type']=='date' || $args['type']=='timestamp':
-				$arr = $arr + self::$date_values;
+				$arr = $arr + Utils_RecordBrowserCommon::$date_values;
 				break;
 			case ($args['type']=='multiselect' || $args['type']=='select') && (!isset($args['ref_table']) || !$args['ref_table']):
 				$arr = $arr + array('USER'=>$this->t('User Contact'));

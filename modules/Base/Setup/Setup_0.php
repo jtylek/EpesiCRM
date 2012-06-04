@@ -413,6 +413,7 @@ class Base_Setup extends Module {
 			$name = $s['name'];
 
 			$label = Base_EpesiStoreCommon::next_possible_action($s['id']);
+			if (!isset($s['total_price'])) $s['total_price'] = $s['price'];
 			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['total_price']===0) {
 				$s['total_price'] = $this->t('Free');
 				$label = 'obtain license';
@@ -463,6 +464,7 @@ class Base_Setup extends Module {
         if ($module['required_modules']) {
             $text .= $this->t("With this module you will get license for these modules:");
             $arr = array($module['name'] => $module['price']);
+			if (!is_array($module['required_modules'])) $module['required_modules'] = explode(', ',$module['required_modules']);
             foreach ($module['required_modules'] as $rm_id) {
                 $mod = Base_EpesiStoreCommon::get_module_info($rm_id);
                 $arr[$mod['name']] = $mod['price'];

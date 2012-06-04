@@ -585,6 +585,7 @@ class Base_EpesiStore extends Module {
         unset($data['description_url']);
         
         $required_modules = & $data['required_modules'];
+		if (!is_array($required_modules)) $required_modules = explode(', ',$required_modules);
         if (isset($required_modules)) {
             foreach($required_modules as $k => & $m) {
                 $mi = Base_EpesiStoreCommon::get_module_info($m);
