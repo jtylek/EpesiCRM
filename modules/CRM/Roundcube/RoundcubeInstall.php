@@ -26,9 +26,9 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         @DB::DropTable('rc_messages');
 
         if(DATABASE_DRIVER=='mysqlt')
-            $f = file_get_contents('modules/CRM/Roundcube/src/SQL/mysql.initial.sql');
+            $f = file_get_contents('modules/CRM/Roundcube/RC/SQL/mysql.initial.sql');
         else
-            $f = file_get_contents('modules/CRM/Roundcube/src/SQL/postgres.initial.sql');
+            $f = file_get_contents('modules/CRM/Roundcube/RC/SQL/postgres.initial.sql');
         foreach(explode(';',$f) as $q) {
             $q = trim($q);
             if(!$q) continue;

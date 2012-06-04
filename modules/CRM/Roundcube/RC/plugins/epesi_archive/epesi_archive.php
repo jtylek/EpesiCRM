@@ -144,7 +144,7 @@ class epesi_archive extends rcube_plugin
     global $E_SESSION;
     $rcmail = rcmail::get_instance();
     $path = getcwd();
-    chdir(str_replace('/modules/CRM/Roundcube/src','',$path));
+    chdir(str_replace('/modules/CRM/Roundcube/RC','',$path));
 
     $msgs = array();    
     foreach($uids as $uid) {
