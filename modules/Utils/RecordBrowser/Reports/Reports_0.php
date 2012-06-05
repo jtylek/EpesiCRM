@@ -1039,7 +1039,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			return true;
 		} else {
 			if ($this->pdf){
-				Base_ActionBarCommon::add('save','Download PDF','href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
+				Base_ActionBarCommon::add('save','Download PDF','target="_blank" href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
 				self::$pdf_ready = 1;
 			} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
 				if (count($this->gb_captions)<20)
