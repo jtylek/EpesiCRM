@@ -137,10 +137,6 @@ class Base_EssClient extends Module {
                 Utils_TooltipCommon::open_tag_attrs($this->t("This email will be used to send registation link and to contact Administator directly."), false)
                 . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
 
-        $reseller_tooltip = '<img ' .
-                Utils_TooltipCommon::open_tag_attrs($this->t("If you don't have Epesi Reseller login leave this field empty."), false)
-                . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
-
         $f->addElement('text', 'company_name', $this->t('Company name'), array('maxlength' => 128));
         $f->addRule('company_name', $this->t('Field required'), 'required');
         $f->addRule('company_name', $this->t('Max length exceeded'), 'maxlength', 128);
@@ -149,14 +145,12 @@ class Base_EssClient extends Module {
         $f->addRule('short_name', $this->t('Max length exceeded'), 'maxlength', 64);
 
         $f->addElement('text', 'phone', $this->t('Phone'), array('maxlength' => 64));
-        $f->addRule('phone', $this->t('Field required'), 'required');
         $f->addRule('phone', $this->t('Max length exceeded'), 'maxlength', 64);
 
         $f->addElement('text', 'fax', $this->t('Fax'), array('maxlength' => 64));
         $f->addRule('fax', $this->t('Max length exceeded'), 'maxlength', 64);
 
         $f->addElement('text', 'email', $this->t('Company email'), array('maxlength' => 128));
-        $f->addRule('email', $this->t('Field required'), 'required');
         $f->addRule('email', $this->t('Max length exceeded'), 'maxlength', 128);
         $f->addRule('email', $this->t('Invalid e-mail address'), 'email');
 
@@ -194,9 +188,6 @@ class Base_EssClient extends Module {
         $f->addRule('admin_email', $this->t('Field required'), 'required');
         $f->addRule('admin_email', $this->t('Max length exceeded'), 'maxlength', 128);
         $f->addRule('admin_email', $this->t('Invalid e-mail address'), 'email');
-
-        $f->addElement('text', 'reseller', $reseller_tooltip . $this->t('Epesi Reseller login'), array('maxlength' => 32));
-        $f->addRule('admin_first_name', $this->t('Max length exceeded'), 'maxlength', 32);
 
         if ($f->validate()) {
             $ret = $f->exportValues();
