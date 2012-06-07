@@ -232,7 +232,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	}
 
 	public static function restore_locale() {
-		setlocale(LC_ALL,self::$curr_locale);
+		@setlocale(LC_ALL,self::$curr_locale);
 	}
 
 	public static function set() {
