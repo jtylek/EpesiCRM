@@ -21,6 +21,9 @@ if (!isset($_SESSION['client']['quickform'])) {
 	print('<ul><li>Session expired, please reload the page</li></ul>');
 	return;
 }
+if (!isset($_SESSION['client']['quickform']['autocomplete'][$_GET['key']])) {
+    die('<ul><li style="font-weight: bold;text-align:center;">'.Base_LangCommon::ts('Libs_QuickForm','Search disabled in grid view').'</li></ul>');
+}
 $params = $_SESSION['client']['quickform']['autocomplete'][$_GET['key']];
 $string = $_POST[$params['field']];
 $callback = $params['callback'];
