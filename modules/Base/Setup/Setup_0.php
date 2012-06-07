@@ -396,8 +396,13 @@ class Base_Setup extends Module {
 		$registered = Base_EssClientCommon::is_registered();
 		$filters_attrs = '';
 		if (!$registered) {
-			$msg = $this->t('To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?');
-			$filters_attrs = $this->create_confirm_callback_href($msg, array($this, 'jump_to_epesi_registration'));
+			if (TRIAL_MODE) {
+				$msg = $this->t('EPESI store is not accessible during the trial.');
+				$filters_attrs = 'href="javascript:void(0);" onclick="alert(\''.$msg.'\');"';
+			} else {
+				$msg = $this->t('To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?');
+				$filters_attrs = $this->create_confirm_callback_href($msg, array($this, 'jump_to_epesi_registration'));
+			}
 		}
 		$filters[$this->t('Updates')] = array('arg'=>'updates', 'attrs'=>$filters_attrs);
 		$filters[$this->t('My Purchases')] = array('arg'=>'purchases', 'attrs'=>$filters_attrs);

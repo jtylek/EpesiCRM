@@ -49,8 +49,11 @@ class Base_EpesiStore extends Module {
 
         Base_ActionBarCommon::add('settings', 'Simple view', $this->create_callback_href(array($this, 'switch_simple'), true));
         $tb = $this->init_module('Utils_TabbedBrowser');
-        $tb->set_tab('Epesi Store', array($this, 'form_main_store'), array());
-        $tb->set_tab('Modules Setup', array($this, 'setup_admin'), array($setup));
+		if (TRIAL_MODE)
+			$tb->set_tab('Modules Setup', array($this, 'setup_admin'), array($setup));
+		$tb->set_tab('Epesi Store', array($this, 'form_main_store'), array());
+		if (!TRIAL_MODE)
+			$tb->set_tab('Modules Setup', array($this, 'setup_admin'), array($setup));
         $tb->tag();
         $this->display_module($tb);
     }
@@ -116,7 +119,11 @@ class Base_EpesiStore extends Module {
             $this->navigation_buttons();
             $this->display_modules();
         } else {
-            $this->display_registration_form();
+            if (TRIAL_MODE) {
+                print('<span class="important_notice">EPESI store is unavailable during the trial.</span>');
+            } else {
+                $this->display_registration_form();
+            }
         }
         $this->client_messages();
     }

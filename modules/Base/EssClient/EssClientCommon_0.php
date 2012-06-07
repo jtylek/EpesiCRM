@@ -16,7 +16,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     const VAR_INSTALLATION_STATUS = 'ess_installations_status';
 
     public static function menu() {
-        if (!Base_AclCommon::i_am_sa())
+        if (!Base_AclCommon::i_am_sa() || TRIAL_MODE)
             return;
         $text = 'EPESI registration';
         if (!self::get_license_key()) {
