@@ -1,7 +1,5 @@
 //TODO: ajax and ipad dblclick still from prototype
 
-jQuery.noConflict();
-
 (function($){
 
 	function setOffset(el, newOffset){

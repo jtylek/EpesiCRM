@@ -252,10 +252,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function body($arg = null) {
-		load_js($this->get_module_dir().'jquery-1.7.2.min.js');
-		load_js($this->get_module_dir().'jquery-ui-1.8.18.custom.min.js');
 		load_js($this->get_module_dir().'calendar-jq.js');
-		Base_ThemeCommon::load_css('Utils_Calendar', 'jquery-ui');
 
 //		load_js($this->get_module_dir().'calendar.js');
 

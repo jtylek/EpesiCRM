@@ -141,11 +141,17 @@ Please choose epesi version:<ul>
 <?php
 	ini_set('include_path','libs/minify'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.'libs'.PATH_SEPARATOR.ini_get('include_path'));
 	require_once('Minify/Build.php');
-	$jses = array('libs/prototype.js','libs/HistoryKeeper.js','include/epesi.js');
+	$jses = array('libs/prototype.js','libs/jquery-1.7.2.min.js','libs/jquery-ui-1.8.21.custom.min.js','libs/HistoryKeeper.js','include/epesi.js');
 	$jsses_build = new Minify_Build($jses);
 	$jsses_src = $jsses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($jses))));
 ?>
 		<script type="text/javascript" src="<?php print($jsses_src)?>"></script>
+<?php
+	$csses = array('libs/jquery-ui-1.8.21.custom.css');
+	$csses_build = new Minify_Build($csses);
+	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
+?>
+		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
 
 		<style type="text/css">
 			<?php if (DIRECTION_RTL) print('body { direction: rtl; }'); ?>
