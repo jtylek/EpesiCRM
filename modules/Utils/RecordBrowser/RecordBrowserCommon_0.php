@@ -706,7 +706,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_sql_type($type) {
         switch ($type) {
             case 'checkbox': return '%d';
-            case 'select': return '%d';
+            case 'select': return '%s';
             case 'float': return '%f';
             case 'integer': return '%d';
             case 'date': return '%D';
@@ -2356,7 +2356,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				}
 			}
 
-            if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[$k]) && !isset(self::$table_rows[self::$hash[$k]])) continue; //failsafe
+            if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[$k]) && (!isset(self::$hash[$k]) || !isset(self::$table_rows[self::$hash[$k]]))) continue; //failsafe
 
 			if (!empty($ret)) {
 				if ($or_start) $joint = 'and';

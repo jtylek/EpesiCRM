@@ -212,7 +212,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function display_phone($record, $nolink, $desc) {
 		if ($record[$desc['id']]=='') return '';
 		$num = $record[$desc['id']];
-		if (!$record['customer']) return '---';
+		if (!isset($record['customer']) || !$record['customer']) return '---';
 		list($r,$id) = explode(':',$record['customer']);
 		if ($r=='P')
 			$contact = CRM_ContactsCommon::get_contact($id);

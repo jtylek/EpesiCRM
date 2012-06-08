@@ -2838,7 +2838,7 @@ class Utils_RecordBrowser extends Module {
 			case $args['type']=='checkbox':
 				$arr = array('1'=>$this->t('Yes'),'0'=>$this->t('No'));
 				break;
-			case $args['type']=='select' && isset($args['ref_table']):
+			case ($args['type']=='select' || $args['type']=='multiselect') && isset($args['ref_table']):
 				if ($args['ref_table']=='contact') $arr = $arr + array('USER'=>$this->t('User Contact'));
 				if ($args['ref_table']=='company') $arr = $arr + array('USER_COMPANY'=>$this->t('User Company'));
 				if (!$in_depth) continue;
@@ -2847,8 +2847,8 @@ class Utils_RecordBrowser extends Module {
 				$this->tab = $args['ref_table'];
 				$this->init();
 				if (!isset($all_fields[$this->tab]))
-					foreach ($this->table_rows as $v)
-						$all_fields[$this->tab][$v['id']] = $v['name'];
+					foreach ($this->table_rows as $k=>$v)
+						$all_fields[$this->tab][$v['id']] = $k;
 						
 
 				foreach ($all_fields[$this->tab] as $k=>$v) {

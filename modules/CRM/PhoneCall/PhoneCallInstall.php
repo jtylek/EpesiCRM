@@ -33,7 +33,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Status',				'type'=>'commondata', 'required'=>true, 'filter'=>true, 'param'=>array('order_by_key'=>true,'CRM/Status'), 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_status')),
 			array('name'=>'Priority', 			'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Priority'), 'extra'=>false),
 
-			array('name'=>'Phone', 				'type'=>'select', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_phone'), 'display_callback'=>array('CRM_PhoneCallCommon','display_phone')),
+			array('name'=>'Phone', 				'type'=>'integer', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_phone'), 'display_callback'=>array('CRM_PhoneCallCommon','display_phone')),
 			array('name'=>'Other Phone',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_phone')),
 			array('name'=>'Other Phone Number',	'type'=>'text', 'param'=>'64', 'extra'=>false),
 			array('name'=>'Date and Time',		'type'=>'timestamp', 'required'=>true, 'extra'=>false, 'visible'=>true),			
