@@ -1948,7 +1948,7 @@ class Utils_RecordBrowser extends Module {
                 break;
 			case 'multiselect':
 				if ($action=='edit') {
-					list($tab, $col) = explode('::', $row['param']);
+					@list($tab, $col) = explode('::', $row['param']);
 					if ($tab=='__COMMON__') {
 						$row['param'] = '__'.$col;
 						$form->setDefaults(array('select_type'=>'multi'));
