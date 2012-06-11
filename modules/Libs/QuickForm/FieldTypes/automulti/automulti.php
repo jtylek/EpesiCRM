@@ -289,7 +289,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 
 			$this->setName($myName);
 
-			$strHtml .= $tabs . '<input type="hidden" name="'.$myName.'" value="'.$list.'" />'."\n";
+			$strHtml .= $tabs . '<input type="hidden" name="'.$myName.'" value="'.$list.'" id="'.$myName.'__var_holder" />'."\n";
 			return $strHtml;
         }
     }

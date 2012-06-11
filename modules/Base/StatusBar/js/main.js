@@ -23,9 +23,13 @@ statusbar_hide_selects=function(visibility){
 updateEpesiIndicatorFunction=function(){
 	Epesi.indicator_text='statusbar_text';
 	Epesi.indicator='Base_StatusBar';
+	statbar = $('Base_StatusBar');
+	if (!statbar) {
+		setTimeout('updateEpesiIndicatorFunction();',3000);
+		return;
+	}
 	$('epesiStatus').style.visibility='hidden';
 	$('main_content').style.display='';
-	statbar = $('Base_StatusBar');
 	statbar.onclick = Function("if(!Epesi.procOn)statusbar_fade();");
 	statbar.style.display='none';
 	Epesi.updateIndicator=function(){
