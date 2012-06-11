@@ -92,6 +92,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 	
 	public static function watchdog_label($rid = null, $events = array()) {
+	        return null;
 		$ret = array('category'=>Base_LangCommon::ts('CRM_Calendar', 'Events'));
 		if ($rid!==null) {
 			$title = DB::GetOne('SELECT title FROM crm_calendar_event WHERE id=%d',array($rid));
