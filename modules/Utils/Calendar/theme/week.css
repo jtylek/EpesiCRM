@@ -244,10 +244,11 @@
 }
 
 #Utils_Calendar__week td.hour {
+	width: 90px;
 	vertical-align: middle;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;
-	text-align: left;
+	text-align: center;
 	/*background-color: #CFDAE6;*/
 	background-color: #336699;
 	padding-top: 0px;

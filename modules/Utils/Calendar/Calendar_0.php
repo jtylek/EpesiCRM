@@ -229,7 +229,7 @@ class Utils_Calendar extends Module {
 				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>(strtotime($date.' '.date('H:i:s',$curr))-$zero_t));
 			} else {
 				if(date('H:i:s',strtotime('0:00'))!=date('H:i:s',$start))
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg('0:00',2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0,'join_rows'=>ceil((strtotime(date('H:i:s',$start))-strtotime('0:00'))/$interval));
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg('0:00',2,false,false),'time'=>0,'join_rows'=>ceil((strtotime(date('H:i:s',$start))-strtotime('0:00'))/$interval));
 				$x = $start;
 				while($x<$end) {
 					$x = strtotime($interval_shift, $x);
@@ -241,11 +241,11 @@ class Utils_Calendar extends Module {
 					if(isset($used[$time]))
 						$timeline[$used[$time]]['time'] = false;
 					$used[$time] = count($timeline);
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($x,2,false,false),'time'=>$time,'join_rows'=>1);
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>$time,'join_rows'=>1);
 					$start = $x;
 				}
 				if($start<strtotime($date.' '.'23:59'))
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>(strtotime($date.' '.date('H:i:s',$start))-$zero_t));
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>(strtotime($date.' '.date('H:i:s',$start))-$zero_t));
 			}
 		}
 		return $timeline;
