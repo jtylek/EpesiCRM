@@ -698,7 +698,7 @@ class Utils_Attachment extends Module {
 		if($form->getSubmitValue('note')=='' && !$form->is_file())
 			$form->addRule('note',$this->t('Please enter note or choose file'),'required');
 
-		$form->addElement('select','permission',$this->t('Permission'),array($this->t('Public'),$this->t('Protected'),$this->t('Private')));
+		$form->addElement('select','permission',$this->t('Permission'),array($this->t('Public'),$this->t('Protected'),$this->t('Private')),array('style'=>'width:auto;'));
 		$form->addElement('checkbox','sticky',$this->t('Sticky'));
 
 		if(isset($id))
