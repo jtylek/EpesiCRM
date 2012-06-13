@@ -77,11 +77,17 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		$this->create_data_dir();
 		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		Base_ThemeCommon::install_default_theme($this->get_type());
+
+		Variable::set('utils_attachments_google_user', '');
+		Variable::set('utils_attachments_google_pass', '');
 		return $ret;
 	}
 
 	public function uninstall() {
 		$ret = true;
+		Variable::delete('utils_attachments_google_user');
+		Variable::delete('utils_attachments_google_pass');
+
 		$ret &= DB::DropTable('utils_attachment_note');
 		$ret &= DB::DropTable('utils_attachment_download');
 		$ret &= DB::DropTable('utils_attachment_file');

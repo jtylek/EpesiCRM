@@ -14,6 +14,10 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
+	public static function admin_caption() {
+		return 'Google Docs intergartion';
+	}
+
 	public static function new_addon($table) {
 		Utils_RecordBrowserCommon::new_addon($table, 'Utils/Attachment', 'body', 'Notes');
 	}
@@ -173,6 +177,32 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			$id = DB::Insert_ID('utils_attachment_download','id');
 		}
 		return get_epesi_url().'/modules/Utils/Attachment/get_remote.php?'.http_build_query(array('id'=>$id,'token'=>$token));
+	}
+	
+	public static function get_google_auth($user, $pass) {
+		$company = CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company());
+
+		$clientlogin_url = "https://www.google.com/accounts/ClientLogin";
+		$clientlogin_post = array(
+			"accountType" => "HOSTED_OR_GOOGLE",
+			"Email" => urlencode($user),
+			"Passwd" => urlencode($pass),
+			"service" => "writely",
+			"source" => urlencode($company['company_name'].'-EPESI-'.'1.0')
+		);
+
+		$curl = curl_init($clientlogin_url);
+		curl_setopt($curl, CURLOPT_POST, true);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $clientlogin_post);
+		curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		$response = curl_exec($curl);
+		curl_close($curl);
+
+		preg_match("/Auth=([a-z0-9_-]+)/i", $response, $matches);
+		$g_auth = @$matches[1];
+		return $g_auth;
 	}
 }
 

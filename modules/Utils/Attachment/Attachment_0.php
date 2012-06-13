@@ -103,6 +103,64 @@ class Utils_Attachment extends Module {
 		$this->author = $x;
 	}
 	
+	public function admin() {
+		if ($this->is_back()) {
+			$this->parent->reset();
+		}
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+
+		$google_login = Variable::get('utils_attachments_google_user');
+		$google_pass = Variable::get('utils_attachments_google_pass');
+
+		$form = $this->init_module('Libs_QuickForm');
+		$theme = $this->init_module('Base_Theme');
+
+		$form->addElement('header', 'header', $this->t('Google Username and Password'));
+
+		$form->addElement('text', 'google_user', $this->t('Username'));
+		$form->addElement('password', 'google_pass', $this->t('Password'));
+
+		$form->setDefaults(array('google_user'=>$google_login));
+		$form->setDefaults(array('google_pass'=>$google_pass));
+
+		if ($form->validate()) {
+			$vals = $form->exportValues();
+
+			$ok = true;
+			if ($vals['google_user']) {
+				$g_auth = Utils_AttachmentCommon::get_google_auth($vals['google_user'], $vals['google_pass']);
+				if (!$g_auth) {
+					$new = str_replace('@gmail.com', '', $vals['google_user']);
+					if ($new===$vals['google_user']) $ok = false;
+					else {
+						$vals['google_user'] = $new;
+						$g_auth = Utils_AttachmentCommon::get_google_auth($vals['google_user'], $vals['google_pass']);
+						if (!$g_auth) $ok = false;
+					}
+				}
+			}
+
+			if ($ok) {
+				Variable::set('utils_attachments_google_user', $vals['google_user']);
+				Variable::set('utils_attachments_google_pass', $vals['google_pass']);
+
+				Base_StatusBarCommon::message($this->t('Settings saved'));
+			} else {
+				Base_StatusBarCommon::message($this->t('Unable to authenticate'), 'error');
+			}
+			location(array());
+			return;
+		}
+
+		$form->assign_theme('form', $theme);
+
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		
+		Base_ThemeCommon::load_css('Utils_RecordBrowser','View_entry');
+		$theme->display('admin');
+	}
+	
 	public function body($arg=null, $rb=null) {
 		if(isset($arg) && isset($rb)) {
 			$this->group = $rb->tab.'/'.$arg['id'];
