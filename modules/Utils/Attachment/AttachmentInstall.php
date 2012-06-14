@@ -77,6 +77,14 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		$this->create_data_dir();
 		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		Base_ThemeCommon::install_default_theme($this->get_type());
+		
+		DB::CreateTable('utils_attachment_googledocs','
+			id I4 AUTO KEY NOTNULL,
+			note_id I4 NOTNULL,
+			view_link C(255),
+			doc_id C(128)',
+			array('constraints'=>''));
+		
 
 		Variable::set('utils_attachments_google_user', '');
 		Variable::set('utils_attachments_google_pass', '');
@@ -88,6 +96,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		Variable::delete('utils_attachments_google_user');
 		Variable::delete('utils_attachments_google_pass');
 
+		DB::DropTable('utils_attachment_googledocs');
 		$ret &= DB::DropTable('utils_attachment_note');
 		$ret &= DB::DropTable('utils_attachment_download');
 		$ret &= DB::DropTable('utils_attachment_file');

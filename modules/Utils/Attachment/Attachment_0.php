@@ -129,15 +129,7 @@ class Utils_Attachment extends Module {
 			$ok = true;
 			if ($vals['google_user']) {
 				$g_auth = Utils_AttachmentCommon::get_google_auth($vals['google_user'], $vals['google_pass']);
-				if (!$g_auth) {
-					$new = str_replace('@gmail.com', '', $vals['google_user']);
-					if ($new===$vals['google_user']) $ok = false;
-					else {
-						$vals['google_user'] = $new;
-						$g_auth = Utils_AttachmentCommon::get_google_auth($vals['google_user'], $vals['google_pass']);
-						if (!$g_auth) $ok = false;
-					}
-				}
+				if (!$g_auth) $ok = false;
 			}
 
 			if ($ok) {

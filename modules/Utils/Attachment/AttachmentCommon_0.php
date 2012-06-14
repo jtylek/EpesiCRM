@@ -185,10 +185,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$clientlogin_url = "https://www.google.com/accounts/ClientLogin";
 		$clientlogin_post = array(
 			"accountType" => "HOSTED_OR_GOOGLE",
-			"Email" => urlencode($user),
-			"Passwd" => urlencode($pass),
+			"Email" => $user,
+			"Passwd" => $pass,
 			"service" => "writely",
-			"source" => urlencode($company['company_name'].'-EPESI-'.'1.0')
+			"source" => $company['company_name'].'-EPESI-'.'1.0'
 		);
 
 		$curl = curl_init($clientlogin_url);
