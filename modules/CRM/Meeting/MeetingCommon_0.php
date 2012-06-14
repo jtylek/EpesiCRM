@@ -438,8 +438,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_PhoneCall','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('crm_meeting/'.$values['id']);
 			return $ret;
-		case 'add':
 		case 'edit':
+			self::subscribed_employees($values);
+		case 'add':
 			if (isset($values['duration_switch']) && !$values['duration_switch']) {
 				$values['duration'] = strtotime($values['end_time']) - strtotime($values['time']);
 				if ($values['duration']<0) $values['duration'] += 60*60*24; // failsafe
