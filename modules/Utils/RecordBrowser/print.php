@@ -58,7 +58,7 @@ Libs_TCPDFCommon::SetFont($tcpdf, Libs_TCPDFCommon::$default_font, '', 6);
 //die($html);
 
 $html = Libs_TCPDFCommon::stripHTML(str_replace(array('<br>','&nbsp;'),array('<br/>',' '),$html));
-Libs_TCPDFCommon::writeHTML($tcpdf, $html);
+Libs_TCPDFCommon::writeHTML($tcpdf, $html, false);
 
 $buffer = Libs_TCPDFCommon::output($tcpdf);
 
