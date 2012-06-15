@@ -896,11 +896,10 @@ class Utils_Attachment extends Module {
 			"GData-Version: 3.0",
 		);
 		curl_setopt($curl, CURLOPT_URL, $export_url);
-		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_POST, false);
-		$response = curl_exec($curl);
+		$response = curl_exec_follow($curl);
 
 		$row = DB::GetRow('SELECT * FROM utils_attachment_file WHERE id=%d',array($note_id));
 		$attach_id = $row['attach_id'];
