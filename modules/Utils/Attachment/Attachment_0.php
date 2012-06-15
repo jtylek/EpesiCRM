@@ -492,8 +492,22 @@ class Utils_Attachment extends Module {
 
 		$lid = 'get_file_'.md5($this->get_path().serialize($row));
 
-		$view_link = 'modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1));
-		$th->assign('view','<a href="'.$view_link.'" target="_blank" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->t('View').'</a><br>');
+		$close_leightbox_js = 'leightbox_deactivate(\''.$lid.'\');';
+		if (Variable::get('utils_attachments_google_user') && strpos($row['original'], '.doc')!==false) {
+			$script = 'get_google_docs';
+			$onclick = '$(\'attachment_save_options_'.$row['file_id'].'\').style.display=\'\';$(\'attachment_download_options_'.$row['file_id'].'\').hide();';
+			$th->assign('save_options_id','attachment_save_options_'.$row['file_id']);
+			$th->assign('save','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'save_google_docs'), array($row['file_id'])).'">'.$this->t('Save Changes').'</a><br>');
+			$th->assign('discard','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'discard_google_docs'), array($row['file_id'])).'">'.$this->t('Discard Changes').'</a><br>');
+		} else {
+			$th->assign('save_options_id','');
+			$script = 'get';
+			$onclick = $close_leightbox_js;
+		}
+		$th->assign('download_options_id','attachment_download_options_'.$row['file_id']);
+		$view_link = 'modules/Utils/Attachment/'.$script.'.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1));
+		
+		$th->assign('view','<a href="'.$view_link.'" target="_blank" onClick="'.$onclick.'">'.$this->t('View').'</a><br>');
 		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->t('Download').'</a><br>');
 		load_js('modules/Utils/Attachment/remote.js');
 		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->t('Get link').'</a><br>');
@@ -863,6 +877,79 @@ class Utils_Attachment extends Module {
 	public function enable_watchdog($category, $id) {
 		$this->watchdog_category = $category;
 		$this->watchdog_id = $id;
+	}
+	
+	public function save_google_docs($note_id) {
+		$edit_url = DB::GetOne('SELECT doc_id FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
+		$export_url = 'https://docs.google.com/feeds/download/documents/Export?docID='.str_replace('https://docs.google.com/feeds/default/private/full/document%3A','',$edit_url).'&exportFormat=doc';
+		DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
+		$g_auth = Utils_AttachmentCommon::get_google_auth();
+		$curl = curl_init();
+
+		curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+		$headers = array(
+			"Authorization: GoogleLogin auth=" . $g_auth,
+			"If-Match: *",
+			"GData-Version: 3.0",
+		);
+		curl_setopt($curl, CURLOPT_URL, $export_url);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($curl, CURLOPT_POST, false);
+		$response = curl_exec($curl);
+
+		$row = DB::GetRow('SELECT * FROM utils_attachment_file WHERE id=%d',array($note_id));
+		$attach_id = $row['attach_id'];
+		$original_name = $row['original'];
+		$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=%d',array($attach_id));
+		$rev = $rev+1;
+		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($attach_id,$original_name,Acl::get_user(),$rev));
+		DB::CompleteTrans();
+		$local = $this->get_data_dir().$this->group;
+		@mkdir($local,0777,true);
+		$dest_file = $local.'/'.$attach_id.'_'.$rev;
+		file_put_contents($dest_file, $response);
+		if ($this->add_func) call_user_func($this->add_func,$attach_id,$rev,$dest_file,$original_name,$this->add_args);
+
+		$headers = array(
+			"Authorization: GoogleLogin auth=" . $g_auth,
+			"If-Match: *",
+			"GData-Version: 3.0",
+		);
+		curl_setopt($curl, CURLOPT_URL, $edit_url);
+		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($curl, CURLOPT_POST, false);
+		$response = curl_exec($curl);
+
+		Base_StatusBarCommon::message($this->t('Changes saved'));
+	}
+
+	public function discard_google_docs($note_id) {
+		$edit_url = DB::GetOne('SELECT doc_id FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
+		DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
+		$g_auth = Utils_AttachmentCommon::get_google_auth();
+		$curl = curl_init();
+
+		curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+		$headers = array(
+			"Authorization: GoogleLogin auth=" . $g_auth,
+			"If-Match: *",
+			"GData-Version: 3.0",
+		);
+		curl_setopt($curl, CURLOPT_URL, $edit_url);
+		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($curl, CURLOPT_POST, false);
+		$response = curl_exec($curl);
+		Base_StatusBarCommon::message($this->t('Changes discarded'));
 	}
 }
 

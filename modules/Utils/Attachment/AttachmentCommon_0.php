@@ -179,7 +179,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return get_epesi_url().'/modules/Utils/Attachment/get_remote.php?'.http_build_query(array('id'=>$id,'token'=>$token));
 	}
 	
-	public static function get_google_auth($user, $pass) {
+	public static function get_google_auth($user=null, $pass=null) {
+		if ($user===null) {
+			$user = Variable::get('utils_attachments_google_user');
+			$pass = Variable::get('utils_attachments_google_pass');
+		}
 		$company = CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company());
 
 		$clientlogin_url = "https://www.google.com/accounts/ClientLogin";
