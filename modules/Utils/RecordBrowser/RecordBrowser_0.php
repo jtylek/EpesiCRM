@@ -1808,11 +1808,11 @@ class Utils_RecordBrowser extends Module {
         $gb = $this->init_module('Utils/GenericBrowser', null, 'fields');
         $gb->set_table_columns(array(
             array('name'=>$this->t('Field'), 'width'=>20),
-            array('name'=>$this->t('Type'), 'width'=>20),
+            array('name'=>$this->t('Type'), 'width'=>10),
             array('name'=>$this->t('Table view'), 'width'=>5),
             array('name'=>$this->t('Required'), 'width'=>5),
             array('name'=>$this->t('Filter'), 'width'=>5),
-            array('name'=>$this->t('Parameters'), 'width'=>5),
+            array('name'=>$this->t('Parameters'), 'width'=>27),
             array('name'=>$this->t('Display callback'), 'width'=>5),
             array('name'=>$this->t('QFfield callback'), 'width'=>5)
 		));
@@ -2007,6 +2007,10 @@ class Utils_RecordBrowser extends Module {
 							if ($action!='add')
 								DB::Execute('UPDATE '.$this->tab.'_field SET param=%s WHERE field=%s', array($param, $field));
 							break;
+				case 'multiselect':
+							$param = '__COMMON__::'.$data['commondata_table'];
+							$data['select_data_type'] = 'multiselect';
+							break;
 			}
             if ($action=='add') {
                 $id = $new_id;
@@ -2029,12 +2033,12 @@ class Utils_RecordBrowser extends Module {
                 if(DATABASE_DRIVER=='postgres')
                     DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$new_id);
                 else {
-                    $param = DB::GetOne('SELECT param FROM '.$this->tab.'_field WHERE field=%s', array($field));
-                    DB::RenameColumn($this->tab.'_data_1', 'f_'.$id, 'f_'.$new_id, Utils_RecordBrowserCommon::actual_db_type($type, $param));
+                    $old_param = DB::GetOne('SELECT param FROM '.$this->tab.'_field WHERE field=%s', array($field));
+                    DB::RenameColumn($this->tab.'_data_1', 'f_'.$id, 'f_'.$new_id, Utils_RecordBrowserCommon::actual_db_type($type, $old_param));
                 }
             }
-            DB::Execute('UPDATE '.$this->tab.'_field SET field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
-                        array($data['field'], $data['visible'], $data['required'], $data['filter'], $field));
+            DB::Execute('UPDATE '.$this->tab.'_field SET param=%s, type=%s, field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
+                        array($param, $data['select_data_type'], $data['field'], $data['visible'], $data['required'], $data['filter'], $field));
             DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
                         array($new_id, $id));
             DB::CompleteTrans();
