@@ -16,6 +16,11 @@ $path = $_REQUEST['path'];
 $id = $_REQUEST['id'];
 $disposition = (isset($_REQUEST['view']) && $_REQUEST['view'])?'inline':'attachment';
 
+function error_message() {
+	Utils_FrontPageCommon::display(Base_LangCommon::ts('Utils/Attachment', 'Error occured'), Base_LangCommon::ts('Utils/Attachment', 'There was an error accessing Google Docs service.').'<br><br>'.Base_LangCommon::ts('Utils/Attachment', 'Please contact your administrator.'));
+	die();
+}
+
 define('CID', $cid);
 define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
@@ -45,7 +50,6 @@ require_once('mime.php');
 if(headers_sent())
 	die('Some data has already been output to browser, can\'t send file');
 
-//DB::Execute('DELETE FROM utils_attachment_googledocs');die();
 
 $t = time();
 $remote_address = $_SERVER['REMOTE_ADDR'];
@@ -55,6 +59,7 @@ $f_filename = DATA_DIR.'/Utils_Attachment/'.$filename;
 if(!file_exists($f_filename))
 	die('File doesn\'t exists');
 $buffer = file_get_contents($f_filename);
+$buffer_size = strlen($buffer);
 
 $g_auth = Utils_AttachmentCommon::get_google_auth();
 
@@ -114,7 +119,6 @@ if ($g_auth) {
 			}
 		}
 
-		$upload_href = 'https://docs.google.com/feeds/default/private/full';
 		$create_collection_href = 'https://docs.google.com/feeds/default/private/full';
 
 		// Create collection if it doesn't exists
@@ -160,8 +164,9 @@ if ($g_auth) {
 		// Create the file
 		$filename = 'EPESI Note '.$id;
 		switch (true) {
-			case strpos($row['original'], '.doc')!==false: $type = 'document'; break;
-			case strpos($row['original'], '.xls')!==false: $type = 'spreadsheet'; break;
+			case strpos($row['original'], '.doc')!==false: $type = 'document'; $content_type = 'application/msword'; break;
+			case strpos($row['original'], '.csv')!==false: $type = 'spreadsheet'; $content_type = 'text/csv'; break;
+			// application/vnd.oasis.opendocument.spreadsheet
 		}
 		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:docs="http://schemas.google.com/docs/2007"><category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/docs/2007#'.$type.'"/><title>'.$filename.'</title></entry>';
 		
@@ -170,16 +175,65 @@ if ($g_auth) {
 			"GData-Version: 3.0",
 			"Content-Length: ".strlen($body),
 			"Content-Type: application/atom+xml",
-			"X-Upload-Content-Length: 0"
+			"X-Upload-Content-Type: ".$content_type,
+			"X-Upload-Content-Length: ".$buffer_size
 		);
 
 		curl_setopt($curl, CURLOPT_URL, $upload_href);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_POST, true);
 		curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
-		$response = curl_exec($curl);
+		curl_setopt($curl, CURLOPT_HEADER, true); 
 
-		$response = simplexml_load_string($response);
+		$response = curl_exec($curl);
+		$info = curl_getinfo($curl);
+
+		curl_setopt($curl, CURLOPT_HEADER, false); 
+
+		if ($info['http_code']!==200) error_message();
+		preg_match("/Location: ([^\s]+)/i", $response, $matches);
+		$location = $matches[1];
+		$part = 0;
+		$chunk = 524288;
+		do {
+			$from = $part*$chunk;
+			$to = ($part+1)*$chunk - 1;
+			$size = $chunk;
+			if ($to > $buffer_size-1) {
+				$to = $buffer_size-1;
+				$size = $buffer_size % $chunk;
+			}
+			$headers = array(
+				"Authorization: GoogleLogin auth=" . $g_auth,
+				"GData-Version: 3.0",
+				"Content-Length: ".$size,
+				"Content-Type: ".$content_type,
+				"Content-Range: bytes ".$from."-".$to."/".$buffer_size
+			);
+			curl_setopt($curl, CURLOPT_URL, $location);
+			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($curl, CURLOPT_UPLOAD, true);
+			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+			curl_setopt($curl, CURLOPT_PUT, false);
+			curl_setopt($curl, CURLOPT_POST, true);
+			curl_setopt($curl, CURLOPT_POSTFIELDS, substr($buffer, $part*$chunk, $chunk));
+			curl_setopt($curl, CURLOPT_HEADER, true); 
+
+			$response = curl_exec($curl);
+			$info = curl_getinfo($curl);
+
+			$header = substr($response, 0, $info['header_size']);
+			$body = substr($response, -$info['download_content_length']);
+
+			preg_match("/Location: ([^\s]+)/i", $header, $matches);
+			if (isset($matches[1])) $location = $matches[1];
+			$part++;
+		} while($to < $buffer_size-1);
+
+		curl_setopt($curl, CURLOPT_UPLOAD, false);
+			curl_setopt($curl, CURLOPT_HEADER, false); 
+
+		$response = simplexml_load_string($body);
 
 		foreach ($response->link as $l) {
 			if ($l['rel']=='edit-media') $edit_media_href = $l['href'];
@@ -187,26 +241,7 @@ if ($g_auth) {
 			if ($l['rel']=='edit') $edit_href = $l['href'];
 		}
 		$file_id = (string)($response->id);
-			
-		// Update contents of the file
-		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:gd="http://schemas.google.com/g/2005"><category scheme="http://schemas.google.com/g/2005#kind"term="http://schemas.google.com/docs/2007#'.$type.'"/><title>'.$filename.'</title></entry>';
-		
-		$headers = array(
-			"Authorization: GoogleLogin auth=" . $g_auth,
-			"GData-Version: 3.0",
-			"If-Match: *",
-			"Content-Length: ".strlen($buffer),
-			"Content-Type: application/msword",
-		);
-
-		curl_setopt($curl, CURLOPT_URL, $edit_media_href);
-		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($curl, CURLOPT_POST, true);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
-		curl_setopt($curl, CURLOPT_PUT, true);
-		curl_setopt($curl, CURLOPT_INFILE, fopen($f_filename, 'r'));
-		curl_setopt($curl, CURLOPT_INFILESIZE, strlen($buffer));
-		$response = curl_exec($curl);
+		if (!$file_id) error_message();
 		
 		// Add the file to collection
 		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom"><id>'.$file_id.'</id></entry>';
@@ -216,6 +251,13 @@ if ($g_auth) {
 			"Content-Length: ".strlen($body),
 			"Content-Type: application/atom+xml"
 		);
+
+		curl_close($curl);
+		$curl = curl_init();
+
+		curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
 		curl_setopt($curl, CURLOPT_URL, $collection_href);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
@@ -232,8 +274,7 @@ if ($g_auth) {
 	}
 
 	header('Location: '.$view_doc);
-} else {
-	Utils_FrontPageCommon::display(Base_LangCommon::ts('Utils/Attachment', 'Error occured'), Base_LangCommon::ts('Utils/Attachment', 'There was an error accessing Google Docs service.').'<br><br>'.Base_LangCommon::ts('Utils/Attachment', 'Please contact your administrator.'));
 }
+error_message();
 
 ?>

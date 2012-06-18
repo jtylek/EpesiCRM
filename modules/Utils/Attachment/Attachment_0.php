@@ -493,7 +493,7 @@ class Utils_Attachment extends Module {
 		$lid = 'get_file_'.md5($this->get_path().serialize($row));
 
 		$close_leightbox_js = 'leightbox_deactivate(\''.$lid.'\');';
-		if (Variable::get('utils_attachments_google_user') && strpos($row['original'], '.doc')!==false) {
+		if (Variable::get('utils_attachments_google_user') && (strpos($row['original'], '.doc')!==false || strpos($row['original'], '.csv')!==false)) {
 			$script = 'get_google_docs';
 			$onclick = '$(\'attachment_save_options_'.$row['file_id'].'\').style.display=\'\';$(\'attachment_download_options_'.$row['file_id'].'\').hide();';
 			$th->assign('save_options_id','attachment_save_options_'.$row['file_id']);
