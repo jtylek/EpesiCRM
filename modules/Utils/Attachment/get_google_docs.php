@@ -60,13 +60,13 @@ $g_auth = Utils_AttachmentCommon::get_google_auth();
 
 if ($g_auth) {
 	DB::StartTrans();
-	$row = DB::GetRow('SELECT id, view_link FROM utils_attachment_googledocs WHERE note_id=%d', array($id));
-	if (empty($row)) {
+	$view_row = DB::GetRow('SELECT id, view_link FROM utils_attachment_googledocs WHERE note_id=%d', array($id));
+	if (empty($view_row)) {
 		$view_doc = null;
 		DB::Execute('INSERT INTO utils_attachment_googledocs (view_link, note_id, doc_id) VALUES (%s, %d, %s)', array('', $id, ''));
 		$uag_id = DB::Insert_ID('utils_attachment_googledocs','id');
 	} else {
-		$view_doc = $row[1]?$row[1]:'';
+		$view_doc = $view_row[1]?$view_row[1]:'';
 	}
 	DB::CompleteTrans();
 	$wait = 15;
@@ -114,7 +114,7 @@ if ($g_auth) {
 			}
 		}
 
-		//$upload_href = 'https://docs.google.com/feeds/default/private/full';
+		$upload_href = 'https://docs.google.com/feeds/default/private/full';
 		$create_collection_href = 'https://docs.google.com/feeds/default/private/full';
 
 		// Create collection if it doesn't exists
@@ -155,12 +155,15 @@ if ($g_auth) {
 			curl_setopt($curl, CURLOPT_POST, true);
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
 			$response = curl_exec($curl);
-			
 		}
 
 		// Create the file
 		$filename = 'EPESI Note '.$id;
-		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:docs="http://schemas.google.com/docs/2007"><category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/docs/2007#document"/><title>'.$filename.'</title></entry>';
+		switch (true) {
+			case strpos($row['original'], '.doc')!==false: $type = 'document'; break;
+			case strpos($row['original'], '.xls')!==false: $type = 'spreadsheet'; break;
+		}
+		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:docs="http://schemas.google.com/docs/2007"><category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/docs/2007#'.$type.'"/><title>'.$filename.'</title></entry>';
 		
 		$headers = array(
 			"Authorization: GoogleLogin auth=" . $g_auth,
@@ -169,8 +172,6 @@ if ($g_auth) {
 			"Content-Type: application/atom+xml",
 			"X-Upload-Content-Length: 0"
 		);
-
-		$upload_href = $create_collection_href;
 
 		curl_setopt($curl, CURLOPT_URL, $upload_href);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
@@ -188,7 +189,7 @@ if ($g_auth) {
 		$file_id = (string)($response->id);
 			
 		// Update contents of the file
-		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:gd="http://schemas.google.com/g/2005"><category scheme="http://schemas.google.com/g/2005#kind"term="http://schemas.google.com/docs/2007#document"/><title>'.$filename.'</title></entry>';
+		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:gd="http://schemas.google.com/g/2005"><category scheme="http://schemas.google.com/g/2005#kind"term="http://schemas.google.com/docs/2007#'.$type.'"/><title>'.$filename.'</title></entry>';
 		
 		$headers = array(
 			"Authorization: GoogleLogin auth=" . $g_auth,
@@ -200,11 +201,11 @@ if ($g_auth) {
 
 		curl_setopt($curl, CURLOPT_URL, $edit_media_href);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($curl, CURLOPT_POST, true);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
 		curl_setopt($curl, CURLOPT_PUT, true);
 		curl_setopt($curl, CURLOPT_INFILE, fopen($f_filename, 'r'));
 		curl_setopt($curl, CURLOPT_INFILESIZE, strlen($buffer));
-		curl_setopt($curl, CURLOPT_POST, true);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
 		$response = curl_exec($curl);
 		
 		// Add the file to collection
