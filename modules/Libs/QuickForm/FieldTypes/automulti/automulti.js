@@ -38,7 +38,6 @@ automulti_on_hide = function (element, list_sep) {
 
 automulti_add_value = function (element, list_sep, value, label) {
 	list = document.getElementsByName(element+"__display")[0];
-	alert(value);
 	i = 0;
 	while (i!=list.options.length) {
 		if (list.options[i].value==value) {
@@ -47,15 +46,12 @@ automulti_add_value = function (element, list_sep, value, label) {
 		}
 		i++;
 	}
-	alert(value);
 	if (value!=null) {
 		list.options[i] = new Option();
 		list.options[i].value = value;
 		list.options[i].text = label;
 		if(typeof iphone != "undefined") list.options[i].selected = true;
 		val_holder = $(element+'__var_holder');
-		alert(element);
 		val_holder.value = val_holder.value + list_sep + value;
-		alert(val_holder.value);
 	}
 }
