@@ -2813,6 +2813,11 @@ function update_from_1_2_1_to_1_2_2() {
 $versions[] = '1.3';
 function update_from_1_2_2_to_1_3() {
         DB::Execute('delete from modules where name="Utils_BookmarkBrowser"');
+        @DB::Execute('insert into modules values ("Utils_RecordBrowser_RecordPicker",0,0)');
+        @DB::Execute('insert into modules values ("Utils_RecordBrowser_RecordPickerFS",0,0)');
+	ob_start();
+        ModuleManager::install("Base_EpesiStore");
+	ob_end_clean();
         ModuleManager::create_load_priority_array();
 	PatchUtil::apply_new();
 }
