@@ -181,8 +181,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	
 	public static function get_google_auth($user=null, $pass=null) {
 		if ($user===null) {
-			$user = Variable::get('utils_attachments_google_user');
-			$pass = Variable::get('utils_attachments_google_pass');
+			$user = Variable::get('utils_attachments_google_user', false);
+			$pass = Variable::get('utils_attachments_google_pass', false);
+			if (!$user) return false;
 		}
 		$company = CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company());
 
