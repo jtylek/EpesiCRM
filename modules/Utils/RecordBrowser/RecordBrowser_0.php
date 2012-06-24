@@ -658,18 +658,18 @@ class Utils_RecordBrowser extends Module {
 				$gb->set_default_order($clean_order, $this->changed_view);
 		}
 
+        $custom_label = '';
         if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false) {
-            $custom_label = '';
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
             else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);
             if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><span class="record_browser_add_new" '.Utils_TooltipCommon::open_tag_attrs($this->t('Add new record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils/RecordBrowser/add.png').'" /><div class="add_new">'.$this->t('Add new').'</div></span></a>';
-            if ($this->more_add_button_stuff) {
-                if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
-                else $custom_label = $this->more_add_button_stuff;
-            }
-            $gb->set_custom_label($custom_label);
         }
+        if ($this->more_add_button_stuff) {
+            if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
+            else $custom_label = $this->more_add_button_stuff;
+        }
+        $gb->set_custom_label($custom_label);
         $search = $gb->get_search_query(true);
         $search_res = array();
 		if ($this->search_calculated_callback) {

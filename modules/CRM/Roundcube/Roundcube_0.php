@@ -134,7 +134,6 @@ class CRM_Roundcube extends Module {
                         'subject'=>array('name'=>$this->t('Message'),'width'=>40),
                         'attachments'=>array('width'=>5)
         ));
-        $rb->set_button(false);
         $rb->set_additional_actions_method(array($this, 'actions_for_mails'));
         $assoc_mail_ids = array();
         foreach(Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('recordset'=>$rs,'record_id'=>$id),array('mail')) as $m)
@@ -143,7 +142,27 @@ class CRM_Roundcube extends Module {
         	//$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
         	$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
         } elseif($rs=='company') {
-        	$this->display_module($rb, array(array('(contacts'=>array('C:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+            $form = $this->init_module('Libs/QuickForm');
+            $form->addElement('checkbox', 'include_related', $this->t('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
+            if ($form->validate()) {
+                $show_related = $form->exportValue('include_related');
+                $this->set_module_variable('include_related',$show_related);
+            }
+            $show_related = $this->get_module_variable('include_related');
+            $form->setDefaults(array('include_related'=>$show_related));
+            
+            ob_start();
+            $form->display_as_row();
+            $html = ob_get_clean();
+            
+            $rb->set_button(false, $html);
+            $customers = array('C:'.$id);
+            if ($show_related) {
+                $conts = CRM_ContactsCommon::get_contacts(array('company_name'=>$id));
+                foreach ($conts as $c)
+                    $customers[] = 'P:'.$c['id'];
+            }
+        	$this->display_module($rb, array(array('(contacts'=>$customers,'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
         } else
         $this->display_module($rb, array(array('id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
         

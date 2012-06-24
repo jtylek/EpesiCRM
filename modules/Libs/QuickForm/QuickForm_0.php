@@ -315,6 +315,12 @@ class Libs_QuickForm extends Module {
 		$this->assign_theme('form', $t);
 		$t->display('column');
 	}
+	public function display_as_row() {
+		$t = $this->init_module('Base_Theme');
+		$this->add_error_closing_buttons();
+		$this->assign_theme('form', $t);
+		$t->display('row');
+	}
 
 }
 ?>
