@@ -20,7 +20,7 @@ class CRM_Contacts_NotesAggregate extends Module {
 			while ($row = $ret->FetchRow()) $attachment_groups[] = 'crm_meeting/'.$row['id'];
 		}
 		
-		if (ModuleManager::is_installed('CRM_Task')>=0) {
+		if (ModuleManager::is_installed('CRM_Tasks')>=0) {
 			$ret = DB::Execute('SELECT id FROM task_data_1 WHERE f_customers '.DB::like().' '.DB::Concat(DB::qstr('%'), DB::qstr('\_\_P:'.$contact['id'].'\_\_'), DB::qstr('%')));
 			while ($row = $ret->FetchRow()) $attachment_groups[] = 'task/'.$row['id'];
 		}
@@ -64,7 +64,7 @@ class CRM_Contacts_NotesAggregate extends Module {
 			while ($row = $ret->FetchRow()) $attachment_groups[] = 'crm_meeting/'.$row['id'];
 		}
 		
-		if (ModuleManager::is_installed('CRM_Task')>=0) {
+		if (ModuleManager::is_installed('CRM_Tasks')>=0) {
 			$ret = DB::Execute('SELECT id FROM task_data_1 WHERE f_customers '.DB::like().' '.$multi_ids);
 			while ($row = $ret->FetchRow()) $attachment_groups[] = 'task/'.$row['id'];
 		}
@@ -94,7 +94,7 @@ class CRM_Contacts_NotesAggregate extends Module {
 			while ($row = $ret->FetchRow()) $attachment_groups[] = 'crm_meeting/'.$row['id'];
 		}
 		
-		if (ModuleManager::is_installed('CRM_Task')>=0) {
+		if (ModuleManager::is_installed('CRM_Tasks')>=0) {
 			$ret = DB::Execute('SELECT id FROM task_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
 			while ($row = $ret->FetchRow()) $attachment_groups[] = 'task/'.$row['id'];
 		}

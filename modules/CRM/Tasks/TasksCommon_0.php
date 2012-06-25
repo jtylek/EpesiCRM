@@ -426,7 +426,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$next['status'] = $r['status']<=2?'active':'closed';
 		$next['custom_tooltip'] = 
 									'<center><b>'.
-										Base_LangCommon::ts('CRM_Task','Task').
+										Base_LangCommon::ts('CRM_Tasks','Task').
 									'</b></center><br>'.
 									Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').'<hr>'.
 									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
