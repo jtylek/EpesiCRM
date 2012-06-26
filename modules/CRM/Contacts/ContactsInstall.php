@@ -112,6 +112,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 		
 		Base_AclCommon::add_clearance_callback(array('CRM_ContactsCommon','crm_clearance'));
 
+		Utils_CommonDataCommon::extend_array('Contacts/Access',array('employee'=>'Employee'));
+
 		self::install_permissions();
 
 		return true;

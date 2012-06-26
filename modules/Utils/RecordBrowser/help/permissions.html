@@ -27,10 +27,10 @@ Permissions Editor for Record Browser is a powerful tool allowing system adminis
  <li><b>All users</b> - this clearance is granted to every active user in the system, it's used for clear Rule presentation</li>
  <li><b>Admin</b> - this clearance is granted to regular administrators, assigned on user panel</li>
  <li><b>Superadmin</b> - this clearance is granted to super-administrators, assigned on user panel</li>
- <li><b>Employee</b> - this clearance is granted to all users whos contacts are assigned to Main Company</li>
+ <li><b>Employee</b> - this clearance is granted to all users whos contacts have <b>Employee</b> added in <b>Access</b> field of the contact</li>
  <li><b>Access: Manager</b> - this clearance is granted to all users whos contacts have <b>Manager</b> added in <b>Access</b> field of the contact</li>
 </ol>
-You can add more access levels by extending the <i>Contacts/Access</i> CommonData table. All these new levels will be managed in the same way <i>Access: Manager</i> clearance is managed. Please note that some modules may automatically extend <i>Contacts/Access</i> table.</p>
+You can add more access levels by extending the <i>Contacts/Access</i> CommonData table. All these new levels will be managed in the same way <i>Access: Manager</i> or <i>Access: Employee</i> clearance is managed. Please note that some modules may automatically extend <i>Contacts/Access</i> table.</p>
 <p>Finally, it should be noted that Super-administrators automatically benefit from all Rules for each Record Set. This does not necessarily mean that they see all the data there is in the system (they can still do that by going to Record Browser section of Administration Panel), but rather that they can see the data as if they had every possible clearance level, regardless of other settings.</p>
 <!-- ----------------------------------------------- RULES SUMMARY --------------------------------------------------- -->
 <h1><a name="rules_summary">Rules summary</a></h1>
