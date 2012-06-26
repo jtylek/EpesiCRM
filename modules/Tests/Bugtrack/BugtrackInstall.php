@@ -38,10 +38,10 @@ class Tests_BugtrackInstall extends ModuleInstall {
 // ************ other ************** //	
 		Utils_CommonDataCommon::new_array('Bugtrack_Status',array('new'=>'New','inprog'=>'In Progress','cl'=>'Closed'),true,true);
 
-		Utils_RecordBrowserCommon::add_access('bugtrack', 'view', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('bugtrack', 'add', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('bugtrack', 'edit', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('bugtrack', 'delete', array('EMPLOYEE', 'ACCESS:manager'));
+		Utils_RecordBrowserCommon::add_access('bugtrack', 'view', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('bugtrack', 'add', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('bugtrack', 'edit', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('bugtrack', 'delete', array('ACCESS:employee', 'ACCESS:manager'));
 
 		return true;
 	}

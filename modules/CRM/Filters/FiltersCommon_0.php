@@ -18,12 +18,13 @@ class CRM_FiltersCommon extends ModuleCommon {
 	}
 	
 	public static function user_settings() {
-	if(self::Instance()->acl_check('manage')) return array('Filters'=>'edit');
-	return array();
+		if(Base_AclCommon::check_permission('Manage Perspective')) 
+			return array('Filters'=>'edit');
+		return array();
 	}
 
 	public static function body_access() {
-		return self::Instance()->acl_check('manage');
+		return Base_AclCommon::check_permission('Manage Perspective');
 	}
 
 	public static function get_my_profile() {

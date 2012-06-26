@@ -21,7 +21,6 @@ class Base_HomePageInstall extends ModuleInstall {
 			print('Invalid SQL query - homepage install');
 			return false;
 		}
-		$this->add_aco('menu access',array('Employee', 'Administrator'));
 		return true;
 	}
 	

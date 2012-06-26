@@ -15,13 +15,15 @@ class CRM_FaxInstall extends ModuleInstall {
 	public function install() {
 		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme($this->get_type());
-		$this->add_aco('browse',array('Employee'));
-		$this->add_aco('send',array('Employee'));
+		Base_AclCommon::add_permission('Fax - Browse',array('ACCESS:employee'));
+		Base_AclCommon::add_permission('Fax - Send',array('ACCESS:employee'));
 		$this->create_data_dir();
 		return true;
 	}
 	
 	public function uninstall() {
+		Base_AclCommon::delete_permission('Fax - Browse');
+		Base_AclCommon::delete_permission('Fax - Send');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}

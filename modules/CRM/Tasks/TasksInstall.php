@@ -49,11 +49,11 @@ class CRM_TasksInstall extends ModuleInstall {
 		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0)
 			Utils_RecordBrowserCommon::new_record_field('task', 'Opportunity', 'select', true, false, 'premium_salesopportunity::Opportunity Name;Premium_SalesOpportunityCommon::crm_opportunity_reference_crits', '', false);
 
-		Utils_RecordBrowserCommon::add_access('task', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
-		Utils_RecordBrowserCommon::add_access('task', 'add', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('task', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
-		Utils_RecordBrowserCommon::add_access('task', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('task', 'delete', array('EMPLOYEE','ACCESS:manager'));
+		Utils_RecordBrowserCommon::add_access('task', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('task', 'add', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('task', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('task', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('task', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
 		return true;
 	}

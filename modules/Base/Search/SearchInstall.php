@@ -17,11 +17,12 @@ class Base_SearchInstall extends ModuleInstall {
 	public function install() {
 		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('Base/Search');
-		$this->add_aco('access',array('Employee', 'Administrator'));
+		Base_AclCommon::add_permission('Search',array('ACCESS:employee'));
 		return true;
 	}
 	
 	public function uninstall() {
+		Base_AclCommon::delete_permission('Search');
 		Base_ThemeCommon::uninstall_default_theme('Base/Search');
 		return true;
 	}

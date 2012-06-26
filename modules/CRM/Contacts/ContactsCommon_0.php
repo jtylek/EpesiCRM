@@ -20,7 +20,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record(); 
 		$mc = CRM_ContactsCommon::get_main_company();
 		if ($all || $me['id']!=-1) {
-			if ($all || $me['company_name']==$mc || in_array($mc, $me['related_companies'])) $clearance[Base_LangCommon::ts('Base_Acl','Employee')] = 'EMPLOYEE';
 			$access_vals = Utils_CommonDataCommon::get_array('Contacts/Access', true);
 			if ($all) $access = array_keys($access_vals);
 			else $access = $me['access'];
@@ -80,11 +79,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $cache[$id];
     }
     public static function get_main_company() {
-        try {
-            return Variable::get('main_company');
-        } catch(NoSuchVariableException $e) {
-            return null;
-        }
+		$me = CRM_ContactsCommon::get_my_record();
+        return $me['company_name'];
     }
     public static function get_my_record() {
         $me = self::get_contact_by_user_id(Acl::get_user());
@@ -122,9 +118,6 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function caption() {
         return 'Companies & Contacts';
-    }
-    public static function admin_caption() {
-        return 'Main Company';
     }
     public static function compare_strings($a, $b) {
         $let_a = array();
@@ -803,11 +796,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if ($data['set_password']==$data['confirm_password']) return true;
 		return array('set_password'=>Base_LangCommon::ts('CRM_Contacts','Passwords don\'t match'));
 	}
-    public static function QFfield_admin(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        if ($mode=='view') return;
-        if (!Base_AclCommon::i_am_admin()) return;
-		return;
-	}
     public static function QFfield_access(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if (!Base_AclCommon::i_am_admin()) return;
         if ($mode=='view' && !Utils_RecordBrowser::$last_record['login']) return;
@@ -817,12 +805,31 @@ class CRM_ContactsCommon extends ModuleCommon {
 		//print_r($default);
 		$form->setDefaults(array($field=>$default));
 	}
+    public static function QFfield_admin(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+        if ($mode=='view') return;
+        if (!Base_AclCommon::i_am_sa()) return;
+		$default = 0;
+		if ($rb!==null && isset($rb->record['login']) && $rb->record['login'] && is_numeric($rb->record['login'])) {
+			$default = Base_AclCommon::get_admin_level($rb->record['login']);
+		}
+		$form->addElement('select', $field, $label, array(0=>Base_LangCommon::ts('CRM_Contacts','No'), 1=>Base_LangCommon::ts('CRM_Contacts','Administrator'), 2=>Base_LangCommon::ts('CRM_Contacts','Super Administrator')));
+        $form->setDefaults(array($field=>$default));
+		return;
+	}
     public static function QFfield_login(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if (!Base_AclCommon::i_am_admin()) return;
         if ($mode=='view') {
 			if (!$default) return;
+			if(Base_AclCommon::i_am_sa()) {
+				Base_ActionBarCommon::add('settings', 'Log as user', Module::create_href(array('log_as_user'=>$default)));
+				if (isset($_REQUEST['log_as_user']) && $_REQUEST['log_as_user']==$default) {
+					Acl::set_user($default, true); //tag who is logged
+					Epesi::redirect();
+					return;
+				}
+			}
             $form->addElement('static', $field, $label);
-            $form->setDefaults(array($field=>self::display_login(array('login'=>$default), null, array('id'=>'login'))));
+            $form->setDefaults(array($field=>self::display_login(array('login'=>$default), true, array('id'=>'login'))));
             return;
         }
         if (($default!=='' && !Base_AclCommon::i_am_admin()) || $mode=='view') {
@@ -851,11 +858,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     public static function check_new_username($arg) {
         if ($arg['login']!='new') return true;
-        if (!$arg['email']) return array('email'=>Base_LangCommon::ts('CRM/Contacts','E-mail is required when creating new user.'));
-        if (!$arg['username']) return array('username'=>Base_LangCommon::ts('Libs/QuickForm','Field required'));
-        if (strlen($arg['username'])<3 || strlen($arg['username'])>32) return array('username'=>Base_LangCommon::ts('CRM/Contacts','A username must be between 3 and 32 chars'));
-        if (Base_UserCommon::get_user_id($arg['username'])) return array('username'=>Base_LangCommon::ts('Base/User/Administrator','Username already taken'));
-        return true;
+		$ret = array();
+        if (!$arg['email']) $ret['email'] = Base_LangCommon::ts('CRM/Contacts','E-mail is required when creating new user.');
+        if (strlen($arg['username'])<3 || strlen($arg['username'])>32) $ret['username'] = Base_LangCommon::ts('CRM/Contacts','A username must be between 3 and 32 chars');
+        if (Base_UserCommon::get_user_id($arg['username'])) $ret['username'] = Base_LangCommon::ts('Base/User/Administrator','Username already taken');
+        if (!$arg['username']) $ret['username'] = Base_LangCommon::ts('Libs/QuickForm','Field required');
+        return empty($ret)?true:$ret;
     }
 
     public static function create_map_href($r) {
@@ -923,22 +931,14 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function display_login($record, $nolink, $desc) {
         $v = $record[$desc['id']];
-        if (isset($_REQUEST['crm_contacts_edit_user']) &&
-            is_numeric($_REQUEST['crm_contacts_edit_user']) &&
-            Base_AclCommon::i_am_admin() &&
-            Base_UserCommon::get_user_login($_REQUEST['crm_contacts_edit_user'])) {
-            $x = ModuleManager::get_instance('/Base_Box|0');
-            if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            $x->push_main('CRM/Contacts','edit_user_form',array($_REQUEST['crm_contacts_edit_user']));
-            unset($_REQUEST['crm_contacts_edit_user']);
-        }
         if (!$v)
             return '---';
-        else {
-            $login = Base_UserCommon::get_user_login($v);
-            if (!$nolink && Base_AclCommon::i_am_admin() && is_numeric($v)) return '<a '.Module::create_href(array('crm_contacts_edit_user'=>$v)).'>'.$login.'</a>';
-            else return $login;
-        }
+		$login = Base_UserCommon::get_user_login($v);
+		if (!$nolink && Base_AclCommon::i_am_admin() && is_numeric($v)) $login = Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']).$login.Utils_RecordBrowserCommon::record_link_close_tag();
+		if (!Base_UserCommon::is_active($v)) {
+			$login = $login.' ['.'user inactive'.']';
+		}
+		return $login;
     }
 	public static function submit_company($values, $mode) {
         switch ($mode) {
@@ -1018,9 +1018,13 @@ class CRM_ContactsCommon extends ModuleCommon {
                 $values['login'] = Base_UserCommon::get_user_id($values['username']);
 				Base_AclCommon::change_privileges($values['login'], array(Base_AclCommon::get_group_id('Employee')));
             } else {
-        			if ($values['login'])
+        		if ($values['login'])
 					Base_User_LoginCommon::change_user_preferences($values['login'], $values['email'], $values['set_password']);
 			}
+			if (Base_AclCommon::i_am_sa() && $values['login'] && isset($values['admin'])) {
+				Base_UserCommon::change_admin($values['login'], $values['admin']);
+			}
+			unset($values['admin']);
 			unset($values['username']);
 			unset($values['set_password']);
 			unset($values['confirm_password']);

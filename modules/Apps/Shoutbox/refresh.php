@@ -13,10 +13,10 @@ define('CID',false);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-if(!Acl::is_user())
+if(!Base_AclCommon::is_user())
 	exit();
 
-$myid = Acl::get_user();
+$myid = Base_AclCommon::get_user();
 $uid = (isset($_GET['uid']) && is_numeric($_GET['uid']))?$_GET['uid']:null;
 
 //get last 20 messages

@@ -47,7 +47,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 
 	public static function user_settings() {
-		if(self::Instance()->acl_check('access')) {
+		if(Base_AclCommon::check_permission('Calendar')) {
 			$start_day = array();
 			foreach(range(0, 23) as $x)
 				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
@@ -69,7 +69,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 
 	public static function applet_caption() {
-		if(!self::Instance()->acl_check('access'))
+		if(!Base_AclCommon::check_permission('Calendar'))
 			return false;
 
 		return "Agenda";

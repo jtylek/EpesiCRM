@@ -88,7 +88,7 @@ class Apps_Shoutbox extends Module {
 
         // $gb->set_default_order(array($this->t('Date')=>'DESC'));
 
-        $myid = Acl::get_user();
+        $myid = Base_AclCommon::get_user();
 		$where = '('.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.') OR (to_user_login_id is null AND base_user_login_id='.$uid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).')'.$date_where;
 		$query = 'SELECT base_user_login_id, to_user_login_id, message, posted_on FROM apps_shoutbox_messages WHERE '.$where.' ORDER BY posted_on DESC';
         $query_qty = 'SELECT count(id) FROM apps_shoutbox_messages WHERE '.$where;
@@ -129,11 +129,11 @@ class Apps_Shoutbox extends Module {
     public function chat($big=false,$uid=null) {
 		$to = & $this->get_module_variable('to',"all");
 		eval_js('shoutbox_uid="'.$to.'"');
-		if(Acl::is_user()) {
+		if(Base_AclCommon::is_user()) {
 			//initialize HTML_QuickForm
 			$qf = & $this->init_module('Libs/QuickForm');
 
-/*            $myid = Acl::get_user();
+/*            $myid = Base_AclCommon::get_user();
         	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im')) {
         	    $adm = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','enable_im');
         	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
@@ -149,7 +149,7 @@ class Apps_Shoutbox extends Module {
     		    }
     		}
        		$qf->addElement('select','to',$this->t('To'),array('all'=>$this->t('-- all --'))+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));*/
-            $myid = Acl::get_user();
+            $myid = Base_AclCommon::get_user();
         	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im') && ModuleManager::is_installed('Tools_WhoIsOnline')>=0) {
         	    $adm = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','enable_im');
     		    $online = Tools_WhoIsOnlineCommon::get_ids();
@@ -184,7 +184,7 @@ class Apps_Shoutbox extends Module {
 				//get msg from post group
 				$msg = Utils_BBCodeCommon::optimize($msg);
 				//get logged user id
-				$user_id = Acl::get_user();
+				$user_id = Base_AclCommon::get_user();
 				//clear text box and focus it
 				eval_js('$(\'shoutbox_text'.($big?'_big':'').'\').value=\'\';focus_by_id(\'shoutbox_text'.($big?'_big':'').'\');shoutbox_uid="'.$to.'"');
 

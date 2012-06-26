@@ -132,7 +132,7 @@ class Base_LangCommon extends ModuleCommon {
 		if(defined('FORCE_LANG_CODE')) return FORCE_LANG_CODE;
 		static $lang_code;
 		if(!isset($lang_code)) {
-			if (!Acl::check('Data','View') ||
+			if (!Acl::is_user() ||
 				ModuleManager::is_installed('Base/User/Settings')==-1 ||
 				ModuleManager::is_installed('Base/Lang/Administrator')==-1 ||
 				(ModuleManager::is_installed('Base/Lang/Administrator')!=-1 && !Variable::get('allow_lang_change')))

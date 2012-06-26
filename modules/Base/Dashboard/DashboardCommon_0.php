@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_DashboardCommon extends ModuleCommon {
 	public static function menu() {
-		if(self::Instance()->acl_check('access'))
+		if(Base_AclCommon::check_permission('Dashboard'))
 			return array('Dashboard'=>array());
 		return array();
 	}
@@ -26,7 +26,7 @@ class Base_DashboardCommon extends ModuleCommon {
 	}
 
 	public static function body_access() {
-		return Acl::is_user();
+		return Base_AclCommon::is_user();
 	}
 
 	public static function user_settings() {
@@ -115,19 +115,19 @@ class Base_DashboardCommon extends ModuleCommon {
 			DB::Execute('DELETE FROM base_dashboard_default_applets WHERE id=%d',array($id));
 		} else {
 			DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d',array($id));
-			DB::Execute('DELETE FROM base_dashboard_applets WHERE id=%d AND user_login_id=%d',array($id,Acl::get_user()));
+			DB::Execute('DELETE FROM base_dashboard_applets WHERE id=%d AND user_login_id=%d',array($id,Base_AclCommon::get_user()));
 		}
 	}
 
 	public function set_default_applets() {
 		$tabs = DB::GetAll('SELECT id,pos,name FROM base_dashboard_default_tabs');
 		foreach($tabs as $tab) {
-			DB::Execute('INSERT INTO base_dashboard_tabs(user_login_id,pos,name) VALUES(%d,%d,%s)',array(Acl::get_user(),$tab['pos'],$tab['name']));
+			DB::Execute('INSERT INTO base_dashboard_tabs(user_login_id,pos,name) VALUES(%d,%d,%s)',array(Base_AclCommon::get_user(),$tab['pos'],$tab['name']));
 			$id = DB::Insert_ID('base_dashboard_tabs','id');
 
 			$ret = DB::GetAll('SELECT id,module_name,col,color,tab FROM base_dashboard_default_applets WHERE tab=%d ORDER BY pos',array($tab['id']));
 			foreach($ret as $row) {
-				DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id,color,tab) VALUES(%s,%d,%d,%d,%d)',array($row['module_name'],$row['col'],Acl::get_user(),$row['color'],$id));
+				DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id,color,tab) VALUES(%s,%d,%d,%d,%d)',array($row['module_name'],$row['col'],Base_AclCommon::get_user(),$row['color'],$id));
 				$ins_id = DB::Insert_ID('base_dashboard_applets','id');
 				$ret_set = DB::GetAll('SELECT name,value FROM base_dashboard_default_settings WHERE applet_id=%d',array($row['id']));
 				foreach($ret_set as $row_set)

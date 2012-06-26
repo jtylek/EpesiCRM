@@ -17,7 +17,7 @@ require_once('../../../include.php');
 
 ModuleManager::load_modules();
 
-if(!Acl::is_user()) {
+if(!Base_AclCommon::is_user()) {
 	Epesi::alert('Session expired, logged out - reloading epesi.');
 	Epesi::redirect('');
 	Epesi::send_output();
@@ -32,7 +32,7 @@ if($default && !Base_AdminCommon::get_access('Base_Dashboard')) {
 }
 
 if(!$default)
-	$user = Acl::get_user();
+	$user = Base_AclCommon::get_user();
 
 $id = json_decode($_POST['id']);
 

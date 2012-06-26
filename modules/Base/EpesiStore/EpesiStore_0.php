@@ -529,7 +529,7 @@ class Base_EpesiStore extends Module {
 
         $url = 'modules/Base/EpesiStore/payment_frame.php';
         $description = $modules ? "Payment for: $modules" : null;
-        $params = http_build_query(array('order_id' => $order_id, 'value' => $value, 'curr_code' => $curr_code, 'user' => Acl::get_user(), 'description' => $description));
+        $params = http_build_query(array('order_id' => $order_id, 'value' => $value, 'curr_code' => $curr_code, 'user' => Base_AclCommon::get_user(), 'description' => $description));
         $iframe = '<iframe id="payment_frame" style="width:100%; border: 0; height:600px;" name="payment_frame" src="' . "$url?$params" . '"></iframe>';
         print($iframe);
     }

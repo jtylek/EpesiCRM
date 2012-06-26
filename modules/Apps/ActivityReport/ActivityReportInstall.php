@@ -12,12 +12,13 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ActivityReportInstall extends ModuleInstall {
 
 	public function install() {
-		$this->add_aco('access','Employee Manager');
+		Base_AclCommon::add_permission('View Activity Report',array('ACCESS:employee','ACCESS:manager'));
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
 	
 	public function uninstall() {
+		Base_AclCommon::delete_permission('View Activity Report');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}

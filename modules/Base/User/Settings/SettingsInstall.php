@@ -37,12 +37,13 @@ class Base_User_SettingsInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme('Base/User/Settings');
-		$this->add_aco('access',array('Employee', 'Administrator'));
+		Base_AclCommon::add_permission('Advanced User Settings',array('ACCESS:employee'));
 
 		return $ret;
 	}
 	
 	public function uninstall() {
+		Base_AclCommon::delete_permission('Advanced User Settings');
 		global $database;
 		$ret = true;
 		$ret &= DB::DropTable('base_user_settings');

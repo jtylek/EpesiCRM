@@ -30,7 +30,7 @@ class Base_Box extends Module {
             return;
         }
         $ini_file = parse_ini_file($ini,true);
-        $logged = Acl::is_user();
+        $logged = Base_AclCommon::is_user();
         $theme->assign('logged',$logged);
         $containers = array();
         $containers['main'] = array('module'=>null,'name'=>''); //so 'main' is first in array

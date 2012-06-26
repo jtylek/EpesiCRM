@@ -13,8 +13,7 @@ class CRM_CalendarInstall extends ModuleInstall {
 	public function install() {
 		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('CRM/Calendar');
-		$this->add_aco('manage others','Employee Manager');
-		$this->add_aco('access','Employee');
+		Base_AclCommon::add_permission('Calendar',array('ACCESS:employee'));
 		DB::CreateTable('crm_calendar_custom_events_handlers',
 						'id I4 AUTO KEY,'.
 						'group_name C(64),'.
@@ -24,6 +23,7 @@ class CRM_CalendarInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+		Base_AclCommon::delete_permission('Calendar');
 		DB::DropTable('crm_calendar_custom_events_handlers');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar');
 		Utils_WatchdogCommon::unregister_category('crm_calendar');

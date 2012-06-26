@@ -73,7 +73,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			return false;
 		}
 		DB::CreateIndex('utils_attachment_note__revision__idx', 'utils_attachment_note', 'revision');
-		$this->add_aco('view download history','Employee');
+
 		$this->create_data_dir();
 		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		Base_ThemeCommon::install_default_theme($this->get_type());
@@ -85,6 +85,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			doc_id C(128)',
 			array('constraints'=>''));
 		
+		Base_AclCommon::add_permission('Attachments - view full download history', array('ACCESS:employee'));
 
 		Variable::set('utils_attachments_google_user', '');
 		Variable::set('utils_attachments_google_pass', '');
@@ -92,6 +93,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+		Base_AclCommon::delete_permission('Attachments - view full download history');
 		$ret = true;
 		Variable::delete('utils_attachments_google_user');
 		Variable::delete('utils_attachments_google_pass');

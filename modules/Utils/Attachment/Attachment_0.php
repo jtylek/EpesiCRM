@@ -686,7 +686,7 @@ class Utils_Attachment extends Module {
 
 		$query = 'SELECT uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description,uaf.revision FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
 		$query_qty = 'SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
-		if($this->acl_check('view download history'))
+		if(Base_AclCommon::check_permission('Attachments - view full download history'))
 			$ret = $gb->query_order_limit($query, $query_qty);
 		else {
 			print('You are allowed to see your own downloads only');

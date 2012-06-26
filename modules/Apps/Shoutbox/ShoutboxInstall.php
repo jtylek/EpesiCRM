@@ -26,13 +26,14 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
-		$this->add_aco('view',array('Employee'));
+		Base_AclCommon::add_permission('Shoutbox',array('ACCESS:employee'));
 		return $ret;
 	}
 
 	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('apps_shoutbox_messages');
+		Base_AclCommon::delete_permission('Shoutbox');
 		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}

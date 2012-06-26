@@ -69,82 +69,82 @@ PatchUtil::db_drop_column('recordbrowser_table_properties','access_callback');
 
 Utils_RecordBrowserCommon::add_default_access('crm_assets');
 
-Utils_RecordBrowserCommon::add_access('company', 'view', 'EMPLOYEE', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('company', 'view', 'ACCESS:employee', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
 Utils_RecordBrowserCommon::add_access('company', 'view', 'ALL', array('id'=>'USER_COMPANY'));
-Utils_RecordBrowserCommon::add_access('company', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('company', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('company', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('company', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID'));
 Utils_RecordBrowserCommon::add_access('company', 'edit', array('ALL','ACCESS:manager'), array('id'=>'USER_COMPANY'));
-Utils_RecordBrowserCommon::add_access('company', 'edit', array('EMPLOYEE','ACCESS:manager'), array());
-Utils_RecordBrowserCommon::add_access('company', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('company', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('company', 'edit', array('ACCESS:employee','ACCESS:manager'), array());
+Utils_RecordBrowserCommon::add_access('company', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('company', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('contact', 'view', 'EMPLOYEE', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('contact', 'view', 'ACCESS:employee', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
 Utils_RecordBrowserCommon::add_access('contact', 'view', 'ALL', array('login'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('contact', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('contact', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID'), array('access', 'login'));
+Utils_RecordBrowserCommon::add_access('contact', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID'), array('access', 'login'));
 Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('login'=>'USER_ID'), array('company_name', 'related_companies', 'access', 'login'));
 Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ALL','ACCESS:manager'), array('company_name'=>'USER_COMPANY'), array('login', 'company_name', 'related_companies'));
-Utils_RecordBrowserCommon::add_access('contact', 'edit', array('EMPLOYEE','ACCESS:manager'), array());
-Utils_RecordBrowserCommon::add_access('contact', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('contact', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ACCESS:employee','ACCESS:manager'), array());
+Utils_RecordBrowserCommon::add_access('contact', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('contact', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('crm_meeting', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
-Utils_RecordBrowserCommon::add_access('crm_meeting', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('crm_meeting', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
-Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('crm_meeting', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
+Utils_RecordBrowserCommon::add_access('crm_meeting', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('crm_meeting', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
+Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('phonecall', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
-Utils_RecordBrowserCommon::add_access('phonecall', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('phonecall', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'));
-Utils_RecordBrowserCommon::add_access('phonecall', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('phonecall', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('phonecall', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
+Utils_RecordBrowserCommon::add_access('phonecall', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('phonecall', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'));
+Utils_RecordBrowserCommon::add_access('phonecall', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('phonecall', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
 if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
-	Utils_RecordBrowserCommon::add_access('rc_accounts', 'view', 'EMPLOYEE', array('epesi_user'=>'USER_ID'));
-	Utils_RecordBrowserCommon::add_access('rc_accounts', 'add', 'EMPLOYEE');
-	Utils_RecordBrowserCommon::add_access('rc_accounts', 'edit', 'EMPLOYEE', array(), array('epesi_user'));
-	Utils_RecordBrowserCommon::add_access('rc_accounts', 'delete', 'EMPLOYEE', array('epesi_user'=>'USER_ID'));
+	Utils_RecordBrowserCommon::add_access('rc_accounts', 'view', 'ACCESS:employee', array('epesi_user'=>'USER_ID'));
+	Utils_RecordBrowserCommon::add_access('rc_accounts', 'add', 'ACCESS:employee');
+	Utils_RecordBrowserCommon::add_access('rc_accounts', 'edit', 'ACCESS:employee', array(), array('epesi_user'));
+	Utils_RecordBrowserCommon::add_access('rc_accounts', 'delete', 'ACCESS:employee', array('epesi_user'=>'USER_ID'));
 
-	Utils_RecordBrowserCommon::add_access('rc_mails', 'view', 'EMPLOYEE', array(), array('headers_data'));
-	Utils_RecordBrowserCommon::add_access('rc_mails', 'delete', 'EMPLOYEE');
+	Utils_RecordBrowserCommon::add_access('rc_mails', 'view', 'ACCESS:employee', array(), array('headers_data'));
+	Utils_RecordBrowserCommon::add_access('rc_mails', 'delete', 'ACCESS:employee');
 
-	Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'view', 'EMPLOYEE', array(), array('recordset'));
-	Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'delete', 'EMPLOYEE');
+	Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'view', 'ACCESS:employee', array(), array('recordset'));
+	Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'delete', 'ACCESS:employee');
 
-	Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'EMPLOYEE');
-	Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'add', 'EMPLOYEE');
-	Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'edit', 'EMPLOYEE');
-	Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'delete', 'EMPLOYEE');
+	Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'ACCESS:employee');
+	Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'add', 'ACCESS:employee');
+	Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'edit', 'ACCESS:employee');
+	Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'delete', 'ACCESS:employee');
 
 	DB::Execute('UPDATE rc_multiple_emails_field SET type=%s WHERE field=%s OR field=%s', array('hidden', 'Record Type', 'Record ID'));
 }
 
-Utils_RecordBrowserCommon::add_access('task', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
-Utils_RecordBrowserCommon::add_access('task', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('task', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
-Utils_RecordBrowserCommon::add_access('task', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('task', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('task', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
+Utils_RecordBrowserCommon::add_access('task', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('task', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
+Utils_RecordBrowserCommon::add_access('task', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('task', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('premium_projects', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_projects', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_projects', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_projects', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('premium_projects', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_projects', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_projects', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_projects', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_projects', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('premium_projects', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'add', 'EMPLOYEE', array('!ticket[status]'=>6), array('finished_on'));
-Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'edit', 'EMPLOYEE', array(), array('finished_on', 'ticket'));
-Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'add', 'ACCESS:employee', array('!ticket[status]'=>6), array('finished_on'));
+Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'edit', 'ACCESS:employee', array(), array('finished_on', 'ticket'));
+Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('premium_tickets_testing', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('premium_tickets', 'view', 'EMPLOYEE', array('(!permission'=>2, '|assigned_to'=>'USER', '|ticket_owner'=>'USER'));
-Utils_RecordBrowserCommon::add_access('premium_tickets', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_tickets', 'edit', 'EMPLOYEE', array('ticket_owner'=>'USER'));
-Utils_RecordBrowserCommon::add_access('premium_tickets', 'edit', 'EMPLOYEE', array('assigned_to'=>'USER'), array('ticket_owner', 'status'));
-Utils_RecordBrowserCommon::add_access('premium_tickets', 'edit', 'EMPLOYEE', array('status'=>0, 'permission'=>0), array('ticket_owner', 'status'));
-Utils_RecordBrowserCommon::add_access('premium_tickets', 'edit', array('EMPLOYEE','ACCESS:manager'), array('(permission'=>0,'|assigned_to'=>'USER'));
-Utils_RecordBrowserCommon::add_access('premium_tickets', 'delete', 'EMPLOYEE', array('ticket_owner'=>'USER'));
+Utils_RecordBrowserCommon::add_access('premium_tickets', 'view', 'ACCESS:employee', array('(!permission'=>2, '|assigned_to'=>'USER', '|ticket_owner'=>'USER'));
+Utils_RecordBrowserCommon::add_access('premium_tickets', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_tickets', 'edit', 'ACCESS:employee', array('ticket_owner'=>'USER'));
+Utils_RecordBrowserCommon::add_access('premium_tickets', 'edit', 'ACCESS:employee', array('assigned_to'=>'USER'), array('ticket_owner', 'status'));
+Utils_RecordBrowserCommon::add_access('premium_tickets', 'edit', 'ACCESS:employee', array('status'=>0, 'permission'=>0), array('ticket_owner', 'status'));
+Utils_RecordBrowserCommon::add_access('premium_tickets', 'edit', array('ACCESS:employee','ACCESS:manager'), array('(permission'=>0,'|assigned_to'=>'USER'));
+Utils_RecordBrowserCommon::add_access('premium_tickets', 'delete', 'ACCESS:employee', array('ticket_owner'=>'USER'));
 
 if(ModuleManager::is_installed('Premium_Projects_Tickets_Testing')>=0) {
 	Utils_RecordBrowserCommon::field_deny_access('premium_tickets', 'Tested', 'edit');
@@ -157,35 +157,35 @@ if(ModuleManager::is_installed('Premium_Projects_Tickets_Testing')>=0) {
 Utils_RecordBrowserCommon::add_default_access('custom_jobsearch_advertisinglog');
 Utils_RecordBrowserCommon::add_default_access('custom_jobsearch_advertisinglog_cost');
 
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_advertisinglog_element', 'view', 'EMPLOYEE', array(), array('record_id'));
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_advertisinglog_element', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_advertisinglog_element', 'edit', 'EMPLOYEE', array(), array('record_type', 'list_id'));
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_advertisinglog_element', 'view', 'ACCESS:employee', array(), array('record_id'));
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_advertisinglog_element', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_advertisinglog_element', 'edit', 'ACCESS:employee', array(), array('record_type', 'list_id'));
 
 Utils_RecordBrowserCommon::add_default_access('custom_jobsearch_advertisinglog_history');
 
 Utils_RecordBrowserCommon::add_default_access('custom_jobsearch');
 
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_element', 'view', 'EMPLOYEE', array(), array('record_id'));
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_element', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_element', 'edit', 'EMPLOYEE', array(), array('list_id'));
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_element', 'view', 'ACCESS:employee', array(), array('record_id'));
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_element', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_element', 'edit', 'ACCESS:employee', array(), array('list_id'));
 
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'edit', 'EMPLOYEE', array(), array('target', 'list_id'));
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'edit', 'ACCESS:employee', array(), array('target', 'list_id'));
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('custom_jobsearch_history', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('custom_merlin_licence', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_merlin_licence', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_merlin_licence', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_merlin_licence', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('custom_merlin_licence', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_merlin_licence', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_merlin_licence', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_merlin_licence', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'edit', 'EMPLOYEE', array(), array('licence'));
-Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'edit', 'ACCESS:employee', array(), array('licence'));
+Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'view', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('custom_merlin_charge', 'view', 'ACCESS:employee');
 
 Utils_RecordBrowserCommon::add_default_access('custom_monthlycost');
 
@@ -198,79 +198,79 @@ Utils_RecordBrowserCommon::add_default_access('custom_changeorders');
 
 Utils_RecordBrowserCommon::add_default_access('custom_equipment');
 
-Utils_RecordBrowserCommon::add_access('custom_projects_progbilling', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_projects_progbilling', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_projects_progbilling', 'edit', 'EMPLOYEE', array(), array('project_name'));
-Utils_RecordBrowserCommon::add_access('custom_projects_progbilling', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('custom_projects_progbilling', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_projects_progbilling', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_projects_progbilling', 'edit', 'ACCESS:employee', array(), array('project_name'));
+Utils_RecordBrowserCommon::add_access('custom_projects_progbilling', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('custom_projects', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_projects', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_projects', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_projects', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('custom_projects', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('custom_projects', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_projects', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_projects', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_projects', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('custom_projects', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('custom_salesgoals', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_salesgoals', 'add', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('custom_salesgoals', 'edit', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('custom_salesgoals', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('custom_salesgoals', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_salesgoals', 'add', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('custom_salesgoals', 'edit', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('custom_salesgoals', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('custom_shopequipment', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_shopequipment', 'add', 'EMPLOYEE', array(), array('job','units_used','total_units_used','rental_date','est_ret_date','last_history_entry'));
-Utils_RecordBrowserCommon::add_access('custom_shopequipment', 'edit', 'EMPLOYEE', array(), array('job','units_used','total_units_used','rental_date','est_ret_date','last_history_entry'));
-Utils_RecordBrowserCommon::add_access('custom_shopequipment', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('custom_shopequipment', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_shopequipment', 'add', 'ACCESS:employee', array(), array('job','units_used','total_units_used','rental_date','est_ret_date','last_history_entry'));
+Utils_RecordBrowserCommon::add_access('custom_shopequipment', 'edit', 'ACCESS:employee', array(), array('job','units_used','total_units_used','rental_date','est_ret_date','last_history_entry'));
+Utils_RecordBrowserCommon::add_access('custom_shopequipment', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('custom_shopequipment_rental', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_shopequipment_rental', 'add', 'EMPLOYEE', array(), array('return_date'));
-Utils_RecordBrowserCommon::add_access('custom_shopequipment_rental', 'edit', 'EMPLOYEE', array(), array('return_date', 'equipment_id'));
-Utils_RecordBrowserCommon::add_access('custom_shopequipment_rental', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('custom_shopequipment_rental', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_shopequipment_rental', 'add', 'ACCESS:employee', array(), array('return_date'));
+Utils_RecordBrowserCommon::add_access('custom_shopequipment_rental', 'edit', 'ACCESS:employee', array(), array('return_date', 'equipment_id'));
+Utils_RecordBrowserCommon::add_access('custom_shopequipment_rental', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('custom_tickets', 'view', 'EMPLOYEE', array('(!permission'=>2, '|assigned_to'=>'USER', '|:Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('custom_tickets', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_tickets', 'edit', 'EMPLOYEE', array('(permission'=>0, '|assigned_to'=>'USER', '|:Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('custom_tickets', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('custom_tickets', 'view', 'ACCESS:employee', array('(!permission'=>2, '|assigned_to'=>'USER', '|:Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('custom_tickets', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_tickets', 'edit', 'ACCESS:employee', array('(permission'=>0, '|assigned_to'=>'USER', '|:Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('custom_tickets', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
 
-Utils_RecordBrowserCommon::add_access('custom_projects_visit', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_projects_visit', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('custom_projects_visit', 'edit', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('custom_projects_visit', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_projects_visit', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('custom_projects_visit', 'edit', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('data_tax_rates', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('data_tax_rates', 'add', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('data_tax_rates', 'edit', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('data_tax_rates', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('data_tax_rates', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('data_tax_rates', 'add', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('data_tax_rates', 'edit', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('data_tax_rates', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
 Utils_RecordBrowserCommon::add_default_access('premium_apartments_maintenance');
 Utils_RecordBrowserCommon::add_default_access('premium_apartments_agent');
 Utils_RecordBrowserCommon::add_default_access('premium_apartments_apartment');
 
-Utils_RecordBrowserCommon::add_access('premium_apartments_rental', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_apartments_rental', 'add', 'EMPLOYEE', array(), array('status'));
-Utils_RecordBrowserCommon::add_access('premium_apartments_rental', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_apartments_rental', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_apartments_rental', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_apartments_rental', 'add', 'ACCESS:employee', array(), array('status'));
+Utils_RecordBrowserCommon::add_access('premium_apartments_rental', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_apartments_rental', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('premium_apartments_billing', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_apartments_billing', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_apartments_billing', 'edit', 'EMPLOYEE', array(), array('rental'));
-Utils_RecordBrowserCommon::add_access('premium_apartments_billing', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_apartments_billing', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_apartments_billing', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_apartments_billing', 'edit', 'ACCESS:employee', array(), array('rental'));
+Utils_RecordBrowserCommon::add_access('premium_apartments_billing', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('premium_apartments_change_order', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_apartments_change_order', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_apartments_change_order', 'edit', 'EMPLOYEE', array(), array('rental'));
-Utils_RecordBrowserCommon::add_access('premium_apartments_change_order', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_apartments_change_order', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_apartments_change_order', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_apartments_change_order', 'edit', 'ACCESS:employee', array(), array('rental'));
+Utils_RecordBrowserCommon::add_access('premium_apartments_change_order', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('premium_campaignmanager_messages', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_campaignmanager_messages', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_campaignmanager_messages', 'edit', 'EMPLOYEE', array(), array('list'));
-Utils_RecordBrowserCommon::add_access('premium_campaignmanager_messages', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_campaignmanager_messages', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_campaignmanager_messages', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_campaignmanager_messages', 'edit', 'ACCESS:employee', array(), array('list'));
+Utils_RecordBrowserCommon::add_access('premium_campaignmanager_messages', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'view', 'EMPLOYEE', array(), array('completed'));
-Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'add', 'EMPLOYEE', array(), array('next_date'));
-Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'edit', array('EMPLOYEE','ACCESS:manager'), array(), array('checklist'));
-Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'edit', 'EMPLOYEE', array('completed'=>'', 'employee'=>'USER'), array('employee', 'checklist'));
-Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'delete', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'delete', 'EMPLOYEE', array('employee'=>'USER'));
+Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'view', 'ACCESS:employee', array(), array('completed'));
+Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'add', 'ACCESS:employee', array(), array('next_date'));
+Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'edit', array('ACCESS:employee','ACCESS:manager'), array(), array('checklist'));
+Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'edit', 'ACCESS:employee', array('completed'=>'', 'employee'=>'USER'), array('employee', 'checklist'));
+Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'delete', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_checklist_list_entry', 'delete', 'ACCESS:employee', array('employee'=>'USER'));
 
-Utils_RecordBrowserCommon::add_access('premium_checklist_item_entry', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_checklist_item_entry', 'edit', 'EMPLOYEE', array('checklist[completed]'=>''), array('checklist', 'item'));
+Utils_RecordBrowserCommon::add_access('premium_checklist_item_entry', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_checklist_item_entry', 'edit', 'ACCESS:employee', array('checklist[completed]'=>''), array('checklist', 'item'));
 
 Utils_RecordBrowserCommon::add_default_access('premium_checklist_status');
 Utils_RecordBrowserCommon::add_default_access('premium_checklist_list');
@@ -285,99 +285,99 @@ Utils_RecordBrowserCommon::add_access('premium_checklist_item', 'delete', 'SUPER
 
 Utils_RecordBrowserCommon::add_default_access('gc_changeorders');
 
-Utils_RecordBrowserCommon::add_access('gc_projects', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_projects', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_projects', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_projects', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('gc_projects', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('gc_projects', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_projects', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_projects', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_projects', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('gc_projects', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
 Utils_RecordBrowserCommon::add_default_access('gc_equipment');
 
-Utils_RecordBrowserCommon::add_access('gc_projects_progbilling', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_projects_progbilling', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_projects_progbilling', 'edit', 'EMPLOYEE', array(), array('project_name'));
-Utils_RecordBrowserCommon::add_access('gc_projects_progbilling', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('gc_projects_progbilling', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_projects_progbilling', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_projects_progbilling', 'edit', 'ACCESS:employee', array(), array('project_name'));
+Utils_RecordBrowserCommon::add_access('gc_projects_progbilling', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('gc_salesgoals', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_salesgoals', 'add', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('gc_salesgoals', 'edit', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('gc_salesgoals', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('gc_salesgoals', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_salesgoals', 'add', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('gc_salesgoals', 'edit', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('gc_salesgoals', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('gc_shopequipment', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_shopequipment', 'add', 'EMPLOYEE', array(), array('job','units_used','total_units_used','rental_date','est_ret_date','last_history_entry'));
-Utils_RecordBrowserCommon::add_access('gc_shopequipment', 'edit', 'EMPLOYEE', array(), array('job','units_used','total_units_used','rental_date','est_ret_date','last_history_entry'));
-Utils_RecordBrowserCommon::add_access('gc_shopequipment', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('gc_shopequipment', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_shopequipment', 'add', 'ACCESS:employee', array(), array('job','units_used','total_units_used','rental_date','est_ret_date','last_history_entry'));
+Utils_RecordBrowserCommon::add_access('gc_shopequipment', 'edit', 'ACCESS:employee', array(), array('job','units_used','total_units_used','rental_date','est_ret_date','last_history_entry'));
+Utils_RecordBrowserCommon::add_access('gc_shopequipment', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('gc_shopequipment_rental', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_shopequipment_rental', 'add', 'EMPLOYEE', array(), array('return_date'));
-Utils_RecordBrowserCommon::add_access('gc_shopequipment_rental', 'edit', 'EMPLOYEE', array(), array('return_date', 'equipment_id'));
-Utils_RecordBrowserCommon::add_access('gc_shopequipment_rental', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('gc_shopequipment_rental', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_shopequipment_rental', 'add', 'ACCESS:employee', array(), array('return_date'));
+Utils_RecordBrowserCommon::add_access('gc_shopequipment_rental', 'edit', 'ACCESS:employee', array(), array('return_date', 'equipment_id'));
+Utils_RecordBrowserCommon::add_access('gc_shopequipment_rental', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('gc_tickets', 'view', 'EMPLOYEE', array('(!permission'=>2, '|assigned_to'=>'USER', '|:Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('gc_tickets', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_tickets', 'edit', 'EMPLOYEE', array('(permission'=>0, '|assigned_to'=>'USER', '|:Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('gc_tickets', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('gc_tickets', 'view', 'ACCESS:employee', array('(!permission'=>2, '|assigned_to'=>'USER', '|:Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('gc_tickets', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_tickets', 'edit', 'ACCESS:employee', array('(permission'=>0, '|assigned_to'=>'USER', '|:Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('gc_tickets', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
 
-Utils_RecordBrowserCommon::add_access('gc_projects_visit', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_projects_visit', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('gc_projects_visit', 'edit', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('gc_projects_visit', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_projects_visit', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('gc_projects_visit', 'edit', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('premium_listmanager', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_listmanager', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_listmanager', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_listmanager', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('premium_listmanager', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_listmanager', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_listmanager', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_listmanager', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_listmanager', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('premium_listmanager', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('premium_listmanager_element', 'view', 'EMPLOYEE', array(), array('record_id'));
-Utils_RecordBrowserCommon::add_access('premium_listmanager_element', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_listmanager_element', 'edit', 'EMPLOYEE', array(), array('list_name','record_id'));
+Utils_RecordBrowserCommon::add_access('premium_listmanager_element', 'view', 'ACCESS:employee', array(), array('record_id'));
+Utils_RecordBrowserCommon::add_access('premium_listmanager_element', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_listmanager_element', 'edit', 'ACCESS:employee', array(), array('list_name','record_id'));
 
-Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'edit', 'EMPLOYEE', array(), array('target', 'list_name'));
-Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'edit', 'ACCESS:employee', array(), array('target', 'list_name'));
+Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('premium_listmanager_history', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('premium_logbook', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_logbook', 'add', 'EMPLOYEE', array(), array('date_and_time', 'author'));
+Utils_RecordBrowserCommon::add_access('premium_logbook', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_logbook', 'add', 'ACCESS:employee', array(), array('date_and_time', 'author'));
 
-Utils_RecordBrowserCommon::add_access('premium_multiple_addresses', 'view', 'EMPLOYEE', array(), array('record_type', 'record_id'));
-Utils_RecordBrowserCommon::add_access('premium_multiple_addresses', 'add', 'EMPLOYEE', array('nickname'=>''));
-Utils_RecordBrowserCommon::add_access('premium_multiple_addresses', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_multiple_addresses', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_multiple_addresses', 'view', 'ACCESS:employee', array(), array('record_type', 'record_id'));
+Utils_RecordBrowserCommon::add_access('premium_multiple_addresses', 'add', 'ACCESS:employee', array('nickname'=>''));
+Utils_RecordBrowserCommon::add_access('premium_multiple_addresses', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_multiple_addresses', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('premium_payments_agent', 'view', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_payments_agent', 'view', 'ACCESS:employee');
 Utils_RecordBrowserCommon::add_access('premium_payments_agent', 'add', 'ADMIN');
 Utils_RecordBrowserCommon::add_access('premium_payments_agent', 'edit', 'ADMIN', array(), array('last_update', 'type'));
 Utils_RecordBrowserCommon::add_access('premium_payments_agent', 'delete', 'ADMIN');
 
-Utils_RecordBrowserCommon::add_access('premium_payments', 'view', 'EMPLOYEE', array('type'=>1), array('check_date', 'cvc_cvv','record_type','record_id', 'type'));
-Utils_RecordBrowserCommon::add_access('premium_payments', 'view', array('EMPLOYEE','ACCESS:manager'), array('type'=>1), array('check_date','record_type','record_id', 'type'));
-Utils_RecordBrowserCommon::add_access('premium_payments', 'view', 'EMPLOYEE', array('(type'=>2,'|type'=>0), array('expiration_date', 'cvc_cvv','record_type','record_id', 'type'));
-Utils_RecordBrowserCommon::add_access('premium_payments', 'view', 'EMPLOYEE', array('type'=>''), array('card_number','expiration_date','cvc_cvv','check_date','record_type','record_id', 'type'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'view', 'ACCESS:employee', array('type'=>1), array('check_date', 'cvc_cvv','record_type','record_id', 'type'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'view', array('ACCESS:employee','ACCESS:manager'), array('type'=>1), array('check_date','record_type','record_id', 'type'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'view', 'ACCESS:employee', array('(type'=>2,'|type'=>0), array('expiration_date', 'cvc_cvv','record_type','record_id', 'type'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'view', 'ACCESS:employee', array('type'=>''), array('card_number','expiration_date','cvc_cvv','check_date','record_type','record_id', 'type'));
 
-Utils_RecordBrowserCommon::add_access('premium_payments', 'add', 'EMPLOYEE', array('amount'=>'','type'=>1), array('record_type','record_id','status','status_description','type','check_date'));
-Utils_RecordBrowserCommon::add_access('premium_payments', 'add', 'EMPLOYEE', array('amount'=>'','(type'=>2,'|type'=>0), array('record_type','record_id','status','status_description','expiration_date','cvc_cvv','type'));
-Utils_RecordBrowserCommon::add_access('premium_payments', 'add', 'EMPLOYEE', array('amount'=>'','type'=>''), array('record_type','record_id','card_number','expiration_date','cvc_cvv','status','status_description','type','check_date'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'add', 'ACCESS:employee', array('amount'=>'','type'=>1), array('record_type','record_id','status','status_description','type','check_date'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'add', 'ACCESS:employee', array('amount'=>'','(type'=>2,'|type'=>0), array('record_type','record_id','status','status_description','expiration_date','cvc_cvv','type'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'add', 'ACCESS:employee', array('amount'=>'','type'=>''), array('record_type','record_id','card_number','expiration_date','cvc_cvv','status','status_description','type','check_date'));
 
-Utils_RecordBrowserCommon::add_access('premium_payments', 'edit', array('EMPLOYEE','ACCESS:manager'), array('<status'=>2,'type'=>1), array('record_type','record_id','status_description','type','check_date'));
-Utils_RecordBrowserCommon::add_access('premium_payments', 'edit', array('EMPLOYEE','ACCESS:manager'), array('<status'=>2,'(type'=>2,'|type'=>0), array('record_type','record_id','status_description','type','expiration_date','cvc_cvv'));
-Utils_RecordBrowserCommon::add_access('premium_payments', 'edit', array('EMPLOYEE','ACCESS:manager'), array('<status'=>2,'type'=>''), array('record_type','record_id','status_description','type','card_number','expiration_date','cvc_cvv','check_date'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'edit', array('ACCESS:employee','ACCESS:manager'), array('<status'=>2,'type'=>1), array('record_type','record_id','status_description','type','check_date'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'edit', array('ACCESS:employee','ACCESS:manager'), array('<status'=>2,'(type'=>2,'|type'=>0), array('record_type','record_id','status_description','type','expiration_date','cvc_cvv'));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'edit', array('ACCESS:employee','ACCESS:manager'), array('<status'=>2,'type'=>''), array('record_type','record_id','status_description','type','card_number','expiration_date','cvc_cvv','check_date'));
 Utils_RecordBrowserCommon::add_access('premium_payments', 'edit', 'ADMIN', array('type'=>1), array('record_type','record_id','status_description','type','check_date'));
 Utils_RecordBrowserCommon::add_access('premium_payments', 'edit', 'ADMIN', array('(type'=>2,'|type'=>0), array('record_type','record_id','status_description','type','expiration_date','cvc_cvv'));
 Utils_RecordBrowserCommon::add_access('premium_payments', 'edit', 'ADMIN', array('type'=>''), array('record_type','record_id','status_description','type','card_number','expiration_date','cvc_cvv','check_date'));
 
-Utils_RecordBrowserCommon::add_access('premium_payments', 'delete', array('EMPLOYEE','ACCESS:manager'), array('<status'=>2));
+Utils_RecordBrowserCommon::add_access('premium_payments', 'delete', array('ACCESS:employee','ACCESS:manager'), array('<status'=>2));
 Utils_RecordBrowserCommon::add_access('premium_payments', 'delete', 'ADMIN');
 
-Utils_RecordBrowserCommon::add_access('relations_types', 'view', 'EMPLOYEE', array(), array('type_name'));
-Utils_RecordBrowserCommon::add_access('relations_types', 'add', 'EMPLOYEE', array(), array('type_name'));
-Utils_RecordBrowserCommon::add_access('relations_types', 'edit', 'EMPLOYEE', array(), array('type_name'));
-Utils_RecordBrowserCommon::add_access('relations_types', 'delete', 'EMPLOYEE', array('type_name'=>''));
+Utils_RecordBrowserCommon::add_access('relations_types', 'view', 'ACCESS:employee', array(), array('type_name'));
+Utils_RecordBrowserCommon::add_access('relations_types', 'add', 'ACCESS:employee', array(), array('type_name'));
+Utils_RecordBrowserCommon::add_access('relations_types', 'edit', 'ACCESS:employee', array(), array('type_name'));
+Utils_RecordBrowserCommon::add_access('relations_types', 'delete', 'ACCESS:employee', array('type_name'=>''));
 
 Utils_RecordBrowserCommon::add_default_access('relations');
 
-Utils_RecordBrowserCommon::add_access('premium_roundcube_custom_addon', 'view', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_roundcube_custom_addon', 'view', 'ACCESS:employee');
 Utils_RecordBrowserCommon::add_access('premium_roundcube_custom_addon', 'add', 'ADMIN');
 Utils_RecordBrowserCommon::add_access('premium_roundcube_custom_addon', 'edit', 'SUPERADMIN');
 Utils_RecordBrowserCommon::add_access('premium_roundcube_custom_addon', 'delete', 'SUPERADMIN');
@@ -388,56 +388,56 @@ Utils_RecordBrowserCommon::add_default_access('premium_schoolregister_course');
 Utils_RecordBrowserCommon::add_default_access('premium_schoolregister_room');
 Utils_RecordBrowserCommon::add_default_access('premium_schoolregister_attendance');
 
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_student_group', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_student_group', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_student_group', 'edit', 'EMPLOYEE', array(), array('students', 'course'));
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_student_group', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_student_group', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_student_group', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_student_group', 'edit', 'ACCESS:employee', array(), array('students', 'course'));
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_student_group', 'delete', 'ACCESS:employee');
 
 // shouldn't be done with access
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'view', 'EMPLOYEE', array('special_education'=>1, 'custom_course'=>''), array('term', 'custom_course'));
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'view', 'EMPLOYEE', array('special_education'=>'', 'custom_course'=>''), array('start_date', 'end_date', 'custom_course'));
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'view', 'EMPLOYEE', array('special_education'=>1, 'custom_course'=>1), array('term', 'course'));
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'view', 'EMPLOYEE', array('special_education'=>'', 'custom_course'=>1), array('start_date', 'end_date', 'course'));
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'view', 'ACCESS:employee', array('special_education'=>1, 'custom_course'=>''), array('term', 'custom_course'));
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'view', 'ACCESS:employee', array('special_education'=>'', 'custom_course'=>''), array('start_date', 'end_date', 'custom_course'));
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'view', 'ACCESS:employee', array('special_education'=>1, 'custom_course'=>1), array('term', 'course'));
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'view', 'ACCESS:employee', array('special_education'=>'', 'custom_course'=>1), array('start_date', 'end_date', 'course'));
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_schedule', 'delete', 'ACCESS:employee');
 
 // shouldn't be done with access
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'view', 'EMPLOYEE', array('custom_course'=>1), array('students', 'special_education', 'course'));
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'view', 'EMPLOYEE', array('custom_course'=>''), array('students', 'special_education', 'custom_course'));
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'view', 'ACCESS:employee', array('custom_course'=>1), array('students', 'special_education', 'course'));
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'view', 'ACCESS:employee', array('custom_course'=>''), array('students', 'special_education', 'custom_course'));
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_lesson', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_att_event_type', 'view', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_att_event_type', 'view', 'ACCESS:employee');
 Utils_RecordBrowserCommon::add_access('premium_schoolregister_att_event_type', 'add', 'SUPERADMIN');
 Utils_RecordBrowserCommon::add_access('premium_schoolregister_att_event_type', 'edit', 'SUPERADMIN');
 
-Utils_RecordBrowserCommon::add_access('premium_schoolregister_term', 'view', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_schoolregister_term', 'view', 'ACCESS:employee');
 Utils_RecordBrowserCommon::add_access('premium_schoolregister_term', 'add', 'SUPERADMIN');
 Utils_RecordBrowserCommon::add_access('premium_schoolregister_term', 'edit', 'SUPERADMIN');
 
-Utils_RecordBrowserCommon::add_access('contact_skills', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('contact_skills', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('contact_skills', 'edit', 'EMPLOYEE', array(), array('contact'));
-Utils_RecordBrowserCommon::add_access('contact_skills', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('contact_skills', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('contact_skills', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('contact_skills', 'edit', 'ACCESS:employee', array(), array('contact'));
+Utils_RecordBrowserCommon::add_access('contact_skills', 'delete', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('premium_timesheet', 'view', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('premium_timesheet', 'add', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('premium_timesheet', 'edit', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('premium_timesheet', 'delete', array('EMPLOYEE','ACCESS:manager'));
-Utils_RecordBrowserCommon::add_access('premium_timesheet', 'view', 'EMPLOYEE', array('employee'=>'USER'));
-Utils_RecordBrowserCommon::add_access('premium_timesheet', 'view', 'EMPLOYEE', array(), array('billing_rate'));
-Utils_RecordBrowserCommon::add_access('premium_timesheet', 'add', 'EMPLOYEE', array('employee'=>'USER'), array('employee'));
-Utils_RecordBrowserCommon::add_access('premium_timesheet', 'edit', 'EMPLOYEE', array('employee'=>'USER'), array('employee'));
-Utils_RecordBrowserCommon::add_access('premium_timesheet', 'delete', 'EMPLOYEE', array('employee'=>'USER'));
+Utils_RecordBrowserCommon::add_access('premium_timesheet', 'view', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_timesheet', 'add', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_timesheet', 'edit', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_timesheet', 'delete', array('ACCESS:employee','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_timesheet', 'view', 'ACCESS:employee', array('employee'=>'USER'));
+Utils_RecordBrowserCommon::add_access('premium_timesheet', 'view', 'ACCESS:employee', array(), array('billing_rate'));
+Utils_RecordBrowserCommon::add_access('premium_timesheet', 'add', 'ACCESS:employee', array('employee'=>'USER'), array('employee'));
+Utils_RecordBrowserCommon::add_access('premium_timesheet', 'edit', 'ACCESS:employee', array('employee'=>'USER'), array('employee'));
+Utils_RecordBrowserCommon::add_access('premium_timesheet', 'delete', 'ACCESS:employee', array('employee'=>'USER'));
 
 Utils_RecordBrowserCommon::add_default_access('premium_timesheet_rate');
 
-Utils_RecordBrowserCommon::add_access('premium_ecommerce_products', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_ecommerce_products', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_ecommerce_products', 'edit', 'EMPLOYEE', array(), array('currency','gross_price'));
-Utils_RecordBrowserCommon::add_access('premium_ecommerce_products', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_ecommerce_products', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_ecommerce_products', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_ecommerce_products', 'edit', 'ACCESS:employee', array(), array('currency','gross_price'));
+Utils_RecordBrowserCommon::add_access('premium_ecommerce_products', 'delete', 'ACCESS:employee');
 
 Utils_RecordBrowserCommon::add_default_access('premium_ecommerce_emails');
 Utils_RecordBrowserCommon::add_default_access('premium_ecommerce_3rdp_info');
@@ -464,48 +464,48 @@ Utils_RecordBrowserCommon::add_default_access('premium_ecommerce_orders');
 Utils_RecordBrowserCommon::add_default_access('premium_ecommerce_users');
 Utils_RecordBrowserCommon::add_default_access('premium_ecommerce_newsletter');
 
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items', 'edit', 'EMPLOYEE', array(), array('item_type'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items', 'delete', array('EMPLOYEE', 'ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items', 'edit', 'ACCESS:employee', array(), array('item_type'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items', 'delete', array('ACCESS:employee', 'ACCESS:manager'));
 
 Utils_RecordBrowserCommon::add_default_access('premium_warehouse_items_categories');
 
-Utils_RecordBrowserCommon::add_access('premium_warehouse_location', 'view', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_warehouse_location', 'view', 'ACCESS:employee');
 
-Utils_RecordBrowserCommon::add_access('premium_warehouse', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_warehouse', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_warehouse', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_warehouse', 'delete', array('EMPLOYEE', 'ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_warehouse', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_warehouse', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_warehouse', 'delete', array('ACCESS:employee', 'ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'add', 'EMPLOYEE', array(), array('last_update'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'edit', 'EMPLOYEE', array(), array('last_update'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'delete', array('EMPLOYEE', 'ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'add', 'ACCESS:employee', array(), array('last_update'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'edit', 'ACCESS:employee', array(), array('last_update'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'delete', array('ACCESS:employee', 'ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'edit', 'EMPLOYEE', array(), array('last_update'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'delete', array('EMPLOYEE', 'ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'edit', 'ACCESS:employee', array(), array('last_update'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_distributor', 'delete', array('ACCESS:employee', 'ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('premium_weblink_custom_addon', 'view', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_weblink_custom_addon', 'view', 'ACCESS:employee');
 Utils_RecordBrowserCommon::add_access('premium_weblink_custom_addon', 'add', 'ADMIN', array('recordset'=>''));
 Utils_RecordBrowserCommon::add_access('premium_weblink_custom_addon', 'edit', 'SUPERADMIN');
 Utils_RecordBrowserCommon::add_access('premium_weblink_custom_addon', 'delete', 'SUPERADMIN');
 
-Utils_RecordBrowserCommon::add_access('premium_weblink', 'view', 'EMPLOYEE', array());
-Utils_RecordBrowserCommon::add_access('premium_weblink', 'add', 'EMPLOYEE', array('link'=>''));
-Utils_RecordBrowserCommon::add_access('premium_weblink', 'edit', 'EMPLOYEE', array(), array('date'));
-Utils_RecordBrowserCommon::add_access('premium_weblink', 'delete', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_weblink', 'view', 'ACCESS:employee', array());
+Utils_RecordBrowserCommon::add_access('premium_weblink', 'add', 'ACCESS:employee', array('link'=>''));
+Utils_RecordBrowserCommon::add_access('premium_weblink', 'edit', 'ACCESS:employee', array(), array('date'));
+Utils_RecordBrowserCommon::add_access('premium_weblink', 'delete', 'ACCESS:employee');
 
 if(ModuleManager::is_installed('Premium_Weblink')>=0) {
 	DB::Execute('UPDATE premium_weblink_field SET type=%s WHERE field=%s', array('hidden', 'Record Type'));
 }
 
-Utils_RecordBrowserCommon::add_access('bugtrack', 'view', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('bugtrack', 'add', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('bugtrack', 'edit', 'EMPLOYEE');
-Utils_RecordBrowserCommon::add_access('bugtrack', 'delete', array('EMPLOYEE', 'ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('bugtrack', 'view', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('bugtrack', 'add', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('bugtrack', 'edit', 'ACCESS:employee');
+Utils_RecordBrowserCommon::add_access('bugtrack', 'delete', array('ACCESS:employee', 'ACCESS:manager'));
 
 if(ModuleManager::is_installed('Custom_Prosperix_AccessRestrictions')>=0) {
 	ModuleManager::include_install('Custom_Prosperix_AccessRestrictions');
@@ -586,14 +586,14 @@ if(ModuleManager::is_installed('Custom_CADES_AccessRestrictions')>=0) {
 	}
 	
 	Utils_RecordBrowserCommon::wipe_access('contact');
-	Utils_RecordBrowserCommon::add_access('contact', 'view', 'EMPLOYEE', array('(!permission'=>2, '|:Created_by'=>'USER_ID'), array('birth_date','ssn','home_phone','home_address_1','home_address_2','home_city','home_country','home_zone','home_postal_code', 'view', 'edit', 'add', 'delete'));
+	Utils_RecordBrowserCommon::add_access('contact', 'view', 'ACCESS:employee', array('(!permission'=>2, '|:Created_by'=>'USER_ID'), array('birth_date','ssn','home_phone','home_address_1','home_address_2','home_city','home_country','home_zone','home_postal_code', 'view', 'edit', 'add', 'delete'));
 	Utils_RecordBrowserCommon::add_access('contact', 'view', 'ALL', array('login'=>'USER_ID'), array('view', 'edit', 'add', 'delete'));
-	Utils_RecordBrowserCommon::add_access('contact', 'view', array('EMPLOYEE','ACCESS:mrm'), array('(!permission'=>2, '|:Created_by'=>'USER_ID'), array('view', 'edit', 'add', 'delete'));
-	Utils_RecordBrowserCommon::add_access('contact', 'add', array('EMPLOYEE','ACCESS:manager'));
-	Utils_RecordBrowserCommon::add_access('contact', 'edit', 'EMPLOYEE', array('(permission'=>0, '|:Created_by'=>'USER_ID', '!group'=>array('patient', 'ex_patient')), array('access', 'login'));
+	Utils_RecordBrowserCommon::add_access('contact', 'view', array('ACCESS:employee','ACCESS:mrm'), array('(!permission'=>2, '|:Created_by'=>'USER_ID'), array('view', 'edit', 'add', 'delete'));
+	Utils_RecordBrowserCommon::add_access('contact', 'add', array('ACCESS:employee','ACCESS:manager'));
+	Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID', '!group'=>array('patient', 'ex_patient')), array('access', 'login'));
 	Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('login'=>'USER_ID'), array('access', 'login'));
-	Utils_RecordBrowserCommon::add_access('contact', 'edit', array('EMPLOYEE','ACCESS:mrm'), array());
-	Utils_RecordBrowserCommon::add_access('contact', 'delete', array('EMPLOYEE','ACCESS:mrm'));
+	Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ACCESS:employee','ACCESS:mrm'), array());
+	Utils_RecordBrowserCommon::add_access('contact', 'delete', array('ACCESS:employee','ACCESS:mrm'));
 
 	Utils_RecordBrowserCommon::add_access('contact', 'view', 'ALL', array('view'=>'USER'), array('view', 'edit', 'add', 'delete'));
 	Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('edit'=>'USER'));
@@ -621,10 +621,10 @@ if(ModuleManager::is_installed('Custom_CADES_AccessRestrictions')>=0) {
 	Custom_CADES_AccessRestrictionsCommon::add_default_cades_permissions('cades_toileting');
 	Custom_CADES_AccessRestrictionsCommon::add_default_cades_permissions('cades_vitalsigns');
 
-	Utils_RecordBrowserCommon::add_access('cades_incidents', 'view', array('EMPLOYEE','ACCESS:mrm'));
-	Utils_RecordBrowserCommon::add_access('cades_incidents', 'edit', array('EMPLOYEE','ACCESS:mrm'));
-	Utils_RecordBrowserCommon::add_access('cades_incidents', 'add', array('EMPLOYEE','ACCESS:mrm'));
-	Utils_RecordBrowserCommon::add_access('cades_incidents', 'delete', array('EMPLOYEE','ACCESS:mrm'));
+	Utils_RecordBrowserCommon::add_access('cades_incidents', 'view', array('ACCESS:employee','ACCESS:mrm'));
+	Utils_RecordBrowserCommon::add_access('cades_incidents', 'edit', array('ACCESS:employee','ACCESS:mrm'));
+	Utils_RecordBrowserCommon::add_access('cades_incidents', 'add', array('ACCESS:employee','ACCESS:mrm'));
+	Utils_RecordBrowserCommon::add_access('cades_incidents', 'delete', array('ACCESS:employee','ACCESS:mrm'));
 	
 	$field = 'person';
 	Utils_RecordBrowserCommon::add_access('cades_incidents', 'view', 'ALL', array($field.'[view]'=>'USER','(employees'=>'USER', '|employees'=>''));
@@ -670,25 +670,25 @@ if(ModuleManager::is_installed('Premium_Warehouse_Items_Orders')>=0) {
 	Utils_RecordBrowserCommon::field_deny_access('premium_warehouse_items', 'Quantity on Hand', 'edit');
 }
 
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'view', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'view', 'ACCESS:employee');
 Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'view', 'ALL', array('contact'=>'USER'));
 Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'view', array('ALL','ACCESS:manager'), array('company'=>'USER_COMPANY'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'add', 'EMPLOYEE', array(), array('transaction_type'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'edit', 'EMPLOYEE', array('employee'=>'USER', '(>=transaction_date'=>'-1 week', '|<status'=>20), array('transaction_type', 'warehouse'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'edit', 'EMPLOYEE', array('employee'=>'USER', 'warehouse'=>''), array('transaction_type'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'edit', array('EMPLOYEE','ACCESS:manager'), array(), array('transaction_type', 'warehouse'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'add', 'ACCESS:employee', array(), array('transaction_type'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'edit', 'ACCESS:employee', array('employee'=>'USER', '(>=transaction_date'=>'-1 week', '|<status'=>20), array('transaction_type', 'warehouse'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'edit', 'ACCESS:employee', array('employee'=>'USER', 'warehouse'=>''), array('transaction_type'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'edit', array('ACCESS:employee','ACCESS:manager'), array(), array('transaction_type', 'warehouse'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'view', 'EMPLOYEE');
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'view', 'ACCESS:employee');
 Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'view', 'ALL', array('transaction_id[contact]'=>'USER'));
 Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'view', array('ALL','ACCESS:manager'), array('transaction_id[company]'=>'USER_COMPANY'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'add', 'EMPLOYEE', array('transaction_id[employee]'=>'USER', '(>=transaction_id[transaction_date]'=>'-1 week', '|<transaction_id[status]'=>20), array('transaction_id'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'add', array('EMPLOYEE','ACCESS:manager'), array(), array('transaction_id'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'edit', 'EMPLOYEE', array('transaction_id[employee]'=>'USER', '(>=transaction_id[transaction_date]'=>'-1 week', '|<transaction_id[status]'=>20), array('transaction_id'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'edit', array('EMPLOYEE','ACCESS:manager'), array(), array('transaction_id'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'delete', array('EMPLOYEE','ACCESS:manager'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'add', 'ACCESS:employee', array('transaction_id[employee]'=>'USER', '(>=transaction_id[transaction_date]'=>'-1 week', '|<transaction_id[status]'=>20), array('transaction_id'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'add', array('ACCESS:employee','ACCESS:manager'), array(), array('transaction_id'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'edit', 'ACCESS:employee', array('transaction_id[employee]'=>'USER', '(>=transaction_id[transaction_date]'=>'-1 week', '|<transaction_id[status]'=>20), array('transaction_id'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'edit', array('ACCESS:employee','ACCESS:manager'), array(), array('transaction_id'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+Utils_RecordBrowserCommon::add_access('premium_warehouse_items_orders_details', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
 
 ?>

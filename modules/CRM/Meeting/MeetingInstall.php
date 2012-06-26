@@ -54,11 +54,11 @@ class CRM_MeetingInstall extends ModuleInstall {
 		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0)
 			Utils_RecordBrowserCommon::new_record_field('crm_meeting', 'Opportunity', 'select', true, false, 'premium_salesopportunity::Opportunity Name;Premium_SalesOpportunityCommon::crm_opportunity_reference_crits', '', false);
 
-		Utils_RecordBrowserCommon::add_access('crm_meeting', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
-		Utils_RecordBrowserCommon::add_access('crm_meeting', 'add', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('crm_meeting', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
-		Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', array('EMPLOYEE','ACCESS:manager'));
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'add', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
 		return true;
 	}

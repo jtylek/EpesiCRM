@@ -60,7 +60,7 @@ class Utils_RecordBrowser extends Module {
     private $current_field = null;
     private $additional_actions_method = null;
     private $filter_crits = array();
-    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false);
+    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false);
     private $force_order;
     private $clipboard_pattern = false;
     private $show_add_in_table = false;
@@ -131,6 +131,7 @@ class Utils_RecordBrowser extends Module {
     public function disable_quickjump(){$this->disabled['quickjump'] = true;}
     public function disable_headline() {$this->disabled['headline'] = true;}
     public function disable_pdf() {$this->disabled['pdf'] = true;}
+    public function disable_export() {$this->disabled['export'] = true;}
     public function disable_actions($arg=true) {$this->disabled['actions'] = $arg;}
 
     public function set_button($arg, $arg2=''){
@@ -775,7 +776,7 @@ class Utils_RecordBrowser extends Module {
 		else $limit = $gb->get_limit($this->amount_of_records);
         $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 
-        if ((Base_AclCommon::i_am_admin() && $this->fullscreen_table) || $this->enable_export)
+        if (((Base_AclCommon::i_am_admin() && $this->fullscreen_table) || $this->enable_export) && !$this->disabled['export'])
             Base_ActionBarCommon::add('save','Export', 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
 
         $this->set_module_variable('crits_stuff',$crits?$crits:array());

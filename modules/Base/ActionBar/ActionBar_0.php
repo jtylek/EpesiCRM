@@ -46,7 +46,7 @@ class Base_ActionBar extends Module {
 		$this->help('ActionBar basics','main');
 		
 		$icons = Base_ActionBarCommon::get();
-		if(Acl::is_user())
+		if(Base_AclCommon::is_user())
 			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
 		else
 			$display_settings = 'both';
@@ -75,7 +75,7 @@ class Base_ActionBar extends Module {
 
 
 		$launcher=array();
-		if(Acl::is_user()) {
+		if(Base_AclCommon::is_user()) {
 			$opts = Base_Menu_QuickAccessCommon::get_options();
 			if(!empty($opts)) {
 				$dash = ($mod=ModuleManager::get_instance('/Base_Box|0')) && ($main=$mod->get_main_module()) && $main->get_type()=='Base_Dashboard';
@@ -137,7 +137,7 @@ class Base_ActionBar extends Module {
 	
 	public function launchpad() {
 		if (self::$launchpad==null) return;
-		if(Acl::is_user())
+		if(Base_AclCommon::is_user())
 			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
 		else
 			$display_settings = 'both';

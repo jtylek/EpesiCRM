@@ -23,7 +23,12 @@ class Base_UserCommon extends ModuleCommon {
 	public static function change_active_state($uid, $active) {
 		return DB::Execute('UPDATE user_login SET active=%b WHERE id=%d',array($active, $uid));
 	}
-
+	public static function is_active($uid) {
+		return DB::GetOne('SELECT active FROM user_login WHERE id=%d',array($uid));
+	}
+	public static function change_admin($uid, $admin) {
+		return DB::Execute('UPDATE user_login SET admin=%d WHERE id=%d',array($admin, $uid));
+	}
 	/**
 	 * Adds user to the database and adds to User group (normal, regular user).
 	 *

@@ -39,7 +39,7 @@ class Base_User_Settings extends Module {
 		}
         $this->set_module_variable('settings_branch',$branch);
 
-        $this->get_module_variable('admin_settings',($admin_settings && $this->acl_check('set defaults')));
+        $this->get_module_variable('admin_settings',($admin_settings));
 
         if (!$branch) {
             $x = ModuleManager::get_instance('/Base_Box|0');

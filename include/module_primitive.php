@@ -8,7 +8,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-abstract class ModulePrimitive extends ModuleAcl {
+abstract class ModulePrimitive {
 	private $type;
 	
 	public function __construct($type) {

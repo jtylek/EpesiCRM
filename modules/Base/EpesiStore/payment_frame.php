@@ -20,7 +20,7 @@ if (!$description)
     $description = "Order ID $order_id";
 $description = htmlspecialchars($description);
 
-Acl::set_user($user);
+Base_AclCommon::set_user($user);
 
 $payment_url = Base_EssClientCommon::get_payments_url();
 $payment_url .= '?' . http_build_query(array('hide_page_banner' => '1'));

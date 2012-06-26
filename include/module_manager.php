@@ -519,7 +519,6 @@ class ModuleManager {
 				self::$modules_install[$module_class_name],
 				'uninstall'
 			));
-			Acl::del_aco_section($module_class_name);
 			self::remove_data_dir($module_class_name);
 			print($debug.'<b>' . $module_class_name . '</b>' . ': uninstalled<br>');
             if(preg_match('/^mysql/i',DATABASE_DRIVER))
@@ -611,8 +610,6 @@ class ModuleManager {
 			self::$modules_install[$module_to_uninstall],
 			'uninstall'
 		))) return false;
-
-		Acl::del_aco_section(self::$modules_install[$module_to_uninstall]->get_type());
 
 		$ret = DB::Execute('DELETE FROM modules WHERE name=%s', $module_to_uninstall);
 		if(!$ret) {

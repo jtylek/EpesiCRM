@@ -42,12 +42,13 @@ class Utils_MessengerInstall extends ModuleInstall {
 			print('Unable to create table utils_messenger_users.<br>');
 			return false;
 		}
-		$this->add_aco('access',array('Employee', 'Administrator'));
+		Base_AclCommon::add_permission('Messenger Alerts',array('ACCESS:employee'));
 		
 		return $ret;
 	}
 	
 	public function uninstall() {
+		Base_AclCommon::delete_permission('Messenger Alerts');
 		$ret = true;
 		$ret &= DB::DropTable('utils_messenger_users');
 		$ret &= DB::DropTable('utils_messenger_message');

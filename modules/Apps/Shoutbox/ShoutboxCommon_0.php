@@ -11,25 +11,25 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_ShoutboxCommon extends ModuleCommon {
 	public static function menu() {
-	    if(self::Instance()->acl_check('view'))
+	    if(Base_AclCommon::check_permission('Shoutbox'))
     		return array('Shoutbox'=>array());
     	return array();
 	}
 	
 	public static function applet_caption() {
-	    if(self::Instance()->acl_check('view'))
+	    if(Base_AclCommon::check_permission('Shoutbox'))
     		return "Shoutbox";
         return false;
 	}
 
 	public static function applet_info() {
-	    if(self::Instance()->acl_check('view'))
+	    if(Base_AclCommon::check_permission('Shoutbox'))
     		return "Mini shoutbox"; //here can be associative array
         return '';
 	}
 	
 	public static function user_search($search=null) {
-        $myid = Acl::get_user();
+        $myid = Base_AclCommon::get_user();
       	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im')) {
        	    $adm = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','enable_im');
        	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
@@ -58,7 +58,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	public static function tray_notification($time) {
 		if(!$time)
 			$time = time()-24*3600;
-		$arr = DB::GetAll('SELECT ul.login, asm.id, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND (asm.to_user_login_id=%d OR asm.to_user_login_id is null) ORDER BY asm.posted_on DESC LIMIT 10',array($time, Acl::get_user(), Acl::get_user()));
+		$arr = DB::GetAll('SELECT ul.login, asm.id, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND (asm.to_user_login_id=%d OR asm.to_user_login_id is null) ORDER BY asm.posted_on DESC LIMIT 10',array($time, Base_AclCommon::get_user(), Base_AclCommon::get_user()));
 		if(empty($arr)) return array();
 		//print it out
 		$ret = array();

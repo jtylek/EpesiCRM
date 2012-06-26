@@ -105,7 +105,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 	}
 
     public static function menu() {
-		if (self::Instance()->acl_check('access'))
+		if (Base_AclCommon::check_permission('Messenger Alerts'))
 			return array('Messenger alerts'=>array(
 				'__function__'=>'browse'));
 		return array();

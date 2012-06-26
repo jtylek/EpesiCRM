@@ -1427,10 +1427,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $ret;
 	}
 	public static function add_default_access($tab) {
-		Utils_RecordBrowserCommon::add_access($tab, 'view', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access($tab, 'add', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access($tab, 'edit', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access($tab, 'delete', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access($tab, 'view', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access($tab, 'add', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access($tab, 'edit', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access($tab, 'delete', 'ACCESS:employee');
 	}
 	
 	public static function field_deny_access($tab, $fields, $action='', $clearance=null) {

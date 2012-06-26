@@ -195,21 +195,21 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
         Variable::set('crm_roundcube_global_signature',"Message sent with EpesiBIM - managing business your way!<br /><a href=\"http://www.epesibim.com\">http://www.epesibim.com</a>");
 
-		Utils_RecordBrowserCommon::add_access('rc_accounts', 'view', 'EMPLOYEE', array('epesi_user'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('rc_accounts', 'add', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('rc_accounts', 'edit', 'EMPLOYEE', array(), array('epesi_user'));
-		Utils_RecordBrowserCommon::add_access('rc_accounts', 'delete', 'EMPLOYEE', array('epesi_user'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('rc_accounts', 'view', 'ACCESS:employee', array('epesi_user'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('rc_accounts', 'add', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('rc_accounts', 'edit', 'ACCESS:employee', array(), array('epesi_user'));
+		Utils_RecordBrowserCommon::add_access('rc_accounts', 'delete', 'ACCESS:employee', array('epesi_user'=>'USER_ID'));
 
-		Utils_RecordBrowserCommon::add_access('rc_mails', 'view', 'EMPLOYEE', array(), array('headers_data'));
-		Utils_RecordBrowserCommon::add_access('rc_mails', 'delete', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('rc_mails', 'view', 'ACCESS:employee', array(), array('headers_data'));
+		Utils_RecordBrowserCommon::add_access('rc_mails', 'delete', 'ACCESS:employee');
 
-		Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'view', 'EMPLOYEE', array(), array('recordset'));
-		Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'delete', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'view', 'ACCESS:employee', array(), array('recordset'));
+		Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'delete', 'ACCESS:employee');
 
-		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'add', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'edit', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'delete', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'add', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'edit', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'delete', 'ACCESS:employee');
 
         return true;
     }

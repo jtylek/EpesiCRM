@@ -17,8 +17,8 @@ class Base_HomePageCommon extends ModuleCommon {
 	public static $logged;
 
 	public static function load() {
-		if(!Acl::is_user()) return;
-		$uid = Acl::get_user();
+		if(!Base_AclCommon::is_user()) return;
+		$uid = Base_AclCommon::get_user();
 		if($uid === null)
 			return;
 		$ret = DB::GetOne('SELECT url FROM home_page WHERE user_login_id=%d',$uid);
@@ -32,8 +32,8 @@ class Base_HomePageCommon extends ModuleCommon {
 	}
 
 	public static function save() {
-		if(!Acl::is_user()) return;
-		$uid = Acl::get_user();
+		if(!Base_AclCommon::is_user()) return;
+		$uid = Base_AclCommon::get_user();
 		
 		$m = Module::static_get_module_variable('/Base_Box|0','main');
 		$v = end($m);
@@ -46,17 +46,15 @@ class Base_HomePageCommon extends ModuleCommon {
 	}
 
 	public static function menu() {
-		if (self::Instance()->acl_check('menu access'))
-			return array('My settings'=>array('__submenu__'=>1,'Set home page'=>array('Base_HomePage_save'=>'1','__module__'=>null)));
-		return array();
+		return array('My settings'=>array('__submenu__'=>1,'Set home page'=>array('Base_HomePage_save'=>'1','__module__'=>null)));
 	}
 
 	public static function login_check_init() {
-		self::$logged = Acl::is_user();
+		self::$logged = Base_AclCommon::is_user();
 	}
 
 	public static function login_check_exit() {
-		$after = Acl::is_user();
+		$after = Base_AclCommon::is_user();
 		if($after!==self::$logged) {
 			if($after) Base_HomePageCommon::load();
 				else Base_BoxCommon::location(Base_BoxCommon::get_main_module_name());
@@ -74,7 +72,7 @@ class Base_HomePageCommon extends ModuleCommon {
 }
 
 if(isset($_REQUEST['Base_HomePage_load'])) {
-	if(Acl::is_user())
+	if(Base_AclCommon::is_user())
 		Base_HomePageCommon::load();
 	else
 		$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));

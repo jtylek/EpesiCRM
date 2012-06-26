@@ -40,10 +40,10 @@ class Base_Dashboard extends Module {
 		if($default_dash)
 			$tabs = DB::GetAll('SELECT * FROM base_dashboard_default_tabs ORDER BY pos');
 		else {
-			$tabs = DB::GetAll('SELECT * FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Acl::get_user()));
+			$tabs = DB::GetAll('SELECT * FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Base_AclCommon::get_user()));
 			if(!$tabs) {
 				Base_DashboardCommon::set_default_applets();
-				$tabs = DB::GetAll('SELECT * FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Acl::get_user()));
+				$tabs = DB::GetAll('SELECT * FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Base_AclCommon::get_user()));
 			}
 		}
 
@@ -67,9 +67,9 @@ class Base_Dashboard extends Module {
 							if ($max===false || $max===null) $max=0;
 							DB::Execute('INSERT INTO '.$table.'(name,pos) VALUES(%s,%d)',array($name,$max));
 						} else {
-							$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table.' WHERE user_login_id=%d',array(Acl::get_user()));
+							$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table.' WHERE user_login_id=%d',array(Base_AclCommon::get_user()));
 							if ($max===false || $max===null) $max=0;
-							DB::Execute('INSERT INTO '.$table.'(name,pos,user_login_id) VALUES(%s,%d,%d)',array($name,$max,Acl::get_user()));
+							DB::Execute('INSERT INTO '.$table.'(name,pos,user_login_id) VALUES(%s,%d,%d)',array($name,$max,Base_AclCommon::get_user()));
 						}
 					}
 					location(array());
@@ -150,7 +150,7 @@ class Base_Dashboard extends Module {
 		if($default_dash)
 			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_default_applets WHERE tab=%d ORDER BY col,pos',array($tab_id));
 		else
-			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d ORDER BY pos',array(Acl::get_user(),$tab_id));
+			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d ORDER BY pos',array(Base_AclCommon::get_user(),$tab_id));
 		while($row = $ret->FetchRow())
 			$applets[$row['col']][] = $row;
 
@@ -237,8 +237,8 @@ class Base_Dashboard extends Module {
 		$default_dash = $this->get_module_variable('default');
 		$table = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		DB::StartTrans();
-		$new_pos = DB::GetOne('SELECT '.($dir>0?'MIN':'MAX').'(pos) FROM '.$table.' WHERE pos'.($dir>0?'>':'<').'%d AND user_login_id=%s',array($old_pos, Acl::get_user()));
-		$id2 = DB::GetOne('SELECT id FROM '.$table.' WHERE pos=%d AND user_login_id=%s',array($new_pos,Acl::get_user()));
+		$new_pos = DB::GetOne('SELECT '.($dir>0?'MIN':'MAX').'(pos) FROM '.$table.' WHERE pos'.($dir>0?'>':'<').'%d AND user_login_id=%s',array($old_pos, Base_AclCommon::get_user()));
+		$id2 = DB::GetOne('SELECT id FROM '.$table.' WHERE pos=%d AND user_login_id=%s',array($new_pos,Base_AclCommon::get_user()));
 		DB::Execute('UPDATE '.$table.' SET pos=%d WHERE id=%d',array($old_pos,$id2));
 		DB::Execute('UPDATE '.$table.' SET pos=%d WHERE id=%d',array($new_pos,$id));
 		DB::CompleteTrans();
@@ -255,12 +255,12 @@ class Base_Dashboard extends Module {
 				$pos = $cols[$col];
 			DB::Execute('INSERT INTO base_dashboard_default_applets(module_name,tab,col,pos) VALUES (%s,%d,%d,%d)',array($mod,$tab_id,$col,$pos));
 		} else {
-			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d GROUP BY col ORDER BY col',array(Acl::get_user(),$tab_id));
+			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d GROUP BY col ORDER BY col',array(Base_AclCommon::get_user(),$tab_id));
 			for($col=0; $col<3 && isset($cols[$col]); $col++);
 			if($col==3) $col=0;
 			if(isset($cols[$col]))
 				$pos = $cols[$col];
-			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name,tab,col,pos) VALUES (%d,%s,%d,%d,%d)',array(Acl::get_user(),$mod,$tab_id,$col,$pos));
+			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name,tab,col,pos) VALUES (%d,%s,%d,%d,%d)',array(Base_AclCommon::get_user(),$mod,$tab_id,$col,$pos));
 		}
 		DB::CompleteTrans();
 		$sett_fn = array($mod.'Common','applet_settings');
@@ -274,7 +274,7 @@ class Base_Dashboard extends Module {
 			DB::Execute('DELETE FROM base_dashboard_default_applets WHERE id=%d',array($id));
 		} else {
 			DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d',array($id));
-			DB::Execute('DELETE FROM base_dashboard_applets WHERE id=%d AND user_login_id=%d',array($id,Acl::get_user()));
+			DB::Execute('DELETE FROM base_dashboard_applets WHERE id=%d AND user_login_id=%d',array($id,Base_AclCommon::get_user()));
 		}
 	}
 
@@ -330,7 +330,7 @@ class Base_Dashboard extends Module {
 		$default_dash = $this->get_module_variable('default');
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
-		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs.($default_dash?'':' WHERE user_login_id='.Acl::get_user()));
+		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs.($default_dash?'':' WHERE user_login_id='.Base_AclCommon::get_user()));
 		$f->addElement('select','__tab',$this->t('Tab'),$tabs);
 		$dfs = DB::GetRow('SELECT tab,color FROM '.$table_applets.' WHERE id=%d',array($id));
 		$f->setDefaults(array('__tab'=>$dfs['tab'],'__color'=>$dfs['color']));
@@ -403,8 +403,8 @@ class Base_Dashboard extends Module {
 				self::$settings_cache['default'][$row['applet_id']][] = $row;
 
 			self::$settings_cache['user'] = array();
-			if(Acl::is_user()) {
-				$ret = DB::Execute('SELECT s.applet_id,s.name,s.value FROM base_dashboard_settings s INNER JOIN base_dashboard_applets a ON a.id=s.applet_id WHERE a.user_login_id=%d',array(Acl::get_user()));
+			if(Base_AclCommon::is_user()) {
+				$ret = DB::Execute('SELECT s.applet_id,s.name,s.value FROM base_dashboard_settings s INNER JOIN base_dashboard_applets a ON a.id=s.applet_id WHERE a.user_login_id=%d',array(Base_AclCommon::get_user()));
 				while($row = $ret->FetchRow())
 					self::$settings_cache['user'][$row['applet_id']][] = $row;
 			} 

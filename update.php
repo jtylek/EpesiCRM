@@ -300,11 +300,11 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 		Utils_RecordBrowserCommon::set_caption('task', 'Tasks');
 		Utils_RecordBrowserCommon::new_addon('task', 'Utils/Tasks', 'task_attachment_addon', 'Notes');
 
-		Utils_RecordBrowserCommon::add_access('task', 'view', 'EMPLOYEE', array('(!permission'=>2, '|employees'=>'USER'));
-		Utils_RecordBrowserCommon::add_access('task', 'add', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('task', 'edit', 'EMPLOYEE', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
-		Utils_RecordBrowserCommon::add_access('task', 'delete', 'EMPLOYEE', array(':Created_by'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('task', 'delete', array('EMPLOYEE','ACCESS:manager'));
+		Utils_RecordBrowserCommon::add_access('task', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('task', 'add', 'ACCESS:employee');
+		Utils_RecordBrowserCommon::add_access('task', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
+		Utils_RecordBrowserCommon::add_access('task', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+		Utils_RecordBrowserCommon::add_access('task', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
 		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed'), true);
 		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
@@ -534,14 +534,6 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 		DB::Execute('UPDATE recordbrowser_table_properties SET tpl="CRM_Tasks__default", icon="CRM_Tasks__icon.png" WHERE tab="task"');
 		DB::Execute('DELETE FROM task_data WHERE field="Page id"');
 		DB::Execute('DELETE FROM task_field WHERE field="Page id"');
-		Acl::add_aco('CRM_Tasks','browse tasks',array('Employee'));
-		Acl::add_aco('CRM_Tasks','view task',array('Employee'));
-		Acl::add_aco('CRM_Tasks','edit task',array('Employee'));
-		Acl::add_aco('CRM_Tasks','delete task',array('Employee Manager'));
-		Acl::del_aco('Utils_Tasks','browse tasks');
-		Acl::del_aco('Utils_Tasks','view task');
-		Acl::del_aco('Utils_Tasks','edit task');
-		Acl::del_aco('Utils_Tasks','delete task');
 
 		Utils_RecordBrowserCommon::enable_watchdog('task', array('CRM_TasksCommon','watchdog_label'));
 		DB::DropTable('task_employees_notified');
@@ -771,8 +763,6 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 	if (ModuleManager::is_installed('Utils_Attachment')>=0) {
 		PatchDBAddColumn('utils_attachment_link','func','C(255)');
 		PatchDBAddColumn('utils_attachment_link','args','C(255)');
-		Acl::del_aco("Utils_Attachment",'view download history');
-		Acl::add_aco("Utils_Attachment",'view download history','Employee');
 
 		if (array_key_exists(strtoupper('attachment_key'),DB::MetaColumnNames('utils_attachment_link'))) {
 			if (ModuleManager::is_installed('CRM_Tasks')>=0) {
@@ -1455,21 +1445,6 @@ function update_from_1_0_4_to_1_0_5() {
 		Utils_RecordBrowserCommon::set_clipboard_pattern('company', "%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {phone}<BR>}\n%{fax. {fax}<BR>}\n%{{web_address}<BR>}");
 	}
 	
-	ob_start();
-	if (ModuleManager::is_installed('CRM_Fax')>=0) {
-		Acl::add_aco('CRM_Fax','browse',array('Employee'));
-		Acl::add_aco('CRM_Fax','send',array('Employee'));
-	}
-
-	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
-		Acl::del_aco('CRM_Contacts','browse contacts');
-		Acl::del_aco('CRM_Contacts','browse companies');
-		Acl::add_aco('CRM_Contacts','browse contacts',array('Employee'));
-		Acl::add_aco('CRM_Contacts','browse companies',array('Employee'));
-		Acl::add_aco('CRM_Contacts','"new" actions',array('Employee'));
-	}
-	ob_end_clean();
-
 	if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
 		$tables = DB::MetaTables();
 		if(!in_array('recordbrowser_extended_search',$tables))
@@ -1962,9 +1937,6 @@ if (ModuleManager::is_installed('Premium_Warehouse_Items_Orders')!=-1) {
     }
 
     if (ModuleManager::is_installed('Premium_Projects_Tickets')!=-1) {
-        ob_start();
-	    Acl::add_aco('Premium_Projects_Tickets','edit details',array('Employee Manager'));
-	    ob_end_clean();   
 	}
 
 }
@@ -2003,10 +1975,10 @@ function update_from_1_1_1_to_1_1_2() {
 		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', 'Mail addresses');
 		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundube', 'icon.png'));
 
-		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'EMPLOYEE', array(), array('record_type', 'record_id'));
-		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'add', 'EMPLOYEE', array(), array('record_type', 'record_id'));
-		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'edit', 'EMPLOYEE', array(), array('record_type', 'record_id'));
-		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'delete', 'EMPLOYEE');
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'ACCESS:employee', array(), array('record_type', 'record_id'));
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'add', 'ACCESS:employee', array(), array('record_type', 'record_id'));
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'edit', 'ACCESS:employee', array(), array('record_type', 'record_id'));
+		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'delete', 'ACCESS:employee');
 
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
@@ -2123,11 +2095,6 @@ function update_from_1_1_2_to_1_1_3() {
 
 $versions[] = '1.1.4';
 function update_from_1_1_3_to_1_1_4() {
-    if(ModuleManager::is_installed('Apps_ActivityReport')>=0) {
-		ob_start();
-        Acl::add_aco('Apps_ActivityReport','access','Employee');
-		ob_end_clean();
-    }
 
     if( ModuleManager::is_installed('Base_Theme') ) {
         Base_ThemeCommon::install_default_theme_common_files('modules/Base/Theme/','images');
@@ -2177,10 +2144,6 @@ function update_from_1_1_3_to_1_1_4() {
     }
 
     if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
-		ob_start();
-        Acl::add_aco('CRM_Roundcube','access mails','Employee');
-        Acl::add_aco('CRM_Roundcube','access client','Employee');
-		ob_end_clean();
 
         Utils_RecordBrowserCommon::new_record_field('rc_accounts',
             array('name'=>'Advanced', 'type'=>'page_split')
@@ -2270,13 +2233,6 @@ function update_from_1_1_4_to_1_1_5() {
 	    Base_ThemeCommon::uninstall_default_theme('Base_MaintenanceMode_Administrator');
     	DB::Execute('DELETE FROM modules WHERE name=%s', array('Base_MaintenanceMode_Administrator'));
     }
-
-    if(ModuleManager::is_installed('Apps_ActivityReport')>=0) {
-        ob_start();
-        Acl::del_aco('Apps_ActivityReport','access');
-        Acl::add_aco('Apps_ActivityReport','access','Employee Manager');
-        ob_end_clean();
-    }
     
     if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
         ob_start();
@@ -2294,10 +2250,6 @@ function update_from_1_1_4_to_1_1_5() {
         }
     }
     
-    if(ModuleManager::is_installed('Apps_Shoutbox')>=0) {
-        Acl::add_aco('Apps_Shoutbox','view','Employee');
-    }
-
     ob_start();
     ModuleManager::install('Libs_CKEditor');
     DB::Execute('DELETE FROM modules WHERE name=%s', array('Libs_FCKeditor'));
@@ -2414,7 +2366,6 @@ function update_from_1_1_5_to_1_1_6() {
     if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('CRM_Fax')) && !is_dir('modules/CRM/Fax')) {
         DB::Execute('DELETE FROM modules WHERE name=%s',array('CRM_Fax'));
         Base_ThemeCommon::uninstall_default_theme('CRM_Fax');
-		Acl::del_aco_section('CRM_Fax');
 		ModuleManager::remove_data_dir('CRM_Fax');
     }
 
@@ -2492,7 +2443,6 @@ function update_from_1_1_5_to_1_1_6() {
         DB::Execute('DELETE FROM modules WHERE name=%s',array('Develop_ModuleCreator'));
         Base_ThemeCommon::uninstall_default_theme('Develop_ModuleCreator');
  		ModuleManager::remove_data_dir('Develop_ModuleCreator');
-		Acl::del_aco_section('Develop_ModuleCreator');
     }
 
     if(DB::GetOne('SELECT 1 FROM modules WHERE name=%s',array('Develop_ModuleEditor')) && !is_dir('modules/Develop/ModuleEditor')) {
@@ -2517,7 +2467,6 @@ function update_from_1_1_5_to_1_1_6() {
         DB::Execute('DELETE FROM modules WHERE name=%s',array('Tests_Bugtrack'));
         Base_ThemeCommon::uninstall_default_theme('Tests_Bugtrack');
  		ModuleManager::remove_data_dir('Tests_Bugtrack');
-		Acl::del_aco_section('Tests_Bugtrack');
 		Utils_RecordBrowserCommon::delete_addon('company', 'Tests/Bugtrack', 'company_bugtrack_addon');
 		Utils_RecordBrowserCommon::uninstall_recordset('bugtrack');
 		Utils_CommonDataCommon::remove('Bugtrack_Status');
@@ -2560,75 +2509,10 @@ function update_from_1_1_5_to_1_1_6() {
 
 $versions[] = '1.1.7';
 function update_from_1_1_6_to_1_1_7() {
-    ob_start();
-
-    if(ModuleManager::is_installed('Base_Dashboard')>=0) {
-        Acl::add_aco('Base_Dashboard','access',array('Employee', 'Administrator'));
-    }
-
-    if(ModuleManager::is_installed('Utils_Messenger')>=0) {
-	    Acl::add_aco('Utils_Messenger','access',array('Employee', 'Administrator'));
-    }
-
-    if(ModuleManager::is_installed('Premium_SalesOpportunity')>=0) {
-	    Acl::add_aco('Premium_SalesOpportunity','browse so',array('Employee'));
-    }
-
-    if(ModuleManager::is_installed('Premium_Projects_Tickets')>=0) {
-	    Acl::add_aco('Premium_Projects_Tickets', 'browse tickets',array('Employee'));
-    }
-
-    if(ModuleManager::is_installed('Base_Search')>=0) {
-	    Acl::add_aco('Base_Search', 'access',array('Employee', 'Administrator'));
-    }
-
-    if(ModuleManager::is_installed('Base_HomePage')>=0) {
-	    Acl::add_aco('Base_HomePage', 'menu access',array('Employee', 'Administrator'));
-    }
-
-    if(ModuleManager::is_installed('Premium_Warehouse')>=0) {
-	    Acl::del_aco('Premium_Warehouse', 'browse warehouses', array('Employee'));
-    	Acl::del_aco('Premium_Warehouse', 'view warehouses', array('Employee'));
-
-	    Acl::add_aco('Premium_Warehouse', 'browse warehouses', array('Employee'));
-    	Acl::add_aco('Premium_Warehouse', 'view warehouses', array('Employee'));
-    }
-
-    if(ModuleManager::is_installed('Base_User_Settings')>=0) {
-    	Acl::add_aco('Base_User_Settings', 'access',array('Employee', 'Administrator'));
-    }
-
-    if(ModuleManager::is_installed('Data_TaxRates')>=0) {
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'view', 'EMPLOYEE');
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'add', array('EMPLOYEE','ACCESS:manager'));
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'edit', array('EMPLOYEE','ACCESS:manager'));
-		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'delete', array('EMPLOYEE','ACCESS:manager'));
-    }
-
-    if(ModuleManager::is_installed('Premium_Timesheet')>=0) {
-	    Acl::add_aco('Premium_Timesheet', 'view billing rates',array('Employee Manager'));
-    }
-    ob_end_clean();
 }
 
 $versions[] = '1.1.8';
 function update_from_1_1_7_to_1_1_8() {
-ob_start();
-if (ModuleManager::is_installed('Base_User_Settings')>=0)
-	Acl::add_aco('Base_User_Settings','access',array('Employee', 'Administrator'));
-
-if (ModuleManager::is_installed('Base_Dashboard')>=0)
-	Acl::add_aco('Base_Dashboard','access',array('Employee', 'Administrator'));
-
-if (ModuleManager::is_installed('Base_Search')>=0)
-	Acl::add_aco('Base_Search','access',array('Employee', 'Administrator'));
-
-if (ModuleManager::is_installed('Base_HomePage')>=0)
-	Acl::add_aco('Base_HomePage','menu access',array('Employee', 'Administrator'));
-
-if (ModuleManager::is_installed('Utils_Attachment')>=0)
-	Acl::add_aco('Utils_Attachment','view download history','Employee');
-ob_end_clean();
 
 if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
     if(DATABASE_DRIVER=='mysqlt') {
@@ -2646,11 +2530,6 @@ if(ModuleManager::is_installed('CRM_Roundcube')>=0) {
         @DB::Execute('ALTER TABLE rc_contacts ALTER email TYPE varchar(255)');
         @DB::Execute('TRUNCATE rc_messages');
     }
-}
-
-if(ModuleManager::is_installed('Data_TaxRates')>=0) {
-    Acl::add_aco('Data_TaxRates','browse tax rates',array('Employee'));
-    Acl::add_aco('Data_TaxRates','view tax rate',array('Employee'));
 }
 
 if (ModuleManager::is_installed('CRM_Contacts_ParentCompany')>=0) {

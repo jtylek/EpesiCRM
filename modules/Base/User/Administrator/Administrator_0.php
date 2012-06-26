@@ -48,14 +48,14 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addRule('old_pass', $this->t('Old password incorrect'), 'check_old_pass');
         $form->addRule('old_pass', $this->t('Field required'), 'required');
 
-		if (Acl::check('Base_User_Settings', 'access'))
+		if (Base_AclCommon::check_permission('Advanced User Settings'))
 			Base_ActionBarCommon::add('back','Back',$this->create_main_href('Base_User_Settings'));
         Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
         #$form->addElement('submit', 'submit_button', $this->t('OK'));
 
         if($form->validate_with_message('Setting saved',$this->t('Problem encountered'))) {
             if($form->process(array(&$this, 'submit_user_preferences'))){
-				if (Acl::check('Base_User_Settings', 'access'))
+				if (Base_AclCommon::check_permission('Advanced User Settings'))
 					Base_BoxCommon::location('Base_User_Settings');
             }
         } else {
@@ -111,6 +111,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		if ($form->validate()) {
 			$emailHeader = $form->exportValue('emailHeader');
 			Variable::set('add_user_email_header',$emailHeader);
+			$this->set_back_location();
 			return false;
 		}
 
@@ -125,6 +126,10 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     } 
 
     public function admin() {
+		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+			$this->pack_module('CRM_Contacts', array(), 'user_admin');
+			return;
+		}
 		if($this->is_back()) {
 			if($this->parent->get_type()=='Base_Admin')
 				$this->parent->reset();
@@ -226,9 +231,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addRule('mail', $this->t('Field required'), 'required');
         $form->addRule('mail', $this->t('This isn\'t valid e-mail address'), 'email');
 
-        $sel = HTML_QuickForm::createElement('select', 'group', $this->t('Groups'), Base_AclCommon::get_groups());
-        $sel->setMultiple(true);
-        $form->addElement($sel);
+        $form->addElement('select', 'admin', $this->t('Administrator'), array(0=>$this->t('No'), 1=>$this->t('Administrator'), 2=>$this->t('Super Administrator')));
 
         if($edit_id<0)
             $form -> addElement('html','<tr><td colspan=2><b>'.$this->t('If you leave password fields empty<br />random password is automatically generated<br />and e-mailed to the user.').'</b></td></tr>');
@@ -246,10 +249,9 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             $form->addElement('select', 'active', $this->t('Active'), array(1=>$this->t('Yes'), 0=>$this->t('No')));
 
             //set defaults
-            $ret = DB::Execute('SELECT u.login, p.mail, u.active FROM user_login u INNER JOIN user_password p ON (p.user_login_id=u.id) WHERE u.id=%d', $edit_id);
+            $ret = DB::Execute('SELECT u.login, p.mail, u.active, u.admin FROM user_login u INNER JOIN user_password p ON (p.user_login_id=u.id) WHERE u.id=%d', $edit_id);
             if($ret && ($row = $ret->FetchRow())) {
-                $form->setDefaults(array('username'=>$row['login'], 'mail'=>$row['mail'], 'active'=>$row['active']));
-//                $form->freeze('username');
+                $form->setDefaults(array('username'=>$row['login'], 'mail'=>$row['mail'], 'active'=>$row['active'], 'admin'=>$row['admin']));
             }
 
             $uid = Base_AclCommon::get_acl_user_id($edit_id);
@@ -257,7 +259,6 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
                 print('invalid user');
                 return;
             }
-            $sel->setSelected(Base_AclCommon::get_user_groups($uid));
 
         } else {
             $sel->setSelected(array(Base_AclCommon::get_group_id('User')));
@@ -300,13 +301,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             if(!Base_User_LoginCommon::add_user($username, $mail, $pass)) {
                 return false;
             }
-            $user_id = Base_UserCommon::get_user_id($username);
-
-            $groups_new = $data['group'];
-            if(!Base_AclCommon::change_privileges($user_id, $groups_new)) {
-                print($this->t('Unable to update account data (groups).'));
-                return false;
-            }
+            $edit_id = Base_UserCommon::get_user_id($username);
         } else {
             Base_UserCommon::rename_user($edit_id, $username);
             
@@ -314,18 +309,15 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
                 print($this->t('Unable to update account data (password and mail).'));
                 return false;
             }
-
             if(!Base_UserCommon::change_active_state($edit_id, $data['active'])) {
                 print($this->t('Unable to update account data (active).'));
                 return false;
             }
-
-            $groups_new = $data['group'];
-            if(!Base_AclCommon::change_privileges($edit_id, $groups_new)) {
-                print($this->t('Unable to update account data (groups).'));
-                return false;
-            }
         }
+		if(!Base_UserCommon::change_admin($edit_id, $data['admin'])) {
+			print($this->t('Unable to update account data (admin).'));
+			return false;
+		}
         return true;
     }
 

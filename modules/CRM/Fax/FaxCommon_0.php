@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_FaxCommon extends ModuleCommon {
 	public static function attachment_getters() {
-		if(self::Instance()->acl_check('send'))
+		if(Base_AclCommon::check_permission('Fax - Send'))
 			return array('Fax'=>array('func'=>'fax_file','icon'=>null));
 	}
 	
@@ -34,7 +34,7 @@ class CRM_FaxCommon extends ModuleCommon {
 	}
 
 	public static function menu() {
-		if(!Acl::is_user() || !self::Instance()->acl_check('browse')) return array();
+		if(!Acl::is_user() || !Base_AclCommon::check_permission('Fax - Browse')) return array();
 		return array('CRM'=>array('__submenu__'=>1,'Fax'=>array()));
 	}
 	

@@ -74,88 +74,51 @@ class CRM_Contacts extends Module {
 		$this->display_module($this->rb);
 	}
 
-	public function admin(){
+	public function user_admin(){
 		if($this->is_back()) {
-			if($this->parent->get_type()=='Base_Admin')
-				$this->parent->reset();
+			if($this->parent->parent->get_type()=='Base_Admin')
+				$this->parent->parent->reset();
 			else
 				location(array());
 			return;
 		}
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-		
-		$filter = $this->get_module_variable_or_unique_href_variable('filter',1);
-		
-		if($filter) {
-			$c = CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company());
-			print('<h2>'.$this->t('"%s" contacts',array($c['company_name'])).'</h2>');
-		} else
-			print('<h2>'.$this->t('EPESI users').'</h2>');
 
-		$logins = DB::GetAssoc('SELECT id,login FROM user_login');
-		$ccc = CRM_ContactsCommon::get_contacts(array('login'=>array_keys($logins)));
+		$this->rb = $this->init_module('Utils/RecordBrowser','contact','contact');
+		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
+										'permission'=>Base_User_SettingsCommon::get('CRM_Common','default_record_permission'),
+										'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+										'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
+										'login'=>'new'));
+		$this->rb->set_default_order(array('last_name'=>'ASC', 'first_name'=>'ASC'));
+		$this->rb->set_additional_actions_method(array($this, 'user_actions'));
+		$this->rb->set_additional_caption($this->t('Users'));
+		$this->rb->disable_pdf();
+		$this->rb->disable_export();
+		$this->display_module($this->rb, array(array(), array('!login'=>''), array('work_phone'=>false, 'mobile_phone'=>false, 'city'=>false, 'zone'=>false, 'login'=>true, 'access'=>true, 'email'=>true)));
 
-		if($filter)
-			$c = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-		else
-			$c = & $ccc;
-		$gb = $this->init_module('Utils/GenericBrowser',null,'my_contacts');
-		$gb->set_table_columns(array(
-			array('name'=>$this->t('Login'),'search'=>1,'order'=>'l'),
-			array('name'=>$this->t('Contact'),'search'=>1,'order'=>'c')
-			));
-			
-		foreach($c as $r) {
-			if(isset($logins[$r['login']])) {
-				$login = $logins[$r['login']];
-			} else $login = '---';
-			if($filter) 
-				$contact = CRM_ContactsCommon::contact_format_no_company($r);
-			else
-				$contact = CRM_ContactsCommon::contact_format_default($r);
-			$gb->add_row($login,$contact);
-		}
-		$this->display_module($gb,array(true),'automatic_display');
-		
-		foreach($ccc as $v) {
-			unset($logins[$v['login']]);
-		}
-		print($this->t('Users without contact: %s.',array(implode(', ',$logins))));
+		Base_ActionBarCommon::add('edit',$this->t('E-mail header'),$this->create_callback_href(array($this,'change_email_header')));
+	}
 
-
-		Base_ActionBarCommon::add('settings', 'Change main company', $this->create_callback_href(array($this,'admin_main_company')));
-		if($filter)
-			Base_ActionBarCommon::add('view', 'Show all users', $this->create_unique_href(array('filter'=>0)));
-		else
-			Base_ActionBarCommon::add('view', 'Show main company contacts', $this->create_unique_href(array('filter'=>1)));
+    public function change_email_header() {
+		$adm = $this->init_module('Base_User_Administrator');
+		$back = $adm->is_back();
+		if ($back) return false;
+		$result = $this->display_module($adm, array(), 'change_email_header');
+		print('<span style="display:none;">'.microtime(true).'</span>');
+		return true;
 	}
 	
-	public function admin_main_company() {
-		if($this->is_back()) {
-			return false;
-		}
-		$qf = $this->init_module('Libs/QuickForm',null,'my_company');
-		$companies = CRM_ContactsCommon::get_companies(array(), array(), array('company_name'=>'ASC'), array(), true);
-		$x = array();
-		foreach($companies as $c)
-			$x['s'.$c['id']] = $c['company_name'];//.' ('.$c['short_name'].')'
-		$qf->addElement('select','company',$this->t('Choose main company'),$x);
-		$qf->addElement('static',null,null,$this->t('Contacts assigned to this company are treated as employees. You should set the main company only once.'));
-		try {
-			$main_company = Variable::get('main_company');
-			$qf->setDefaults(array('company'=>'s'.$main_company));
-		} catch(NoSuchVariableException $e) {
-		}
-
-		if($qf->validate()) {
-			Variable::set('main_company',trim($qf->exportValue('company'),'s'));
-			return false;
-		}
-		$qf->display();
-
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-		Base_ActionBarCommon::add('save', 'Save', $qf->get_submit_form_href());
-		return true;
+	public function user_actions($r, $gb_row) {
+		if (Base_UserCommon::is_active($r['login']))
+			$gb_row->add_action($this->create_callback_href(array($this,'change_user_active_state'), array($r['login'], false)), 'Deactivate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser','active-on.png'));
+		else
+			$gb_row->add_action($this->create_callback_href(array($this,'change_user_active_state'), array($r['login'], true)), 'Activate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser','active-off.png'));
+	}
+	public function change_user_active_state($user, $state) {
+		Base_UserCommon::change_active_state($user, $state);
+		return false;
 	}
 	
 	public function company_addon($arg){
@@ -266,18 +229,6 @@ class CRM_Contacts extends Module {
 												'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),											
 												'permission'=>'0')), 'view_entry');
 		$this->set_module_variable('view_or_add', 'add');
-	}
-
-	public function edit_user_form($user_id) {
-		if (!$this->isset_module_variable('last_location')) $this->set_module_variable('last_location',isset($_REQUEST['__location'])?$_REQUEST['__location']:true);
-		$m = $this->init_module('Base/User/Administrator');
-		$this->display_module($m, array($user_id), 'edit_user_form');
-//		if($m->is_back()) Epesi::alert('back');
-		if ($m->is_back() || (isset($_REQUEST['__location']) && $_REQUEST['__location']!=$this->get_module_variable('last_location'))) {
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->pop_main();
-		}
 	}
 
 	public function caption(){

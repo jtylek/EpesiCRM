@@ -16,7 +16,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	private static $user_variables;
 
 	public static function menu(){
-		if (self::Instance()->acl_check('access'))
+		if (Base_AclCommon::check_permission('Advanced User Settings'))
 			return array('My settings'=>array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array()));
 		return array();
 	}
@@ -188,7 +188,6 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 * @return bool true on success, false otherwise
 	 */
 	public static function save_admin($module,$name,$value){
-		//if (!self::Instance()->acl_check('set defaults')) return false;
 		//if ($value === null) $value = 0;
 		$module = str_replace('/','_',$module);
 		$def = self::get_default($module,$name);

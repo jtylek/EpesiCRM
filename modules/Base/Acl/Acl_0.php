@@ -1,0 +1,123 @@
+<?php
+/**
+ * AclInit class.
+ * 
+ * This class provides initialization data for Acl module.
+ * 
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
+ * @subpackage acl
+ */
+defined("_VALID_ACCESS") || die('Direct access forbidden');
+
+class Base_Acl extends Module {
+	public function admin() {
+		$all_clearances = array_flip(Base_AclCommon::get_clearance(true));
+		Base_ThemeCommon::load_css('Base_Acl', 'edit_permissions');
+
+		$gb = $this->init_module('Utils_GenericBrowser', 'acl_editor', 'acl_editor');
+		$gb->set_table_columns(array(
+			array('name'=>'&nbsp;', 'width'=>20)
+		));
+		$perms = DB::GetAssoc('SELECT id, name FROM base_acl_permission ORDER BY name ASC');
+		foreach ($perms as $p_id=>$p_name) {
+			$gb_row = $gb->get_new_row();
+			$gb_row->add_action($this->create_callback_href(array($this, 'edit_rule'), array(null, $p_id)), 'append data', $this->t('Add Rule'));
+			$gb_row->add_data(
+				array('value'=>$p_name, 'class'=>'Base_Acl__permission')
+			);
+			$perms = DB::GetAssoc('SELECT id, id FROM base_acl_rules WHERE permission_id=%d', array($p_id));
+			foreach ($perms as $r_id) {
+				$clearances = DB::GetAssoc('SELECT id, clearance FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
+				foreach ($clearances as $k=>$v)
+					$clearances[$k] = $all_clearances[$v];
+
+				$gb_row = $gb->get_new_row();
+				$gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this rule?'), array($this, 'delete_rule'), array($r_id)), 'delete', $this->t('Delete Rule'));
+				$gb_row->add_action($this->create_callback_href(array($this, 'edit_rule'), array($r_id, $p_id)), 'edit', $this->t('Edit Rule'));
+				$gb_row->add_data(
+					'<span class="Base_Acl__permissions_clearance">'.implode(' <span class="joint">'.$this->t('and').'</span> ',$clearances).'</span>'
+				);
+			}
+		}
+		$this->display_module($gb);
+		eval_js('base_acl__initialized = false;');
+	}
+	public function edit_rule($r_id, $p_id=null) {
+		if ($this->is_back())
+			return false;
+		$counts = 5;
+		$all_clearances = array(''=>'---')+array_flip(Base_AclCommon::get_clearance(true));
+		$current_clearance = 0;
+
+		$form = $this->init_module('Libs_QuickForm');
+		$theme = $this->init_module('Base_Theme');
+
+		$theme->assign('labels', array(
+			'and' => '<span class="joint">'.$this->t('and').'</span>',
+			'or' => '<span class="joint">'.$this->t('or').'</span>',
+			'caption' => $r_id?$this->t('Edit permission rule'):$this->t('Add permission rule'),
+			'clearance' => $this->t('Clearance requried'),
+			'fields' => $this->t('Fields allowed'),
+			'crits' => $this->t('Criteria required'),
+			'add_clearance' => $this->t('Add clearance'),
+			'add_or' => $this->t('Add criteria (or)'),
+			'add_and' => $this->t('Add criteria (and)')
+ 		));
+
+		$form->addElement('text', 'permission', $this->t('Permission'));
+		$form->setDefaults(array('permission'=>DB::GetOne('SELECT name FROM base_acl_permission WHERE id=%d', array($p_id))));
+		$form->freeze('permission');
+
+		for ($i=0; $i<$counts; $i++)
+			$form->addElement('select', 'clearance_'.$i, $this->t('Clearance'), $all_clearances);
+		
+		$i = 0;
+		$clearances = DB::GetAssoc('SELECT id, clearance FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
+		foreach ($clearances as $v) {
+			$form->setDefaults(array('clearance_'.$i=>$v));
+			$i++;
+		}
+		$current_clearance = max($i-1, 0);
+		
+		if ($form->validate()) {
+			$vals = $form->exportValues();
+			$clearances = array();
+			for ($i=0; $i<$counts; $i++)
+				if ($vals['clearance_'.$i]) $clearances[] = $vals['clearance_'.$i];
+			if ($r_id!==null) {
+				DB::Execute('DELETE FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
+			} else {
+				DB::Execute('INSERT INTO base_acl_rules (permission_id) VALUES (%d)', array($p_id));
+				$r_id = DB::Insert_ID('base_acl_rules', 'id');
+			}
+			foreach ($clearances as $c)
+				DB::Execute('INSERT INTO base_acl_rules_clearance (rule_id, clearance) VALUES (%d, %s)', array($r_id, $c));
+			return false;
+		}
+
+		$form->assign_theme('form', $theme);
+		$theme->assign('counts', $counts);
+		
+		$theme->display('edit_permissions');
+
+		load_js('modules/Base/Acl/edit_permissions.js');
+		eval_js('base_acl__init_clearance('.$current_clearance.', '.$counts.')');
+		eval_js('base_acl__initialized = true;');
+
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('delete', 'Cancel', $this->create_back_href());
+
+		return true;
+	}
+	public function delete_rule($r_id) {
+		DB::Execute('DELETE FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
+		DB::Execute('DELETE FROM base_acl_rules WHERE id=%d', array($r_id));
+		return false;
+	}
+}
+
+?>

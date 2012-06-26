@@ -1,0 +1,33 @@
+.Base_Acl__permissions_clearance .joint {
+	color: #999;
+	display: inline-block;
+	margin: 0 6px;
+}
+
+.Base_Acl__permission {
+	background-color: #E0E0EE;
+}
+
+.Base_Acl__edit_permissions select,
+.Base_Acl__edit_permissions input {
+	width: auto;
+}
+
+.Base_Acl__edit_permissions_crits {
+	overflow-x: scroll;
+}
+
+.Base_Acl__edit_permissions .field {
+	display: inline-block;
+	height: 20px;
+	width: 120px;
+	line-height: 20px;
+}
+.Base_Acl__edit_permissions .field input{
+	float: left;
+	margin: 0 5px 0 0;
+}
+
+.Base_Acl__edit_permissions .button {
+	margin: 2px;
+}

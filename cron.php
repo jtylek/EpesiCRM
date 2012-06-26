@@ -21,7 +21,7 @@ file_put_contents($lock,'');
 set_time_limit(0);
 ini_set('memory_limit', '512M');
 ModuleManager::load_modules();
-Acl::set_user(1);
+Base_AclCommon::set_user(1);
 $ret = ModuleManager::call_common_methods('cron');
 foreach($ret as $name=>$obj) {
     if(!$obj) continue;

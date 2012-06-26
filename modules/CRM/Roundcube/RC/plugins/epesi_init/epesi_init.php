@@ -22,8 +22,6 @@ class epesi_init extends rcube_plugin
     require_once('include/epesi.php');
     require_once('include/variables.php');
     require_once('include/misc.php');
-    require_once('include/acl.php');
-    require_once('include/module_acl.php');
     require_once('include/module_primitive.php');
     require_once('include/module_install.php');
     require_once('include/module_common.php');

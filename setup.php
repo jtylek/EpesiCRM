@@ -446,28 +446,6 @@ function install_base() {
 		die('Invalid SQL query - Setup module (phpgacl tables)');
 
 	DB::$ado->raiseErrorFn = $errh;
-
-	require_once('include/acl.php');
-
-	Acl::$gacl->add_object_section('Administration','Administration',1,0,'aco');
-	Acl::$gacl->add_object_section('Data','Data',2,0,'aco');
-
-	Acl::$gacl->add_object('Administration','Main','Main',1,0,'aco');
-	Acl::$gacl->add_object('Administration','Modules','Modules',2,0,'aco');
-	Acl::$gacl->add_object('Data','Moderation','Moderation',1,0,'aco');
-	Acl::$gacl->add_object('Data','View','View',2,0,'aco');
-
-	Acl::$gacl->add_object_section('Users','Users',1,0,'aro');
-
-	$user_id = Acl::$gacl->add_group('User','User');
-	$moderator_id = Acl::$gacl->add_group('Moderator','Moderator', $user_id);
-	$administrator_id = Acl::$gacl->add_group('Administrator','Administrator', $moderator_id);
-	$sa_id = Acl::$gacl->add_group('Super administrator','Super administrator', $administrator_id);
-
-	Acl::$gacl->add_acl(array('Administration' =>array('Main')), array(), array($sa_id), NULL, NULL,1,1,'','','user');
-	Acl::$gacl->add_acl(array('Administration' =>array('Modules')), array(), array($administrator_id), NULL, NULL,1,1,'','','user');
-	Acl::$gacl->add_acl(array('Data' =>array('Moderation')), array(), array($moderator_id), NULL, NULL,1,1,'','','user');
-	Acl::$gacl->add_acl(array('Data' =>array('View')), array(), array($user_id), NULL, NULL,1,1,'','','user');
 }
 //////////////////////////////////////////////
 function license() {

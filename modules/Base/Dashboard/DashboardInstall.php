@@ -79,12 +79,13 @@ class Base_DashboardInstall extends ModuleInstall {
 		}
 		Base_ThemeCommon::install_default_theme($this->get_type());
 
-		$this->add_aco('access',array('Employee', 'Administrator'));
+		Base_AclCommon::add_permission('Dashboard',array('ACCESS:employee'));
 
 		return $ret;
 	}
 	
 	public function uninstall() {
+		Base_AclCommon::delete_permission('Dashboard');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		$ret = true;
 		$ret &= DB::DropTable('base_dashboard_settings');

@@ -166,7 +166,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$form->setDefaults(array('duration_switch'=>$duration_switch));
 			$form->setDefaults(array($field=>$default));
 			$form->setDefaults(array('timeless'=>($default==-1?1:0)));
-			if (isset(Utils_RecordBrowser::$last_record['time']))
+			if (class_exists('Utils_RecordBrowser') && isset(Utils_RecordBrowser::$last_record['time']))
 				$form->setDefaults(array('end_time'=>strtotime('+'.$default.' seconds', Utils_RecordBrowser::$last_record['time'])));
 
 			$form->addFormRule(array('CRM_MeetingCommon','check_date_and_time'));

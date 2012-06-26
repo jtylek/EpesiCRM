@@ -41,11 +41,12 @@ class CRM_FiltersInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
-		$this->add_aco('manage','Employee');
+		Base_AclCommon::add_permission('Manage Perspective',array('ACCESS:employee'));
 		return $ret;
 	}
 
 	public function uninstall() {
+		Base_AclCommon::delete_permission('Manage Perspective');
 		$ret = true;
 		$ret &= DB::DropTable('crm_filters_contacts');
 		$ret &= DB::DropTable('crm_filters_group');

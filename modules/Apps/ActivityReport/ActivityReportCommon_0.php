@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_ActivityReportCommon extends ModuleCommon {
 	public static function menu(){
-	    if(self::Instance()->acl_check('access'))
+	    if(Base_AclCommon::check_permission('View Activity Report'))
     		return array('Reports'=>array_merge(array('__submenu__'=>1,'User Activity Report'=>array())));
 	}
 

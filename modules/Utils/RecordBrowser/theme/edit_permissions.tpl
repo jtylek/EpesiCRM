@@ -83,6 +83,7 @@
 				{/foreach}
 			</td>
 		</tr>
+	</table>
 
 </div>
 
