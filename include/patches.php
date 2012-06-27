@@ -204,7 +204,7 @@ class Patch {
     static function cmp_by_date($patch1, $patch2) {
         $p1_date = $patch1->get_creation_date();
         $p2_date = $patch2->get_creation_date();
-        if (!$p1_date && !$p2_date)
+        if ((!$p1_date && !$p2_date) || $p1_date == $p2_date)
             return strcmp($patch1->file, $patch2->file);
         if (!$p1_date)
             return -1;
