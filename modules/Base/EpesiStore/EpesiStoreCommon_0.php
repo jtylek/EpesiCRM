@@ -211,6 +211,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if (!$hash_or_url)
             throw new ErrorException("Prepare error");
         $file_contents = Base_EssClientCommon::server()->download_prepared_file($hash_or_url);
+        if (!$file_contents)
+            throw new ErrorException('File download error. See user messages for more info.');
         // check hash if it wasn't external package
         if (!self::is_url($hash_or_url) && sha1($file_contents) !== $hash_or_url)
             throw new ErrorException('File hash error');
