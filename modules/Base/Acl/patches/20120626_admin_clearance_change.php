@@ -3,7 +3,7 @@
 PatchUtil::db_add_column('user_login','admin','I');
 
 function get_acl_user_id($user_id) {
-	$sql = 'SELECT id FROM aro WHERE section_value='. $this->db->quote('Users') .' AND value='. $this->db->quote($user_id);
+	$sql = 'SELECT id FROM aro WHERE section_value='. DB::qstr('Users') .' AND value='. DB::qstr($user_id);
 	return DB::GetOne($sql);
 }
 
@@ -15,7 +15,7 @@ function is_user_in_group($uid,$group) {
 	$map_table = 'groups_aro_map';
 	$query = 'SELECT gm.group_id FROM '.$map_table.' gm';
 	$query .= 'WHERE gm.'. $object_type .'_id='. $object_id;
-	$rs = $this->db->Execute($query);
+	$rs = DB::Execute($query);
 	$groups_arr = array();
 	while ($row = $rs->FetchRow()) {
 		$groups_arr[] = $row[0];
@@ -29,7 +29,7 @@ function is_user_in_group($uid,$group) {
 		$group_type = 'aro';
 		$table = 'aro_groups';
 		$query  = 'SELECT id, parent_id, value, name, lft, rgt FROM '. $table .' WHERE id='. $group_id;
-		$arr = $this->db->GetRow($query);
+		$arr = DB::GetRow($query);
 		// END
 		if($arr[3]==$group) return true;
 	}
