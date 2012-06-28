@@ -82,6 +82,7 @@ class CRM_Contacts extends Module {
 				location(array());
 			return;
 		}
+		if (!Base_AclCommon::i_am_admin()) return false;
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 
 		$this->rb = $this->init_module('Utils/RecordBrowser','contact','contact');
@@ -98,7 +99,7 @@ class CRM_Contacts extends Module {
 		$this->rb->disable_export();
 		$this->display_module($this->rb, array(array(), array('!login'=>''), array('work_phone'=>false, 'mobile_phone'=>false, 'city'=>false, 'zone'=>false, 'login'=>true, 'access'=>true, 'email'=>true)));
 
-		Base_ActionBarCommon::add('edit',$this->t('E-mail header'),$this->create_callback_href(array($this,'change_email_header')));
+		Base_ActionBarCommon::add('edit',$this->t('E-mail header'),$this->create_callback_href(array($this,'change_email_header')),$this->t('Edit the header of the message that is sent to each newly created user'));
 	}
 
     public function change_email_header() {
@@ -111,9 +112,15 @@ class CRM_Contacts extends Module {
 	}
 	
 	public function user_actions($r, $gb_row) {
-		if (Base_UserCommon::is_active($r['login']))
+		if (Base_UserCommon::is_active($r['login'])) {
 			$gb_row->add_action($this->create_callback_href(array($this,'change_user_active_state'), array($r['login'], false)), 'Deactivate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser','active-on.png'));
-		else
+			$gb_row->add_action(Module::create_href(array('log_as_user'=>$r['login'])), 'Log as user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser','restore.png'));
+			if (isset($_REQUEST['log_as_user']) && $_REQUEST['log_as_user']==$r['login']) {
+				Acl::set_user($r['login'], true);
+				Epesi::redirect();
+				return;
+			}
+		} else
 			$gb_row->add_action($this->create_callback_href(array($this,'change_user_active_state'), array($r['login'], true)), 'Activate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser','active-off.png'));
 	}
 	public function change_user_active_state($user, $state) {

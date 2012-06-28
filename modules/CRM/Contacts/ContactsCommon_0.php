@@ -812,7 +812,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if ($rb!==null && isset($rb->record['login']) && $rb->record['login'] && is_numeric($rb->record['login'])) {
 			$default = Base_AclCommon::get_admin_level($rb->record['login']);
 		}
-		$form->addElement('select', $field, $label, array(0=>Base_LangCommon::ts('CRM_Contacts','No'), 1=>Base_LangCommon::ts('CRM_Contacts','Administrator'), 2=>Base_LangCommon::ts('CRM_Contacts','Super Administrator')));
+		$form->addElement('select', $field, $label, array(0=>Base_LangCommon::ts('CRM_Contacts','No'), 1=>Base_LangCommon::ts('CRM_Contacts','Administrator'), 2=>Base_LangCommon::ts('CRM_Contacts','Super Administrator')), array('id'=>'contact_admin'));
         $form->setDefaults(array($field=>$default));
 		return;
 	}
@@ -832,60 +832,61 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->setDefaults(array($field=>self::display_login(array('login'=>$default), true, array('id'=>'login'))));
             return;
         }
-        if (($default!=='' && !Base_AclCommon::i_am_admin()) || $mode=='view') {
-            $form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'---'));
-            $form->setDefaults(array($field=>$default));
-            $form->freeze($field);
-        } else {
-            $ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
-            $users = array(''=>'---', 'new'=>'['.Base_LangCommon::ts('CRM_ContactsCommon','create new user').']');
-            while ($row=$ret->FetchRow()) {
-                $contact_id = Utils_RecordBrowserCommon::get_id('contact','login',$row['id']);
-                if ($contact_id===false || $contact_id===null || ($row['id']===$default && $mode!='add'))
-                    if (Base_AclCommon::i_am_admin() || $row['id']==Acl::get_user())
-                        $users[$row['id']] = $row['login'];
-            }
-            $form->addElement('select', $field, $label, $users, array('id'=>'crm_contacts_select_user'));
-            $form->setDefaults(array($field=>$default));
+		if (($default!=='' && !Base_AclCommon::i_am_admin()) || $mode=='view') {
+			$form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'---'));
+			$form->setDefaults(array($field=>$default));
+			$form->freeze($field);
+		} else {
+			$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
+			$users = array(''=>'---', 'new'=>'['.Base_LangCommon::ts('CRM_ContactsCommon','create new user').']');
+			while ($row=$ret->FetchRow()) {
+				$contact_id = Utils_RecordBrowserCommon::get_id('contact','login',$row['id']);
+				if ($contact_id===false || $contact_id===null || ($row['id']===$default && $mode!='add'))
+					if (Base_AclCommon::i_am_admin() || $row['id']==Acl::get_user())
+						$users[$row['id']] = $row['login'];
+			}
+			$form->addElement('select', $field, $label, $users, array('id'=>'crm_contacts_select_user'));
+			$form->setDefaults(array($field=>$default));
+			if ($default=='new') $form->freeze($field);
 			eval_js('new_user_textfield = function(){'.
 					'$("username").up("tr").style.display = ($("crm_contacts_select_user").value=="new"?"":"none");'.
-					'$("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'$("contact_admin").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
 					'}');
 			eval_js('new_user_textfield();');
 			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
-        }
-    }
+		}
+	}
 
-    public static function check_new_username($arg) {
-        if ($arg['login']!='new') return true;
+	public static function check_new_username($arg) {
+		if ($arg['login']!='new') return true;
 		$ret = array();
-        if (!$arg['email']) $ret['email'] = Base_LangCommon::ts('CRM/Contacts','E-mail is required when creating new user.');
-        if (strlen($arg['username'])<3 || strlen($arg['username'])>32) $ret['username'] = Base_LangCommon::ts('CRM/Contacts','A username must be between 3 and 32 chars');
-        if (Base_UserCommon::get_user_id($arg['username'])) $ret['username'] = Base_LangCommon::ts('Base/User/Administrator','Username already taken');
-        if (!$arg['username']) $ret['username'] = Base_LangCommon::ts('Libs/QuickForm','Field required');
-        return empty($ret)?true:$ret;
-    }
+		if (!$arg['email']) $ret['email'] = Base_LangCommon::ts('CRM/Contacts','E-mail is required when creating new user.');
+		if (strlen($arg['username'])<3 || strlen($arg['username'])>32) $ret['username'] = Base_LangCommon::ts('CRM/Contacts','A username must be between 3 and 32 chars');
+		if (Base_UserCommon::get_user_id($arg['username'])) $ret['username'] = Base_LangCommon::ts('Base/User/Administrator','Username already taken');
+		if (!$arg['username']) $ret['username'] = Base_LangCommon::ts('Libs/QuickForm','Field required');
+		return empty($ret)?true:$ret;
+	}
 
-    public static function create_map_href($r) {
-        return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
-    }
+	public static function create_map_href($r) {
+		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
+	}
 
-    public static function create_home_map_href($r) {
-        return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['home_address_1'].' '.$r['home_address_2'].', '.$r['home_city'].', '.$r['home_postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['home_country']))).'" target="_blank"';
-    }
+	public static function create_home_map_href($r) {
+		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['home_address_1'].' '.$r['home_address_2'].', '.$r['home_city'].', '.$r['home_postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['home_country']))).'" target="_blank"';
+	}
 
-    public static function maplink($r,$nolink,$desc) {
-        if (!$nolink) return Utils_TooltipCommon::create('<a '.self::create_map_href($r).'>'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
-        return $r[$desc['id']];
-    }
+	public static function maplink($r,$nolink,$desc) {
+		if (!$nolink) return Utils_TooltipCommon::create('<a '.self::create_map_href($r).'>'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
+		return $r[$desc['id']];
+	}
 
-    public static function home_maplink($r,$nolink,$desc) {
-        if (!$nolink) return Utils_TooltipCommon::create('<a '.self::create_home_map_href($r).'>'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
-        return $r[$desc['id']];
-    }
+	public static function home_maplink($r,$nolink,$desc) {
+		if (!$nolink) return Utils_TooltipCommon::create('<a '.self::create_home_map_href($r).'>'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
+		return $r[$desc['id']];
+	}
 
-    public static function display_phone($r,$nolink,$desc) {
-//      Does not return href="tel:
+	public static function display_phone($r,$nolink,$desc) {
+	//      Does not return href="tel:
 //      if(MOBILE_DEVICE && IPHONE && !$nolink && preg_match('/^([0-9\t\+-]+)/',$r[$desc['id']],$args))
 //          return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
 

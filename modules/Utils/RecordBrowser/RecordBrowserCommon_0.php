@@ -1074,10 +1074,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						continue;
 					}
 				}
+				if ($operator==DB::like())
+					$operator = '=';
 				$v = $allowed_cd;
 				$k = $ref;
 			}
-		self::init($tab);
+			self::init($tab);
             if (!isset(self::$table_rows[$k]) && $k[0]!=':' && $k!=='id' && !isset(self::$table_rows[self::$hash[$k]])) continue; //failsafe
             if ($k[0]==':') {
                 switch ($k) {
@@ -2604,9 +2606,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             if (!isset($multi_adv_params['cols'])) $multi_adv_params['cols'] = array();
                             if (!isset($multi_adv_params['format_callback'])) $multi_adv_params['format_callback'] = array();
                             $ref = $ref[0];
-                            @(list($tab, $col) = explode('::',$ref));
+                            @(list($tab2, $col) = explode('::',$ref));
                             if (!isset($col)) trigger_error($field);
-                            if ($tab=='__COMMON__') {
+                            if ($tab2=='__COMMON__') {
                                 $data = Utils_CommonDataCommon::get_translated_tree($col);
                                 if (!is_array($data)) $data = array();
                                 $comp = $comp+$data;
@@ -2625,7 +2627,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 $col = explode('|',$col);
                                 $col_id = array();
                                 foreach ($col as $c) $col_id[] = self::get_field_id($c);
-                                $records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
+                                $records = Utils_RecordBrowserCommon::get_records($tab2, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
                                 $ext_rec = array();
                                 if (isset($rec[$args['id']])) {
                                     if (!is_array($rec[$args['id']])) {
@@ -2644,7 +2646,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 if (isset($rec[$args['id']])) {
                                     $ext_rec = array_flip($rec[$args['id']]);
                                     foreach($ext_rec as $k=>$v) {
-                                        $c = Utils_RecordBrowserCommon::get_record($tab, $k);
+                                        $c = Utils_RecordBrowserCommon::get_record($tab2, $k);
                                         if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $c);
                                         else {
                                             if ($single_column) $n = $c[$col_id[0]];
@@ -2713,7 +2715,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach ($cols as $v) {
                 if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]=0;
                 elseif($v['type']=='date') {
-                    if($values[$v['id']]['Y']!=='' && $values[$v['id']]['M']!=='' && $values[$v['id']]['d']!=='')
+                    if(is_array($values[$v['id']]) && $values[$v['id']]['Y']!=='' && $values[$v['id']]['M']!=='' && $values[$v['id']]['d']!=='')
                         $values[$v['id']] = $values[$v['id']]['Y'].'-'.$values[$v['id']]['M'].'-'.$values[$v['id']]['d'];
                     else
                         $values[$v['id']] = '';

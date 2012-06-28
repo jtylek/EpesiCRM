@@ -13,6 +13,7 @@ class CRM_Filters extends Module {
 	private $contacts_select;
 
 	public function body() {
+		if (!Acl::is_user()) return;
 		$th = $this->init_module('Base/Theme');
 		$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
 		$display_icon = ($display_settings == 'both' || $display_settings == 'icons only');
