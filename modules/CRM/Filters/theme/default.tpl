@@ -61,7 +61,7 @@
 <br>
 
 {if !empty($filters)}
-	<table id="CRM_Filters" cellspacing="0" cellpadding="0" style="width:300px;">
+	<table id="CRM_Filters" cellspacing="0" cellpadding="0">
 		<tr>
 			<td colspan="4" class="epesi_label header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</td>
 		</tr>
