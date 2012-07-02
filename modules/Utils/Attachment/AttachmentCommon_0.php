@@ -128,7 +128,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 					$view = call_user_func_array($func,unserialize($row['args']));
 				}
 				if(!$view) continue;
-				$ret[$row['id']] = $this->t('Note: ').$view;
+				$ret[$row['id']] = Base_LangCommon::ts('Utils_Attachment','Note: ').$view;
 			} else {
 				$ret[] = array('id'=>$row['id'],'group'=>$row['local']);
 			}
