@@ -13,7 +13,7 @@ function is_user_in_group($uid,$group) {
 	$object_type = 'aro';
 	$group_table = 'aro_groups';
 	$map_table = 'groups_aro_map';
-	$query = 'SELECT gm.group_id FROM '.$map_table.' gm';
+	$query = 'SELECT gm.group_id FROM '.$map_table.' gm ';
 	$query .= 'WHERE gm.'. $object_type .'_id='. $object_id;
 	$rs = DB::Execute($query);
 	$groups_arr = array();
