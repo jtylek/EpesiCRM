@@ -42,7 +42,8 @@ class CRM_Filters extends Module {
 
 		$qf = $this->init_module('Libs/QuickForm');
 		$fcallback = array('CRM_ContactsCommon', 'contact_format_no_company');
-		$recent_crits = array('(:Recent'=>true, '|:Fav'=>true);
+		$recent_crits = array();
+		if (!Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')) $recent_crits = array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company()));
 		$contacts = CRM_ContactsCommon::get_contacts($recent_crits,array(),array(),15);
 		$cont = array();
 		foreach ($contacts as $v) { 
