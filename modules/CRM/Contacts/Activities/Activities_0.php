@@ -173,6 +173,7 @@ class CRM_Contacts_Activities extends Module {
 					else $view_href = $this->create_callback_href(array($this, 'view_event'), array($v['id']));
 					$title = '<a '.$view_href.'>'.$v['title'].'</a>';
 					if (isset($v['description']) && $v['description']!='') $title = '<span '.Utils_TooltipCommon::open_tag_attrs($v['description'], false).'>'.$title.'</span>';
+					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('crm_meeting', $v['id']));
 					$gb_row->add_data(	$this->t('Meeting'),
 								$title, 
 								Base_RegionalSettingsCommon::time2reg($v['start'],$v['duration']==-1?false:2), 
@@ -184,7 +185,7 @@ class CRM_Contacts_Activities extends Module {
 			} elseif($t['deadline'] == $maxt) {
 				$v = array_shift($tasks);
 				if($i>=$limit['offset'] && $v) {
-					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', isset($info)?$info:$v['id']));
+					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', $v['id']));
 					$gb_row->add_data(	$this->t('Task'), 
 								CRM_TasksCommon::display_title($v, false), 
 								(!isset($v['deadline']) || !$v['deadline'])?$this->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline'],false,true,false), 
@@ -196,7 +197,7 @@ class CRM_Contacts_Activities extends Module {
 			} else {
 				$v = array_shift($phonecalls);
 				if($i>=$limit['offset'] && $v) {
-					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', isset($info)?$info:$v['id']));
+					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', $v['id']));
 					$gb_row->add_data(	$this->t('Phone Call'), 
 								CRM_PhoneCallCommon::display_subject($v), 
 								Base_RegionalSettingsCommon::time2reg($v['date_and_time'],2), 
