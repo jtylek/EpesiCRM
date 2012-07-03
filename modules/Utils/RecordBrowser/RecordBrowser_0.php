@@ -42,6 +42,7 @@ class Utils_RecordBrowser extends Module {
     private $enable_export = false;
 	private $search_calculated_callback = false;
 	private $fields_in_tabs = array();
+	private $hide_tab = array();
     public $action = 'Browsing';
     public $custom_defaults = array();
     public static $admin_filter = '';
@@ -85,6 +86,10 @@ class Utils_RecordBrowser extends Module {
 
     public function switch_to_addon($arg) {
         $this->switch_to_addon = $arg;
+    }
+
+    public function hide_tab($tab) {
+        $this->hide_tab[$tab] = true;
     }
 
     public function get_custom_defaults(){
@@ -1288,7 +1293,7 @@ class Utils_RecordBrowser extends Module {
                     break;
                 }
             }
-            if ($valid_page && $pos - $last_page>1) {
+            if ($valid_page && $pos - $last_page>1 && !isset($this->hide_tab[$label])) {
 				$tb->set_tab($this->ts($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols, $this->ts($label)), $js); // TRSL
 				if ($hide_page) {
 					eval_js('$("'.$tb->get_tab_id($this->ts($label)).'").style.display="none";');
