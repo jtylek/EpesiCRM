@@ -122,6 +122,14 @@ class Utils_TabbedBrowser extends Module {
 		return $body;
 	}
 	
+	public function tab_icon($caption, $icon=false) {
+		$id = $this->get_tab_id($caption).'_icon';
+		if ($icon)
+			eval_js('var img=$("'.$id.'");img.src="'.$icon.'";img.style.display="";');
+		else
+			eval_js('var img=$("'.$id.'");img.style.display="none";');
+	}
+	
 	public function get_tab_id($caption) {
 		if (!isset($this->tabs[$caption])) return null;
 		return escapeJS($this->get_path(),true,false).'_c'.$this->tabs[$caption]['id'];
@@ -133,12 +141,13 @@ class Utils_TabbedBrowser extends Module {
 		$path = escapeJS($this->get_path());
 		if($this->page==$i) $selected = ' class="tabbed_browser_selected"';
 			else $selected = ' class="tabbed_browser_unselected"';
+		$icon = '<img class="tab_icon" id="'.$this->get_tab_id($caption).'_icon" src="" style="display:none;">';
 		if (isset($val['href']) && $val['href'])
-			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' '.$val['href'].'>'.$caption.'</span>';
+			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' '.$val['href'].'>'.$caption.$icon.'</span>';
 		elseif ($val['js'])
-			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.'>'.$caption.'</span>';
+			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.'>'.$caption.$icon.'</span>';
 		else
-			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.'</span>';
+			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.$icon.'</span>';
 		return $link;
 	}
 	

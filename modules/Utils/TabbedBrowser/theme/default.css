@@ -108,6 +108,11 @@ ul.Utils_TabbedBrowser li a {
 ul.Utils_TabbedBrowser li img {
 	padding: 0px;
 }
+ul.Utils_TabbedBrowser li img.tab_icon {
+	position: absolute;
+	right: -5px;
+	top: -4px;
+}
 
 ul.Utils_TabbedBrowser span:hover {
 	cursor: pointer;

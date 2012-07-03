@@ -41,6 +41,7 @@ class Utils_RecordBrowser extends Module {
     private $additional_caption = '';
     private $enable_export = false;
 	private $search_calculated_callback = false;
+	private $fields_in_tabs = array();
     public $action = 'Browsing';
     public $custom_defaults = array();
     public static $admin_filter = '';
@@ -1241,12 +1242,12 @@ class Utils_RecordBrowser extends Module {
 			}
         }
 
-	if ($mode=='view') {
-		$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $this->record, 'display');
-		if ($dp && is_array($dp))
-			foreach ($dp as $k=>$v)
-				$theme->assign($k, $v);
-	}
+		if ($mode=='view') {
+			$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $this->record, 'display');
+			if ($dp && is_array($dp))
+				foreach ($dp as $k=>$v)
+					$theme->assign($k, $v);
+		}
 
         if ($mode=='view' || $mode=='history') $form->freeze();
         $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
@@ -1287,7 +1288,7 @@ class Utils_RecordBrowser extends Module {
                 }
             }
             if ($valid_page && $pos - $last_page>1) {
-				$tb->set_tab($this->ts($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols), $js); // TRSL
+				$tb->set_tab($this->ts($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols, $this->ts($label)), $js); // TRSL
 				if ($hide_page) {
 					eval_js('$("'.$tb->get_tab_id($this->ts($label)).'").style.display="none";');
 					if ($default_tab===($tab_counter+1) || $tb->get_tab()==($tab_counter+1)) $default_tab = $tab_counter+2;
@@ -1326,6 +1327,20 @@ class Utils_RecordBrowser extends Module {
             print("</form>\n");
         $this->display_module($tb);
         $tb->tag();
+		
+		foreach ($this->fields_in_tabs as $label=>$fields) {
+			$highlight = false;
+			foreach ($fields as $f) {
+				$err = $form->getElementError($f);
+				if ($err) {
+					$highlight = true;
+					break;
+				}
+			}
+			if ($highlight)
+				$tb->tab_icon($label, Base_ThemeCommon::get_template_file('Utils_RecordBrowser','notify_error.png'));
+		}
+		
         if ($this->switch_to_addon) {
     	    $this->set_module_variable('switch_to_addon',false);
             if($tab_counter<0) $tab_counter=0;
@@ -1358,7 +1373,7 @@ class Utils_RecordBrowser extends Module {
         print('Addon is broken, please contact system administrator.');
     }
 
-    public function view_entry_details($from, $to, $data, $theme=null, $main_page = false, $cols = 2){
+    public function view_entry_details($from, $to, $data, $theme=null, $main_page = false, $cols = 2, $tab_label = null){
         if ($theme==null) $theme = $this->init_module('Base/Theme');
         $fields = array();
         $longfields = array();
@@ -1366,6 +1381,7 @@ class Utils_RecordBrowser extends Module {
             if (!isset($data[$args['id']]) || $data[$args['id']]['type']=='hidden') continue;
             if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to))
             {
+				if ($tab_label) $this->fields_in_tabs[$tab_label][] = $args['id'];
                 if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
                     $arr = array(   'label'=>$data[$args['id']]['label'],
                                     'element'=>$args['id'],
