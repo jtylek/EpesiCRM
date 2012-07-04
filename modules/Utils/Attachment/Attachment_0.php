@@ -469,12 +469,12 @@ class Utils_Attachment extends Module {
 		DB::Execute('UPDATE utils_attachment_link SET sticky=%b WHERE id=%d',array($oryg['sticky'],$id));
 
 		if(isset($_SESSION['attachment_cut']) && $_SESSION['attachment_cut']) {
-			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($_SESSION['attachment_copy']['id']));			
-			if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_r_'.$_SESSION['attachment_copy']['id']);				
+			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($_SESSION['attachment_copy']['id']));
+//			if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_r_'.$_SESSION['attachment_copy']['id']);				
+// In here we should add "cut" event on note instead
 		}
 
 		unset($_SESSION['attachment_copy']);
-		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_p_'.$id);
 	}
 
 	public function get_file($row, & $view_link = '') {

@@ -103,6 +103,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			rename($file,$dest_file);
 			if ($add_func) call_user_func($add_func,$id,0,$dest_file,$oryg,$add_args);
 		}
+		$param = explode('/', $group);
+		if (isset($param[1]) && Utils_WatchdogCommon::get_category_id($param[0])!==null) {
+			Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$id);
+		}
 		return $id;
 	}
 
