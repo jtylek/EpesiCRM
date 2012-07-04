@@ -858,7 +858,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 
 	public static function check_new_username($arg) {
-		if ($arg['login']!='new') return true;
+		if (isset($arg['login']) && $arg['login']!='new') return true;
 		$ret = array();
 		if (!$arg['email']) $ret['email'] = Base_LangCommon::ts('CRM/Contacts','E-mail is required when creating new user.');
 		if (strlen($arg['username'])<3 || strlen($arg['username'])>32) $ret['username'] = Base_LangCommon::ts('CRM/Contacts','A username must be between 3 and 32 chars');
