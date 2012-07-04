@@ -15,6 +15,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Acl extends Module {
 	public function admin() {
+		if ($this->is_back()) {
+			$this->parent->reset();
+		}
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+
 		$all_clearances = array_flip(Base_AclCommon::get_clearance(true));
 		Base_ThemeCommon::load_css('Base_Acl', 'edit_permissions');
 
@@ -23,12 +28,13 @@ class Base_Acl extends Module {
 			array('name'=>'&nbsp;', 'width'=>20)
 		));
 		$perms = DB::GetAssoc('SELECT id, name FROM base_acl_permission ORDER BY name ASC');
+		Base_ActionBarCommon::add('add', 'Add rule', $this->create_callback_href(array($this, 'edit_rule'), array(null, null)));
 		foreach ($perms as $p_id=>$p_name) {
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_action($this->create_callback_href(array($this, 'edit_rule'), array(null, $p_id)), 'append data', $this->t('Add Rule'));
 			$gb_row->add_data(
-				array('value'=>$p_name, 'class'=>'Base_Acl__permission')
+				array('value'=>$p_name, 'class'=>'Base_Acl__permission', 'attrs'=>'colspan="2"')
 			);
+			$gb_row->no_actions();
 			$perms = DB::GetAssoc('SELECT id, id FROM base_acl_rules WHERE permission_id=%d', array($p_id));
 			foreach ($perms as $r_id) {
 				$clearances = DB::GetAssoc('SELECT id, clearance FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
@@ -51,6 +57,7 @@ class Base_Acl extends Module {
 			return false;
 		$counts = 5;
 		$all_clearances = array(''=>'---')+array_flip(Base_AclCommon::get_clearance(true));
+		$perms = array(''=>'---')+DB::GetAssoc('SELECT id, name FROM base_acl_permission ORDER BY name ASC');
 		$current_clearance = 0;
 
 		$form = $this->init_module('Libs_QuickForm');
@@ -68,9 +75,13 @@ class Base_Acl extends Module {
 			'add_and' => $this->t('Add criteria (and)')
  		));
 
-		$form->addElement('text', 'permission', $this->t('Permission'));
-		$form->setDefaults(array('permission'=>DB::GetOne('SELECT name FROM base_acl_permission WHERE id=%d', array($p_id))));
-		$form->freeze('permission');
+		$form->addElement('select', 'permission', $this->t('Permission'), $perms);
+		if ($p_id) {
+			$form->setDefaults(array('permission'=>$p_id));
+			$form->freeze('permission');
+		} else {
+			$form->addRule('required', 'permission', $this->t('Field required'));
+		}
 
 		for ($i=0; $i<$counts; $i++)
 			$form->addElement('select', 'clearance_'.$i, $this->t('Clearance'), $all_clearances);
@@ -91,6 +102,7 @@ class Base_Acl extends Module {
 			if ($r_id!==null) {
 				DB::Execute('DELETE FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
 			} else {
+				if (!$p_id) $p_id = $vals['permission'];
 				DB::Execute('INSERT INTO base_acl_rules (permission_id) VALUES (%d)', array($p_id));
 				$r_id = DB::Insert_ID('base_acl_rules', 'id');
 			}

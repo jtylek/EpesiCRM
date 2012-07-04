@@ -105,6 +105,10 @@ class Utils_GenericBrowser_Row_Object {
 	public function add_js($js){
 		$this->GBobj->__add_row_js($this->num, $js);
 	}
+	
+	public function no_actions() {
+		$this->GBobj->no_action($this->num);
+	}
 
 }
 
@@ -127,6 +131,7 @@ class Utils_GenericBrowser extends Module {
 	private $table_prefix = '';
 	private $table_postfix = '';
 	private $absolute_width = false;
+	private $no_actions = array();
 	private static $possible_vals_for_per_page=array(5=>5,10=>10,15=>15,20=>20,25=>25,30=>30,40=>40,50=>50);
 	public $form_s = null;
 
@@ -134,6 +139,10 @@ class Utils_GenericBrowser extends Module {
 		$this->form_s = $this->init_module('Libs/QuickForm');
 		if (is_numeric($this->get_instance_id()))
 			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',<construct args>, \'instance name here\');',E_USER_ERROR);
+	}
+	
+	public function no_action($num) {
+		$this->no_actions[$num] = true;
 	}
 
 	public function set_custom_label($arg, $args=''){
@@ -942,8 +951,12 @@ class Utils_GenericBrowser extends Module {
 					$settings = Base_User_SettingsCommon::get('Utils_GenericBrowser', 'zoom_actions');
 					if ($settings==2 || ($settings==1 && detect_iphone()))
 						$col[$column_no]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,true);"';
-				} else $col[$column_no]['label'] = '&nbsp;';
+				} else {
+					$col[$column_no]['label'] = '&nbsp;';
+				}
 				$col[$column_no]['attrs'] .= 'nowrap="nowrap"'.' class="Utils_GenericBrowser__td"';
+				if (isset($this->no_actions[$i]))
+					$col[$column_no]['attrs'] .= ' style="display:none;"';
 			}
 			foreach($r as $k=>$v) {
 				if (is_array($v) && isset($v['dummy'])) $v['style'] = 'display:none;';
