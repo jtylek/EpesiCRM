@@ -432,20 +432,6 @@ function install_base() {
 	if($ret === false)
 		die('Invalid SQL query - Setup module (populating variables)');
 
-	//phpgacl
-	require( "libs/adodb/adodb-xmlschema.inc.php" );
-
-	$errh = DB::$ado->raiseErrorFn;
-	DB::$ado->raiseErrorFn = false;
-
-	$schema = new adoSchema(DB::$ado);
-	$schema->ParseSchema('libs/phpgacl/schema.xml');
-	$schema->ContinueOnError(TRUE);
-	$ret = $schema->ExecuteSchema();
-	if($ret===false)
-		die('Invalid SQL query - Setup module (phpgacl tables)');
-
-	DB::$ado->raiseErrorFn = $errh;
 }
 //////////////////////////////////////////////
 function license() {
