@@ -2197,13 +2197,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $param = explode(';', $params);
         $ref = explode('::', $param[0]);
         $fields = explode('|', $ref[1]);
-        $crits = array();
+        $crits2 = array();
         $str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
         $op = '(';
         foreach ($fields as $f) {
-            $crits[$op.'~"'.self::get_field_id($f)] = $str;
+            $crits2[$op.'~"'.self::get_field_id($f)] = $str;
             $op = '|';
         }
+        $crits = self::merge_crits($crits,$crits2);
         $records = self::get_records($ref[0], $crits, array(), array(), 10);
         $ret = array();
         foreach ($records as $r) {
