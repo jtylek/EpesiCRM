@@ -192,7 +192,7 @@ class CRM_Roundcube extends Module {
         $x->push_main('CRM_Roundcube','body',array(array(),$id));
     }
 
-    public function applet($conf, $opts) {
+    public function applet($conf, & $opts) {
         Epesi::load_js('modules/CRM/Roundcube/utils.js');
         $opts['go'] = true;
         $accounts = array();

@@ -37,7 +37,7 @@ class Applets_Clock extends Module {
 		print('<BR>'.Base_RegionalSettingsCommon::time2reg(null,false).'</center>');
 	}
 	
-	public function applet($conf, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
+	public function applet($conf, & $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		$opts['toggle'] = false;
 		$opts['go'] = true;
 		$skin = isset($conf['skin'])?$conf['skin']:null;

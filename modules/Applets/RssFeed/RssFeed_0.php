@@ -15,7 +15,7 @@ class Applets_RssFeed extends Module {
 	public function body(&$x) {
 	}
 
-	public function applet($values, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
+	public function applet($values, & $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		if (!$values['title']) {
 			$values['title'] = $this->t('RSS feed');
 		}

@@ -23,7 +23,7 @@ class CRM_Meeting extends Module {
 		$this->display_module($this->rb);
 	}
 
-	public function applet($conf,$opts) {
+	public function applet($conf, & $opts) {
 		$opts['go'] = true;
 		$opts['title'] = Base_LangCommon::ts('CRM/Meeting','Meetings');
 		$me = CRM_ContactsCommon::get_my_record();

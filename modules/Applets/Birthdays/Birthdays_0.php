@@ -16,7 +16,7 @@ class Applets_Birthdays extends Module {
 	public function body() {
 	}
 
-public function applet($conf,$opts) {
+public function applet($conf, & $opts) {
 		//available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		$opts['go'] = false; // enable/disable full screen
 		$opts['title'] = $conf['title'];

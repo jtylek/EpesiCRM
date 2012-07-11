@@ -121,7 +121,7 @@ class Apps_Shoutbox extends Module {
 		DB::Execute('DELETE FROM apps_shoutbox_messages');
 	}
 
-	public function applet($conf,$opts) {
+	public function applet($conf, & $opts) {
 		$opts['go'] = true;
 		$this->chat();
     }

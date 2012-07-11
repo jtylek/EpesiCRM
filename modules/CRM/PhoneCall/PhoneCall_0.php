@@ -31,7 +31,7 @@ class CRM_PhoneCall extends Module {
 		if (isset($this->rb)) return $this->rb->caption();
 	}
 
-	public function applet($conf,$opts) {
+	public function applet($conf, & $opts) {
 		$opts['go'] = true;
 		$rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
 		$me = CRM_ContactsCommon::get_my_record();

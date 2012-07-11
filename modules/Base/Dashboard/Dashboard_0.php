@@ -181,7 +181,7 @@ class Base_Dashboard extends Module {
 				$th = $this->init_module('Base/Theme');
 
 				if ($config_mode || !$m) $content = '';
-				else $content = $this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), & $opts, $row['id']),'applet');
+				else $content = $this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), $opts, $row['id']),'applet');
 				$th->assign('content','<div class="content">'.
 						$content.
 						'</div>');

@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die();
 class CRM_Contacts extends Module {
 	private $rb = null;
 
-	public function applet($conf, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
+	public function applet($conf, & $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		$opts['go'] = 1;
 		$mode = 'contact';
 		$rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);

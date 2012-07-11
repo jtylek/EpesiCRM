@@ -29,7 +29,7 @@ class Utils_Watchdog extends Module {
 		return false;
 	}
 	
-	public function applet($conf, $opts) {
+	public function applet($conf, & $opts) {
 		$categories = array();
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		foreach ($methods as $k=>$v) { 

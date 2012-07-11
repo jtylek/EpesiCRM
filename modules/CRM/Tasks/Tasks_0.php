@@ -26,7 +26,7 @@ class CRM_Tasks extends Module {
 		$this->display_module($this->rb);
 	}
 	
-	public function applet($conf,$opts) {
+	public function applet($conf, & $opts) {
 		$opts['go'] = true;
 		$opts['title'] = Base_LangCommon::ts('CRM/Tasks','Tasks').
 						($conf['related']==0?Base_LangCommon::ts('CRM/Tasks',' - Todo'):'').

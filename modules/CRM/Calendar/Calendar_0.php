@@ -147,7 +147,7 @@ class CRM_Calendar extends Module {
 		return $this->lp->get_href_js(array($timestamp, $timeless));
 	}
 	
-	public function applet($conf,$opts) {
+	public function applet($conf, & $opts) {
 		$opts['go'] = true;
 
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agendaX');
