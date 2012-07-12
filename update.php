@@ -91,44 +91,6 @@ function install_default_theme_common_files($dir,$f) {
 	}
 }
 
-function langup(){
-	global $translations;
-	$ret = DB::Execute('SELECT * FROM modules');
-	$trans_backup = $translations;
-	$trans = array();
-	while($row = $ret->FetchRow()) {
-		$mod_name = $row[0];
-		if ($mod_name=='Base') continue;
-		if ($mod_name=='Tests') continue;
-		$directory = 'modules/'.str_replace('_','/',$mod_name).'/lang';
-		if (!is_dir($directory)) continue;
-		$content = scandir($directory);
-		foreach ($content as $name){
-			if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
-			$dot = strpos($name,'.');
-			$langcode = substr($name,0,$dot);
-			if (strtolower(substr($name,$dot+1))!='php') continue;
-			if(!isset($trans[$langcode])) {
-				$translations = array();
-				ob_start();
-				@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
-				ob_get_clean();
-			} else {
-				$translations = $trans[$langcode];
-			}
-			ob_start();
-			include($directory.'/'.$name);
-			ob_get_clean();
-			$trans[$langcode] = $translations;
-		}
-	}	
-	foreach($trans as $langcode=>$ttt) {
-		$translations = $ttt;
-		Base_LangCommon::save($langcode);
-	}
-	$translations = $trans_backup;
-}
-
 function themeup(){
 	$data_dir = DATA_DIR.'/Base_Theme/templates/default/';
 	$content = scandir($data_dir);
@@ -239,57 +201,57 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 	}
 
 	Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed','Canceled'), true,true);
-	Utils_CommonDataCommon::extend_array('Companies_Groups',array('rental company'=>'Rental Company'));
+	Utils_CommonDataCommon::extend_array('Companies_Groups',array('rental company'=>_M('Rental Company')));
 
 	$id = Utils_CommonDataCommon::get_id('Project_Status');
 	if($id!==false)
-		Utils_CommonDataCommon::extend_array('Project_Status',array('itb_received'=>'ITB Received','proposal_submited'=>'Proposal Submitted','job_canceled'=>'Job Canceled','job_lost'=>'Job Lost','job_awarded'=>'Job Awarded','on_hold'=>'On Hold','in_progress'=>'In Progress','completed_unpaid'=>'Completed Unpaid','paid'=>'Paid'),true,true);
+		Utils_CommonDataCommon::extend_array('Project_Status',array('itb_received'=>_M('ITB Received'),'proposal_submited'=>_M('Proposal Submitted'),'job_canceled'=>_M('Job Canceled'),'job_lost'=>_M('Job Lost'),'job_awarded'=>_M('Job Awarded'),'on_hold'=>_M('On Hold'),'in_progress'=>_M('In Progress'),'completed_unpaid'=>_M('Completed Unpaid'),'paid'=>_M('Paid')),true,true);
 	$id = Utils_CommonDataCommon::get_id('Job_Type');
 	if($id!==false)
-		Utils_CommonDataCommon::extend_array('Job_Type',array('Commercial','Residential','Maintenance'),true,true);
+		Utils_CommonDataCommon::extend_array('Job_Type',array(_M('Commercial'),_M('Residential'),_M('Maintenance')),true,true);
 	$id = Utils_CommonDataCommon::get_id('Companies_Groups');
 	if($id!==false) {
-		Utils_CommonDataCommon::extend_array('Companies_Groups',array('customer'=>'Customer','vendor'=>'Vendor','other'=>'Other'),true,true);
-		Utils_CommonDataCommon::extend_array('Companies_Groups',array('gc'=>'General Contractor','res'=>'Residential'),true,true);
+		Utils_CommonDataCommon::extend_array('Companies_Groups',array('customer'=>_M('Customer'),'vendor'=>_M('Vendor'),'other'=>_M('Other')),true,true);
+		Utils_CommonDataCommon::extend_array('Companies_Groups',array('gc'=>_M('General Contractor'),'res'=>_M('Residential')),true,true);
 	}
 	$id = Utils_CommonDataCommon::get_id('Contacts_Groups');
 	if($id!==false)
-		Utils_CommonDataCommon::extend_array('Contacts_Groups',array('office'=>'Office Staff','field'=>'Field Staff','custm'=>'Customer'),true,true);
+		Utils_CommonDataCommon::extend_array('Contacts_Groups',array('office'=>_M('Office Staff'),'field'=>_M('Field Staff'),'custm'=>_M('Customer')),true,true);
 	$id = Utils_CommonDataCommon::get_id('Permissions');
 	if($id!==false)
-		Utils_CommonDataCommon::extend_array('Permissions',array('Public','Protected','Private'), true,true);
+		Utils_CommonDataCommon::extend_array('Permissions',array(_M('Public'),_M('Protected'),_M('Private')), true,true);
 	$id = Utils_CommonDataCommon::get_id('Ticket_Status');
 	if($id!==false)
-		Utils_CommonDataCommon::extend_array('Ticket_Status',array('Open','In Progress','Closed','Canceled'), true,true);
+		Utils_CommonDataCommon::extend_array('Ticket_Status',array(_M('Open'),_M('In Progress'),_M('Closed'),_M('Canceled')), true,true);
 	$id = Utils_CommonDataCommon::get_id('Priorities');
 	if($id!==false)
-		Utils_CommonDataCommon::extend_array('Priorities',array('Low','Medium','High'), true,true);
+		Utils_CommonDataCommon::extend_array('Priorities',array(_M('Low'),_M('Medium'),_M('High')), true,true);
 	$id = Utils_CommonDataCommon::get_id('Bugtrack_Status');
 	if($id!==false)
-		Utils_CommonDataCommon::extend_array('Bugtrack_Status',array('new'=>'New','inprog'=>'In Progress','cl'=>'Closed'),true,true);
+		Utils_CommonDataCommon::extend_array('Bugtrack_Status',array('new'=>_M('New'),'inprog'=>_M('In Progress'),'cl'=>_M('Closed')),true,true);
 
 
 	//tasks
 	if(ModuleManager::is_installed('Utils_Tasks')>=0) {
 
 		$fields = array(
-			array('name'=>'Title', 				'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_TasksCommon','display_title')),
+			array('name' => _M('Title'), 				'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_TasksCommon','display_title')),
 
-			array('name'=>'Description', 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
+			array('name' => _M('Description'), 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
 
-			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Utils_TasksCommon','employees_crits'), 'format'=>array('Utils_TasksCommon','contact_format_with_balls')), 'display_callback'=>array('Utils_TasksCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true),
-			array('name'=>'Customers', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Utils_TasksCommon','customers_crits')), 'required'=>true, 'extra'=>false, 'visible'=>true),
+			array('name' => _M('Employees'), 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Utils_TasksCommon','employees_crits'), 'format'=>array('Utils_TasksCommon','contact_format_with_balls')), 'display_callback'=>array('Utils_TasksCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true),
+			array('name' => _M('Customers'), 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Utils_TasksCommon','customers_crits')), 'required'=>true, 'extra'=>false, 'visible'=>true),
 
-			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'__COMMON__::Ticket_Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_TasksCommon','display_status')),
-			array('name'=>'Priority', 			'type'=>'select', 'required'=>true, 'visible'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
-			array('name'=>'Permission', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
+			array('name' => _M('Status'),				'type'=>'select', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'__COMMON__::Ticket_Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_TasksCommon','display_status')),
+			array('name' => _M('Priority'), 			'type'=>'select', 'required'=>true, 'visible'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
+			array('name' => _M('Permission'), 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
 
-			array('name'=>'Longterm',			'type'=>'checkbox', 'extra'=>false, 'filter'=>true, 'visible'=>true),
+			array('name' => _M('Longterm'),			'type'=>'checkbox', 'extra'=>false, 'filter'=>true, 'visible'=>true),
 
-			array('name'=>'Is Deadline',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('Utils_TasksCommon','QFfield_is_deadline')),
-			array('name'=>'Deadline',			'type'=>'date', 'extra'=>false, 'visible'=>true),
+			array('name' => _M('Is Deadline'),		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('Utils_TasksCommon','QFfield_is_deadline')),
+			array('name' => _M('Deadline'),			'type'=>'date', 'extra'=>false, 'visible'=>true),
 
-			array('name'=>'Page id',			'type'=>'hidden', 'extra'=>false)
+			array('name' => _M('Page id'),			'type'=>'hidden', 'extra'=>false)
 
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
@@ -297,7 +259,7 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 		Utils_RecordBrowserCommon::register_processing_callback('task', array('Utils_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('Utils/Tasks', 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('task', 5);
-		Utils_RecordBrowserCommon::set_caption('task', 'Tasks');
+		Utils_RecordBrowserCommon::set_caption('task', _M('Tasks'));
 		Utils_RecordBrowserCommon::new_addon('task', 'Utils/Tasks', 'task_attachment_addon', 'Notes');
 
 		Utils_RecordBrowserCommon::add_access('task', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
@@ -1963,16 +1925,16 @@ function update_from_1_1_1_to_1_1_2() {
     if (ModuleManager::is_installed('CRM_Roundcube')>=0) {
 
 		$fields = array(
-			array('name'=>'Record Type', 		'type'=>'text', 'param'=>'64', 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
-			array('name'=>'Record ID', 		'type'=>'integer', 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
-			array('name'=>'Nickname', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_nickname')),
-			array('name'=>'Email', 			'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email'))
+			array('name' => _M('Record Type'), 		'type'=>'text', 'param'=>'64', 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
+			array('name' => _M('Record ID'), 		'type'=>'integer', 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
+			array('name' => _M('Nickname'), 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_nickname')),
+			array('name' => _M('Email'), 			'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email'))
 		);
 
 		Utils_RecordBrowserCommon::install_new_recordset('rc_multiple_emails', $fields);
 		
 		Utils_RecordBrowserCommon::set_favorites('rc_multiple_emails', true);
-		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', 'Mail addresses');
+		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', _M('Mail addresses'));
 		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundube', 'icon.png'));
 
 		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'ACCESS:employee', array(), array('record_type', 'record_id'));
@@ -2575,9 +2537,9 @@ if (ModuleManager::is_installed('Base_Admin')>=0) {
 
 if (ModuleManager::is_installed('Data_Countries')>=0) {
     $countries = array(
-		"BC"=>'British Indian Ocean Territory',
-		"CS"=>'Cocos Islands',
-		"FS"=>'French Southern Territories');
+		"BC"=>_M('British Indian Ocean Territory'),
+		"CS"=>_M('Cocos Islands'),
+		"FS"=>_M('French Southern Territories'));
 
     Utils_CommonDataCommon::extend_array('Countries', $countries, true);
 }
@@ -2723,6 +2685,7 @@ if (strcasecmp(DATABASE_DRIVER,"postgres")!==0) {
 	}
 }
 
+ModuleManager::create_load_priority_array();
 ModuleManager::create_common_cache();
 ob_start();
 ModuleManager::load_modules();
@@ -2746,7 +2709,7 @@ foreach($versions as $v) {
 if ($cur_ver==EPESI_VERSION && !Base_AclCommon::i_am_sa()) die('Unauthorized access');
 
 themeup();
-langup();
+Base_LangCommon::update_translations();
 Base_ThemeCommon::create_cache();
 ModuleManager::create_load_priority_array();
 

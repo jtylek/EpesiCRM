@@ -11,7 +11,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_BBCodeInstall extends ModuleInstall {
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		DB::CreateTable('utils_bbcode',
 						'code C(64) KEY,'.
 						'func C(128)',
@@ -33,7 +32,7 @@ class Utils_BBCodeInstall extends ModuleInstall {
 	}
 
 	public function info() {
-		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'MIT', 'Description'=>'BBCode parser module for epesi.');
+		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'MIT', 'Description'=>'BBCode parser module for epesi.');
 	}
 
 	public function simple_setup() {

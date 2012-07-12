@@ -28,14 +28,13 @@ else {
 		$contact = CRM_ContactsCommon::get_contact($id);	
 		$res = array();
 		$i = 1;
-		foreach(array('Mobile Phone', 'Work Phone', 'Home Phone') as $v) {
-			$id = strtolower(str_replace(' ','_',$v));
-			if (isset($contact[$id]) && $contact[$id]) $res[$i] = Base_LangCommon::ts('CRM/PhoneCall',$v).': '.$contact[$id];
+		foreach(array('mobile_phone'=>__('Mobile Phone'), 'work_phone'=>__('Work Phone'), 'home_phone'=>__('Home Phone')) as $id=>$v) {
+			if (isset($contact[$id]) && $contact[$id]) $res[$i] = $v.': '.$contact[$id];
 			$i++; 
 		}
 	} else {
 		$company = CRM_ContactsCommon::get_company($id);	
-		$res = array(4=>Base_LangCommon::ts('CRM/PhoneCall','Phone').': '.$company['phone']);
+		$res = array(4=>__('Phone').': '.$company['phone']);
 	}
 	
 	print(json_encode($res));

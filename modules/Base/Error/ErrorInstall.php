@@ -14,7 +14,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_ErrorInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme($this->get_type());
-		Base_LangCommon::install_translations($this->get_type());
 		Variable::set('error_mail','');
 		$this->create_data_dir();
 		return true;
@@ -46,7 +45,7 @@ class Base_ErrorInstall extends ModuleInstall {
 	}
 	
 	public function simple_setup() {
-        return array('package'=>'EPESI Core', 'option'=>'Error reporting');
+        return array('package'=>__('EPESI Core'), 'option'=>__('Error reporting'));
 	}
 }	
 

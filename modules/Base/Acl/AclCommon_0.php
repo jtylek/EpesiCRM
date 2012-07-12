@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AclCommon extends ModuleCommon {
 	public static function admin_caption() {
-		return 'Access Restrictions';
+		return __('Access Restrictions');
 	}
 
 	public static function get_admin_level($user = null) {
@@ -94,9 +94,9 @@ class Base_AclCommon extends ModuleCommon {
 	}
 	
 	public static function basic_clearance($all=false) {
-		$user_clearance = array(Base_LangCommon::ts('Base_Acl','All users')=>'ALL');
-		if ($all || Base_AclCommon::i_am_admin()) $user_clearance[Base_LangCommon::ts('Base_Acl','Admin')] = 'ADMIN';
-		if ($all || Base_AclCommon::i_am_sa()) $user_clearance[Base_LangCommon::ts('Base_Acl','Superadmin')] = 'SUPERADMIN';
+		$user_clearance = array(__('All users')=>'ALL');
+		if ($all || Base_AclCommon::i_am_admin()) $user_clearance[__('Admin')] = 'ADMIN';
+		if ($all || Base_AclCommon::i_am_sa()) $user_clearance[__('Superadmin')] = 'SUPERADMIN';
 		return $user_clearance;
 	}
 	public static function add_clearance_callback($callback) {

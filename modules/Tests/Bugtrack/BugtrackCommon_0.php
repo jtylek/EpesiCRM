@@ -23,23 +23,23 @@ class Tests_BugtrackCommon extends ModuleCommon {
 	}
 	
     public static function menu() {
-		return array('Projects'=>array('__submenu__'=>1,'Bugtrack'=>array()));
+		return array(_M('Projects')=>array('__submenu__'=>1,_M('Bugtrack')=>array()));
 	}
     
     public static function caption() {
-		return 'Bugtrack';
+		return __('Bugtrack');
 	}
 
 	public static function search_format($id) {
 		$row = Utils_RecordBrowserCommon::get_records('bugtrack',array('id'=>$id));
 		if(!$row) return false;
 		$row = array_pop($row);
-		return Utils_RecordBrowserCommon::record_link_open_tag('bugtrack', $row['id']).Base_LangCommon::ts('Tests_Bugtrack', 'Bug (attachment) #%d, %s', array($row['id'], $row['project_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
+		return Utils_RecordBrowserCommon::record_link_open_tag('bugtrack', $row['id']).__( 'Bug (attachment) #%d, %s', array($row['id'], $row['project_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
 	}
 
 /*
 	public static function admin_caption() {
-		return 'Bugtrack';
+		return __('Bugtrack');
 	}
 */
 }

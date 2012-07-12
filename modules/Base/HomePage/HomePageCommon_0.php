@@ -46,7 +46,7 @@ class Base_HomePageCommon extends ModuleCommon {
 	}
 
 	public static function menu() {
-		return array('My settings'=>array('__submenu__'=>1,'Set home page'=>array('Base_HomePage_save'=>'1','__module__'=>null)));
+		return array(_M('My settings')=>array('__submenu__'=>1,_M('Set home page')=>array('Base_HomePage_save'=>'1','__module__'=>null)));
 	}
 
 	public static function login_check_init() {
@@ -62,7 +62,7 @@ class Base_HomePageCommon extends ModuleCommon {
 	}
 
 	public static function homepage_icon() {
-//		Base_ActionBarCommon::add('home','Home',Module::create_href(array('Base_HomePage_load'=>'1')));
+//		Base_ActionBarCommon::add('home',__('Home'),Module::create_href(array('Base_HomePage_load'=>'1')));
 		Utils_ShortcutCommon::add(array('Ctrl','H'), 'function(){'.Module::create_href_js(array('Base_HomePage_load'=>'1')).'}');
 	}
 	
@@ -79,10 +79,10 @@ if(isset($_REQUEST['Base_HomePage_load'])) {
 } elseif(isset($_REQUEST['Base_HomePage_save'])) {
 	unset($_REQUEST['box_main_href']);
 	if (DEMO_MODE) {
-		Base_StatusBarCommon::message(Base_LangCommon::ts('Base_HomePage','You can\'t change home page in demo mode'), 'warning');
+		Base_StatusBarCommon::message(__('You can\'t change home page in demo mode'), 'warning');
 	} else {
 		Base_HomePageCommon::save();
-		Base_StatusBarCommon::message(Base_LangCommon::ts('Base_HomePage','Home page saved'));
+		Base_StatusBarCommon::message(__('Home page saved'));
 	}
 }
 

@@ -11,7 +11,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_CalendarInstall extends ModuleInstall {
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('CRM/Calendar');
 		Base_AclCommon::add_permission('Calendar',array('ACCESS:employee'));
 		DB::CreateTable('crm_calendar_custom_events_handlers',
@@ -26,12 +25,11 @@ class CRM_CalendarInstall extends ModuleInstall {
 		Base_AclCommon::delete_permission('Calendar');
 		DB::DropTable('crm_calendar_custom_events_handlers');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar');
-		Utils_WatchdogCommon::unregister_category('crm_calendar');
 		return true;
 	}
 
 	public function info() {
-		return array('Author'=>'<a href="http://www.telaxus.com">Telaxus LLC</a>', 'Licence'=>'TL', 'Description'=>'Simple calendar and organiser.');
+		return array('Author'=>'<a href="http://www.telaxus.com">Telaxus LLC</a>', 'License'=>'TL', 'Description'=>'Simple calendar and organiser.');
 	}
 
 	public static function simple_setup() {

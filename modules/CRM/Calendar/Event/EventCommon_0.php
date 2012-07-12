@@ -51,7 +51,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$result_ext = call_user_func($custom_handlers[$handler], 'get_all', $start, $end, $filter);
 			foreach ($result_ext as $v) if ($v!==null) {
 				$v['id'] = $handler.'#'.$v['id'];
-				$v['custom_agenda_col_0'] = isset($v['type'])?Base_LangCommon::ts('CRM_Calendar_Event',$v['type']):'---';
+				$v['custom_agenda_col_0'] = isset($v['type'])?_V($v['type']):'---';
 				if (isset($v['description'])) $v['custom_agenda_col_1'] = $v['description'];
 				if (isset($v['employees'])) {
 					$emps = array();
@@ -99,14 +99,14 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 
 		$a = self::get($hndlr.'#'.$id);
 
-		if (!$a) return Base_LangCommon::ts('CRM_Calendar_Event','Private record');
+		if (!$a) return __('Private record');
 
 		if(isset($a['timeless']))
-			$date = Base_LangCommon::ts('CRM_Calendar_Event','Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['timeless'],false)));
+			$date = __('Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['timeless'],false)));
 		else
-			$date = Base_LangCommon::ts('CRM_Calendar_Event',"Start: %s\nEnd: %s",array(Base_RegionalSettingsCommon::time2reg($a['start'],2), Base_RegionalSettingsCommon::time2reg($a['end'],2)));
+			$date = __("Start: %s\nEnd: %s",array(Base_RegionalSettingsCommon::time2reg($a['start'],2), Base_RegionalSettingsCommon::time2reg($a['end'],2)));
 
-		return $date."\n".Base_LangCommon::ts('CRM_Calendar_Event',"Title: %s",array($a['title']));
+		return $date."\n".__("Title: %s",array($a['title']));
 	}
 	
 }

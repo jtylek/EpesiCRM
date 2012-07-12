@@ -14,25 +14,25 @@ class Applets_WeatherCommon extends ModuleCommon {
 	private static $url;
 
 	public static function applet_caption() {
-		return "Weather";
+		return __("Weather");
 	}
 
 	public static function applet_info() {
-		return "Simple Weather applet"; //here can be associative array
+		return __("Simple Weather applet"); //here can be associative array
 	}
 
 	public static function applet_settings() {
 		return array(
-			array('name'=>'rssfeed','label'=>'Weather service page','type'=>'text','default'=>'http://weather.yahooapis.com/forecastrss',
+			array('name'=>'rssfeed','label'=>__('Weather service page'),'type'=>'text','default'=>'http://weather.yahooapis.com/forecastrss',
 				'rule'=>array(
-					array('message'=>'Field required', 'type'=>'required'),
-					array('message'=>'Invalid RSS feed', 'type'=>'callback', 'func'=>array('Applets_WeatherCommon','check_feed')),
-					array('message'=>'Invalid address','type'=>'regex','param'=>'/^http(s)?:\/\//')
+					array('message'=>__('Field required'), 'type'=>'required'),
+					array('message'=>__('Invalid RSS Feed'), 'type'=>'callback', 'func'=>array('Applets_WeatherCommon','check_feed')),
+					array('message'=>__('Invalid address'),'type'=>'regex','param'=>'/^http(s)?:\/\//')
 					),
 				'filter'=>array(array('Applets_WeatherCommon','set_url'))
 			),
-			array('name'=>'zipcode','label'=>'Enter City and State or Zip Code','type'=>'text','default'=>'19063','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			array('name'=>'temperature','label'=>'Fahrenheit / Celsius','type'=>'select','default'=>'f','rule'=>array(array('message'=>'Field required', 'type'=>'required')), 'values'=>array('f' => '&deg;F', 'c'=>'&deg;C'))
+			array('name'=>'zipcode','label'=>__('Enter City and State or Zip Code'),'type'=>'text','default'=>'19063','rule'=>array(array('message'=>__('Field required'), 'type'=>'required'))),
+			array('name'=>'temperature','label'=>__('Fahrenheit / Celsius'),'type'=>'select','default'=>'f','rule'=>array(array('message'=>__('Field required'), 'type'=>'required')), 'values'=>array('f' => '&deg;F', 'c'=>'&deg;C'))
 		);
 	}
 

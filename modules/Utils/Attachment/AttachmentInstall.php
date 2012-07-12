@@ -13,7 +13,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_AttachmentInstall extends ModuleInstall {
 
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('utils_attachment_link','
 			id I4 AUTO KEY NOTNULL,

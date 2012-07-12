@@ -11,11 +11,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_NoteCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return "Note";
+		return __("Note");
 	}
 
 	public static function applet_info() {
-		return "Simple note applet"; //here can be associative array
+		return __("Simple note applet"); //here can be associative array
 	}
 	
 //	public static function applet_icon() {
@@ -23,10 +23,9 @@ class Applets_NoteCommon extends ModuleCommon {
 
 	public static function applet_settings() {
 		return array(
-			array('name'=>'title','label'=>'Title','type'=>'text','default'=>Base_LangCommon::ts('Applets/Note','Note'),'rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-//			array('name'=>'text','type'=>'callback','func'=>array('Applets_NoteCommon','text_elem'),'default'=>'','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			array('name'=>'text','type'=>'callback','func'=>array('Applets_NoteCommon','text_elem'),'default'=>'','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'filter'=>array(array('Applets_NoteCommon','filter_text'))),
-			array('name'=>'bcolor','label'=>'Background color','type'=>'select','default'=>'nice yellow','rule'=>array(array('message'=>'Field required', 'type'=>'required')), 'values'=>array('nice-yellow' => 'nice yellow', 'blue'=>'blue', 'red'=>'red', 'yellow'=>'yellow', 'green' => 'green', 'white'=>'white', 'gradient' => 'gradient', 'gradient2' => 'gradient2', 'gray' => 'gray', 'dark-blue' => 'dark blue', 'dark-red' => 'dark red', 'dark-yellow' => 'dark yellow', 'dark-green' => 'dark green'))
+			array('name'=>'title','label'=>__('Title'),'type'=>'text','default'=>__('Note'),'rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
+			array('name'=>'text','type'=>'callback','func'=>array('Applets_NoteCommon','text_elem'),'default'=>'','rule'=>array(array('message'=>__('Field required'), 'type'=>'required')),'filter'=>array(array('Applets_NoteCommon','filter_text'))),
+			array('name'=>'bcolor','label'=>__('Background color'),'type'=>'select','default'=>'nice yellow','rule'=>array(array('message'=>__('Field required'), 'type'=>'required')), 'values'=>array('nice-yellow' => __('Yellow'), 'blue'=>__('Blue'), 'red'=>__('Red'), 'yellow'=>__('Bleak Yellow'), 'green' => __('Green'), 'white'=>__('White'), 'gradient' => __('Gradient'), 'gradient2' => __('Gradient 2'), 'gray' => __('Gray'), 'dark-blue' => __('Dark blue'), 'dark-red' => __('Dark red'), 'dark-yellow' => __('Dark yellow'), 'dark-green' => __('Dark green')))
 			);
 	}
 	
@@ -35,7 +34,7 @@ class Applets_NoteCommon extends ModuleCommon {
 	}
 	
 	public static function text_elem($name, $args, & $def_js) {
-		$obj = HTML_QuickForm::createElement('ckeditor',$name,Base_LangCommon::ts('Applets_Note','Text to display'));
+		$obj = HTML_QuickForm::createElement('ckeditor',$name,__('Text to display'));
 		$obj->setFCKProps('400','300',false);
 	//	$def_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 		return $obj;

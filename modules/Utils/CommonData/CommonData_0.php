@@ -21,7 +21,7 @@ class Utils_CommonData extends Module {
 				location(array());
 			return;
 		}
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
 		$this->browse();
 	}
@@ -38,23 +38,23 @@ class Utils_CommonData extends Module {
 
 		$id = Utils_CommonDataCommon::get_id($parent);
 		if (!$id) {
-			print($this->t('No such array'));
+			print(__('No such array'));
 			return false;
 		}
 
 		$f = & $this->init_module('Libs/QuickForm',null,'edit');
-		$f->addElement('header', null, $this->t((($key===null)?'New':'Edit').' node'));
+		$f->addElement('header', null, ($key===null)?__('New node'):__('Edit node'));
 		$f->add_table('utils_commondata_tree',array(
-						array('name'=>'akey','label'=>$this->t('Key'),
+						array('name'=>'akey','label'=>__('Key'),
 							'rule'=>array('type'=>'callback','param'=>array($parent,$key),
 									'func'=>array($this,'check_key'),
-									'message'=>$this->t('Specified key already exists')),
+									'message'=>__('Specified key already exists')),
 							'rule'=>array('type'=>'callback','param'=>array($parent,$key),
 									'func'=>array($this,'check_key2'),
-									'message'=>$this->t('Specified contains invalid character "/"'))
+									'message'=>__('Specified contains invalid character "/"'))
 									
 									),
-						array('name'=>'value','label'=>$this->t('Value'))
+						array('name'=>'value','label'=>__('Value'))
 						));
 		if($key!==null) {
 			$value=Utils_CommonDataCommon::get_value($parent.'/'.$key);
@@ -68,8 +68,8 @@ class Utils_CommonData extends Module {
 			Utils_CommonDataCommon::set_value($parent.'/'.$submited['akey'],$submited['value']);
 			return false;
 		}
-		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
-		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
+		Base_ActionBarCommon::add('save',__('Save'),$f->get_submit_form_href());
+		Base_ActionBarCommon::add('back',__('Cancel'),$this->create_back_href());
 		$f->display();
 		return true;
 	}
@@ -92,27 +92,27 @@ class Utils_CommonData extends Module {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'browse'.md5($name));
 
 		$gb->set_table_columns(array(
-						array('name'=>$this->t('Key'),'width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
-						array('name'=>$this->t('Value'),'width'=>20, 'order'=>'value','search'=>1)
+						array('name'=>__('Key'),'width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
+						array('name'=>__('Value'),'width'=>20, 'order'=>'value','search'=>1)
 					));
 
 		print('<h2>'.$name.'</h2><br>');
 		$ret = Utils_CommonDataCommon::get_array($name,false,true);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_data($k,$this->t($v['value']));
+			$gb_row->add_data($k,_V($v['value']));
 			$gb_row->add_action($this->create_callback_href(array($this,'browse'),array($name.'/'.$k,false)),'View');
 			if(!$v['readonly']) {
 				$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
-				$gb_row->add_action($this->create_confirm_callback_href($this->t('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
+				$gb_row->add_action($this->create_confirm_callback_href(__('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
 			}
 		}
 		//$this->display_module($gb);
 		$this->display_module($gb,array(true),'automatic_display');
 
-		Base_ActionBarCommon::add('add','Add array',$this->create_callback_href(array($this,'edit'),$name));
+		Base_ActionBarCommon::add('add',__('Add array'),$this->create_callback_href(array($this,'edit'),$name));
 		if(!$root)
-			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+			Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		return true;
 	}
 

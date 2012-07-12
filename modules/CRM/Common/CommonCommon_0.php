@@ -14,15 +14,15 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_CommonCommon extends ModuleCommon {
 	public static function user_settings() {
 		if(Acl::is_user()) {
-			$methods = array('none'=>'None',
-					'callto'=>'Skype and other "callto" protocol applications')
+			$methods = array('none'=>__('None'),
+					'callto'=>__('Skype and other "callto" protocol applications'))
 					+ ModuleManager::call_common_methods('dialer_description');
 			return array(
-				'Dialing'=>array(
-					array('name'=>'method','label'=>'Method', 'type'=>'select', 'values'=>$methods, 'default'=>'none'),
+				__('Dialing')=>array(
+					array('name'=>'method','label'=>__('Dialing Method'), 'type'=>'select', 'values'=>$methods, 'default'=>'none'),
 				),
-				'Misc'=>array(
-					array('name'=>'default_record_permission','label'=>'Default Records Permission','type'=>'select','default'=>0,'values'=>Utils_CommonDataCommon::get_array('CRM/Access', false))
+				__('Misc')=>array(
+					array('name'=>'default_record_permission','label'=>__('Default Records Permission'),'type'=>'select','default'=>0,'values'=>Utils_CommonDataCommon::get_translated_array('CRM/Access', false))
 				)
 			);
 		}
@@ -49,7 +49,7 @@ class CRM_CommonCommon extends ModuleCommon {
 		$trans = array('__NULL__'=>array(), '__NO_CLOSED__'=>array('!status'=>array(3,4)));
 		foreach ($sts as $k=>$v)
 			$trans[$k] = array('status'=>$k);
-		$rb->set_custom_filter('status',array('type'=>'select','label'=>Base_LangCommon::ts('CRM_Common','Status'),'args'=>array('__NULL__'=>'['.Base_LangCommon::ts('CRM_Common','All').']','__NO_CLOSED__'=>'['.Base_LangCommon::ts('CRM_Common','Not closed').']')+$sts,'trans'=>$trans));
+		$rb->set_custom_filter('status',array('type'=>'select','label'=>__('Status'),'args'=>array('__NULL__'=>'['.__('All').']','__NO_CLOSED__'=>'['.__('Not closed').']')+$sts,'trans'=>$trans));
 	}
 
 }

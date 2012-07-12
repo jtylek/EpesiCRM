@@ -14,8 +14,8 @@ class CRM_Contacts_ParentCompanyInstall extends ModuleInstall {
 
 	public function install() {
         Utils_RecordBrowserCommon::new_record_field('company', 
-	    		array('name'=>'Parent Company',	'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('CRM_Contacts_ParentCompanyCommon','parent_company_crits')), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true,'position'=>'Phone'));
-		Utils_RecordBrowserCommon::new_addon('company', 'CRM_Contacts_ParentCompany', 'parent_company_addon', 'Child Companies');
+	    		array('name' => _M('Parent Company'),	'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('CRM_Contacts_ParentCompanyCommon','parent_company_crits')), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true,'position'=>'Phone'));
+		Utils_RecordBrowserCommon::new_addon('company', 'CRM_Contacts_ParentCompany', 'parent_company_addon', _M('Child Companies'));
 		return true;
 	}
 	
@@ -42,7 +42,7 @@ class CRM_Contacts_ParentCompanyInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-        return array('package'=>'CRM', 'option'=>'Parent company');
+        return array('package'=>__('CRM'), 'option'=>__('Parent Company'));
 	}
 	
 }

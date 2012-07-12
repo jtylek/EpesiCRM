@@ -28,8 +28,8 @@ class Libs_QuickFormCommon extends ModuleCommon {
 	}
 	
 	public static function user_settings() {
-		return array('Forms'=>array(
-			array('name'=>'autoselect_mode', 'label'=>'Auto-select - display for empty fields', 'type'=>'select', 'values'=>array(0=>'Text field', 1=>'Select field'), 'default'=>0)
+		return array(__('Forms')=>array(
+			array('name'=>'autoselect_mode', 'label'=>__('Auto-select - display for empty fields'), 'type'=>'select', 'values'=>array(0=>__('Text field'), 1=>__('Select field')), 'default'=>0)
 		));
 	}
 }

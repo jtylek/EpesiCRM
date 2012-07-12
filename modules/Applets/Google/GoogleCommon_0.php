@@ -12,11 +12,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_GoogleCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return "Google";
+		return __("Google");
 	}
 
 	public static function applet_info() {
-		return "Simple Google Search applet";
+		return __("Simple Google Search applet");
 	}
 }
 

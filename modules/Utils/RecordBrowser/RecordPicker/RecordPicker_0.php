@@ -25,7 +25,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 		Libs_LeightboxCommon::display(
 			'rpicker_leightbox_'.$element,
 			$this->get_html_of_module($rb, array($element, $format, $crits, $cols, $order, $filters), 'recordpicker'),
-			$this->t('Select'),
+			__('Select'),
 			true);
 	}
 

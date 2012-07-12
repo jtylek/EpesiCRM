@@ -58,8 +58,8 @@ class Base_ActionBar extends Module {
 
 		//translate
 		foreach($icons as &$i) {
-			$i['label'] = $this->t($i['label']);
-			$description = $this->t($i['description']);
+			$i['label'] = $i['label'];
+			$description = $i['description'];
 			if($display_text)
 				if($i['description'])
 					$t = Utils_TooltipCommon::open_tag_attrs($description);
@@ -84,7 +84,7 @@ class Base_ActionBar extends Module {
 					if($dash && Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_d')) {
 						$ii = array();
 						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
-						$ii['label'] = $this->t($trimmed_label?$trimmed_label:$v['label']);
+						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
 						if(isset($arr['__url__']))
@@ -103,7 +103,7 @@ class Base_ActionBar extends Module {
 					if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_l')) {
 						$ii = array();
 						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
-						$ii['label'] = $this->t($trimmed_label?$trimmed_label:$v['label']);
+						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
 						if(isset($arr['__url__']))
@@ -158,8 +158,8 @@ class Base_ActionBar extends Module {
 			$th->display('launchpad');
 			$lp_out = ob_get_clean();
 			$big = count(self::$launchpad)>10;
-			Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,$this->t('Launchpad'),$big);
-			$launcher[] = array('label'=>$this->t('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
+			Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,__('Launchpad'),$big);
+			$launcher[] = array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
 			$th = & $this->pack_module('Base/Theme');
 			$th->assign('display_icon',$display_icon);
 			$th->assign('display_text',$display_text);

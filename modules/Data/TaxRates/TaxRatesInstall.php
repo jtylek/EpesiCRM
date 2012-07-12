@@ -15,16 +15,16 @@ class Data_TaxRatesInstall extends ModuleInstall {
 		Base_ThemeCommon::install_default_theme($this->get_type());
 
 		$fields = array(
-			array('name'=>'Name', 	'type'=>'text', 'required'=>true, 'param'=>16, 'extra'=>false, 'visible'=>true),
-			array('name'=>'Description', 	'type'=>'long text', 'required'=>false, 'extra'=>false),
-			array('name'=>'Percentage', 	'type'=>'float', 'required'=>true, 'extra'=>false, 'visible'=>true)
+			array('name' => _M('Name'), 	'type'=>'text', 'required'=>true, 'param'=>16, 'extra'=>false, 'visible'=>true),
+			array('name' => _M('Description'), 	'type'=>'long text', 'required'=>false, 'extra'=>false),
+			array('name' => _M('Percentage'), 	'type'=>'float', 'required'=>true, 'extra'=>false, 'visible'=>true)
 		);
 
 		Utils_RecordBrowserCommon::install_new_recordset('data_tax_rates', $fields);
 
 		Utils_RecordBrowserCommon::new_record('data_tax_rates', array('name'=>'Non-taxable', 'percentage'=>0));
 		
-		Utils_RecordBrowserCommon::set_caption('data_tax_rates', 'Tax Rates');
+		Utils_RecordBrowserCommon::set_caption('data_tax_rates', _M('Tax Rates'));
 		Utils_RecordBrowserCommon::set_icon('data_tax_rates', Base_ThemeCommon::get_template_filename('Data/TaxRates', 'icon.png'));
 
 		Utils_RecordBrowserCommon::add_access('data_tax_rates', 'view', 'ACCESS:employee');

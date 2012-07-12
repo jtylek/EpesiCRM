@@ -1,6 +1,6 @@
 <?php
 
-Utils_CommonDataCommon::extend_array('Contacts/Access',array('employee'=>'Employee'));
+Utils_CommonDataCommon::extend_array('Contacts/Access',array('employee'=>_M('Employee')));
 
 $cmp = Variable::get('main_company', null);
 if ($cmp!==null) {

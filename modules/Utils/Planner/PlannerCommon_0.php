@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PlannerCommon extends ModuleCommon {
 	public static function user_settings(){
-		return array('Planners'=>array(
+		return array(__('Planners')=>array(
 //			array('name'=>'per_page','label'=>'Records per page','type'=>'select','values'=>array(5=>5,10=>10,20=>20,50=>50,100=>100),'default'=>20),
 //			array('name'=>'actions_position','label'=>'Position of \'Actions\' column','type'=>'radio','values'=>array(0=>'Left',1=>'Right'),'default'=>0),
 //			array('name'=>'adv_search','label'=>'Advanced search by default','type'=>'bool','default'=>0),

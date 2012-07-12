@@ -14,17 +14,17 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_AdministratorCommon extends Base_AdminModuleCommon {
 	public static function user_settings() {
-		if(Base_AclCommon::i_am_user()) return array('Account'=>'body');
+		if(Base_AclCommon::i_am_user()) return array(__('Account')=>'body');
 		return array();
 	}
 	
 	public static function admin_caption() {
-		return 'Manage users';
+		return __('Manage users');
 	}
 	
 	public static function menu() {
 		if (!Base_AclCommon::check_permission('Advanced User Settings'))
-			return array('My settings'=>array('__weight__'=>10,'__submenu__'=>1,'Change password'=>array()));
+			return array(_M('My settings')=>array('__weight__'=>10,'__submenu__'=>1,_M('Change password')=>array()));
 	}
 }
 ?>

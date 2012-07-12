@@ -13,11 +13,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_TasksCommon extends ModuleCommon {
 	public static function applet_caption() {
 		if (Utils_RecordBrowserCommon::get_access('task','browse'))
-			return "Tasks";
+			return __("Tasks");
 	}
 
 	public static function applet_info() {
-		return "To do list";
+		return __("To do list");
 	}
 
 	public static function applet_info_format($r){
@@ -37,15 +37,15 @@ class CRM_TasksCommon extends ModuleCommon {
 		}
 
 		$args=array(
-					'Task'=>'<b>'.$r['title'].'</b>',
-					'Description'=>$r['description'],
-					'Assigned to'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
-					'Customers'=> $customers,
-					'Status'=>$status[$r['status']],
-					'Deadline'=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set'),
-					'Longterm'=>Base_LangCommon::ts('CRM_Tasks',$r['longterm']!=0?'Yes':'No'),
-					'Permission'=>$access[$r['permission']],
-					'Priority'=>$priority[$r['priority']],
+					__('Task')=>'<b>'.$r['title'].'</b>',
+					__('Description')=>$r['description'],
+					__('Assigned to')=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
+					__('Customers')=> $customers,
+					__('Status')=>$status[$r['status']],
+					__('Deadline')=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):__('Not set'),
+					__('Longterm')=>$r['longterm']!=0?__('Yes'):__('No'),
+					__('Permission')=>$access[$r['permission']],
+					__('Priority')=>$priority[$r['priority']],
 					);
 		
 		$bg_color = '';
@@ -59,14 +59,14 @@ class CRM_TasksCommon extends ModuleCommon {
 		// and the name of the group for translation
 		//return	Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks');
 
-		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'Utils_RecordBrowser:task'));
+		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args));
 		if ($bg_color) $ret['row_attrs'] = 'style="background:'.$bg_color.';"';
 		return $ret;
 	}
 
 	public static function menu() {
 		if (Utils_RecordBrowserCommon::get_access('task','browse'))
-			return array('CRM'=>array('__submenu__'=>1,'Tasks'=>array()));
+			return array(_M('CRM')=>array('__submenu__'=>1,_M('Tasks')=>array()));
 		else
 			return array();
 	}
@@ -85,13 +85,13 @@ class CRM_TasksCommon extends ModuleCommon {
 
 	public static function applet_settings() {
 		return Utils_RecordBrowserCommon::applet_settings(array(
-			array('label'=>'Display tasks marked as','name'=>'term','type'=>'select','values'=>array('s'=>'Short term','l'=>'Long term','b'=>'Both'),'default'=>'s','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			array('label'=>'Display open tasks','name'=>'status_0','type'=>'checkbox','default'=>true),
-			array('label'=>'Display in progress tasks','name'=>'status_1','type'=>'checkbox','default'=>true),
-			array('label'=>'Display on hold tasks','name'=>'status_2','type'=>'checkbox','default'=>true),
-			array('label'=>'Display closed tasks','name'=>'status_3','type'=>'checkbox','default'=>false),
-			array('label'=>'Display canceled tasks','name'=>'status_4','type'=>'checkbox','default'=>false),
-			array('label'=>'Related','name'=>'related','type'=>'select','values'=>array('Employee','Customer','Both'),'default'=>'0')
+			array('label'=>__('Display tasks marked as'),'name'=>'term','type'=>'select','values'=>array('s'=>__('Shortterm'),'l'=>__('Longterm'),'b'=>__('Both')),'default'=>'s','rule'=>array(array('message'=>__('Field required'), 'type'=>'required'))),
+			array('label'=>__('Display open tasks'),'name'=>'status_0','type'=>'checkbox','default'=>true),
+			array('label'=>__('Display in progress tasks'),'name'=>'status_1','type'=>'checkbox','default'=>true),
+			array('label'=>__('Display on hold tasks'),'name'=>'status_2','type'=>'checkbox','default'=>true),
+			array('label'=>__('Display closed tasks'),'name'=>'status_3','type'=>'checkbox','default'=>false),
+			array('label'=>__('Display canceled tasks'),'name'=>'status_4','type'=>'checkbox','default'=>false),
+			array('label'=>__('Related'),'name'=>'related','type'=>'select','values'=>array(__('Employee'),__('Customer'),__('Both')),'default'=>'0')
 			));
 	}
 	
@@ -140,7 +140,7 @@ class CRM_TasksCommon extends ModuleCommon {
 
 			$values = $record;
 			$values['date_and_time'] = date('Y-m-d H:i:s');
-			$values['title'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['title'];
+			$values['title'] = __('Follow-up').': '.$values['title'];
 			$values['status'] = 0;
 
 			if ($action != 'none') {		
@@ -171,14 +171,14 @@ class CRM_TasksCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record();
 		switch ($mode) {
 		case 'display':
-			$values['title'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['title'];
+			$values['title'] = __('Follow-up').': '.$values['title'];
 			$values['status'] = 0;
 			$values['deadline'] = date('Y-m-d', strtotime('+1 day'));
 			$ret = array();
 			$cus = reset($values['customers']);
-			if (ModuleManager::is_installed('CRM/Meeting')>=0) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
-			$ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'" /></a>';
-			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
+			if (ModuleManager::is_installed('CRM/Meeting')>=0) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
+			$ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'" /></a>';
+			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('task/'.$values['id']);
 			return $ret;
 		case 'adding':
@@ -214,7 +214,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function watchdog_label($rid = null, $events = array(), $details = true) {
 		return Utils_RecordBrowserCommon::watchdog_label(
 				'task',
-				Base_LangCommon::ts('CRM_Tasks','Tasks'),
+				__('Tasks'),
 				$rid,
 				$events,
 				'title',
@@ -227,20 +227,20 @@ class CRM_TasksCommon extends ModuleCommon {
 		$row = self::get_tasks(array('id'=>$id));
 		if(!$row) return false;
 		$row = array_pop($row);
-		return Utils_RecordBrowserCommon::record_link_open_tag('task', $row['id']).Base_LangCommon::ts('CRM_Tasks', 'Task (attachment) #%d, %s', array($row['id'], $row['title'])).Utils_RecordBrowserCommon::record_link_close_tag();
+		return Utils_RecordBrowserCommon::record_link_open_tag('task', $row['id']).__( 'Task (attachment) #%d, %s', array($row['id'], $row['title'])).Utils_RecordBrowserCommon::record_link_close_tag();
 	}
 
 	public static function get_alarm($id) {
 		$a = Utils_RecordBrowserCommon::get_record('task',$id);
 
-		if (!$a) return Base_LangCommon::ts('CRM_Tasks','Private record');
+		if (!$a) return __('Private record');
 
 		if($a['deadline'])
-			$date = Base_LangCommon::ts('CRM_Tasks',"Task Deadline: %s",array(Base_RegionalSettingsCommon::time2reg($a['deadline'],true,false)));
+			$date = __("Task Deadline: %s",array(Base_RegionalSettingsCommon::time2reg($a['deadline'],true,false)));
 		else
-			$date = Base_LangCommon::ts('CRM_Tasks',"Task without deadline");
+			$date = __("Task without deadline");
 
-		return $date."\n".Base_LangCommon::ts('CRM_Tasks',"Title: %s",array($a['title']));
+		return $date."\n".__("Title: %s",array($a['title']));
 	}
 
 	///////////////////////////////////
@@ -249,7 +249,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function mobile_menu() {
 		if(!Utils_RecordBrowserCommon::get_access('task','browse'))
 			return array();
-		return array('Tasks'=>array('func'=>'mobile_tasks','color'=>'blue'));
+		return array(__('Tasks')=>array('func'=>'mobile_tasks','color'=>'blue'));
 	}
 	
 	public static function mobile_tasks() {
@@ -271,7 +271,7 @@ class CRM_TasksCommon extends ModuleCommon {
 							break;
 			case 'delete': $ret = call_user_func_array(array('CRM_TasksCommon','crm_event_delete'), $args);
 							break;
-			case 'new_event_types': $ret = array(array('label'=>'Task','icon'=>Base_ThemeCommon::get_template_file('CRM_Tasks','icon.png')));
+			case 'new_event_types': $ret = array(array('label'=>__('Task'),'icon'=>Base_ThemeCommon::get_template_file('CRM_Tasks','icon.png')));
 							break;
 			case 'new_event': $ret = call_user_func_array(array('CRM_TasksCommon','crm_new_event'), $args);
 							break;
@@ -394,7 +394,7 @@ class CRM_TasksCommon extends ModuleCommon {
         $event_date = Base_RegionalSettingsCommon::time2reg($next['start'],false,3,false);
 
         $inf2 = array(
-            'Date'=>'<b>'.$event_date.'</b>');
+            __('Date')=>'<b>'.$event_date.'</b>');
 
 		$emps = array();
 		foreach ($r['employees'] as $e) {
@@ -411,14 +411,14 @@ class CRM_TasksCommon extends ModuleCommon {
 			$cuss[] = $c;
 		}
 
-		$inf2 += array(	'Task' => '<b>'.$next['title'].'</b>',
-						'Description' => $next['description'],
-						'Assigned to' => implode('<br>',$emps),
-						'Contacts' => implode('<br>',$cuss),
-						'Status' => Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
-						'Access' => Utils_CommonDataCommon::get_value('CRM/Access/'.$r['permission'],true),
-						'Priority' => Utils_CommonDataCommon::get_value('CRM/Priority/'.$r['priority'],true),
-						'Notes' => Utils_AttachmentCommon::count('task/'.$r['id'])
+		$inf2 += array(	__('Task')=> '<b>'.$next['title'].'</b>',
+						__('Description')=> $next['description'],
+						__('Assigned to')=> implode('<br>',$emps),
+						__('Contacts')=> implode('<br>',$cuss),
+						__('Status')=> Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
+						__('Access')=> Utils_CommonDataCommon::get_value('CRM/Access/'.$r['permission'],true),
+						__('Priority')=> Utils_CommonDataCommon::get_value('CRM/Priority/'.$r['priority'],true),
+						__('Notes')=> Utils_AttachmentCommon::count('task/'.$r['id'])
 					);
 
 		$next['employees'] = $r['employees'];
@@ -426,9 +426,9 @@ class CRM_TasksCommon extends ModuleCommon {
 		$next['status'] = $r['status']<=2?'active':'closed';
 		$next['custom_tooltip'] = 
 									'<center><b>'.
-										Base_LangCommon::ts('CRM_Tasks','Task').
+										__('Task').
 									'</b></center><br>'.
-									Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').'<hr>'.
+									Utils_TooltipCommon::format_info_tooltip($inf2).'<hr>'.
 									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
 		return $next;
 	}

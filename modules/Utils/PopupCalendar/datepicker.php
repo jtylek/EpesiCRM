@@ -43,10 +43,10 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 						'onSuccess:function(t){e=$(\''.Epesi::escapeJS($id,false).'\');e.value=t.responseText;if(e.onchange)e.onchange();}})',
 						null,null,
 						'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$value, $id);
-				$str .= $this->_getTabs() . '<input ' . $js . ' ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/PopupCalendar','Example date: %s',array($ex_date)), false ).' />';
+				$str .= $this->_getTabs() . '<input ' . $js . ' ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(__('Example date: %s',array($ex_date)), false ).' />';
 			} else {
 				$str .= $this->_getTabs() . '<table class="utils_datepicket_element" style="border:0;padding:0;" cellpadding="0" cellspacing="0"><tr>'.
-					'<td><input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/PopupCalendar','Example date: %s',array($ex_date)), false ).' /></td>'.
+					'<td><input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(__('Example date: %s',array($ex_date)), false ).' /></td>'.
 					'<td>'.	Utils_PopupCalendarCommon::show(md5($id),
 						'new Ajax.Request(\'modules/Utils/PopupCalendar/up.php\','.
 						'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.

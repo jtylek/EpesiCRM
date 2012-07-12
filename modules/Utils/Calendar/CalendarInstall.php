@@ -11,7 +11,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CalendarInstall extends ModuleInstall {
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('Utils/Calendar');
 		return true;
 	}
@@ -22,7 +21,7 @@ class Utils_CalendarInstall extends ModuleInstall {
 	}
 
 	public function info() {
-		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a>, <a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'MIT', 'Description'=>'Abstract calendar.');
+		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a>, <a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'MIT', 'Description'=>'Abstract calendar.');
 	}
 
 	public function simple_setup() {

@@ -15,7 +15,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AdminInstall extends ModuleInstall {
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('Base/Admin');
 		DB::CreateTable('base_admin_access',
 			'id I4 AUTO KEY,'.

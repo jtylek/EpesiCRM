@@ -16,12 +16,12 @@ class Base_Mail_ContactUs extends Module {
 
 	public function body() {
 		$form = & $this->init_module('Libs/QuickForm','Sending message');
-		$form->addElement('header', null, $this->t('Support'));
-		$form->addElement('html', '<tr><td colspan=2>'.$this->t('You can write a message to administrator here.').'</td><tr>');
+		$form->addElement('header', null, __('Support'));
+		$form->addElement('html', '<tr><td colspan=2>'.__('You can write a message to administrator here.').'</td><tr>');
 		if(!Acl::is_user()) {
-    		    $form->addElement('text','mail', $this->t('E-mail address:'));
-		    $form->addRule('mail', $this->t('Field required'), 'required');
-    	    	    $form->addRule('mail', $this->t('Not valid e-mail address'), 'email');
+    		    $form->addElement('text','mail', __('E-mail address').':');
+		    $form->addRule('mail', __('Field required'), 'required');
+    	    	    $form->addRule('mail', __('Invalid e-mail address'), 'email');
 		}
 		
 		$body = HTML_QuickForm::createElement('textarea', 'body',null,array('id'=>'contact_us'));
@@ -31,11 +31,11 @@ class Base_Mail_ContactUs extends Module {
 		$body->setRows(15);
 		$form->addElement($body);
 		
-		$form->addElement('submit','submit_button',$this->t('Send'));
+		$form->addElement('submit','submit_button',__('Send'));
 		
 		if($form->validate()) {
 			if($form->process(array(&$this, 'submit_body')))
-				print($this->t('Message sent to administrator.'));
+				print(__('Message sent to administrator.'));
 		} else
 			$form->display();
 	}
@@ -47,7 +47,7 @@ class Base_Mail_ContactUs extends Module {
 		else
 		    $mail = $data['mail'];
 		if(!Base_MailCommon::send($to, Base_UserCommon::get_my_user_login().' comment ('.get_epesi_url().')', $data['body'],$mail,Base_UserCommon::get_my_user_login())) {
-			print($this->t('Unable to send message. Invalid configuration.'));
+			print(__('Unable to send message. Invalid configuration.'));
 			return false;
 		}
 		Base_StatusBarCommon::message('Message sent');
@@ -55,7 +55,7 @@ class Base_Mail_ContactUs extends Module {
 	}
 
 	public function caption() {
-		return "Support";
+		return __("Support");
 	}
 }
 ?>

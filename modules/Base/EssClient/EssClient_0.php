@@ -28,9 +28,9 @@ class Base_EssClient extends Module {
             $this->parent->reset();
             return;
         }
-        if(!$store) Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        if(!$store) Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
         if (Base_EssClientCommon::is_no_ssl_allowed())
-            Base_ActionBarCommon::add('settings', 'SSL settings', $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array('Base_EssClient', 'no_ssl_settings')));
+            Base_ActionBarCommon::add('settings', __('SSL settings'), $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array('Base_EssClient', 'no_ssl_settings')));
 
         if (Base_EssClientCommon::has_license_key() == false) {
             $this->terms_and_conditions();
@@ -44,41 +44,41 @@ class Base_EssClient extends Module {
                     $data['status'] = Base_EssClientCommon::get_installation_status();
                     ///////// Status ////////
                     print('<div class="important_notice">');
-                    print('<div style="margin: 5px">' . $this->t('Thank you for registering your epesi installation.') . '</div>');
+                    print('<div style="margin: 5px">' . __('Thank you for registering your epesi installation.') . '</div>');
                     $status_description = '';
                     $verbose_description = '';
                     if (stripos($data['status'], 'confirmed') !== false || stripos($data['status'], 'validated') !== false) {
-                        $status_description = 'registration done';
-                        $verbose_description = 'The registration process is complete.';                        
+                        $status_description = __('registration done');
+                        $verbose_description = __('The registration process is complete.');
                     } else {
-                        $status_description = 'waiting for e-mail confirmation';
-                        $verbose_description = 'You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.';
+                        $status_description = __('waiting for e-mail confirmation');
+                        $verbose_description = __('You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.');
                     }
-                    print('<div class="important_notice_frame"><span style="font-weight:bold;">' . $this->t('License key: ') .
+                    print('<div class="important_notice_frame"><span style="font-weight:bold;">' . __('License Key') . ': ' .
                             '</span>' . $data['license_key'] . '<br/>');
-                    print('<span style="font-weight:bold;">' . $this->t('Status: ') .
-                            '</span>' . $this->t($status_description) . '</div>');
-                    print('<div style="margin: 5px">' . $this->t($verbose_description) . '</div>');
+                    print('<span style="font-weight:bold;">' . __('Status') . ': ' .
+                            '</span>' . $status_description . '</div>');
+                    print('<div style="margin: 5px">' . $verbose_description . '</div>');
                     print('</div>');
-                    Base_ActionBarCommon::add('edit', 'Edit company details', $this->create_callback_href(array($this, 'register_form'), array($data)));
+                    Base_ActionBarCommon::add('edit', __('Edit company details'), $this->create_callback_href(array($this, 'register_form'), array($data)));
                 } else {
                     $email = Base_EssClientCommon::get_support_email();
 
-                    print('<div class="important_notice">' . $this->t('Your epesi ID is not recognized by Epesi Store Server. Please contact epesi team at %s.', array($email)) . '</div>');
-                    Base_ActionBarCommon::add('delete', 'Revoke license key', $this->create_confirm_callback_href($this->t('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
+                    print('<div class="important_notice">' . __('Your epesi ID is not recognized by Epesi Store Server. Please contact epesi team at %s.', array($email)) . '</div>');
+                    Base_ActionBarCommon::add('delete', __('Revoke license key'), $this->create_confirm_callback_href(__('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
                 }
                 $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
-                Base_ActionBarCommon::add('search', 'Terms & Conditions', 'target="_blank" href="' . $url . '"');
-                Base_ActionBarCommon::add('edit', 'Edit license key', $this->create_callback_href(array($this, 'license_key_form')));
+                Base_ActionBarCommon::add('search', __('Terms & Conditions'), 'target="_blank" href="' . $url . '"');
+                Base_ActionBarCommon::add('edit', __('Edit license key'), $this->create_callback_href(array($this, 'license_key_form')));
             }
         } catch (Exception $e) {
-            print('<div class="important_notice">' . $this->t('There was an error while trying to connect to Epesi Store Server. Please try again later.') . '<br>');
-            print($this->t('If the problem persists, please contact us at %s', array('<a href="http://forum.epesibim.com/" target="_blank">http://forum.epesibim.com/</a>')) . '<br>');
+            print('<div class="important_notice">' . __('There was an error while trying to connect to Epesi Store Server. Please try again later.') . '<br>');
+            print(__('If the problem persists, please contact us at %s', array('<a href="http://forum.epesibim.com/" target="_blank">http://forum.epesibim.com/</a>')) . '<br>');
             print('<br>');
-            print($this->t('Error message: ') . '<br>');
+            print(__('Error message: ') . '<br>');
             print('<div class="important_notice_frame">' . $e->getMessage());
             print('</div></div>');
-            Base_ActionBarCommon::add('retry', 'Retry', $this->create_href(array()));
+            Base_ActionBarCommon::add('retry', __('Retry'), $this->create_href(array()));
             return;
         }
         print Base_EssClientCommon::client_messages_frame();
@@ -91,9 +91,9 @@ class Base_EssClient extends Module {
         }
 
         $form = $this->init_module('Libs_QuickForm');
-        $form->addElement('checkbox', 'agree', $this->t('I agree to Terms and Conditions'));
-        $form->addRule('agree', $this->t('You must accept Terms and Conditions to proceed'), 'required');
-        $form->addElement('submit', 'submit', $this->t('Obtain Epesi License Key'), array('style' => 'width:200px'));
+        $form->addElement('checkbox', 'agree', __('I agree to Terms and Conditions'));
+        $form->addRule('agree', __('You must accept Terms and Conditions to proceed'), 'required');
+        $form->addElement('submit', 'submit', __('Obtain Epesi License Key'), array('style' => 'width:200px'));
         if ($form->validate()) {
             $this->set_module_variable('t_and_c_accepted', true);
             location(array());
@@ -102,22 +102,22 @@ class Base_EssClient extends Module {
 
         print('<div class="important_notice">');
         print('<center><H1>');
-        print($this->t('EPESI Registration'));
+        print(__('EPESI Registration'));
         print('</H1></center><br>');
-        print($this->t('Registration of your epesi installation with '));
+        print(__('Registration of your epesi installation with '));
         print('<a href="http://www.telaxus.com" target="_blank">Telaxus LLC </a>');
-        print($this->t('will allow you to browse and make purchases in <strong>Epesi Store</strong> and receive notifications via e-mail about important updates.<br> Once the registration is complete you will receive a <strong>License Key</strong>. '));
-        print($this->t('This unique License Key will be used to identify your installation and allow you to download and use modules you purchase. Please note that <strong>Epesi License Key</strong> can not be copied to any other epesi installation. '));
-        print($this->t('All purchases and downloads you make using your Epesi License Key can be used for this installation only.'));
+        print(__('will allow you to browse and make purchases in <strong>Epesi Store</strong> and receive notifications via e-mail about important updates.<br> Once the registration is complete you will receive a <strong>License Key</strong>. '));
+        print(__('This unique License Key will be used to identify your installation and allow you to download and use modules you purchase. Please note that <strong>Epesi License Key</strong> can not be copied to any other epesi installation. '));
+        print(__('All purchases and downloads you make using your Epesi License Key can be used for this installation only.'));
         print('<br><br>');
-        print($this->t('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations can use the same Epesi License Key. '));
-        print($this->t('Sharing your license key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
+        print(__('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations can use the same Epesi License Key. '));
+        print(__('Sharing your license key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
         print('<br><br>');
-        print($this->t('If you already have a License Key for this installation, you can enter it here:') . ' <a ' . $this->create_callback_href(array($this, 'license_key_form')) . '>' . $this->t('enter license key') . '</a>');
+        print(__('If you already have a License Key for this installation, you can enter it here:') . ' <a ' . $this->create_callback_href(array($this, 'license_key_form')) . '>' . __('enter license key') . '</a>');
         print('<br><br>');
-        print($this->t('Full Terms and Conditions are available here:'));
+        print(__('Full Terms and Conditions are available here:'));
         $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
-        print(' <a target="_blank" href="' . $url . '">' . $this->t('Terms and Conditions') . '</a>');
+        print(' <a target="_blank" href="' . $url . '">' . __('Terms and Conditions') . '</a>');
         print('<center>');
         $form->display();
         print('</center>');
@@ -129,65 +129,65 @@ class Base_EssClient extends Module {
         if ($this->is_back()) {
             return false;
         }
-        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
         $f = $this->init_module('Libs/QuickForm');
 
         $admin_email_tooltip = '<img ' .
-                Utils_TooltipCommon::open_tag_attrs($this->t("This email will be used to send registation link and to contact Administator directly."), false)
+                Utils_TooltipCommon::open_tag_attrs(__("This email will be used to send registation link and to contact Administator directly."), false)
                 . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
 
-        $f->addElement('text', 'company_name', $this->t('Company name'), array('maxlength' => 128));
-        $f->addRule('company_name', $this->t('Field required'), 'required');
-        $f->addRule('company_name', $this->t('Max length exceeded'), 'maxlength', 128);
+        $f->addElement('text', 'company_name', __('Company Name'), array('maxlength' => 128));
+        $f->addRule('company_name', __('Field required'), 'required');
+        $f->addRule('company_name', __('Max length exceeded'), 'maxlength', 128);
 
-        $f->addElement('text', 'short_name', $this->t('Short name'), array('maxlength' => 64));
-        $f->addRule('short_name', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'short_name', __('Short Name'), array('maxlength' => 64));
+        $f->addRule('short_name', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('text', 'phone', $this->t('Phone'), array('maxlength' => 64));
-        $f->addRule('phone', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'phone', __('Phone'), array('maxlength' => 64));
+        $f->addRule('phone', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('text', 'fax', $this->t('Fax'), array('maxlength' => 64));
-        $f->addRule('fax', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'fax', __('Fax'), array('maxlength' => 64));
+        $f->addRule('fax', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('text', 'email', $this->t('Company email'), array('maxlength' => 128));
-        $f->addRule('email', $this->t('Max length exceeded'), 'maxlength', 128);
-        $f->addRule('email', $this->t('Invalid e-mail address'), 'email');
+        $f->addElement('text', 'email', __('Company email'), array('maxlength' => 128));
+        $f->addRule('email', __('Max length exceeded'), 'maxlength', 128);
+        $f->addRule('email', __('Invalid e-mail address'), 'email');
 
-        $f->addElement('text', 'web_address', $this->t('Web address'), array('maxlength' => 64));
-        $f->addRule('web_address', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'web_address', __('Web address'), array('maxlength' => 64));
+        $f->addRule('web_address', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('text', 'address_1', $this->t('Address 1'), array('maxlength' => 64));
-        $f->addRule('address_1', $this->t('Field required'), 'required');
-        $f->addRule('address_1', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'address_1', __('Address 1'), array('maxlength' => 64));
+        $f->addRule('address_1', __('Field required'), 'required');
+        $f->addRule('address_1', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('text', 'address_2', $this->t('Address 2'), array('maxlength' => 64));
-        $f->addRule('address_2', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'address_2', __('Address 2'), array('maxlength' => 64));
+        $f->addRule('address_2', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('text', 'city', $this->t('City'), array('maxlength' => 64));
-        $f->addRule('city', $this->t('Field required'), 'required');
-        $f->addRule('city', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'city', __('City'), array('maxlength' => 64));
+        $f->addRule('city', __('Field required'), 'required');
+        $f->addRule('city', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('commondata', 'country', $this->t('Country'), 'Countries');
-        $f->addRule('country', $this->t('Field required'), 'required');
-        $f->addElement('commondata', 'zone', $this->t('Zone'), array('Countries', 'country'), array('empty_option' => true));
+        $f->addElement('commondata', 'country', __('Country'), 'Countries');
+        $f->addRule('country', __('Field required'), 'required');
+        $f->addElement('commondata', 'zone', __('Zone'), array('Countries', 'country'), array('empty_option' => true));
 
-        $f->addElement('text', 'postal_code', $this->t('Postal Code'), array('maxlength' => 64));
-        $f->addRule('postal_code', $this->t('Field required'), 'required');
-        $f->addRule('postal_code', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'postal_code', __('Postal Code'), array('maxlength' => 64));
+        $f->addRule('postal_code', __('Field required'), 'required');
+        $f->addRule('postal_code', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('text', 'admin_first_name', $this->t('Administrator\'s first name'), array('maxlength' => 64));
-        $f->addRule('admin_first_name', $this->t('Field required'), 'required');
-        $f->addRule('admin_first_name', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'admin_first_name', __('Administrator\'s first name'), array('maxlength' => 64));
+        $f->addRule('admin_first_name', __('Field required'), 'required');
+        $f->addRule('admin_first_name', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('text', 'admin_last_name', $this->t('Administrator\'s last name'), array('maxlength' => 64));
-        $f->addRule('admin_last_name', $this->t('Field required'), 'required');
-        $f->addRule('admin_last_name', $this->t('Max length exceeded'), 'maxlength', 64);
+        $f->addElement('text', 'admin_last_name', __('Administrator\'s last name'), array('maxlength' => 64));
+        $f->addRule('admin_last_name', __('Field required'), 'required');
+        $f->addRule('admin_last_name', __('Max length exceeded'), 'maxlength', 64);
 
-        $f->addElement('text', 'admin_email', $admin_email_tooltip . $this->t('Administrator\'s email'), array('maxlength' => 128));
-        $f->addRule('admin_email', $this->t('Field required'), 'required');
-        $f->addRule('admin_email', $this->t('Max length exceeded'), 'maxlength', 128);
-        $f->addRule('admin_email', $this->t('Invalid e-mail address'), 'email');
+        $f->addElement('text', 'admin_email', $admin_email_tooltip . __('Administrator\'s email'), array('maxlength' => 128));
+        $f->addRule('admin_email', __('Field required'), 'required');
+        $f->addRule('admin_email', __('Max length exceeded'), 'maxlength', 128);
+        $f->addRule('admin_email', __('Invalid e-mail address'), 'email');
 
         if ($f->validate()) {
             $ret = $f->exportValues();
@@ -204,22 +204,22 @@ class Base_EssClient extends Module {
         }
         // set defaults
         print('<div class="important_notice">');
-        print($this->t('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
+        print(__('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
         print('<br>');
         if ($data) {
             $f->setDefaults($data);
         } else {
             if (ModuleManager::is_installed('CRM_Contacts') > -1) {
-                print('<span style="color:gray;font-size:10px;">' . $this->t('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
+                print('<span style="color:gray;font-size:10px;">' . __('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
                 $defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
                 $f->setDefaults($defaults);
             }
         }
-        //Base_ActionBarCommon::add('send', $data ? 'Update' : 'Register', $f->get_submit_form_href());
+        //Base_ActionBarCommon::add('send', $data ? __('Update') : __('Register'), $f->get_submit_form_href());
         if ($data) {
             if (isset($data['status']) && strcasecmp($data['status'], 'Confirmed') == 0)
-                print($this->t('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
-            print($this->t('<div style="color:red;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
+                print(__('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
+            print(__('<div style="color:red;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
         }
         print('<center>');
 
@@ -235,11 +235,11 @@ class Base_EssClient extends Module {
         if ($this->is_back()) {
             return false;
         }
-        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
         $f = $this->init_module('Libs/QuickForm');
 
-        $f->addElement('text', 'license_key', $this->t('License key'), array('maxlength' => 64, 'size' => 64, 'style' => 'width:395px;'));
+        $f->addElement('text', 'license_key', __('License Key'), array('maxlength' => 64, 'size' => 64, 'style' => 'width:395px;'));
         if ($f->validate()) {
             $x = $f->exportValues();
             Base_EssClientCommon::set_license_key($x['license_key']);
@@ -247,9 +247,9 @@ class Base_EssClient extends Module {
         }
 
         $f->setDefaults(array('license_key' => Base_EssClientCommon::get_license_key()));
-        Base_ActionBarCommon::add('save', 'Save', $f->get_submit_form_href());
+        Base_ActionBarCommon::add('save', __('Save'), $f->get_submit_form_href());
         print('<span class="important_notice"><center>');
-        print($this->t('On this screen you can manually set your License Key for this installation. This feature should only be used in case of system recovery or migration. If you are uncertain how to use this feature, it\'s best to leave this screen immediately.') . '<br><br>');
+        print(__('On this screen you can manually set your License Key for this installation. This feature should only be used in case of system recovery or migration. If you are uncertain how to use this feature, it\'s best to leave this screen immediately.') . '<br><br>');
         $f->display_as_column();
         print('</center></span>');
         return true;
@@ -258,8 +258,8 @@ class Base_EssClient extends Module {
     public function no_ssl_settings() {
         $f = $this->init_module("Libs/QuickForm");
         $f->addElement('checkbox', 'allow', 'Allow unsecure connection');
-        Base_ActionBarCommon::add('back', 'Back', Base_BoxCommon::pop_main_href());
-        Base_ActionBarCommon::add('save', 'Save', $f->get_submit_form_href());
+        Base_ActionBarCommon::add('back', __('Back'), Base_BoxCommon::pop_main_href());
+        Base_ActionBarCommon::add('save', __('Save'), $f->get_submit_form_href());
         if ($f->validate()) {
             $x = $f->exportValues();
             $allow = false;
@@ -272,7 +272,7 @@ class Base_EssClient extends Module {
         $f->setDefaults(array('allow' => Base_EssClientCommon::is_no_ssl_allowed()));
         
         print('<div class="important_notice">');
-        print($this->t("Allowing unsecure connection will cause all the data to be transferred without encryption. This creates opportunity for third parties to capture the data being transmitted, including your License Key. Please note that License Key should be kept confidential and that using the same License Key on several EPESI installations is a direct violation of Terms of Service and will result in termination of the License Key."));
+        print(__("Allowing unsecure connection will cause all the data to be transferred without encryption. This creates opportunity for third parties to capture the data being transmitted, including your License Key. Please note that License Key should be kept confidential and that using the same License Key on several EPESI installations is a direct violation of Terms of Service and will result in termination of the License Key."));
         print('<center>');
         $f->display();
         print('</center>');

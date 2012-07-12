@@ -35,7 +35,7 @@ class Base_User_Settings extends Module {
 				return;
 			}
 			if($this->parent->get_type()=='Base_Admin')
-				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+				Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		}
         $this->set_module_variable('settings_branch',$branch);
 
@@ -52,8 +52,8 @@ class Base_User_Settings extends Module {
             return;
         }
 
-        $f = &$this->init_module('Libs/QuickForm',$this->t('Saving settings'),'settings');
-        $f->addElement('header',null,$this->t($branch));
+        $f = &$this->init_module('Libs/QuickForm',__('Saving settings'),'settings');
+        $f->addElement('header',null,$branch);
         $this->indicator = ': '.$branch;
         $this->settings_fields = array();
         $this->set_default_js = '';
@@ -71,9 +71,9 @@ class Base_User_Settings extends Module {
                 }    
         }
 
-        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-        Base_ActionBarCommon::add('save', 'Save', $f->get_submit_form_href());
-        Base_ActionBarCommon::add('settings','Restore Defaults','href="javascript:void(0)" onClick="'.$this->set_default_js.'"');
+        Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+        Base_ActionBarCommon::add('save', __('Save'), $f->get_submit_form_href());
+        Base_ActionBarCommon::add('settings',__('Restore Defaults'),'href="javascript:void(0)" onClick="'.$this->set_default_js.'"');
 
         if($f->validate()) {
             $this->submit_settings($f->exportValues());
@@ -119,23 +119,17 @@ class Base_User_Settings extends Module {
             }
         }
 
-        Base_StatusBarCommon::message($this->t('Setting saved'.($reload?' - reloading page':'')));
-        if ($reload) eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')',false);
+        Base_StatusBarCommon::message($reload?__('Setting saved - reloading page'):__('Setting saved'));
+        if ($reload) eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'1500\')',false);
         return true;
     }
 
     private function add_elem_to_form(array & $v,array & $defaults, $module,$admin_settings) {
-        if(isset($v['label'])) $v['label'] = $this->t($v['label']);
         $old_name = $v['name'];
         $v['name'] = $module.self::$sep.$v['name'];
         $this->settings_fields[] = $v['name'];
-		if(isset($v['values']) && is_array($v['values']) && (!isset($v['translate']) || $v['translate']))
-            foreach($v['values'] as &$x)
-                $x = $this->t($x);
         if (isset($v['rule'])) {
             if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
-            foreach ($v['rule'] as & $r)
-                if (isset($r['message'])) $r['message'] = $this->t($r['message']);
         }
         if($admin_settings)
             $value = Base_User_SettingsCommon::get_admin($module,$old_name);
@@ -217,16 +211,16 @@ class Base_User_Settings extends Module {
             if(!$icon)
                 foreach($arg['module_names'] as $m)
                     $icon = Base_ThemeCommon::get_template_file($m,'icon.png');
-            $buttons[]= array('link'=>'<a '.$arg['action'].'>'.$this->t($caption).'</a>','module'=>$arg['module_names'],'icon'=>$icon);
+            $buttons[]= array('link'=>'<a '.$arg['action'].'>'.$caption.'</a>','module'=>$arg['module_names'],'icon'=>$icon);
         }
         $theme =  & $this->pack_module('Base/Theme');
-        $theme->assign('header', $this->t('User Settings'));
+        $theme->assign('header', __('User Settings'));
         $theme->assign('buttons', $buttons);
         $theme->display();
     }
 
     public function caption() {
-        return ($this->get_module_variable('admin_settings')?'Default':'My').' settings'.$this->indicator;
+        return ($this->get_module_variable('admin_settings')?__('Default settings'):__('My settings')).$this->indicator;
     }
 }
 

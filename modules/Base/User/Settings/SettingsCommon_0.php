@@ -17,7 +17,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 
 	public static function menu(){
 		if (Base_AclCommon::check_permission('Advanced User Settings'))
-			return array('My settings'=>array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array()));
+			return array(_M('My settings')=>array('__weight__'=>10,'__submenu__'=>1,_M('Control panel')=>array()));
 		return array();
 	}
 
@@ -30,7 +30,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	}
 
 	public static function admin_caption() {
-		return 'Default user settings';
+		return __('Default user settings');
 	}
 
 	/**
@@ -49,7 +49,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 			return null;
 		}
 		if(method_exists($module.'Common', 'user_settings')) {
-			$menu = call_user_func(array($module.'Common','user_settings'));
+			$menu = call_user_func(array($module.'Common','user_settings'), true);
 			if(is_array($menu))
 				foreach($menu as $v) {
 					if(!is_array($v)) continue;

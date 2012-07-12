@@ -13,6 +13,6 @@ function filename($lang) {
 if (!file_exists(filename($lang))) $lang = 'en';
 $message = file_get_contents(filename($lang));
 
-Utils_FrontPageCommon::display(Base_LangCommon::ts('Base_EssClient','Privacy Policy'), $message);
+Utils_FrontPageCommon::display(__('Privacy Policy'), $message);
 
 ?>

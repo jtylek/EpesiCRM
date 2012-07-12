@@ -25,7 +25,7 @@ class Base_Box extends Module {
         $theme = & $this->pack_module('Base/Theme');
         $ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini');
         if (!$ini) {
-            print($this->t('Unable to read Base/Box/default.ini file! Please create one, or change theme.'));
+            print(__('Unable to read Base/Box/default.ini file! Please create one, or change theme.'));
             $this->pack_module('Base/Theme/Administrator',null,'admin');
             return;
         }
@@ -153,11 +153,11 @@ class Base_Box extends Module {
 		$version_no = Base_BoxCommon::update_version_check_indicator();
 
 		if (SUGGEST_DONATION)
-			$theme->assign('donate',Utils_TooltipCommon::create('<a target="_blank" href="http://www.epesibim.com/cost">'.$this->t('Support EPESI!').'</a>', '<center>'.$this->t('If you find our software useful, please support us by making a donation.<br>Your funding will help to ensure continued development of this project.<br>Click for details.').'</center>', false, 500));
+			$theme->assign('donate',Utils_TooltipCommon::create('<a target="_blank" href="http://www.epesibim.com/cost">'.__('Support EPESI!').'</a>', '<center>'.__('If you find our software useful, please support us by making a donation.<br>Your funding will help to ensure continued development of this project.<br>Click for details.').'</center>', false, 500));
 			
 		// Consider moving this code properly as initated module by *.ini file
-		$theme->assign('home', array('href'=>Base_HomePageCommon::get_href(), 'label'=>$this->t('Home')));
-		$theme->assign('help', array('href'=>Base_MainModuleIndicatorCommon::get_href(), 'label'=>$this->t('Help')));
+		$theme->assign('home', array('href'=>Base_HomePageCommon::get_href(), 'label'=>__('Home')));
+		$theme->assign('help', array('href'=>Base_MainModuleIndicatorCommon::get_href(), 'label'=>__('Help')));
 		
         $theme->assign('version_no',$version_no);
         $theme->display();

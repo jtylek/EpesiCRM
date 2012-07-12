@@ -107,7 +107,7 @@ class Utils_Attachment extends Module {
 		if ($this->is_back()) {
 			$this->parent->reset();
 		}
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
 		$google_login = Variable::get('utils_attachments_google_user', false);
 		$google_pass = Variable::get('utils_attachments_google_pass', false);
@@ -115,10 +115,10 @@ class Utils_Attachment extends Module {
 		$form = $this->init_module('Libs_QuickForm');
 		$theme = $this->init_module('Base_Theme');
 
-		$form->addElement('header', 'header', $this->t('Google Username and Password'));
+		$form->addElement('header', 'header', __('Google Username and Password'));
 
-		$form->addElement('text', 'google_user', $this->t('Username'));
-		$form->addElement('password', 'google_pass', $this->t('Password'));
+		$form->addElement('text', 'google_user', __('Username'));
+		$form->addElement('password', 'google_pass', __('Password'));
 
 		$form->setDefaults(array('google_user'=>$google_login));
 		$form->setDefaults(array('google_pass'=>$google_pass));
@@ -136,9 +136,9 @@ class Utils_Attachment extends Module {
 				Variable::set('utils_attachments_google_user', $vals['google_user']);
 				Variable::set('utils_attachments_google_pass', $vals['google_pass']);
 
-				Base_StatusBarCommon::message($this->t('Settings saved'));
+				Base_StatusBarCommon::message(__('Settings saved'));
 			} else {
-				Base_StatusBarCommon::message($this->t('Unable to authenticate'), 'error');
+				Base_StatusBarCommon::message(__('Unable to authenticate'), 'error');
 			}
 			location(array());
 			return;
@@ -146,8 +146,8 @@ class Utils_Attachment extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 		
 		Base_ThemeCommon::load_css('Utils_RecordBrowser','View_entry');
 		$theme->display('admin');
@@ -193,13 +193,13 @@ class Utils_Attachment extends Module {
 				$emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id IN ('.implode(',',$emp_ids).') ORDER BY login');
 			}
 		}	
-	    $form->addElement("text", "filter_text", $this->t("Search"), array('placeholder'=>$this->t('Keyword...')));
-	    $form->addElement("select", "filter_user", $this->t("Filter by user"), array(''=>'---')+$emps);
+	    $form->addElement("text", "filter_text", __("Search"), array('placeholder'=>__('Keyword').'...'));
+	    $form->addElement("select", "filter_user", __("Filter by user"), array(''=>'---')+$emps);
 		
-		$form->addElement("datepicker", "filter_start", $this->t("Start date"));
-		$form->addElement("datepicker", "filter_end", $this->t("End date"));
+		$form->addElement("datepicker", "filter_start", __("Start Date"));
+		$form->addElement("datepicker", "filter_end", __("End Date"));
 		
-		$form->addElement('submit', 'submit_button', $this->t('Filter'));
+		$form->addElement('submit', 'submit_button', __('Filter'));
 	//	$form->display();
 		$filter_user = $form->exportValue('filter_user');
 		$filter_text = $form->exportValue('filter_text');
@@ -222,12 +222,12 @@ class Utils_Attachment extends Module {
 		$gb = $this->init_module('Utils/GenericBrowser',null,md5(serialize($this->group)));
 		$cols = array();
 		if($vd)
-			$cols[] = array('name'=>$this->t('Deleted'),'order'=>'ual.deleted','width'=>5);
+			$cols[] = array('name'=>__('Deleted'),'order'=>'ual.deleted','width'=>5);
 		if($this->author)
-			$cols[] = array('name'=>$this->t('User'), 'order'=>'note_by','width'=>12, 'wrapmode'=>'nowrap');
-		if (is_array($this->group)) $cols[] = array('name'=>$this->t('Source'),'width'=>15, 'wrapmode'=>'nowrap');
-		$cols[] = array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>10,'wrapmode'=>'nowrap');
-		$cols[] = array('name'=>$this->t('Note'), 'width'=>70);
+			$cols[] = array('name'=>__('User'), 'order'=>'note_by','width'=>12, 'wrapmode'=>'nowrap');
+		if (is_array($this->group)) $cols[] = array('name'=>__('Source'),'width'=>15, 'wrapmode'=>'nowrap');
+		$cols[] = array('name'=>__('Date'), 'order'=>'note_on','width'=>10,'wrapmode'=>'nowrap');
+		$cols[] = array('name'=>__('Note'), 'width'=>70);
 		$gb->set_table_columns($cols);
 		
 
@@ -235,7 +235,7 @@ class Utils_Attachment extends Module {
 		$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by, ual.func AS search_func, ual.args AS search_func_args'.$query_from;
 		$query_lim = 'SELECT count(ual.id)'.$query_from;
 
-		$gb->set_default_order(array($this->t('Date')=>'DESC'));
+		$gb->set_default_order(array(__('Date')=>'DESC'));
 
 		$query_order = $gb->get_query_order('ual.sticky DESC');
 		$qty = DB::GetOne($query_lim);
@@ -256,7 +256,7 @@ class Utils_Attachment extends Module {
 		$button_theme = $this->init_module('Base_Theme');
 		if($this->public_write && !is_array($this->group)) {
 			$button_theme->assign('new_note',array(
-				'label'=>$this->t('New note'),
+				'label'=>__('New Note'),
 				'href'=>'href="javascript:void(0);" onclick=\'$("attachments_new_note").style.display="";scrollBy(0, -2000); scrollBy(0, getTotalTopOffet($("attachments_new_note"))-140);\''
 			));
 				if(ModuleManager::is_installed('Premium/MultipleAttachments')>=0){
@@ -276,8 +276,8 @@ class Utils_Attachment extends Module {
 				return;
 			}
 			
-			$new_note_form->addElement('button', 'save', $this->t('Save note'), array('class'=>'button', 'onclick'=>$new_note_form->get_submit_form_js()));
-			$new_note_form->addElement('button', 'cancel', $this->t('Cancel'), array('class'=>'button', 'onclick'=>'$("attachments_new_note").style.display="none";'));
+			$new_note_form->addElement('button', 'save', __('Save note'), array('class'=>'button', 'onclick'=>$new_note_form->get_submit_form_js()));
+			$new_note_form->addElement('button', 'cancel', __('Cancel'), array('class'=>'button', 'onclick'=>'$("attachments_new_note").style.display="none";'));
 			
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 			$new_note_form->accept($renderer); 
@@ -311,13 +311,13 @@ class Utils_Attachment extends Module {
 
 			if(isset($_SESSION['attachment_copy'])) {
 				$button_theme->assign('paste',array(
-					'label'=>$this->t('Paste note'),
+					'label'=>__('Paste note'),
 					'href'=>Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste'))
 				));
 			}
 			if(Base_AclCommon::i_am_admin()) {
 				$button_theme->assign('show_deleted',array(
-					'label'=>$this->t('Show deleted notes'),
+					'label'=>__('Show deleted notes'),
 					'default'=>($vd?'checked="1"':''),
 					'show'=>$this->create_callback_href_js(array($this,'show_deleted'),array(true)),
 					'hide'=>$this->create_callback_href_js(array($this,'show_deleted'),array(false))
@@ -343,14 +343,14 @@ class Utils_Attachment extends Module {
 			if($row['original']!=='') {
 				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 				if(file_exists($f_filename)) {
-					$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array(Base_UserCommon::get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
+					$filetooltip = __('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.__('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array(Base_UserCommon::get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 					$view_link = '';
 					$link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.$this->get_file($row,$view_link);
 					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png');
 					if(Utils_AttachmentCommon::is_image($row) && $view_link)
 						$inline_img = '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
 				} else {
-					$link_href = Utils_TooltipCommon::open_tag_attrs($this->t('Missing file: %s',array($f_filename)));
+					$link_href = Utils_TooltipCommon::open_tag_attrs(__('Missing file: %s',array($f_filename)));
 					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach-off.png');
 				}
 			}
@@ -360,13 +360,13 @@ class Utils_Attachment extends Module {
 				$icon = '';
 
 			static $def_permissions = array('Public','Protected','Private');
-			$perm = $this->t($def_permissions[$row['permission']]);
+			$perm = _V($def_permissions[$row['permission']]);
 			$created_on = $row['note_on']>$row['upload_on']?$row['note_on']:$row['upload_on'];
 			$note_on = Base_RegionalSettingsCommon::time2reg($created_on,0);
 			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
-			$info = $this->t('Owner: %s',array($row['permission_owner'])).'<br>'.
-				$this->t('Permission: %s',array($perm)).'<hr>'.
-				$this->t('Last edited by %s<br>on %s<br>Number of edits: %d',array(Base_UserCommon::get_user_label($row['note_by']),$note_on_time,$row['note_revision']));
+			$info = __('Owner: %s',array($row['permission_owner'])).'<br>'.
+				__('Permission: %s',array($perm)).'<hr>'.
+				__('Last edited by %s<br>on %s<br>Number of edits: %d',array(Base_UserCommon::get_user_label($row['note_by']),$note_on_time,$row['note_revision']));
 			$r->add_info($info);
 			if(Base_AclCommon::i_am_admin() ||
 			 	$row['permission_by']==Acl::get_user() ||
@@ -375,10 +375,10 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==2 && $this->private_write)) {
 				if(!isset($row['deleted']) || !$row['deleted']) {
     				$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
-    				$r->add_action($this->create_confirm_callback_href($this->t('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
+    				$r->add_action($this->create_confirm_callback_href(__('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
     			} else {
-    				$r->add_action('','edit',$this->t('You cannot edit deleted notes'),null,0,true);
-    			    $r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore', null,null, -1);
+    				$r->add_action('','edit',__('You cannot edit deleted notes'),null,0,true);
+    			    $r->add_action($this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore', null,null, -1);
 				}
 			}
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
@@ -388,7 +388,7 @@ class Utils_Attachment extends Module {
 
 			if(!isset($row['deleted']) || !$row['deleted']) {
         		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
-		    	$r->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to cut this note?'), array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
+		    	$r->add_action($this->create_confirm_callback_href(__('Are you sure you want to cut this note?'), array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
 		    }
 			
 			$text = $icon.$text;
@@ -402,7 +402,7 @@ class Utils_Attachment extends Module {
 			$regional_note_on = $note_on;
 			$arr = array();
 			if($vd)
-				$arr[] = ($row['deleted']?'<a '.$this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),array($row['id'])).' '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to restore')).'>'.$this->t('yes').'</a>':$this->t('no'));
+				$arr[] = ($row['deleted']?'<a '.$this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),array($row['id'])).' '.Utils_TooltipCommon::open_tag_attrs(__('Click to restore')).'>'.__('Yes').'</a>':__('No'));
 			if($this->author)
 				$arr[] = Base_UserCommon::get_user_label($row['note_by']);
 			if (is_array($this->group)) {
@@ -422,10 +422,10 @@ class Utils_Attachment extends Module {
 		}
 
 		$button_theme->assign('expand_collapse',array(
-			'e_label'=>$this->t('Expand All'),
+			'e_label'=>__('Expand All'),
 			'e_href'=>'href="javascript:void(0);" onClick=\'utils_attachment_expand_all()\'',
 			'e_id'=>'expand_all_button',
-			'c_label'=>$this->t('Collapse All'),
+			'c_label'=>__('Collapse All'),
 			'c_href'=>'href="javascript:void(0);" onClick=\'utils_attachment_collapse_all()\'',
 			'c_id'=>'collapse_all_button'
 		));
@@ -497,8 +497,8 @@ class Utils_Attachment extends Module {
 			$script = 'get_google_docs';
 			$onclick = '$(\'attachment_save_options_'.$row['file_id'].'\').style.display=\'\';$(\'attachment_download_options_'.$row['file_id'].'\').hide();';
 			$th->assign('save_options_id','attachment_save_options_'.$row['file_id']);
-			$th->assign('save','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'save_google_docs'), array($row['file_id'])).'">'.$this->t('Save Changes').'</a><br>');
-			$th->assign('discard','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'discard_google_docs'), array($row['file_id'])).'">'.$this->t('Discard Changes').'</a><br>');
+			$th->assign('save','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'save_google_docs'), array($row['file_id'])).'">'.__('Save Changes').'</a><br>');
+			$th->assign('discard','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'discard_google_docs'), array($row['file_id'])).'">'.__('Discard Changes').'</a><br>');
 		} else {
 			$th->assign('save_options_id','');
 			$script = 'get';
@@ -507,18 +507,18 @@ class Utils_Attachment extends Module {
 		$th->assign('download_options_id','attachment_download_options_'.$row['file_id']);
 		$view_link = 'modules/Utils/Attachment/'.$script.'.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1));
 		
-		$th->assign('view','<a href="'.$view_link.'" target="_blank" onClick="'.$onclick.'">'.$this->t('View').'</a><br>');
-		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->t('Download').'</a><br>');
+		$th->assign('view','<a href="'.$view_link.'" target="_blank" onClick="'.$onclick.'">'.__('View').'</a><br>');
+		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.__('Download').'</a><br>');
 		load_js('modules/Utils/Attachment/remote.js');
-		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->t('Get link').'</a><br>');
+		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>');
 		$th->assign('filename',$row['original']);
 		$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 		if(!file_exists($f_filename)) return 'missing file: '.$f_filename;
-		$th->assign('file_size',$this->t('File size: %s',array(filesize_hr($f_filename))));
+		$th->assign('file_size',__('File size: %s',array(filesize_hr($f_filename))));
 
 		$th->assign('labels',array(
-			'filename'=>$this->t('Filename'),
-			'file_size'=>$this->t('File size')
+			'filename'=>__('Filename'),
+			'file_size'=>__('File size')
 		));
 
 		$getters = ModuleManager::call_common_methods('attachment_getters');
@@ -535,7 +535,7 @@ class Utils_Attachment extends Module {
 		$th->display('download');
 		$c = ob_get_clean();
 
-		Libs_LeightboxCommon::display($lid,$c,$this->t('Attachment'));
+		Libs_LeightboxCommon::display($lid,$c,__('Attachment'));
 		return Libs_LeightboxCommon::get_open_href($lid);
 	}
 
@@ -552,10 +552,10 @@ class Utils_Attachment extends Module {
 		   ($row['permission']==1 && $this->protected_write) ||
 		   ($row['permission']==2 && $this->private_write)) {
 		    if(!$row['deleted']) {
-    			Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'edit_note_queue'),$id));
-	    		Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->t('Delete this entry?'),array($this,'delete_back'),$id));
+    			Base_ActionBarCommon::add('edit',__('Edit'),$this->create_callback_href(array($this,'edit_note_queue'),$id));
+	    		Base_ActionBarCommon::add('delete',__('Delete'),$this->create_confirm_callback_href(__('Delete this entry?'),array($this,'delete_back'),$id));
 	    	} else {
-	    		Base_ActionBarCommon::add('restore','Restore',$this->create_confirm_callback_href($this->t('Do you want to restore this entry?'),array($this,'restore'),$id));	    	
+	    		Base_ActionBarCommon::add('restore',__('Restore'),$this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),$id));	    	
 	    	}
 		}
 
@@ -590,10 +590,10 @@ class Utils_Attachment extends Module {
 		}
 		$th->assign('note',$text);
 
-		Base_ActionBarCommon::add('history','Edition history',$this->create_callback_href(array($this,'edition_history_queue'),$id));
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('history',__('Edition history'),$this->create_callback_href(array($this,'edition_history_queue'),$id));
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		if(!$row['deleted'])
-    		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Copy',$this->create_callback_href(array($this,'copy'),array($id,$text)));
+    		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),__('Copy'),$this->create_callback_href(array($this,'copy'),array($id,$text)));
 
 		$th->display('view');
 
@@ -617,19 +617,19 @@ class Utils_Attachment extends Module {
 			return $this->pop_box0();
 		}
 
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
 		$th = $this->init_module('Base/Theme');
-		$th->assign('note_edition_header', $this->t('Note edit history'));
+		$th->assign('note_edition_header', __('Note edit history'));
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hn'.md5(serialize($this->group)));
 		$gb->set_table_columns(array(
-				array('name'=>$this->t('Revision'), 'order'=>'uac.revision','width'=>10),
-				array('name'=>$this->t('Date'), 'order'=>'note_on','width'=>25),
-				array('name'=>$this->t('Who'), 'order'=>'note_by','width'=>25, 'wrapmode'=>'nowrap'),
-				array('name'=>$this->t('Note'), 'order'=>'uac.text')
+				array('name'=>__('Revision'), 'order'=>'uac.revision','width'=>10),
+				array('name'=>__('Date'), 'order'=>'note_on','width'=>25),
+				array('name'=>__('Who'), 'order'=>'note_by','width'=>25, 'wrapmode'=>'nowrap'),
+				array('name'=>__('Note'), 'order'=>'uac.text')
 			));
-		$gb->set_default_order(array($this->t('Date')=>'DESC'));
+		$gb->set_default_order(array(__('Date')=>'DESC'));
 
 		$ret = $gb->query_order_limit('SELECT ual.permission_by,ual.permission,uac.revision,uac.created_on as note_on,uac.created_by as note_by,uac.text FROM utils_attachment_note uac INNER JOIN utils_attachment_link ual ON ual.id=uac.attach_id WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
@@ -639,21 +639,21 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
-				$r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),'restore');
+				$r->add_action($this->create_confirm_callback_href(__('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),'restore');
 			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),Base_UserCommon::get_user_label($row['note_by']),$row['text']);
 		}
 		$th->assign('note_edition',$this->get_html_of_module($gb));
 
-		$th->assign('file_uploads_header',$this->t('File uploads history'));
+		$th->assign('file_uploads_header',__('File uploads history'));
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hua'.md5(serialize($this->group)));
 		$gb->set_table_columns(array(
-				array('name'=>$this->t('Revision'), 'order'=>'file_revision','width'=>10),
-				array('name'=>$this->t('Date'), 'order'=>'upload_on','width'=>25),
-				array('name'=>$this->t('Who'), 'order'=>'upload_by','width'=>25),
-				array('name'=>$this->t('Attachment'), 'order'=>'uaf.original')
+				array('name'=>__('Revision'), 'order'=>'file_revision','width'=>10),
+				array('name'=>__('Date'), 'order'=>'upload_on','width'=>25),
+				array('name'=>__('Who'), 'order'=>'upload_by','width'=>25),
+				array('name'=>__('Attachment'), 'order'=>'uaf.original')
 			));
-		$gb->set_default_order(array($this->t('Date')=>'DESC'));
+		$gb->set_default_order(array(__('Date')=>'DESC'));
 
 		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.local,ual.permission_by,ual.permission,uaf.attach_id as id,uaf.revision as file_revision,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
@@ -663,26 +663,26 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
-				$r->add_action($this->create_confirm_callback_href($this->t('Do you want to restore attached file to this version?'),array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
+				$r->add_action($this->create_confirm_callback_href(__('Do you want to restore attached file to this version?'),array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
 			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
 			$r->add_data($row['file_revision'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),Base_UserCommon::get_user_label($row['upload_by']),$file);
 		}
 		$th->assign('file_uploads',$this->get_html_of_module($gb));
 
-		$th->assign('file_access_header',$this->t('File access history'));
+		$th->assign('file_access_header',__('File access history'));
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hda'.md5(serialize($this->group)));
 		$gb->set_table_columns(array(
-				array('name'=>$this->t('Create date'), 'order'=>'created_on','width'=>15),
-				array('name'=>$this->t('Download date'), 'order'=>'download_on','width'=>15),
-				array('name'=>$this->t('Who'), 'order'=>'created_by','width'=>15),
-				array('name'=>$this->t('IP address'), 'order'=>'ip_address', 'width'=>15),
-				array('name'=>$this->t('Host name'), 'order'=>'host_name', 'width'=>15),
-				array('name'=>$this->t('Method description'), 'order'=>'description', 'width'=>20),
-				array('name'=>$this->t('Revision'), 'order'=>'revision', 'width'=>10),
-				array('name'=>$this->t('Remote'), 'order'=>'remote', 'width'=>10),
+				array('name'=>__('Create date'), 'order'=>'created_on','width'=>15),
+				array('name'=>__('Download date'), 'order'=>'download_on','width'=>15),
+				array('name'=>__('Who'), 'order'=>'created_by','width'=>15),
+				array('name'=>__('IP Address'), 'order'=>'ip_address', 'width'=>15),
+				array('name'=>__('Host Name'), 'order'=>'host_name', 'width'=>15),
+				array('name'=>__('Method description'), 'order'=>'description', 'width'=>20),
+				array('name'=>__('Revision'), 'order'=>'revision', 'width'=>10),
+				array('name'=>__('Remote'), 'order'=>'remote', 'width'=>10),
 			));
-		$gb->set_default_order(array($this->t('Create date')=>'DESC'));
+		$gb->set_default_order(array(__('Create date')=>'DESC'));
 
 		$query = 'SELECT uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description,uaf.revision FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
 		$query_qty = 'SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
@@ -751,24 +751,24 @@ class Utils_Attachment extends Module {
 	public function get_edit_form($id=null) {
 		$form = & $this->init_module('Utils/FileUpload',array(false));
 		if(isset($id))
-			$form->addElement('header', 'upload', $this->t('Edit note').': '.$this->add_header);
+			$form->addElement('header', 'upload', __('Edit note').': '.$this->add_header);
 		else
-			$form->addElement('header', 'upload', $this->t('Attach note').': '.$this->add_header);
-		$fck = $form->addElement('ckeditor', 'note', $this->t('Note'));
+			$form->addElement('header', 'upload', __('Attach note').': '.$this->add_header);
+		$fck = $form->addElement('ckeditor', 'note', __('Note'));
 		$fck->setFCKProps('99%','200');
 		
-		$form->addRule('note',$this->t('Maximal lenght of note exceeded'),'maxlength',65535);
+		$form->addRule('note',__('Maximal lenght of note exceeded'),'maxlength',65535);
 		$form->set_upload_button_caption('Save');
 		if($form->getSubmitValue('note')=='' && !$form->is_file())
-			$form->addRule('note',$this->t('Please enter note or choose file'),'required');
+			$form->addRule('note',__('Please enter note or choose file'),'required');
 
-		$form->addElement('select','permission',$this->t('Permission'),array($this->t('Public'),$this->t('Protected'),$this->t('Private')),array('style'=>'width:auto;'));
-		$form->addElement('checkbox','sticky',$this->t('Sticky'));
+		$form->addElement('select','permission',__('Permission'),array(__('Public'),__('Protected'),__('Private')),array('style'=>'width:auto;'));
+		$form->addElement('checkbox','sticky',__('Sticky'));
 
 		if(isset($id))
-			$form->addElement('header',null,$this->t('Replace attachment with file'));
+			$form->addElement('header',null,__('Replace attachment with file'));
 
-		$form->add_upload_element($this->t('Attachment'));
+		$form->add_upload_element(__('Attachment'));
 		
 		if($this->max_file_size)
 			$form->set_max_file_size($this->max_file_size);
@@ -788,8 +788,8 @@ class Utils_Attachment extends Module {
 		if(!$this->is_back()) {
 			$form = $this->get_edit_form($id);
 
-			Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
-			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+			Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
+			Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
 			Base_ThemeCommon::load_css('Utils/Attachment', 'view');
 			print('<div class="attachment_full_note_edit">');
@@ -925,7 +925,7 @@ class Utils_Attachment extends Module {
 		curl_setopt($curl, CURLOPT_POST, false);
 		$response = curl_exec($curl);
 
-		Base_StatusBarCommon::message($this->t('Changes saved'));
+		Base_StatusBarCommon::message(__('Changes saved'));
 	}
 
 	public function discard_google_docs($note_id) {
@@ -948,7 +948,7 @@ class Utils_Attachment extends Module {
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_POST, false);
 		$response = curl_exec($curl);
-		Base_StatusBarCommon::message($this->t('Changes discarded'));
+		Base_StatusBarCommon::message(__('Changes discarded'));
 	}
 }
 

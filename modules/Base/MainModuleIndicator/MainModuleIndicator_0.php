@@ -24,7 +24,6 @@ class Base_MainModuleIndicator extends Module {
 			$active_module = $box_module->get_main_module();
 		if($active_module && is_callable(array($active_module,'caption'))) {
 			$caption = $active_module->caption();
-			if ($caption!='') $caption = $this->t($caption);
 			if(Variable::get('show_module_indicator')) {
 				$t->assign('text', $caption);
 			} else {
@@ -53,23 +52,23 @@ class Base_MainModuleIndicator extends Module {
 		    
 		$form = & $this->init_module('Utils/FileUpload',array(false));
 
-		$form->addElement('header', 'settings', $this->t('Title'));
+		$form->addElement('header', 'settings', __('Title'));
 		$form->setDefaults(array(
 			'title'=>Variable::get('base_page_title'),
 			'show_caption_in_title'=>Variable::get('show_caption_in_title'),
 			'show_module_indicator'=>Variable::get('show_module_indicator')
 			));
-		$form->addElement('text','title',$this->t('Base page title'));
-		$form->addElement('checkbox','show_caption_in_title',$this->t('Display module captions inside page title'));
-		$form->addElement('checkbox','show_module_indicator',$this->t('Display module captions inside module'));
+		$form->addElement('text','title',__('Base page title'));
+		$form->addElement('checkbox','show_caption_in_title',__('Display module captions inside page title'));
+		$form->addElement('checkbox','show_module_indicator',__('Display module captions inside module'));
 
-		$form->addElement('header', 'upload', $this->t('Logo'));
-		$form->addElement('static','logo_size',$this->t('Logo image should be 193px by 83px in JPG/JPEG, GIF, PNG or BMP format'));
+		$form->addElement('header', 'upload', __('Logo'));
+		$form->addElement('static','logo_size',__('Logo image should be 193px by 83px in JPG/JPEG, GIF, PNG or BMP format'));
 		$form->add_upload_element();
 
-		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
-		Base_ActionBarCommon::add('delete','Delete logo',$this->create_callback_href(array($this,'delete_logo')));
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
+		Base_ActionBarCommon::add('delete',__('Delete logo'),$this->create_callback_href(array($this,'delete_logo')));
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
 		$this->display_module($form, array( array($this,'submit_all') ));
 	}
@@ -89,7 +88,7 @@ class Base_MainModuleIndicator extends Module {
 	    if($oryg) {
 		$reqs = array();
     		if(!preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$oryg,$reqs)) {
-    		    print('<a href="#">'.$this->t('Uploaded file is not valid image - JPG, GIF, PNG and BMP files are supported. Click here to proceed with another file.').'</a>');
+    		    print('<a href="#">'.__('Uploaded file is not valid image - JPG, GIF, PNG and BMP files are supported. Click here to proceed with another file.').'</a>');
 		    return;
     		}
 		$l = $this->get_data_dir().'logo.'.$reqs[1];

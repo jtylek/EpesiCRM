@@ -72,20 +72,19 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		if(!function_exists('timezone_identifiers_list'))
 			require_once('modules/Base/RegionalSettings/tz_list.php');
 		$tz = timezone_identifiers_list();
-		return array('Regional settings'=>array(
-				array('type'=>'header','label'=>'Date & Time','name'=>null),
-				//array('type'=>'select','name'=>'currency','label'=>'Currency') //google X pln in usd????
-				array('type'=>'select','name'=>'date','label'=>'Date format',
-					'default'=>'%m/%d/%Y','values'=>$date_formats, 'translate'=>false),//strftime
-				array('type'=>'select','name'=>'time','label'=>'Time format',
+		return array(__('Regional settings')=>array(
+				array('type'=>'header','label'=>__('Date & Time'),'name'=>null),
+				array('type'=>'select','name'=>'date','label'=>__('Date format'),
+					'default'=>'%m/%d/%Y','values'=>$date_formats),//strftime
+				array('type'=>'select','name'=>'time','label'=>__('Time format'),
 					'default'=>'%H:%M:%S','values'=>array('%I:%M:%S %p'=>'12h am/pm', '%H:%M:%S'=>'24h'),
 					'rule'=>array('type'=>'callback',
 						'func'=>array('Base_RegionalSettingsCommon','check_12h'),
 						'message'=>'This language does not support 12h clock',
 						'param'=>'__form__')
 				),
-				array('type'=>'select','name'=>'tz','label'=>'Timezone', 'default'=>SYSTEM_TIMEZONE, 'values'=>array_combine($tz,$tz), 'translate'=>false),
-				array('type'=>'header','label'=>'Your location','name'=>null),
+				array('type'=>'select','name'=>'tz','label'=>__('Timezone'), 'default'=>SYSTEM_TIMEZONE, 'values'=>array_combine($tz,$tz)),
+				array('type'=>'header','label'=>__('Your location'),'name'=>null),
 				array('name'=>'default_country', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_country_elem'),'default'=>'US'),
 				array('name'=>'default_state', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_state_elem'),'default'=>'')
 			));
@@ -94,11 +93,11 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	private static $country_elem_name;
 	public static function default_country_elem($name, $args, & $def_js) {
 		self::$country_elem_name = $name;
-		return HTML_QuickForm::createElement('commondata',$name,Base_LangCommon::ts('Base_RegionalSettings','Country'),'Countries');
+		return HTML_QuickForm::createElement('commondata',$name,__('Country'),'Countries');
 	}
 
 	public static function default_state_elem($name, $args, & $def_js) {
-		return HTML_QuickForm::createElement('commondata',$name,Base_LangCommon::ts('Base_RegionalSettings','State'),array('Countries',self::$country_elem_name),array('empty_option'=>true));
+		return HTML_QuickForm::createElement('commondata',$name,__('State'),array('Countries',self::$country_elem_name),array('empty_option'=>true));
 	}
 
 	public static function get_default_location() {
@@ -336,7 +335,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	        /*** get the days and hours***/
 	        $days = intval(intval($seconds) / (3600*24));
     		if($days > 0) {
-            		$ret .= Base_LangCommon::ts('Base_RegionalSettings','%s day(s) ',array($days));
+            		$ret .= __('%s day(s) ',array($days));
 		}
 		$hours = (intval($seconds) / 3600)%24;
 	} else {
@@ -345,17 +344,17 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		$days = 0;
 	}
         if($hours > 0) {
-            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s hour(s) ',array($hours));
+            $ret .= __('%s hour(s) ',array($hours));
         }
         /*** get the minutes ***/
         $minutes = (intval($seconds) / 60)%60;
         if($minutes > 0)
         {
-            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s minutes',array($minutes));
+            $ret .= __('%s minutes',array($minutes));
         }
 	if($seconds_h) {
 	    $seconds = intval($seconds)%60;
-            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s seconds',array($seconds));
+            $ret .= __('%s seconds',array($seconds));
 	}	
 		return $ret;
         }

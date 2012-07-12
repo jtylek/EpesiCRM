@@ -15,16 +15,16 @@ class CRM_Contacts_Photo extends Module {
 
     public function body($record) {
         $form = & $this->init_module('Utils/FileUpload',array(false));
-        $form->addElement('header', 'upload', $this->t('Upload new photo').': '.$record['last_name'].' '.$record['first_name']);
+        $form->addElement('header', 'upload', __('Upload new photo').': '.$record['last_name'].' '.$record['first_name']);
 
         $form->set_upload_button_caption('Save');
 
         $form->add_upload_element();
 
-        Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
-        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+        Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
         if(CRM_Contacts_PhotoCommon::get_photo($record['id'])) {
-            Base_ActionBarCommon::add('delete', 'Clear', $this->create_confirm_callback_href($this->t("Are you sure?"), array($this, 'clear_photo'), array($record['id'])));
+            Base_ActionBarCommon::add('delete', __('Clear'), $this->create_confirm_callback_href(__("Are you sure?"), array($this, 'clear_photo'), array($record['id'])));
         }
 
         $this->display_module($form, array( array($this,'submit_attach'), $record));
@@ -45,7 +45,7 @@ class CRM_Contacts_Photo extends Module {
         $possible_extensions = array('jpg', 'jpeg', 'png');
         $extension = strtolower(end(explode('.', $oryg)));
         if( ! in_array($extension, $possible_extensions) ) {
-            echo $this->t("Filename extension should be one of these(letter size doesn't matter): ").implode(', ', $possible_extensions);
+            echo __('Filename extension should be one of these(letter size doesn\'t matter): ').implode(', ', $possible_extensions);
             return;
         }
 

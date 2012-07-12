@@ -22,7 +22,7 @@ if (!isset($_SESSION['client']['quickform'])) {
 	return;
 }
 if (!isset($_SESSION['client']['quickform']['autocomplete'][$_GET['key']])) {
-    die('<ul><li style="font-weight: bold;text-align:center;">'.Base_LangCommon::ts('Libs_QuickForm','Search disabled in grid view').'</li></ul>');
+    die('<ul><li style="font-weight: bold;text-align:center;">'.__('Search disabled in grid view').'</li></ul>');
 }
 $params = $_SESSION['client']['quickform']['autocomplete'][$_GET['key']];
 $string = $_POST[$params['field']];
@@ -30,7 +30,7 @@ $callback = $params['callback'];
 
 if (is_callable($callback)) {
 /*	if (strlen($string)<2)
-		print('<ul><li class="informal">'.Base_LangCommon::ts('Libs_QuickForm','Minimum %d letters are required.',array(2)).'</li></ul>');
+		print('<ul><li class="informal">'.__('Minimum %d letters are required.',array(2)).'</li></ul>');
 	else {*/
 		array_unshift($params['args'], $string);
 		print(call_user_func_array($callback, $params['args']));

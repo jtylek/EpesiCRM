@@ -61,8 +61,8 @@ class Base_Setup extends Module {
 
 		$simple = Base_SetupCommon::is_simple_setup();
 
-		Base_ActionBarCommon::add('scan','Rebuild modules database',$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
-		if (!$store) Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('scan',__('Rebuild modules database'),$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
+		if (!$store) Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		
 		if ($simple)
 			$this->simple_setup();
@@ -111,8 +111,8 @@ class Base_Setup extends Module {
 		load_js('modules/Base/Setup/js/main.js');
 		eval_js('var showed = false;');
 		eval_js_once('var original_select = new Array('.sizeof($is_required).');');
-		eval_js_once('base_setup__reinstall_warning = \''.$this->t('Warning!\nAll data in reinstalled modules will be lost.').'\'');
-		eval_js_once('base_setup__uninstall_warning = \''.$this->t('Warning! The following modules will be uninstalled. Are you sure you want to continue?').'\'');
+		eval_js_once('base_setup__reinstall_warning = \''.__('Warning!\nAll data in reinstalled modules will be lost.').'\'');
+		eval_js_once('base_setup__uninstall_warning = \''.__('Warning! The following modules will be uninstalled. Are you sure you want to continue?').'\'');
 
 		foreach($module_dirs as $entry=>$versions) {
 			$installed = ModuleManager::is_installed($entry);
@@ -136,7 +136,7 @@ class Base_Setup extends Module {
 			// Show Tooltip if module is required
 			$tooltip = null;
 			if(isset($is_required[$entry])) {
-				$tooltip = $this->t('Required by:').'<ul>';
+				$tooltip = __('Required by:').'<ul>';
 				foreach($is_required[$entry] as $mod_name) {
 					$tooltip .= '<li>'.$mod_name.'</li>';
 				}
@@ -187,12 +187,12 @@ class Base_Setup extends Module {
 			return;
 		}
 		$form->display();
-		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
-		if (!$store) Base_ActionBarCommon::add('settings', 'Simple view',$this->create_callback_href(array($this,'switch_simple'),true));
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+		if (!$store) Base_ActionBarCommon::add('settings', __('Simple view'),$this->create_callback_href(array($this,'switch_simple'),true));
 	}
 
 	public function simple_setup() {
-		Base_ActionBarCommon::add('settings', 'Advanced view',$this->create_confirm_callback_href('Switch to advanced view?',array($this,'switch_simple'),false));
+		Base_ActionBarCommon::add('settings', __('Advanced view'),$this->create_confirm_callback_href('Switch to advanced view?',array($this,'switch_simple'),false));
 
 		$module_dirs = $this->get_module_dirs();
 		$is_required = ModuleManager::required_modules(true);
@@ -210,7 +210,7 @@ class Base_Setup extends Module {
 				$simple_module = false;
 
 			if ($simple_module===false) continue;
-			if ($simple_module===true) $simple_module = array('package'=>'Uncategorized', 'option'=>$entry);
+			if ($simple_module===true) $simple_module = array('package'=>__('Uncategorized'), 'option'=>$entry);
 			if (is_string($simple_module)) $simple_module = array('package'=>$simple_module);
 			if (!isset($simple_module['option'])) $simple_module['option'] = null;
 			$simple_module['module'] = $entry;
@@ -257,11 +257,11 @@ class Base_Setup extends Module {
 			$option = $p['option'];
 			if (!isset($sorted[$name])) {
 				$sorted[$name] = array();
-				$sorted[$name]['name'] = $this->t($name);
+				$sorted[$name]['name'] = $name;
 				$sorted[$name]['modules'] = array();
 				$sorted[$name]['buttons'] = array();
 				$sorted[$name]['options'] = array();
-				$sorted[$name]['status'] = $this->t('Options only');
+				$sorted[$name]['status'] = __('Options only');
 				$sorted[$name]['filter'] = array('available');
 				$sorted[$name]['style'] = 'disabled';
 				$sorted[$name]['installed'] = null;
@@ -282,36 +282,36 @@ class Base_Setup extends Module {
 								$mods = array_merge($mods,$pp['modules']);
 							}
 					}
-					$buttons[] = array('label'=>$this->t('Uninstall'),'style'=>'uninstall','href'=>$this->create_confirm_callback_href($this->t('Are you sure you want to uninstall this package and remove all associated data?'),array($this, 'simple_uninstall'), array($mods)));
+					$buttons[] = array('label'=>__('Uninstall'),'style'=>'uninstall','href'=>$this->create_confirm_callback_href(__('Are you sure you want to uninstall this package and remove all associated data?'),array($this, 'simple_uninstall'), array($mods)));
 				} else {
-					if ($key=='EPESI Core') $message = $this->t('EPESI Core can not be uninstalled');
-					elseif (empty($p['is_required'])) $message = $this->t('This package can not be uninstalled');
+					if ($key=='EPESI Core') $message = __('EPESI Core can not be uninstalled');
+					elseif (empty($p['is_required'])) $message = __('This package can not be uninstalled');
 					else {
 						$required = array();
 						foreach ($p['is_required'] as $v) $required[] = str_replace('|',' / ', $v);
-						$message = $this->t('This package is required by the following packages: %s',array('<br>'.implode('<br>', $required)));
+						$message = __('This package is required by the following packages: %s',array('<br>'.implode('<br>', $required)));
 					}
-					$buttons[] = array('label'=>$this->t('Uninstall'),'style'=>'disabled','href'=>Utils_TooltipCommon::open_tag_attrs($message, false));
+					$buttons[] = array('label'=>__('Uninstall'),'style'=>'disabled','href'=>Utils_TooltipCommon::open_tag_attrs($message, false));
 				}
 			}
 			if ($p['installed']===false || $p['installed']==='partial') {
-				$buttons[] = array('label'=>$this->t('Install'),'style'=>'install','href'=>$this->create_callback_href(array($this, 'simple_install'), array($p['modules'])));
+				$buttons[] = array('label'=>__('Install'),'style'=>'install','href'=>$this->create_callback_href(array($this, 'simple_install'), array($p['modules'])));
 			}
 			switch (true) {
 				case $p['installed']===false:
 					$style = 'available';
 					$filter = array('available');
-					$status = $this->t('Available'); 
+					$status = __('Available'); 
 					break;
 				case $p['installed']===true:
 					$style = 'install';
 					$filter = array('installed');
-					$status = $this->t('Installed');
+					$status = __('Installed');
 					break;
 				case $p['installed']==='partial':
 					$style = 'partial-install';
 					$filter = array('installed');
-					$status = $this->t('Partially');
+					$status = __('Partially');
 					break;
 			}
 
@@ -329,16 +329,16 @@ class Base_Setup extends Module {
 				$sorted[$name]['url'] = $p['url'];
 			} else {
 				$sorted[$name]['options'][$option] = array(
-				'name' => $this->t($option),
+				'name' => $option,
 				'buttons' => $buttons,
 				'status' => $status,
 				'style' => $style);
 			}
 		}
 		$filters = array(
-			$this->t('All') => array('arg'=>''),
-			$this->t('Installed') => array('arg'=>'installed'),
-			$this->t('Available') => array('arg'=>'available')
+			__('All') => array('arg'=>''),
+			__('Installed') => array('arg'=>'installed'),
+			__('Available') => array('arg'=>'available')
 		);
 		if (ModuleManager::is_installed('Base_EpesiStore')>=0) {
 			$this->add_store_products($sorted, $filters);
@@ -354,33 +354,33 @@ class Base_Setup extends Module {
 		$t = $this->init_module('Base/Theme');
 		$t->assign('packages', $sorted);
 		$t->assign('filters', $filters);
-		$t->assign('version_label', $this->t('Ver. '));
-		$t->assign('labels', array('options'=>$this->t('Optional')));
+		$t->assign('version_label', __('Ver. '));
+		$t->assign('labels', array('options'=>__('Optional')));
 		
 		$t->display();
 	}
     
     public static function response_callback($action, $ret) {
 		if ($ret!==true) {
-			$msg = Base_LangCommon::ts('Base_Setup', 'Error');
-			if (is_string($ret) && $ret) $msg .= ': '.Base_LangCommon::ts('Base_Setup', $ret);
+			$msg = __( 'Error');
+			if (is_string($ret) && $ret) $msg .= ': '.$ret;
 			Base_StatusBarCommon::message($msg, 'error');
 		} else {
 			switch ($action) {
 				case Base_EpesiStoreCommon::ACTION_BUY:
-					$msg = Base_LangCommon::ts('Base_Setup', 'Purchase successful');
+					$msg = __( 'Purchase successful');
 					break;
 				case Base_EpesiStoreCommon::ACTION_PAY:
-					$msg = Base_LangCommon::ts('Base_Setup', 'Payment successful');
+					$msg = __( 'Payment successful');
 					break;
 				case Base_EpesiStoreCommon::ACTION_DOWNLOAD:
 				case Base_EpesiStoreCommon::ACTION_UPDATE:
 					Base_SetupCommon::refresh_available_modules();
 					Base_BoxCommon::update_version_check_indicator(true);
-					$msg = Base_LangCommon::ts('Base_Setup', 'Download successful');
+					$msg = __( 'Download successful');
 					break;
 				case Base_EpesiStoreCommon::ACTION_INSTALL:
-					$msg = Base_LangCommon::ts('Base_Setup', 'Install successful');
+					$msg = __( 'Install successful');
 					break;
 			}
 			Base_StatusBarCommon::message($msg);
@@ -397,16 +397,16 @@ class Base_Setup extends Module {
 		$filters_attrs = '';
 		if (!$registered) {
 			if (TRIAL_MODE) {
-				$msg = $this->t('EPESI store is not accessible during the trial.');
+				$msg = __('EPESI store is not accessible during the trial.');
 				$filters_attrs = 'href="javascript:void(0);" onclick="alert(\''.$msg.'\');"';
 			} else {
-				$msg = $this->t('To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?');
+				$msg = __('To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?');
 				$filters_attrs = $this->create_confirm_callback_href($msg, array($this, 'jump_to_epesi_registration'));
 			}
 		}
-		$filters[$this->t('Updates')] = array('arg'=>'updates', 'attrs'=>$filters_attrs);
-		$filters[$this->t('My Purchases')] = array('arg'=>'purchases', 'attrs'=>$filters_attrs);
-		$filters[$this->t('Store')] = array('arg'=>'store', 'attrs'=>$filters_attrs);
+		$filters[__('Updates')] = array('arg'=>'updates', 'attrs'=>$filters_attrs);
+		$filters[__('My Purchases')] = array('arg'=>'purchases', 'attrs'=>$filters_attrs);
+		$filters[__('Store')] = array('arg'=>'store', 'attrs'=>$filters_attrs);
 		if (!$registered) 
 			return;
 		
@@ -420,10 +420,10 @@ class Base_Setup extends Module {
 			$label = Base_EpesiStoreCommon::next_possible_action($s['id']);
 			if (!isset($s['total_price'])) $s['total_price'] = $s['price'];
 			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['total_price']===0) {
-				$s['total_price'] = $this->t('Free');
+				$s['total_price'] = __('Free');
 				$label = 'obtain license';
 			}
-			$b_label = $this->t(ucfirst($label));
+			$b_label = _V(ucfirst($label)); // ****** EpesiStoreCommon - translations added in comments
             $button = array('label'=>$b_label,'style'=>$label==Base_EpesiStoreCommon::ACTION_UPDATE?'problem':'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback')));
 			if (isset($sorted[$name]) && ($label==Base_EpesiStoreCommon::ACTION_INSTALL || $label==Base_EpesiStoreCommon::ACTION_UPDATE)) {
 				$sorted[$name]['filter'][] = 'purchases';
@@ -439,18 +439,18 @@ class Base_Setup extends Module {
 			$sorted[$name] = array();
 			$sorted[$name]['url'] = $s['description_url'];
 			$sorted[$name]['icon'] = $s['icon_url'];
-			$sorted[$name]['name'] = $this->t($name);
+			$sorted[$name]['name'] = _V($name); // ****** FIXME - modules names from the store
 			$sorted[$name]['modules'] = array();
 			$sorted[$name]['options'] = array();
             $buttons_tooltip = $this->included_modules_text($s);
             $buttons_tooltip = $buttons_tooltip ? Utils_TooltipCommon::open_tag_attrs($buttons_tooltip, false) : '';
             $sorted[$name]['buttons_tooltip'] = $buttons_tooltip;
 			if (isset($s['paid']) && $s['paid']) {
-				$sorted[$name]['status'] = $this->t('Purchased');
+				$sorted[$name]['status'] = __('Purchased');
 				$sorted[$name]['style'] = 'problem';
 				$sorted[$name]['filter'] = array('purchases');
 			} else {
-				$sorted[$name]['status'] = $this->t('Price: %s', array($s['total_price']));
+				$sorted[$name]['status'] = __('Price: %s', array($s['total_price']));
 				$sorted[$name]['style'] = 'store';
 				$sorted[$name]['filter'] = array('store');
 			}
@@ -467,7 +467,7 @@ class Base_Setup extends Module {
     private function included_modules_text($module) {
         $text = '';
         if ($module['required_modules']) {
-            $text .= $this->t("With this module you will get license for these modules:");
+            $text .= __("With this module you will get license for these modules:");
             $arr = array($module['name'] => $module['price']);
 			if (!is_array($module['required_modules'])) $module['required_modules'] = explode(', ',$module['required_modules']);
             foreach ($module['required_modules'] as $rm_id) {

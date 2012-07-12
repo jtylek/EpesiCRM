@@ -159,7 +159,7 @@ class Utils_Planner extends Module {
 		if ($this->date===null) {
 			$days_of_week = array(0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednesday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday');
 			while (count($headers)<7) {
-				$headers[$fdow] = $this->t($days_of_week[$fdow]);
+				$headers[$fdow] = _V($days_of_week[$fdow]);
 				$fdow++;
 				if ($fdow>6) $fdow -= 7;
 			}
@@ -169,7 +169,7 @@ class Utils_Planner extends Module {
 			$days_of_week = array(0=>'Sun', 1=>'Mon', 2=>'Tue', 3=>'Wed', 4=>'Thu', 5=>'Fri', 6=>'Sat');
 			$curr = $this->date;
 			while (count($headers)<7) {
-				$headers[$curr] = Base_RegionalSettingsCommon::time2reg($curr, false, true, false).' '.$this->t($days_of_week[date('w',$curr)]);
+				$headers[$curr] = Base_RegionalSettingsCommon::time2reg($curr, false, true, false).' '._V($days_of_week[date('w',$curr)]);
 				$curr = strtotime('+1 day', $curr);
 			}
 		}
@@ -194,21 +194,21 @@ class Utils_Planner extends Module {
 		/* GRID LEGEND END */
 		
 		$theme->assign('select_all',$select_all);
-		$theme->assign('select_all_label',$this->t('Select All'));
+		$theme->assign('select_all_label',__('Select all'));
 
 		$theme->assign('grid_legend',$grid_legend);
 		$theme->assign('grid_attrs',$grid_attrs);
-		$theme->assign('time_frames',array('label'=>$this->t('Time frames'), 'html'=>'<div id="Utils_Planner__time_frames" />'));
+		$theme->assign('time_frames',array('label'=>__('Time frames'), 'html'=>'<div id="Utils_Planner__time_frames" />'));
 		$_SESSION['client']['utils_planner']['grid']=array(
 			'timetable'=>$this->grid,
 			'days'=>$headers,
 			);
 		if ($this->date!==null) {
-			$this->form->addElement('submit', 'next_day', $this->t('Next day'), array('onclick'=>'$("planner_navigation").value="next_day";'));
-			$this->form->addElement('submit', 'prev_day', $this->t('Previous day'), array('onclick'=>'$("planner_navigation").value="prev_day";'));
-			$this->form->addElement('submit', 'next_week', $this->t('Next week'), array('onclick'=>'$("planner_navigation").value="next_week";'));
-			$this->form->addElement('submit', 'prev_week', $this->t('Previous week'), array('onclick'=>'$("planner_navigation").value="prev_week";'));
-			$this->form->addElement('submit', 'today', $this->t('Today'), array('onclick'=>'$("planner_navigation").value="today";'));
+			$this->form->addElement('submit', 'next_day', __('Next day'), array('onclick'=>'$("planner_navigation").value="next_day";'));
+			$this->form->addElement('submit', 'prev_day', __('Previous day'), array('onclick'=>'$("planner_navigation").value="prev_day";'));
+			$this->form->addElement('submit', 'next_week', __('Next week'), array('onclick'=>'$("planner_navigation").value="next_week";'));
+			$this->form->addElement('submit', 'prev_week', __('Previous week'), array('onclick'=>'$("planner_navigation").value="prev_week";'));
+			$this->form->addElement('submit', 'today', __('Today'), array('onclick'=>'$("planner_navigation").value="today";'));
 			$this->form->addElement('hidden', 'navigation', '', array('id'=>'planner_navigation'));
 			$link_text = '$(\'planner_navigation\').value=\'__YEAR__-__MONTH__-__DAY__\';'.$this->form->get_submit_form_js().';';
 			$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'day',$fdow,null,null,$this->date));
@@ -231,8 +231,8 @@ class Utils_Planner extends Module {
 			
 		$this->form->assign_theme('form', $theme);
 		$theme->display();
-		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('save',__('Save'),$this->form->get_submit_form_href());
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		
 		$time_frames = explode(';',$values['grid_selected_frames']);
 		if (!empty($time_frames) && $time_frames[0]) {

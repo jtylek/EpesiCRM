@@ -14,25 +14,25 @@ class Applets_RssFeedCommon extends ModuleCommon {
 	private static $feed;
 	
 	public static function applet_caption() {
-		return "RSS Feed";
+		return __("RSS Feed");
 	}
 
 	public static function applet_info() {
-		return "Simple RSS Feed"; //here can be associative array
+		return __("Simple RSS Feed"); //here can be associative array
 	}
 
 	public static function applet_settings() {
 		return array(
-			array('name'=>'rssfeed','label'=>'RSS Feed','type'=>'text','default'=>'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml',
+			array('name'=>'rssfeed','label'=>__('RSS Feed'),'type'=>'text','default'=>'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml',
 				'rule'=>array(
-					array('message'=>'Field required', 'type'=>'required'),
-					array('message'=>'Invalid RSS feed or server has disabled url_fopen support', 'type'=>'callback', 'func'=>array('Applets_RssFeedCommon','check_feed')),
-					array('message'=>'Invalid address','type'=>'regex','param'=>'/^http(s)?:\/\//')
+					array('message'=>__('Field required'), 'type'=>'required'),
+					array('message'=>__('Invalid RSS Feed or server has disabled url_fopen support'), 'type'=>'callback', 'func'=>array('Applets_RssFeedCommon','check_feed')),
+					array('message'=>__('Invalid address'),'type'=>'regex','param'=>'/^http(s)?:\/\//')
 					),
 				'filter'=>array(array('Applets_RssFeedCommon','set_url'))
 			),
-			array('name'=>'rssnumber','label'=>'Number of news','type'=>'text','default'=>'5','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			array('name'=>'title','label'=>'Title (leave empty for RSS feed value)','type'=>'text','default'=>'',
+			array('name'=>'rssnumber','label'=>__('Number of news'),'type'=>'text','default'=>'5','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
+			array('name'=>'title','label'=>__('Title (leave empty for RSS Feed value)'),'type'=>'text','default'=>'',
 				'filter'=>array(
 					array('Applets_RssFeedCommon','get_title')
 				)

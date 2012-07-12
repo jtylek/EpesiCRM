@@ -35,37 +35,37 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             DB::Execute($q);
         }
 
-        Utils_CommonDataCommon::new_array('CRM/Roundcube/Security', array('tls'=>'TLS','ssl'=>'SSL'),true,true);
+        Utils_CommonDataCommon::new_array('CRM/Roundcube/Security', array('tls'=>_M('TLS'),'ssl'=>_M('SSL')),true,true);
 
         $fields = array(
-            array('name'=>'Epesi User',             'type'=>'integer', 'extra'=>false, 'visible'=>true, 'required'=>true, 'display_callback'=>array('CRM_RoundcubeCommon', 'display_epesi_user'), 'QFfield_callback'=>array('CRM_RoundcubeCommon', 'QFfield_epesi_user')),
-            array('name'=>'Email',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>128),
-        	array('name'=>'Account Name',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>32,'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_account_name')),
-        	array('name'=>'Server',             'type'=>'text', 'extra'=>false, 'visible'=>true, 'param'=>'255', 'required'=>true),
-            array('name'=>'Login',              'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true),
-            array('name'=>'Password',           'type'=>'text', 'required'=>true,'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_password'), 'display_callback'=>array('CRM_RoundcubeCommon','display_password')),
-            array('name'=>'Security',           'type'=>'commondata', 'param'=>array('CRM/Roundcube/Security'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_security')),
+            array('name' => _M('Epesi User'),             'type'=>'integer', 'extra'=>false, 'visible'=>true, 'required'=>true, 'display_callback'=>array('CRM_RoundcubeCommon', 'display_epesi_user'), 'QFfield_callback'=>array('CRM_RoundcubeCommon', 'QFfield_epesi_user')),
+            array('name' => _M('Email'),             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>128),
+        	array('name' => _M('Account Name'),             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>32,'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_account_name')),
+        	array('name' => _M('Server'),             'type'=>'text', 'extra'=>false, 'visible'=>true, 'param'=>'255', 'required'=>true),
+            array('name' => _M('Login'),              'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true),
+            array('name' => _M('Password'),           'type'=>'text', 'required'=>true,'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_password'), 'display_callback'=>array('CRM_RoundcubeCommon','display_password')),
+            array('name' => _M('Security'),           'type'=>'commondata', 'param'=>array('CRM/Roundcube/Security'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_security')),
 
-            array('name'=>'SMTP Server',             'type'=>'text', 'extra'=>false, 'visible'=>false, 'param'=>'255', 'required'=>true),
-            array('name'=>'SMTP Auth',             'type'=>'checkbox', 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_auth')),
-            array('name'=>'SMTP Login',              'type'=>'text', 'required'=>false, 'param'=>'255', 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_login')),
-            array('name'=>'SMTP Password',           'type'=>'text', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_password'), 'display_callback'=>array('CRM_RoundcubeCommon','display_password')),
-            array('name'=>'SMTP Security',           'type'=>'commondata', 'param'=>array('CRM/Roundcube/Security'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_security')),
+            array('name' => _M('SMTP Server'),             'type'=>'text', 'extra'=>false, 'visible'=>false, 'param'=>'255', 'required'=>true),
+            array('name' => _M('SMTP Auth'),             'type'=>'checkbox', 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_auth')),
+            array('name' => _M('SMTP Login'),              'type'=>'text', 'required'=>false, 'param'=>'255', 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_login')),
+            array('name' => _M('SMTP Password'),           'type'=>'text', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_password'), 'display_callback'=>array('CRM_RoundcubeCommon','display_password')),
+            array('name' => _M('SMTP Security'),           'type'=>'commondata', 'param'=>array('CRM/Roundcube/Security'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_smtp_security')),
 
-            array('name'=>'Default Account',             'type'=>'checkbox', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_default_account')),
+            array('name' => _M('Default Account'),             'type'=>'checkbox', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_default_account')),
 
-            array('name'=>'Advanced', 'type'=>'page_split'),
-            array('name'=>'Archive on sending', 'type'=>'checkbox', 'extra'=>true, 'visible'=>false),
-            array('name'=>'IMAP Root', 'type'=>'text', 'param'=>32, 'extra'=>true, 'visible'=>false),
-            array('name'=>'IMAP Delimiter', 'type'=>'text', 'param'=>8, 'extra'=>true, 'visible'=>false)
+            array('name' => _M('Advanced'), 'type'=>'page_split'),
+            array('name' => _M('Archive on sending'), 'type'=>'checkbox', 'extra'=>true, 'visible'=>false),
+            array('name' => _M('IMAP Root'), 'type'=>'text', 'param'=>32, 'extra'=>true, 'visible'=>false),
+            array('name' => _M('IMAP Delimiter'), 'type'=>'text', 'param'=>8, 'extra'=>true, 'visible'=>false)
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_accounts', $fields);
-        Utils_RecordBrowserCommon::set_caption('rc_accounts', 'Mail accounts');
+        Utils_RecordBrowserCommon::set_caption('rc_accounts', _M('Mail accounts'));
 		Utils_RecordBrowserCommon::register_processing_callback('rc_accounts', array('CRM_RoundcubeCommon', 'submit_account'));
 
         $fields = array(
             array(
-                'name'=>'Subject',
+                'name' => _M('Subject'),
                 'type'=>'text',
                 'param'=>'256',
                 'extra'=>false,
@@ -74,7 +74,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'display_callback'=>array('CRM_RoundcubeCommon','display_subject')
             ),
             array(
-                'name'=>'Contacts',
+                'name' => _M('Contacts'),
                 'type'=>'crm_company_contact',
                 'param'=>array('field_type'=>'multiselect'),
                 'required'=>false,
@@ -82,7 +82,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'visible'=>true
             ),
             array(
-                'name'=>'Employee',
+                'name' => _M('Employee'),
                 'type'=>'crm_contact',
                 'param'=>array('field_type'=>'select'),
                 'extra'=>false,
@@ -90,14 +90,14 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'required'=>false
             ),
             array(
-                'name'=>'Date',
+                'name' => _M('Date'),
                 'type'=>'timestamp',
                 'extra'=>false,
                 'visible'=>true,
                 'required'=>false
             ),
             array(
-                'name'=>'Attachments',
+                'name' => _M('Attachments'),
                 'type'=>'calculated',
                 'extra'=>false,
                 'visible'=>true,
@@ -105,14 +105,14 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_attachments')
             ),
             array(
-                'name'=>'Headers Data',
+                'name' => _M('Headers Data'),
                 'type'=>'long text',
                 'extra'=>false,
                 'visible'=>false,
                 'required'=>false
             ),
             array(
-                'name'=>'Body',
+                'name' => _M('Body'),
                 'type'=>'long text',
                 'extra'=>false,
                 'visible'=>false,
@@ -120,7 +120,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_body')
             ),
             array(
-                'name'=>'From',
+                'name' => _M('From'),
                 'type'=>'text',
                 'param'=>128,
                 'extra'=>false,
@@ -128,7 +128,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'required'=>false
             ),
             array(
-                'name'=>'To',
+                'name' => _M('To'),
                 'type'=>'text',
                 'param'=>512,
                 'extra'=>false,
@@ -137,33 +137,33 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             )
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails', $fields);
-        Utils_RecordBrowserCommon::set_caption('rc_mails', 'Mails');
+        Utils_RecordBrowserCommon::set_caption('rc_mails', _M('Mails'));
 		Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'mails'));
 
         $fields = array(
             array(
-                'name'=>'Mail',
+                'name' => _M('Mail'),
                 'type'=>'select',
                 'param'=>'rc_mails::Subject' ,
                 'required'=>true, 'extra'=>false, 'visible'=>false
             ), array(
-                'name'=>'Recordset',
+                'name' => _M('Recordset'),
                 'type'=>'text',
                 'param'=>64,
                 'required'=>true, 'extra'=>false, 'visible'=>false
             ), array(
-                'name'=>'Record ID',
+                'name' => _M('Record ID'),
                 'type'=>'integer',
                 'display_callback'=>array($this->get_type().'Common', 'display_record_id'),
                 'required'=>true, 'extra'=>false, 'visible'=>true
             )
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails_assoc', $fields);
-        Utils_RecordBrowserCommon::set_caption('rc_mails_assoc', 'Mails Associations');
-		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_body_addon', 'Body');
-        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon', 'Associated records');
-        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', 'Attachments');
-		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_headers_addon', 'Headers');
+        Utils_RecordBrowserCommon::set_caption('rc_mails_assoc', _M('Mails Associations'));
+		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_body_addon', _M('Body'));
+        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon', _M('Associated records'));
+        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', _M('Attachments'));
+		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_headers_addon', _M('Headers'));
 
         @DB::DropTable('rc_mails_attachments');
         DB::CreateTable('rc_mails_attachments','
@@ -174,24 +174,24 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             attachment I1 DEFAULT 1',
             array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES rc_mails_data_1(ID)'));
 
-        Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'addon', 'e-mails');
-        Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'addon', 'e-mails');
+        Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'addon', _M('E-mails'));
+        Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'addon', _M('E-mails'));
 
 		$fields = array(
-			array('name'=>'Record Type', 	'type'=>'hidden', 'param'=>Utils_RecordBrowserCommon::actual_db_type('text',64), 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
-			array('name'=>'Record ID', 		'type'=>'hidden', 'param'=>Utils_RecordBrowserCommon::actual_db_type('integer'), 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
-			array('name'=>'Nickname', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_nickname')),
-			array('name'=>'Email', 			'type'=>'email', 'required'=>true, 'param'=>array('unique'=>true), 'extra'=>false, 'visible'=>true)
+			array('name' => _M('Record Type'), 	'type'=>'hidden', 'param'=>Utils_RecordBrowserCommon::actual_db_type('text',64), 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
+			array('name' => _M('Record ID'), 		'type'=>'hidden', 'param'=>Utils_RecordBrowserCommon::actual_db_type('integer'), 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
+			array('name' => _M('Nickname'), 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_nickname')),
+			array('name' => _M('Email'), 			'type'=>'email', 'required'=>true, 'param'=>array('unique'=>true), 'extra'=>false, 'visible'=>true)
 		);
 
 		Utils_RecordBrowserCommon::install_new_recordset('rc_multiple_emails', $fields);
 		
 		Utils_RecordBrowserCommon::set_favorites('rc_multiple_emails', true);
-		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', 'Mail addresses');
+		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', _M('Mail addresses'));
 		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundube', 'icon.png'));
 
-		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', 'e-mail addresses');
-		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', 'e-mail addresses');
+		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));
+		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));
 
         Variable::set('crm_roundcube_global_signature',"Message sent with EpesiBIM - managing business your way!<br /><a href=\"http://www.epesibim.com\">http://www.epesibim.com</a>");
 

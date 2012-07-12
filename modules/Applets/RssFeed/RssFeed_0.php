@@ -17,14 +17,14 @@ class Applets_RssFeed extends Module {
 
 	public function applet($values, & $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		if (!$values['title']) {
-			$values['title'] = $this->t('RSS feed');
+			$values['title'] = __('RSS Feed');
 		}
 		$opts['title'] = $values['title'];
 
 		$name = md5($this->get_path().$values['rssfeed']);
 
 		//div for updating
-		print('<div id="rssfeed_'.$name.'" style="width: 270px; padding: 5px 5px 5px 20px;">'.$this->t('Loading RSS...').'</div>');
+		print('<div id="rssfeed_'.$name.'" style="width: 270px; padding: 5px 5px 5px 20px;">'.__('Loading RSS...').'</div>');
 
 		//interval execution
 		eval_js_once('var rssfeedcache = Array();'.

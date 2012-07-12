@@ -40,6 +40,8 @@ foreach ($frames as $v) {
 $headers = $_SESSION['client']['utils_planner']['grid']['days'];
 
 $selected_frames = array();
+$label_h = __('Hours');
+$label_h = $label_h[0];
 foreach ($cleanFrames as $day=>$v) {
 	$start = null;
 	foreach ($_SESSION['client']['utils_planner']['grid']['timetable'] as $t) {
@@ -50,8 +52,8 @@ foreach ($cleanFrames as $day=>$v) {
 			$h = floor($dur/60);
 			$min = $dur%60;
 			$duration = '';
-			if ($h) $duration .= $h.Base_LangCommon::ts('Utils_Planner','h').' ';
-			if ($min || !$duration) $duration .= $min.Base_LangCommon::ts('Utils_Planner','min');
+			if ($h) $duration .= $h.$label_h.' ';
+			if ($min || !$duration) $duration .= $min.__('min');
 			$next = '<tr>'.
 						'<td style="width:90px">'.$headers[$day].'</td>'.
 						'<td>'.Utils_PlannerCommon::format_time($start*60).'</td>'.

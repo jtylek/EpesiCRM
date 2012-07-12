@@ -17,7 +17,7 @@ class Base_BoxCommon extends ModuleCommon {
 	public static function get_main_module_name() {
 		$ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini');
 		if(!$ini) {
-			print(Base_LangCommon::ts('Base_Box','Unable to read Base_Box.ini file! Please create one, or change theme.'));
+			print(__('Unable to read Base_Box.ini file! Please create one, or change theme.'));
 			return;
 		}
 		$containers = parse_ini_file($ini,true);
@@ -69,12 +69,12 @@ class Base_BoxCommon extends ModuleCommon {
     }
 	
 	public static function update_version_check_indicator($force=false) {
-		$version_no = Base_LangCommon::ts('Base_Box','version %s',array(EPESI_VERSION));
+		$version_no = __('version %s',array(EPESI_VERSION));
 		if (CHECK_VERSION && ModuleManager::is_installed('Base/EpesiStore')>=0) {
 			load_js('modules/Base/Box/check_for_new_version.js');
 			if ($force) eval_js('$("epesi_new_version").done = false;');
 			eval_js('check_for_new_version();');
-			$version_no = '<span id="epesi_new_version">'.Utils_TooltipCommon::create($version_no, Base_LangCommon::ts('Base_Box','Checking if there are updates available...'), false).'</span>';
+			$version_no = '<span id="epesi_new_version">'.Utils_TooltipCommon::create($version_no, __('Checking if there are updates available...'), false).'</span>';
 			if (isset($_REQUEST['go_to_epesi_store_for_updates'])) {
 				Base_BoxCommon::push_module('Base_EpesiStore', 'admin');
 				return;

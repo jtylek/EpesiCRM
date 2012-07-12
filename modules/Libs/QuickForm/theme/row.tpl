@@ -1,3 +1,4 @@
+<div style="text-align:left;padding-left:6px;">
 {$form_open}
 
 {foreach from=$form_data.header item=h}
@@ -12,7 +13,7 @@
 			<td class="epesi_label" style="width: 10px;white-space: nowrap;">
 				{$f.label}{if $f.required}*{/if}
 			</td>
-			<td class="epesi_data" style="width: 10px;">
+			<td class="epesi_data"{if $f.type=='checkbox'} style="width: 10px;"{/if}>
 				<div style="position: relative;">
 					{$f.error}
 					{$f.html}
@@ -34,3 +35,4 @@
 
 
 {$form_close}
+</div>

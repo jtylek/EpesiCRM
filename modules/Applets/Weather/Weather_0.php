@@ -33,13 +33,13 @@ class Applets_Weather extends Module {
 	public function applet($values, & $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		Base_ThemeCommon::load_css('Applets_Weather');
 
-		$opts['title'] = $this->t('Weather');
+		$opts['title'] = __('Weather');
 
 		$rssfeed = $values['rssfeed'] . '?p=' . $values['zipcode'] . '&u=' . $values['temperature'];
 		$name = md5($this->get_path().$rssfeed);
 
 		//div for updating
-		print('<div id="Applets_Weather"><div id="rssfeed_'.$name.'"><span>'.$this->t('Loading Weather...').'</span></div></div>');
+		print('<div id="Applets_Weather"><div id="rssfeed_'.$name.'"><span>'.__('Loading Weather...').'</span></div></div>');
 
 		//interval execution
 		eval_js_once('var rssfeedcache = Array();'.

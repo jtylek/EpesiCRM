@@ -29,11 +29,11 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$form = & $this->init_module('Libs/QuickForm','Changing template');
 		
 		$themes = Base_Theme::list_themes();
-		$form->addElement('header', 'install_module_header', $this->t('Themes Administration'));
-		$form->addElement('select', 'theme', $this->t('Choose template'), $themes);
+		$form->addElement('header', 'install_module_header', __('Themes Administration'));
+		$form->addElement('select', 'theme', __('Choose template'), $themes);
 
-		$form->addElement('checkbox', 'preload_selected', $this->t('Preload selected template images'));
-		$form->addElement('checkbox', 'preload_default', $this->t('Preload default template images'));
+		$form->addElement('checkbox', 'preload_selected', __('Preload selected template images'));
+		$form->addElement('checkbox', 'preload_default', __('Preload default template images'));
 		
 		$form->setDefaults(array(
 			'theme'=>Variable::get('default_theme'),
@@ -47,12 +47,12 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			$form->display();
 			
 			if(class_exists('ZipArchive')) {
-				$this->pack_module('Utils/FileUpload',array(array($this,'upload_template'),$this->t('Upload template')));
-				Base_ActionBarCommon::add('edit','Manage templates',$this->create_callback_href(array($this,'download_template')));
+				$this->pack_module('Utils/FileUpload',array(array($this,'upload_template'),__('Upload template')));
+				Base_ActionBarCommon::add('edit',__('Manage templates'),$this->create_callback_href(array($this,'download_template')));
 			}
 		}
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 
 	}
 	
@@ -60,10 +60,10 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$zip = new ZipArchive;
 		if ($zip->open($file) == 1) {
     			$zip->extractTo(DATA_DIR.'/Base_Theme/templates/');
-			Base_StatusBarCommon::message($this->t('Template installed'));
+			Base_StatusBarCommon::message(__('Template installed'));
     			return true;
 		}
-		Base_StatusBarCommon::message($this->t('Invalid template file'),'error');
+		Base_StatusBarCommon::message(__('Invalid template file'),'error');
 		return true;
 	}
 	
@@ -81,8 +81,8 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$ld = $this->get_data_dir().'list/';
 		if(!file_exists($ld)) return $this->download_templates_list();
 		if($this->is_back()) return false;
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-		Base_ActionBarCommon::add('search','Update templates list',$this->create_callback_href(array($this,'download_templates_list')));
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
+		Base_ActionBarCommon::add('search',__('Update templates list'),$this->create_callback_href(array($this,'download_templates_list')));
 		
 		$m = & $this->init_module('Utils/GenericBrowser',null,'new_templates');
  		$m->set_table_columns(array(array('name'=>'Name','search'=>1),array('name'=>'Version'),array('name'=>'Screenshot'),array('name'=>'Author','search'=>1),array('name'=>'Info','search'=>1),array('name'=>'Compatible')));

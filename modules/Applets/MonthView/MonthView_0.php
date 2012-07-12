@@ -71,7 +71,7 @@ class Applets_MonthView extends Module {
 		$day = strtotime('Sun');
 		$day = strtotime('+'.Utils_PopupCalendarCommon::get_first_day_of_week().' days', $day);
 		for ($i=0; $i<7; $i++) {
-			$day_headers[] = Base_LangCommon::ts('Utils_Calendar',date('D', $day));
+			$day_headers[] = _V(date('D', $day)); // ****** date() - handled by Utils/Calendar
 			$day = strtotime('+1 day', $day);
 		}
 
@@ -84,7 +84,7 @@ class Applets_MonthView extends Module {
 		$month = $this->month_array($this->date, $ret);
 		$year[] = array('month' => $month,
 						'month_link' => Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$this->date, 'switch_to_tab'=>'Month')),
-						'month_label' => Base_LangCommon::ts('Utils_Calendar',date('F', $this->date)),
+						'month_label' => _V(date('F', $this->date)), // ****** date() - handled by Utils/Calendar
 						'year_label' => date('Y', $this->date)
 						);
 		$theme->assign('year', $year);

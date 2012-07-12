@@ -62,19 +62,19 @@ class Utils_Messenger extends Module {
 			$f->setDefaults(array('alert_date'=>$tt,'alert_time'=>$tt));
 		}
 
-		$f->addElement('textarea', 'message', $this->t('Message'));
-		$f->addElement('datepicker', 'alert_date', $this->t('Alert date'));
+		$f->addElement('textarea', 'message', __('Message'));
+		$f->addElement('datepicker', 'alert_date', __('Alert date'));
 		$lang_code = Base_LangCommon::get_lang_code();
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
-		$f->addElement('date', 'alert_time', $this->t('Alert time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
+		$f->addElement('date', 'alert_time', __('Alert time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
 		
 		if(is_array($this->users)) {
 			foreach($this->users as $k=>$r) {
 				if(!Base_User_SettingsCommon::get($this->get_type(),'allow_other',$k) && Acl::get_user()!=$k)
 					unset($this->users[$k]);
 			}
-			$f->addElement('multiselect', 'users', $this->t('Assigned users'), $this->users);
-			$f->addRule('users', $this->t('At least one user must be assigned to an alarm.'), 'required');
+			$f->addElement('multiselect', 'users', __('Assigned users'), $this->users);
+			$f->addRule('users', __('At least one user must be assigned to an alarm.'), 'required');
 			$f->setDefaults(array('users'=>array_keys($this->users)));
 		}
 
@@ -103,8 +103,8 @@ class Utils_Messenger extends Module {
 			$this->pop_box0();
 		}
 		
-		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('save',__('Save'),$f->get_submit_form_href());
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		$f->display();
 	}
 	
@@ -117,9 +117,9 @@ class Utils_Messenger extends Module {
 	public function body() {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'messages');
 		$gb->set_table_columns(array(
-			array('name'=>$this->t('Alert on'), 'width'=>20),
-			array('name'=>$this->t('Message'), 'width'=>50),
-			array('name'=>$this->t('Users'), 'width'=>30)
+			array('name'=>__('Alert on'), 'width'=>20),
+			array('name'=>__('Message'), 'width'=>50),
+			array('name'=>__('Users'), 'width'=>30)
 				));
 		$data = DB::GetAll('SELECT * FROM utils_messenger_message WHERE page_id=\''.$this->mid.'\'');
 		foreach($data as & $row) {
@@ -135,11 +135,11 @@ class Utils_Messenger extends Module {
 				
 			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['alert_on']),$row['message'],$us);
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users))),'Edit');
-			$r->add_action($this->create_confirm_callback_href($this->t('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
 		
-		Base_ActionBarCommon::add('add','New alert',$this->create_callback_href(array($this,'push_box0'),array('edit',array(false),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users))));	
+		Base_ActionBarCommon::add('add',__('New alert'),$this->create_callback_href(array($this,'push_box0'),array('edit',array(false),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users))));	
 	}
 
 	public function purge_old() {
@@ -159,13 +159,13 @@ class Utils_Messenger extends Module {
 	public function browse() {
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
-			array('name'=>$this->t('Done'), 'order'=>'done', 'width'=>5),
-			array('name'=>$this->t('Start'), 'order'=>'alert_on', 'width'=>15),
-			array('name'=>$this->t('Info'), 'width'=>80)
+			array('name'=>__('Done'), 'order'=>'done', 'width'=>5),
+			array('name'=>__('Start'), 'order'=>'alert_on', 'width'=>15),
+			array('name'=>__('Info'), 'width'=>80)
 		);
 		$gb->set_table_columns($columns);
 
-		$gb->set_default_order(array($this->t('Start')=>'ASC'));
+		$gb->set_default_order(array(__('Start')=>'ASC'));
 
 		$t = time();
 		$ret = DB::Execute('SELECT u.done,m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d'.$gb->get_query_order(),array(Acl::get_user()));
@@ -174,13 +174,13 @@ class Utils_Messenger extends Module {
 			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			$info = str_replace("\n",'<br>',$info);
 			$r = & $gb->get_new_row();
-			$r->add_data('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?$this->t("Alarm comment: %s",array($row['message'])):''));
-			$r->add_action($this->create_confirm_callback_href($this->t('Are you sure?'),array($this,'delete_user_entry'),$row['id']),'Delete');
+			$r->add_data('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?__("Alarm comment: %s",array($row['message'])):''));
+			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),array($this,'delete_user_entry'),$row['id']),'Delete');
 		}
 
 		$this->display_module($gb);
 		
-		Base_ActionBarCommon::add('delete','Purge old alerts',$this->create_confirm_callback_href($this->t('Purge all done alerts?'),array($this,'purge_old')));	
+		Base_ActionBarCommon::add('delete',__('Purge old alerts'),$this->create_confirm_callback_href(__('Purge all done alerts?'),array($this,'purge_old')));	
 	}
 
 	/////////////////////////////////////////////////////////////
@@ -188,22 +188,22 @@ class Utils_Messenger extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
-			array('name'=>$this->t('Done'), 'order'=>'done', 'width'=>5),
-			array('name'=>$this->t('Start'), 'order'=>'alert_on', 'width'=>15),
-			array('name'=>$this->t('Info'), 'width'=>80)
+			array('name'=>__('Done'), 'order'=>'done', 'width'=>5),
+			array('name'=>__('Start'), 'order'=>'alert_on', 'width'=>15),
+			array('name'=>__('Info'), 'width'=>80)
 		);
 		$gb->set_table_columns($columns);
 
-		$gb->set_default_order(array($this->t('Start')=>'ASC'));
+		$gb->set_default_order(array(__('Start')=>'ASC'));
 
 		$this->lp = $this->init_module('Utils_LeightboxPrompt');
-		$this->lp->add_option('holdon_'.(5*60), $this->t('5 minutes'),null);
-		$this->lp->add_option('holdon_'.(15*60), $this->t('15 minutes'),null);
-		$this->lp->add_option('holdon_'.(30*60), $this->t('30 minutes'),null);
-		$this->lp->add_option('holdon_'.(60*60), $this->t('1 hour'),null);
-		$this->lp->add_option('holdon_'.(240*60), $this->t('4 hours'),null);
-		$this->lp->add_option('holdon_'.(12*3600), $this->t('12 hours'),null);
-		$this->lp->add_option('holdon_'.(24*3600), $this->t('24 hours'),null);
+		$this->lp->add_option('holdon_'.(5*60), __('5 minutes'),null);
+		$this->lp->add_option('holdon_'.(15*60), __('15 minutes'),null);
+		$this->lp->add_option('holdon_'.(30*60), __('30 minutes'),null);
+		$this->lp->add_option('holdon_'.(60*60), __('1 hour'),null);
+		$this->lp->add_option('holdon_'.(240*60), __('4 hours'),null);
+		$this->lp->add_option('holdon_'.(12*3600), __('12 hours'),null);
+		$this->lp->add_option('holdon_'.(24*3600), __('24 hours'),null);
     	$this->display_module($this->lp, array('Hold on', array('alert_id'), '', false));
 		$vals = $this->lp->export_values();
 		if ($vals) {
@@ -223,9 +223,9 @@ class Utils_Messenger extends Module {
 			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			$info = str_replace("\n",'<br>',$info);
 			$alert_on = Base_RegionalSettingsCommon::time2reg($row['alert_on']);
-			$gb->add_row(($row['done']?'<span class="checkbox_on" />':'<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Turn off alarm')).' '.$this->create_confirm_callback_href($this->t('Turn off alarm?'),array('Utils_MessengerCommon','turn_off'),array($row['id'])).'><span class="checkbox_off" /></a>'),
-			        (($row['done'] || $row['alert_on']>$t)?$alert_on:'<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Hold on')).' '.$this->lp->get_href(array($row['id'])).'>'.$alert_on.'</a>'),
-			        $info.'<br>'.($row['message']?$this->t("Alarm comment: %s",array($row['message'])):''));
+			$gb->add_row(($row['done']?'<span class="checkbox_on" />':'<a '.Utils_TooltipCommon::open_tag_attrs(__('Turn off alarm')).' '.$this->create_confirm_callback_href(__('Are you sure you want to turn off the alarm?'),array('Utils_MessengerCommon','turn_off'),array($row['id'])).'><span class="checkbox_off" /></a>'),
+			        (($row['done'] || $row['alert_on']>$t)?$alert_on:'<a '.Utils_TooltipCommon::open_tag_attrs(__('Hold on')).' '.$this->lp->get_href(array($row['id'])).'>'.$alert_on.'</a>'),
+			        $info.'<br>'.($row['message']?__("Alarm comment: %s",array($row['message'])):''));
 		}
 
 		$this->display_module($gb);

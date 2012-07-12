@@ -92,9 +92,9 @@ class Libs_TCPDF extends Module {
 		
 	public function add_actionbar_icon($filename) {
 		if ($this->pdf_ready){
-			Base_ActionBarCommon::add('save','Download PDF','target="_blank" href="'.$this->get_href($filename).'"');
+			Base_ActionBarCommon::add('save',__('Download PDF'),'target="_blank" href="'.$this->get_href($filename).'"');
 		} else {
-			Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'start_preparing_pdf')));
+			Base_ActionBarCommon::add('print',__('Create PDF'),$this->create_callback_href(array($this, 'start_preparing_pdf')));
 		}
 	}
 	
@@ -122,24 +122,24 @@ class Libs_TCPDF extends Module {
 			return;
 		}
 		$form = & $this->init_module('Utils/FileUpload',array(false));
-		$form->addElement('header', 'upload', Base_LangCommon::ts($this->get_type(),'Upload company logo',array(),false));
+		$form->addElement('header', 'upload', __('Upload company logo',array(),false));
 		$form->add_upload_element();
-		$form->addElement('button',null,Base_LangCommon::ts($this->get_type(),'Upload'),$form->get_submit_form_href());
+		$form->addElement('button',null,__('Upload'),$form->get_submit_form_href());
 		$this->display_module($form, array( array($this,'upload_logo') ));
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 	}
 
 	public function upload_logo($file,$oryg,$data) {
 		$fp = fopen($file, "r");
 		$ext = strrchr($oryg,'.');
 		if($ext==='' || $ext!=='.png') {
-			print(Base_LangCommon::ts($this->get_type(),'Invalid extension. Only *.png is allowed.',array(),false));
+			print(__('Invalid extension. Only *.png is allowed.',array(),false));
 			return;
 		}
 		$target_filename = Libs_TCPDFCommon::get_logo_filename();
 		if (file_exists($target_filename)) unlink($target_filename);
 		copy($file, $target_filename);
-		print(Base_LangCommon::ts($this->get_type(),'Upload successful.',array(),false));
+		print(__('Upload successful.',array(),false));
 	}
 }
 

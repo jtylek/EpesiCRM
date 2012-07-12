@@ -85,7 +85,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     	$result = call_user_func_array($callback, $args);
     	$ret = '<ul>';
     	if (empty($result)) {
-			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.Base_LangCommon::ts('Libs/QuickForm','No records founds').'</span></li>';
+			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records founds').'</span></li>';
     	}
     	foreach ($result as $k=>$v) {
     		if ($format) $disp = call_user_func($format, $k);
@@ -255,7 +255,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 
 			$searchElement = '';
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_automulti','get_autocomplete_suggestbox'), array($this->_options_callback, $this->_options_callback_args, $this->_format_callback));
-			$search->setAttribute('placeholder', Base_LangCommon::ts('Libs/QuickForm','Start typing to search...'));
+			$search->setAttribute('placeholder', __('Start typing to search...'));
 			$search->on_hide_js('if($("__autocomplete_id_'.$myName.'__search").value!=""){automulti_on_hide("'.$myName.'","'.$this->list_sep.'");'.$this->on_add_js_code.'}');
 			
 			$searchElement .= $tabs . $search->toHtml()."\n";
@@ -282,7 +282,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
             			$tabs . '<td class="search-element">' . $searchElement . '</td>'.
 						($this->search_button? $tabs.'<td class="search">'.$this->search_button.'</td>' : '<td></td>').
 						$tabs . '<td width="80px;" class="button disabled" id="automulti_button_style_'.$myName.'">'.
-						'<input style="width:100%" type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.$this->list_sep.'\');'.$this->on_remove_js_code.'" value="'.Base_LangCommon::ts('Libs_QuickForm','Remove').'">'.'</td>' .
+						'<input style="width:100%" type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.$this->list_sep.'\');'.$this->on_remove_js_code.'" value="'.__('Remove').'">'.'</td>' .
 								'</tr>';
 
 			$strHtml .= $tabs . '<tr><td class="main-element" colspan="3">' . $mainElement . '</td></tr></table>';

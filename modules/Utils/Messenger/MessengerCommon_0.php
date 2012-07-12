@@ -12,11 +12,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_MessengerCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return "Messenger alarms";
+		return __("Messenger alarms");
 	}
 
 	public static function applet_info() {
-		return "Displays last alarms";
+		return __("Displays last alarms");
 	}
 	
 	public static function delete_by_parent_module($m) {
@@ -56,22 +56,22 @@ class Utils_MessengerCommon extends ModuleCommon {
 			ob_start();
 			$m = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			ob_clean();
-			$ret['messenger_'.$row['id']] = Base_LangCommon::ts('Utils/Messenger','Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."<br>".str_replace("\n",'<br>',$m).($row['message']?"<br>".Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
+			$ret['messenger_'.$row['id']] = __('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."<br>".str_replace("\n",'<br>',$m).($row['message']?"<br>".__("Alarm comment: %s",array($row['message'])):'');
 		}
 		return array('alerts'=>$ret);
 	}
 	
 	public static function user_settings(){
-		return array('Alerts'=>array(
-			array('name'=>'mail','label'=>'E-mail','type'=>'text','default'=>'',
+		return array(__('Alerts')=>array(
+			array('name'=>'mail','label'=>__('E-mail'),'type'=>'text','default'=>'',
 					'rule'=>array('type'=>'email',
-						'message'=>'Not valid e-mail address.')),
-			array('name'=>'always_follow_me','label'=>'Always follow me','type'=>'bool','default'=>0,
+						'message'=>__('Invalid e-mail address'))),
+			array('name'=>'always_follow_me','label'=>__('Always follow me'),'type'=>'bool','default'=>0,
 					'rule'=>array('type'=>'callback',
 						'func'=>array('Utils_MessengerCommon','check_follow'),
-						'message'=>'E-mail required if you want to be followed.',
+						'message'=>__('E-mail required if you want to be followed.'),
 						'param'=>'__form__')),
-			array('name'=>'allow_other','label'=>'Allow other users to set up alerts for me','type'=>'bool','default'=>0)
+			array('name'=>'allow_other','label'=>__('Allow other users to set up alerts for me'),'type'=>'bool','default'=>0)
 			));
 	}
 	
@@ -94,7 +94,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 
 			$mail = Base_User_SettingsCommon::get('Utils_Messenger','mail');
 			if($mail) {
-				$msg = Base_LangCommon::ts('Utils/Messenger','Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'],2)))."\n".$fret."\n".($row['message']?Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
+				$msg = __('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'],2)))."\n".$fret."\n".($row['message']?__("Alarm comment: %s",array($row['message'])):'');
 				Base_MailCommon::send($mail,'Alert!',$msg);
 				$ret .= $mail.' => <pre>'.$msg.'</pre><br>';
 			}
@@ -106,7 +106,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 
     public static function menu() {
 		if (Base_AclCommon::check_permission('Messenger Alerts'))
-			return array('Messenger alerts'=>array(
+			return array(_M('Messenger alerts')=>array(
 				'__function__'=>'browse'));
 		return array();
 	}

@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     public static function menu() {
 		if (Utils_RecordBrowserCommon::get_access('rc_accounts', 'browse'))
-			return array('E-mail'=>array());
+			return array(_M('E-mail')=>array());
         return array();
     }
 	public static function addon_access() {
@@ -22,7 +22,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
     public static function user_settings() {
 	    if(Utils_RecordBrowserCommon::get_access('rc_accounts', 'browse')) {
-            return array('E-mail Accounts'=>'account_manager');
+            return array(__('E-mail Accounts')=>'account_manager');
         }
         return array();
     }
@@ -30,10 +30,10 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     public static function QFfield_account_name(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('text', $field, $label,array('id'=>$field));
         $form->registerRule($field,'function','check_account_name','CRM_RoundcubeCommon');
-        $form->addRule($field,Base_LangCommon::ts('CRM_Roundcube','Account Name already in use'),$field,isset($rb->record['id'])?$rb->record['id']:null);
+        $form->addRule($field,__('Account Name already in use'),$field,isset($rb->record['id'])?$rb->record['id']:null);
         $form->setDefaults(array($field=>$default));
         load_js('modules/CRM/Roundcube/utils.js');
-        eval_js('CRM_RC.filled_smtp_message=\''.Epesi::escapeJS(Base_LangCommon::ts('CRM_Roundcube','SMTP login and password was filled with imap account details. Please change them if needed.'),false,true).'\';CRM_RC.edit_form()');
+        eval_js('CRM_RC.filled_smtp_message=\''.Epesi::escapeJS(__('SMTP login and password was filled with imap account details. Please change them if needed.'),false,true).'\';CRM_RC.edit_form()');
         if($mode=='view') $form->freeze(array($field));
     }
 
@@ -62,7 +62,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     public static function QFfield_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('password', $field, $label,array('id'=>$field));
         $form->setDefaults(array($field=>$default));
-        $form->addRule($field,Base_LangCommon::ts('Libs_QuickForm','Field required'),'required');
+        $form->addRule($field,__('Field required'),'required');
         if($mode=='view') $form->freeze(array($field));
     }
 
@@ -78,7 +78,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $form->addElement('text', $field, $label,array('id'=>'smtp_login'));
         $form->setDefaults(array($field=>$default));
         if($form->exportValue('smtp_auth'))
-            $form->addRule($field,Base_LangCommon::ts('Libs_QuickForm','Field required'),'required');
+            $form->addRule($field,__('Field required'),'required');
         if($mode=='view') $form->freeze(array($field));
     }
 
@@ -86,20 +86,20 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $form->addElement('password', $field, $label,array('id'=>'smtp_pass'));
         $form->setDefaults(array($field=>$default));
         if($form->exportValue('smtp_auth'))
-            $form->addRule($field,Base_LangCommon::ts('Libs_QuickForm','Field required'),'required');
+            $form->addRule($field,__('Field required'),'required');
         if($mode=='view') $form->freeze(array($field));
     }
 
     public static function QFfield_smtp_security(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('commondata', $field, $label,array('CRM/Roundcube/Security'),array('empty_option'=>true),array('id'=>'smtp_security'));
-        $form->addRule($field,Base_LangCommon::ts('CRM_Roundcube','OpenSSL not available - cannot set TLS/SSL. Please contact Epesi administrator.'),'callback',array('CRM_RoundcubeCommon','check_ssl'));
+        $form->addRule($field,__('OpenSSL not available - cannot set TLS/SSL. Please contact Epesi administrator.'),'callback',array('CRM_RoundcubeCommon','check_ssl'));
         $form->setDefaults(array($field=>$default));
         if($mode=='view') $form->freeze(array($field));
     }
     
     public static function QFfield_security(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('commondata', $field, $label,array('CRM/Roundcube/Security'),array('empty_option'=>true));
-        $form->addRule($field,Base_LangCommon::ts('CRM_Roundcube','OpenSSL not available - cannot set TLS/SSL. Please contact Epesi administrator.'),'callback',array('CRM_RoundcubeCommon','check_ssl'));
+        $form->addRule($field,__('OpenSSL not available - cannot set TLS/SSL. Please contact Epesi administrator.'),'callback',array('CRM_RoundcubeCommon','check_ssl'));
         $form->setDefaults(array($field=>$default));
         if($mode=='view') $form->freeze(array($field));
     }
@@ -157,9 +157,9 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
     public static function QFfield_direction(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if($default)
-            $txt = Base_LangCommon::ts('CRM_Roundcube','Sent by employee');
+            $txt = __('Sent by employee');
         else
-            $txt = Base_LangCommon::ts('CRM_Roundcube','Received by employee');
+            $txt = __('Received by employee');
         $form->addElement('static', $field, $label,$txt);
     }
 
@@ -175,26 +175,26 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
     public static function applet_caption() {
         if(function_exists('imap_open'))
-            return "Mail indicator";
+            return __("Mail indicator");
         return false;
     }
 
     public static function applet_info() {
-        return "Checks if there is new mail";
+        return __("Checks if there is new mail");
     }
 
     public static function applet_settings() {
-        $conf = array(array('type'=>'header','label'=>'Choose accounts'));
+        $conf = array(array('type'=>'header','label'=>__('Choose accounts')));
         $ret = Utils_RecordBrowserCommon::get_records('rc_accounts',array('epesi_user'=>Acl::get_user()));
         foreach($ret as $row)
-                $conf[] = array('name'=>'account_'.$row['id'], 'label'=>$row['login'].' at '.$row['server'], 'type'=>'checkbox', 'default'=>1);
+                $conf[] = array('name'=>'account_'.$row['id'], 'label'=>__('%s at %s', array($row['login'],$row['server'])), 'type'=>'checkbox', 'default'=>1);
         if(count($conf)==1)
-            return array(array('type'=>'static','label'=>'No accounts configured, go Home->My settings->Mail accounts'));
+            return array(array('type'=>'static','label'=>__('No accounts configured, go Home->My settings->Mail accounts')));
         return $conf;
     }
 
     public static function new_addon($rs) {
-        Utils_RecordBrowserCommon::new_addon($rs, 'CRM/Roundcube', 'addon', 'e-mails');
+        Utils_RecordBrowserCommon::new_addon($rs, 'CRM/Roundcube', 'addon', _M('E-mails'));
     }
 
     public static function delete_addon($rs) {
@@ -202,7 +202,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
 	public static function new_mail_addresses_addon($table) {
-		Utils_RecordBrowserCommon::new_addon($table, 'CRM/Roundcube', 'mail_addresses_addon', 'Mail addresses');
+		Utils_RecordBrowserCommon::new_addon($table, 'CRM/Roundcube', 'mail_addresses_addon', _M('Mail addresses'));
 	}
 	
 	/**
@@ -221,13 +221,13 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('text', $field, $label);
 			$form->registerRule('check_nickname','callback','check_nickname','CRM_RoundcubeCommon');
-			$form->addRule($field, Base_LangCommon::ts('CRM_Roundcube','Field required'), 'required');
+			$form->addRule($field, __('Field required'), 'required');
 			if ($mode=='edit') {
-				$form->addRule($field, Base_LangCommon::ts('CRM_Roundcube','Nickname already in use'), 'check_nickname',array($y->record['record_type'],$y->record['record_id'],$y->record['id']));
+				$form->addRule($field, __('Nickname already in use'), 'check_nickname',array($y->record['record_type'],$y->record['record_id'],$y->record['id']));
 				$form->setDefaults(array($field=>$default));
 			} else {
 				$rec = $y->get_custom_defaults();
-				$form->addRule($field, Base_LangCommon::ts('CRM_Roundcube','Nickname already in use'), 'check_nickname',array($rec['record_type'],$rec['record_id']));
+				$form->addRule($field, __('Nickname already in use'), 'check_nickname',array($rec['record_type'],$rec['record_id']));
 			}
 		} else {
 			$form->addElement('static', $field, $label, $default);
@@ -258,7 +258,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 	}
 	
 	public static function admin_caption() {
-	    return 'Outgoing mail global signature';
+	    return __('Outgoing mail global signature');
 	}
 }
 

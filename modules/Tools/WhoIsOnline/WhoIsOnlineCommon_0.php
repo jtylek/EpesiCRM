@@ -13,8 +13,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tools_WhoIsOnlineCommon extends ModuleCommon {
 	public static function user_settings() {
-		return array('Misc'=>array(
-			array('name'=>'show_me','type'=>'checkbox','label'=>'Show me in online users','default'=>1)
+		return array(__('Misc')=>array(
+			array('name'=>'show_me','type'=>'checkbox','label'=>__('Show me in online users'),'default'=>1)
 			));
 	}
 	

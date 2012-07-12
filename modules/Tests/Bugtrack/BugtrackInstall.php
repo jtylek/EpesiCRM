@@ -14,21 +14,20 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_BugtrackInstall extends ModuleInstall {
 
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		
 		$fields = array(
-			array('name'=>'Project Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true,'display_callback'=>array('Tests_BugtrackCommon', 'display_bugtrack')),	
-			array('name'=>'Company Name', 'type'=>'select', 'required'=>true, 'param'=>array('company'=>'Company Name'), 'extra'=>false, 'visible'=>true),
-			array('name'=>'Due Date', 'type'=>'date', 'required'=>true, 'param'=>64, 'extra'=>false, 'visible'=>true),
-			array('name'=>'Status', 'type'=>'commondata', 'required'=>true, 'param'=>'Bugtrack_Status', 'extra'=>false,'visible'=>true),
-			array('name'=>'Description', 'type'=>'long text', 'required'=>false, 'param'=>'64', 'extra'=>false)
+			array('name' => _M('Project Name'), 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true,'display_callback'=>array('Tests_BugtrackCommon', 'display_bugtrack')),	
+			array('name' => _M('Company Name'), 'type'=>'select', 'required'=>true, 'param'=>array('company'=>'Company Name'), 'extra'=>false, 'visible'=>true),
+			array('name' => _M('Due Date'), 'type'=>'date', 'required'=>true, 'param'=>64, 'extra'=>false, 'visible'=>true),
+			array('name' => _M('Status'), 'type'=>'commondata', 'required'=>true, 'param'=>'Bugtrack_Status', 'extra'=>false,'visible'=>true),
+			array('name' => _M('Description'), 'type'=>'long text', 'required'=>false, 'param'=>'64', 'extra'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('bugtrack', $fields);
 		Utils_RecordBrowserCommon::new_filter('bugtrack', 'Company Name');
 		Utils_RecordBrowserCommon::set_quickjump('bugtrack', 'Project Name');
 		Utils_RecordBrowserCommon::set_favorites('bugtrack', true);
 		Utils_RecordBrowserCommon::set_recent('bugtrack', 15);
-		Utils_RecordBrowserCommon::set_caption('bugtrack', 'Bugtrack');
+		Utils_RecordBrowserCommon::set_caption('bugtrack', _M('Bugtrack'));
 		Utils_RecordBrowserCommon::set_icon('bugtrack', Base_ThemeCommon::get_template_filename('Tests/Bugtrack', 'icon.png'));
 		
 // ************ addons ************** //
@@ -36,7 +35,7 @@ class Tests_BugtrackInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::new_addon('company', 'Tests/Bugtrack', 'company_bugtrack_addon', 'Bugtrack');
 
 // ************ other ************** //	
-		Utils_CommonDataCommon::new_array('Bugtrack_Status',array('new'=>'New','inprog'=>'In Progress','cl'=>'Closed'),true,true);
+		Utils_CommonDataCommon::new_array('Bugtrack_Status',array('new'=>_M('New'),'inprog'=>_M('In Progress'),'cl'=>_M('Closed')),true,true);
 
 		Utils_RecordBrowserCommon::add_access('bugtrack', 'view', 'ACCESS:employee');
 		Utils_RecordBrowserCommon::add_access('bugtrack', 'add', 'ACCESS:employee');

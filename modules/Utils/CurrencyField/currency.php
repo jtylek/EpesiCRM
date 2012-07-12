@@ -52,7 +52,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 			$str .= $this->_getTabs() .
 					'<div style="margin-right:45px;" class="currency_amount"><input ' . $this->_getAttrString($this->_attributes) . ' '.
-					Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/CurrencyField','Example value: %s',array('123'.Utils_CurrencyFieldCommon::get_decimal_point().implode('',range(4,3+$this->dec_digits)))), false ).
+					Utils_TooltipCommon::open_tag_attrs(__('Example value: %s',array('123'.Utils_CurrencyFieldCommon::get_decimal_point().implode('',range(4,3+$this->dec_digits)))), false ).
 					' /></div>';
 
 			load_js('modules/Utils/CurrencyField/currency.js');

@@ -34,7 +34,7 @@ class Libs_QuickForm extends Module {
 			$on_submit = $this->get_submit_form_js_by_name($form_name,true,$indicator,'')."return false;";
 		$this->qf = new HTML_QuickForm($form_name, 'post', $action, $target, array('onSubmit'=>$on_submit), true);
 		$this->qf->addElement('hidden', 'submited', 0);
-		$this->qf->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.Base_LangCommon::ts($this->get_type(),'denotes required field').'</span>');
+		$this->qf->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.__('denotes required field').'</span>');
 		eval_js_once("set_qf_sub0 = function(fn){var x=$(fn);if(x)x.submited.value=0}");
 		eval_js("set_qf_sub0('".addslashes($form_name)."')");
 		Base_ThemeCommon::load_css('Libs_QuickForm');
@@ -97,7 +97,7 @@ class Libs_QuickForm extends Module {
 
 	public function get_submit_form_js_by_name($form_name, $submited, $indicator, $queue=false) {
 		if (!is_array($form_name)) $form_name = array($form_name);
-		if(!isset($indicator)) $indicator=Base_LangCommon::ts('Libs_QuickForm','processing...');
+		if(!isset($indicator)) $indicator=__('Processing...');
 		$fast = "+'&".http_build_query(array('__action_module__'=>$this->get_parent_path()))."'"; 
 		$pre = '';
 		$chj = '';
@@ -162,7 +162,7 @@ class Libs_QuickForm extends Module {
 			case 'numeric':
 				if(!isset($v['rule']) || !is_array($v['rule'])) $v['rule']=array();
 				$v['type'] = 'text';
-				$v['rule'][] = array('type'=>'numeric','message'=>Base_LangCommon::ts('Libs_QuickForm','This is not valid number'));
+				$v['rule'][] = array('type'=>'numeric','message'=>__('This is not valid number'));
 			case 'password':
 			case 'text':
 			case 'hidden':
@@ -287,14 +287,14 @@ class Libs_QuickForm extends Module {
 				$v['default']='';
 			if($meta->max_length>0) {
 				if(!isset($v['rule'])) $v['rule'] = array();
-				$v['rule'][] = array('message'=>Base_LangCommon::ts('Libs_QuickForm','Text too long'), 'type'=>'maxlength', 'param'=>$meta->max_length);
+				$v['rule'][] = array('message'=>__('Text too long'), 'type'=>'maxlength', 'param'=>$meta->max_length);
 				if(!isset($v['param'])) $v['param'] = array();
 				if(is_string($v['param'])) $v['param'].=' maxlength=\''.$meta->max_length.'\'';
 					else $v['param']['maxlength'] = $meta->max_length;
 			}
 			if($meta->not_null) {
 				if(!isset($v['rule'])) $v['rule'] = array();
-				$v['rule'][] = array('message'=>Base_LangCommon::ts('Libs_QuickForm','Field required'), 'type'=>'required');
+				$v['rule'][] = array('message'=>__('Field required'), 'type'=>'required');
 			}
 			$arr[] = $v;
 		}

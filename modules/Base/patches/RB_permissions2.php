@@ -27,14 +27,14 @@ foreach ($tables as $tab) {
 				
 }
 
-Utils_RecordBrowserCommon::new_record_field('contact', array('name'=>'Login Panel',		'type'=>'page_split', 'param'=>1));
+Utils_RecordBrowserCommon::new_record_field('contact', array('name' => _M('Login Panel'),		'type'=>'page_split', 'param'=>1));
 
 $fields = array(
-	array('name'=>'Username', 		'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_username')),
-	array('name'=>'Set Password', 	'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_password')),
-	array('name'=>'Confirm Password','type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_repassword')),
-	array('name'=>'Admin', 			'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_admin')),
-	array('name'=>'Access', 		'type'=>'multiselect', 'required'=>false, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Contacts/Access'), 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_access'))
+	array('name' => _M('Username'), 		'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_username')),
+	array('name' => _M('Set Password'), 	'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_password')),
+	array('name' => _M('Confirm Password'),'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_repassword')),
+	array('name' => _M('Admin'), 			'type'=>'calculated', 'required'=>false, 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_admin')),
+	array('name' => _M('Access'), 		'type'=>'multiselect', 'required'=>false, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Contacts/Access'), 'extra'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_access'))
 );
 
 foreach ($fields as $f)
@@ -45,7 +45,7 @@ $pos2 = DB::GetOne('SELECT position FROM contact_field WHERE field=%s', array('U
 DB::Execute('UPDATE contact_field SET position=position-1 WHERE position>%d AND position<%d', array($pos, $pos2));
 DB::Execute('UPDATE contact_field SET position=%d, style=%s WHERE field=%s', array($pos2-1,'','Login'));
 
-Utils_CommonDataCommon::extend_array('Contacts/Access',array('manager'=>'Manager'));
+Utils_CommonDataCommon::extend_array('Contacts/Access',array('manager'=>_M('Manager')));
 
 $ret = DB::Execute('SELECT * FROM user_login');
 while ($row = $ret->FetchRow()) {
@@ -532,7 +532,7 @@ if(ModuleManager::is_installed('Custom_CADES_AccessRestrictions')>=0) {
 	DB::Execute('UPDATE cades_behavior_log_field SET type="select", param="contact::Last Name|First Name;" WHERE field="Person"');
 	Utils_RecordBrowserCommon::set_QFfield_callback('cades_behavior_log', 'Person', array('Custom_CADES_BehaviorCommon', 'QFfield_log_person'));
 
-	Utils_CommonDataCommon::extend_array('Contacts/Access',array('mrm'=>'Medical Record Manager'));
+	Utils_CommonDataCommon::extend_array('Contacts/Access',array('mrm'=>_M('Medical Record Manager')));
 	$ret = DB::Execute('SELECT * FROM user_login');
 	while ($row = $ret->FetchRow()) {
 		$aid = Base_AclCommon::get_acl_user_id($row['id']);
@@ -550,10 +550,10 @@ if(ModuleManager::is_installed('Custom_CADES_AccessRestrictions')>=0) {
 	}
 	Acl::del_group('Medical Record Manager');
 
-	Utils_RecordBrowserCommon::new_record_field('contact', array('name'=>'View', 'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Custom_CADES_AccessRestrictionsCommon', 'employee_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'filter'=>false, 'visible'=>false));
-	Utils_RecordBrowserCommon::new_record_field('contact', array('name'=>'Edit', 'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Custom_CADES_AccessRestrictionsCommon', 'employee_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'filter'=>false, 'visible'=>false));
-	Utils_RecordBrowserCommon::new_record_field('contact', array('name'=>'Add', 'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Custom_CADES_AccessRestrictionsCommon', 'employee_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'filter'=>false, 'visible'=>false));
-	Utils_RecordBrowserCommon::new_record_field('contact', array('name'=>'Delete', 'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Custom_CADES_AccessRestrictionsCommon', 'employee_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'filter'=>false, 'visible'=>false));
+	Utils_RecordBrowserCommon::new_record_field('contact', array('name' => _M('View'), 'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Custom_CADES_AccessRestrictionsCommon', 'employee_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'filter'=>false, 'visible'=>false));
+	Utils_RecordBrowserCommon::new_record_field('contact', array('name' => _M('Edit'), 'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Custom_CADES_AccessRestrictionsCommon', 'employee_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'filter'=>false, 'visible'=>false));
+	Utils_RecordBrowserCommon::new_record_field('contact', array('name' => _M('Add'), 'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Custom_CADES_AccessRestrictionsCommon', 'employee_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'filter'=>false, 'visible'=>false));
+	Utils_RecordBrowserCommon::new_record_field('contact', array('name' => _M('Delete'), 'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Custom_CADES_AccessRestrictionsCommon', 'employee_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'filter'=>false, 'visible'=>false));
 
 	// migrate data
 	if (Utils_RecordBrowserCommon::check_table_name('cades_access_control', false, false)) {

@@ -7,7 +7,7 @@
  * @package epesi-lang
  * @subpackage timesheet
  */
-if(!isset($_POST['module']) || !isset($_POST['original']) || !isset($_POST['new']) || !isset($_POST['cid']))
+if(!isset($_POST['original']) || !isset($_POST['new']) || !isset($_POST['cid']))
 	die('alert(\'Invalid request\')');
 
 define('JS_OUTPUT',1);
@@ -19,20 +19,9 @@ ModuleManager::load_modules();
 if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate'))
 	die('Unauthorized access');
 
-$module = $_POST['module'];
 $original = $_POST['original'];
 $new = $_POST['new'];
 
-global $custom_translations;
-Base_LangCommon::load();
-
-if (!$new) {
-	unset($custom_translations[$module][$original]);
-	if (empty($custom_translations[$module]))
-		unset($custom_translations[$module]);
-} else
-	$custom_translations[$module][$original] = $new;
-
-Base_LangCommon::save();
+Base_LangCommon::append_custom(null, array($original => $new));
 
 ?>

@@ -186,17 +186,17 @@ class Utils_RecordBrowser_Reports extends Module {
 		$maxyear = date('Y',strtotime('+5 years'));
 		if ($show_dates) {
 			$display_stuff_js = 'document.getElementById(\'day_elements\').style.display=\'none\';document.getElementById(\'month_elements\').style.display=\'none\';document.getElementById(\'week_elements\').style.display=\'none\';document.getElementById(\'year_elements\').style.display=\'none\';document.getElementById(this.value+\'_elements\').style.display=\'block\';';
-			$form->addElement('select', 'date_range_type', $this->t('Display report'), array('day'=>$this->t('Days'), 'week'=>$this->t('Weeks'), 'month'=>$this->t('Months'), 'year'=>$this->t('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
-			$form->addElement('datepicker', 'from_day', $this->t('From date'));
-			$form->addElement('datepicker', 'to_day', $this->t('To date'));
-			$form->addElement('date', 'from_week', $this->t('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
-			$form->addElement('date', 'to_week', $this->t('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
-			$form->addElement('date', 'from_month', $this->t('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
-			$form->addElement('date', 'to_month', $this->t('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
-			$form->addElement('date', 'from_year', $this->t('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
-			$form->addElement('date', 'to_year', $this->t('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
+			$form->addElement('select', 'date_range_type', __('Display report'), array('day'=>__('Days'), 'week'=>__('Weeks'), 'month'=>__('Months'), 'year'=>__('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
+			$form->addElement('datepicker', 'from_day', __('From Date'));
+			$form->addElement('datepicker', 'to_day', __('To Date'));
+			$form->addElement('date', 'from_week', __('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'to_week', __('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'from_month', __('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'to_month', __('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'from_year', __('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
+			$form->addElement('date', 'to_year', __('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
 			$form->registerRule('check_dates', 'callback', 'check_dates', $this);
-			$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), $this->t('\'From\' date must be earlier than \'To\' date'), 'check_dates');
+			$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), __('\'From\' date must be earlier than \'To\' date'), 'check_dates');
 		}
 		if ($this->isset_module_variable('vals')) {
 			$vals = $this->get_module_variable('vals');
@@ -210,7 +210,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$form->setDefaults(array('date_range_type'=>'month'));
 			$form->setDefaults($datepicker_defaults);
 		}
-		$form->addElement('submit', 'submit', $this->t('Show'));
+		$form->addElement('submit', 'submit', __('Show'));
 
 //		$failed = false;
 		$other = $vals = $form->exportValues();
@@ -377,7 +377,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 
 		if (empty($this->ref_records)) {
-			print('<br>'.$this->t('There were no records to display report for.'));
+			print('<br>'.__('There were no records to display report for.'));
 			return;
 		}
 		$this->cols_total = array();
@@ -494,7 +494,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 		/***** BOTTOM SUMMARY *****/
 		if ($this->col_summary!==false) {
-			if (!$this->pdf) $this->col_summary['label'] = $this->col_summary['label'].' ('.$this->t('page').')';
+			if (!$this->pdf) $this->col_summary['label'] = $this->col_summary['label'].' ('.__('Page').')';
 			if (empty($this->categories)) {
 				$total = array();
 				$i=0;
@@ -983,21 +983,21 @@ class Utils_RecordBrowser_Reports extends Module {
 		$start = $this->date_range['from_'.$this->date_range['date_range_type']];
 		$end = $this->date_range['to_'.$this->date_range['date_range_type']];
 		switch ($this->date_range['date_range_type']) {
-			case 'week':	$start = $this->t('%d, week %d',array($start['Y'], $start['W']));
-							$end = $this->t('%d, week %d',array($end['Y'], $end['W']));
+			case 'week':	$start = __('%d, week %d',array($start['Y'], $start['W']));
+							$end = __('%d, week %d',array($end['Y'], $end['W']));
 							break;
-			case 'month':	$start = $this->t('%s %d',array(date('F',$this->get_date('month', $start)),$start['Y']));
-							$end = $this->t('%s %d',array(date('F',$this->get_date('month', $end)),$end['Y']));
+			case 'month':	$start = __('%s %d',array(date('F',$this->get_date('month', $start)),$start['Y']));
+							$end = __('%s %d',array(date('F',$this->get_date('month', $end)),$end['Y']));
 							break;
-			case 'year':	$start = $this->t('%d',array($start['Y']));
-							$end = $this->t('%d',array($end['Y']));
+			case 'year':	$start = __('%d',array($start['Y']));
+							$end = __('%d',array($end['Y']));
 							break;
 		}
 		return array($start, $end);
 	}
 
 	public function pdf_subject_date_range() {
-		return $this->t(ucfirst($this->date_range['date_range_type']).' report -  %s  -  %s', $this->from_to_date());
+		return _V(ucfirst($this->date_range['date_range_type']).' report -  %s  -  %s', $this->from_to_date());
 	}
 
 	public function set_pdf_title($arg) {
@@ -1026,7 +1026,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->pdf_ob->prepare_header();
 			$this->pdf_ob->AddPage();
 		} elseif (!$this->charts) {
-			Base_ActionBarCommon::add('report','Charts',$this->create_callback_href(array($this, 'body'), array(false,true)));
+			Base_ActionBarCommon::add('report',__('Charts'),$this->create_callback_href(array($this, 'body'), array(false,true)));
 		}
 
 		if($this->charts)
@@ -1035,17 +1035,17 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->make_table();
 
 		if($charts) {
-			Base_ActionBarCommon::add('report','Table',$this->create_back_href());
+			Base_ActionBarCommon::add('report',__('Table'),$this->create_back_href());
 			return true;
 		} else {
 			if ($this->pdf){
-				Base_ActionBarCommon::add('save','Download PDF','target="_blank" href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
+				Base_ActionBarCommon::add('save',__('Download PDF'),'target="_blank" href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
 				self::$pdf_ready = 1;
 			} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
 				if (count($this->gb_captions)<20)
-					Base_ActionBarCommon::add('print','Create PDF',$this->create_href(array('rb_reports_enable_pdf'=>1)));
+					Base_ActionBarCommon::add('print',__('Create PDF'),$this->create_href(array('rb_reports_enable_pdf'=>1)));
 				else
-					Base_ActionBarCommon::add('print','Create PDF','','Too many columns to prepare printable version - please limit number of columns');
+					Base_ActionBarCommon::add('print',__('Create PDF'),'',__('Too many columns to prepare printable version - please limit number of columns'));
 			}
 		}
 		return false;

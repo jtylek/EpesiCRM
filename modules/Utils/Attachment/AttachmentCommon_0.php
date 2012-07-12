@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
 	public static function admin_caption() {
-		return 'Google Docs intergartion';
+		return __('Google Docs intergartion');
 	}
 
 	public static function new_addon($table) {
@@ -29,8 +29,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	public static function user_settings() {
 		if(Acl::is_user()) {
 			return array(
-				'Misc'=>array(
-					array('name'=>'default_permission','label'=>'Default notes permission', 'type'=>'select', 'default'=>0, 'values'=>array('Public','Protected','Private'))
+				__('Misc')=>array(
+					array('name'=>'default_permission','label'=>__('Default notes permission'), 'type'=>'select', 'default'=>0, 'values'=>array(__('Public'),__('Protected'),__('Private')))
 				)
 			);
 		}
@@ -132,7 +132,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 					$view = call_user_func_array($func,unserialize($row['args']));
 				}
 				if(!$view) continue;
-				$ret[$row['id']] = Base_LangCommon::ts('Utils_Attachment','Note: ').$view;
+				$ret[$row['id']] = __('Note').': '.$view;
 			} else {
 				$ret[] = array('id'=>$row['id'],'group'=>$row['local']);
 			}

@@ -54,24 +54,24 @@ class CRM_Roundcube extends Module {
 			return;
 		}
 
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 	
 		$f = $this->init_module('Libs/QuickForm');
 		
-		$f->addElement('header',null,$this->t('Outgoing mail global signature'));
+		$f->addElement('header',null,__('Outgoing mail global signature'));
 		
-		$fck = & $f->addElement('ckeditor', 'content', $this->t('Content'));
+		$fck = & $f->addElement('ckeditor', 'content', __('Content'));
 		$fck->setFCKProps('800','300',false);
 		
 		$f->setDefaults(array('content'=>Variable::get('crm_roundcube_global_signature',false)));
 
-		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
+		Base_ActionBarCommon::add('save',__('Save'),$f->get_submit_form_href());
 		
 		if($f->validate()) {
 			$ret = $f->exportValues();
 			$content = $ret['content'];
 			Variable::set('crm_roundcube_global_signature',$content);
-			Base_StatusBarCommon::message($this->t('Signature saved'));
+			Base_StatusBarCommon::message(__('Signature saved'));
 			$this->parent->reset();
 			return;
 		}
@@ -111,28 +111,28 @@ class CRM_Roundcube extends Module {
         $id = $arg['id'];
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
         	$this->lp = $this->init_module('Utils_LeightboxPrompt');
-   			$this->lp->add_option('cancel', $this->t('Cancel'), null, null);
-        	$this->lp->add_option('paste', $this->t('Paste'), Base_ThemeCommon::get_template_file($this->get_type(), 'copy.png'), null);
+   			$this->lp->add_option('cancel', __('Cancel'), null, null);
+        	$this->lp->add_option('paste', __('Paste'), Base_ThemeCommon::get_template_file($this->get_type(), 'copy.png'), null);
         	$content = '';
         	foreach($_SESSION['rc_mails_cp'] as $mid) {
             	$mail = Utils_RecordBrowserCommon::get_record('rc_mails',$mid);
-            	$content .= '<div style="text-align:left">'.$this->t('<b>From:</b> <i>%s</i><br /><b>To:</b> <i>%s</i><br /><b>Subject:</b> <i>%s</i><br />%s',array($mail['from'],$mail['to'],$mail['subject'],substr(strip_tags($mail['body'],'<br><hr>'),0,200).(strlen($mail['body'])>200?'...':''))).'</div>';
+            	$content .= '<div style="text-align:left">'.__('<b>From:</b> <i>%s</i><br /><b>To:</b> <i>%s</i><br /><b>Subject:</b> <i>%s</i><br />%s',array($mail['from'],$mail['to'],$mail['subject'],substr(strip_tags($mail['body'],'<br><hr>'),0,200).(strlen($mail['body'])>200?'...':''))).'</div>';
         	}
-        	$this->display_module($this->lp, array($this->t('Paste e-mail'), array(), $content, false));
+        	$this->display_module($this->lp, array(__('Paste e-mail'), array(), $content, false));
        		$vals = $this->lp->export_values();
        		if ($vals) {
        			if($vals['option']=='paste')
        				$this->paste($rs,$id);
        		}
-            Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),'Paste mail', $this->lp->get_href());//$this->create_confirm_callback_href($this->t('Paste following email?'),array($this,'paste'),array($rs,$id)));
+            Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),__('Paste mail'), $this->lp->get_href());//$this->create_confirm_callback_href(__('Paste following email?'),array($this,'paste'),array($rs,$id)));
         }
         
         $rb = $this->init_module('Utils/RecordBrowser','rc_mails','rc_mails');
         $rb->set_header_properties(array(
                         'date'=>array('width'=>10),
-                        'employee'=>array('name'=>$this->t('Archived by'),'width'=>20),
-                        'contacts'=>array('name'=>$this->t('Involved contacts'), 'width'=>20),
-                        'subject'=>array('name'=>$this->t('Message'),'width'=>40),
+                        'employee'=>array('name'=>__('Archived by'),'width'=>20),
+                        'contacts'=>array('name'=>__('Involved contacts'), 'width'=>20),
+                        'subject'=>array('name'=>__('Message'),'width'=>40),
                         'attachments'=>array('width'=>5)
         ));
         $rb->set_additional_actions_method(array($this, 'actions_for_mails'));
@@ -144,7 +144,7 @@ class CRM_Roundcube extends Module {
         	$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
         } elseif($rs=='company') {
             $form = $this->init_module('Libs/QuickForm');
-            $form->addElement('checkbox', 'include_related', $this->t('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
+            $form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
             if ($form->validate()) {
                 $show_related = $form->exportValue('include_related');
                 $this->set_module_variable('include_related',$show_related);
@@ -176,7 +176,7 @@ class CRM_Roundcube extends Module {
                 if(!$c)
                     Utils_RecordBrowserCommon::new_record('rc_mails_assoc',array('mail'=>$mid,'recordset'=>$rs,'record_id'=>$id));
             }
-            Epesi::alert($this->t('Mail(s) is associated to this record now'));
+            Epesi::alert(__('Mail(s) is associated to this record now'));
         }
     }
 
@@ -237,7 +237,7 @@ class CRM_Roundcube extends Module {
     ////////////////////////////////////////////////////////////
     //account management
     public function account_manager() {
-		Base_ActionBarCommon::add('back','Back',$this->create_main_href('Base_User_Settings'));
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_main_href('Base_User_Settings'));
 		
         $this->rb = $this->init_module('Utils/RecordBrowser','rc_accounts','rc_accounts');
         $this->rb->set_defaults(array('epesi_user'=>Acl::get_user()));
@@ -246,7 +246,7 @@ class CRM_Roundcube extends Module {
     }
 
     public function caption() {
-        return 'Roundcube Mail Client';
+        return __('Roundcube Mail Client');
     }
 
 	public function mail_body_addon($rec) {

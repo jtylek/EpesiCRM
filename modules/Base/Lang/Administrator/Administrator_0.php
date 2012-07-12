@@ -28,25 +28,25 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		
 		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
 		$langs = array_combine($ls_langs,$ls_langs);
-		$form->addElement('header', 'module_header', $this->t('Languages Administration'));
-		$form->addElement('select','lang_code',$this->t('Default language'), $langs, array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('header', 'module_header', __('Languages Administration'));
+		$form->addElement('select','lang_code',__('Default language'), $langs, array('onchange'=>$form->get_submit_form_js()));
 		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
 			$form->freeze('lang_code');
 		
-		$form->addElement('checkbox','allow_lang_change',$this->t('Allow users to change language'), null, array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('checkbox','allow_lang_change',__('Allow users to change language'), null, array('onchange'=>$form->get_submit_form_js()));
 		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'enable_users_to_select'))
 			$form->freeze('allow_lang_change');
 		
 		$form->setDefaults(array('lang_code'=>Variable::get('default_lang'),'allow_lang_change'=>Variable::get('allow_lang_change')));
 		
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'new_langpack'))
-			Base_ActionBarCommon::add('add','New langpack',$this->create_callback_href(array($this,'new_lang_pack')));
+			Base_ActionBarCommon::add('add',__('New langpack'),$this->create_callback_href(array($this,'new_lang_pack')));
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
-			Base_ActionBarCommon::add('refresh','Refresh languages',$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+			Base_ActionBarCommon::add('refresh',__('Refresh languages'),$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
 		$form2 = $this->init_module('Libs/QuickForm',null,'translaction_filter');
-		$form2->addElement('select','lang_filter',$this->t('Filter'),array('Show all', 'Show with custom translation', 'Show with translation', 'Show without translation'), array('onchange'=>$form2->get_submit_form_js()));
+		$form2->addElement('select','lang_filter',__('Filter'),array(__('Show all'), __('Show with custom translation'), __('Show with translation'), __('Show without translation')), array('onchange'=>$form2->get_submit_form_js()));
 		
 		if($form->validate()) {
 			$form->process(array($this,'submit_admin'));
@@ -63,7 +63,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$trans_filter = $form2->toHtml();
 		
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate'))
-			eval_js('lang_translate = function (module, original, span_id) {'.
+			eval_js('lang_translate = function (original, span_id) {'.
 					'var ret = prompt("Translate: "+original, $(span_id).innerHTML);'.
 					'if (ret === null) return;'.
 					'$(span_id).innerHTML = ret;'.
@@ -71,7 +71,6 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 					'new Ajax.Request(\'modules/Base/Lang/Administrator/update_translation.php\', {'.
 						'method: \'post\','.
 						'parameters:{'.
-						'	module: module,'.
 						'	original: original,'.
 						'	new: ret,'.
 						'	cid: Epesi.client_id'.
@@ -83,29 +82,30 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 				'}');
 		
 		$data = array();
-		foreach($translations as $m=>$v) 
-			foreach($v as $o=>$t) {
-				if (isset($custom_translations[$m][$o])) {
-					$t = $custom_translations[$m][$o];
-				} else {
-					if ($filter==1) continue;
-				}
-				if ($filter==2 && !$t) continue;
-				if ($filter==3 && $t) continue;
-				$span_id = $m.'__'.md5($o);
-				if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate')) {
-					$o = '<a href="javascript:void(0);" onclick="lang_translate(\''.$m.'\',\''.Epesi::escapeJS(htmlspecialchars($o)).'\',\''.$span_id.'\');">'.$o.'</a>';
-					$t = '<span id="'.$span_id.'">'.$t.'</span>';
-				}
-				$data[] = array($m,$o,$t);
+		foreach ($custom_translations as $o=>$t) {
+			if ($t || !isset($translations[$o])) $translations[$o] = $t;
+		}
+		foreach($translations as $o=>$t) {
+			if (isset($custom_translations[$o])) {
+				$t = $custom_translations[$o];
+			} else {
+				if ($filter==1) continue;
 			}
+			if ($filter==2 && !$t) continue;
+			if ($filter==3 && $t) continue;
+			$span_id = 'trans__'.md5($o);
+			if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate')) {
+				$o = '<a href="javascript:void(0);" onclick="lang_translate(\''.Epesi::escapeJS(htmlspecialchars($o)).'\',\''.$span_id.'\');">'.$o.'</a>';
+				$t = '<span id="'.$span_id.'">'.$t.'</span>';
+			}
+			$data[] = array($o,$t);
+		}
 		
 		$gb = &$this->init_module('Utils/GenericBrowser',null,'lang_translations');
 		$gb->set_custom_label($trans_filter);
 		$gb->set_table_columns(array(
-				array('name'=>$this->t('Module'),'width'=>30,'search'=>'modules'),
-				array('name'=>$this->t('Original'), 'order_preg'=>'/^<[^>]+>([^<]*)<[^>]+>$/i','search'=>'original'),
-				array('name'=>$this->t('Translated'),'search'=>'translated')));
+				array('name'=>__('Original'), 'order_preg'=>'/^<[^>]+>([^<]*)<[^>]+>$/i','search'=>'original'),
+				array('name'=>__('Translated'),'search'=>'translated')));
 		//$limit = $gb->get_limit(count($data));
 		$id = 0;
 		foreach($data as $v) {
@@ -121,15 +121,15 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	public function new_lang_pack(){
 		if ($this->is_back()) return false;
 
-		$form = & $this->init_module('Libs/QuickForm',$this->t('Creating new langpack...'),'new_langpack');
-		$form -> addElement('header',null,$this->t('Create new langpack'));
-		$form -> addElement('text','code',$this->t('Language code'),array('maxlength'=>2));
+		$form = & $this->init_module('Libs/QuickForm',__('Creating new langpack...'),'new_langpack');
+		$form -> addElement('header',null,__('Create new langpack'));
+		$form -> addElement('text','code',__('Language code'),array('maxlength'=>2));
 		$form->registerRule('check_if_langpack_exists', 'callback', 'check_if_langpack_exists', $this);
-		$form -> addRule('code', $this->t('Specified langpack already exists'), 'check_if_langpack_exists');
-		$form -> addRule('code', $this->t('Field required'), 'required');
+		$form -> addRule('code', __('Specified langpack already exists'), 'check_if_langpack_exists');
+		$form -> addRule('code', __('Field required'), 'required');
 
-		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
-		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+		Base_ActionBarCommon::add('back',__('Cancel'),$this->create_back_href());
+		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
 
 		if ($form->validate()) {
 			Base_LangCommon::new_langpack($form->exportValue('code'));

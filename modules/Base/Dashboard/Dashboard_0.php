@@ -32,9 +32,9 @@ class Base_Dashboard extends Module {
 		$default_dash = $this->get_module_variable('default');
 		$config_mode = $this->get_module_variable('config_mode', false);
 		if ($config_mode) {
-			Base_ActionBarCommon::add('back','Done',$this->create_callback_href(array($this,'switch_config_mode')));
+			Base_ActionBarCommon::add('back',__('Done'),$this->create_callback_href(array($this,'switch_config_mode')));
 		} else {
-			Base_ActionBarCommon::add('settings','Config',$this->create_callback_href(array($this,'switch_config_mode')));
+			Base_ActionBarCommon::add('settings',__('Config'),$this->create_callback_href(array($this,'switch_config_mode')));
 		}
 
 		if($default_dash)
@@ -76,7 +76,7 @@ class Base_Dashboard extends Module {
 					return;
 				}
 			}
-			eval_js('edit_dashboard_tab=function(id){if(get_new_dashboard_tab_name("'.$this->t('Enter label for the Dashboard tab').'","'.$this->t('Label cannot be empty').'",id)){'.$f->get_submit_form_js().'}}');
+			eval_js('edit_dashboard_tab=function(id){if(get_new_dashboard_tab_name("'.__('Enter label for the Dashboard tab').'","'.__('Label cannot be empty').'",id)){'.$f->get_submit_form_js().'}}');
 		}
 
 		if ($config_mode)
@@ -92,13 +92,13 @@ class Base_Dashboard extends Module {
 					if($tab['pos']<$tabs[count($tabs)-1]['pos'])
 						$label .= '<a '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],+1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'\';" width="14" height="14" alt="<" border="0"></a>';
 					$label .= '<a href="javascript:void(0);" onclick="edit_dashboard_tab('.$tab['id'].');"><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'\';" width="14" height="14" alt="<" border="0"></a>';
-					$label .= '<a '.$this->create_confirm_callback_href($this->t('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$tab['id']).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+					$label .= '<a '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$tab['id']).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'\';" width="14" height="14" alt="<" border="0"></a>';
 				}
 				$this->tb->set_tab($label, array($this,'display_dashboard'),$tab['id'], $config_mode, $buttons);
 			}
 			if ($config_mode) {
 				// *** New tab button ****
-				$this->tb->start_tab($this->t('Add new Tab'));
+				$this->tb->start_tab(__('Add new Tab'));
 				$this->tb->set_href('href="javascript:void(0);" onclick="edit_dashboard_tab(null);"');
 				$this->tb->end_tab();
 			}
@@ -122,7 +122,7 @@ class Base_Dashboard extends Module {
 		if ($config_mode) {
 			print('</td>');
 			print('<td id="dashboard" style="vertical-align:top;">');
-			$search_caption = $this->t('Search applets...');
+			$search_caption = __('Search applets...');
 			print('<input type="text" id="dashboard_applets_filter" style="color:#555;width:90%;" value="'.$search_caption.'" onblur="dashboard_prepare_filter_box(0,\''.$search_caption.'\')" onfocus="dashboard_prepare_filter_box(1,\''.$search_caption.'\')" onkeyup="dashboard_filter_applets()">');
 			print('<div id="dashboard_applets_new_scroll" style="overflow-y:auto;overflow-x: hidden;height:200px;vertical-align:top">');
 			print('<div id="dashboard_applets_new" style="vertical-align:top">');
@@ -141,7 +141,7 @@ class Base_Dashboard extends Module {
 	}
 
 	public function display_dashboard($tab_id) {
-//		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list'),$tab_id));
+//		Base_ActionBarCommon::add('add',__('Add applet'),$this->create_callback_href(array($this,'applets_list'),$tab_id));
 
 		$default_dash = $this->get_module_variable('default');
 		$colors = Base_DashboardCommon::get_available_colors();
@@ -168,7 +168,7 @@ class Base_Dashboard extends Module {
 				$m = $this->init_module($row['module_name'],null,$row['id']);
 
 				$opts = array();
-				$opts['title'] = $this->t($cap);
+				$opts['title'] = $cap;
 				$opts['toggle'] = true;
 				$opts['href'] = null;
 				$opts['go'] = false;
@@ -188,7 +188,7 @@ class Base_Dashboard extends Module {
 				$th->assign('handle_class','handle');
 
 				if($opts['toggle'] && !$config_mode)
-					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs($this->t('Toggle')).'>=</a>');
+					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs(__('Toggle')).'>=</a>');
 					
 				foreach ($opts['actions'] as $k=>$v)
 					if (!$v) unset($opts['actions'][$k]);
@@ -196,15 +196,15 @@ class Base_Dashboard extends Module {
 				if($opts['go'])
 					$opts['href']=$this->create_main_href($row['module_name'],$opts['go_function'],$opts['go_arguments'],$opts['go_constructor_arguments']);
 				if($opts['href'])
-					$th->assign('href','<a class="href" '.Utils_TooltipCommon::open_tag_attrs($this->t('Fullscreen')).' '.$opts['href'].'>G</a>');
+					$th->assign('href','<a class="href" '.Utils_TooltipCommon::open_tag_attrs(__('Fullscreen')).' '.$opts['href'].'>G</a>');
 
 				$th->assign('remove',Base_DashboardCommon::get_remove_applet_button($row['id'], $default_dash));
 				
 				if (!$config_mode)
-					$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs($this->t('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
+					$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs(__('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
 
 				$th->assign('caption',$opts['title']);
-				$th->assign('color',$colors[$row['color']]);
+				$th->assign('color',$colors[$row['color']]['class']);
 				
 				$th->assign('actions',$opts['actions']);
 
@@ -306,11 +306,11 @@ class Base_Dashboard extends Module {
 			return false;
 		}
 
-		$f = &$this->init_module('Libs/QuickForm',$this->t('Saving settings'),'settings');
+		$f = &$this->init_module('Libs/QuickForm',__('Saving settings'),'settings');
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
 
 		if($is_conf) {
-			$f->addElement('header',null,$this->t($caption).' '.$this->t('settings'));
+			$f->addElement('header',null,__('%s settings', array($caption)));
 
 			$menu = call_user_func($sett_fn);
 			if (is_array($menu))
@@ -319,19 +319,19 @@ class Base_Dashboard extends Module {
 				trigger_error('Invalid applet settings function: '.$mod,E_USER_ERROR);
 		}
 
-		$f->addElement('header',null,$this->t($caption).' '.$this->t('display settings'));
+		$f->addElement('header',null,$caption.' '.__('display settings'));
 
 		$color = Base_DashboardCommon::get_available_colors();
-		$color[0] = $this->t('Default').': '.$this->t(ucfirst($color[0]));
+		$color[0] = __('Default').': '.$color[0]['label'];
 		for($k=1; $k<count($color); $k++)
-			$color[$k] = '&bull; '.$this->t(ucfirst($color[$k]));
-		$f->addElement('select', '__color', $this->t('Color'), $color, array('style'=>'width: 100%;'));
+			$color[$k] = '&bull; '.$color[$k]['label'];
+		$f->addElement('select', '__color', __('Color'), $color, array('style'=>'width: 100%;'));
 
 		$default_dash = $this->get_module_variable('default');
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
 		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs.($default_dash?'':' WHERE user_login_id='.Base_AclCommon::get_user()));
-		$f->addElement('select','__tab',$this->t('Tab'),$tabs);
+		$f->addElement('select','__tab',__('Tab'),$tabs);
 		$dfs = DB::GetRow('SELECT tab,color FROM '.$table_applets.' WHERE id=%d',array($id));
 		$f->setDefaults(array('__tab'=>$dfs['tab'],'__color'=>$dfs['color']));
 
@@ -366,9 +366,9 @@ class Base_Dashboard extends Module {
 		$ok=null;
 		$f->display();
 
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
-		Base_ActionBarCommon::add('settings','Restore defaults','onClick="'.$this->set_default_js.'" href="javascript:void(0)"');
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
+		Base_ActionBarCommon::add('save',__('Save'),$f->get_submit_form_href());
+		Base_ActionBarCommon::add('settings',__('Restore Defaults'),'onClick="'.$this->set_default_js.'" href="javascript:void(0)"');
 
 		return true;
 
@@ -430,24 +430,8 @@ class Base_Dashboard extends Module {
 	private function add_module_settings_to_form($info, &$f, $id, $module){
 		$values = $this->get_values($id,$module);
 		foreach($info as & $v){
-			if(isset($v['label'])) {
-				if (is_array($v['label'])) {
-					$label = $v['label']['value'];
-					if (isset($v['label']['translate']) && $v['label']['translate'])
-						$v['label'] = $this->t($label);
-					else
-						$v['label'] = $label;
-				} else {
-					$v['label'] = $this->t($v['label']);
-				}
-			}
-			if(isset($v['values']) && is_array($v['values']) && (!isset($v['translate']) || $v['translate']))
-				foreach($v['values'] as &$x)
-					$x = $this->t($x);
 			if (isset($v['rule'])) {
 				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
-				foreach ($v['rule'] as & $r)
-					if (isset($r['message'])) $r['message'] = $this->t($r['message']);
 			}
 		}
 		$this->set_default_js = '';
@@ -456,7 +440,7 @@ class Base_Dashboard extends Module {
 	}
 
 	public function caption() {
-		return "Dashboard";
+		return __("Dashboard");
 	}
 
 	//////////////////////////////////////////////////////////
@@ -469,7 +453,7 @@ class Base_Dashboard extends Module {
 				location(array());
 			return;
 		}
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		
 		$this->set_module_variable('default',true);
 		$this->dashboard();

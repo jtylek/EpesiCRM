@@ -17,9 +17,9 @@ class CRM_Contacts_AccountManagerCommon extends ModuleCommon {
 	}
 
 	public static function user_settings() {
-		return array('Browsing records'=>array(
-				array('name'=>'contact_header', 'label'=>'Filtering Companies', 'type'=>'header'),
-				array('name'=>'set_default','label'=>'Account Manager - default set to Perspective','type'=>'checkbox','default'=>0)
+		return array(__('Browsing records')=>array(
+				array('name'=>'contact_header', 'label'=>__('Filtering Companies'), 'type'=>'header'),
+				array('name'=>'set_default','label'=>__('Account Manager - default set to Perspective'),'type'=>'checkbox','default'=>0)
 					));
 	}
 

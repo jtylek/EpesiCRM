@@ -13,11 +13,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
-    const ACTION_BUY = 'buy';
-    const ACTION_PAY = 'pay';
-    const ACTION_DOWNLOAD = 'download';
-    const ACTION_UPDATE = 'update';
-    const ACTION_INSTALL = 'install';
+    const ACTION_BUY = 'buy'; 			// __('Buy')
+    const ACTION_PAY = 'pay'; 			// __('Pay')
+    const ACTION_DOWNLOAD = 'download'; // __('Download')
+    const ACTION_UPDATE = 'update'; 	// __('Update')
+    const ACTION_INSTALL = 'install'; 	// __('Install')
     //
     const MOD_PATH = 'Base_EpesiStoreCommon';
     const CART_VAR = 'cart';
@@ -28,7 +28,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function admin_caption() {
-        return "Modules Administration & Store";
+        return __("Modules Administration & Store");
     }
 
     public static function get_modules_all_available() {
@@ -70,16 +70,16 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         $values = array();
         // do user setting entries from data
         foreach ($keys as $k => $v) {
-            $x = array('name' => $v, 'label' => ucwords(str_replace('_', ' ', $v)), 'type' => 'text', 'default' => isset($r[$k]) ? $r[$k] : '');
+            $x = array('name' => $v, 'label' => _V(ucwords(str_replace('_', ' ', $v))), 'type' => 'text', 'default' => isset($r[$k]) ? $r[$k] : ''); // ****** Values are fields used in Contacts
             if ($k == 'country') {
                 $x['type'] = 'select';
                 $x['values'] = Utils_CommonDataCommon::get_translated_array('Countries');
             }
             $values[] = $x;
         }
-        return array('Epesi Store' =>
+        return array(__('Epesi Store') =>
             array_merge(
-                    array(array('name' => 'payments_header', 'label' => '', 'type' => 'header', 'default' => Base_LangCommon::ts('Base_EpesiStore', 'Payment credentials')))
+                    array(array('name' => 'payments_header', 'label' => '', 'type' => 'header', 'default' => __( 'Payment credentials')))
                     , $values));
     }
 
@@ -117,11 +117,11 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if (isset($r['id']))
             unset($r['id']);
         if (isset($r['active']))
-            $r['active'] = Base_LangCommon::ts('Base_EpesiStore', $r['active'] ? 'Yes' : 'No');
+            $r['active'] = $r['active'] ? __('Yes') : __('No');
         $r['files'] = implode("<br/>", $r['files']);
         unset($r['icon_url']);
         unset($r['description_url']);
-        return Utils_TooltipCommon::format_info_tooltip($r, "Base_EpesiStore");
+        return Utils_TooltipCommon::format_info_tooltip($r);
     }
 
     /**
@@ -199,7 +199,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             self::apply_patches();
             ModuleManager::create_common_cache();
             Base_ThemeCommon::themeup();
-            Base_LangCommon::update_langs();
+            Base_LangCommon::update_translations();
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -358,7 +358,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 }
                 $return = self::_display_payments_for_module($module_id);
                 if ($return === true) {
-                    Base_ActionBarCommon::add('back', 'Back', Base_BoxCommon::main_module_instance()->create_back_href());
+                    Base_ActionBarCommon::add('back', __('Back'), Base_BoxCommon::main_module_instance()->create_back_href());
                     return true;
                 }
                 break;

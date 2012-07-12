@@ -22,8 +22,8 @@ class Libs_TCPDFCommon extends ModuleCommon {
     public static $default_font = 'dejavusanscondensed';//'Helvetica';
 
     public static function user_settings(){
-        return array('Printing settings'=>array(
-            array('name'=>'page_format','label'=>'Page format','type'=>'select','values'=>array('A4'=>'A4','LETTER'=>'LETTER','LEGAL'=>'LEGAL'),'default'=>'LETTER')
+        return array(__('Printing settings')=>array(
+            array('name'=>'page_format','label'=>__('Page format'),'type'=>'select','values'=>array('A4'=>__('A4'),'LETTER'=>__('LETTER'),'LEGAL'=>__('LEGAL')),'default'=>'LETTER')
             ));
     }
 
@@ -82,8 +82,8 @@ class Libs_TCPDFCommon extends ModuleCommon {
         else $who= Base_UserCommon::get_user_login(Acl::get_user());
         $when = date('Y-m-d H:i:s');
         $l['w_page'] = '';
-        if ($printed_by) $l['w_page'] .= Base_LangCommon::ts('Libs_TCPDF','Printed with %s by %s, on %s, ',array('EpesiBIM (http://www.epesibim.com)',$who,$when));
-        $l['w_page'] .= Base_LangCommon::ts('Libs_TCPDF','Page');
+        if ($printed_by) $l['w_page'] .= __('Printed with %s by %s, on %s, ',array('EpesiBIM (http://www.epesibim.com)',$who,$when));
+        $l['w_page'] .= __('Page');
         $tcpdf->setLanguageArray($l);
 
         //initialize document
@@ -126,7 +126,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
     }
 
     public static function admin_caption(){
-        return 'Printing options';
+        return __('Printing options');
     }
 
     public static function get_logo_filename(){

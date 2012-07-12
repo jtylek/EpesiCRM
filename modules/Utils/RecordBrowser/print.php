@@ -50,7 +50,7 @@ $filters = implode('   ', $filters);
 $filters = str_replace('&nbsp;',' ',$filters);*/
 $filters = ''; // TODO
 	
-Libs_TCPDFCommon::prepare_header($tcpdf, Base_LangCommon::ts('Utils_RecordBrowser',DB::GetOne('SELECT caption FROM recordbrowser_table_properties WHERE tab=%s', array($tab))), $filters, false);
+Libs_TCPDFCommon::prepare_header($tcpdf, _V(DB::GetOne('SELECT caption FROM recordbrowser_table_properties WHERE tab=%s', array($tab))), $filters, false);
 Libs_TCPDFCommon::add_page($tcpdf);
 
 Libs_TCPDFCommon::SetFont($tcpdf, Libs_TCPDFCommon::$default_font, '', 6);

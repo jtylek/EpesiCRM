@@ -14,16 +14,16 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function applet_caption() {
 		if (Utils_RecordBrowserCommon::get_access('phonecall','browse'))
-			return 'Phone Calls';
+			return __('Phonecalls');
 	}
 	public static function applet_info() {
-		return 'List of phone calls to do';
+		return __('List of phone calls to do');
 	}
 	public static function applet_settings() {
 		return Utils_RecordBrowserCommon::applet_settings(array(
-			array('label'=>'Include missed (past) calls','name'=>'past','type'=>'checkbox','default'=>1),
-			array('label'=>'Include today calls','name'=>'today','type'=>'checkbox','default'=>1),
-			array('label'=>'Include future calls','name'=>'future','type'=>'select','values'=>array(0=>'No',1=>'Tomorrow',2=>'2 days forward',7=>'1 week forward',-1=>'All'),'default'=>0)
+			array('label'=>__('Include missed (past) calls'),'name'=>'past','type'=>'checkbox','default'=>1),
+			array('label'=>__('Include today calls'),'name'=>'today','type'=>'checkbox','default'=>1),
+			array('label'=>__('Include future calls'),'name'=>'future','type'=>'select','values'=>array(0=>__('No'),1=>__('Tomorrow'),2=>__('2 days forward'),7=>__('1 week forward'),-1=>__('All')),'default'=>0)
 			));
 	}
 	public static function applet_info_format($r){
@@ -34,15 +34,13 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (isset($r['phone']) && $r['phone']!='') {
 				$num = $r['phone'];
 				switch ($num) {
-					case 1: $nr = 'Mobile Phone'; break;
-					case 2: $nr = 'Work Phone'; break;
-					case 3: $nr = 'Home Phone'; break;
-					case 4: $nr = 'Phone'; break;
+					case 1: $id = 'mobile_phone'; 	$nr = 'Mobile Phone'; break;
+					case 2: $id = 'work_phone'; 	$nr = 'Work Phone'; break;
+					case 3: $id = 'home_phone'; 	$nr = 'Home Phone'; break;
+					case 4: $id = 'phone'; 			$nr = 'Phone'; break;
 				}
-				$id = strtolower(str_replace(' ','_',$nr));
-				$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
-				$phone = $l.': '.(isset($cus[$id])?$cus[$id]:'error');
-			} else $phone = Base_LangCommon::ts('CRM/PhoneCall','Other').': '.$r['other_phone_number'];
+				$phone = $nr.': '.(isset($cus[$id])?$cus[$id]:'error');
+			} else $phone = __('Other').': '.$r['other_phone_number'];
 		} else {
 			$customer = $r['other_customer_name'];
 			$phone = $r['other_phone_number'];
@@ -56,15 +54,15 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 
 		$args=array(
-					'Call'=>'<b>'.$phone.'</b>',
-					'Customer'=>$customer,
-					'Subject'=>'<b>'.$r['subject'].'</b>',
-					'Description'=>$r['description'],
-					'Assigned to'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
-					'Date and Time'=>Base_RegionalSettingsCommon::time2reg($r['date_and_time']),
-					'Status'=>$status[$r['status']],
-					'Permission'=>$access[$r['permission']],
-					'Priority'=>$priority[$r['priority']]
+					__('Call')=>'<b>'.$phone.'</b>',
+					__('Customer')=>$customer,
+					__('Subject')=>'<b>'.$r['subject'].'</b>',
+					__('Description')=>$r['description'],
+					__('Assigned to')=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
+					__('Date and Time')=>Base_RegionalSettingsCommon::time2reg($r['date_and_time']),
+					__('Status')=>$status[$r['status']],
+					__('Permission')=>$access[$r['permission']],
+					__('Priority')=>$priority[$r['priority']]
 					);
 
 		// Pass 2 arguments: array containing pairs: label/value
@@ -74,7 +72,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			case 1: $bg_color = '#FFFFD5'; break;
 			case 2: $bg_color = '#FFD5D5'; break;
 		}
-		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'Utils_RecordBrowser:phonecall'));
+		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args));
 		if ($bg_color) $ret['row_attrs'] = 'style="background:'.$bg_color.';"';
 		return $ret;
 
@@ -97,12 +95,12 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function menu() {
 		if (Utils_RecordBrowserCommon::get_access('phonecall','browse'))
-			return array('CRM'=>array('__submenu__'=>1,'Phone Calls'=>array()));
+			return array(_M('CRM')=>array('__submenu__'=>1,_M('Phonecalls')=>array()));
 		else
 			return array();
 	}
 	public static function caption() {
-		return 'Phone Calls';
+		return __('Phonecalls');
 	}
 	public static function QFfield_other_phone(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {
@@ -162,17 +160,17 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$ret = array();
 		if ((isset($v['other_phone']) && $v['other_phone']) || (isset($v['other_customer']) && $v['other_customer'])) {
 			if (!isset($v['other_phone_number']) || !$v['other_phone_number'])
-				$ret['other_phone_number'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+				$ret['other_phone_number'] = __('Field required');
 		} else {
 			if (!isset($v['phone']) || !$v['phone'])
-				$ret['phone'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+				$ret['phone'] = __('Field required');
 		}
 		if (!isset($v['other_customer']) || !$v['other_customer']) {
 			if (!isset($v['customer']) || !$v['customer'])
-				$ret['customer'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+				$ret['customer'] = __('Field required');
 		} else {
 			if (!isset($v['other_customer_name']) || !$v['other_customer_name'])
-				$ret['other_customer_name'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+				$ret['other_customer_name'] = __('Field required');
 		}
 		return empty($ret)?true:$ret;
 	}
@@ -195,8 +193,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function display_phone_number($record, $nolink) {
 		if ($record['other_phone']) {
 			if(MOBILE_DEVICE && IPHONE && !$nolink && preg_match('/^([0-9\t\+-]+)/',$record['other_phone_number'],$args))
-				return '<a href="tel:'.$args[1].'">'.Base_LangCommon::ts('CRM/PhoneCall','O').': '.$record['other_phone_number'].'</a>';
-			return Base_LangCommon::ts('CRM/PhoneCall','O').': '.CRM_CommonCommon::get_dial_code($record['other_phone_number']);
+				return '<a href="tel:'.$args[1].'">'.__('O').': '.$record['other_phone_number'].'</a>';
+			return __('O').': '.CRM_CommonCommon::get_dial_code($record['other_phone_number']);
 		} else return self::display_phone($record,false,array('id'=>'phone'));
 	}
 	public static function display_contact_name($record, $nolink) {
@@ -220,14 +218,12 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$contact = CRM_ContactsCommon::get_company($id);
 		$nr = '';
 		switch ($num) {
-			case 1: $nr = 'Mobile Phone'; break;
-			case 2: $nr = 'Work Phone'; break;
-			case 3: $nr = 'Home Phone'; break;
-			case 4: $nr = 'Phone'; break;
+			case 1: $id = 'mobile_phone'; 	$nr = 'Mobile Phone'; break;
+			case 2: $id = 'work_phone'; 	$nr = 'Work Phone'; break;
+			case 3: $id = 'home_phone'; 	$nr = 'Home Phone'; break;
+			case 4: $id = 'phone'; 			$nr = 'Phone'; break;
 		}
 		if (!$nr) return '';
-		$id = strtolower(str_replace(' ','_',$nr));
-		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
 
 		if(!isset($contact[$id])) return '---';
 		$number = $contact[$id];
@@ -240,10 +236,10 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		}
 
 		if(MOBILE_DEVICE && IPHONE)
-			return $l[0].': '.'<a href="tel:'.$number.'">'.$number.'</a>';
+			return $nr[0].': '.'<a href="tel:'.$number.'">'.$number.'</a>';
 		if($nolink)
-			return $l[0].': '.$number;
-		return $l[0].': '.CRM_CommonCommon::get_dial_code($number);
+			return $nr[0].': '.$number;
+		return $nr[0].': '.CRM_CommonCommon::get_dial_code($number);
 	}
 	public static function display_status($record, $nolink, $desc) {
 		$prefix = 'crm_phonecall_leightbox';
@@ -272,11 +268,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 			$values = $record;
 			$values['date_and_time'] = date('Y-m-d H:i:s');
-			$values['title'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['subject'];
+			$values['title'] = __('Follow-up').': '.$values['subject'];
 			$values['status'] = 0;
 
 			if ($action != 'none') {
-				$values['subject'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['subject'];
+				$values['subject'] = __('Follow-up').': '.$values['subject'];
 				$values['follow_up'] = array('phonecall',$record['id'],$record['subject']);
 				$x = ModuleManager::get_instance('/Base_Box|0');
 				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customer'],'status'=>0,'follow_up'=>$values['follow_up'])), array('task'));
@@ -301,12 +297,12 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		switch ($mode) {
 		case 'display':
 			$values['date_and_time'] = date('Y-m-d H:i:s');
-			$values['subject'] = Base_LangCommon::ts('CRM_Followup','Follow up: ').$values['subject'];
+			$values['subject'] = __('Follow-up').': '.$values['subject'];
 			$values['status'] = 0;
 			$ret = array();
-			if (ModuleManager::is_installed('CRM/Meeting')>=0) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customer'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
-			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'employees'=>$values['employees'], 'customers'=>$values['customer'],'status'=>0,'deadline'=>date('Y-m-d', strtotime('+1 day')))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-			$ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values, 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
+			if (ModuleManager::is_installed('CRM/Meeting')>=0) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Event')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customer'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
+			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'employees'=>$values['employees'], 'customers'=>$values['customer'],'status'=>0,'deadline'=>date('Y-m-d', strtotime('+1 day')))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+			$ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values, 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('phonecall/'.$values['id']);
 			return $ret;
 		case 'adding':
@@ -357,7 +353,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function watchdog_label($rid = null, $events = array(), $details = true) {
 		return Utils_RecordBrowserCommon::watchdog_label(
 				'phonecall',
-				Base_LangCommon::ts('CRM_PhoneCall','Phonecalls'),
+				__('Phonecalls'),
 				$rid,
 				$events,
 				'subject',
@@ -368,15 +364,15 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function search_format($id) {
 		$phone = self::get_phonecall($id);
 		if(!$phone) return false;
-		return Utils_RecordBrowserCommon::record_link_open_tag('phonecall', $phone['id']).Base_LangCommon::ts('CRM_PhoneCall', 'Phonecall (attachment) #%d, %s at %s', array($phone['id'], $phone['subject'], Base_RegionalSettingsCommon::time2reg($phone['date_and_time']))).Utils_RecordBrowserCommon::record_link_close_tag();
+		return Utils_RecordBrowserCommon::record_link_open_tag('phonecall', $phone['id']).__( 'Phonecall (attachment) #%d, %s at %s', array($phone['id'], $phone['subject'], Base_RegionalSettingsCommon::time2reg($phone['date_and_time']))).Utils_RecordBrowserCommon::record_link_close_tag();
 	}
 
 	public static function get_alarm($id) {
 		$a = Utils_RecordBrowserCommon::get_record('phonecall',$id);
 
-		if (!$a) return Base_LangCommon::ts('CRM_PhoneCall','Private record');
+		if (!$a) return __('Private record');
 
-		$ret = Base_LangCommon::ts('CRM_PhoneCall',"Date: %s",array(Base_RegionalSettingsCommon::time2reg($a['date_and_time'],2)))."\n";
+		$ret = __("Date: %s",array(Base_RegionalSettingsCommon::time2reg($a['date_and_time'],2)))."\n";
 		if($a['other_customer'])
 			$contact = $a['other_customer_name'];
 		else {
@@ -388,10 +384,10 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				$contact = $contact['company_name'];
 			}
 		}
-		$ret .= Base_LangCommon::ts('CRM_PhoneCall',"Contact: %s",array($contact))."\n";
-		$ret .= Base_LangCommon::ts('CRM_PhoneCall',"Phone: %s",array(self::display_phone($a,true,array('id'=>'phone'))))."\n";
+		$ret .= __("Contact: %s",array($contact))."\n";
+		$ret .= __("Phone: %s",array(self::display_phone($a,true,array('id'=>'phone'))))."\n";
 
-		return $ret.Base_LangCommon::ts('CRM_PhoneCall',"Subject: %s",array($a['subject']));
+		return $ret.__("Subject: %s",array($a['subject']));
 	}
 
 	//////////////////////////
@@ -399,7 +395,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function mobile_menu() {
 		if(!Utils_RecordBrowserCommon::get_access('phonecall','browse'))
 			return array();
-		return array('Phone Calls'=>array('func'=>'mobile_phone_calls','color'=>'blue'));
+		return array(__('Phonecalls')=>array('func'=>'mobile_phone_calls','color'=>'blue'));
 	}
 
 	public static function mobile_phone_calls() {
@@ -421,7 +417,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 							break;
 			case 'delete': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_event_delete'), $args);
 							break;
-			case 'new_event_types': $ret = array(array('label'=>'Phonecall','icon'=>Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon.png')));
+			case 'new_event_types': $ret = array(array('label'=>__('Phonecall'),'icon'=>Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon.png')));
 							break;
 			case 'new_event': $ret = call_user_func_array(array('CRM_PhoneCallCommon','crm_new_event'), $args);
 							break;
@@ -532,7 +528,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if (Utils_RecordBrowserCommon::get_access('phonecall','delete', $r)==false)
 			$next['delete_action'] = false;
 
-//		$next['delete_action'] = Module::create_confirm_href(Base_LangCommon::ts('Premium_SchoolRegister','Are you sure you want to delete this '.$type.'?'),array('delete_'.$type=>$record['id']));
 
 /*		$r_new = $r;
 		if ($r['status']==0) $r_new['status'] = 1;
@@ -544,7 +539,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
         $event_date = Base_RegionalSettingsCommon::time2reg($next['start'],false,3,false);
 
         $inf2 = array(
-            'Date'=>'<b>'.$event_date.'</b>');
+            __('Date')=>'<b>'.$event_date.'</b>');
 
 		$emps = array();
 		foreach ($r['employees'] as $e) {
@@ -559,14 +554,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if (mb_strlen($c,'UTF-8')>33) $c = mb_substr($c, 0, 30, 'UTF-8').'...';
 		$cuss[] = $c;
 
-		$inf2 += array(	'phonecall' => '<b>'.$next['title'].'</b>',
-						'Description' => $next['description'],
-						'Assigned to' => implode('<br>',$emps),
-						'Contacts' => implode('<br>',$cuss),
-						'Status' => Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
-						'Access' => Utils_CommonDataCommon::get_value('CRM/Access/'.$r['permission'],true),
-						'Priority' => Utils_CommonDataCommon::get_value('CRM/Priority/'.$r['priority'],true),
-						'Notes' => Utils_AttachmentCommon::count('phonecall/'.$r['id'])
+		$inf2 += array(	__('Phonecall') => '<b>'.$next['title'].'</b>',
+						__('Description')=> $next['description'],
+						__('Assigned to')=> implode('<br>',$emps),
+						__('Contacts')=> implode('<br>',$cuss),
+						__('Status')=> Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
+						__('Access')=> Utils_CommonDataCommon::get_value('CRM/Access/'.$r['permission'],true),
+						__('Priority')=> Utils_CommonDataCommon::get_value('CRM/Priority/'.$r['priority'],true),
+						__('Notes')=> Utils_AttachmentCommon::count('phonecall/'.$r['id'])
 					);
 
 		$next['employees'] = $r['employees'];
@@ -574,9 +569,9 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$next['status'] = $r['status']<=2?'active':'closed';
 		$next['custom_tooltip'] = 
 									'<center><b>'.
-										Base_LangCommon::ts('CRM_PhoneCall','Phonecall').
+										__('Phonecall').
 									'</b></center><br>'.
-									Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').'<hr>'.
+									Utils_TooltipCommon::format_info_tooltip($inf2).'<hr>'.
 									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
 		return $next;
 	}

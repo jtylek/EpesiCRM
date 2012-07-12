@@ -71,7 +71,7 @@ public function applet($conf, & $opts) {
 									& $opts
 				);
 		// initialize miniview
-		print($this->t('Birthdays upcoming in the next: %d days.', array($conf['no_of_days'])));
+		print(__('Birthdays upcoming in the next: %d days.', array($conf['no_of_days'])));
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 }

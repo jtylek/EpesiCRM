@@ -48,11 +48,11 @@ class Base_Admin extends Module {
 			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
 			if (Base_AdminCommon::get_access($name)==false) continue;
 			if(!isset($caption)) continue;
-			else $caption = $this->t($caption);
+			else $caption = $caption;
 			$mod_ok[$caption] = $name;
 		}
 		if (Base_AclCommon::i_am_sa())
-			$mod_ok[$this->t('Admin Panel Access')] = 'Base_Admin';
+			$mod_ok[__('Admin Panel Access')] = 'Base_Admin';
 
 		uksort($mod_ok,'strcasecmp');
 		
@@ -67,19 +67,19 @@ class Base_Admin extends Module {
 						'icon'=>$icon);
 		}
 		$theme =  & $this->pack_module('Base/Theme');
-		$theme->assign('header', $this->t('Modules settings'));
+		$theme->assign('header', __('Modules settings'));
 		$theme->assign('buttons', $buttons);
 		$theme->display();
 	}
 	
 	public function caption() {
 		$module = $this->get_module_variable('href');
-		if ($module===null) return 'Administration: Control Panel';
+		if ($module===null) return __('Administration: Control Panel');
 		$func = array($module.'Common','admin_caption');
-		if(!is_callable($func)) return 'Administration: '.$module;
+		if(!is_callable($func)) return __('Administration: %s', array($module));
 		$caption = call_user_func($func);
-		if($caption) return 'Administration: '.$caption;
-		return 'Administration';
+		if($caption) return __('Administration: %s',array($caption));
+		return __('Administration');
 	}
 	
 	public function admin() {
@@ -87,13 +87,13 @@ class Base_Admin extends Module {
 			$this->parent->reset();
 			return;
 		}
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		
 		$cmr = ModuleManager::call_common_methods('admin_caption');
 		foreach($cmr as $name=>$caption) {
 			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
 			if(!isset($caption)) $caption = $name.' module';
-			else $caption = $this->t($caption);
+			else $caption = $caption;
 			$mod_ok[$caption] = $name;
 		}
 		uksort($mod_ok,'strcasecmp');
@@ -114,7 +114,7 @@ class Base_Admin extends Module {
 			$sections_id = $name.'__sections';
 
 			$enable_default = Base_AdminCommon::get_access($name, '', true);
-			$form->addElement('checkbox', $enable_field, $this->t($enable_default===null?'Access blocked':'Allow access'), null, array('onchange'=>'admin_switch_button("'.$button_id.'",this.checked, "'.$sections_id.'");', 'id'=>$enable_field, 'style'=>$enable_default===null?'display:none;':''));
+			$form->addElement('checkbox', $enable_field, $enable_default===null?__('Access blocked'):__('Allow access'), null, array('onchange'=>'admin_switch_button("'.$button_id.'",this.checked, "'.$sections_id.'");', 'id'=>$enable_field, 'style'=>$enable_default===null?'display:none;':''));
 			$form->setDefaults(array($enable_field=>$enable_default));
 			eval_js('admin_switch_button("'.$button_id.'",$("'.$enable_field.'").checked, "'.$sections_id.'", 1);');
 			
@@ -125,7 +125,7 @@ class Base_Admin extends Module {
 						$type = isset($v['values'])?'select':'checkbox';
 						$vals = isset($v['values'])?$v['values']:null;
 						$s_field = $name.'__'.$s.'__switch';
-						$form->addElement($type, $s_field, $this->t($v['label']), $vals);
+						$form->addElement($type, $s_field, $v['label'], $vals);
 						$form->setDefaults(array($s_field=>Base_AdminCommon::get_access($name, $s, true)));
 						$sections[$s] = $s_field;
 					}
@@ -153,13 +153,13 @@ class Base_Admin extends Module {
 			return;
 		}
 
-		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
 
 		$theme =  & $this->pack_module('Base/Theme');
 
 		$form->assign_theme('form', $theme);
 		
-		$theme->assign('header', $this->t('Admin Panel Access'));
+		$theme->assign('header', __('Admin Panel Access'));
 		$theme->assign('buttons', $buttons);
 		$theme->display('access_panel');
 	}

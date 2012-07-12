@@ -242,7 +242,6 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$order=0,$off=false,$size=1) {
 		if (!isset($icon)) $icon = strtolower(trim($label));
-		if ($label==strip_tags($label)) $label = $this->t($label);
 		switch ($icon) {
 			case 'view': $order = -3; break;
 			case 'edit': $order = -2; break;
@@ -767,7 +766,7 @@ class Utils_GenericBrowser extends Module {
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
 			if(!$this->forced_per_page) {
-				$form_p->addElement('select','per_page',$this->t('Number of rows per page'), self::$possible_vals_for_per_page, 'onChange="'.$form_p->get_submit_form_js(false).'"');
+				$form_p->addElement('select','per_page',__('Number of rows per page'), self::$possible_vals_for_per_page, 'onChange="'.$form_p->get_submit_form_js(false).'"');
 				$form_p->setDefaults(array('per_page'=>$per_page));
 			}
 			$qty_pages = ceil($this->rows_qty/$this->per_page);
@@ -777,10 +776,10 @@ class Utils_GenericBrowser extends Module {
 					$pages[0] = 1;
 				else
 					foreach (range(1, $qty_pages) as $v) $pages[$v] = $v;
-				$form_p->addElement('select','page',$this->t('Page'), $pages, 'onChange="'.$form_p->get_submit_form_js(false).'"');
+				$form_p->addElement('select','page',__('Page'), $pages, 'onChange="'.$form_p->get_submit_form_js(false).'"');
 				$form_p->setDefaults(array('page'=>(int)(ceil($this->offset/$this->per_page)+1)));
 			} else {
-				$form_p->addElement('text','page',$this->t('Page (%s to %s)', array(1,$qty_pages)), array('onclick'=>'this.focus();this.select();', 'onChange'=>$form_p->get_submit_form_js(false), 'style'=>'width:'.(7*strlen($qty_pages)).'px;'));
+				$form_p->addElement('text','page',__('Page (%s to %s)', array(1,$qty_pages)), array('onclick'=>'this.focus();this.select();', 'onChange'=>$form_p->get_submit_form_js(false), 'style'=>'width:'.(7*strlen($qty_pages)).'px;'));
 				$form_p->setDefaults(array('page'=>(int)(ceil($this->offset/$this->per_page)+1)));
 			}
 			$pager_on = true;
@@ -789,7 +788,7 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$this->form_s->addElement('text','search',$this->t('Keyword'), array('placeholder'=>$this->t('search keyword...')));
+					$this->form_s->addElement('text','search',__('Keyword'), array('placeholder'=>__('search keyword...')));
 					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:''));
 					$search_on=true;
 					break;
@@ -807,7 +806,7 @@ class Utils_GenericBrowser extends Module {
 					$this->form_s->addElement('hidden','search__'.$v['search'],'');
 					$default = isset($search[$v['search']])?$search[$v['search']]:'';
 					$this->form_s->setDefaults(array('search__'.$v['search']=>$default));
-					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" placeholder="'.$this->t('search keyword...').'" onblur="document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
+					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" placeholder="'.__('search keyword...').'" onblur="document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
 					$search_fields[$k+$mov] = $in;
 					$search_on=true;
 				}
@@ -815,10 +814,10 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('search_fields', $search_fields);
 		}
 		if ($search_on) {
-			$this->form_s->addElement('submit','submit_search',$this->t('Search'));
+			$this->form_s->addElement('submit','submit_search',__('Search'));
 			if (Base_User_SettingsCommon::get($this->get_type(), 'show_all_button')) {
 				$el = $this->form_s->addElement('hidden','show_all_pressed');
-				$this->form_s->addElement('button','show_all',$this->t('Show all'), array('onclick'=>'document.forms["'.$this->form_s->getAttribute('name').'"].show_all_pressed.value="1";'.$this->form_s->get_submit_form_js()));
+				$this->form_s->addElement('button','show_all',__('Show all'), array('onclick'=>'document.forms["'.$this->form_s->getAttribute('name').'"].show_all_pressed.value="1";'.$this->form_s->get_submit_form_js()));
 				$el->setValue('0');
 			}
 		}
@@ -860,13 +859,13 @@ class Utils_GenericBrowser extends Module {
 				$search = array();
 				foreach ($values as $k=>$v){
 					if ($k=='search') {
-						if ($v!=$this->t('search keyword...') && $v!='')
+						if ($v!=__('search keyword...') && $v!='')
 							$search['__keyword__'] = $v;
 						break;
 					}
 					if (substr($k,0,8)=='search__') {
 						$val = substr($k,8);
-						if ($v!=$this->t('search keyword...') && $v!='') $search[$val] = $v;
+						if ($v!=__('search keyword...') && $v!='') $search[$val] = $v;
 					}
 				}
 				$this->set_module_variable('search',$search);
@@ -998,8 +997,8 @@ class Utils_GenericBrowser extends Module {
 		}
 		if (isset($quickjump)) {
 			$quickjump_to = $this->get_module_variable('quickjump_to');
-			$all = '<span class="all">'.$this->t('All').'</span>';
-			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'')).'>'.$this->t('All').'</a>';
+			$all = '<span class="all">'.__('All').'</span>';
+			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'')).'>'.__('All').'</a>';
 			$letter_links = array(0 => $all);
 			if ($quickjump_to != '0')
 				$letter_links[] .= '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'0')).'>'.'123'.'</a>';
@@ -1033,11 +1032,11 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('custom_label', $this->custom_label);
 		$theme->assign('custom_label_args', $this->custom_label_args);
 
-		if ($search_on) $theme->assign('adv_search','<a class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?$this->t('Simple Search'):$this->t('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
+		if ($search_on) $theme->assign('adv_search','<a class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
 		else $theme->assign('adv_search','');
 
 		if (Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $is_order){
-			$theme->assign('reset', '<a '.$this->create_unique_href(array('action'=>'reset_order')).'>'.$this->t('Reset Order').'</a>');
+			$theme->assign('reset', '<a '.$this->create_unique_href(array('action'=>'reset_order')).'>'.__('Reset Order').'</a>');
 			$theme->assign('order',$this->get_module_variable('order_history_display'));
 		}
 		$theme->assign('id',md5($this->get_path()));
@@ -1054,32 +1053,32 @@ class Utils_GenericBrowser extends Module {
 
 	private function summary() {
 		if($this->rows_qty!=0)
-			return $this->t('Records <b>%d</b> to <b>%d</b> of <b>%d</b>',array($this->get_module_variable('offset')+1,($this->get_module_variable('offset')+$this->get_module_variable('per_page')>$this->rows_qty)?$this->rows_qty:$this->get_module_variable('offset')+$this->get_module_variable('per_page'),$this->rows_qty));
+			return __('Records <b>%d</b> to <b>%d</b> of <b>%d</b>',array($this->get_module_variable('offset')+1,($this->get_module_variable('offset')+$this->get_module_variable('per_page')>$this->rows_qty)?$this->rows_qty:$this->get_module_variable('offset')+$this->get_module_variable('per_page'),$this->rows_qty));
 		else
 		if ((isset($this->rows_qty) || (!isset($this->rows_qty) && empty($this->rows))) && !Base_User_SettingsCommon::get('Utils/GenericBrowser','display_no_records_message'))
-			return $this->t('No records found');
+			return __('No records found');
 		else
 			return '';
 	}
 
 	private function gb_first() {
 		if($this->get_module_variable('offset')>0)
-			return '<a '.$this->create_unique_href(array('first'=>1)).'>'.$this->t('First').'</a>';
+			return '<a '.$this->create_unique_href(array('first'=>1)).'>'.__('First').'</a>';
 	}
 
 	private function gb_prev() {
 		if($this->get_module_variable('offset')>0)
-    		return '<a '.$this->create_unique_href(array('prev'=>1)).'>'.$this->t('Prev').'</a>';
+    		return '<a '.$this->create_unique_href(array('prev'=>1)).'>'.__('Prev').'</a>';
 	}
 
 	private function gb_next() {
 		if($this->get_module_variable('offset')+$this->get_module_variable('per_page')<$this->rows_qty)
-      		return '<a '.$this->create_unique_href(array('next'=>1)).'>'.$this->t('Next').'</a>';
+      		return '<a '.$this->create_unique_href(array('next'=>1)).'>'.__('Next').'</a>';
 	}
 
 	private function gb_last() {
 		if($this->get_module_variable('offset')+$this->get_module_variable('per_page')<$this->rows_qty)
-      		return '<a '.$this->create_unique_href(array('last'=>1)).'>'.$this->t('Last').'</a>';
+      		return '<a '.$this->create_unique_href(array('last'=>1)).'>'.__('Last').'</a>';
 	}
 
 	public function set_prefix($arg) {

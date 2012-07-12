@@ -82,14 +82,14 @@ class Base_User_LoginCommon extends ModuleCommon {
 	 */
 	public static function send_mail_with_password($username, $pass, $mail, $recovery=false) {
 		$url = get_epesi_url();
-		$subject = Base_LangCommon::ts('Base_User_Login','Your account at %s',array($url));
+		$subject = __('Your account at %s',array($url));
 		$header = Variable::get('add_user_email_header','');
 		$body = ($header?$header."\n\n":'');
 		if ($recovery)
-			$body .= Base_LangCommon::ts('Base_User_Login', 'This e-mail is to inform you that your password at %s has been reset.', array($url));
+			$body .= __( 'This e-mail is to inform you that your password at %s has been reset.', array($url));
 		else
-			$body .= Base_LangCommon::ts('Base_User_Login', 'This e-mail is to inform you that a user account was setup for you at: %s', array($url));
-		$body .= Base_LangCommon::ts('Base_User_Login', '
+			$body .= __( 'This e-mail is to inform you that a user account was setup for you at: %s', array($url));
+		$body .= __( '
 
 Your username is: %s
 Your password is: %s
@@ -115,19 +115,19 @@ This e-mail was generated automatically and you do not need to respond to it.', 
 			$pass = generate_password();
 		
 		if(!Base_UserCommon::add_user($username)) {
-			print(Base_LangCommon::ts('Base/User/Login','Account creation failed.<br> Unable to add user to database.<br>'));
+			print(__('Account creation failed.<br> Unable to add user to database.<br>'));
 			return false;	
 		}
 		$user_id = Base_UserCommon::get_user_id($username);
 		if($user_id===false) {
-			print(Base_LangCommon::ts('Base/User/Login','Account creation failed.<br> Unable to get id of added user.<br>'));
+			print(__('Account creation failed.<br> Unable to get id of added user.<br>'));
 			return false;
 		}
 		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, md5($pass), $mail));
 		
 		if($send_mail) {
 			if(!self::send_mail_with_password($username, $pass, $mail)) {
-				print(Base_LangCommon::ts('Base/User/Login','Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.'));
+				print(__('Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.'));
 			}
 		}
 
@@ -161,8 +161,8 @@ This e-mail was generated automatically and you do not need to respond to it.', 
 	
 	public static function mobile_menu() {
 		if(Acl::is_user())
-			return array('Logout'=>array('func'=>'logout','weight'=>100));
-		return array('Login'=>'mobile_login');
+			return array(__('Logout')=>array('func'=>'logout','weight'=>100));
+		return array(__('Login')=>'mobile_login');
 	}
 	
 	public static function logout() {
@@ -208,8 +208,8 @@ This e-mail was generated automatically and you do not need to respond to it.', 
 		if($t>0) {
 			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
 			if($fails>=3) {
-				print(Base_LangCommon::ts('Base_User_Login','You have exceeded the number of allowed login attempts.<br>'));
-				print('<a href="'.get_epesi_url().'">'.Base_LangCommon::ts('Base_User_Login','Host banned. Click here to refresh.').'</a>');
+				print(__('You have exceeded the number of allowed login attempts.').'<br>');
+				print('<a href="'.get_epesi_url().'">'.__('Host banned. Click here to refresh.').'</a>');
 				return;
 			}
 		}
@@ -217,14 +217,14 @@ This e-mail was generated automatically and you do not need to respond to it.', 
 
 		$qf = new HTML_QuickForm('login', 'post','mobile.php?'.http_build_query($_GET));
 
-		$qf->addElement('text', 'username', Base_LangCommon::ts('Base_User_Login','Login'));
-		$qf->addElement('password', 'password', Base_LangCommon::ts('Base_User_Login','Password'));
-		$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Base_User_Login','Login'));
+		$qf->addElement('text', 'username', __('Login'));
+		$qf->addElement('password', 'password', __('Password'));
+		$qf->addElement('submit', 'submit_button', __('Login'));
 
 		$qf->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
-		$qf->addRule(array('username','password'), Base_LangCommon::ts('Base_User_Login','Login or password incorrect'), 'check_login');
-		$qf->addRule('username', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
-		$qf->addRule('password', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
+		$qf->addRule(array('username','password'), __('Login or password incorrect'), 'check_login');
+		$qf->addRule('username', __('Field required'), 'required');
+		$qf->addRule('password', __('Field required'), 'required');
 
 
 		if($qf->validate()) {

@@ -38,8 +38,8 @@ if (headers_sent())
     die('Some data has already been output to browser, can\'t send the file');
 $cols = array('Record ID');
 foreach ($tab_info as $v) {
-	$cols[] = Base_LangCommon::ts('Utils_RecordBrowser',$v['name']);
-	if ($v['style']=='currency') $cols[] = Base_LangCommon::ts('Utils_RecordBrowser',$v['name']).' - '.Base_LangCommon::ts('Utils_RecordBrowser','currency');
+	$cols[] = _V($v['name']);
+	if ($v['style']=='currency') $cols[] = _V($v['name']).' - '.__('Currency');
 }
 $f = fopen('php://output','w');
 //fwrite($f, "\xEF\xBB\xBF");

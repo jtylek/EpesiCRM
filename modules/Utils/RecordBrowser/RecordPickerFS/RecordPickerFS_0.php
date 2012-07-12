@@ -39,7 +39,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 		$rb->disable_actions();
 
 		$this->display_module($rb, array($crits, $cols, $order, $filters, $path), 'recordpicker_fs');
-	        Base_ActionBarCommon::add('save', 'Commit selection', $this->create_callback_href(array($this,'back')));
+	        Base_ActionBarCommon::add('save', __('Commit Selection'), $this->create_callback_href(array($this,'back')));
 	}
 
 	public function create_open_link($label,$form = null,$select = null) {

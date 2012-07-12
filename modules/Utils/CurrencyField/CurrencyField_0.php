@@ -14,8 +14,8 @@ class Utils_CurrencyField extends Module {
 	private static $active;
 	
 	public function construct() {
-		self::$positions = array(0=>$this->t('After'), 1=>$this->t('Before'));
-		self::$active = array(1=>$this->t('Yes'), 0=>$this->t('No'));
+		self::$positions = array(0=>__('After'), 1=>__('Before'));
+		self::$active = array(1=>__('Yes'), 0=>__('No'));
 	}
 	
 	public function admin() {
@@ -29,13 +29,13 @@ class Utils_CurrencyField extends Module {
 
 		$gb = $this->init_module('Utils_GenericBrowser',null,'currencies');
 		$gb->set_table_columns(array(
-			array('name'=>$this->t('Code')),
-			array('name'=>$this->t('Symbol')),
-			array('name'=>$this->t('Symbol position')),
-			array('name'=>$this->t('Decimal sign')),
-			array('name'=>$this->t('Thousand sign')),
-			array('name'=>$this->t('Decimals')),
-			array('name'=>$this->t('Active'))
+			array('name'=>__('Code')),
+			array('name'=>__('Symbol')),
+			array('name'=>__('Symbol position')),
+			array('name'=>__('Decimal sign')),
+			array('name'=>__('Thousand sign')),
+			array('name'=>__('Decimals')),
+			array('name'=>__('Active'))
 		));
 		$ret = DB::Execute('SELECT * FROM utils_currency ORDER BY active DESC, code ASC');
 		while($row = $ret->FetchRow()) {
@@ -51,33 +51,33 @@ class Utils_CurrencyField extends Module {
 				));
 			$gb_row->add_action($this->create_callback_href(array($this, 'edit_currency'),array($row['id'])),'edit');
 		}
-		Base_ActionBarCommon::add('add', 'New', $this->create_callback_href(array($this, 'edit_currency'), array(null)));
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('add', __('New'), $this->create_callback_href(array($this, 'edit_currency'), array(null)));
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		$this->display_module($gb);
 	}
 	
 	public function edit_currency($id) {
 		if ($this->is_back()) return false;
 		$form = $this->init_module('Libs_QuickForm');
-		$form->addElement('header', 'header', $this->t('Edit currency'));
-		$form->addElement('text', 'code', $this->t('Code'));
-		$form->addElement('text', 'symbol', $this->t('Symbol'));
-		$form->addElement('select', 'position', $this->t('Symbol position'), self::$positions);
-		$form->addElement('text', 'decimal_sign', $this->t('Decimal sign'));
-		$form->addElement('text', 'thousand_sign', $this->t('Thousand sign'));
-		$form->addElement('text', 'decimals', $this->t('Decimals'));
-		$form->addElement('select', 'active', $this->t('Active'), self::$active);
+		$form->addElement('header', 'header', __('Edit currency'));
+		$form->addElement('text', 'code', __('Code'));
+		$form->addElement('text', 'symbol', __('Symbol'));
+		$form->addElement('select', 'position', __('Symbol position'), self::$positions);
+		$form->addElement('text', 'decimal_sign', __('Decimal sign'));
+		$form->addElement('text', 'thousand_sign', __('Thousand sign'));
+		$form->addElement('text', 'decimals', __('Decimals'));
+		$form->addElement('select', 'active', __('Active'), self::$active);
 
-		$form->addRule('code', $this->t('Code must be up to 16 characters long'), 'maxlength', 16);
-		$form->addRule('symbol', $this->t('Symbol must be up to 8 characters long'), 'maxlength', 8);
-		$form->addRule('decimal_sign', $this->t('Decimal sign must be up to 2 characters long'), 'maxlength', 2);
-		$form->addRule('thousand_sign', $this->t('Thousand sign must be up to 2 characters long'), 'maxlength', 2);
-		$form->addRule('decimals', $this->t('Field must hold numeric value'), 'numeric');
+		$form->addRule('code', __('Code must be up to 16 characters long'), 'maxlength', 16);
+		$form->addRule('symbol', __('Symbol must be up to 8 characters long'), 'maxlength', 8);
+		$form->addRule('decimal_sign', __('Decimal sign must be up to 2 characters long'), 'maxlength', 2);
+		$form->addRule('thousand_sign', __('Thousand sign must be up to 2 characters long'), 'maxlength', 2);
+		$form->addRule('decimals', __('Field must hold numeric value'), 'numeric');
 
-		$form->addRule('code', $this->t('Field required'), 'required');
-		$form->addRule('symbol', $this->t('Field required'), 'required');
-		$form->addRule('decimal_sign', $this->t('Field required'), 'required');
-		$form->addRule('decimals', $this->t('Field required'), 'required');
+		$form->addRule('code', __('Field required'), 'required');
+		$form->addRule('symbol', __('Field required'), 'required');
+		$form->addRule('decimal_sign', __('Field required'), 'required');
+		$form->addRule('decimals', __('Field required'), 'required');
 
 		if ($id!==null) {
 			$defs = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($id));
@@ -126,8 +126,8 @@ class Utils_CurrencyField extends Module {
 			return false;
 		}
 		$form->display();
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 		return true;
 	}
 }

@@ -60,10 +60,10 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	public static function user_settings() {
 		$currency_options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
 		$decimal_point_options = DB::GetAssoc('SELECT id, decimal_sign FROM utils_currency WHERE active=1');
-		return array('Regional settings'=>array(
-				array('name'=>'currency_header', 'label'=>'Currency', 'type'=>'header'),
-				array('name'=>'default_currency','label'=>'Default currency','type'=>'select','values'=>$currency_options,'default'=>1,'translate'=>false),
-				array('name'=>'decimal_point','label'=>'Currency decimal point','type'=>'select','values'=>$decimal_point_options,'default'=>1,'translate'=>false)
+		return array(__('Regional settings')=>array(
+				array('name'=>'currency_header', 'label'=>__('Currency'), 'type'=>'header'),
+				array('name'=>'default_currency','label'=>__('Default currency'),'type'=>'select','values'=>$currency_options,'default'=>1),
+				array('name'=>'decimal_point','label'=>__('Currency decimal point'),'type'=>'select','values'=>$decimal_point_options,'default'=>1)
 					));
 	}
 	
@@ -107,7 +107,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 	
 	public static function admin_caption() {
-		return 'Currencies';
+		return __('Currencies');
 	}
 	
 	public static function get_symbol($arg) {

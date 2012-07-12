@@ -17,7 +17,7 @@ $id = $_REQUEST['id'];
 $disposition = (isset($_REQUEST['view']) && $_REQUEST['view'])?'inline':'attachment';
 
 function error_message() {
-	Utils_FrontPageCommon::display(Base_LangCommon::ts('Utils/Attachment', 'Error occured'), Base_LangCommon::ts('Utils/Attachment', 'There was an error accessing Google Docs service.').'<br><br>'.Base_LangCommon::ts('Utils/Attachment', 'Please contact your administrator.'));
+	Utils_FrontPageCommon::display(__( 'Error occured'), __( 'There was an error accessing Google Docs service.').'<br><br>'.__( 'Please contact your administrator.'));
 	die();
 }
 

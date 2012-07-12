@@ -21,7 +21,6 @@ else
 	$type = isset($_GET['type'])?$_GET['type']:Base_User_SettingsCommon::get('Utils_RecordBrowser',$table.'_default_view');
 $order_num = (isset($_GET['order']) && isset($_GET['order_dir']))?$_GET['order']:-1;
 $order = false;
-//print(Base_LangCommon::ts('Utils_RecordBrowser',$ret['caption']).' - '.Base_LangCommon::ts('Utils_RecordBrowser',ucfirst($type)).'<br>');
 
 //cols
 $cols = Utils_RecordBrowserCommon::init($table);
@@ -30,7 +29,7 @@ foreach($cols as $k=>$col) {
 	if (!$col['visible'] && (!isset($info[$col['id']]) || !$info[$col['id']])) continue;
 	if (isset($info[$col['id']]) && !$info[$col['id']]) continue;
 	if(count($cols_out)==$order_num) $order=$col['id'];
-	$col['name'] = Base_LangCommon::ts('Utils_RecordBrowser:'.$table,$col['name']);
+	$col['name'] = _V($col['name']);
 	if($type!='recent')
 		$cols_out[] = array('name'=>$col['name'], 'order'=>$col['id'], 'record'=>$col, 'key'=>$k);
 	else
@@ -38,24 +37,24 @@ foreach($cols as $k=>$col) {
 }
 
 //views
-/*if($ret['recent'] && $type!='recent') print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'recent','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</a>'.(IPHONE?'':'<br>'));
-if($ret['favorites'] && $type!='favorites') print('<a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</a>'.(IPHONE?'':'<br>'));
-if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a '.(IPHONE?'class="button white" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a>'.(IPHONE?'':'<br>'));*/
+/*if($ret['recent'] && $type!='recent') print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'recent','rb_offset'=>0))).'">'.__('Recent').'</a>'.(IPHONE?'':'<br>'));
+if($ret['favorites'] && $type!='favorites') print('<a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites','rb_offset'=>0))).'">'.__('Favorites').'</a>'.(IPHONE?'':'<br>'));
+if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a '.(IPHONE?'class="button white" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.__('All').'</a>'.(IPHONE?'':'<br>'));*/
 print('<form method="GET" action="mobile.php?'.http_build_query($_GET).'">');
 
 if (!IPHONE) print('<table width="100%"><tr><td>');
 if(Utils_RecordBrowserCommon::get_access($table, 'add')) {
 	if (IPHONE)
-		print('<a '.'class="button green" '.mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),Base_LangCommon::ts('Utils_RecordBrowser','Add record')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Add').'</a>');
+		print('<a '.'class="button green" '.mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),__('Add record')).'>'.__('Add').'</a>');
 	else
-		print('<a '.mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),Base_LangCommon::ts('Utils_RecordBrowser','Add record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','mobile_add.png').'" border="0"></a>');
+		print('<a '.mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),__('Add record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','mobile_add.png').'" border="0"></a>');
 }
 if (!IPHONE) print('</td><td align="right">');
 
 if(IPHONE)
 	print('<ul class="form">');
 print('<input type="hidden" name="rb_offset" value="0">');
-print((IPHONE?'<li>':'').'<select onchange="form.elements[\'search\'].value=\'Search\';form.submit()" name="type"><option value="all"'.($type=='all'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</option><option value="recent"'.($type=='recent'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</option><option value="favorites"'.($type=='favorites'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</option></select>'.(IPHONE?'</li>':''));
+print((IPHONE?'<li>':'').'<select onchange="form.elements[\'search\'].value=\'Search\';form.submit()" name="type"><option value="all"'.($type=='all'?' selected=1':'').'>'.__('All').'</option><option value="recent"'.($type=='recent'?' selected=1':'').'>'.__('Recent').'</option><option value="favorites"'.($type=='favorites'?' selected=1':'').'>'.__('Favorites').'</option></select>'.(IPHONE?'</li>':''));
 print((IPHONE?'<li>':'').'<input type="text" name="search" value="'.(isset($_GET['search'])?$_GET['search']:'Search').'" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" />'.(IPHONE?'</li>':''));
 if(IPHONE)
 	print('</ul>');
@@ -165,14 +164,14 @@ if(IPHONE) {
 
 //display paging
 $cur_num_rows = Utils_RecordBrowserCommon::get_records_count($table,$crits);
-if($offset>0) print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset-1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','prev').'</a>');
-if($offset<$cur_num_rows/$num_rows-1) print(' <a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset+1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','next').'</a>');
+if($offset>0) print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset-1)))).'">'.__('Prev').'</a>');
+if($offset<$cur_num_rows/$num_rows-1) print(' <a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset+1)))).'">'.__('Next').'</a>');
 if($cur_num_rows>$num_rows) {
 	$qf = new HTML_QuickForm('rb_page', 'get','mobile.php?'.http_build_query($_GET));
-	$qf->addElement('text', 'rb_offset', Base_LangCommon::ts('Utils_RecordBrowser','Page(0-%d)',array($cur_num_rows/$num_rows)));
-	$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Utils_RecordBrowser','OK'),IPHONE?'class="button white"':'');
-	$qf->addRule('rb_offset', Base_LangCommon::ts('Utils_RecordBrowser','Field required'), 'required');
-	$qf->addRule('rb_offset', Base_LangCommon::ts('Utils_RecordBrowser','Invalid page number'), 'numeric');
+	$qf->addElement('text', 'rb_offset', __('Page(0-%d)',array($cur_num_rows/$num_rows)));
+	$qf->addElement('submit', 'submit_button', __('OK'),IPHONE?'class="button white"':'');
+	$qf->addRule('rb_offset', __('Field required'), 'required');
+	$qf->addRule('rb_offset', __('Invalid page number'), 'numeric');
 	$renderer =& $qf->defaultRenderer();
 /*	if(IPHONE) {
 		$renderer->setFormTemplate("<form{attributes}>{hidden}<ul>{content}</ul></form>");

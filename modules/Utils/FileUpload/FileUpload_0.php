@@ -23,7 +23,7 @@ class Utils_FileUpload extends Module {
 	 */
 	public function construct($req=true) {
 		$this->added_upload_elem = false;
-		$this->form = & $this->init_module('Libs/QuickForm', array(Base_LangCommon::ts($this->get_type(),'Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
+		$this->form = & $this->init_module('Libs/QuickForm', array(__('Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
 		$this->form->addElement('static','upload_iframe',null,'<iframe frameborder="0" id="upload_iframe" name="upload_iframe" src="" style="display:none"></iframe>');
 		$this->form->addElement('hidden','required',$req?'1':'0');
 		$this->form->addElement('hidden','cid',CID);
@@ -105,16 +105,16 @@ class Utils_FileUpload extends Module {
 		$form_name = $this->form->getAttribute('name');
 		$this->form->addElement('hidden','form_name',$form_name);
 
-		$s = $this->form->get_submit_form_js(false,Base_LangCommon::ts($this->get_type(),'Processing file...'));
+		$s = $this->form->get_submit_form_js(false,__('Processing file...'));
 
 		$this->form->addElement('hidden','submit_js',$s);
-		$this->form->addElement('file', 'file', $label?$label:Base_LangCommon::ts($this->get_type(),'Specify file'));
+		$this->form->addElement('file', 'file', $label?$label:__('Specify file'));
 	}
 
 	public function get_submit_form_js() {
 		$this->submit_button=false;
 		$form_name = $this->form->getAttribute('name');
-		return "if(Epesi.procOn>0)return false;Epesi.updateIndicatorText('".Base_LangCommon::ts($this->get_type(),"uploading...")."');Epesi.procOn++;Epesi.updateIndicator();document.forms['".$this->form->getAttribute('name')."'].submit();";
+		return "if(Epesi.procOn>0)return false;Epesi.updateIndicatorText('".__("Uploading...")."');Epesi.procOn++;Epesi.updateIndicator();document.forms['".$this->form->getAttribute('name')."'].submit();";
 	}
 
 	public function get_submit_form_href() {
@@ -136,7 +136,7 @@ class Utils_FileUpload extends Module {
 		$this->add_upload_element();
 
 		if($this->submit_button)
-			$this->form->addElement('submit', 'button', Base_LangCommon::ts($this->get_type(),$this->upload_button_caption), $this->get_submit_form_href());
+			$this->form->addElement('submit', 'button', _V($this->upload_button_caption), $this->get_submit_form_href());
 
 		if($this->form->validate()) {
 			$this->form->process(array($this,'submit_parent'));

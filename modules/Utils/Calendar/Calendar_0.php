@@ -7,6 +7,50 @@
  * @package epesi-Utils
  * @subpackage calendar
  */
+ 
+// ***** date("l") *****
+// __('Monday')
+// __('Tuesday')
+// __('Wednesday')
+// __('Thursday')
+// __('Friday')
+// __('Saturday')
+// __('Sunday')
+// ***** date("D") *****
+// __('Mon')
+// __('Tue')
+// __('Wed')
+// __('Thu')
+// __('Fri')
+// __('Sat')
+// __('Sun')
+// ***** date("F") *****
+// __('January')
+// __('February')
+// __('March')
+// __('April')
+// __('May')
+// __('June')
+// __('July')
+// __('August')
+// __('September')
+// __('October')
+// __('November')
+// __('December')
+// ***** date("M") *****
+// __('Jan')
+// __('Feb')
+// __('Mar')
+// __('Apr')
+// __('May')
+// __('Jun')
+// __('Jul')
+// __('Aug')
+// __('Sep')
+// __('Oct')
+// __('Nov')
+// __('Dec')
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Calendar extends Module {
 	private static $views = array('Agenda','Day','Week','Month','Year');
@@ -43,7 +87,7 @@ class Utils_Calendar extends Module {
 		if($this->settings['default_date']===null) $this->settings['default_date']=time();
 
 		if(!is_array($this->settings['custom_rows']))
-			$this->settings['custom_rows'] = array('timeless'=>$this->t('Timeless'));
+			$this->settings['custom_rows'] = array('timeless'=>__('Timeless'));
 
 		$this->date = & $this->get_module_variable('date',$this->settings['default_date']);
 		$this->date = strtotime(date('Y-m-d',$this->date));
@@ -64,7 +108,7 @@ class Utils_Calendar extends Module {
 				if(!in_array($v,self::$views))
 					trigger_error('Invalid view: '.$v,E_USER_ERROR);
 
-				$this->tb->set_tab($this->t($v),array($this, strtolower($v)));
+				$this->tb->set_tab(_V($v),array($this, strtolower($v)));
 				if(strcasecmp($v,$this->settings['default_view'])==0)
 					$def_tab = $k;
 			}
@@ -274,7 +318,7 @@ class Utils_Calendar extends Module {
 			$jshref = $this->create_unique_href_js(array('action'=>'add','time'=>$this->date+time()-strtotime(date('Y-m-d'))));
 		if ($jshref!==false) {
 			$href = ' href="javascript:void(0)" onClick="'.str_replace('"','\'',$jshref).'" '; // TODO: regular escape didn't work
-			Base_ActionBarCommon::add('add','Add event',$href);
+			Base_ActionBarCommon::add('add',__('Add event'),$href);
 			Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$jshref.'}');
 		}
 	}
@@ -349,9 +393,9 @@ class Utils_Calendar extends Module {
 
 		$form = $this->init_module('Libs/QuickForm',null,'agenda_frm');
 
-		$form->addElement('datepicker', 'start', $this->t('From'));
-		$form->addElement('datepicker', 'end', $this->t('To'));
-		$form->addElement('submit', 'submit_button', $this->t('Show'));
+		$form->addElement('datepicker', 'start', __('From'));
+		$form->addElement('datepicker', 'end', __('To'));
+		$form->addElement('submit', 'submit_button', __('Show'));
 		$form->addRule('start', 'Field required', 'required');
 		$form->addRule('end', 'Field required', 'required');
 		$form->setDefaults(array('start'=>$start,'end'=>$end));
@@ -373,20 +417,20 @@ class Utils_Calendar extends Module {
 		//////////////// data ////////////////////////
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
-			array('name'=>$this->t('Start'), 'order'=>'start', 'width'=>10),
-			array('name'=>$this->t('Duration'), 'order'=>'end', 'width'=>5),
-			array('name'=>$this->t('Title'), 'order'=>'title','width'=>10));
+			array('name'=>__('Start'), 'order'=>'start', 'width'=>10),
+			array('name'=>__('Duration'), 'order'=>'end', 'width'=>5),
+			array('name'=>__('Title'), 'order'=>'title','width'=>10));
 		$add_cols = array();
 		if(is_array($this->settings['custom_agenda_cols'])) {
 			$w = 50/count($this->settings['custom_agenda_cols']);
 			foreach($this->settings['custom_agenda_cols'] as $k=>$col) {
-				if (!is_array($col)) $col = array('name'=>$this->t($col), 'order'=>'cus_col_'.$k,'width'=>$w);
+				if (!is_array($col)) $col = array('name'=>_V($col), 'order'=>'cus_col_'.$k,'width'=>$w);
 				$columns[] = $col;
 				$add_cols[] = $k;
 			}
 		}
 		$gb->set_table_columns( $columns );
-		$gb->set_default_order(array($this->t('Start')=>'ASC'));
+		$gb->set_default_order(array(__('Start')=>'ASC'));
 
 		//add data
 		$ret = $this->get_events($start,$end);
@@ -396,7 +440,7 @@ class Utils_Calendar extends Module {
 			if (isset($row['status']) && $row['status']=='closed') continue;
 			$view_h = $this->create_callback_href(array($this,'push_event_action'),array('view',$row['id']));
 			$edit_h = $this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id']));
-			$del_h = $this->create_confirm_callback_href($this->t('Delete this event?'),array($this,'delete_event'),$row['id']);
+			$del_h = $this->create_confirm_callback_href(__('Delete this event?'),array($this,'delete_event'),$row['id']);
 			if (isset($row['view_action'])) $view_h = $row['view_action'];
 			if (isset($row['edit_action'])) $edit_h = $row['edit_action'];
 			if (isset($row['delete_action'])) $del_h = $row['delete_action'];
@@ -432,23 +476,23 @@ class Utils_Calendar extends Module {
 		$theme = & $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
-		$theme->assign('trash_label', $this->t('Drag and drop<br>to delete'));
+		$theme->assign('trash_label', __('Drag and drop<br>to delete'));
 		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+24*3600))));
-		$theme->assign('next_label',$this->t('Next day'));
+		$theme->assign('next_label',__('Next day'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->t('Today'));
+		$theme->assign('today_label', __('Today'));
 		$theme->assign('prev_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-24*3600))));
-		$theme->assign('prev_label', $this->t('Previous day'));
-		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
+		$theme->assign('prev_label', __('Previous day'));
+		$theme->assign('info', __('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text,'day',$this->settings['first_day_of_week']));
 
 		$header_day = array('number'=>date('d',$this->date),
-							'label'=>$this->t(date('l',$this->date)),
-							'label_short'=>$this->t(date('D',$this->date))
+							'label'=>_V(date('l',$this->date)),
+							'label_short'=>_V(date('D',$this->date))
 							);
 
-		$theme->assign('header_month', $this->t(date('F',$this->date)));
+		$theme->assign('header_month', _V(date('F',$this->date)));
 		$theme->assign('link_month', $this->create_unique_href(array('action'=>'switch','time'=>$this->date, 'tab'=>'Month')));
 		$theme->assign('header_year', date('Y',$this->date));
 		$theme->assign('link_year', $this->create_unique_href(array('action'=>'switch','time'=>$this->date, 'tab'=>'Year')));
@@ -484,7 +528,7 @@ class Utils_Calendar extends Module {
 
 		$theme->assign('timeline', $timeline);
 
-		$theme->assign('day_view_label', $this->t('Day calendar'));
+		$theme->assign('day_view_label', __('Day calendar'));
 
 		$theme->assign('weekend', date('N',$this->date)>=6);
 
@@ -595,18 +639,18 @@ class Utils_Calendar extends Module {
 		$theme = & $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
-		$theme->assign('trash_label', $this->t('Drag and drop<br>to delete'));
+		$theme->assign('trash_label', __('Drag and drop<br>to delete'));
 		$theme->assign('next7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+604800))));
-		$theme->assign('next7_label',$this->t('Next week'));
+		$theme->assign('next7_label',__('Next week'));
 		$theme->assign('next_href', $this->create_unique_href(array('shift_week_day'=>1)));
-		$theme->assign('next_label',$this->t('Next day'));
+		$theme->assign('next_label',__('Next day'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->t('Today'));
+		$theme->assign('today_label', __('Today'));
 		$theme->assign('prev_href', $this->create_unique_href(array('shift_week_day'=>0)));
-		$theme->assign('prev_label', $this->t('Previous day'));
+		$theme->assign('prev_label', __('Previous day'));
 		$theme->assign('prev7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-604800))));
-		$theme->assign('prev7_label', $this->t('Previous week'));
-		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
+		$theme->assign('prev7_label', __('Previous week'));
+		$theme->assign('info', __('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 		$link_text = $this->create_unique_href_js(array('week_date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'day',$this->settings['first_day_of_week']));
 
@@ -624,13 +668,13 @@ class Utils_Calendar extends Module {
 			$second_span_width = date('d',$dis_week_from+518400);
 			$header_month = array('first_span'=>array(
 									'colspan'=>7-$second_span_width,
-									'month'=>$this->t(date('M',$dis_week_from)),
+									'month'=>_V(date('M',$dis_week_from)),
 									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from),
 									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Year'))),
 								'second_span'=>array(
 									'colspan'=>$second_span_width,
-									'month'=>$this->t(date('M',$dis_week_from+518400)),
+									'month'=>_V(date('M',$dis_week_from+518400)),
 									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from+518400, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from+518400),
 									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from+518400, 'tab'=>'Year'))
@@ -638,7 +682,7 @@ class Utils_Calendar extends Module {
 		} else {
 			$header_month = array('first_span'=>array(
 									'colspan'=>7,
-									'month'=>$this->t(date('M',$dis_week_from)),
+									'month'=>_V(date('M',$dis_week_from)),
 									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from),
 									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Year'))),
@@ -647,7 +691,7 @@ class Utils_Calendar extends Module {
 		for ($i=0; $i<7; $i++) {
 			$that_day = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$dis_week_from))+3600*24*$i).' '.date('H:i:s',$dis_week_from));
 			$day_headers[] = array(
-						'date'=>date('d', $that_day).' '.$this->t(date('D', $that_day)),
+						'date'=>date('d', $that_day).' '._V(date('D', $that_day)),
 						'style'=>(date('Y-m-d',$that_day)==$today?'today':'other').(date('N',$that_day)>=6?'_weekend':''),
 						'link' => $this->create_unique_href(array('action'=>'switch','time'=>$that_day, 'tab'=>'Day'))
 						);
@@ -702,7 +746,7 @@ class Utils_Calendar extends Module {
 		$theme->assign('time_ids', $time_ids);
 		$theme->assign('timeline', reset($timeline));
 
-		$theme->assign('week_view_label', $this->t('Week calendar'));
+		$theme->assign('week_view_label', __('Week calendar'));
 		$theme->assign('trash_id','UCtrash');
 		//ok, display
 		$theme->display('week');
@@ -812,18 +856,18 @@ class Utils_Calendar extends Module {
 		$theme = & $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
-		$theme->assign('trash_label', $this->t('Drag and drop<br>to delete'));
+		$theme->assign('trash_label', __('Drag and drop<br>to delete'));
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
-		$theme->assign('nextyear_label',$this->t('Next year'));
+		$theme->assign('nextyear_label',__('Next year'));
 		$theme->assign('nextmonth_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+86400*date('t',$this->date)))));
-		$theme->assign('nextmonth_label',$this->t('Next month'));
+		$theme->assign('nextmonth_label',__('Next month'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->t('Today'));
+		$theme->assign('today_label', __('Today'));
 		$theme->assign('prevmonth_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-86400*date('t',$this->date-86400*(date('d', $this->date)+1))))));
-		$theme->assign('prevmonth_label', $this->t('Previous month'));
+		$theme->assign('prevmonth_label', __('Previous month'));
 		$theme->assign('prevyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)-1).date('-m-d',$this->date))));
-		$theme->assign('prevyear_label', $this->t('Previous year'));
-		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
+		$theme->assign('prevyear_label', __('Previous year'));
+		$theme->assign('info', __('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 
 		if ($this->isset_unique_href_variable('date'))
 			$this->set_date($this->get_unique_href_variable('date'));
@@ -844,15 +888,15 @@ class Utils_Calendar extends Module {
 		$day = strtotime('Sun');
 		$day = strtotime('+'.Utils_PopupCalendarCommon::get_first_day_of_week().' days', $day);
 		for ($i=0; $i<7; $i++) {
-			$day_headers[] = array('class'=>(date('N',$day)>=6?'weekend_day_header':'day_header'), 'label'=>$this->t(date('D', $day)));
+			$day_headers[] = array('class'=>(date('N',$day)>=6?'weekend_day_header':'day_header'), 'label'=>_V(date('D', $day)));
 			$day = strtotime('+1 day', $day);
 		}
 
-		$theme->assign('month_view_label', $this->t('Month calendar'));
+		$theme->assign('month_view_label', __('Month calendar'));
 
 		$theme->assign('day_headers', $day_headers);
 		$theme->assign('month', $month);
-		$theme->assign('month_label', $this->t(date('F', $this->date)));
+		$theme->assign('month_label', _V(date('F', $this->date)));
 		$theme->assign('year_label', date('Y', $this->date));
 		$theme->assign('year_link', $this->create_unique_href(array('time'=>$this->date, 'tab'=>'Year','action'=>'switch')));
 		$theme->assign('trash_id','UCtrash');
@@ -904,12 +948,12 @@ class Utils_Calendar extends Module {
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
-		$theme->assign('nextyear_label',$this->t('Next year'));
+		$theme->assign('nextyear_label',__('Next year'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->t('Today'));
+		$theme->assign('today_label', __('Today'));
 		$theme->assign('prevyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)-1).date('-m-d',$this->date))));
-		$theme->assign('prevyear_label', $this->t('Previous year'));
-		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
+		$theme->assign('prevyear_label', __('Previous year'));
+		$theme->assign('info', __('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'year'));
@@ -919,11 +963,11 @@ class Utils_Calendar extends Module {
 		$day = strtotime('Sun');
 		$day = strtotime('+'.Utils_PopupCalendarCommon::get_first_day_of_week().' days', $day);
 		for ($i=0; $i<7; $i++) {
-			$day_headers[] = $this->t(date('D', $day));
+			$day_headers[] = _V(date('D', $day));
 			$day = strtotime('+1 day', $day);
 		}
 
-		$theme->assign('month_view_label', $this->t('Year calendar'));
+		$theme->assign('month_view_label', __('Year calendar'));
 
 		$year = array();
 
@@ -934,7 +978,7 @@ class Utils_Calendar extends Module {
 			$month = $this->month_array($date, $ret);
 			$year[] = array('month' => $month,
 							'month_link' => $this->create_unique_href(array('action'=>'switch','time'=>$date, 'tab'=>'Month')),
-							'month_label' => $this->t(date('F', $date)),
+							'month_label' => _V(date('F', $date)),
 							'year_label' => date('Y', $date)
 							);
 		}
@@ -953,7 +997,7 @@ class Utils_Calendar extends Module {
 
 	////////////////////////////////////////
 	public function caption() {
-		return 'Calendar';
+		return __('Calendar');
 	}
 }
 ?>

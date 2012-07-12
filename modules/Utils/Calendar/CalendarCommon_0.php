@@ -32,7 +32,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('end_day',$ex['end_day']);
 		$th->assign('end',$ex['end']);
 		$th->assign('duration',$ex['duration']);
-		$th->assign('show_hide_info',Base_LangCommon::ts('Utils_Calendar','Click to show / hide menu'));
+		$th->assign('show_hide_info',__('Click to show / hide menu'));
 		$th->assign('additional_info',$ev['additional_info']);
 		$th->assign('additional_info2',$ev['additional_info2']);
 		if(isset($ev['custom_tooltip']))
@@ -57,7 +57,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$th->assign('move_href', Utils_PopupCalendarCommon::create_href('move_event'.str_replace(array('#','-'),'_',$ev['id']), $link_text,null,null,'popup.clonePosition(\'utils_calendar_event:'.$ev['id'].'\',{setWidth:false,setHeight:false,offsetTop:$(\'utils_calendar_event:'.$ev['id'].'\').getHeight()})'));
 
 		if(!isset($ev['delete_action']) || $ev['delete_action']===true)
-			$th->assign('delete_href', Module::create_confirm_href(Base_LangCommon::ts('Utils_Calendar','Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
+			$th->assign('delete_href', Module::create_confirm_href(__('Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
 		elseif ($ev['delete_action']!==false)
 			$th->assign('delete_href', $ev['delete_action']);
 
@@ -87,7 +87,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		if(isset($row['timeless']) && $row['timeless']) {
 			if(!isset($row['timeless_caption']))
-				$row['timeless_caption'] = str_replace(' ','&nbsp;',Base_LangCommon::ts('Utils_Calendar','timeless'));
+				$row['timeless_caption'] = str_replace(' ','&nbsp;',__('Timeless'));
 			$start_time = $row['timeless_caption'];
 			$end_time = $start_time;
 			$ev_start = strtotime($row['timeless']);
@@ -95,11 +95,11 @@ class Utils_CalendarCommon extends ModuleCommon {
 			else $start_day = date('D',$row['start']);
 			$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false,true,false);
 			if($start_date == Base_RegionalSettingsCommon::time2reg(time(),false))
-				$start_t = Base_LangCommon::ts('Utils_Calendar','Today');
+				$start_t = __('Today');
 			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()+3600*24,false))
-				$start_t = Base_LangCommon::ts('Utils_Calendar','Tomorrow');
+				$start_t = __('Tomorrow');
 			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()-3600*24,false))
-				$start_t = Base_LangCommon::ts('Utils_Calendar','Yesterday');
+				$start_t = __('Yesterday');
 			else
 				$start_t = $start_day.', '.$start_date;
 			$end_date = $start_date;
@@ -116,8 +116,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$ev_end = $row['end'];
 
 			Base_RegionalSettingsCommon::set();
-			$start_day = Base_LangCommon::ts('Utils_Calendar',date('D',$ev_start));
-			$end_day = Base_LangCommon::ts('Utils_Calendar',date('D',$ev_end));
+			$start_day = _V(date('D',$ev_start));
+			$end_day = _V(date('D',$ev_end));
 			Base_RegionalSettingsCommon::restore();
 
 			$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false);
@@ -129,11 +129,11 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$start_time = Base_RegionalSettingsCommon::time2reg($ev_start,2,false);
 			$end_time = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
 			if($start_date == Base_RegionalSettingsCommon::time2reg(time(),false))
-				$start_t = Base_LangCommon::ts('Utils_Calendar','Today').', '.$start_time;
+				$start_t = __('Today').', '.$start_time;
 			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()+3600*24,false))
-				$start_t = Base_LangCommon::ts('Utils_Calendar','Tomorrow').', '.$start_time;
+				$start_t = __('Tomorrow').', '.$start_time;
 			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()-3600*24,false))
-				$start_t = Base_LangCommon::ts('Utils_Calendar','Yesterday').', '.$start_time;
+				$start_t = __('Yesterday').', '.$start_time;
 			else
 				$start_t = $start_day.', '.$start_date.' '.$start_time;
 			if(!$oneday)
@@ -160,17 +160,9 @@ class Utils_CalendarCommon extends ModuleCommon {
 		
 		if(!IPHONE) {
 			$columns = array(
-				array('name'=>Base_LangCommon::ts('Utils_Calendar','Start'), 'order'=>'start', 'width'=>10),
-				array('name'=>Base_LangCommon::ts('Utils_Calendar','Duration'), 'order'=>'end', 'width'=>5),
-				array('name'=>Base_LangCommon::ts('Utils_Calendar','Title'), 'order'=>'title','width'=>10));
-/*			$add_cols = array();
-			if(is_array($settings['custom_agenda_cols'])) {
-				$w = 50/count($settings['custom_agenda_cols']);
-				foreach($settings['custom_agenda_cols'] as $k=>$col) {
-					$columns[] = array('name'=>Base_LangCommon::ts('Utils_Calendar',$col), 'order'=>'cus_col_'.$k,'width'=>$w);
-					$add_cols[] = $k;
-				}
-			}*/
+				array('name'=>__('Start'), 'order'=>'start', 'width'=>10),
+				array('name'=>__('Duration'), 'order'=>'end', 'width'=>5),
+				array('name'=>__('Title'), 'order'=>'title','width'=>10));
 		}
 		
 		//add data
@@ -196,7 +188,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		foreach($ret as $row) {
 			$ex = Utils_CalendarCommon::process_event($row);
 			if($view_func)
-				$h = mobile_stack_href($view_func,array($row['id']),Base_LangCommon::ts('Utils_Calendar','View event'));
+				$h = mobile_stack_href($view_func,array($row['id']),__('View event'));
 			else
 				$h = '';
 			if(IPHONE) {

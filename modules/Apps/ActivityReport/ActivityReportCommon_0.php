@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ActivityReportCommon extends ModuleCommon {
 	public static function menu(){
 	    if(Base_AclCommon::check_permission('View Activity Report'))
-    		return array('Reports'=>array_merge(array('__submenu__'=>1,'User Activity Report'=>array())));
+    		return array(_M('Reports')=>array_merge(array('__submenu__'=>1,_M('User Activity Report')=>array())));
 	}
 
 }

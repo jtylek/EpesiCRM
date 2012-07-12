@@ -16,7 +16,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_SearchCommon extends ModuleCommon {
 	public static function menu() {
 		if (Base_AclCommon::check_permission('Search'))
-			return array('Search'=>array());
+			return array(_M('Search')=>array());
 		return array();
 	}
 }

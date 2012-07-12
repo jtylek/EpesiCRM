@@ -59,7 +59,7 @@ if($i<3) {
 			DB::Execute('INSERT INTO '.$table.'(module_name,tab,col,pos'.($val?',user_login_id':'').') VALUES (%s,%d,%d,%d'.($val?',%d':'').')',$vals);
 			$new_id = DB::Insert_ID('base_dashboard_applets', 'id');
 			print('if($("copy_ab_item_new_'.$id.'")){'.
-				'$("copy_dashboard_remove_applet_'.$id.'").onclick = function(){if(confirm(\''.Base_LangCommon::ts('Base_Dashboard','Delete this applet?').'\'))remove_applet('.$new_id.','.($default?1:0).');};'.
+				'$("copy_dashboard_remove_applet_'.$id.'").onclick = function(){if(confirm(\''.__('Delete this applet?').'\'))remove_applet('.$new_id.','.($default?1:0).');};'.
 				'Effect.Appear("copy_dashboard_remove_applet_'.$id.'", { duration: 0.3 });'.
 				'Effect.BlindUp("copy_dashboard_applet_content_'.$id.'", { duration: 0.3 });'.
 				'$("copy_dashboard_remove_applet_'.$id.'").id="dashboard_remove_applet_'.$new_id.'";'.

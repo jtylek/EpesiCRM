@@ -41,32 +41,32 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		$form->setDefaults($defaults);
 	
 		//form
-		$form->addElement('header',null, $this->t('Mail settings'));
-		$form->addElement('select','mail_method', $this->t('Choose method'), array('smtp'=>$this->t('remote smtp server'), 'mail'=>$this->t('local php.ini settings')), 'onChange="'.$form->get_submit_form_js(false).'"');
+		$form->addElement('header',null, __('Mail settings'));
+		$form->addElement('select','mail_method', __('Choose method'), array('smtp'=>__('remote smtp server'), 'mail'=>__('local php.ini settings')), 'onChange="'.$form->get_submit_form_js(false).'"');
 		
-		$form->addElement('text','mail_from_addr', $this->t('Administrator e-mail address'));
-		$form->addRule('mail_from_addr', $this->t('This isn\'t valid e-mail address'), 'email');
-		$form->addRule('mail_from_addr', $this->t('Field required'), 'required');	
+		$form->addElement('text','mail_from_addr', __('Administrator e-mail address'));
+		$form->addRule('mail_from_addr', __('Invalid e-mail address'), 'email');
+		$form->addRule('mail_from_addr', __('Field required'), 'required');	
 		
-		$form->addElement('text','mail_from_name', $this->t('Send e-mails from name'));
+		$form->addElement('text','mail_from_name', __('Send e-mails from name'));
 	
 		$method = $form->getElement('mail_method')->getSelected();
 		if($method[0]=='smtp') {
 			
-			$form->addElement('text','mail_host', $this->t('SMTP host address'));
-			$form->addRule('mail_host', $this->t('Field required'),'required');
+			$form->addElement('text','mail_host', __('SMTP host address'));
+			$form->addRule('mail_host', __('Field required'),'required');
 			
-			$form->addElement('checkbox','mail_auth', $this->t('SMTP authorization'),'','onChange="'.$form->get_submit_form_js(false).'"');
+			$form->addElement('checkbox','mail_auth', __('SMTP authorization'),'','onChange="'.$form->get_submit_form_js(false).'"');
 			
 			$auth = $form->getElement('mail_auth')->getValue();
 			if($auth) {
-				$form->addElement('text','mail_user', $this->t('Login'));					
-				$form->addElement('password','mail_password', $this->t('Password'));
+				$form->addElement('text','mail_user', __('Login'));					
+				$form->addElement('password','mail_password', __('Password'));
 			}
 		}
 		
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 		
 		if($form->getSubmitValue('submited') && $form->validate() && $form->process(array(&$this,'submit_admin'))) {
 			$this->parent->reset();

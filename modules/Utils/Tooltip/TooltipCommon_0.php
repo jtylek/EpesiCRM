@@ -11,8 +11,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_TooltipCommon extends ModuleCommon {
 	public static function user_settings(){
-		return array('Misc'=>array(
-			array('name'=>'help_tooltips','label'=>'Show help tooltips','type'=>'checkbox','default'=>1)
+		return array(__('Misc')=>array(
+			array('name'=>'help_tooltips','label'=>__('Show help tooltips'),'type'=>'checkbox','default'=>1)
 			));
 	}
 
@@ -72,7 +72,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		}
 		$tooltip_id++;
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = array('callback'=>$callback, 'args'=>$args);
-		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.Base_LangCommon::ts('Utils_Tooltip','Loading...').'</center>';
+		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.__('Loading...').'</center>';
 		return ' onMouseMove="if(typeof(Utils_Tooltip__showTip)!=\'undefined\')Utils_Tooltip__load_ajax_Tip(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" onMouseUp="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" ';
 	}
 
@@ -109,13 +109,11 @@ class Utils_TooltipCommon extends ModuleCommon {
 	*
 	* @param array keys are captions, values are values
 	*/
-	public static function format_info_tooltip( $arg,$group=null) {
-		if($group===null)
-			$group = self::get_type_with_bt(1);
+	public static function format_info_tooltip( $arg) {
 		$table='<TABLE WIDTH="280" cellpadding="2">';
 		foreach ($arg as $k=>$v){
 			$table.='<TR><TD WIDTH="90"><STRONG>';
-			$table.=Base_LangCommon::ts($group,$k).'</STRONG></TD><TD bgcolor="white" style="word-wrap: break-word;">'; // Translated label
+			$table.=$k.'</STRONG></TD><TD bgcolor="white" style="word-wrap: break-word;">';
 			$table.= $v; // Value
 			$table.='</TD></TR>';
 		}

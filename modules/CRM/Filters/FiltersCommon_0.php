@@ -19,7 +19,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 	
 	public static function user_settings() {
 		if(Base_AclCommon::check_permission('Manage Perspective')) 
-			return array('Filters'=>'edit');
+			return array(__('Filters')=>'edit');
 		return array();
 	}
 
@@ -41,7 +41,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 	}
 
 	public static function add_action_bar_icon() {
-		Base_ActionBarCommon::add('filter','Filters','class="lbOn" rel="crm_filters"');
+		Base_ActionBarCommon::add('filter',__('Filters'),'class="lbOn" rel="crm_filters"');
 	}
 
 	public static function set_profile($prof) {
@@ -50,7 +50,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 			if(strpos($ret,',')===false)
 				$desc = CRM_ContactsCommon::contact_format_no_company($ret,true);
 			else
-				$desc = Base_LangCommon::ts('CRM_Filters','Custom filter');
+				$desc = __('Custom filter');
 		} elseif(is_numeric($prof)) {
 			$cids = DB::GetAssoc('SELECT contact_id, contact_id FROM crm_filters_contacts');
 			$c = DB::GetCol('SELECT p.contact_id FROM crm_filters_contacts p WHERE p.group_id=%d',array($prof));
@@ -61,7 +61,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 			$desc = DB::GetOne('SELECT name FROM crm_filters_group WHERE id=%d',array($prof));
 		} elseif($prof=='my') {
 			$ret = CRM_FiltersCommon::get_my_profile();
-			$desc = Base_LangCommon::ts('CRM_Filters','My records');
+			$desc = __('My records');
 		} else {//all and undefined
 		$ret = '';
 			/*$contacts = Utils_RecordBrowserCommon::get_records('contact', array(), array(), array('last_name'=>'ASC'));
@@ -73,7 +73,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 			else
 				$ret = '-1';*/
 
-			$desc = Base_LangCommon::ts('CRM_Filters','All records');
+			$desc = __('All records');
 		}
 //		$this->set_module_variable('profile',$ret);
 		$_SESSION['client']['filter_'.Acl::get_user()]['value'] = $ret;

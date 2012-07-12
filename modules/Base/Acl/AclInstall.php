@@ -33,7 +33,6 @@ class Base_AclInstall extends ModuleInstall {
 			'callback C(128)',
 			array('constraints' => ''));
 		DB::Execute('INSERT INTO base_acl_clearance (callback) VALUES (%s)', array('Base_AclCommon::basic_clearance'));
-		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}

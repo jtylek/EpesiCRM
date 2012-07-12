@@ -103,12 +103,12 @@ class CRM_Contacts_Activities extends Module {
 	
 	public function filters() {	
 		$form = $this->init_module('Libs/QuickForm');
-		$form->addElement('header', 'display', $this->t('Show'));
-		if (ModuleManager::is_installed('CRM/Meeting')!=-1) $form->addElement('checkbox', 'events', $this->t('Events'), null, array('onchange'=>$form->get_submit_form_js()));
-		if (ModuleManager::is_installed('CRM/Tasks')!=-1) $form->addElement('checkbox', 'tasks', $this->t('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
-		if (ModuleManager::is_installed('CRM/PhoneCall')!=-1) $form->addElement('checkbox', 'phonecalls', $this->t('Phone Calls'), null, array('onchange'=>$form->get_submit_form_js()));
-		$form->addElement('select', 'activities_date', str_replace(' ','&nbsp;',$this->t('Activities date')), array(0=>$this->t('Future'), 1=>$this->t('Past'), 2=>$this->t('All time')), array('onchange'=>$form->get_submit_form_js()));
-		$form->addElement('checkbox', 'closed', $this->t('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('header', 'display', __('Show'));
+		if (ModuleManager::is_installed('CRM/Meeting')!=-1) $form->addElement('checkbox', 'events', __('Events'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (ModuleManager::is_installed('CRM/Tasks')!=-1) $form->addElement('checkbox', 'tasks', __('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (ModuleManager::is_installed('CRM/PhoneCall')!=-1) $form->addElement('checkbox', 'phonecalls', __('Phonecalls'), null, array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('select', 'activities_date', str_replace(' ','&nbsp;',__('Activities date')), array(0=>__('Future'), 1=>__('Past'), 2=>__('All time')), array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('checkbox', 'closed', __('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
 		$old_display = $this->get_module_variable('display_options', array(
 			'events'=>(ModuleManager::is_installed('CRM/Meeting')!=-1), 
 			'tasks'=>(ModuleManager::is_installed('CRM/Tasks')!=-1), 
@@ -128,12 +128,12 @@ class CRM_Contacts_Activities extends Module {
 	
 	public function display_activities($events, $tasks, $phonecalls){
 		$gb = $this->init_module('Utils/GenericBrowser','activities','activities');
-		$gb->set_table_columns(array(	array('name'=>$this->t('Type'), 'wrapmode'=>'nowrap', 'width'=>8),
-										array('name'=>$this->t('Subject'), 'width'=>20),
-										array('name'=>$this->t('Date/Deadline'), 'wrapmode'=>'nowrap', 'width'=>8),
-										array('name'=>$this->t('Employees'), 'width'=>11),
-										array('name'=>$this->t('Customers'), 'width'=>11),
-										array('name'=>$this->t('Attachments'), 'width'=>4)
+		$gb->set_table_columns(array(	array('name'=>__('Type'), 'wrapmode'=>'nowrap', 'width'=>8),
+										array('name'=>__('Subject'), 'width'=>20),
+										array('name'=>__('Date/Deadline'), 'wrapmode'=>'nowrap', 'width'=>8),
+										array('name'=>__('Employees'), 'width'=>11),
+										array('name'=>__('Customers'), 'width'=>11),
+										array('name'=>__('Attachments'), 'width'=>4)
 										));
 		$amount = 0;
 		if ($this->display['events']) $amount += count($events);
@@ -174,7 +174,7 @@ class CRM_Contacts_Activities extends Module {
 					$title = '<a '.$view_href.'>'.$v['title'].'</a>';
 					if (isset($v['description']) && $v['description']!='') $title = '<span '.Utils_TooltipCommon::open_tag_attrs($v['description'], false).'>'.$title.'</span>';
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('crm_meeting', $v['id']));
-					$gb_row->add_data(	$this->t('Meeting'),
+					$gb_row->add_data(	__('Meeting'),
 								$title, 
 								Base_RegionalSettingsCommon::time2reg($v['start'],$v['duration']==-1?false:2), 
 								CRM_ContactsCommon::display_contact(array('employees'=>$event['employees']), false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
@@ -186,9 +186,9 @@ class CRM_Contacts_Activities extends Module {
 				$v = array_shift($tasks);
 				if($i>=$limit['offset'] && $v) {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', $v['id']));
-					$gb_row->add_data(	$this->t('Task'), 
+					$gb_row->add_data(	__('Task'), 
 								CRM_TasksCommon::display_title($v, false), 
-								(!isset($v['deadline']) || !$v['deadline'])?$this->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline'],false,true,false), 
+								(!isset($v['deadline']) || !$v['deadline'])?__('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline'],false,true,false), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_company_contact($v, false, array('id'=>'customers')), 
 								Utils_AttachmentCommon::count('task/'.$v['id'])
@@ -198,7 +198,7 @@ class CRM_Contacts_Activities extends Module {
 				$v = array_shift($phonecalls);
 				if($i>=$limit['offset'] && $v) {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', $v['id']));
-					$gb_row->add_data(	$this->t('Phone Call'), 
+					$gb_row->add_data(	__('Phonecall'), 
 								CRM_PhoneCallCommon::display_subject($v), 
 								Base_RegionalSettingsCommon::time2reg($v['date_and_time'],2), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 

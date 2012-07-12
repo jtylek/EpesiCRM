@@ -28,7 +28,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 						'reload'=>true,
 						'default'=>0
 						));
-			$ret_opts[] = array('type'=>'group', 'label'=>Base_LangCommon::ts('Base/Menu/QuickAccess',$opt['label']), 'elems'=>array(
+			$ret_opts[] = array('type'=>'group', 'label'=>$opt['label'], 'elems'=>array(
 						array_merge($opt,array(
 							'values'=>'',
 							'name'=>$name.'_m')),
@@ -36,12 +36,12 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 							'values'=>'',
 							'name'=>$name.'_d')),
 						array_merge($opt,array(
-							'values'=>Base_LangCommon::ts('Base/Menu/QuickAccess','Menu').' &bull; '.Base_LangCommon::ts('Base/Menu/QuickAccess','Dashboard').' &bull; '.Base_LangCommon::ts('Base/Menu/QuickAccess','Launchpad'),
+							'values'=>__('Menu').' &bull; '.__('Dashboard').' &bull; '.__('Launchpad'),
 							'name'=>$name.'_l'))
 					));
 		}
 		//trigger_error(print_r($ret_opts,true));
-		if (Acl::is_user()) return array('Quick access'=>$ret_opts);
+		if (Acl::is_user()) return array(__('Quick Access')=>$ret_opts);
 		return array();
 	}
 
@@ -60,20 +60,19 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 			Base_MenuCommon::add_default_menu($ret, $name);
 			$modules_menu = array_merge($modules_menu,self::check_for_links('',$ret,$name));
 		}
-		//print_r($modules_menu);
 		self::$options = & $modules_menu;
 		return self::$options;
 	}
 
-	private static function check_for_links($prefix,$array,$mod){
+	private static function check_for_links($prefix,$array,$mod,$prefixt=''){
 		$result = array();
 		foreach($array as $k=>$v){
 			if (substr($k,0,2)=='__') continue;
-			if (is_array($v) && array_key_exists('__submenu__',$v)) $result = array_merge($result,self::check_for_links($prefix.$k.': ',$v,$mod));
+			if (is_array($v) && array_key_exists('__submenu__',$v)) $result = array_merge($result,self::check_for_links($prefix.$k.': ',$v,$mod,$prefixt._V($k).': '));
 			elseif(is_array($v)) {
 				$result[] = array('name'=>md5($prefix.$k)
 							,'link'=>$v
-							,'label'=>$prefix.$k
+							,'label'=>$prefixt._V($k)
 							,'module'=>$mod);
 			}
 		}
@@ -89,7 +88,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 				$qa_menu[$v['label']] = $v['link'];
 
 		if ($qa_menu == array('__submenu__'=>1)) return array();
-		return array('Quick Access'=>$qa_menu);
+		return array(__('Quick Access')=>$qa_menu);
 	}
 }
 

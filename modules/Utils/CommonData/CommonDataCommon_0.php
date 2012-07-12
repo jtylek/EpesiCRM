@@ -15,7 +15,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 * For internal use only.
 	 */
 	public static function admin_caption(){
-		return "Common data";
+		return __("Common data");
 	}
 	
 	public static function admin_access_levels() {
@@ -96,7 +96,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		if($id===false) return false;
 		$ret = DB::GetOne('SELECT value FROM utils_commondata_tree WHERE id=%d',array($id));
 		if($translate)
-			$ret = Base_LangCommon::ts('Utils_CommonData',$ret);
+			$ret = _V($ret);
 		$cache[$name.'__'.$translate] = $ret;
 		return $ret;
 	}
@@ -249,7 +249,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 
 	public static function translate_array(& $arr) {
 		foreach($arr as $k=>&$v) {
-			$v = Base_LangCommon::ts('Utils_CommonData',$v);
+			$v = _V($v);
 		}
 		return $arr;
 	}

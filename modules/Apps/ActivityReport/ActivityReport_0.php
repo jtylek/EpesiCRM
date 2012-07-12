@@ -14,7 +14,7 @@ class Apps_ActivityReport extends Module {
 	    if (!Base_AclCommon::check_permission('View Activity Report')) return;
 		$rb_tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties ORDER BY caption');
 		foreach ($rb_tabs as $k=>$v)
-			$rb_tabs[$k] = Utils_RecordBrowserCommon::ts($v);
+			$rb_tabs[$k] = _V($v); // ****** RecordSet caption
 
 		$form = $this->init_module('Libs/QuickForm');
 
@@ -22,22 +22,22 @@ class Apps_ActivityReport extends Module {
 		foreach ($users as $k=>$u)
 			$users[$k] = Base_UserCommon::get_user_label($u, true);
 		asort($users);
-		$users = array(''=>'['.$this->t('All').']')+$users;
-		$form->addElement('select', 'user', $this->t('User'), $users);
+		$users = array(''=>'['.__('All').']')+$users;
+		$form->addElement('select', 'user', __('User'), $users);
 		
-		$form->addElement('multiselect', 'recordsets', $this->t('Record Type'), $rb_tabs);
+		$form->addElement('multiselect', 'recordsets', __('Record Type'), $rb_tabs);
 
-		$form->addElement('checkbox', 'new', $this->t('New record'));
-		$form->addElement('checkbox', 'edit', $this->t('Record edit'));
-		$form->addElement('checkbox', 'delete_restore', $this->t('Record Delete/restore'));
-		$form->addElement('checkbox', 'note', $this->t('Notes'));
-		$form->addElement('checkbox', 'file', $this->t('Files'));
+		$form->addElement('checkbox', 'new', __('New record'));
+		$form->addElement('checkbox', 'edit', __('Record edit'));
+		$form->addElement('checkbox', 'delete_restore', __('Record Delete/restore'));
+		$form->addElement('checkbox', 'note', __('Notes'));
+		$form->addElement('checkbox', 'file', __('Files'));
 
-		$form->addElement('datepicker', 'start_date', $this->t('Start Date'));
-		$form->addElement('datepicker', 'end_date', $this->t('End Date'));
+		$form->addElement('datepicker', 'start_date', __('Start Date'));
+		$form->addElement('datepicker', 'end_date', __('End Date'));
 
-		//$form->addElement('submit', 'submit', $this->t('Show'));
-		Base_ActionBarCommon::add('search', 'Show', $form->get_submit_form_href());
+		//$form->addElement('submit', 'submit', __('Show'));
+		Base_ActionBarCommon::add('search', __('Show'), $form->get_submit_form_href());
 
 		$filters = $this->get_module_variable('filters', array('user'=>'', 'new'=>1, 'edit'=>1, 'delete_restore'=>1, 'recordsets'=>array_keys($rb_tabs), 'start_date'=>date('Y-m-01'), 'end_date'=>date('Y-m-d')));
 		
@@ -58,11 +58,11 @@ class Apps_ActivityReport extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'activity_report');
 		$gb->set_table_columns(array(
-			array('name'=>$this->t('Date'), 'width'=>40),
-			array('name'=>$this->t('User'), 'width'=>40),
-			array('name'=>$this->t('Type'), 'width'=>40),
-			array('name'=>$this->t('Label')),
-			array('name'=>$this->t('Actions taken'), 'width'=>40)
+			array('name'=>__('Date'), 'width'=>40),
+			array('name'=>__('User'), 'width'=>40),
+			array('name'=>__('Type'), 'width'=>40),
+			array('name'=>__('Label')),
+			array('name'=>__('Actions taken'), 'width'=>40)
 		));
 		$tables = array();
 
@@ -134,31 +134,31 @@ class Apps_ActivityReport extends Module {
 				switch ($row['action']) {
 					case 'edit': 	$details = DB::GetAssoc('SELECT field, old_value FROM '.$row['tab'].'_edit_history_data WHERE edit_id=%d', array($row['id']));
 									if (isset($details['id'])) {
-										$action = $details['id']=='DELETED'?$this->t('Deleted'):$this->t('Restored');
+										$action = $details['id']=='DELETED'?__('Deleted'):__('Restored');
 									} else {
-										$action = $this->t('Edited');
+										$action = __('Edited');
 										$action = '<a '.Utils_TooltipCommon::tooltip_leightbox_mode().' '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details_label'), array($row['tab'], $row['r_id'], $row['id']), 500).'>'.$action.'</a>';
 									}
 									$r_id = $row['r_id'];
 									break;
-					case 'create': 	$action = $this->t('Created');
+					case 'create': 	$action = __('Created');
 									$r_id = $row['r_id'];
 									break;
-					case 'file': 	$action = $this->t('Attachment: ');
-									$action .= $this->t($row['id']==0?'New':'Updated');
+					case 'file': 	$action = __('Attachment').': ';
+									$action .= $row['id']==0?__('New'):__('Updated');
 									$id = explode('/',$row['r_id']);
 									$row['tab'] = $id[0];
 									$r_id = $id[1];
 									break;
-					case 'note': 	$action = $this->t('Note: ');
-									$action .= $this->t($row['id']==0?'New':'Updated');
+					case 'note': 	$action = __('Note').': ';
+									$action .= $row['id']==0?__('New'):__('Updated');
 									$id = explode('/',$row['r_id']);
 									$row['tab'] = $id[0];
 									$r_id = $id[1];
 									break;
 				}
 				if (!Utils_RecordBrowserCommon::get_access($row['tab'], 'view', Utils_RecordBrowserCommon::get_record($row['tab'], $r_id))) {
-					$link = $this->t('Access restricted');
+					$link = __('Access restricted');
 					$action = strip_tags($action);
 				} else {
 					$link = Utils_RecordBrowserCommon::create_default_linked_label($row['tab'], $r_id, false, false);
@@ -176,7 +176,7 @@ class Apps_ActivityReport extends Module {
 	}
 	
 	public function caption() {
-		return 'Activity Report';
+		return __('Activity Report');
 	}
 }
 

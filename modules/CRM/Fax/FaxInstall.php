@@ -13,7 +13,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_FaxInstall extends ModuleInstall {
 
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		Base_AclCommon::add_permission('Fax - Browse',array('ACCESS:employee'));
 		Base_AclCommon::add_permission('Fax - Send',array('ACCESS:employee'));
@@ -47,7 +46,7 @@ class CRM_FaxInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-        return array('package'=>'CRM', 'option'=>'Fax');
+        return array('package'=>__('CRM'), 'option'=>__('Fax'));
 	}
 	
 }

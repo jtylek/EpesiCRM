@@ -16,9 +16,9 @@ class Apps_Shoutbox extends Module {
 		// to allow delete by sdmin uncomment below lines
 		// if i am admin add "clear shoutbox" actionbar button
 		if(Base_AclCommon::i_am_admin())
-			Base_ActionBarCommon::add('delete','Clear shoutbox',$this->create_callback_href(array($this,'delete_all')));
+			Base_ActionBarCommon::add('delete',__('Clear shoutbox'),$this->create_callback_href(array($this,'delete_all')));
 		*/
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		if ($this->is_back()) {
 			$x = ModuleManager::get_instance('/Base_Box|0');
 			if (!$x)
@@ -28,14 +28,14 @@ class Apps_Shoutbox extends Module {
 		}
 		
 		$tb = & $this->init_module('Utils/TabbedBrowser');
-		$tb->set_tab($this->t('Chat'), array($this,'chat'),true,null);
-		$tb->set_tab($this->t('History'), array($this,'history'),null);
+		$tb->set_tab(__('Chat'), array($this,'chat'),true,null);
+		$tb->set_tab(__('History'), array($this,'history'),null);
 		$this->display_module($tb);
     }
 	
 	public function history($uid=null) {	
 		$th = $this->init_module('Base/Theme');
-		$th->assign('header', $this->t('Shoutbox History'));
+		$th->assign('header', __('Shoutbox History'));
 
 		$qf = & $this->init_module('Libs/QuickForm');
 
@@ -43,11 +43,11 @@ class Apps_Shoutbox extends Module {
        	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 ORDER BY name');
 	    } else
    		    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 ORDER BY login');
-   		$qf->addElement('select','user',$this->t('User'),array('all'=>$this->t('-- all --'))+$emps);
-   		$qf->addElement('datepicker','from_date',$this->t('From'));
-   		$qf->addElement('datepicker','to_date',$this->t('To'));
-   		$qf->addElement('text','search',$this->t('Search for'));
-		$qf->addElement('submit','submit_button',$this->t('Filter'));
+   		$qf->addElement('select','user',__('User'),array('all'=>'['.__('All').']')+$emps);
+   		$qf->addElement('datepicker','from_date',__('From'));
+   		$qf->addElement('datepicker','to_date',__('To'));
+   		$qf->addElement('text','search',__('Search for'));
+		$qf->addElement('submit','submit_button',__('Filter'));
 	    
 	    $to_date = & $this->get_module_variable('to_date');
 	    $from_date = & $this->get_module_variable('from_date');
@@ -80,13 +80,13 @@ class Apps_Shoutbox extends Module {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'shoutbox_history');
 
 		$gb->set_table_columns(array(
-						array('name'=>$this->t('From'),'width'=>10),
-						array('name'=>$this->t('To'),'width'=>10),
-						array('name'=>$this->t('Message'),'width'=>64),
-						array('name'=>$this->t('Date'),'width'=>16)
+						array('name'=>__('From'),'width'=>10),
+						array('name'=>__('To'),'width'=>10),
+						array('name'=>__('Message'),'width'=>64),
+						array('name'=>__('Date'),'width'=>16)
 						));
 
-        // $gb->set_default_order(array($this->t('Date')=>'DESC'));
+        // $gb->set_default_order(array(__('Date')=>'DESC'));
 
         $myid = Base_AclCommon::get_user();
 		$where = '('.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.') OR (to_user_login_id is null AND base_user_login_id='.$uid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).')'.$date_where;
@@ -101,7 +101,7 @@ class Apps_Shoutbox extends Module {
 				if($row['to_user_login_id']!==null)
     				$tologin = Base_UserCommon::get_user_login($row['to_user_login_id']);
     		    else
-    		        $tologin = $this->t('-- all --');
+    		        $tologin = '['.__('All').']';
                 $gb->add_row(
 					'<span class="author">'.$ulogin.'</span>',
 					'<span class="author">'.$tologin.'</span>',
@@ -148,7 +148,7 @@ class Apps_Shoutbox extends Module {
     		            $emps[$id] = '* '.$emps[$id] ;
     		    }
     		}
-       		$qf->addElement('select','to',$this->t('To'),array('all'=>$this->t('-- all --'))+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));*/
+       		$qf->addElement('select','to',__('To'),array('all'=>'['.__('All').']')+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));*/
             $myid = Base_AclCommon::get_user();
         	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im') && ModuleManager::is_installed('Tools_WhoIsOnline')>=0) {
         	    $adm = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','enable_im');
@@ -160,16 +160,16 @@ class Apps_Shoutbox extends Module {
     		            $emps = DB::GetAssoc('SELECT l.id,'.DB::Concat(DB::qstr("* "),'l.login').' FROM user_login l LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) AND l.id IN ('.implode(',',$online).') ORDER BY l.login',array($myid,serialize(1)));
     		    } else $emps = array();
     		} else $emps = array();
-		    $e = $qf->addElement('autoselect','to',$this->t('To'), array('all'=>$this->t('-- all --'))+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
+		    $e = $qf->addElement('autoselect','to',__('To'), array('all'=>'['.__('All').']')+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
 		    $e->setAttribute('id','shoutbox_to'.($big?'_big':''));
 		    $e->setAttribute('onChange','shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()');
         	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
         	    $qf->freeze(array('to'));
 			//create text box
-			$qf->addElement($big?'textarea':'textarea','post',$this->t('Message'),'class="border_radius_6px" id="shoutbox_text'.($big?'_big':'').'"');
-			$qf->addRule('post',$this->t('Field required'),'required');
+			$qf->addElement($big?'textarea':'textarea','post',__('Message'),'class="border_radius_6px" id="shoutbox_text'.($big?'_big':'').'"');
+			$qf->addRule('post',__('Field required'),'required');
 			//create submit button
-			$qf->addElement('submit','submit_button',$this->t('Send'), 'id="shoutbox_button'.($big?'_big':'').'"');
+			$qf->addElement('submit','submit_button',__('Send'), 'id="shoutbox_button'.($big?'_big':'').'"');
 			//add it
 			$qf->setRequiredNote(null);
 			$qf->setDefaults(array('to'=>$to));
@@ -192,12 +192,12 @@ class Apps_Shoutbox extends Module {
 				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id,to_user_login_id) VALUES(%s,%d,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id,is_numeric($to)?$to:null));
 			}
 		} else {
-			print($this->t('Please log in to post message').'<br>');
+			print(__('Please log in to post message').'<br>');
 			return;
 		}
 
 		$theme->assign('board','<div id=\'shoutbox_board'.($big?'_big':'').'\'></div>');
-		$theme->assign('header', $this->t('Shoutbox'));
+		$theme->assign('header', __('Shoutbox'));
    		$theme->display('chat_form'.($big?'_big':''));
 
 		//if shoutbox is diplayed, call myFunctions->refresh from refresh.php file every 5s
@@ -208,7 +208,7 @@ class Apps_Shoutbox extends Module {
 	}
 
 	public function caption() {
-		return "Shoutbox";
+		return __("Shoutbox");
 	}
 }
 

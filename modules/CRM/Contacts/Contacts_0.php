@@ -62,7 +62,7 @@ class CRM_Contacts extends Module {
 										'permission'=>Base_User_SettingsCommon::get('CRM_Common','default_record_permission')));
 		if ($mode=='contact') {
 			$fcallback = array('CRM_ContactsCommon','company_format_default');
-			$this->rb->set_custom_filter('company_name', array('type'=>'autoselect','label'=>$this->t('Company Name'),'args'=>array(), 'args_2'=>array(array('CRM_ContactsCommon','autoselect_company_suggestbox'), array(array(), $fcallback)), 'args_3'=>$fcallback, 'trans_callback'=>array('CRM_ContactsCommon','autoselect_company_filter_trans')));
+			$this->rb->set_custom_filter('company_name', array('type'=>'autoselect','label'=>__('Company Name'),'args'=>array(), 'args_2'=>array(array('CRM_ContactsCommon','autoselect_company_suggestbox'), array(array(), $fcallback)), 'args_3'=>$fcallback, 'trans_callback'=>array('CRM_ContactsCommon','autoselect_company_filter_trans')));
 			$this->rb->set_defaults(array(	'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
 			$this->rb->set_default_order(array('last_name'=>'ASC', 'first_name'=>'ASC'));
@@ -83,7 +83,7 @@ class CRM_Contacts extends Module {
 			return;
 		}
 		if (!Base_AclCommon::i_am_admin()) return false;
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
 		$this->rb = $this->init_module('Utils/RecordBrowser','contact','contact');
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
@@ -94,12 +94,12 @@ class CRM_Contacts extends Module {
 										'login'=>'new'));
 		$this->rb->set_default_order(array('last_name'=>'ASC', 'first_name'=>'ASC'));
 		$this->rb->set_additional_actions_method(array($this, 'user_actions'));
-		$this->rb->set_additional_caption($this->t('Users'));
+		$this->rb->set_additional_caption(__('Users'));
 		$this->rb->disable_pdf();
 		$this->rb->disable_export();
 		$this->display_module($this->rb, array(array(), array('!login'=>''), array('work_phone'=>false, 'mobile_phone'=>false, 'city'=>false, 'zone'=>false, 'login'=>true, 'access'=>true, 'email'=>true)));
 
-		Base_ActionBarCommon::add('edit',$this->t('E-mail header'),$this->create_callback_href(array($this,'change_email_header')),$this->t('Edit the header of the message that is sent to each newly created user'));
+		Base_ActionBarCommon::add('edit',__('E-mail header'),$this->create_callback_href(array($this,'change_email_header')),__('Edit the header of the message that is sent to each newly created user'));
 	}
 
     public function change_email_header() {
@@ -132,7 +132,7 @@ class CRM_Contacts extends Module {
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
 		$rb->set_additional_actions_method(array($this, 'contacts_actions'));
 		if(Utils_RecordBrowserCommon::get_access('contact','add'))
-			Base_ActionBarCommon::add('add','Add contact', $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
+			Base_ActionBarCommon::add('add',__('Add contact'), $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$rb->set_button($this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$rb->set_defaults(array('company_name'=>$arg['id']));
 		$this->display_module($rb, array(array('(company_name'=>$arg['id'],'|related_companies'=>array($arg['id'])), array('company_name'=>false), array('last_name'=>'ASC','first_name'=>'ASC')), 'show_data');
@@ -140,8 +140,8 @@ class CRM_Contacts extends Module {
         if (in_array('ACCESS:manager', $uid) && in_array('ACCESS:employee', $uid)) {
             $prompt_id = "contacts_address_fix";
             $content = $this->update_contacts_address_prompt($arg, $prompt_id);
-            Libs_LeightboxCommon::display($prompt_id, $content, $this->t('Update Contacts'));
-            Base_ActionBarCommon::add('all', 'Update Contacts', Libs_LeightboxCommon::get_open_href($prompt_id));
+            Libs_LeightboxCommon::display($prompt_id, $content, __('Update Contacts'));
+            Base_ActionBarCommon::add('all', __('Update Contacts'), Libs_LeightboxCommon::get_open_href($prompt_id));
         }
     }
 
@@ -178,25 +178,25 @@ class CRM_Contacts extends Module {
 	}
 
     public function update_contacts_address_prompt($company, $lid) {
-        $html = '<br/>'.$this->t('This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would you like to copy to company contacts:');
+        $html = '<br/>'.__('This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would you like to copy to company contacts:');
         $form = $this->init_module('Libs/QuickForm');
 
         $data = array( /* Source ID, Target ID, Text, Checked state */
-            array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>$this->t('Address 1'), 'checked'=>true),
-            array('sid'=>'address_2', 'tid'=>'address_2', 'text'=>$this->t('Address 2'), 'checked'=>true),
-            array('sid'=>'city', 'tid'=>'city', 'text'=>$this->t('City'), 'checked'=>true),
-            array('sid'=>'country', 'tid'=>'country', 'text'=>$this->t('Country'), 'checked'=>true),
-            array('sid'=>'zone', 'tid'=>'zone', 'text'=>$this->t('Zone'), 'checked'=>true),
-            array('sid'=>'postal_code', 'tid'=>'postal_code', 'text'=>$this->t('Postal Code'), 'checked'=>true),
-            array('sid'=>'phone', 'tid'=>'work_phone', 'text'=>$this->t('Phone as Work Phone'), 'checked'=>false),
-            array('sid'=>'fax', 'tid'=>'fax', 'text'=>$this->t('Fax'), 'checked'=>false),
+            array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>__('Address 1'), 'checked'=>true),
+            array('sid'=>'address_2', 'tid'=>'address_2', 'text'=>__('Address 2'), 'checked'=>true),
+            array('sid'=>'city', 'tid'=>'city', 'text'=>__('City'), 'checked'=>true),
+            array('sid'=>'country', 'tid'=>'country', 'text'=>__('Country'), 'checked'=>true),
+            array('sid'=>'zone', 'tid'=>'zone', 'text'=>__('Zone'), 'checked'=>true),
+            array('sid'=>'postal_code', 'tid'=>'postal_code', 'text'=>__('Postal Code'), 'checked'=>true),
+            array('sid'=>'phone', 'tid'=>'work_phone', 'text'=>__('Phone as Work Phone'), 'checked'=>false),
+            array('sid'=>'fax', 'tid'=>'fax', 'text'=>__('Fax'), 'checked'=>false),
         );
         foreach($data as $row) {
             $form->addElement('checkbox', $row['sid'], $row['text'], '&nbsp;&nbsp;<span style="color: gray">'.$company[$row['sid']].'</span>', $row['checked'] ? array('checked'=>'checked'): array());
         }
 
-        $ok = $form->createElement('submit', 'submit', $this->t('Confirm'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
-        $cancel = $form->createElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+        $ok = $form->createElement('submit', 'submit', __('Confirm'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
+        $cancel = $form->createElement('button', 'cancel', __('Cancel'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
         $form->addGroup(array($ok, $cancel));
 
         if($form->validate()) {

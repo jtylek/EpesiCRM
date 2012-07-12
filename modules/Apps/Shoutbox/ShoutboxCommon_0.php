@@ -12,19 +12,19 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ShoutboxCommon extends ModuleCommon {
 	public static function menu() {
 	    if(Base_AclCommon::check_permission('Shoutbox'))
-    		return array('Shoutbox'=>array());
+    		return array(_M('Shoutbox')=>array());
     	return array();
 	}
 	
 	public static function applet_caption() {
 	    if(Base_AclCommon::check_permission('Shoutbox'))
-    		return "Shoutbox";
+    		return __("Shoutbox");
         return false;
 	}
 
 	public static function applet_info() {
 	    if(Base_AclCommon::check_permission('Shoutbox'))
-    		return "Mini shoutbox"; //here can be associative array
+    		return __("Mini shoutbox"); //here can be associative array
         return '';
 	}
 	
@@ -64,15 +64,15 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 		$ret = array();
 		foreach($arr as $row) {
 			if(!$row['login']) $row['login']='Anonymous';
-			$ret['shoutbox_'.$row['id']] = Base_LangCommon::ts('Apps_Shoutbox','<font color="gray">[%s]</font><font color="blue">%s</font>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], $row['message']));
+			$ret['shoutbox_'.$row['id']] = __('<font color="gray">[%s]</font><font color="blue">%s</font>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], $row['message']));
 		}
 
 		return array('notifications'=>$ret);
 	}
 
 	public static function user_settings(){
-		return array('Misc'=>array(
-			array('name'=>'enable_im','label'=>'Allow IM with me','type'=>'bool','default'=>1)
+		return array(__('Misc')=>array(
+			array('name'=>'enable_im','label'=>__('Allow IM with me'),'type'=>'bool','default'=>1)
 			));
 	}
 }

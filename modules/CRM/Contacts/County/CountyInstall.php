@@ -15,11 +15,11 @@ defined("_VALID_ACCESS") || die();
 
 class CRM_Contacts_CountyInstall extends ModuleInstall {
 	public function install() {
-		$fields = array('name'=>'County',	'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country','Zone'), 'extra'=>false, 'QFfield_callback'=>array('CRM_Contacts_CountyCommon', 'QFfield_county'), 'position'=>'Zone');
+		$fields = array('name' => _M('County'),	'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country','Zone'), 'extra'=>false, 'QFfield_callback'=>array('CRM_Contacts_CountyCommon', 'QFfield_county'), 'position'=>'Zone');
 		Utils_RecordBrowserCommon::new_record_field('company', $fields);
-		$fields = array('name'=>'County',	'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country','Zone'), 'extra'=>false, 'QFfield_callback'=>array('CRM_Contacts_CountyCommon', 'QFfield_county'), 'position'=>'Zone');
+		$fields = array('name' => _M('County'),	'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country','Zone'), 'extra'=>false, 'QFfield_callback'=>array('CRM_Contacts_CountyCommon', 'QFfield_county'), 'position'=>'Zone');
 		Utils_RecordBrowserCommon::new_record_field('contact', $fields);
-		$fields = array('name'=>'Home County',	'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Home Country','Home Zone'), 'extra'=>false, 'QFfield_callback'=>array('CRM_Contacts_CountyCommon', 'QFfield_county'), 'position'=>'Home Zone');
+		$fields = array('name' => _M('Home County'),	'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Home Country','Home Zone'), 'extra'=>false, 'QFfield_callback'=>array('CRM_Contacts_CountyCommon', 'QFfield_county'), 'position'=>'Home Zone');
 		Utils_RecordBrowserCommon::new_record_field('contact', $fields);
 		$hc_pos= DB::GetOne('SELECT position FROM contact_field WHERE field="Home City"');
 		$bd_pos= DB::GetOne('SELECT position FROM contact_field WHERE field="Birth Date"');
@@ -48,7 +48,7 @@ class CRM_Contacts_CountyInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-        return array('package'=>'CRM', 'option'=>'County');
+        return array('package'=>__('CRM'), 'option'=>__('County'));
 	}
 
 	public function version() {

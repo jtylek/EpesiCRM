@@ -18,7 +18,7 @@ class Base_Acl extends Module {
 		if ($this->is_back()) {
 			$this->parent->reset();
 		}
-		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
 		$all_clearances = array_flip(Base_AclCommon::get_clearance(true));
 		Base_ThemeCommon::load_css('Base_Acl', 'edit_permissions');
@@ -28,7 +28,7 @@ class Base_Acl extends Module {
 			array('name'=>'&nbsp;', 'width'=>20)
 		));
 		$perms = DB::GetAssoc('SELECT id, name FROM base_acl_permission ORDER BY name ASC');
-		Base_ActionBarCommon::add('add', 'Add rule', $this->create_callback_href(array($this, 'edit_rule'), array(null, null)));
+		Base_ActionBarCommon::add('add', __('Add rule'), $this->create_callback_href(array($this, 'edit_rule'), array(null, null)));
 		foreach ($perms as $p_id=>$p_name) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data(
@@ -42,10 +42,10 @@ class Base_Acl extends Module {
 					$clearances[$k] = $all_clearances[$v];
 
 				$gb_row = $gb->get_new_row();
-				$gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this rule?'), array($this, 'delete_rule'), array($r_id)), 'delete', $this->t('Delete Rule'));
-				$gb_row->add_action($this->create_callback_href(array($this, 'edit_rule'), array($r_id, $p_id)), 'edit', $this->t('Edit Rule'));
+				$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_rule'), array($r_id)), 'delete', __('Delete Rule'));
+				$gb_row->add_action($this->create_callback_href(array($this, 'edit_rule'), array($r_id, $p_id)), 'edit', __('Edit Rule'));
 				$gb_row->add_data(
-					'<span class="Base_Acl__permissions_clearance">'.implode(' <span class="joint">'.$this->t('and').'</span> ',$clearances).'</span>'
+					'<span class="Base_Acl__permissions_clearance">'.implode(' <span class="joint">'.__('and').'</span> ',$clearances).'</span>'
 				);
 			}
 		}
@@ -64,27 +64,27 @@ class Base_Acl extends Module {
 		$theme = $this->init_module('Base_Theme');
 
 		$theme->assign('labels', array(
-			'and' => '<span class="joint">'.$this->t('and').'</span>',
-			'or' => '<span class="joint">'.$this->t('or').'</span>',
-			'caption' => $r_id?$this->t('Edit permission rule'):$this->t('Add permission rule'),
-			'clearance' => $this->t('Clearance requried'),
-			'fields' => $this->t('Fields allowed'),
-			'crits' => $this->t('Criteria required'),
-			'add_clearance' => $this->t('Add clearance'),
-			'add_or' => $this->t('Add criteria (or)'),
-			'add_and' => $this->t('Add criteria (and)')
+			'and' => '<span class="joint">'.__('and').'</span>',
+			'or' => '<span class="joint">'.__('or').'</span>',
+			'caption' => $r_id?__('Edit permission rule'):__('Add permission rule'),
+			'clearance' => __('Clearance requried'),
+			'fields' => __('Fields allowed'),
+			'crits' => __('Criteria required'),
+			'add_clearance' => __('Add clearance'),
+			'add_or' => __('Add criteria (or)'),
+			'add_and' => __('Add criteria (and)')
  		));
 
-		$form->addElement('select', 'permission', $this->t('Permission'), $perms);
+		$form->addElement('select', 'permission', __('Permission'), $perms);
 		if ($p_id) {
 			$form->setDefaults(array('permission'=>$p_id));
 			$form->freeze('permission');
 		} else {
-			$form->addRule('required', 'permission', $this->t('Field required'));
+			$form->addRule('required', 'permission', __('Field required'));
 		}
 
 		for ($i=0; $i<$counts; $i++)
-			$form->addElement('select', 'clearance_'.$i, $this->t('Clearance'), $all_clearances);
+			$form->addElement('select', 'clearance_'.$i, __('Clearance'), $all_clearances);
 		
 		$i = 0;
 		$clearances = DB::GetAssoc('SELECT id, clearance FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
@@ -120,8 +120,8 @@ class Base_Acl extends Module {
 		eval_js('base_acl__init_clearance('.$current_clearance.', '.$counts.')');
 		eval_js('base_acl__initialized = true;');
 
-		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
-		Base_ActionBarCommon::add('delete', 'Cancel', $this->create_back_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+		Base_ActionBarCommon::add('delete', __('Cancel'), $this->create_back_href());
 
 		return true;
 	}

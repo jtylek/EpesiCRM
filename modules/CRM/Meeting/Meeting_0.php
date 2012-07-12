@@ -25,7 +25,7 @@ class CRM_Meeting extends Module {
 
 	public function applet($conf, & $opts) {
 		$opts['go'] = true;
-		$opts['title'] = Base_LangCommon::ts('CRM/Meeting','Meetings');
+		$opts['title'] = __('Meetings');
 		$me = CRM_ContactsCommon::get_my_record();
 		if ($me['id']==-1) {
 			CRM_ContactsCommon::no_contact_message();

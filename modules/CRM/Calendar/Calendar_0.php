@@ -55,14 +55,14 @@ class CRM_Calendar extends Module {
 			$new_events = call_user_func($v['handler_callback'], 'new_event_types');
 			if ($new_events!==null) foreach($new_events as $k=>$w) {
 				if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
-				$this->lp->add_option('new_event__'.$v['id'].'__'.$k, $this->t($w['label']), $w['icon'], null);
+				$this->lp->add_option('new_event__'.$v['id'].'__'.$k, _V($w['label']), $w['icon'], null); // I should move extracting handlers names to separate method
 				$count++;
 			}
 		}
 		if ($count<2) {
 			$this->lp = null;
 		} else {
-			$this->display_module($this->lp, array($this->t('New Event'), array('timestamp','timeless'), '', false));
+			$this->display_module($this->lp, array(__('New Event'), array('timestamp','timeless'), '', false));
 			$vals = $this->lp->export_values();
 			if ($vals) {
 				$this->jump_to_new_event($vals['option'],$vals['params']['timestamp'],$vals['params']['timeless']);
@@ -78,7 +78,7 @@ class CRM_Calendar extends Module {
 			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			'default_date'=>$default_date,
 			'custom_agenda_cols'=>array(
-				array('name'=>$this->t('Type'), 'order'=>'cus_col_0','width'=>6,'wrapmode'=>'nowrap'),
+				array('name'=>__('Type'), 'order'=>'cus_col_0','width'=>6,'wrapmode'=>'nowrap'),
 				'Description',
 				'Assigned to',
 				'Related with'
@@ -100,29 +100,29 @@ class CRM_Calendar extends Module {
 		$events = $c->get_displayed_events();
 		if (!empty($events['events'])) {
 			switch ($view_type) {
-				case 'Day': $view = 'Daily agenda'; break;
-				case 'Month': $view = 'Monthly agenda'; break;
-				case 'Week': $view = 'Weekly agenda'; break;
-				case 'Agenda': $view = 'Agenda'; break;
+				case 'Day': $view = __('Daily agenda'); break;
+				case 'Month': $view = __('Monthly agenda'); break;
+				case 'Week': $view = __('Weekly agenda'); break;
+				case 'Agenda': $view = __('Agenda'); break;
 			}
 			if (isset($view)) {
 				$pdf = $this->pack_module('Libs/TCPDF', 'L');
 				if ($pdf->prepare()) {
 					$start = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['start']));
 					$end = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['end']));
-					$pdf->set_title($this->t($view).', '.$start.($view_type!='Day'?' - '.$end:''));
+					$pdf->set_title($view.', '.$start.($view_type!='Day'?' - '.$end:''));
 					$filter = CRM_FiltersCommon::get();
 					$me = CRM_ContactsCommon::get_my_record();
 					if (trim($filter,'()')==$me['id']) $desc=$me['last_name'].' '.$me['first_name'];
 					else $desc = CRM_FiltersCommon::get_profile_desc();
-					$pdf->set_subject($this->t('CRM Filters: %s',array($desc)));
+					$pdf->set_subject(__('CRM Filters: %s',array($desc)));
 					$pdf->prepare_header();
 					$pdf->AddPage();
 					foreach($events['events'] as $v) {
 						$ev_mod->make_event_PDF($pdf,$v,true,$view_type);
 					}
 				}
-				$pdf->add_actionbar_icon($this->t(str_replace(' ','_',$view)));
+				$pdf->add_actionbar_icon($view);
 			}
 		}
 	}
@@ -152,15 +152,15 @@ class CRM_Calendar extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agendaX');
 		$columns = array(
-			array('name'=>$this->t('Start'), 'order'=>'e.starts', 'width'=>25, 'wrapmode'=>'nowrap'),
-			array('name'=>$this->t('Title'), 'order'=>'e.title','width'=>50),
+			array('name'=>__('Start'), 'order'=>'e.starts', 'width'=>25, 'wrapmode'=>'nowrap'),
+			array('name'=>__('Title'), 'order'=>'e.title','width'=>50),
 		);
 		$gb->set_table_columns($columns);
 
 		$start = date('Y-m-d',time());
 		$end = date('Y-m-d',time() + ($conf['days'] * 24 * 60 * 60));
 
-		$gb->set_default_order(array($this->t('Start')=>'ASC'));
+		$gb->set_default_order(array(__('Start')=>'ASC'));
 		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
 //		trigger_error($gb->get_query_order());
 		$data = array();
@@ -236,7 +236,7 @@ class CRM_Calendar extends Module {
 	}
 
 	public function caption() {
-		return "Calendar";
+		return __("Calendar");
 	}
 }
 ?>

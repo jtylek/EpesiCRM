@@ -13,11 +13,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_CommonInstall extends ModuleInstall {
 
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		Utils_CommonDataCommon::new_array('CRM',array(),true,true);
-		Utils_CommonDataCommon::new_array('CRM/Priority',array(0=>'Low',1=>'Medium',2=>'High'), true,true);
-		Utils_CommonDataCommon::new_array('CRM/Access',array(0=>'Public', 1=>'Public, Read-Only', 2=>'Private'), true,true);
-		Utils_CommonDataCommon::new_array('CRM/Status',array('Open','In Progress','On Hold','Closed','Canceled'), true,true);
+		Utils_CommonDataCommon::new_array('CRM/Priority',array(0=>_M('Low'),1=>_M('Medium'),2=>_M('High')), true,true);
+		Utils_CommonDataCommon::new_array('CRM/Access',array(0=>_M('Public'), 1=>_M('Public, Read-Only'), 2=>_M('Private')), true,true);
+		Utils_CommonDataCommon::new_array('CRM/Status',array(_M('Open'),_M('In Progress'),_M('On Hold'),_M('Closed'),_M('Canceled')), true,true);
 		return true;
 	}
 	

@@ -22,11 +22,11 @@ class Base_About extends Module {
 
 	public function body() {
 		Libs_LeightboxCommon::display('aboutepesi',$this->get_info(),'About');
-		print('<a '.Libs_LeightboxCommon::get_open_href('aboutepesi').' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Base_About','Click to get more info')).'><img src="images/epesi-powered.png" border=0></a>');
+		print('<a '.Libs_LeightboxCommon::get_open_href('aboutepesi').' '.Utils_TooltipCommon::open_tag_attrs(__('Click to get more info')).'><img src="images/epesi-powered.png" border=0></a>');
 	}
 
 	public function caption() {
-		return "About";
+		return __("About");
 	}
 
 }

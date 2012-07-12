@@ -14,7 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Contacts_AccountManagerInstall extends ModuleInstall {
 
 	public function install() {
-		Utils_RecordBrowserCommon::new_record_field('company', array('name'=>'Account Manager', 'type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('CRM_Contacts_AccountManagerCommon', 'crits_accountmanager'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false, 'filter'=>true, 'visible'=>true));
+		Utils_RecordBrowserCommon::new_record_field('company', array('name' => _M('Account Manager'), 'type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('CRM_Contacts_AccountManagerCommon', 'crits_accountmanager'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false, 'filter'=>true, 'visible'=>true));
 		Utils_RecordBrowserCommon::new_browse_mode_details_callback('company', 'CRM/Contacts/AccountManager', 'browse_mode_details');
 		return true;
 	}
@@ -30,7 +30,7 @@ class CRM_Contacts_AccountManagerInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-        return array('package'=>'CRM', 'option'=>'Account Manager');
+        return array('package'=>__('CRM'), 'option'=>__('Account Manager'));
 	}
 	
 	public function requires($v) {

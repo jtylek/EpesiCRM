@@ -15,7 +15,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_MainModuleIndicatorInstall extends ModuleInstall {
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		Variable::set('base_page_title','Epesi');
 		Variable::set('show_caption_in_title','1');
 		Variable::set('show_module_indicator','1');

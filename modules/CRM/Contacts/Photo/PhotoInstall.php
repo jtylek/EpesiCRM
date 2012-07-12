@@ -55,7 +55,7 @@ class CRM_Contacts_PhotoInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-        return array('package'=>'CRM', 'option'=>'Contact Photo');
+        return array('package'=>__('CRM'), 'option'=>__('Contact Photo'));
 	}
 	
 }

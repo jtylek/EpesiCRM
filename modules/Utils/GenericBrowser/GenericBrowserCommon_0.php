@@ -11,14 +11,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_GenericBrowserCommon extends ModuleCommon {
 	public static function user_settings(){
-		return array('Browsing tables'=>array(
-			array('name'=>'per_page','label'=>'Records per page','type'=>'select','values'=>array(5=>5,10=>10,20=>20,50=>50,100=>100),'default'=>20, 'translate'=>false),
-			array('name'=>'actions_position','label'=>'Position of \'Actions\' column','type'=>'radio','values'=>array(0=>'Left',1=>'Right'),'default'=>0),
-			array('name'=>'adv_search','label'=>'Advanced search by default','type'=>'bool','default'=>0),
-			array('name'=>'adv_history','label'=>'Advanced order history','type'=>'bool','default'=>0),
-			array('name'=>'display_no_records_message','label'=>'Hide \'No records found\' message','type'=>'bool','default'=>0),
-			array('name'=>'show_all_button','label'=>'Display \'Show all\' button','type'=>'bool','default'=>1),
-			array('name'=>'zoom_actions','label'=>'Zoom "Actions" buttons','type'=>'select', 'values'=>array(0=>'Never', 1=>'For mobile devices', 2=>'Always'),'default'=>1)
+		return array(__('Browsing tables')=>array(
+			array('name'=>'per_page','label'=>__('Records per page'),'type'=>'select','values'=>array(5=>5,10=>10,20=>20,50=>50,100=>100),'default'=>20),
+			array('name'=>'actions_position','label'=>__('Position of \'Actions\' column'),'type'=>'radio','values'=>array(0=>__('Left'),1=>__('Right')),'default'=>0),
+			array('name'=>'adv_search','label'=>__('Advanced search by default'),'type'=>'bool','default'=>0),
+			array('name'=>'adv_history','label'=>__('Advanced order history'),'type'=>'bool','default'=>0),
+			array('name'=>'display_no_records_message','label'=>__('Hide \'No records found\' message'),'type'=>'bool','default'=>0),
+			array('name'=>'show_all_button','label'=>__('Display \'Show all\' button'),'type'=>'bool','default'=>1),
+			array('name'=>'zoom_actions','label'=>__('Zoom "Actions" buttons'),'type'=>'select', 'values'=>array(0=>__('Never'), 1=>__('For mobile devices'), 2=>__('Always')),'default'=>1)
 			));
 	}
 	

@@ -18,11 +18,11 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     public static function menu() {
         if (!Base_AclCommon::i_am_sa() || TRIAL_MODE)
             return;
-        $text = 'EPESI registration';
+        $text = _M('EPESI Registration');
         if (!self::get_license_key()) {
-            $text = 'Register EPESI!';
+            $text = _M('Register EPESI!');
         }
-        return array('Help' => array('__submenu__' => 1, $text => array()));
+        return array(_M('Help') => array('__submenu__' => 1, $text => array()));
     }
 
     public static function get_server_url() {
@@ -143,7 +143,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function admin_caption() {
-        return "EPESI Registration";
+        return __("EPESI Registration");
     }
 
     public static function get_support_email() {
@@ -199,8 +199,8 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         $buttons = '';
         if ($load_by_js) {
             self::client_messages_load_by_js();
-            $hide_all = Base_LangCommon::ts('Base/EssClient', 'Hide messages');
-            $show_discarded = Base_LangCommon::ts('Base/EssClient', 'Show discarded');
+            $hide_all = __( 'Hide messages');
+            $show_discarded = __( 'Show discarded');
             $buttons .= "<div class=\"button\" id=\"client_messages_frame_hide\">$hide_all</div>";
             $buttons .= "<div class=\"button\" id=\"client_messages_frame_show_discarded\">$show_discarded</div>";
         }
@@ -216,9 +216,9 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     private static function format_client_messages($cleanup = true) {
         $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
 
-        $ret = self::format_messages_frame('#FFCCCC', 'Error messages:', $msgs[2])
-                . self::format_messages_frame('#FFDD99', 'Warning messages:', $msgs[1])
-                . self::format_messages_frame('#DDFF99', 'Information messages:', $msgs[0]);
+        $ret = self::format_messages_frame('#FFCCCC', __('Error messages').':', $msgs[2])
+                . self::format_messages_frame('#FFDD99', __('Warning messages').':', $msgs[1])
+                . self::format_messages_frame('#DDFF99', __('Information messages').':', $msgs[0]);
 
         if ($cleanup) {
             Module::static_unset_module_variable('Base/EssClient', 'messages');
@@ -230,7 +230,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         $ret = '';
         if (count($messages)) {
             $ret .= '<div class="popup_notice" style="background-color:' . $bg_color . '">';
-            $ret .= Base_LangCommon::ts('Base/EssClient', $title);
+            $ret .= $title;
             foreach ($messages as $m)
                 $ret .= '<div class="popup_notice_frame">' . $m . '</div>';
             $ret .= '</div>';

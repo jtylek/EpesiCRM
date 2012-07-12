@@ -53,7 +53,7 @@ class Utils_FileDownload extends Module {
 		eval_js_once('utils_filedownload_check_completed = function(id){stat=document.getElementById(id);'.
 				'if(stat && stat.innerHTML==\'Finished\'){
 					stat.innerHTML=\'Processing downloaded file\';'.
-					$this->create_href_js(array('download_complete_'.$this->get_path()=>1),$this->t('Download finished'),'queue').
+					$this->create_href_js(array('download_complete_'.$this->get_path()=>1),__('Download finished'),'queue').
 				'}setTimeout(\'utils_filedownload_check_completed("\'+id+\'")\',500);}');
 		DB::Execute('INSERT INTO utils_filedownload_files(path,size) VALUES (%s,-1)',array($file));
 		$this->set_module_variable('download_id',DB::Insert_ID('utils_downloadfile_files','id'));

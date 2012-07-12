@@ -53,7 +53,7 @@ class Base_SetupInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return array('package'=>'EPESI Core', 'version'=>'25032012', 'icon'=>true, 'url'=>'http://www.epesibim.com');
+		return array('package'=>__('EPESI Core'), 'version'=>'25032012', 'icon'=>true, 'url'=>'http://www.epesibim.com');
 	}
 }
 ?>

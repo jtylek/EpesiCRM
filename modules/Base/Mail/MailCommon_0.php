@@ -20,7 +20,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	 * For internal use only.
 	 */
 	public static function admin_caption() {
-		return 'Mail server settings';
+		return __('Mail server settings');
 	}
 	
 	/**
@@ -41,7 +41,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	public static function check_sending_method($critical=false) {
 		$msg = false;
 		if (Variable::get('mail_method') != 'smtp' && HOSTING_MODE) {
-			$msg = Base_LangCommon::ts('Base_Mail','Mail server configuration error');
+			$msg = __('Mail server configuration error');
 		}
 		if ($msg) Base_StatusBarCommon::message($msg,'error');
 	}

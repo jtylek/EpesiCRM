@@ -40,7 +40,7 @@ class Applets_CalcInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-        return array('package'=>'EPESI Core', 'option'=>'Additional applets');
+        return array('package'=>__('EPESI Core'), 'option'=>__('Additional applets'));
 	}
 
 }

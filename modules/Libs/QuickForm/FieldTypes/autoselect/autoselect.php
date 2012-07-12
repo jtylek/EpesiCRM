@@ -52,7 +52,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
     	$result = call_user_func_array($callback, $args);
     	$ret = '<ul style="width:auto;">';
     	if (empty($result)) {
-			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.Base_LangCommon::ts('Libs/QuickForm','No records founds').'</span></li>';
+			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records founds').'</span></li>';
     	}
 		if (is_array($result)) {
 			foreach ($result as $k=>$v) {
@@ -97,7 +97,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			}
 				
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
-			$hint = Base_LangCommon::ts('Libs/QuickForm','Start typing to search...');
+			$hint = __('Start typing to search...');
 			$strHtml .= '<option value="">'.$hint.'</option>';
 //			eval_js('set_style_for_search_tip = function(el){if($(el).value=="__SEARCH_TIP__")$(el).className="autoselect_search_tip";else $(el).className=""}');
 //			eval_js('set_style_for_search_tip("'.$myName.'");');

@@ -25,13 +25,13 @@
  * - __constructor_arguments__ - string argument passed to function
  * - __weight__ - integer that specifies weight of menu entry
  * Example:
- *  return array(	'Label 1'=>array('variable1'=>'value2'),
- *  				'Label 2'=>array('variable1'=>'value2'));
+ *  return array(	_M('Label 1')=>array('variable1'=>'value2'),
+ *  				_M('Label 2')=>array('variable1'=>'value2'));
  * You should limit number of labels on the top level to minimum (preferably one). If you need more options, place them in __submenu__:
- *  return array('My module menu'=>array(	'Label 1'=>array('variable1'=>'value2'),
+ *  return array(_M('My module menu')=>array(	_M('Label 1')=>array('variable1'=>'value2'),
  * 											'__split__'=>1,
- *  										'Label 2'=>array('variable2'=>'value3'),
- *  										'Label 3'=>array('variable3'=>'value4'),
+ *  										_M('Label 2')=>array('variable2'=>'value3'),
+ *  										_M('Label 3')=>array('variable3'=>'value4'),
  *  										'__submenu__'=>1));
  *
  * @author Paul Bukowski <pbukowski@telaxus.com> and Kuba Slawinski <kslawinski@telaxus.com>
@@ -50,7 +50,7 @@ class Base_Menu extends Module {
 	private static $tmp_menu;
 	private $duplicate = false;
 
-	private function build_menu(& $menu, & $m) {
+	private function build_menu(& $menu, & $m, $translate=true) {
 		foreach($m as $k=>$arr) {
 			if($k=='__split__')
 				$menu->add_split();
@@ -92,16 +92,17 @@ class Base_Menu extends Module {
 				} else
 					$url = null;
 
+				if ($translate) $k = _V($k);
 				if(array_key_exists('__submenu__', $arr)) {
 					unset($arr['__submenu__']);
-					$menu->begin_submenu(Base_LangCommon::ts('Base_Menu',$k),$icon);
-					$this->build_menu($menu, $arr);
+					$menu->begin_submenu($k,$icon);
+					$this->build_menu($menu, $arr, $translate);
 					$menu->end_submenu();
 				} else {
 					if($url)
-						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), $url,$icon);
+						$menu->add_link($k, $url,$icon);
 					else {
-						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), 'javascript:'.Base_MenuCommon::create_href_js($this,$arr) ,$icon);
+						$menu->add_link($k, 'javascript:'.Base_MenuCommon::create_href_js($this,$arr) ,$icon);
 					}
 				}
 			}
@@ -117,7 +118,7 @@ class Base_Menu extends Module {
 				if (is_array($menu[$k]) && array_key_exists('__submenu__',$menu[$k])) {
 					self::add_menu($menu[$k],$v);
 				} elseif(is_array($v)) {
-					$c = Base_LangCommon::ts('Base/Menu','submenu');
+					$c = __('submenu');
 					if(is_array($menu[$k]) && array_key_exists('__submenu__',$menu[$k]))
 						$menu[$k][str_replace('_',': ',$v['box_main_module'])] = $v;
 					elseif(is_array($v) && array_key_exists('__submenu__',$v)) {
@@ -201,7 +202,7 @@ class Base_Menu extends Module {
 		if (empty($qaccess_menu)) return;
 
 		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");
-		$this->build_menu($menu_mod,$qaccess_menu);
+		$this->build_menu($menu_mod,$qaccess_menu,false);
 
 		$theme = & $this->init_module('Base/Theme');
 

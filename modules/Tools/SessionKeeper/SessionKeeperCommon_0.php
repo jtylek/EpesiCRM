@@ -14,19 +14,19 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tools_SessionKeeperCommon extends ModuleCommon {
     public static function user_settings(){
         $time = ini_get("session.gc_maxlifetime");
-        $def = array('default'=>'default server time ('.($time/60).' minutes)');
+        $def = array('default'=>__('default server time (%s minutes)', array($time/60)));
         if($time<1800)
-            $def['1800']='30 minutes';
+            $def['1800']=__('30 minutes');
         if($time<3600)
-            $def['3600']='1 hour';
+            $def['3600']=__('1 hour');
         if($time<7200)
-            $def['7200']='2 hours';
+            $def['7200']=__('2 hours');
         if($time<14400)
-            $def['14400']='4 hours';
+            $def['14400']=__('4 hours');
         if($time<28800)
-            $def['28800']='8 hours';
-        return array('Misc'=>array(
-            array('name'=>'time','label'=>'Keep session at least','type'=>'select','values'=>$def,'default'=>'default','reload'=>true)
+            $def['28800']=__('8 hours');
+        return array(__('Misc')=>array(
+            array('name'=>'time','label'=>__('Keep session at least'),'type'=>'select','values'=>$def,'default'=>'default','reload'=>true)
             ));
     }
 

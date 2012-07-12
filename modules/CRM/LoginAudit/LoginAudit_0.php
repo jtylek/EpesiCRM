@@ -20,7 +20,7 @@ class CRM_LoginAudit extends Module {
 			$ok1 = $row['ip_address'] == $_SERVER['REMOTE_ADDR']; 
 			$ok2 = DB::GetOne('SELECT 1 FROM base_login_audit b WHERE (SELECT MIN(b2.start_time) FROM base_login_audit b2 WHERE b2.ip_address=%s)<b.start_time AND (SELECT MAX(b3.start_time) FROM base_login_audit b3 WHERE b3.ip_address=%s)>b.start_time AND b.ip_address!=%s',array($row['ip_address'],$row['ip_address'],$row['ip_address']));
 			$ok = $ok1 || $ok2;
-			print(($ok?'<div style="padding:7px;">':'<div style="padding:7px;background-color: red; color:white; font-weight:bold;">').$this->t('On: %s',array($row['start_time'])).'<br />'.$this->t('Host name: %s',array($row['host_name'])).'<br />'.$this->t('IP address: %s',array( $row['ip_address'])).'</div>');
+			print(($ok?'<div style="padding:7px;">':'<div style="padding:7px;background-color: red; color:white; font-weight:bold;">').__('On: %s',array($row['start_time'])).'<br />'.__('Host name: %s',array($row['host_name'])).'<br />'.__('IP address: %s',array( $row['ip_address'])).'</div>');
 		}
 	}
 	
@@ -32,34 +32,34 @@ class CRM_LoginAudit extends Module {
 				location(array());
 			return;
 		}
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
         $user = $this->get_module_variable('filter_user',-1);
         $form = $this->init_module('Libs/QuickForm',null,'filter');
         $form->setDefaults(array('users'=>$user));
-        $ret = DB::Execute('SELECT id FROM user_login');
-	            $users = array(-1=>$this->t('All'));
-	            while($row = $ret->FetchRow())
-	                $users[$row['id']] = Base_UserCommon::get_user_login($row['id']);
-				asort($users);
-	            $form->addElement('select','users',$this->t('Select user'), $users, 'onChange="'.$form->get_submit_form_js().'"');
+        $ret = DB::Execute('SELECT id, active FROM user_login ORDER BY active DESC, login ASC');
+		$el = $form->addElement('select','users',__('Select user'), array(), 'onChange="'.$form->get_submit_form_js().'"');
+		$el->addOption(__('All'),-1);
+		while($row = $ret->FetchRow()) {
+			$el->addOption(Base_UserCommon::get_user_login($row['id']),$row['id'],$row['active']?null:array('style'=>'background-color: lightgray;'));
+		}
 		$user = $form->exportValue('users');
-        $form->display();
+        $form->display_as_row();
         $this->set_module_variable('filter_user',$user);
 
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'login_audit');
 
 		$gb->set_table_columns(array(
-						array('name'=>$this->t('<b>Login</b> [uid] -> User Name'),'order'=>'b.user_login_id','width'=>20),
-						array('name'=>$this->t('Start'), 'order'=>'b.start_time', 'width'=>15),
-						array('name'=>$this->t('End'),'order'=>'b.end_time','width'=>15),
-                        array('name'=>$this->t('Duration'),'width'=>10),
-                        array('name'=>$this->t('IP Address'),'order'=>'b.ip_address','width'=>10),
-                        array('name'=>$this->t('Host Name'),'order'=>'b.host_name','width'=>30)));
+						array('name'=>__('<b>Login</b> [uid] -> User Name'),'order'=>'b.user_login_id','width'=>20),
+						array('name'=>__('Start'), 'order'=>'b.start_time', 'width'=>15),
+						array('name'=>__('End'),'order'=>'b.end_time','width'=>15),
+                        array('name'=>__('Duration'),'width'=>10),
+                        array('name'=>__('IP Address'),'order'=>'b.ip_address','width'=>10),
+                        array('name'=>__('Host Name'),'order'=>'b.host_name','width'=>30)));
 
-        $gb->set_default_order(array($this->t('End')=>'DESC'));
+        $gb->set_default_order(array(__('End')=>'DESC'));
 
-		if($user>=0){
+		if($user>0){
             $query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name FROM base_login_audit b WHERE b.user_login_id='.$user;
             $query_qty = 'SELECT count(b.id) FROM base_login_audit b WHERE b.user_login_id='.$user;
         } else {
@@ -73,7 +73,7 @@ class CRM_LoginAudit extends Module {
 			while(($row=$ret->FetchRow())) {
 				$c = CRM_ContactsCommon::get_contact_by_user_id($row['user_login_id']);
                 $ulogin = Base_UserCommon::get_user_login($row['user_login_id']);
-                $uid = $this->t('Contact not set');
+                $uid = __('Contact not set');
                 if($c) {
                         $uid = $c['first_name'].' '.$c['last_name'];
                         }
@@ -85,7 +85,7 @@ class CRM_LoginAudit extends Module {
 		$this->display_module($gb);
 
 	if(!DEMO_MODE)
-	        Base_ActionBarCommon::add('settings','Maintenance',$this->create_callback_href(array($this, 'purge_log')));
+	        Base_ActionBarCommon::add('settings',__('Maintenance'),$this->create_callback_href(array($this, 'purge_log')));
         return true;
 	}
 
@@ -96,9 +96,9 @@ class CRM_LoginAudit extends Module {
 
         $form = $this->init_module('Libs/QuickForm',null,'purge_date');
 
-        $form->addElement('header',null,$this->t('Audit Log Maintenance'));
-        $form -> addElement('html','<tr><td colspan=2><br />'.$this->t('Purge log with records older than specified number of days:').'</td></tr>');
-        $form->addElement('select','purge_date',$this->t('Select number of days'), array(30=>30,90=>90,365=>365,1=>'All'));
+        $form->addElement('header',null,__('Audit Log Maintenance'));
+        $form -> addElement('html','<tr><td colspan=2><br />'.__('Purge log with records older than specified number of days:').'</td></tr>');
+        $form->addElement('select','purge_date',__('Select number of days'), array(30=>30,90=>90,365=>365,1=>'All'));
 		$purge_date = $form->exportValue('purge_date');
         $form->display();
 
@@ -109,16 +109,16 @@ class CRM_LoginAudit extends Module {
             if ($purge_date==1) {
                 $sql_query = 'Delete FROM base_login_audit';
                 $ret = DB::Execute($sql_query);
-                print ($this->t('Entire log was be purged!'));
+                print (__('Entire log was be purged!'));
             } else {
                 $sql_query = 'Delete FROM base_login_audit where start_time < \''.$sql_date.'\'';
                 $ret = DB::Execute($sql_query);
-                print ($this->t('Records older than ').$purge_date.$this->t(' days (').date('Y-m-d',$del_date).$this->t(') were purged.'));
+                print (__('Records older than %s days (%s) were purged.', array($purge_date, date('Y-m-d',$del_date))));
             }
         }
 
-        Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-        Base_ActionBarCommon::add('delete','Purge Log File','href="javascript:void(0)" onClick="if(confirm(\''.Epesi::escapeJS($this->t('Log will be purged!')).'\')){'.$form->get_submit_form_js().'}"');
+        Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
+        Base_ActionBarCommon::add('delete',__('Purge Log File'),'href="javascript:void(0)" onClick="if(confirm(\''.Epesi::escapeJS(__('Log will be purged!')).'\')){'.$form->get_submit_form_js().'}"');
         return true;
     }
 }

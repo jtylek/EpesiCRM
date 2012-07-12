@@ -13,11 +13,11 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 	public static function show($name,$function = '',$mode=null,$first_day_of_week=null,$pos_js=null,$label=null,$default=null) {
 		if ($label===null) {
 			if($mode=='month') {
-				$label = Base_LangCommon::ts('Utils_PopupCalendar','Select month');
+				$label = __('Select month');
 			} elseif($mode=='year') {
-				$label = Base_LangCommon::ts('Utils_PopupCalendar','Select year');
+				$label = __('Select year');
 			} else {
-				$label = Base_LangCommon::ts('Utils_PopupCalendar','Select date');
+				$label = __('Select date');
 			}
 		}
 
@@ -70,8 +70,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		$js = 'var datepicker_'.$name.' = new Utils_PopupCalendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\',\''.$mode.'\',\''.$first_day_of_week.'\',';
 		$months = array('January','February','March','April','May','June','July','August','September','October','November','December');
 		$days = array('Sun', 'Mon','Tue','Wed','Thu','Fri','Sat');
-		foreach ($months as $k=>$m) $months[$k] = Base_LangCommon::ts('Utils_PopupCalendar', $m);
-		foreach ($days as $k=>$d) $days[$k] = Base_LangCommon::ts('Utils_PopupCalendar', $d);
+		foreach ($months as $k=>$m) $months[$k] = _V($m);
+		foreach ($days as $k=>$d) $days[$k] = _V($d);
 		$js .= 'new Array(\''.implode('\',\'', $months).'\'),';
 		$js .= 'new Array(\''.implode('\',\'', $days).'\')';
 		$js .= ');'.
@@ -85,8 +85,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 	public static function user_settings() {
 		if(Acl::is_user()) {
 			return array(
-				'Calendar'=>array(
-					array('name'=>'first_day_of_week','label'=>'First day of week', 'type'=>'select', 'values'=>array(0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednesday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday'), 'default'=>0),
+				__('Calendar')=>array(
+					array('name'=>'first_day_of_week','label'=>__('First day of week'), 'type'=>'select', 'values'=>array(0=>__('Sunday'), 1=>__('Monday'), 2=>__('Tuesday'), 3=>__('Wednesday'), 4=>__('Thursday'), 5=>__('Friday'), 6=>__('Saturday')), 'default'=>0),
 				)
 			);
 		}

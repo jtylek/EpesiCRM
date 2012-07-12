@@ -13,14 +13,13 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_AssetsInstall extends ModuleInstall {
 
     public function install() {
-	Base_LangCommon::install_translations($this->get_type());
-        Utils_CommonDataCommon::new_array('crm_assets_category', array('Desktop', 'Server', 'Notebook', 'Monitor', 'Printer', 'Other'), true, true);
-        Utils_CommonDataCommon::new_array('crm_assets_monitor_type', array('CRT', 'LCD', 'Other'));
-        Utils_CommonDataCommon::new_array('crm_assets_printer_type', array('Ink', 'Laser', 'Other'));
+        Utils_CommonDataCommon::new_array('crm_assets_category', array(_M('Desktop'), _M('Server'), _M('Notebook'), _M('Monitor'), _M('Printer'), _M('Other')), true, true);
+        Utils_CommonDataCommon::new_array('crm_assets_monitor_type', array(_M('CRT'), _M('LCD'), _M('Other')));
+        Utils_CommonDataCommon::new_array('crm_assets_printer_type', array(_M('Ink'), _M('Laser'), _M('Other')));
 
         $fields = array(
             array(
-                'name'=>'Asset ID',
+                'name' => _M('Asset ID'),
                 'type'=>'calculated',
                 'param'=>Utils_RecordBrowserCommon::actual_db_type('text', 16),
                 'extra'=>false,
@@ -28,14 +27,14 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'display_callback'=>array('CRM_AssetsCommon', 'display_asset_id')
             ),
             array(
-                'name'=>'Active',
+                'name' => _M('Active'),
                 'type'=>'checkbox',
                 'extra'=>false,
                 'visible'=>true,
                 'filter'=>true
             ),
             array(
-                'name'=>'Category',
+                'name' => _M('Category'),
                 'type'=>'commondata',
                 'param'=>array('crm_assets_category'),
                 'extra'=>false,
@@ -45,7 +44,7 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'QFfield_callback'=>array('CRM_AssetsCommon', 'QFfield_category')
             ),
             array(
-                'name'=>'Asset Name',
+                'name' => _M('Asset Name'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false,
@@ -53,13 +52,13 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'required'=>true
             ),
             array(
-                'name'=>'Asset Tag',
+                'name' => _M('Asset Tag'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'Company',
+                'name' => _M('Company'),
                 'type'=>'crm_company',
                 'extra'=>false,
                 'visible'=>true,
@@ -67,25 +66,25 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'filter'=>true
             ),
             array(
-                'name'=>'Date Purchased',
+                'name' => _M('Date Purchased'),
                 'type'=>'date',
                 'extra'=>false
             ),
             /*************** COMMON ***************/
             array(
-                'name'=>'Serial Number',
+                'name' => _M('Serial Number'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'IP Address',
+                'name' => _M('IP Address'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'General Info',
+                'name' => _M('General Info'),
                 'type'=>'calculated',
                 'extra'=>false,
                 'visible'=>true,
@@ -94,74 +93,74 @@ class CRM_AssetsInstall extends ModuleInstall {
             ),
             /*************** COMPUTER ***************/
             array(
-                'name'=>'Host Name',
+                'name' => _M('Host Name'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'Operating System',
+                'name' => _M('Operating System'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'Processor',
+                'name' => _M('Processor'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'RAM',
+                'name' => _M('RAM'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'HDD',
+                'name' => _M('HDD'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'Optical Devices',
+                'name' => _M('Optical Devices'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'Audio',
+                'name' => _M('Audio'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             array(
-                'name'=>'Software',
+                'name' => _M('Software'),
                 'type'=>'long text',
                 'extra'=>false
             ),
             /*************** Monitor ***************/
             array(
-                'name'=>'Display Type',
+                'name' => _M('Display Type'),
                 'type'=>'commondata',
                 'extra'=>false,
                 'param'=>array('crm_assets_monitor_type')
             ),
             array(
-                'name'=>'Screen Size',
+                'name' => _M('Screen Size'),
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
             ),
             /*************** Printer ***************/
             array(
-                'name'=>'Printer Type',
+                'name' => _M('Printer Type'),
                 'type'=>'commondata',
                 'extra'=>false,
                 'param'=>array('order_by_key'=>true, 'crm_assets_printer_type')
             ),
             array(
-                'name'=>'Color Printing',
+                'name' => _M('Color Printing'),
                 'type'=>'checkbox',
                 'extra'=>false
             ),
@@ -170,7 +169,7 @@ class CRM_AssetsInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::install_new_recordset('crm_assets', $fields);
         Utils_RecordBrowserCommon::set_recent('crm_assets', 10);
         Utils_RecordBrowserCommon::set_favorites('crm_assets', true);
-        Utils_RecordBrowserCommon::set_caption('crm_assets', 'Assets');
+        Utils_RecordBrowserCommon::set_caption('crm_assets', _M('Assets'));
         Utils_RecordBrowserCommon::set_quickjump('crm_assets', 'Asset Name');
         Utils_RecordBrowserCommon::set_icon('crm_assets', Base_ThemeCommon::get_template_filename('CRM/Assets', 'icon.png'));
         Utils_RecordBrowserCommon::register_processing_callback('crm_assets', array('CRM_AssetsCommon', 'process_request'));
@@ -178,7 +177,7 @@ class CRM_AssetsInstall extends ModuleInstall {
 
 		Utils_RecordBrowserCommon::add_default_access('crm_assets');
 
-        Utils_RecordBrowserCommon::new_addon('company', 'CRM/Assets', 'assets_addon', 'Assets');
+        Utils_RecordBrowserCommon::new_addon('company', 'CRM/Assets', 'assets_addon', _M('Assets'));
 		Utils_AttachmentCommon::new_addon('crm_assets');
 
         return true;
@@ -215,7 +214,7 @@ class CRM_AssetsInstall extends ModuleInstall {
     }
 
     public static function simple_setup() {
-        return array('package'=>'CRM', 'option'=>'Assets');
+        return array('package'=>__('CRM'), 'option'=>__('Assets'));
     }
 
 }

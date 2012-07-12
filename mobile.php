@@ -89,7 +89,7 @@ function mobile_menu() {
 				$weight = 0;
 				$color='white';
 			}
-			$menus_out[Base_LangCommon::ts('Utils_RecordBrowser',$cap)] = array($method,$args,$weight,$color);
+			$menus_out[$cap] = array($method,$args,$weight,$color);
 		}
 	}
 	$menus_out_tmp = $menus_out;

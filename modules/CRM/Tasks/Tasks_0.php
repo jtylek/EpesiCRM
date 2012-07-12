@@ -20,7 +20,7 @@ class CRM_Tasks extends Module {
 		$me = CRM_ContactsCommon::get_my_record();
 		CRM_CommonCommon::status_filter($this->rb);
 		$this->rb->set_filters_defaults(array('employees'=>$this->rb->crm_perspective_default(), 'status'=>'__NO_CLOSED__'));
-		$this->rb->set_custom_filter('longterm',array('type'=>'select','label'=>$this->t('Display tasks marked as'),'args'=>array('__NULL__'=>$this->t('Both'),1=>$this->t('Short term'),2=>$this->t('Long term')),'trans'=>array('__NULL__'=>array('!longterm'=>2),1=>array('!longterm'=>1),2=>array('longterm'=>1))));
+		$this->rb->set_custom_filter('longterm',array('type'=>'select','label'=>__('Display tasks marked as'),'args'=>array('__NULL__'=>__('Both'),1=>__('Shortterm'),2=>__('Longterm')),'trans'=>array('__NULL__'=>array('!longterm'=>2),1=>array('!longterm'=>1),2=>array('longterm'=>1))));
 		$this->rb->set_defaults(array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1));
 		$this->rb->set_default_order(array('deadline'=>'ASC', 'longterm'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'));
 		$this->display_module($this->rb);
@@ -28,10 +28,10 @@ class CRM_Tasks extends Module {
 	
 	public function applet($conf, & $opts) {
 		$opts['go'] = true;
-		$opts['title'] = Base_LangCommon::ts('CRM/Tasks','Tasks').
-						($conf['related']==0?Base_LangCommon::ts('CRM/Tasks',' - Todo'):'').
-						($conf['related']==1?Base_LangCommon::ts('CRM/Tasks',' - Related'):'').
-						($conf['term']=='s'?Base_LangCommon::ts('CRM/Tasks',' - short term'):($conf['term']=='l'?Base_LangCommon::ts('CRM/Tasks',' - long term'):''));
+		$opts['title'] = 
+						($conf['related']==0?__('Tasks - Todo'):'').
+						($conf['related']==1?__('Tasks - Related'):'').
+						($conf['term']=='s'?__('Tasks - short term'):($conf['term']=='l'?__('Tasks - long term'):''));
 		$me = CRM_ContactsCommon::get_my_record();
 		if ($me['id']==-1) {
 			CRM_ContactsCommon::no_contact_message();

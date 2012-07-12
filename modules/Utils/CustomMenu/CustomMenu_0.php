@@ -22,7 +22,7 @@ class Utils_CustomMenu extends Module {
 	 */
 	public function construct($id) {
 		if(!isset($id)) {
-			print($this->t('Menu Editor: no ID given - unable to edit menus'));
+			print(__('Menu Editor: no ID given - unable to edit menus'));
 			return;
 		}
 		
@@ -63,17 +63,17 @@ class Utils_CustomMenu extends Module {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'custommenu');
 		$data = $this->get_module_variable('data');
 		$gb->set_table_columns(array(
-			array('name'=>$this->t('Menu entry path'), 'width'=>70),
+			array('name'=>__('Menu entry path'), 'width'=>70),
 				));
 		foreach($data as $row) {
 			$r = & $gb->get_new_row();
 			$r->add_data($row);
 			$r->add_action($this->create_unique_href(array('edit'=>$row)),'Edit');
-			$r->add_action($this->create_confirm_callback_href($this->t('Are you sure?'),array($this,'delete_entry'),$row),'Delete');
+			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),array($this,'delete_entry'),$row),'Delete');
 		}
 		$this->display_module($gb);
 		
-		Base_ActionBarCommon::add('add','New menu entry',$this->create_unique_href(array('edit'=>false)));
+		Base_ActionBarCommon::add('add',__('New menu entry'),$this->create_unique_href(array('edit'=>false)));
 	}
 	
 	///////////////////////////////////////////////////////////////
@@ -94,14 +94,14 @@ class Utils_CustomMenu extends Module {
 		if($path)
 			$f->setDefaults(array('path'=>$path));
 
-		$f->addElement('text', 'path', $this->t('Menu entry path'),array('maxlength'=>255));
-		$f->addRule('path',$this->t('This field is required'),'required');
-		$f->addRule('path',$this->t('Field too long, max 255 chars'),'maxlength',255);
+		$f->addElement('text', 'path', __('Menu entry path'),array('maxlength'=>255));
+		$f->addRule('path',__('This field is required'),'required');
+		$f->addRule('path',__('Field too long, max 255 chars'),'maxlength',255);
 		$f->registerRule('check_path', 'callback', 'check_path', $this);
-		$f->addRule('path',$this->t('Specified path already exists'),'check_path');
+		$f->addRule('path',__('Specified path already exists'),'check_path');
 		
-		$save_b = & HTML_QuickForm::createElement('submit', null, $this->t('OK'));
-		$back_b = & HTML_QuickForm::createElement('button', null, $this->t('Cancel'), $this->create_back_href());
+		$save_b = & HTML_QuickForm::createElement('submit', null, __('OK'));
+		$back_b = & HTML_QuickForm::createElement('button', null, __('Cancel'), $this->create_back_href());
 		$f->addGroup(array($save_b,$back_b),'submit_button');
 		
 		if($f->validate()) {

@@ -74,19 +74,19 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			}
 		}
 		$pdf_theme = $this->pack_module('Base/Theme');
-		$pdf_theme->assign('description', array('label'=>$this->t('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
+		$pdf_theme->assign('description', array('label'=>__('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
 		if (!$no_details) {
 			$ev['status'] = Utils_CommonDataCommon::get_value('CRM/Status/'.$ev['status'],true);
 			$ev['access'] = self::$access[$ev['access']];
 			$ev['priority'] = self::$priority[$ev['priority']];
-			foreach (array('access', 'priority', 'status') as $v)
-				$pdf_theme->assign($v, array('label'=>$this->t(ucfirst($v)), 'value'=>$ev[$v]));
+			foreach (array('access'=>__('Access'), 'priority'=>__('Priority'), 'status'=>__('Status')) as $v=>$label)
+				$pdf_theme->assign($v, array('label'=>$label, 'value'=>$ev[$v]));
 			$created_by = CRM_ContactsCommon::get_contact_by_user_id($ev['created_by']);
 			if ($created_by!==null) $created_by = $created_by['last_name'].' '.$created_by['first_name'];
 			else $created_by = Base_UserCommon::get_user_login($ev['created_by']);
 			$created_on = Base_RegionalSettingsCommon::time2reg($ev['created_on'],false);
-			$pdf_theme->assign('created_on', array('label'=>$this->t('Created on'), 'value'=>$created_on));
-			$pdf_theme->assign('created_by', array('label'=>$this->t('Created by'), 'value'=>$created_by));
+			$pdf_theme->assign('created_on', array('label'=>__('Created on'), 'value'=>$created_on));
+			$pdf_theme->assign('created_by', array('label'=>__('Created by'), 'value'=>$created_by));
 			if ($ev['edited_by']!=null) {
 				$edited_by = CRM_ContactsCommon::get_contact_by_user_id($ev['edited_by']);
 				if ($edited_by!==null) $edited_by = $edited_by['last_name'].' '.$edited_by['first_name'];
@@ -96,9 +96,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$edited_by = '--';
 				$edited_on = '--';
 			}
-			$pdf_theme->assign('edited_on', array('label'=>$this->t('Edited on'), 'value'=>$edited_on));
-			$pdf_theme->assign('edited_by', array('label'=>$this->t('Edited by'), 'value'=>$edited_by));
-			$pdf_theme->assign('printed_on', array(	'label'=>$this->t('Printed on'),
+			$pdf_theme->assign('edited_on', array('label'=>__('Edited on'), 'value'=>$edited_on));
+			$pdf_theme->assign('edited_by', array('label'=>__('Edited by'), 'value'=>$edited_by));
+			$pdf_theme->assign('printed_on', array(	'label'=>__('Printed on'),
 													'value'=>Base_RegionalSettingsCommon::time2reg(time())));
 		}
 		$emps = array();
@@ -138,62 +138,59 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				
 			}
 		}
-		$pdf_theme->assign('employees', array(	'main_label'=>$this->t('Employees'),
-												'name_label'=>$this->t('Name'),
-												'mphone_label'=>$this->t('Mobile Phone'),
-												'wphone_label'=>$this->t('Work Phone'),
-												'hphone_label'=>$this->t('Home Phone'),
-												'lp_label'=>$this->t('Lp'),
+		$pdf_theme->assign('employees', array(	'main_label'=>__('Employees'),
+												'name_label'=>__('Name'),
+												'mphone_label'=>__('Mobile Phone'),
+												'wphone_label'=>__('Work Phone'),
+												'hphone_label'=>__('Home Phone'),
+												'lp_label'=>__('Lp'),
 												'data'=>$emps
 												));
-		$pdf_theme->assign('customers', array(	'main_label'=>$this->t('Customers'),
-												'name_label'=>$this->t('Name'),
-												'mphone_label'=>$this->t('Mobile Phone'),
-												'wphone_label'=>$this->t('Work Phone'),
-												'hphone_label'=>$this->t('Home Phone'),
-												'company_name'=>$this->t('Company Name'),
-												'lp_label'=>$this->t('Lp'),
+		$pdf_theme->assign('customers', array(	'main_label'=>__('Customers'),
+												'name_label'=>__('Name'),
+												'mphone_label'=>__('Mobile Phone'),
+												'wphone_label'=>__('Work Phone'),
+												'hphone_label'=>__('Home Phone'),
+												'company_name'=>__('Company Name'),
+												'lp_label'=>__('Lp'),
 												'data'=>$cuss
 												));
-		$pdf_theme->assign('customers_companies', array(	'main_label'=>$this->t('Customers Companies'),
-															'name_label'=>$this->t('Company Name'),
-															'phone_label'=>$this->t('Phone'),
-															'fax_label'=>$this->t('Fax'),
-															'address_label'=>$this->t('Address'),
-															'city_label'=>$this->t('City'),
-															'lp_label'=>$this->t('Lp'),
+		$pdf_theme->assign('customers_companies', array(	'main_label'=>__('Customers Companies'),
+															'name_label'=>__('Company Name'),
+															'phone_label'=>__('Phone'),
+															'fax_label'=>__('Fax'),
+															'address_label'=>__('Address'),
+															'city_label'=>__('City'),
+															'lp_label'=>__('Lp'),
 															'data'=>$cus_cmps
 															));
-		$pdf_theme->assign('title', array(	'label'=>$this->t('Title'),
+		$pdf_theme->assign('title', array(	'label'=>__('Title'),
 											'value'=>$ev['title']));
 		$start = Base_RegionalSettingsCommon::time2reg($ev['start'],false);
-		$pdf_theme->assign('start_date', array(	'label'=>$this->t('Start date'),
+		$pdf_theme->assign('start_date', array(	'label'=>__('Start Date'),
 												'value'=>$start,
-												'details'=>array('weekday'=>Base_LangCommon::ts('Utils_Calendar',date('l', strtotime($start))))));
+												'details'=>array('weekday'=>_V(date('l', strtotime($start)))))); // ****** date() - handled by Utils/Calendar
 		if (!isset($ev['timeless'])) {
-			$pdf_theme->assign('start_time', array(	'label'=>$this->t('Start time'),
+			$pdf_theme->assign('start_time', array(	'label'=>__('Start Time'),
 													'value'=>Base_RegionalSettingsCommon::time2reg($ev['start'],true,false)));
 			if (!isset($ev['end'])) trigger_error(print_r($ev,true));
-			$pdf_theme->assign('end_time', array(	'label'=>$this->t('End time'),
+			$pdf_theme->assign('end_time', array(	'label'=>__('End Time'),
 													'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],true,false)));
-			$duration = array(floor(($ev['end']-$ev['start'])/3600));
-			$format = '%d hours';
+			$hours = floor(($ev['end']-$ev['start'])/3600);
+			$format = __('%d hours', $hours);
 			$minutes = ($ev['end']-$ev['start'])%3600;
 			if ($minutes!=0) {
-				if ($duration[0]==0) {
-					$duration = array();
-					$format = '';
-				} else $format.= ', ';
-				$duration[] = $minutes/60;
-				$format .= '%d minutes';
+				if ($hours==0) $format = '';
+				else $format .= ', ';
+				$format .= __('%d minutes', $minutes/60);
 			}
-			$pdf_theme->assign('duration', array(	'label'=>$this->t('Duration'),
-													'value'=>$this->t($format,$duration)));
+			$pdf_theme->assign('duration', array(	'label'=>__('Duration'),
+													'value'=>$format));
 			if (date('Y-m-d',$ev['start'])!=date('Y-m-d',$ev['end']))
-				$pdf_theme->assign('end_date', array(	'label'=>$this->t('End date'),
+				$pdf_theme->assign('end_date', array(	'label'=>__('End Date'),
 														'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],false)));
-		} else $pdf_theme->assign('timeless', array(	'label'=>$this->t('Timeless'),
-														'value'=>$this->t('Yes')));
+		} else $pdf_theme->assign('timeless', array(	'label'=>__('Timeless'),
+														'value'=>__('Yes')));
 		$pdf_theme->assign('type',$type);
 		ob_start();
 		$pdf_theme->display('pdf_version');
@@ -209,7 +206,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$elements_name = array();
 		$default = array();
 		foreach ($custom_handlers as $k=>$v) {
-			$form->addElement('checkbox', 'events_handlers__'.$k, $this->t($v), null, array('onclick'=>'calendar_event_handlers_changed=1;'));
+			$form->addElement('checkbox', 'events_handlers__'.$k, _V($v), null, array('onclick'=>'calendar_event_handlers_changed=1;'));
 			$elements_name[$k] = 'events_handlers__'.$k;
 			$default[] = $k;
 		}
@@ -246,18 +243,18 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 		$label = 'Filter: Error';
 		$select_count = count($selected);
-		if ($select_count==count($custom_handlers)) $label = $this->t('All');
-		else $label = $this->t('Selection (%d)',array($select_count));
-		if ($select_count==1) $label = $this->t($custom_handlers[reset($selected)]);
-		if ($select_count==0) $label = $this->t('None');
+		if ($select_count==count($custom_handlers)) $label = __('All');
+		else $label = __('Selection (%d)',array($select_count));
+		if ($select_count==1) $label = _V($custom_handlers[reset($selected)]);
+		if ($select_count==0) $label = __('None');
 
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('elements_name', $elements_name);
 		$theme->assign('label', $label);
 
 		eval_js('calendar_event_handlers_message_default="'.$label.'";');
-		eval_js('calendar_event_handlers_message_processing="'.$this->t('Processing...').'";');
-		eval_js('calendar_event_handlers_message_confirm="'.$this->t('Save selection').'";');
+		eval_js('calendar_event_handlers_message_processing="'.__('Processing...').'";');
+		eval_js('calendar_event_handlers_message_confirm="'.__('Save selection').'";');
 
 		$form->assign_theme('form', $theme);
 		ob_start();
