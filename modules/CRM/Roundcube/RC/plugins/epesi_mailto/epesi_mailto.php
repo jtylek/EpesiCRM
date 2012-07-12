@@ -12,6 +12,7 @@ class epesi_mailto extends rcube_plugin
   {
     $this->add_hook('startup', array($this, 'startup'));
     $this->add_hook('login_after', array($this, 'logged'));
+    $this->add_hook('message_compose_body', array($this, 'set_body'));
     if(!isset($_SESSION['epesi_mailto'])) return;
     $rcmail = rcmail::get_instance();
 
@@ -24,7 +25,7 @@ class epesi_mailto extends rcube_plugin
   function startup($args)
   {
     if(isset($_GET['mailto'])) {
-        $_POST['_url'] = http_build_query(array('task' => 'mail', '_action' => 'compose', '_to' => $_GET['mailto']));
+        $_POST['_url'] = http_build_query(array('task' => 'mail', '_action' => 'compose', '_to' => $_GET['mailto'], '_subject'=>isset($_GET['subject'])?$_GET['subject']:''));
         $_SESSION['epesi_mailto'] = 1;
     }
 
@@ -36,4 +37,12 @@ class epesi_mailto extends rcube_plugin
         $_SESSION['epesi_mailto'] = 1;
     }
   }  
+  
+  function set_body($args) {
+    global $E_SESSION;
+    if(isset($E_SESSION['rc_body']) && isset($_SESSION['epesi_mailto'])) {
+        $args['body'] = $E_SESSION['rc_body'];
+    }
+    return $args;
+  }
 }

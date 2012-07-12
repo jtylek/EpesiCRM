@@ -140,6 +140,11 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function QFfield_attachments(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+	if(isset($_GET['rc_reply']) && $_GET['rc_reply']==$rb_obj->record['id']) {
+		Base_BoxCommon::push_module('CRM_Roundcube','new_mail',array($rb_obj->record['from'],(preg_match('/^Re:/i',$rb_obj->record['subject'])?'':'Re: ').$rb_obj->record['subject'],'<br /><br /><stron>On '.Base_RegionalSettingsCommon::time2reg($rb_obj->record['date']).', '.$rb_obj->record['from'].' wrote:</strong><br/>'.$rb_obj->record['body']));
+	}
+	Base_ActionBarCommon::add('back','Reply', Module::create_href(array('rc_reply'=>$rb_obj->record['id'])));
+//	Base_ActionBarCommon::add('edit','Forward', Base_BoxCommon::create_href($rb_obj,'CRM_Roundcube','new_mail',array($rb_obj->record['from'],(preg_match('/^Fwd:/i',$rb_obj->record['subject'])?'':'Fwd: ').$rb_obj->record['subject'])));
     }
 
     public static function display_attachments($record, $nolink, $desc) {
