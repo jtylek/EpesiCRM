@@ -211,11 +211,12 @@ class Base_EssClient extends Module {
         } else {
             if (ModuleManager::is_installed('CRM_Contacts') > -1) {
                 print('<span style="color:gray;font-size:10px;">' . __('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
-                $defaults = array_merge(CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company()), Base_EssClientCommon::get_possible_admin());
+				$defaults = Base_EssClientCommon::get_possible_admin();
+				$mc = CRM_ContactsCommon::get_main_company();
+                if ($mc) $defaults = array_merge(CRM_ContactsCommon::get_company($mc), $defaults);
                 $f->setDefaults($defaults);
             }
         }
-        //Base_ActionBarCommon::add('send', $data ? __('Update') : __('Register'), $f->get_submit_form_href());
         if ($data) {
             if (isset($data['status']) && strcasecmp($data['status'], 'Confirmed') == 0)
                 print(__('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
