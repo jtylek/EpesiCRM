@@ -1022,7 +1022,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if (!$values['set_password']) $values['set_password'] = null;
                 Base_User_LoginCommon::add_user($values['username'], $values['email'], $values['set_password']);
                 $values['login'] = Base_UserCommon::get_user_id($values['username']);
-				Base_AclCommon::change_privileges($values['login'], array(Base_AclCommon::get_group_id('Employee')));
+//				Base_AclCommon::change_privileges($values['login'], array(Base_AclCommon::get_group_id('Employee')));
             } else {
         		if ($values['login'])
 					Base_User_LoginCommon::change_user_preferences($values['login'], $values['email'], $values['set_password']);

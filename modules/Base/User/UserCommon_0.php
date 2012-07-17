@@ -40,12 +40,13 @@ class Base_UserCommon extends ModuleCommon {
 			print('Unable to add user to user_login table<br>');
 			return false;
 		}
-		$acl = Base_AclCommon::add_user(DB::Insert_ID('user_login','id'));
+/*		$acl = Base_AclCommon::add_user(DB::Insert_ID('user_login','id'));
 		if(!$acl) {
 			print('Unable to add user to ACL. Deleting user.');
 			DB::Execute('DELETE FROM user_login WHERE login=%s', array($username));
 		}
-		return $acl;
+		return $acl;*/
+		return true;
 	}
 
 
