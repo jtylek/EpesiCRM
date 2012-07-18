@@ -933,7 +933,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_tab = $tab.'_data_1 AS r';
         $vals = array();
         if (!$crits) $crits = array();
-		$access = self::get_access($tab, 'browse', null, $crits);
+		$access = self::get_access($tab, 'browse');
 		if ($access===false) return array();
 		elseif ($access!==true && is_array($access)) {
 			$crits = self::merge_crits($crits, $access);
@@ -1488,7 +1488,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($blocked_fields as $f)
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($id, $f));
 	}
-    public static function get_access($tab, $action, $record=null, $crits=null){
+    public static function get_access($tab, $action, $record=null){
         if (self::$admin_access && Base_AclCommon::i_am_admin()) {
             $ret = true;
         } elseif (isset($record[':active']) && !$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
@@ -2273,7 +2273,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			case 'text':		$ret = __('Enter the text in the text field');
 								if (isset($args[0])) $ret .= '<br />'.__('Maximum allowed length is %s characters', array('<b>'.$args[0].'</b>'));
 								return $ret;
-			case 'long text':	return __('Enter the text in the text area').'<br />'.__('Maximum allowed length is %s characters', array('<b>400</b>'));
+			case 'long text':	$example_text = __('Example text');
+								return __('Enter the text in the text area').'<br />'.__('Maximum allowed length is %s characters', array('<b>400</b>')).'<br/>'.'<br/>'.
+									__('BBCodes are supported:').'<br/>'.
+									'[b]'.$example_text.'[/b] - <b>'.$example_text.'</b>'.'<br/>'.
+									'[u]'.$example_text.'[/u] - <u>'.$example_text.'</u>'.'<br/>'.
+									'[i]'.$example_text.'[/i] - <i>'.$example_text.'</i>';
 			case 'date':		return __('Enter the date in your selected format').'<br />'.__('Click on the text field to bring up a popup Calendar that allows you to pick the date').'<br />'.__('Click again on the text field to close popup Calendar');
 			case 'timestamp':	return __('Enter the date in your selected format and the time using select elements').'<br />'.__('Click on the text field to bring up a popup Calendar that allows you to pick the date').'<br />'.__('Click again on the text field to close popup Calendar').'<br />'.__('You can change 12/24-hour format in Control Panel, Regional Settings');
 			case 'time':		return __('Enter the time using select elements').'<br />'.__('You can change 12/24-hour format in Control Panel, Regional Settings');
