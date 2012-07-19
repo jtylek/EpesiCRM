@@ -57,7 +57,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
         return $tcpdf;
     }
 
-    public static function prepare_header(& $tcpdf, $title='', $subject='', $printed_by=true, $logo_filename=null) {
+    public static function prepare_header(& $tcpdf, $title='', $subject='', $printed_by=true, $logo_filename=null, $l = array()) {
         if ($logo_filename===null) $logo_filename = Libs_TCPDFCommon::get_logo_filename();
         $default_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png');
         if (!file_exists($logo_filename)) $logo_filename = $default_filename;
@@ -72,7 +72,6 @@ class Libs_TCPDFCommon extends ModuleCommon {
         if ($title!==null) $tcpdf->SetHeaderData($logo_filename, PDF_HEADER_LOGO_WIDTH, $title, $subject);
 
         //set some language-dependent strings
-        $l=array();
         $l['a_meta_charset'] = "UTF-8";
         $l['a_meta_dir'] = "ltr";
         $l['a_meta_language'] = "pl";
@@ -81,9 +80,11 @@ class Libs_TCPDFCommon extends ModuleCommon {
         if ($who!==null) $who = $who['last_name'].' '.$who['first_name'];
         else $who= Base_UserCommon::get_user_login(Acl::get_user());
         $when = date('Y-m-d H:i:s');
-        $l['w_page'] = '';
-        if ($printed_by) $l['w_page'] .= __('Printed with %s by %s, on %s, ',array('EpesiBIM (http://www.epesibim.com)',$who,$when));
-        $l['w_page'] .= __('Page');
+        if (!isset($l['w_page'])) {
+			$l['w_page'] = '';
+			if ($printed_by) $l['w_page'] .= __('Printed with %s by %s, on %s, ',array('EpesiBIM (http://www.epesibim.com)',$who,$when));
+			$l['w_page'] .= __('Page');
+		}
         $tcpdf->setLanguageArray($l);
 
         //initialize document

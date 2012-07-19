@@ -161,6 +161,8 @@ if (!class_exists('TCPDF', false)) {
 	class TCPDF {
 		
 		// protected or Protected properties
+		protected $footer_border = 'T';
+		public function set_footer_border($arg='T') {$this->footer_border=$arg;}
 
 		/**
 		* @var current page number
@@ -2211,10 +2213,10 @@ if (!class_exists('TCPDF', false)) {
 			//Print page number
 			if ($this->getRTL()) {
 				$this->SetX($ormargins['right']);
-				$this->Cell(0, 0, $pagenumtxt, 'T', 0, 'L');
+				$this->Cell(0, 0, $pagenumtxt, $this->footer_border, 0, 'L');
 			} else {
 				$this->SetX($ormargins['left']);
-				$this->Cell(0, 0, $pagenumtxt, 'T', 0, 'R');
+				$this->Cell(0, 0, $pagenumtxt, $this->footer_border, 0, 'R');
 			}
 		}
 		
