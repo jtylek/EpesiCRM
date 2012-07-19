@@ -110,6 +110,21 @@ class CRM_Roundcube extends Module {
         $rs = $rb->tab;
         $id = $arg['id'];
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
+    	    $ok = true;
+            foreach($_SESSION['rc_mails_cp'] as $mid) {
+        	if(!DB::GetOne('SELECT active FROM rc_mails_data_1 WHERE id=%d',array($mid))) {
+        	    $c = false;
+        	    break;
+        	}
+                $c = Utils_RecordBrowserCommon::get_records_count('rc_mails_assoc',array('mail'=>$mid,'recordset'=>$rs,'record_id'=>$id));
+                if($rs == 'contact' || $rs=='company')
+            	    $c += Utils_RecordBrowserCommon::get_records_count('rc_mails',array('id'=>$mid, '(employee'=>$id,'|contacts'=>$id));
+                if($c) {
+            	    $ok = false;
+            	    break;
+            	}
+            }
+            if($ok) {
         	$this->lp = $this->init_module('Utils_LeightboxPrompt');
    			$this->lp->add_option('cancel', __('Cancel'), null, null);
         	$this->lp->add_option('paste', __('Paste'), Base_ThemeCommon::get_template_file($this->get_type(), 'copy.png'), null);
@@ -124,7 +139,8 @@ class CRM_Roundcube extends Module {
        			if($vals['option']=='paste')
        				$this->paste($rs,$id);
        		}
-            Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),__('Paste mail'), $this->lp->get_href());//$this->create_confirm_callback_href(__('Paste following email?'),array($this,'paste'),array($rs,$id)));
+        	Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),__('Paste mail'), $this->lp->get_href());//$this->create_confirm_callback_href(__('Paste following email?'),array($this,'paste'),array($rs,$id)));
+    	    }
         }
         
         $rb = $this->init_module('Utils/RecordBrowser','rc_mails','rc_mails');
@@ -137,7 +153,8 @@ class CRM_Roundcube extends Module {
         ));
         $rb->set_additional_actions_method(array($this, 'actions_for_mails'));
         $assoc_mail_ids = array();
-        foreach(Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('recordset'=>$rs,'record_id'=>$id),array('mail')) as $m)
+        $assoc_tmp = Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('recordset'=>$rs,'record_id'=>$id),array('mail'));
+        foreach($assoc_tmp as $m)
         $assoc_mail_ids[] = $m['mail'];
         if($rs=='contact') {
         	//$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));

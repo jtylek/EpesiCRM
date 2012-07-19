@@ -50,8 +50,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     
     
     public static function QFfield_epesi_user(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        $form->addElement('select', $field, $label,array($default=>Base_UserCommon::get_user_login($default)))->freeze();
-        $form->setDefaults(array($field=>$default));
+        $form->addElement('hidden', $field, $default);
     }
 
     public static function display_password($r, $nolink=null, $desc=array()) {
@@ -131,6 +130,22 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
             } else
                 $param['default_account']=1;
         }
+        return $param;
+    }
+
+    public static function submit_mail($param, $mode) {
+        if($mode=='delete') {
+	    $m = Base_BoxCommon::main_module_instance();
+	    $id = $m->record['id'];
+	    $rs = $m->tab;
+	    $c = Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('mail'=>$param['id'],'recordset'=>$rs,'record_id'=>$id),array('id'));
+	    if(count($c)) {
+		foreach($c as $cc)
+		    Utils_RecordBrowserCommon::delete_record('rc_mails_assoc',$cc['id']);
+		location(array());
+		return false;
+	    }
+	}
         return $param;
     }
 

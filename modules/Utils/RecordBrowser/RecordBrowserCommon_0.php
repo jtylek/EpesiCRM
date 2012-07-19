@@ -1638,13 +1638,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::check_table_name($tab);
         $current = DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id));
 		if ($current==($state?1:0)) return;
+	$values = self::record_processing($tab, self::get_record($tab, $id), $state?'restore':'delete');
+	if($values===false) return;
         Utils_WatchdogCommon::new_event($tab,$id,$state?'R':'D');
         DB::Execute('UPDATE '.$tab.'_data_1 SET active=%d WHERE id=%d',array($state?1:0,$id));
         DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
         $edit_id = DB::Insert_ID($tab.'_edit_history','id');
         DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state?'RESTORED':'DELETED')));
 
-		$values = self::record_processing($tab, self::get_record($tab, $id), $state?'restore':'delete');
     }
     public static function delete_record($tab, $id, $perma=false) {
         if (!$perma) self::set_active($tab, $id, false);
