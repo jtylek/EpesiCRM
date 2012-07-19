@@ -380,6 +380,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 						var reject=false;
 						eval(t.responseText);
 						if(!reject) {
+							setTimeout(function() {
 							if(Utils_Calendar.page_type=='month') {
 								droppable.append(element);
                                                                 element.attr('last_cell',droppable.attr('id'));
@@ -400,6 +401,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 //								zIndex: 1000
                                                                 stack: '.utils_calendar_event'
 							});
+							},1);
 						}
 						Epesi.procOn--;
 						Epesi.updateIndicator();
