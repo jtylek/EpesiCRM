@@ -807,7 +807,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$data = Utils_CommonDataCommon::get_translated_tree('Contacts/Access');
 		if (!is_array($data)) $data = array();
 		$form->addElement('multiselect', $field, $label, $data, array('id'=>$field));
-		//print_r($default);
 		$form->setDefaults(array($field=>$default));
 	}
     public static function QFfield_admin(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
@@ -939,6 +938,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $v = $record[$desc['id']];
         if (!$v)
             return '---';
+		if (!is_numeric($v)) return $v;
 		$login = Base_UserCommon::get_user_login($v);
 		if (!$nolink && Base_AclCommon::i_am_admin() && is_numeric($v)) $login = Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']).$login.Utils_RecordBrowserCommon::record_link_close_tag();
 		if (!Base_UserCommon::is_active($v)) {

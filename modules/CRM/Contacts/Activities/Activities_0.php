@@ -104,7 +104,7 @@ class CRM_Contacts_Activities extends Module {
 	public function filters() {	
 		$form = $this->init_module('Libs/QuickForm');
 		$form->addElement('header', 'display', __('Show'));
-		if (ModuleManager::is_installed('CRM/Meeting')!=-1) $form->addElement('checkbox', 'events', __('Events'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (ModuleManager::is_installed('CRM/Meeting')!=-1) $form->addElement('checkbox', 'events', __('Meetings'), null, array('onchange'=>$form->get_submit_form_js()));
 		if (ModuleManager::is_installed('CRM/Tasks')!=-1) $form->addElement('checkbox', 'tasks', __('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
 		if (ModuleManager::is_installed('CRM/PhoneCall')!=-1) $form->addElement('checkbox', 'phonecalls', __('Phonecalls'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('select', 'activities_date', str_replace(' ','&nbsp;',__('Activities date')), array(0=>__('Future'), 1=>__('Past'), 2=>__('All time')), array('onchange'=>$form->get_submit_form_js()));

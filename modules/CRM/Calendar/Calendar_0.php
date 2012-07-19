@@ -108,6 +108,7 @@ class CRM_Calendar extends Module {
 			if (isset($view)) {
 				$pdf = $this->pack_module('Libs/TCPDF', 'L');
 				if ($pdf->prepare()) {
+					set_time_limit(0);
 					$start = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['start']));
 					$end = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['end']));
 					$pdf->set_title($view.', '.$start.($view_type!='Day'?' - '.$end:''));

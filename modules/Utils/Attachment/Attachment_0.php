@@ -162,6 +162,7 @@ class Utils_Attachment extends Module {
 				$this->watchdog_id = $arg['id'];
 			}
 			$this->set_view_func(array('Utils_RecordBrowserCommon','create_default_linked_label'),array($rb->tab, $arg['id']));
+			$this->allow_protected(true, false);
 		}
 		if(!isset($this->group)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 	
