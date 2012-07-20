@@ -96,7 +96,7 @@ a.root_item_link_down {
 	background: url("Utils/Menu/arrow_down.png") no-repeat center left;
 }
 
-.root_item_link_down_arrow_icon {
+.epesi_rtl .root_item_link_down_arrow_icon {
 	margin: auto 5px auto auto;
 	float: right;
 }
