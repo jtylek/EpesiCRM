@@ -294,14 +294,16 @@ table.Utils_GenericBrowser > tbody > tr:hover {
     text-align: left;
     border-right: 1px solid #B3B3B3;
     border-bottom: 1px solid #B3B3B3;
-    height: 18px;
+    height: 14px;
     padding-left: 3px;
     padding-right: 3px;
     padding-top: 3px;
+    padding-bottom: 2px;
 	vertical-align: top;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	line-height: 14px;
 }
 .epesi_rtl .Utils_GenericBrowser__td {
     text-align: right;

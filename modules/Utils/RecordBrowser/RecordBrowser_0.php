@@ -1037,6 +1037,7 @@ class Utils_RecordBrowser extends Module {
 			self::$last_record = $this->record = $id;
 			$id = intVal($this->record['id']);
 		}
+		if ($id===0) $id = null;
         if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
 
         if($mode=='add') {
@@ -1460,7 +1461,7 @@ class Utils_RecordBrowser extends Module {
                 }
                 switch ($args['type']) {
                     case 'calculated':  $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
-										$form->addElement('static', $args['id'], $label, array('id'=>$args['id']));
+										$form->addElement('static', $args['id'], $label);
 //                                      if ($mode=='edit')
                                         if (!is_array($this->record))
                                             $values = $this->custom_defaults;
