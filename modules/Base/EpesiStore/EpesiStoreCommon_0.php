@@ -13,11 +13,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
-    const ACTION_BUY = 'buy'; 			// __('Buy')
-    const ACTION_PAY = 'pay'; 			// __('Pay')
+    const ACTION_BUY = 'buy';    // __('Buy')
+    const ACTION_PAY = 'pay';    // __('Pay')
     const ACTION_DOWNLOAD = 'download'; // __('Download')
-    const ACTION_UPDATE = 'update'; 	// __('Update')
-    const ACTION_INSTALL = 'install'; 	// __('Install')
+    const ACTION_UPDATE = 'update';  // __('Update')
+    const ACTION_INSTALL = 'install';  // __('Install')
     //
     const MOD_PATH = 'Base_EpesiStoreCommon';
     const CART_VAR = 'cart';
@@ -79,7 +79,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         }
         return array(__('Epesi Store') =>
             array_merge(
-                    array(array('name' => 'payments_header', 'label' => '', 'type' => 'header', 'default' => __( 'Payment credentials')))
+                    array(array('name' => 'payments_header', 'label' => '', 'type' => 'header', 'default' => __('Payment credentials')))
                     , $values));
     }
 
@@ -195,7 +195,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             $file = self::download_module_file($module_license);
             self::extract_module_file($file);
             self::store_info_about_downloaded_module($module_license, $file);
-            
+
             self::apply_patches();
             ModuleManager::create_common_cache();
             Base_ThemeCommon::themeup();
@@ -257,11 +257,11 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         $module_info = self::get_module_info($module_license['module']);
         self::add_downloaded_module($module_info['id'], $module_info['version'], $module_license['id'], $file);
     }
-    
+
     private static function apply_patches() {
         $patches = PatchUtil::apply_new();
-        foreach($patches as $patch) {
-            if(!$patch->get_apply_success()) {
+        foreach ($patches as $patch) {
+            if (!$patch->get_apply_success()) {
                 Base_EssClientCommon::add_client_message_error("Patch apply error. See patches log for more information (EPESI_DIR/data/patches_log.txt)");
             }
         }
@@ -283,7 +283,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         $mi = self::get_module_info($module_id);
         return $mi['total_price'] == "0";
     }
-    
+
     private static function _is_module_license_active($module_id) {
         return false !== self::_active_module_license_for_module($module_id);
     }
@@ -348,7 +348,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         switch ($action) {
             case self::ACTION_BUY:
                 $response = Base_EssClientCommon::server()->order_submit($module_id);
-                $return = isset($response[$module_id])?$response[$module_id]:false;
+                $return = isset($response[$module_id]) ? $response[$module_id] : false;
                 if ($return !== true)
                     break;
             case self::ACTION_PAY:
@@ -403,10 +403,10 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     private static function crc_file_matches($file, $crc) {
-        if(!is_readable($file))
+        if (!is_readable($file))
             return false;
         $file_crc = hexdec(@hash_file("crc32b", $file));
-        if($file_crc == $crc)
+        if ($file_crc == $crc)
             return true;
         // crc may be negative - sprintf as unsigned
         return $file_crc == sprintf("%u", $crc);
@@ -416,7 +416,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
      * Check if:
      * 1. zipped package is present in data dir
      * 2. files in zipped package matches files in epesi installation
-     * to compare files crc32b is used which is present if stat info of zip file
+     * to compare files crc32b is used which is present in stat info of zip file
      * @param int $module_id
      * @return boolean true when above requirements are satisfied, false otherwise
      */
@@ -426,13 +426,13 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             return false;
         $file = self::Instance()->get_data_dir() . $file;
         $zip = new ZipArchive();
-        if($zip->open($file) !== true)
+        if ($zip->open($file) !== true)
             return false;
-        
+
         $ret = true;
-        for($i = 0; $i < $zip->numFiles; $i++) {
+        for ($i = 0; $i < $zip->numFiles; $i++) {
             $stat = $zip->statIndex($i);
-            if(!self::crc_file_matches($stat['name'], $stat['crc'])) {
+            if (!self::crc_file_matches($stat['name'], $stat['crc'])) {
                 $ret = false;
                 break;
             }
@@ -447,43 +447,35 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     /**
      * Get downloaded modules list.
-     * Array keys are 'module_id', 'version', 'file' and 'module_license_id' as bought module id
+     * Array keys are 'module_id', 'version', 'file' and 'module_license_id'
      * @return array of data. 
      */
     public static function get_downloaded_modules() {
         $records = DB::GetAll('SELECT * FROM epesi_store_modules');
-        // TODO: remove this column name substitution
-        foreach ($records as & $r) {
-            if (isset($r['order_id'])) {
-                $r['module_license_id'] = $r['order_id'];
-                unset($r['order_id']);
-            }
-        }
         return $records;
     }
 
     private static function add_downloaded_module($module_id, $version, $module_license_id, $file) {
-        // TODO: change column name in db
         DB::Execute('DELETE FROM epesi_store_modules WHERE module_id=%d', array($module_id));
-        DB::Execute('INSERT INTO epesi_store_modules(module_id, version, order_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $module_license_id, $file));
+        DB::Execute('INSERT INTO epesi_store_modules(module_id, version, module_license_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $module_license_id, $file));
     }
-	
-	public static function is_update_available() {
-		$store = self::get_modules_all_available();
-		if(!$store)	return false;
-		static $updates = null;
-		if ($updates===null) {
-			$updates = false;
-			foreach ($store as $s) {
-				$label = self::next_possible_action($s['id']);
-				if ($label==self::ACTION_UPDATE) {
-					$updates = true;
-					break;
-				}
-			}
-		}
-		return $updates;
-	}
+
+    public static function is_update_available($force_check = false) {
+        $esu = Variable::get('epesi_store_updates', false);
+        $today = date('Ymd');
+        if ($force_check || !is_array($esu) || $esu['check_day'] != $today) {
+            $modules = self::get_downloaded_modules();
+            $updates = 0;
+            foreach ($modules as $m) {
+                if (!self::_is_module_up_to_date($m['module_id']))
+                    $updates++;
+            }
+            $esu = array('check_day' => $today, 'updates' => $updates);
+            Variable::set('epesi_store_updates', $esu);
+        }
+        return $esu['updates'];
+    }
+
 }
 
 ?>
