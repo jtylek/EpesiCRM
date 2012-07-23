@@ -82,7 +82,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
         $when = date('Y-m-d H:i:s');
         if (!isset($l['w_page'])) {
 			$l['w_page'] = '';
-			if ($printed_by) $l['w_page'] .= __('Printed with %s by %s, on %s, ',array('EpesiBIM (http://www.epesibim.com)',$who,$when));
+			if ($printed_by) $l['w_page'] .= __('Printed with %s by %s, on %s, ',array('EPESI (http://epe.si)',$who,$when));
 			$l['w_page'] .= __('Page');
 		}
         $tcpdf->setLanguageArray($l);

@@ -194,7 +194,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));
 
-        Variable::set('crm_roundcube_global_signature',"Message sent with EpesiBIM - managing business your way!<br /><a href=\"http://www.epesibim.com\">http://www.epesibim.com</a>");
+        Variable::set('crm_roundcube_global_signature',"Message sent with EPESI - managing business your way!<br /><a href=\"http://epe.si\">http://epe.si</a>");
 
 		Utils_RecordBrowserCommon::add_access('rc_accounts', 'view', 'ACCESS:employee', array('epesi_user'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('rc_accounts', 'add', 'ACCESS:employee');
