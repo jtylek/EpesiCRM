@@ -40,35 +40,58 @@ class Base_Admin extends Module {
 		location(array());
 	}
 	
+	public function sort_sections($tmp) {
+		$sections = array();
+		// Apply arbitrary order
+		foreach (array(__('User Management'), __('Features Configuration'), __('Data'), __('Regional Settings'), __('Server Configuration')) as $s) {
+			if (isset($tmp[$s])) {
+				$sections[$s] = $tmp[$s];
+				unset($tmp[$s]);
+			}
+		}
+		foreach ($tmp as $s=>$c)
+			$sections[$s] = $c;
+		// Apply arbitrary order
+		return $sections;
+	}
+	
 	private function list_admin_modules() {
 		$mod_ok = array();
+		$sections = array();
 		
 		$cmr = ModuleManager::call_common_methods('admin_caption');
 		foreach($cmr as $name=>$caption) {
 			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
 			if (Base_AdminCommon::get_access($name)==false) continue;
 			if(!isset($caption)) continue;
-			else $caption = $caption;
-			$mod_ok[$caption] = $name;
+			if (!is_array($caption)) {
+				$caption = array('label'=>$caption);
+			}
+			if (!isset($caption['section'])) $caption['section'] = __('Misc');
+			$mod_ok[$name] = $caption;
 		}
 		if (Base_AclCommon::i_am_sa())
-			$mod_ok[__('Admin Panel Access')] = 'Base_Admin';
+			Base_ActionBarCommon::add('settings', __('Admin Panel Access'), $this->create_callback_href(array($this, 'set_module'), array('Base_Admin')));
 
-		uksort($mod_ok,'strcasecmp');
-		
 		$buttons = array();
-		foreach($mod_ok as $caption=>$name) {
+		foreach($mod_ok as $name=>$caption) {
 			if (method_exists($name.'Common','admin_icon')) {
 				$icon = call_user_func(array($name.'Common','admin_icon'));
 			} else {
 				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
+				if (!file_exists($icon)) $icon = Base_ThemeCommon::get_template_file('Base_Admin','icon.png');
 			}
-			$buttons[]= array('link'=>'<a '.$this->create_callback_href(array($this, 'set_module'), array($name)).'>'.$caption.'</a>',
+			$buttons[$caption['section']][] = array('link'=>'<a '.$this->create_callback_href(array($this, 'set_module'), array($name)).'>'.$caption['label'].'</a>',
 						'icon'=>$icon);
 		}
+
+		foreach ($buttons as $section=>$b) {
+			$sections[$section] = array('header'=>$section, 'buttons'=>$b);
+		}
+		$sections = $this->sort_sections($sections);
+
 		$theme =  & $this->pack_module('Base/Theme');
-		$theme->assign('header', __('Modules settings'));
-		$theme->assign('buttons', $buttons);
+		$theme->assign('sections', $sections);
 		$theme->display();
 	}
 	
@@ -92,9 +115,12 @@ class Base_Admin extends Module {
 		$cmr = ModuleManager::call_common_methods('admin_caption');
 		foreach($cmr as $name=>$caption) {
 			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
-			if(!isset($caption)) $caption = $name.' module';
-			else $caption = $caption;
-			$mod_ok[$caption] = $name;
+			if (!isset($caption)) continue;
+			if (!is_array($caption)) {
+				$caption = array('label'=>$caption);
+			}
+			if (!isset($caption['section'])) $caption['section'] = __('Misc');
+			$mod_ok[$name] = $caption;
 		}
 		uksort($mod_ok,'strcasecmp');
 		
@@ -102,11 +128,12 @@ class Base_Admin extends Module {
 		
 		$buttons = array();
 		load_js('modules/Base/Admin/js/main.js');
-		foreach($mod_ok as $caption=>$name) {
+		foreach($mod_ok as $name=>$caption) {
 			if (method_exists($name.'Common','admin_icon')) {
 				$icon = call_user_func(array($name.'Common','admin_icon'));
 			} else {
 				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
+				if (!file_exists($icon)) $icon = Base_ThemeCommon::get_template_file('Base_Admin','icon.png');
 			}
 			$button_id = $name.'__button';
 			$enable_field = $name.'_enable';
@@ -131,8 +158,8 @@ class Base_Admin extends Module {
 					}
 			}
 			
-			$buttons[$name]= array(
-				'label'=>$caption,
+			$buttons[$caption['section']][$name]= array(
+				'label'=>$caption['label'],
 				'icon'=>$icon,
 				'id'=>$button_id,
 				'enable_switch'=>$enable_field,
@@ -144,23 +171,30 @@ class Base_Admin extends Module {
 		if ($form->validate()) {
 			$vals = $form->exportValues();
 			DB::Execute('DELETE FROM base_admin_access');
-			foreach ($buttons as $name=>$b) {
-				DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, '', (isset($vals[$b['enable_switch']]) && $vals[$b['enable_switch']])?1:0 ));
-				foreach ($b['sections'] as $s=>$f)
-					DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, $s, isset($vals[$f])?$vals[$f]:0 ));
-			}
+			foreach ($buttons as $section=>$bs)
+				foreach ($bs as $name=>$b) {
+					DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, '', (isset($vals[$b['enable_switch']]) && $vals[$b['enable_switch']])?1:0 ));
+					foreach ($b['sections'] as $s=>$f)
+						DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, $s, isset($vals[$f])?$vals[$f]:0 ));
+				}
 			$this->parent->reset();
 			return;
 		}
 
 		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
 
+		$sections = array();
+		foreach ($buttons as $section=>$b) {
+			$sections[$section] = array('header'=>$section, 'buttons'=>$b);
+		}
+		$sections = $this->sort_sections($sections);
+
 		$theme =  & $this->pack_module('Base/Theme');
 
 		$form->assign_theme('form', $theme);
 		
 		$theme->assign('header', __('Admin Panel Access'));
-		$theme->assign('buttons', $buttons);
+		$theme->assign('sections', $sections);
 		$theme->display('access_panel');
 	}
 }

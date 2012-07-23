@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AclCommon extends ModuleCommon {
 	public static function admin_caption() {
-		return __('Access Restrictions');
+		return array('label'=>__('Access Restrictions'), 'section'=>__('User Management'));
 	}
 
 	public static function get_admin_level($user = null) {

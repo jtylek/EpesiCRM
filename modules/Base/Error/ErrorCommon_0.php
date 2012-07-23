@@ -31,7 +31,7 @@ ErrorHandler::add_observer($err);
 
 class Base_ErrorCommon extends ModuleCommon implements Base_AdminModuleCommonInterface {
 	public static function admin_caption() {
-		return __('PHP & SQL Errors to mail');
+		return array('label'=>__('PHP & SQL Errors to mail'), 'section'=>__('Server Configuration'));
 	}
 
 	public static function admin_access() {

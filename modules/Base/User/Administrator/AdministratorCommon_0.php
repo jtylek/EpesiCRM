@@ -19,7 +19,7 @@ class Base_User_AdministratorCommon extends Base_AdminModuleCommon {
 	}
 	
 	public static function admin_caption() {
-		return __('Manage users');
+		return array('label'=>__('Manage users'), 'section'=>__('User Management'));
 	}
 	
 	public static function menu() {

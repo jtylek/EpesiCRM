@@ -143,7 +143,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function admin_caption() {
-        return __("EPESI Registration");
+		return array('label'=>__("EPESI Registration"), 'section'=>__('Server Configuration'));
     }
 
     public static function get_support_email() {

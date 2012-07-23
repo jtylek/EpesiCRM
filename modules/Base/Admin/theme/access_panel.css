@@ -1,4 +1,4 @@
-table#Base_Admin__access .epesi_big_button {
+#Base_Admin__access .epesi_big_button {
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -13,7 +13,7 @@ table#Base_Admin__access .epesi_big_button {
 	display: block;
 }
 
-table#Base_Admin__access .epesi_big_button .inactive_icon {
+#Base_Admin__access .epesi_big_button .inactive_icon {
 	height: 32px;
 	width: 32px;
 	margin: auto;
@@ -22,11 +22,11 @@ table#Base_Admin__access .epesi_big_button .inactive_icon {
 }
 
 
-table#Base_Admin__access .epesi_big_button .inactive_text {
+#Base_Admin__access .epesi_big_button .inactive_text {
 	color: lightgray;
 }
 
-table#Base_Admin__access .epesi_big_button .bb_icon {
+#Base_Admin__access .epesi_big_button .bb_icon {
 	height: 38px;
 	width: 32px;
 	margin: auto;
@@ -35,7 +35,7 @@ table#Base_Admin__access .epesi_big_button .bb_icon {
 }
 
 
-table#Base_Admin__access .epesi_big_button .bb_text {
+#Base_Admin__access .epesi_big_button .bb_text {
 	font-weight: bold;
 	height: 49px;
 	width: 80px;
@@ -45,7 +45,7 @@ table#Base_Admin__access .epesi_big_button .bb_text {
 	display: table-cell;
 }
 
-table#Base_Admin__access .epesi_big_button .bb_form {
+#Base_Admin__access .epesi_big_button .bb_form {
 	width: 120px;
 	padding: 5px;
 	text-align: center;
@@ -53,16 +53,16 @@ table#Base_Admin__access .epesi_big_button .bb_form {
 	display: table-cell;
 }
 
-table#Base_Admin__access .big_button_container {
+#Base_Admin__access .big_button_container {
 	vertical-align: top;
 }
 
-table#Base_Admin__access a {
+#Base_Admin__access a {
 	color: #336699;
 	font-weight: bold;
 }
 
-table#Base_Admin__access a:hover {
+#Base_Admin__access a:hover {
 	color: #993333;
 }
 

@@ -30,7 +30,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	}
 
 	public static function admin_caption() {
-		return __('Default user settings');
+		return array('label'=>__('Default user settings'), 'section'=>__('User Management'));
 	}
 
 	/**

@@ -1,14 +1,11 @@
 {$form_open}
 
-<table id="Base_Admin__access" cellspacing="0" cellpadding="0">
-	<tr>
-		<td colspan="4" class="epesi_label header">{$header}</td>
-	</tr>
-	{assign var=x value=0}
-	{foreach key=key item=button from=$buttons}
-	{assign var=x value=$x+1}
-		<td class="big_button_container">
-			<div class="epesi_big_button" id="{$button.id}">
+<div style="max-width:900px" id="Base_Admin__access">
+{foreach from=$sections key=sk item=s}
+	<div class="epesi_label header" style="clear:both;">{$s.header}</div>
+		{foreach key=key item=button from=$s.buttons}
+			{$__link.sections.$sk.buttons.$key.link.open}
+				<div class="epesi_big_button bigger" id="{$button.id}" style="float:left;">
 				<table>
 					<tr>
 						<td class="bb_icon">
@@ -48,16 +45,11 @@
 						</td>
 					</tr>
 				</table>
-			</div>
-		</td>
-
-	<!-- $key holds name of the module -->
-	{if ($x%4)==0}
+				</div>
+			{$__link.sections.$sk.buttons.$key.link.close}
+		{/foreach}
 	</tr>
-	<tr>
-	{/if}
-	{/foreach}
-	</tr>
-</table>
+{/foreach}
+</div>
 
 {$form_close}

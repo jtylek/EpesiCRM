@@ -20,7 +20,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	 * For internal use only.
 	 */
 	public static function admin_caption() {
-		return __('Mail server settings');
+		return array('label'=>__('Mail server settings'), 'section'=>__('Server Configuration'));
 	}
 	
 	/**

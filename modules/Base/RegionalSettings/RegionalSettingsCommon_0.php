@@ -72,7 +72,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		if(!function_exists('timezone_identifiers_list'))
 			require_once('modules/Base/RegionalSettings/tz_list.php');
 		$tz = timezone_identifiers_list();
-		return array(__('Regional settings')=>array(
+		return array(__('Regional Settings')=>array(
 				array('type'=>'header','label'=>__('Date & Time'),'name'=>null),
 				array('type'=>'select','name'=>'date','label'=>__('Date format'),
 					'default'=>'%m/%d/%Y','values'=>$date_formats),//strftime

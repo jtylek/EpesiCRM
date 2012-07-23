@@ -15,7 +15,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 * For internal use only.
 	 */
 	public static function admin_caption(){
-		return __("Common data");
+		return array('label'=>__("Common data"), 'section'=>__('Data'));
 	}
 	
 	public static function admin_access_levels() {

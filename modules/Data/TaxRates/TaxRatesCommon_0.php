@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Data_TaxRatesCommon extends Base_AdminModuleCommon {
 	public static function admin_caption() {
-		return __('Tax Rates');
+		return array('label'=>__('Tax Rates'), 'section'=>__('Regional Settings'));
 	}
 	
 	public static function get_tax_details() {

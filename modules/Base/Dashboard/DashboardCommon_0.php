@@ -22,7 +22,7 @@ class Base_DashboardCommon extends ModuleCommon {
 	}
 
 	public static function admin_caption() {
-		return __('Default dashboard');
+		return array('label'=>__('Default dashboard'), 'section'=>__('User Management'));
 	}
 
 	public static function body_access() {

@@ -21,7 +21,7 @@ class CRM_LoginAuditCommon extends ModuleCommon {
 	}
 	
 	public static function admin_caption() {
-		return __('Login Audit');
+		return array('label'=>__('Login Audit'), 'section'=>__('User Management'));
 	}
 
 	public static function body_access() {

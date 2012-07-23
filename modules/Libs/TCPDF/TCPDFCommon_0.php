@@ -127,7 +127,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
     }
 
     public static function admin_caption(){
-        return __('Printing options');
+		return array('label'=>__('Printing options'), 'section'=>__('Server Configuration'));
     }
 
     public static function get_logo_filename(){

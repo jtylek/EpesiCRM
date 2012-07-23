@@ -290,7 +290,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 	}
 	
 	public static function admin_caption() {
-	    return __('Outgoing mail global signature');
+		return array('label'=>__('Outgoing mail global signature'), 'section'=>__('Server Configuration'));
 	}
 }
 

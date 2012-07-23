@@ -1244,7 +1244,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			'##l## ##f##' => '['.__('Last Name').'] ['.__('First Name').']',
 			'##l##, ##f##' => '['.__('Last Name').'], ['.__('First Name').']'
 		);
-		return array(__('Regional settings')=>array(
+		return array(__('Regional Settings')=>array(
 				array('name'=>'contact_header', 'label'=>__('Contacts display'), 'type'=>'header'),
 				array('name'=>'contact_format','label'=>__('Contact format'),'type'=>'select','values'=>$opts,'default'=>'##l## ##f##')
 					),

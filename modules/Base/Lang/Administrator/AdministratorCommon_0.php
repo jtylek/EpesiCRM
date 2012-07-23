@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 	public static function admin_caption() {
-		return __('Language & Translations');
+		return array('label'=>__('Language & Translations'), 'section'=>__('Regional Settings'));
 	}
 
 	public static function admin_access_levels() {
@@ -35,7 +35,7 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 		if ($just_retrieve) {
 			$group = $label1 = $label2 = '';
 		} else {
-			$group = __('Regional settings');
+			$group = __('Regional Settings');
 			$label1 = __('Language');
 			$label2 = __('Language you want to use');
 		}

@@ -25,7 +25,7 @@ class Base_SetupCommon extends ModuleCommon {
 
 	public static function admin_caption() {
 		if (ModuleManager::is_installed('Base_EpesiStore')>=0) return null;
-		return __('Modules Administration');
+		return array('label'=>__('Modules Administration'), 'section'=>__('Server Configuration'));
 	}
     
     public static function is_simple_setup() {

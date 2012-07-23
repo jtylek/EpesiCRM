@@ -28,7 +28,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function admin_caption() {
-        return __("Modules Administration & Store");
+		return array('label'=>__("Modules Administration & Store"), 'section'=>__('Server Configuration'));
     }
 
     public static function get_modules_all_available() {
