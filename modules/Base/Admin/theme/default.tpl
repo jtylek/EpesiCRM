@@ -1,4 +1,4 @@
-<div style="max-width:900px">
+<div style="max-width:930px">
 {foreach from=$sections key=sk item=s}
 	<div class="epesi_label header" style="clear:both;">{$s.header}</div>
 		{foreach key=key item=button from=$s.buttons}

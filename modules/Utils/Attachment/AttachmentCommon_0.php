@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
 	public static function admin_caption() {
-		return array('label'=>__('Google Docs intergartion'), 'section'=>__('Server Configuration'));
+		return array('label'=>__('Google Docs integration'), 'section'=>__('Server Configuration'));
 	}
 
 	public static function new_addon($table) {
