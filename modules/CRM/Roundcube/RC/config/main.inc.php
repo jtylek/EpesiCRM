@@ -274,6 +274,7 @@ $rcmail_config['email_dns_check'] = false;
 
 // List of active plugins (in plugins/ directory)
 $rcmail_config['plugins'] = array('epesi_init','epesi_autologon','epesi_autorelogon','epesi_addressbook','epesi_mailto','additional_message_headers','epesi_archive','markasjunk');
+if(class_exists('ZipArchive')) $rcmail_config['plugins'][] = 'zipdownload';
 
 $rcmail_config['additional_message_headers'] = array('Epesi-User'=>DB::GetOne('SELECT login FROM user_login WHERE id=%d',array($E_SESSION['user'])));
 
@@ -555,4 +556,7 @@ $rcmail_config['search_mods'] = null;  // Example: array('*' => array('subject'=
 $rcmail_config['delete_always'] = false;
 
 // end of config file
+
+$rcmail_config['zipdownload_charset'] = 'UTF-8';
+
 ?>
