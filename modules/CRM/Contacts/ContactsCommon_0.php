@@ -1024,19 +1024,20 @@ class CRM_ContactsCommon extends ModuleCommon {
                 else
                     $values['related_companies'][] = $comp_id;
             }
-            if (Base_AclCommon::i_am_admin() && $values['login']=='new') {
-				if (!$values['set_password']) $values['set_password'] = null;
-                Base_User_LoginCommon::add_user($values['username'], $values['email'], $values['set_password']);
-                $values['login'] = Base_UserCommon::get_user_id($values['username']);
-//				Base_AclCommon::change_privileges($values['login'], array(Base_AclCommon::get_group_id('Employee')));
-            } else {
-        		if ($values['login']) {
-					Base_User_LoginCommon::change_user_preferences($values['login'], $values['email'], $values['set_password']);
-					Base_UserCommon::rename_user($values['login'], $values['username']);
+			if (Base_AclCommon::i_am_admin()) {
+				if ($values['login']=='new') {
+					if (!$values['set_password']) $values['set_password'] = null;
+					Base_User_LoginCommon::add_user($values['username'], $values['email'], $values['set_password']);
+					$values['login'] = Base_UserCommon::get_user_id($values['username']);
+				} else {
+					if ($values['login']) {
+						Base_User_LoginCommon::change_user_preferences($values['login'], $values['email'], $values['set_password']);
+						if (isset($values['username']) && $values['username']) Base_UserCommon::rename_user($values['login'], $values['username']);
+					}
 				}
-			}
-			if (Base_AclCommon::i_am_sa() && $values['login'] && isset($values['admin']) && isset($values['admin']) && $values['admin']!=='') {
-				Base_UserCommon::change_admin($values['login'], $values['admin']);
+				if (Base_AclCommon::i_am_sa() && $values['login'] && isset($values['admin']) && isset($values['admin']) && $values['admin']!=='') {
+					Base_UserCommon::change_admin($values['login'], $values['admin']);
+				}
 			}
 			unset($values['admin']);
 			unset($values['username']);
@@ -1285,6 +1286,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 
 	public static function check_email_unique($data) {
+		if (!isset($data[self::$field])) return true;
 		$email = $data[self::$field];
 		if (!$email) return true;
 		$rec = self::get_record_by_email($email, self::$rset, self::$rid);

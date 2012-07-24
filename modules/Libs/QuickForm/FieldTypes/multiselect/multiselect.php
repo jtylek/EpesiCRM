@@ -472,9 +472,6 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$value = explode($this->list_sep,$value);
 			array_shift($value);
 		}
-//        foreach($cleanValue as $k=>$v) {
-//        	$cleanValue[$k] = $this->_options[$v]['attr']['value'];
-//        }
 		return $this->_prepareValue($value, $assoc);
     }
 
@@ -486,7 +483,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
                 $value = $this->_findValue($caller->_submitValues);
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?
-                if (null === $value && (!$caller->isSubmitted())) {
+                if (null === $value && (!$caller->isSubmitted() || $this->isFrozen())) {
                     $value = $this->_findValue($caller->_defaultValues);
                 }
             }

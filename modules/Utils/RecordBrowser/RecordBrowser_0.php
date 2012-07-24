@@ -1124,8 +1124,10 @@ class Utils_RecordBrowser extends Module {
         if ($form->validate() && $form->exportValue('submited')) {
             $values = $form->exportValues();
 			
-			foreach ($defaults as $k=>$v)
+			foreach ($defaults as $k=>$v) {
 				if (!isset($values[$k]) && isset($this->view_fields_permission[$k]) && !$this->view_fields_permission[$k]) $values[$k] = $v;
+				if (isset($access[$k]) && !$access[$k]) $values[$k] = $v;
+			}
             foreach ($this->table_rows as $v) {
                 if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]='';
             }
