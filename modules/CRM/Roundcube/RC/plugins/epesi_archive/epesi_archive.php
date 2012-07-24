@@ -46,7 +46,9 @@ class epesi_archive extends rcube_plugin
             'domain' => $this->ID,
         ),
         'toolbar');
-
+	
+      if(!isset($account['f_use_epesi_archive_directories']) || !$account['f_use_epesi_archive_directories']) return;
+      
       // register hook to localize the archive folder
       $this->add_hook('render_mailboxlist', array($this, 'render_mailboxlist'));
 
@@ -132,10 +134,13 @@ class epesi_archive extends rcube_plugin
     
     $uids = explode(',',$uids);
     if($this->archive($uids)) {
-        if($sent_mbox)
-            $rcmail->output->command('move_messages', $this->archive_sent_mbox);
-        else
-            $rcmail->output->command('move_messages', $this->archive_mbox);
+	global $account;
+	if(isset($account['f_use_epesi_archive_directories']) && $account['f_use_epesi_archive_directories']) {
+            if($sent_mbox)
+	        $rcmail->output->command('move_messages', $this->archive_sent_mbox);
+	    else
+        	$rcmail->output->command('move_messages', $this->archive_mbox);
+        }
         $rcmail->output->command('display_message',$this->gettext('archived'), 'confirmation');
     }
   }
@@ -313,7 +318,8 @@ class epesi_archive extends rcube_plugin
     
     $archived = $this->archive($uids,false);
 
-    if($archived) {
+    global $account;
+    if($archived && isset($account['f_use_epesi_archive_directories']) && $account['f_use_epesi_archive_directories']) {
         $rcmail->output->command('set_env', 'uid', array_shift($uids));
         $rcmail->output->command('set_env', 'mailbox',$store_target);
         $rcmail->output->command('move_messages', $this->archive_sent_mbox);

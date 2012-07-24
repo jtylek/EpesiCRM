@@ -121,7 +121,10 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     public static function submit_account($param, $mode) {
         if($mode=='edit')
             $acc = Utils_RecordBrowserCommon::get_record('rc_accounts',$param['id']);
-        if($mode=='adding') $param['archive_on_sending']=1;
+        if($mode=='adding') {
+    	    $param['archive_on_sending']=1;
+    	    $param['use_epesi_archive_directories']=1;
+    	}
         if($mode=='add' || (isset($acc['default_account']) && !$acc['default_account'])) {
             $count = DB::GetOne('SELECT count(*) FROM rc_accounts_data_1 WHERE active=1 AND f_epesi_user=%d',array(Acl::get_user()));
             if($count) {
