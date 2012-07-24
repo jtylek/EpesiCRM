@@ -36,7 +36,7 @@ class Data_TaxRatesInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
-		Utils_RecordBrowserCommon::uninstall_recordset('premium_warehouse_tax_rate');
+		Utils_RecordBrowserCommon::uninstall_recordset('data_tax_rates');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}

@@ -39,7 +39,8 @@ class Base_Acl extends Module {
 			foreach ($perms as $r_id) {
 				$clearances = DB::GetAssoc('SELECT id, clearance FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
 				foreach ($clearances as $k=>$v)
-					$clearances[$k] = $all_clearances[$v];
+					if (isset($all_clearances[$v])) $clearances[$k] = $all_clearances[$v];
+					else unset($clearances[$k]);
 
 				$gb_row = $gb->get_new_row();
 				$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_rule'), array($r_id)), 'delete', __('Delete Rule'));

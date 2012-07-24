@@ -160,7 +160,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $gb->set_default_order(array(__('Login')=>'ASC'));
 
         $search = $gb->get_search_query();
-        $query = 'SELECT u.login, p.mail, u.id, u.active FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id'.($search?' WHERE '.$search:'');
+        $query = 'SELECT u.login, p.mail, u.id, u.active, u.admin FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id'.($search?' WHERE '.$search:'');
         $query_qty = 'SELECT count(u.id) FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id'.($search?' WHERE '.$search:'');
 
         $ret = $gb->query_order_limit($query, $query_qty);
@@ -169,11 +169,6 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $no = '<span style="color:red;">'.__('No').'</span>';
         if($ret)
             while(($row=$ret->FetchRow())) {
-                $uid = Base_AclCommon::get_acl_user_id($row['id']);
-                if(!$uid) $uid = Base_AclCommon::add_user($row['id']);
-                $groups = Base_AclCommon::get_user_groups_names($uid);
-                if($groups===false) continue; //skip if you don't have privileges
-
                 $gb_row = array();
                 $gb_row[] = $row['id'];
                 $gb_row[] = '<a '.$this->create_callback_href(array($this,'edit_user_form'),array($row['id'])).'>'.$row['login'].'</a>';
@@ -183,7 +178,12 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
                 }
                 $gb_row[] = $row['active']?$yes:$no;
                 $gb_row[] = $row['mail'];
-                $gb_row[] = $groups;
+				switch ($row['admin']) {
+					case 2: $admin = __('Super Administrator'); break;
+					case 1: $admin = __('Administrator'); break;
+					default: $admin = __('User'); break;
+				}
+                $gb_row[] = $admin;
                 if(Base_AclCommon::i_am_sa())
                     $gb_row[] = '<a '.$this->create_callback_href(array($this,'log_as_user'),$row['id']).'>'.__('Log as user').'</a>';
                 $gb->add_row_array($gb_row);
@@ -253,15 +253,6 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             if($ret && ($row = $ret->FetchRow())) {
                 $form->setDefaults(array('username'=>$row['login'], 'mail'=>$row['mail'], 'active'=>$row['active'], 'admin'=>$row['admin']));
             }
-
-            $uid = Base_AclCommon::get_acl_user_id($edit_id);
-            if($uid === false) {
-                print('invalid user');
-                return;
-            }
-
-        } else {
-            $sel->setSelected(array(Base_AclCommon::get_group_id('User')));
         }
         $form->registerRule('check_username', 'callback', 'check_username_free', 'Base_User_LoginCommon');
         $form->addRule(array('username',$this->create_unique_key('edit_user')), __('Username already taken'), 'check_username');
@@ -289,8 +280,8 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $mail = $data['mail'];
         $username = $data['username'];
 
-        if(DEMO_MODE && $username=='admin') {
-            print('You cannot change \'admin\' user password, group or e-mail in demo');
+        if(DEMO_MODE) {
+            print('You cannot change user password or e-mail address in demo');
             return false;
         }
 

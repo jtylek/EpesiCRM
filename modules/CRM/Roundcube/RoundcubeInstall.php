@@ -16,13 +16,19 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         $this->create_data_dir();
         Base_ThemeCommon::install_default_theme($this -> get_type());
 
+		@DB::DropSequence('rc_user_ids');
         @DB::DropTable('rc_users');
+		@DB::DropSequence('rc_identity_ids');
         @DB::DropTable('rc_identities');
+		@DB::DropSequence('rc_contact_ids');
         @DB::DropTable('rc_contacts');
+		@DB::DropSequence('rc_contactgroups_ids');
         @DB::DropTable('rc_contactgroups');
         @DB::DropTable('rc_contactgroupmembers');
         @DB::DropTable('rc_session');
+		@DB::DropSequence('rc_cache_ids');
         @DB::DropTable('rc_cache');
+		@DB::DropSequence('rc_message_ids');
         @DB::DropTable('rc_messages');
 
         if(DATABASE_DRIVER=='mysqlt')
@@ -216,14 +222,20 @@ class CRM_RoundcubeInstall extends ModuleInstall {
     }
 
     public function uninstall() {
-        DB::DropTable('rc_identities');
-        DB::DropTable('rc_session');
-        DB::DropTable('rc_cache');
-        DB::DropTable('rc_messages');
-        DB::DropTable('rc_contactgroupmembers');
-        DB::DropTable('rc_contactgroups');
-        DB::DropTable('rc_contacts');
-        DB::DropTable('rc_users');
+		@DB::DropSequence('rc_user_ids');
+        @DB::DropTable('rc_users');
+		@DB::DropSequence('rc_identity_ids');
+        @DB::DropTable('rc_identities');
+		@DB::DropSequence('rc_contact_ids');
+        @DB::DropTable('rc_contacts');
+		@DB::DropSequence('rc_contactgroups_ids');
+        @DB::DropTable('rc_contactgroups');
+        @DB::DropTable('rc_contactgroupmembers');
+        @DB::DropTable('rc_session');
+		@DB::DropSequence('rc_cache_ids');
+        @DB::DropTable('rc_cache');
+		@DB::DropSequence('rc_message_ids');
+        @DB::DropTable('rc_messages');
 
         Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon');
         Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Roundcube', 'addon');

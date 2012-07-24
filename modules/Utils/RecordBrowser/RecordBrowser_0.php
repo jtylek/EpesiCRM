@@ -10,7 +10,6 @@
  * @subpackage RecordBrowser
  */
 
-
 defined("_VALID_ACCESS") || die();
 
 class Utils_RecordBrowser extends Module {
@@ -2564,7 +2563,8 @@ class Utils_RecordBrowser extends Module {
 			foreach ($fields[$row['id']] as $k=>$v)
 				$fields[$row['id']][$k] = $all_fields[$v];
 			foreach ($clearance[$row['id']] as $k=>$v)
-				$clearance[$row['id']][$k] = $all_clearances[$v];
+				if (isset($all_clearances[$v])) $clearance[$row['id']][$k] = $all_clearances[$v];
+				else unset($clearance[$row['id']][$k]);
 			$c_all_fields = count($all_fields);
 			$c_fields = count($fields[$row['id']]);
 

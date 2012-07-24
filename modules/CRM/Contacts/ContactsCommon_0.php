@@ -781,9 +781,14 @@ class CRM_ContactsCommon extends ModuleCommon {
         return true;
     }
 	public static function QFfield_username(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+		$label = __('User Login');
         if ($mode=='view') return;
         if (!Base_AclCommon::i_am_admin()) return;
+		if (class_exists('Utils_RecordBrowser') && isset(Utils_RecordBrowser::$last_record['login']) && is_numeric(Utils_RecordBrowser::$last_record['login'])) {
+			$default = Base_UserCommon::get_user_login(Utils_RecordBrowser::$last_record['login']);
+		}
 		$form->addElement('text', $field, $label, array('id'=>$field));
+		$form->setDefaults(array($field=>$default));
 		$form->addFormRule(array('CRM_ContactsCommon','check_new_username'));
 	}
     public static function QFfield_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
@@ -821,6 +826,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return;
 	}
     public static function QFfield_login(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+		$label = __('User Login');
         if (!Base_AclCommon::i_am_admin()) return;
         if ($mode=='view') {
 			if (!$default) return;
@@ -835,37 +841,37 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->addElement('static', $field, $label);
             $form->setDefaults(array($field=>self::display_login(array('login'=>$default), true, array('id'=>'login'))));
             return;
-        }
-		if (($default!=='' && !Base_AclCommon::i_am_admin()) || $mode=='view') {
-			$form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'---'));
-			$form->setDefaults(array($field=>$default));
-			$form->freeze($field);
-		} else {
-			$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
-			$users = array(''=>'---', 'new'=>'['.__('Create new user').']');
-			while ($row=$ret->FetchRow()) {
-				$contact_id = Utils_RecordBrowserCommon::get_id('contact','login',$row['id']);
-				if ($contact_id===false || $contact_id===null || ($row['id']===$default && $mode!='add'))
-					if (Base_AclCommon::i_am_admin() || $row['id']==Acl::get_user())
-						$users[$row['id']] = $row['login'];
-			}
-			$form->addElement('select', $field, $label, $users, array('id'=>'crm_contacts_select_user'));
-			$form->setDefaults(array($field=>$default));
-			if ($default=='new') $form->freeze($field);
-			eval_js('new_user_textfield = function(){'.
-					'$("username").up("tr").style.display = ($("crm_contacts_select_user").value=="new"?"":"none");'.
-					'$("contact_admin").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
-					'}');
-			eval_js('new_user_textfield();');
-			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
+        } 
+		$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
+		$users = array(''=>'---', 'new'=>'['.__('Create new user').']');
+		while ($row=$ret->FetchRow()) {
+			$contact_id = Utils_RecordBrowserCommon::get_id('contact','login',$row['id']);
+			if ($contact_id===false || $contact_id===null || ($row['id']===$default && $mode!='add'))
+				if (Base_AclCommon::i_am_admin() || $row['id']==Acl::get_user())
+					$users[$row['id']] = $row['login'];
 		}
+		$form->addElement('select', $field, $label, $users, array('id'=>'crm_contacts_select_user'));
+		$form->setDefaults(array($field=>$default));
+		if ($default!=='') $form->freeze($field);
+		eval_js('new_user_textfield = function(){'.
+				'($("crm_contacts_select_user").value=="new"?"":"none");'.
+				'$("username").up("tr").style.display = $("contact_admin").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+				'}');
+		eval_js('new_user_textfield();');
+		if ($default)
+			eval_js('$("_login__data").up("tr").style.display = "none";');
+		eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
 	}
 
 	public static function check_new_username($arg) {
-		if (isset($arg['login']) && $arg['login']!='new') return true;
+		if (!isset($arg['login'])) $arg['login'] = Utils_RecordBrowser::$last_record['login'];
 		$ret = array();
-		if (!$arg['email']) $ret['email'] = __('E-mail is required when creating new user.');
 		if (strlen($arg['username'])<3 || strlen($arg['username'])>32) $ret['username'] = __('A username must be between 3 and 32 chars');
+		if (isset($arg['login']) && $arg['login']!='new') {
+			if ($arg['username'] == Base_UserCommon::get_user_login($arg['login'])) return empty($ret)?true:$ret;
+		} else {
+			if (!$arg['email']) $ret['email'] = __('E-mail is required when creating new user');
+		}
 		if (Base_UserCommon::get_user_id($arg['username'])) $ret['username'] = __('Username already taken');
 		if (!$arg['username']) $ret['username'] = __('Field required');
 		return empty($ret)?true:$ret;
@@ -1024,10 +1030,12 @@ class CRM_ContactsCommon extends ModuleCommon {
                 $values['login'] = Base_UserCommon::get_user_id($values['username']);
 //				Base_AclCommon::change_privileges($values['login'], array(Base_AclCommon::get_group_id('Employee')));
             } else {
-        		if ($values['login'])
+        		if ($values['login']) {
 					Base_User_LoginCommon::change_user_preferences($values['login'], $values['email'], $values['set_password']);
+					Base_UserCommon::rename_user($values['login'], $values['username']);
+				}
 			}
-			if (Base_AclCommon::i_am_sa() && $values['login'] && isset($values['admin'])) {
+			if (Base_AclCommon::i_am_sa() && $values['login'] && isset($values['admin']) && isset($values['admin']) && $values['admin']!=='') {
 				Base_UserCommon::change_admin($values['login'], $values['admin']);
 			}
 			unset($values['admin']);

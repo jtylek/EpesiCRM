@@ -85,7 +85,32 @@ class CRM_Contacts extends Module {
 		if (!Base_AclCommon::i_am_admin()) return false;
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
+		$users = DB::GetAssoc('SELECT id, login FROM user_login');
+		if (count($users) > Utils_RecordBrowserCommon::get_records_count('contact', array('!login'=>''), array(), array(), array(), true)) {
+			$recs = Utils_RecordBrowserCommon::get_records('contact', array('!login'=>''), array(), array(), array(), true);
+			foreach ($recs as $r)
+				unset($users[$r['login']]);
+			foreach ($users as $id=>$u)
+				Utils_RecordBrowserCommon::new_record('contact', array('login'=>$id, 'last_name'=>$u, 'permission'=>0));
+			Base_StatusBarCommon::message(__('Created %d contacts for unassigned users', array(count($users))));
+		}
+
 		$this->rb = $this->init_module('Utils/RecordBrowser','contact','contact');
+		$logins = DB::GetAll('SELECT * FROM user_login');
+		$active_logins = array();
+		$inactive_logins = array();
+		$user_logins = array();
+		$admin_logins = array();
+		$sa_logins = array();
+		foreach ($logins as $i) {
+			if ($i['active']) $active_logins[] = $i['id'];
+			else $inactive_logins[] = $i['id'];
+			if ($i['admin']==0) $user_logins[] = $i['id'];
+			elseif ($i['admin']==1) $admin_logins[] = $i['id'];
+			else $sa_logins[] = $i['id'];
+		}
+		$this->rb->set_custom_filter('username', array('type'=>'select','label'=>__('Active'),'args'=>array('__NULL__'=>'---', 1=>__('Yes'), 2=>__('No')), 'trans'=>array('__NULL__' => array(), 1=>array('login'=>$active_logins), 2=>array('login'=>$inactive_logins))));
+		$this->rb->set_custom_filter('admin', array('type'=>'select','label'=>__('Admin'),'args'=>array('__NULL__'=>'---', 0=>__('No'), 1=>__('Administrator'), 2=>__('Super Administrator')), 'trans'=>array('__NULL__' => array(), 0=>array('login'=>$user_logins), 1=>array('login'=>$admin_logins), 2=>array('login'=>$sa_logins))));
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
 										'permission'=>Base_User_SettingsCommon::get('CRM_Common','default_record_permission'),
@@ -97,7 +122,7 @@ class CRM_Contacts extends Module {
 		$this->rb->set_additional_caption(__('Users'));
 		$this->rb->disable_pdf();
 		$this->rb->disable_export();
-		$this->display_module($this->rb, array(array(), array('!login'=>''), array('work_phone'=>false, 'mobile_phone'=>false, 'city'=>false, 'zone'=>false, 'login'=>true, 'access'=>true, 'email'=>true)));
+		$this->display_module($this->rb, array(array(), array('!login'=>''), array('work_phone'=>false, 'mobile_phone'=>false, 'city'=>false, 'zone'=>false, 'login'=>true, 'access'=>true, 'email'=>true), array('username'=>true, 'admin'=>true, 'access'=>true, 'related_companies'=>false)));
 
 		Base_ActionBarCommon::add('edit',__('E-mail header'),$this->create_callback_href(array($this,'change_email_header')),__('Edit the header of the message that is sent to each newly created user'));
 	}

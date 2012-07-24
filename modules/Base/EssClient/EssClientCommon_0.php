@@ -43,20 +43,17 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
      * @return array with keys admin_email, admin_first_name, admin_last_name
      */
     public static function get_possible_admin() {
-        $users = DB::GetAll('select id, mail from user_login inner join user_password on user_login_id = id');
+        $users = DB::GetAll('select id, mail from user_login inner join user_password on user_login_id = id where admin=2');
         foreach ($users as $u) {
-            if (Base_AclCommon::is_user_in_group(
-                            Base_AclCommon::get_acl_user_id($u['id']), 'Super administrator')) {
-                $x = array('admin_email' => $u['mail']);
-                if (ModuleManager::is_installed('CRM_Contacts') > -1) {
-                    $contact = CRM_ContactsCommon::get_contact_by_user_id($u['id']);
-                    if ($contact) {
-                        $x['admin_first_name'] = $contact['first_name'];
-                        $x['admin_last_name'] = $contact['last_name'];
-                    }
-                }
-                return $x;
-            }
+			$x = array('admin_email' => $u['mail']);
+			if (ModuleManager::is_installed('CRM_Contacts') > -1) {
+				$contact = CRM_ContactsCommon::get_contact_by_user_id($u['id']);
+				if ($contact) {
+					$x['admin_first_name'] = $contact['first_name'];
+					$x['admin_last_name'] = $contact['last_name'];
+				}
+			}
+			return $x;
         }
         return null;
     }
