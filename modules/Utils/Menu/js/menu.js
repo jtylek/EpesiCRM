@@ -119,13 +119,16 @@ CustomMenubar = function(id, _layout) {
 			}
 		}
 	}
-	this.addLink = function( title, address, icon ) {
+	this.addLink = function( title, address, icon, target) {
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
 			menu_string[this.id] += '<tr><td class=item>';
 			if(icon) {
 				menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
 			}
-			menu_string[this.id] += '<a href="'+address+'" class=root_item_link onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
+			menu_string[this.id] += '<a href="'+address+'"';
+			if (target)
+				menu_string[this.id] += ' target="'+target+'"';
+			menu_string[this.id] += ' class=root_item_link onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
 			menu_string[this.id] += '</td></tr>';
 		} else {
 			if(this.depth == 0 ) {

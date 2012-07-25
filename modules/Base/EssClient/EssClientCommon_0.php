@@ -18,11 +18,9 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     public static function menu() {
         if (!Base_AclCommon::i_am_sa() || TRIAL_MODE)
             return;
-        $text = _M('EPESI Registration');
-        if (!self::get_license_key()) {
-            $text = _M('Register EPESI!');
-        }
-        return array(_M('Help') => array('__submenu__' => 1, $text => array()));
+        if (self::get_license_key()) 
+			return;
+        return array(_M('Support') => array('__submenu__' => 1, _M('Register EPESI!') => array()));
     }
 
     public static function get_server_url() {
@@ -139,9 +137,9 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return Base_AclCommon::i_am_sa();
     }
 
-    public static function admin_caption() {
-		return array('label'=>__("EPESI Registration"), 'section'=>__('Server Configuration'));
-    }
+//    public static function admin_caption() {
+//		return array('label'=>__("EPESI Registration"), 'section'=>__('Server Configuration'));
+//    }
 
     public static function get_support_email() {
         $email = 'bugs@telaxus.com'; // FIXME

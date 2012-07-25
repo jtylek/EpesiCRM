@@ -58,7 +58,6 @@ class Base_ActionBar extends Module {
 
 		//translate
 		foreach($icons as &$i) {
-			$i['label'] = $i['label'];
 			$description = $i['description'];
 			if($display_text)
 				if($i['description'])
@@ -69,6 +68,10 @@ class Base_ActionBar extends Module {
 				$t = Utils_TooltipCommon::open_tag_attrs($i['label'].(($i['description'])?' - '.$description:''),false);
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
+			if (strpos($i['icon'], '/')!==false && file_exists($i['icon'])) {
+				$i['icon_url'] = $i['icon'];
+				unset($i['icon']);
+			}
 			//if (isset(Base_ActionBarCommon::$available_icons[$i['icon']]))
 			//	$i['icon'] = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/'.$i['icon'].'.png');
 		}

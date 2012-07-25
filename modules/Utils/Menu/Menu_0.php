@@ -38,12 +38,15 @@ class Utils_Menu extends Module {
 	 * @param string target address of the link
 	 * @param string optional path to an icon
 	 */
-	public function add_link($title, $address='', $icon=null) {
+	public function add_link($title, $address='', $icon=null, $target=null) {
 		$this->menu_string .= 'menubar_'.$this->menu_id.'.addLink("'.htmlspecialchars($title).'"';
 		if(isset($address)) {
 			$this->menu_string .= ', "'.addslashes($address).'"';
 			if(isset($icon)) {
 				$this->menu_string .= ', "'.addslashes($icon).'"';
+			}
+			if(isset($target)) {
+				$this->menu_string .= ', "'.addslashes($target).'"';
 			}
 		}
 		$this->menu_string .= ');';

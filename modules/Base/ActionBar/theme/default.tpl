@@ -8,8 +8,11 @@
 						{$i.open}
 							<div class="panel_div_left epesi_big_button">
 								{if $display_icon}
-								<!-- <img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32"> -->
-								<div class="div_icon icon_{$i.icon}" style="margin-top: 3px;"></div>
+								{if $i.icon_url}
+									<img src="{$i.icon_url}" alt="" align="middle" border="0" width="32" height="32">
+								{else}
+									<div class="div_icon icon_{$i.icon}" style="margin-top: 3px;"></div>
+								{/if}
 								{/if}
 								{if $display_text}
 								<span>{$i.label}</span>

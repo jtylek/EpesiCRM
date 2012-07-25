@@ -100,7 +100,7 @@ class Base_Menu extends Module {
 					$menu->end_submenu();
 				} else {
 					if($url)
-						$menu->add_link($k, $url,$icon);
+						$menu->add_link($k, $url,$icon, $target);
 					else {
 						$menu->add_link($k, 'javascript:'.Base_MenuCommon::create_href_js($this,$arr) ,$icon);
 					}
