@@ -163,7 +163,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'name' => _M('Record ID'),
                 'type'=>'integer',
                 'display_callback'=>array($this->get_type().'Common', 'display_record_id'),
-                'required'=>true, 'extra'=>false, 'visible'=>true
+                'required'=>true, 'extra'=>false, 'visible'=>true, 'style'=>''
             )
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails_assoc', $fields);

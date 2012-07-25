@@ -112,10 +112,10 @@ class CRM_Roundcube extends Module {
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
     	    $ok = true;
             foreach($_SESSION['rc_mails_cp'] as $mid) {
-        	if(!DB::GetOne('SELECT active FROM rc_mails_data_1 WHERE id=%d',array($mid))) {
-        	    $c = false;
-        	    break;
-        	}
+				if(!DB::GetOne('SELECT active FROM rc_mails_data_1 WHERE id=%d',array($mid))) {
+					$ok = false;
+					break;
+				}
                 $c = Utils_RecordBrowserCommon::get_records_count('rc_mails_assoc',array('mail'=>$mid,'recordset'=>$rs,'record_id'=>$id));
                 if($rs == 'contact' || $rs=='company')
             	    $c += Utils_RecordBrowserCommon::get_records_count('rc_mails',array('id'=>$mid, '(employee'=>$id,'|contacts'=>$id));
@@ -193,7 +193,7 @@ class CRM_Roundcube extends Module {
                 if(!$c)
                     Utils_RecordBrowserCommon::new_record('rc_mails_assoc',array('mail'=>$mid,'recordset'=>$rs,'record_id'=>$id));
             }
-            Epesi::alert(__('Mail(s) is associated to this record now'));
+			location(array());
         }
     }
 
