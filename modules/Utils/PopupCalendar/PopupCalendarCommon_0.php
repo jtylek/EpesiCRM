@@ -69,7 +69,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		} else $args = '';
 		$js = 'var datepicker_'.$name.' = new Utils_PopupCalendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\',\''.$mode.'\',\''.$first_day_of_week.'\',';
 		$months = array(__('January'),__('February'),__('March'),__('April'),__('May'),__('June'),__('July'),__('August'),__('September'),__('October'),__('November'),__('December'));
-		$days = array(__('Sun', 'Mon'),__('Tue'),__('Wed'),__('Thu'),__('Fri'),__('Sat'));
+		$days = array(__('Sun'),__('Mon'),__('Tue'),__('Wed'),__('Thu'),__('Fri'),__('Sat'));
 		$js .= 'new Array(\''.implode('\',\'', $months).'\'),';
 		$js .= 'new Array(\''.implode('\',\'', $days).'\')';
 		$js .= ');'.
