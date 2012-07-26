@@ -86,7 +86,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             }
             $values[] = $x;
         }
-        return array(__('Epesi Store') =>
+        return array(__('EPESI Store') =>
             array_merge(
                     array(array('name' => 'payments_header', 'label' => '', 'type' => 'header', 'default' => __('Payment credentials')))
                     , $values));

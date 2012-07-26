@@ -83,12 +83,18 @@ class CRM_CalendarCommon extends ModuleCommon {
 		$cols = CRM_Calendar_EventCommon::get_available_colors();
 		$cols[0] = 'All';
 		$ret = array(	array('name'=>'days', 'label'=>__('Look for events in'), 'type'=>'select', 'default'=>'7', 'values'=>array('1'=>__('1 day'),'2'=>__('2 days'),'3'=>__('3 days'),'5'=>__('5 days'),'7'=>__('1 week'),'14'=>__('2 weeks'), '30'=>__('1 month'), '61'=>__('2 months'))));
-		$custom_events = DB::GetAssoc('SELECT id, group_name FROM crm_calendar_custom_events_handlers ORDER BY group_name');
+		$custom_events = self::get_event_handlers();
 		if (!empty($custom_events)) {
 			foreach ($custom_events as $id=>$l)
-				$ret[] = array('name'=>'events_handlers__'.$id, 'label'=>_V($l), 'type'=>'checkbox', 'default'=>'1'); // I should move extracting handlers names to separate method
+				$ret[] = array('name'=>'events_handlers__'.$id, 'label'=>$l, 'type'=>'checkbox', 'default'=>'1');
 		}
 		return $ret;
+	}
+	
+	public static function get_event_handlers() {
+		$custom_events = DB::GetAssoc('SELECT id, group_name FROM crm_calendar_custom_events_handlers ORDER BY group_name');
+		foreach ($custom_events as $k=>$v) $custom_events[$k] = _V($v); // ****** Calendar Custom handler label
+		return $custom_events;
 	}
 	
 	public static function watchdog_label($rid = null, $events = array()) {
@@ -111,7 +117,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 			print('<a '.(IPHONE?'class="button red" ':'').mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(0)).'>'.__('Show current week').'</a>');
 		else
 			print('<a '.(IPHONE?'class="button green" ':'').mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(7 * 24 * 60 * 60)).'>'.__('Show next week').'</a>');
-		Utils_CalendarCommon::mobile_agenda('CRM/Calendar/Event',array('custom_agenda_cols'=>array('Description','Assigned to','Related with')),$time_shift,array('CRM_CalendarCommon','mobile_view_event'));
+		Utils_CalendarCommon::mobile_agenda('CRM/Calendar/Event',array('custom_agenda_cols'=>array(__('Description'),__('Assigned to'),__('Related with'))),$time_shift,array('CRM_CalendarCommon','mobile_view_event'));
 	}
 	
 	public static function mobile_view_event($id) {

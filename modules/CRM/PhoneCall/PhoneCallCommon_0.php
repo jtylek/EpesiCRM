@@ -494,7 +494,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$id = $r['id'];
 		}
 
-		$next = array('type'=>'phonecall');
+		$next = array('type'=>__('Phonecall'));
 		
 		$next['id'] = $r['id'];
 

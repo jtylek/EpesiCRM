@@ -169,7 +169,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$start = Base_RegionalSettingsCommon::time2reg($ev['start'],false);
 		$pdf_theme->assign('start_date', array(	'label'=>__('Start Date'),
 												'value'=>$start,
-												'details'=>array('weekday'=>_V(date('l', strtotime($start)))))); // ****** date() - handled by Utils/Calendar
+												'details'=>array('weekday'=>__date('l', strtotime($start)))));
 		if (!isset($ev['timeless'])) {
 			$pdf_theme->assign('start_time', array(	'label'=>__('Start Time'),
 													'value'=>Base_RegionalSettingsCommon::time2reg($ev['start'],true,false)));
@@ -199,14 +199,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	}
 	
 	public function get_navigation_bar_additions() {
-		$custom_handlers = DB::GetAssoc('SELECT id, group_name FROM crm_calendar_custom_events_handlers');
+		$custom_handlers = CRM_CalendarCommon::get_event_handlers();
 		if (empty($custom_handlers)) return '';
 		$form = $this->init_module('Libs/QuickForm');
 
 		$elements_name = array();
 		$default = array();
 		foreach ($custom_handlers as $k=>$v) {
-			$form->addElement('checkbox', 'events_handlers__'.$k, _V($v), null, array('onclick'=>'calendar_event_handlers_changed=1;'));
+			$form->addElement('checkbox', 'events_handlers__'.$k, $v, null, array('onclick'=>'calendar_event_handlers_changed=1;'));
 			$elements_name[$k] = 'events_handlers__'.$k;
 			$default[] = $k;
 		}
@@ -245,7 +245,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$select_count = count($selected);
 		if ($select_count==count($custom_handlers)) $label = __('All');
 		else $label = __('Selection (%d)',array($select_count));
-		if ($select_count==1) $label = _V($custom_handlers[reset($selected)]);
+		if ($select_count==1) $label = $custom_handlers[reset($selected)];
 		if ($select_count==0) $label = __('None');
 
 		$theme = $this->init_module('Base/Theme');

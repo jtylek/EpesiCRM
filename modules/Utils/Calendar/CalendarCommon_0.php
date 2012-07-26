@@ -116,8 +116,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$ev_end = $row['end'];
 
 			Base_RegionalSettingsCommon::set();
-			$start_day = _V(date('D',$ev_start));
-			$end_day = _V(date('D',$ev_end));
+			$start_day = __date('D',$ev_start);
+			$end_day = __date('D',$ev_end);
 			Base_RegionalSettingsCommon::restore();
 
 			$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false);
@@ -217,5 +217,51 @@ class Utils_CalendarCommon extends ModuleCommon {
 	}
 }
 
+// ***** date("l") *****
+// __('Monday')
+// __('Tuesday')
+// __('Wednesday')
+// __('Thursday')
+// __('Friday')
+// __('Saturday')
+// __('Sunday')
+// ***** date("D") *****
+// __('Mon')
+// __('Tue')
+// __('Wed')
+// __('Thu')
+// __('Fri')
+// __('Sat')
+// __('Sun')
+// ***** date("F") *****
+// __('January')
+// __('February')
+// __('March')
+// __('April')
+// __('May')
+// __('June')
+// __('July')
+// __('August')
+// __('September')
+// __('October')
+// __('November')
+// __('December')
+// ***** date("M") *****
+// __('Jan')
+// __('Feb')
+// __('Mar')
+// __('Apr')
+// __('May')
+// __('Jun')
+// __('Jul')
+// __('Aug')
+// __('Sep')
+// __('Oct')
+// __('Nov')
+// __('Dec')
+
+function __date($f, $v) {
+	return _V(date($f, $v)); // ****** Translation of pre-defined date formats
+}
 
 ?>

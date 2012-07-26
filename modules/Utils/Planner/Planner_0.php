@@ -157,19 +157,19 @@ class Utils_Planner extends Module {
 		$headers = array();
 		$select_all = array();
 		if ($this->date===null) {
-			$days_of_week = array(0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednesday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday');
+			$days_of_week = array(0=>__('Sunday'), 1=>__('Monday'), 2=>__('Tuesday'), 3=>__('Wednesday'), 4=>__('Thursday'), 5=>__('Friday'), 6=>__('Saturday'));
 			while (count($headers)<7) {
-				$headers[$fdow] = _V($days_of_week[$fdow]);
+				$headers[$fdow] = $days_of_week[$fdow];
 				$fdow++;
 				if ($fdow>6) $fdow -= 7;
 			}
 		} else {
 //			while (date('w',$this->date)!=$fdow) $this->date = strtotime('-1 day', $this->date);
 			$_SESSION['client']['utils_planner']['date'] = $this->date;
-			$days_of_week = array(0=>'Sun', 1=>'Mon', 2=>'Tue', 3=>'Wed', 4=>'Thu', 5=>'Fri', 6=>'Sat');
+			$days_of_week = array(0=>__('Sun'), 1=>__('Mon'), 2=>__('Tue'), 3=>__('Wed'), 4=>__('Thu'), 5=>__('Fri'), 6=>__('Sat'));
 			$curr = $this->date;
 			while (count($headers)<7) {
-				$headers[$curr] = Base_RegionalSettingsCommon::time2reg($curr, false, true, false).' '._V($days_of_week[date('w',$curr)]);
+				$headers[$curr] = Base_RegionalSettingsCommon::time2reg($curr, false, true, false).' '.$days_of_week[date('w',$curr)];
 				$curr = strtotime('+1 day', $curr);
 			}
 		}

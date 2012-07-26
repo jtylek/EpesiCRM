@@ -55,7 +55,7 @@ class CRM_Calendar extends Module {
 			$new_events = call_user_func($v['handler_callback'], 'new_event_types');
 			if ($new_events!==null) foreach($new_events as $k=>$w) {
 				if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
-				$this->lp->add_option('new_event__'.$v['id'].'__'.$k, _V($w['label']), $w['icon'], null); // I should move extracting handlers names to separate method
+				$this->lp->add_option('new_event__'.$v['id'].'__'.$k, $w['label'], $w['icon'], null);
 				$count++;
 			}
 		}
@@ -79,9 +79,9 @@ class CRM_Calendar extends Module {
 			'default_date'=>$default_date,
 			'custom_agenda_cols'=>array(
 				array('name'=>__('Type'), 'order'=>'cus_col_0','width'=>6,'wrapmode'=>'nowrap'),
-				'Description',
-				'Assigned to',
-				'Related with'
+				__('Description'),
+				__('Assigned to'),
+				__('Related with')
 			));
 		foreach ($args_defaults as $k=>$v)
 			if (!isset($args[$k])) $args[$k] = $args_defaults[$k];

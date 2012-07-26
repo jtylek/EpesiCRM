@@ -41,7 +41,7 @@ class CRM_TasksInstall extends ModuleInstall {
 		Utils_AttachmentCommon::new_addon('task');
 		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'messanger_addon', _M('Alerts'));
 // ************ other ************** //
-		CRM_CalendarCommon::new_event_handler('Tasks', array('CRM_TasksCommon', 'crm_calendar_handler'));
+		CRM_CalendarCommon::new_event_handler(_M('Tasks'), array('CRM_TasksCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('task', 'CRM_TasksCommon', 'task_bbcode');
         CRM_RoundcubeCommon::new_addon('task');
 

@@ -14,6 +14,9 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     const VAR_LICENSE_KEY = 'license_key';
     const VAR_INSTALLATION_STATUS = 'ess_installations_status';
+	public static $error_inactive;
+	public static $error_access_repo;
+	public static $error_create_license;
 
     public static function menu() {
         if (!Base_AclCommon::i_am_sa() || TRIAL_MODE)
@@ -234,5 +237,10 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
 }
+
+Base_EssClientCommon::$error_inactive = _M('Module not active');
+Base_EssClientCommon::$error_access_repo = _M('Cannot access repository');
+Base_EssClientCommon::$error_create_license = _M('Cannot create license for module');
+
 
 ?>

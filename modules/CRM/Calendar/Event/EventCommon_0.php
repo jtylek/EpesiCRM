@@ -51,7 +51,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$result_ext = call_user_func($custom_handlers[$handler], 'get_all', $start, $end, $filter);
 			foreach ($result_ext as $v) if ($v!==null) {
 				$v['id'] = $handler.'#'.$v['id'];
-				$v['custom_agenda_col_0'] = isset($v['type'])?_V($v['type']):'---';
+				$v['custom_agenda_col_0'] = isset($v['type'])?$v['type']:'---';
 				if (isset($v['description'])) $v['custom_agenda_col_1'] = $v['description'];
 				if (isset($v['employees'])) {
 					$emps = array();

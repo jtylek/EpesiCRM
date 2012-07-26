@@ -68,10 +68,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$args = date('Y',$default).','.(date('n',$default)-1).','.(date('d',$default));
 		} else $args = '';
 		$js = 'var datepicker_'.$name.' = new Utils_PopupCalendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\',\''.$mode.'\',\''.$first_day_of_week.'\',';
-		$months = array('January','February','March','April','May','June','July','August','September','October','November','December');
-		$days = array('Sun', 'Mon','Tue','Wed','Thu','Fri','Sat');
-		foreach ($months as $k=>$m) $months[$k] = _V($m);
-		foreach ($days as $k=>$d) $days[$k] = _V($d);
+		$months = array(__('January'),__('February'),__('March'),__('April'),__('May'),__('June'),__('July'),__('August'),__('September'),__('October'),__('November'),__('December'));
+		$days = array(__('Sun', 'Mon'),__('Tue'),__('Wed'),__('Thu'),__('Fri'),__('Sat'));
 		$js .= 'new Array(\''.implode('\',\'', $months).'\'),';
 		$js .= 'new Array(\''.implode('\',\'', $days).'\')';
 		$js .= ');'.

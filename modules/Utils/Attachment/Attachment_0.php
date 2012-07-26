@@ -360,8 +360,8 @@ class Utils_Attachment extends Module {
 			else
 				$icon = '';
 
-			static $def_permissions = array('Public','Protected','Private');
-			$perm = _V($def_permissions[$row['permission']]);
+			$def_permissions = array(__('Public'),__('Protected'),__('Private'));
+			$perm = $def_permissions[$row['permission']];
 			$created_on = $row['note_on']>$row['upload_on']?$row['note_on']:$row['upload_on'];
 			$note_on = Base_RegionalSettingsCommon::time2reg($created_on,0);
 			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
@@ -759,7 +759,7 @@ class Utils_Attachment extends Module {
 		$fck->setFCKProps('99%','200');
 		
 		$form->addRule('note',__('Maximal lenght of note exceeded'),'maxlength',65535);
-		$form->set_upload_button_caption('Save');
+		$form->set_upload_button_caption(__('Save'));
 		if($form->getSubmitValue('note')=='' && !$form->is_file())
 			$form->addRule('note',__('Please enter note or choose file'),'required');
 

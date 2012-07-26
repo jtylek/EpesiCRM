@@ -92,7 +92,7 @@ class Base_Menu extends Module {
 				} else
 					$url = null;
 
-				if ($translate) $k = _V($k);
+				if ($translate) $k = _V($k); // ****** Menu - translate labels
 				if(array_key_exists('__submenu__', $arr)) {
 					unset($arr['__submenu__']);
 					$menu->begin_submenu($k,$icon);

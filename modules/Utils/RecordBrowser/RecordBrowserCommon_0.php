@@ -21,7 +21,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static $options_limit = 50;
 
     private static $clear_get_val_cache = false;
-	
     public static function get_val($tab, $field, $record, $links_not_recommended = false, $args = null) {
         self::init($tab);
         $commondata_sep = '/';
@@ -698,7 +697,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_caption($tab) {
 		static $cache = null;
         if ($cache===null) $cache = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties');
-		if (is_string($tab) && isset($cache[$tab])) return $cache[$tab];
+		if (is_string($tab) && isset($cache[$tab])) return _V($cache[$tab]);
 		return '---';
     }
     public static function get_sql_type($type) {
@@ -2296,7 +2295,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 										foreach ($args[0] as $t) $cap[] = '<b>'.self::get_caption($t).'</b>';
 										$cap = implode(' '.__('or').' ',$cap);
 									} $cap = '<b>'.self::get_caption($args[0]).'</b>';
-									$ret .= ' '.__('of').' '._V($cap);
+									$ret .= ' '.__('of').' '.$cap;
 								}
 								if (isset($args[1])) {
 									$val = implode('<br />&nbsp;&nbsp;&nbsp;',self::crits_to_words($args[0], $args[1]));
@@ -2307,9 +2306,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								if (isset($args[0])) {
 									if (is_array($args[0])) {
 										$cap = array();
-										foreach ($args[0] as $t) $cap[] = '<b>'._V(self::get_caption($t)).'</b>';
+										foreach ($args[0] as $t) $cap[] = '<b>'.self::get_caption($t).'</b>';
 										$cap = implode(' '.__('or').' ',$cap);
-									} $cap = '<b>'._V(self::get_caption($args[0])).'</b>';
+									} $cap = '<b>'.self::get_caption($args[0]).'</b>';
 									$ret .= ' '.$cap;
 								}
 								if (isset($args[1])) {

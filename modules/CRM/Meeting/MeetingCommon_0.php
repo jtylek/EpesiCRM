@@ -418,9 +418,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$end = strtotime('+'.$values['duration'].' seconds', $start);
 			$ret['day_details'] = array('start'=>array(
 				'day'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'day', 'default_date'=>strtotime($values['date']))), array()).'>'.date('j', $start_disp).'</a>', 
-				'month'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'month', 'default_date'=>strtotime($values['date']))), array()).'>'._V(date('F', $start_disp)).'</a>', // ****** date() - handled by Utils/Calendar
+				'month'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'month', 'default_date'=>strtotime($values['date']))), array()).'>'.__date('F', $start_disp).'</a>',
 				'year'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'year', 'default_date'=>strtotime($values['date']))), array()).'>'.date('Y', $start_disp).'</a>',
-				'weekday'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'week', 'default_date'=>strtotime($values['date']))), array()).'>'._V(date('l', $start_disp)).'</a>' // ****** date() - handled by Utils/Calendar
+				'weekday'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'week', 'default_date'=>strtotime($values['date']))), array()).'>'.__date('l', $start_disp).'</a>'
 			));
 			if (!isset($values['timeless']) || !$values['timeless'])
 				$ret['event_info'] = array('start_time'=>Base_RegionalSettingsCommon::time2reg($start,2,false), 'end_time'=>Base_RegionalSettingsCommon::time2reg($end,2,false), 'duration'=>Base_RegionalSettingsCommon::seconds_to_words($values['duration']), 'start_date'=>'-', 'end_date'=>'-');
@@ -594,8 +594,8 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$id = $r['id'];
 		}
 
-		$next = array('type'=>'Meeting');
-		
+		$next = array('type'=>__('Meeting'));
+
 //		if ($r['duration']!=-1) {
 //			$r['date'] = Base_RegionalSettingsCommon::time2reg($r['date'].' '.date('H:i:s', strtotime($r['time'])),false,true,true,false);
 //			$r['recurrence_end'] = Base_RegionalSettingsCommon::time2reg($r['recurrence_end'].' '.date('H:i:s', strtotime($r['time'])),false,true,true,false);

@@ -14,7 +14,7 @@ class Apps_ActivityReport extends Module {
 	    if (!Base_AclCommon::check_permission('View Activity Report')) return;
 		$rb_tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties ORDER BY caption');
 		foreach ($rb_tabs as $k=>$v)
-			$rb_tabs[$k] = _V($v); // ****** RecordSet caption
+			$rb_tabs[$k] = Utils_RecordBrowserCommon::get_caption($k);
 
 		$form = $this->init_module('Libs/QuickForm');
 

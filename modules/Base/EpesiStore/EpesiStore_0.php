@@ -276,7 +276,7 @@ class Base_EpesiStore extends Module {
         foreach ($ordered_items as $r) {
             $info = & $server_response[$r['id']];
             $success = $info === true ? true : false;
-            $message = is_string($info) ? ' (' . _V($info) . ')' : "";
+            $message = is_string($info) ? ' (' . _V($info) . ')' : ""; // ****** All options translated in EssClientCommon
             print("{$r['name']} - <span style=\"color: " . ($success ? self::color_success : self::color_failure) . "\">" . $success ? __('Ordered') : __('Not ordered') . "$message</span><br/>");
         }
     }

@@ -96,7 +96,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		if($id===false) return false;
 		$ret = DB::GetOne('SELECT value FROM utils_commondata_tree WHERE id=%d',array($id));
 		if($translate)
-			$ret = _V($ret);
+			$ret = _V($ret); // ****** CommonData value translation
 		$cache[$name.'__'.$translate] = $ret;
 		return $ret;
 	}
@@ -249,7 +249,9 @@ class Utils_CommonDataCommon extends ModuleCommon {
 
 	public static function translate_array(& $arr) {
 		foreach($arr as $k=>&$v) {
-			$v = _V($v);
+			if (is_array($v))
+				$v = &$v['value'];
+			$v = _V($v); // ****** CommonData value translation
 		}
 		return $arr;
 	}

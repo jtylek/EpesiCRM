@@ -349,7 +349,7 @@ class CRM_TasksCommon extends ModuleCommon {
 			$id = $r['id'];
 		}
 
-		$next = array('type'=>'Task');
+		$next = array('type'=>__('Task'));
 		
 		$day = $r['deadline'];
 		$iday = strtotime($day);

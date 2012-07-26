@@ -45,7 +45,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 		Utils_AttachmentCommon::new_addon('crm_meeting');
 		Utils_RecordBrowserCommon::new_addon('crm_meeting', 'CRM/Meeting', 'messanger_addon', _M('Alerts'));
 // ************ other ************** //
-		CRM_CalendarCommon::new_event_handler('Meetings', array('CRM_MeetingCommon', 'crm_calendar_handler'));
+		CRM_CalendarCommon::new_event_handler(_M('Meetings'), array('CRM_MeetingCommon', 'crm_calendar_handler'));
         CRM_RoundcubeCommon::new_addon('crm_meeting');
 
 		Utils_BBCodeCommon::new_bbcode('meeting', 'CRM_MeetingCommon', 'meeting_bbcode');

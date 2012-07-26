@@ -8,49 +8,6 @@
  * @subpackage calendar
  */
  
-// ***** date("l") *****
-// __('Monday')
-// __('Tuesday')
-// __('Wednesday')
-// __('Thursday')
-// __('Friday')
-// __('Saturday')
-// __('Sunday')
-// ***** date("D") *****
-// __('Mon')
-// __('Tue')
-// __('Wed')
-// __('Thu')
-// __('Fri')
-// __('Sat')
-// __('Sun')
-// ***** date("F") *****
-// __('January')
-// __('February')
-// __('March')
-// __('April')
-// __('May')
-// __('June')
-// __('July')
-// __('August')
-// __('September')
-// __('October')
-// __('November')
-// __('December')
-// ***** date("M") *****
-// __('Jan')
-// __('Feb')
-// __('Mar')
-// __('Apr')
-// __('May')
-// __('Jun')
-// __('Jul')
-// __('Aug')
-// __('Sep')
-// __('Oct')
-// __('Nov')
-// __('Dec')
-
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Calendar extends Module {
 	private static $views = array('Agenda','Day','Week','Month','Year');
@@ -108,7 +65,14 @@ class Utils_Calendar extends Module {
 				if(!in_array($v,self::$views))
 					trigger_error('Invalid view: '.$v,E_USER_ERROR);
 
-				$this->tb->set_tab(_V($v),array($this, strtolower($v)));
+				switch ($v) {
+					case 'Agenda': $label = 'Agenda'; break;
+					case 'Day': $label = 'Day'; break;
+					case 'Week': $label = 'Week'; break;
+					case 'Month': $label = 'Month'; break;
+					case 'Year': $label = 'Year'; break;
+				}
+				$this->tb->set_tab($label,array($this, strtolower($v)));
 				if(strcasecmp($v,$this->settings['default_view'])==0)
 					$def_tab = $k;
 			}
@@ -424,7 +388,7 @@ class Utils_Calendar extends Module {
 		if(is_array($this->settings['custom_agenda_cols'])) {
 			$w = 50/count($this->settings['custom_agenda_cols']);
 			foreach($this->settings['custom_agenda_cols'] as $k=>$col) {
-				if (!is_array($col)) $col = array('name'=>_V($col), 'order'=>'cus_col_'.$k,'width'=>$w);
+				if (!is_array($col)) $col = array('name'=>$col, 'order'=>'cus_col_'.$k,'width'=>$w);
 				$columns[] = $col;
 				$add_cols[] = $k;
 			}
@@ -488,13 +452,13 @@ class Utils_Calendar extends Module {
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text,'day',$this->settings['first_day_of_week']));
 
 		$header_day = array('number'=>date('d',$this->date),
-							'label'=>_V(date('l',$this->date)),
-							'label_short'=>_V(date('D',$this->date))
+							'label'=>__date('l',$this->date),
+							'label_short'=>__date('D',$this->date)
 							);
 
-		$theme->assign('header_month', _V(date('F',$this->date)));
+		$theme->assign('header_month', __date('F',$this->date));
 		$theme->assign('link_month', $this->create_unique_href(array('action'=>'switch','time'=>$this->date, 'tab'=>'Month')));
-		$theme->assign('header_year', date('Y',$this->date));
+		$theme->assign('header_year', __date('Y',$this->date));
 		$theme->assign('link_year', $this->create_unique_href(array('action'=>'switch','time'=>$this->date, 'tab'=>'Year')));
 		$theme->assign('header_day', $header_day);
 
@@ -668,13 +632,13 @@ class Utils_Calendar extends Module {
 			$second_span_width = date('d',$dis_week_from+518400);
 			$header_month = array('first_span'=>array(
 									'colspan'=>7-$second_span_width,
-									'month'=>_V(date('M',$dis_week_from)),
+									'month'=>__date('M',$dis_week_from),
 									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from),
 									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Year'))),
 								'second_span'=>array(
 									'colspan'=>$second_span_width,
-									'month'=>_V(date('M',$dis_week_from+518400)),
+									'month'=>__date('M',$dis_week_from+518400),
 									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from+518400, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from+518400),
 									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from+518400, 'tab'=>'Year'))
@@ -682,7 +646,7 @@ class Utils_Calendar extends Module {
 		} else {
 			$header_month = array('first_span'=>array(
 									'colspan'=>7,
-									'month'=>_V(date('M',$dis_week_from)),
+									'month'=>__date('M',$dis_week_from),
 									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from),
 									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Year'))),
@@ -691,7 +655,7 @@ class Utils_Calendar extends Module {
 		for ($i=0; $i<7; $i++) {
 			$that_day = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$dis_week_from))+3600*24*$i).' '.date('H:i:s',$dis_week_from));
 			$day_headers[] = array(
-						'date'=>date('d', $that_day).' '._V(date('D', $that_day)),
+						'date'=>date('d', $that_day).' '.__date('D', $that_day),
 						'style'=>(date('Y-m-d',$that_day)==$today?'today':'other').(date('N',$that_day)>=6?'_weekend':''),
 						'link' => $this->create_unique_href(array('action'=>'switch','time'=>$that_day, 'tab'=>'Day'))
 						);
@@ -888,7 +852,7 @@ class Utils_Calendar extends Module {
 		$day = strtotime('Sun');
 		$day = strtotime('+'.Utils_PopupCalendarCommon::get_first_day_of_week().' days', $day);
 		for ($i=0; $i<7; $i++) {
-			$day_headers[] = array('class'=>(date('N',$day)>=6?'weekend_day_header':'day_header'), 'label'=>_V(date('D', $day)));
+			$day_headers[] = array('class'=>(date('N',$day)>=6?'weekend_day_header':'day_header'), 'label'=>__date('D', $day));
 			$day = strtotime('+1 day', $day);
 		}
 
@@ -896,7 +860,7 @@ class Utils_Calendar extends Module {
 
 		$theme->assign('day_headers', $day_headers);
 		$theme->assign('month', $month);
-		$theme->assign('month_label', _V(date('F', $this->date)));
+		$theme->assign('month_label', __date('F', $this->date));
 		$theme->assign('year_label', date('Y', $this->date));
 		$theme->assign('year_link', $this->create_unique_href(array('time'=>$this->date, 'tab'=>'Year','action'=>'switch')));
 		$theme->assign('trash_id','UCtrash');
@@ -963,7 +927,7 @@ class Utils_Calendar extends Module {
 		$day = strtotime('Sun');
 		$day = strtotime('+'.Utils_PopupCalendarCommon::get_first_day_of_week().' days', $day);
 		for ($i=0; $i<7; $i++) {
-			$day_headers[] = _V(date('D', $day));
+			$day_headers[] = __date('D', $day);
 			$day = strtotime('+1 day', $day);
 		}
 
@@ -978,7 +942,7 @@ class Utils_Calendar extends Module {
 			$month = $this->month_array($date, $ret);
 			$year[] = array('month' => $month,
 							'month_link' => $this->create_unique_href(array('action'=>'switch','time'=>$date, 'tab'=>'Month')),
-							'month_label' => _V(date('F', $date)),
+							'month_label' => __date('F', $date),
 							'year_label' => date('Y', $date)
 							);
 		}

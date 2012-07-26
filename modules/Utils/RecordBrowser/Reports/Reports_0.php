@@ -997,7 +997,12 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function pdf_subject_date_range() {
-		return _V(ucfirst($this->date_range['date_range_type']).' report -  %s  -  %s', $this->from_to_date());
+		switch ($this->date_range['date_range_type']) {
+			case 'day': return __('Daily report -  %s  -  %s', $this->from_to_date());
+			case 'week': return __('Weekly report -  %s  -  %s', $this->from_to_date());
+			case 'month': return __('Monthly report -  %s  -  %s', $this->from_to_date());
+			case 'year': return __('Yearly report -  %s  -  %s', $this->from_to_date());
+		}
 	}
 
 	public function set_pdf_title($arg) {

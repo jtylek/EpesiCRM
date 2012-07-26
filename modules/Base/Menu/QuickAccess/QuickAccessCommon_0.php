@@ -68,11 +68,12 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		$result = array();
 		foreach($array as $k=>$v){
 			if (substr($k,0,2)=='__') continue;
-			if (is_array($v) && array_key_exists('__submenu__',$v)) $result = array_merge($result,self::check_for_links($prefix.$k.': ',$v,$mod,$prefixt._V($k).': '));
+			$c_pre = $prefixt._V($k); // ****** Menu options label
+			if (is_array($v) && array_key_exists('__submenu__',$v)) $result = array_merge($result,self::check_for_links($prefix.$k.': ',$v,$mod,$c_pre.': '));
 			elseif(is_array($v)) {
 				$result[] = array('name'=>md5($prefix.$k)
 							,'link'=>$v
-							,'label'=>$prefixt._V($k)
+							,'label'=>$c_pre
 							,'module'=>$mod);
 			}
 		}

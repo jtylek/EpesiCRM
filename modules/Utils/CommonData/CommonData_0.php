@@ -97,10 +97,10 @@ class Utils_CommonData extends Module {
 					));
 
 		print('<h2>'.$name.'</h2><br>');
-		$ret = Utils_CommonDataCommon::get_array($name,false,true);
+		$ret = Utils_CommonDataCommon::get_translated_array($name,false,true);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_data($k,_V($v['value']));
+			$gb_row->add_data($k,$v['value']); // ****** CommonData value translation
 			$gb_row->add_action($this->create_callback_href(array($this,'browse'),array($name.'/'.$k,false)),'View');
 			if(!$v['readonly']) {
 				$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
