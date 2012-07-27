@@ -23,5 +23,6 @@ $original = $_POST['original'];
 $new = $_POST['new'];
 
 Base_LangCommon::append_custom(null, array($original => $new));
+Base_Lang_AdministratorCommon::send_translation(Base_LangCommon::get_lang_code(), $original, $new);
 
 ?>

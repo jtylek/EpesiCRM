@@ -54,7 +54,7 @@ class Utils_LeightboxPrompt extends Module {
 
             $this->leightbox_ready = true;
 
-            eval_js_once('f'.$this->group.'_followups_deactivate = function(){leightbox_deactivate(\''.$this->group.'_followups_leightbox\');}');
+            eval_js_once('f'.$this->group.'_prompt_deactivate = function(){leightbox_deactivate(\''.$this->group.'_prompt_leightbox\');}');
             eval_js_once('f'.$this->group.'_show_form = function(arg){$(arg+\'_'.$this->group.'_form_section\').style.display=\'block\';$(\''.$this->group.'_buttons_section\').style.display=\'none\';}');
             eval_js('$(\''.$this->group.'_buttons_section\').style.display=\''.(count($this->options)==1?'none':'block').'\';');
 
@@ -69,8 +69,8 @@ class Utils_LeightboxPrompt extends Module {
                         $form->addElement('hidden', $this->group.'_'.$w, 'none', array('id'=>$this->group.'_'.$w));
                 }
                 if ($v['form']!==null) {
-                    $v['form']->addElement('button', 'cancel', __('Cancel'), array('id'=>$this->group.'_lp_cancel', 'onclick'=>count($this->options)==1?'f'.$this->group.'_followups_deactivate();':'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
-                    $v['form']->addElement('submit', 'submit', __('OK'), array('id'=>$this->group.'_lp_submit', 'onclick'=>'f'.$this->group.'_followups_deactivate();'));
+                    $v['form']->addElement('button', 'cancel', __('Cancel'), array('id'=>$this->group.'_lp_cancel', 'onclick'=>count($this->options)==1?'f'.$this->group.'_prompt_deactivate();':'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
+                    $v['form']->addElement('submit', 'submit', __('OK'), array('id'=>$this->group.'_lp_submit', 'onclick'=>'f'.$this->group.'_prompt_deactivate();'));
                     ob_start();
                     $th = $this->init_module('Base/Theme');
                     $v['form']->assign_theme('form', $th);
@@ -80,8 +80,8 @@ class Utils_LeightboxPrompt extends Module {
                     $sections[] = '<div id="'.$k.'_'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>';
                     eval_js('$(\''.$k.'_'.$this->group.'_form_section\').style.display=\''.(count($this->options)!=1?'none':'block').'\';');
                 } else {
-//                  $next_button['open'] = '<a '.$this->create_callback_href(array($this,'option_chosen'), array($k)).' onmouseup="f'.$this->group.'_followups_deactivate();">';
-                    $next_button['open'] = '<a href="javascript:void(0);" onmouseup="f'.$this->group.'_followups_deactivate();'.$form->get_submit_form_js().';">';
+//                  $next_button['open'] = '<a '.$this->create_callback_href(array($this,'option_chosen'), array($k)).' onmouseup="f'.$this->group.'_prompt_deactivate();">';
+                    $next_button['open'] = '<a href="javascript:void(0);" onmouseup="f'.$this->group.'_prompt_deactivate();'.$form->get_submit_form_js().';">';
                     $form->display();
                 }
                 $next_button['close'] = '</a>';
@@ -99,7 +99,7 @@ class Utils_LeightboxPrompt extends Module {
             ob_start();
             $theme->display('leightbox');
             $profiles_out = ob_get_clean();
-            Libs_LeightboxCommon::display($this->group.'_followups_leightbox', $profiles_out, $header, $big);
+            Libs_LeightboxCommon::display($this->group.'_prompt_leightbox', $profiles_out, $header, $big);
         }
     }
 
@@ -107,10 +107,14 @@ class Utils_LeightboxPrompt extends Module {
 		return Utils_LeightboxPromptCommon::get_href($this->group, $params);
     }
 
+    public function open($params=array()) {
+		return Utils_LeightboxPromptCommon::open($this->group, $params);
+    }
+
     private $init = false;
     public function get_href_js($params=array()) {
 		$this->init_leightbox();
-        $ret = 'leightbox_activate(\''.$this->group.'_followups_leightbox\');';
+        $ret = 'leightbox_activate(\''.$this->group.'_prompt_leightbox\');';
         if (!empty($params)) $ret .= 'f'.$this->group.'_set_params(\''.implode('\',\'',$params).'\');';
         return $ret;
     }
@@ -121,7 +125,7 @@ class Utils_LeightboxPrompt extends Module {
 	}
 
     public function get_close_leightbox_href() {
-        return 'href="javascript:void(0)" onclick="f'.$this->group.'_followups_deactivate();"';
+        return 'href="javascript:void(0)" onclick="f'.$this->group.'_prompt_deactivate();"';
     }
 
     public function export_values() {

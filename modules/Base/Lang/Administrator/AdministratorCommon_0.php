@@ -12,6 +12,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
+	const translation_server_url = 'http://translate.epesibim.com';
+
 	public static function admin_caption() {
 		return array('label'=>__('Language & Translations'), 'section'=>__('Regional Settings'));
 	}
@@ -45,6 +47,19 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 			));
 	}
 	
+	public static function allow_sending($flush=false) {
+		static $cache = -1;
+		if ($cache===-1 || $flush) $cache = DB::GetOne('SELECT allow FROM base_lang_trans_contrib WHERE user_id=%d',Acl::get_user());
+		return $cache;
+	}
+	
+	public static function send_translation($lang, $org, $trans) {
+		if (!self::allow_sending()) return false;
+		$ip = gethostbyname($_SERVER['SERVER_NAME']);
+		$r = DB::GetRow('SELECT * FROM base_lang_trans_contrib WHERE user_id=%d', array(Acl::get_user()));
+		$q = array('first_name'=>$r['first_name'], 'last_name'=>$r['last_name'], 'lang'=>$lang, 'ip'=>$ip, 'original'=>$org, 'translation'=>$trans);
+		file_get_contents(self::translation_server_url.'/translations.php?'.http_build_query($q));
+	}
 }
 
 ?>

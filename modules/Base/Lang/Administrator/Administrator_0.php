@@ -24,11 +24,54 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			$this->parent->reset();
 		}
 		
+		$lp = $this->init_module('Utils/LeightboxPrompt');
+		$form = $this->init_module('Libs/QuickForm',null,'translations_sending');
+		$desc = '<div id="trans_sett_info" style="line-height:17px;">';
+		$desc .= __('You have now option to contribute with your translations to help us deliver EPESI in various languages. You can opt in to send your translations to EPESI central database, allowing to deliver EPESI in your language to other users.').'<br>';
+		$desc .= __('Please note that the translations you submit aren\'t subject to copyright. EPESI Team will distribute the translations free of charge to the end users.').'<br>';
+		$desc .= __('The only data being sent is the values of the fields presented below and the translated strings, we do not receive any other information contained in EPESI.').'<br>';
+		$desc .= __('You can also change your Translations Contribution settings at later time.').'<br>';
+		$desc .= '</div>';
+		eval_js('$("trans_sett_info").up("td").setAttribute("colspan",2);');
+		eval_js('$("trans_sett_info").up("td").style.borderRadius="0";'); // Not really nice, but will have to do for now
+		eval_js('$("decription_label").up("td").hide();');
+		$ip = gethostbyname($_SERVER['SERVER_NAME']);
+		$me = CRM_ContactsCommon::get_my_record();
+		$form->addElement('static', 'header', '<div id="decription_label" />', $desc);
+		$form->addElement('checkbox', 'allow', __('Enable sending translations'), null, array('id'=>'allow', 'onchange'=>'$("send_current").disabled=$("first_name").disabled=$("last_name").disabled=!this.checked;'));
+		$form->addElement('checkbox', 'send_current', __('Send your current translations'), null, array('id'=>'send_current'));
+		$form->addElement('text', 'first_name', __('First Name'), array('id'=>'first_name'));
+		$form->addElement('text', 'last_name', __('Last Name'), array('id'=>'last_name'));
+		$form->addElement('static', 'IP', __('IP'), $ip);
+		$lp->add_option(null, null, null, $form);
+		eval_js('$("send_current").disabled=$("first_name").disabled=$("last_name").disabled=!$("allow").checked;');
+		$vals = $lp->export_values();
+		if ($vals) {
+			$values = $vals['form'];
+			if (!isset($values['allow'])) $values['allow'] = 0;
+			if (!isset($values['first_name'])) $values['first_name'] = '';
+			if (!isset($values['last_name'])) $values['last_name'] = '';
+			DB::Execute('DELETE FROM base_lang_trans_contrib WHERE user_id=%d', array(Acl::get_user()));
+			DB::Execute('INSERT INTO base_lang_trans_contrib (user_id, allow, first_name, last_name) VALUES (%d, %d, %s, %s)', array(Acl::get_user(), $values['allow'], $values['first_name'], $values['last_name']));
+			if (isset($values['send_current'])) eval_js('new Ajax.Request("modules/Base/Lang/Administrator/send_current.php",{method:"post",parameters:{cid:Epesi.client_id}});');
+		}
+
+		if (Base_Lang_AdministratorCommon::allow_sending(true)===null) {
+			$form->setDefaults(array('allow'=>1, 'send_current'=>1, 'first_name'=>$me['first_name'], 'last_name'=>$me['last_name']));
+			$lp->open();
+		} else {
+			$r = DB::GetRow('SELECT * FROM base_lang_trans_contrib WHERE user_id=%d', array(Acl::get_user()));
+			if (!$r['first_name']) $r['first_name'] = $me['first_name'];
+			if (!$r['last_name']) $r['last_name'] = $me['last_name'];
+			$form->setDefaults(array('allow'=>$r['allow'], 'send_current'=>0, 'first_name'=>$r['first_name'], 'last_name'=>$r['last_name']));
+		}
+		Base_ActionBarCommon::add('settings', __('Translations Contributions'), $lp->get_href());
+		$this->display_module($lp, array(__('Translations Contributions settings')));
+
 		$form = & $this->init_module('Libs/QuickForm',null,'language_setup');
-		
+
 		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
 		$langs = array_combine($ls_langs,$ls_langs);
-		$form->addElement('header', 'module_header', __('Languages Administration'));
 		$form->addElement('select','lang_code',__('Default language'), $langs, array('onchange'=>$form->get_submit_form_js()));
 		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
 			$form->freeze('lang_code');
@@ -51,7 +94,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		if($form->validate()) {
 			$form->process(array($this,'submit_admin'));
 		}
-		$form->display();
+		$form->display_as_row();
 		
 		if($form2->validate()) {
 			$vals = $form2->exportValues();
@@ -59,8 +102,10 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		}
 		$filter = $this->get_module_variable('filter', 0);
 		$form2->setDefaults(array('lang_filter'=>$filter));
-
-		$trans_filter = $form2->toHtml();
+	
+		ob_start();
+		$form2->display_as_row();
+		$trans_filter = ob_get_clean();
 		
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate'))
 			eval_js('lang_translate = function (original, span_id) {'.
@@ -86,7 +131,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			if ($t || !isset($translations[$o])) $translations[$o] = $t;
 		}
 		foreach($translations as $o=>$t) {
-			if (isset($custom_translations[$o])) {
+			if (isset($custom_translations[$o]) && $custom_translations[$o]) {
 				$t = $custom_translations[$o];
 			} else {
 				if ($filter==1) continue;

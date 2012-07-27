@@ -54,6 +54,11 @@ class Libs_LeightboxCommon extends ModuleCommon {
 	public static function close($id) {
 		eval_js('leightbox_deactivate(\''.$id.'\')');
 	}
+
+	public static function open($id) {
+		eval_js('leightbox_activate(\''.$id.'\');');
+	}
+
 }
 
 ?>

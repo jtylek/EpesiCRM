@@ -140,11 +140,11 @@ class Base_LangCommon extends ModuleCommon {
 		global $translations;
 		global $custom_translations;
 
-		@include_once(DATA_DIR.'/Base_Lang/base/'.self::get_lang_code().'.php');
+		@include(DATA_DIR.'/Base_Lang/base/'.self::get_lang_code().'.php');
 		if(!is_array($translations))
 			$translations=array();
 
-		@include_once(DATA_DIR.'/Base_Lang/custom/'.self::get_lang_code().'.php');
+		@include(DATA_DIR.'/Base_Lang/custom/'.self::get_lang_code().'.php');
 		if(!is_array($custom_translations))
 			$custom_translations=array();
 			
@@ -199,12 +199,23 @@ class Base_LangCommon extends ModuleCommon {
 	/**
 	 * For internal use only.
 	 */
-	public static function get_langpack($code) {
+	public static function get_langpack($code, $s='base') {
+		if (!is_file(DATA_DIR.'/Base_Lang/'.$s.'/'.$code.'.php')) return false;
 		global $translations;
-		if (!is_file(DATA_DIR.'/Base_Lang/base/'.$code.'.php')) return false;
-		include_once(DATA_DIR.'/Base_Lang/base/'.$code.'.php');
-		$langpack = $translations;
-		include_once(DATA_DIR.'/Base_Lang/base/'.self::get_lang_code().'.php');
+		global $custom_translations;
+		if ($s=='base')
+			$translations = array();
+		else
+			$custom_translations = array();
+		include(DATA_DIR.'/Base_Lang/'.$s.'/'.$code.'.php');
+		if ($s=='base') {
+			$langpack = $translations;
+			$translations = array();
+		} else {
+			$langpack = $custom_translations;
+			$custom_translations = array();
+		}
+		include_once(DATA_DIR.'/Base_Lang/'.$s.'/'.self::get_lang_code().'.php');
 		return $langpack;
 	}
 
