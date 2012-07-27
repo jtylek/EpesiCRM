@@ -26,7 +26,7 @@ class CRM_AssetsCommon extends ModuleCommon {
         /* computer */
         if($r['category']<3) {
             /* structure: variable_name => display_label */
-            $k = array('host_name'=>__('Host Name'), 'processor'=>__('CPU'), 'ram'=>__('RAM'), 'hdd'=>__('HDD'), 'operating_system'=>__('OS'), 'optical_devices'=>__('DRIVES'), 'audio'=>__('Audio'), 'software'=>__('SOFT');
+            $k = array('host_name'=>__('Host Name'), 'processor'=>__('CPU'), 'ram'=>__('RAM'), 'hdd'=>__('HDD'), 'operating_system'=>__('OS'), 'optical_devices'=>__('DRIVES'), 'audio'=>__('Audio'), 'software'=>__('SOFT'));
             foreach($k as $var => $label) {
                 $pos = Base_User_SettingsCommon::get('CRM/Assets', $var.'_pos');
                 if($r[$var] && Base_User_SettingsCommon::get('CRM/Assets', $var)) $arr[$pos] = '['.$label.'] '.$r[$var];
