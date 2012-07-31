@@ -103,7 +103,7 @@ class ModuleManager {
 		$queue = array();
 		$virtual_modules = array(); //virtually loaded modules
 		$priority = array();
-		$installed_modules = ModuleManager::get_load_priority_array(true);
+		$installed_modules = DB::Execute('SELECT name,version FROM modules ORDER BY priority');
 
 		foreach($installed_modules as $v) {
 			$module_to_load = $v['name'];
@@ -111,7 +111,7 @@ class ModuleManager {
 			$deps = self :: check_dependencies($module_to_load, $version, $virtual_modules);
 
 			if(!empty($deps)) {
-				$queue[] = array('name'=>$module_to_load,'version'=>$version);
+				$queue[] = array('name'=>$module_to_load,'version'=>$version, 'deps'=>$deps);
 				continue;
 			}
 
@@ -133,21 +133,34 @@ class ModuleManager {
 				}
 			}
 		}
+		foreach($priority as $k=>$v)
+			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
 		if(!empty($queue)) {
+			ModuleManager::load_modules();
+			$failed = false;
 			$x = 'Modules deps not satisfied: ';
 			foreach($queue as $k=>$m) {
-				$deps = self :: check_dependencies($m['name'], $m['version'], $virtual_modules);
+				$deps = $m['deps'];
 				$yyy = array();
 				foreach($deps as $xxx) {
+					if (ModuleManager::is_installed($xxx['name'])<0) {
+						ob_start();
+						$ret = ModuleManager::install($xxx['name'], $xxx['version']);
+						ob_get_clean();
+						if ($ret) continue;
+						else $failed = true;
+					}
 					$yyy[] = $xxx['name'].' ['.$xxx['version'].']';
 				}
 				$x .= $m['name'].' ['.$m['version'].'] ('.implode(',',$yyy).'), ';
 			}
-			$x .= '<br>';
-			trigger_error($x,E_USER_ERROR);
+			if ($failed) {
+				$x .= '<br>';
+				trigger_error($x,E_USER_ERROR);
+			} else {
+				return self::create_load_priority_array();
+			}
 		}
-		foreach($priority as $k=>$v)
-			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
 	}
 
 	/**
@@ -647,11 +660,18 @@ class ModuleManager {
 	public static final function get_load_priority_array($force=false) {
 		static $load_prior_array=null;
 		if($load_prior_array===null || $force) {
-			$installed_modules = DB::Execute('SELECT name,version FROM modules ORDER BY priority');
+			$priorities = array();
+			$installed_modules = DB::Execute('SELECT name,version,priority FROM modules ORDER BY priority');
 			if ($installed_modules!==false) {
 				$load_prior_array = array();
-				while (($row = $installed_modules->FetchRow()))
+				while (($row = $installed_modules->FetchRow())) {
+					if (isset($priorities[$row['priority']])) {
+						ModuleManager::create_load_priority_array();
+						return self::get_load_priority_array($force);
+					}
+					$priorities[$row['priority']] = true;
 					$load_prior_array[] = $row;
+				}
 			}
 		}
 		return $load_prior_array;
