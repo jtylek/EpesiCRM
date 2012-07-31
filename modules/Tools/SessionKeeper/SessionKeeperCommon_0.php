@@ -26,7 +26,7 @@ class Tools_SessionKeeperCommon extends ModuleCommon {
         if($time<28800)
             $def['28800']=__('8 hours');
         return array(__('Misc')=>array(
-            array('name'=>'time','label'=>__('Keep session at least'),'type'=>'select','values'=>$def,'default'=>'default','reload'=>true)
+            array('name'=>'time','label'=>__('Keep session at least'),'type'=>'select','values'=>$def,'default'=>28800,'reload'=>true)
             ));
     }
 

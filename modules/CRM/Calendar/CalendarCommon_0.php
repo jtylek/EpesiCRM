@@ -60,8 +60,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 
 					array('name'=>'start_day','label'=>__('Start day at'), 'type'=>'select', 'values'=>$start_day, 'default'=>'8:00'),
 					array('name'=>'end_day','label'=>__('End day at'), 'type'=>'select', 'values'=>$end_day, 'default'=>'17:00'),
-					array('name'=>'interval','label'=>__('Interval of grid'), 'type'=>'select', 'values'=>array('0:30'=>__('30 minutes'),'1:00'=>__('1 hour'),'2:00'=>__('2 hours')), 'default'=>'1:00'),
-					array('name'=>'default_color','label'=>__('Default event color'), 'type'=>'select', 'values'=>$color, 'default'=>'1')
+					array('name'=>'interval','label'=>__('Interval of grid'), 'type'=>'select', 'values'=>array('0:30'=>__('30 minutes'),'1:00'=>__('1 hour'),'2:00'=>__('2 hours')), 'default'=>'1:00')
 				)
 			);
 		}
@@ -80,8 +79,6 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 
 	public static function applet_settings() {
-		$cols = CRM_Calendar_EventCommon::get_available_colors();
-		$cols[0] = 'All';
 		$ret = array(	array('name'=>'days', 'label'=>__('Look for events in'), 'type'=>'select', 'default'=>'7', 'values'=>array('1'=>__('1 day'),'2'=>__('2 days'),'3'=>__('3 days'),'5'=>__('5 days'),'7'=>__('1 week'),'14'=>__('2 weeks'), '30'=>__('1 month'), '61'=>__('2 months'))));
 		$custom_events = self::get_event_handlers();
 		if (!empty($custom_events)) {

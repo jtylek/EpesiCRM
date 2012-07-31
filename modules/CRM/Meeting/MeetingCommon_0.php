@@ -543,12 +543,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 			);
 	}
 	
-	public static function get_available_colors() {
-		static $color = array(0 => '', 1 => 'green', 2 => 'yellow', 3 => 'red', 4 => 'blue', 5=> 'gray', 6 => 'cyan', 7 =>'magenta');
-		$color[0] = $color[Base_User_SettingsCommon::get('CRM_Calendar','default_color')];
-		return $color;
-	}
-	
 	public static function crm_event_update($id, $start, $duration, $timeless) {
 		$id = explode('_', $id);
 		$id = reset($id);

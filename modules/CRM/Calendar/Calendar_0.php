@@ -165,7 +165,6 @@ class CRM_Calendar extends Module {
 		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
 //		trigger_error($gb->get_query_order());
 		$data = array();
-		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		Base_ThemeCommon::load_css('CRM_Calendar', 'agenda');
 
 		$custom_events = DB::GetAssoc('SELECT id, handler_callback FROM crm_calendar_custom_events_handlers ORDER BY group_name');

@@ -1839,7 +1839,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $parts = explode(' ', $text);
             $crits = array();
             foreach ($parts as $k=>$v) {
-                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));;
+                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
                 $chr = '(';
                 foreach ($fields as $f) {
                     $crits[$chr.str_repeat('_', $k).'"'.$f] = $v;
@@ -1851,7 +1851,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             else {
                 $crits = array();
                 foreach ($parts as $k=>$v) {
-                    $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));;
+                    $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
                     $chr = '(';
                     foreach ($fields as $f) {
                         $crits[$chr.str_repeat('_', $k).'~"'.$f] = $v;

@@ -17,7 +17,7 @@ $port = $rec['security']=='ssl'?993:143;
 
 $mailbox = @imap_open('{'.$rec['server'].'/imap/readonly/novalidate-cert'.($rec['security']?'/'.$rec['security']:'').':'.$port.'}',$rec['login'],$rec['password'],OP_READONLY || OP_SILENT);
 $err = imap_errors();
-if(!$mailbox || $err) die('connection error');
+if(!$mailbox || $err) die(Utils_TooltipCommon::create(__('Connection error'), $err, false));
 $uns = @imap_search($mailbox,'UNSEEN ALL');
 $unseen = array();
 if($uns) {
