@@ -2369,10 +2369,10 @@ class Utils_RecordBrowser extends Module {
         $opts = array();
         $first = false;
         while ($row=$ret->FetchRow()) {
-            if (!$first) $first = $row['tab'];
             $opts[$row['tab']] = _V($row['caption']);
         }
 		asort($opts);
+		$first = reset(array_keys($opts));
         $form->addElement('select', 'recordset', __('Recordset'), $opts, array('onchange'=>$form->get_submit_form_js()));
         if ($form->validate()) {
             $tab = $form->exportValue('recordset');
@@ -2563,7 +2563,10 @@ class Utils_RecordBrowser extends Module {
 				}
 			}
 			foreach ($fields[$row['id']] as $k=>$v)
-				$fields[$row['id']][$k] = $all_fields[$v];
+				if (isset($all_fields[$v]))
+					$fields[$row['id']][$k] = $all_fields[$v];
+				else
+					unset($fields[$row['id']][$k]);
 			foreach ($clearance[$row['id']] as $k=>$v)
 				if (isset($all_clearances[$v])) $clearance[$row['id']][$k] = $all_clearances[$v];
 				else unset($clearance[$row['id']][$k]);

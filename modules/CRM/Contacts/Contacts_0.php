@@ -172,6 +172,7 @@ class CRM_Contacts extends Module {
 
 	public function contacts_actions($r, $gb_row) {
 		$is_employee = false;
+		if (!isset($r['company_name'])) return;
 		if (is_array($r['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $r['company_name'])) $is_employee = true;
 		$me = CRM_ContactsCommon::get_my_record();
 		$emp = array($me['id']);
@@ -217,6 +218,7 @@ class CRM_Contacts extends Module {
             array('sid'=>'fax', 'tid'=>'fax', 'text'=>__('Fax'), 'checked'=>false),
         );
         foreach($data as $row) {
+			if (!isset($company[$row['sid']])) continue;
             $form->addElement('checkbox', $row['sid'], $row['text'], '&nbsp;&nbsp;<span style="color: gray">'.$company[$row['sid']].'</span>', $row['checked'] ? array('checked'=>'checked'): array());
         }
 

@@ -949,8 +949,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $or_started = false;
         $sep = DB::qstr('::');
 		$group_or_start = $group_or = false;
+		$special_chars = str_split('!"(|<>=~]');
         foreach($crits as $k=>$v){
             self::init($tab, $admin);
+			$f = explode('[',$k);
+			$f = str_replace($special_chars,'',$f[0]);
+            if (!isset(self::$table_rows[$f]) && $f[0]!=':' && $f!=='id' && (!isset(self::$hash[$f]) || !isset(self::$table_rows[self::$hash[$f]]))) continue; //failsafe
             $negative = $noquotes = $or_start = $or = false;
             $operator = '=';
             while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
@@ -1026,15 +1030,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						$having .= $negative?'true':'false';
 						continue;
 					}
-/*					$having_cd = array();
-					foreach ($allowed_cd as $vvv) {
-						if ($is_multiselect)
-							$having_cd[] = 'r.f_'.$ref.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr('__'.$vvv.'__'),DB::qstr('%'));
-						else
-							$having_cd[] = 'r.f_'.$ref.'='.DB::qstr($vvv);
-					}
-					$having .= '('.implode(' OR ',$having_cd).')';
-					continue; */
 				} else {
 					self::init($tab2);
 					$det = explode('/', $col2);
@@ -1080,7 +1075,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$k = $ref;
 			}
 			self::init($tab);
-            if (!isset(self::$table_rows[$k]) && $k[0]!=':' && $k!=='id' && !isset(self::$table_rows[self::$hash[$k]])) continue; //failsafe
             if ($k[0]==':') {
                 switch ($k) {
                     case ':Fav' :   $final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_favorite AS fav ON fav.'.$tab.'_id=r.id';
@@ -1410,7 +1404,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (class_exists('CRM_ContactsCommon')) {
 				$me = CRM_ContactsCommon::get_my_record();
 				if ($str=='USER') return $me['id']?$me['id']:-1;
-				if ($str=='USER_COMPANY') return $me['company_name']?$me['company_name']:-1;
+				if ($str=='USER_COMPANY') return (isset($me['company_name']) && $me['company_name'])?$me['company_name']:-1;
 			}
 		}
 		return $str;

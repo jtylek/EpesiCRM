@@ -31,16 +31,19 @@ class ModuleManager {
 	 * @param string $module_class_name module class name - underscore separated
 	 */
 	public static final function include_install($module_class_name) {
-		if(isset(self::$modules_install[$module_class_name])) return;
+		if(isset(self::$modules_install[$module_class_name])) return true;
 		$path = self::get_module_dir_path($module_class_name);
 		$file = self::get_module_file_name($module_class_name);
+		$full_path = 'modules/' . $path . '/' . $file . 'Install.php';
+		if (!file_exists($full_path)) return false;
 		ob_start();
-		require_once ('modules/' . $path . '/' . $file . 'Install.php');
+		$ret = require_once($full_path);
 		ob_end_clean();
 		$x = $module_class_name.'Install';
 		if(!(class_exists($x) && in_array($x, get_declared_classes())) || !array_key_exists('ModuleInstall',class_parents($x)))
 			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
 		self::$modules_install[$module_class_name] = new $x($module_class_name);
+		return true;
 	}
 
 	/**
@@ -175,7 +178,8 @@ class ModuleManager {
 	 * @return array
 	 */
 	private static final function check_dependencies($module_to_check, $version, & $module_table) {
-		self::include_install($module_to_check);
+		$ret = self::include_install($module_to_check);
+		if (!$ret) return array();
 
 		$func = array (
 			self::$modules_install[$module_to_check],
@@ -601,11 +605,14 @@ class ModuleManager {
 			if ($name == $module_to_uninstall)
 				continue;
 
-			self::include_install($name);
-			$required = call_user_func(array (
-				self::$modules_install[$name],
-				'requires'
-				),$version);
+			$callable = self::include_install($name);
+			if ($callable)
+				$required = call_user_func(array (
+					self::$modules_install[$name],
+					'requires'
+					),$version);
+			else
+				$required = array();
 
 			foreach ($required as $req_mod) { //for each dependency of that module
 				$req_mod['name'] = str_replace('/','_',$req_mod['name']);
@@ -918,7 +925,7 @@ class ModuleManager {
     public static function required_modules($verbose = false) {
         $ret = array();
         foreach (self::$modules as $name => $version) {
-			self::include_install($name);
+			if (!self::include_install($name)) return array();
 			$required = call_user_func(array (
 				self::$modules_install[$name],
 				'requires'

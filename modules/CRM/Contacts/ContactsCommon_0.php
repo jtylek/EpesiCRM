@@ -80,6 +80,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function get_main_company() {
 		$me = CRM_ContactsCommon::get_my_record();
+		if (!isset($me['company_name'])) return -1;
         return $me['company_name'];
     }
     public static function get_my_record() {
@@ -448,7 +449,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (isset($record['company_name']) && $record['company_name'] && is_numeric($record['company_name'])) {
             $first_comp = $record['company_name'];
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
-        } elseif (is_array($record['related_companies']) && !empty($record['related_companies'])) {
+        } elseif (isset($record['related_companies']) && is_array($record['related_companies']) && !empty($record['related_companies'])) {
             $first_comp = reset($record['related_companies']);
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
         }
@@ -978,8 +979,8 @@ class CRM_ContactsCommon extends ModuleCommon {
             self::copy_company_data_subroutine($values);
 
             $is_employee = false;
-            if (is_array($values['related_companies']) && in_array(CRM_ContactsCommon::get_main_company(), $values['related_companies'])) $is_employee = true;
-            if ($values['company_name'] == CRM_ContactsCommon::get_main_company()) $is_employee = true;
+            if (isset($values['related_companies']) && is_array($values['related_companies']) && in_array(CRM_ContactsCommon::get_main_company(), $values['related_companies'])) $is_employee = true;
+            if (isset($values['company_name']) && $values['company_name'] == CRM_ContactsCommon::get_main_company()) $is_employee = true;
             $me = CRM_ContactsCommon::get_my_record();
             $emp = array($me['id']);
             $cus = array();
@@ -999,7 +1000,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
 			break;
         case 'add':
-            if ($values['email']=='' && $values['login']!=0 && $mode=='add')
+            if (isset($values['email']) && $values['email']=='' && $values['login']!=0 && $mode=='add')
                 $values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
         case 'edit':
             if (isset($values['create_company'])) {
@@ -1031,7 +1032,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$values['login'] = Base_UserCommon::get_user_id($values['username']);
 				} else {
 					if ($values['login']) {
-						Base_User_LoginCommon::change_user_preferences($values['login'], $values['email'], $values['set_password']);
+						Base_User_LoginCommon::change_user_preferences($values['login'], isset($values['email'])?$values['email']:'', isset($values['set_password'])?$values['set_password']:null);
 						if (isset($values['username']) && $values['username']) Base_UserCommon::rename_user($values['login'], $values['username']);
 					}
 				}
@@ -1158,7 +1159,7 @@ class CRM_ContactsCommon extends ModuleCommon {
          * we should come back to initial state - do not print LB.
          */
         if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) ) {
-            if($values['company_name']) Base_ActionBarCommon::add('edit', __('Copy company data'), Module::create_href(array('UCD'=>true)));
+            if(isset($values['company_name']) && $values['company_name']) Base_ActionBarCommon::add('edit', __('Copy company data'), Module::create_href(array('UCD'=>true)));
         }
         if(isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) {
             $ucd = Module::static_get_module_variable('CRM/Contacts', 'UCD', 0);

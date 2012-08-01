@@ -179,7 +179,7 @@ class ErrorHandler {
 //sometimes set_error_handler doesn't work with classes
 function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
     if(class_exists('ErrorHandler'))
-    	return ErrorHandler::handle_error($type, htmlspecialchars($message),$errfile,$errline,$errcontext);
+    	return ErrorHandler::handle_error($type, $message,$errfile,$errline,$errcontext);
 
    	if (($type & error_reporting()) > 0) {
         echo 'Error ('.$type.'): '.$message.' in '.$errfile.':'.$errline;

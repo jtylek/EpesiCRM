@@ -152,7 +152,7 @@ class Base_EpesiStore extends Module {
 	}
     public function display_registration_form() {
         $m = $this->init_module('Base/EssClient');
-        $this->display_module($m, null, 'admin');
+        $this->display_module($m, array(true), 'admin');
 		return self::$return;
     }
 
