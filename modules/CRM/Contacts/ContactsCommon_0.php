@@ -866,6 +866,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	public static function check_new_username($arg) {
 		if (!isset($arg['login'])) $arg['login'] = Utils_RecordBrowser::$last_record['login'];
+		if (!$arg['login']) return true;
 		$ret = array();
 		if (strlen($arg['username'])<3 || strlen($arg['username'])>32) $ret['username'] = __('A username must be between 3 and 32 chars');
 		if (isset($arg['login']) && $arg['login']!='new') {

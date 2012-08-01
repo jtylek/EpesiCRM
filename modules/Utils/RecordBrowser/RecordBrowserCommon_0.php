@@ -949,7 +949,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $or_started = false;
         $sep = DB::qstr('::');
 		$group_or_start = $group_or = false;
-		$special_chars = str_split('!"(|<>=~]');
+		$special_chars = str_split('!"(|<>=~]^');
         foreach($crits as $k=>$v){
             self::init($tab, $admin);
 			$f = explode('[',$k);
@@ -1383,6 +1383,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 case '==': $result = ($r[$k] == $v);
             }
             if ($negative) $result = !$result;
+//			if ($r['id']==1 && $k!='login') trigger_error(print_r($crits, true).'<hr>'.print_r($r, true).'<hr>'.serialize($result).$k);
             if ($or_started) $or_result |= $result;
             else if (!$result) return $cache[$tab.'__'.$id] = false;
         }
