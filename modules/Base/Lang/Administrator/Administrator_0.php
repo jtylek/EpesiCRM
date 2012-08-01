@@ -56,7 +56,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			if (isset($values['send_current'])) eval_js('new Ajax.Request("modules/Base/Lang/Administrator/send_current.php",{method:"post",parameters:{cid:Epesi.client_id}});');
 		}
 
-		if (Base_Lang_AdministratorCommon::allow_sending(true)===null) {
+		$allow_sending = Base_Lang_AdministratorCommon::allow_sending(true);
+		if ($allow_sending===null || $allow_sending===false) {
 			$form->setDefaults(array('allow'=>1, 'send_current'=>1, 'first_name'=>$me['first_name'], 'last_name'=>$me['last_name']));
 			$lp->open();
 		} else {

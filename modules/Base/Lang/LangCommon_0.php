@@ -104,8 +104,10 @@ class Base_LangCommon extends ModuleCommon {
 	private static function append($to='base', $lang, $arr) {
 		if ($to!=='base') $to = 'custom';
 		if ($lang===null) $lang = self::get_lang_code();
+		$exists = file_exists(DATA_DIR.'/Base_Lang/'.$to.'/'.$lang.'.php');
 		$f = @fopen(DATA_DIR.'/Base_Lang/'.$to.'/'.$lang.'.php', 'a');
 		if(!$f)	return false;
+		if(!$exists) fwrite($f,"<?php\n");
 		foreach($arr as $k=>$v)
 				fwrite($f, '$'.($to=='custom'?'custom_':'').'translations[\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
 
