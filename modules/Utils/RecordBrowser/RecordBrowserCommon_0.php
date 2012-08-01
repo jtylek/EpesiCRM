@@ -1383,7 +1383,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 case '==': $result = ($r[$k] == $v);
             }
             if ($negative) $result = !$result;
-//			if ($r['id']==1 && $k!='login') trigger_error(print_r($crits, true).'<hr>'.print_r($r, true).'<hr>'.serialize($result).$k);
             if ($or_started) $or_result |= $result;
             else if (!$result) return $cache[$tab.'__'.$id] = false;
         }
