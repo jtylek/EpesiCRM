@@ -6,12 +6,12 @@
 .Base_Setup .filters {
 	width: 100%;
 	height: 44px;
-	margin: 6px 0;
+	margin: 10px 0;
 }
 
 .Base_Setup .filters > div {
 	cursor: pointer;
-	float: left;
+	display: inline-block;
 	height: 21px;
 	padding: 9px 18px;
 	border: 1px solid #666;
@@ -37,9 +37,6 @@
 	background: linear-gradient(top,  #efefef 0%,#e7e7e7 40%,#dbdbdb 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#dbdbdb',GradientType=0 ); /* IE6-9 */
 }
-.epesi_rtl .Base_Setup .filters > div {
-	float: right;
-}
 
 .Base_Setup .filters > div.selected {
 	color: black;
@@ -60,7 +57,7 @@
 }
 
 #Base_Setup .big-button {
-	float: left;
+    display: inline-block;
 	width: 300px;
 	height: 160px;
 	margin: 5px;
@@ -73,9 +70,6 @@
 	-webkit-box-shadow: 1px 1px 6px gray;
 	-moz-box-shadow: 1px 1px 6px gray;
 	box-shadow: 1px 1px 6px gray;
-}
-.epesi_rtl #Base_Setup .big-button {
-	float: right;
 }
 #Base_Setup .big-button,
 #Base_Setup .toggle_options {

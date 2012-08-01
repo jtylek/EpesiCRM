@@ -3,9 +3,10 @@
 <div style="max-width:900px" id="Base_Admin__access">
 {foreach from=$sections key=sk item=s}
 	<div class="epesi_label header" style="clear:both;">{$s.header}</div>
+    <div class="buttons_container">
 		{foreach key=key item=button from=$s.buttons}
 			{$__link.sections.$sk.buttons.$key.link.open}
-				<div class="epesi_big_button bigger" id="{$button.id}" style="float:left;">
+				<div class="epesi_big_button bigger" id="{$button.id}">
 				<table>
 					<tr>
 						<td class="bb_icon">
@@ -48,7 +49,7 @@
 				</div>
 			{$__link.sections.$sk.buttons.$key.link.close}
 		{/foreach}
-	</tr>
+	</div>
 {/foreach}
 </div>
 

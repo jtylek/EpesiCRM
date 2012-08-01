@@ -10,7 +10,14 @@
 	text-align: center;
 	font-size: 11px;
 
-	display: block;
+	display: inline-block;
+}
+
+#Base_Admin__access .buttons_container {
+    text-align: start;
+    width: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 #Base_Admin__access .epesi_big_button .inactive_icon {
