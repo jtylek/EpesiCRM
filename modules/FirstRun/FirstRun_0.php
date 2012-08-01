@@ -52,7 +52,7 @@ class FirstRun extends Module {
 			$f = & $wizard->begin_page();
 			$f->addElement('header', null, __('Welcome to EPESI first run wizard'));
 			$f->setDefaults(array('setup_type'=>key($this->ini)));
-			foreach($this->ini as $name=>$pkgs)
+			foreach($this->ini as $name=>$pkgs) {
 				switch ($name) {
 					case 'CRM installation': $label = __('CRM installation'); break;
 					case 'CRM and Sales Opportunity': $label = __('CRM and Sales Opportunity'); break;
@@ -60,6 +60,7 @@ class FirstRun extends Module {
 					default: $label = $name.' (* missing translation)'; break;
 				}
 				$f->addElement('radio', 'setup_type', '', $label, $name);
+			}
 			$f->addElement('html','<tr><td colspan=2><br /><STRONG>If you are not sure which package to choose select CRM Installation.<br>You can customize your installation later.</STRONG><br><br></td></tr>');
 
 			$wizard->next_page();
