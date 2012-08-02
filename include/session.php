@@ -126,7 +126,7 @@ class DBSession {
         $data = serialize($_SESSION);
         if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
         else $data = DB::qstr($data);
-        $ret &= DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($name)),'name');
+        $ret &= @DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($name)),'name');
         if(DATABASE_DRIVER=='mysqlt') {
             DB::Execute('SELECT RELEASE_LOCK(%s)',array($name));
         }
