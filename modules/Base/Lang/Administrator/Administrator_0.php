@@ -19,6 +19,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	public function admin() {
 		global $translations;
 		global $custom_translations;
+		load_js('modules/Base/Lang/Administrator/js/main.js');
+		eval_js('translate_init();');
 
 		if($this->is_back()) {
 			$this->parent->reset();
@@ -108,25 +110,6 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$form2->display_as_row();
 		$trans_filter = ob_get_clean();
 		
-		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate'))
-			eval_js('lang_translate = function (original, span_id) {'.
-					'var ret = prompt("Translate: "+original, $(span_id).innerHTML);'.
-					'if (ret === null) return;'.
-					'$(span_id).innerHTML = ret;'.
-					'$(span_id).style.color = "red";'.
-					'new Ajax.Request(\'modules/Base/Lang/Administrator/update_translation.php\', {'.
-						'method: \'post\','.
-						'parameters:{'.
-						'	original: original,'.
-						'	new: ret,'.
-						'	cid: Epesi.client_id'.
-						'},'.
-						'onSuccess:function(t) {'.
-							'if($(span_id))$(span_id).style.color = "black";'.
-						'}'.
-					'});'.
-				'}');
-		
 		$data = array();
 		foreach ($custom_translations as $o=>$t) {
 			if ($t || !isset($translations[$o])) $translations[$o] = $t;
@@ -141,10 +124,11 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			if ($filter==3 && $t) continue;
 			$span_id = 'trans__'.md5($o);
 			if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate')) {
-				$o = '<a href="javascript:void(0);" onclick="lang_translate(\''.Epesi::escapeJS(htmlspecialchars($o)).'\',\''.$span_id.'\');">'.$o.'</a>';
+				$org = '<a href="javascript:void(0);" onclick="lang_translate(\''.Epesi::escapeJS(htmlspecialchars($o)).'\',\''.$span_id.'\');">'.$o.'</a>';
 				$t = '<span id="'.$span_id.'">'.$t.'</span>';
 			}
-			$data[] = array($o,$t);
+			eval_js('translate_add_id("'.$span_id.'","'.Epesi::escapeJS(htmlspecialchars($o)).'");');
+			$data[] = array($org,$t);
 		}
 		
 		$gb = &$this->init_module('Utils/GenericBrowser',null,'lang_translations');
@@ -160,6 +144,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			$id++;
 		}
 		$this->display_module($gb,array(true),'automatic_display');
+		Utils_ShortcutCommon::add(array(' '), 'translate_first_on_the_list', array('disable_in_input'=>1));
 	}
 	
 		
