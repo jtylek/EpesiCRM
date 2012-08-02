@@ -5,7 +5,7 @@
 <div>
 
 {if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search)}
-<table class="letters-search" border="0" cellpadding="0" cellspacing="0" style="table-layout:auto;">
+<table class="letters-search nonselectable" border="0" cellpadding="0" cellspacing="0" style="table-layout:auto;">
 	<tbody>
 		<tr>
 			<!-- Custom label -->
@@ -98,7 +98,7 @@
 				{$form_data_paging.hidden}
 				{/if}
 				{if isset($order) || $first || $prev || $summary || isset($form_data_paging.page) || isset($form_data_paging.per_page)}
-					<table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
+					<table id="Utils_GenericBrowser__navigation" class="nonselectable" border="0" cellspacing="0" cellpadding="0">
 						<tr class="nav_background">
 							<td style="text-align: left; width: 1px; white-space: nowrap;">
 								{if isset($order)}

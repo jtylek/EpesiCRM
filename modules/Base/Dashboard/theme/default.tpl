@@ -2,7 +2,7 @@
 		<div class="content_shadow_css3_dashboard {$color}_dashboard">
             <table class="container {$color}_dashboard" cellpadding="0" cellspacing="0" border="0">
                 <tbody>
-                <tr>
+                <tr class="nonselectable">
                 	<td width="3px" class="header actions {$color}_dashboard">
                 	</td>
                 	{if !empty($actions)}

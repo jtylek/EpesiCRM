@@ -788,7 +788,7 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$this->form_s->addElement('text','search',__('Keyword'), array('placeholder'=>__('search keyword...')));
+					$this->form_s->addElement('text','search',__('Keyword'), array('placeholder'=>__('search keyword...'), 'x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$form->get_submit_form_js()));
 					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:''));
 					$search_on=true;
 					break;
@@ -806,7 +806,7 @@ class Utils_GenericBrowser extends Module {
 					$this->form_s->addElement('hidden','search__'.$v['search'],'');
 					$default = isset($search[$v['search']])?$search[$v['search']]:'';
 					$this->form_s->setDefaults(array('search__'.$v['search']=>$default));
-					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" placeholder="'.__('search keyword...').'" onblur="document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
+					$in = '<input value="'.$default.'" x-webkit-speech="x-webkit-speech" lang="'.Base_LangCommon::get_lang_code().'" name="search__textbox_'.$v['search'].'" placeholder="'.__('search keyword...').'" onblur="document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
 					$search_fields[$k+$mov] = $in;
 					$search_on=true;
 				}

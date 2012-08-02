@@ -43,6 +43,11 @@ if(file_exists('easyinstall.php')){
 	unlink('easyinstall.php');
 }
 
+if (isset($_GET['check'])) {
+	require_once('check.php');
+	print('<br><br><a class="button" href="index.php" style="display:block;width:200px; margin:0 auto;">Continue with installation</a>');
+	die();
+}
 
 if(trim(ini_get("safe_mode")))
 	die('You cannot use EPESI with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and will be removed in PHP 6.0.');
@@ -354,7 +359,7 @@ define(\'DEMO_MODE\',0);
 	ob_end_flush();
 
 	if(file_exists(DATA_DIR.'/config.php'))
-		header('Location: index.php');
+		header('Location: setup.php?check=1');
 	ob_end_flush();
 }
 

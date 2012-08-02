@@ -134,7 +134,7 @@ function smarty_function_html_table_epesi($params, &$smarty)
 
     if (is_array($cols)) {
         $cols = ($hdir == 'right') ? $cols : array_reverse($cols);
-        $output .= "<thead><tr>\n";
+        $output .= "<thead><tr class=\"nonselectable\">\n";
 
         for ($r=0; $r<$cols_count; $r++) {
 			if ($r==0) $class = 'class="first"';

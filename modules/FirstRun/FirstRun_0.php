@@ -49,21 +49,22 @@ class FirstRun extends Module {
 			$wizard = & $this->init_module('Utils/Wizard');
 			/////////////////////////////////////////////////////////////
 			$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
-			$f = & $wizard->begin_page();
-			$f->addElement('header', null, __('Welcome to EPESI first run wizard'));
-			$f->setDefaults(array('setup_type'=>key($this->ini)));
-			foreach($this->ini as $name=>$pkgs) {
-				switch ($name) {
-					case 'CRM installation': $label = __('CRM installation'); break;
-					case 'CRM and Sales Opportunity': $label = __('CRM and Sales Opportunity'); break;
-					case 'CRM and Bug Tracker installation': $label = __('CRM and Bug Tracker installation'); break;
-					default: $label = $name.' (* missing translation)'; break;
+			if (count($this->ini)>1) {
+				$f = & $wizard->begin_page();
+				$f->addElement('header', null, __('Welcome to EPESI first run wizard'));
+				$f->setDefaults(array('setup_type'=>key($this->ini)));
+				foreach($this->ini as $name=>$pkgs) {
+					switch ($name) {
+						case 'CRM installation': $label = __('CRM installation'); break;
+						case 'CRM and Sales Opportunity': $label = __('CRM and Sales Opportunity'); break;
+						case 'CRM and Bug Tracker installation': $label = __('CRM and Bug Tracker installation'); break;
+						default: $label = $name.' (* missing translation)'; break;
+					}
+					$f->addElement('radio', 'setup_type', '', $label, $name);
 				}
-				$f->addElement('radio', 'setup_type', '', $label, $name);
+				$f->addElement('html','<tr><td colspan=2><br /><STRONG>If you are not sure which package to choose select CRM Installation.<br>You can customize your installation later.</STRONG><br><br></td></tr>');
+				$wizard->next_page();
 			}
-			$f->addElement('html','<tr><td colspan=2><br /><STRONG>If you are not sure which package to choose select CRM Installation.<br>You can customize your installation later.</STRONG><br><br></td></tr>');
-
-			$wizard->next_page();
 
 			/////////////////////////////////////////////////////////////////
 			$f = & $wizard->begin_page('simple_user');
@@ -130,7 +131,11 @@ class FirstRun extends Module {
 
 	public function done($d) {
 		@set_time_limit(0);
-		$pkgs = isset($this->ini[$d[0]['setup_type']]['package'])?$this->ini[$d[0]['setup_type']]['package']:array();
+		if (count($this->ini)==1) {
+			$pkgs = reset($this->ini);
+			$pkgs = $pkgs['package'];
+		} else
+			$pkgs = isset($this->ini[$d[0]['setup_type']]['package'])?$this->ini[$d[0]['setup_type']]['package']:array();
 		
 		$t = microtime(true);
 		error_log(date('Y-m-d H:i:s').': installing "Base" ...'."\n",3,DATA_DIR.'/firstrun.log');

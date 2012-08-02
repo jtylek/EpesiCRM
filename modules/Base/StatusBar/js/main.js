@@ -7,11 +7,13 @@ statusbar_fade=function(fade_count){
 	if (fade_count && statusbar_fade_count!=fade_count) return;
 	var seconds = 0.2;
 	wait_while_null('$(\'Base_StatusBar\')','Effect.Fade(\'Base_StatusBar\',{duration:'+seconds+'});');
+	$('Base_StatusBar').onclick = null;
 	statusbar_hide_selects('visible');
 	setTimeout('statusbar_fade_double_check('+statusbar_fade_count+')',seconds*1000+50);
 };
 statusbar_fade_double_check = function(fade_count) {
 	if (fade_count && statusbar_fade_count!=fade_count) $('Base_StatusBar').style.display='block';
+	else $('Base_StatusBar').onclick = Function("if(!Epesi.procOn)statusbar_fade();");
 };
 statusbar_hide_selects=function(visibility){
 	if(navigator.userAgent.toLowerCase().indexOf('msie')>=0){
