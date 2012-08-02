@@ -165,7 +165,6 @@ class CRM_ContactsInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Utils/RecordBrowser', 'version'=>0),
 			array('name'=>'Utils/Attachment', 'version'=>0),
-			array('name'=>'CRM/Acl', 'version'=>0),
 			array('name'=>'CRM/Common', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Acl', 'version'=>0),

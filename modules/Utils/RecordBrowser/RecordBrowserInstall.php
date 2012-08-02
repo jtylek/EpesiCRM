@@ -75,7 +75,6 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 			array('name'=>'Utils/GenericBrowser', 'version'=>0), 
 			array('name'=>'Utils/TabbedBrowser', 'version'=>0), 
 			array('name'=>'Utils/Watchdog', 'version'=>0), 
-			array('name'=>'CRM/Acl','version'=>0),
 			array('name'=>'Base/User/Login', 'version'=>0), 
 			array('name'=>'Base/User', 'version'=>0)
 		);

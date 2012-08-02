@@ -82,7 +82,6 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Utils/RecordBrowser', 'version'=>0),
 			array('name'=>'Utils/Attachment', 'version'=>0),
-			array('name'=>'CRM/Acl', 'version'=>0),
 			array('name'=>'CRM/Contacts', 'version'=>0),
 			array('name'=>'CRM/Roundcube', 'version'=>0),
 			array('name'=>'CRM/Common', 'version'=>0),

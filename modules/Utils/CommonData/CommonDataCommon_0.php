@@ -244,7 +244,9 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		// TODO: $readinfo screws translation (array is no longer simple)
 		$arr = self::get_array($name,$order_by_key,$readinfo,$silent);
 		if ($arr===null) return null;
-		return self::translate_array($arr);
+		$arr = self::translate_array($arr);
+		asort($arr);
+		return $arr;
 	}
 
 	public static function translate_array(& $arr) {

@@ -40,7 +40,6 @@ class Apps_ActivityReportInstall extends ModuleInstall {
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/User','version'=>0),
-			array('name'=>'CRM/Acl','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Utils/RecordBrowser','version'=>0));
 	}	

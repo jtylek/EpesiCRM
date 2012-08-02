@@ -58,7 +58,6 @@ class Base_User_SettingsInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0), 
-			array('name'=>'CRM/Acl','version'=>0),
 			array('name'=>'Base/User','version'=>0),
 			array('name'=>'Base/User/Login','version'=>0));
 	}
