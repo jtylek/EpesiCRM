@@ -84,7 +84,7 @@ class Utils_Path extends Module {
 	 */
 	public function toHtml() {
 		$this->prepare();
-		$theme = & $this->init_module('Base/Theme');
+		$theme = $this->init_module('Base/Theme');
 		$str = '<div id="path_conteiner_'.$this->_id.'">'.$this->_string.'</div>';
 		$theme->assign('id', 'path_conteiner_'.$this->_id);
 		$theme->assign('root', $this->root);

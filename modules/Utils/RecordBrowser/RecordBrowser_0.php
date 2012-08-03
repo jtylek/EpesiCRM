@@ -1641,7 +1641,7 @@ class Utils_RecordBrowser extends Module {
             }
             if ($args['required']) {
 				$el = $form->getElement($args['id']);
-				if (!PEAR::isError($el)) {
+				if (!$form->isError($el)) {
 					if ($el->getType()!='static') {
 						$form->addRule($args['id'], __('Field required'), 'required');
 						$el->setAttribute('placeholder', __('Field required'));
@@ -2372,7 +2372,8 @@ class Utils_RecordBrowser extends Module {
             $opts[$row['tab']] = _V($row['caption']);
         }
 		asort($opts);
-		$first = reset(array_keys($opts));
+		$first = array_keys($opts);
+		$first = reset($first);
         $form->addElement('select', 'recordset', __('Recordset'), $opts, array('onchange'=>$form->get_submit_form_js()));
         if ($form->validate()) {
             $tab = $form->exportValue('recordset');
@@ -2850,7 +2851,7 @@ class Utils_RecordBrowser extends Module {
 			case $args['commondata']:
 				$array_id = is_array($args['param']) ? $args['param']['array_id'] : $args['ref_table'];
 				if (strpos($array_id, '::')===false) 
-					$arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, $args['param']['order_by_key']);
+					$arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, is_array($args['param'])?$args['param']['order_by_key']:false);
 				break;
 			case $this->tab=='contact' && $field=='login' ||
 				 $this->tab=='rc_accounts' && $field=='epesi_user': // just a quickfix, better solution will be needed

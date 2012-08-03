@@ -61,7 +61,7 @@ class Tests_Callbacks extends Module {
 	}
 	
 	public function form1() {
-		$form = & $this->init_module('Libs/QuickForm',null,'f1');
+		$form = $this->init_module('Libs/QuickForm',null,'f1');
 		$form->addElement('header',null,'Form 1');
 		$form->addElement('submit',null,'OK');
 	
@@ -77,7 +77,7 @@ class Tests_Callbacks extends Module {
 
 	public function form2() {
 		if($this->is_back()) return false;
-		$form = & $this->init_module('Libs/QuickForm',null,'f2');
+		$form = $this->init_module('Libs/QuickForm',null,'f2');
 		$form->addElement('header',null,'Form 2');
 		$form->addElement('textarea','text','Form 2');
 		$form->addElement('submit',null,'OK');

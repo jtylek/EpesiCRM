@@ -95,7 +95,7 @@ class CRM_Roundcube extends Module {
     }
 
     public function attachments_addon($arg,$rb) {
- 		$m = & $this->init_module('Utils/GenericBrowser',null,'attachments');
+ 		$m = $this->init_module('Utils/GenericBrowser',null,'attachments');
         $attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($arg['id']));
         $data = array();
         foreach($attachments as $k=>&$n) {

@@ -357,7 +357,7 @@ class HTML_QuickForm extends HTML_Common
      * @access    public
      * @return    void
      */
-    function registerElementType($typeName, $include, $className)
+    static function registerElementType($typeName, $include, $className)
     {
         $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][strtolower($typeName)] = array($include, $className);
     } // end func registerElementType
@@ -563,7 +563,7 @@ class HTML_QuickForm extends HTML_Common
      * @return    HTML_QuickForm_Element
      * @throws    HTML_QuickForm_Error
      */
-    function &createElement($elementType)
+    static function &createElement($elementType)
     {
         $args    =  func_get_args();
         $element =& HTML_QuickForm::_loadElement('createElement', $elementType, array_slice($args, 1));
@@ -584,7 +584,7 @@ class HTML_QuickForm extends HTML_Common
      * @return    HTML_QuickForm_Element
      * @throws    HTML_QuickForm_Error
      */
-    function &_loadElement($event, $type, $args)
+    static function &_loadElement($event, $type, $args)
     {
         $type = strtolower($type);
         if (!HTML_QuickForm::isTypeRegistered($type)) {
@@ -633,7 +633,7 @@ class HTML_QuickForm extends HTML_Common
         } else {
             $args = func_get_args();
             $elementObject =& $this->_loadElement('addElement', $element, array_slice($args, 1));
-            if (PEAR::isError($elementObject)) {
+            if ($this->isError($elementObject)) {
                 return $elementObject;
             }
         }
@@ -1338,7 +1338,7 @@ class HTML_QuickForm extends HTML_Common
      * @access    public
      * @return    boolean
      */
-    function isTypeRegistered($type)
+    static function isTypeRegistered($type)
     {
         return isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][strtolower($type)]);
     } // end func isTypeRegistered
@@ -1937,7 +1937,7 @@ class HTML_QuickForm extends HTML_Common
             }
             foreach ($elementList as $elementName) {
                 $value = $this->exportValue($elementName);
-                if (PEAR::isError($value)) {
+                if ($this->isError($value)) {
                     return $value;
                 }
                 $values[$elementName] = $value;

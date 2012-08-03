@@ -26,7 +26,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			return;
 		}
 		
-		$form = & $this->init_module('Libs/QuickForm','Changing template');
+		$form = $this->init_module('Libs/QuickForm','Changing template');
 		
 		$themes = Base_Theme::list_themes();
 		$form->addElement('header', 'install_module_header', __('Themes Administration'));
@@ -84,7 +84,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		Base_ActionBarCommon::add('search',__('Update templates list'),$this->create_callback_href(array($this,'download_templates_list')));
 		
-		$m = & $this->init_module('Utils/GenericBrowser',null,'new_templates');
+		$m = $this->init_module('Utils/GenericBrowser',null,'new_templates');
  		$m->set_table_columns(array(array('name'=>'Name','search'=>1),array('name'=>'Version'),array('name'=>'Screenshot'),array('name'=>'Author','search'=>1),array('name'=>'Info','search'=>1),array('name'=>'Compatible')));
 		
 		$content = scandir($ld);

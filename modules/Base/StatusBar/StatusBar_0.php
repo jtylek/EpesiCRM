@@ -14,7 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_StatusBar extends Module {
 
 	public function body() {
-		$theme = & $this->init_module("Base/Theme");
+		$theme = $this->init_module("Base/Theme");
 		$theme->assign('statusbar_id','Base_StatusBar');
 		$theme->assign('text_id','statusbar_text');
 		$theme->display();

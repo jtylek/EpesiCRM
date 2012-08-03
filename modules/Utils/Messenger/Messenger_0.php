@@ -51,7 +51,7 @@ class Utils_Messenger extends Module {
 		if($this->is_back())
 			$this->pop_box0();
 
-		$f = &$this->init_module('Libs/QuickForm');
+		$f = $this->init_module('Libs/QuickForm');
 		
 		if($row) {
 			$a = Base_RegionalSettingsCommon::time2reg($row['alert_on'],true,true,true,false);
@@ -115,7 +115,7 @@ class Utils_Messenger extends Module {
 	}
 
 	public function body() {
-		$gb = & $this->init_module('Utils/GenericBrowser',null,'messages');
+		$gb = $this->init_module('Utils/GenericBrowser',null,'messages');
 		$gb->set_table_columns(array(
 			array('name'=>__('Alert on'), 'width'=>20),
 			array('name'=>__('Message'), 'width'=>50),

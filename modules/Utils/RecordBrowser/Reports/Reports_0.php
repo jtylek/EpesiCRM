@@ -960,7 +960,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		array_shift($gb_captions);
 		if (!empty($this->categories)) array_shift($gb_captions);
 
-		$tb = & $this->init_module('Utils/TabbedBrowser');
+		$tb = $this->init_module('Utils/TabbedBrowser');
 		foreach($this->ref_records as $k=>$r) {
 			$title = strip_tags(call_user_func($this->ref_record_display_callback, $r,true));
 			$tb->set_tab($title, array($this,'draw_chart'),array($r,$title,$gb_captions));

@@ -27,7 +27,7 @@ class Apps_Shoutbox extends Module {
 			return;
 		}
 		
-		$tb = & $this->init_module('Utils/TabbedBrowser');
+		$tb = $this->init_module('Utils/TabbedBrowser');
 		$tb->set_tab(__('Chat'), array($this,'chat'),true,null);
 		$tb->set_tab(__('History'), array($this,'history'),null);
 		$this->display_module($tb);
@@ -37,7 +37,7 @@ class Apps_Shoutbox extends Module {
 		$th = $this->init_module('Base/Theme');
 		$th->assign('header', __('Shoutbox History'));
 
-		$qf = & $this->init_module('Libs/QuickForm');
+		$qf = $this->init_module('Libs/QuickForm');
 
   	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
        	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 ORDER BY name');
@@ -77,7 +77,7 @@ class Apps_Shoutbox extends Module {
 			}
 		}
 
-		$gb = & $this->init_module('Utils/GenericBrowser',null,'shoutbox_history');
+		$gb = $this->init_module('Utils/GenericBrowser',null,'shoutbox_history');
 
 		$gb->set_table_columns(array(
 						array('name'=>__('From'),'width'=>10),
@@ -131,7 +131,7 @@ class Apps_Shoutbox extends Module {
 		eval_js('shoutbox_uid="'.$to.'"');
 		if(Base_AclCommon::is_user()) {
 			//initialize HTML_QuickForm
-			$qf = & $this->init_module('Libs/QuickForm');
+			$qf = $this->init_module('Libs/QuickForm');
 
 /*            $myid = Base_AclCommon::get_user();
         	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im')) {

@@ -14,7 +14,7 @@ class Tests_Menu extends Module {
 	public function body( ) {
 		print "menu ".$this->get_unique_href_variable('action');
 		
-		$menu = & $this->init_module("Utils/Menu");
+		$menu = $this->init_module("Utils/Menu");
 		$menu->add_link("aaa");
 		$menu->add_link("aaa");
 		$menu->begin_submenu("s");
@@ -65,7 +65,7 @@ class Tests_Menu extends Module {
 		$menu->add_link("aaa");
 		$this->display_module( $menu );
 		
-		$menu2 = & $this->init_module("Utils/Menu", "horizontal");
+		$menu2 = $this->init_module("Utils/Menu", "horizontal");
 		$menu2->add_link("bbb");
 		$menu2->add_link("bbb");
 		$menu2->begin_submenu("s");

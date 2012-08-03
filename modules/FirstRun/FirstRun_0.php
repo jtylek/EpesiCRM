@@ -13,7 +13,7 @@ class FirstRun extends Module {
 	private $ini;
 
 	public function body() {
-		$th = & $this->init_module('Base/Theme');
+		$th = $this->init_module('Base/Theme');
 		ob_start();
 		print('<center>');
 		$post_install = & $this->get_module_variable('post-install',array());
@@ -46,7 +46,7 @@ class FirstRun extends Module {
 			}
 		} else {
 
-			$wizard = & $this->init_module('Utils/Wizard');
+			$wizard = $this->init_module('Utils/Wizard');
 			/////////////////////////////////////////////////////////////
 			$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
 			if (count($this->ini)>1) {
@@ -67,7 +67,7 @@ class FirstRun extends Module {
 			}
 
 			/////////////////////////////////////////////////////////////////
-			$f = & $wizard->begin_page('simple_user');
+			$f = $wizard->begin_page('simple_user');
 			$f->addElement('header', null, __('Please enter administrator user login and password'));
 
 			$f->addElement('text', 'login', __('Login'));
@@ -88,17 +88,17 @@ class FirstRun extends Module {
 			$wizard->next_page();
 
 			/////////////////////////////////////////////////////
-			$f = & $wizard->begin_page('simple_mail');
+			$f = $wizard->begin_page('simple_mail');
 
-			$f->setDefaults(array('mail_method'=>'mail'));
 			$f->addElement('header',null, __('Mail settings'));
 			$f->addElement('html','<tr><td colspan=2>'.__('If you are on a hosted server it probably should stay as it is now.').'</td></tr>');
 			$f->addElement('select','mail_method', __('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'));
+			$f->setDefaults(array('mail_method'=>'mail'));
 
 			$wizard->next_page(array($this,'choose_mail_method'));
 
 			//////////////////////
-			$f = & $wizard->begin_page('simple_mail_smtp');
+			$f = $wizard->begin_page('simple_mail_smtp');
 
 			$f->addElement('header',null, __('Mail settings'));
 			$f->addElement('text','mail_host', __('SMTP host address'));
@@ -111,7 +111,7 @@ class FirstRun extends Module {
 			$wizard->next_page();
 
 			////////////////////////////////////////////////////////////
-			$f = & $wizard->begin_page('setup_warning');
+			$f = $wizard->begin_page('setup_warning');
 			$f->addElement('header', null, __('Warning'));
 			$f->addElement('html','<tr><td colspan=2><br />Setup will now check for available modules and will install them.<br>This operation may take several minutes.<br><br></td></tr>');
 			$wizard->next_page();

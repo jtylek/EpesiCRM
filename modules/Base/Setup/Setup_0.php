@@ -89,7 +89,7 @@ class Base_Setup extends Module {
 
 	public function advanced_setup($store=false) {
 		//create default module form
-		$form = & $this->init_module('Libs/QuickForm','Processing modules','setup');
+		$form = $this->init_module('Libs/QuickForm','Processing modules','setup');
 		
 		//install module header
 		$form -> addElement('header','mod_header','<b>Please select modules to be installed/uninstalled.<br>For module details please click on "i" icon.');
@@ -169,7 +169,7 @@ class Base_Setup extends Module {
 			array_push($def, array('installed['.$entry.']'=>$installed));
 		}
 
-		$tree = & $this->init_module('Utils/Tree');
+		$tree = $this->init_module('Utils/Tree');
 		$tree->set_structure($structure);
 		$tree->set_inline_display();
 		//$form->addElement('html', '<tr><td colspan=2>'.$tree->toHtml().'</td></tr>');

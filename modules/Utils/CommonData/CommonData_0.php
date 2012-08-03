@@ -42,7 +42,7 @@ class Utils_CommonData extends Module {
 			return false;
 		}
 
-		$f = & $this->init_module('Libs/QuickForm',null,'edit');
+		$f = $this->init_module('Libs/QuickForm',null,'edit');
 		$f->addElement('header', null, ($key===null)?__('New node'):__('Edit node'));
 		$f->add_table('utils_commondata_tree',array(
 						array('name'=>'akey','label'=>__('Key'),
@@ -89,7 +89,7 @@ class Utils_CommonData extends Module {
 	public function browse($name='',$root=true){
 		if($this->is_back()) return false;
 
-		$gb = & $this->init_module('Utils/GenericBrowser',null,'browse'.md5($name));
+		$gb = $this->init_module('Utils/GenericBrowser',null,'browse'.md5($name));
 
 		$gb->set_table_columns(array(
 						array('name'=>__('Key'),'width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),

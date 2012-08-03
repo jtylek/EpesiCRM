@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Comment extends Module{
 	public function body(){
 		print('This is an example comment page.');
-		$com = & $this->init_module('Utils/Comment','test');
+		$com = $this->init_module('Utils/Comment','test');
 		$com -> set_moderator(true);
 		$com -> set_per_page(3);
 		$com -> reply_on_comment_page(false);

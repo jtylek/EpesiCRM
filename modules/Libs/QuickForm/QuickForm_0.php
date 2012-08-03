@@ -64,7 +64,7 @@ class Libs_QuickForm extends Module {
 		$this->qf->accept($r);
 	}
 	
-	public function & __call($func_name, $args) {
+	public function & __call($func_name, array $args=array()) {
 		if ($func_name=='addElement' && isset($args[0])) {
 			if(is_string($args[0]))
 				$type = $args[0];
@@ -79,7 +79,7 @@ class Libs_QuickForm extends Module {
 		}
 		if (is_object($this->qf)) {
 //			if($func_name==='accept') trigger_error(print_r($args,true));
-			$return =  &call_user_func_array(array(& $this->qf, $func_name), $args);
+			$return = call_user_func_array(array(& $this->qf, $func_name), $args);
 		} else
 			trigger_error("QuickFrom object doesn't exists", E_USER_ERROR);
 		return $return;
@@ -179,7 +179,7 @@ class Libs_QuickForm extends Module {
 			default:
 				trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
 		}
-		if(PEAR::isError($elem))
+		if($this->isError($elem))
 			trigger_error($elem->getMessage(),E_USER_ERROR);
 		return $elem;
 	}

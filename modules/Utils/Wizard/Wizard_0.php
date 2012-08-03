@@ -229,7 +229,7 @@ class Utils_Wizard extends Module {
 			} else 
 				print(__('Wizard complete! No more pages to display...'));
 		} else {
-			$t = & $this->init_module('Base/Theme');
+			$t = $this->init_module('Base/Theme');
 			
 			$t->assign('page',$this->displayed);
 			$t->assign('captions',$this->captions);

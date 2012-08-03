@@ -44,7 +44,7 @@ class Libs_TCPDF extends Module {
 
 	public function & __call($func_name, array $args=array()) {
 		if(is_callable(array(&$this->tcpdf,$func_name)))
-			$ret = & call_user_func_array(array(&$this->tcpdf,$func_name), $args);
+			$ret = call_user_func_array(array(&$this->tcpdf,$func_name), $args);
 		else
 			$ret = false;
 		return $ret;
@@ -121,7 +121,7 @@ class Libs_TCPDF extends Module {
 			$this->parent->reset();
 			return;
 		}
-		$form = & $this->init_module('Utils/FileUpload',array(false));
+		$form = $this->init_module('Utils/FileUpload',array(false));
 		$form->addElement('header', 'upload', __('Upload company logo',array(),false));
 		$form->add_upload_element();
 		$form->addElement('button',null,__('Upload'),$form->get_submit_form_href());

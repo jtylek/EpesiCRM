@@ -183,7 +183,7 @@ class Utils_Attachment extends Module {
 		}
 		
 		//form filtrow
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = $this->init_module('Libs/QuickForm');
 		$query = 'SELECT uac.created_by as note_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) '.($vd?'':'AND ual.deleted=0 ').'GROUP BY uac.created_by';
 		$emp_ids = DB::GetCol($query);
 		$emps = array();
@@ -750,7 +750,7 @@ class Utils_Attachment extends Module {
 	}
 	
 	public function get_edit_form($id=null) {
-		$form = & $this->init_module('Utils/FileUpload',array(false));
+		$form = $this->init_module('Utils/FileUpload',array(false));
 		if(isset($id))
 			$form->addElement('header', 'upload', __('Edit note').': '.$this->add_header);
 		else

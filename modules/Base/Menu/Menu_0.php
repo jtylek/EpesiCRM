@@ -177,10 +177,10 @@ class Base_Menu extends Module {
 		$menu = $home_menu;
 
 		// preparing menu string
-		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");
+		$menu_mod = $this->init_module("Utils/Menu", "horizontal");
 		$this->build_menu($menu_mod,$menu);
 
-		$theme = & $this->init_module('Base/Theme');
+		$theme = $this->init_module('Base/Theme');
 
 		$menu_mod->set_inline_display();
 		$theme->assign('menu', $this->get_html_of_module($menu_mod));
@@ -201,10 +201,10 @@ class Base_Menu extends Module {
 
 		if (empty($qaccess_menu)) return;
 
-		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");
+		$menu_mod = $this->init_module("Utils/Menu", "horizontal");
 		$this->build_menu($menu_mod,$qaccess_menu,false);
 
-		$theme = & $this->init_module('Base/Theme');
+		$theme = $this->init_module('Base/Theme');
 
 		$menu_mod->set_inline_display();
 		$theme->assign('menu', $this->get_html_of_module($menu_mod));

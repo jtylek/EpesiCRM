@@ -37,7 +37,7 @@ class CRM_Fax extends Module {
 		}
 		
 		set_time_limit(0);
-		$tb = & $this->init_module('Utils/TabbedBrowser');
+		$tb = $this->init_module('Utils/TabbedBrowser');
 		if(isset($providers_arr[$provider]['get_received_count_func']) && isset($providers_arr[$provider]['get_received_func']))
 			$tb->set_tab('Received', array($this,'received_tab'),array(array($provider.'Common',$providers_arr[$provider]['get_received_count_func']),array($provider.'Common',$providers_arr[$provider]['get_received_func'])));
 		if(isset($providers_arr[$provider]['get_queue_count_func']) && isset($providers_arr[$provider]['get_queue_func']) && isset($providers_arr[$provider]['queue_statuses']))
@@ -76,7 +76,7 @@ class CRM_Fax extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		$m = & $this->init_module('Utils/GenericBrowser',null,'rec');
+		$m = $this->init_module('Utils/GenericBrowser',null,'rec');
  		$m->set_table_columns(array(
 							  array('name'=>'From','width'=>30,'order'=>'fromNumber'),
 							  array('name'=>'To','width'=>30,'order'=>'toNumber'),
@@ -157,7 +157,7 @@ class CRM_Fax extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		$m = & $this->init_module('Utils/GenericBrowser',null,'sent');
+		$m = $this->init_module('Utils/GenericBrowser',null,'sent');
  		$m->set_table_columns(array(
 							  array('name'=>'To','width'=>30,'order'=>'toNumber'),
 							  array('name'=>'Status','width'=>10),
@@ -223,7 +223,7 @@ class CRM_Fax extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		$m = & $this->init_module('Utils/GenericBrowser',null,'queue');
+		$m = $this->init_module('Utils/GenericBrowser',null,'queue');
  		$m->set_table_columns(array(
 							  array('name'=>'To','width'=>30,'order'=>'toNumber'),
 							  array('name'=>'Status','width'=>10),
@@ -269,7 +269,7 @@ class CRM_Fax extends Module {
 	public function send_file_tab() {
 		if($this->is_back()) return false;
 	
-		$form = & $this->init_module('Utils/FileUpload',array(false));
+		$form = $this->init_module('Utils/FileUpload',array(false));
 		$form->addElement('header', 'upload', __('Select file'));
 
 		$form->add_upload_element();

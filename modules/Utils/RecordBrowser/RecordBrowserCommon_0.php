@@ -1323,6 +1323,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         static $cache = array();
         if (is_numeric($id)) $r = self::get_record($tab, $id);
         else $r = $id;
+		$id = $r['id'];
 //      if (isset($cache[$tab.'__'.$id])) return $cache[$tab.'__'.$id];
 //      $r = self::get_record($tab, $id);
         $or_started = false;

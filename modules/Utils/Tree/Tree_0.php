@@ -120,7 +120,7 @@ class Utils_Tree extends Module {
 		$s = $this->print_structure($this->_structure);
 		$expand_all = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="utils_tree_expand_all('.$this->_id.','.$this->_sub.')">Expand All</div> ';
 		$collapse_all = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="utils_tree_collapse_all('.$this->_id.','.$this->_sub.')">Collapse All</div> ';
-		$theme = & $this->init_module('Base/Theme');
+		$theme = $this->init_module('Base/Theme');
 		$theme->assign('collapse_all', $collapse_all);
 		$theme->assign('expand_all', $expand_all);
 		$theme->assign('tree', $s);

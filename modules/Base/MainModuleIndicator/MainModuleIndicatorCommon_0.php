@@ -33,7 +33,7 @@ class Base_MainModuleIndicatorCommon extends Base_AdminModuleCommon {
 		$_SESSION['client']['help'] = array();
 	}
 
-	public function get_href() {
+	public static function get_href() {
 		return 'href="'.self::Instance()->get_module_dir().'help.php?cid='.CID.'" target="_blank"'; // 15:20
 	}
 	

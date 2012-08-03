@@ -47,7 +47,7 @@ class CRM_LoginAudit extends Module {
         $form->display_as_row();
         $this->set_module_variable('filter_user',$user);
 
-		$gb = & $this->init_module('Utils/GenericBrowser',null,'login_audit');
+		$gb = $this->init_module('Utils/GenericBrowser',null,'login_audit');
 
 		$gb->set_table_columns(array(
 						array('name'=>__('<b>Login</b> [uid] -> User Name'),'order'=>'b.user_login_id','width'=>20),

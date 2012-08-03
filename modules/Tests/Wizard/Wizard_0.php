@@ -30,7 +30,7 @@ class Tests_Wizard extends Module {
 	
 	public function body() {
 		print "Wizard Test<hr>";
-		$wizard = & $this->init_module('Utils/Wizard');
+		$wizard = $this->init_module('Utils/Wizard');
 		
 		
 		//get form

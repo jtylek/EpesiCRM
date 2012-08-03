@@ -192,7 +192,7 @@ class ModuleManager {
 
 		foreach ($req_mod as $m) {
 			$m['name'] = str_replace('/','_',$m['name']);
-			if (!array_key_exists($m['name'], $module_table) || $module_table[$m['name']]['version']<$m['version'])
+			if (!array_key_exists($m['name'], $module_table) || $module_table[$m['name']]<$m['version'])
 				$ret[] = $m;
 		}
 

@@ -747,7 +747,7 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		$md5_id = md5($this->get_path());
 		$this->set_module_variable('first_display','done');
-		$theme = & $this->init_module('Base/Theme');
+		$theme = $this->init_module('Base/Theme');
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
 		if ($this->en_actions) $actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');

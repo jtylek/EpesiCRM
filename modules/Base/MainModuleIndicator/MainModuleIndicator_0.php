@@ -50,7 +50,7 @@ class Base_MainModuleIndicator extends Module {
 		if($this->is_back())
 		    $this->parent->reset();
 		    
-		$form = & $this->init_module('Utils/FileUpload',array(false));
+		$form = $this->init_module('Utils/FileUpload',array(false));
 
 		$form->addElement('header', 'settings', __('Title'));
 		$form->setDefaults(array(

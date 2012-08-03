@@ -437,7 +437,7 @@ class Utils_Calendar extends Module {
 	////////////////////////////////////////////////////////////////////
 	// day
 	public function day() {
-		$theme = & $this->pack_module('Base/Theme');
+		$theme = $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('trash_label', __('Drag and drop<br>to delete'));
@@ -600,7 +600,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function week() {
-		$theme = & $this->pack_module('Base/Theme');
+		$theme = $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('trash_label', __('Drag and drop<br>to delete'));
@@ -817,7 +817,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function month() {
-		$theme = & $this->pack_module('Base/Theme');
+		$theme = $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('trash_label', __('Drag and drop<br>to delete'));
@@ -908,7 +908,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function year() {
-		$theme = & $this->pack_module('Base/Theme');
+		$theme = $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));

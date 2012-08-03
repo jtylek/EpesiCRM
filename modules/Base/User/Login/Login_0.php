@@ -39,7 +39,7 @@ class Base_User_Login extends Module {
 			}
 		}
 
-		$this->theme =  & $this->pack_module('Base/Theme');
+		$this->theme = $this->pack_module('Base/Theme');
 
 		//if logged
 		$this->theme->assign('is_logged_in', Acl::is_user());
@@ -75,7 +75,7 @@ class Base_User_Login extends Module {
 		if($this->autologin()) return;
 
 		//else just login form
-		$form = & $this->init_module('Libs/QuickForm',__('Logging in'));
+		$form = $this->init_module('Libs/QuickForm',__('Logging in'));
 		$form->addElement('header', 'login_header', __('Login'));
 		
 		if(DEMO_MODE) {
@@ -122,7 +122,7 @@ class Base_User_Login extends Module {
 	}
 
 	public function recover_pass() {
-		$form = & $this->init_module('Libs/QuickForm',__('Processing request'));
+		$form = $this->init_module('Libs/QuickForm',__('Processing request'));
 
 		$form->addElement('header', null, __('Recover password'));
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');

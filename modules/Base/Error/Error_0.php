@@ -18,7 +18,7 @@ class Base_Error extends Module implements Base_AdminInterface {
 	public function admin() {
 		if($this->is_back()) $this->parent->reset();
 			
-		$form = & $this->init_module('Libs/QuickForm','Errors to mail');
+		$form = $this->init_module('Libs/QuickForm','Errors to mail');
 		
 		$form->addElement('text', 'mail', __('Send bugs to'));
 		$form->addRule('mail', __('Invalid e-mail address'),'email');

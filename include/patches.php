@@ -157,10 +157,6 @@ class PatchUtil {
 
 class PatchesDB {
 
-    function PatchesDB() {
-        $this->_check_table();
-    }
-
     function __construct() {
         $this->_check_table();
     }

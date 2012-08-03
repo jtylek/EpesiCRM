@@ -34,7 +34,7 @@ class Libs_OpenFlashChart extends Module {
 
 	public function & __call($func_name, $args) {
 		if (is_object($this->ofc))
-			$return = & call_user_func_array(array(&$this->ofc, $func_name), $args);
+			$return = call_user_func_array(array(&$this->ofc, $func_name), $args);
 		else
 			trigger_error("OpenFlashChart object doesn't exists", E_USER_ERROR);
 		return $return;

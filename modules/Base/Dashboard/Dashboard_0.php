@@ -306,7 +306,7 @@ class Base_Dashboard extends Module {
 			return false;
 		}
 
-		$f = &$this->init_module('Libs/QuickForm',__('Saving settings'),'settings');
+		$f = $this->init_module('Libs/QuickForm',__('Saving settings'),'settings');
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
 
 		if($is_conf) {

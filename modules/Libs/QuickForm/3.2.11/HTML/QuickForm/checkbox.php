@@ -238,7 +238,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
                 if (null === $value) {
                     // if no boxes were checked, then there is no value in the array
                     // yet we don't want to display default value in this case
-                    if ($caller->isSubmitted()) {
+                    if (is_callable(array($caller,'isSubmitted')) && $caller->isSubmitted()) {
 						if($this->_flagFrozen) {
 							$this->_removeValue($caller->_submitValues);
 							$value = $this->_findValue($caller->_defaultValues);
@@ -248,7 +248,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
                         $value = $this->_findValue($caller->_defaultValues);
                     }
                 }
-                if (null !== $value || $caller->isSubmitted()) {
+                if (null !== $value || (is_callable(array($caller,'isSubmitted')) && $caller->isSubmitted())) {
                     $this->setChecked($value);
                 }
                 break;

@@ -120,7 +120,7 @@ class Base_DashboardCommon extends ModuleCommon {
 		}
 	}
 
-	public function set_default_applets() {
+	public static function set_default_applets() {
 		$tabs = DB::GetAll('SELECT id,pos,name FROM base_dashboard_default_tabs');
 		foreach($tabs as $tab) {
 			DB::Execute('INSERT INTO base_dashboard_tabs(user_login_id,pos,name) VALUES(%d,%d,%s)',array(Base_AclCommon::get_user(),$tab['pos'],$tab['name']));

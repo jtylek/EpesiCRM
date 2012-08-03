@@ -18,7 +18,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             return;
         }
 
-        $form = & $this->init_module('Libs/QuickForm',__('Saving settings'));
+        $form = $this->init_module('Libs/QuickForm',__('Saving settings'));
 
         //pass
         $form->addElement('header', null, __('Change password'));
@@ -101,7 +101,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		if($this->is_back())
 			return false;
 	
-		$form = & $this->init_module('Libs/QuickForm',__('Saving settings'));
+		$form = $this->init_module('Libs/QuickForm',__('Saving settings'));
 		
 		//pass
 		$form->addElement('header', null, __('Change e-mail header'));
@@ -140,7 +140,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		Base_ActionBarCommon::add('edit',__('E-mail header'),$this->create_callback_href(array($this,'change_email_header')));
 
-        $gb = & $this->init_module('Utils/GenericBrowser',null,'user_list');
+        $gb = $this->init_module('Utils/GenericBrowser',null,'user_list');
         //$gb->set_module_variable('adv_search',false);
 
         $cols = array();
@@ -216,7 +216,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			}
 			return false;
 		}
-        $form = & $this->init_module('Libs/QuickForm',($edit_id>=0)?__('Applying changes'):__('Creating new user'));
+        $form = $this->init_module('Libs/QuickForm',($edit_id>=0)?__('Applying changes'):__('Creating new user'));
         
         //create new user
         $form->addElement('header', null, (($edit_id>=0)?__('Edit user'):__('Create new user')));

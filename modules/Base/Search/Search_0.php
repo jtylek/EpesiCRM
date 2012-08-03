@@ -20,8 +20,8 @@ class Base_Search extends Module {
 		if (isset($_REQUEST['quick_search'])) $qs_keyword=$_REQUEST['quick_search'];
 		$this->set_module_variable('qs_keyword', $qs_keyword);
 
-		$form = & $this->init_module('Libs/QuickForm',__('Searching'));
-		$theme =  & $this->pack_module('Base/Theme');
+		$form = $this->init_module('Libs/QuickForm',__('Searching'));
+		$theme = $this->pack_module('Base/Theme');
 
 		$modules_with_search = ModuleManager::check_common_methods('search');
 
@@ -61,7 +61,7 @@ class Base_Search extends Module {
 							$links[] = $rv;
 						}
 				}
-				$qs_theme =  & $this->pack_module('Base/Theme');
+				$qs_theme = $this->pack_module('Base/Theme');
 				$qs_theme->assign('header', __('Search results'));
 				$qs_theme->assign('links', $links);
 				$qs_theme->assign('warning', isset($warning)?$warning:null);
@@ -78,12 +78,12 @@ class Base_Search extends Module {
 	*/
 	public function mini() {
 		if (!Base_AclCommon::check_permission('Search')) return '';
-		$form = & $this->init_module('Libs/QuickForm',__('Searching'));
+		$form = $this->init_module('Libs/QuickForm',__('Searching'));
 
 		$form->addElement('text', 'quick_search', __('Quick search'), array('x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$form->get_submit_form_js()));
 		$form->addElement('submit', 'quick_search_submit', __('Search'), array('class'=>'mini_submit'));
 
-		$theme =  & $this->pack_module('Base/Theme');
+		$theme = $this->pack_module('Base/Theme');
 		$theme->assign('submit_href', $form->get_submit_form_href());
 		$theme->assign('submit_label', __('Search'));
 		$form->assign_theme('form', $theme);

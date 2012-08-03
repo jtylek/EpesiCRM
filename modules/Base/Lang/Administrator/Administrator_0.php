@@ -71,7 +71,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		Base_ActionBarCommon::add('settings', __('Translations Contributions'), $lp->get_href());
 		$this->display_module($lp, array(__('Translations Contributions settings')));
 
-		$form = & $this->init_module('Libs/QuickForm',null,'language_setup');
+		$form = $this->init_module('Libs/QuickForm',null,'language_setup');
 
 		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
 		$langs = array_combine($ls_langs,$ls_langs);
@@ -131,7 +131,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			$data[] = array($org,$t);
 		}
 		
-		$gb = &$this->init_module('Utils/GenericBrowser',null,'lang_translations');
+		$gb = $this->init_module('Utils/GenericBrowser',null,'lang_translations');
 		$gb->set_custom_label($trans_filter);
 		$gb->set_table_columns(array(
 				array('name'=>__('Original'), 'order_preg'=>'/^<[^>]+>([^<]*)<[^>]+>$/i','search'=>'original'),
@@ -152,7 +152,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	public function new_lang_pack(){
 		if ($this->is_back()) return false;
 
-		$form = & $this->init_module('Libs/QuickForm',__('Creating new langpack...'),'new_langpack');
+		$form = $this->init_module('Libs/QuickForm',__('Creating new langpack...'),'new_langpack');
 		$form -> addElement('header',null,__('Create new langpack'));
 		$form -> addElement('text','code',__('Language code'),array('maxlength'=>2));
 		$form->registerRule('check_if_langpack_exists', 'callback', 'check_if_langpack_exists', $this);

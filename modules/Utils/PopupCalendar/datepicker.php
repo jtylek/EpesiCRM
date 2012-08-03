@@ -121,7 +121,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 	}
 
     function onQuickFormEvent($event, $arg, &$caller) {
-		if($event=='updateValue')
+		if($event=='updateValue' && is_callable(array($caller,'applyFilter')))
 			$caller->applyFilter($this->getName(),array($this,'reg2time'));
 		return parent::onQuickFormEvent($event,$arg,$caller);
 	}

@@ -130,7 +130,7 @@ class Base_ActionBar extends Module {
 		}
 
 		//display
-		$th = & $this->pack_module('Base/Theme');
+		$th = $this->pack_module('Base/Theme');
 		$th->assign('display_icon',$display_icon);
 		$th->assign('display_text',$display_text);
 		$th->assign('icons',$icons);
@@ -151,7 +151,7 @@ class Base_ActionBar extends Module {
 		usort(self::$launchpad,array($this,'compare_launcher'));
 		if(!empty(self::$launchpad)) {
 			$icon = Base_ThemeCommon::get_template_file($this->get_type(),'launcher.png');
-			$th = & $this->pack_module('Base/Theme');
+			$th = $this->pack_module('Base/Theme');
 			$th->assign('display_icon',$display_icon);
 			$th->assign('display_text',$display_text);
 			usort(self::$launchpad,array($this,'compare_launcher'));
@@ -163,7 +163,7 @@ class Base_ActionBar extends Module {
 			$big = count(self::$launchpad)>10;
 			Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,__('Launchpad'),$big);
 			$launcher[] = array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
-			$th = & $this->pack_module('Base/Theme');
+			$th = $this->pack_module('Base/Theme');
 			$th->assign('display_icon',$display_icon);
 			$th->assign('display_text',$display_text);
 			$th->assign('icons',array());

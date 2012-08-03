@@ -956,7 +956,7 @@ abstract class Module extends ModulePrimitive {
 	
 	public function & __call($func_name, array $args=array()) {
 		if(isset(self::$registered_methods[$func_name]))
-			$ret = & call_user_func_array(self::$registered_methods[$func_name], array_merge(array($this),$args));
+			$ret = call_user_func_array(self::$registered_methods[$func_name], array_merge(array($this),$args));
 		else
 			$ret = false;
 		return $ret;
