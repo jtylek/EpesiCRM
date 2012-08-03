@@ -620,10 +620,10 @@ class Utils_Attachment extends Module {
 
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
-		$th = $this->init_module('Base/Theme');
-		$th->assign('note_edition_header', __('Note edit history'));
-
+		$tb = & $this->init_module('Utils/TabbedBrowser');
+		$tb->start_tab('Note history');
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hn'.md5(serialize($this->group)));
+		$gb->set_inline_display();
 		$gb->set_table_columns(array(
 				array('name'=>__('Revision'), 'order'=>'uac.revision','width'=>10),
 				array('name'=>__('Date'), 'order'=>'note_on','width'=>25),
@@ -643,11 +643,11 @@ class Utils_Attachment extends Module {
 				$r->add_action($this->create_confirm_callback_href(__('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),'restore');
 			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),Base_UserCommon::get_user_label($row['note_by']),$row['text']);
 		}
-		$th->assign('note_edition',$this->get_html_of_module($gb));
-
-		$th->assign('file_uploads_header',__('File uploads history'));
-
+		$this->display_module($gb);
+		$tb->end_tab();
+		$tb->start_tab('File history');
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hua'.md5(serialize($this->group)));
+		$gb->set_inline_display();
 		$gb->set_table_columns(array(
 				array('name'=>__('Revision'), 'order'=>'file_revision','width'=>10),
 				array('name'=>__('Date'), 'order'=>'upload_on','width'=>25),
@@ -668,11 +668,11 @@ class Utils_Attachment extends Module {
 			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
 			$r->add_data($row['file_revision'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),Base_UserCommon::get_user_label($row['upload_by']),$file);
 		}
-		$th->assign('file_uploads',$this->get_html_of_module($gb));
-
-		$th->assign('file_access_header',__('File access history'));
-
+		$this->display_module($gb);
+		$tb->end_tab();
+		$tb->start_tab('File access history');
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hda'.md5(serialize($this->group)));
+		$gb->set_inline_display();
 		$gb->set_table_columns(array(
 				array('name'=>__('Create date'), 'order'=>'created_on','width'=>15),
 				array('name'=>__('Download date'), 'order'=>'download_on','width'=>15),
@@ -698,9 +698,9 @@ class Utils_Attachment extends Module {
 			$r = $gb->get_new_row();
 			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['created_on']),($row['remote']!=1?Base_RegionalSettingsCommon::time2reg($row['download_on']):''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], $row['revision'], ($row['remote']==0?'no':'yes'));
 		}
-		$th->assign('file_access',$this->get_html_of_module($gb));
-
-		$th->display('history');
+		$this->display_module($gb);
+		$tb->end_tab();
+		$this->display_module($tb);
 
 		$this->caption = 'Note history';
 
@@ -950,6 +950,171 @@ class Utils_Attachment extends Module {
 		curl_setopt($curl, CURLOPT_POST, false);
 		$response = curl_exec($curl);
 		Base_StatusBarCommon::message(__('Changes discarded'));
+	}
+
+	public function user_addon($uid) {
+		$vd = isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments'] && Base_AclCommon::i_am_admin();
+		//form filtrow
+		$form = & $this->init_module('Libs/QuickForm');
+	    $form->addElement("text", "filter_text", __("Search"), array('placeholder'=>__('Keyword').'...'));
+		
+		$form->addElement("datepicker", "filter_start", __("Start Date"));
+		$form->addElement("datepicker", "filter_end", __("End Date"));
+		
+		$form->addElement('submit', 'submit_button', __('Filter'));
+	//	$form->display();
+		$filter_text = $form->exportValue('filter_text');
+		$filter_start = $form->exportValue('filter_start');
+		$filter_end = $form->exportValue('filter_end');
+
+		$where = '';
+		if($filter_text) 
+			$where .= ' AND uac.text '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($filter_text),DB::qstr('%'));
+		if($filter_start)
+			$where .= ' AND uac.created_on >= '.DB::qstr($filter_start);
+		if($filter_end)
+			$where .= ' AND uac.created_on <= '.DB::qstr($filter_end.' 23:59:59');
+		if (!$vd)
+			$where = ' AND ual.deleted=0'.$where;
+		
+		
+		$gb = $this->init_module('Utils/GenericBrowser',null,'my notes');
+		$cols = array();
+		if($vd)
+			$cols[] = array('name'=>__('Deleted'),'order'=>'ual.deleted','width'=>5);
+		$cols[] = array('name'=>__('Source'),'width'=>15, 'wrapmode'=>'nowrap');
+		$cols[] = array('name'=>__('Date'), 'order'=>'note_on','width'=>10,'wrapmode'=>'nowrap');
+		$cols[] = array('name'=>__('Note'), 'width'=>70);
+		$gb->set_table_columns($cols);
+		
+
+		$query_from = ' FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (uac.created_by='.$uid.' OR uaf.created_by='.$uid.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)'.$where;
+		$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by, ual.func AS search_func, ual.args AS search_func_args'.$query_from;
+		$query_lim = 'SELECT count(ual.id)'.$query_from;
+
+		$gb->set_default_order(array(__('Date')=>'DESC'));
+
+		$query_order = $gb->get_query_order('ual.sticky DESC');
+		$qty = DB::GetOne($query_lim);
+		$query_limits = $gb->get_limit($qty);
+		$ret = DB::SelectLimit($query.$query_order,$query_limits['numrows'],$query_limits['offset']);
+
+		Base_ThemeCommon::load_css('Utils_Attachment','browse');
+		load_js('modules/Utils/Attachment/js/main.js');
+		eval_js('expandable_notes = new Array();');
+		eval_js('expandable_notes_amount = 0;');
+		eval_js('expanded_notes = 0;');
+
+		eval_js('notes_expand_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand.gif').'";');
+		eval_js('notes_collapse_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse.gif').'";');
+		eval_js('notes_expand_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand_gray.gif').'";');
+		eval_js('notes_collapse_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse_gray.gif').'";');
+
+		$button_theme = $this->init_module('Base_Theme');
+
+		while($row = $ret->FetchRow()) {
+			if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
+				if($row['permission']==0 && !$this->public_read) continue;//protected
+				elseif($row['permission']==1 && !$this->protected_read) continue;//protected
+				elseif($row['permission']==2 && !$this->private_read) continue;//private
+			}
+			$r = $gb->get_new_row();
+
+			$inline_img = '';
+			$link_href = '';
+			$link_img = '';
+			if($row['original']!=='') {
+				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
+				if(file_exists($f_filename)) {
+					$filetooltip = __('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.__('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array(Base_UserCommon::get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
+					$view_link = '';
+					$link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.$this->get_file($row,$view_link);
+					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png');
+					if(Utils_AttachmentCommon::is_image($row) && $view_link)
+						$inline_img = '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
+				} else {
+					$link_href = Utils_TooltipCommon::open_tag_attrs(__('Missing file: %s',array($f_filename)));
+					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach-off.png');
+				}
+			}
+			if ($link_href)
+				$icon = '<a style="margin-right: 3px; float:left;" '.$link_href.'><img src="'.$link_img.'"></a>';
+			else
+				$icon = '';
+
+			$def_permissions = array(__('Public'),__('Protected'),__('Private'));
+			$perm = $def_permissions[$row['permission']];
+			$created_on = $row['note_on']>$row['upload_on']?$row['note_on']:$row['upload_on'];
+			$note_on = Base_RegionalSettingsCommon::time2reg($created_on,0);
+			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
+			$info = __('Owner: %s',array($row['permission_owner'])).'<br>'.
+				__('Permission: %s',array($perm)).'<hr>'.
+				__('Last edited by %s<br>on %s<br>Number of edits: %d',array(Base_UserCommon::get_user_label($row['note_by']),$note_on_time,$row['note_revision']));
+			$r->add_info($info);
+			if(Base_AclCommon::i_am_admin() ||
+			 	$row['permission_by']==Acl::get_user() ||
+			   ($row['permission']==0 && $this->public_write) ||
+			   ($row['permission']==1 && $this->protected_write) ||
+			   ($row['permission']==2 && $this->private_write)) {
+				if(!isset($row['deleted']) || !$row['deleted']) {
+    				$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
+    				$r->add_action($this->create_confirm_callback_href(__('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
+    			} else {
+    				$r->add_action('','edit',__('You cannot edit deleted notes'),null,0,true);
+    			    $r->add_action($this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore', null,null, -1);
+				}
+			}
+			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
+			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
+
+			$text = trim(Utils_BBCodeCommon::parse($row['text']));
+
+			if(!isset($row['deleted']) || !$row['deleted']) {
+        		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
+		    	$r->add_action($this->create_confirm_callback_href(__('Are you sure you want to cut this note?'), array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
+		    }
+			
+			$text = $icon.$text;
+			if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text;
+
+            $r->add_action('style="display:none;" href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 5);
+			$r->add_action('style="display:none;" href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')" id="utils_attachment_less_'.$row['id'].'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 5, false, 0);
+
+			$text = '<div style="height:18px;" id="note_'.$row['id'].'" class="note_field">'.$text.$inline_img.'</div>';
+
+			$regional_note_on = $note_on;
+			$arr = array();
+			if($vd)
+				$arr[] = ($row['deleted']?'<a '.$this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),array($row['id'])).' '.Utils_TooltipCommon::open_tag_attrs(__('Click to restore')).'>'.__('Yes').'</a>':__('No'));
+			$callback = unserialize($row['search_func']);
+			if (is_callable($callback)) {
+				$args = unserialize($row['search_func_args']);
+				$arr[] = call_user_func_array($callback, $args);
+			} else {
+				$arr[] = $row['local'];
+			}
+			$arr[] = $regional_note_on;
+			$arr[] = array('value'=>$text, 'overflow_box'=>false);
+			$r->add_data_array($arr);
+
+			eval_js('init_note_expandable('.$row['id'].');');
+		}
+
+		$button_theme->assign('expand_collapse',array(
+			'e_label'=>__('Expand All'),
+			'e_href'=>'href="javascript:void(0);" onClick=\'utils_attachment_expand_all()\'',
+			'e_id'=>'expand_all_button',
+			'c_label'=>__('Collapse All'),
+			'c_href'=>'href="javascript:void(0);" onClick=\'utils_attachment_collapse_all()\'',
+			'c_id'=>'collapse_all_button'
+		));
+		$form->assign_theme('form', $button_theme);
+
+		$custom_label = $this->get_html_of_module($button_theme, array('browse'), 'display');
+		$gb->set_custom_label($custom_label, 'style="width:100%;"');
+		
+		$this->display_module($gb);
+	
 	}
 }
 

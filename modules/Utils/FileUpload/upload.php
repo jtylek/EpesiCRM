@@ -29,6 +29,7 @@ if(!isset($_REQUEST['cid']))
 
 define('CID',$_REQUEST['cid']);
 require_once('../../../include.php');
+ModuleManager::load_modules();
 if(!Acl::is_user())
 	exit();
 $form_name = $_REQUEST['form_name'];

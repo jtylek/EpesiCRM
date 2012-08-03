@@ -9,12 +9,14 @@
 		<td class="epesi_data" style="min-width:80px;">
 			{$form_data.filter_text.html}
 		</td>
+	{if isset($form_data.filter_user.html)}
 		<td class="epesi_label">
 			{$form_data.filter_user.label}
 		</td>
 		<td class="epesi_data" style="min-width:80px;">
 			{$form_data.filter_user.html}
 		</td>
+	{/if}
 		<td class="epesi_label">
 			{$form_data.filter_start.label}
 		</td>
