@@ -31,8 +31,8 @@ if (class_exists('Base_LangCommon'))
 	Base_LangCommon::update_translations();
 if (class_exists('Base_ThemeCommon'))
 	Base_ThemeCommon::create_cache();
-
-ModuleManager::create_load_priority_array();
+if (class_exists('ModuleManager'))
+	ModuleManager::create_load_priority_array();
 
 
 $html = '';
