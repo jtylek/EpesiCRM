@@ -94,6 +94,8 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form -> addRule('newdb', 'Field required', 'required');
 //	$form -> addElement('select', 'newuser', 'Create new user',array(1=>'Yes', 0=>'No'));
 //	$form -> addRule('newuser', 'Field required', 'required');
+	$form -> addElement('header', null, 'Other settings');
+	$form -> addElement('select', 'direction', 'Text direction',array(0=>'Left to Right',1=>'Right to Left'));
 
 	$form -> addElement('submit', 'submit', 'Next');
 	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
@@ -102,6 +104,8 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form -> addElement('html','<tr><td colspan=2><br /><b>Any existing tables will be dropped!</b><br />The database will be populated with data.<br />This operation can take several minutes.</td></tr>');
 	if($form -> validate()) {
 		$engine = $form -> exportValue('engine');
+		$direction = $form -> exportValue('direction');
+		$other = array('direction'=>$direction);
 		switch($engine) {
 			case 'postgres':
 				$host = $form -> exportValue('host');
@@ -119,7 +123,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 							$sql = 'CREATE DATABASE '.$dbname;
 							if (pg_query($link, $sql)) {
 				   				//echo "Database '$dbname' created successfully\n";
-				   				write_config($host,$user,$pass,$dbname,$engine);
+				   				write_config($host,$user,$pass,$dbname,$engine,$other);
 							} else {
 		 		  				echo 'Error creating database: ' . pg_last_error() . "\n";
 		 	  				}
@@ -131,7 +135,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 								echo 'Database does not exist.'."\n";
 								echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
 							} else {
-								write_config($host, $user, $pass, $dbname, $engine);
+								write_config($host, $user, $pass, $dbname, $engine,$other);
 							}
 						}
 					}
@@ -153,7 +157,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 					$sql = 'CREATE DATABASE `'.$dbname.'` CHARACTER SET utf8 COLLATE utf8_unicode_ci';
 					if(mysql_query($sql, $link)) {
 	   				//echo "Database '$dbname' created successfully\n";
-	   				write_config($host,$user,$pass,$dbname,$engine);
+	   				write_config($host,$user,$pass,$dbname,$engine,$other);
 					}
 								else {
 		   			echo 'Error creating database: ' . mysql_error() . "\n";
@@ -165,7 +169,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 						echo 'Database does not exist: ' . mysql_error() . "\n";
 						echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
 					} else {
-						write_config($host, $user, $pass, $dbname, $engine);
+						write_config($host, $user, $pass, $dbname, $engine,$other);
 					}
 				}
 			    }
@@ -239,13 +243,13 @@ function check_htaccess() {
 	return true;
 }
 
-function write_config($host, $user, $pass, $dbname, $engine) {
+function write_config($host, $user, $pass, $dbname, $engine, $other) {
 	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
-	$epesi_dir = '';
+	$other_conf = '';
 	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir))))
-		$epesi_dir = '
-define("EPESI_DIR","'.str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])).'");';
+		$other_conf .= "\n".'define("EPESI_DIR","'.str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])).'");';
+	$other_conf .= "\n".'define("DIRECTION_RTL","'.($other['direction']?'1':'0').'");';
 
 	$c = & fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
@@ -345,7 +349,7 @@ define(\'CHECK_VERSION\',1);
  * Disable some administrator preferences.
  */
 define(\'DEMO_MODE\',0);
-'.$epesi_dir.'
+'.$other_conf.'
 ?>');
 	fclose($c);
 

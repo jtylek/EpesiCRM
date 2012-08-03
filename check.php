@@ -27,9 +27,11 @@ if ($config && class_exists('Base_AclCommon') && !Base_AclCommon::i_am_sa()) {
 	}
 }
 
-Base_LangCommon::update_translations();
-Base_ThemeCommon::create_cache();
-//Base_ThemeCommon::themeup();
+if (class_exists('Base_LangCommon'))
+	Base_LangCommon::update_translations();
+if (class_exists('Base_ThemeCommon'))
+	Base_ThemeCommon::create_cache();
+
 ModuleManager::create_load_priority_array();
 
 

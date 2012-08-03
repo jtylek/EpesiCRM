@@ -353,7 +353,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 		if (!$seq || $this->connection->GetOne("SELECT relname FROM pg_class JOIN pg_depend ON pg_class.relfilenode=pg_depend.objid WHERE relname='$seq' AND relkind='S' AND deptype='i'")) {
 			return False;
 		}
-		return "DROP SEQUENCE IF EXISTS ".$seq;
+		return "DROP SEQUENCE IF EXISTS ".$seq." CASCADE";
 	}
 	
 	function RenameTableSQL($tabname,$newname)
