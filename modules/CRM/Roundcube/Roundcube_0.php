@@ -79,7 +79,7 @@ class CRM_Roundcube extends Module {
         
     }
 
-    public function new_mail($to,$subject='',$body='') {
+    public function new_mail($to='',$subject='',$body='') {
 //        $this->body(array('task' => 'mail', '_action' => 'compose', '_to' => $to));
           $this->body(array('mailto' => $to,'subject'=>$subject));
           $_SESSION['rc_body'] = $body;
@@ -279,7 +279,6 @@ class CRM_Roundcube extends Module {
 		$theme->assign('email', $rec);
 		$theme->display('mail_headers');
 	}
-	
 }
 
 ?>

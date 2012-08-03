@@ -526,7 +526,7 @@ class Utils_Attachment extends Module {
 		$custom_getters = array();
 		foreach($getters as $mod=>$arr) {
 			foreach($arr as $caption=>$func) {
-				$custom_getters[] = array('open'=>'<a href="javascript:void(0)" onClick="'.Epesi::escapeJS($this->create_callback_href_js(array($mod.'Common',$func['func']),array($f_filename,$row['original'])),true,false).';leightbox_deactivate(\''.$lid.'\')">','close'=>'</a>','text'=>$caption,'icon'=>$func['icon']);
+				$custom_getters[] = array('open'=>'<a href="javascript:void(0)" onClick="'.Epesi::escapeJS($this->create_callback_href_js(array($mod.'Common',$func['func']),array($f_filename,$row['original'],$row['file_id'])),true,false).';leightbox_deactivate(\''.$lid.'\')">','close'=>'</a>','text'=>$caption,'icon'=>$func['icon']);
 			}
 		}
 //		$custom_getters[] = array('open'=>'<a>','close'=>'</a>','text'=>'tekst','icon'=>'Utils/Attachment/download.png');
@@ -1051,19 +1051,6 @@ class Utils_Attachment extends Module {
 				__('Permission: %s',array($perm)).'<hr>'.
 				__('Last edited by %s<br>on %s<br>Number of edits: %d',array(Base_UserCommon::get_user_label($row['note_by']),$note_on_time,$row['note_revision']));
 			$r->add_info($info);
-			if(Base_AclCommon::i_am_admin() ||
-			 	$row['permission_by']==Acl::get_user() ||
-			   ($row['permission']==0 && $this->public_write) ||
-			   ($row['permission']==1 && $this->protected_write) ||
-			   ($row['permission']==2 && $this->private_write)) {
-				if(!isset($row['deleted']) || !$row['deleted']) {
-    				$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
-    				$r->add_action($this->create_confirm_callback_href(__('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
-    			} else {
-    				$r->add_action('','edit',__('You cannot edit deleted notes'),null,0,true);
-    			    $r->add_action($this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore', null,null, -1);
-				}
-			}
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 
