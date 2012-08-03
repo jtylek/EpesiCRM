@@ -266,6 +266,7 @@ class Utils_Attachment extends Module {
 				$button_theme->assign('multiple_attachments',$this->get_html_of_module($multipleAttachments,array($this->group, $this->func, $this->args, $this->add_func, $this->add_args)));
 				
 			}
+			
 
 			$r = $gb->get_new_row();
 			$new_note_form = $this->get_edit_form();
@@ -326,7 +327,6 @@ class Utils_Attachment extends Module {
 			}
 			$col_span = $vd?5:4;
 			eval_js('if($("attachments_new_note").childNodes.length=='.($vd?11:9).'){var n_delete=1;var n_expand=2;if($("attachments_new_note").childNodes[1].getAttribute("colspan")){n_delete=3;n_expand=1;}$("attachments_new_note").removeChild($("attachments_new_note").childNodes[n_delete]);$("attachments_new_note").childNodes[n_expand].setAttribute("colspan", '.$col_span.');}');
-			
 		}
 
 		while($row = $ret->FetchRow()) {

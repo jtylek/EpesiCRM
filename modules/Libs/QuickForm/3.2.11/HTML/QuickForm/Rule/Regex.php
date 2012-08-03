@@ -62,7 +62,7 @@ class HTML_QuickForm_Rule_Regex extends HTML_QuickForm_Rule
      * @access    public
      * @return    boolean   true if value is valid
      */
-    function validate($value, $options = null)
+    function validate($value, $regex = null)
     {
         // Fix for bug #10799: add 'D' modifier to regex
         if (isset($this->_data[$this->name])) {
@@ -70,7 +70,7 @@ class HTML_QuickForm_Rule_Regex extends HTML_QuickForm_Rule
                 return false;
             }
         } else {
-            if (!preg_match($options . 'D', $value)) {
+            if (!preg_match($regex . 'D', $value)) {
                 return false;
             }
         }

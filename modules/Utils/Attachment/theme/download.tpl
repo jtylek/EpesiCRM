@@ -62,7 +62,7 @@
 			<td valign="top">
 				{$p.open}
 					<div class="epesi_big_button">
-						<img src="{$theme_dir}/{$p.icon}" alt="" align="middle" border="0" width="32" height="32">
+						<img src="{$p.icon}" alt="" align="middle" border="0" width="32" height="32">
 						<span>{$p.text}</span>
 					</div>
 				{$p.close}
