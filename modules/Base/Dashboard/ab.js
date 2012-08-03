@@ -103,7 +103,7 @@ remove_applet = function(id, default_dash) {
 }
 
 get_new_dashboard_tab_name = function(query, error, id) {
-	var name = prompt(query);
+	var name = prompt(query, '');
 	if (name == null) return false;
 	if (name == '') {
 		alert(error);

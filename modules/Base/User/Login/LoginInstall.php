@@ -60,7 +60,7 @@ class Base_User_LoginInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return 'EPESI Core';
+		return __('EPESI Core');
 	}
 }
 

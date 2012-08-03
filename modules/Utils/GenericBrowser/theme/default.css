@@ -36,6 +36,10 @@
 	padding: 5px 8px;
 }
 
+.letters-search img {
+    border: none;
+}
+
 .letters-search .label {
     background-color: #336699;
     color: white;

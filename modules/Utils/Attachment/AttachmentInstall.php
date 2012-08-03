@@ -134,7 +134,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return 'EPESI Core';
+		return __('EPESI Core');
 	}
 
 }

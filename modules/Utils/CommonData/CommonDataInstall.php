@@ -44,7 +44,7 @@ class Utils_CommonDataInstall extends ModuleInstall {
 			array('name'=>'Utils/GenericBrowser','version'=>0));
 	}
     public static function simple_setup() {
-        return 'EPESI Core';
+		return __('EPESI Core');
     }
 }
 

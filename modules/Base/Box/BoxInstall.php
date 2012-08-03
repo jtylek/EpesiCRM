@@ -43,7 +43,7 @@ class Base_BoxInstall extends ModuleInstall {
 	}
 
 	public function simple_setup() {
-		return 'EPESI Core';
+		return __('EPESI Core');
 	}
 }
 ?>

@@ -30,7 +30,7 @@ class Base_Mail_ContactUsInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return 'EPESI Core';
+		return __('EPESI Core');
 	}
 }
 

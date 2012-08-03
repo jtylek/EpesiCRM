@@ -36,7 +36,7 @@ class Base_Menu_QuickAccessInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return 'EPESI Core';
+		return __('EPESI Core');
 	}
 }
 

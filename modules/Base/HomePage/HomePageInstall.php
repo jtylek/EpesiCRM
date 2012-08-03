@@ -32,7 +32,7 @@ class Base_HomePageInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return 'EPESI Core';
+		return __('EPESI Core');
 	}
 
 	public function requires($v) {

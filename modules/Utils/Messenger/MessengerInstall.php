@@ -77,7 +77,7 @@ class Utils_MessengerInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return 'EPESI Core';
+		return __('EPESI Core');
 	}
 	
 }

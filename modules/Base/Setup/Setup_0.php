@@ -221,11 +221,12 @@ class Base_Setup extends Module {
 
 		$packages = array();
 		foreach ($structure as $s) {
-			if (!isset($packages[$s['key']])) $packages[$s['key']] = array('also_uninstall'=>array(), 'modules'=>array(), 'is_required'=>array(), 'installed'=>null, 'icon'=>false, 'version'=>null, 'url'=>null);
+			if (!isset($packages[$s['key']])) $packages[$s['key']] = array('also_uninstall'=>array(), 'modules'=>array(), 'is_required'=>array(), 'installed'=>null, 'icon'=>false, 'version'=>null, 'url'=>null, 'core'=>0);
 			$package = & $packages[$s['key']];
 			$package['modules'][] = $s['module'];
 			$package['name'] = $s['package'];
 			$package['option'] = $s['option'];
+			if (isset($s['core'])) $package['core'] = $s['core'];
 			if ($package['installed']===null) {
 				$package['installed'] = $s['installed'];
 			} else {
@@ -267,12 +268,14 @@ class Base_Setup extends Module {
 				$sorted[$name]['installed'] = null;
 				$sorted[$name]['instalable'] = 0;
 				$sorted[$name]['uninstalable'] = 0;
+				$sorted[$name]['core'] = 0;
 			}
+			$sorted[$name]['core'] |= $p['core'];
 
 			$buttons = array();
 			$status = '';
 			if ($p['installed']===true || $p['installed']==='partial') {
-				if ($key!='EPESI Core' && empty($p['is_required'])) {
+				if (!$p['core'] && empty($p['is_required'])) {
 					$mods = $p['modules'];
 					foreach ($p['also_uninstall'] as $pp)
 						$mods[] = $pp;
@@ -284,7 +287,7 @@ class Base_Setup extends Module {
 					}
 					$buttons[] = array('label'=>__('Uninstall'),'style'=>'uninstall','href'=>$this->create_confirm_callback_href(__('Are you sure you want to uninstall this package and remove all associated data?'),array($this, 'simple_uninstall'), array($mods)));
 				} else {
-					if ($key=='EPESI Core') $message = __('EPESI Core can not be uninstalled');
+					if ($p['core']) $message = __('EPESI Core can not be uninstalled');
 					elseif (empty($p['is_required'])) $message = __('This package can not be uninstalled');
 					else {
 						$required = array();
@@ -483,8 +486,8 @@ class Base_Setup extends Module {
     }
     
 	public function simple_setup_sort($a, $b) {
-		if ($a['name'] === 'EPESI Core') return -1;
-		if ($b['name'] === 'EPESI Core') return 1;
+		if ($a['core'] === 1) return -1;
+		if ($b['core'] === 1) return 1;
 		$cmp = strcasecmp($a['name'], $b['name']);
 		$cmp = $cmp<0? -1:1;
 		if ($a['installed'] === $b['installed']) return $cmp;

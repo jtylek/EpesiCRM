@@ -85,7 +85,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	}
 	
 	public function simple_setup() {
-		return 'EPESI Core';
+		return __('EPESI Core');
 	}
 	
 	public function version() {
