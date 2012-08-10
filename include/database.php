@@ -47,7 +47,7 @@ class DB {
     		$new->Execute('SET NAMES "utf8"');
 		} else {
 			// For PostgreSQL
-			$new->Execute('SET bytea_output = "escape";');
+			@$new->Execute('SET bytea_output = "escape";');
 		}
 		return $new;
 	}
