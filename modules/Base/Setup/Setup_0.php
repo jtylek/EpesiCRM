@@ -534,7 +534,7 @@ class Base_Setup extends Module {
 			$versions = array_keys($module_dirs[$k]);
 			if (!ModuleManager::install($k, max($versions))) {
 				ob_end_clean();
-				Base_StatusBarCommon::message('Couldn\'t install the package.','error');
+				Base_StatusBarCommon::message(__('Couldn\'t install the package.'),'error');
 				return false;
 			}
 		}
