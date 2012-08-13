@@ -71,6 +71,16 @@ class Utils_RecordBrowser extends Module {
     public $tab;
     public $grid = null;
 	
+	public function new_button($type, $label, $href) {
+		if ($this->fullscreen_table)
+			Base_ActionBarCommon::add($type, $label, $href);
+		else {
+			if (!file_exists($type))
+				$type = Base_ThemeCommon::get_template_file('Base/ActionBar', 'icons/'.$type.'.png');
+			$this->more_add_button_stuff .= '<a class="record_browser_button" id="Base_ActionBar" '.$href.'>'.'<img src="'.$type.'">'.$label.'</a>';
+		}
+	}
+	
     public function enable_grid($arg) {
         $this->grid = $arg;
     }
@@ -661,18 +671,6 @@ class Utils_RecordBrowser extends Module {
 				$gb->set_default_order($clean_order, $this->changed_view);
 		}
 
-        $custom_label = '';
-        if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false) {
-            if ($this->add_button!==null) $label = $this->add_button;
-            elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
-            else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);
-            if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><span class="record_browser_add_new" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils/RecordBrowser/add.png').'" /><div class="add_new">'.__('Add new').'</div></span></a>';
-        }
-        if ($this->more_add_button_stuff) {
-            if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
-            else $custom_label = $this->more_add_button_stuff;
-        }
-        $gb->set_custom_label($custom_label);
         $search = $gb->get_search_query(true);
         $search_res = array();
 		if ($this->search_calculated_callback) {
@@ -762,8 +760,8 @@ class Utils_RecordBrowser extends Module {
         $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin, $order);
 
 		$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
-		if (!$this->disabled['pdf'] && !$pdf && $this->amount_of_records<200 && Base_AclCommon::i_am_admin()) {
-			Base_ActionBarCommon::add('print', __('Print'), 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
+		if (!$this->disabled['pdf'] && !$pdf && $this->amount_of_records<200 && $this->get_access('print')) {
+			$this->new_button('print', __('Print'), 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
 		}
 		$_SESSION['client']['utils_recordbrowser'][$key] = array(
 			'tab'=>$this->tab,
@@ -778,11 +776,24 @@ class Utils_RecordBrowser extends Module {
 		else $limit = $gb->get_limit($this->amount_of_records);
         $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 
-        if (((Base_AclCommon::i_am_admin() && $this->fullscreen_table) || $this->enable_export) && !$this->disabled['export'])
-            Base_ActionBarCommon::add('save',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
+        if (($this->get_access('export') || $this->enable_export) && !$this->disabled['export'])
+            $this->new_button('save',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
 
         $this->set_module_variable('crits_stuff',$crits?$crits:array());
         $this->set_module_variable('order_stuff',$order?$order:array());
+
+        $custom_label = '';
+        if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false) {
+            if ($this->add_button!==null) $label = $this->add_button;
+            elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
+            else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);
+            if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><span class="record_browser_add_new" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils/RecordBrowser/add.png').'" /><div class="add_new">'.__('Add new').'</div></span></a>';
+        }
+        if ($this->more_add_button_stuff) {
+            if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
+            else $custom_label = $this->more_add_button_stuff;
+        }
+        $gb->set_custom_label($custom_label);
 
         if ($admin) $this->browse_mode = 'all';
         if ($this->browse_mode == 'recent') {
@@ -2548,10 +2559,10 @@ class Utils_RecordBrowser extends Module {
 		foreach ($this->table_rows as $v)
 			$all_fields[$v['id']] = $v['name'];
 		$actions = $this->get_permission_actions();
+		$rules = array();
 		while ($row = $ret->FetchRow()) {
 			if (!isset($clearance[$row['id']])) $clearance[$row['id']] = array();
 			if (!isset($fields[$row['id']])) $fields[$row['id']] = array();
-			$gb_row = $gb->get_new_row();
 			$action = $actions[$row['action']];
 			$crits = Utils_RecordBrowserCommon::parse_access_crits($row['crits'], true);
 			$crits = Utils_RecordBrowserCommon::crits_to_words($this->tab, $crits, false);
@@ -2578,15 +2589,20 @@ class Utils_RecordBrowser extends Module {
 			$color = dechex(255-68*$props).dechex(187+68*$props).'BB';
 			$fields_value = ($c_all_fields-$c_fields).' / '.$c_all_fields;
 			if ($props!=1) $fields_value = Utils_TooltipCommon::create($fields_value, '<b>'.__('Excluded fields').':</b><hr>'.implode('<br>',$fields[$row['id']]), false);
-			$gb_row->add_data(
+			$rules[$row['action']][$row['id']] = array(
 				$action, 
 				'<span class="Utils_RecordBrowser__permissions_crits">'.implode(' <span class="joint">'.__('and').'</span><br>',$clearance[$row['id']]).'</span>', 
 				array('value'=>'<span class="Utils_RecordBrowser__permissions_crits">'.$crits_text.'</span>', 'overflow_box'=>false), 
 				array('style'=>'background-color:#'.$color, 'value'=>$fields_value)
 			);
+		}
+		foreach ($actions as $a=>$l)
+			foreach ($rules[$a] as $id=>$vals) {
+			$gb_row = $gb->get_new_row();
+			$gb_row->add_data_array($vals);
 			if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) {
-				$gb_row->add_action($this->create_callback_href(array($this, 'edit_permissions_rule'), array($row['id'])), 'edit', 'Edit');
-				$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_permissions_rule'), array($row['id'])), 'delete', 'Delete');
+				$gb_row->add_action($this->create_callback_href(array($this, 'edit_permissions_rule'), array($id)), 'edit', 'Edit');
+				$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_permissions_rule'), array($id)), 'delete', 'Delete');
 			}
 		}
 		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) 
@@ -2827,7 +2843,9 @@ class Utils_RecordBrowser extends Module {
 			'view'=>__('View'),
 			'edit'=>__('Edit'),
 			'add'=>__('Add'),
-			'delete'=>__('Delete')
+			'delete'=>__('Delete'),
+			'print'=>__('Print'),
+			'export'=>__('Export')
 		);
 	}
 	

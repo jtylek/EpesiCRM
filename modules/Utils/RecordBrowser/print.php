@@ -55,8 +55,6 @@ Libs_TCPDFCommon::add_page($tcpdf);
 
 Libs_TCPDFCommon::SetFont($tcpdf, Libs_TCPDFCommon::$default_font, '', 6);
 
-//die($html);
-
 $html = Libs_TCPDFCommon::stripHTML(str_replace(array('<br>','&nbsp;'),array('<br/>',' '),$html));
 Libs_TCPDFCommon::writeHTML($tcpdf, $html, false);
 
@@ -64,7 +62,7 @@ $buffer = Libs_TCPDFCommon::output($tcpdf);
 
 header('Content-Type: application/pdf');
 header('Content-Length: '.strlen($buffer));
-header('Content-disposition: attachement; filename="recordset_'.$tab.'.pdf"');
+header('Content-disposition: inline; filename="recordset_'.$tab.'.pdf"');
 
 print($buffer);
 

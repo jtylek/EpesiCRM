@@ -430,6 +430,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'rule_id I,'.
 					'clearance C(32)',
 					array('constraints'=>', FOREIGN KEY (rule_id) REFERENCES '.$tab.'_access(id)'));
+		self::check_table_name($tab, true);
+		self::add_access($tab, 'print', 'SUPERADMIN');
+		self::add_access($tab, 'export', 'SUPERADMIN');
         return true;
     }
     public static function enable_watchdog($tab,$watchdog_callback) {
