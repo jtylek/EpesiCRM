@@ -14,6 +14,7 @@ class SecureConnectionException extends Exception {
  */
 class ClientRequester implements IClient {
 
+    static private $request_log = array();
     protected $server;
     protected $license_key;
     private $secure = true;
@@ -36,17 +37,7 @@ class ClientRequester implements IClient {
         return $this->call(__FUNCTION__, $args, false);
     }
 
-    public function modules_list($start, $amount) {
-        $args = func_get_args();
-        return $this->call(__FUNCTION__, $args);
-    }
-
-    public function modules_list_total_amount() {
-        $args = func_get_args();
-        return $this->call(__FUNCTION__, $args);
-    }
-
-    public function modules_list_all() {
+    public function modules_list($start = null, $amount = null) {
         $args = func_get_args();
         return $this->call(__FUNCTION__, $args);
     }
@@ -101,6 +92,7 @@ class ClientRequester implements IClient {
     }
 
     protected function call($function, $params, $serialize_response = true) {
+        self::log($function, $params, $serialize_response);
         $post_data = $this->build_query_post_data($function, $params, $serialize_response);
         $try_times = 3;
         while ($try_times--) {
@@ -146,7 +138,8 @@ class ClientRequester implements IClient {
             IClient::param_installation_key => $this->license_key,
             IClient::param_client_version => IClient::client_version,
             IClient::param_serialize => $serialize_response,
-            IClient::param_arguments => serialize($params)
+            IClient::param_arguments => serialize($params),
+            IClient::param_lang => Base_LangCommon::get_lang_code()
         );
     }
 
@@ -242,6 +235,14 @@ class ClientRequester implements IClient {
             throw new ErrorException("Authentication failed!");
         }
         return $output;
+    }
+    
+    static function get_log() {
+        return self::$request_log;
+    }
+    
+    private static function log($function, $params, $serialize_response) {
+        self::$request_log[] = array('function' => $function, 'params' => $params, 'serialize_response' => $serialize_response);
     }
 
 }

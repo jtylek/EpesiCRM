@@ -138,15 +138,17 @@ class Base_LangCommon extends ModuleCommon {
 	/**
 	 * For internal use only.
 	 */
-	public static function load() {
+	public static function load($lang_code = null) {
 		global $translations;
 		global $custom_translations;
 
-		@include(DATA_DIR.'/Base_Lang/base/'.self::get_lang_code().'.php');
+        if ($lang_code === null) 
+            $lang_code = self::get_lang_code();
+		@include(DATA_DIR.'/Base_Lang/base/'. $lang_code .'.php');
 		if(!is_array($translations))
 			$translations=array();
 
-		@include(DATA_DIR.'/Base_Lang/custom/'.self::get_lang_code().'.php');
+		@include(DATA_DIR.'/Base_Lang/custom/'. $lang_code .'.php');
 		if(!is_array($custom_translations))
 			$custom_translations=array();
 			

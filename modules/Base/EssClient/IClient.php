@@ -8,7 +8,7 @@
  */
 interface IClient {
 
-    const client_version = 4;
+    const client_version = 5;
     const MESSAGES_INFO = 0;
     const MESSAGES_WARN = 1;
     const MESSAGES_ERROR = 2;
@@ -17,6 +17,7 @@ interface IClient {
     const param_installation_key = 'c';
     const param_client_version = 'v';
     const param_serialize = 's';
+    const param_lang = 'l';
     const return_messages = 'msg';
     const return_value = 'val';
 
@@ -90,20 +91,7 @@ interface IClient {
      * @param int $amount amount of records
      * @return array|false array of modules or false on error
      */
-    function modules_list($start, $amount);
-
-    /**
-     * Request total amount of available modules.
-     * 
-     * @return int|false amount or false on error
-     */
-    function modules_list_total_amount();
-
-    /**
-     * Request all available modules to client
-     * @return array|false array of modules of false on error
-     */
-    function modules_list_all();
+    function modules_list($start = null, $amount = null);
 
     /**
      * Submit order to server to buy modules.
