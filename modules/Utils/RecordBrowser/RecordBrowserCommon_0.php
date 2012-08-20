@@ -1503,7 +1503,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				
 				$r = DB::Execute('SELECT * FROM '.$tab.'_access AS acs WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($user_clearance), 'clearance!=%s')).')', array_values($user_clearance));
 				$crits = array('view'=>null, 'edit'=>null, 'delete'=>null, 'add'=>null);
-				$crits_raw = array('view'=>array(), 'edit'=>array(), 'delete'=>array(), 'add'=>array());
+				$crits_raw = array('view'=>array(), 'edit'=>array(), 'delete'=>array(), 'add'=>array(), 'print'=>array(), 'export'=>array());
 				$fields = array();
 				while ($row = $r->FetchRow()) {
 					$fields[$row['id']] = array();
