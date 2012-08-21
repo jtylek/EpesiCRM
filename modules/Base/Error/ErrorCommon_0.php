@@ -12,7 +12,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class EpesiErrorObserver extends ErrorObserver {
-	public static function update_observer($type, $message,$errfile,$errline,$errcontext, $backtrace) {
+	public function update_observer($type, $message,$errfile,$errline,$errcontext, $backtrace) {
 		$mail = Variable::get('error_mail');
 		if($mail) {
 			$backtrace = htmlspecialchars_decode(str_replace(array('<br />','&nbsp;'),array("\n",' '),$backtrace));
