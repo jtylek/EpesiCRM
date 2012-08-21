@@ -30,7 +30,7 @@ foreach($ret as $r) {
 	}
 	
 	$custom_translations = array();
-	@require_once($path2.'/'.$r);
+	if (file_exists($path2.'/'.$r)) @require($path2.'/'.$r);
 	$packed = array();
 	foreach ($custom_translations as $m=>$v) {
 		if (is_array($v)) {
@@ -51,7 +51,7 @@ foreach($ret as $r) {
 	}
 	$lang = str_replace('.php','',$r);
 	$f = @fopen(DATA_DIR.'/Base_Lang/base/'.$lang.'.php', 'w');
-	if(!$f)	return false;
+	if($f===false)	return false;
 
 	fwrite($f, "<?php\n");
 	fwrite($f, "/**\n * Translation file.\n * @package epesi-translations\n * @subpackage $lang\n */\n");
@@ -62,7 +62,7 @@ foreach($ret as $r) {
 	fclose($f);
 	
 	$f = @fopen(DATA_DIR.'/Base_Lang/custom/'.$lang.'.php', 'w');
-	if(!$f)	return false;
+	if($f===false)	return false;
 
 	fwrite($f, "<?php\n");
 	fwrite($f, "/**\n * Translation file.\n * @package epesi-custom-translations\n * @subpackage $lang\n */\n");
