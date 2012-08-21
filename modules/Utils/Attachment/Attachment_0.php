@@ -525,9 +525,10 @@ class Utils_Attachment extends Module {
 		$getters = ModuleManager::call_common_methods('attachment_getters');
 		$custom_getters = array();
 		foreach($getters as $mod=>$arr) {
-			foreach($arr as $caption=>$func) {
-				$custom_getters[] = array('open'=>'<a href="javascript:void(0)" onClick="'.Epesi::escapeJS($this->create_callback_href_js(array($mod.'Common',$func['func']),array($f_filename,$row['original'],$row['file_id'])),true,false).';leightbox_deactivate(\''.$lid.'\')">','close'=>'</a>','text'=>$caption,'icon'=>$func['icon']);
-			}
+			if (is_array($arr))
+				foreach($arr as $caption=>$func) {
+					$custom_getters[] = array('open'=>'<a href="javascript:void(0)" onClick="'.Epesi::escapeJS($this->create_callback_href_js(array($mod.'Common',$func['func']),array($f_filename,$row['original'],$row['file_id'])),true,false).';leightbox_deactivate(\''.$lid.'\')">','close'=>'</a>','text'=>$caption,'icon'=>$func['icon']);
+				}
 		}
 //		$custom_getters[] = array('open'=>'<a>','close'=>'</a>','text'=>'tekst','icon'=>'Utils/Attachment/download.png');
 		$th->assign('custom_getters',$custom_getters);
