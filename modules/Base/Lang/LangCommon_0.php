@@ -32,7 +32,7 @@ class Base_LangCommon extends ModuleCommon {
 	 */
 	public static function translate($original, array $arg=array(), $translate = true) {
 		if (!$original) return '';
-		if ($original[0]=='*') trigger_error('Re-translation '.$original);
+//		if ($original[0]=='*') trigger_error('Re-translation '.$original);
 		global $translations;
 		global $custom_translations;
 
