@@ -117,6 +117,10 @@ class Utils_RecordBrowser extends Module {
     public function get_display_method($ar) {
         return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
     }
+    
+    public function get_qffield_method($field) {
+        return isset($this->QFfield_callback_table[$field]) ? $this->QFfield_callback_table[$field] : null;
+    }
 
     public function set_additional_actions_method($callback) {
         $this->additional_actions_method = $callback;
