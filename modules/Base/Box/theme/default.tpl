@@ -26,7 +26,7 @@
 						<div class="home-bar-text">
 							{$home.label}
 						</div>
-					</div="home-bar1">
+					</div>
 				</td>
 				<td style="empty-cells: hide; width: 6px;"></td>
 				{if $quick_access_menu}
