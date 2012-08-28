@@ -2767,4 +2767,6 @@ class Utils_RecordBrowserMobile { // mini class to simulate full RB object, TODO
 	}
 }
 
+require_once 'modules/Utils/RecordBrowser/object_wrapper/include.php';
+
 ?>

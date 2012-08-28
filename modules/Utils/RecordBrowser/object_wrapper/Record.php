@@ -40,7 +40,7 @@ class RBO_Record implements ArrayAccess {
     public final function __construct(RBO_Recordset & $recordset, array $array) {
         $this->__recordset = $recordset;
         foreach ($array as $property => $value) {
-            $property = str_replace(array(':', ' '), '_', $property);
+            $property = self::_unify_property($property);
             $this->$property = $value;
         }
         if (isset($this->id))
@@ -52,6 +52,10 @@ class RBO_Record implements ArrayAccess {
         
     }
 
+    private static function _unify_property($property) {
+        return strtolower(str_replace(array(':', ' '), '_', $property));
+    }
+    
     private function _defined_public_properties() {
         $refl = new ReflectionObject($this);
         $props = $refl->getProperties(ReflectionProperty::IS_PUBLIC);
@@ -91,7 +95,7 @@ class RBO_Record implements ArrayAccess {
 
     public final function save() {
         if ($this->__recordset !== null) {
-            if ($this->id === null) {
+            if ($this->__records_id === null) {
                 $rec = $this->__recordset->new_record($this->_values());
                 if ($rec === null)
                     return false;
@@ -105,9 +109,9 @@ class RBO_Record implements ArrayAccess {
         return false;
     }
 
-    public final function duplicate() {
+    public final function clone_data() {
         $c = clone $this;
-        $c->created_by = $c->created_on = $c->id = null;
+        $c->__records_id = $c->created_by = $c->created_on = $c->id = null;
         return $c;
     }
 
@@ -120,22 +124,26 @@ class RBO_Record implements ArrayAccess {
     }
 
     public function offsetExists($offset) {
+        $offset = self::_unify_property($offset);
         if (!$this->_is_private_property($offset))
             return property_exists($this, $offset);
         return false;
     }
 
     public function offsetGet($offset) {
+        $offset = self::_unify_property($offset);
         if (!$this->_is_private_property($offset))
             return $this->$offset;
         return null;
     }
 
     public function offsetSet($offset, $value) {
+        $offset = self::_unify_property($offset);
         $this->__set($offset, $value);
     }
 
     public function offsetUnset($offset) {
+        $offset = self::_unify_property($offset);
         if (!$this->_is_private_property($offset))
             unset($this->$offset);
     }

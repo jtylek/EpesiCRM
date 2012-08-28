@@ -108,12 +108,12 @@ abstract class RBO_Recordset {
     }
 
     /**
-     * 
-     * @param type $crits
-     * @param type $cols
-     * @param type $order
-     * @param type $limit
-     * @param type $admin
+     * Get records from recordset.
+     * @param array $crits
+     * @param array $cols
+     * @param array $order
+     * @param numeric $limit
+     * @param bool $admin
      * @return RBO_Record[]
      */
     public function get_records($crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
@@ -121,6 +121,13 @@ abstract class RBO_Recordset {
         return $this->array_of_records_to_array_of_objects($records);
     }
 
+    /**
+     * Add new record to recordset, when array is supplied and return it's object
+     * or just returns empty data object to fill it with data and perform save()
+     * method.
+     * @param array|null $array_or_null associative array of data to or null.
+     * @return RBO_Record|null
+     */
     public function new_record($array_or_null = null) {
         if (is_array($array_or_null)) {
             $id = Utils_RecordBrowserCommon::new_record($this->tab, $array_or_null);
@@ -132,10 +139,19 @@ abstract class RBO_Recordset {
         return $this->record_to_object(array());
     }
 
+    /**
+     * Updates record specified by id
+     * @param numeric $id Id of record
+     * @param array $values associative array (field => value)
+     * @return bool success of records update
+     */
     public function update_record($id, $values) {
         return Utils_RecordBrowserCommon::update_record($this->tab, $id, $values);
     }
 
+    /**
+     * Add default permissions to recordset.
+     */
     public function add_default_access() {
         Utils_RecordBrowserCommon::add_default_access($this->tab);
     }
