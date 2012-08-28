@@ -37,6 +37,11 @@ class RBO_Record implements ArrayAccess {
      * @var timestamp */
     public $created_on;
 
+    /**
+     * Create object of record.
+     * @param RBO_Recordset $recordset Recordset object
+     * @param array $array data of record
+     */
     public final function __construct(RBO_Recordset & $recordset, array $array) {
         $this->__recordset = $recordset;
         foreach ($array as $property => $value) {
@@ -48,6 +53,10 @@ class RBO_Record implements ArrayAccess {
         $this->init();
     }
 
+    /**
+     * Called at the end of object construction. Override to do something with
+     * object immediately after creation. Eg. create some calculated property.
+     */
     public function init() {
         
     }
@@ -55,8 +64,12 @@ class RBO_Record implements ArrayAccess {
     private static function _unify_property($property) {
         return strtolower(str_replace(array(':', ' '), '_', $property));
     }
-    
-    private function _defined_public_properties() {
+
+    /**
+     * Get array of all properties - including id, author, active and creation date
+     * @return array
+     */
+    public function to_array() {
         $refl = new ReflectionObject($this);
         $props = $refl->getProperties(ReflectionProperty::IS_PUBLIC);
         $ret = array();
@@ -65,8 +78,12 @@ class RBO_Record implements ArrayAccess {
         return $ret;
     }
 
-    private function _values() {
-        $values = $this->_defined_public_properties();
+    /**
+     * Get only values of record - exclude id, _active, created_by, created_on
+     * @return array
+     */
+    private function values() {
+        $values = $this->to_array();
         unset($values['created_on']);
         unset($values['created_by']);
         unset($values['_active']);
@@ -80,7 +97,7 @@ class RBO_Record implements ArrayAccess {
         // or strpos($property, '__') === 0
         return isset($property[0]) && isset($property[1]) && $property[0] == '_' && $property[1] == '_';
     }
-
+    
     public function __set($name, $value) {
         if ($this->_is_private_property($name))
             trigger_error(__('Cannot use "%s" as property name.', $name), E_USER_ERROR);
@@ -96,13 +113,13 @@ class RBO_Record implements ArrayAccess {
     public final function save() {
         if ($this->__recordset !== null) {
             if ($this->__records_id === null) {
-                $rec = $this->__recordset->new_record($this->_values());
+                $rec = $this->__recordset->new_record($this->values());
                 if ($rec === null)
                     return false;
                 $this->__records_id = $this->id = $rec->id;
                 return true;
             } else
-                return $this->__recordset->update_record($this->__records_id, $this->_values());
+                return $this->__recordset->update_record($this->__records_id, $this->values());
         } else {
             trigger_error(__('Trying to save record that was not linked to proper recordset'), E_USER_ERROR);
         }
