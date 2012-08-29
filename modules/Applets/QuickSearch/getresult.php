@@ -22,7 +22,7 @@ else{
 
 /* Search on contact first */
 //DB::Concat('f_first_name','f_last_name') not sure if concat operator is allowed
-$resultContact = DB::Execute('select concat(f_first_name, \' \', f_last_name) as name, id from contact_data_1 where (f_first_name like ? || f_last_name like ?)', $qry);
+$resultContact = DB::Execute('SELECT '.DB::Concat('f_first_name',DB::qstr(' '),'f_last_name').' as name, id from contact_data_1 WHERE f_first_name '.DB::like().' %s OR f_last_name '.DB::like().' %s', $qry);
 if($resultContact){
 	$sourceTable = "contact";	
 	while($row = $resultContact->FetchRow()){
@@ -30,7 +30,7 @@ if($resultContact){
 	}
 }
 /* Follow on the companies */
-$resultCompany = DB::Execute('select f_company_name as name, id from company_data_1 where (f_company_name like ? || f_short_name)', $qry);
+$resultCompany = DB::Execute('SELECT f_company_name as name, id from company_data_1 WHERE f_company_name '.DB::like().' %s OR f_short_name '.DB::like().' %s', $qry);
 $sourceTable = "";
 if($resultCompany){	
 	$sourceTable = "company";
