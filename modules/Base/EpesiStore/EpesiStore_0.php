@@ -46,7 +46,7 @@ class Base_EpesiStore extends Module {
         $setup = $this->init_module('Base_Setup');
         if (Base_SetupCommon::is_simple_setup()) {
 			if (!$this->isset_module_variable('filter_set')) {
-				eval_js('base_setup__last_filter="'.(!Base_EssClientCommon::is_registered()?'':(Base_EpesiStoreCommon::is_update_available()?'updates':'store')).'";');
+				eval_js('base_setup__last_filter="'.(!Base_EssClientCommon::has_license_key()?'':(Base_EpesiStoreCommon::is_update_available()?'updates':'store')).'";');
 				$this->set_module_variable('filter_set', true);
 			}
             $this->display_module($setup, array(true), 'admin');
@@ -131,18 +131,26 @@ class Base_EpesiStore extends Module {
     }
 
     private function display_modules() {
-        $total = Base_EpesiStoreCommon::modules_total_amount();
-        if (!$total) {
-            print(__('Unfortunately there is no modules available for You.'));
-            return;
-        }
         /* @var $gb Utils_GenericBrowser */
         $gb = $this->init_module('Utils/GenericBrowser', null, 'moduleslist');
-        $x = $gb->get_limit($total);
+        // We need total amount of available modules to set GB paging.
+        // It's returned with each request for modules list
+        // so with first request we use only get_limit to retrieve
+        // 'per_page' (numrows) value, then again get_limit to set proper
+        // total amount value.
+        $total = $this->get_module_variable('modules_total');
+        $x = $gb->get_limit($total === null ? 500 : $total);
         // fetch data
-        $modules = Base_EpesiStoreCommon::modules_list($x['offset'], $x['numrows']);
-        $gb = $this->GB_module($gb, $modules, array($this, 'GB_row_additional_actions_store'));
-        $this->display_module($gb);
+        $ret = Base_EpesiStoreCommon::modules_list($x['offset'], $x['numrows']);
+        if ($total === null)
+            $x = $gb->get_limit($ret['total']);
+        $this->set_module_variable('modules_total', $ret['total']);
+        if (!$ret['total'])
+            print(__('Unfortunately there is no modules available for You.'));
+        else {
+            $gb = $this->GB_module($gb, $ret['modules'], array($this, 'GB_row_additional_actions_store'));
+            $this->display_module($gb);
+        }
     }
 
 	static $return = true;
@@ -528,7 +536,7 @@ class Base_EpesiStore extends Module {
     public function payments_show_user_settings() {
         $this->back_button();
         $module_to_show = $this->init_module('Base/User/Settings');
-        $this->display_module($module_to_show, array('Epesi Store'));
+        $this->display_module($module_to_show, array('EPESI Store'));
     }
 
     public function form_payment_frame($order_id, $value, $curr_code, $modules = null) {

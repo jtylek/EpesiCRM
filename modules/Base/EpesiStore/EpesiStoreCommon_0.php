@@ -14,7 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     const ACTION_BUY = 'buy';    // __('Buy')
-    const ACTION_PAY = 'pay';    // __('Pay')
+//    const ACTION_PAY = 'pay';    // __('Pay')
     const ACTION_DOWNLOAD = 'download'; // __('Download')
     const ACTION_UPDATE = 'update';  // __('Update')
     const ACTION_INSTALL = 'install';  // __('Install')
@@ -39,9 +39,43 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     public static function admin_caption() {
 		return array('label'=>__("Modules Administration & Store"), 'section'=>__('Server Configuration'));
     }
+    
+    static $module_cache = null;
 
     public static function get_modules_all_available() {
-        return Base_EssClientCommon::server()->modules_list_all();
+        if (self::$module_cache === null) {
+            $ret = Base_EssClientCommon::server()->modules_list();
+            $modules = $ret['modules'];
+            $downloaded_modules = self::get_downloaded_modules();
+            foreach ($modules as & $m) {
+                $m['action'] = self::next_possible_action($m, $downloaded_modules);
+            }
+            self::$module_cache = $modules;
+        }
+        return self::$module_cache;
+    }
+    
+    public static function get_module_info_cached($module_id) {
+        if (self::$module_cache === null) {
+            self::get_modules_all_available();
+        }
+        return isset(self::$module_cache[$module_id]) ? self::$module_cache[$module_id] : null;
+    }
+    
+    private static function next_possible_action($module, $downloaded_modules = null) {
+        if (!$downloaded_modules)
+            $downloaded_modules = self::get_downloaded_modules();
+
+        if (isset($module['bought']) && $module['bought'] && isset($module['paid']) && $module['paid']) {
+            if (!isset($downloaded_modules[$module['id']]))
+                return self::ACTION_DOWNLOAD;
+            else if (self::version_compare($module['version'], $downloaded_modules[$module['id']]['version']) > 0)
+                return self::ACTION_UPDATE;
+            else
+                return self::ACTION_INSTALL;
+        }
+        else
+            return self::ACTION_BUY;
     }
 
     private static function get_payment_data_keys() {
@@ -70,16 +104,18 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     public static function user_settings() {
         set_time_limit(0);
         // get default data from user contact
-        if (ModuleManager::is_installed('CRM_Contacts') > -1)
-            $r = CRM_ContactsCommon::get_my_record();
-        else
-            $r = array();
+        $my_contact = ModuleManager::is_installed('CRM_Contacts') > -1 ?
+                CRM_ContactsCommon::get_my_record() : array();
         // key = field name from contact => value = field name in settings
         $keys = self::get_payment_data_keys();
         $values = array();
         // do user setting entries from data
         foreach ($keys as $k => $v) {
-            $x = array('name' => $v, 'label' => _V(ucwords(str_replace('_', ' ', $v))), 'type' => 'text', 'default' => isset($r[$k]) ? $r[$k] : ''); // ****** Values are fields used in Contacts
+            $x = array(
+                'name' => $v,
+                'label' => _V(ucwords(str_replace('_', ' ', $v))),
+                'type' => 'text',
+                'default' => isset($my_contact[$k]) ? $my_contact[$k] : '');
             if ($k == 'country') {
                 $x['type'] = 'select';
                 $x['values'] = Utils_CommonDataCommon::get_translated_array('Countries');
@@ -134,39 +170,14 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     /**
-     * Get total number of available modules.
-     * @return int number of modules
-     */
-    public static function modules_total_amount() {
-        $total = Module::static_get_module_variable(self::MOD_PATH, 'modules_total_amount');
-        if ($total === null) {
-            $total = Base_EssClientCommon::server()->modules_list_total_amount();
-            Module::static_set_module_variable(self::MOD_PATH, 'modules_total_amount', $total);
-        }
-        return $total;
-    }
-
-    /**
-     * Cached modules listing in some range
+     * modules list in some range
      * @param int $offset starting module
      * @param int $amount number of items
      * @return array modules data
      */
     public static function modules_list($offset, $amount) {
-        $modules = Module::static_get_module_variable(self::MOD_PATH, 'modules_list', array());
-        $start = $offset;
-        $end = $offset + $amount - 1;
-        while (isset($modules[$start]))
-            $start++;
-        while (isset($modules[$end]))
-            $end--;
-        $modules_from_serv = $end >= $start ? Base_EssClientCommon::server()->modules_list($start, $end - $start + 1) : array();
-        $i = $start;
-        foreach ($modules_from_serv as $m) {
-            $modules[$i++] = $m;
-        }
-        Module::static_set_module_variable(self::MOD_PATH, 'modules_list', $modules);
-        return array_slice($modules, $offset, $amount);
+        $response = Base_EssClientCommon::server()->modules_list($offset, $amount);
+        return $response;
     }
 
     /**
@@ -177,21 +188,28 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
      */
     public static function get_module_info($module_id, $force = false) {
         $modules_cache = Module::static_get_module_variable(self::MOD_PATH, 'modules_info', array());
-        if ($force == false && isset($modules_cache[$module_id]))
-            return $modules_cache[$module_id];
-        // if not - request server
-        $modules_cache[$module_id] = Base_EssClientCommon::server()->module_get_info($module_id);
-        Module::static_set_module_variable(self::MOD_PATH, 'modules_info', $modules_cache);
-        // update in module list
-        $modules_list = Module::static_get_module_variable(self::MOD_PATH, 'modules_list', array());
-        foreach ($modules_list as $k => $v) {
-            if ($v['id'] == $module_id) {
-                $modules_list[$k] = $modules_cache[$module_id];
-                Module::static_set_module_variable(self::MOD_PATH, 'modules_list', $modules_list);
-                break;
+        $ret = array();
+        $request = array();
+        if (!is_array($module_id))
+            $module_id = array($module_id);
+        // split cached and modules for request.
+        foreach($module_id as $id) {
+            if(!array_key_exists($id, $modules_cache) || $force)
+                $request[] = $id;
+            else
+                $ret[$id] = $modules_cache[$id];
+        }
+        // request modules info and merge with cache and return value
+        if (count($request)) {
+            $response = Base_EssClientCommon::server()->module_get_info($request);
+            foreach($response as $k => $v) {
+                $ret[$k] = $v;
+                $modules_cache[$k] = $v;
             }
         }
-        return $modules_cache[$module_id];
+        Module::static_set_module_variable(self::MOD_PATH, 'modules_info', $modules_cache);
+        // ret only one record if only one was requested
+        return count($module_id) == 1 ? reset($ret) : $ret;
     }
 
     /**
@@ -288,32 +306,6 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return false;
     }
 
-    private static function _is_module_free($module_id) {
-        $mi = self::get_module_info($module_id);
-        return $mi['total_price'] == "0";
-    }
-
-    private static function _is_module_license_active($module_id) {
-        return false !== self::_active_module_license_for_module($module_id);
-    }
-
-    private static function _is_module_paid($module_id) {
-        $ml = self::_active_module_license_for_module($module_id);
-        if ($ml === false || $ml['active'] == false)
-            return false;
-        return $ml['paid'];
-    }
-
-    private static function _is_module_downloaded($module_id) {
-        return false !== self::get_downloaded_module_version($module_id)
-                && self::is_module_downloaded($module_id);
-    }
-
-    private static function _is_module_up_to_date($module_id) {
-        $mi = self::get_module_info($module_id);
-        return 0 >= self::version_compare($mi['version'], self::get_downloaded_module_version($module_id));
-    }
-
     /**
      * compare version of modules
      * @param string $v1 version param 1
@@ -327,45 +319,26 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             return -1;
         return 0;
     }
-
-    public static function next_possible_action($module_id) {
-        if (!self::_is_module_license_active($module_id))
-            return self::ACTION_BUY;
-        if (!self::_is_module_paid($module_id))
-            return self::ACTION_PAY;
-        if (!self::_is_module_downloaded($module_id))
-            return self::ACTION_DOWNLOAD;
-        if (!self::_is_module_up_to_date($module_id))
-            return self::ACTION_UPDATE;
-
-        return self::ACTION_INSTALL;
-    }
-
-    public static function next_possible_action_href($module_id, $response_callback = null) {
-        $action = self::next_possible_action($module_id);
-        return self::action_href($module_id, $action, $response_callback);
-    }
-
+    
     public static function action_href($module_id, $action, $response_callback = null) {
         return Base_BoxCommon::main_module_instance()->create_callback_href(array('Base_EpesiStoreCommon', 'handle_module_action'), array($module_id, $action, $response_callback));
     }
 
-    public static function handle_module_action($module_id, $action, $response_callback = null) {
+    public static function handle_module_action($module, $action, $response_callback = null) {
         if (Base_BoxCommon::main_module_instance()->is_back())
             return false;
         $return = null;
         switch ($action) {
             case self::ACTION_BUY:
-                $response = Base_EssClientCommon::server()->order_submit($module_id);
-                $return = isset($response[$module_id]) ? $response[$module_id] : false;
+                $modules = array_merge(array($module['id']), $module['needed_modules']);
+                $response = Base_EssClientCommon::server()->order_submit($modules);
+                $return = ($response['order_id'] !== null);
+                $needs_payment = $response['needs_payment'];
                 if ($return !== true)
                     break;
-            case self::ACTION_PAY:
-                if (self::_is_module_free($module_id)) {
-                    $return = true;
+                if (! $needs_payment)
                     break;
-                }
-                $return = self::_display_payments_for_module($module_id);
+                $return = self::_display_payments_for_order($response['order_id']);
                 if ($return === true) {
                     Base_ActionBarCommon::add('back', __('Back'), Base_BoxCommon::main_module_instance()->create_back_href());
                     return true;
@@ -373,7 +346,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 break;
             case self::ACTION_DOWNLOAD:
             case self::ACTION_UPDATE:
-                $mi = self::_active_module_license_for_module($module_id);
+                $mi = self::_active_module_license_for_module($module['id']);
                 if ($mi !== false)
                     $return = self::download_module($mi);
                 else
@@ -389,26 +362,19 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return $return;
     }
 
-    private static function _display_payments_for_module($module_id) {
-        $module_license = self::_active_module_license_for_module($module_id);
-        if ($module_license === false)
-            return false;
-        $module_license_id = $module_license['id'];
+    private static function _display_payments_for_order($order_id) {
         $orders = Base_EssClientCommon::server()->orders_list();
-        foreach ($orders as $o) {
-            if (false === array_search($module_license_id, $o['modules']))
-                continue;
-            // order should contain only one 'currency => value' pair. Take first
+        if(isset($orders[$order_id])) {
+            $o = $orders[$order_id];
             $keys = array_keys($o['price']);
             $currency = reset($keys);
             $value = $o['price'][$currency]['to_pay'];
-            $mi = self::get_module_info($module_id);
             $main_module = Base_BoxCommon::main_module_instance();
             $store = $main_module->init_module('Base/EpesiStore');
-            $main_module->display_module($store, array($o['id'], $value, $currency, $mi['name']), 'form_payment_frame');
+            $main_module->display_module($store, array($o['id'], $value, $currency), 'form_payment_frame');
             return true;
         }
-        return "No orders with such module to perform payment";
+        return "No such order to perform payment.";
     }
 
     private static function crc_file_matches($file, $crc) {
@@ -457,10 +423,10 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     /**
      * Get downloaded modules list.
      * Array keys are 'module_id', 'version', 'file' and 'module_license_id'
-     * @return array of data. 
+     * @return associative array of data. Key is module id.
      */
     public static function get_downloaded_modules() {
-        $records = DB::GetAll('SELECT * FROM epesi_store_modules');
+        $records = DB::GetAssoc('SELECT * FROM epesi_store_modules');
         return $records;
     }
 
@@ -473,16 +439,25 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         $esu = Variable::get('epesi_store_updates', false);
         $today = date('Ymd');
         if ($force_check || !is_array($esu) || $esu['check_day'] != $today) {
-            $modules = self::get_downloaded_modules();
-            $updates = 0;
-            foreach ($modules as $m) {
-                if (!self::_is_module_up_to_date($m['module_id']))
-                    $updates++;
-            }
+            $updates = self::_count_updates_of_downloaded_modules();
             $esu = array('check_day' => $today, 'updates' => $updates);
             Variable::set('epesi_store_updates', $esu);
         }
         return $esu['updates'];
+    }
+    
+    private static function _count_updates_of_downloaded_modules() {
+        $modules = self::get_downloaded_modules();
+        $updates = 0;
+        $modules_ids = array_keys($modules);
+        $response = self::get_module_info($modules_ids);
+        if (is_array($response)) {
+            foreach ($response as $mod) {
+                if (self::version_compare($mod['version'], $modules[$mod['id']]['version']) > 0)
+                    $updates++;
+            }
+        }
+        return $updates;
     }
 
 }

@@ -140,10 +140,6 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return Base_AclCommon::i_am_sa();
     }
 
-//    public static function admin_caption() {
-//		return array('label'=>__("EPESI Registration"), 'section'=>__('Server Configuration'));
-//    }
-
     public static function get_support_email() {
         $email = 'bugs@telaxus.com'; // FIXME
         if (ModuleManager::is_installed('CRM_Roundcube') >= 0) {
@@ -187,36 +183,32 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         Module::static_set_module_variable('Base/EssClient', 'messages', $msgs);
     }
 
-    public static function client_messages_frame($load_by_js = true) {
+    public static function client_messages_frame() {
         static $printed = null;
         if($printed)
             return '';
         $printed = true;
         
-        $content = $load_by_js ? '' : self::format_client_messages();
-        $buttons = '';
-        if ($load_by_js) {
-            self::client_messages_load_by_js();
-            $hide_all = __( 'Hide messages');
-            $show_discarded = __( 'Show discarded');
-            $buttons .= "<div class=\"button\" id=\"client_messages_frame_hide\">$hide_all</div>";
-            $buttons .= "<div class=\"button\" id=\"client_messages_frame_show_discarded\">$show_discarded</div>";
-        }
-        return '<div id="client_messages_frame"><div id="client_messages_frame_content">' . $content . '</div>' . $buttons . '</div>';
-    }
+        $content = self::format_client_messages();
 
-    public static function client_messages_load_by_js() {
+        $hide_all = __('Hide messages');
+        $show_discarded = __('Show discarded');
+        $buttons = "<div class=\"button\" id=\"client_messages_frame_hide\">$hide_all</div>" .
+                "<div class=\"button\" id=\"client_messages_frame_show_discarded\">$show_discarded</div>";
         load_js(dirname(__FILE__) . '/messages_hiding.js');
-        eval_js('$("client_messages_frame_content").innerHTML = ' . json_encode(self::format_client_messages()));
         eval_js('set_client_messages_frame_id("client_messages_frame");');
+        return '<div id="client_messages_frame"><div id="client_messages_frame_content">' . $content . '</div>' . $buttons . '</div>';
     }
 
     private static function format_client_messages($cleanup = true) {
         $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
 
-        $ret = self::format_messages_frame('#FFCCCC', __('Error messages').':', $msgs[2])
-                . self::format_messages_frame('#FFDD99', __('Warning messages').':', $msgs[1])
-                . self::format_messages_frame('#DDFF99', __('Information messages').':', $msgs[0]);
+        $red = '#FFCCCC';
+        $orange = '#FFDD99';
+        $green = '#DDFF99';
+        $ret = self::format_messages_frame($red, __('Error messages') . ':', $msgs[2])
+                . self::format_messages_frame($orange, __('Warning messages') . ':', $msgs[1])
+                . self::format_messages_frame($green, __('Information messages') . ':', $msgs[0]);
 
         if ($cleanup) {
             Module::static_unset_module_variable('Base/EssClient', 'messages');

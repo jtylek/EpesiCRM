@@ -396,7 +396,7 @@ class Base_Setup extends Module {
 	}
 
 	public function add_store_products(& $sorted, & $filters) {
-		$registered = Base_EssClientCommon::is_registered();
+		$registered = Base_EssClientCommon::has_license_key();
 		$filters_attrs = '';
 		if (!$registered) {
 			if (TRIAL_MODE) {
@@ -420,14 +420,14 @@ class Base_Setup extends Module {
 		foreach ($store as $s) {
 			$name = $s['name'];
 
-			$label = Base_EpesiStoreCommon::next_possible_action($s['id']);
+			$label = $s['action'];
 			if (!isset($s['total_price'])) $s['total_price'] = $s['price'];
 			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['total_price']===0) {
 				$s['total_price'] = __('Free');
 				$label = 'obtain license';
 			}
 			$b_label = _V(ucfirst($label)); // ****** EpesiStoreCommon - translations added in comments
-            $button = array('label'=>$b_label,'style'=>$label==Base_EpesiStoreCommon::ACTION_UPDATE?'problem':'install','href'=>  Base_EpesiStoreCommon::next_possible_action_href($s['id'], array('Base_Setup', 'response_callback')));
+            $button = array('label'=>$b_label,'style'=>$label==Base_EpesiStoreCommon::ACTION_UPDATE?'problem':'install','href'=>  Base_EpesiStoreCommon::action_href($s, $s['action'], array('Base_Setup', 'response_callback')));
 			if (isset($sorted[$name]) && ($label==Base_EpesiStoreCommon::ACTION_INSTALL || $label==Base_EpesiStoreCommon::ACTION_UPDATE)) {
 				$sorted[$name]['filter'][] = 'purchases';
 				if ($label==Base_EpesiStoreCommon::ACTION_UPDATE) {
@@ -469,12 +469,12 @@ class Base_Setup extends Module {
 
     private function included_modules_text($module) {
         $text = '';
-        if ($module['required_modules']) {
+        if ($module['needed_modules']) {
             $text .= __("With this module you will get license for these modules:");
             $arr = array($module['name'] => $module['price']);
 			if (!is_array($module['required_modules'])) $module['required_modules'] = explode(', ',$module['required_modules']);
             foreach ($module['required_modules'] as $rm_id) {
-                $mod = Base_EpesiStoreCommon::get_module_info($rm_id);
+                $mod = Base_EpesiStoreCommon::get_module_info_cached($rm_id);
                 $arr[$mod['name']] = $mod['price'];
             }
             $text .= "<table class=\"price_summary\">";
