@@ -187,8 +187,12 @@ function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
     }
     return true;
 }
-if(REPORT_ALL_ERRORS && version_compare(phpversion(), '5.4.0')==-1)
-	error_reporting(E_ALL); //all without notices
+if(REPORT_ALL_ERRORS) {
+    if (version_compare(phpversion(), '5.4.0')==-1)
+    	error_reporting(E_ALL); //all without notices
+    else
+        error_reporting(E_ALL & ~E_STRICT); // E_STRICT cause 5.4 unusable
+}
 else
 	error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR);
 

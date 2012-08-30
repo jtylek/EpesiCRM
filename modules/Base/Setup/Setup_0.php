@@ -440,6 +440,7 @@ class Base_Setup extends Module {
 				continue;
 			}
 			$sorted[$name] = array();
+            $sorted[$name]['core'] = 0;
 			$sorted[$name]['url'] = $s['description_url'];
 			$sorted[$name]['icon'] = $s['icon_url'];
 			$sorted[$name]['name'] = _V($name); // ****** FIXME - modules names from the store
