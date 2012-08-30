@@ -470,10 +470,10 @@ class Base_Setup extends Module {
     private function included_modules_text($module) {
         $text = '';
         if ($module['needed_modules']) {
-            $text .= __("With this module you will get license for these modules:");
+            $text .= __("With this module you need also some other modules.<br>Here is the list what you buy:");
             $arr = array($module['name'] => $module['price']);
 			if (!is_array($module['required_modules'])) $module['required_modules'] = explode(', ',$module['required_modules']);
-            foreach ($module['required_modules'] as $rm_id) {
+            foreach ($module['needed_modules'] as $rm_id) {
                 $mod = Base_EpesiStoreCommon::get_module_info_cached($rm_id);
                 $arr[$mod['name']] = $mod['price'];
             }
