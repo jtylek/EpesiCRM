@@ -52,12 +52,21 @@ class ErrorHandler {
 				}
 
 				while(@ob_end_clean());
-				echo self::notify_client('Type: '.$type.'<br>Message: '.$message.'<br>File: '.$errfile.'<br>Line='.$errline.$backtrace.'<hr>');
+				echo self::notify_client('Type: ' . self::error_code_to_string($type) . ' (' . $type . ')<br>Message: '.$message.'<br>File: '.$errfile.'<br>Line='.$errline.$backtrace.'<hr>');
 				exit();
 		}
 
 		return true;
 	}
+    
+    public static function error_code_to_string($type) {
+        $constants = get_defined_constants(true);
+        foreach ($constants['Core'] as $constant => $value) {
+            if ($value == $type && $constant[0] == 'E')
+                return $constant;
+        }
+        return '';
+    }
 
 	public static function debug_backtrace() {
 		if(function_exists('debug_backtrace')) {
