@@ -19,6 +19,7 @@ class Base_Dashboard extends Module {
 	}
 
 	public function body() {
+		if(!Base_AclCommon::check_permission('Dashboard')) return;
 		$this->help('Dashboard Help','main');
 
 		if(ModuleManager::is_installed('Utils/RecordBrowser')>=0) //speed up links to RB
