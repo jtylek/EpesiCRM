@@ -64,7 +64,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 		$ret = array();
 		foreach($arr as $row) {
 			if(!$row['login']) $row['login']='Anonymous';
-			$ret['shoutbox_'.$row['id']] = __('<font color="gray">[%s]</font><font color="blue">%s</font>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], $row['message']));
+			$ret['shoutbox_'.$row['id']] = vsprintf('<font color="gray">[%s]</font><font color="blue">%s</font>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], $row['message']));
 		}
 
 		return array('notifications'=>$ret);
