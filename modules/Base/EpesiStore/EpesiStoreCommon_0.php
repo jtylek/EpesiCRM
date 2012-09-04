@@ -26,42 +26,43 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     public static function menu() {
         if (!Base_AclCommon::i_am_sa() || TRIAL_MODE)
             return;
-        if (!Base_EssClientCommon::get_license_key()) 
-			return;
-        return array(_M('Support') => array('__submenu__' => 1, _M('EPESI Store') => array('__function__'=>'manage')));
+        if (!Base_EssClientCommon::get_license_key())
+            return;
+        return array(_M('Support') => array('__submenu__' => 1, _M('EPESI Store') => array('__function__' => 'manage')));
     }
-
 
     public static function admin_access() {
         return Base_AclCommon::i_am_sa();
     }
 
     public static function admin_caption() {
-		return array('label'=>__("Modules Administration & Store"), 'section'=>__('Server Configuration'));
+        return array('label' => __("Modules Administration & Store"), 'section' => __('Server Configuration'));
     }
-    
+
     static $module_cache = null;
 
     public static function get_modules_all_available() {
         if (self::$module_cache === null) {
             $ret = Base_EssClientCommon::server()->modules_list();
-            $modules = $ret['modules'];
-            $downloaded_modules = self::get_downloaded_modules();
-            foreach ($modules as & $m) {
-                $m['action'] = self::next_possible_action($m, $downloaded_modules);
+            if (is_array($ret)) {
+                $modules = $ret['modules'];
+                $downloaded_modules = self::get_downloaded_modules();
+                foreach ($modules as & $m) {
+                    $m['action'] = self::next_possible_action($m, $downloaded_modules);
+                }
+                self::$module_cache = $modules;
             }
-            self::$module_cache = $modules;
         }
         return self::$module_cache;
     }
-    
+
     public static function get_module_info_cached($module_id) {
         if (self::$module_cache === null) {
             self::get_modules_all_available();
         }
         return isset(self::$module_cache[$module_id]) ? self::$module_cache[$module_id] : null;
     }
-    
+
     private static function next_possible_action($module, $downloaded_modules = null) {
         if (!$downloaded_modules)
             $downloaded_modules = self::get_downloaded_modules();
@@ -193,8 +194,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if (!is_array($module_id))
             $module_id = array($module_id);
         // split cached and modules for request.
-        foreach($module_id as $id) {
-            if(!array_key_exists($id, $modules_cache) || $force)
+        foreach ($module_id as $id) {
+            if (!array_key_exists($id, $modules_cache) || $force)
                 $request[] = $id;
             else
                 $ret[$id] = $modules_cache[$id];
@@ -202,9 +203,11 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         // request modules info and merge with cache and return value
         if (count($request)) {
             $response = Base_EssClientCommon::server()->module_get_info($request);
-            foreach($response as $k => $v) {
-                $ret[$k] = $v;
-                $modules_cache[$k] = $v;
+            if (is_array($response)) {
+                foreach ($response as $k => $v) {
+                    $ret[$k] = $v;
+                    $modules_cache[$k] = $v;
+                }
             }
         }
         Module::static_set_module_variable(self::MOD_PATH, 'modules_info', $modules_cache);
@@ -319,7 +322,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             return -1;
         return 0;
     }
-    
+
     public static function action_href($module_id, $action, $response_callback = null) {
         return Base_BoxCommon::main_module_instance()->create_callback_href(array('Base_EpesiStoreCommon', 'handle_module_action'), array($module_id, $action, $response_callback));
     }
@@ -336,7 +339,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 $needs_payment = $response['needs_payment'];
                 if ($return !== true)
                     break;
-                if (! $needs_payment)
+                if (!$needs_payment)
                     break;
                 $return = self::_display_payments_for_order($response['order_id']);
                 if ($return === true) {
@@ -364,7 +367,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     private static function _display_payments_for_order($order_id) {
         $orders = Base_EssClientCommon::server()->orders_list();
-        if(isset($orders[$order_id])) {
+        if (isset($orders[$order_id])) {
             $o = $orders[$order_id];
             $keys = array_keys($o['price']);
             $currency = reset($keys);
@@ -445,7 +448,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         }
         return $esu['updates'];
     }
-    
+
     private static function _count_updates_of_downloaded_modules() {
         $modules = self::get_downloaded_modules();
         $updates = 0;

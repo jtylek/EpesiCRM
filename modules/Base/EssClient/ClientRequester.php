@@ -170,8 +170,7 @@ class ClientRequester implements IClient {
         // check if there was an unserialize error
         $unserialized_response = @unserialize($response);
         if ($unserialized_response === false) {
-            // TODO: error signature or date
-            Base_EssClientCommon::add_client_message_error('External server error occured. Please report this at ' . Base_EssClientCommon::get_support_email());
+            Base_EssClientCommon::add_client_message_error('<b>' . __('Remote server error') . '</b><br/>' . __('Your EPESI is fine. Our server had some problem. Please give us some time to fix this.'));
         }
 
         return $unserialized_response;
