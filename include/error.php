@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class ErrorObserver
 {
-	public function update_observer($type, $message, $errfile, $errline, $errcontext)
+	public function update_observer($type, $message, $errfile, $errline, $errcontext, $backtrace)
 	{
 		return true;
 	}
