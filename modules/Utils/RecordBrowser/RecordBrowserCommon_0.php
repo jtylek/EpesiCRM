@@ -939,6 +939,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$access = self::get_access($tab, 'browse');
 		if ($access===false) return array();
 		elseif ($access!==true && is_array($access)) {
+			$keys = array_keys($access);
+			$values = array_values($access);
+			if($keys[0]{0}!='^') {
+				$keys[0] = '^'.$keys[0];
+				$access = array_combine($keys,$values);
+			}
 			$crits = self::merge_crits($crits, $access);
 		}
         $iter = 0;
