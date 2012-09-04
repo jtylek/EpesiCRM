@@ -20,7 +20,7 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 	}
 
 	public static function simple_setup() {
-		return array('package'=>__('EPESI Core'), 'option'=>__('Quick Search'));
+		return array('package'=>__('EPESI Core'), 'option'=>__('Additional applets'));
 	}
 
 	public function requires($v) {
@@ -29,7 +29,9 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 			array('name'=>'Base/User','version'=>0),
 			array('name'=>'Utils/BBCode', 'version'=>0), 
 			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Libs/QuickForm','version'=>0));
+			array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Base/Dashboard','version'=>0));
 	}
 
 	public static function info() {

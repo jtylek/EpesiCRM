@@ -4,10 +4,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_QuickSearchCommon extends ModuleCommon{
 
-	public static function menu() {
-    	return array(_M('QuickSearch')=>array());
-	}
-	
 	public static function applet_caption() {
     	return __("QuickSearch");
 

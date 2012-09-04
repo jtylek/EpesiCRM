@@ -1,7 +1,7 @@
 #btnQuery {
     color: #FFFFFF;
 	float: right;
-	margin: 5px 9px auto auto;
+	margin: auto auto auto auto;
 	padding: 3px 0;
     border: 0px;
     width: 50px;
@@ -42,4 +42,8 @@
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5ada5a', endColorstr='#2d602d',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #226622 0%,#71b871 1%,#58ab58 49%,#379b37 51%,#63b163 95%,#226622 100%); /* W3C */
 	/* end light css3 green background gradient */
+}
+
+#query_text{
+	height: 18px;
 }

@@ -1,21 +1,31 @@
-<table cellspacing="2" cellpadding="2" id ="table" style="table-layout:fixed;overflow:hidden;text-overflow:ellipsis;">
-	<thead>
+<table class="Utils_RecordBrowser__View_entry" cellspacing="0" cellpadding="0">
 	<tr>
-		<td class="epesi_label" style="width:15%;">{$query_label}</td>
-		<td class="epesi_data" style="width:80%">{$query_text}</td>
-		<td style="width:15%">{$query_button}</td>
-	</tr>		
-	</thead>
-</table>
-<table cellspacing="0" cellpadding="0" width="100%" class="Utils_GenericBrowser">	
-	<thead>
-		<tr class="nonselectable">
-			<th style="width:80%" colspan='2'><span>Name</span></th>
-			<th style="width:20%"><span>Source</span></th>
-		</tr>		
-	</thead>
-	<tbody id="tableID">
-	</tbody>
+		<td>
+			<table cellspacing="2" cellpadding="2">
+				<tbody>
+				<tr>
+					<td class="label" style='width:10%'><span>{$query_label}</span></td>
+					<td class="data" style='width:70%'><div>{$query_text}</div></td>
+					<td style='width:4%' align='center' valign='middle'>{$query_button}</td>
+				</tr>		
+				</tbody>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<table cellspacing="0" cellpadding="0" width="100%" class="Utils_GenericBrowser">	
+				<thead>
+					<tr class="nonselectable">
+						<th style="width:80%" colspan='2'><span>Name</span></th>
+						<th style="width:20%"><span>Source</span></th>
+					</tr>		
+				</thead>
+				<tbody id="tableID">
+				</tbody>
+			</table>
+		</td>
+	</tr>	
 </table>	
 
 

@@ -8,8 +8,8 @@ class Applets_QuickSearch extends Module{
 	
 	}
 	
-	public function applet($conf, & $opts){
-		$opts['go' ] = false;
+	public function applet($values, & $opts){		
+		$opts['go' ] = false;		
 		$theme = $this->init_module('Base/Theme');
 		$form = $this->init_module('Libs/QuickForm');
 		
@@ -17,25 +17,29 @@ class Applets_QuickSearch extends Module{
 		$txtLabel = 'query_label';
 		$btnQuery = 'query_button';
 		
-		$txt = $form->addElement('text', $txtQuery, $this->t('Search'), array('size' => 100));		
-		$txt->setAttribute('id', 'txtQuery');
+		load_css('modules/Applets/QuickSearch/theme/quick_form.css');
+		load_js('modules/Applets/QuickSearch/js/quicksearch.js');	
+		
+		$js ='sayHello()';
+		eval_js($js);
+		$txt = $form->addElement('text', $txtQuery, __('Search'), array('size' => '52%'));		
+		$txt->setAttribute('id', $txtQuery);
+		//$txt->setAttribute('onkeydown', $js);
+		//$txt->setAttribute('onkeydown', 'javascript: var txtVal = document.getElementById(\''.$txtQuery.'\').value;var id = setInterval( 
+		//								new Ajax.Updater(\'tableID\', \'modules/Applets/QuickSearch/getresult.php\',
+		//								{ method: \'get\', parameters: {q:txtVal}} ), 1000)');								
+		//$txt->setAttribute('onfocus', 'clearInterval()');
+		//$txt->setAttribute('onblur', 'clearInterval(id)');
+		$txt->setAttribute('placeholder', __('Enter you search here...'));
 		
 		
-		$btn = $form->addElement('button', $btnQuery, 'Find', null);
+		$btn = $form->addElement('button', $btnQuery, __('Find'), null);
 		$btn->setAttribute('id', 'btnQuery');
-		$btn->setAttribute('onClick', 'javascript: var txtVal = document.getElementById(\'txtQuery\').value; 
-										new Ajax.Updater(\'tableID\', \'modules/Applets/QuickSearch/getresult.php\',
-										{ method: \'get\', parameters: {q:txtVal}} )');
-
-		//$form->applyFilter($txtQuery , 'trim');
-		//$form->addRule($txtQuery, 'Please enter your name', 'required');
-		//if($form->validate()){
-		//}	
+		$btn->setAttribute('onClick', $js);
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
 		$theme->assign($btnQuery, $btn->toHtml());
-		$theme->display('quick_form');				
-		return true;		
+		$theme->display('quick_form');					
 	
 	}
 	public function caption() {
