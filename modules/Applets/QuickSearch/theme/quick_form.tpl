@@ -4,9 +4,8 @@
 			<table cellspacing="2" cellpadding="2">
 				<tbody>
 				<tr>
-					<td class="label" style='width:10%'><span>{$query_label}</span></td>
-					<td class="data" style='width:70%'><div>{$query_text}</div></td>
-					<td style='width:4%' align='center' valign='middle'>{$query_button}</td>
+					<td class="QuickSearch_label" style='width:10%'><span>{$query_label}</span></td>
+					<td class="QuickSearch_text" style='width:100%' colspan='2'><div>{$query_text}</div></td>
 				</tr>		
 				</tbody>
 			</table>

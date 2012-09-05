@@ -20,16 +20,12 @@ class Applets_QuickSearch extends Module{
 		load_css('modules/Applets/QuickSearch/theme/quick_form.css');
 		load_js('modules/Applets/QuickSearch/js/quicksearch.js');	
 		
-		$js ='sayHello()';
+		$js ='setDelayOnSearch()';
 		eval_js($js);
-		$txt = $form->addElement('text', $txtQuery, __('Search'), array('size' => '52%'));		
+		$txt = $form->addElement('text', $txtQuery, __('Search'), array('size' => '62px'));		
 		$txt->setAttribute('id', $txtQuery);
-		//$txt->setAttribute('onkeydown', $js);
-		//$txt->setAttribute('onkeydown', 'javascript: var txtVal = document.getElementById(\''.$txtQuery.'\').value;var id = setInterval( 
-		//								new Ajax.Updater(\'tableID\', \'modules/Applets/QuickSearch/getresult.php\',
-		//								{ method: \'get\', parameters: {q:txtVal}} ), 1000)');								
-		//$txt->setAttribute('onfocus', 'clearInterval()');
-		//$txt->setAttribute('onblur', 'clearInterval(id)');
+		$txt->setAttribute('class', 'QuickSearch_text');
+		$txt->setAttribute('onkeypress', 'setDelayOnSearch()');				
 		$txt->setAttribute('placeholder', __('Enter you search here...'));
 		
 		

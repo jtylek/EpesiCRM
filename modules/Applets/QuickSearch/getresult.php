@@ -47,7 +47,7 @@ if(is_array($arrResult) && !empty($arrResult)){
 	}
 }
 else{
-	print "<tr style='background:#FFFFD5;'><td style='background:#FFFFD5;' colspan='3'><b>".__('No Record Found')."</b></td></tr>";	
+	print "<tr style='background:#FFFFD5;'><td style='background:#FFFFD5;' colspan='3' align='center'>".__('No records found')."</td></tr>";	
 }
 
 $content = ob_get_contents();
