@@ -938,15 +938,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!$crits) $crits = array();
 		$access = self::get_access($tab, 'browse');
 		if ($access===false) return array();
-		elseif ($access!==true && is_array($access)) {
-			$keys = array_keys($access);
-			$values = array_values($access);
-			if($keys[0]{0}!='^') {
-				$keys[0] = '^'.$keys[0];
-				$access = array_combine($keys,$values);
-			}
+		elseif ($access!==true && is_array($access))
 			$crits = self::merge_crits($crits, $access);
-		}
         $iter = 0;
         self::init($tab, $admin);
         foreach($order as $k=>$v) {
@@ -958,7 +951,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $or_started = false;
         $sep = DB::qstr('::');
 		$group_or_start = $group_or = false;
-		$special_chars = str_split('!"(|<>=~]^');
+		$special_chars = str_split('!"(|<>=~]^_');
         foreach($crits as $k=>$v){
             self::init($tab, $admin);
 			$f = explode('[',$k);
