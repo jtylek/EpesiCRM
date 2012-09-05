@@ -28,13 +28,8 @@ class Applets_QuickSearch extends Module{
 		$txt->setAttribute('onkeypress', 'setDelayOnSearch()');				
 		$txt->setAttribute('placeholder', __('Enter you search here...'));
 		
-		
-		$btn = $form->addElement('button', $btnQuery, __('Find'), null);
-		$btn->setAttribute('id', 'btnQuery');
-		$btn->setAttribute('onClick', $js);
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
-		$theme->assign($btnQuery, $btn->toHtml());
 		$theme->display('quick_form');					
 	
 	}
