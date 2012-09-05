@@ -529,7 +529,7 @@ if(ModuleManager::is_installed('Custom_Prosperix_AccessRestrictions')>=0) {
 }
 
 if(ModuleManager::is_installed('Custom_CADES_AccessRestrictions')>=0) {
-	DB::Execute('UPDATE cades_behavior_log_field SET type="select", param="contact::Last Name|First Name;" WHERE field="Person"');
+	DB::Execute('UPDATE cades_behavior_log_field SET type=%s, param=%s WHERE field=%s', array('select', 'contact::Last Name|First Name;', 'Person'));
 	Utils_RecordBrowserCommon::set_QFfield_callback('cades_behavior_log', 'Person', array('Custom_CADES_BehaviorCommon', 'QFfield_log_person'));
 
 	Utils_CommonDataCommon::extend_array('Contacts/Access',array('mrm'=>_M('Medical Record Manager')));

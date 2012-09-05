@@ -40,11 +40,11 @@ class CRM_Contacts_PhotoCommon extends ModuleCommon {
 
     public static function add_photo($contact_id, $filename) {
         self::del_photo($contact_id, $filename);
-        DB::Execute('INSERT INTO `'.self::table_name.'` VALUES (%d,%s) ON DUPLICATE KEY UPDATE `filename`=%s', array($contact_id, $filename, $filename));
+        DB::Execute('INSERT INTO '.self::table_name.' VALUES (%d,%s) ON DUPLICATE KEY UPDATE filename=%s', array($contact_id, $filename, $filename));
     }
 
     public static function get_photo($contact_id) {
-        return DB::GetOne('SELECT `filename` FROM `'.self::table_name.'` WHERE `contact_id`=%d', array($contact_id));
+        return DB::GetOne('SELECT filename FROM '.self::table_name.' WHERE contact_id=%d', array($contact_id));
     }
 
     public static function del_photo($contact_id) {

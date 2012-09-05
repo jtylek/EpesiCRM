@@ -16,7 +16,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-define('TCPDF_DIR', 'modules/Libs/TCPDF/tcpdf4/');
+define('TCPDF_DIR', 'modules/Libs/TCPDF/tcpdf5.9/');
 
 class Libs_TCPDFCommon extends ModuleCommon {
     public static $default_font = 'dejavusanscondensed';//'Helvetica';

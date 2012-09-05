@@ -555,9 +555,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         $param = explode(';',$desc['param']);
         if ($mode=='add' || $mode=='edit') {
             $adv_crits = null;
-            if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+            if (!isset($param[1]) || $param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
             else $callback = explode('::', $param[1]);
-            if ($param[2] != '::') {
+            if (isset($param[2]) && $param[2] != '::') {
                 $crit_callback = explode('::',$param[2]);
                 if ($crit_callback[0]=='ChainedSelect') {
                     $crits = null;
@@ -620,7 +620,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                 }
             }
             $form->setDefaults(array($field=>$default));
-            if ($param[2] != '::')
+            if (isset($param[2]) && $param[2] != '::')
                 if ($crit_callback[0]=='ChainedSelect') {
                     if ($form->exportValue($field)) $default = $form->exportValue($field);
                     self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);

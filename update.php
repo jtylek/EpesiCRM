@@ -419,7 +419,7 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
 		foreach ($tabs as $t) {
-			$fields = DB::GetAssoc('SELECT field, param FROM '.$t.'_field WHERE type="multiselect" OR type="select"');
+			$fields = DB::GetAssoc('SELECT field, param FROM '.$t.'_field WHERE type=%s OR type=%s', array("multiselect", "select"));
 			foreach ($fields as $f=>$p) {
 				DB::Execute('UPDATE '.$t.'_field SET param=%s WHERE field=%s', array(str_replace('First Name|Last Name','Last Name|First Name',$p),$f));
 			}

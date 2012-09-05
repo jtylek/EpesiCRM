@@ -61,7 +61,7 @@ class CRM_Roundcube extends Module {
 		$f->addElement('header',null,__('Outgoing mail global signature'));
 		
 		$fck = & $f->addElement('ckeditor', 'content', __('Content'));
-		$fck->setFCKProps('800','300',false);
+		$fck->setFCKProps('800','300',true);
 		
 		$f->setDefaults(array('content'=>Variable::get('crm_roundcube_global_signature',false)));
 

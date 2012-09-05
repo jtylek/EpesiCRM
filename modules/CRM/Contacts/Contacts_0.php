@@ -40,6 +40,7 @@ class CRM_Contacts extends Module {
 	}
 
 	public function body() {
+		Utils_RecordBrowserCommon::get_records('contact', array('(!permission'=>2, '|:Created_by'=>2));
 		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
 		$mode = $this->get_module_variable('mode','contact');
 		if ($mode=='my_contact') {

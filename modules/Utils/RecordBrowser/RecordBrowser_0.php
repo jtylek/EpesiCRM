@@ -609,7 +609,6 @@ class Utils_RecordBrowser extends Module {
 
         $hash = array();
         $query_cols = array();
-		$width_sum = 0;
         foreach($this->table_rows as $field => $args) {
             $hash[$args['id']] = $field;
             if ($field === 'id') continue;
@@ -620,9 +619,9 @@ class Utils_RecordBrowser extends Module {
             if (!$pdf && !isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
             if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp' || $args['type']=='time') && !$this->add_in_table) || $args['type']=='commondata') {
                 $arr['wrapmode'] = 'nowrap';
-                $arr['width'] = 5;
+                $arr['width'] = 50;
             } else {
-                $arr['width'] = 12;
+                $arr['width'] = 100;
 			}
             $arr['name'] = _V($arr['name']); // ****** Translate field name for table header
             if (isset($this->more_table_properties[$args['id']])) {
@@ -647,17 +646,33 @@ class Utils_RecordBrowser extends Module {
             }
             if (isset($arr['quickjump'])) $arr['quickjump'] = '"~'.$arr['quickjump'];
 			if ($pdf) {
-				$arr['attrs'] = 'style="border:1px;font-weight:bold;color:white;background-color:gray"';
-				if (!isset($arr['width'])) $arr['width'] = 9;
-				if ($arr['width']==1) $arr['width'] = 5;
-				$width_sum += $arr['width'];
+				$arr['attrs'] = 'style="border:1px solid black;font-weight:bold;text-align:center;color:white;background-color:gray"';
+				if (!isset($arr['width'])) $arr['width'] = 100;
+				if ($arr['width']==1) $arr['width'] = 100;
 			}
             $table_columns[] = $arr;
         }
-		if ($pdf)
+		if ($pdf) {
+			$max = 0;
+			$width_sum = 0;
+			foreach ($table_columns as $k=>$v)
+				if ($v['width']>$max) $max = $v['width'];
 			foreach ($table_columns as $k=>$v) {
-				$table_columns[$k]['width'] = intval(530*$v['width']/$width_sum);
+				$table_columns[$k]['width'] = intval($table_columns[$k]['width']);
+				if ($table_columns[$k]['width']<$max/2) $table_columns[$k]['width'] = $max/2;
+				$width_sum += $table_columns[$k]['width'];
 			}
+			$fraction = 0;
+			foreach ($table_columns as $k=>$v) {
+				$table_columns[$k]['width'] = floor(100*$v['width']/$width_sum);
+				$fraction += 100*$v['width']/$width_sum - $table_columns[$k]['width'];
+				if ($fraction>1) {
+					$table_columns[$k]['width'] += 1;
+					$fraction -= 1;
+				}
+				$table_columns[$k]['width'] = $table_columns[$k]['width'].'%';
+			}
+		}
 		
 		$gb->set_table_columns( $table_columns );
 		
@@ -888,7 +903,8 @@ class Utils_RecordBrowser extends Module {
                     );
                 }
 				if ($pdf) {
-					$value['attrs'] = $attrs.' style="border:1px solid;padding:0 5px;" width="'.$table_columns[$k]['width'].'"';
+					$value['attrs'] = $attrs.' style="border:1px solid black;" width="'.$table_columns[$k]['width'].'"';
+					$value['value'] = '&nbsp;'.$value['value'].'&nbsp;';
 				}
                 $row_data[] = $value;
             }
@@ -1578,7 +1594,7 @@ class Utils_RecordBrowser extends Module {
                                             $col = explode('|',$col);
                                             $col_id = array();
                                             foreach ($col as $c) $col_id[] = preg_replace('/[^a-z0-9]/','_',strtolower($c));
-                                            $rec_count = Utils_RecordBrowserCommon::get_records_count($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
+                                            $rec_count = Utils_RecordBrowserCommon::get_records_count($tab, $crits, null, !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
                                             if ($rec_count<=Utils_RecordBrowserCommon::$options_limit) {
                                                 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
                                             } else {

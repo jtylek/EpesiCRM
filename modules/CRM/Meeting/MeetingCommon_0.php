@@ -628,6 +628,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$tday = date('d', strtotime($r['date']));
 				if ($cday!=$tday && ($tday<=$numdays || $numdays!=$cday)) return null;
 			}
+			$next['id'] = $r['id'];
 		}
 		if ($r['recurrence_type']>0)
 			$next['id'] = $r['id'].'_'.$day;

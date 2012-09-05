@@ -48,7 +48,10 @@ class HTML_QuickForm_Rule_Required extends HTML_QuickForm_Rule
     function validate($value, $options = null)
     {
     	if (is_string($value)) $value=trim($value);
-        if ((string)$value == '') {
+        if (!is_array($value) && $value == '') {
+            return false;
+        }
+        if (is_array($value) && empty($value)) {
             return false;
         }
         return true;
