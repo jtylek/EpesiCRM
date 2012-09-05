@@ -90,18 +90,18 @@ class CRM_Contacts_NotesAggregate extends Module {
 		$attachment_groups = array();
 		
 		if (ModuleManager::is_installed('CRM_Meeting')>=0) {
-			$ret = DB::Execute('SELECT id FROM crm_meeting_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'crm_meeting/'.$row['id'];
+			$ret = @DB::Execute('SELECT id FROM crm_meeting_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
+			if ($ret) while ($row = $ret->FetchRow()) $attachment_groups[] = 'crm_meeting/'.$row['id'];
 		}
 		
 		if (ModuleManager::is_installed('CRM_Tasks')>=0) {
-			$ret = DB::Execute('SELECT id FROM task_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'task/'.$row['id'];
+			$ret = @DB::Execute('SELECT id FROM task_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
+			if ($ret) while ($row = $ret->FetchRow()) $attachment_groups[] = 'task/'.$row['id'];
 		}
 		
 		if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
-			$ret = DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'phonecall/'.$row['id'];
+			$ret = @DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
+			if ($ret) while ($row = $ret->FetchRow()) $attachment_groups[] = 'phonecall/'.$row['id'];
 		}
 		
 		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
