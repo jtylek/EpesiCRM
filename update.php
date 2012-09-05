@@ -2663,6 +2663,14 @@ function update_from_1_2_2_to_1_3() {
 	PatchUtil::apply_new();
 }
 
+//=========================================================================
+
+$versions[] = '1.3.1';
+function update_from_1_3_to_1_3_1() {
+	ModuleManager::create_load_priority_array();
+	PatchUtil::apply_new();
+}
+
 $go=false;
 $last_ver = '';
 define('CID',false);
