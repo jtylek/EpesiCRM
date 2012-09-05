@@ -951,11 +951,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $or_started = false;
         $sep = DB::qstr('::');
 		$group_or_start = $group_or = false;
-		$special_chars = str_split('!"(|<>=~]^_');
+		$special_chars = str_split('!"(|<>=~]^');
         foreach($crits as $k=>$v){
             self::init($tab, $admin);
 			$f = explode('[',$k);
 			$f = str_replace($special_chars,'',$f[0]);
+			while ($f[0]=='_') $f = substr($f, 1);
             if (!isset(self::$table_rows[$f]) && $f[0]!=':' && $f!=='id' && (!isset(self::$hash[$f]) || !isset(self::$table_rows[self::$hash[$f]]))) continue; //failsafe
             $negative = $noquotes = $or_start = $or = false;
             $operator = '=';
