@@ -15,17 +15,47 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	
 	public function body() {
 	}
-	
+
 	public function admin() {
+		if($this->is_back()) {
+			$this->parent->reset();
+		}
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+		
+		$tb = $this->init_module('Utils/TabbedBrowser');
+		$tb->set_tab('Translations', array($this, 'translations'));
+		$tb->set_tab('Settings', array($this, 'settings'));
+		$this->display_module($tb);
+		$tb->tag();
+	}
+
+	public function settings() {
+		$form = $this->init_module('Libs/QuickForm',null,'language_setup');
+
+		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
+		$langs = array_combine($ls_langs,$ls_langs);
+		$form->addElement('select','lang_code',__('Default language'), $langs, array('onchange'=>$form->get_submit_form_js()));
+		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
+			$form->freeze('lang_code');
+		
+		$form->addElement('checkbox','allow_lang_change',__('Allow users to change language'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'enable_users_to_select'))
+			$form->freeze('allow_lang_change');
+		
+		$form->setDefaults(array('lang_code'=>Variable::get('default_lang'),'allow_lang_change'=>Variable::get('allow_lang_change')));
+		
+		if($form->validate()) {
+			$form->process(array($this,'submit_admin'));
+		}
+		$form->display_as_column();
+	}
+	
+	public function translations() {
 		global $translations;
 		global $custom_translations;
 		load_js('modules/Base/Lang/Administrator/js/main.js');
 		eval_js('translate_init();');
 
-		if($this->is_back()) {
-			$this->parent->reset();
-		}
-		
 		$lp = $this->init_module('Utils/LeightboxPrompt');
 		$form = $this->init_module('Libs/QuickForm',null,'translations_sending');
 		$desc = '<div id="trans_sett_info" style="line-height:17px;">';
@@ -71,33 +101,13 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		Base_ActionBarCommon::add('settings', __('Translations Contributions'), $lp->get_href());
 		$this->display_module($lp, array(__('Translations Contributions settings')));
 
-		$form = $this->init_module('Libs/QuickForm',null,'language_setup');
-
-		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
-		$langs = array_combine($ls_langs,$ls_langs);
-		$form->addElement('select','lang_code',__('Default language'), $langs, array('onchange'=>$form->get_submit_form_js()));
-		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
-			$form->freeze('lang_code');
-		
-		$form->addElement('checkbox','allow_lang_change',__('Allow users to change language'), null, array('onchange'=>$form->get_submit_form_js()));
-		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'enable_users_to_select'))
-			$form->freeze('allow_lang_change');
-		
-		$form->setDefaults(array('lang_code'=>Variable::get('default_lang'),'allow_lang_change'=>Variable::get('allow_lang_change')));
-		
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'new_langpack'))
 			Base_ActionBarCommon::add('add',__('New langpack'),$this->create_callback_href(array($this,'new_lang_pack')));
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
 			Base_ActionBarCommon::add('refresh',__('Refresh languages'),$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
-		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
 		$form2 = $this->init_module('Libs/QuickForm',null,'translaction_filter');
 		$form2->addElement('select','lang_filter',__('Filter'),array(__('Show all'), __('Show with custom translation'), __('Show with translation'), __('Show without translation')), array('onchange'=>$form2->get_submit_form_js()));
-		
-		if($form->validate()) {
-			$form->process(array($this,'submit_admin'));
-		}
-		$form->display_as_row();
 		
 		if($form2->validate()) {
 			$vals = $form2->exportValues();
@@ -109,6 +119,26 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		ob_start();
 		$form2->display_as_row();
 		$trans_filter = ob_get_clean();
+
+		if (!isset($_SESSION['client']['base_lang_administrator']['currently_translating'])) {
+			$_SESSION['client']['base_lang_administrator']['currently_translating'] = Base_LangCommon::get_lang_code();
+			print('<span class="important_notice">'.__('Please make sure the correct language is selected in the box below before you start translating').'</span>');
+		}
+		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate')) {
+			$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
+			$langs = array_combine($ls_langs,$ls_langs);
+			$form = $this->init_module('Libs/QuickForm',null,'language_selected');
+			$form->addElement('select','lang_code',__('Currently Translating'), $langs, array('onchange'=>$form->get_submit_form_js()));
+			
+			$form->setDefaults(array('lang_code'=>$_SESSION['client']['base_lang_administrator']['currently_translating']));
+			
+			if($form->validate()) {
+				$form->process(array($this,'submit_language_select'));
+			}
+			$form->display_as_column();
+		}
+		
+		Base_LangCommon::load($_SESSION['client']['base_lang_administrator']['currently_translating']);
 		
 		$data = array();
 		foreach ($custom_translations as $o=>$t) {
@@ -143,11 +173,14 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 				$gb->add_row_array($v);
 			$id++;
 		}
+		Base_LangCommon::load();
 		$this->display_module($gb,array(true),'automatic_display');
 		Utils_ShortcutCommon::add(array(' '), 'translate_first_on_the_list', array('disable_in_input'=>1));
 	}
 	
-		
+	public function submit_language_select($data) {
+		$_SESSION['client']['base_lang_administrator']['currently_translating'] = $data['lang_code'];
+	}
 	
 	public function new_lang_pack(){
 		if ($this->is_back()) return false;

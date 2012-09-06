@@ -21,8 +21,9 @@ if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate'))
 
 $original = $_POST['original'];
 $new = $_POST['new'];
+$lang = $_SESSION['client']['base_lang_administrator']['currently_translating'];
 
-Base_LangCommon::append_custom(null, array($original => $new));
-Base_Lang_AdministratorCommon::send_translation(Base_LangCommon::get_lang_code(), $original, $new);
+Base_LangCommon::append_custom($lang, array($original => $new));
+Base_Lang_AdministratorCommon::send_translation($lang, $original, $new);
 
 ?>
