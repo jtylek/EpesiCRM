@@ -2,7 +2,7 @@
 
 /**
  * 
- * @author pbukowski@telaxus.com
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Telaxus LLC
  * @license MIT
  * @version 0.1
@@ -183,7 +183,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     /**
      * Get module info from cache or server.
-     * @param numeric $module_id module id
+     * @param numeric|array $module_id module id
      * @param boolean $force set true to force query to server
      * @return array modules data array
      */
@@ -191,6 +191,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         $modules_cache = Module::static_get_module_variable(self::MOD_PATH, 'modules_info', array());
         $ret = array();
         $request = array();
+        $return_array = is_array($module_id) ? true : false;
         if (!is_array($module_id))
             $module_id = array($module_id);
         // split cached and modules for request.
@@ -212,7 +213,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         }
         Module::static_set_module_variable(self::MOD_PATH, 'modules_info', $modules_cache);
         // ret only one record if only one was requested
-        return count($module_id) == 1 ? reset($ret) : $ret;
+        return $return_array ? $ret : reset($ret);
     }
 
     /**
@@ -419,10 +420,6 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return $ret;
     }
 
-    private static function get_downloaded_module_version($module_id) {
-        return DB::GetOne('SELECT version FROM epesi_store_modules WHERE module_id = %d', array($module_id));
-    }
-
     /**
      * Get downloaded modules list.
      * Array keys are 'module_id', 'version', 'file' and 'module_license_id'
@@ -456,7 +453,6 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         $response = self::get_module_info($modules_ids);
         if (is_array($response)) {
             foreach ($response as $mod) {
-                if (!isset($mod['id'])) $mod=$response;
                 if (isset($modules[$mod['id']]) &&
                         self::version_compare($mod['version'], $modules[$mod['id']]['version']) > 0)
                     $updates++;
