@@ -141,6 +141,8 @@ class Base_LangCommon extends ModuleCommon {
 	public static function load($lang_code = null) {
 		global $translations;
 		global $custom_translations;
+		$translations = array();
+		$custom_translations = array();
 
         if ($lang_code === null) 
             $lang_code = self::get_lang_code();
