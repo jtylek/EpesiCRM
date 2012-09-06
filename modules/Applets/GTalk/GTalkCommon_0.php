@@ -15,7 +15,7 @@ class Applets_GTalkCommon extends ModuleCommon {
 	}
 
 	public static function applet_info() {
-		return __("Embeded GTalk applet");
+		return __("Embedded GTalk applet");
 	}
 
 }

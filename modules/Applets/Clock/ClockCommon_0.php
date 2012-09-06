@@ -26,7 +26,7 @@ class Applets_ClockCommon extends ModuleCommon {
 		$browser = stripos($_SERVER['HTTP_USER_AGENT'],'msie');
 		if($browser!==false)
 			return array(
-				array('name'=>'skin','label'=>__('Clock configurable only on non-IE browsers only.'),'type'=>'static','values'=>'')
+				array('name'=>'skin','label'=>__('Clock configurable on non-IE browsers only.'),'type'=>'static','values'=>'')
 			);
 		else
 			return array(
