@@ -44,7 +44,7 @@ class Base_EssClient extends Module {
                     $data['status'] = Base_EssClientCommon::get_installation_status();
                     ///////// Status ////////
                     print('<div class="important_notice">');
-                    print('<div style="margin: 5px">' . __('Thank you for registering your epesi installation.') . '</div>');
+                    print('<div style="margin: 5px">' . __('Thank you for registering your EPESI installation.') . '</div>');
                     $status_description = '';
                     $verbose_description = '';
                     if (stripos($data['status'], 'confirmed') !== false || stripos($data['status'], 'validated') !== false) {
@@ -64,8 +64,8 @@ class Base_EssClient extends Module {
                 } else {
                     $email = Base_EssClientCommon::get_support_email();
 
-                    print('<div class="important_notice">' . __('Your epesi ID is not recognized by Epesi Store Server. Please contact epesi team at %s.', array($email)) . '</div>');
-                    Base_ActionBarCommon::add('delete', __('Revoke license key'), $this->create_confirm_callback_href(__('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
+                    print('<div class="important_notice">' . __('Your EPESI ID is not recognized by EPESI Store Server. Please contact EPESI team at %s.', array($email)) . '</div>');
+                    Base_ActionBarCommon::add('delete', __('Revoke license key'), $this->create_confirm_callback_href(__('Are you sure you want to revoke your EPESI License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
                 }
                 $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
                 Base_ActionBarCommon::add('search', __('Terms & Conditions'), 'target="_blank" href="' . $url . '"');
@@ -104,16 +104,18 @@ class Base_EssClient extends Module {
         print('<center><H1>');
         print(__('EPESI Registration'));
         print('</H1></center><br>');
-        print(__('Registration of your epesi installation with '));
+        print(__('Registration of your EPESI installation with '));
         print('<a href="http://www.telaxus.com" target="_blank">Telaxus LLC </a>');
-        print(__('will allow you to browse and make purchases in <strong>Epesi Store</strong> and receive notifications via e-mail about important updates.<br> Once the registration is complete you will receive a <strong>License Key</strong>. '));
-        print(__('This unique License Key will be used to identify your installation and allow you to download and use modules you purchase. Please note that <strong>Epesi License Key</strong> can not be copied to any other epesi installation. '));
-        print(__('All purchases and downloads you make using your Epesi License Key can be used for this installation only.'));
+        print(__('will allow you to browse and make purchases in <strong>EPESI Store</strong> and receive notifications via e-mail about important updates.'));
+		print('<br>');
+		print(__('Once the registration is complete you will receive a <strong>License Key</strong>. '));
+        print(__('This unique License Key will be used to identify your installation and allow you to download and use modules you purchase. Please note that <strong>EPESI License Key</strong> can not be copied to any other EPESI installation. '));
+        print(__('All purchases and downloads you make using your EPESI License Key can be used for this installation only.'));
         print('<br><br>');
-        print(__('If necessary, you can move your installation to another server and keep your Epesi License Key, but at any given time no two installations can use the same Epesi License Key. '));
-        print(__('Sharing your license key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
+        print(__('If necessary, you can move your installation to another server and keep your EPESI License Key, but at any given time no two installations can use the same EPESI License Key. '));
+        print(__('Sharing your License Key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
         print('<br><br>');
-        print(__('If you already have a License Key for this installation, you can enter it here:') . ' <a ' . $this->create_callback_href(array($this, 'license_key_form')) . '>' . __('enter license key') . '</a>');
+        print(__('If you already have a License Key for this installation, you can enter it here:') . ' <a ' . $this->create_callback_href(array($this, 'license_key_form')) . '>' . __('enter License Key') . '</a>');
         print('<br><br>');
         print(__('Full Terms and Conditions are available here:'));
         $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';

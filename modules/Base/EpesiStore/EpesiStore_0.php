@@ -146,7 +146,7 @@ class Base_EpesiStore extends Module {
             $x = $gb->get_limit($ret['total']);
         $this->set_module_variable('modules_total', $ret['total']);
         if (!$ret['total'])
-            print(__('Unfortunately there is no modules available for You.'));
+            print(__('Unfortunately there are no modules available for you.'));
         else {
             $gb = $this->GB_module($gb, $ret['modules'], array($this, 'GB_row_additional_actions_store'));
             $this->display_module($gb);
@@ -398,7 +398,7 @@ class Base_EpesiStore extends Module {
     }
 
     private function navigation_button_process_downloading() {
-        Base_ActionBarCommon::add('clone', __('Proceed download'), $this->create_callback_href(array($this, 'process_downloading')));
+        Base_ActionBarCommon::add('clone', __('Proceed with download'), $this->create_callback_href(array($this, 'process_downloading')));
     }
 
     private function display_downloads($download_items) {
