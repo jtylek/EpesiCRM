@@ -229,9 +229,9 @@ class Utils_CommonDataCommon extends ModuleCommon {
 			if ($silent) return null;
 			else trigger_error('Invalid CommonData::get_array() request: '.$name,E_USER_ERROR);
 		if($order_by_key)
-			$order_by = 'akey';
+			$order_by = 'akey ASC';
 		else
-			$order_by = 'value';
+			$order_by = 'value ASC';
 		if($readinfo)
 			$ret = DB::GetAssoc('SELECT akey, value, readonly FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
 		else 
@@ -245,7 +245,10 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		$arr = self::get_array($name,$order_by_key,$readinfo,$silent);
 		if ($arr===null) return null;
 		$arr = self::translate_array($arr);
-		asort($arr);
+		if ($order_by_key)
+			ksort($arr);
+		else
+			asort($arr);
 		return $arr;
 	}
 
