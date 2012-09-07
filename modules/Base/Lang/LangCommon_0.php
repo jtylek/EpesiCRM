@@ -128,8 +128,10 @@ class Base_LangCommon extends ModuleCommon {
 		fwrite($f, "<?php\n");
 		fwrite($f, "/**\n * Translation file.\n * @package epesi-translations\n * @subpackage $lang\n */\n");
 		fwrite($f, 'global $translations;'."\n");
-		foreach($arr as $k=>$v)
-				fwrite($f, '$translations[\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
+		foreach($arr as $k=>$v) {
+		        if(is_array($v) || is_array($k)) continue;
+			fwrite($f, '$translations[\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
+		}
 
 		fclose($f);
 		return true;
