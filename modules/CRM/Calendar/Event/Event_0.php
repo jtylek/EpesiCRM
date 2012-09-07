@@ -177,12 +177,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$pdf_theme->assign('end_time', array(	'label'=>__('End Time'),
 													'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],true,false)));
 			$hours = floor(($ev['end']-$ev['start'])/3600);
-			$format = __('%d hours', $hours);
+			$format = __('%d hours', array($hours));
 			$minutes = ($ev['end']-$ev['start'])%3600;
 			if ($minutes!=0) {
 				if ($hours==0) $format = '';
 				else $format .= ', ';
-				$format .= __('%d minutes', $minutes/60);
+				$format .= __('%d minutes', array($minutes/60));
 			}
 			$pdf_theme->assign('duration', array(	'label'=>__('Duration'),
 													'value'=>$format));
