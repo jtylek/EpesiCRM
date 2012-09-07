@@ -22,7 +22,7 @@ class Applets_QuickSearch extends Module{
 		
 		$js ='setDelayOnSearch()';
 		eval_js($js);
-		$txt = $form->addElement('text', $txtQuery, __('Search'), array('size' => '62px'));		
+		$txt = $form->addElement('text', $txtQuery, __('Search'));		
 		$txt->setAttribute('id', $txtQuery);
 		$txt->setAttribute('class', 'QuickSearch_text');
 		$txt->setAttribute('onkeypress', 'setDelayOnSearch()');				

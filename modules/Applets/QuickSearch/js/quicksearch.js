@@ -3,7 +3,7 @@ function setDelayOnSearch(){
 	if(searchTimeOut != undefined){
 		clearTimeout(searchTimeOut);
 	}	
-	searchTimeOut = setTimeout(getRecords, 1000);
+	searchTimeOut = setTimeout(getRecords, 500);
 }
 
 function getRecords(){

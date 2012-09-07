@@ -1,11 +1,11 @@
-<table class="Utils_RecordBrowser__View_entry" cellspacing="0" cellpadding="0">
+<table cellspacing="0" cellpadding="0" width='100%'>
 	<tr>
 		<td>
-			<table cellspacing="2" cellpadding="2">
+			<table cellspacing="2" cellpadding="2" width='100%'>
 				<tbody>
 				<tr>
-					<td class="QuickSearch_label" style='width:10%'><span>{$query_label}</span></td>
-					<td class="QuickSearch_text" style='width:100%' colspan='2'><div>{$query_text}</div></td>
+					<td width='10%' align='center'><span>{$query_label}</span></td>
+					<td width='90%'><div style='width:100%'>{$query_text}</div></td>
 				</tr>		
 				</tbody>
 			</table>

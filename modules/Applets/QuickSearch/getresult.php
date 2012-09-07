@@ -6,6 +6,10 @@ ModuleManager::load_modules();
 
 $arrResult = array();
 $sourceTable = "";
+$num_rows = 2;
+$num_offset = 0;
+
+
 if(isset($_GET['q']) && $_GET['q'] != "") {
 	$txt = trim($_GET['q']);
 	$arrTxt = explode(" ", $txt);
@@ -24,7 +28,7 @@ else{
 	return;
 }
 
-$resultContact = DB::Execute('SELECT '.DB::Concat('f_first_name',DB::qstr(' '),'f_last_name').' as name, id from contact_data_1 WHERE f_first_name '.DB::like().' '.$qry[0].' OR f_last_name '.DB::like().' '.$qry[1].'');
+$resultContact = DB::SelectLimit('SELECT '.DB::Concat('f_first_name',DB::qstr(' '),'f_last_name').' as name, id from contact_data_1 WHERE f_first_name '.DB::like().' '.$qry[0].' OR f_last_name '.DB::like().' '.$qry[1].' ORDER by name ASC', $num_rows, $num_offset);
 if($resultContact){
 	$sourceTable = "contact";	
 	while($row = $resultContact->FetchRow()){
@@ -32,7 +36,7 @@ if($resultContact){
 	}
 }
 /* Follow on the companies */
-$resultCompany = DB::Execute('SELECT f_company_name as name, id from company_data_1 WHERE f_company_name '.DB::like().' '.$qry[0].' OR f_short_name '.DB::like().' '.$qry[1].'');
+$resultCompany = DB::SelectLimit('SELECT f_company_name as name, id from company_data_1 WHERE f_company_name '.DB::like().' '.$qry[0].' OR f_short_name '.DB::like().' '.$qry[1].' ORDER by name ASC', $num_rows, $num_offset);
 $sourceTable = "";
 if($resultCompany){	
 	$sourceTable = "company";
