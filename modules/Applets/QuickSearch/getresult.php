@@ -6,47 +6,76 @@ ModuleManager::load_modules();
 
 $arrResult = array();
 $sourceTable = "";
-$num_rows = 2;
+$num_rows = 20;
 $num_offset = 0;
-
+$arrTxt = array();
 
 if(isset($_GET['q']) && $_GET['q'] != "") {
-	$txt = trim($_GET['q']);
+	$txt = trim(urldecode($_GET['q']));
 	$arrTxt = explode(" ", $txt);
-	if(count($arrTxt) > 1){
-		if(count($arrTxt) == 2){
-			$qry = array(DB::Concat(DB::qstr('%'),DB::qstr($arrTxt[0]), DB::qstr('%')), DB::Concat(DB::qstr('%'),DB::qstr($arrTxt[1]), DB::qstr('%')));
-		}else{
-			$qry = array('0', '0');
-		}
+	$countArray = (is_array($arrTxt)) ? count($arrTxt) : 0;
+	if($countArray > 0){		
+		$sqlLikeContact = constructLikeSQL($arrTxt, 'f_first_name' , 'f_last_name');
+		$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_company_name' , 'f_short_name');
+		$sqlContact = 'SELECT '.DB::Concat('f_first_name',DB::qstr(' '),'f_last_name').' as name, id from contact_data_1 WHERE '.$sqlLikeContact.' ORDER by name ASC';
+		$sqlCompany = 'SELECT f_company_name as name, id from company_data_1 WHERE '.$sqlLikeCompany.' ORDER by name ASC'; 
 	}
 	else{
-		$qry = array(DB::Concat(DB::qstr('%'),DB::qstr($txt), DB::qstr('%')), DB::Concat(DB::qstr('%'),DB::qstr($txt), DB::qstr('%')));
-	}	
+		return;
+	}
 }
 else{
 	return;
 }
+/* Mark as bold when search result is found */
+function matchResult($search, $replace, $query){
+	$result = "";
+	if($query != null)
+		$result = preg_replace('/'.strtolower($search).'/', '<b>'.$replace.'</b>', strtolower($query));
+	return $result;
+}
 
-$resultContact = DB::SelectLimit('SELECT '.DB::Concat('f_first_name',DB::qstr(' '),'f_last_name').' as name, id from contact_data_1 WHERE f_first_name '.DB::like().' '.$qry[0].' OR f_last_name '.DB::like().' '.$qry[1].' ORDER by name ASC', $num_rows, $num_offset);
+function constructLikeSQL($arrayQry = array(), $field1, $field2){
+	$sql = '';
+	$count = count($arrayQry);
+	if(!is_array($arrayQry)){
+		return;
+	}
+	
+	$inc = 0;
+	foreach($arrayQry as $qry){
+		$inc++;		
+		if($inc == $count){
+			$sql .= ' ('.$field1.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($qry), DB::qstr('%')).' OR '.$field2.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($qry), DB::qstr('%')).')';				
+		}
+		else{
+			$sql .= ' ('.$field1.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($qry), DB::qstr('%')).' OR '.$field2.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($qry), DB::qstr('%')).') OR';
+		}	
+	}
+	return $sql;
+}
+
+$resultContact = DB::SelectLimit($sqlContact, $num_rows, $num_offset);
 if($resultContact){
 	$sourceTable = "contact";	
 	while($row = $resultContact->FetchRow()){
-		array_push($arrResult, array($row['name'], $row['id'], $sourceTable));
+		$appendName = matchResult($arrTxt[0], $arrTxt[0], $row['name']);
+		array_push($arrResult, array($appendName, $row['id'], $sourceTable));
 	}
 }
 /* Follow on the companies */
-$resultCompany = DB::SelectLimit('SELECT f_company_name as name, id from company_data_1 WHERE f_company_name '.DB::like().' '.$qry[0].' OR f_short_name '.DB::like().' '.$qry[1].' ORDER by name ASC', $num_rows, $num_offset);
+$resultCompany = DB::SelectLimit($sqlCompany, $num_rows, $num_offset);
 $sourceTable = "";
 if($resultCompany){	
 	$sourceTable = "company";
-	while($row = $resultCompany->FetchRow()){		
-		array_push($arrResult, array($row['name'], $row['id'], $sourceTable));
+	while($row = $resultCompany->FetchRow()){
+		$appendName = matchResult($arrTxt[0], $arrTxt[0], $row['name']);
+		array_push($arrResult, array($appendName, $row['id'], $sourceTable));
 	}
 }
 if(is_array($arrResult) && !empty($arrResult)){
 			foreach($arrResult as $rows){
-				print "<tr style='background:#FFFFD5;'><td colspan='2' class='Utils_GenericBrowser__td' style='width:80%;height:20px'><img border='0' src='data/Base_Theme/templates/default/Utils/GenericBrowser/info.png'> <a onclick=\"_chj('__jump_to_RB_table=".$rows[2]."&amp;__jump_to_RB_record=".$rows[1]."&amp;__jump_to_RB_action=view', '', '');\" href=\"javascript: void(0)\">".$rows[0]."</a></td>
+				print "<tr style='background:#FFFFD5;'><td colspan='2' class='Utils_GenericBrowser__td' style='width:80%;height:20px'><img border='0' src='data/Base_Theme/templates/default/Utils/GenericBrowser/info.png'> <a onclick=\"_chj('__jump_to_RB_table=".$rows[2]."&amp;__jump_to_RB_record=".$rows[1]."&amp;__jump_to_RB_action=view', '', '');\" href=\"javascript: void(0)\">".ucwords($rows[0])."</a></td>
 				<td class='Utils_GenericBrowser__td' style='width:10%'>".Utils_RecordBrowserCommon::get_caption($rows[2])."</td></tr>";
 	}
 }
