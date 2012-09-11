@@ -10,9 +10,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_GenericBrowserCommon extends ModuleCommon {
+	public static $possible_vals_for_per_page=array(5=>5,10=>10,15=>15,20=>20,25=>25,30=>30,40=>40,50=>50);
+
 	public static function user_settings(){
 		return array(__('Browsing tables')=>array(
-			array('name'=>'per_page','label'=>__('Records per page'),'type'=>'select','values'=>array(5=>5,10=>10,20=>20,50=>50,100=>100),'default'=>20),
+			array('name'=>'per_page','label'=>__('Records per page'),'type'=>'select','values'=>Utils_GenericBrowserCommon::$possible_vals_for_per_page,'default'=>20),
 			array('name'=>'actions_position','label'=>__('Position of \'Actions\' column'),'type'=>'radio','values'=>array(0=>__('Left'),1=>__('Right')),'default'=>0),
 			array('name'=>'adv_search','label'=>__('Advanced search by default'),'type'=>'bool','default'=>0),
 			array('name'=>'adv_history','label'=>__('Advanced order history'),'type'=>'bool','default'=>0),
