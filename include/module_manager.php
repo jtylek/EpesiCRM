@@ -139,30 +139,17 @@ class ModuleManager {
 		foreach($priority as $k=>$v)
 			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
 		if(!empty($queue)) {
-			ModuleManager::load_modules();
-			$failed = false;
 			$x = 'Modules deps not satisfied: ';
 			foreach($queue as $k=>$m) {
 				$deps = $m['deps'];
 				$yyy = array();
 				foreach($deps as $xxx) {
-					if (ModuleManager::is_installed($xxx['name'])<0) {
-						ob_start();
-						$ret = ModuleManager::install($xxx['name'], $xxx['version']);
-						ob_get_clean();
-						if ($ret) continue;
-						else $failed = true;
-					}
 					$yyy[] = $xxx['name'].' ['.$xxx['version'].']';
 				}
 				$x .= $m['name'].' ['.$m['version'].'] ('.implode(',',$yyy).'), ';
 			}
-			if ($failed) {
-				$x .= '<br>';
-				trigger_error($x,E_USER_ERROR);
-			} else {
-				return self::create_load_priority_array();
-			}
+			$x .= '<br>';
+			trigger_error($x,E_USER_ERROR);
 		}
 	}
 
@@ -493,6 +480,8 @@ class ModuleManager {
 		$debug .= '<b>' . $module_class_name . '</b>' .': is installed?<br>';
 
 		self::include_install($module_class_name);
+		
+		if (!isset(self::$modules_install[$module_class_name])) return false;
 
 		$func_version = array(self::$modules_install[$module_class_name], 'version');
 		if(is_callable($func_version))
