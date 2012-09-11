@@ -157,7 +157,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 				$org = '<a href="javascript:void(0);" onclick="lang_translate(\''.Epesi::escapeJS(htmlspecialchars($o)).'\',\''.$span_id.'\');">'.$o.'</a>';
 				$t = '<span id="'.$span_id.'">'.$t.'</span>';
 			}
-			eval_js('translate_add_id("'.$span_id.'","'.Epesi::escapeJS(htmlspecialchars($o)).'");');
+			eval_js('translate_add_id("'.$span_id.'","'.Epesi::escapeJS($o).'");');
 			$data[] = array($org,$t);
 		}
 		
