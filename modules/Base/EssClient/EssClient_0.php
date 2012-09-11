@@ -206,7 +206,7 @@ class Base_EssClient extends Module {
         }
         // set defaults
         print('<div class="important_notice">');
-        print(__('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
+        print(__('Enter Company and Administrator details. This data will be sent to EPESI Store Server to provide us with contact information. The data sent to EPESI Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
         print('<br>');
         if ($data) {
             $f->setDefaults($data);
@@ -221,8 +221,8 @@ class Base_EssClient extends Module {
         }
         if ($data) {
             if (isset($data['status']) && strcasecmp($data['status'], 'Confirmed') == 0)
-                print(__('<div style="color:gray;font-size:10px;">Updating Company data will required re-validation by our representative.</div>'));
-            print(__('<div style="color:red;font-size:10px;">Changing Administrator e-mail address will require e-mail confirmation.</div>'));
+                print('<div style="color:gray;font-size:10px;">'.__('Updating Company data will required re-validation by our representative.').'</div>');
+            print('<div style="color:red;font-size:10px;">'.__('Changing Administrator e-mail address will require e-mail confirmation.').'</div>');
         }
         print('<center>');
 
