@@ -221,7 +221,7 @@ class Base_EssClient extends Module {
         }
         if ($data) {
             if (isset($data['status']) && strcasecmp($data['status'], 'Confirmed') == 0)
-                print('<div style="color:gray;font-size:10px;">'.__('Updating Company data will required re-validation by our representative.').'</div>');
+                print('<div style="color:gray;font-size:10px;">'.__('Updating Company data will require re-validation by our representative.').'</div>');
             print('<div style="color:red;font-size:10px;">'.__('Changing Administrator e-mail address will require e-mail confirmation.').'</div>');
         }
         print('<center>');

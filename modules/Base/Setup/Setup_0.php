@@ -400,10 +400,10 @@ class Base_Setup extends Module {
 		$filters_attrs = '';
 		if (!$registered) {
 			if (TRIAL_MODE) {
-				$msg = __('EPESI store is not accessible during the trial.');
+				$msg = __('EPESI Store is not accessible during the trial.');
 				$filters_attrs = 'href="javascript:void(0);" onclick="alert(\''.$msg.'\');"';
 			} else {
-				$msg = __('To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?');
+				$msg = __('To access EPESI Store it is necessary that you register your EPESI installation. Would you like to do this now?');
 				$filters_attrs = $this->create_confirm_callback_href($msg, array($this, 'jump_to_epesi_registration'));
 			}
 		}
@@ -471,7 +471,7 @@ class Base_Setup extends Module {
     private function included_modules_text($module) {
         $text = '';
         if ($module['needed_modules']) {
-            $text .= __("With this module you need also some other modules.<br>Here is the list what you buy:");
+            $text .= __('With this module you also need some other modules.').'<br>'.__('Here is the list of what you will buy:');
             $arr = array($module['name'] => $module['price']);
 			if (!is_array($module['required_modules'])) $module['required_modules'] = explode(', ',$module['required_modules']);
             foreach ($module['needed_modules'] as $rm_id) {

@@ -54,7 +54,7 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 			}
 		return array(
 				array('name'=>'allow_change','label'=>__('Allow users to change language'),'type'=>'checkbox','values'=>null,'default'=>true),
-				array('name'=>'lang_code','label'=>__('Default epesi language'),'type'=>'select','values'=>$langs,'default'=>'en')
+				array('name'=>'lang_code','label'=>__('Default EPESI language'),'type'=>'select','values'=>$langs,'default'=>'en')
 			);
 	}
 
