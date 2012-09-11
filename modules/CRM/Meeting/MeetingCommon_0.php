@@ -765,8 +765,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$crits = $critsb;
 
 		$crits['<=date'] = $end;
-		$crits['>=recurrence_end'] = array($start,'');
+		$crits['(>=recurrence_end'] = $start;
+		$crits['|recurrence_end'] = '';
 		$crits['!recurrence_type'] = '';
+		print_r($crits);
 		$ret = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits, array(), array(), CRM_CalendarCommon::$events_limit);
 		
 		$day = strtotime($start);
