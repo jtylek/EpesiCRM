@@ -8,8 +8,9 @@ class Applets_QuickSearch extends Module{
 	
 	}
 	
-	public function applet($values, & $opts){		
-		$opts['go' ] = false;		
+	public function applet($conf, & $opts){		
+		$opts['go' ] = false;	
+		$opts['title'] = $opts['title']." by ".$conf['criteria'];
 		$theme = $this->init_module('Base/Theme');
 		$form = $this->init_module('Libs/QuickForm');
 		
@@ -25,7 +26,7 @@ class Applets_QuickSearch extends Module{
 		$txt = $form->addElement('text', $txtQuery, __('Search'));		
 		$txt->setAttribute('id', $txtQuery);
 		$txt->setAttribute('class', 'QuickSearch_text');
-		$txt->setAttribute('onkeypress', 'setDelayOnSearch()');				
+		$txt->setAttribute('onkeypress', 'setDelayOnSearch(\''.trim($conf['criteria']).'\')');				
 		$txt->setAttribute('placeholder', __('Enter you search here...'));
 		
 		$theme->assign($txtLabel, __('Search'));
@@ -34,7 +35,7 @@ class Applets_QuickSearch extends Module{
 	
 	}
 	public function caption() {
-		return __("QuickSearch");
+		return __("QuickSearchsssss");
 	}	
 
 }

@@ -9,14 +9,36 @@ $sourceTable = "";
 $num_rows = 20;
 $num_offset = 0;
 $arrTxt = array();
-
-if(isset($_GET['q']) && $_GET['q'] != "") {
+$sqlLikeContact = "";
+$sqlLikeCompany = "";
+if((isset($_GET['q']) && $_GET['q'] != "")  && (isset($_GET['crit']) && $_GET['crit'] != "")) {
 	$txt = trim(urldecode($_GET['q']));
+	$crit = trim(urldecode($_GET['crit']));
 	$arrTxt = explode(" ", $txt);
 	$countArray = (is_array($arrTxt)) ? count($arrTxt) : 0;
-	if($countArray > 0){		
-		$sqlLikeContact = constructLikeSQL($arrTxt, 'f_first_name' , 'f_last_name');
-		$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_company_name' , 'f_short_name');
+	if($countArray > 0){
+		switch(strtoupper($crit)){
+			case "PHONE":
+				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_work_phone' , 'f_mobile_phone');
+				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_phone' , 'f_fax');		
+				break;
+			case "EMAIL":
+				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_email' , 'f_email');
+				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_email' , 'f_email');				
+				break;
+			case "CITY":
+				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_city' , 'f_city');
+				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_city' , 'f_city');			
+				break;
+			case "NAMES":
+				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_first_name' , 'f_last_name');
+				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_company_name' , 'f_short_name');			
+				break;
+			default:	
+				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_first_name' , 'f_last_name');
+				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_company_name' , 'f_short_name');			
+				break;		
+		}		
 		$sqlContact = 'SELECT '.DB::Concat('f_first_name',DB::qstr(' '),'f_last_name').' as name, id from contact_data_1 WHERE '.$sqlLikeContact.' ORDER by name ASC';
 		$sqlCompany = 'SELECT f_company_name as name, id from company_data_1 WHERE '.$sqlLikeCompany.' ORDER by name ASC'; 
 	}
