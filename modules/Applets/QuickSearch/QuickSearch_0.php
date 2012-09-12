@@ -17,6 +17,24 @@ class Applets_QuickSearch extends Module{
 		$txtQuery = 'query_text';
 		$txtLabel = 'query_label';
 		$btnQuery = 'query_button';
+		$placeholder = "";
+		switch(strtoupper($conf['criteria'])){
+			case "PHONE":
+				$placeholder = "Enter a Work/Mobile/Fax phone number here...";	
+				break;
+			case "EMAIL":
+				$placeholder = "Enter an Email address here...";			
+				break;
+			case "CITY":
+				$placeholder = "Enter a City name here...";			
+				break;
+			case "NAMES":
+				$placeholder = "Enter a First/Last/Company/Short name here...";		
+				break;
+			default:	
+				$placeholder = "Enter a First/Last/Company/Short name here...";		
+				break;		
+		}
 		
 		load_css('modules/Applets/QuickSearch/theme/quick_form.css');
 		load_js('modules/Applets/QuickSearch/js/quicksearch.js');	
@@ -27,7 +45,7 @@ class Applets_QuickSearch extends Module{
 		$txt->setAttribute('id', $txtQuery);
 		$txt->setAttribute('class', 'QuickSearch_text');
 		$txt->setAttribute('onkeypress', 'setDelayOnSearch(\''.trim($conf['criteria']).'\')');				
-		$txt->setAttribute('placeholder', __('Enter you search here...'));
+		$txt->setAttribute('placeholder', __($placeholder));
 		
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
