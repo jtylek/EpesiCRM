@@ -69,7 +69,7 @@ class Base_EssClient extends Module {
                 }
                 $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
                 Base_ActionBarCommon::add('search', __('Terms & Conditions'), 'target="_blank" href="' . $url . '"');
-                Base_ActionBarCommon::add('edit', __('Edit license key'), $this->create_callback_href(array($this, 'license_key_form')));
+                Base_ActionBarCommon::add('settings', __('Edit license key'), $this->create_callback_href(array($this, 'license_key_form')));
             }
         } catch (Exception $e) {
             print('<div class="important_notice">' . __('There was an error while trying to connect to Epesi Store Server. Please try again later.') . '<br>');
