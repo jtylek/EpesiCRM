@@ -24,11 +24,6 @@ class Base_EpesiStore extends Module {
         
     }
 
-    private function has_access() {
-        return Base_AclCommon::i_am_sa();
-    }
-
-
     public function admin() {
         if ($this->is_back()) {
             $this->parent->reset();
@@ -39,9 +34,14 @@ class Base_EpesiStore extends Module {
 	}
 
     public function manage() {
-        if (!$this->has_access())
+        if (!Base_EpesiStoreCommon::admin_access())
             return;
-		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file('Base_EpesiStore','icon.png'), __('License Key'), $this->create_callback_href(array($this,'display_registration_form')));
+        $button_label = Base_EssClientCommon::has_license_key()
+                ? __('License Key') : __('Register EPESI!');
+		Base_ActionBarCommon::add(
+                Base_ThemeCommon::get_template_file('Base_EpesiStore','icon.png'),
+                $button_label,
+                $this->create_callback_href(array($this,'display_registration_form')));
 
         $setup = $this->init_module('Base_Setup');
         if (Base_SetupCommon::is_simple_setup()) {

@@ -24,15 +24,16 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     const DOWNLOAD_QUEUE_VAR = 'queue';
 
     public static function menu() {
-        if (!Base_AclCommon::i_am_sa() || TRIAL_MODE)
+        if (!self::admin_access())
             return;
-        if (!Base_EssClientCommon::get_license_key())
+        if (!Base_EssClientCommon::has_license_key())
             return;
         return array(_M('Support') => array('__submenu__' => 1, _M('EPESI Store') => array('__function__' => 'manage')));
     }
 
     public static function admin_access() {
-        return Base_AclCommon::i_am_sa();
+        $trial = defined('TRIAL_MODE') ? TRIAL_MODE : 0;
+        return Base_AclCommon::i_am_sa() && !$trial;
     }
 
     public static function admin_caption() {
@@ -103,6 +104,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function user_settings() {
+        if (!Base_EpesiStoreCommon::admin_access())
+            return array();
         set_time_limit(0);
         // get default data from user contact
         $my_contact = ModuleManager::is_installed('CRM_Contacts') > -1 ?
@@ -336,10 +339,12 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             case self::ACTION_BUY:
                 $modules = array_merge(array($module['id']), $module['needed_modules']);
                 $response = Base_EssClientCommon::server()->order_submit($modules);
-                $return = ($response['order_id'] !== null);
-                $needs_payment = $response['needs_payment'];
+                $return = isset($response['order_id']) ?
+                            ($response['order_id'] !== null) : false;
                 if ($return !== true)
                     break;
+                $needs_payment = isset($response['needs_payment']) ?
+                                    $response['needs_payment'] : false;
                 if (!$needs_payment)
                     break;
                 $return = self::_display_payments_for_order($response['order_id']);

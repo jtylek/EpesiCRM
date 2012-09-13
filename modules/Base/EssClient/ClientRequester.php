@@ -69,7 +69,7 @@ class ClientRequester implements IClient {
 
     public function order_submit($modules) {
         if (TRIAL_MODE) {
-            Base_EssClientCommon::add_client_message_error('Your installation is locked, you can\'t download new modules. Switching to paid hosting will enable you to unlock your installation and purchase and download new modules.');
+            Base_EssClientCommon::add_client_message_error(__('Your installation is locked, you can\'t download new modules. Switching to paid hosting will enable you to unlock your installation and purchase and download new modules.'));
             return array();
         }
         $args = func_get_args();

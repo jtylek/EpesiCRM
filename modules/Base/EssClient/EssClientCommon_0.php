@@ -17,11 +17,11 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 	public static $error_inactive;
 	public static $error_access_repo;
 	public static $error_create_license;
-
+    
     public static function menu() {
-        if (!Base_AclCommon::i_am_sa() || TRIAL_MODE)
+        if (!self::admin_access())
             return;
-        if (self::get_license_key()) 
+        if (self::has_license_key()) 
 			return;
         return array(_M('Support') => array('__submenu__' => 1, _M('Register EPESI!') => array()));
     }
@@ -137,7 +137,8 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function admin_access() {
-        return Base_AclCommon::i_am_sa();
+        $trial = defined('TRIAL_MODE') ? TRIAL_MODE : 0;
+        return Base_AclCommon::i_am_sa() && !$trial;
     }
 
     public static function get_support_email() {
