@@ -10,7 +10,7 @@ class Applets_QuickSearch extends Module{
 	
 	public function applet($conf, & $opts){		
 		$opts['go' ] = false;	
-		$opts['title'] = $opts['title']." by ".$conf['criteria'];
+		$opts['title'] = $opts['title'].' '.__('by').' '.$conf['criteria'];
 		$theme = $this->init_module('Base/Theme');
 		$form = $this->init_module('Libs/QuickForm');
 		
