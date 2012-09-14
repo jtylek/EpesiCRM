@@ -373,8 +373,8 @@ class Base_Setup extends Module {
 				case Base_EpesiStoreCommon::ACTION_BUY:
 					$msg = __( 'Purchase successful');
 					break;
-				case Base_EpesiStoreCommon::ACTION_PAY:
-					$msg = __( 'Payment successful');
+//				case Base_EpesiStoreCommon::ACTION_PAY:
+//					$msg = __( 'Payment successful');
 					break;
 				case Base_EpesiStoreCommon::ACTION_DOWNLOAD:
 				case Base_EpesiStoreCommon::ACTION_UPDATE:
