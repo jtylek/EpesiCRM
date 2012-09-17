@@ -30,8 +30,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $clearance;
 	}
 
-    public static function get_contacts($crits = array(), $cols = array(), $order = array(), $limit = array()) {
-        return Utils_RecordBrowserCommon::get_records('contact', $crits, array(), $order, $limit);
+    public static function get_contacts($crits = array(), $cols = array(), $order = array(), $limit = array(), $admin=false) {
+        return Utils_RecordBrowserCommon::get_records('contact', $crits, array(), $order, $limit, $admin);
     }
     public static function get_companies($crits = array(), $cols = array(), $order = array(), $limit = array(), $admin=false) {
         return Utils_RecordBrowserCommon::get_records('company', $crits, $cols, $order, $limit, $admin);

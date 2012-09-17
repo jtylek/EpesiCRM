@@ -6,8 +6,9 @@ $cmp = Variable::get('main_company', null);
 if ($cmp!==null) {
 	set_time_limit(0);
 
-	$conts = CRM_ContactsCommon::get_contacts(array('(company_name'=>$cmp, '|related_companies'=>$cmp));
+	$conts = DB::GetAll('SELECT * FROM contact_data_1 WHERE f_company_name=%d OR f_related_companies '.DB::like().' '.DB::Concat(DB::qstr('\_\_'), DB::qstr($cmp), DB::qstr('\_\_')), array($cmp));
 	foreach ($conts as $k=>$v) {
+		$v['access'] = Utils_RecordBrowserCommon::decode_multi($v['f_access']);
 		$v['access'][] = 'employee';
 		Utils_RecordBrowserCommon::update_record('contact', $v['id'], array('access'=>$v['access']));
 	}

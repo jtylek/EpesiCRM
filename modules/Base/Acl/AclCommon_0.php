@@ -20,7 +20,10 @@ class Base_AclCommon extends ModuleCommon {
 
 	public static function get_admin_level($user = null) {
 		if ($user === null) $user = self::get_user();
-		return DB::GetOne('SELECT admin FROM user_login WHERE id=%d', array($user));
+		$admin = @DB::GetRow('SELECT * FROM user_login WHERE id=%d', array($user));
+		if ($admin && !empty($admin) && !isset($admin['admin'])) return 2;
+		else $admin = isset($admin['admin'])?$admin['admin']:0;
+		return $admin;
 	}
 	
 	/**
