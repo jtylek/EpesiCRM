@@ -180,17 +180,12 @@ class Base_User_Login extends Module {
 		DB::Execute('INSERT INTO user_reset_pass(user_login_id,hash_id,created_on) VALUES (%d,%s,%T)',array($user_id, $hash,time()));
 		
 		$subject = __('Password recovery');
-		$message = __('A password recovery for the account with the e-mail address %s has been requested. 
-
-If you want to reset your password, visit the following URL:
-%s
-or just ignore this message and your login and password will remain unchanged.
-
-If you did not use the Password Recovery form, inform your administrator about a potential unauthorized attempt to login using your credentials.
-
-This e-mail was generated automatically and you do not need to respond to it.', array(
-	$mail,
-	get_epesi_url().'/modules/Base/User/Login/reset_pass.php?hash='.$hash));
+		$message = __('A password recovery for the account with the e-mail address %s has been requested.',array($mail))."\n\n".
+				   __('If you want to reset your password, visit the following URL:')."\n".
+				   get_epesi_url().'/modules/Base/User/Login/reset_pass.php?hash='.$hash."\n".
+				   __('or just ignore this message and your login and password will remain unchanged.')."\n\n".
+				   __('If you did not use the Password Recovery form, inform your administrator about a potential unauthorized attempt to login using your credentials.')."\n\n".
+				   __('This e-mail was generated automatically and you do not need to respond to it.');
 		$sendMail = Base_MailCommon::send_critical($mail, $subject, $message);
 
 		return true;

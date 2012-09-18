@@ -66,11 +66,11 @@ class Utils_Calendar extends Module {
 					trigger_error('Invalid view: '.$v,E_USER_ERROR);
 
 				switch ($v) {
-					case 'Agenda': $label = 'Agenda'; break;
-					case 'Day': $label = 'Day'; break;
-					case 'Week': $label = 'Week'; break;
-					case 'Month': $label = 'Month'; break;
-					case 'Year': $label = 'Year'; break;
+					case 'Agenda': $label = __('Agenda'); break;
+					case 'Day': $label = __('Day'); break;
+					case 'Week': $label = __('Week'); break;
+					case 'Month': $label = __('Month'); break;
+					case 'Year': $label = __('Year'); break;
 				}
 				$this->tb->set_tab($label,array($this, strtolower($v)));
 				if(strcasecmp($v,$this->settings['default_view'])==0)

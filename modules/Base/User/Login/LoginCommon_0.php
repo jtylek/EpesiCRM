@@ -88,15 +88,12 @@ class Base_User_LoginCommon extends ModuleCommon {
 		if ($recovery)
 			$body .= __( 'This e-mail is to inform you that your password at %s has been reset.', array($url));
 		else
-			$body .= __( 'This e-mail is to inform you that a user account was setup for you at: %s', array($url));
-		$body .= __( '
-
-Your username is: %s
-Your password is: %s
-
-For security reasons it is recommened that you log in immediately and change your password.
-
-This e-mail was generated automatically and you do not need to respond to it.', array($username,$pass));
+			$body .= __( 'This e-mail is to inform you that a user account was setup for you at: %s.', array($url));
+		$body .= "\n".
+				__('Your username is: %s', array($username))."\n".
+				__('Your password is: %s', array($pass))."\n\n".
+				__('For security reasons it is recommened that you log in immediately and change your password.')."\n\n".
+				__('This e-mail was generated automatically and you do not need to respond to it.');
 		
 		return Base_MailCommon::send_critical($mail, $subject, $body);
 	}
@@ -115,12 +112,12 @@ This e-mail was generated automatically and you do not need to respond to it.', 
 			$pass = generate_password();
 		
 		if(!Base_UserCommon::add_user($username)) {
-			print(__('Account creation failed.<br> Unable to add user to database.<br>'));
+			print(__('Account creation failed.').'<br>'.__('Unable to add user to database.').'<br>');
 			return false;	
 		}
 		$user_id = Base_UserCommon::get_user_id($username);
 		if($user_id===false) {
-			print(__('Account creation failed.<br> Unable to get id of added user.<br>'));
+			print(__('Account creation failed.').'<br>'.__('Unable to get id of added user.').'<br>');
 			return false;
 		}
 		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, md5($pass), $mail));
