@@ -53,7 +53,7 @@ class Applets_QuickSearch extends Module{
 	
 	}
 	public function caption() {
-		return __("QuickSearchsssss");
+		return __("QuickSearch");
 	}	
 
 }

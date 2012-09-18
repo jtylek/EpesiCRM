@@ -162,7 +162,7 @@ class Libs_QuickForm extends Module {
 			case 'numeric':
 				if(!isset($v['rule']) || !is_array($v['rule'])) $v['rule']=array();
 				$v['type'] = 'text';
-				$v['rule'][] = array('type'=>'numeric','message'=>__('This is not valid number'));
+				$v['rule'][] = array('type'=>'numeric','message'=>__('This is not a valid number'));
 			case 'password':
 			case 'text':
 			case 'hidden':

@@ -577,22 +577,22 @@ class Data_CountriesInstall extends ModuleInstall {
 			'WY'=>_M('Wyoming'));
 		Utils_CommonDataCommon::new_array('Countries/US',$usa_states);
 		
-		$pl_wojew = array('DS'=>_M('Dolnośląskie'),
-			'KP'=>_M('Kujawsko-pomorskie'),
-			'LB'=>_M('Lubuskie'),
-			'LD'=>_M('Łódzkie'),
-			'LU'=>_M('Lubelskie'),
-			'MA'=>_M('Mazowieckie'),
-			'MP'=>_M('Małopolskie'),
-			'OP'=>_M('Opolskie'),
+		$pl_wojew = array('DS'=>_M('Lower Silesian'),
+			'KP'=>_M('Kuyavian-Pomeranian'),
+			'LB'=>_M('Lubusz'),
+			'LD'=>_M('Łódź'),
+			'LU'=>_M('Lublin'),
+			'MA'=>_M('Masovian'),
+			'MP'=>_M('Lesser Poland'),
+			'OP'=>_M('Opole'),
 			'PD'=>_M('Podlaskie'),
-			'PK'=>_M('Podkarpackie'),
-			'PM'=>_M('Pomorskie'),
-			'SL'=>_M('Śląkie'),
+			'PK'=>_M('Subcarpathian'),
+			'PM'=>_M('Pomeranian'),
+			'SL'=>_M('Silesian'),
 			'SW'=>_M('Świętokrzyskie'),
-			'WM'=>_M('Warmińsko-mazurskie'),
-			'WP'=>_M('Wielkopolskie'),
-			'ZP'=>_M('Zachodniopomorskie'));
+			'WM'=>_M('Warmian-Masurian'),
+			'WP'=>_M('Greater Poland'),
+			'ZP'=>_M('West Pomeranian'));
 		Utils_CommonDataCommon::new_array('Countries/PL',$pl_wojew);
 
         $ro_wojew = array(

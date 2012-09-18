@@ -1828,7 +1828,7 @@ class Utils_RecordBrowser extends Module {
         $form = $this->init_module('Libs/QuickForm');
         $r = Utils_RecordBrowserCommon::get_clipboard_pattern($this->tab, true);
         $form->addElement('select', 'enable', __('Enable'), array(__('No'), __('Yes')));
-        $info = '<b>'.__('This is html pattern. All html tags are allowed.<br/>Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.<br/><br/>Conditional use:<br/>%%{lorem {keyword} ipsum {keyword2}}<br/>lorem ipsum will be shown only when at least one of keywords has value. Nested conditions are allowed.<br/><br/>Normal use:<br/>%%{{keyword}}<br/><br/>Keywords:<br/>').'</b>';
+        $info = '<b>'.__('This is an html pattern. All html tags are allowed.').'<br/>'.__('Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.').'<br/><br/>'.__('Conditional use:').'<br/>'.__('%%{lorem {keyword} ipsum {keyword2}}').'<br/>'.__('lorem ipsum will be shown only when at least one of keywords has a value. Nested conditions are allowed.').'<br/><br/>'.__('Normal use:').'<br/>'.__('%%{{keyword}}').'<br/><br/>'.__('Keywords:').'<br/></b>';
         foreach($this->table_rows as $name=>$val) {
             $info .= '<b>'.$val['id'].'</b> - '.$name.', ';
         }

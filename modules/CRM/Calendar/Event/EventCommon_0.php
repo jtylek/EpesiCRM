@@ -102,7 +102,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		if(isset($a['timeless']))
 			$date = __('Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['timeless'],false)));
 		else
-			$date = __("Start: %s\nEnd: %s",array(Base_RegionalSettingsCommon::time2reg($a['start'],2), Base_RegionalSettingsCommon::time2reg($a['end'],2)));
+			$date = __('Start: %s',array(Base_RegionalSettingsCommon::time2reg($a['start'],2)))."\n".__('End: %s', array(Base_RegionalSettingsCommon::time2reg($a['end'],2)));
 
 		return $date."\n".__("Title: %s",array($a['title']));
 	}

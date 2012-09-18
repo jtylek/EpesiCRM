@@ -109,7 +109,7 @@ class CRM_LoginAudit extends Module {
             if ($purge_date==1) {
                 $sql_query = 'Delete FROM base_login_audit';
                 $ret = DB::Execute($sql_query);
-                print (__('Entire log was be purged!'));
+                print (__('Entire log was purged!'));
             } else {
                 $sql_query = 'Delete FROM base_login_audit where start_time < \''.$sql_date.'\'';
                 $ret = DB::Execute($sql_query);
