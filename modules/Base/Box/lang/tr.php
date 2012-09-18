@@ -53,9 +53,10 @@ $translations['Dark red']='';
 $translations['Dark yellow']='';
 $translations['Dark green']='';
 $translations['Text to display']='';
-$translations['QuickSearch']='';
 $translations['Quick Search']='';
-$translations['Enter you search here...']='';
+$translations['Criteria']='';
+$translations['by']='';
+$translations['QuickSearchsssss']='';
 $translations['No records found']='Hiçbir kayýt bulunamadý';
 $translations['RSS Feed']='RSS Bilgi';
 $translations['Simple RSS Feed']='';
@@ -204,6 +205,7 @@ $translations['EPESI Store']='';
 $translations['Modules Administration & Store']='';
 $translations['Payment credentials']='';
 $translations['License Key']='';
+$translations['Register EPESI!']='';
 $translations['Simple view']='';
 $translations['Empty']='';
 $translations['Cart']='';
@@ -243,9 +245,9 @@ $translations['Error reporting']='';
 $translations['Send bugs to']='';
 $translations['Invalid e-mail address']='';
 $translations['Leave empty to disable bug reports.']='';
+$translations['Your installation is locked, you can\\\'t download new modules. Switching to paid hosting will enable you to unlock your installation and purchase and download new modules.']='';
 $translations['Remote server error']='';
 $translations['Your EPESI is fine. Our server had some problem. Please give us some time to fix this.']='';
-$translations['Register EPESI!']='';
 $translations['Hide messages']='';
 $translations['Show discarded']='';
 $translations['Error messages']='';
@@ -305,7 +307,7 @@ $translations['Administrator\\\'s last name']='';
 $translations['Administrator\\\'s email']='';
 $translations['Enter Company and Administrator details. This data will be sent to EPESI Store Server to provide us with contact information. The data sent to EPESI Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.']='';
 $translations['Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.']='';
-$translations['Updating Company data will required re-validation by our representative.']='';
+$translations['Updating Company data will require re-validation by our representative.']='';
 $translations['Changing Administrator e-mail address will require e-mail confirmation.']='';
 $translations['On this screen you can manually set your License Key for this installation. This feature should only be used in case of system recovery or migration. If you are uncertain how to use this feature, it\\\'s best to leave this screen immediately.']='';
 $translations['Allowing unsecure connection will cause all the data to be transferred without encryption. This creates opportunity for third parties to capture the data being transmitted, including your License Key. Please note that License Key should be kept confidential and that using the same License Key on several EPESI installations is a direct violation of Terms of Service and will result in termination of the License Key.']='';
@@ -323,7 +325,7 @@ $translations['New language pack']='';
 $translations['Language']='';
 $translations['Language you want to use']='Kullanmak istediđiniz dil';
 $translations['Allow users to change language']='Kullanýcýlarý dil seçebilme izni ver';
-$translations['Default epesi language']='';
+$translations['Default EPESI language']='';
 $translations['Default language']='Baţlangýç dili';
 $translations['You have now option to contribute with your translations to help us deliver EPESI in various languages. You can opt in to send your translations to EPESI central database, allowing to deliver EPESI in your language to other users.']='';
 $translations['Please note that the translations you submit aren\\\'t subject to copyright. EPESI Team will distribute the translations free of charge to the end users.']='';
@@ -418,15 +420,16 @@ $translations['Purchase successful']='';
 $translations['Payment successful']='';
 $translations['Download successful']='';
 $translations['Install successful']='';
-$translations['EPESI store is not accessible during the trial.']='';
-$translations['To access EPESI store it is necessary that you register your EPESI installation. Would you like to do this now?']='';
+$translations['EPESI Store is not accessible during the trial.']='';
+$translations['To access EPESI Store it is necessary that you register your EPESI installation. Would you like to do this now?']='';
 $translations['Updates']='';
 $translations['My Purchases']='';
 $translations['Store']='';
 $translations['Free']='';
 $translations['Purchased']='';
 $translations['Price: %s']='';
-$translations['With this module you need also some other modules.<br>Here is the list what you buy:']='';
+$translations['With this module you also need some other modules.']='';
+$translations['Here is the list of what you will buy:']='';
 $translations['Couldn\\\'t install the package.']='';
 $translations['Change theme']='Temayý deđiţtir';
 $translations['Themes Administration']='';
@@ -500,17 +503,14 @@ $translations['Unable to update account data (active).']='';
 $translations['Unable to update account data (admin).']='';
 $translations['Your account at %s']='';
 $translations['This e-mail is to inform you that your password at %s has been reset.']='';
-$translations['This e-mail is to inform you that a user account was setup for you at: %s']='';
-$translations['
-
-Your username is: %s
-Your password is: %s
-
-For security reasons it is recommened that you log in immediately and change your password.
-
-This e-mail was generated automatically and you do not need to respond to it.']='';
-$translations['Account creation failed.<br> Unable to add user to database.<br>']='';
-$translations['Account creation failed.<br> Unable to get id of added user.<br>']='';
+$translations['This e-mail is to inform you that a user account was setup for you at: %s.']='';
+$translations['Your username is: %s']='';
+$translations['Your password is: %s']='';
+$translations['For security reasons it is recommened that you log in immediately and change your password.']='';
+$translations['This e-mail was generated automatically and you do not need to respond to it.']='';
+$translations['Account creation failed.']='';
+$translations['Unable to add user to database.']='';
+$translations['Unable to get id of added user.']='';
 $translations['Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.']='';
 $translations['Logout']='Çýkýţ';
 $translations['You have exceeded the number of allowed login attempts.']='';
@@ -528,15 +528,10 @@ $translations['Processing request']='Ýţlem gerçekleţtiriliyor';
 $translations['Username or e-mail invalid']='Kullanýcý adý yada e-mail adresi hatalý';
 $translations['Password reset instructions were sent.']='';
 $translations['Password recovery']='';
-$translations['A password recovery for the account with the e-mail address %s has been requested. 
-
-If you want to reset your password, visit the following URL:
-%s
-or just ignore this message and your login and password will remain unchanged.
-
-If you did not use the Password Recovery form, inform your administrator about a potential unauthorized attempt to login using your credentials.
-
-This e-mail was generated automatically and you do not need to respond to it.']='';
+$translations['A password recovery for the account with the e-mail address %s has been requested.']='';
+$translations['If you want to reset your password, visit the following URL:']='';
+$translations['or just ignore this message and your login and password will remain unchanged.']='';
+$translations['If you did not use the Password Recovery form, inform your administrator about a potential unauthorized attempt to login using your credentials.']='';
 $translations['Request failed. Authentication link is valid for 2 hours since sending request.']='';
 $translations['Unable to update password for user %s.']='';
 $translations['Unable to send e-mail with password. Mail module configuration invalid. Please contact system administrator.']='';
