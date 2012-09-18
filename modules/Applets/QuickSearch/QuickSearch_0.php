@@ -45,7 +45,7 @@ class Applets_QuickSearch extends Module{
 		$txt->setAttribute('id', $txtQuery);
 		$txt->setAttribute('class', 'QuickSearch_text');
 		$txt->setAttribute('onkeypress', 'setDelayOnSearch(\''.trim($conf['criteria']).'\')');				
-		$txt->setAttribute('placeholder', __($placeholder));
+		$txt->setAttribute('placeholder', _V($placeholder));
 		
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
