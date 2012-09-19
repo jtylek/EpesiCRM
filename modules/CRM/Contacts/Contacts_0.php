@@ -87,7 +87,7 @@ class CRM_Contacts extends Module {
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
 		$users = DB::GetAssoc('SELECT id, login FROM user_login');
-		if (count($users) > Utils_RecordBrowserCommon::get_records_count('contact', array('!login'=>''), array(), array(), array(), true)) {
+		if (count($users) > Utils_RecordBrowserCommon::get_records_count('contact', array('!login'=>''), true)) {
 			$recs = Utils_RecordBrowserCommon::get_records('contact', array('!login'=>''), array(), array(), array(), true);
 			foreach ($recs as $r)
 				unset($users[$r['login']]);
