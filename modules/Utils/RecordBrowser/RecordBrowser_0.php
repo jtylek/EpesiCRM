@@ -2619,13 +2619,14 @@ class Utils_RecordBrowser extends Module {
 			);
 		}
 		foreach ($actions as $a=>$l)
-			foreach ($rules[$a] as $id=>$vals) {
-			$gb_row = $gb->get_new_row();
-			$gb_row->add_data_array($vals);
-			if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) {
-				$gb_row->add_action($this->create_callback_href(array($this, 'edit_permissions_rule'), array($id)), 'edit', 'Edit');
-				$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_permissions_rule'), array($id)), 'delete', 'Delete');
-			}
+			if (isset($rules[$a]))
+				foreach ($rules[$a] as $id=>$vals) {
+					$gb_row = $gb->get_new_row();
+					$gb_row->add_data_array($vals);
+					if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) {
+						$gb_row->add_action($this->create_callback_href(array($this, 'edit_permissions_rule'), array($id)), 'edit', 'Edit');
+						$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_permissions_rule'), array($id)), 'delete', 'Delete');
+				}
 		}
 		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) 
 			Base_ActionBarCommon::add('add',__('Add new rule'), $this->create_callback_href(array($this, 'edit_permissions_rule'), array(null)));
