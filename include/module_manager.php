@@ -136,9 +136,13 @@ class ModuleManager {
 				}
 			}
 		}
+		if(!empty($queue)) foreach($queue as $k=>$m) { // quickfix - with some modules distributed through Store we can't enfroce deps as easily now
+			$priority[] = $m['name'];
+			self :: register($m['name'], $m['version'], $virtual_modules);
+		}
 		foreach($priority as $k=>$v)
 			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
-		if(!empty($queue)) {
+/*		if(!empty($queue)) {
 			$x = 'Modules deps not satisfied: ';
 			foreach($queue as $k=>$m) {
 				$deps = $m['deps'];
@@ -150,7 +154,7 @@ class ModuleManager {
 			}
 			$x .= '<br>';
 			trigger_error($x,E_USER_ERROR);
-		}
+		}*/
 	}
 
 	/**
