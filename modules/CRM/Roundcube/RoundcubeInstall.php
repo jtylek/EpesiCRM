@@ -62,7 +62,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
             array('name' => _M('Advanced'), 'type'=>'page_split'),
             array('name' => _M('Archive on sending'), 'type'=>'checkbox', 'extra'=>true, 'visible'=>false),
-            array('name' => _M('Use Epesi Archive directories'), 'type'=>'checkbox', 'extra'=>true, 'visible'=>false),
+            array('name' => _M('Use EPESI Archive directories'), 'type'=>'checkbox', 'extra'=>true, 'visible'=>false),
             array('name' => _M('IMAP Root'), 'type'=>'text', 'param'=>32, 'extra'=>true, 'visible'=>false),
             array('name' => _M('IMAP Delimiter'), 'type'=>'text', 'param'=>8, 'extra'=>true, 'visible'=>false)
         );

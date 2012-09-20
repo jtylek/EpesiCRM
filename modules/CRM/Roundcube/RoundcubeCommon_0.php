@@ -91,14 +91,14 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
     public static function QFfield_smtp_security(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('commondata', $field, $label,array('CRM/Roundcube/Security'),array('empty_option'=>true),array('id'=>'smtp_security'));
-        $form->addRule($field,__('OpenSSL not available - cannot set TLS/SSL. Please contact Epesi administrator.'),'callback',array('CRM_RoundcubeCommon','check_ssl'));
+        $form->addRule($field,__('OpenSSL not available - cannot set TLS/SSL. Please contact EPESI administrator.'),'callback',array('CRM_RoundcubeCommon','check_ssl'));
         $form->setDefaults(array($field=>$default));
         if($mode=='view') $form->freeze(array($field));
     }
     
     public static function QFfield_security(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('commondata', $field, $label,array('CRM/Roundcube/Security'),array('empty_option'=>true));
-        $form->addRule($field,__('OpenSSL not available - cannot set TLS/SSL. Please contact Epesi administrator.'),'callback',array('CRM_RoundcubeCommon','check_ssl'));
+        $form->addRule($field,__('OpenSSL not available - cannot set TLS/SSL. Please contact EPESI administrator.'),'callback',array('CRM_RoundcubeCommon','check_ssl'));
         $form->setDefaults(array($field=>$default));
         if($mode=='view') $form->freeze(array($field));
     }
@@ -224,7 +224,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         foreach($ret as $row)
                 $conf[] = array('name'=>'account_'.$row['id'], 'label'=>__('%s at %s', array($row['login'],$row['server'])), 'type'=>'checkbox', 'default'=>1);
         if(count($conf)==1)
-            return array(array('type'=>'static','label'=>__('No accounts configured, go Home->My settings->Mail accounts')));
+            return array(array('type'=>'static','label'=>__('No accounts configured, go Menu->My settings->Control panel->E-mail accounts')));
         return $conf;
     }
 

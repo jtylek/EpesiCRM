@@ -85,7 +85,7 @@ class CRM_TasksCommon extends ModuleCommon {
 
 	public static function applet_settings() {
 		return Utils_RecordBrowserCommon::applet_settings(array(
-			array('label'=>__('Display tasks marked as'),'name'=>'term','type'=>'select','values'=>array('s'=>__('Shortterm'),'l'=>__('Longterm'),'b'=>__('Both')),'default'=>'s','rule'=>array(array('message'=>__('Field required'), 'type'=>'required'))),
+			array('label'=>__('Display tasks marked as'),'name'=>'term','type'=>'select','values'=>array('s'=>__('Short-term'),'l'=>__('Long-term'),'b'=>__('Both')),'default'=>'s','rule'=>array(array('message'=>__('Field required'), 'type'=>'required'))),
 			array('label'=>__('Display open tasks'),'name'=>'status_0','type'=>'checkbox','default'=>true),
 			array('label'=>__('Display in progress tasks'),'name'=>'status_1','type'=>'checkbox','default'=>true),
 			array('label'=>__('Display on hold tasks'),'name'=>'status_2','type'=>'checkbox','default'=>true),
