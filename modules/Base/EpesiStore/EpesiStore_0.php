@@ -77,10 +77,6 @@ class Base_EpesiStore extends Module {
         print(Base_EssClientCommon::client_messages_frame());
     }
 
-    private function is_registered() {
-        return Base_EssClientCommon::get_license_key() != "";
-    }
-
     private function navigation_buttons() {
         $this->navigation_button_cart();
         $this->navigation_button_your_modules();
@@ -99,12 +95,11 @@ class Base_EpesiStore extends Module {
 
     private function navigation_button_downloads($display_empty = false) {
         $count = count(Base_EpesiStoreCommon::get_download_queue());
-
         if ($display_empty || $count) {
             if ($count == 0)
                 $count = __('Empty');
             $download = __('Downloads');
-            Base_ActionBarCommon::add('clone', "$download ($count)", $this->create_callback_href(array($this, 'navigate'), array('form_downloads')));
+            Base_ActionBarCommon::add('clone', "$download ($count)", $this->href_navigate('form_downloads'));
         }
     }
 
@@ -117,7 +112,7 @@ class Base_EpesiStore extends Module {
     }
 
     public function form_main_store() {
-        if ($this->is_registered()) {
+        if (Base_EssClientCommon::has_license_key()) {
             $this->navigation_buttons();
             $this->display_modules();
         } else {
@@ -608,6 +603,7 @@ class Base_EpesiStore extends Module {
         unset($data['description_url']);
         
         $required_modules = & $data['required_modules'];
+        unset($data['needed_modules']);
 		if (!is_array($required_modules)) $required_modules = explode(', ',$required_modules);
         if (isset($required_modules)) {
             foreach($required_modules as $k => & $m) {
@@ -615,7 +611,7 @@ class Base_EpesiStore extends Module {
                 if($mi)
                     $m = "{$mi['repository']}::{$mi['name']}";
                 else
-                    unset($required_modules[$k]);
+                    $m = '(' . __("Unrecognized module") . ')';
             }
             $required_modules = implode(', ', $required_modules);
         }

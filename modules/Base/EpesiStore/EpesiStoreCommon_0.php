@@ -14,7 +14,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     const ACTION_BUY = 'buy';    // __('Buy')
-//    const ACTION_PAY = 'pay';    // __('Pay')
     const ACTION_DOWNLOAD = 'download'; // __('Download')
     const ACTION_UPDATE = 'update';  // __('Update')
     const ACTION_INSTALL = 'install';  // __('Install')
@@ -170,6 +169,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         $r['files'] = implode("<br/>", $r['files']);
         unset($r['icon_url']);
         unset($r['description_url']);
+        unset($r['required_modules']);
+        unset($r['needed_modules']);
         return Utils_TooltipCommon::format_info_tooltip($r);
     }
 
