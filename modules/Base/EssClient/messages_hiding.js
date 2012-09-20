@@ -39,10 +39,10 @@ function toggle_client_messages_frame() {
     var obj = $(client_messages_frame_id + "_content");
     if(obj.visible()) {
         obj.hide();
-        $(client_messages_frame_id+"_hide").innerHTML = "Show messages";
+        $(client_messages_frame_id+"_hide").innerHTML = ess_client_messages_show_button_label;
     } else {
         obj.show();
-        $(client_messages_frame_id+"_hide").innerHTML = "Hide messages";
+        $(client_messages_frame_id+"_hide").innerHTML = ess_client_messages_hide_button_label;
     }
     show_client_messages();
 }

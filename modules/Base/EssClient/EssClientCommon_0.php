@@ -193,9 +193,12 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         $content = self::format_client_messages();
 
         $hide_all = __('Hide messages');
+        $show_all = __('Show messages');
         $show_discarded = __('Show discarded');
-        $buttons = "<div class=\"button\" id=\"client_messages_frame_hide\">$hide_all</div>" .
-                "<div class=\"button\" id=\"client_messages_frame_show_discarded\">$show_discarded</div>";
+        eval_js_once('var ess_client_messages_hide_button_label = ' . json_encode($hide_all)
+                . '; var ess_client_messages_show_button_label = ' . json_encode($show_all));
+        $buttons = "<div class=\"button\" style=\"width:auto; padding:2px 10px\" id=\"client_messages_frame_hide\">$hide_all</div>" .
+                "<div class=\"button\" style=\"width:auto; padding:2px 10px\" id=\"client_messages_frame_show_discarded\">$show_discarded</div>";
         load_js(dirname(__FILE__) . '/messages_hiding.js');
         eval_js('set_client_messages_frame_id("client_messages_frame");');
         return '<div id="client_messages_frame"><div id="client_messages_frame_content">' . $content . '</div>' . $buttons . '</div>';
