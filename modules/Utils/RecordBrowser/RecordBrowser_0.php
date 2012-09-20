@@ -699,7 +699,8 @@ class Utils_RecordBrowser extends Module {
 		}
         if ($gb->is_adv_search_on()) {
             foreach ($search as $k=>$v) {
-				$args = $this->table_rows[$hash[$k]];
+				$f_id = str_replace(array('"','~'),'',$k);
+				$args = $this->table_rows[$hash[$f_id]];
 				if ($args['commondata']) $k = $k.'[]';
 				elseif (isset($args['ref_field'])) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
                 if ($k[0]=='"') {
