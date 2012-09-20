@@ -829,6 +829,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if ($all_fields) $values[$args['id']] = '';
                 else continue;
             }
+			if (is_bool($values[$args['id']])) {
+				if ($values[$args['id']]===true) $values[$args['id']] = 1;
+				else $values[$args['id']] = 0;
+			}
             if ($args['type']=='long text')
                 $values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
             if ($args['type']=='multiselect') {
