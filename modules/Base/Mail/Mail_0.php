@@ -67,13 +67,27 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-		
-		if($form->getSubmitValue('submited') && $form->validate() && $form->process(array(&$this,'submit_admin'))) {
-			$this->parent->reset();
-		} else {
-			$form->display();					
+		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+			$me = CRM_ContactsCommon::get_my_record();
+			$email = $me['email'];
+			Base_ActionBarCommon::add('search', __('Test'), $this->create_callback_href(array($this, 'test_mail_config'), array($email)), __('E-mail will be sent to %s to test the configuration', array('<b>'.$email.'</b>')));
 		}
 		
+		if($form->getSubmitValue('submited') && $form->validate() && $form->process(array(&$this,'submit_admin'))) {
+			Base_StatusBarCommon::message(__('Settings saved'));
+		}
+		$form->display();					
+		
+	}
+	
+	public function test_mail_config($email) {
+		ob_start();
+		$ret = Base_MailCommon::send($email, __('E-mail configuration test'), __('If you are reading this, it means that your e-mail server configuration at %s is working properly.', array(get_epesi_url())));
+		$msg = ob_get_clean();
+		if ($msg) print('<span class="important_notice">'.$msg.'</span>');
+		if ($ret) Base_StatusBarCommon::message(__('E-mail was sent successfully'));
+		else Base_StatusBarCommon::message(__('An error has occured'), 'error');
+		return false;
 	}
 	
 	/**

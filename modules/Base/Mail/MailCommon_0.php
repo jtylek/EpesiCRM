@@ -91,7 +91,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 		}
 		$mailer->CharSet = "utf-8";
 		$ret = $mailer->Send();
-		if(!$ret) print($mailer->ErrorInfo.'<br>');
+//		if(!$ret) print($mailer->ErrorInfo.'<br>');
 		$mailer->ClearAddresses();
 		return $ret;
 	}
