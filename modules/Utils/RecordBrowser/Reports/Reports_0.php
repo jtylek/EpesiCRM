@@ -986,11 +986,11 @@ class Utils_RecordBrowser_Reports extends Module {
 			case 'week':	$start = __('%d, week %d',array($start['Y'], $start['W']));
 							$end = __('%d, week %d',array($end['Y'], $end['W']));
 							break;
-			case 'month':	$start = __('%s %d',array(date('F',$this->get_date('month', $start)),$start['Y']));
-							$end = __('%s %d',array(date('F',$this->get_date('month', $end)),$end['Y']));
+			case 'month':	$start = date('F',$this->get_date('month', $start)).' '.$start['Y'];
+							$end = date('F',$this->get_date('month', $end)).' '.$end['Y'];
 							break;
-			case 'year':	$start = __('%d',array($start['Y']));
-							$end = __('%d',array($end['Y']));
+			case 'year':	$start = $start['Y'];
+							$end = $end['Y'];
 							break;
 		}
 		return array($start, $end);

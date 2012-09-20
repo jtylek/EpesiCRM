@@ -89,7 +89,7 @@ class Base_EpesiStore extends Module {
         if ($display_empty || $count) {
             if ($count == 0)
                 $count = __('Empty');
-            Base_ActionBarCommon::add('folder', __('Cart').' ('.$count.')', $this->href_navigate('form_cart'), __('Data is stored until close or refresh of browser\'s Epesi window or tab'));
+            Base_ActionBarCommon::add('folder', __('Cart').' ('.$count.')', $this->href_navigate('form_cart'), __('Data is stored until close or refresh of browser\'s EPESI window or tab'));
         }
     }
 

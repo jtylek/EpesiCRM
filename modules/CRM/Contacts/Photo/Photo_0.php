@@ -45,7 +45,7 @@ class CRM_Contacts_Photo extends Module {
         $possible_extensions = array('jpg', 'jpeg', 'png');
         $extension = strtolower(end(explode('.', $oryg)));
         if( ! in_array($extension, $possible_extensions) ) {
-            echo __('Filename extension should be one of these(letter size doesn\'t matter): ').implode(', ', $possible_extensions);
+            echo __('Filename extension should be one of these (letter size doesn\'t matter): ').implode(', ', $possible_extensions);
             return;
         }
 
