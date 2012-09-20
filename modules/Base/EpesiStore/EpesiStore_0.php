@@ -615,6 +615,10 @@ class Base_EpesiStore extends Module {
             }
             $required_modules = implode(', ', $required_modules);
         }
+        if (!isset($data['bought']))
+            $data['bought'] = 0;
+        if (!isset($data['paid']))
+            $data['paid'] = 0;
 
         return $data;
     }
