@@ -19,7 +19,7 @@ class Base_EpesiStoreInstall extends ModuleInstall {
         $ret &= DB::CreateTable('epesi_store_modules', '
             module_id I4 PRIMARY KEY,
             version C(10),
-            order_id I4 NOTNULL,
+            module_license_id I4 NOTNULL,
             file C(20)');
         if (!$ret) {
             print('Unable to create table epesi_store_modules.<br>');
