@@ -43,6 +43,10 @@ return array(
   'rar' => 'application/x-rar-compressed',
   'vcf' => 'text/vcard',
   'ics' => 'text/calendar',
+  'jpg' => 'image/jpeg',
+  'jpeg' => 'image/jpeg',
+  'png' => 'image/png',
+  'gif' => 'image/gif'
 );
 
 ?>
