@@ -418,7 +418,7 @@ class Base_Setup extends Module {
         if(!$store)
             return;
 		foreach ($store as $s) {
-			$name = $s['name'];
+			$name = htmlspecialchars_decode($s['name']);
 
 			$label = $s['action'];
 			if (!isset($s['total_price'])) $s['total_price'] = $s['price'];
