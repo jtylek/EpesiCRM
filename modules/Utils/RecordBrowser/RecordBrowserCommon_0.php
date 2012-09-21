@@ -845,7 +845,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $v = self::encode_multi($values[$args['id']]);
                 $old = self::encode_multi($record[$args['id']]);
             } else {
-                if ($record[$args['id']]==$values[$args['id']]) continue;
+                if ($record[$args['id']]===$values[$args['id']]) continue;
                 $v = $values[$args['id']];
                 $old = $record[$args['id']];
             }
