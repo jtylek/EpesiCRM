@@ -16,7 +16,7 @@
 				<td class="epesi_label">
 					{$e.label}
 				</td>
-				<td class="epesi_data">
+				<td {if is_array($e.value)}style="width:314px" {/if}class="epesi_data">
 					{$e.html}
 				</td>
 			{/if}
