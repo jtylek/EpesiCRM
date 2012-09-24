@@ -55,10 +55,12 @@ class RBO_FieldDefinition {
 
     function set_display_callback($callback) {
         $this->display_callback = $callback;
+        return $this;
     }
 
     function set_QFfield_callback($callback) {
         $this->QFfield_callback = $callback;
+        return $this;
     }
 
 }

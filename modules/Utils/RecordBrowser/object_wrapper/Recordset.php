@@ -44,10 +44,10 @@ abstract class RBO_Recordset {
 
     public function refresh_magic_callbacks() {
         foreach ($this->fields() as $field) {
-            $lower_name = strtolower($field->name);
+            $field_id = Utils_RecordBrowserCommon::get_field_id($field->name);
 
             if (!$field->QFfield_callback) {
-                $qffield_callback = 'QFfield_' . $lower_name;
+                $qffield_callback = 'QFfield_' . $field_id;
                 if (method_exists($this, $qffield_callback) || method_exists($this->class, $qffield_callback))
                     Utils_RecordBrowserCommon::set_QFfield_callback($this->tab, $field->name, get_class($this) . '::__QFfield_magic_callback');
                 else
@@ -55,7 +55,7 @@ abstract class RBO_Recordset {
             }
 
             if (!$field->display_callback) {
-                $display_callback = 'display_' . $lower_name;
+                $display_callback = 'display_' . $field_id;
                 if (method_exists($this, $display_callback) || method_exists($this->class, $display_callback))
                     Utils_RecordBrowserCommon::set_display_callback($this->tab, $field->name, get_class($this) . '::__display_magic_callback');
                 else
@@ -97,7 +97,7 @@ abstract class RBO_Recordset {
     ///////////// implement Utils_RecordBrowserCommon methods //////////////
 
     /**
-     * TODO
+     * Get single record from recordset by id
      * @param numeric $id
      * @param bool $htmlspecialchars quote values using htmlspecialchars
      * @return RBO_Record
