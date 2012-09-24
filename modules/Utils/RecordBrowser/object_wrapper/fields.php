@@ -249,22 +249,22 @@ class RBO_Field_Commondata extends RBO_FieldDefinition {
     const type = 'commondata';
 
     private $chained_select_fields = array();
-    private $commondata_array;
+    private $commondata_array_name;
     private $order_by_key;
 
-    public function __construct($display_name, $commondata_array = null, $order_by_key = false) {
-        $this->commondata_array = $commondata_array;
+    public function __construct($display_name, $commondata_array_name = null, $order_by_key = false) {
+        $this->commondata_array_name = $commondata_array_name;
         $this->order_by_key = $order_by_key;
         parent::__construct($display_name, self::type);
     }
 
     /**
      * Set commondata array name
-     * @param string $commondata_array
+     * @param string $commondata_array_name
      * @return \RBO_Field_Commondata
      */
-    public function from($commondata_array) {
-        $this->commondata_array = $commondata_array;
+    public function from($commondata_array_name) {
+        $this->commondata_array_name = $commondata_array_name;
         return $this;
     }
 
@@ -285,9 +285,9 @@ class RBO_Field_Commondata extends RBO_FieldDefinition {
     }
 
     private function _fill_param() {
-        if (!is_string($this->commondata_array))
+        if (!is_string($this->commondata_array_name))
             trigger_error("Commondata array name in field {$this->name} must be set!");
-        $param = array($this->commondata_array);
+        $param = array($this->commondata_array_name);
         foreach ($this->chained_select_fields as $field) {
             if (!is_a($field, 'RBO_FieldDefinition'))
                 trigger_error('Chained select param is not subclass of RBO_FieldDefinition', E_USER_ERROR);
