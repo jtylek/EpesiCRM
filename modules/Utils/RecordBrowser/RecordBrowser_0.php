@@ -1978,7 +1978,7 @@ class Utils_RecordBrowser extends Module {
         $form->addRule('field', __('Field required'), 'required');
         $form->addRule('field', __('Field with this name already exists.'), 'check_if_column_exists');
         $form->addRule('field', __('Field length cannot be over 32 characters.'), 'maxlength', 32);
-        $form->addRule('field', __('Only letters and space are allowed.'), 'regex', '/^[a-zA-Z ]*$/');
+        $form->addRule('field', __('Invalid field name.'), 'regex', '/^[a-zA-Z][a-zA-Z \(\)\%0-9]*$/');
         $form->addRule('field', __('"ID" as field name is not allowed.'), 'check_if_no_id');
 
 
@@ -2053,6 +2053,7 @@ class Utils_RecordBrowser extends Module {
 			$param = '';
 			switch ($data['select_data_type']) {
 				case 'text': if ($action=='add') $param = $data['text_length'];
+							 else $param = $row['param'];
 								break;
 				case 'commondata':
 							if ($data['select_type']=='select') {
