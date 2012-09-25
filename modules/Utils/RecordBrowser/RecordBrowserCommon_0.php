@@ -87,9 +87,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         if ($tooltip) $res = '<span '.Utils_TooltipCommon::open_tag_attrs($tooltip, false).'>'.$res.'</span>';
                         $ret .= $res;
                     } else {
+                        $columns = explode('|', $col);
 						if ($first) $first = false;
 						else $ret .= '<br>';
-						$ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
+						$ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $columns, $v, $links_not_recommended);
 					}
                 }
                 if ($ret=='') $ret = '---';
@@ -1790,14 +1791,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function record_link_close_tag(){
         return self::$del_or_a;
     }
-    public static function create_linked_label($tab, $col, $id, $nolink=false){
+    public static function create_linked_label($tab, $cols, $id, $nolink=false){
         if (!is_numeric($id)) return '';
+        if (!is_array($cols))
+            $cols = array($cols);
         self::init($tab);
-        if (isset(self::$table_rows[$col])) $col = self::$table_rows[$col]['id'];
-        elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
-        $label = DB::GetOne('SELECT f_'.$col.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
-        $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
-        return $ret;
+        $vals = array();
+        foreach ($cols as $col) {
+            if (isset(self::$table_rows[$col])) $col = self::$table_rows[$col]['id'];
+            elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
+            $val = DB::GetOne('SELECT f_'.$col.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
+            if ($val)
+                $vals[] = $val;
+        }
+        return self::record_link_open_tag($tab, $id, $nolink) . 
+                implode(' ', $vals ) . self::record_link_close_tag();
     }
     public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true){
         if (!is_numeric($id)) return '';
@@ -1827,16 +1835,26 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
         return $ret;
     }
-    public static function create_linked_label_r($tab, $col, $r, $nolink=false){
-		if (!isset($r['id'])) return $r[$col];
-        $id = $r['id'];
-        if (!is_numeric($id)) return '';
+    public static function create_linked_label_r($tab, $cols, $r, $nolink=false){
+        if (!is_array($cols))
+            $cols = array($cols);
+        $open_tag = $close_tag = '';
+        if (isset($r['id']) && is_numeric(($r['id']))) {
+            $open_tag = self::record_link_open_tag($tab, $r['id'], $nolink);
+            $close_tag = self::record_link_close_tag();
+        }
         self::init($tab);
-        if (isset(self::$table_rows[$col])) $col = self::$table_rows[$col]['id'];
-        elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
-        $label = $r[$col];
-        $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
-        return $ret;
+        $vals = array();
+        foreach ($cols as $col) {
+            if (isset(self::$table_rows[$col]))
+                $col = self::$table_rows[$col]['id'];
+            elseif (!isset(self::$hash[$col]))
+                trigger_error('Unknown column name: ' . $col, E_USER_ERROR);
+            if ($r[$col])
+                $vals[] = $r[$col];
+        }
+
+        return $open_tag . implode(' ', $vals) . $close_tag;
     }
     public static function record_bbcode($tab, $fields, $text, $param, $opt) {
         if (!is_numeric($param)) {
