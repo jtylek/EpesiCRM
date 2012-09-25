@@ -2103,11 +2103,11 @@ class Utils_RecordBrowser extends Module {
 			
 			DB::Execute('DELETE FROM '.$this->tab.'_callback WHERE freezed=1 AND field=%s', array($field));
 			if ($data['display_callback'])
-				DB::Execute('INSERT INTO '.$this->tab.'_callback (callback,freezed,field) VALUES (%s,1,%s)', array($data['display_callback'], $field));
+				DB::Execute('INSERT INTO '.$this->tab.'_callback (callback,freezed,field) VALUES (%s,1,%s)', array($data['display_callback'], $data['field']));
 				
 			DB::Execute('DELETE FROM '.$this->tab.'_callback WHERE freezed=0 AND field=%s', array($field));
 			if ($data['QFfield_callback'])
-				DB::Execute('INSERT INTO '.$this->tab.'_callback (callback,freezed,field) VALUES (%s,0,%s)', array($data['QFfield_callback'], $field));
+				DB::Execute('INSERT INTO '.$this->tab.'_callback (callback,freezed,field) VALUES (%s,0,%s)', array($data['QFfield_callback'], $data['field']));
 			
             $this->init(true, true);
             return false;
