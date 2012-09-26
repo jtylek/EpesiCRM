@@ -1797,10 +1797,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $cols = array($cols);
         self::init($tab);
         $vals = array();
+        foreach ($cols as $k=>$col) {
+            if (isset(self::$table_rows[$col])) $cols[$k] = self::$table_rows[$col]['id'];
+            elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
+		}
         $row = DB::GetRow('SELECT f_'.implode(', f_',$cols).' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
         foreach ($cols as $col) {
-            if (isset(self::$table_rows[$col])) $col = self::$table_rows[$col]['id'];
-            elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
 			$val = $row['f_'.$col];
             if ($val)
                 $vals[] = $val;
