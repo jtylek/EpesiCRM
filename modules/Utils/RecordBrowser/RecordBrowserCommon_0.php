@@ -1803,8 +1803,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
         $row = DB::GetRow('SELECT f_'.implode(', f_',$cols).' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
         foreach ($cols as $col) {
-			$val = $row['f_'.$col];
-            if ($val)
+			$val = & $row['f_'.$col];
+            if (isset($val) && $val)
                 $vals[] = $val;
         }
         return self::record_link_open_tag($tab, $id, $nolink) . 
