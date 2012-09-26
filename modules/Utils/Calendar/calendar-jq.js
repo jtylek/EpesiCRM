@@ -164,7 +164,7 @@ add_event:function(dest_id,ev_id,draggable,duration,max_cut) {
 	if(draggable) {
 	        jQuery(ev).draggable({
 	                handle:'.handle',
-	                revert: true,
+	                revert: 'invalid',
 //	                zIndex: 1000
                         stack:'.utils_calendar_event'
 	        });
@@ -360,8 +360,12 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 			accept: '.utils_calendar_event',
 			tolerance: 'pointer',
 			drop: function(ev,ui) {
-			        var element = jQuery(ui.draggable);
-			        var droppable = jQuery(this);
+				if (!ui.draggable.data("originalPosition")) {
+					ui.draggable.data("originalPosition",
+					ui.draggable.data("draggable").originalPosition);
+				}
+				var element = jQuery(ui.draggable);
+				var droppable = jQuery(this);
 				if(droppable.attr('id')==element.attr('last_cell')) return;
 				Epesi.updateIndicatorText("Moving event");
 				Epesi.procOn++;
@@ -383,25 +387,34 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 							setTimeout(function() {
 							if(Utils_Calendar.page_type=='month') {
 								droppable.append(element);
-                                                                element.attr('last_cell',droppable.attr('id'));
+                                element.attr('last_cell',droppable.attr('id'));
 							} else {
 								Utils_Calendar.init_reload_event_tag();
 								Utils_Calendar.reload_event_tag(new Array(element.attr('id')));
 								element.attr('last_cell',droppable.attr('id'));
 								Utils_Calendar.remove_event_tag(droppable,element);
-								setTimeout(Utils_Calendar.flush_reload_event_tag,300);
-								//Utils_Calendar.flush_reload_event_tag();
-                                                                element.attr('max_cut',0);
+								Utils_Calendar.flush_reload_event_tag();
+                                element.attr('max_cut',0);
 							}
-                                                        element.draggable('destroy');
-                                                        
+                            element.draggable('destroy');
+
 							element.draggable({
 								handle: '.handle',
-								revert: true,
+								revert: 'invalid',
 //								zIndex: 1000
-                                                                stack: '.utils_calendar_event'
+                                stack: '.utils_calendar_event'
 							});
 							},1);
+						} else {
+							position = ui.draggable.data("originalPosition");
+							if (position) {
+								ui.draggable.animate({
+									left: position.left,
+									top: position.top
+								}, 500, function() {
+									ui.draggable.data("originalPosition", null);
+								});
+							}
 						}
 						Epesi.procOn--;
 						Epesi.updateIndicator();
