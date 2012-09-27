@@ -34,7 +34,7 @@ abstract class RBO_Recordset {
         return $array;
     }
 
-    private static function _create_record_object($recordset_class, $record) {
+    protected static function create_record_object($recordset_class, $record) {
         $recordset = new $recordset_class();
         $record_class = $recordset->class_name();
         return new $record_class($recordset, $record);
@@ -73,7 +73,7 @@ abstract class RBO_Recordset {
     public static final function __display_magic_callback($record, $nolink, $desc) {
         list($recordset_class, $method) = Utils_RecordBrowser::$rb_obj->get_display_method($desc['name']);
         $args = func_get_args();
-        $args[0] = self::_create_record_object($recordset_class, $record);
+        $args[0] = self::create_record_object($recordset_class, $record);
         return self::_generic_magic_callback($recordset_class, 'display_' . $desc['id'], $record, $args);
     }
 
@@ -197,6 +197,10 @@ abstract class RBO_Recordset {
         if ($created_by !== null)
             $info['created_by'] = $created_by;
         Utils_RecordBrowserCommon::set_record_properties($this->tab, $id, $info);
+    }
+    
+    public function set_icon($icon_file) {
+        Utils_RecordBrowserCommon::set_icon($this->tab, $icon_file);
     }
 
 }
