@@ -774,7 +774,7 @@ class Utils_RecordBrowser extends Module {
             if (self::$admin_filter==0) self::$admin_filter = '';
             if (self::$admin_filter==1) self::$admin_filter = 'active=1 AND ';
             if (self::$admin_filter==2) self::$admin_filter = 'active=0 AND ';
-            $form->display();
+            $form->display_as_row();
         }
         if (isset($this->force_order)) $order = $this->force_order;
         if (!$order) $order = array();
@@ -2417,7 +2417,7 @@ class Utils_RecordBrowser extends Module {
         }
         $tab = $this->get_module_variable('admin_browse_recordset', $first);
         $form->setDefaults(array('recordset'=>$tab));
-        $form->display();
+        $form->display_as_column();
         if ($tab) {
 			$this->record_management($tab);
 		}
