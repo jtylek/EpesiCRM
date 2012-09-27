@@ -298,7 +298,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			if (!is_array($changes)) $changes = array();
 			$data = call_user_func($methods[$v['category_id']], $v['internal_id'], $changes, false);
 			if ($data==null) continue;
-			$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = __('<b>Watchdog - %s:</b>', array($data['category'])).' '.$data['title'];
+			$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = '<b>'.__('Watchdog - %s:', array($data['category'])).'</b> '.$data['title'];
 			if (isset($data['events']) && $data['events'])
 				$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] .= '<br><font size=-5 color=gray>'.$data['events'].'</font>';
 		}

@@ -2400,10 +2400,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
             if ($k[0]==':') {
                 switch ($k) {
-                    case ':Fav' :   		$next .= (!$v || ($negative && $v))?__('is not on <b>favorites</b>'):__('is on <b>favorites</b>');
+                    case ':Fav' :   		$next .= (!$v || ($negative && $v))?__('is not on %sfavorites%s', array('<b>','</b>')):__('is on %sfavorites%s', array('<b>','</b>'));
 											$ret[] = $next;
 											continue;
-                    case ':Recent'  :   	$next .= (!$v || ($negative && $v))?__('wasn\'t <b>recently</b> viewed'):__('was <b>recently</b> viewed');
+                    case ':Recent'  :   	$next .= (!$v || ($negative && $v))?__('wasn\'t %srecently%s viewed', array('<b>','</b>')):__('was %srecently%s viewed', array('<b>','</b>'));
 											$ret[] = $next;
 											continue;
                     case ':Created_on'  :	$next .= '<b>'.__('Created on').'</b> ';

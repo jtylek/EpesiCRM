@@ -1870,8 +1870,8 @@ class Utils_RecordBrowser extends Module {
             array('name'=>__('Required'), 'width'=>5),
             array('name'=>__('Filter'), 'width'=>5),
             array('name'=>__('Parameters'), 'width'=>27),
-            array('name'=>__('Display callback'), 'width'=>5),
-            array('name'=>__('QFfield callback'), 'width'=>5)
+            array('name'=>__('Value display function'), 'width'=>5),
+            array('name'=>__('Field generator function'), 'width'=>5)
 		));
 		
 		$display_callbacbacks = DB::GetAssoc('SELECT field, callback FROM '.$this->tab.'_callback WHERE freezed=1');
@@ -2029,8 +2029,8 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('checkbox', 'filter', __('Filter enabled'));
 
         $form->addElement('header', null, __('Callbacks (for advanced users)'));
-        $form->addElement('text', 'display_callback', __('Display'), array('maxlength'=>255, 'style'=>'width:300px'));
-        $form->addElement('text', 'QFfield_callback', __('QFfield'), array('maxlength'=>255, 'style'=>'width:300px'));
+        $form->addElement('text', 'display_callback', __('Value display function'), array('maxlength'=>255, 'style'=>'width:300px'));
+        $form->addElement('text', 'QFfield_callback', __('Field generator function'), array('maxlength'=>255, 'style'=>'width:300px'));
 		
 		if ($action=='edit') {
 			$display_callbacback = DB::GetOne('SELECT callback FROM '.$this->tab.'_callback WHERE freezed=1 AND field=%s', array($field));
