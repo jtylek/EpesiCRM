@@ -114,7 +114,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				if (!$contact) continue;
 				$email = Utils_RecordBrowserCommon::get_value('contact', $contact, 'email');
 				if (!$email) continue;
-				Base_MailCommon::send($email,__( 'Epesi notification - %s - %s', array($email_data['category'], strip_tags($email_data['title']))),$email_data['events'], null, null, true);
+				Base_MailCommon::send($email,__( 'EPESI notification - %s - %s', array($email_data['category'], strip_tags($email_data['title']))),$email_data['events'], null, null, true);
 		}
 		Acl::set_user($c_user);
 	}

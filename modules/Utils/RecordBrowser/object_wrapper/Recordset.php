@@ -17,7 +17,7 @@ abstract class RBO_Recordset {
         $this->tab = $this->table_name();
         $this->class = $this->class_name();
         if (!(is_a($this->class, 'RBO_Record', true)))
-            trigger_error(__('Record class(%s) for recordset %s is not instance of %s', array($this->class, $this->tab, 'RBO_Record')), E_USER_ERROR);
+            trigger_error('Record class ('.$this->class.') for recordset '.$this->tab.' is not instance of RBO_Record', E_USER_ERROR);
     }
 
     private function record_to_object($array) {
@@ -158,7 +158,7 @@ abstract class RBO_Recordset {
 
     public function create_default_linked_label($id, $nolink = false, $table_name = true) {
         if (!is_numeric($id))
-            trigger_error(__('Create default linked label requires proper record id.'));
+            trigger_error('Create default linked label requires proper record id.');
         Utils_RecordBrowserCommon::create_linked_label_r($tab, $col, $r);
         return Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $id, $nolink, $table_name);
     }

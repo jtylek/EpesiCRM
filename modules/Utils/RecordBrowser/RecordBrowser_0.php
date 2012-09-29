@@ -2015,7 +2015,7 @@ class Utils_RecordBrowser extends Module {
 				}
 			case 'commondata':
 				$form->addElement('text', 'commondata_table', __('CommonData table'));
-				$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Select'), 'multi'=>__('Multiselect')));
+				$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Single value selection'), 'multi'=>__('Multiple values selection')));
 				$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value')));
 				$form->addRule('commondata_table', __('Field required'), 'required');
 				if ($action=='edit') {
@@ -2028,7 +2028,7 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('checkbox', 'required', __('Required'));
         $form->addElement('checkbox', 'filter', __('Filter enabled'));
 
-        $form->addElement('header', null, __('Callbacks (for advanced users)'));
+        $form->addElement('header', null, __('For advanced users'));
         $form->addElement('text', 'display_callback', __('Value display function'), array('maxlength'=>255, 'style'=>'width:300px'));
         $form->addElement('text', 'QFfield_callback', __('Field generator function'), array('maxlength'=>255, 'style'=>'width:300px'));
 		

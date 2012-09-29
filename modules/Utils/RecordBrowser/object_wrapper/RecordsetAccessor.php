@@ -11,7 +11,7 @@ class RBO_RecordsetAccessor extends RBO_Recordset {
     private $tab;
 
     public function fields() {
-        trigger_error(__('%s has not defined fields. Please implement your own implementation of %s.', array('RBO_RecordsetAccessor', 'RBO_Recordset')), E_USER_ERROR);
+        trigger_error('RBO_RecordsetAccessor has not defined fields. Please implement your own implementation of RBO_Recordset.', E_USER_ERROR);
     }
 
     public function table_name() {
