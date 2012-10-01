@@ -2418,20 +2418,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				else $next .= '<b>'._V(self::$table_rows[self::$hash[$k]]['name']).'</b> ';
 			}
 			$operand = '';
-			if (!isset($tab2)) $operand .= 'is ';
-			if ($negative) $operand .= '<i>not</i> ';
+			if (!isset($tab2)) {
+				if ($negative) $operand .= '<i>'.__('is not').'</i> ';
+				else $operand .= __('is').' ';
+			}
 			if ($v==='') {
-				$next .= _V($operand.'empty');
+				$next .= $operand.__('empty');
 			} else {
 				switch ($operator) {
-					case '<':	$operand .= 'smaller than'; break;
-					case '<=':	$operand .= 'smaller or equal to'; break;
-					case '>':	$operand .= 'greater than'; break;
-					case '>=':	$operand .= 'greater or equal to'; break;
-					case DB::like(): $operand .= 'contains'; break;
-					default:	$operand .= 'equal to';
+					case '<':	$operand .= __('smaller than'); break;
+					case '<=':	$operand .= __('smaller or equal to'); break;
+					case '>':	$operand .= __('greater than'); break;
+					case '>=':	$operand .= __('greater or equal to'); break;
+					case DB::like(): $operand .= __('contains'); break;
+					default:	$operand .= __('equal to');
 				}
-				$operand = _V($operand).' ';
+				$operand = $operand.' ';
 				$next .= $operand;
 				
 				switch ($k) {

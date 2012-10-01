@@ -13,10 +13,11 @@
 /* add new attachment*/
 .attachment_add_new {
 	display: block;
-	width: 86px;
+	width: auto;
 	height: 18px;
 	color: white;
 	padding: 6px 10px;
+	white-space: nowrap;
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -54,12 +55,13 @@
 	/* end light css3 green background gradient */
 }
 .attachment_add_new img {
-	display: block;
-	float: left;
+	display: inline-block;
 	margin: 0px 6px auto auto;
 }
 .attachment_add_new .attachment_div_add_new {
 	margin-top:2px;
+	display: inline-block;
+	vertical-align: top;
 }
 
 .Utils_Attachment__browse_panel {
