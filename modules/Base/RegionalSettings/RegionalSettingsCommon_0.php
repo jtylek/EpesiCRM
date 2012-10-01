@@ -335,7 +335,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	        /*** get the days and hours***/
 	        $days = intval(intval($seconds) / (3600*24));
     		if($days > 0) {
-            		$ret .= __('%s day(s) ',array($days));
+            		$ret .= __('%s day(s)',array($days)).' ';
 		}
 		$hours = (intval($seconds) / 3600)%24;
 	} else {
@@ -344,13 +344,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		$days = 0;
 	}
         if($hours > 0) {
-            $ret .= __('%s hour(s) ',array($hours));
+            $ret .= __('%s hour(s)',array($hours)).' ';
         }
         /*** get the minutes ***/
         $minutes = (intval($seconds) / 60)%60;
         if($minutes > 0)
         {
-            $ret .= __('%s minutes',array($minutes));
+            $ret .= __('%s minutes',array($minutes)).' ';
         }
 	if($seconds_h) {
 	    $seconds = intval($seconds)%60;
