@@ -28,10 +28,10 @@ class CRM_Tasks extends Module {
 	
 	public function applet($conf, & $opts) {
 		$opts['go'] = true;
-		$opts['title'] = 
-						($conf['related']==0?__('Tasks - Todo'):'').
-						($conf['related']==1?__('Tasks - Related'):'').
-						($conf['term']=='s'?__('Tasks - short term'):($conf['term']=='l'?__('Tasks - long term'):''));
+		$opts['title'] = __('Tasks').
+						($conf['related']==0?' - '.__('Todo'):'').
+						($conf['related']==1?' - '.__('Related'):'').
+						($conf['term']=='s'?' - '.__('Short-term'):($conf['term']=='l'?' - '.__('Long-term'):''));
 		$me = CRM_ContactsCommon::get_my_record();
 		if ($me['id']==-1) {
 			CRM_ContactsCommon::no_contact_message();
