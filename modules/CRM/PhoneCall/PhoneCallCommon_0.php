@@ -372,7 +372,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 		if (!$a) return __('Private record');
 
-		$ret = __("Date: %s",array(Base_RegionalSettingsCommon::time2reg($a['date_and_time'],2)))."\n";
+		$ret = __('Date: %s',array(Base_RegionalSettingsCommon::time2reg($a['date_and_time'],2)))."\n";
 		if($a['other_customer'])
 			$contact = $a['other_customer_name'];
 		else {
@@ -384,10 +384,10 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				$contact = $contact['company_name'];
 			}
 		}
-		$ret .= __("Contact: %s",array($contact))."\n";
-		$ret .= __("Phone: %s",array(self::display_phone($a,true,array('id'=>'phone'))))."\n";
+		$ret .= __('Contact: %s',array($contact))."\n";
+		$ret .= __('Phone: %s',array(self::display_phone($a,true,array('id'=>'phone'))))."\n";
 
-		return $ret.__("Subject: %s",array($a['subject']));
+		return $ret.__('Subject: %s',array($a['subject']));
 	}
 
 	//////////////////////////

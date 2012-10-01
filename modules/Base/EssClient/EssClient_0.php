@@ -136,7 +136,7 @@ class Base_EssClient extends Module {
         $f = $this->init_module('Libs/QuickForm');
 
         $admin_email_tooltip = '<img ' .
-                Utils_TooltipCommon::open_tag_attrs(__("This email will be used to send registation link and to contact Administator directly."), false)
+                Utils_TooltipCommon::open_tag_attrs(__('This email will be used to send registation link and to contact Administator directly.'), false)
                 . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
 
         $f->addElement('text', 'company_name', __('Company Name'), array('maxlength' => 128));
@@ -275,7 +275,7 @@ class Base_EssClient extends Module {
         $f->setDefaults(array('allow' => Base_EssClientCommon::is_no_ssl_allowed()));
         
         print('<div class="important_notice">');
-        print(__("Allowing unsecure connection will cause all the data to be transferred without encryption. This creates opportunity for third parties to capture the data being transmitted, including your License Key. Please note that License Key should be kept confidential and that using the same License Key on several EPESI installations is a direct violation of Terms of Service and will result in termination of the License Key."));
+        print(__('Allowing unsecure connection will cause all the data to be transferred without encryption. This creates opportunity for third parties to capture the data being transmitted, including your License Key. Please note that License Key should be kept confidential and that using the same License Key on several EPESI installations is a direct violation of Terms of Service and will result in termination of the License Key.'));
         print('<center>');
         $f->display();
         print('</center>');

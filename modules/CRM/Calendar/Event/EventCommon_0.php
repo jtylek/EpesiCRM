@@ -104,7 +104,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		else
 			$date = __('Start: %s',array(Base_RegionalSettingsCommon::time2reg($a['start'],2)))."\n".__('End: %s', array(Base_RegionalSettingsCommon::time2reg($a['end'],2)));
 
-		return $date."\n".__("Title: %s",array($a['title']));
+		return $date."\n".__('Title: %s',array($a['title']));
 	}
 	
 }

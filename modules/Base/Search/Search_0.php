@@ -97,7 +97,7 @@ class Base_Search extends Module {
 	}
 
 	public function caption() {
-		return __("Search");
+		return __('Search');
 	}
 }
 

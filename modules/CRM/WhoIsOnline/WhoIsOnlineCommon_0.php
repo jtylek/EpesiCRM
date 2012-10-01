@@ -12,11 +12,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_WhoIsOnlineCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return __("Who is online");
+		return __('Who is online');
 	}
 
 	public static function applet_info() {
-		return __("Shows online users with name and surname");
+		return __('Shows online users with name and surname');
 	}
 	
 	public static function body_access() {

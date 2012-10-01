@@ -12,11 +12,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_CalcCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return __("Calc");
+		return __('Calc');
 	}
 
 	public static function applet_info() {
-		return __("Simple calculator applet");
+		return __('Simple calculator applet');
 	}
 }
 

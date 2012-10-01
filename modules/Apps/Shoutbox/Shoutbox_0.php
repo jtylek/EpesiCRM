@@ -208,7 +208,7 @@ class Apps_Shoutbox extends Module {
 	}
 
 	public function caption() {
-		return __("Shoutbox");
+		return __('Shoutbox');
 	}
 }
 

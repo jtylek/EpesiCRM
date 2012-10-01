@@ -194,11 +194,11 @@ class Utils_Attachment extends Module {
 				$emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 AND l.id IN ('.implode(',',$emp_ids).') ORDER BY login');
 			}
 		}	
-	    $form->addElement("text", "filter_text", __("Search"), array('placeholder'=>__('Keyword').'...'));
-	    $form->addElement("select", "filter_user", __("Filter by user"), array(''=>'---')+$emps);
+	    $form->addElement('text', 'filter_text', __('Search'), array('placeholder'=>__('Keyword').'...'));
+	    $form->addElement('select', 'filter_user', __('Filter by user'), array(''=>'---')+$emps);
 		
-		$form->addElement("datepicker", "filter_start", __("Start Date"));
-		$form->addElement("datepicker", "filter_end", __("End Date"));
+		$form->addElement('datepicker', 'filter_start', __('Start Date'));
+		$form->addElement('datepicker', 'filter_end', __('End Date'));
 		
 		$form->addElement('submit', 'submit_button', __('Filter'));
 	//	$form->display();
@@ -957,10 +957,10 @@ class Utils_Attachment extends Module {
 		$vd = isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments'] && Base_AclCommon::i_am_admin();
 		//form filtrow
 		$form = & $this->init_module('Libs/QuickForm');
-	    $form->addElement("text", "filter_text", __("Search"), array('placeholder'=>__('Keyword').'...'));
+	    $form->addElement('text', 'filter_text', __('Search'), array('placeholder'=>__('Keyword').'...'));
 		
-		$form->addElement("datepicker", "filter_start", __("Start Date"));
-		$form->addElement("datepicker", "filter_end", __("End Date"));
+		$form->addElement('datepicker', 'filter_start', __('Start Date'));
+		$form->addElement('datepicker', 'filter_end', __('End Date'));
 		
 		$form->addElement('submit', 'submit_button', __('Filter'));
 	//	$form->display();

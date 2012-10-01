@@ -12,11 +12,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_MessengerCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return __("Messenger alarms");
+		return __('Messenger alarms');
 	}
 
 	public static function applet_info() {
-		return __("Displays last alarms");
+		return __('Displays last alarms');
 	}
 	
 	public static function delete_by_parent_module($m) {
@@ -56,7 +56,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 			ob_start();
 			$m = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			ob_clean();
-			$ret['messenger_'.$row['id']] = __('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."<br>".str_replace("\n",'<br>',$m).($row['message']?"<br>".__("Alarm comment: %s",array($row['message'])):'');
+			$ret['messenger_'.$row['id']] = __('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."<br>".str_replace("\n",'<br>',$m).($row['message']?"<br>".__('Alarm comment: %s',array($row['message'])):'');
 		}
 		return array('alerts'=>$ret);
 	}
@@ -94,7 +94,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 
 			$mail = Base_User_SettingsCommon::get('Utils_Messenger','mail');
 			if($mail) {
-				$msg = __('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'],2)))."\n".$fret."\n".($row['message']?__("Alarm comment: %s",array($row['message'])):'');
+				$msg = __('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'],2)))."\n".$fret."\n".($row['message']?__('Alarm comment: %s',array($row['message'])):'');
 				Base_MailCommon::send($mail,'Alert!',$msg);
 				$ret .= $mail.' => <pre>'.$msg.'</pre><br>';
 			}

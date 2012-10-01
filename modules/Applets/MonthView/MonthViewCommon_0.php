@@ -11,11 +11,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_MonthViewCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return __("Month View");
+		return __('Month View');
 	}
 
 	public static function applet_info() {
-		return __("Displays Month and marks days with events");
+		return __('Displays Month and marks days with events');
 	}
 
 }

@@ -26,7 +26,7 @@ class Base_About extends Module {
 	}
 
 	public function caption() {
-		return __("About");
+		return __('About');
 	}
 
 }

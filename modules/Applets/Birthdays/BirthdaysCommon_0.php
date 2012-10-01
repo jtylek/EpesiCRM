@@ -11,11 +11,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_BirthdaysCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return __("Birthdays");
+		return __('Birthdays');
 	}
 
 	public static function applet_info() {
-		return __("Displays upcoming Birthdays of your favorite contacts.");
+		return __('Displays upcoming Birthdays of your favorite contacts.');
 	}
 
 	// Returns array of parameters back to the applet as $conf

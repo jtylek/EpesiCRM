@@ -7,12 +7,12 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 	private $name = "";
 	
 	public static function applet_caption() {
-    	return __("Quick Search");
+    	return __('Quick Search');
 
 	}
 
 	public static function applet_info() {
-    	return __("Quick Search"); //here can be associative array
+    	return __('Quick Search'); //here can be associative array
 	}
 	
 	public static function applet_settings(){

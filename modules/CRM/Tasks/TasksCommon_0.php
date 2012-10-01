@@ -13,11 +13,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_TasksCommon extends ModuleCommon {
 	public static function applet_caption() {
 		if (Utils_RecordBrowserCommon::get_access('task','browse'))
-			return __("Tasks");
+			return __('Tasks');
 	}
 
 	public static function applet_info() {
-		return __("To do list");
+		return __('To do list');
 	}
 
 	public static function applet_info_format($r){
@@ -236,11 +236,11 @@ class CRM_TasksCommon extends ModuleCommon {
 		if (!$a) return __('Private record');
 
 		if($a['deadline'])
-			$date = __("Task Deadline: %s",array(Base_RegionalSettingsCommon::time2reg($a['deadline'],true,false)));
+			$date = __('Task Deadline: %s',array(Base_RegionalSettingsCommon::time2reg($a['deadline'],true,false)));
 		else
-			$date = __("Task without deadline");
+			$date = __('Task without deadline');
 
-		return $date."\n".__("Title: %s",array($a['title']));
+		return $date."\n".__('Title: %s',array($a['title']));
 	}
 
 	///////////////////////////////////

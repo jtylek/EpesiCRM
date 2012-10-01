@@ -15,11 +15,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_ClockCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return __("Clock");
+		return __('Clock');
 	}
 
 	public static function applet_info() {
-		return __("Analog JS clock"); //here can be associative array
+		return __('Analog JS clock'); //here can be associative array
 	}
 
 	public static function applet_settings() {

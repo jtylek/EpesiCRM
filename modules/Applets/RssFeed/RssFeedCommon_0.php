@@ -14,11 +14,11 @@ class Applets_RssFeedCommon extends ModuleCommon {
 	private static $feed;
 	
 	public static function applet_caption() {
-		return __("RSS Feed");
+		return __('RSS Feed');
 	}
 
 	public static function applet_info() {
-		return __("Simple RSS Feed"); //here can be associative array
+		return __('Simple RSS Feed'); //here can be associative array
 	}
 
 	public static function applet_settings() {

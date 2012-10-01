@@ -22,10 +22,10 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	}
 
 	public static function applet_caption() {
-		return __("Watchdog");
+		return __('Watchdog');
 	}
 	public static function applet_info() {
-		return __("Helps tracking changes made in the system");
+		return __('Helps tracking changes made in the system');
 	}
 	public static function applet_settings() {
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');

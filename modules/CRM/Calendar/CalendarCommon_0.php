@@ -71,11 +71,11 @@ class CRM_CalendarCommon extends ModuleCommon {
 		if(!Base_AclCommon::check_permission('Calendar'))
 			return false;
 
-		return __("Agenda");
+		return __('Agenda');
 	}
 
 	public static function applet_info() {
-		return __("Displays Calendar Agenda");
+		return __('Displays Calendar Agenda');
 	}
 
 	public static function applet_settings() {

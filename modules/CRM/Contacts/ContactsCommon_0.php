@@ -1237,12 +1237,12 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function applet_caption() {
 		$br_contact = Utils_RecordBrowserCommon::get_access('contact','browse');
 		if ($br_contact===true || !isset($br_contact['login']))
-			return __("Recent Contacts");
+			return __('Recent Contacts');
 		return false;
     }
 
     public static function applet_info() {
-        return __("Displays recent/favorites contacts");
+        return __('Displays recent/favorites contacts');
     }
 
     public static function applet_settings() {

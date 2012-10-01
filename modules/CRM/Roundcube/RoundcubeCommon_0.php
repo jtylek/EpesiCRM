@@ -210,12 +210,12 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
     public static function applet_caption() {
         if(function_exists('imap_open'))
-            return __("Mail indicator");
+            return __('Mail indicator');
         return false;
     }
 
     public static function applet_info() {
-        return __("Checks if there is new mail");
+        return __('Checks if there is new mail');
     }
 
     public static function applet_settings() {

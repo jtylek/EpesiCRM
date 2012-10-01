@@ -18,13 +18,13 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	
 	public static function applet_caption() {
 	    if(Base_AclCommon::check_permission('Shoutbox'))
-    		return __("Shoutbox");
+    		return __('Shoutbox');
         return false;
 	}
 
 	public static function applet_info() {
 	    if(Base_AclCommon::check_permission('Shoutbox'))
-    		return __("Mini shoutbox"); //here can be associative array
+    		return __('Mini shoutbox'); //here can be associative array
         return '';
 	}
 	

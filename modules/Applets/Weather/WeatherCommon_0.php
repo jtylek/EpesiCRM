@@ -14,11 +14,11 @@ class Applets_WeatherCommon extends ModuleCommon {
 	private static $url;
 
 	public static function applet_caption() {
-		return __("Weather");
+		return __('Weather');
 	}
 
 	public static function applet_info() {
-		return __("Simple Weather applet"); //here can be associative array
+		return __('Simple Weather applet'); //here can be associative array
 	}
 
 	public static function applet_settings() {

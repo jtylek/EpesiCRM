@@ -11,11 +11,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_NoteCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return __("Note");
+		return __('Note');
 	}
 
 	public static function applet_info() {
-		return __("Simple note applet"); //here can be associative array
+		return __('Simple note applet'); //here can be associative array
 	}
 	
 //	public static function applet_icon() {

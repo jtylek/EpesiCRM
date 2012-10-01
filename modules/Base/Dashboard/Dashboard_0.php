@@ -441,7 +441,7 @@ class Base_Dashboard extends Module {
 	}
 
 	public function caption() {
-		return __("Dashboard");
+		return __('Dashboard');
 	}
 
 	//////////////////////////////////////////////////////////

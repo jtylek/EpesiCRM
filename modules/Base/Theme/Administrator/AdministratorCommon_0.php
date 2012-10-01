@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Theme_AdministratorCommon extends Base_AdminModuleCommon {
 	public static function admin_caption() {
-		return array('label'=>__("Change theme"), 'section'=>__('Server Configuration'));
+		return array('label'=>__('Change theme'), 'section'=>__('Server Configuration'));
 	}	
 
 	public static function body_access() {

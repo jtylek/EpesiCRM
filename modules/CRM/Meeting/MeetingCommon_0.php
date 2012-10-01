@@ -64,11 +64,11 @@ class CRM_MeetingCommon extends ModuleCommon {
 	
 	public static function applet_caption() {
 		if (Utils_RecordBrowserCommon::get_access('crm_meeting','browse'))
-			return __("Meetings");
+			return __('Meetings');
 	}
 
 	public static function applet_info() {
-		return __("Meetings list");
+		return __('Meetings list');
 	}
 
 	public static function meeting_bbcode($text, $param, $opt) {
@@ -814,9 +814,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 		if($a['duration']<0)
 			$date = __('Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['date'],false)));
 		else
-			$date = __("Date: %s",array(Base_RegionalSettingsCommon::time2reg($a['date'].' '.date('H:i:s',strtotime($a['time'])),2)));
+			$date = __('Date: %s',array(Base_RegionalSettingsCommon::time2reg($a['date'].' '.date('H:i:s',strtotime($a['time'])),2)));
 
-		return $date."\n".__("Title: %s",array($a['title']));
+		return $date."\n".__('Title: %s',array($a['title']));
 	}
 
 

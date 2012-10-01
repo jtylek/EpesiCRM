@@ -238,7 +238,7 @@ class CRM_Calendar extends Module {
 	}
 
 	public function caption() {
-		return __("Calendar");
+		return __('Calendar');
 	}
 }
 ?>

@@ -68,7 +68,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     }
 
     public function caption() {
-        return __("My settings: user");
+        return __('My settings: user');
     }
 
     public function submit_user_preferences($data) {

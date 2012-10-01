@@ -13,11 +13,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_LoginAuditCommon extends ModuleCommon {
 
 	public static function applet_caption() {
-		return __("Last Login");
+		return __('Last Login');
 	}
 	
 	public static function applet_info() {
-		return __("Simple aplet which displays your last login information (date, IP adress)");
+		return __('Simple aplet which displays your last login information (date, IP adress)');
 	}
 	
 	public static function admin_caption() {

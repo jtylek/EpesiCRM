@@ -495,7 +495,7 @@ class Base_EpesiStore extends Module {
         if (!count($modules))
             return;
 
-        print(__("Modules") . ':<br/>');
+        print(__('Modules') . ':<br/>');
         foreach ($modules as $mod) {
             $this->display_module_entry($mod);
         }
@@ -611,7 +611,7 @@ class Base_EpesiStore extends Module {
                 if($mi)
                     $m = "{$mi['repository']}::{$mi['name']}";
                 else
-                    $m = '(' . __("Unrecognized module") . ')';
+                    $m = '(' . __('Unrecognized module') . ')';
             }
             $required_modules = implode(', ', $required_modules);
         }
