@@ -431,6 +431,7 @@ class Base_EpesiStore extends Module {
                 $this->download_dequeue_item($ml);
             }
         }
+        Base_SetupCommon::refresh_available_modules();
         $this->navigate('form_downloaded_status', array($module_licenses, $status));
     }
 
