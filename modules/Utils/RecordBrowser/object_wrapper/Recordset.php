@@ -17,7 +17,7 @@ abstract class RBO_Recordset {
         $this->tab = $this->table_name();
         $this->class = $this->class_name();
         if (!(is_a($this->class, 'RBO_Record', true)))
-            trigger_error('Record class ('.$this->class.') for recordset '.$this->tab.' is not instance of RBO_Record', E_USER_ERROR);
+            trigger_error('Record class (' . $this->class . ') for recordset ' . $this->tab . ' is not instance of RBO_Record', E_USER_ERROR);
     }
 
     private function record_to_object($array) {
@@ -122,6 +122,17 @@ abstract class RBO_Recordset {
     }
 
     /**
+     * Get records count from recordset.
+     * @param array $crits
+     * @param bool $admin Admin mode - count deleted records also
+     * @param array $order
+     * @return int records count
+     */
+    public function get_records_count($crits = null, $admin = false, $order = array()) {
+        return Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin, $order);
+    }
+
+    /**
      * Add new record to recordset, when array is supplied and return it's object
      * or just returns empty data object to fill it with data and perform save()
      * method.
@@ -198,7 +209,7 @@ abstract class RBO_Recordset {
             $info['created_by'] = $created_by;
         Utils_RecordBrowserCommon::set_record_properties($this->tab, $id, $info);
     }
-    
+
     public function set_icon($icon_file) {
         Utils_RecordBrowserCommon::set_icon($this->tab, $icon_file);
     }
