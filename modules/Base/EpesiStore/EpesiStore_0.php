@@ -539,11 +539,38 @@ class Base_EpesiStore extends Module {
         $this->back_button();
         $this->payments_data_button();
 
-        $url = 'modules/Base/EpesiStore/payment_frame.php';
-        $description = $modules ? "Payment for: $modules" : null;
-        $params = http_build_query(array('order_id' => $order_id, 'value' => $value, 'curr_code' => $curr_code, 'user' => Base_AclCommon::get_user(), 'description' => $description));
-        $iframe = '<iframe id="payment_frame" style="width:100%; border: 0; height:600px;" name="payment_frame" src="' . "$url?$params" . '"></iframe>';
-        print($iframe);
+        $payment_url = Base_EssClientCommon::get_payments_url();
+        $credentials = Base_EpesiStoreCommon::get_payment_credentials();
+        $description = $modules ? "Payment for: $modules" : "Order id: $order_id";
+        $description = htmlspecialchars($description);
+        foreach ($credentials as & $c)
+            $c = htmlspecialchars($c);
+
+        echo '
+<form action="' . $payment_url . '" method="post" name="formPayment" target="_blank">
+    <input type="hidden" name="action_url" value="' . $payment_url . '" />
+    <input type="hidden" name="first_name" value="' . $credentials['first_name'] . '" />
+    <input type="hidden" name="last_name" value="' . $credentials['last_name'] . '" />
+    <input type="hidden" name="address_1" value="' . $credentials['address_1'] . '" />
+    <input type="hidden" name="address_2" value="' . $credentials['address_2'] . '" />
+    <input type="hidden" name="city" value="' . $credentials['city'] . '" />
+    <input type="hidden" name="postal_code" value="' . $credentials['postal_code'] . '" />
+    <input type="hidden" name="country" value="' . $credentials['country'] . '" />
+    <input type="hidden" name="email" value="' . $credentials['email'] . '" />
+    <input type="hidden" name="phone" value="' . $credentials['phone'] . '" />
+    <input type="hidden" name="record_id" value="' . htmlspecialchars($order_id) . '" />
+    <input type="hidden" name="record_type" value="ess_orders" />
+    <input type="hidden" name="amount" value="' . htmlspecialchars($value) . '" />
+    <input type="hidden" name="currency" value="' . htmlspecialchars($curr_code) . '" />
+    <input type="hidden" name="description" value="' . $description . '" />
+    <input type="hidden" name="auto_process" value="1" />
+    <input type="hidden" name="lang" value="' . Base_LangCommon::get_lang_code() . '"/>
+</form>
+';
+        $open_js = 'document.formPayment.submit()';
+        eval_js($open_js);
+        $here = '<a href="#" onclick="' . $open_js . '">' . __("here") . '</a>';
+        print("<p>" . __("Payment form should be automatically launched in new window. If your browser blocked it please click") . " $here. </p>");
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
