@@ -209,11 +209,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f6f8', end
 
 .main table {
     width: 90%;
-    margin-left: 5%;
 }
 
 .main tr {
-    height: 30px;
+    height: 23px;
 }
 
 .data {
@@ -261,4 +260,156 @@ span.required_note_star {
 
 span.required_note_star {
     color: #FF0000;
+}
+
+.contents table {
+    background-color: #FFFFFF;
+    /*border-top: 1px solid #B3B3B3;*/
+    border-left: 1px solid #B3B3B3;
+}
+
+.contents table input[type="text"],
+.contents table select {
+	width: 90%;
+}
+
+.contents table a.button {
+	width: 20px;
+	text-align:left;
+}
+
+.contents table > thead > tr > th {
+    font-weight: normal;
+    background-repeat: repeat-x;
+    text-align: left;
+    min-height: 25px;
+    /*border-top: 1px solid #B3B3B3;*/
+    border-right: 1px solid #B3B3B3;
+    border-bottom: 1px solid #FFFFFF;
+	color: #FFFFFF;
+    vertical-align: middle;
+
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+	/* css3 blue gradient */
+	background: #3f6a8c; /* Old browsers */
+	background: -moz-linear-gradient(top,  #3f6a8c 0%, #5087b2 50%, #3f6a8c 51%, #335772 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3f6a8c), color-stop(50%,#5087b2), color-stop(51%,#3f6a8c), color-stop(100%,#335772)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* IE10+ */
+	background: linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f6a8c', endColorstr='#335772',GradientType=0 ); /* IE6-9 */
+	/* end css3  gradient */
+}
+.epesi_rtl .contents table > thead > tr > th {
+    text-align: right;
+}
+
+.contents table > thead > tr > th > .GB_margin {
+	margin: 0px 40% auto 5px;
+}
+
+.contents table > thead > tr > th > span {
+	color: #FFFFFF;
+    display: block;
+	height: 100%;
+    line-height: 20px;
+    padding: 3px 10px 3px 3px;
+}
+.contents table > thead > tr > th a {
+	color: #FFFFFF;
+	width: 120%;
+	display: block;
+}
+
+.contents table > thead > tr > th:hover {	
+	/* css3 blue gradient - reverse */
+background: #5b8eb5; /* Old browsers */
+background: -moz-linear-gradient(top,  #5b8eb5 0%, #77a2c3 50%, #5b8eb5 51%, #4b7fa7 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5b8eb5), color-stop(50%,#77a2c3), color-stop(51%,#5b8eb5), color-stop(100%,#4b7fa7)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top,  #5b8eb5 0%,#77a2c3 50%,#5b8eb5 51%,#4b7fa7 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top,  #5b8eb5 0%,#77a2c3 50%,#5b8eb5 51%,#4b7fa7 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top,  #5b8eb5 0%,#77a2c3 50%,#5b8eb5 51%,#4b7fa7 100%); /* IE10+ */
+background: linear-gradient(top,  #5b8eb5 0%,#77a2c3 50%,#5b8eb5 51%,#4b7fa7 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5b8eb5', endColorstr='#4b7fa7',GradientType=0 ); /* IE6-9 */
+	/* end css3 blue gradient - reverse */
+}
+.plus-minus,
+.plus-minus:hover {
+	width: 8px!important;
+	height: 8px !important;
+	float: left;
+	margin-top: 5px;
+	background: none !important;
+}
+
+.contents table > thead > tr > th input {
+    display: block;
+    width: 100%;
+    border: 0px;
+	padding: 3px;
+    background-color: #FFFFF9;
+	-webkit-box-shadow: inset 1px 1px 1px #333;
+	-moz-box-shadow: inset 1px 1px 1px #333;
+	box-shadow: inset 1px 1px 1px #333;
+}
+
+.contents table > thead > tr > th input:focus {
+    background-color: #ffffa5;
+}
+
+.contents table > tbody {
+	overflow: auto;
+}
+
+.contents table > tbody > tr {
+	background-color: #FFFFFF;
+}
+
+.contents table > tbody > tr:hover {
+	background-color: #F0F0F0;
+}
+
+.contents table td {
+    text-align: left;
+    border-right: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
+    height: 14px;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 3px;
+    padding-bottom: 2px;
+	vertical-align: top;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	line-height: 14px;
+}
+.epesi_rtl .contents table td {
+    text-align: right;
+}
+
+.contents table td a img {
+	margin: 0 1px;
+}
+
+.contents table > tbody > td img {
+	vertical-align: middle;
+}
+
+.contents table#Utils_GenericBrowser__navigation {
+	border: none;
+	background: none;
+}
+
+.contents table#Utils_GenericBrowser__navigation td {
+	border: none;
+}
+
+.contents table#Utils_GenericBrowser__navigation tr:hover,
+.contents table#Utils_GenericBrowser__navigation tr {
+	background: none;
 }

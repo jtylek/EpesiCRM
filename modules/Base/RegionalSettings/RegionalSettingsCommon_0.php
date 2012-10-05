@@ -214,6 +214,8 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'.utf8',
 				$lang_code.'.UTF-8',
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
+		$lang_code = 'en';
+		setlocale(LC_NUMERIC,'en_EN.utf8','en_EN.UTF-8','en.utf8','en.UTF-8','english');
 	}
 
 	public static function set_tz() {

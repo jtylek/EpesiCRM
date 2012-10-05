@@ -6,18 +6,20 @@
 	  <link href="{$url}/{$theme_dir}/Utils/FrontPage/default.css" type="text/css" rel="stylesheet"/>
 </head>
 <body>
-		<table id="banner" border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td class="page_header image"><img src="{$url}/{$logo}" width="193" height="83"></td>
-				<td class="page_header">{$header}&nbsp;</td>
-				<td class="page_header image"></td>
-			</tr>
-		</table>
-		<br>
+		{if $header!==null}
+			<table id="banner" border="0" cellpadding="0" cellspacing="0">
+				<tr>
+					<td class="page_header image"><img src="{$url}/{$logo}" width="193" height="83"></td>
+					<td class="page_header">{$header}&nbsp;</td>
+					<td class="page_header image"></td>
+				</tr>
+			</table>
+			<br>
+		{/if}
 		<center>
 		<table border="0" cellpadding="10" cellspacing="8" style="width:{if $info}100%{else}800px{/if}; vertical-align: top;">
 			<tr>
-				<td class="main frame" rowspan="2">
+				<td class="main frame contents" rowspan="2">
 					{$contents}
 				</td>
 				{if $info}

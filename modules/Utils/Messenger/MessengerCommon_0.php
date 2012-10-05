@@ -35,6 +35,14 @@ class Utils_MessengerCommon extends ModuleCommon {
 
 	}
 	
+	public static function get_alarms($id) {
+		return DB::GetAssoc('SELECT id, alert_on FROM utils_messenger_message WHERE page_id=%s', array(md5($id)));
+	}
+	
+	public static function update_time($id, $time) {
+		DB::Execute('UPDATE utils_messenger_message SET alert_on=%T WHERE id=%s', array($time, $id));
+	}
+	
 	public static function add($id,$parent_type,$message,$alert_on, $callback_method,$callback_args=null,$users=null) {
 		$callback_args = isset($callback_args)?((is_array($callback_args))?$callback_args:array($callback_args)):array();
 		if(!isset($users)) $users = Acl::get_user();

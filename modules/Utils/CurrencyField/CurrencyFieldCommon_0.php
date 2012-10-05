@@ -53,7 +53,8 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 				$c = $c[1];
 			}
 		}
-		$v=str_replace('.', self::get_decimal_point($c), round($v,self::get_precission($c)));
+		$v = round($v,self::get_precission($c));
+		$v = str_replace('.', self::get_decimal_point($c), $v);
 		return $v.'__'.$c;
 	}
 

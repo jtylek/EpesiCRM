@@ -398,6 +398,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 	public static function submit_meeting($values, $mode) {
 		$me = CRM_ContactsCommon::get_my_record();
 		switch ($mode) {
+		case 'delete':
+			Utils_MessengerCommon::delete_by_id('CRM_Calendar_Event:'.$values['id']);
+			break;
 		case 'display':
 			$pdf = Utils_RecordBrowser::$rb_obj->pack_module('Libs/TCPDF', 'L');
 			if ($pdf->prepare()) {
@@ -439,6 +442,15 @@ class CRM_MeetingCommon extends ModuleCommon {
 			return $ret;
 		case 'edit':
 			self::subscribed_employees($values);
+			$alarms = Utils_MessengerCommon::get_alarms('CRM_Calendar_Event:'.$values['id']);
+			$old = Utils_RecordBrowserCommon::get_record('crm_meeting', $values['id']);
+			$old_time = strtotime($old['date'].' '.date('H:i:s', strtotime($old['time'])));
+			$new_time = strtotime($values['date'].' '.date('H:i:s', strtotime($values['time'])));
+			foreach ($alarms as $id=>$time) {
+				$time = strtotime($time);
+				$diff = $old_time - $time;
+				Utils_MessengerCommon::update_time($id, $new_time - $diff);
+			}
 		case 'add':
 			if (isset($values['duration_switch']) && !$values['duration_switch']) {
 				$values['duration'] = strtotime($values['end_time']) - strtotime($values['time']);
