@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_MainModuleIndicatorInstall extends ModuleInstall {
 	public function install() {
-		Variable::set('base_page_title','Epesi');
+		Variable::set('base_page_title','EPESI');
 		Variable::set('show_caption_in_title','1');
 		Variable::set('show_module_indicator','1');
 		Variable::set('logo_file','');

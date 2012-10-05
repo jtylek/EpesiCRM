@@ -23,7 +23,7 @@ class BackupUtil {
     }
 
     function create_backup_of_epesi() {
-        $description = "Epesi ver " . EPESI_VERSION . " rev " . EPESI_REVISION;
+        $description = "EPESI ver " . EPESI_VERSION . " rev " . EPESI_REVISION;
         return $this->_create_backup('.', $description);
     }
 
