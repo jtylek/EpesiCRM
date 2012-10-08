@@ -102,27 +102,30 @@ $checks[] = array('label'=>'Error reporting', 'tests'=>$error_tests, 'solution'=
 // ********************* ERRORS ***********************
 
 // ********************* EXECUTION SETTINGS ***********************
-$mem = str_replace('M', '', ini_get('memory_limit'));
-if ($mem!==(string)intVal($mem)) $mem_s = 2;
+$mem = ini_get('memory_limit');
+if (strpos($mem, 'M')===false) $mem_s = 2;
 else {
+	$mem = str_replace('M', '', $mem);
 	if ($mem<32) $mem_s = 2;
 	elseif ($mem==32) $mem_s = 1;
 	else $mem_s = 0;
 	$mem .= ' MB';
 }
 
-$upload_size = str_replace('M', '', ini_get('upload_max_filesize'));
-if ($upload_size!==(string)intVal($upload_size)) $upload_size_s = 2;
+$upload_size = ini_get('upload_max_filesize');
+if (strpos($upload_size, 'M')===false) $upload_size_s = 2;
 else {
+	$upload_size = str_replace('M', '', $upload_size);
 	if ($upload_size<8) $upload_size_s = 2;
 	elseif ($upload_size==8) $upload_size_s = 1;
 	else $upload_size_s = 0;
 	$upload_size .= ' MB';
 }
 
-$post_size = str_replace('M', '', ini_get('post_max_size'));
-if ($post_size!==(string)intVal($post_size)) $post_size_s = 2;
+$post_size = ini_get('post_max_size');
+if (strpos($post_size, 'M')===false) $post_size_s = 2;
 else {
+	$post_size = str_replace('M', '', $post_size);
 	if ($post_size<16) $post_size_s = 2;
 	elseif ($post_size==16) $post_size_s = 1;
 	else $post_size_s = 0;
@@ -134,11 +137,28 @@ if (version_compare(PHP_VERSION, '5.4') >= 0)
 else
 	$safe_mode = ini_get('safe_mode');
 
+$lang_code = 'pl';
+setlocale(LC_ALL,$lang_code.'_'.strtoupper($lang_code).'.utf8',
+		$lang_code.'_'.strtoupper($lang_code).'.UTF-8',
+		$lang_code.'.utf8',
+		$lang_code.'.UTF-8','polish');
+setlocale(LC_NUMERIC,'en_EN.utf8','en_EN.UTF-8','en_US.utf8','en_US.UTF-8','C','POSIX','en_EN','en_US','en','en.utf8','en.UTF-8','english');
+$str = print_r(1.1,true);
+
+if (strpos($str,'.') === false) {
+	$loc = 'ERROR';
+	$loc_s = 1;
+} else {
+	$loc = 'OK';
+	$loc_s = 0;
+}
+
 $tests = array();
 $tests[] = array('label'=>'Safe mode', 'status'=>!$safe_mode?'Disabled':'Enabled', 'severity'=>!$safe_mode?0:2);
 $tests[] = array('label'=>'Memory limit', 'status'=>$mem, 'severity'=>$mem_s);
 $tests[] = array('label'=>'Upload file size', 'status'=>$upload_size, 'severity'=>$upload_size_s);
 $tests[] = array('label'=>'POST max size', 'status'=>$post_size, 'severity'=>$post_size_s);
+$tests[] = array('label'=>'Locale settings', 'status'=>$loc, 'severity'=>$loc_s);
 
 $checks[] = array('label'=>'Script execution', 'tests'=>$tests, 'solution'=>'http://forum.epesibim.com');
 // ********************* EXECUTION SETTINGS ***********************
