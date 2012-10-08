@@ -43,6 +43,8 @@ class Base_EpesiStore extends Module {
                 $button_label,
                 $this->create_callback_href(array($this,'display_registration_form')));
 
+		Base_ActionBarCommon::add('view', __('Invoices'), $this->create_callback_href(array($this,'display_invoices')));
+
         $setup = $this->init_module('Base_Setup');
         if (Base_SetupCommon::is_simple_setup()) {
 			if (!$this->isset_module_variable('filter_set')) {
@@ -63,6 +65,15 @@ class Base_EpesiStore extends Module {
         $tb->tag();
         $this->display_module($tb);
     }
+	
+	public function display_invoices() {
+        if ($this->is_back())
+            return false;
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+		$params = array('key'=>Base_EssClientCommon::get_license_key(), 'noheader'=>1);
+		print('<iframe src="'.Base_EssClientCommon::get_invoices_url().'list_invoices.php?'.http_build_query($params).'" width="800px" style="border: none;" height="600px"></iframe>');
+		return true;
+	}
 	
 	public function setup_admin($setup) {
 		$this->display_module($setup, array(true), 'admin');
