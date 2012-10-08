@@ -93,7 +93,7 @@ class Base_AclCommon extends ModuleCommon {
 	 * @return bool 
 	 */
 	public static function is_user() {
-		return isset($_SESSION['user']);
+		return self::get_user()!==null;
 	}
 	
 	public static function basic_clearance($all=false) {
