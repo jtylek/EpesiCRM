@@ -34,6 +34,10 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return 'https://ess.epe.si/payments/';
     }
 
+    public static function get_invoices_url() {
+        return 'https://ess.epe.si/invoice/';
+    }
+
     /**
      * Get first(by id) user that is super administrator and get it's first
      * and last name from crm_contacts
