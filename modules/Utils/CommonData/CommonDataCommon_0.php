@@ -241,14 +241,21 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	}
 
 	public static function get_translated_array($name,$order_by_key=false,$readinfo=false,$silent=false) {
-		// TODO: $readinfo screws translation (array is no longer simple)
-		$arr = self::get_array($name,$order_by_key,$readinfo,$silent);
+		if ($readinfo) $info = self::get_array($name,$order_by_key,$readinfo,$silent);
+		$arr = self::get_array($name,$order_by_key,false,$silent);
 		if ($arr===null) return null;
 		$arr = self::translate_array($arr);
 		if ($order_by_key)
-			ksort($arr);
+			ksort($arr, SORT_LOCALE_STRING);
 		else
-			asort($arr);
+			asort($arr, SORT_LOCALE_STRING);
+		if ($readinfo) {
+			foreach ($arr as $k=>$v) {
+				$i = $info[$k];
+				$i[0] = $i['value'] = $v;
+				$arr[$k] = $i;
+			}
+		}
 		return $arr;
 	}
 
