@@ -241,17 +241,19 @@ class Base_EpesiStore extends Module {
         }
 
         $f = $this->init_module('Libs/QuickForm');
+        $show_cart = true;
         if ($f->validate() && $f->exportValue('submited')) {
             $recent_items = $this->_cart_items_on_server($items);
             if ($recent_items == $items) {
+                $show_cart = false;
                 $this->form_buy_items($items);
             } else {
                 print('<span style="color:red">' . __('Some modules has changed on server. This is updated list.') . '</span>');
                 Base_EpesiStoreCommon::set_cart($recent_items);
-                $this->display_cart_items($recent_items);
-                $f->display();
+                $items = $recent_items;
             }
-        } else {
+        } 
+        if ($show_cart) {
             $this->display_cart_items($items);
             Base_ActionBarCommon::add('folder', __('Buy'), $f->get_submit_form_href());
             $f->display();
@@ -259,11 +261,10 @@ class Base_EpesiStore extends Module {
     }
 
     private function _cart_items_on_server($items) {
-        $remote_item = array();
-        foreach ($items as $r) {
-            $remote_item[] = Base_EpesiStoreCommon::get_module_info($r['id'], true);
-        }
-        return $remote_item;
+        $ids = array();
+        foreach ($items as $r)
+            $ids[] = $r['id'];
+        return Base_EpesiStoreCommon::get_module_info($ids);
     }
 
     private function form_buy_items($items) {
@@ -305,7 +306,7 @@ class Base_EpesiStore extends Module {
             if (isset($it['id']) && $it['id'] == $r['id'])
                 return;
         }
-        $items[] = $r;
+        $items[$r['id']] = $r;
         Base_EpesiStoreCommon::set_cart($items);
     }
 
