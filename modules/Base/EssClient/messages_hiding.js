@@ -22,7 +22,7 @@ function client_messages_add_discard_buttons() {
         var single_messages = childs[i].childElements();
         for(var j = 0; j < single_messages.length; j++) {
             var div = document.createElement("div");
-            div.innerHTML = "discard";
+            div.innerHTML = ess_client_messages_discard_label;
             div.addClassName("popup_notice_frame_close_button");
             div.onclick = function() {
                 hide_client_message(this.parentNode);
