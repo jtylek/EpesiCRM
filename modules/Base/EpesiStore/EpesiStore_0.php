@@ -71,7 +71,13 @@ class Base_EpesiStore extends Module {
             return false;
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		$params = array('key'=>Base_EssClientCommon::get_license_key(), 'noheader'=>1);
-		print('<iframe src="'.Base_EssClientCommon::get_invoices_url().'index.php?'.http_build_query($params).'" width="800px" style="border: none;" height="600px"></iframe>');
+        $form = '<form name="show_invoices" target="invoices" method="POST" action="'.Base_EssClientCommon::get_invoices_url().'">';
+        foreach ($params as $k => $v)
+            $form .= '<input type="hidden" name="' . htmlspecialchars($k) . '" value="' . htmlspecialchars($v) . '">';
+        $form .= '</form>';
+        print($form);
+        print('<iframe name="invoices" width="800px" style="border: none;" height="600px"></iframe>');
+        eval_js('document.show_invoices.submit();');
 		return true;
 	}
 	
