@@ -155,8 +155,6 @@
 	float: left;
 }
 
-.checkbox_on  { background-image: url('images/checkbox_on.png');  }
-.checkbox_off { background-image: url('images/checkbox_off.png'); }
 .radio_on     { background-image: url('images/radio_on.png');     }
 .radio_off    { background-image: url('images/radio_off.png');    }
 
