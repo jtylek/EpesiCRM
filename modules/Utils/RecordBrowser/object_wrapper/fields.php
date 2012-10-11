@@ -244,7 +244,7 @@ class RBO_Field_MultiSelect extends RBO_Field_Select {
 /**
  * @author Adam Bukowski <abukowski@telaxus.com>
  */
-class RBO_Field_Commondata extends RBO_FieldDefinition {
+class RBO_Field_CommonData extends RBO_FieldDefinition {
 
     const type = 'commondata';
 
@@ -261,7 +261,7 @@ class RBO_Field_Commondata extends RBO_FieldDefinition {
     /**
      * Set commondata array name
      * @param string $commondata_array_name
-     * @return \RBO_Field_Commondata
+     * @return \RBO_Field_CommonData
      */
     public function from($commondata_array_name) {
         $this->commondata_array_name = $commondata_array_name;
@@ -277,7 +277,7 @@ class RBO_Field_Commondata extends RBO_FieldDefinition {
      * Set chained select on this field
      * @param RBO_FieldDefinition $field chained select field
      * @param RBO_FieldDefinition $_ several fields may be supplied
-     * @return \RBO_Field_Commondata
+     * @return \RBO_Field_CommonData
      */
     public function chained_select($field, $_ = null) {
         $this->chained_select_fields = func_get_args();
