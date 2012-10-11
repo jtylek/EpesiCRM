@@ -70,14 +70,12 @@ class Base_EpesiStore extends Module {
         if ($this->is_back())
             return false;
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+
+        $action_url = Base_EssClientCommon::get_invoices_url();
 		$params = array('key'=>Base_EssClientCommon::get_license_key(), 'noheader'=>1);
-        $form = '<form name="show_invoices" target="invoices" method="POST" action="'.Base_EssClientCommon::get_invoices_url().'">';
-        foreach ($params as $k => $v)
-            $form .= '<input type="hidden" name="' . htmlspecialchars($k) . '" value="' . htmlspecialchars($v) . '">';
-        $form .= '</form>';
-        print($form);
+        print create_html_form($form_name, $action_url, $params, 'invoices');
         print('<iframe name="invoices" width="800px" style="border: none;" height="600px"></iframe>');
-        eval_js('document.show_invoices.submit();');
+        eval_js("document.{$form_name}.submit();");
 		return true;
 	}
 	
@@ -558,34 +556,29 @@ class Base_EpesiStore extends Module {
         $this->payments_data_button();
 
         $payment_url = Base_EssClientCommon::get_payments_url();
-        $credentials = Base_EpesiStoreCommon::get_payment_credentials();
         $description = $modules ? "Payment for: $modules" : "Order id: $order_id";
-        $description = htmlspecialchars($description);
-        foreach ($credentials as & $c)
-            $c = htmlspecialchars($c);
+        
+        $data = array(
+            'action_url' => $payment_url,
+            'record_id' => $order_id,
+            'record_type' => 'ess_orders',
+            'amount' => $value,
+            'currency' => $curr_code,
+            'description' => $description,
+            'auto_process' => '1',
+            'lang' => Base_LangCommon::get_lang_code(),
+        );
 
-        echo '
-<form action="' . $payment_url . '" method="post" name="formPayment" target="_blank">
-    <input type="hidden" name="action_url" value="' . $payment_url . '" />
-    <input type="hidden" name="first_name" value="' . $credentials['first_name'] . '" />
-    <input type="hidden" name="last_name" value="' . $credentials['last_name'] . '" />
-    <input type="hidden" name="address_1" value="' . $credentials['address_1'] . '" />
-    <input type="hidden" name="address_2" value="' . $credentials['address_2'] . '" />
-    <input type="hidden" name="city" value="' . $credentials['city'] . '" />
-    <input type="hidden" name="postal_code" value="' . $credentials['postal_code'] . '" />
-    <input type="hidden" name="country" value="' . $credentials['country'] . '" />
-    <input type="hidden" name="email" value="' . $credentials['email'] . '" />
-    <input type="hidden" name="phone" value="' . $credentials['phone'] . '" />
-    <input type="hidden" name="record_id" value="' . htmlspecialchars($order_id) . '" />
-    <input type="hidden" name="record_type" value="ess_orders" />
-    <input type="hidden" name="amount" value="' . htmlspecialchars($value) . '" />
-    <input type="hidden" name="currency" value="' . htmlspecialchars($curr_code) . '" />
-    <input type="hidden" name="description" value="' . $description . '" />
-    <input type="hidden" name="auto_process" value="1" />
-    <input type="hidden" name="lang" value="' . Base_LangCommon::get_lang_code() . '"/>
-</form>
-';
-        $open_js = 'document.formPayment.submit()';
+        $credentials = Base_EpesiStoreCommon::get_payment_credentials();
+        foreach (array('first_name', 'last_name', 'address_1', 'address_2',
+            'city', 'postal_code', 'country', 'email', 'phone') as $key) {
+            if (isset($credentials[$key]))
+                $data[$key] = $credentials[$key];
+        }
+        
+        $html = create_html_form($form_name, $payment_url, $data, '_blank');
+        print $html;
+        $open_js = "document.{$form_name}.submit()";
         eval_js($open_js);
         $here = '<a href="#" onclick="' . $open_js . '">' . __("here") . '</a>';
         print("<p>" . __("Payment form should be automatically launched in new window. If your browser blocked it please click") . " $here. </p>");

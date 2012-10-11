@@ -356,6 +356,31 @@ if ( !function_exists('json_encode') ){
 	}
 }
 
+function create_html_form(& $form_name, $action_url, $variables, $target = null, $additional_properties = array(), $method = "POST") {
+    if ($form_name === null)
+        $form_name = uniqid("postform");
+
+    $properties = $additional_properties;
+    if (!is_array($properties))
+        $properties = array();
+    $properties['action'] = $action_url;
+    $properties['method'] = $method;
+    $properties['name'] = $form_name;
+    if ($target !== null)
+        $properties['target'] = $target;
+    $html = '<form';
+    foreach ($properties as $name => $value)
+        $html .= " $name=\"" . htmlspecialchars($value) . "\"";
+    $html .= ">";  // close start tag
+
+    foreach ($variables as $name => $value) {
+        $name = htmlspecialchars($name);
+        $value = htmlspecialchars($value);
+        $html .= '<input type="hidden" name="' . $name . '" value="' . $value . '">';
+    }
+    $html .= "</form>";  // close form
+    return $html;
+}
 
 ////////////////////////////////////////////////////
 // mobile devices
