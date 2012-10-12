@@ -8,7 +8,17 @@
  * @package epesi-base
  */
 
-//define('DEBUG_AUTOLOADS', 1);
+/*
+ * Use below defines to debug autoloading feature.
+ * 'count' - count called includes for specific class name
+ * 'backtrace' - stores backtraces to track place which called autoloader
+ * 
+ * You can see debug info only when it's enabled.
+ * Open your browser to this file.
+ * EPESI_ADDRESS/include/autoloader.php
+ */
+//define('DEBUG_AUTOLOADS', 'count');
+//define('DEBUG_AUTOLOADS', 'backtrace');
 
 if (defined('DEBUG_AUTOLOADS') && DEBUG_AUTOLOADS
         && !defined("_VALID_ACCESS")) {
@@ -22,13 +32,17 @@ if (defined('DEBUG_AUTOLOADS') && DEBUG_AUTOLOADS
     }
     print("<pre>");
     if (isset($_SESSION['debug_autoloads'])) {
-        foreach ($_SESSION['debug_autoloads'] as $class => $bt) {
-            print($class . "\n");
-            foreach ($bt as $btx) {
-                var_dump($btx);
-                print("<hr>");
+        if (DEBUG_AUTOLOADS == 'count') {
+            var_dump($_SESSION['debug_autoloads']);
+        } elseif (DEBUG_AUTOLOADS == 'backtrace') {
+            foreach ($_SESSION['debug_autoloads'] as $class => $bt) {
+                print($class . "\n");
+                foreach ($bt as $btx) {
+                    var_dump($btx);
+                    print("<hr>");
+                }
+                print("<hr><hr>");
             }
-            print("<hr><hr>");
         }
     }
     print("</pre>");
@@ -43,9 +57,17 @@ function epesi_classes_autoloader($class_name) {
     if (defined('DEBUG_AUTOLOADS') && DEBUG_AUTOLOADS) {
         if (!isset($_SESSION['debug_autoloads']))
             $_SESSION['debug_autoloads'] = array();
-        if (!isset($_SESSION['debug_autoloads'][$class_name]))
-            $_SESSION['debug_autoloads'][$class_name] = array();
-        $_SESSION['debug_autoloads'][$class_name][] = debug_backtrace();
+        if (DEBUG_AUTOLOADS == 'count') {
+            if (!isset($_SESSION['debug_autoloads'][$class_name])
+                    || !is_numeric($_SESSION['debug_autoloads'][$class_name]))
+                $_SESSION['debug_autoloads'][$class_name] = 0;
+            $_SESSION['debug_autoloads'][$class_name] += 1;
+        } elseif (DEBUG_AUTOLOADS == 'backtrace') {
+            if (!isset($_SESSION['debug_autoloads'][$class_name])
+                    || !is_array($_SESSION['debug_autoloads'][$class_name]))
+                $_SESSION['debug_autoloads'][$class_name] = array();
+            $_SESSION['debug_autoloads'][$class_name][] = debug_backtrace();
+        }
     }
 
     $file = 'modules' . DIRECTORY_SEPARATOR;
