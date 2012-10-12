@@ -40,7 +40,7 @@ class ModuleManager {
 		$ret = require_once($full_path);
 		ob_end_clean();
 		$x = $module_class_name.'Install';
-		if(!(class_exists($x) && in_array($x, get_declared_classes())) || !array_key_exists('ModuleInstall',class_parents($x)))
+		if(!(class_exists($x, false) && in_array($x, get_declared_classes())) || !array_key_exists('ModuleInstall',class_parents($x)))
 			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
 		self::$modules_install[$module_class_name] = new $x($module_class_name);
 		return true;
@@ -62,7 +62,7 @@ class ModuleManager {
 			require_once ($file_url);
 			ob_end_clean();
 			$x = $class_name.'Common';
-			if(class_exists($x)) {
+			if(class_exists($x, false)) {
 				if(!array_key_exists('ModuleCommon',class_parents($x)))
 					trigger_error('Module '.$path.': Common class should extend ModuleCommon class.',E_USER_ERROR);
 				call_user_func(array($class_name.'Common','Instance'),$class_name);
@@ -80,7 +80,7 @@ class ModuleManager {
 	 * @param string module name
 	 */
 	public static final function include_main($class_name, $version) {
-		if(class_exists($class_name)) return;
+		if(class_exists($class_name, false)) return;
 		$path = self::get_module_dir_path($class_name);
 		$file = self::get_module_file_name($class_name);
 		$file_url = 'modules/' . $path . '/' . $file . '_'.$version.'.php';
@@ -88,7 +88,7 @@ class ModuleManager {
 			ob_start();
 			require_once ($file_url);
 			ob_end_clean();
-			if(!class_exists($class_name) || !array_key_exists('Module',class_parents($class_name)))
+			if(!class_exists($class_name, false) || !array_key_exists('Module',class_parents($class_name)))
 				trigger_error('Module '.$path.': Invalid main file',E_USER_ERROR);
 			return true;
 		}
@@ -704,7 +704,7 @@ class ModuleManager {
 			if (!$loaded)
 				throw new Exception('module '.$mod.' not loaded');
 		}
-		if(!class_exists($mod))
+		if(!class_exists($mod, false))
 			trigger_error('Class not exists: '.$mod,E_USER_ERROR);
 		$m = new $mod($mod,$parent,$name,$clear_vars);
 		return $m;
@@ -821,7 +821,7 @@ class ModuleManager {
 			if(file_exists($file_url)) {
 				$ret .= file_get_contents ($file_url);
 				$ret .= '<?php $x = \''.$module.'Common\';'.
-					'if(class_exists($x)){ '.
+					'if(class_exists($x, false)){ '.
 						'if(!array_key_exists(\'ModuleCommon\',class_parents($x)))'.
 							'trigger_error(\'Module '.$path.': Common class should extend ModuleCommon class.\',E_USER_ERROR);'.
 							'call_user_func(array($x,\'Instance\'),\''.$module.'\');'.
@@ -870,7 +870,7 @@ class ModuleManager {
 	 */
 	public static final function check_access($mod, $m) {
 		$comm = $mod.'Common';
-		if(class_exists($comm)) {
+		if(class_exists($comm, false)) {
 			$sing = call_user_func(array($comm,'Instance'));
 			if (method_exists($sing, $m . '_access') &&
 				!call_user_func(array($sing, $m . '_access')))
@@ -886,7 +886,7 @@ class ModuleManager {
 			$ret = array();
 			ob_start();
 			foreach(self::$modules as $name=>$version)
-				if(class_exists($name.'Common') && method_exists($name.'Common', $method)) {
+				if(class_exists($name.'Common', false) && method_exists($name.'Common', $method)) {
 					$ret[$name] = call_user_func_array(array($name.'Common',$method),$args);
 				}
 			ob_end_clean();
@@ -901,7 +901,7 @@ class ModuleManager {
 		if(!isset($cache[$cache_id]) || !$cached) {
 			$ret = array();
 			foreach(self::$modules as $name=>$version)
-				if(class_exists($name.'Common') && method_exists($name.'Common', $method)) {
+				if(class_exists($name.'Common', false) && method_exists($name.'Common', $method)) {
 					$ret[] = $name;
 				}
 			$cache[$cache_id]=&$ret;
