@@ -268,6 +268,10 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
         return $this;
     }
 
+    /**
+     * Set sorting by commondata array keys
+     * @return \RBO_Field_CommonData
+     */
     public function set_order_by_key() {
         $this->order_by_key = $value;
         return $this;
@@ -308,10 +312,15 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
 /**
  * @author Adam Bukowski <abukowski@telaxus.com>
  */
-class RBO_PageSplit extends RBO_FieldDefinition {
+class RBO_Field_PageSplit extends RBO_FieldDefinition {
 
     const type = 'page_split';
 
+    /**
+     * Special field which tells to insert new tab in view. All following
+     * fields will be shown under this new tab.
+     * @param string $name String to display as tab name
+     */
     public function __construct($name) {
         parent::__construct($name, self::type);
     }

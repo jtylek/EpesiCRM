@@ -193,6 +193,15 @@ abstract class RBO_Recordset {
         return Utils_RecordBrowserCommon::uninstall_recordset($this->tab);
     }
 
+    public function new_record_field($definition) {
+        if (!is_array($definition)
+                && is_a($definition, 'RBO_FieldDefinition')) {
+            $definition = $definition->get_definition();
+        }
+
+        return Utils_RecordBrowserCommon::new_record_field($this->tab, $definition);
+    }
+
     public function get_caption() {
         return Utils_RecordBrowserCommon::get_caption($this->tab);
     }
