@@ -4,7 +4,7 @@
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Telaxus LLC
  * @license MIT
- * @version 20111207
+ * @version 20121013
  * @package epesi-Base
  * @subpackage EssClient
  */
@@ -14,9 +14,6 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     const VAR_LICENSE_KEY = 'license_key';
     const VAR_INSTALLATION_STATUS = 'ess_installations_status';
-	public static $error_inactive;
-	public static $error_access_repo;
-	public static $error_create_license;
     
     public static function menu() {
         if (!self::admin_access())
@@ -27,10 +24,12 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function get_server_url() {
+//        return 'http://localhost/epesi/modules/Custom/ESS/serv/';
         return 'https://ess.epe.si/';
     }
 
     public static function get_payments_url() {
+//        return 'http://bukowski.no-ip.info/epesi/modules/Premium/Payments/';
         return 'https://ess.epe.si/payments/';
     }
 
@@ -239,10 +238,5 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
 }
-
-Base_EssClientCommon::$error_inactive = _M('Module not active');
-Base_EssClientCommon::$error_access_repo = _M('Cannot access repository');
-Base_EssClientCommon::$error_create_license = _M('Cannot create license for module');
-
 
 ?>

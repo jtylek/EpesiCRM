@@ -3,9 +3,9 @@
 /**
  * 
  * @author Adam Bukowski <abukowski@telaxus.com>
- * @copyright Copyright &copy; 2011, Telaxus LLC
+ * @copyright Copyright &copy; 2011,2012 Telaxus LLC
  * @license MIT
- * @version 0.1
+ * @version 20121013
  * @package epesi-Base
  * @subpackage EpesiStore
  */
@@ -295,7 +295,7 @@ class Base_EpesiStore extends Module {
         foreach ($ordered_items as $r) {
             $info = & $server_response[$r['id']];
             $success = $info === true ? true : false;
-            $message = is_string($info) ? ' (' . _V($info) . ')' : ""; // ****** All options translated in EssClientCommon
+            $message = is_string($info) ? ' (' . $info . ')' : "";
             print("{$r['name']} - <span style=\"color: " . ($success ? self::color_success : self::color_failure) . "\">" . $success ? __('Ordered') : __('Not ordered') . "$message</span><br/>");
         }
     }
