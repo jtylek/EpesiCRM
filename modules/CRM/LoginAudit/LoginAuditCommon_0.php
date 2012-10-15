@@ -37,6 +37,7 @@ class CRM_LoginAuditCommon extends ModuleCommon {
 			$result[$row['id']] = self::user_label($row['id']);
 			if (!$row['active']) $result[$row['id']] .= ' ('.__('inactive').')';
 		}
+		asort($result);
 		return $result;
 	}
 

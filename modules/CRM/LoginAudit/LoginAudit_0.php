@@ -34,7 +34,7 @@ class CRM_LoginAudit extends Module {
 		}
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
-        $user = $this->get_module_variable('filter_user',-1);
+        $user = $this->get_module_variable('filter_user','');
         $form = $this->init_module('Libs/QuickForm',null,'filter');
         $form->setDefaults(array('users'=>$user));
 		$count = DB::GetOne('SELECT COUNT(*) FROM user_login');
@@ -44,7 +44,7 @@ class CRM_LoginAudit extends Module {
 		} else {
 			$ret = DB::Execute('SELECT id, active FROM user_login ORDER BY active DESC, login ASC');
 			$el = $form->addElement('select','users',__('Select user'), array(), array('onChange'=>$form->get_submit_form_js(), 'style'=>'width:200px'));
-			$el->addOption(__('All'),-1);
+			$el->addOption(__('All'),'');
 			$contacts_raw = CRM_ContactsCommon::get_contacts(array('!login'=>''));
 			$contacts = array();
 			foreach ($contacts_raw as $c) {
