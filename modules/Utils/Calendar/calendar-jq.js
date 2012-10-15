@@ -388,6 +388,8 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 							if(Utils_Calendar.page_type=='month') {
 								droppable.append(element);
                                 element.attr('last_cell',droppable.attr('id'));
+								element.css('left',0);
+								element.css('top',0);
 							} else {
 								Utils_Calendar.init_reload_event_tag();
 								Utils_Calendar.reload_event_tag(new Array(element.attr('id')));
