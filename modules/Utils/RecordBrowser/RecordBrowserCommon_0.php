@@ -1119,6 +1119,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     }
                     $having .= ')';
                 } else {
+					// Postgres compatibility fix
                     if (!is_array($v)) $v = array($v);
                     if ($negative) $having .= 'NOT ';
                     $having .= '(false';
@@ -1136,6 +1137,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						elseif (self::$table_rows[self::$hash[$key]]['type']=='date' && is_numeric($w))
 							$w = date('Y-m-d', $w);
 
+						if ($postgre && $operator==DB::like()) $key .= '::varchar';
                         if (self::$table_rows[$f]['type']!='text' && self::$table_rows[$f]['type']!='long text' && ($w==='' || $w===null || $w===false)) {
                             if($operator=='=')
                                 $having .= ' OR r.f_'.$key.' IS NULL';
