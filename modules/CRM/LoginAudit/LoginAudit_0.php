@@ -37,11 +37,37 @@ class CRM_LoginAudit extends Module {
         $user = $this->get_module_variable('filter_user',-1);
         $form = $this->init_module('Libs/QuickForm',null,'filter');
         $form->setDefaults(array('users'=>$user));
-        $ret = DB::Execute('SELECT id, active FROM user_login ORDER BY active DESC, login ASC');
-		$el = $form->addElement('select','users',__('Select user'), array(), 'onChange="'.$form->get_submit_form_js().'"');
-		$el->addOption(__('All'),-1);
-		while($row = $ret->FetchRow()) {
-			$el->addOption(Base_UserCommon::get_user_login($row['id']),$row['id'],$row['active']?null:array('style'=>'background-color: lightgray;'));
+		$count = DB::GetOne('SELECT COUNT(*) FROM user_login');
+		if ($count>50) {
+			$f_callback = array('CRM_LoginAuditCommon', 'user_label');
+			$form->addElement('autoselect', 'users', __('Select user'), array(), array(array('CRM_LoginAuditCommon','user_suggestbox'), array($f_callback)), $f_callback, array('onChange'=>$form->get_submit_form_js(), 'style'=>'width:200px'));
+		} else {
+			$ret = DB::Execute('SELECT id, active FROM user_login ORDER BY active DESC, login ASC');
+			$el = $form->addElement('select','users',__('Select user'), array(), array('onChange'=>$form->get_submit_form_js(), 'style'=>'width:200px'));
+			$el->addOption(__('All'),-1);
+			$contacts_raw = CRM_ContactsCommon::get_contacts(array('!login'=>''));
+			$contacts = array();
+			foreach ($contacts_raw as $c) {
+				$contacts[$c['login']] = $c;
+			}
+			$active = array();
+			$inactive = array();
+			while($row = $ret->FetchRow()) {
+				$label = '['.Base_UserCommon::get_user_login($row['id']).']';
+				if (isset($contacts[$row['id']])) {
+					$label = CRM_ContactsCommon::contact_format_no_company($contacts[$row['id']], true).' '.$label;
+				}
+				if ($row['active'])
+					$active[$row['id']] = $label;
+				else
+					$inactive[$row['id']] = $label;
+			}
+			asort($active);
+			asort($inactive);
+			foreach ($active as $id=>$label)
+				$el->addOption($label,$id);
+			foreach ($inactive as $id=>$label)
+				$el->addOption($label,$id,array('style'=>'background-color: lightgray;'));
 		}
 		$user = $form->exportValue('users');
         $form->display_as_row();

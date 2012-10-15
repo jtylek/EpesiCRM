@@ -12,6 +12,34 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_LoginAuditCommon extends ModuleCommon {
 
+	public static function user_label($id) {
+		$label = Base_UserCommon::get_user_login($id);
+		$c = Utils_RecordBrowserCommon::get_id('contact', 'login', $id);
+		if ($c)
+			$label = CRM_ContactsCommon::contact_format_no_company($c, true).' ['.$label.']';
+		return $label;
+	}
+
+	public static function user_suggestbox($str) {
+		$wild = DB::Concat(DB::qstr('%'), DB::qstr($str), DB::qstr('%'));
+		$contacts_raw = CRM_ContactsCommon::get_contacts(array('!login'=>'', '(~"first_name'=>$wild, '|~"last_name'=>$wild));
+		$contacts = array();
+		$contacts_login_ids = array();
+		foreach ($contacts_raw as $c) {
+			$contacts_login_ids[] = $c['login'];
+			$contacts[$c['login']] = $c;
+		}
+		if (!empty($contacts_login_ids)) $qry_ids = ' OR id IN ('.implode(',', $contacts_login_ids).')';
+		else $qry_ids = '';
+		$ret = DB::SelectLimit('SELECT id, active FROM user_login WHERE login '.DB::like().' '.$wild.$qry_ids.' ORDER BY active DESC', 10);
+		$result = array();
+		while ($row = $ret->FetchRow()) {
+			$result[$row['id']] = self::user_label($row['id']);
+			if (!$row['active']) $result[$row['id']] .= ' ('.__('inactive').')';
+		}
+		return $result;
+	}
+
 	public static function applet_caption() {
 		return __('Last Login');
 	}
