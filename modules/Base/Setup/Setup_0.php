@@ -92,7 +92,7 @@ class Base_Setup extends Module {
 		$form = $this->init_module('Libs/QuickForm','Processing modules','setup');
 		
 		//install module header
-		$form -> addElement('header','mod_header','<b>Please select modules to be installed/uninstalled.<br>For module details please click on "i" icon.');
+		$form -> addElement('header','mod_header','<b>' . __('Please select modules to be installed/uninstalled.') . '<br>' . __('For module details please click on "i" icon.'));
 
 		$module_dirs = $this->get_module_dirs();
 
@@ -192,7 +192,7 @@ class Base_Setup extends Module {
 	}
 
 	public function simple_setup() {
-		Base_ActionBarCommon::add('settings', __('Advanced view'),$this->create_confirm_callback_href('Switch to advanced view?',array($this,'switch_simple'),false));
+		Base_ActionBarCommon::add('settings', __('Advanced view'),$this->create_confirm_callback_href(__('Switch to advanced view?'),array($this,'switch_simple'),false));
 
 		$module_dirs = $this->get_module_dirs();
 		$is_required = ModuleManager::required_modules(true);
