@@ -26,6 +26,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		if (!isset($nid[1])) trigger_error('Invalid ID:'.$id, E_USER_ERROR);
 		else {
 			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $nid[0]);
+			$callback = explode('::', $callback);
 			$ret = call_user_func($callback, 'get', $nid[1]);
 			if ($ret===null) return null;
 			$ret['id'] = $nid[0].'#'.$ret['id'];
@@ -46,7 +47,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		if (self::$events_handlers===null) self::$events_handlers = array_keys($custom_handlers);
 		$count = 0;
 		foreach (self::$events_handlers as $handler) {
-			$result_ext = call_user_func($custom_handlers[$handler], 'get_all', $start, $end, $filter);
+			$callback = explode('::',$custom_handlers[$handler]);
+			$result_ext = call_user_func($callback, 'get_all', $start, $end, $filter);
 			foreach ($result_ext as $v) if ($v!==null) {
 				$v['id'] = $handler.'#'.$v['id'];
 				$v['custom_agenda_col_0'] = isset($v['type'])?$v['type']:'---';
@@ -77,6 +79,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$check = explode('#', $id);
 		if (isset($check[1])) {
 			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $check[0]);
+			$callback = explode('::', $callback);
 			return call_user_func($callback, 'delete', $check[1]);
 		}
 	}
@@ -85,6 +88,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$check = explode('#', $id);
 		if (isset($check[1])) {
 			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $check[0]);
+			$callback = explode('::', $callback);
 			return call_user_func($callback, 'update', $check[1], $start, $duration, $timeless);
 		}
 	}

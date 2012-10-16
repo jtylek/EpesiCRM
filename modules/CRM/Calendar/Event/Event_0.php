@@ -26,6 +26,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$check = explode('#', $id);
 		if (isset($check[1])) {
 			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $check[0]);
+			$callback = explode('::', $callback);
 			$ev = call_user_func($callback, $action.'_event', $check[1], $this);
 		} else {
 			trigger_error('Invalid event id: '.$id, E_USER_ERROR);
@@ -52,6 +53,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$check = explode('#', $id);
 			if (isset($check[1])) {
 				$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $check[0]);
+				$callback = explode('::', $callback);
 				$ev = call_user_func($callback, 'get', $check[1]);
 				$no_details = true;
 				$custom_event = true;

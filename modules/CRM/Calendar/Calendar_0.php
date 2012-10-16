@@ -19,6 +19,7 @@ class CRM_Calendar extends Module {
 		} else {
 			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers');
 		}
+		$callback = explode('::', $callback);
 		$ret = call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, $this);
 		if (!$ret) {
 			$x = ModuleManager::get_instance('/Base_Box|0');
@@ -30,6 +31,7 @@ class CRM_Calendar extends Module {
 	public function jump_to_new_event($option, $timestamp, $timeless) {
 		list($label,$id,$int_id) = explode('__',$option);
 		$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d',$id);
+		$callback = explode('::', $callback);
 		call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, $this);
 /*		if (!is_numeric($timestamp)) $timestamp = strtotime($timestamp);
 		$x = ModuleManager::get_instance('/Base_Box|0');
@@ -52,6 +54,7 @@ class CRM_Calendar extends Module {
 		$this->lp = $this->init_module('Utils_LeightboxPrompt');
 		$count = 0;
 		foreach ($handlers as $v) {
+			$v['handler_callback'] = explode('::', $v['handler_callback']);
 			$new_events = call_user_func($v['handler_callback'], 'new_event_types');
 			if ($new_events!==null) foreach($new_events as $k=>$w) {
 				if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
@@ -133,6 +136,7 @@ class CRM_Calendar extends Module {
 			// $this->lp is null only then there's one module providing events with one event type
 			$handler = DB::GetRow('SELECT id, group_name, handler_callback FROM crm_calendar_custom_events_handlers');
 			if (!$handler) return false;
+			$handler['handler_callback'] = explode('::', $handler['handler_callback']);
 			$new_events = call_user_func($handler['handler_callback'], 'new_event_types');
 			if ($new_events===null || empty($new_events)) return false;
 			foreach ($new_events as $k=>$w) {
@@ -163,7 +167,6 @@ class CRM_Calendar extends Module {
 
 		$gb->set_default_order(array(__('Start')=>'ASC'));
 		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
-//		trigger_error($gb->get_query_order());
 		$data = array();
 		Base_ThemeCommon::load_css('CRM_Calendar', 'agenda');
 
