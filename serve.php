@@ -18,6 +18,7 @@
  */
 $serveExtensions = array('css', 'js');
 
+set_time_limit(0);
 // serve
 if (isset($_GET['f'])) {
     $filename = $_GET['f']; // remove any naughty bits
@@ -50,14 +51,22 @@ if (isset($_GET['f'])) {
 		Minify::setCache($cache_dir);
         
 		$opts = array(	'files' => $arr2,
-						'setExpires' => time() + 86400 * 365,
+						'maxAge' => 86400 * 365,
 						'rewriteCssUris'=>false
 				    );
 		if (!MINIFY_ENCODE) {
 			$opts['encodeOutput'] = false;
 			$opts['encodeMethod'] = '';
 		}
-	    // The Files controller can serve an array of files, but here we just
+        if (!MINIFY_SOURCES) {
+            $opts['minifiers'] = array(
+                Minify::TYPE_CSS => '',
+                Minify::TYPE_HTML => '',
+                Minify::TYPE_JS => ''
+            );
+		}
+
+        // The Files controller can serve an array of files, but here we just
 		// need one.
 		Minify::serve('Files', $opts);
 

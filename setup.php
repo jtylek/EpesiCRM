@@ -334,9 +334,17 @@ define(\'REPORT_ALL_ERRORS\',1);
 define(\'GZIP_HISTORY\',1);
 
 /*
- * Minify compression
+ * Compress HTTP output
  */
 define(\'MINIFY_ENCODE\',1);
+
+/*
+ * Apply sources minifying algorithms.
+ *
+ * If enabled CPU usage may raise, but amount
+ * of transferred data is smaller.
+ */
+define(\'MINIFY_SOURCES\',0);
 
 /*
  * Show donation links in EPESI

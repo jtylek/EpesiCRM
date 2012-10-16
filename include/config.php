@@ -27,6 +27,7 @@ if(!defined('GZIP_HISTORY')) define("GZIP_HISTORY",0);
 if(!defined('REDUCING_TRANSFER')) define("REDUCING_TRANSFER",1);
 if(!defined('CACHE_COMMON_FILES')) define("CACHE_COMMON_FILES",0);
 if(!defined('MINIFY_ENCODE')) define('MINIFY_ENCODE',1);
+if(!defined('MINIFY_SOURCES')) define('MINIFY_SOURCES',0);
 if(!defined('MEMCACHE_SESSION_SERVER')) define('MEMCACHE_SESSION_SERVER','');
 
 if(!defined('SUGGEST_DONATION')) define('SUGGEST_DONATION',0);
