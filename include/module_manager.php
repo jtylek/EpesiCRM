@@ -822,7 +822,7 @@ class ModuleManager {
 			ModuleManager :: register($module, $version, self::$modules);
 		}
         
-        ModulesAutoloader::enable();
+        ModulesAutoloader::enable(false);
 	}
 	
 	public static final function create_common_cache() {

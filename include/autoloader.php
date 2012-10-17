@@ -83,6 +83,9 @@ class ModulesAutoloader {
     }
 
     private function hooks() {
+        // These are hooks to load, when loading common files at startup
+        // is disabled. There is possibility, that more common files should
+        // be loaded to proper EPESI run.
         $this->autoload_hook('Base_LangCommon');
         $this->autoload_hook('Libs_QuickFormCommon');
         $this->autoload_hook('Utils_GenericBrowserCommon');
