@@ -1,5 +1,6 @@
 <?php
-define('_VALID_ACCESS',1);
+if (!defined('_VALID_ACCESS'))
+    define('_VALID_ACCESS',1);
 require_once('include/data_dir.php');
 if(!file_exists(DATA_DIR.'/config.php'))
 	die();
@@ -18,7 +19,10 @@ if(defined('CID')) {
 
 require_once('include/session.php');
 
-header("Content-type: text/javascript");
+// if it's direct request to this file return content-type: text/javascript
+// otherwise it's include and do not send header.
+if (isset($_SERVER['SCRIPT_FILENAME']) && $_SERVER['SCRIPT_FILENAME'] == __FILE__)
+    header("Content-type: text/javascript");
 
 $client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
 $client_id_next = $client_id+1;
