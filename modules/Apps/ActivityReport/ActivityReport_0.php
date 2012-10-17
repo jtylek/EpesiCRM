@@ -161,7 +161,9 @@ class Apps_ActivityReport extends Module {
 					$link = __('Access restricted');
 					$action = strip_tags($action);
 				} else {
-					$link = Utils_RecordBrowserCommon::create_default_linked_label($row['tab'], $r_id, false, false);
+					$link = Utils_TooltipCommon::create('<img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'">',Utils_RecordBrowserCommon::get_html_record_info($row['tab'], $r_id), false);
+					$link .= '&nbsp;';
+					$link .= Utils_RecordBrowserCommon::create_default_linked_label($row['tab'], $r_id, false, false);
 				}
 				$gb->add_row(
 					Base_RegionalSettingsCommon::time2reg($row['edited_on']),
