@@ -179,7 +179,7 @@ abstract class RBO_Recordset {
      * @return string String representation of field value
      */
     public function get_val($field, $record, $nolink = false) {
-        if (is_a($record, 'RBO_Record'))
+        if (is_object($record) && ($record instanceof RBO_Record))
             $record = $record->to_array();
         return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $nolink);
     }
