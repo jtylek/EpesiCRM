@@ -567,6 +567,7 @@ class Base_EpesiStore extends Module {
             'description' => $description,
             'auto_process' => '1',
             'lang' => Base_LangCommon::get_lang_code(),
+            'hide_page_banner' => '1'
         );
 
         $credentials = Base_EpesiStoreCommon::get_payment_credentials();
@@ -576,12 +577,11 @@ class Base_EpesiStore extends Module {
                 $data[$key] = $credentials[$key];
         }
         
-        $html = create_html_form($form_name, $payment_url, $data, '_blank');
+        print('<iframe name="payments" width="800px" style="border: none;" height="600px"></iframe>');
+        $html = create_html_form($form_name, $payment_url, $data, 'payments');
         print $html;
         $open_js = "document.{$form_name}.submit()";
         eval_js($open_js);
-        $here = '<a href="#" onclick="' . $open_js . '">' . __("here") . '</a>';
-        print("<p>" . __("Payment form should be automatically launched in new window. If your browser blocked it please click") . " $here. </p>");
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
