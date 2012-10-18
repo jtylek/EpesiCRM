@@ -16,7 +16,8 @@ abstract class RBO_Recordset {
     public function __construct() {
         $this->tab = $this->table_name();
         $this->class = $this->class_name();
-        if (!(is_a($this->class, 'RBO_Record', true)))
+        // replace it with something like is_a
+        if (!array_key_exists('RBO_Record', class_parents($this->class)) || !($this->class == 'RBO_Record'))
             trigger_error('Record class (' . $this->class . ') for recordset ' . $this->tab . ' is not instance of RBO_Record', E_USER_ERROR);
     }
 
