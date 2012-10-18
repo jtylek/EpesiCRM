@@ -285,9 +285,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function init($tab, $admin=false, $force=false) {
         static $cache = array();
         if (!isset(self::$cols_order[$tab])) self::$cols_order[$tab] = array();
-        if (!$force && isset($cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))])) {
-            self::$hash = $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))]['hash'];
-            return self::$table_rows = $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))]['rows'];
+        $cache_str = $tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]));
+        if (!$force && isset($cache[$cache_str])) {
+            self::$hash = $cache[$cache_str]['hash'];
+            return self::$table_rows = $cache[$cache_str]['rows'];
         }
         self::$table_rows = array();
         self::check_table_name($tab);
