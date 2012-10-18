@@ -218,7 +218,7 @@ abstract class RBO_Recordset {
     }
 
     public function new_record_field($definition) {
-        if (!is_array($definition)
+        if (is_object($definition)
                 && $definition instanceof RBO_FieldDefinition) {
             $definition = $definition->get_definition();
         }
