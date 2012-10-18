@@ -93,6 +93,16 @@ abstract class RBO_Recordset {
         }
         trigger_error("Method $callback_name does not exist in class $recordset_class, nor $record_class", E_USER_ERROR);
     }
+    
+    /**
+     * Get Utils/RecordBrowser instance for current Recordset.
+     * @param Module $parent_module Parent module used to create Utils/RecordBrowser instance. Usually $this.
+     * @param string $unique_instance_name unique name of Utils/RecordBrowser instance.
+     * @return Utils_RecordBrowser
+     */
+    public function create_rb_object($parent_module, $unique_instance_name = null){
+        return $parent_module->init_module('Utils/RecordBrowser', $this->tab, $unique_instance_name);
+    }
 
     ///////////// implement Utils_RecordBrowserCommon methods //////////////
 
@@ -158,6 +168,19 @@ abstract class RBO_Recordset {
      */
     public function update_record($id, $values) {
         return Utils_RecordBrowserCommon::update_record($this->tab, $id, $values);
+    }
+    
+    /**
+     * Get field string representation - display callback gets called.
+     * @param string $field Exact field name as defined during install. e.g. 'Company Name'
+     * @param array|RBO_Record $record Records array or object
+     * @param bool $nolink Do not create link
+     * @return string String representation of field value
+     */
+    public function get_val($field, $record, $nolink = false) {
+        if (is_a($record, 'RBO_Record'))
+            $record = $record->to_array();
+        return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $nolink);
     }
 
     /**

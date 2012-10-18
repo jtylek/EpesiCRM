@@ -140,6 +140,18 @@ class RBO_Record implements ArrayAccess {
         return $this->__recordset->create_linked_label($field, $this->__records_id, $nolink);
     }
 
+    /**
+     * Get field string representation - display callback gets called.
+     * @param string $field Exact field name as defined during install. e.g. 'Company Name'
+     * @param bool $nolink Do not create link
+     * @return string String representation of field value
+     */
+    public final function get_val($field, $nolink = false) {
+        return $this->__recordset->get_val($field, $this, $nolink);
+    }
+    
+    // ArrayAccess interface members
+    
     public function offsetExists($offset) {
         $offset = self::_unify_property($offset);
         if (!$this->_is_private_property($offset))
