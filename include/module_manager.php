@@ -40,7 +40,7 @@ class ModuleManager {
 		$ret = require_once($full_path);
 		ob_end_clean();
 		$x = $module_class_name.'Install';
-		if(!(class_exists($x, false)) || !is_a($x, 'ModuleInstall', true))
+		if(!(class_exists($x, false)) || !array_key_exists('ModuleInstall',class_parents($x)))
 			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
 		self::$modules_install[$module_class_name] = new $x($module_class_name);
 		return true;
@@ -69,7 +69,7 @@ class ModuleManager {
 			ob_end_clean();
 			$x = $class_name.'Common';
 			if(class_exists($x, false)) {
-				if(!is_a($x, 'ModuleCommon', true))
+				if(!array_key_exists('ModuleCommon',class_parents($x)))
 					trigger_error('Module '.$path.': Common class should extend ModuleCommon class.',E_USER_ERROR);
 				call_user_func(array($x, 'Instance'), $class_name);
     			return true;
@@ -101,7 +101,7 @@ class ModuleManager {
 			require_once ($file_url);
 			ob_end_clean();
 			if(class_exists($class_name, false)) {
-                if (!is_a($class_name, 'Module', true))
+                if (!array_key_exists('Module',class_parents($class_name)))
                     trigger_error('Module '.$path.': Invalid main file',E_USER_ERROR);
                 return true;
             }
@@ -838,7 +838,7 @@ class ModuleManager {
 				$ret .= file_get_contents ($file_url);
 				$ret .= '<?php $x = \''.$module.'Common\';'.
 					'if(class_exists($x, false)){ '.
-						'if(!is_a($x, \'ModuleCommon\', true))'.
+						'if(!array_key_exists(\'ModuleCommon\',class_parents($x)))'.
 							'trigger_error(\'Module '.$path.': Common class should extend ModuleCommon class.\',E_USER_ERROR);'.
 							'call_user_func(array($x,\'Instance\'),\''.$module.'\');'.
 					'} ?>';
