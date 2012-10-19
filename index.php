@@ -219,7 +219,8 @@ Please choose EPESI version:<ul>
 				</table>
 			</div>	
 		</div>
-		<script type="text/javascript"><?php require_once 'init_js.php'; ?></script>
+		<script type="text/javascript" src="init_js.php?<?php print(http_build_query($_GET));?>"></script>
+        <noscript>Please enable JavaScript in your browser and let EPESI work!</noscript>
 		<?php if(IPHONE) { ?>
 		<script type="text/javascript">var iphone=true;</script>
 		<?php } ?>
