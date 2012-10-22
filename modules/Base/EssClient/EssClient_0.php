@@ -139,6 +139,10 @@ class Base_EssClient extends Module {
                 Utils_TooltipCommon::open_tag_attrs(__('This email will be used to send registation link and to contact Administator directly.'), false)
                 . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
 
+        $tax_id_tooltip = '<img ' .
+                Utils_TooltipCommon::open_tag_attrs(__('Your company Tax ID for invoices.'), false)
+                . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
+
         $f->addElement('text', 'company_name', __('Company Name'), array('maxlength' => 128));
         $f->addRule('company_name', __('Field required'), 'required');
         $f->addRule('company_name', __('Max length exceeded'), 'maxlength', 128);
@@ -177,6 +181,9 @@ class Base_EssClient extends Module {
         $f->addElement('text', 'postal_code', __('Postal Code'), array('maxlength' => 64));
         $f->addRule('postal_code', __('Field required'), 'required');
         $f->addRule('postal_code', __('Max length exceeded'), 'maxlength', 64);
+
+        $f->addElement('text', 'tax_id', $tax_id_tooltip . __('Tax ID'), array('maxlength' => 64));
+        $f->addRule('admin_email', __('Max length exceeded'), 'maxlength', 64);
 
         $f->addElement('text', 'admin_first_name', __('Administrator\'s first name'), array('maxlength' => 64));
         $f->addRule('admin_first_name', __('Field required'), 'required');
