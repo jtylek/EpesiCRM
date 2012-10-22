@@ -2549,7 +2549,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         $qf = new HTML_QuickForm('rb_edit', 'post', 'mobile.php?'.http_build_query($_GET));
         foreach($cols as $field=>$args) {
-            if(isset($access[$field['id']]) && !$access[$field['id']]) continue;
+            if(isset($access[$args['id']]) && !$access[$args['id']]) continue;
 
             $label = _V($args['name']); // TRSL
             //ignore callback fields
