@@ -883,7 +883,7 @@ hr.line {
 	right: 0px;
     padding-bottom: 10px;
     padding-right: 10px;
-    z-index: 1500;
+    z-index: 500;
     overflow-x: auto;
     max-height: 100%;
     width: 350px;    
