@@ -18,12 +18,19 @@ class Apps_ActivityReport extends Module {
 
 		$form = $this->init_module('Libs/QuickForm');
 
-		$users = DB::GetAssoc('SELECT id, id FROM user_login WHERE active=1');
-		foreach ($users as $k=>$u)
-			$users[$k] = Base_UserCommon::get_user_label($u, true);
-		asort($users);
-		$users = array(''=>'['.__('All').']')+$users;
-		$form->addElement('select', 'user', __('User'), $users);
+		$users_count = (DB::GetOne('SELECT COUNT(id) FROM user_login') > Base_User_SettingsCommon::get('Utils_RecordBrowser','enable_autocomplete'));
+		if ($users_count) {
+			$crits = array('!login'=>'');
+			$fcallback = array('CRM_ContactsCommon','contact_format_no_company');
+			$form->addElement('autoselect', 'user', __('User'), array(), array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $fcallback)), $fcallback);
+		} else {
+			$users = DB::GetAssoc('SELECT id, id FROM user_login');
+			foreach ($users as $k=>$u)
+				$users[$k] = Base_UserCommon::get_user_label($u, true);
+			asort($users);
+			$users = array(''=>'['.__('All').']')+$users;
+			$form->addElement('select', 'user', __('User'), $users);
+		}
 		
 		$form->addElement('multiselect', 'recordsets', __('Record Type'), $rb_tabs);
 
@@ -65,6 +72,11 @@ class Apps_ActivityReport extends Module {
 			array('name'=>__('Actions taken'), 'width'=>40)
 		));
 		$tables = array();
+
+		if ($users_count) {
+			$filters['user'] = CRM_ContactsCommon::get_contact($filters['user']);
+			$filters['user'] = $filters['user']['login'];
+		}
 
 		$af_where = array();
 		foreach($rb_tabs as $k=>$t)

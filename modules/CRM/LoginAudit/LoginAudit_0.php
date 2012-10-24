@@ -38,7 +38,7 @@ class CRM_LoginAudit extends Module {
         $form = $this->init_module('Libs/QuickForm',null,'filter');
         $form->setDefaults(array('users'=>$user));
 		$count = DB::GetOne('SELECT COUNT(*) FROM user_login');
-		if ($count>50) {
+		if ($count > Base_User_SettingsCommon::get('Utils_RecordBrowser','enable_autocomplete')) {
 			$f_callback = array('CRM_LoginAuditCommon', 'user_label');
 			$form->addElement('autoselect', 'users', __('Select user'), array(), array(array('CRM_LoginAuditCommon','user_suggestbox'), array($f_callback)), $f_callback, array('onChange'=>$form->get_submit_form_js(), 'style'=>'width:200px'));
 		} else {
