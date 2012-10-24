@@ -67,13 +67,18 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		eval_js('$("trans_sett_info").up("td").setAttribute("colspan",2);');
 		eval_js('$("trans_sett_info").up("td").style.borderRadius="0";'); // Not really nice, but will have to do for now
 		eval_js('$("decription_label").up("td").hide();');
+		eval_js('function update_credits(){$("contact_email").disabled=$("credits_website").disabled=!$("include_credits").checked||!$("allow").checked;}');
+		eval_js('update_credits();');
 		$ip = gethostbyname($_SERVER['SERVER_NAME']);
 		$me = CRM_ContactsCommon::get_my_record();
 		$form->addElement('static', 'header', '<div id="decription_label" />', $desc);
-		$form->addElement('checkbox', 'allow', __('Enable sending translations'), null, array('id'=>'allow', 'onchange'=>'$("send_current").disabled=$("first_name").disabled=$("last_name").disabled=!this.checked;'));
+		$form->addElement('checkbox', 'allow', __('Enable sending translations'), null, array('id'=>'allow', 'onchange'=>'$("include_credits").disabled=$("send_current").disabled=$("first_name").disabled=$("last_name").disabled=!this.checked;update_credits();'));
 		$form->addElement('checkbox', 'send_current', __('Send your current translations'), null, array('id'=>'send_current'));
 		$form->addElement('text', 'first_name', __('First Name'), array('id'=>'first_name'));
 		$form->addElement('text', 'last_name', __('Last Name'), array('id'=>'last_name'));
+		$form->addElement('checkbox', 'include_credits', __('Include in credits'), null, array('id'=>'include_credits', 'onchange'=>'update_credits();'));
+		$form->addElement('text', 'credits_website', __('Credits website'), array('id'=>'credits_website'));
+		$form->addElement('text', 'contact_email', __('Contact e-mail'), array('id'=>'contact_email'));
 		$form->addElement('static', 'IP', __('IP'), $ip);
 		$lp->add_option(null, null, null, $form);
 		eval_js('$("send_current").disabled=$("first_name").disabled=$("last_name").disabled=!$("allow").checked;');
@@ -83,20 +88,24 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			if (!isset($values['allow'])) $values['allow'] = 0;
 			if (!isset($values['first_name'])) $values['first_name'] = '';
 			if (!isset($values['last_name'])) $values['last_name'] = '';
+			if (!isset($values['include_credits'])) $values['include_credits'] = 0;
+			if (!isset($values['credits_website'])) $values['credits_website'] = '';
+			if (!isset($values['contact_email'])) $values['contact_email'] = '';
 			DB::Execute('DELETE FROM base_lang_trans_contrib WHERE user_id=%d', array(Acl::get_user()));
-			DB::Execute('INSERT INTO base_lang_trans_contrib (user_id, allow, first_name, last_name) VALUES (%d, %d, %s, %s)', array(Acl::get_user(), $values['allow'], $values['first_name'], $values['last_name']));
+			DB::Execute('INSERT INTO base_lang_trans_contrib (user_id, allow, first_name, last_name, credits, credits_website, contact_email) VALUES (%d, %d, %s, %s, %d, %s, %s)', array(Acl::get_user(), $values['allow'], $values['first_name'], $values['last_name'], $values['include_credits'], $values['credits_website'], $values['contact_email']));
 			if (isset($values['send_current'])) eval_js('new Ajax.Request("modules/Base/Lang/Administrator/send_current.php",{method:"post",parameters:{cid:Epesi.client_id}});');
 		}
 
 		$allow_sending = Base_Lang_AdministratorCommon::allow_sending(true);
 		if ($allow_sending===null || $allow_sending===false) {
-			$form->setDefaults(array('allow'=>1, 'send_current'=>1, 'first_name'=>$me['first_name'], 'last_name'=>$me['last_name']));
+			$form->setDefaults(array('allow'=>1, 'send_current'=>1, 'first_name'=>$me['first_name'], 'last_name'=>$me['last_name'], 'contact_email'=>$me['email']));
 			$lp->open();
 		} else {
 			$r = DB::GetRow('SELECT * FROM base_lang_trans_contrib WHERE user_id=%d', array(Acl::get_user()));
 			if (!$r['first_name']) $r['first_name'] = $me['first_name'];
 			if (!$r['last_name']) $r['last_name'] = $me['last_name'];
-			$form->setDefaults(array('allow'=>$r['allow'], 'send_current'=>0, 'first_name'=>$r['first_name'], 'last_name'=>$r['last_name']));
+			if (!$r['contact_email']) $r['contact_email'] = $me['email'];
+			$form->setDefaults(array('allow'=>$r['allow'], 'send_current'=>0, 'first_name'=>$r['first_name'], 'last_name'=>$r['last_name'], 'contact_email'=>$r['contact_email'], 'credits_website'=>$r['credits_website'], 'include_credits'=>$r['credits']));
 		}
 		Base_ActionBarCommon::add('settings', __('Translations Contributions'), $lp->get_href());
 		$this->display_module($lp, array(__('Translations Contributions settings')));

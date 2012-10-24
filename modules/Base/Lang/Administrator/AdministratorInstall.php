@@ -22,7 +22,10 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 			'user_id I4,'.
 			'allow I1,'.
 			'first_name C(64),'.
-			'last_name C(64)',
+			'last_name C(64),'.
+			'credits I1,'.
+			'credits_website C(128),'.
+			'contact_email C(128)',
 			array());
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return Variable::set('allow_lang_change',true);

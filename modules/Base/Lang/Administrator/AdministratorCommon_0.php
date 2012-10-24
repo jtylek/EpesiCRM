@@ -57,7 +57,7 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 		if (!self::allow_sending()) return false;
 		$ip = gethostbyname($_SERVER['SERVER_NAME']);
 		$r = DB::GetRow('SELECT * FROM base_lang_trans_contrib WHERE user_id=%d', array(Acl::get_user()));
-		$q = array('first_name'=>$r['first_name'], 'last_name'=>$r['last_name'], 'lang'=>$lang, 'ip'=>$ip, 'original'=>$org, 'translation'=>$trans);
+		$q = array('first_name'=>$r['first_name'], 'last_name'=>$r['last_name'], 'lang'=>$lang, 'ip'=>$ip, 'original'=>$org, 'translation'=>$trans, 'credits'=>$r['credits'], 'credits_website'=>$r['credits_website'], 'contact_email'=>$r['contact_email']);
 		file_get_contents(self::translation_server_url.'/translations.php?'.http_build_query($q));
 	}
 }
