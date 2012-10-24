@@ -1797,7 +1797,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function create_linked_label($tab, $cols, $id, $nolink=false){
         if (!is_numeric($id)) return '';
         if (!is_array($cols))
-            $cols = array($cols);
+            $cols = explode('|', $cols);
         self::init($tab);
         $vals = array();
         foreach ($cols as $k=>$col) {
