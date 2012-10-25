@@ -21,24 +21,24 @@ abstract class RBO_Recordset {
             trigger_error('Record class (' . $this->class . ') for recordset ' . $this->tab . ' is not instance of RBO_Record', E_USER_ERROR);
     }
 
-    private function record_to_object($array) {
+    public function record_to_object($array) {
         if (is_array($array)) {
             return new $this->class($this, $array);
         }
         return null;
     }
 
-    private function array_of_records_to_array_of_objects($array) {
-        foreach ($array as & $entry) {
-            $entry = $this->record_to_object($entry);
+    public function array_of_records_to_array_of_objects($array) {
+        $ret = array();
+        foreach ($array as $k => $entry) {
+            $ret[$k] = $this->record_to_object($entry);
         }
-        return $array;
+        return $ret;
     }
 
     protected static function create_record_object($recordset_class, $record) {
         $recordset = new $recordset_class();
-        $record_class = $recordset->class_name();
-        return new $record_class($recordset, $record);
+        return $recordset->record_to_object($record);
     }
 
     ///////////// magic QFfield and display callbacks //////////////
@@ -101,7 +101,7 @@ abstract class RBO_Recordset {
      * @param string $unique_instance_name unique name of Utils/RecordBrowser instance.
      * @return Utils_RecordBrowser
      */
-    public function create_rb_object($parent_module, $unique_instance_name = null){
+    public function create_rb_module($parent_module, $unique_instance_name = null){
         return $parent_module->init_module('Utils/RecordBrowser', $this->tab, $unique_instance_name);
     }
 

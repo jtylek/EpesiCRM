@@ -159,22 +159,28 @@ class RBO_Field_Select extends RBO_FieldDefinition {
 
     /**
      * Sets linked recordset to select records from.
-     * @param string $linked_recordset Recordset name
-     * @return \RBO_Field_Select
+     * @param string|RBO_Recordset $linked_recordset Recordset name or object
+     * @return RBO_Field_Select
      */
     public function from($linked_recordset) {
-        $this->linked_recordset = $linked_recordset;
+        $this->linked_recordset = $linked_recordset instanceof RBO_Recordset ?
+                $linked_recordset->table_name()
+                : $linked_recordset;
         return $this;
     }
 
     /**
      * Set fields name to obtain display text for linked record.
-     * @param string $field_name Field name which value will be shown to user.
-     * @param string $_ more fields can be given as next parameters
-     * @return \RBO_Field_Select
+     * @param string|RBO_FieldDefinition $field_name Field name which value will be shown to user.
+     * @param string|RBO_FieldDefinition $_ more fields can be given as next parameters
+     * @return RBO_Field_Select
      */
-    public function fields($field_name, $_ = null) {
+    public function fields($field, $_ = null) {
         $this->linked_recordset_fields = func_get_args();
+        foreach ($this->linked_recordset_fields as $k => $v) {
+            if ($v instanceof RBO_FieldDefinition)
+                $this->linked_recordset_fields[$k] = $v->name;
+        }
         return $this;
     }
 
@@ -183,7 +189,7 @@ class RBO_Field_Select extends RBO_FieldDefinition {
      * 
      * For more info see Select/Multiselect parameter sectiom in RB manual.
      * @param callback $crits_callback class_name::static_method_name or array(class_name, static_method_name)
-     * @return \RBO_Field_Select
+     * @return RBO_Field_Select
      */
     public function set_crits_callback($crits_callback) {
         if (is_array($crits_callback))
@@ -197,7 +203,7 @@ class RBO_Field_Select extends RBO_FieldDefinition {
      * 
      * For more info see Select/Multiselect parameter sectiom in RB manual.
      * @param callback $advanced_properties_callback class_name::static_method_name or array(class_name, static_method_name)
-     * @return \RBO_Field_Select
+     * @return RBO_Field_Select
      */
     public function set_advanced_properties_callback($advanced_properties_callback) {
         if (is_array($advanced_properties_callback))
@@ -261,7 +267,7 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
     /**
      * Set commondata array name
      * @param string $commondata_array_name
-     * @return \RBO_Field_CommonData
+     * @return RBO_Field_CommonData
      */
     public function from($commondata_array_name) {
         $this->commondata_array_name = $commondata_array_name;
@@ -270,7 +276,7 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
 
     /**
      * Set sorting by commondata array keys
-     * @return \RBO_Field_CommonData
+     * @return RBO_Field_CommonData
      */
     public function set_order_by_key() {
         $this->order_by_key = $value;
@@ -281,7 +287,7 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
      * Set chained select on this field
      * @param RBO_FieldDefinition $field chained select field
      * @param RBO_FieldDefinition $_ several fields may be supplied
-     * @return \RBO_Field_CommonData
+     * @return RBO_Field_CommonData
      */
     public function chained_select($field, $_ = null) {
         $this->chained_select_fields = func_get_args();
