@@ -74,7 +74,6 @@ abstract class RBO_Recordset {
     public static final function __display_magic_callback($record, $nolink, $desc) {
         list($recordset_class, $method) = Utils_RecordBrowser::$rb_obj->get_display_method($desc['name']);
         $args = func_get_args();
-        $args[0] = self::create_record_object($recordset_class, $record);
         return self::_generic_magic_callback($recordset_class, 'display_' . $desc['id'], $record, $args);
     }
 
@@ -90,18 +89,20 @@ abstract class RBO_Recordset {
         if (method_exists($record_class, $callback_name)) {
             $record = new $record_class($recordset, $record);
             $method = new ReflectionMethod($record_class, $callback_name);
+            if ($callback_name[0] == 'd') // is display_callback
+                array_shift($args);
             return $method->invokeArgs($record, $args);
         }
         trigger_error("Method $callback_name does not exist in class $recordset_class, nor $record_class", E_USER_ERROR);
     }
-    
+
     /**
      * Get Utils/RecordBrowser instance for current Recordset.
      * @param Module $parent_module Parent module used to create Utils/RecordBrowser instance. Usually $this.
      * @param string $unique_instance_name unique name of Utils/RecordBrowser instance.
      * @return Utils_RecordBrowser
      */
-    public function create_rb_module($parent_module, $unique_instance_name = null){
+    public function create_rb_module($parent_module, $unique_instance_name = null) {
         return $parent_module->init_module('Utils/RecordBrowser', $this->tab, $unique_instance_name);
     }
 
@@ -156,6 +157,8 @@ abstract class RBO_Recordset {
             if (!is_numeric($id))
                 return null;
             $array_or_null['id'] = $id;
+            $array_or_null['created_by'] = Acl::get_user();
+            $array_or_null[':active'] = true;
             return $this->record_to_object($array_or_null);
         }
         return $this->record_to_object(array());
@@ -170,7 +173,19 @@ abstract class RBO_Recordset {
     public function update_record($id, $values) {
         return Utils_RecordBrowserCommon::update_record($this->tab, $id, $values);
     }
-    
+
+    public function delete_record($id, $permanent = false) {
+        return Utils_RecordBrowserCommon::delete_record($this->tab, $id, $permanent);
+    }
+
+    public function restore_record($id) {
+        return Utils_RecordBrowserCommon::restore_record($this->tab, $id);
+    }
+
+    public function set_active($id, $state) {
+        return Utils_RecordBrowserCommon::set_active($this->tab, $id, $state);
+    }
+
     /**
      * Get field string representation - display callback gets called.
      * @param string $field Exact field name as defined during install. e.g. 'Company Name'
@@ -194,12 +209,25 @@ abstract class RBO_Recordset {
     public function create_default_linked_label($id, $nolink = false, $table_name = true) {
         if (!is_numeric($id))
             trigger_error('Create default linked label requires proper record id.');
-        Utils_RecordBrowserCommon::create_linked_label_r($tab, $col, $r);
         return Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $id, $nolink, $table_name);
     }
 
     public function create_linked_label($field, $id, $nolink = false) {
         return Utils_RecordBrowserCommon::create_linked_label($this->tab, $field, $id, $nolink);
+    }
+
+    /**
+     * Create link to record with specific text.
+     * @param numeric $id Record id
+     * @param string $text Text to display as link
+     * @param bool $nolink Do not create link switch
+     * @param string $action Link to specific action. 'view' or 'edit'.
+     * @return string html string with link
+     */
+    public function record_link($id, $text, $nolink = false, $action = 'view') {
+        return Utils_RecordBrowserCommon::record_link_open_tag($this->tab, $id, $nolink, $action)
+                . $text
+                . Utils_RecordBrowserCommon::record_link_close_tag();
     }
 
     public function install() {

@@ -34,18 +34,21 @@ class RBO_Record implements ArrayAccess {
      * Time and Date of records creation.
      * 
      * Readonly variable. Modifications of this variable will not be saved.
-     * @var timestamp */
+     * @var string formatted date */
     public $created_on;
 
     /**
      * Create object of record.
+     * To perform any operation during object construction
+     * please override init() function. It's called at the end of __construct
+     * 
      * @param RBO_Recordset $recordset Recordset object
      * @param array $array data of record
      */
     public final function __construct(RBO_Recordset & $recordset, array $array) {
         $this->__recordset = $recordset;
         foreach ($array as $property => $value) {
-            $property = self::_unify_property($property);
+            $property = self::_get_field_id($property);
             $this->$property = $value;
         }
         if (isset($this->id))
@@ -61,8 +64,8 @@ class RBO_Record implements ArrayAccess {
         
     }
 
-    private static function _unify_property($property) {
-        return strtolower(str_replace(array(':', ' '), '_', $property));
+    private static function _get_field_id($property) {
+        return Utils_RecordBrowserCommon::get_field_id($property);
     }
 
     /**
@@ -90,33 +93,35 @@ class RBO_Record implements ArrayAccess {
         unset($values['id']);
         return $values;
     }
-    
-    private function _is_private_property($property) {
+
+    private static function _is_private_property($property) {
         // below code is faster than
         //   substr($property, 0, 2) == '__' 
         // or strpos($property, '__') === 0
         return isset($property[0]) && isset($property[1]) && $property[0] == '_' && $property[1] == '_';
     }
-    
+
     public function __set($name, $value) {
-        if ($this->_is_private_property($name))
+        if (self::_is_private_property($name))
             trigger_error(__('Cannot use "%s" as property name.', $name), E_USER_ERROR);
         $this->$name = $value;
     }
 
     public function __get($name) {
-        if ($this->_is_private_property($name))
-            trigger_error(__('Cannot use "%s" as property name.', $name), E_USER_ERROR);        
+        if (self::_is_private_property($name))
+            trigger_error(__('Cannot use "%s" as property name.', $name), E_USER_ERROR);
         return $this->$name;
     }
 
-    public final function save() {
+    public function save() {
         if ($this->__recordset !== null) {
             if ($this->__records_id === null) {
                 $rec = $this->__recordset->new_record($this->values());
                 if ($rec === null)
                     return false;
                 $this->__records_id = $this->id = $rec->id;
+                $this->_active = $rec->_active;
+                $this->created_by = $rec->created_by;
                 return true;
             } else
                 return $this->__recordset->update_record($this->__records_id, $this->values());
@@ -126,18 +131,49 @@ class RBO_Record implements ArrayAccess {
         return false;
     }
 
-    public final function clone_data() {
+    public function delete($permanent = false) {
+        if ($permanent) {
+            $this->__recordset->delete_record($this->__records_id, $permanent);
+            $this->_active = null;
+            $this->__records_id = $this->id = null;
+            $this->created_by = $this->created_on = null;
+        } else
+            return $this->set_active(false);
+    }
+
+    public function restore() {
+        return $this->set_active(true);
+    }
+
+    public function set_active($state) {
+        $state = (boolean) $state;
+        $this->_active = $state;
+        return $this->__recordset->set_active($this->__records_id, $state);
+    }
+
+    public function clone_data() {
         $c = clone $this;
         $c->__records_id = $c->created_by = $c->created_on = $c->id = null;
         return $c;
     }
 
-    public final function create_default_linked_label($nolink = false, $table_name = true) {
+    public function create_default_linked_label($nolink = false, $table_name = true) {
         return $this->__recordset->create_default_linked_label($this->__records_id, $nolink, $table_name);
     }
 
-    public final function create_linked_label($field, $nolink = false) {
+    public function create_linked_label($field, $nolink = false) {
         return $this->__recordset->create_linked_label($field, $this->__records_id, $nolink);
+    }
+
+    /**
+     * Create link to record with specific text.
+     * @param string $text Html to display as link
+     * @param bool $nolink Do not create link
+     * @param string $action Link to specific action. 'view' or 'edit'.
+     * @return string html string with link
+     */
+    public function record_link($text, $nolink = false, $action = 'view') {
+        return $this->__recordset->record_link($this->__records_id, $text, $nolink, $action);
     }
 
     /**
@@ -146,34 +182,34 @@ class RBO_Record implements ArrayAccess {
      * @param bool $nolink Do not create link
      * @return string String representation of field value
      */
-    public final function get_val($field, $nolink = false) {
+    public function get_val($field, $nolink = false) {
         return $this->__recordset->get_val($field, $this, $nolink);
     }
-    
+
     // ArrayAccess interface members
-    
+
     public function offsetExists($offset) {
-        $offset = self::_unify_property($offset);
-        if (!$this->_is_private_property($offset))
+        $offset = self::_get_field_id($offset);
+        if (!self::_is_private_property($offset))
             return property_exists($this, $offset);
         return false;
     }
 
     public function offsetGet($offset) {
-        $offset = self::_unify_property($offset);
-        if (!$this->_is_private_property($offset))
+        $offset = self::_get_field_id($offset);
+        if (!self::_is_private_property($offset))
             return $this->$offset;
         return null;
     }
 
     public function offsetSet($offset, $value) {
-        $offset = self::_unify_property($offset);
+        $offset = self::_get_field_id($offset);
         $this->__set($offset, $value);
     }
 
     public function offsetUnset($offset) {
-        $offset = self::_unify_property($offset);
-        if (!$this->_is_private_property($offset))
+        $offset = self::_get_field_id($offset);
+        if (!self::_is_private_property($offset))
             unset($this->$offset);
     }
 
