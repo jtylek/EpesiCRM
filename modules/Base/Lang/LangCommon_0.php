@@ -20,15 +20,15 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Base_LangCommon extends ModuleCommon {
 	/**
-	 * Don not use this function to translate, instead use the __() call instead.
+	 * Don not use this function to translate, use the __() call instead.
 	 */
 	public static function t($original, array $arg=array()) { return self::translate(null,$original,$arg); }
 	/**
-	 * Don not use this function to translate, instead use the __() call instead.
+	 * Don not use this function to translate, use the __() call instead.
 	 */
 	public static function ts($group, $original, array $arg=array()) { return self::translate($original, $arg); }
 	/**
-	 * Don not use this function to translate, instead use the __() call instead.
+	 * Don not use this function to translate, use the __() call instead.
 	 */
 	public static function translate($original, array $arg=array(), $translate = true) {
 		if (!$original) return '';
@@ -104,14 +104,18 @@ class Base_LangCommon extends ModuleCommon {
 	private static function append($to='base', $lang, $arr) {
 		if ($to!=='base') $to = 'custom';
 		if ($lang===null) $lang = self::get_lang_code();
+		if (!$lang) return;
 		$exists = file_exists(DATA_DIR.'/Base_Lang/'.$to.'/'.$lang.'.php');
 		$f = @fopen(DATA_DIR.'/Base_Lang/'.$to.'/'.$lang.'.php', 'a');
 		if(!$f)	return false;
-		if(!$exists) fwrite($f,"<?php\n");
-		foreach($arr as $k=>$v)
+		if(!$exists) fwrite($f,"<?php\n".'global $custom_translations;'."\n");
+		if (flock($f, LOCK_EX)) {
+			foreach($arr as $k=>$v)
 				fwrite($f, '$'.($to=='custom'?'custom_':'').'translations[\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
 
-		fclose($f);
+			flock($f, LOCK_UN);
+			fclose($f);
+		}
 		return true;
 	}
 
@@ -143,11 +147,13 @@ class Base_LangCommon extends ModuleCommon {
 	public static function load($lang_code = null) {
 		global $translations;
 		global $custom_translations;
+        if ($lang_code === null) 
+            $lang_code = self::get_lang_code();
+		if (!$lang_code) return;
+
 		$translations = array();
 		$custom_translations = array();
 
-        if ($lang_code === null) 
-            $lang_code = self::get_lang_code();
 		@include(DATA_DIR.'/Base_Lang/base/'. $lang_code .'.php');
 		if(!is_array($translations))
 			$translations=array();
