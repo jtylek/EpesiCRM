@@ -37,10 +37,19 @@ abstract class RBO_Recordset {
     }
 
     protected static function create_record_object($recordset_class, $record) {
-        $recordset = new $recordset_class();
+        $recordset = self::recordset_instance($recordset_class);
         return $recordset->record_to_object($record);
     }
 
+    protected static $recordsets_instances = array();
+    
+    protected static function recordset_instance($recordset_class) {
+        if (isset(self::$recordsets_instances[$recordset_class]))
+            return self::$recordsets_instances[$recordset_class];
+        else
+            return self::$recordsets_instances[$recordset_class] = new $recordset_class();
+    }
+    
     ///////////// magic QFfield and display callbacks //////////////
 
     public function refresh_magic_callbacks() {
@@ -78,7 +87,7 @@ abstract class RBO_Recordset {
     }
 
     private static final function _generic_magic_callback($recordset_class, $callback_name, $record, $args) {
-        $recordset = new $recordset_class();
+        $recordset = self::recordset_instance($recordset_class);
         // check for qffield callback in Recordset class
         if (method_exists($recordset, $callback_name)) {
             $method = new ReflectionMethod($recordset_class, $callback_name);
@@ -204,6 +213,14 @@ abstract class RBO_Recordset {
      */
     public function add_default_access() {
         Utils_RecordBrowserCommon::add_default_access($this->tab);
+    }
+
+    public function add_access($action, $clearance, $crits = array(), $blocked_fields = array()) {
+        return Utils_RecordBrowserCommon::add_access($this->tab, $action, $clearance, $crits, $blocked_fields);
+    }
+
+    public function delete_access($rule_id) {
+        return Utils_RecordBrowserCommon::delete_access($this->tab, $rule_id);
     }
 
     public function create_default_linked_label($id, $nolink = false, $table_name = true) {

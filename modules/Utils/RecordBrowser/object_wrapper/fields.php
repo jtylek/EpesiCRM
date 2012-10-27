@@ -91,7 +91,19 @@ class RBO_Field_Calculated extends RBO_FieldDefinition {
         parent::__construct($display_name, self::type, $param);
     }
 
+    /**
+     * Set database representation of this field.
+     * @param string|RBO_FieldDefinition $type name of type or field instance.
+     * In case of field instance only type and it's param will be copied
+     * and this function $param will be ignored.
+     * @param mixed $param numeric for type text, otherwise null.
+     */
     public function set_db_type($type, $param = null) {
+        if ($type instanceof RBO_FieldDefinition) {
+            $def = $type->get_definition();
+            $type = $def['type'];
+            $param = $def['param'];
+        }
         $this->param = Utils_RecordBrowserCommon::actual_db_type($type, $param);
     }
 

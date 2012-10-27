@@ -63,6 +63,14 @@ class RBO_Record implements ArrayAccess {
     public function init() {
         
     }
+    
+    /**
+     * Get associated recordset object
+     * @return RBO_Recordset
+     */
+    public function recordset() {
+        return $this->__recordset;
+    }
 
     private static function _get_field_id($property) {
         return Utils_RecordBrowserCommon::get_field_id($property);
@@ -131,14 +139,8 @@ class RBO_Record implements ArrayAccess {
         return false;
     }
 
-    public function delete($permanent = false) {
-        if ($permanent) {
-            $this->__recordset->delete_record($this->__records_id, $permanent);
-            $this->_active = null;
-            $this->__records_id = $this->id = null;
-            $this->created_by = $this->created_on = null;
-        } else
-            return $this->set_active(false);
+    public function delete() {
+        return $this->set_active(false);
     }
 
     public function restore() {
@@ -159,10 +161,6 @@ class RBO_Record implements ArrayAccess {
 
     public function create_default_linked_label($nolink = false, $table_name = true) {
         return $this->__recordset->create_default_linked_label($this->__records_id, $nolink, $table_name);
-    }
-
-    public function create_linked_label($field, $nolink = false) {
-        return $this->__recordset->create_linked_label($field, $this->__records_id, $nolink);
     }
 
     /**
