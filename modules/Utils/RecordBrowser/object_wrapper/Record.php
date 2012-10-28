@@ -184,6 +184,17 @@ class RBO_Record implements ArrayAccess {
         return $this->__recordset->get_val($field, $this, $nolink);
     }
 
+    /**
+     * Get HTML formatted record's info. Record has to exist in DB.
+     * It has to be saved first, when you're creating new record.
+     * @return string Html with record info
+     */
+    public function get_html_record_info() {
+        if (!$this->__records_id)
+            trigger_error ("get_html_record_info may be called only for saved records", E_USER_ERROR);
+        return $this->__recordset->get_html_record_info($this->__records_id);
+    }
+
     // ArrayAccess interface members
 
     public function offsetExists($offset) {
