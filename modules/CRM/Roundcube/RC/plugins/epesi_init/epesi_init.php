@@ -27,6 +27,7 @@ class epesi_init extends rcube_plugin
     require_once('include/module_common.php');
     require_once('include/module.php');
     require_once('include/module_manager.php');
+    require_once('include/autoloader.php');
     ModuleManager::load_modules();
     chdir($d);
     global $E_SESSION;
