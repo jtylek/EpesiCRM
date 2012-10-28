@@ -8,6 +8,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+require_once 'autoloader.php';
+
 /**
  * This class provides methods for module manipulations
  * @package epesi-base
