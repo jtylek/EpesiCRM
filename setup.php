@@ -194,11 +194,11 @@ function check_htaccess() {
 	$dir = trim(dirname($_SERVER['SCRIPT_NAME']),'/');
 	$epesi_dir = '/'.$dir.($dir?'/':'');
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
-	$test_url = $protocol.$_SERVER['SERVER_ADDR'].$epesi_dir.'data/test.php';
+	$test_url = $protocol.$_SERVER['HTTP_HOST'].$epesi_dir.'data/test.php';
 	file_put_contents('data/test.php','<?php'."\n".'print("OK"); ?>');
 
     	copy('htaccess.txt','data/.htaccess');
-	
+
 	if(ini_get('allow_url_fopen'))
 		$ret = @file_get_contents($test_url);
 	elseif (extension_loaded('curl')) { // Test if curl is loaded
