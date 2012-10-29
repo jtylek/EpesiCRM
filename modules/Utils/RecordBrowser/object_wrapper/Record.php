@@ -176,7 +176,7 @@ class RBO_Record implements ArrayAccess {
 
     /**
      * Get field string representation - display callback gets called.
-     * @param string $field Exact field name as defined during install. e.g. 'Company Name'
+     * @param string $field Field id, e.g. 'first_name'
      * @param bool $nolink Do not create link
      * @return string String representation of field value
      */
