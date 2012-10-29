@@ -90,7 +90,7 @@ abstract class RBO_Recordset {
     }
 
     public static final function __display_magic_callback($record, $nolink, $desc) {
-        list($recordset_class, $method) = Utils_RecordBrowser::$rb_obj->get_display_method($desc['name']);
+        list($recordset_class, $method) = $desc['display_callback'];
         $args = func_get_args();
         $callback_name = 'display_' . $desc['id'];
 
@@ -343,7 +343,8 @@ abstract class RBO_Recordset {
      * is called.
      * 
      * This callback gets record's data as first parameter and nolink directive
-     * as second. 
+     * as second. Nolink directive is only for your information and you don't
+     * have to create link to record manually.
      * 
      * <code>static function description($record, $nolink) { ... }</code>
      * @param callable $callback static callback method or function
