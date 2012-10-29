@@ -34,7 +34,12 @@
 					<td style="empty-cells: hide; width: 6px;"></td>
 				{/if}
 				<td class="top_bar_black filler"></td>
-				<td class="top_bar_black powered" nowrap="1"><a href="http://www.epesibim.com" target="_blank" style="color:white;"><b>epesi</b> powered</a> {$version_no}</td>
+				<td class="top_bar_black powered" nowrap="1">
+					<div>
+						<a href="http://epe.si" target="_blank" style="color:white;"><b>EPESI</b> powered</a>&nbsp;
+					</div>
+					<div>{$version_no}</div>
+				</td>
 				{if isset($donate)}
 					<td class="top_bar_black donate" nowrap="1">{$donate}</td>
 				{/if}

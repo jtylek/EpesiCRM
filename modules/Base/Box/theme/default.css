@@ -386,8 +386,14 @@ hr.line {
     color: white;
     text-align: right;
 	padding-right: 5px;
-	width: 140px;
+	width: 250px;
 	white-space: nowrap;
+}
+
+#top_bar #top_bar_1 .powered div {
+    display:inline-block;
+	max-width:150px;
+	overflow:hidden;
 }
 
 #top_bar #top_bar_1 .powered a {

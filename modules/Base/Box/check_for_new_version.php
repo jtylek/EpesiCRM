@@ -33,7 +33,7 @@ if(!$updates) {
 if (Base_AclCommon::i_am_sa()) $tooltip = __('There are updates available for download, click to go to EPESI store.');
 else $tooltip = __('There are updates available for download. Please contact your administrator.');
 
-$message = Utils_TooltipCommon::create(__('version %s <b>(Update Available!)</b>',array(EPESI_VERSION)), $tooltip, false);
+$message = Utils_TooltipCommon::create(__('version %s<br/><b>(Update Available!)</b>',array(EPESI_VERSION)), $tooltip, false);
 
 if (Base_AclCommon::i_am_sa()) $message = '<a '.Module::create_href(array('go_to_epesi_store_for_updates'=>true)).'class="version">'.$message.'</a>';
 

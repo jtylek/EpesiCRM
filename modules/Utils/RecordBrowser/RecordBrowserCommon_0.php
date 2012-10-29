@@ -1241,8 +1241,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $ret = array('sql'=>' '.$final_tab.' WHERE '.($admin?$default_filter:'active=1 AND ').$having,'order'=>$orderby,'vals'=>$vals);
         return $cache[$cache_key] = $ret;
     }
-    public static function get_records_count( $tab, $crits = null, $admin = false, $order=array()) {
-        $par = self::build_query($tab, $crits, $admin, $order);
+    public static function get_records_count( $tab, $crits = null, $admin = false) {
+        $par = self::build_query($tab, $crits, $admin, array());
         if (empty($par) || !$par) return 0;
         return DB::GetOne('SELECT COUNT(*) FROM'.$par['sql'], $par['vals']);
     }
