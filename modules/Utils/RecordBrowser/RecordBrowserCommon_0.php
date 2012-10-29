@@ -19,30 +19,34 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static $admin_access = false;
     public static $cols_order = array();
     public static $options_limit = 50;
-
+	
+    public static $display_callback_table = array();
     private static $clear_get_val_cache = false;
+    public static function display_callback_cache($tab) {
+        if (self::$clear_get_val_cache) {
+            self::$clear_get_val_cache = false;
+            self::$display_callback_table = array();
+        }
+        if (!isset(self::$display_callback_table[$tab])) {
+            $ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=1');
+            while ($row = $ret->FetchRow())
+                self::$display_callback_table[$tab][$row['field']] = explode('::',$row['callback']);
+        }
+	}
+	
     public static function get_val($tab, $field, $record, $links_not_recommended = false, $args = null) {
         self::init($tab);
         $commondata_sep = '/';
-        static $display_callback_table = array();
-        if (self::$clear_get_val_cache) {
-            self::$clear_get_val_cache = false;
-            $display_callback_table = array();
-        }
         if (!isset(self::$table_rows[$field])) {
             if (!isset(self::$hash[$field])) trigger_error('Unknown field "'.$field.'" for recordset "'.$tab.'"',E_USER_ERROR);
             $field = self::$hash[$field];
         }
         if ($args===null) $args = self::$table_rows[$field];
-        if (!isset($display_callback_table[$tab])) {
-            $ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=1');
-            while ($row = $ret->FetchRow())
-                $display_callback_table[$tab][$row['field']] = explode('::',$row['callback']);
-        }
         if (!isset($record[$args['id']])) trigger_error($args['id'].' - unknown field for record '.serialize($record), E_USER_ERROR);
         $val = $record[$args['id']];
-        if (isset($display_callback_table[$tab][$field])) {
-            $ret = call_user_func($display_callback_table[$tab][$field], $record, $links_not_recommended, self::$table_rows[$field]);
+		self::display_callback_cache($tab);
+        if (isset(self::$display_callback_table[$tab][$field])) {
+            $ret = call_user_func(self::$display_callback_table[$tab][$field], $record, $links_not_recommended, self::$table_rows[$field]);
         } else {
             $ret = $val;
             if ($args['type']=='select' || $args['type']=='multiselect') {
@@ -292,6 +296,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         self::$table_rows = array();
         self::check_table_name($tab);
+		self::display_callback_cache($tab);
         $ret = DB::Execute('SELECT * FROM '.$tab.'_field'.($admin?'':' WHERE active=1 AND type!=\'page_split\'').' ORDER BY position');
         self::$hash = array();
         while($row = $ret->FetchRow()) {
@@ -313,6 +318,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'filter'=>$row['filter'],
                         'style'=>$row['style'],
                         'param'=>$row['param']);
+			if (isset(self::$display_callback_table[$tab][$row['field']]))
+				self::$table_rows[$row['field']]['display_callback'] = self::$display_callback_table[$tab][$row['field']];
 			if (($row['type']=='select' || $row['type']=='multiselect') && $row['param']) {
 				$pos = strpos($row['param'], ':');
 				self::$table_rows[$row['field']]['ref_table'] = substr($row['param'], 0, $pos);
