@@ -2665,8 +2665,8 @@ function update_from_1_2_2_to_1_3() {
 
 //=========================================================================
 
-$versions[] = '1.3.1';
-function update_from_1_3_to_1_3_1() {
+$versions[] = '1.4.0';
+function update_from_1_3_to_1_4_0() {
 	ModuleManager::create_load_priority_array();
 	PatchUtil::apply_new();
 }

@@ -1,7 +1,7 @@
 <?php
-define("EPESI_VERSION", '1.3.1'); 
+define("EPESI_VERSION", '1.4.0'); 
 
-$svnid = '$Rev: 9916 $'; 
+$svnid = '$Rev: 9928 $'; 
 $scid = substr($svnid, 6); 
 define("EPESI_REVISION", intval(substr($scid, 0, strlen($scid) - 2)));
 ?>
