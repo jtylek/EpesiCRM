@@ -883,9 +883,18 @@ class Utils_Attachment extends Module {
 	
 	public function save_google_docs($note_id) {
 		$edit_url = DB::GetOne('SELECT doc_id FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
-		$export_url = 'https://docs.google.com/feeds/download/documents/Export?docID='.str_replace('https://docs.google.com/feeds/default/private/full/document%3A','',$edit_url).'&exportFormat=doc';
+		if (!$edit_url) {
+			Base_StatusBarCommon::message(__('Document not found'), 'warning');
+			return false;
+		}
+		$doc = (strpos($edit_url, 'document%3A')!==false);
+		if ($doc)
+			$export_url = 'https://docs.google.com/feeds/download/documents/Export?docID='.str_replace('https://docs.google.com/feeds/default/private/full/document%3A','',$edit_url).'&exportFormat=doc';
+		else
+			$export_url = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key='.str_replace('https://docs.google.com/feeds/default/private/full/spreadsheet%3A','',$edit_url).'&exportFormat=csv';
+		
 		DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
-		$g_auth = Utils_AttachmentCommon::get_google_auth();
+		$g_auth = Utils_AttachmentCommon::get_google_auth(null, null, $doc?'writely':'wise');
 		$curl = curl_init();
 
 		curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);

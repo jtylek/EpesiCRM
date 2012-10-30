@@ -183,7 +183,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return get_epesi_url().'/modules/Utils/Attachment/get_remote.php?'.http_build_query(array('id'=>$id,'token'=>$token));
 	}
 	
-	public static function get_google_auth($user=null, $pass=null) {
+	public static function get_google_auth($user=null, $pass=null, $service="writely") {
 		if ($user===null) {
 			$user = Variable::get('utils_attachments_google_user', false);
 			$pass = Variable::get('utils_attachments_google_pass', false);
@@ -196,7 +196,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			"accountType" => "HOSTED_OR_GOOGLE",
 			"Email" => $user,
 			"Passwd" => $pass,
-			"service" => "writely",
+			"service" => $service,
 			"source" => $company['company_name'].'-EPESI-'.'1.0'
 		);
 
