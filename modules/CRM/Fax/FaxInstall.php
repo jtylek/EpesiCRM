@@ -14,8 +14,8 @@ class CRM_FaxInstall extends ModuleInstall {
 
 	public function install() {
 		Base_ThemeCommon::install_default_theme($this->get_type());
-		Base_AclCommon::add_permission('Fax - Browse',array('ACCESS:employee'));
-		Base_AclCommon::add_permission('Fax - Send',array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Fax - Browse'),array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Fax - Send'),array('ACCESS:employee'));
 		$this->create_data_dir();
 		return true;
 	}

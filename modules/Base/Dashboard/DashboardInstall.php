@@ -78,7 +78,7 @@ class Base_DashboardInstall extends ModuleInstall {
 		}
 		Base_ThemeCommon::install_default_theme($this->get_type());
 
-		Base_AclCommon::add_permission('Dashboard',array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Dashboard'),array('ACCESS:employee'));
 
 		return $ret;
 	}

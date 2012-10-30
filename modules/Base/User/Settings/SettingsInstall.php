@@ -36,7 +36,7 @@ class Base_User_SettingsInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme('Base/User/Settings');
-		Base_AclCommon::add_permission('Advanced User Settings',array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Advanced User Settings'),array('ACCESS:employee'));
 
 		return $ret;
 	}

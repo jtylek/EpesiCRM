@@ -5,7 +5,7 @@
 		<td class="epesi_label" style="width:30%;">
 			{$labels.filename}
 		</td>
-		<td class="epesi_data static_field" style="width:70%;">
+		<td class="epesi_data static_field" style="width:70%;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
 			{$filename}
 		</td>
 	</tr>

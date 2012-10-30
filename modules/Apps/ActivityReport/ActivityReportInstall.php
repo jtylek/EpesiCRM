@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ActivityReportInstall extends ModuleInstall {
 
 	public function install() {
-		Base_AclCommon::add_permission('View Activity Report',array('ACCESS:employee','ACCESS:manager'));
+		Base_AclCommon::add_permission(_M('View Activity Report'),array('ACCESS:employee','ACCESS:manager'));
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}

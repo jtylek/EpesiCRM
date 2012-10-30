@@ -40,7 +40,7 @@ class CRM_FiltersInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
-		Base_AclCommon::add_permission('Manage Perspective',array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Manage Perspective'),array('ACCESS:employee'));
 		return $ret;
 	}
 

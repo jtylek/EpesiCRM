@@ -41,7 +41,7 @@ class Utils_MessengerInstall extends ModuleInstall {
 			print('Unable to create table utils_messenger_users.<br>');
 			return false;
 		}
-		Base_AclCommon::add_permission('Messenger Alerts',array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Messenger Alerts'),array('ACCESS:employee'));
 		
 		return $ret;
 	}

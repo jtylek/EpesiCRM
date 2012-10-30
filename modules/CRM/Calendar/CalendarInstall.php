@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_CalendarInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme('CRM/Calendar');
-		Base_AclCommon::add_permission('Calendar',array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Calendar'),array('ACCESS:employee'));
 		DB::CreateTable('crm_calendar_custom_events_handlers',
 						'id I4 AUTO KEY,'.
 						'group_name C(64),'.

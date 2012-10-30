@@ -32,7 +32,7 @@ class Base_Acl extends Module {
 		foreach ($perms as $p_id=>$p_name) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data(
-				array('value'=>$p_name, 'class'=>'Base_Acl__permission', 'attrs'=>'colspan="2"')
+				array('value'=>_V($p_name), 'class'=>'Base_Acl__permission', 'attrs'=>'colspan="2"')
 			);
 			$gb_row->no_actions();
 			$perms = DB::GetAssoc('SELECT id, id FROM base_acl_rules WHERE permission_id=%d', array($p_id));

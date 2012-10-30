@@ -84,7 +84,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			doc_id C(128)',
 			array('constraints'=>''));
 		
-		Base_AclCommon::add_permission('Attachments - view full download history', array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Attachments - view full download history'), array('ACCESS:employee'));
 
 		Variable::set('utils_attachments_google_user', '');
 		Variable::set('utils_attachments_google_pass', '');
