@@ -201,14 +201,15 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$form -> addRule('code', __('Specified langpack already exists'), 'check_if_langpack_exists');
 		$form -> addRule('code', __('Field required'), 'required');
 
-		Base_ActionBarCommon::add('back',__('Cancel'),$this->create_back_href());
-		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
-
 		if ($form->validate()) {
 			Base_LangCommon::new_langpack($form->exportValue('code'));
 			$this->unset_module_variable('action');
 			return false;
 		}
+
+		Base_ActionBarCommon::add('back',__('Cancel'),$this->create_back_href());
+		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
+
 		$form->display();
 		return true;
 	}
