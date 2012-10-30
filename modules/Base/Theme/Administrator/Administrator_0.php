@@ -48,7 +48,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			
 			if(class_exists('ZipArchive')) {
 				$this->pack_module('Utils/FileUpload',array(array($this,'upload_template'),__('Upload template')));
-				Base_ActionBarCommon::add('edit',__('Manage templates'),$this->create_callback_href(array($this,'download_template')));
+//				Base_ActionBarCommon::add('edit',__('Manage templates'),$this->create_callback_href(array($this,'download_template')));
 			}
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
