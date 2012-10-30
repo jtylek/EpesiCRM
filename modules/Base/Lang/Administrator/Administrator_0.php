@@ -131,7 +131,9 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 
 		if (!isset($_SESSION['client']['base_lang_administrator']['currently_translating'])) {
 			$_SESSION['client']['base_lang_administrator']['currently_translating'] = Base_LangCommon::get_lang_code();
-			print('<span class="important_notice">'.__('Please make sure the correct language is selected in the box below before you start translating').'</span>');
+		}
+		if (!isset($_SESSION['client']['base_lang_administrator']['notice'])) {
+			print('<span class="important_notice">'.__('Please make sure the correct language is selected in the box below before you start translating').' <a style="float:right;" '.$this->create_callback_href(array($this, 'hide_notice')).'>'.__('Discard').'</a>'.'</span>');
 		}
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate')) {
 			$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
@@ -185,6 +187,11 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		Base_LangCommon::load();
 		$this->display_module($gb,array(true),'automatic_display');
 		Utils_ShortcutCommon::add(array(' '), 'translate_first_on_the_list', array('disable_in_input'=>1));
+	}
+	
+	public function hide_notice() {
+		$_SESSION['client']['base_lang_administrator']['notice'] = true;
+		return false;
 	}
 	
 	public function submit_language_select($data) {

@@ -2723,5 +2723,5 @@ ModuleManager::create_load_priority_array();
 
 Variable::set('version',EPESI_VERSION);
 
-if (!isset($_GET['up'])) print('Tool finished sucesfully');
+if (!isset($_GET['up'])) print('Tool finished successfully');
 ?>

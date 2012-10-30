@@ -2309,7 +2309,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			case 'checkbox':	return __('Click to switch between checked/unchecked state');
 			case 'currency':	return __('Enter the amount in text field and select currency');
 			case 'text':		$ret = __('Enter the text in the text field');
-								if (isset($args[0])) $ret .= '<br />'.__('Maximum allowed length is %s characters', array('<b>'.$args[0].'</b>'));
+								if (isset($args[0]) && is_numeric($args[0])) $ret .= '<br />'.__('Maximum allowed length is %s characters', array('<b>'.$args[0].'</b>'));
 								return $ret;
 			case 'long text':	$example_text = __('Example text');
 								return __('Enter the text in the text area').'<br />'.__('Maximum allowed length is %s characters', array('<b>400</b>')).'<br/>'.'<br/>'.
