@@ -144,6 +144,7 @@ class ClientRequester implements IClient {
     }
 
     protected function request_server(& $post_data, $force_fgc = false) {
+		@set_time_limit(300);
         if ($this->is_curl_loaded() && !$force_fgc)
             return $this->curl_call($post_data);
         else
