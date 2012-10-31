@@ -827,7 +827,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return;
 	}
     public static function QFfield_login(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-		$label = __('User Login');
+		$label = __('EPESI User');
         if (!Base_AclCommon::i_am_admin()) return;
         if ($mode=='view') {
 			if (!$default) return;
@@ -854,14 +854,16 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->addElement('select', $field, $label, $users, array('id'=>'crm_contacts_select_user'));
 		$form->setDefaults(array($field=>$default));
 		if ($default!=='') $form->freeze($field);
-		eval_js('new_user_textfield = function(){'.
-				'($("crm_contacts_select_user").value=="new"?"":"none");'.
-				'$("username").up("tr").style.display = $("contact_admin").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
-				'}');
-		eval_js('new_user_textfield();');
+		else {
+			eval_js('new_user_textfield = function(){'.
+					'($("crm_contacts_select_user").value=="new"?"":"none");'.
+					'$("username").up("tr").style.display = $("contact_admin").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'}');
+			eval_js('new_user_textfield();');
+			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
+		}
 		if ($default)
 			eval_js('$("_login__data").up("tr").style.display = "none";');
-		eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
 	}
 
 	public static function check_new_username($arg) {
@@ -975,6 +977,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 	
     public static function submit_contact($values, $mode) {
         switch ($mode) {
+        case 'cloning':
+			$values['login'] = '';
+			return $values;
         case 'display':
             // display copy company data button and do update if needed
             self::copy_company_data_subroutine($values);
