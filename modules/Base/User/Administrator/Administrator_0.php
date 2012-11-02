@@ -128,6 +128,13 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     public function admin() {
 		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
 			$this->pack_module('CRM_Contacts', array(), 'user_admin');
+		        $qf = $this->init_module('Libs/QuickForm',null,'ban');
+		        $qf->addElement('select','bantime',__('Ban time after 3 failed logins'),array(0=>__('Disabled'),10=>__('10 seconds'),30=>__('30 seconds'),60=>__('1 minute'),180=>__('3 minutes'),300=>__('5 minutes'),900=>__('15 minutes'),1800=>__('30 minutes'),3600=>__('1 hour'),(3600*6)=>__('6 hours'),(3600*24)=>__('1 day')),array('onChange'=>$qf->get_submit_form_js()));
+		        $qf->setDefaults(array('bantime'=>Variable::get('host_ban_time')));
+		        if($qf->validate()) {
+		            Variable::set('host_ban_time',$qf->exportValue('bantime'));
+		        }
+			$qf->display();
 			return;
 		}
 		if($this->is_back()) {
