@@ -15,6 +15,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class ModuleCommon extends ModulePrimitive {
 	
+	/* backward compatibility code */
+	public static final function acl_check() {
+		return false;
+	}
+	
 	/**
 	 * Singleton.
 	 *
