@@ -202,7 +202,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
                 . '; var ess_client_messages_discard_label = ' . json_encode($discard));
         $buttons = "<div class=\"button\" style=\"width:auto; padding:2px 10px\" id=\"client_messages_frame_hide\">$hide_all</div>" .
                 "<div class=\"button\" style=\"width:auto; padding:2px 10px\" id=\"client_messages_frame_show_discarded\">$show_discarded</div>";
-        load_js(dirname(__FILE__) . '/messages_hiding.js');
+        load_js('modules/Base/EssClient/messages_hiding.js');
         eval_js('set_client_messages_frame_id("client_messages_frame");');
         return '<div id="client_messages_frame"><div id="client_messages_frame_content">' . $content . '</div>' . $buttons . '</div>';
     }
