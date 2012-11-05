@@ -48,7 +48,6 @@ class RBO_Record implements ArrayAccess {
     public final function __construct(RBO_Recordset & $recordset, array $array) {
         $this->__recordset = $recordset;
         foreach ($array as $property => $value) {
-            $property = self::_get_field_id($property);
             $this->$property = $value;
         }
         if (isset($this->id))
@@ -63,7 +62,7 @@ class RBO_Record implements ArrayAccess {
     public function init() {
         
     }
-    
+
     /**
      * Get associated recordset object
      * @return RBO_Recordset
@@ -109,18 +108,6 @@ class RBO_Record implements ArrayAccess {
         return isset($property[0]) && isset($property[1]) && $property[0] == '_' && $property[1] == '_';
     }
 
-    public function __set($name, $value) {
-        if (self::_is_private_property($name))
-            trigger_error(__('Cannot use "%s" as property name.', $name), E_USER_ERROR);
-        $this->$name = $value;
-    }
-
-    public function __get($name) {
-        if (self::_is_private_property($name))
-            trigger_error(__('Cannot use "%s" as property name.', $name), E_USER_ERROR);
-        return $this->$name;
-    }
-
     public function save() {
         if ($this->__recordset !== null) {
             if ($this->__records_id === null) {
@@ -134,7 +121,7 @@ class RBO_Record implements ArrayAccess {
             } else
                 return $this->__recordset->update_record($this->__records_id, $this->values());
         } else {
-            trigger_error(__('Trying to save record that was not linked to proper recordset'), E_USER_ERROR);
+            trigger_error('Trying to save record that was not linked to proper recordset', E_USER_ERROR);
         }
         return false;
     }
@@ -191,7 +178,7 @@ class RBO_Record implements ArrayAccess {
      */
     public function get_html_record_info() {
         if (!$this->__records_id)
-            trigger_error ("get_html_record_info may be called only for saved records", E_USER_ERROR);
+            trigger_error("get_html_record_info may be called only for saved records", E_USER_ERROR);
         return $this->__recordset->get_html_record_info($this->__records_id);
     }
 
@@ -213,7 +200,9 @@ class RBO_Record implements ArrayAccess {
 
     public function offsetSet($offset, $value) {
         $offset = self::_get_field_id($offset);
-        $this->__set($offset, $value);
+        if (self::_is_private_property($offset))
+            trigger_error("Cannot use \"$offset\" as offset name.", E_USER_ERROR);
+        $this->$offset = $value;
     }
 
     public function offsetUnset($offset) {
