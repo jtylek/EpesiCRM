@@ -807,7 +807,7 @@ class ModuleManager {
 		self::$not_loaded_modules = $installed_modules;
 		self::$loaded_modules = array();
 		$cached = false;
-		if(CACHE_COMMON_FILES) {
+		if(FORCE_CACHE_COMMON_FILES) {
     		$cache_file = DATA_DIR.'/cache/common.php';
 			if(!file_exists($cache_file))
 				self::create_common_cache();
