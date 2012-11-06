@@ -1070,7 +1070,9 @@ class Utils_Attachment extends Module {
 			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
 			$info = __('Owner: %s',array($row['permission_owner'])).'<br>'.
 				__('Permission: %s',array($perm)).'<hr>'.
-				__('Last edited by %s<br>on %s<br>Number of edits: %d',array(Base_UserCommon::get_user_label($row['note_by']),$note_on_time,$row['note_revision']));
+				__('Last edited by %s',array(Base_UserCommon::get_user_label($row['note_by']))).'<br/>'.
+				__('on %s',array($note_on_time)).'<br/>'.
+				__('Number of edits: %d',array($row['note_revision']));
 			$r->add_info($info);
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
