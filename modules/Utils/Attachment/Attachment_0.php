@@ -1042,7 +1042,12 @@ class Utils_Attachment extends Module {
 			if($row['original']!=='') {
 				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 				if(file_exists($f_filename)) {
-					$filetooltip = __('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.__('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array(Base_UserCommon::get_user_label($row['upload_by']),Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
+					$filetooltip = __('Filename: %s',array($row['original'])).'<br>'.
+						__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
+						__('Last uploaded by %s', array(Base_UserCommon::get_user_label($row['upload_by']))).'<br/>'.
+						__('on %s',array(Base_RegionalSettingsCommon::time2reg($row['upload_on']))).'<br/>'.
+						__('Number of uploads: %d',array($row['file_revision'])).'<br/>'.
+						__('Number of downloads: %d',array($row['downloads']));
 					$view_link = '';
 					$link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.$this->get_file($row,$view_link);
 					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png');
