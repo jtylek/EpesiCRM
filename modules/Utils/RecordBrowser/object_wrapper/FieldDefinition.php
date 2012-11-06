@@ -126,11 +126,11 @@ class RBO_FieldDefinition {
      * All following fields order will remain as it was.
      * 
      * Better option is to supply here name of field (e.g. 'First Name')
-     * as it was set in field definition. New field will be set just before
+     * as it was set in field definition. New field will be set just after
      * supplied field.
      * 
      * Best way is to supply RBO_FieldDefinition object. New field will
-     * be placed as for field name parameter - just before field supplied here.
+     * be placed as for field name parameter - just after field supplied here.
      * @return \RBO_FieldDefinition
      */
     function set_position($position) {
