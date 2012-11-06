@@ -1925,9 +1925,9 @@ class Utils_RecordBrowser extends Module {
                     $gb_row->add_data(
                         $field,
                         $args['type'],
-                        $args['visible']?__('<b>Yes</b>'):__('No'),
-                        $args['required']?__('<b>Yes</b>'):__('No'),
-                        $args['filter']?__('<b>Yes</b>'):__('No'),
+                        $args['visible']?'<b>'.__('Yes').'</b>':__('No'),
+                        $args['required']?'<b>'.__('Yes').'</b>':__('No'),
+                        $args['filter']?'<b>'.__('Yes').'</b>':__('No'),
                         is_array($args['param'])?serialize($args['param']):$args['param'],
 						$d_c,
 						$QF_c
@@ -2130,7 +2130,7 @@ class Utils_RecordBrowser extends Module {
         return true;
     }
     public function dirty_read_changes($id, $time_from) {
-        print('<b>'.__('The following changes were applied to this record while you were editing it.<br>Please revise this data and make sure to keep this record most accurate.').'</b><br>');
+        print('<b>'.__('The following changes were applied to this record while you were editing it.').'<br/>'.__('Please revise this data and make sure to keep this record most accurate.').'</b><br>');
         $gb_cha = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__changes');
         $table_columns_changes = array( array('name'=>__('Date'), 'width'=>10, 'wrapmode'=>'nowrap'),
                                         array('name'=>__('Username'), 'width'=>10, 'wrapmode'=>'nowrap'),

@@ -241,7 +241,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addElement('select', 'admin', __('Administrator'), array(0=>__('No'), 1=>__('Administrator'), 2=>__('Super Administrator')));
 
         if($edit_id<0)
-            $form -> addElement('html','<tr><td colspan=2><b>'.__('If you leave password fields empty<br />random password is automatically generated<br />and e-mailed to the user.').'</b></td></tr>');
+            $form -> addElement('html','<tr><td colspan=2><b>'.__('If you leave password fields empty random password is automatically generated and e-mailed to the user.').'</b></td></tr>');
             //$form->addElement('header',null,__('If you leave this fields empty, password is generated.'));
         else
             $form -> addElement('html','<tr><td colspan=2><b>'.__('If you leave password fields empty, password is not changed.').'</b></td></tr>');

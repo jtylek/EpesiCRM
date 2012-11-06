@@ -153,7 +153,7 @@ class Base_Box extends Module {
 		$version_no = Base_BoxCommon::update_version_check_indicator();
 
 		if (SUGGEST_DONATION)
-			$theme->assign('donate',Utils_TooltipCommon::create('<a target="_blank" href="http://epe.si/cost">'.__('Support EPESI!').'</a>', '<center>'.__('If you find our software useful, please support us by making a donation.<br>Your funding will help to ensure continued development of this project.<br>Click for details.').'</center>', false, 500));
+			$theme->assign('donate',Utils_TooltipCommon::create('<a target="_blank" href="http://epe.si/cost">'.__('Support EPESI!').'</a>', '<center>'.__('If you find our software useful, please support us by making a %s.', array(__('donation'))).'<br/>'.__('Your funding will help to ensure continued development of this project.').'<br/>'.__('Click for details.').'</center>', false, 500));
 			
 		// Consider moving this code properly as initated module by *.ini file
 		$theme->assign('home', array('href'=>Base_HomePageCommon::get_href(), 'label'=>__('Home')));

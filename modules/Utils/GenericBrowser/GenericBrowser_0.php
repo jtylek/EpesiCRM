@@ -1052,7 +1052,7 @@ class Utils_GenericBrowser extends Module {
 
 	private function summary() {
 		if($this->rows_qty!=0)
-			return __('Records <b>%d</b> to <b>%d</b> of <b>%d</b>',array($this->get_module_variable('offset')+1,($this->get_module_variable('offset')+$this->get_module_variable('per_page')>$this->rows_qty)?$this->rows_qty:$this->get_module_variable('offset')+$this->get_module_variable('per_page'),$this->rows_qty));
+			return __('Records %s to %s of %s',array('<b>'.($this->get_module_variable('offset')+1).'</b>','<b>'.(($this->get_module_variable('offset')+$this->get_module_variable('per_page')>$this->rows_qty)?$this->rows_qty:$this->get_module_variable('offset')+$this->get_module_variable('per_page')).'</b>','<b>'.$this->rows_qty.'</b>'));
 		else
 		if ((isset($this->rows_qty) || (!isset($this->rows_qty) && empty($this->rows))) && !Base_User_SettingsCommon::get('Utils/GenericBrowser','display_no_records_message'))
 			return __('No records found');

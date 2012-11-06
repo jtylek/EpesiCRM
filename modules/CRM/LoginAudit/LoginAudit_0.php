@@ -76,7 +76,7 @@ class CRM_LoginAudit extends Module {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'login_audit');
 
 		$gb->set_table_columns(array(
-						array('name'=>__('<b>Login</b> [uid] -> User Name'),'order'=>'b.user_login_id','width'=>20),
+						array('name'=>'<b>'.__('Login').'</b> '.__('[uid] -> User Name'),'order'=>'b.user_login_id','width'=>20),
 						array('name'=>__('Start'), 'order'=>'b.start_time', 'width'=>15),
 						array('name'=>__('End'),'order'=>'b.end_time','width'=>15),
                         array('name'=>__('Duration'),'width'=>10),

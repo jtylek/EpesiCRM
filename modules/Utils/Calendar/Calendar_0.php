@@ -440,7 +440,7 @@ class Utils_Calendar extends Module {
 		$theme = $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
-		$theme->assign('trash_label', __('Drag and drop<br>to delete'));
+		$theme->assign('trash_label', __('Drag and drop to delete'));
 		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+24*3600))));
 		$theme->assign('next_label',__('Next day'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
@@ -603,7 +603,7 @@ class Utils_Calendar extends Module {
 		$theme = $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
-		$theme->assign('trash_label', __('Drag and drop<br>to delete'));
+		$theme->assign('trash_label', __('Drag and drop to delete'));
 		$theme->assign('next7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+604800))));
 		$theme->assign('next7_label',__('Next week'));
 		$theme->assign('next_href', $this->create_unique_href(array('shift_week_day'=>1)));
@@ -820,7 +820,7 @@ class Utils_Calendar extends Module {
 		$theme = $this->pack_module('Base/Theme');
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
-		$theme->assign('trash_label', __('Drag and drop<br>to delete'));
+		$theme->assign('trash_label', __('Drag and drop to delete'));
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
 		$theme->assign('nextyear_label',__('Next year'));
 		$theme->assign('nextmonth_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+86400*date('t',$this->date)))));

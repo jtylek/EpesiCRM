@@ -204,7 +204,7 @@ class CRM_Contacts extends Module {
 	}
 
     public function update_contacts_address_prompt($company, $lid) {
-        $html = '<br/>'.__('This action will update all contacts within this company with values copied from company record.<br/><br/>Please check which data would you like to copy to company contacts:');
+        $html = '<br/>'.__('This action will update all contacts within this company with values copied from company record.').'<br/><br/>'.__('Please check which data would you like to copy to company contacts:');
         $form = $this->init_module('Libs/QuickForm');
 
         $data = array( /* Source ID, Target ID, Text, Checked state */
