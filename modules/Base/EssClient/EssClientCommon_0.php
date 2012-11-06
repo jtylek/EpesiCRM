@@ -196,7 +196,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         $hide_all = __('Hide messages');
         $show_all = __('Show messages');
         $show_discarded = __('Show discarded');
-        $discard = __('discard');
+        $discard = __('Discard');
         eval_js_once('var ess_client_messages_hide_button_label = ' . json_encode($hide_all)
                 . '; var ess_client_messages_show_button_label = ' . json_encode($show_all)
                 . '; var ess_client_messages_discard_label = ' . json_encode($discard));

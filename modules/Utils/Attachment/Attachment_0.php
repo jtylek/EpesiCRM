@@ -346,7 +346,7 @@ class Utils_Attachment extends Module {
 				if(file_exists($f_filename)) {
 					$filetooltip = __('Filename: %s',array($row['original'])).'<br>'.__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
 						__('Last uploaded by %s', array(Base_UserCommon::get_user_label($row['upload_by']))).'<br/>'.
-						__('on %s',array(Base_RegionalSettingsCommon::time2reg($row['upload_on']))).'<br/>'.
+						__('On: %s',array(Base_RegionalSettingsCommon::time2reg($row['upload_on']))).'<br/>'.
 						__('Number of uploads: %d',array($row['file_revision'])).'<br/>'.
 						__('Number of downloads: %d',array($row['downloads']));
 					$view_link = '';
@@ -371,8 +371,8 @@ class Utils_Attachment extends Module {
 			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
 			$info = __('Owner: %s',array($row['permission_owner'])).'<br>'.
 				__('Permission: %s',array($perm)).'<hr>'.
-				__('Last edited by %s',array(Base_UserCommon::get_user_label($row['note_by']))).'<br/>'.
-				__('on %s',array($note_on_time)).'<br/>'.
+				__('Last edited by: %s',array(Base_UserCommon::get_user_label($row['note_by']))).'<br/>'.
+				__('On: %s',array($note_on_time)).'<br/>'.
 				__('Number of edits: %d',array($row['note_revision']));
 			$r->add_info($info);
 			if(Base_AclCommon::i_am_admin() ||
@@ -1045,7 +1045,7 @@ class Utils_Attachment extends Module {
 					$filetooltip = __('Filename: %s',array($row['original'])).'<br>'.
 						__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
 						__('Last uploaded by %s', array(Base_UserCommon::get_user_label($row['upload_by']))).'<br/>'.
-						__('on %s',array(Base_RegionalSettingsCommon::time2reg($row['upload_on']))).'<br/>'.
+						__('On: %s',array(Base_RegionalSettingsCommon::time2reg($row['upload_on']))).'<br/>'.
 						__('Number of uploads: %d',array($row['file_revision'])).'<br/>'.
 						__('Number of downloads: %d',array($row['downloads']));
 					$view_link = '';
@@ -1070,8 +1070,8 @@ class Utils_Attachment extends Module {
 			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
 			$info = __('Owner: %s',array($row['permission_owner'])).'<br>'.
 				__('Permission: %s',array($perm)).'<hr>'.
-				__('Last edited by %s',array(Base_UserCommon::get_user_label($row['note_by']))).'<br/>'.
-				__('on %s',array($note_on_time)).'<br/>'.
+				__('Last edited by: %s',array(Base_UserCommon::get_user_label($row['note_by']))).'<br/>'.
+				__('On: %s',array($note_on_time)).'<br/>'.
 				__('Number of edits: %d',array($row['note_revision']));
 			$r->add_info($info);
 			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');

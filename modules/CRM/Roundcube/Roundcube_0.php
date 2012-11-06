@@ -131,7 +131,7 @@ class CRM_Roundcube extends Module {
         	$content = '';
         	foreach($_SESSION['rc_mails_cp'] as $mid) {
             	$mail = Utils_RecordBrowserCommon::get_record('rc_mails',$mid);
-            	$content .= '<div style="text-align:left"><b>'.__('From:').'</b> <i>'.$mail['from'].'</i><br /><b>'.__('To:').'</b> <i>'.$mail['to'].'</i><br /><b>'.__('Subject:').'</b> <i>'.$mail['subject'].'</i><br />'.substr(strip_tags($mail['body'],'<br><hr>'),0,200).(strlen($mail['body'])>200?'...':'').'</div>';
+            	$content .= '<div style="text-align:left"><b>'.__('From').':</b> <i>'.$mail['from'].'</i><br /><b>'.__('To').':</b> <i>'.$mail['to'].'</i><br /><b>'.__('Subject').':</b> <i>'.$mail['subject'].'</i><br />'.substr(strip_tags($mail['body'],'<br><hr>'),0,200).(strlen($mail['body'])>200?'...':'').'</div>';
         	}
         	$this->display_module($this->lp, array(__('Paste e-mail'), array(), $content, false));
        		$vals = $this->lp->export_values();

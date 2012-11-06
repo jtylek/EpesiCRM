@@ -25,7 +25,7 @@ class Base_Search extends Module {
 
 		$modules_with_search = ModuleManager::check_common_methods('search');
 
-		$form->addElement('header', 'quick_search_header', __('Quick search'));
+		$form->addElement('header', 'quick_search_header', __('Quick Search'));
 		$form->addElement('text', 'quick_search',  __('Keyword'), array('id'=>'quick_search_text'));
 		$form->addRule('quick_search', __('Field required'), 'required');
 		$form->addElement('submit', 'quick_search_submit',  __('Search'), array('class'=>'submit'));
@@ -80,7 +80,7 @@ class Base_Search extends Module {
 		if (!Base_AclCommon::check_permission('Search')) return '';
 		$form = $this->init_module('Libs/QuickForm',__('Searching'));
 
-		$form->addElement('text', 'quick_search', __('Quick search'), array('x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$form->get_submit_form_js()));
+		$form->addElement('text', 'quick_search', __('Quick Search'), array('x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$form->get_submit_form_js()));
 		$form->addElement('submit', 'quick_search_submit', __('Search'), array('class'=>'mini_submit'));
 
 		$theme = $this->pack_module('Base/Theme');

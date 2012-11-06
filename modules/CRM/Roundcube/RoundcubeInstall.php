@@ -44,7 +44,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_CommonDataCommon::new_array('CRM/Roundcube/Security', array('tls'=>_M('TLS'),'ssl'=>_M('SSL')),true,true);
 
         $fields = array(
-            array('name' => _M('Epesi User'),             'type'=>'integer', 'extra'=>false, 'visible'=>true, 'required'=>true, 'display_callback'=>array('CRM_RoundcubeCommon', 'display_epesi_user'), 'QFfield_callback'=>array('CRM_RoundcubeCommon', 'QFfield_epesi_user')),
+            array('name' => _M('EPESI User'),             'type'=>'integer', 'extra'=>false, 'visible'=>true, 'required'=>true, 'display_callback'=>array('CRM_RoundcubeCommon', 'display_epesi_user'), 'QFfield_callback'=>array('CRM_RoundcubeCommon', 'QFfield_epesi_user')),
             array('name' => _M('Email'),             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>128),
         	array('name' => _M('Account Name'),             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>32,'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_account_name')),
         	array('name' => _M('Server'),             'type'=>'text', 'extra'=>false, 'visible'=>true, 'param'=>'255', 'required'=>true),
