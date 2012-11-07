@@ -7,12 +7,31 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 	public function install() {
 		$ret = true;
 		Base_ThemeCommon::install_default_theme($this -> get_type());
+		$ret &= DB::CreateTable('quick_search', 
+									'search_id I4 AUTO KEY, 
+									search_alias_name C(100) NOTNULL,
+									search_recordset C(100) NOTNULL, 
+									search_fields C(100) NOTNULL,
+									search_placeholder C(100),
+									search_status C(1) NOTNULL');
+								
+		if(!$ret){
+			print('Unable to create table vacation planner.<br>');
+			return false;
+		}									
 		return $ret;
 	}
 
 	public function uninstall() {
 		$ret = true;
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
+		$ret = true;
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
+		$ret &= DB::DropTable('quick_search');
+		if(!$ret){
+			print "Table doesn't exist";
+			$ret = false;
+		}		
 		return $ret;
 	}
 	public function version() {
@@ -25,6 +44,7 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 
 	public function requires($v) {
 		return array(
+			array('name'=>'Utils/RecordBrowser', 'version'=>0),
 			array('name'=>'Base/Acl','version'=>0),
 			array('name'=>'Base/User','version'=>0),
 			array('name'=>'Utils/BBCode', 'version'=>0), 

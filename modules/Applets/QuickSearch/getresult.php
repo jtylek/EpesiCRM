@@ -19,24 +19,24 @@ if((isset($_GET['q']) && $_GET['q'] != "")  && (isset($_GET['crit']) && $_GET['c
 	if($countArray > 0){
 		switch(strtoupper($crit)){
 			case "PHONE":
-				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_work_phone' , 'f_mobile_phone');
-				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_phone' , 'f_fax');		
+				$sqlLikeContact = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_work_phone' , 'f_mobile_phone');
+				$sqlLikeCompany = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_phone' , 'f_fax');		
 				break;
 			case "EMAIL":
-				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_email' , 'f_email');
-				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_email' , 'f_email');				
+				$sqlLikeContact = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_email' , 'f_email');
+				$sqlLikeCompany = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_email' , 'f_email');				
 				break;
 			case "CITY":
-				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_city' , 'f_city');
-				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_city' , 'f_city');			
+				$sqlLikeContact = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_city' , 'f_city');
+				$sqlLikeCompany = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_city' , 'f_city');			
 				break;
 			case "NAMES":
-				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_first_name' , 'f_last_name');
-				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_company_name' , 'f_short_name');			
+				$sqlLikeContact = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_first_name' , 'f_last_name');
+				$sqlLikeCompany = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_company_name' , 'f_short_name');			
 				break;
 			default:	
-				$sqlLikeContact = constructLikeSQL($arrTxt, 'f_first_name' , 'f_last_name');
-				$sqlLikeCompany = constructLikeSQL($arrTxt, 'f_company_name' , 'f_short_name');			
+				$sqlLikeContact = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_first_name' , 'f_last_name');
+				$sqlLikeCompany = Applets_QuickSearchCommon::constructLikeSQL($arrTxt, 'f_company_name' , 'f_short_name');			
 				break;		
 		}		
 		$sqlContact = 'SELECT '.DB::Concat('f_first_name',DB::qstr(' '),'f_last_name').' as name, id from contact_data_1 WHERE '.$sqlLikeContact.' ORDER by name ASC';
@@ -49,39 +49,14 @@ if((isset($_GET['q']) && $_GET['q'] != "")  && (isset($_GET['crit']) && $_GET['c
 else{
 	return;
 }
-/* Mark as bold when search result is found */
-function matchResult($search, $replace, $query){
-	$result = "";
-	if($query != null)
-		$result = preg_replace('/'.strtolower($search).'/', '<b>'.$replace.'</b>', strtolower($query));
-	return $result;
-}
 
-function constructLikeSQL($arrayQry = array(), $field1, $field2){
-	$sql = '';
-	$count = count($arrayQry);
-	if(!is_array($arrayQry)){
-		return;
-	}
-	
-	$inc = 0;
-	foreach($arrayQry as $qry){
-		$inc++;		
-		if($inc == $count){
-			$sql .= ' ('.$field1.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($qry), DB::qstr('%')).' OR '.$field2.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($qry), DB::qstr('%')).')';				
-		}
-		else{
-			$sql .= ' ('.$field1.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($qry), DB::qstr('%')).' OR '.$field2.' '.DB::like().' '.DB::Concat(DB::qstr('%'),DB::qstr($qry), DB::qstr('%')).') OR';
-		}	
-	}
-	return $sql;
-}
+
 
 $resultContact = DB::SelectLimit($sqlContact, $num_rows, $num_offset);
 if($resultContact){
 	$sourceTable = "contact";	
 	while($row = $resultContact->FetchRow()){
-		$appendName = matchResult($arrTxt[0], $arrTxt[0], $row['name']);
+		$appendName = Applets_QuickSearchCommon::matchResult($arrTxt[0], $arrTxt[0], $row['name']);
 		array_push($arrResult, array($appendName, $row['id'], $sourceTable));
 	}
 }
@@ -91,7 +66,7 @@ $sourceTable = "";
 if($resultCompany){	
 	$sourceTable = "company";
 	while($row = $resultCompany->FetchRow()){
-		$appendName = matchResult($arrTxt[0], $arrTxt[0], $row['name']);
+		$appendName = Applets_QuickSearchCommon::matchResult($arrTxt[0], $arrTxt[0], $row['name']);
 		array_push($arrResult, array($appendName, $row['id'], $sourceTable));
 	}
 }
