@@ -61,7 +61,7 @@ class Utils_RecordBrowser extends Module {
     private $current_field = null;
     private $additional_actions_method = null;
     private $filter_crits = array();
-    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false);
+    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false);
     private $force_order;
     private $clipboard_pattern = false;
     private $show_add_in_table = false;
@@ -148,6 +148,7 @@ class Utils_RecordBrowser extends Module {
     public function disable_pdf() {$this->disabled['pdf'] = true;}
     public function disable_export() {$this->disabled['export'] = true;}
     public function disable_actions($arg=true) {$this->disabled['actions'] = $arg;}
+    public function disable_pagination($arg=true) {$this->disabled['pagination'] = $arg;}
 
     public function set_button($arg, $arg2=''){
         $this->add_button = $arg;
@@ -794,7 +795,7 @@ class Utils_RecordBrowser extends Module {
 			'more_table_properties'=>$this->more_table_properties
 		);
 
-        if ($pdf) $limit = null;
+        if ($pdf || $this->disabled['pagination']) $limit = null;
 		else $limit = $gb->get_limit($this->amount_of_records);
         $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 
