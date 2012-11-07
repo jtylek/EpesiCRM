@@ -48,7 +48,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 				return $variables[$module][$name];
 			return null;
 		}
-		if(method_exists($module.'Common', 'user_settings')) {
+		if(class_exists($module.'Common') && method_exists($module.'Common', 'user_settings')) {
 			$menu = call_user_func(array($module.'Common','user_settings'), true);
 			if(is_array($menu))
 				foreach($menu as $v) {
