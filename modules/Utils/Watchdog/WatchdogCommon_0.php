@@ -30,7 +30,6 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function applet_settings() {
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		$ret = array();
-		$ret[] = array('label'=>'Display only new events','name'=>'only_new','type'=>'checkbox','default'=>true);
 		if (!empty($methods)) {
 			$ret[] = array('label'=>__('Categories'),'name'=>'categories_header','type'=>'header');
 			foreach ($methods as $k=>$v) { 
