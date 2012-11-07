@@ -134,9 +134,13 @@ class Applets_QuickSearch extends Module{
 		$fieldsTo->setAttribute('multiple', 'multiple');
 		$fieldsTo->setAttribute('ondblclick', 'removeFromListFields(\'fieldsfrom\', \'fieldsto\');');
 		$fieldsTo->setAttribute('style', 'height:150px;width:150px');		
-			
+
+		$format = $form->addElement('textarea','search_format', __('Result Format'));
+		$format->setAttribute('id', 'search_format');
+		
 		$placeholder = $form->addElement('text', $placeholderId, __('Place holder'));
 		$placeholder->setAttribute('placeholder', __('Query search placeholder'));
+		
 		$status = $form->addElement('checkbox', 'status', 'Status');
 		$status->setAttribute('checked', 'checked');
 		
@@ -152,9 +156,12 @@ class Applets_QuickSearch extends Module{
 			$fieldsto = $form->exportValue('fieldsto');
 			$placeholder = $form->exportValue('placeholder');
 			$status = $form->exportValue('status');
+			$search_format = $form->exportValue('search_format');
 			
-			DB::Execute('insert into quick_search(search_alias_name, search_fields, search_placeholder, search_status) 
-						values (%s, %s, %s, %s)', array($alias_name, implode(';', $fieldsto), $placeholder, $status));
+			
+			//print "Format ".  $search_format;
+			DB::Execute('insert into quick_search(search_alias_name, search_fields, search_placeholder, search_status, format) 
+						values (%s, %s, %s, %s, %s)', array($alias_name, implode(';', $fieldsto), $placeholder, $status, $search_format));
 			$form->setDefaults(array($alias_name=>'',$placeholder=>''));		
 		}		
 		$form->assign_theme('form', $theme);	
