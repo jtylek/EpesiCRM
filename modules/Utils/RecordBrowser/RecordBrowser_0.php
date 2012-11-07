@@ -783,8 +783,11 @@ class Utils_RecordBrowser extends Module {
         $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin, $order);
 
 		$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
-		if (!$this->disabled['pdf'] && !$pdf && $this->amount_of_records<200 && $this->get_access('print')) {
-			$this->new_button('print', __('Print'), 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
+		if (!$this->disabled['pdf'] && !$pdf && $this->get_access('print')) {
+			if ($this->amount_of_records<200)
+				$this->new_button('print', __('Print'), 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
+			else
+				$this->new_button('print', __('Print'), Utils_TooltipCommon::open_tag_attrs(__('Print not available due to amount of records'), false));
 		}
 		$_SESSION['client']['utils_recordbrowser'][$key] = array(
 			'tab'=>$this->tab,
@@ -2069,6 +2072,9 @@ class Utils_RecordBrowser extends Module {
 				case 'multiselect':
 							$param = '__COMMON__::'.$data['commondata_table'];
 							$data['select_data_type'] = 'multiselect';
+							break;
+				default:
+							$param = $row['param'];
 							break;
 			}
             if ($action=='add') {
