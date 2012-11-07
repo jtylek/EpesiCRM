@@ -25,6 +25,8 @@ $tab = $_SESSION['client']['utils_recordbrowser'][$key]['tab'];
 $more_table_properties = $_SESSION['client']['utils_recordbrowser'][$key]['more_table_properties'];
 
 ModuleManager::load_modules();
+if (!Utils_RecordBrowserCommon::get_access($tab, 'print'))
+	die('Access denied');
 
 set_time_limit(0);
 
