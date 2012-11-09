@@ -201,6 +201,7 @@ class epesi_archive extends rcube_plugin
         $mime_map = array();
         foreach($msg->mime_parts as $mid=>$m)
             $mime_map[$m->mime_id] = md5($k.microtime(true).$mid);
+        error_log(print_r($mime_map,true)."\n",3,'/tmp/1234567');
         if($msg->has_html_part()) {
 //            $body = $msg->first_html_part();
             foreach ($msg->mime_parts as $mime_id => $part) {
@@ -214,13 +215,14 @@ class epesi_archive extends rcube_plugin
                     break;
                 }
             }
+            error_log(print_r($cid_map,true)."\n",3,'/tmp/1234567');
             foreach($cid_map as $k=>&$v) {
-                $x = strrchr($v,'=');
-                if(!$x) unset($cid_map[$k]);
-                else {
-                    $mid = substr($x,1);
+                if(preg_match('/_part=(.*?)&/',$v,$matches)) {
+                    $mid = $matches[1];
                     if(isset($mime_map[$mid]))
                         $v = 'get.php?'.http_build_query(array('mail_id'=>'__MAIL_ID__','mime_id'=>$mime_map[$mid]));
+                } else {
+                    unset($cid_map[$k]);
                 }
             }
             $body = rcmail_wash_html($body,array('safe'=>true,'inline_html'=>true),$cid_map);
