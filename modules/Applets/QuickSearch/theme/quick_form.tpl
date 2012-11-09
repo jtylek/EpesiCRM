@@ -5,7 +5,7 @@
 				<tbody>
 				<tr>
 					<td width='10%' align='center'><span>{$query_label}</span></td>
-					<td width='90%'><div style='width:100%'>{$query_text}</div></td>
+					<td width='90%'><div style='width:100%'>{$query_text}<input type='hidden' id='search_id' value='{$search_id}' /></div></td>
 				</tr>		
 				</tbody>
 			</table>

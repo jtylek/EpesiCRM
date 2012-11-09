@@ -10,8 +10,9 @@ function setDelayOnSearch(crit){
 
 function getRecords(){
 	var txtVal = document.getElementById('query_text').value;
+	var search_id = document.getElementById('search_id').value;
 	new Ajax.Updater('tableID', 'modules/Applets/QuickSearch/getresult.php',
-								{ method: 'get', parameters: {q:txtVal, crit:criteria}});
+								{ method: 'get', parameters: {q:txtVal, crit:criteria, search_id:search_id}});
 }
 
 function getRecordFields(recordset, caption){
@@ -34,6 +35,9 @@ function addToList(selectFrom, selectTo, callAjax){
 					copyto.appendChild(optionSelected);
 					if(callAjax == true){
 						getRecordFields(optionSelected.value, optionSelected.text);
+					}else{
+						var format = document.getElementById('search_format');
+						format.value += '{' + optionSelected.value + '} ,';
 					}
 				}
 			}
@@ -44,6 +48,7 @@ function addToList(selectFrom, selectTo, callAjax){
 		
 	}
 }
+
 
 function removeFromList(selectFrom, selectTo){
 	if(document.getElementById(selectFrom)){

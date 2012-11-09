@@ -52,6 +52,21 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		return $sql;
 	}	
 	
+	public static function getQuickSearch(){
+		$qry = DB::GetRow("select * from quick_search where search_status = '1' limit 0, 1");
+		if($qry) 
+			return array('search_alias_name' => $qry[1], 'search_placeholder'=>$qry[4], 'search_id'=>$qry[0]); 
+		else
+			return false;
+	}
+	
+	public static function getQuickSearchById($search_id){
+		$qryId = DB::GetRow("select * from quick_search where search_id = ".$search_id."");
+		if($qryId)
+			return array('search_fields' => $qryId[4], 'format' => $qryId[6]);
+		else
+			return false;
+	}
 }
 
 ?>

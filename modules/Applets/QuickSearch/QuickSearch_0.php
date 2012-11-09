@@ -10,7 +10,7 @@ class Applets_QuickSearch extends Module{
 	
 	public function applet($conf, & $opts){		
 		$opts['go' ] = false;	
-		$opts['title'] = $opts['title'].' '.__('by').' '.$conf['criteria'];
+		
 		$theme = $this->init_module('Base/Theme');
 		$form = $this->init_module('Libs/QuickForm');
 		
@@ -18,23 +18,10 @@ class Applets_QuickSearch extends Module{
 		$txtLabel = 'query_label';
 		$btnQuery = 'query_button';
 		$placeholder = "";
-		switch(strtoupper($conf['criteria'])){
-			case "PHONE":
-				$placeholder = "Enter a Work/Mobile/Fax phone number here...";	
-				break;
-			case "EMAIL":
-				$placeholder = "Enter an Email address here...";			
-				break;
-			case "CITY":
-				$placeholder = "Enter a City name here...";			
-				break;
-			case "NAMES":
-				$placeholder = "Enter a First/Last/Company/Short name here...";		
-				break;
-			default:	
-				$placeholder = "Enter a First/Last/Company/Short name here...";		
-				break;		
-		}
+	
+		$qSearchSettings = Applets_QuickSearchCommon::getQuickSearch();
+		$placeholder = $qSearchSettings['search_placeholder'];
+		$opts['title'] = $opts['title'].' on '.$qSearchSettings['search_alias_name'];
 		
 		load_css('modules/Applets/QuickSearch/theme/quick_form.css');
 		load_js('modules/Applets/QuickSearch/js/quicksearch.js');	
@@ -45,10 +32,11 @@ class Applets_QuickSearch extends Module{
 		$txt->setAttribute('id', $txtQuery);
 		$txt->setAttribute('class', 'QuickSearch_text');
 		$txt->setAttribute('onkeypress', 'setDelayOnSearch(\''.trim($conf['criteria']).'\')');				
-		$txt->setAttribute('placeholder', _V($placeholder));
+		$txt->setAttribute('placeholder', __($placeholder));
 		
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
+		$theme->assign('search_id', $qSearchSettings['search_id']);
 		$theme->display('quick_form');					
 	
 	}
@@ -71,8 +59,8 @@ class Applets_QuickSearch extends Module{
         $form = $this->init_module('Libs/QuickForm');
 		
 		// field 	Recordset e.g crm_contacts, Fields e.g f_first_name, f_last_name, Status e.g active
-		$tb->set_tab('Queries', array($this,'list_queries'));
-        $tb->set_tab('Create', array($this,'create_queries'));
+		$tb->set_tab('History', array($this,'list_queries'));
+        $tb->set_tab('Query', array($this,'create_queries'));
         $this->display_module($tb);
 		return true;
     }
@@ -158,17 +146,47 @@ class Applets_QuickSearch extends Module{
 			$status = $form->exportValue('status');
 			$search_format = $form->exportValue('search_format');
 			
-			
-			//print "Format ".  $search_format;
+			//print "Alias_name[".$alias_name. "] fieldsto[".$fieldsto."] placeholder[".$placeholder."] status[".$status."] Format[".$search_format."]";
 			DB::Execute('insert into quick_search(search_alias_name, search_fields, search_placeholder, search_status, format) 
 						values (%s, %s, %s, %s, %s)', array($alias_name, implode(';', $fieldsto), $placeholder, $status, $search_format));
 			$form->setDefaults(array($alias_name=>'',$placeholder=>''));		
 		}		
 		$form->assign_theme('form', $theme);	
-		$theme->assign('header', __('Query'));
+		$theme->assign('header', __('Create'));
 		$theme->display('quick_search_form');
 	}	
 	
+	
+	public function list_queries(){
+		$theme = $this->init_module('Base/Theme');
+		$gBrowser = & $this->init_module('Utils/GenericBrowser',null,'quick_search');		
+		$gBrowser->set_table_columns(array(
+						array('name'=>__('Alias Name'),'width'=>20),
+						array('name'=>__('Search fields'),'width'=>10),
+						array('name'=>__('Placeholder'),'width'=>10),
+						array('name'=>__('Format'),'width'=>44),
+						array('name'=>__('Status'),'width'=>16)						
+						));		
+		$query = "select * from quick_search";
+		$limit = "select count(search_id) from quick_search";
+		$ret = $gBrowser->query_order_limit($query, $limit);
+		if($ret){
+			while($row = $ret->FetchRow()){
+				$alias_name = $row['search_alias_name'];
+				$search_fields = $row['search_fields'];
+				$placeholder = $row['search_placeholder'];
+				$format = $row['format'];
+				$status = ($row['search_status'] == '1') ? 'Active' : 'Inactive';
+				$gBrowser->add_row($alias_name, $search_fields, $placeholder, $format, $status);
+			}
+		}
+		
+		$gBrowser->set_inline_display(true);
+		$theme->assign('messages',$this->get_html_of_module($gBrowser));
+		$theme->display('list_quiries');
+		return true;
+		
+	}
 	
 }
 

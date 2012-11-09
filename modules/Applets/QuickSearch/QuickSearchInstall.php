@@ -11,9 +11,10 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 									'search_id I4 AUTO KEY, 
 									search_alias_name C(100) NOTNULL,
 									search_recordset C(100) NOTNULL, 
-									search_fields C(100) NOTNULL,
-									search_placeholder C(100),
-									search_status C(1) NOTNULL');
+									search_fields TEXT NOTNULL,
+									search_placeholder TEXT,
+									search_status C(1) NOTNULL,
+									format TEXT');
 								
 		if(!$ret){
 			print('Unable to create table vacation planner.<br>');

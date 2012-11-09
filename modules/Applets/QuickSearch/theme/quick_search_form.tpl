@@ -55,12 +55,20 @@
 						</tr>	
 						<tr>				
 							<td class="epesi_label" style="width:200px">
+								{$form_data.search_format.label}
+							</td>
+							<td class="epesi_data" style="width:400px">
+								{$form_data.search_format.html}
+							</td>						
+						</tr>						
+						<tr>				
+							<td class="epesi_label" style="width:200px">
 								{$form_data.placeholder.label}
 							</td>
 							<td class="epesi_data" style="width:400px">
 								{$form_data.placeholder.html}
 							</td>						
-						</tr>	
+						</tr>								
 						<tr>				
 							<td class="epesi_label" style="width:200px">
 								{$form_data.status.label}

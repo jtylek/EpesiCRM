@@ -11,11 +11,16 @@ $num_offset = 0;
 $arrTxt = array();
 $sqlLikeContact = "";
 $sqlLikeCompany = "";
-if((isset($_GET['q']) && $_GET['q'] != "")  && (isset($_GET['crit']) && $_GET['crit'] != "")) {
+if((isset($_GET['q']) && $_GET['q'] != "")  && (isset($_GET['crit']) && $_GET['crit'] != "" 
+		&& (isset($_GET['search_id'])) && $_GET['search_id'] != "")) {
+		
 	$txt = trim(urldecode($_GET['q']));
 	$crit = trim(urldecode($_GET['crit']));
+	$search_id = (int) $_GET['search_id'];
 	$arrTxt = explode(" ", $txt);
 	$countArray = (is_array($arrTxt)) ? count($arrTxt) : 0;
+	$QuickSearchSettings = Applets_QuickSearchCommon::getQuickSearchById($search_id);
+	
 	if($countArray > 0){
 		switch(strtoupper($crit)){
 			case "PHONE":
