@@ -2229,6 +2229,7 @@ function rcube_fontdefs($font = null)
     'Arial'         => 'Arial,Helvetica,sans-serif',
     'Arial Black'   => '"Arial Black","Avant Garde",sans-serif',
     'Book Antiqua'  => '"Book Antiqua",Palatino,serif',
+    'Calibri'   => '"Calibri",Verdana,Geneva,sans-serif',
     'Courier New'   => '"Courier New",Courier,monospace',
     'Georgia'       => 'Georgia,Palatino,serif',
     'Helvetica'     => 'Helvetica,Arial,sans-serif',
