@@ -804,7 +804,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->addFormRule(array('CRM_ContactsCommon', 'check_pass'));
 	}
 	public static function check_pass($data) {
-		if ($data['set_password']==$data['confirm_password']) return true;
+        $pass = & $data['set_password'];
+        $repass = & $data['confirm_password'];
+		if ($pass == $repass) return true;
 		return array('set_password'=>__('Passwords don\'t match'));
 	}
     public static function QFfield_access(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
