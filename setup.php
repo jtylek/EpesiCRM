@@ -257,28 +257,33 @@ function write_config($host, $user, $pass, $dbname, $engine, $other) {
 	$c = & fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
 /**
- * Config file
+ * Config file.
+ * 
+ * All commented out defines are default values as they was
+ * during install process. Default values can change after update,
+ * but your config file will remain as it was. If you want to know
+ * actual default values please look at file include/config.php
  *
  * This file contains database configuration.
  */
- defined(\'_VALID_ACCESS\') || die(\'Direct access forbidden\');
+defined(\'_VALID_ACCESS\') || die(\'Direct access forbidden\');
 
 /**
  * Address of SQL server.
  */
 define(\'DATABASE_HOST\',\''.addcslashes($host, '\'\\').'\');
 
- /**
+/**
  * User to log in to SQL server.
  */
 define(\'DATABASE_USER\',\''.addcslashes($user, '\'\\').'\');
 
- /**
+/**
  * User password to authorize SQL server.
  */
 define(\'DATABASE_PASSWORD\',\''.addcslashes($pass, '\'\\').'\');
 
- /**
+/**
  * Database to use.
  */
 define(\'DATABASE_NAME\',\''.addcslashes($dbname, '\'\\').'\');
@@ -291,47 +296,47 @@ define(\'DATABASE_DRIVER\',\''.addcslashes($engine, '\'\\').'\');
 /*
  * Turns on transfer reduction: not everything is sent to the client
  */
-define(\'REDUCING_TRANSFER\',1);
+//define(\'REDUCING_TRANSFER\',1);
 
 /*
  * A lot of debug info, starting with what modules are changed, what module variables are set... etc.
  */
-define(\'DEBUG\',0);
+//define(\'DEBUG\',0);
 
 /*
  * Show module loading time ...  = module + all children times
  */
-define(\'MODULE_TIMES\',0);
+//define(\'MODULE_TIMES\',0);
 
 /*
  * Show queries execution time.
  */
-define(\'SQL_TIMES\',0);
+//define(\'SQL_TIMES\',0);
 
 /*
  * If you have got good server, but poor connection, turn it on.
  */
-define(\'STRIP_OUTPUT\',0);
+//define(\'STRIP_OUTPUT\',0);
 
 /*
  * Display errors on page.
  */
-define(\'DISPLAY_ERRORS\',1);
+//define(\'DISPLAY_ERRORS\',1);
 
 /*
  * Notify all errors, including E_NOTICE, etc. Developer should use it!
  */
-define(\'REPORT_ALL_ERRORS\',1);
+//define(\'REPORT_ALL_ERRORS\',0);
 
 /*
  * Compress history
  */
-define(\'GZIP_HISTORY\',1);
+//define(\'GZIP_HISTORY\',1);
 
 /*
  * Compress HTTP output
  */
-define(\'MINIFY_ENCODE\',1);
+//define(\'MINIFY_ENCODE\',1);
 
 /*
  * Apply sources minifying algorithms.
@@ -339,22 +344,22 @@ define(\'MINIFY_ENCODE\',1);
  * If enabled CPU usage may raise, but amount
  * of transferred data is smaller.
  */
-define(\'MINIFY_SOURCES\',0);
+//define(\'MINIFY_SOURCES\',0);
 
 /*
  * Show donation links in EPESI
  */
-define(\'SUGGEST_DONATION\',1);
+//define(\'SUGGEST_DONATION\',1);
 
 /*
  * automatically check for new version
  */
-define(\'CHECK_VERSION\',1);
+//define(\'CHECK_VERSION\',1);
 
 /*
  * Disable some administrator preferences.
  */
-define(\'DEMO_MODE\',0);
+//define(\'DEMO_MODE\',0);
 '.$other_conf.'
 ?>');
 	fclose($c);
