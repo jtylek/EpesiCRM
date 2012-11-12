@@ -66,7 +66,7 @@ foreach ($records as $r) {
 		ob_end_clean();
 		$val = str_replace('&nbsp;',' ',htmlspecialchars_decode(strip_tags(preg_replace('/\<[Bb][Rr]\/?\>/',"\n",$val))));
 		if ($v['style']=='currency') {
-			$val = str_replace('&nbsp;','_',$val);
+			$val = str_replace(' ','_',$val);
 			$val = explode(';', $val);
 			if (isset($val[1])) {
 				$final = array();
