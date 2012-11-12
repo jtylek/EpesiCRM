@@ -23,7 +23,6 @@ ModuleManager::create_common_cache();
 Base_ThemeCommon::themeup();
 Base_LangCommon::update_translations();
 
-$msgs = array();
 foreach ($patches as $patch) {
     if (!$patch->get_apply_success()) {
         ret(0);

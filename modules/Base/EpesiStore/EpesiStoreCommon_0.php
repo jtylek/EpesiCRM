@@ -291,7 +291,18 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     private static function post_install_refresh() {
-        // here exec runpatches.php and show status
+        $show_processing = "Epesi.procOn++;Epesi.updateIndicatorText('" . Epesi::escapeJS(__('Running post install procedures')) . "');Epesi.updateIndicator();";
+        $success_text = Epesi::escapeJS(__("Success. Restart EPESI to ensure proper operation."));
+        $failure_text = Epesi::escapeJS(__("Patch apply error. See patches log for more information (EPESI_DIR/data/patches_log.txt)"));
+        $ajax_req = "new Ajax.Request('modules/Base/EpesiStore/runpatches.php',"
+                . "{ method: 'post', "
+                . "onComplete: function(t) {Epesi.procOn--;"
+                . "if (t.responseText == '1') statusbar_message('<div class=\"message normal\">" . $success_text . "</div>');"
+                . "else if (t.responseText == '0') alert('$failure_text');"
+                . "else alert('Error: '+t.responseText);"
+                . "Epesi.updateIndicator();"
+                . "}});";
+        eval_js($show_processing . $ajax_req);
     }
 
     private static function _active_module_license_for_module($module_id) {
