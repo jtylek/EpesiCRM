@@ -59,6 +59,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				'slovak'=>'CP1250',
 				'spanish'=>'CP1252',
 				'swedish'=>'CP1252',
+				'russian'=>'CP1251',
 				'turkish'=>'CP1254',
 				'greek'=>'CP1253');
 
@@ -194,13 +195,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		    $locale=setlocale(LC_ALL,"0");
 			static $loc = null;
 			if ($loc==null) {
-				$loc=strtolower($locale);
-				$loc=explode('_',$loc,2);
-				$loc=$loc[0];
+				$lang = strtolower(Base_LangCommon::get_lang_code());
+				if (isset(self::$countries[$lang]) && isset(self::$encodings[self::$countries[$lang]])) {
+					$loc = self::$encodings[self::$countries[$lang]];
+				}
 			}
-		    if(isset(self::$encodings[$loc]))
-    		 	return iconv(self::$encodings[$loc],'UTF-8',$ret);
-    		return iconv('','UTF-8',$ret);
+    		return iconv($loc,'UTF-8',$ret);
 		}
 		return $ret;
 	}
@@ -263,7 +263,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		if($tz)
 			self::set_tz();
 		static $dt_B;
-		if(!isset($dt_B)) $dt_B = (strpos($datef,'%B')>=0);
+		if(!isset($dt_B)) $dt_B = (strpos($datef,'%B')!==false);
 		if($dt_B) {
 			static $months_B;
 			if(!isset($months_B)) {
@@ -275,7 +275,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		}
 
 		static $dt_sb;
-		if(!isset($dt_sb)) $dt_sb = (strpos($datef,'%b')>=0);
+		if(!isset($dt_sb)) $dt_sb = (strpos($datef,'%b')!==false);
 		if($dt_sb) {
 			static $months_sb;
 			if(!isset($months_sb)) {
