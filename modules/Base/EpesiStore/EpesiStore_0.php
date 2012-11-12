@@ -480,6 +480,7 @@ class Base_EpesiStore extends Module {
         $modules = $this->_extract_modules_names($all_files);
         $this->_print_module_list($modules);
         $this->_print_other_files_list($all_files);
+        Base_EpesiStoreCommon::post_install_refresh_by_ajax();
     }
 
     private function _extract_modules_names(& $all_files) {

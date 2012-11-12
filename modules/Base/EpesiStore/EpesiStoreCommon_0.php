@@ -231,7 +231,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             self::extract_module_file($file);
             self::store_info_about_downloaded_module($module_license, $file);
 
-            self::post_install_refresh();
+            self::post_install_refresh_by_ajax();
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -290,7 +290,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         self::add_downloaded_module($module_info['id'], $module_info['version'], $module_license['id'], $file);
     }
 
-    private static function post_install_refresh() {
+    public static function post_install_refresh_by_ajax() {
         $show_processing = "Epesi.procOn++;Epesi.updateIndicatorText('" . Epesi::escapeJS(__('Running post install procedures')) . "');Epesi.updateIndicator();";
         $success_text = Epesi::escapeJS(__("Success. Restart EPESI to ensure proper operation."));
         $failure_text = Epesi::escapeJS(__("Patch apply error. See patches log for more information (EPESI_DIR/data/patches_log.txt)"));
