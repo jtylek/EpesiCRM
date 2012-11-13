@@ -72,6 +72,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 return self::ACTION_DOWNLOAD;
             else if (self::version_compare($module['version'], $downloaded_modules[$module['id']]['version']) > 0)
                 return self::ACTION_UPDATE;
+            else if (!self::is_module_downloaded($module['id'])) // check on the end to prevent call this function at first
+                return self::ACTION_DOWNLOAD;
             else
                 return self::ACTION_INSTALL;
         }
@@ -291,7 +293,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     public static function post_install_refresh_by_ajax() {
-        $show_processing = "Epesi.procOn++;Epesi.updateIndicatorText('" . Epesi::escapeJS(__('Running post install procedures')) . "');Epesi.updateIndicator();";
+        $show_processing = "Epesi.procOn++;Epesi.updateIndicatorText('" . Epesi::escapeJS(__('Running post download procedures')) . "');Epesi.updateIndicator();";
         $success_text = Epesi::escapeJS(__("Success. Restart EPESI to ensure proper operation."));
         $failure_text = Epesi::escapeJS(__("Patch apply error. See patches log for more information (EPESI_DIR/data/patches_log.txt)"));
         $ajax_req = "new Ajax.Request('modules/Base/EpesiStore/runpatches.php',"
