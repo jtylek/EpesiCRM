@@ -877,25 +877,29 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function add_recent_entry($tab, $user_id ,$id){
         self::check_table_name($tab);
-        static $rec_size;
-        if (!isset($rec_size)) $rec_size = DB::GetOne('SELECT recent FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
-        DB::Execute('DELETE FROM '.$tab.'_recent WHERE user_id = %d AND '.$tab.'_id = %d',
-                    array($user_id,
-                    $id));
-        $ret = DB::SelectLimit('SELECT visited_on FROM '.$tab.'_recent WHERE user_id = %d ORDER BY visited_on DESC',
-                    $rec_size-1,
-                    -1,
-                    array($user_id));
-        while($row_temp = $ret->FetchRow()) $row = $row_temp;
-        if (isset($row)) {
-            DB::Execute('DELETE FROM '.$tab.'_recent WHERE user_id = %d AND visited_on < %T',
-                        array($user_id,
-                        $row['visited_on']));
-        }
-        DB::Execute('INSERT INTO '.$tab.'_recent ('.$tab.'_id, user_id, visited_on) VALUES (%d, %d, %T)',
-                    array($id,
-                    $user_id,
-                    date('Y-m-d H:i:s')));
+        static $rec_size = array();
+        if (!isset($rec_size[$tab])) $rec_size[$tab] = DB::GetOne('SELECT recent FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
+		$ids = array();
+		if ($rec_size[$tab]) {
+			$ret = DB::SelectLimit('SELECT '.$tab.'_id FROM '.$tab.'_recent WHERE user_id = %d ORDER BY visited_on DESC',
+						$rec_size[$tab],
+						-1,
+						array($user_id));
+			while($row = $ret->FetchRow()) {
+				if ($row[$tab.'_id']==$id) continue;
+				if (count($ids)>=$rec_size[$tab]-1) continue;
+				$ids[] = $row[$tab.'_id'];
+			}
+		}
+		if (empty($ids)) $where = '';
+		else $where = ' AND '.$tab.'_id NOT IN ('.implode(',',$ids).')';
+		DB::Execute('DELETE FROM '.$tab.'_recent WHERE user_id = %d'.$where,
+					array($user_id));
+		if ($rec_size[$tab])
+			DB::Execute('INSERT INTO '.$tab.'_recent ('.$tab.'_id, user_id, visited_on) VALUES (%d, %d, %T)',
+						array($id,
+						$user_id,
+						date('Y-m-d H:i:s')));
     }
     public static function merge_crits($a = array(), $b = array(), $or=false) {
 		if ($or) {
