@@ -259,10 +259,10 @@ function write_config($host, $user, $pass, $dbname, $engine, $other) {
 /**
  * Config file.
  * 
- * All commented out defines are default values as they was
- * during install process. Default values can change after update,
+ * All commented out defines are default values as they were
+ * during the installation process. Default values may change after an update,
  * but your config file will remain as it was. If you want to know
- * actual default values please look at file include/config.php
+ * current default values please look at file include/config.php
  *
  * This file contains database configuration.
  */
