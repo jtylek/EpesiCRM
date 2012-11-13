@@ -77,7 +77,9 @@ class Utils_RecordBrowser extends Module {
 		else {
 			if (!file_exists($type))
 				$type = Base_ThemeCommon::get_template_file('Base/ActionBar', 'icons/'.$type.'.png');
-			$this->more_add_button_stuff .= '<a class="record_browser_button" id="Base_ActionBar" '.$href.'>'.'<img src="'.$type.'">'.$label.'</a>';
+			$this->more_add_button_stuff .= '<a class="record_browser_button" id="Base_ActionBar" '.$href.'>'.'<img src="'.$type.'">'.
+				'<div style="display:inline-block;position: relative;top:-8px;">'.$label.'</div>'.
+				'</a>';
 		}
 	}
 	
