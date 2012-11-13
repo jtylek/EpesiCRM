@@ -2671,6 +2671,12 @@ function update_from_1_3_to_1_4_0() {
 	PatchUtil::apply_new();
 }
 
+$versions[] = '1.4.1';
+function update_from_1_4_0_to_1_4_1() {
+	ModuleManager::create_load_priority_array();
+	PatchUtil::apply_new();
+}
+
 $go=false;
 $last_ver = '';
 define('CID',false);
