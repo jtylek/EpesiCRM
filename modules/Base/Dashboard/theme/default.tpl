@@ -1,4 +1,4 @@
-	<div class="layer" style="padding: 10px; width: 96%; min-height: 30px;">
+	<div class="layer" style="padding: 10px 0px; width: 96%; min-height: 30px;">
 		<div class="content_shadow_css3_dashboard {$color}_dashboard">
             <table class="container {$color}_dashboard" cellpadding="0" cellspacing="0" border="0">
                 <tbody>
