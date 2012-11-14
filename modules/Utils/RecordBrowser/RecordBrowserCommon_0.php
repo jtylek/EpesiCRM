@@ -886,7 +886,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						-1,
 						array($user_id));
 			while($row = $ret->FetchRow()) {
-				if ($row[$tab.'_id']==$id) continue;
+				if ($row[$tab.'_id']==$id || !$row[$tab.'_id']) continue;
 				if (count($ids)>=$rec_size[$tab]-1) continue;
 				$ids[] = $row[$tab.'_id'];
 			}
