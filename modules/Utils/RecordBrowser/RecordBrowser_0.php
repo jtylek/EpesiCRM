@@ -1123,7 +1123,7 @@ class Utils_RecordBrowser extends Module {
         if($mode == 'add' || $mode == 'edit') {
             $theme -> assign('click2fill', '<div id="c2fBox"></div>');
             load_js('modules/Utils/RecordBrowser/click2fill.js');
-            eval_js('initc2f("'.__('Scan/Edit').'","'.__('Paste your data here').'")');
+            eval_js('initc2f("'.__('Scan/Edit').'","'.__('Paste data here with Ctrl-v, click button below, then click on separated words in specific order and click in text field where you want put those words. They will replace text in that field.').'")');
             Base_ActionBarCommon::add('clone', __('Click 2 Fill'), 'href="javascript:void(0)" onclick="c2f()"');
         }
 

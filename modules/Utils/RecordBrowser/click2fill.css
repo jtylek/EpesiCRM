@@ -1,17 +1,45 @@
 #c2fs {
     line-height: 15px;
     display: none;
+    max-width: 800px;
+}
+
+#c2fs div.selected {
+    color: black;
+    background-color: #F2F6F8;
+    background: -moz-linear-gradient(top, #F2F6F8 0%, #D8E1E7 50%, #B5C6D0 51%, #E0EFF9 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#F2F6F8), color-stop(50%,#D8E1E7), color-stop(51%,#B5C6D0), color-stop(100%,#E0EFF9));
+    background: -webkit-linear-gradient(top, #F2F6F8 0%,#D8E1E7 50%,#B5C6D0 51%,#E0EFF9 100%);
+    background: -o-linear-gradient(top, #F2F6F8 0%,#D8E1E7 50%,#B5C6D0 51%,#E0EFF9 100%);
+    background: -ms-linear-gradient(top, #F2F6F8 0%,#D8E1E7 50%,#B5C6D0 51%,#E0EFF9 100%);
+    background: linear-gradient(top, #F2F6F8 0%,#D8E1E7 50%,#B5C6D0 51%,#E0EFF9 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f6f8', endColorstr='#e0eff9',GradientType=0 );
+}
+
+#c2fs span {
+    color: #666666;
+    vertical-align: super;
+    display: -moz-inline-box;
+    display: inline-block;    
+    min-width: 10px;
 }
 
 #c2fs div {
     display: -moz-inline-box;
     display: inline-block;
     padding: 5px;
-    margin: 5px;
-    border: 1px solid gray;
-    color: black;
-    background-color: white;
+    margin: 10px 5px;
+    border: 1px solid #aaaaaa;
+    color: #444444;
     cursor: pointer;
+    background-color: white;
+    background: -moz-linear-gradient(top, white 0%, #F1F1F1 50%, #E1E1E1 51%, #F6F6F6 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,white), color-stop(50%,#F1F1F1), color-stop(51%,#E1E1E1), color-stop(100%,#F6F6F6));
+    background: -webkit-linear-gradient(top, white 0%,#F1F1F1 50%,#E1E1E1 51%,#F6F6F6 100%);
+    background: -o-linear-gradient(top, white 0%,#F1F1F1 50%,#E1E1E1 51%,#F6F6F6 100%);
+    background: -ms-linear-gradient(top, white 0%,#F1F1F1 50%,#E1E1E1 51%,#F6F6F6 100%);
+    background: linear-gradient(top, white 0%,#F1F1F1 50%,#E1E1E1 51%,#F6F6F6 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f6f6f6',GradientType=0 );
 }
 
 #c2fBox {
@@ -22,5 +50,5 @@
 
 #c2ftxt {
     display: block;
-    width: 100%;
+    margin: 15px 0px;
 }
