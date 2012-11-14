@@ -36,6 +36,15 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
      * @access    private
      */
     var $keyhash = array();
+	private $on_add_js_code = '';
+	private $on_remove_js_code = '';
+
+    public function on_add_js($js) {
+    	$this->on_add_js_code .= $js;
+    }
+    public function on_remove_js($js) {
+    	$this->on_remove_js_code .= $js;
+    }
 
 	private $list_sep = '__SEP__';
     /**
@@ -377,7 +386,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 				$attrString = $this->_getAttrString($this->_attributes);
 
 				$fromElement = '';
-				$fromElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');" ondblclick="ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');">'."\n";
+				$fromElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');'.$this->on_add_js_code.'" ondblclick="ms_add_selected(\''.$mod.'\', \''.$this->list_sep.'\');'.$this->on_add_js_code.'">'."\n";
 				if (isset($this->_values[0]) && preg_match('/'.addcslashes($this->list_sep,'/').'/i',$this->_values[0])) {
 					$this->_values = explode($this->list_sep,$this->_values[0]);
 					array_shift($this->_values);
@@ -396,7 +405,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 				$this->setName($myName . 'to[]');
 				$this->_attributes['id'] = $myName . '__to';
 				$attrString = $this->_getAttrString($this->_attributes);
-				$toElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');" ondblclick="ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');">'."\n";
+				$toElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');'.$this->on_remove_js_code.'" ondblclick="ms_remove_selected(\''.$mod.'\', \''.$this->list_sep.'\');'.$this->on_remove_js_code.'">'."\n";
 				$list = '';
 				foreach ($this->_options as $option) {
 					if (is_array($this->_values) && in_array((string)$option['attr']['value'], $this->_values)) {
@@ -412,15 +421,19 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 				
 				$buttons['add_all'] = '<input id="'.$myName.'__add_all" type=button value=">>" onclick="'.
 									'ms_add_all(\''.$myName.'\', \''.$this->list_sep.'\');'.
+									$this->on_add_js_code.
 									'"/>';
 				$buttons['remove_all'] = '<input id="'.$myName.'__remove_all" align=center type=button value="<<" onclick="'.
 									'ms_remove_all(\''.$myName.'\', \''.$this->list_sep.'\');'.
+									$this->on_remove_js_code.
 									'"/>';
 				$buttons['remove_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__from\');" id="'.$myName.'__remove_selected" type=button value="<" onclick="'.
 									'ms_remove_selected(\''.$myName.'\', \''.$this->list_sep.'\');'.
+									$this->on_remove_js_code.
 									'"/>';
 				$buttons['add_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__to\');" id="'.$myName.'__add_selected" type=button value=">" onclick="'.
 									'ms_add_selected(\''.$myName.'\', \''.$this->list_sep.'\');'.
+									$this->on_add_js_code.
 									'"/>';
 
 				$strHtml .= $tabs . '<table id="multiselect">';
