@@ -58,7 +58,7 @@
 -	Zrób kopię zapasową bazy danych.
 -	Pobierz nową wersję EPESI i nadpisz wszystkie pliki.
 -	Wpisz w przeglądarce adres, pod którym EPESI pracuje, np.: http://www.twojafirma.com/epesi
--	Jeśli schemat bazy danych nie uległ zmianie, od rzau możesz pracować na nowej wersji.
+-	Jeśli schemat bazy danych nie uległ zmianie, od razu możesz pracować na nowej wersji.
 -	Jeśli schemat bazy danych się zmienił, automatycznie rozpocznie się proces aktualizacji, w czasie którego tabele zostaną dostosowane do tego nowego schematu.
 -	Gdy proces aktualizacji się zakończy, nastąpi automatyczne przekierowanie do nowej wersji EPESI.
 
