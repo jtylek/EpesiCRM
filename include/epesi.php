@@ -69,11 +69,6 @@ class Epesi {
 
 	public final static function get_output() {
 		$ret = '';
-//		foreach(self::$load_csses as $f)
-//			$ret .= 'Epesi.load_css(\''.self::escapeJS($f,false).'\');';
-//		foreach(self::$load_jses as $f)
-//			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
-		require_once('libs/minify/Minify/Build.php');
 		$out_css = self::get_csses();
 		foreach($out_css as $css) {
 			$ret .= 'Epesi.load_css(\''.self::escapeJS($css,false).'\');';
@@ -98,8 +93,8 @@ class Epesi {
 	
 	public final static function load_js($u,$loader=null) {
 		if(!is_string($u) || strlen($u)==0) return false;
-		if(!isset($loader)) $loader = 'serve.php';
 		if (!isset($_SESSION['client']['__loaded_jses__'][$u])) {
+    		if (!isset($loader)) $loader = 'serve.php';
 			if(!isset(self::$load_jses[$loader])) self::$load_jses[$loader] = array();
 			self::$load_jses[$loader][] = $u;
 			$_SESSION['client']['__loaded_jses__'][$u] = true;
@@ -110,8 +105,8 @@ class Epesi {
 
 	public final static function load_css($u,$loader=null) {
 		if(!is_string($u) || strlen($u)==0) return false;
-		if(!isset($loader)) $loader = 'serve.php';
 		if (!isset($_SESSION['client']['__loaded_csses__'][$u])) {
+    		if (!isset($loader)) $loader = 'serve.php';
 			if(!isset(self::$load_csses[$loader])) self::$load_csses[$loader] = array();
 			self::$load_csses[$loader][] = $u;
 			$_SESSION['client']['__loaded_csses__'][$u] = true;
@@ -215,21 +210,10 @@ class Epesi {
 		    self::$content[$path]['time'] = microtime(true)-$time;
 	}
 
-	public static function debug($msg=null) {
-		
+	public static function debug($msg=null) {		
 		static $msgs = '';
 		if($msg) $msgs .= $msg.'<br>';
 		return $msgs;
-		
-		/*		
-		// Check if the argument is array:
-		if (is_array($msg)){
-			print("<pre>".print_r($msg,true)."</pre>".'</br>');
-		} else {
-			print($msg.'</br>');
-		}
-		return;
-		*/
 	}
 
 
