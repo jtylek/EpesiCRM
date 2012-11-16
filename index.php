@@ -219,7 +219,22 @@ Please choose EPESI version:<ul>
 				</table>
 			</div>	
 		</div>
+        <?php 
+        /*
+         * init_js file allows only num_of_clients sessions. If there is image
+         * with empty src="" browser will load index.php file, so we cannot
+         * include init_js file directly because num_of_clients request will
+         * reset our history and restart EPESI.
+         * 
+         * Check here if request accepts html. If it does we can assume that
+         * this is request for page and include init_js file which is faster.
+         * If there is not 'html' in accept use script with src property.
+         */
+        if(isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], 'html') !== false) { ?>
+		<script type="text/javascript"><?php require_once 'init_js.php'; ?></script>
+        <?php } else { ?>
 		<script type="text/javascript" src="init_js.php?<?php print(http_build_query($_GET));?>"></script>
+        <?php } ?>
         <noscript>Please enable JavaScript in your browser and let EPESI work!</noscript>
 		<?php if(IPHONE) { ?>
 		<script type="text/javascript">var iphone=true;</script>
