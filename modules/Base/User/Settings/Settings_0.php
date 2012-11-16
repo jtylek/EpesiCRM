@@ -191,7 +191,7 @@ class Base_User_Settings extends Module {
 
         $buttons = array();
         foreach($modules as $caption=>$arg) {
-            $icon = false;
+            $icon = null;
             sort($arg['module_names']);
             foreach($arg['module_names'] as $m) {
                 $f = array($m.'Common','user_settings_icon');
