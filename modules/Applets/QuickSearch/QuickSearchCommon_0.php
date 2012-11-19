@@ -12,7 +12,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 	}
 
 	 public static function admin_caption() {
-		return array('label'=>__('QuickSearch'), 'section'=>__('Features Configuration'));
+		return array('label'=>__('Quick Search'), 'section'=>__('Features Configuration'));
     }
 	
 	public static function applet_info() {

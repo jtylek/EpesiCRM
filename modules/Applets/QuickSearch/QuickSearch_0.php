@@ -32,7 +32,7 @@ class Applets_QuickSearch extends Module{
 		$txt->setAttribute('id', $txtQuery);
 		$txt->setAttribute('class', 'QuickSearch_text');
 		$txt->setAttribute('onkeypress', 'setDelayOnSearch(\''.trim($conf['criteria']).'\')');				
-		$txt->setAttribute('placeholder', __($placeholder));
+		$txt->setAttribute('placeholder', _V($placeholder));
 		
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
@@ -41,7 +41,7 @@ class Applets_QuickSearch extends Module{
 	
 	}
 	public function caption() {
-		return __('QuickSearch');
+		return __('Quick Search');
 	}	
 
     public function admin() {
@@ -82,8 +82,8 @@ class Applets_QuickSearch extends Module{
 		$fieldsto = 'fieldsto';
 		$placeholderId = 'placeholder';
 		
-		$aliasName = $form->addElement('text', $alias_name, __('Alias name'));
-		$aliasName->setAttribute('placeholder', __('Alias name'));
+		$aliasName = $form->addElement('text', $alias_name, __('Alias Name'));
+		$aliasName->setAttribute('placeholder', __('Alias Name'));
 				
 		$recordset_from = $form->addElement('select', 'recordsetfrom', __('Recordset'), $options);
 		$recordset_from->setAttribute('id','recordsetfrom');
@@ -97,10 +97,10 @@ class Applets_QuickSearch extends Module{
 		$recordset_to->setAttribute('ondblclick', 'removeFromList(\'recordsetfrom\', \'recordsetto\');');
 		$recordset_to->setAttribute('style', 'width: 150px;height:150px;');		
 		
-		$recordset_copy = $form->addElement('button', 'record_btn_copy', __('>'));
+		$recordset_copy = $form->addElement('button', 'record_btn_copy', '>');
 		$recordset_copy->setAttribute('id','btnQuery');
 		$recordset_copy->setAttribute('onclick', 'addToList(\'recordsetfrom\', \'recordsetto\', true);');
-		$recordset_revert = $form->addElement('button', 'record_btn_revert', __('<'));
+		$recordset_revert = $form->addElement('button', 'record_btn_revert', '<');
 		$recordset_revert->setAttribute('id','btnQuery');
 		$recordset_revert->setAttribute('onclick', 'removeFromList(\'recordsetfrom\', \'recordsetto\');');
 		
@@ -110,10 +110,10 @@ class Applets_QuickSearch extends Module{
 		$fieldsFrom->setAttribute('ondblclick', 'addToList(\'fieldsfrom\', \'fieldsto\', false);');
 		$fieldsFrom->setAttribute('style', 'height:150px;width:150px');
 
-		$fields_btn_copy = $form->addElement('button', 'fields_btn_copy', __('>'));
+		$fields_btn_copy = $form->addElement('button', 'fields_btn_copy', '>');
 		$fields_btn_copy->setAttribute('id','btnQuery');
 		$fields_btn_copy->setAttribute('onclick', 'addToList(\'fieldsfrom\', \'fieldsto\', false);');
-		$fields_btn_revert = $form->addElement('button', 'fields_btn_revert', __('<'));
+		$fields_btn_revert = $form->addElement('button', 'fields_btn_revert', '<');
 		$fields_btn_revert->setAttribute('id','btnQuery');
 		$fields_btn_revert->setAttribute('onclick', 'removeFromListFields(\'fieldsfrom\', \'fieldsto\');');
 		
@@ -126,7 +126,7 @@ class Applets_QuickSearch extends Module{
 		$format = $form->addElement('textarea','search_format', __('Result Format'));
 		$format->setAttribute('id', 'search_format');
 		
-		$placeholder = $form->addElement('text', $placeholderId, __('Place holder'));
+		$placeholder = $form->addElement('text', $placeholderId, __('Placeholder'));
 		$placeholder->setAttribute('placeholder', __('Query search placeholder'));
 		
 		$status = $form->addElement('checkbox', 'status', 'Status');
