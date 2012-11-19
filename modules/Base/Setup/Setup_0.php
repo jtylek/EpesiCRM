@@ -61,7 +61,7 @@ class Base_Setup extends Module {
 
 		$simple = Base_SetupCommon::is_simple_setup();
 
-		Base_ActionBarCommon::add('scan',__('Rebuild modules database'),$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
+		Base_ActionBarCommon::add('scan',__('Rebuild modules database'),$this->create_confirm_callback_href(__('Parsing for additional modules may take up to several minutes, do you wish to continue?'),array('Base_Setup','parse_modules_folder_refresh')));
 		if (!$store) Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		
 		if ($simple)
