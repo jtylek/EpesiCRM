@@ -32,6 +32,8 @@ class Base_ThemeCommon extends ModuleCommon {
 		$smarty->compile_id = $theme;
 		$smarty->config_dir = DATA_DIR.'/Base_Theme/config/';
 		$smarty->cache_dir = DATA_DIR.'/Base_Theme/cache/';
+        
+        $smarty->register_modifier('t', array(__CLASS__, 'smarty_modifier_translate'));
 		return $smarty;
 	}
 	
@@ -392,6 +394,10 @@ class Base_ThemeCommon extends ModuleCommon {
 			return $result;
 		}
 	}
+    
+    public static function smarty_modifier_translate($string) {
+        return Base_LangCommon::translate($string);
+    }
 }
 
 ?>
