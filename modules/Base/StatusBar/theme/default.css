@@ -84,3 +84,11 @@
     padding-left: 0;
     width: 200px;
 }
+.Base_StatusBar #dismiss {
+    color: #AAAAAA;
+    position: relative;
+    font-size: 80%;
+    margin: 0;
+    padding: 0;
+    top: 2px;
+}

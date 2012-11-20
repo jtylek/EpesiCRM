@@ -17,6 +17,7 @@ class Base_StatusBar extends Module {
 		$theme = $this->init_module("Base/Theme");
 		$theme->assign('statusbar_id','Base_StatusBar');
 		$theme->assign('text_id','statusbar_text');
+        $theme->assign('close_text', __('Click anywhere to dismiss'));
 		$theme->display();
 		$this->load_js();
 		on_exit(array($this, 'messages'),null,false);

@@ -38,11 +38,13 @@ updateEpesiIndicatorFunction=function(){
 		statbar = $('Base_StatusBar');
 		statusbar_fade_count++;
 		if(Epesi.procOn){
+            $('dismiss').hide();
 			statbar.style.display='block';
 			cache_pause=true;
 			statusbar_hide_selects('hidden');
 		}else{
 			if(statusbar_message_t!='') {
+                $('dismiss').show();
 				t=$('statusbar_text');
 				if(t)t.innerHTML=statusbar_message_t;
 				statusbar_message('');
