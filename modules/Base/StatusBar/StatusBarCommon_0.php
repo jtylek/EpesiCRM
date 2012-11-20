@@ -12,9 +12,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_StatusBarCommon extends ModuleCommon {
-	public static $messages = array();
+	public static $message = '';
 	public static function message($text,$type='normal') {
-		self::$messages[] = '<div class="message '.$type.'">'.$text.'</div>';
+		self::$message = '<div class="message '.$type.'">'.$text.'</div>';
 	}
 }
 ?>

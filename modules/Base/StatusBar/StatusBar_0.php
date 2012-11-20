@@ -24,7 +24,7 @@ class Base_StatusBar extends Module {
 	}
 
 	public function messages() {
-		eval_js("statusbar_message('".Epesi::escapeJS(implode('<br>',Base_StatusBarCommon::$messages),false)."')");
+		eval_js("statusbar_message('".Epesi::escapeJS(Base_StatusBarCommon::$message,false)."')");
 	}
 
 	private function load_js() {
