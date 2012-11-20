@@ -2072,8 +2072,10 @@ class Utils_RecordBrowser extends Module {
 								DB::Execute('UPDATE '.$this->tab.'_field SET param=%s WHERE field=%s', array($param, $field));
 							break;
 				case 'multiselect':
-							$param = '__COMMON__::'.$data['commondata_table'];
-							$data['select_data_type'] = 'multiselect';
+							if (isset($data['commondata_table'])) {
+								$param = '__COMMON__::'.$data['commondata_table'];
+								$data['select_data_type'] = 'multiselect';
+							} else $param = $row['param'];
 							break;
 				default:
 							$param = $row['param'];
