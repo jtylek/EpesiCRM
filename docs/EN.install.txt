@@ -50,7 +50,7 @@ Installation
 -	Open config.php located in /data directory and note the database name, user and the password. You will need to enter the same data during the setup.
 -	Delete the entire content of /data directory with the exception of index.html file (which is needed for security reasons).
 -	Point your browser to the location from which EPESI was running, for example: http://www.yourcompany.com/epesi
--	During the setup follow instruction above as if it was new installation.
+-	During the setup follow instruction above as if it was a new installation.
 
 6.	UPDATE
 
