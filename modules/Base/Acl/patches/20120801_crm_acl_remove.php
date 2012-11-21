@@ -1,4 +1,4 @@
 <?php
-DB::Execute('DELETE FROM modules WHERE name="CRM_Acl"');
+DB::Execute('DELETE FROM modules WHERE name=%s', array('CRM_Acl'));
 
 ?>

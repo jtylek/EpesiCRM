@@ -1,5 +1,7 @@
 <?php
 
+if (in_array('base_acl_permission', DB::MetaTables())) return;
+
 DB::CreateTable('base_acl_permission',
 	'id I4 AUTO KEY,'.
 	'name C(255)',

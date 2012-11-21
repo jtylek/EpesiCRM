@@ -3,7 +3,7 @@
 Utils_CommonDataCommon::extend_array('Contacts/Access',array('employee'=>_M('Employee')));
 
 $cmp = Variable::get('main_company', null);
-if ($cmp!==null) {
+if ($cmp) {
 	set_time_limit(0);
 
 	$conts = DB::GetAll('SELECT * FROM contact_data_1 WHERE f_company_name=%d OR f_related_companies '.DB::like().' '.DB::Concat(DB::qstr('\_\_'), DB::qstr($cmp), DB::qstr('\_\_')), array($cmp));

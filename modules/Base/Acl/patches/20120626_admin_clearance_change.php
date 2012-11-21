@@ -2,6 +2,8 @@
 
 PatchUtil::db_add_column('user_login','admin','I');
 
+if (!in_array('aro', DB::MetaTables())) return;
+
 function get_acl_user_id($user_id) {
 	$sql = 'SELECT id FROM aro WHERE section_value='. DB::qstr('Users') .' AND value='. DB::qstr($user_id);
 	return DB::GetOne($sql);
