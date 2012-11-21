@@ -153,12 +153,21 @@ if (strpos($str,'.') === false) {
 	$loc_s = 0;
 }
 
+if (extension_loaded('openssl')) {
+	$ssl = 'OK';
+	$ssl_s = 0;
+} else {
+	$ssl = "ERROR";
+	$ssl_s = 1;
+}
+
 $tests = array();
 $tests[] = array('label'=>'Safe mode', 'status'=>!$safe_mode?'Disabled':'Enabled', 'severity'=>!$safe_mode?0:2);
 $tests[] = array('label'=>'Memory limit', 'status'=>$mem, 'severity'=>$mem_s);
 $tests[] = array('label'=>'Upload file size', 'status'=>$upload_size, 'severity'=>$upload_size_s);
 $tests[] = array('label'=>'POST max size', 'status'=>$post_size, 'severity'=>$post_size_s);
 $tests[] = array('label'=>'Locale settings', 'status'=>$loc, 'severity'=>$loc_s);
+$tests[] = array('label'=>'SSL enabled', 'status'=>$ssl, 'severity'=>$ssl_s);
 
 $checks[] = array('label'=>'Script execution', 'tests'=>$tests, 'solution'=>'http://forum.epesibim.com');
 // ********************* EXECUTION SETTINGS ***********************
