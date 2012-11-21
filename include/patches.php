@@ -67,7 +67,7 @@ class PatchUtil {
         $patches_db = new PatchesDB();
 
         $patches = array();
-        $directory = rtrim($directory, '/\\') . DIRECTORY_SEPARATOR;
+        $directory = rtrim($directory, '/\\') . '/';
         $d = dir($directory);
         while (false !== ($entry = $d->read())) {
             $entry = $directory . $entry;
@@ -238,6 +238,11 @@ class Patch {
     function apply() {
         if (!file_exists($this->file))
             return false;
+
+        if ($this->was_applied()) {
+            $this->apply_success = true;
+            return true;
+        }
 
         self::$current_patch = $this;
         set_error_handler(array('Patch', 'error_handler'));
