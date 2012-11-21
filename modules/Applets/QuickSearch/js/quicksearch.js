@@ -16,7 +16,7 @@ function getRecords(){
 }
 
 function getRecordFields(recordset, caption){
-	new Ajax.Updater('fieldsfrom', 'modules/Applets/QuickSearch/getfields.php',
+	new Ajax.Updater('select_field__from', 'modules/Applets/QuickSearch/getfields.php',
 								{ method: 'get', parameters: {tbName:recordset, tbCaption:caption}, insertion: Insertion.Bottom } );
 }
 
@@ -36,7 +36,7 @@ function addToList(selectFrom, selectTo, callAjax){
 					if(callAjax == true){
 						getRecordFields(optionSelected.value, optionSelected.text);
 					}else{
-						var format = document.getElementById('search_format');
+						var format = document.getElementById('result_format');
 						format.value += '{' + optionSelected.value + '} ,';
 					}
 				}
@@ -119,6 +119,20 @@ function removeFieldOnListTo(remField, listFieldId){
 				removeFieldOnListTo(remField, listFieldId);
 				break;
 			}
+		}
+	}
+}
+
+function call_js(){
+	var elem = $('recordsets__to').options;
+	for(el = 0; el < elem.length; el++){
+		if(elem[el].value.indexOf('[A]') == -1){
+			try{
+				elem[el].value = elem[el].value + '[A]';
+				var recordset = elem[el].value.substr(0,(elem[el].value.length - 3));
+				getRecordFields(recordset, elem[el].text);
+			}
+			catch(error){}
 		}
 	}
 }

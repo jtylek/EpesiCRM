@@ -23,17 +23,7 @@
 							<td class="epesi_label" style="width:200px">
 								{$form_data.recordsetfrom.label}
 							</td>
-							<td class="epesi_data" style="width:450px">								
-								<table id="multiselect">
-									<tr>
-										<td class="form-element" style="width:70px" align="left">{$form_data.recordsetfrom.html}</td>
-										<td class="form-element" style="width:30px" align="center">{$form_data.record_btn_copy.html}<br>
-											{$form_data.record_btn_revert.html}<br>
-										</td>
-										<td class="form-element" style="width:70px" align="left">{$form_data.recordsetto.html}</td>
-									</tr>
-								</table>
-								
+							<td class="epesi_data" style="width:450px">{$form_data.recordsetfrom.html}															
 							</td>						
 						</tr>	
 						<tr>				

@@ -7,9 +7,9 @@ ModuleManager::load_modules();
 if((isset($_GET['tbName']) && $_GET['tbName'] != "") &&  (isset($_GET['tbCaption']) && $_GET['tbCaption'] != "")){
 $tbName = $_GET['tbName'];
 $tbCaption = $_GET['tbCaption'];
-$arrayFields = DB::MetaColumnNames($tbName.'_data_1');
+$arrayFields = Utils_RecordBrowserCommon::init($tbName);
 	foreach($arrayFields as $key => $value){
-		print "<option value=".$tbName.":".$value.">".$tbCaption." - ".$value."</option>";
+		print "<option value=".$tbName.":".$value['id'].">".$tbCaption." - ".$value['name']."</option>";
 	}
 }
 $content = ob_get_contents();

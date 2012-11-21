@@ -67,6 +67,47 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		else
 			return false;
 	}
+	
+	public static function QFfield_recordsets(&$form, $field, $label, $mode, $default, $desc, $rb_obj){
+        load_js('modules/Applets/QuickSearch/js/quicksearch.js');
+        eval_js('call_js('.$fields.');');	
+		
+		$data = self::get_recordsets();
+			ksort($data);
+			$recordset_form = $form->addElement('multiselect', $field, $label, $data);
+			$recordset_form->on_add_js('call_js();');
+			$recordset_form->on_remove_js('call_js();');
+
+	}
+
+	public static function QFfield_recordfields(&$form, $field, $label, $mode, $default, $desc, $rb_obj){
+		if($mode != 'view'){
+			$recordset_form = $form->addElement('multiselect', $field, $label, null);
+			//$recordset_form->on_add_js('call_js();');
+			//$recordset_form->on_remove_js('call_js();');
+		}
+	}
+	
+	public function get_recordsets(){
+		$options = array();
+		$rb_tabs = DB::GetAssoc('SELECT tab, tpl FROM recordbrowser_table_properties');
+		if($rb_tabs){
+			foreach ($rb_tabs as $key => $value){
+				$options[$key] =  Utils_RecordBrowserCommon::get_caption($key);
+			}
+		}
+		return $options;
+	}
+	
+	public static function display_recordsets($rb, $nolink){
+		//load_js('modules/Applets/QuickSearch/js/quicksearch.js');
+        //eval_js('call_js('.$rb.');');
+	}
+	
+	public static function display_recordfields($rb, $nolink){
+		return print_r($rb);
+	}	
+
 }
 
 ?>
