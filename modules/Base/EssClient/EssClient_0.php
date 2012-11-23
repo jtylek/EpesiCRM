@@ -231,7 +231,7 @@ class Base_EssClient extends Module {
         }
         print('<center>');
 
-        $f->addElement('submit', 'submit', $data ? 'Update' : 'Register');
+        $f->addElement('submit', 'submit', $data ? __('Update') : __('Register'));
 
         $f->display_as_column();
         print('</center>');
