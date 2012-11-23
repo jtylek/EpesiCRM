@@ -1,0 +1,19 @@
+[LABEL:Create new contact]
+[KEYWORDS:]
+[CONTEXT:true]
+[STEPS:
+hover:Menu // Here you can see all the bla...
+hover:Menu_CRM
+click:Menu_CRM_Contacts
+click:ActionBar_New
+click:ActionBar_Save
+finish:ActionBar_Edit]
+
+[LABEL:Search for contact]
+[KEYWORDS:]
+[CONTEXT:false]
+[STEPS:
+hover:Menu
+hover:Menu_CRM
+click:Menu_CRM_Contacts
+click:ActionBar_New]

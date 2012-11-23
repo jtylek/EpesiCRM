@@ -119,7 +119,7 @@ CustomMenubar = function(id, _layout) {
 			}
 		}
 	}
-	this.addLink = function( title, address, icon, target) {
+	this.addLink = function( title, address, icon, target, id) {
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
 			menu_string[this.id] += '<tr><td class=item>';
 			if(icon) {
@@ -128,7 +128,7 @@ CustomMenubar = function(id, _layout) {
 			menu_string[this.id] += '<a href="'+address+'"';
 			if (target)
 				menu_string[this.id] += ' target="'+target+'"';
-			menu_string[this.id] += ' class=root_item_link onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
+			menu_string[this.id] += ' class=root_item_link helpID="'+id+'" onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
 			menu_string[this.id] += '</td></tr>';
 		} else {
 			if(this.depth == 0 ) {
@@ -144,35 +144,35 @@ CustomMenubar = function(id, _layout) {
 					menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
 				}
 				if( this.depth == 0) {
-					menu_string[this.id] += '<a href="'+address+'" class=root_item_link_none onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
+					menu_string[this.id] += '<a href="'+address+'" class=root_item_link_none helpID="'+id+'" onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
 				} else {
-					menu_string[this.id] += '<a href="'+address+'" class=root_item_link onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
+					menu_string[this.id] += '<a href="'+address+'" class=root_item_link helpID="'+id+'" onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
 				}
 				menu_string[this.id] += '</td>';
 			}
 		}
 	}
-	this.addLink_bullet = function( title, icon ) {
+	this.addLink_bullet = function( title, icon, id ) {
 		menu_string[this.id] += '<td id="'+opener_name(this.id, this.submenu_number)+'" class=item onmouseover="hideAllNow(\''+this.id+'\','+this.submenu_number+')">';
 		if(icon) {
 			menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
 		}
 		if(layout[this.id] == 'horizontal' && this.depth == 0) {
-			menu_string[this.id] += '<a class=root_item_link_down><div class=root_item_link_down_arrow_box><div class=root_item_link_down_arrow_icon></div><div class=root_item_link_down_arrow>' + title + '</div></div></a>';
+			menu_string[this.id] += '<a class=root_item_link_down><div class=root_item_link_down_arrow_box helpID="'+id+'"><div class=root_item_link_down_arrow_icon></div><div class=root_item_link_down_arrow>' + title + '</div></div></a>';
 		} else {
-			menu_string[this.id] += '<a class=root_item_link_right><div class=root_item_link_right_arrow>' + title + '</div></a>';
+			menu_string[this.id] += '<a class=root_item_link_right><div class=root_item_link_right_arrow helpID="'+id+'">' + title + '</div></a>';
 		}
 		menu_string[this.id] += '</td>';
 
 		//<div class=root_item_link_right_arrow>' + title + '</div>
 	}
 
-	this.beginSubmenu = function( title, icon ) {
+	this.beginSubmenu = function( title, icon, id ) {
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
 			menu_string[this.id] += '<tr><td>';
 			menu_string[this.id] += '<table cellspacing=0 cellpadding=0 onmouseout="custom_hide(\''+this.id+'\','+this.submenu_number+')" onmouseover="custom_show(\''+this.id+'\','+this.submenu_number+')" class=custom_opener>';
 			menu_string[this.id] += '<tr>';
-			this.addLink_bullet( title, icon );
+			this.addLink_bullet( title, icon, id );
 			menu_string[this.id] += '<td class="item_sub">';
 			// t2 begin
 			menu_string[this.id] += '<table cellspacing="0" cellpadding="0" class="submenu" id="'+sub_name(this.id, this.submenu_number)+'">';
@@ -188,7 +188,7 @@ CustomMenubar = function(id, _layout) {
 				menu_string[this.id] += '<td>';
 				menu_string[this.id] += '<table cellspacing=0 cellpadding=0 onmouseout="custom_hide(\''+this.id+'\','+this.submenu_number+')" onmouseover="custom_show(\''+this.id+'\','+this.submenu_number+')" class=custom_opener>';
 				menu_string[this.id] += '<tr>';
-				this.addLink_bullet( title, icon );
+				this.addLink_bullet( title, icon, id );
 				menu_string[this.id] += '</tr><tr><td class=item_sub><table cellspacing=0 cellpadding=0 id="'+sub_name(this.id, this.submenu_number)+'" class=submenu>';
 			}
 		}

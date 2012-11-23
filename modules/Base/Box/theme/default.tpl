@@ -11,7 +11,7 @@
 	load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
 	eval_js_once('document.body.id=null');
 {/php}
-
+	<canvas style="z-index:9001;pointer-events:none;height:3000px;width:3000px;background:none;position:fixed;top:0px;" id="help_canvas" width="3000px" height="3000px"></canvas>
 	<div id="top_bar" class="nonselectable" style="width:100%">
 		<div id="MenuBar">
 		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
@@ -44,7 +44,7 @@
 					<td class="top_bar_black donate" nowrap="1">{$donate}</td>
 				{/if}
 				<td style="empty-cells: hide; width: 6px;"></td>
-				<td class="top_bar_black top_bar_help"><div class="help"><a {$help.href} onMouseOver="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help-hover.png';" onMouseOut="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help.png';"><img src="{$theme_dir}/Base/MainModuleIndicator/help.png" id="help_icon" alt="?" border="0"><div class="help_label">{$help.label}</div></a></div></td>
+				<td class="top_bar_black top_bar_help">{$help}</td>
 				<td style="empty-cells: hide; width: 6px;"></td>				
 				<td class="top_bar_black module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div></td>
 				<td style="empty-cells: hide; width: 8px;"></td>

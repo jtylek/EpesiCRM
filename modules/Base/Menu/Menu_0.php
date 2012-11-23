@@ -50,7 +50,7 @@ class Base_Menu extends Module {
 	private static $tmp_menu;
 	private $duplicate = false;
 
-	private function build_menu(& $menu, & $m, $translate=true) {
+	private function build_menu(& $menu, & $m, $prefix='') {
 		foreach($m as $k=>$arr) {
 			if($k=='__split__')
 				$menu->add_split();
@@ -92,17 +92,17 @@ class Base_Menu extends Module {
 				} else
 					$url = null;
 
-				if ($translate) $k = _V($k); // ****** Menu - translate labels
+				$label = _V($k); // ****** Menu - translate labels
 				if(array_key_exists('__submenu__', $arr)) {
 					unset($arr['__submenu__']);
-					$menu->begin_submenu($k,$icon);
-					$this->build_menu($menu, $arr, $translate);
+					$menu->begin_submenu($label,$icon,$prefix.$k);
+					$this->build_menu($menu, $arr, $prefix.$k.'_');
 					$menu->end_submenu();
 				} else {
 					if($url)
-						$menu->add_link($k, $url,$icon, $target);
+						$menu->add_link($label, $url,$icon, $target, $prefix.$k);
 					else {
-						$menu->add_link($k, 'javascript:'.Base_MenuCommon::create_href_js($this,$arr) ,$icon);
+						$menu->add_link($label, 'javascript:'.Base_MenuCommon::create_href_js($this,$arr) ,$icon, '', $prefix.$k);
 					}
 				}
 			}

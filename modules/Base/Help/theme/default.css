@@ -1,0 +1,58 @@
+#Base_Help__overlay {
+	position: fixed;
+	display: none;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+	background-color: #333;
+	-moz-opacity: 0.9;
+	opacity: .90;
+	filter: alpha(opacity=90);
+}
+.tutorial_links a {
+	display: block;
+	font-size: 19px;
+	padding: 3px 10px;
+}
+
+.tutorial_links {
+	height: 290px;
+	overflow: hidden;
+}
+
+#Base_Help__menu {
+	position: fixed;
+	top: 20px;
+	right: 40px;
+	width: 470px;
+	height: 370px;
+	z-index: 1001;
+	background-color: #F7F7BA;
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-box-shadow: 2px 2px 7px -1px black;
+	-moz-box-shadow: 2px 2px 7px -1px black;
+	box-shadow: 2px 2px 7px -1px black;
+}
+
+#Base_Help__search {
+	width: 442px;
+	margin: 10px;
+	padding: 4px;
+	font-size: 20px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: 2px 2px 7px -1px black;
+	-moz-box-shadow: 2px 2px 7px -1px black;
+	box-shadow: 2px 2px 7px -1px black;
+}
+
+#Base_Help__click_icon {
+	position: fixed;
+	z-index: 9002;
+}

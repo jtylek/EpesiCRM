@@ -68,6 +68,7 @@ class Base_ActionBar extends Module {
 				$t = Utils_TooltipCommon::open_tag_attrs($i['label'].(($i['description'])?' - '.$description:''),false);
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
+			$i['helpID'] = 'ActionBar_'.$i['label'];
 			if (strpos($i['icon'], '/')!==false && file_exists($i['icon'])) {
 				$i['icon_url'] = $i['icon'];
 				unset($i['icon']);

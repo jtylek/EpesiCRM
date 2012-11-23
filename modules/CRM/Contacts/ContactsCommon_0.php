@@ -13,6 +13,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ContactsCommon extends ModuleCommon {
     public static $paste_or_new = 'new';
+	
+	public static function help() {
+		return Base_HelpCommon::retrieve_help_from_file(self::Instance()->get_type());
+	}
 
     public static function crm_clearance($all = false) {
 		$clearance = array();

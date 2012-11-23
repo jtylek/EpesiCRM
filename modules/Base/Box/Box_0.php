@@ -157,7 +157,6 @@ class Base_Box extends Module {
 			
 		// Consider moving this code properly as initated module by *.ini file
 		$theme->assign('home', array('href'=>Base_HomePageCommon::get_href(), 'label'=>__('Home')));
-		$theme->assign('help', array('href'=>Base_MainModuleIndicatorCommon::get_href(), 'label'=>__('Help')));
 		
         $theme->assign('version_no',$version_no);
         $theme->display();

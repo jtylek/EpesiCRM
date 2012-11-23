@@ -6,7 +6,7 @@
                     <div id="panel">
 						{foreach item=i from=$icons}
 						{$i.open}
-							<div class="panel_div_left epesi_big_button">
+							<div class="panel_div_left epesi_big_button" helpID="{$i.helpID}">
 								{if $display_icon}
 								{if $i.icon_url}
 									<img src="{$i.icon_url}" alt="" align="middle" border="0" width="32" height="32">
