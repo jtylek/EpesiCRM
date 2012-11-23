@@ -2590,7 +2590,7 @@ if (ModuleManager::is_installed('CRM/Roundcube')>=0) {
 	Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'mails'));
 }
 
-if (ModuleManager::is_installed('Base_EpesiStore')>=1) {
+if (ModuleManager::is_installed('Base_EpesiStore')>=0) {
     if(!in_array('epesi_store_modules',$tbls))
     DB::CreateTable('epesi_store_modules','
         module_id I4 PRIMARY KEY,
@@ -2639,6 +2639,22 @@ function update_from_1_2_1_to_1_2_2() {
         PatchDBDropColumn('user_password','mobile_autologin_id');
     }
 
+    if (ModuleManager::is_installed('Base_EpesiStore')>=0) {
+        if(!in_array('epesi_store_modules',$tbls)) {
+            DB::CreateTable('epesi_store_modules','
+                module_id I4 PRIMARY KEY,
+                version I4,
+                order_id I4 NOTNULL');
+
+            $d = DB::dict();
+            $x = $d->ChangeTableSQL('epesi_store_modules','
+                module_id I4 PRIMARY KEY,
+                version I4,
+                order_id I4 NOTNULL,
+                file C(20)');
+            if($x) $d->ExecuteSQLArray($x);
+        }
+    }
     if (ModuleManager::is_installed('Base_EpesiStore')>=0)
         DB::Execute('ALTER TABLE `epesi_store_modules` MODIFY `version` varchar(10)');
 
