@@ -5,6 +5,45 @@ if (DB::GetOne('SELECT 1 FROM contact_field WHERE field=%s', array('Username')))
 
 $tables = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
 
+if (!in_array('aro', DB::MetaTables())) return;
+
+if (!function_exists('get_acl_user_id')) {
+	function get_acl_user_id($user_id) {
+		$sql = 'SELECT id FROM aro WHERE section_value='. DB::qstr('Users') .' AND value='. DB::qstr($user_id);
+		return DB::GetOne($sql);
+	}
+
+	function is_user_in_group($uid,$group) {		
+		// $groups_arr = Acl::$gacl->get_object_groups($uid);
+		$object_id = $uid;
+		$object_type = 'aro';
+		$group_table = 'aro_groups';
+		$map_table = 'groups_aro_map';
+		$query = 'SELECT gm.group_id FROM '.$map_table.' gm ';
+		$query .= 'WHERE gm.'. $object_type .'_id='. $object_id;
+		$rs = DB::Execute($query);
+		$groups_arr = array();
+		while ($row = $rs->FetchRow()) {
+			$groups_arr[] = $row[0];
+		}
+		// END
+		if(!$groups_arr) return false;
+		$groups = array();
+		foreach($groups_arr as $id) {
+			//$arr = Acl::$gacl->get_group_data($id);
+			$group_id = $id;
+			$group_type = 'aro';
+			$table = 'aro_groups';
+			$query  = 'SELECT id, parent_id, value, name, lft, rgt FROM '. $table .' WHERE id='. $group_id;
+			$arr = DB::GetRow($query);
+			// END
+			if($arr[3]==$group) return true;
+		}
+		return false;
+	}
+}
+
+
 foreach ($tables as $tab) {
 
 	@DB::DropTable($tab.'_access_clearance');
@@ -49,11 +88,11 @@ Utils_CommonDataCommon::extend_array('Contacts/Access',array('manager'=>_M('Mana
 
 $ret = DB::Execute('SELECT * FROM user_login');
 while ($row = $ret->FetchRow()) {
-	$aid = Base_AclCommon::get_acl_user_id($row['id']);
-	$allow = Base_AclCommon::is_user_in_group($aid, 'Employee Manager');
-	$allow |= Base_AclCommon::is_user_in_group($aid, 'Employee Administrator');
-	$allow |= Base_AclCommon::is_user_in_group($aid, 'Administrator');
-	$allow |= Base_AclCommon::is_user_in_group($aid, 'Super administrator');
+	$aid = get_acl_user_id($row['id']);
+	$allow = is_user_in_group($aid, 'Employee Manager');
+	$allow |= is_user_in_group($aid, 'Employee Administrator');
+	$allow |= is_user_in_group($aid, 'Administrator');
+	$allow |= is_user_in_group($aid, 'Super administrator');
 	if ($allow) {
 		$r2 = DB::Execute('SELECT * FROM contact_data_1 WHERE f_login=%d', array($row['id']));
 		while ($r=$r2->FetchRow()) {
@@ -513,10 +552,10 @@ if(ModuleManager::is_installed('Custom_Prosperix_AccessRestrictions')>=0) {
 	$m->install();
 	$ret = DB::Execute('SELECT * FROM user_login');
 	while ($row = $ret->FetchRow()) {
-		$aid = Base_AclCommon::get_acl_user_id($row['id']);
-		$allow = Base_AclCommon::is_user_in_group($aid, 'Employee Vendor Moderator');
-		$allow |= Base_AclCommon::is_user_in_group($aid, 'Administrator');
-		$allow |= Base_AclCommon::is_user_in_group($aid, 'Super administrator');
+		$aid = get_acl_user_id($row['id']);
+		$allow = is_user_in_group($aid, 'Employee Vendor Moderator');
+		$allow |= is_user_in_group($aid, 'Administrator');
+		$allow |= is_user_in_group($aid, 'Super administrator');
 		if ($allow) {
 			$r2 = DB::Execute('SELECT * FROM contact_data_1 WHERE f_login=%d', array($row['id']));
 			while ($r=$r2->FetchRow()) {
@@ -535,10 +574,10 @@ if(ModuleManager::is_installed('Custom_CADES_AccessRestrictions')>=0) {
 	Utils_CommonDataCommon::extend_array('Contacts/Access',array('mrm'=>_M('Medical Record Manager')));
 	$ret = DB::Execute('SELECT * FROM user_login');
 	while ($row = $ret->FetchRow()) {
-		$aid = Base_AclCommon::get_acl_user_id($row['id']);
-		$allow = Base_AclCommon::is_user_in_group($aid, 'Medical Record Manager');
-		$allow |= Base_AclCommon::is_user_in_group($aid, 'Administrator');
-		$allow |= Base_AclCommon::is_user_in_group($aid, 'Super administrator');
+		$aid = get_acl_user_id($row['id']);
+		$allow = is_user_in_group($aid, 'Medical Record Manager');
+		$allow |= is_user_in_group($aid, 'Administrator');
+		$allow |= is_user_in_group($aid, 'Super administrator');
 		if ($allow) {
 			$r2 = DB::Execute('SELECT * FROM contact_data_1 WHERE f_login=%d', array($row['id']));
 			while ($r=$r2->FetchRow()) {
