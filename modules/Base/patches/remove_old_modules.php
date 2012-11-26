@@ -9,7 +9,8 @@ foreach($modules as $m) {
 	}
 }
 
-ModuleManager::install('Utils_RecordBrowser_RecordPickerFS', 0, false);
+if (ModuleManager::is_installed('Utils_RecordBrowser_RecordPickerFS') < 0)
+    ModuleManager::install('Utils_RecordBrowser_RecordPickerFS', 0, false);
 ModuleManager::install('Utils_RecordBrowser_RecordPicker');
 
 ?>
