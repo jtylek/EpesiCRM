@@ -20,7 +20,6 @@ require_once('include/error.php');
 if(JS_OUTPUT)
 	ob_start(array('ErrorHandler','handle_fatal'));
 require_once('include/magicquotes.php');
-require_once('include/backups.php');
 require_once('include/database.php');
 require_once('include/session.php');
 require_once('include/variables.php');
