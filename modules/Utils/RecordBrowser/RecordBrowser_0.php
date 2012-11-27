@@ -2077,8 +2077,8 @@ class Utils_RecordBrowser extends Module {
 								$data['select_data_type'] = 'multiselect';
 							} else $param = $row['param'];
 							break;
-				default:
-							$param = $row['param'];
+				default:	if (isset($row) && isset($row['param']))
+								$param = $row['param'];
 							break;
 			}
             if ($action=='add') {
@@ -2537,6 +2537,7 @@ class Utils_RecordBrowser extends Module {
 	
 	public function get_jump_to_id_button() {
 		$link = Module::create_href_js(Utils_RecordBrowserCommon::get_record_href_array($this->tab, '__ID__'));
+		if (isset($_REQUEST['__jump_to_RB_record'])) Base_StatusBarCommon::message(__('Record not found'), 'warning');
 		$link = str_replace('__ID__', '\'+this.value+\'', $link);
 		return '<a '.Utils_TooltipCommon::open_tag_attrs(__('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','jump_to.png').'"></a><input type="text" id="jump_to_record_input" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
 	}
