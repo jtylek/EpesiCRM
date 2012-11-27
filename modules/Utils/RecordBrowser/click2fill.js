@@ -62,7 +62,7 @@ function c2f() {
             alert("This template is not compatible with Click 2 Fill function");
             return;
         }
-        document.getElementById("c2fBox").innerHTML = '<textarea id="c2ftxt" rows="4" cols="50">'+c2fmessage+'</textarea><div id="c2fs"></div><input type="button" class="button" onclick="c2fScan()" value="'+c2flabel+'"/>';
+        document.getElementById("c2fBox").innerHTML = '<table><tr><td><textarea id="c2ftxt" rows="5" cols="100">'+c2fmessage+'</textarea><div id="c2fs"></div></td><td><input type="button" class="button" onclick="c2fScan()" value="'+c2flabel+'" style="margin:20px"/></td></tr></table>';
         c2fstate = state.closed;
         var el = document.getElementsByTagName("input");
         for(var i = 0; i < el.length; i++) {
