@@ -104,10 +104,10 @@ class Base_UserCommon extends ModuleCommon {
 		return $x; 
 	}
 
-	public static function get_user_label($uid) {
+	public static function get_user_label($uid, $nolink=false) {
 		if (!$uid) return __( 'front-end user');
         if (ModuleManager::is_installed('CRM_Contacts')>=0)
-			return CRM_ContactsCommon::get_user_label($uid);
+			return CRM_ContactsCommon::get_user_label($uid, $nolink);
 		else
 			return self::get_user_login($uid);
 	}

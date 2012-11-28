@@ -87,27 +87,33 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 	}
 	
-	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$add_func=null,$add_args=array()) {
+	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$add_func=null,$add_args=array(),$sticky=false) {
 		if(($oryg && !$file) || ($file && !$oryg))
 		    trigger_error('Invalid add attachment call: missing original filename or temporary filepath',E_USER_ERROR);
-		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args) VALUES(%s,%d,%d,%s,%s)',array($group,$permission,$user,serialize($func),serialize($args)));
-		$id = DB::Insert_ID('utils_attachment_link','id');
-		if($oryg===null) $oryg='';
-		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,$user));
+		$link = array('local'=>$group,'permission'=>$permission,'permission_by'=>$user,'func'=>serialize($func),'args'=>serialize($args),'sticky'=>$sticky?1:0);
+		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args,sticky) VALUES (%s,%d,%d,%s,%s,%d)',$link);
+		$link['id'] = $id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
-		if($file) {
-			$local = self::Instance()->get_data_dir().$group;
-			if(!file_exists($local))
-    			mkdir($local,0777,true);
-			$dest_file = $local.'/'.$id.'_0';
-			rename($file,$dest_file);
-			if ($add_func) call_user_func($add_func,$id,0,$dest_file,$oryg,$add_args);
-		}
+		if($file)
+			self::add_file($link, $user, $oryg, $file, $add_func, $add_args);
 		$param = explode('/', $group);
 		if (isset($param[1]) && Utils_WatchdogCommon::get_category_id($param[0])!==null) {
 			Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$id);
 		}
 		return $id;
+	}
+	
+	public static function add_file($note, $user, $oryg, $file, $add_func=null, $add_args=array()) {
+		if (is_numeric($note)) $note = DB::GetRow('SELECT * FROM utils_attachment_link WHERE id=%d', array($note));
+		if($oryg===null) $oryg='';
+		$local = self::Instance()->get_data_dir().$note['local'];
+		if(!file_exists($local))
+			mkdir($local,0777,true);
+		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by) VALUES(%d,%s,%d)',array($note['id'],$oryg,$user));
+		$id = DB::Insert_ID('utils_attachment_file','id');
+		$dest_file = $local.'/'.$id;
+		rename($file,$dest_file);
+		if ($add_func) call_user_func($add_func,$id,0,$dest_file,$oryg,$add_args);
 	}
 
 	public static function count($group=null,$group_starts_with=false) {
@@ -115,14 +121,18 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function get($group=null,$group_starts_with=false) {
-		return DB::GetAll('SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE '.self::get_where($group,$group_starts_with).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0');
+		return DB::GetAll('SELECT ual.sticky,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE '.self::get_where($group,$group_starts_with).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.deleted=0');
+	}
+
+	public static function get_files($group=null,$group_starts_with=false) {
+		return DB::GetAll('SELECT uaf.id as file_id, created_by as upload_by, created_on as upload_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE '.self::get_where($group,$group_starts_with).' AND ual.deleted=0 AND uaf.deleted=0');
 	}
 
 	public static function search_group($group,$word,$view_func=false) {
 		$ret = array();
 		$r = DB::Execute('SELECT ual.local,ual.id,ual.func,ual.args FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.
 				'(0!=(SELECT count(uan.id) FROM utils_attachment_note AS uan WHERE uan.attach_id=ual.id AND uan.text '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uan.revision=(SELECT MAX(xxx.revision) FROM utils_attachment_note xxx WHERE xxx.attach_id=ual.id)) OR '.
-				'0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ual.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.revision=(SELECT MAX(xxx2.revision) FROM utils_attachment_file xxx2 WHERE xxx2.attach_id=ual.id))) '.
+				'0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ual.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0)) '.
 				'AND '.self::get_where($group),array($word,$word));
 		while($row = $r->FetchRow()) {
 			$view = '';
@@ -167,7 +177,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 	
 	public static function is_image($note) {
-		return preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$note['original']);
+		if (!is_string($note)) $note = $note['original'];
+		return preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$note);
 	}
 
 	public static function create_remote($file_id, $description, $expires_on) {
@@ -212,6 +223,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		preg_match("/Auth=([a-z0-9_-]+)/i", $response, $matches);
 		$g_auth = @$matches[1];
 		return $g_auth;
+	}
+	
+	public static function get_temp_dir() {
+		return DATA_DIR.'/Utils_Attachment/temp/'.Acl::get_user();
 	}
 }
 

@@ -11,8 +11,6 @@
 			{$form.sticky.html}
 			{$form.permission.label}
 			{$form.permission.html}
-			{$form.file.label}
-			{$form.file.html}
 		</td>
 	</tr>
 	<tr>

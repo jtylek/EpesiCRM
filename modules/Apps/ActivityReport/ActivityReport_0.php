@@ -121,7 +121,7 @@ class Apps_ActivityReport extends Module {
 
 		// **** files ****
 		if (isset($filters['file']))
-			$tables[] = 'SELECT uaf.revision AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('file').' AS action FROM utils_attachment_file uaf LEFT JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE original!='.DB::qstr('').' AND '.$af_where;
+			$tables[] = 'SELECT uaf.id AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('file').' AS action FROM utils_attachment_file uaf LEFT JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE original!='.DB::qstr('').' AND '.$af_where;
 		// **** notes ****
 		if (isset($filters['note']))
 			$tables[] = 'SELECT uan.revision AS id,uan.created_on AS edited_on,uan.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('note').' AS action FROM utils_attachment_note uan LEFT JOIN utils_attachment_link ual ON uan.attach_id=ual.id WHERE '.$an_where;

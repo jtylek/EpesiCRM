@@ -184,7 +184,7 @@ class Utils_Attachment extends Module {
 		
 		//form filtrow
 		$form = $this->init_module('Libs/QuickForm');
-		$query = 'SELECT uac.created_by as note_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) '.($vd?'':'AND ual.deleted=0 ').'GROUP BY uac.created_by';
+		$query = 'SELECT uac.created_by as note_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.deleted=0 '.($vd?'':'AND ual.deleted=0 ').'GROUP BY uac.created_by';
 		$emp_ids = DB::GetCol($query);
 		$emps = array();
 		if($emp_ids) {
@@ -232,8 +232,8 @@ class Utils_Attachment extends Module {
 		$gb->set_table_columns($cols);
 		
 
-		$query_from = ' FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE ual.local='.$group.' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)'.$where;
-		$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by, ual.func AS search_func, ual.args AS search_func_args'.$query_from;
+		$query_from = ' FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE ual.local='.$group.' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id)'.$where;
+		$query = 'SELECT ual.sticky,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,ual.func AS search_func, ual.args AS search_func_args'.$query_from;
 		$query_lim = 'SELECT count(ual.id)'.$query_from;
 
 		$gb->set_default_order(array(__('Date')=>'DESC'));
@@ -256,30 +256,38 @@ class Utils_Attachment extends Module {
 
 		$button_theme = $this->init_module('Base_Theme');
 		if($this->public_write && !is_array($this->group)) {
-			$button_theme->assign('new_note',array(
-				'label'=>__('New Note'),
-				'href'=>'href="javascript:void(0);" onclick=\'$("attachments_new_note").style.display="";scrollBy(0, -2000); scrollBy(0, getTotalTopOffet($("attachments_new_note"))-140);\''
-			));
-				if(ModuleManager::is_installed('Premium/MultipleAttachments')>=0){
-				$multipleAttachments = $this->init_module('Premium/MultipleAttachments');				
-				$multipleAttachments->set_inline_display(true);
-				$button_theme->assign('multiple_attachments',$this->get_html_of_module($multipleAttachments,array($this->group, $this->func, $this->args, $this->add_func, $this->add_args)));
-				
-			}
+			load_js('modules/Utils/Attachment/js/lib/plupload.js');
+			load_js('modules/Utils/Attachment/js/lib/plupload.flash.js');
+			load_js('modules/Utils/Attachment/js/lib/plupload.browserplus.js');
+			load_js('modules/Utils/Attachment/js/lib/plupload.html4.js');
+			load_js('modules/Utils/Attachment/js/lib/plupload.html5.js');
+			load_js('modules/Utils/Attachment/attachments.js');
+			if (!isset($_SESSION['client']['utils_attachment'][CID])) $_SESSION['client']['utils_attachment'][CID] = array('files'=>array());
+			eval_js('Utils_Attachment__init_uploader()');
+			eval_js_once('var Utils_Attachment__delete_button = "'.Base_ThemeCommon::get_template_file('Utils_Attachment', 'delete.png').'";');
+			eval_js_once('var Utils_Attachment__restore_button = "'.Base_ThemeCommon::get_template_file('Utils_Attachment', 'restore.png').'";');
 			
+			$attachButtons = '<div id="multiple_attachments"><a class="button" id="pickfiles" href="javascript:void(0);">'.__('Select files').'</a>'.'<div id="filelist"></div></div>';
+
+			$button_theme->assign('new_note',array(
+				'label'=>__('Attach'),
+				'href'=>'href="javascript:void(0);" onclick=\'utils_attachment_add_note();\''
+			));
 
 			$r = $gb->get_new_row();
 			$new_note_form = $this->get_edit_form();
 			
-			$new_note_form->set_submit_callback(array($this, 'submit_attach'));
+			eval_js('Utils_Attachment__submit_note = function() {'.$new_note_form->get_submit_form_js().'}');
+			$new_note_form->addElement('hidden', 'note_id', null, array('id'=>'note_id'));
+			$new_note_form->addElement('hidden', 'delete_files', null, array('id'=>'delete_files'));
+			$new_note_form->addElement('button', 'save', __('Save note'), array('class'=>'button', 'onclick'=>'if(uploader.files.length)uploader.start();else Utils_Attachment__submit_note();'));
+			$new_note_form->addElement('button', 'cancel', __('Cancel'), array('class'=>'button', 'onclick'=>'utils_attachments_cancel_note_edit();'));
+			
 			if ($new_note_form->validate()) {
-				$new_note_form->process(array($new_note_form,'submit_parent'));
+				$new_note_form->process(array($this, 'submit_attach'));
 				location(array());
 				return;
 			}
-			
-			$new_note_form->addElement('button', 'save', __('Save note'), array('class'=>'button', 'onclick'=>$new_note_form->get_submit_form_js()));
-			$new_note_form->addElement('button', 'cancel', __('Cancel'), array('class'=>'button', 'onclick'=>'$("attachments_new_note").style.display="none";'));
 			
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 			$new_note_form->accept($renderer); 
@@ -295,17 +303,12 @@ class Utils_Attachment extends Module {
 			$fields = ob_get_clean();
 
 			$arr = array();
-			$count = 2;
-			if($vd)
-				$count++;
-			if($this->author)
-				$count++;
-			$arr[] = array('value'=>$fields, 'overflow_box'=>false, 'attrs'=>'colspan="'.$count.'"');
+			$arr[] = array('value'=>$attachButtons, 'overflow_box'=>false, 'attrs'=>'colspan="2"');
+			$arr[] = array('value'=>$fields, 'overflow_box'=>false, 'attrs'=>'colspan="1" notearea="1"');
 			if($vd)
 				$arr[] = array('value'=>'', 'overflow_box'=>false, 'style'=>'display:none;');
 			if($this->author)
 				$arr[] = array('value'=>'', 'overflow_box'=>false, 'style'=>'display:none;');
-			$arr[] = array('value'=>'', 'overflow_box'=>false, 'style'=>'display:none;');
 
 			$r->set_attrs('id="attachments_new_note" style="display:none;"');
 			
@@ -326,7 +329,7 @@ class Utils_Attachment extends Module {
 				));
 			}
 			$col_span = $vd?5:4;
-			eval_js('if($("attachments_new_note").childNodes.length=='.($vd?11:9).'){var n_delete=1;var n_expand=2;if($("attachments_new_note").childNodes[1].getAttribute("colspan")){n_delete=3;n_expand=1;}$("attachments_new_note").removeChild($("attachments_new_note").childNodes[n_delete]);$("attachments_new_note").childNodes[n_expand].setAttribute("colspan", '.$col_span.');}');
+			eval_js('init_expand_note_space();');
 		}
 
 		while($row = $ret->FetchRow()) {
@@ -336,33 +339,35 @@ class Utils_Attachment extends Module {
 				elseif($row['permission']==2 && !$this->private_read) continue;//private
 			}
 			$r = $gb->get_new_row();
-
+			$r->set_attrs('id="attachments_note_'.$row['id'].'"');
 
 			$inline_img = '';
 			$link_href = '';
 			$link_img = '';
-			if($row['original']!=='') {
-				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
+			$icon = '';
+			$files = DB::GetAll('SELECT id, created_by, created_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($row['id']));
+			foreach ($files as $f) {
+				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$f['id'];
 				if(file_exists($f_filename)) {
-					$filetooltip = __('Filename: %s',array($row['original'])).'<br>'.__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
-						__('Last uploaded by %s', array(Base_UserCommon::get_user_label($row['upload_by']))).'<br/>'.
-						__('On: %s',array(Base_RegionalSettingsCommon::time2reg($row['upload_on']))).'<br/>'.
-						__('Number of uploads: %d',array($row['file_revision'])).'<br/>'.
-						__('Number of downloads: %d',array($row['downloads']));
+					$filename = $f['original'];
+					$filetooltip = __('Filename: %s',array($filename)).'<br>'.__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
+						__('Last uploaded by %s', array(Base_UserCommon::get_user_label($f['created_by'], true))).'<br/>'.
+						__('On: %s',array(Base_RegionalSettingsCommon::time2reg($f['created_on']))).'<br/>'.
+						__('Number of downloads: %d',array($f['downloads']));
 					$view_link = '';
-					$link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.$this->get_file($row,$view_link);
+					$f['local'] = $row['local'];
+					$link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.$this->get_file($f,$view_link);
 					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png');
-					if(Utils_AttachmentCommon::is_image($row) && $view_link)
-						$inline_img = '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
+					if(Utils_AttachmentCommon::is_image($filename) && $view_link)
+						$inline_img .= '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
 				} else {
-					$link_href = Utils_TooltipCommon::open_tag_attrs(__('Missing file: %s',array($f_filename)));
+					$filename = __('Missing file: %s',array($f_filename));
+					$link_href = Utils_TooltipCommon::open_tag_attrs($filename);
 					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach-off.png');
 				}
+				if ($link_href)
+					$icon .= '<span class="file_link"><a '.$link_href.'><img src="'.$link_img.'"><span class="file_name">'.$filename.'</span></a></span>';
 			}
-			if ($link_href)
-				$icon = '<a style="margin-right: 3px; float:left;" '.$link_href.'><img src="'.$link_img.'"></a>';
-			else
-				$icon = '';
 
 			$def_permissions = array(__('Public'),__('Protected'),__('Private'));
 			$perm = $def_permissions[$row['permission']];
@@ -381,17 +386,17 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
 				if(!isset($row['deleted']) || !$row['deleted']) {
-    				$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),$row['id']),'edit');
+    				$r->add_action('href="javascript:void(0);" onclick="utils_attachment_edit_note('.$row['id'].')"','edit');
     				$r->add_action($this->create_confirm_callback_href(__('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
     			} else {
     				$r->add_action('','edit',__('You cannot edit deleted notes'),null,0,true);
     			    $r->add_action($this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore', null,null, -1);
 				}
 			}
-			$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 
 			$text = trim(Utils_BBCodeCommon::parse($row['text']));
+			if (!$text && $inline_img) $text = '<br/>';
 
 			if(!isset($row['deleted']) || !$row['deleted']) {
         		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
@@ -425,7 +430,7 @@ class Utils_Attachment extends Module {
 			$arr[] = array('value'=>$text, 'overflow_box'=>false);
 			$r->add_data_array($arr);
 
-			eval_js('init_note_expandable('.$row['id'].');');
+			eval_js('init_note_expandable('.$row['id'].', false, '.(empty($files)?0:1).');');
 		}
 
 		$button_theme->assign('expand_collapse',array(
@@ -441,17 +446,15 @@ class Utils_Attachment extends Module {
 		$custom_label = $this->get_html_of_module($button_theme, array('browse'), 'display');
 		$gb->set_custom_label($custom_label, 'style="width:100%;"');
 		
+		print('<div class="Utils_Attachment__table">');
 		$this->display_module($gb);
+		print('</div>');
 	}
 	
 	public function show_deleted($val) {
 	    $_SESSION['view_deleted_attachments'] = $val;
 	}
 
-	public function view_queue($id) {
-		$this->push_box0('view',array($id),array($this->group,$this->persistent_deletion,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
-	}
-	
 	public function copy($id,$text) {
 	 	$_SESSION['attachment_copy'] = array('id'=>$id, 'group'=>$this->group,'text'=>$text);
 	}
@@ -462,23 +465,22 @@ class Utils_Attachment extends Module {
 	}
 
 	public function paste() {
-		$oryg = DB::GetRow('SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE '.Utils_AttachmentCommon::get_where($_SESSION['attachment_copy']['group'],false).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.id=%d',array($_SESSION['attachment_copy']['id']));
+		$oryg = DB::GetRow('SELECT ual.sticky,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE '.Utils_AttachmentCommon::get_where($_SESSION['attachment_copy']['group'],false).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.id=%d',array($_SESSION['attachment_copy']['id']));
 		$local = $this->get_data_dir().$_SESSION['attachment_copy']['group'];
-		$file = $local.'/'.$_SESSION['attachment_copy']['id'].'_'.$oryg['file_revision'];
-		if(file_exists($file)) {
-    		$file2 = $file.'_tmp';
-            copy($file,$file2);
-        } else {
-            $file2 = null;
-        }
-		$id = @Utils_AttachmentCommon::add($this->group,$oryg['permission'],Acl::get_user(),$oryg['text'],$oryg['original'],$file2,$this->func,$this->args,$this->add_func,$this->add_args);
-		@unlink($file2);
+		$files = DB::GetAssoc('SELECT id, original FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($_SESSION['attachment_copy']['id']));
+		$id = @Utils_AttachmentCommon::add($this->group,$oryg['permission'],Acl::get_user(),$oryg['text'],null,null,$this->func,$this->args,$this->add_func,$this->add_args);
+		foreach ($files as $f_id=>$fname) {
+			$file = $local.'/'.$f_id;
+			if(file_exists($file)) {
+				$file2 = $file.'_tmp';
+				copy($file,$file2);
+				Utils_AttachmentCommon::add_file($id, Acl::get_user(), $fname, $file2, $this->add_func, $this->add_args);
+			}
+		}
 		DB::Execute('UPDATE utils_attachment_link SET sticky=%b WHERE id=%d',array($oryg['sticky'],$id));
 
 		if(isset($_SESSION['attachment_cut']) && $_SESSION['attachment_cut']) {
 			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($_SESSION['attachment_copy']['id']));
-//			if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_r_'.$_SESSION['attachment_copy']['id']);				
-// In here we should add "cut" event on note instead
 		}
 
 		unset($_SESSION['attachment_copy']);
@@ -502,24 +504,24 @@ class Utils_Attachment extends Module {
 		$close_leightbox_js = 'leightbox_deactivate(\''.$lid.'\');';
 		if (Variable::get('utils_attachments_google_user',false) && (strpos($row['original'], '.doc')!==false || strpos($row['original'], '.csv')!==false)) {
 			$script = 'get_google_docs';
-			$onclick = '$(\'attachment_save_options_'.$row['file_id'].'\').style.display=\'\';$(\'attachment_download_options_'.$row['file_id'].'\').hide();';
-			$th->assign('save_options_id','attachment_save_options_'.$row['file_id']);
-			$th->assign('save','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'save_google_docs'), array($row['file_id'])).'">'.__('Save Changes').'</a><br>');
-			$th->assign('discard','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'discard_google_docs'), array($row['file_id'])).'">'.__('Discard Changes').'</a><br>');
+			$onclick = '$(\'attachment_save_options_'.$row['id'].'\').style.display=\'\';$(\'attachment_download_options_'.$row['id'].'\').hide();';
+			$th->assign('save_options_id','attachment_save_options_'.$row['id']);
+			$th->assign('save','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'save_google_docs'), array($row['id'])).'">'.__('Save Changes').'</a><br>');
+			$th->assign('discard','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.$this->create_callback_href_js(array($this, 'discard_google_docs'), array($row['id'])).'">'.__('Discard Changes').'</a><br>');
 		} else {
 			$th->assign('save_options_id','');
 			$script = 'get';
 			$onclick = $close_leightbox_js;
 		}
-		$th->assign('download_options_id','attachment_download_options_'.$row['file_id']);
-		$view_link = 'modules/Utils/Attachment/'.$script.'.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1));
+		$th->assign('download_options_id','attachment_download_options_'.$row['id']);
+		$view_link = 'modules/Utils/Attachment/'.$script.'.php?'.http_build_query(array('id'=>$row['id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1));
 		
 		$th->assign('view','<a href="'.$view_link.'" target="_blank" onClick="'.$onclick.'">'.__('View').'</a><br>');
-		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.__('Download').'</a><br>');
+		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.__('Download').'</a><br>');
 		load_js('modules/Utils/Attachment/remote.js');
-		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>');
+		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>');
 		$th->assign('filename',$row['original']);
-		$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
+		$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'];
 		if(!file_exists($f_filename)) return 'missing file: '.$f_filename;
 		$th->assign('file_size',__('File size: %s',array(filesize_hr($f_filename))));
 
@@ -545,69 +547,6 @@ class Utils_Attachment extends Module {
 
 		Libs_LeightboxCommon::display($lid,$c,__('Attachment'));
 		return Libs_LeightboxCommon::get_open_href($lid);
-	}
-
-	public function view($id) {
-		if($this->is_back()) {
-			return $this->pop_box0();
-		}
-
-		$row = DB::GetRow('SELECT uaf.id as file_id,ual.permission_by,ual.permission,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,uaf.original,uaf.created_on as upload_on,uaf.created_by as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE ual.id=%d AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)',array($id));
-
-		if(Base_AclCommon::i_am_admin() ||
-			$row['permission_by']==Acl::get_user() ||
-		   ($row['permission']==0 && $this->public_write) ||
-		   ($row['permission']==1 && $this->protected_write) ||
-		   ($row['permission']==2 && $this->private_write)) {
-		    if(!$row['deleted']) {
-    			Base_ActionBarCommon::add('edit',__('Edit'),$this->create_callback_href(array($this,'edit_note_queue'),$id));
-	    		Base_ActionBarCommon::add('delete',__('Delete'),$this->create_confirm_callback_href(__('Delete this entry?'),array($this,'delete_back'),$id));
-	    	} else {
-	    		Base_ActionBarCommon::add('restore',__('Restore'),$this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),$id));	    	
-	    	}
-		}
-
-		$th = $this->init_module('Base/Theme');
-		$th->assign('header',$this->add_header);
-		
-		// display images inline
-
-		$th->assign('upload_by',Base_UserCommon::get_user_label($row['upload_by']));
-		$th->assign('upload_on',Base_RegionalSettingsCommon::time2reg($row['upload_on']));
-
-
-		if($row['original']) {
-			$inline_img = '';
-			$view_link = '';
-
-			$file = $this->get_file($row,$view_link);
-			if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
-					$inline_img = '<hr><img src="'.$view_link.'" style="max-width:900px" /><br>';
-
-			$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
-			if(file_exists($f_filename)) {
-				$th->assign('file_size',filesize_hr($f_filename));
-				$th->assign('file','<a '.$file.'>'.$row['original'].'</a>');
-			} else {
-				$th->assign('file','');
-			}
-			$text = Utils_BBCodeCommon::parse($row['text']).$inline_img;
-		} else {
-			$th->assign('file','');
-			$text = Utils_BBCodeCommon::parse($row['text']);
-		}
-		$th->assign('note',$text);
-
-		Base_ActionBarCommon::add('history',__('Edition history'),$this->create_callback_href(array($this,'edition_history_queue'),$id));
-		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
-		if(!$row['deleted'])
-    		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),__('Copy'),$this->create_callback_href(array($this,'copy'),array($id,$text)));
-
-		$th->display('view');
-
-		$this->caption = 'View note';
-
-		return true;
 	}
 
 	public function delete_back($id) {
@@ -647,7 +586,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
-				$r->add_action($this->create_confirm_callback_href(__('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),'restore');
+				$r->add_action($this->create_confirm_callback_href(__('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),__('Restore'));
 			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),Base_UserCommon::get_user_label($row['note_by']),$row['text']);
 		}
 		$this->display_module($gb);
@@ -656,14 +595,14 @@ class Utils_Attachment extends Module {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hua'.md5(serialize($this->group)));
 		$gb->set_inline_display();
 		$gb->set_table_columns(array(
-				array('name'=>__('Revision'), 'order'=>'file_revision','width'=>10),
+				array('name'=>__('Deleted'), 'order'=>'deleted','width'=>10),
 				array('name'=>__('Date'), 'order'=>'upload_on','width'=>25),
 				array('name'=>__('Who'), 'order'=>'upload_by','width'=>25),
 				array('name'=>__('Attachment'), 'order'=>'uaf.original')
 			));
 		$gb->set_default_order(array(__('Date')=>'DESC'));
 
-		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.local,ual.permission_by,ual.permission,uaf.attach_id as id,uaf.revision as file_revision,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
+		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.local,ual.permission_by,ual.permission,uaf.attach_id as id,uaf.deleted,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
 			if(Base_AclCommon::i_am_admin() ||
@@ -671,9 +610,9 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
-				$r->add_action($this->create_confirm_callback_href(__('Do you want to restore attached file to this version?'),array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
+				if ($row['deleted']) $r->add_action($this->create_confirm_callback_href(__('Are you sure you want to restore attached file?'),array($this,'restore_file'),array($row['file_id'])),__('Restore'));
 			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
-			$r->add_data($row['file_revision'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),Base_UserCommon::get_user_label($row['upload_by']),$file);
+			$r->add_data($row['deleted']?__('Yes'):__('No'),Base_RegionalSettingsCommon::time2reg($row['upload_on']),Base_UserCommon::get_user_label($row['upload_by']),$file);
 		}
 		$this->display_module($gb);
 		$tb->end_tab();
@@ -687,12 +626,11 @@ class Utils_Attachment extends Module {
 				array('name'=>__('IP Address'), 'order'=>'ip_address', 'width'=>15),
 				array('name'=>__('Host Name'), 'order'=>'host_name', 'width'=>15),
 				array('name'=>__('Method description'), 'order'=>'description', 'width'=>20),
-				array('name'=>__('Revision'), 'order'=>'revision', 'width'=>10),
 				array('name'=>__('Remote'), 'order'=>'remote', 'width'=>10),
 			));
 		$gb->set_default_order(array(__('Create date')=>'DESC'));
 
-		$query = 'SELECT uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description,uaf.revision FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
+		$query = 'SELECT uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
 		$query_qty = 'SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
 		if(Base_AclCommon::check_permission('Attachments - view full download history'))
 			$ret = $gb->query_order_limit($query, $query_qty);
@@ -703,7 +641,7 @@ class Utils_Attachment extends Module {
 		}
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['created_on']),($row['remote']!=1?Base_RegionalSettingsCommon::time2reg($row['download_on']):''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], $row['revision'], ($row['remote']==0?'no':'yes'));
+			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['created_on']),($row['remote']!=1?Base_RegionalSettingsCommon::time2reg($row['download_on']):''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], ($row['remote']==0?'no':'yes'));
 		}
 		$this->display_module($gb);
 		$tb->end_tab();
@@ -728,16 +666,9 @@ class Utils_Attachment extends Module {
 		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_r_'.$id);
 	}
 
-	public function restore_file($id,$rev) {
-		DB::StartTrans();
-		$original = DB::GetOne('SELECT original FROM utils_attachment_file WHERE attach_id=%d AND revision=%d',array($id,$rev));
-		$rev2 = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=%d',array($id));
-		$rev2 = $rev2+1;
-		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($id,$original,Acl::get_user(),$rev2));
-		DB::CompleteTrans();
-		$local = $this->get_data_dir().$this->group.'/'.$id.'_';
-		copy($local.$rev,$local.$rev2);
-		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_r_'.$id);
+	public function restore_file($id) {
+		DB::Execute('UPDATE utils_attachment_file SET deleted=0 WHERE id=%d',array($id));
+		return false;
 	}
 
 	public function pop_box0() {
@@ -752,12 +683,8 @@ class Utils_Attachment extends Module {
 		$x->push_main('Utils/Attachment',$func,$args,$const_args);
 	}
 
-	public function edit_note_queue($id=null) {
-		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
-	}
-	
 	public function get_edit_form($id=null) {
-		$form = $this->init_module('Utils/FileUpload',array(false));
+		$form = $this->init_module('Libs/QuickForm',array(false));
 		if(isset($id))
 			$form->addElement('header', 'upload', __('Edit note').': '.$this->add_header);
 		else
@@ -767,19 +694,12 @@ class Utils_Attachment extends Module {
 		
 		$form->addRule('note',__('Maximal lenght of note exceeded'),'maxlength',65535);
 		$form->set_upload_button_caption(__('Save'));
-		if($form->getSubmitValue('note')=='' && !$form->is_file())
-			$form->addRule('note',__('Please enter note or choose file'),'required');
 
 		$form->addElement('select','permission',__('Permission'),array(__('Public'),__('Protected'),__('Private')),array('style'=>'width:auto;'));
 		$form->addElement('checkbox','sticky',__('Sticky'));
 
 		if(isset($id))
 			$form->addElement('header',null,__('Replace attachment with file'));
-
-		$form->add_upload_element(__('Attachment'));
-		
-		if($this->max_file_size)
-			$form->set_max_file_size($this->max_file_size);
 
 		if(isset($id)) {
 			$row = DB::GetRow('SELECT l.sticky,x.text,l.permission FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
@@ -792,47 +712,43 @@ class Utils_Attachment extends Module {
 		return $form;
 	}
 
-	public function edit_note($id=null) {
-		if(!$this->is_back()) {
-			$form = $this->get_edit_form($id);
-
-			Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
-			Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
-
-			Base_ThemeCommon::load_css('Utils/Attachment', 'view');
-			print('<div class="attachment_full_note_edit">');
-			if(isset($id)) {
-				$row = DB::GetRow('SELECT l.sticky,x.text,l.permission FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
-				$this->display_module($form, array( array($this,'submit_edit'),$id,$row['text']));
-			} else
-				$this->display_module($form, array( array($this,'submit_attach') ));
-			print('</div>');
+	public function submit_attach($data) {		
+		$files = $_SESSION['client']['utils_attachment'][CID]['files'];
+		$_SESSION['client']['utils_attachment'][CID]['files'] = array();
+		if ($data['note_id']) {
+			$current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($data['note_id']));
+			$remaining_files = $current_files;
+			$deleted_files = explode(';', trim($data['delete_files'], ';'));
+			foreach ($deleted_files as $k=>$v) {
+				$deleted_files[$k] = intVal($v);
+				if (!isset($remaining_files[$v])) unset($deleted_files[$k]);
+				else unset($remaining_files[$v]);
+			}
+			if (empty($remaining_files) && empty($files) && !$data['note']) {
+				Base_StatusBarCommon::message(__('Unable to create empty note'), 'warning');
+				return;
+			}
+			$note_id = $data['note_id'];
+			$old = DB::GetOne('SELECT text FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.id=%d', array($note_id));
+			DB::Execute('UPDATE utils_attachment_link SET sticky=%b,permission=%d,permission_by=%d WHERE id=%d',array(isset($data['sticky']) && $data['sticky'],$data['permission'],Acl::get_user(),$note_id));
+			if($data['note']!=$old) {
+				DB::StartTrans();
+				$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($note_id));
+				DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array(Utils_BBCodeCommon::optimize($data['note']),$note_id,$rev+1,Acl::get_user()));
+				DB::CompleteTrans();
+			}
+			foreach ($deleted_files as $v)
+				DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d', array($v));
 		} else {
-			$this->ret_attach = false;
+			if (empty($files) && !$data['note']) {
+				Base_StatusBarCommon::message(__('Unable to create empty note'), 'warning');
+				return;
+			}
+			$note_id = Utils_AttachmentCommon::add($this->group,$data['permission'],Acl::get_user(),Utils_BBCodeCommon::optimize($data['note']),null,null,$this->func,$this->args,null,array(),isset($data['sticky']) && $data['sticky']);
 		}
-
-		$this->caption = 'Edit note';
-
-		if(!$this->ret_attach)
-			return $this->pop_box0();
-	}
-
-	public function submit_attach($file,$oryg,$data) {		
-		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,sticky,func,args) VALUES(%s,%d,%d,%b,%s,%s)',array($this->group,$data['permission'],Acl::get_user(),isset($data['sticky']) && $data['sticky'],serialize($this->func),serialize($this->args)));
-		$id = DB::Insert_ID('utils_attachment_link','id');
-		if($file && trim($data['note'])=='')
-			$data['note'] = $oryg;
-		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,Acl::get_user()));
-		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,Utils_BBCodeCommon::optimize($data['note']),Acl::get_user()));
-		if($file) {
-			$local = $this->get_data_dir().$this->group;
-			@mkdir($local,0777,true);
-			$dest_file = $local.'/'.$id.'_0';
-			rename($file,$dest_file);
-			if ($this->add_func) call_user_func($this->add_func,$id,0,$dest_file,$oryg,$this->add_args);
-		}
+		foreach ($files as $f)
+			Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), basename($f), $f, $this->add_func, $this->add_args);
 		$this->ret_attach = false;
-		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_+_'.$id);
 	}
 
 	public function submit_edit($file,$oryg,$data,$id,$text) {
@@ -919,17 +835,14 @@ class Utils_Attachment extends Module {
 		$response = curl_exec_follow($curl);
 
 		$row = DB::GetRow('SELECT * FROM utils_attachment_file WHERE id=%d',array($note_id));
-		$attach_id = $row['attach_id'];
-		$original_name = $row['original'];
-		$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=%d',array($attach_id));
-		$rev = $rev+1;
-		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($attach_id,$original_name,Acl::get_user(),$rev));
-		DB::CompleteTrans();
-		$local = $this->get_data_dir().$this->group;
+		
+		$local = $this->get_data_dir().'temp/'.Acl::get_user().'/gdocs';
 		@mkdir($local,0777,true);
-		$dest_file = $local.'/'.$attach_id.'_'.$rev;
+		$dest_file = $local.'/'.$row['id'];
 		file_put_contents($dest_file, $response);
-		if ($this->add_func) call_user_func($this->add_func,$attach_id,$rev,$dest_file,$original_name,$this->add_args);
+		
+		Utils_AttachmentCommon::add_file($row['attach_id'], Acl::get_user(), $row['original'], $dest_file, $this->add_func, $this->add_args);
+		DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d',array($row['id']));
 
 		$headers = array(
 			"Authorization: GoogleLogin auth=" . $g_auth,
@@ -969,6 +882,8 @@ class Utils_Attachment extends Module {
 	}
 
 	public function user_addon($uid) {
+		return 'method copies too much code';
+/*		// TODO fix it
 		$vd = isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments'] && Base_AclCommon::i_am_admin();
 		//form filtrow
 		$form = & $this->init_module('Libs/QuickForm');
@@ -1059,7 +974,7 @@ class Utils_Attachment extends Module {
 				}
 			}
 			if ($link_href)
-				$icon = '<a style="margin-right: 3px; float:left;" '.$link_href.'><img src="'.$link_img.'"></a>';
+				$icon = '<a '.$link_href.'><img src="'.$link_img.'"></a>';
 			else
 				$icon = '';
 
@@ -1107,7 +1022,7 @@ class Utils_Attachment extends Module {
 			$arr[] = array('value'=>$text, 'overflow_box'=>false);
 			$r->add_data_array($arr);
 
-			eval_js('init_note_expandable('.$row['id'].');');
+			eval_js('init_note_expandable('.$row['id'].', );');
 		}
 
 		$button_theme->assign('expand_collapse',array(
@@ -1124,7 +1039,7 @@ class Utils_Attachment extends Module {
 		$gb->set_custom_label($custom_label, 'style="width:100%;"');
 		
 		$this->display_module($gb);
-	
+	*/
 	}
 }
 
