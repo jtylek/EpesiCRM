@@ -36,7 +36,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			created_by I4,
 			created_on T DEFTIMESTAMP,
 			deleted I1 NOTNULL DEFAULT 0',
-			array('constraints'=>', UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
+			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_file.<br>');
 			return false;
