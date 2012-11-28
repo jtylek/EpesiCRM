@@ -91,7 +91,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if(($oryg && !$file) || ($file && !$oryg))
 		    trigger_error('Invalid add attachment call: missing original filename or temporary filepath',E_USER_ERROR);
 		$link = array('local'=>$group,'permission'=>$permission,'permission_by'=>$user,'func'=>serialize($func),'args'=>serialize($args),'sticky'=>$sticky?1:0);
-		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args,sticky) VALUES (%s,%d,%d,%s,%s,%d)',$link);
+		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args,sticky) VALUES (%s,%d,%d,%s,%s,%d)',array_values($link));
 		$link['id'] = $id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
 		if($file)
