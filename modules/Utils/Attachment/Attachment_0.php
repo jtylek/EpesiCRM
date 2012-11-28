@@ -379,7 +379,7 @@ class Utils_Attachment extends Module {
 
 			$def_permissions = array(__('Public'),__('Protected'),__('Private'));
 			$perm = $def_permissions[$row['permission']];
-			$created_on = $row['note_on']>$row['upload_on']?$row['note_on']:$row['upload_on'];
+			$created_on = $row['note_on'];
 			$note_on = Base_RegionalSettingsCommon::time2reg($created_on,0);
 			$note_on_time = Base_RegionalSettingsCommon::time2reg($created_on,1);
 			$info = __('Owner: %s',array($row['permission_owner'])).'<br>'.
