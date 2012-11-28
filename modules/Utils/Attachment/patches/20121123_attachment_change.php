@@ -19,7 +19,4 @@ if (!array_key_exists(strtoupper('deleted'),DB::MetaColumnNames('utils_attachmen
 		DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id IN ('.implode(',',$ids).')');
 }
 
-@PatchUtil::db_drop_column('utils_attachment_file','revision');
-@DB::Execute('ALTER TABLE utils_attachment_file DROP INDEX attach_id ADD INDEX attach_id (attach_id)');
-
 ?>

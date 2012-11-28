@@ -109,7 +109,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$local = self::Instance()->get_data_dir().$note['local'];
 		if(!file_exists($local))
 			mkdir($local,0777,true);
-		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by) VALUES(%d,%s,%d)',array($note['id'],$oryg,$user));
+		$rev = DB::GetOne('SELECT MAX(revision) FROM utils_attachment_file WHERE attach_id=%d',array($note['id']));
+		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($note['id'],$oryg,$user,$rev));
 		$id = DB::Insert_ID('utils_attachment_file','id');
 		$dest_file = $local.'/'.$id;
 		rename($file,$dest_file);
