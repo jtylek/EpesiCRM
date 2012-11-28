@@ -45,5 +45,14 @@ class Base_SetupCommon extends ModuleCommon {
 				DB::Execute('INSERT INTO available_modules VALUES(%s, %d, %s)',array($name,$ver,$u));
 		return $module_dirs;
 	}
+    
+    public static function is_store_visible() {
+        $ret = Variable::get('base_setup_store_enabled', false);
+        return ($ret === '') ? true : ($ret ? true : false);
+    }
+    
+    public static function set_store_visibility($enabled) {
+        Variable::set('base_setup_store_enabled', $enabled ? true : false);
+    }
 }
 ?>

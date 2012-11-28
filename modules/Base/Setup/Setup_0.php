@@ -344,7 +344,14 @@ class Base_Setup extends Module {
 			__('Available') => array('arg'=>'available')
 		);
 		if (ModuleManager::is_installed('Base_EpesiStore')>=0) {
-			$this->add_store_products($sorted, $filters);
+            $store_visible = Base_SetupCommon::is_store_visible();
+            if ($store_visible)
+                $this->add_store_products($sorted, $filters);
+            $icon = $store_visible ? 'delete' : 'add';
+            $text = $store_visible ? __('Disable EPESI Store') : __('Enable EPESI Store');
+            $href = $this->create_callback_href(array('Base_SetupCommon', 'set_store_visibility'), array(!$store_visible));
+            $desc = $store_visible ? __('Disabling communication with EPESI Store will improve processing speed, but will not update the list of additional modules in the store.') : '';
+            Base_ActionBarCommon::add($icon, $text, $href, $desc);
 		}
 		Libs_LeightboxCommon::display('base_setup__module_desc_leightbox','<iframe style="border: none;" id="Base_Setup__module_description"></iframe>','<span id="Base_Setup__module_name"></span>', true);
 		print('<span '.Libs_LeightboxCommon::get_open_href('base_setup__module_desc_leightbox').' style="display:none;"></span>');

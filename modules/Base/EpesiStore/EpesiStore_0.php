@@ -57,11 +57,8 @@ class Base_EpesiStore extends Module {
 
         Base_ActionBarCommon::add('settings', __('Simple view'), $this->create_callback_href(array($this, 'switch_simple'), true));
         $tb = $this->init_module('Utils_TabbedBrowser');
-		if (TRIAL_MODE)
-			$tb->set_tab('Modules Setup', array($this, 'setup_admin'), array($setup));
+        $tb->set_tab('Modules Setup', array($this, 'setup_admin'), array($setup));
 		$tb->set_tab('Epesi Store', array($this, 'form_main_store'), array());
-		if (!TRIAL_MODE)
-			$tb->set_tab('Modules Setup', array($this, 'setup_admin'), array($setup));
         $tb->tag();
         $this->display_module($tb);
     }
