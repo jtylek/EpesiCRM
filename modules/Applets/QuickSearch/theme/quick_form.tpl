@@ -20,7 +20,7 @@
 						<th style="width:20%"><span>Source</span></th>
 					</tr>		
 				</thead>
-				<tbody id="tableID">
+				<tbody id="tableID_{$search_id}">
 				</tbody>
 			</table>
 		</td>

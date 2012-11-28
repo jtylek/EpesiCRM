@@ -9,7 +9,7 @@ function setDelayOnSearch(crit){
 }
 
 function getRecords(){
-	var txtVal = document.getElementById('query_text').value;
+	var txtVal = document.getElementById('query_text_'+criteria).value;
 	var search_id = document.getElementById('search_id').value;
 	new Ajax.Updater('tableID', 'modules/Applets/QuickSearch/getresult.php',
 								{ method: 'get', parameters: {q:txtVal, crit:criteria, search_id:search_id}});

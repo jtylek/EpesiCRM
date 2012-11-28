@@ -4,7 +4,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_QuickSearchCommon extends ModuleCommon{
 
-	private $name = "";
+	private $recordsetsArray = null;
 	
 	public static function applet_caption() {
     	return __('Quick Search');
@@ -69,23 +69,41 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 	}
 	
 	public static function QFfield_recordsets(&$form, $field, $label, $mode, $default, $desc, $rb_obj){
-        load_js('modules/Applets/QuickSearch/js/quicksearch.js');
-        eval_js('call_js('.$fields.');');	
-		
-		$data = self::get_recordsets();
+        load_js('modules/Applets/QuickSearch/js/quicksearch.js');		
+		$data = self::get_recordsets();	
+		//print "<br>MODE on QFfield_recordsets == ". $mode; 
+		if($mode == 'add'){
 			ksort($data);
+			eval_js('call_js()');
 			$recordset_form = $form->addElement('multiselect', $field, $label, $data);
 			$recordset_form->on_add_js('call_js();');
 			$recordset_form->on_remove_js('call_js();');
-
+		}
+		else if($mode == 'edit' || $mode == 'view'){
+			$recordset_form = $form->addElement('multiselect', $field, $label, $data);
+			$form->setDefaults(array($field=>self::parse_array($default)));		
+		}
 	}
 
 	public static function QFfield_recordfields(&$form, $field, $label, $mode, $default, $desc, $rb_obj){
-		if($mode != 'view'){
+		//print "<br>MODE on QFfield_recordfields == ". $mode; 
+		if($mode == 'add'){
 			$recordset_form = $form->addElement('multiselect', $field, $label, null);
-			//$recordset_form->on_add_js('call_js();');
-			//$recordset_form->on_remove_js('call_js();');
 		}
+		else if($mode == 'edit' || $mode == 'view'){
+			$arrayAllValues = array();
+			$dataField = self::getRecordsetsOnly($default);
+			foreach($dataField as $tbName){			
+				$arrayFields = Utils_RecordBrowserCommon::init($tbName);
+				foreach($arrayFields as $key => $value){
+					$arrayAllValues[$tbName.":".$value['id']] = Utils_RecordBrowserCommon::get_caption($tbName)." - ".$value['name'];
+					
+				}
+			}		
+			$recordset_form = $form->addElement('multiselect', $field, $label, $arrayAllValues);
+			$form->setDefaults(array($field => $default));
+		}
+
 	}
 	
 	public function get_recordsets(){
@@ -99,15 +117,159 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		return $options;
 	}
 	
-	public static function display_recordsets($rb, $nolink){
-		//load_js('modules/Applets/QuickSearch/js/quicksearch.js');
-        //eval_js('call_js('.$rb.');');
+	public static function display_recordsets($rb, $nolink){		
+		$strRecordsets = self::arrayToString($rb['recordsets']);
+		return $strRecordsets;
 	}
 	
 	public static function display_recordfields($rb, $nolink){
-		return print_r($rb);
+		$strFields = self::arrayToString($rb['select_field']);
+		return $strFields;
 	}	
-
+	
+	public static function parse_values($values, $mode){
+		//print "MODE ===== ". $mode;
+		switch($mode){
+			case 'adding':
+			case 'editing':
+				$values['recordsets'] = explode(';', $values['recordsets']);
+				$values['select_field'] = explode(';', $values['select_field']);;
+				break;
+			case 'add':
+			case 'edit':
+				$values['recordsets'] = implode(';', $values['recordsets']);
+				$values['select_field'] = implode(';', $values['select_field']);
+				break;				
+			case 'display':
+				$values = "display";
+				break;
+			case 'view':
+				$values['recordsets'] = explode(';', $values['recordsets']);
+				$values['select_field'] = explode(';', $values['select_field']);
+				break;	
+			default:	
+				break;
+		}
+		return $values;
+	}
+	
+	public function arrayToString($arr){		
+		$strArray = explode(";",$arr);
+		$strFinalArray = "";
+		foreach($strArray as $str){
+			if(stripos($str, "[A]") !== false){
+				$strFinal[] = substr($str, 0 , -3);
+			}
+			else{
+				$strFinal[] = $str;	
+			}
+		}
+		$strFinal = implode(';', $strFinal);
+		
+		return $strFinal;		
+	}
+	
+	public function stringToArray($str){
+		$arrRecordsets = array();
+		if($str != ""){
+			$arrRecordset = explode(";", $str);
+			$arrRecordsets = self::parse_array($arrRecordset);
+		}
+		return $arrRecordsets;
+	}
+	
+	// array($tbName => array("field1", "field2", "field3"))
+	public static function search_query($qry = array(), $values){
+		if(is_array($qry)){
+				
+		}
+	}
+	
+	public static function getQueryById($id){
+	
+	}
+	// fields = company:address;company:f_name;contacts:last_name;contacts:phone
+	public static function parse_recordset($recordset, $fieldset){
+		$recordsetArray = explode(";", $recordset);		
+		$arrayRecordsetAndFields = array();
+		foreach($recordsetArray as $recordsetName){
+				$recordsetName = self::getRecordsetNameString($recordsetName);
+				$array_fields = self::parse_fields($recordsetName, $fieldset);
+				$arrayRecordsetAndFields[] = array($recordsetName => $array_fields);
+		}
+		return $arrayRecordsetAndFields;
+	}
+	
+	public static function parse_fields($recordset,$fields){
+		$fieldArray = explode(";", $fields);
+		$getFieldArray = array();
+		foreach($fieldArray as $fieldName){
+			$getRecordsetName = self::getRecordsetNameString($fieldName);
+			$getFieldName = self::getFieldNameString($fieldName);
+			if($getRecordsetName == $recordset){
+					$getFieldArray[] = $getFieldName;
+			}
+		}
+		return $getFieldArray;		
+	}
+	
+	public function getRecordsetsOnly($arrayField){
+		$arrayRecordsetList = array();
+		if(is_array($arrayField)){
+			foreach($arrayField as $fieldName){
+				$recordsetName = self::getRecordsetNameString($fieldName);
+				if(!in_array($recordsetName, $arrayRecordsetList)){
+					$arrayRecordsetList[] = $recordsetName;
+				}
+			}
+		}
+		return $arrayRecordsetList;
+	}
+	
+	public function getRecordsetNameString($string){
+		if($string != ""){ 
+			if(stripos($string, "[A]") !== false)
+				return substr($string, 0, stripos($string, "[A]"));
+			else
+				return substr($string, 0, strpos($string, ':'));
+		}
+		else{
+			return "";
+		}
+	}
+	
+	public function getFieldNameString($string){
+		if($string != ""){ 
+			return substr($string, strpos($string, ':') + 1, strlen($string));
+		}
+		else{
+			return "";
+		}	
+	}
+	
+	public function parse_array($arr){
+		$arrRecordsets = array();
+		if(is_array($arr)){
+			foreach($arr as $recordset){
+				if(stripos($recordset, "[A]") !== false){
+					$arrRecordsets[] = substr($recordset, 0 , -3);
+				}
+				else{
+					$arrRecordsets[] = $recordset;	
+				}
+			}	
+		}
+		return $arrRecordsets;
+	}
+	
+	public static function getIdOnActiveQuickSearch(){
+		$qry = DB::GetRow("select id from quick_search_data_1 where f_status = 1 and active = 1");
+		if($qry){
+			return (int) $qry[0]; 
+		}else{
+			return false;
+		}
+	}
 }
 
 ?>

@@ -27,32 +27,41 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 							'param'=>'255', 
 							'visible'=>true, 
 							'required'=>true),
+							
+					array('name'=>__('Placeholder'), 'type'=>'text', 'param'=>'255', 'visible'=>true, 'required'=>true),
 					
 					array('name' => __('Recordsets'),
-							'type'=>'quick_search', 
+							'type'=>'long text', 
 							'QFfield_callback'=>array('Applets_QuickSearchCommon', 'QFfield_recordsets'), 
 							'display_callback'=>array('Applets_QuickSearchCommon', 'display_recordsets'), 
 							'required'=>true, 
 							'extra'=>false, 
 							'visible'=>true),
-					array('name'=>__('Placeholder'), 'type'=>'text', 'param'=>'255', 'visible'=>true, 'required'=>true),	
+						
 					array('name' => __('Select field'),
-							'type'=>'quick_search', 
+							'type'=>'long text', 
 							'QFfield_callback'=>array('Applets_QuickSearchCommon', 'QFfield_recordfields'), 
 							'display_callback'=>array('Applets_QuickSearchCommon', 'display_recordfields'), 
 							'required'=>true, 
 							'extra'=>false, 
 							'visible'=>true),	
+							
 					array('name'=>__('Result Format'), 
 							'type'=>'long text', 
 							'param'=>'255', 
 							'required'=>true, 
-							'visible'=>true)
+							'visible'=>true),
+							
+					array('name' => __('Status'),
+							'type' => 'checkbox',
+							'visible' => false,
+						)		
 							
 				);				
 		Utils_RecordBrowserCommon::install_new_recordset($recordsetName,$fields);	
 		Utils_RecordBrowserCommon::set_caption($recordsetName, __('Quick Search'));
 		Utils_RecordBrowserCommon::set_favorites($recordsetName, false);
+		Utils_RecordBrowserCommon::register_processing_callback($recordsetName, array('Applets_QuickSearchCommon', 'parse_values'));
 
 		Utils_RecordBrowserCommon::add_access($recordsetName, 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
 		Utils_RecordBrowserCommon::add_access($recordsetName, 'add', 'ACCESS:employee');
@@ -74,6 +83,8 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 			$ret = false;
 		}*/	
 		Utils_RecordBrowserCommon::uninstall_recordset('quick_search');
+		Utils_RecordBrowserCommon::unregister_processing_callback($recordsetName, array('Applets_QuickSearchCommon', 'parse_values'));
+
 		return $ret;
 	}
 	public function version() {

@@ -11,8 +11,12 @@ class Applets_QuickSearch extends Module{
 	}
 	
 	public function applet($conf, & $opts){		
-		$opts['go' ] = false;	
-		
+		$recordset = "quick_search";
+		$id = Applets_QuickSearchCommon::getIdOnActiveQuickSearch();
+		$values = Utils_RecordBrowserCommon::get_record($recordset, $id);
+		$values["status"] = 5;
+		Utils_RecordBrowserCommon::update_record($recordset, $id, $values, false, null, false);
+
 		$theme = $this->init_module('Base/Theme');
 		$form = $this->init_module('Libs/QuickForm');
 		
@@ -21,9 +25,9 @@ class Applets_QuickSearch extends Module{
 		$btnQuery = 'query_button';
 		$placeholder = "";
 	
-		$qSearchSettings = Applets_QuickSearchCommon::getQuickSearch();
-		$placeholder = $qSearchSettings['search_placeholder'];
-		$opts['title'] = $opts['title'].' on '.$qSearchSettings['search_alias_name'];
+		$placeholder = $values['placeholder'];
+		$opts['title'] = $opts['title']." for ".$values["preset_name"];
+		$opts['go' ] = false;		
 		
 		load_css('modules/Applets/QuickSearch/theme/quick_form.css');
 		load_js('modules/Applets/QuickSearch/js/quicksearch.js');	
@@ -31,15 +35,15 @@ class Applets_QuickSearch extends Module{
 		$js ='setDelayOnSearch()';
 		eval_js($js);
 		$txt = $form->addElement('text', $txtQuery, __('Search'));		
-		$txt->setAttribute('id', $txtQuery);
+		$txt->setAttribute('id', $txtQuery."_".$id);
 		$txt->setAttribute('class', 'QuickSearch_text');
-		$txt->setAttribute('onkeypress', 'setDelayOnSearch(\''.trim($conf['criteria']).'\')');				
+		$txt->setAttribute('onkeypress', 'setDelayOnSearch(\''.trim($id).'\')');				
 		$txt->setAttribute('placeholder', _V($placeholder));
 		
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
-		$theme->assign('search_id', $qSearchSettings['search_id']);
-		$theme->display('quick_form');					
+		$theme->assign('search_id', $id);
+		$theme->display('quick_form');				
 	
 	}
 	public function caption() {
@@ -55,20 +59,10 @@ class Applets_QuickSearch extends Module{
 			return;
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-			
-        $tb = $this->init_module('Utils/TabbedBrowser');		
-		$tb->set_tab('Presets', array($this,'list_queries'));
-        $this->display_module($tb);
-		return true;
-    }
-
-	
-	public function list_queries(){
 		$this->rb = $this->init_module('Utils/RecordBrowser','quick_search','quick_searach');
 		$this->display_module($this->rb);
 		return true;
-		
-	}
+    }
 	
 }
 
