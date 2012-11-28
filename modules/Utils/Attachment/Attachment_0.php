@@ -299,7 +299,7 @@ class Utils_Attachment extends Module {
 			$new_note_form->accept($renderer); 
 			$form_data = $renderer->toArray();
 
-			$gb->set_prefix($form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden'].$form_data['upload_iframe']['html']);
+			$gb->set_prefix($form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']);
 			$gb->set_postfix('</form>');
 
 			$inline_form_theme = $this->init_module('Base_Theme');
