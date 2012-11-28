@@ -701,7 +701,6 @@ class Utils_Attachment extends Module {
 		$fck->setFCKProps('99%','200');
 		
 		$form->addRule('note',__('Maximal lenght of note exceeded'),'maxlength',65535);
-		$form->set_upload_button_caption(__('Save'));
 
 		$form->addElement('select','permission',__('Permission'),array(__('Public'),__('Protected'),__('Private')),array('style'=>'width:auto;'));
 		$form->addElement('checkbox','sticky',__('Sticky'));

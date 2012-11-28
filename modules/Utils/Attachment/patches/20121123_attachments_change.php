@@ -12,7 +12,7 @@ while ($row = $ret->FetchRow()) {
 	if (!$row['original']) $ids[] = $row['id'];
 	$old_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['attach_id'].'_'.$row['revision'];
 	$new_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'];
-	rename($old_filename, $new_filename);
+	@rename($old_filename, $new_filename);
 }
 if (!empty($ids))
 	DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id IN ('.implode(',',$ids).')');
