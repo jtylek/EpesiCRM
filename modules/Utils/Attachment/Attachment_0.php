@@ -614,7 +614,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
-				$r->add_action($this->create_confirm_callback_href(__('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),__('Restore'));
+				$r->add_action($this->create_confirm_callback_href(__('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),'restore',__('Restore'));
 			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),Base_UserCommon::get_user_label($row['note_by']),$row['text']);
 		}
 		$this->display_module($gb);
@@ -638,7 +638,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
-				if ($row['deleted']) $r->add_action($this->create_confirm_callback_href(__('Are you sure you want to restore attached file?'),array($this,'restore_file'),array($row['file_id'])),__('Restore'));
+				if ($row['deleted']) $r->add_action($this->create_confirm_callback_href(__('Are you sure you want to restore attached file?'),array($this,'restore_file'),array($row['file_id'])),'restore',__('Restore'));
 			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
 			$r->add_data($row['deleted']?__('Yes'):__('No'),Base_RegionalSettingsCommon::time2reg($row['upload_on']),Base_UserCommon::get_user_label($row['upload_by']),$file);
 		}
@@ -742,11 +742,15 @@ class Utils_Attachment extends Module {
 	public function submit_attach($data) {		
 		$files = $_SESSION['client']['utils_attachment'][CID]['files'];
 		$_SESSION['client']['utils_attachment'][CID]['files'] = array();
-		$clipboard_files = explode(';', trim($data['clipboard_files'], ';'));
+		$clipboard_files = trim($data['clipboard_files'], ';');
+		if ($clipboard_files) $clipboard_files = explode(';', $clipboard_files);
+		else $clipboard_files = array();
 		if ($data['note_id']) {
 			$current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($data['note_id']));
 			$remaining_files = $current_files;
-			$deleted_files = explode(';', trim($data['delete_files'], ';'));
+			$deleted_files = trim($data['delete_files'], ';');
+			if ($deleted_files) $deleted_files = explode(';', $deleted_files);
+			else $deleted_files = array();
 			foreach ($deleted_files as $k=>$v) {
 				$deleted_files[$k] = intVal($v);
 				if (!isset($remaining_files[$v])) unset($deleted_files[$k]);
