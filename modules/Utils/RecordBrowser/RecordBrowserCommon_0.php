@@ -2510,14 +2510,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if(IPHONE) {
             print('<ul class="field">');
             foreach($cols as $k=>$col) {
-                $val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,true,$col);
+                $val = Utils_RecordBrowserCommon::get_val($tab,$k,$rec,true,$col);
                 if($val==='') continue;
                 print('<li>'._V($col['name']).': '.$val.'</li>'); // TRSL
             }
             print('</ul>');
         } else {
             foreach($cols as $k=>$col) {
-                $val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,true,$col);
+                $val = Utils_RecordBrowserCommon::get_val($tab,$k,$rec,true,$col);
                 if($val==='') continue;
                 print(_V($col['name']).': '.$val.'<br>'); // TRSL
             }
@@ -2593,7 +2593,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 $values = $rec;
                                 if (is_array($defaults)) $values = $values+$defaults;
                             }
-                            $val = @Utils_RecordBrowserCommon::get_val($tab,$args['name'],$values,true,$args);
+                            $val = @Utils_RecordBrowserCommon::get_val($tab,$field,$values,true,$args);
                             if (!$val) $val = '['.__('formula').']';
                             $qf->setDefaults(array($args['id']=>$val));
                             break;
@@ -2732,7 +2732,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             break;
                 case 'multiselect': //ignore
                             if($id===false) continue;
-                            $val = Utils_RecordBrowserCommon::get_val($tab,$args['name'],$rec,true,$args);
+                            $val = Utils_RecordBrowserCommon::get_val($tab,$field,$rec,true,$args);
                             if($val==='') continue;
                             $qf->addElement('static',$args['id'],$label);
                             $qf->setDefaults(array($args['id']=>$val));
