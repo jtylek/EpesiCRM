@@ -305,7 +305,7 @@ class Libs_QuickForm extends Module {
 		$elements = array_keys($this->getSubmitValues());
 		foreach ($elements as $e) {
 			$err = $this->getElementError($e);
-			if ($err) $this->setElementError($e, $err.' <a href="javascript:void(0);" onclick="this.parentNode.innerHTML=\'\'"><img src="'.Base_ThemeCommon::get_template_file('Libs_QuickForm','close.png').'"></a>');
+			if ($err) $this->setElementError($e, $err.Libs_QuickFormCommon::get_error_closing_button());
 		}
 	}
 
