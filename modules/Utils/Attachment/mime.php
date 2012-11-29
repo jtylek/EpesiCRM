@@ -43,6 +43,7 @@ function get_mime_type($filepath,$original) {
 	   case "xlsx": 
 	   case "xls": return "application/vnd.ms-excel";
 	   case "docx": 
+	   case "txt": return "text/plain";
 	   case "doc": return "application/msword";
    	   case "pdf": return "application/pdf";
        case "png": case "gif": case "bmp": return "image/".strtolower($m[1]);

@@ -118,6 +118,7 @@ utils_attachments_cancel_note_edit = function () {
 	$("attachments_new_note").style.display="none";
 	CKEDITOR.instances.ckeditor_note.setData('');
 	$('delete_files').value = '';
+	$('clipboard_files').value = '';
 	$('filelist').innerHTML = '';
 	if (utils_attachment_last_edited_note) {
 		utils_attachment_last_edited_note.style.display="";

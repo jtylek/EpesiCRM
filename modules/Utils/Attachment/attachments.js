@@ -18,14 +18,32 @@ Utils_Attachment__delete_existing = function (id) {
 	$('delete_files').value = $('delete_files').value + ';' + id; 
 }
 
-Utils_Attachment__add_file_to_list = function (name, size, id, upload) {
+Utils_Attachment__delete_clipboard = function (id) {
+	var files = $('clipboard_files').value.split(';');
+	for (var i in files) {
+		if (files[i]==id) files.splice(i,1);
+	}
+	$('clipboard_files').value = files.join(';');
+}
+
+Utils_Attachment__add_clipboard = function (id) {
+	$('clipboard_files').value = $('clipboard_files').value + ';' + id; 
+}
+
+Utils_Attachment__add_file_to_list = function (name, size, id, upload, clipboard) {
 	var button = '';
-	if (upload) {
-		button = '<a href="javascript:void(0);" onclick="this.onclick=null;uploader.removeFile(uploader.getFile(\''+id+'\'));Effect.Fade(\''+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
+	if (clipboard) {
+		Utils_Attachment__add_clipboard(id);
+		id = 'clipboard_file_'+id;
+		button = '<a href="javascript:void(0);" onclick="this.onclick=null;Utils_Attachment__delete_clipboard(\''+id+'\');Effect.Fade(\''+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
 	} else {
-		button = '<a href="javascript:void(0);" id="delete_existing_'+id+'" onclick="Utils_Attachment__delete_existing('+id+');"><img src="'+Utils_Attachment__delete_button+'" /></a>';
-		button += '<a href="javascript:void(0);" id="restore_existing_'+id+'" onclick="Utils_Attachment__restore_existing('+id+');" style="display:none;"><img src="'+Utils_Attachment__restore_button+'" /></a>';
-		id = 'existing_file_'+id;
+		if (upload) {
+			button = '<a href="javascript:void(0);" onclick="this.onclick=null;uploader.removeFile(uploader.getFile(\''+id+'\'));Effect.Fade(\''+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
+		} else {
+			button = '<a href="javascript:void(0);" id="delete_existing_'+id+'" onclick="Utils_Attachment__delete_existing('+id+');"><img src="'+Utils_Attachment__delete_button+'" /></a>';
+			button += '<a href="javascript:void(0);" id="restore_existing_'+id+'" onclick="Utils_Attachment__restore_existing('+id+');" style="display:none;"><img src="'+Utils_Attachment__restore_button+'" /></a>';
+			id = 'existing_file_'+id;
+		}
 	}
 	$('filelist').innerHTML += '<div class="file" id="' + id + '"><div class="indicator">'+button+'</div><div class="filename">' + name + (size!=null?' (' + plupload.formatSize(size) + ')':'')+'</div></div>';
 }
@@ -64,4 +82,31 @@ Utils_Attachment__init_uploader = function () {
 	}
 
 	uploader.init();
+}
+
+document.onpaste = function(event) {
+	if ($("attachments_new_note").style.display=='none') return;
+    var items = event.clipboardData.items;
+    var s = JSON.stringify(items);
+	for (var i in items) {
+		if (items[i].type=='image/png') {
+			var blob = items[i].getAsFile();
+			var reader = new FileReader();
+			reader.onload = function(event) {
+				new Ajax.Request("modules/Utils/Attachment/paste.php", {
+					method: "post",
+					parameters:{
+						cid: Epesi.client_id,
+						data: event.target.result
+					},
+					onSuccess:function(t) {
+						var file = t.responseText.evalJSON();
+						Utils_Attachment__add_file_to_list(file.name, null, file.id, false, true);
+					}
+				});
+			};
+			reader.readAsDataURL(blob); 
+			break;
+		}
+	}
 }

@@ -1,8 +1,8 @@
 <?php
 /**
  * Use this module if you want to add attachments to some page.
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2012, Telaxus LLC
  * @license MIT
  * @version 1.0
  * @package epesi-utils

@@ -229,6 +229,16 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	public static function get_temp_dir() {
 		return DATA_DIR.'/Utils_Attachment/temp/'.Acl::get_user();
 	}
+	
+	public static function cleanup_paste_temp() {
+		DB::StartTrans();
+		$ret = DB::Execute('SELECT * FROM utils_attachment_clipboard WHERE created_on<=%T', array(date('Y-m-d H:i:s', strtotime('-1 day'))));
+		while ($row = $ret->FetchRow()) {
+			DB::Execute('DELETE FROM utils_attachment_clipboard WHERE id=%d', array($row['id']));
+			if ($row['filename']) @unlink($row['filename']);
+		}
+		DB::CompleteTrans();
+	}
 }
 
 ?>

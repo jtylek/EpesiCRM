@@ -52,6 +52,7 @@ if(!file_exists($f_filename))
 	die('File doesn\'t exists');
 $buffer = file_get_contents($f_filename);
 
+//die('Content-Type: '.get_mime_type($f_filename,$original));
 header('Content-Type: '.get_mime_type($f_filename,$original));
 header('Content-Length: '.strlen($buffer));
 header('Content-disposition: '.$disposition.'; filename="'.$original.'"');

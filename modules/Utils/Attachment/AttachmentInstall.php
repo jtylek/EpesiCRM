@@ -72,6 +72,12 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			return false;
 		}
 		DB::CreateIndex('utils_attachment_note__revision__idx', 'utils_attachment_note', 'revision');
+		$ret &= DB::CreateTable('utils_attachment_clipboard','
+			id I4 AUTO KEY NOTNULL,
+			filename C(255),
+			created_by I4,
+			created_on T DEFTIMESTAMP',
+			array('constraints'=>''));
 
 		$this->create_data_dir();
 		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
