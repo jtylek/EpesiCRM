@@ -74,7 +74,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name' => _M('Username'), 	'type'=>'calculated', 'required'=>false, 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_username')),
 			array('name' => _M('Set Password'), 'type'=>'calculated', 'required'=>false, 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_password')),
 			array('name' => _M('Confirm Password'),'type'=>'calculated', 'required'=>false, 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_repassword')),
-			array('name' => _M('Admin'), 		'type'=>'calculated', 'required'=>false, 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_admin')),
+			array('name' => _M('Admin'), 		'type'=>'calculated', 'required'=>false, 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_admin'), 'display_callback'=>array('CRM_ContactsCommon', 'display_admin')),
 			array('name' => _M('Access'), 		'type'=>'multiselect', 'required'=>false, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Contacts/Access'), 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_access'))
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('contact', $fields);

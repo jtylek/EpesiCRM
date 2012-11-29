@@ -754,6 +754,13 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->addElement('static', $field, $label, call_user_func($callback, array('company'=>$default), false, array('id'=>'company')));
         }
     }
+	
+	public static function display_admin($r, $nolink=false) {
+		if (!$r['login']) return '---';
+		$ret = Base_AclCommon::get_admin_level($r['login']);
+		$levels = array(0=>__('No'), 1=>__('Administrator'), 2=>__('Super Administrator'));
+		return $levels[$ret];
+	}
 
     public static function QFfield_webaddress(&$form, $field, $label, $mode, $default) {
         if ($mode=='add' || $mode=='edit') {

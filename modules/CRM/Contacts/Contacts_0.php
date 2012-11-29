@@ -122,7 +122,7 @@ class CRM_Contacts extends Module {
 		$this->rb->set_additional_caption(__('Users'));
 		$this->rb->disable_pdf();
 		$this->rb->disable_export();
-		$this->display_module($this->rb, array(array(), array('!login'=>''), array('work_phone'=>false, 'mobile_phone'=>false, 'city'=>false, 'zone'=>false, 'login'=>true, 'access'=>true, 'email'=>true), array('username'=>true, 'admin'=>true, 'access'=>true, 'related_companies'=>false)));
+		$this->display_module($this->rb, array(array(), array('!login'=>''), array('work_phone'=>false, 'admin'=>true, 'mobile_phone'=>false, 'city'=>false, 'zone'=>false, 'login'=>true, 'access'=>true, 'email'=>true), array('username'=>true, 'admin'=>true, 'access'=>true, 'related_companies'=>false)));
 
 		Base_ActionBarCommon::add('edit',__('E-mail header'),$this->create_callback_href(array($this,'change_email_header')),__('Edit the header of the message that is sent to each newly created user'));
 	}
