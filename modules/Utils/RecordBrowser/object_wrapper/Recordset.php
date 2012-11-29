@@ -56,6 +56,9 @@ abstract class RBO_Recordset {
 
     public function refresh_magic_callbacks() {
         foreach ($this->fields() as $field) {
+            if (!$field->magic_callbacks())
+                continue;
+
             $field_id = Utils_RecordBrowserCommon::get_field_id($field->name);
 
             if (!$field->QFfield_callback) {

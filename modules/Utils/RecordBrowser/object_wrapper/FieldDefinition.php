@@ -17,6 +17,8 @@ class RBO_FieldDefinition {
     public $display_callback;
     public $QFfield_callback;
     public $position;
+    
+    private $_magic_callbacks = true;
 
     /**
      * Creates new generic FieldDefinition object.
@@ -47,6 +49,23 @@ class RBO_FieldDefinition {
         $this->QFfield_callback = $QFfield_callback;
         $this->position = $position;
     }
+    
+    /**
+     * Disable magic callback for this field.
+     * @return \RBO_FieldDefinition
+     */
+    public function disable_magic_callbacks() {
+        $this->_magic_callbacks = false;
+        return $this;
+    }
+    
+    /**
+     * Check that magic callback functionality is enabled for this field
+     * @return bool
+     */
+    function magic_callbacks() {
+        return $this->_magic_callbacks;
+    }
 
     /**
      * Get definition array for use in RB. Or just use it to get all field
@@ -54,7 +73,9 @@ class RBO_FieldDefinition {
      * @return array
      */
     function get_definition() {
-        return get_object_vars($this);
+        $ret = get_object_vars($this);
+        unset($ret['_magic_callbacks']);
+        return $ret;
     }
 
     /**
