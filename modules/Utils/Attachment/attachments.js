@@ -34,8 +34,8 @@ Utils_Attachment__add_file_to_list = function (name, size, id, upload, clipboard
 	var button = '';
 	if (clipboard) {
 		Utils_Attachment__add_clipboard(id);
+		button = '<a href="javascript:void(0);" onclick="this.onclick=null;Utils_Attachment__delete_clipboard(\''+id+'\');Effect.Fade(\'clipboard_file_'+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
 		id = 'clipboard_file_'+id;
-		button = '<a href="javascript:void(0);" onclick="this.onclick=null;Utils_Attachment__delete_clipboard(\''+id+'\');Effect.Fade(\''+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
 	} else {
 		if (upload) {
 			button = '<a href="javascript:void(0);" onclick="this.onclick=null;uploader.removeFile(uploader.getFile(\''+id+'\'));Effect.Fade(\''+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
