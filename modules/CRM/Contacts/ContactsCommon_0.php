@@ -829,7 +829,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 	}
     public static function QFfield_admin(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        if ($mode=='view') return;
         if (!Base_AclCommon::i_am_sa()) return;
 		$default = 0;
 		if ($rb!==null && isset($rb->record['login']) && $rb->record['login'] && is_numeric($rb->record['login'])) {
@@ -870,7 +869,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		else {
 			eval_js('new_user_textfield = function(){'.
 					'($("crm_contacts_select_user").value=="new"?"":"none");'.
-					'$("username").up("tr").style.display = $("contact_admin").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'$("username").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'if ($("contact_admin")) $("contact_admin").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
 					'}');
 			eval_js('new_user_textfield();');
 			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
