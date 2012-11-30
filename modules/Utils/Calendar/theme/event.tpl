@@ -11,7 +11,7 @@
     	<div class="content_shadow">
     <!-- -->
 
-        <span class="event_menu_content" style="display: block;height: 20px;background-color: #e6ecf2;padding-left: 5px;padding-right: 3px;">
+        <span class="event_menu_content" style="display: block;height: 20px;background-color: #e6ecf2;">
 			<span id="Utils_Calendar__event_images">
 		    	{if isset($view_href)}
 		            <a {$view_href}><img border="0" src="{$theme_dir}/Utils/Calendar/view.png"></a>
