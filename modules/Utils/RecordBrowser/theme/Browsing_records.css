@@ -14,6 +14,10 @@
 	margin-left: 40px;
 	margin-top: 2px;
 }
+#Browsing_records .name .label a {
+	color: white;
+	text-decoration: underline;
+}
 .epesi_rtl #Browsing_records .name .label {
 	margin-left: 0px;
 	margin-right: 40px;

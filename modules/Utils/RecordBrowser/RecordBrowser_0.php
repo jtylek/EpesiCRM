@@ -61,7 +61,7 @@ class Utils_RecordBrowser extends Module {
     private $current_field = null;
     private $additional_actions_method = null;
     private $filter_crits = array();
-    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false);
+    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false, 'jump_to_record'=>false);
     private $force_order;
     private $clipboard_pattern = false;
     private $show_add_in_table = false;
@@ -147,6 +147,7 @@ class Utils_RecordBrowser extends Module {
     public function disable_filters(){$this->disabled['filters'] = true;}
     public function disable_quickjump(){$this->disabled['quickjump'] = true;}
     public function disable_headline() {$this->disabled['headline'] = true;}
+    public function disable_jump_to_record() {$this->disabled['jump_to_record'] = true;}
     public function disable_pdf() {$this->disabled['pdf'] = true;}
     public function disable_export() {$this->disabled['export'] = true;}
     public function disable_actions($arg=true) {$this->disabled['actions'] = $arg;}
@@ -296,7 +297,7 @@ class Utils_RecordBrowser extends Module {
         ob_end_clean();
 
         $theme->assign('table', $table);
-        if (!$this->disabled['headline']) $theme->assign('caption', _V($this->caption).($this->additional_caption?' - '.$this->additional_caption:'').' '.$this->get_jump_to_id_button());
+        if (!$this->disabled['headline']) $theme->assign('caption', _V($this->caption).($this->additional_caption?' - '.$this->additional_caption:'').(!$this->disabled['jump_to_record']?' '.$this->get_jump_to_id_button():''));
         $theme->assign('icon', $this->icon);
         $theme->display('Browsing_records');
     }
@@ -924,9 +925,10 @@ class Utils_RecordBrowser extends Module {
                 else $da = array_flip($this->disabled['actions']);
                 if (!$special) {
                     if (!isset($da['view'])) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view', $row['id'])),'View');
-					else $gb_row->add_action('','View',__('You don\'t have permission to view this record.'),null,0,true);
-                    if (!isset($da['edit']) && $this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),'Edit');
-					else $gb_row->add_action('','Edit',__('You don\'t have permission to edit this record.'),null,0,true);
+					if (!isset($da['edit'])) {
+						if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),'Edit');
+						else $gb_row->add_action('','Edit',__('You don\'t have permission to edit this record.'),null,0,true);
+					}
                     if ($admin) {
                         if (!$row[':active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),'Activate', null, 'active-off');
                         else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),'Deactivate', null, 'active-on');
@@ -2439,13 +2441,15 @@ class Utils_RecordBrowser extends Module {
 
     public function enable_quick_new_records($button = true, $force_show = null) {
         $this->add_in_table = true;
-        if ($button) $this->add_button = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if(focus_on_field)if($(focus_on_field))focus_by_id(focus_on_field);"';
+		$href = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if(focus_on_field)if($(focus_on_field))focus_by_id(focus_on_field);"';
+        if ($button) $this->add_button = $href;
         if ($force_show===null) $this->show_add_in_table = Base_User_SettingsCommon::get('Utils_RecordBrowser','add_in_table_shown');
         else $this->show_add_in_table = $force_show;
         if ($this->get_module_variable('force_add_in_table_after_submit', false)) {
             $this->show_add_in_table = true;
             $this->set_module_variable('force_add_in_table_after_submit', false);
         }
+		return $href;
     }
 	
     public function set_custom_filter($arg, $spec){
