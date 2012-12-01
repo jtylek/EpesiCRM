@@ -121,6 +121,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 	
 	public static function install_permissions() {
 		Utils_RecordBrowserCommon::wipe_access('company');
+		Utils_RecordBrowserCommon::add_access('company', 'print', 'SUPERADMIN');
+		Utils_RecordBrowserCommon::add_access('company', 'export', 'SUPERADMIN');
 		Utils_RecordBrowserCommon::add_access('company', 'view', 'ACCESS:employee', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('company', 'view', 'ALL', array('id'=>'USER_COMPANY'));
 		Utils_RecordBrowserCommon::add_access('company', 'add', 'ACCESS:employee');
@@ -131,6 +133,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::add_access('company', 'delete', array('ACCESS:employee','ACCESS:manager'));
 
 		Utils_RecordBrowserCommon::wipe_access('contact');
+		Utils_RecordBrowserCommon::add_access('contact', 'print', 'SUPERADMIN');
+		Utils_RecordBrowserCommon::add_access('contact', 'export', 'SUPERADMIN');
 		Utils_RecordBrowserCommon::add_access('contact', 'view', 'ACCESS:employee', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('contact', 'view', 'ALL', array('login'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('contact', 'add', 'ACCESS:employee');
