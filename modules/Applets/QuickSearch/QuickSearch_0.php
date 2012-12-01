@@ -10,12 +10,8 @@ class Applets_QuickSearch extends Module{
 	
 	}
 	
-	public function applet($conf, & $opts){		
+	public function applet($conf, & $opts){
 		$recordset = "quick_search";
-		$id = Applets_QuickSearchCommon::getIdOnActiveQuickSearch();
-		$values = Utils_RecordBrowserCommon::get_record($recordset, $id);
-		$values["status"] = 5;
-		Utils_RecordBrowserCommon::update_record($recordset, $id, $values, false, null, false);
 
 		$theme = $this->init_module('Base/Theme');
 		$form = $this->init_module('Libs/QuickForm');
@@ -24,25 +20,25 @@ class Applets_QuickSearch extends Module{
 		$txtLabel = 'query_label';
 		$btnQuery = 'query_button';
 		$placeholder = "";
+		$id = $conf['criteria'];
 	
-		$placeholder = $values['placeholder'];
-		$opts['title'] = $opts['title']." for ".$values["preset_name"];
+		$opts['title'] = ($conf['a_title'] == "") ? $opts['title'] : $conf['a_title'];
 		$opts['go' ] = false;		
 		
 		load_css('modules/Applets/QuickSearch/theme/quick_form.css');
 		load_js('modules/Applets/QuickSearch/js/quicksearch.js');	
 		
-		$js ='setDelayOnSearch()';
-		eval_js($js);
+		//$js ='setDelayOnSearch()';
+		//eval_js($js);
 		$txt = $form->addElement('text', $txtQuery, __('Search'));		
 		$txt->setAttribute('id', $txtQuery."_".$id);
 		$txt->setAttribute('class', 'QuickSearch_text');
-		$txt->setAttribute('onkeypress', 'setDelayOnSearch(\''.trim($id).'\')');				
+		$txt->setAttribute('onkeypress', 'setDelayOnSearch(\''.$id.'\')');				
 		$txt->setAttribute('placeholder', _V($placeholder));
 		
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
-		$theme->assign('search_id', $id);
+		$theme->assign('search_id', $conf['criteria']);
 		$theme->display('quick_form');				
 	
 	}

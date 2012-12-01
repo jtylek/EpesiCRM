@@ -11,8 +11,8 @@ function setDelayOnSearch(crit){
 function getRecords(){
 	var txtVal = document.getElementById('query_text_'+criteria).value;
 	var search_id = document.getElementById('search_id').value;
-	new Ajax.Updater('tableID', 'modules/Applets/QuickSearch/getresult.php',
-								{ method: 'get', parameters: {q:txtVal, crit:criteria, search_id:search_id}});
+	new Ajax.Updater('tableID_'+criteria, 'modules/Applets/QuickSearch/getresult.php',
+								{ method: 'get', parameters: {q:txtVal, crit:criteria}});
 }
 
 function getRecordFields(recordset, caption){
@@ -130,9 +130,46 @@ function call_js(){
 			try{
 				elem[el].value = elem[el].value + '[A]';
 				var recordset = elem[el].value.substr(0,(elem[el].value.length - 3));
-				getRecordFields(recordset, elem[el].text);
+				//if(!checkRecordsetExist(recordset))
+					getRecordFields(recordset, elem[el].text);
 			}
 			catch(error){}
 		}
+	}
+}
+
+function call_js_add_field(mode){
+	alert(mode);
+	var elemFields = $('select_field__to').options;
+	var resultFormat = $('result_format');
+	for(el = 0; el < elemFields.length; el++){
+		if(elemFields[el].value.indexOf('[A]') == -1){
+			elemFields[el].value = elemFields[el].value + '[A]';
+			var field = elemFields[el].value.substr(0,(elemFields[el].value.length - 3));
+			if(mode == 'add'){
+				resultFormat.value += '[%' + field + '%] ';
+			}
+			else{
+				var holder = resultFormat.value + '[%'+field+'%]';
+				resultFormat.value = "";
+				resultFormat.value = holder;
+				
+			}
+		}
+	}
+}
+
+function call_js_remove_recordset(){
+
+}
+
+function call_js_remove_fields(){
+
+}
+
+function changeAddedRecordset(){
+	var select = $('recordsets__to').options;
+	for(b=0; b < select.length; b++){
+		select[b].value += "[A]";	
 	}
 }

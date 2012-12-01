@@ -6,20 +6,6 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 
 	public function install() {
 		$ret = true;
-		/*Base_ThemeCommon::install_default_theme($this -> get_type());
-		$ret &= DB::CreateTable('quick_search', 
-									'search_id I4 AUTO KEY, 
-									search_alias_name C(100) NOTNULL,
-									search_recordset C(100) NOTNULL, 
-									search_fields TEXT NOTNULL,
-									search_placeholder TEXT,
-									search_status C(1) NOTNULL,
-									format TEXT');
-								
-		if(!$ret){
-			print('Unable to create table vacation planner.<br>');
-			return false;
-		}*/
 		$recordsetName = "quick_search";
 		$fields = array(
 					array('name'=>__('Preset name'), 
@@ -50,13 +36,7 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 							'type'=>'long text', 
 							'param'=>'255', 
 							'required'=>true, 
-							'visible'=>true),
-							
-					array('name' => __('Status'),
-							'type' => 'checkbox',
-							'visible' => false,
-						)		
-							
+							'visible'=>true)			
 				);				
 		Utils_RecordBrowserCommon::install_new_recordset($recordsetName,$fields);	
 		Utils_RecordBrowserCommon::set_caption($recordsetName, __('Quick Search'));
@@ -74,14 +54,6 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 
 	public function uninstall() {
 		$ret = true;
-		/*Base_ThemeCommon::uninstall_default_theme($this->get_type());
-		$ret = true;
-		Base_ThemeCommon::uninstall_default_theme($this->get_type());
-		$ret &= DB::DropTable('quick_search');
-		if(!$ret){
-			print "Table doesn't exist";
-			$ret = false;
-		}*/	
 		Utils_RecordBrowserCommon::uninstall_recordset('quick_search');
 		Utils_RecordBrowserCommon::unregister_processing_callback($recordsetName, array('Applets_QuickSearchCommon', 'parse_values'));
 

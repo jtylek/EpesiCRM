@@ -4,7 +4,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_QuickSearchCommon extends ModuleCommon{
 
-	private $recordsetsArray = null;
+	private static $resultFormat = null;
+	private static $recordsetArray = array();
 	
 	public static function applet_caption() {
     	return __('Quick Search');
@@ -20,8 +21,12 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 	}
 	
 	public static function applet_settings(){
-		return array( array('name' => 'criteria', 'label' => __('Criteria'), 
-					'type' => 'select', 'values' =>array('Names'=>'Names (First, Last, Company and Short)','Email'=>'Email', 'City'=>'City', 'Phone'=>'Phone'), 'default'=>'Names')
+		$presets = self::getPresets();
+		return array(
+				array('name' => 'a_title', 'label' => __('Applet Title'),
+					'type' => 'text', 'values'=>'Quick Search', 'default' => 'Quick Search'),
+				array('name' => 'criteria', 'label' => __('Presets Name'), 
+					'type' => 'select', 'values' => $presets, 'default' => '0' )
 					);
 	}
 	
@@ -32,7 +37,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		return $result;
 	}	
 	
-	public static function constructLikeSQL($arrayQry = array(), $field1, $field2){
+	public static function constructLikeSQL1($arrayQry = array(), $field1, $field2){
 		$sql = '';
 		$count = count($arrayQry);
 		if(!is_array($arrayQry)){
@@ -51,21 +56,33 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		}
 		return $sql;
 	}	
-	
-	public static function getQuickSearch(){
-		$qry = DB::GetRow("select * from quick_search where search_status = '1' limit 0, 1");
-		if($qry) 
-			return array('search_alias_name' => $qry[1], 'search_placeholder'=>$qry[4], 'search_id'=>$qry[0]); 
-		else
+
+	public static function constructLikeSQL($array, $fieldsArray){
+		$sql = "";
+		if(is_array($array)){
+			foreach($array as $value){
+				$sql .= self::createLikeSQL($value, $fieldsArray);
+			}
+			return $sql;
+		}
+		else{
 			return false;
+		}
 	}
 	
-	public static function getQuickSearchById($search_id){
-		$qryId = DB::GetRow("select * from quick_search where search_id = ".$search_id."");
-		if($qryId)
-			return array('search_fields' => $qryId[4], 'format' => $qryId[6]);
-		else
+	public static function createLikeSQL($value, $fieldArray){
+		if(is_array($fieldArray)){
+		$count = count($fieldArray);
+		$sqText = "";
+		$int = 0;
+			foreach($fieldArray as $field){
+				$sqlText .= '(f_'.$field.' '. DB::like().' '. DB::Concat(DB::qstr('%'), DB::qstr($value), DB::qstr('%')).') OR ';
+			}
+			return $sqlText;
+		}
+		else{
 			return false;
+		}
 	}
 	
 	public static function QFfield_recordsets(&$form, $field, $label, $mode, $default, $desc, $rb_obj){
@@ -77,11 +94,15 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 			eval_js('call_js()');
 			$recordset_form = $form->addElement('multiselect', $field, $label, $data);
 			$recordset_form->on_add_js('call_js();');
-			$recordset_form->on_remove_js('call_js();');
+			$recordset_form->on_remove_js('call_js_remove_recordset();');
 		}
 		else if($mode == 'edit' || $mode == 'view'){
 			$recordset_form = $form->addElement('multiselect', $field, $label, $data);
-			$form->setDefaults(array($field=>self::parse_array($default)));		
+			$recordset_form->on_add_js('call_js();');
+			$recordset_form->on_remove_js('call_js_remove_recordset();');			
+			$form->setDefaults(array($field => self::parse_array($default)));
+			eval_js('changeAddedRecordset()');	
+			//self::recordsetsArray = $default;	
 		}
 	}
 
@@ -89,6 +110,8 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		//print "<br>MODE on QFfield_recordfields == ". $mode; 
 		if($mode == 'add'){
 			$recordset_form = $form->addElement('multiselect', $field, $label, null);
+			$recordset_form->on_add_js('call_js_add_field(\'add\');');
+			$recordset_form->on_remove_js('call_js_remove_fields();');
 		}
 		else if($mode == 'edit' || $mode == 'view'){
 			$arrayAllValues = array();
@@ -101,7 +124,9 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 				}
 			}		
 			$recordset_form = $form->addElement('multiselect', $field, $label, $arrayAllValues);
-			$form->setDefaults(array($field => $default));
+			$recordset_form->on_add_js('call_js_add_field(\'edit\');');
+			$form->setDefaults(array($field => self::parse_array($default)));
+			//print_r($default);
 		}
 
 	}
@@ -178,16 +203,6 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		return $arrRecordsets;
 	}
 	
-	// array($tbName => array("field1", "field2", "field3"))
-	public static function search_query($qry = array(), $values){
-		if(is_array($qry)){
-				
-		}
-	}
-	
-	public static function getQueryById($id){
-	
-	}
 	// fields = company:address;company:f_name;contacts:last_name;contacts:phone
 	public static function parse_recordset($recordset, $fieldset){
 		$recordsetArray = explode(";", $recordset);		
@@ -195,7 +210,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		foreach($recordsetArray as $recordsetName){
 				$recordsetName = self::getRecordsetNameString($recordsetName);
 				$array_fields = self::parse_fields($recordsetName, $fieldset);
-				$arrayRecordsetAndFields[] = array($recordsetName => $array_fields);
+				$arrayRecordsetAndFields[$recordsetName] = $array_fields;
 		}
 		return $arrayRecordsetAndFields;
 	}
@@ -204,7 +219,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		$fieldArray = explode(";", $fields);
 		$getFieldArray = array();
 		foreach($fieldArray as $fieldName){
-			$getRecordsetName = self::getRecordsetNameString($fieldName);
+			$getRecordsetName = self::getRecordsetOnField($fieldName);
 			$getFieldName = self::getFieldNameString($fieldName);
 			if($getRecordsetName == $recordset){
 					$getFieldArray[] = $getFieldName;
@@ -217,7 +232,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		$arrayRecordsetList = array();
 		if(is_array($arrayField)){
 			foreach($arrayField as $fieldName){
-				$recordsetName = self::getRecordsetNameString($fieldName);
+				$recordsetName = self::getRecordsetOnField($fieldName);
 				if(!in_array($recordsetName, $arrayRecordsetList)){
 					$arrayRecordsetList[] = $recordsetName;
 				}
@@ -231,11 +246,20 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 			if(stripos($string, "[A]") !== false)
 				return substr($string, 0, stripos($string, "[A]"));
 			else
-				return substr($string, 0, strpos($string, ':'));
+				return substr($string, 0, strlen($string));
 		}
 		else{
 			return "";
 		}
+	}
+	
+	public static function getRecordsetOnField($string){
+		if($string != ""){ 
+			return substr($string, 0, stripos($string, ":"));
+		}
+		else{
+			return false;
+		}		
 	}
 	
 	public function getFieldNameString($string){
@@ -262,13 +286,36 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		return $arrRecordsets;
 	}
 	
-	public static function getIdOnActiveQuickSearch(){
-		$qry = DB::GetRow("select id from quick_search_data_1 where f_status = 1 and active = 1");
+	/*public static function getIdOnActiveQuickSearch(){
+		$qry = DB::GetRow("select id from quick_search_data_1 where active = 1");
 		if($qry){
 			return (int) $qry[0]; 
 		}else{
 			return false;
 		}
+	}*/
+	
+	public static function getRecordsetAndFields($id){
+		$qry = Utils_RecordBrowserCommon::get_record("quick_search", $id, false);
+		if($qry){
+			self::$resultFormat = $qry["result_format"];
+			return self::parse_recordset($qry["recordsets"], $qry["select_field"]);
+		}else{
+			return false;
+		}
+	}
+	
+	public function getPresets(){
+		$values = Utils_RecordBrowserCommon::get_records("quick_search", array(), array("id", "preset_name"), array(), array(), false);	
+		$arr = array();
+		foreach($values as $presets){
+			$arr[$presets["id"]] = $presets["preset_name"];
+		}
+		return $arr;
+	}
+	
+	public static function getResultFormat(){
+		return self::$resultFormat;
 	}
 }
 
