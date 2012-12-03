@@ -271,7 +271,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		}	
 	}
 	
-	public function parse_array($arr){
+	public static function parse_array($arr){
 		$arrRecordsets = array();
 		if(is_array($arr)){
 			foreach($arr as $recordset){
@@ -316,6 +316,24 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 	
 	public static function getResultFormat(){
 		return self::$resultFormat;
+	}
+	
+	public static function parseFormatString($stringFormat){
+		if($stringFormat == ""){
+			return false;
+		}
+		else{
+			$formatStr = str_replace("[%", "{", $format);
+			$formatStr = str_replace("%]", "}", $formatStr);
+			return $formatStr;
+		}
+	}
+	
+	public static function parseResult($arrayQuery, $arrayFormat){
+		// it should return an array
+		//
+		//$arrRow["source"] = $key;
+		//$arrResult[] = $arrRow;		
 	}
 }
 
