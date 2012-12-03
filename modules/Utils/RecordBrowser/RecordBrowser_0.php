@@ -766,11 +766,10 @@ class Utils_RecordBrowser extends Module {
             $order = array(':Visited_on'=>'DESC');
         }
 
-        if ($admin) {
+        if ($admin && !$pdf) {
             $order = array(':Edited_on'=>'DESC');
             $form = $this->init_module('Libs/QuickForm', null, $this->tab.'_admin_filter');
-            $form->addElement('select', 'show_records', __('Show records'), array(0=>'['.__('All').']',1=>'['.__('All active').']',2=>'['.__('All deactivated').']'));
-            $form->addElement('submit', 'submit', __('Show'));
+            $form->addElement('select', 'show_records', __('Show records'), array(0=>'['.__('All').']',1=>'['.__('All active').']',2=>'['.__('All deactivated').']'), array('onchange'=>$form->get_submit_form_js()));
             $f = $this->get_module_variable('admin_filter', 0);
             $form->setDefaults(array('show_records'=>$f));
             self::$admin_filter = $form->exportValue('show_records');

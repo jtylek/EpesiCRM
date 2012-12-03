@@ -24,7 +24,7 @@ if ($crits===null || $order===null) {
 	$crits = $order = array();
 }
 ModuleManager::load_modules();
-if (!Utils_RecordBrowserCommon::get_access($tab, 'export'))
+if (!Utils_RecordBrowserCommon::get_access($tab, 'export') && !Base_AclCommon::i_am_admin())
 	die('Access denied');
 
 set_time_limit(0);
