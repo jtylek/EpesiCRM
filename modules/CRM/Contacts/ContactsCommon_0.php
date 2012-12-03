@@ -830,6 +830,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
     public static function QFfield_admin(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if (!Base_AclCommon::i_am_sa()) return;
+		if ($mode=='view' && isset($rb->record['login']) && !$rb->record['login']) return;
 		$default = 0;
 		if ($rb!==null && isset($rb->record['login']) && $rb->record['login'] && is_numeric($rb->record['login'])) {
 			$default = Base_AclCommon::get_admin_level($rb->record['login']);
