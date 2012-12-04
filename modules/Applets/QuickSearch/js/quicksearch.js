@@ -139,20 +139,22 @@ function call_js(){
 }
 
 function call_js_add_field(mode){
-	alert(mode);
 	var elemFields = $('select_field__to').options;
 	var resultFormat = $('result_format');
+	var holder = resultFormat.value;
 	for(el = 0; el < elemFields.length; el++){
 		if(elemFields[el].value.indexOf('[A]') == -1){
-			elemFields[el].value = elemFields[el].value + '[A]';
-			var field = elemFields[el].value.substr(0,(elemFields[el].value.length - 3));
+			var field = elemFields[el].value
 			if(mode == 'add'){
+				elemFields[el].value = elemFields[el].value + '[A]';
+				field = elemFields[el].value.substr(0,(elemFields[el].value.length - 3));			
 				resultFormat.value += '[%' + field + '%] ';
 			}
-			else{
-				var holder = resultFormat.value + '[%'+field+'%]';
-				resultFormat.value = "";
-				resultFormat.value = holder;
+			else{				
+				if(elemFields[el].value.indexOf('[A]') == -1){
+					elemFields[el].value = elemFields[el].value + '[A]';
+					resultFormat.value += '[%' + field + '%] ';
+				}	
 				
 			}
 		}
@@ -167,8 +169,8 @@ function call_js_remove_fields(){
 
 }
 
-function changeAddedRecordset(){
-	var select = $('recordsets__to').options;
+function changeAddedRecordset(id){
+	var select = $(id).options;
 	for(b=0; b < select.length; b++){
 		select[b].value += "[A]";	
 	}

@@ -30,13 +30,15 @@ $array_keys = array_keys($arrayQuick);
 			}
 		 }
 	}
-	//print_r ($arrResult);	
-	if(is_array($arrResult) && !empty($arrResult)){
+	print Applets_QuickSearchCommon::displayResult($array = array());
+	/*if(is_array($arrResult) && !empty($arrResult)){
 			foreach($arrResult as $rows){
-				print "<tr style='background:#FFFFD5;'><td colspan='2' class='Utils_GenericBrowser__td' style='width:80%;height:20px'><img border='0' src='data/Base_Theme/templates/default/Utils/GenericBrowser/info.png'> <a onclick=\"_chj('__jump_to_RB_table=".$rows[0]."&amp;__jump_to_RB_record=".$rows[0]."&amp;__jump_to_RB_action=view', '', '');\" href=\"javascript: void(0)\">".ucwords($rows["f_first_name"])."</a></td>
-				<td class='Utils_GenericBrowser__td' style='width:10%'>".Utils_RecordBrowserCommon::get_caption($rows["source"])."</td></tr>";
+				$gb->add_row('Row '.$rows["f_first_name"]);
+				//print "<tr style='background:#FFFFD5;'><td colspan='2' class='Utils_GenericBrowser__td' style='width:80%;height:20px'><img border='0' src='data/Base_Theme/templates/default/Utils/GenericBrowser/info.png'> <a onclick=\"_chj('__jump_to_RB_table=".$rows[0]."&amp;__jump_to_RB_record=".$rows[0]."&amp;__jump_to_RB_action=view', '', '');\" href=\"javascript: void(0)\">".ucwords($rows["f_first_name"])."</a></td>
+				//<td class='Utils_GenericBrowser__td' style='width:10%'>".Utils_RecordBrowserCommon::get_caption($rows["source"])."</td></tr>";
 			}	
-	}
+		print $gb	
+	}*/
 }
 
 $content = ob_get_contents();

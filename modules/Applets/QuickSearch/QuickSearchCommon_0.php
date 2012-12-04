@@ -101,7 +101,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 			$recordset_form->on_add_js('call_js();');
 			$recordset_form->on_remove_js('call_js_remove_recordset();');			
 			$form->setDefaults(array($field => self::parse_array($default)));
-			eval_js('changeAddedRecordset()');	
+			eval_js('changeAddedRecordset(\'recordsets__to\')');	
 			//self::recordsetsArray = $default;	
 		}
 	}
@@ -126,7 +126,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 			$recordset_form = $form->addElement('multiselect', $field, $label, $arrayAllValues);
 			$recordset_form->on_add_js('call_js_add_field(\'edit\');');
 			$form->setDefaults(array($field => self::parse_array($default)));
-			//print_r($default);
+			eval_js('changeAddedRecordset(\'select_field__to\')');
 		}
 
 	}
@@ -334,6 +334,22 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		//
 		//$arrRow["source"] = $key;
 		//$arrResult[] = $arrRow;		
+	}
+	
+	public static function displayResult($resultArray){
+		$gb = $this->init_module('Utils/GenericBrowser', null, 'quick_search');
+		$gb->set_table_columns(
+			array(
+				array('name'=>'Row number', 'width'=>60),
+				array('name'=>'header 2', 'width'=>5),
+				array('name'=>'last header', 'width'=>25)
+			)
+		);	
+		
+		for( $i = 0; $i < 10; $i++) {
+			$gb->add_row( 'Row '.$i, 'narrow', 'last' );
+		}		
+		return $this->display_module($gb);	
 	}
 }
 
