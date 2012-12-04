@@ -349,81 +349,66 @@ class RBO_Field_PageSplit extends RBO_FieldDefinition {
 // CRM contacts and companies
 
 class CRM_Contacts_RBO_Company extends RBO_FieldDefinition {
-    
+
     const type = 'crm_company';
 
     private $multi = false;
     private $crits_callback = null;
-    
+
     public function __construct($display_name) {
         parent::__construct($display_name, self::type);
         // because field type crm_company defines own QFfield and display
         // callbacks we have to forbid checking for magic callbacks
         $this->disable_magic_callbacks();
+        $this->param = array();
     }
-    
+
     public function set_multiple($bool = true) {
         $this->multi = $bool;
         return $this;
     }
-    
+
     public function set_crits_callback($callback) {
         $this->crits_callback = $callback;
         return $this;
     }
 
     public function get_definition() {
-        $this->param = array('field_type' => $this->multi ? 'multiselect' : 'select');
+        $this->param['field_type'] = $this->multi ? 'multiselect' : 'select';
         if ($this->crits_callback)
             $this->param['crits'] = $this->crits_callback;
         return parent::get_definition();
     }
+
 }
 
+class CRM_Contacts_RBO_Contact extends CRM_Contacts_RBO_Company {
 
-class CRM_Contacts_RBO_Contact extends RBO_FieldDefinition {
-    
     const type = 'crm_contact';
 
-    private $multi = false;
-    private $crits_callback = null;
     private $format_callback = null;
-    
+
     public function __construct($display_name) {
-        parent::__construct($display_name, self::type);
-        // because field type crm_company defines own QFfield and display
-        // callbacks we have to forbid checking for magic callbacks
-        $this->disable_magic_callbacks();
+        parent::__construct($display_name);
+        $this->type = self::type;
     }
-    
-    public function set_multiple($bool = true) {
-        $this->multi = $bool;
-        return $this;
-    }
-    
-    public function set_crits_callback($callback) {
-        $this->crits_callback = $callback;
-        return $this;
-    }
-    
+
     public function set_format_callback($callback) {
         $this->format_callback = $callback;
         return $this;
     }
-    
+
     public function set_format_without_company() {
         $this->format_callback = array('CRM_ContactsCommon', 'contact_format_no_company');
         return $this;
     }
-    
+
     public function get_definition() {
-        $this->param = array('field_type' => $this->multi ? 'multiselect' : 'select');
         if ($this->format_callback)
             $this->param['format'] = $this->format_callback;
-        if ($this->crits_callback)
-            $this->param['crits'] = $this->crits_callback;
         return parent::get_definition();
     }
+
 }
 
 class CRM_Contacts_RBO_Employee extends CRM_Contacts_RBO_Contact {
@@ -433,11 +418,22 @@ class CRM_Contacts_RBO_Employee extends CRM_Contacts_RBO_Contact {
         $this->set_format_without_company();
         $this->set_crits_callback(array(__CLASS__, 'employee_crits'));
     }
-    
+
     public static function employee_crits() {
         return array('access' => 'employee');
     }
+
 }
-    
+
+class CRM_Contacts_RBO_Company_or_Contact extends CRM_Contacts_RBO_Company {
+
+    const type = 'crm_company_contact';
+
+    public function __construct($display_name) {
+        parent::__construct($display_name);
+        $this->type = self::type;
+    }
+
+}
 
 ?>
