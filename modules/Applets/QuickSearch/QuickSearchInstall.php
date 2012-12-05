@@ -55,7 +55,7 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 	public function uninstall() {
 		$ret = true;
 		Utils_RecordBrowserCommon::uninstall_recordset('quick_search');
-		Utils_RecordBrowserCommon::unregister_processing_callback($recordsetName, array('Applets_QuickSearchCommon', 'parse_values'));
+		Utils_RecordBrowserCommon::unregister_processing_callback('quick_search', array('Applets_QuickSearchCommon', 'parse_values'));
 
 		return $ret;
 	}
