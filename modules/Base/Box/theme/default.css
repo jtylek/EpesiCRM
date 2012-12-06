@@ -69,7 +69,7 @@ input, textarea, select {
     border: none;
     text-align: center;
     vertical-align: middle;
-	
+
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -95,7 +95,8 @@ input, textarea, select {
 }
 .button {
 	display: block;
-	width: 100px;
+	white-space: nowrap;
+	padding: 0 5px;
 }
 
 .child_button > input,
