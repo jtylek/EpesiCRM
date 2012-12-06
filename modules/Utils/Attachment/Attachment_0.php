@@ -178,7 +178,7 @@ class Utils_Attachment extends Module {
 			if (!is_array($this->group)) $group = DB::qstr($this->group);
 			else {
 				if (empty($this->group))
-					$group = '';
+					$group = DB::qstr('');
 				else {
 					$group = array();
 					foreach ($this->group as $k=>$v) $group[$k] = DB::qstr($v);
