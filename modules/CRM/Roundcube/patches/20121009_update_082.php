@@ -1,6 +1,4 @@
 <?php
-    if (array_key_exists(strtoupper('words'), DB::MetaColumnNames('rc_contacts'))) return;
-
     if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
         $f = file_get_contents('modules/CRM/Roundcube/RC/SQL/mysql.update.sql');
     else
@@ -8,6 +6,6 @@
     foreach(explode(';',$f) as $q) {
         $q = trim($q);
         if(!$q) continue;
-        DB::Execute($q);
+        @DB::Execute($q);
     }
 ?>
