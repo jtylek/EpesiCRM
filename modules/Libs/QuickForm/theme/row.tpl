@@ -6,7 +6,7 @@
 		{$h}
 	</div>
 {/foreach}
-<table style="border-spacing: 3px; width:500px; table-layout:auto;">
+<table style="border-spacing: 3px; table-layout:auto;">
 	<tr>
 		{foreach from=$form_data item=f}
 		{if is_array($f) && isset($f.type) && $f.type!='hidden' && $f.type!='button' && $f.type!='submit'}

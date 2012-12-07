@@ -115,7 +115,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         }
 		$me = CRM_ContactsCommon::get_main_company();
         if(!empty($me) && Utils_RecordBrowserCommon::get_access('company', 'view', self::get_company($me))) {
-			$ret['My settings'][_M('Main Company')]=array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
+			$ret['My settings'][_M('My Company')]=array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
         }
         if(count($ret['My settings'])==1)
             unset($ret['My settings']);

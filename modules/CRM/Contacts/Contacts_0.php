@@ -258,7 +258,7 @@ class CRM_Contacts extends Module {
 		CRM_ContactsCommon::$paste_or_new = $company;
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
 		$this->rb = $rb;
-		$this->display_module($rb, array('add', null, array('company_name'=>array($company),
+		$this->display_module($rb, array('add', null, array('company_name'=>$company,
 												'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 												'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),											
 												'permission'=>'0')), 'view_entry');
