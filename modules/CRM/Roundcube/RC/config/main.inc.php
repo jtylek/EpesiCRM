@@ -145,7 +145,7 @@ $rcmail_config['imap_auth_cid'] = null;
 $rcmail_config['imap_auth_pw'] = null;
 
 // Type of IMAP indexes cache. Supported values: 'db', 'apc' and 'memcache'.
-$rcmail_config['imap_cache'] = null;
+$rcmail_config['imap_cache'] = 'db';
 
 // Enables messages cache. Only 'db' cache is supported.
 $rcmail_config['messages_cache'] = 'db';
