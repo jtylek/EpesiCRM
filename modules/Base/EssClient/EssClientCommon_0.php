@@ -4,7 +4,7 @@
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Telaxus LLC
  * @license MIT
- * @version 20121013
+ * @version 20121207
  * @package epesi-Base
  * @subpackage EssClient
  */
@@ -33,6 +33,12 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     public static function get_invoices_url() {
         return 'https://ess.epe.si/invoice/';
+    }
+    
+    private static function get_server_url_base() {
+        $url = self::get_server_url();
+        $pos = strrpos($url, '?');
+        return $pos === false ? $url : substr($url, 0, $pos);
     }
 
     /**
@@ -84,7 +90,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     public static function get_license_key() {
         $ret = Variable::get(self::VAR_LICENSE_KEY, false);
         if (is_array($ret)) {
-            $serv = self::get_server_url();
+            $serv = self::get_server_url_base();
             $key = '';
             if (isset($ret[$serv]))
                 $key = $ret[$serv];
@@ -95,14 +101,15 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     public static function set_license_key($license_key) {
         $keys = Variable::get(self::VAR_LICENSE_KEY, false);
+        $server_url = self::get_server_url_base();
         if ($keys) {
             if (is_array($keys)) {
-                $keys[self::get_server_url()] = $license_key;
+                $keys[$server_url] = $license_key;
             } else {
-                $keys = array(self::get_server_url() => $license_key);
+                $keys = array($server_url => $license_key);
             }
         } else {
-            $keys = array(self::get_server_url() => $license_key);
+            $keys = array($server_url => $license_key);
         }
         return Variable::set(self::VAR_LICENSE_KEY, $keys);
     }
@@ -113,7 +120,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
             Variable::delete(self::VAR_LICENSE_KEY, false);
             return;
         }
-        unset($license_keys[self::get_server_url()]);
+        unset($license_keys[self::get_server_url_base()]);
         Variable::set(self::VAR_LICENSE_KEY, $license_keys);
     }
 

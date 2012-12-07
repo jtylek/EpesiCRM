@@ -2,7 +2,7 @@
 
 /**
  * 
- * @author abukowski@telaxus.com
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Telaxus LLC
  * @license MIT
  * @version 1.0
