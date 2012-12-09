@@ -659,16 +659,20 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc, $rb, $display_callbacks) {
         if (($mode=='add' || $mode=='edit') && is_object($rb) && $rb->tab==='contact') {
             if (self::$paste_or_new=='new') {
-                $form->addElement('checkbox', 'create_company', __('Create new company'), null, 'onClick="$(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(__('Create a new company for this contact')));
-                $form->addElement('text', 'create_company_name', __('New company name'), array('disabled'=>1));
-                $form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
-                if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
-                eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
-                        'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
-                        'function update_create_company_name_field() {'.
-                            'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
-                        '}');
-                eval_js('$("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+				$access = Utils_RecordBrowserCommon::get_access('contact', $mode, Utils_RecordBrowser::$last_record);
+				$c_access = Utils_RecordBrowserCommon::get_access('company', 'add');
+				if ($c_access && $access['company_name']) {
+					$form->addElement('checkbox', 'create_company', __('Create new company'), null, 'onClick="$(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(__('Create a new company for this contact')));
+					$form->addElement('text', 'create_company_name', __('New company name'), array('disabled'=>1));
+					$form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
+					if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
+					eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
+							'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
+							'function update_create_company_name_field() {'.
+								'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
+							'}');
+					eval_js('$("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+				}
             } else {
                 $comp = self::get_company(self::$paste_or_new);
                 $paste_company_info =
