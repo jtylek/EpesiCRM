@@ -13,6 +13,7 @@ class FirstRun extends Module {
 	private $ini;
 
 	public function body() {
+        Variable::set('anonymous_setup', true);
         // init lang from install process
         $install_lang_code = & $_GET['install_lang'];
         if (isset($install_lang_code)) {
