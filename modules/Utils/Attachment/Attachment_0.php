@@ -477,7 +477,8 @@ class Utils_Attachment extends Module {
 		if(isset($_SESSION['attachment_cut']) && $_SESSION['attachment_cut']) {
 			DB::StartTrans();
 			$files = DB::GetAssoc('SELECT id, original FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($_SESSION['attachment_copy']['id']));
-			DB::Execute('UPDATE utils_attachment_note uac, (SELECT max(x.revision) as rev FROM utils_attachment_note x WHERE x.attach_id=%d) r SET created_on=%T WHERE uac.attach_id=%d AND uac.revision=r.rev', array($_SESSION['attachment_copy']['id'], date('Y-m-d H:i:s'), $_SESSION['attachment_copy']['id']));
+			$rev = DB::GetOne('SELECT max(uac.revision) FROM utils_attachment_note uac WHERE uac.attach_id=%d', array($_SESSION['attachment_copy']['id']));
+			DB::Execute('UPDATE utils_attachment_note uac SET created_on=%T WHERE uac.attach_id=%d AND uac.revision=%d', array(date('Y-m-d H:i:s'), $_SESSION['attachment_copy']['id'], $rev));
 			$local_old = $this->get_data_dir().$_SESSION['attachment_copy']['group'];
 			$local_new = $this->get_data_dir().$this->group;
 			foreach ($files as $f_id=>$fname) {
