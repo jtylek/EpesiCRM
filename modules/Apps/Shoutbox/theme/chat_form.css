@@ -18,6 +18,10 @@
 	padding: 2px 5px 2px 8px;
 }
 
+#shoutbox_board .author a {
+	color: #ffffff;
+}
+
 #shoutbox_board .time {
 	font-style:italic;
     color: #B3B3B3;
@@ -25,17 +29,17 @@
 
 #shoutbox_text {
     width: 94%;
-	margin: 5px auto 5px 6px;
+	margin: 35px auto 5px 6px;
 	padding: 3px 5px;
 }
 #shoutbox_text:focus {
 	background-color: #FFFFA5;
 }
-.Apps_Shoutbox__dashboard #__autocomplete_id_to__search,
-.Apps_Shoutbox__dashboard #__to_select_span #to {
+.Apps_Shoutbox__dashboard #__autocomplete_id_shoutbox_to__search,
+.Apps_Shoutbox__dashboard #__shoutbox_to_select_span #shoutbox_to {
     margin: 7px auto auto 5px;
 }
-.Apps_Shoutbox__dashboard #__autocomplete_id_to__search {
+.Apps_Shoutbox__dashboard #__autocomplete_id_shoutbox_to__search {
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -43,13 +47,23 @@
 	/* end border radius */
 	padding: 2px 5px;
 }
-.Apps_Shoutbox__dashboard #__autocomplete_id_to__search:focus,
-.Apps_Shoutbox__dashboard #__to_select_span #to:focus {
+.Apps_Shoutbox__dashboard #__autocomplete_id_shoutbox_to__search:focus,
+.Apps_Shoutbox__dashboard #__shoutbox_to_select_span #shoutbox_to:focus {
 	background-color: #FFFFA5;
 }
 
-#shoutbox_to {
-    width: 300px;
+#shoutbox_board br {
+	line-height: 18px;
+}
+
+.Apps_Shoutbox__dashboard #shoutbox_to {
+	position: absolute;
+	top: 3px;
+	left: 0px;
+}
+
+.Apps_Shoutbox__dashboard {
+	position: relative;
 }
 
 .Apps_Shoutbox__dashboard form {
@@ -57,6 +71,9 @@
 }
 
 #shoutbox_button {
+	position: absolute;
+	top: 3px;
+	right: 0px;
     color: #FFFFFF;
 	float: right;
 	margin: 5px 9px auto auto;

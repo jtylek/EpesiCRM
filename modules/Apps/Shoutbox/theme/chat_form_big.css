@@ -49,6 +49,10 @@
 	-webkit-border-bottom-right-radius: 3px;
 }
 
+#shoutbox_board_big .author a {
+	color: #ffffff;
+}
+
 #shoutbox_board_big .time {
 	font-style:italic;
     color: #B3B3B3;

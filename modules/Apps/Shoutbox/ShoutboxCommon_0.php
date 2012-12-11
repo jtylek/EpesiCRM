@@ -33,7 +33,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
       	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im')) {
        	    $adm = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','enable_im');
        	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-           	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) AND (l.login '.DB::like().' '.DB::concat(DB::qstr("%%"),"%s",DB::qstr("%%")).' OR cd.f_first_name '.DB::like().' '.DB::concat(DB::qstr("%%"),"%s",DB::qstr("%%")).' OR cd.f_last_name '.DB::like().' '.DB::concat(DB::qstr("%%"),"%s",DB::qstr("%%")).') ORDER BY name',array($myid,serialize(1),$search,$search,$search));
+           	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name'),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) AND (cd.f_first_name '.DB::like().' '.DB::concat(DB::qstr("%%"),"%s",DB::qstr("%%")).' OR cd.f_last_name '.DB::like().' '.DB::concat(DB::qstr("%%"),"%s",DB::qstr("%%")).') ORDER BY name',array($myid,serialize(1),$search,$search));
 	        } else
     	        $emps = DB::GetAssoc('SELECT l.id,l.login FROM user_login l LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) AND l.login '.DB::like().' '.DB::concat(DB::qstr("%%"),"%s",DB::qstr("%%")).' ORDER BY l.login',array($myid,serialize(1),$search));
     	} else $emps = array();
@@ -48,11 +48,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	}
 
 	public static function user_format($search=null) {
-   	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-       	    $emps = DB::GetOne('SELECT '.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.id=%d',array($search));
-        } else
-  	        $emps = DB::GetOne('SELECT l.login FROM user_login l WHERE l.id=%d',array($search));
-	    return $emps;
+		return Base_UserCommon::get_user_label($search, true);
 	}
 
 	public static function tray_notification($time) {
@@ -74,6 +70,12 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 		return array(__('Misc')=>array(
 			array('name'=>'enable_im','label'=>__('Allow IM with me'),'type'=>'bool','default'=>1)
 			));
+	}
+	
+	public static function create_write_to_link ($uid) {
+		$ret = Base_UserCommon::get_user_label($uid, true);
+		if (Acl::get_user() != $uid) $ret = "<a href=\"javascript:void(0);\" onclick=\"autoselect_add_value('shoutbox_to', ".$uid.", '".Epesi::escapeJS($ret)."');autoselect_stop_searching('shoutbox_to');$('shoutbox_to').onchange();\">".$ret.'</a>';
+		return $ret;
 	}
 }
 ?>

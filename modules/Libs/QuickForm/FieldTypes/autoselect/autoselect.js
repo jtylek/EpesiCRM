@@ -40,3 +40,9 @@ autoselect_start_searching = function (element, keyCode) {
 	$('__autocomplete_id_'+element+'__search').focus();
 	$('__'+element+'_select_span').style.display="none";
 }
+
+autoselect_stop_searching = function (element) {
+	$('__'+element+'_autocomplete_span').style.display="none";
+//	$('__autocomplete_id_'+element+'__search').focus();
+	$('__'+element+'_select_span').style.display="";
+}

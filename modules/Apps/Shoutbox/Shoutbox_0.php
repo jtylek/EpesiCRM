@@ -13,7 +13,7 @@ class Apps_Shoutbox extends Module {
 
 	public function body() {
 		/* Do not delete anything - all messages are kept in history
-		// to allow delete by sdmin uncomment below lines
+		// to allow delete by admin uncomment below lines
 		// if i am admin add "clear shoutbox" actionbar button
 		if(Base_AclCommon::i_am_admin())
 			Base_ActionBarCommon::add('delete',__('Clear shoutbox'),$this->create_callback_href(array($this,'delete_all')));
@@ -160,11 +160,11 @@ class Apps_Shoutbox extends Module {
     		            $emps = DB::GetAssoc('SELECT l.id,'.DB::Concat(DB::qstr("* "),'l.login').' FROM user_login l LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) AND l.id IN ('.implode(',',$online).') ORDER BY l.login',array($myid,serialize(1)));
     		    } else $emps = array();
     		} else $emps = array();
-		    $e = $qf->addElement('autoselect','to',__('To'), array('all'=>'['.__('All').']')+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
+		    $e = $qf->addElement('autoselect','shoutbox_to',__('To'), array('all'=>'['.__('All').']')+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
 		    $e->setAttribute('id','shoutbox_to'.($big?'_big':''));
 		    $e->setAttribute('onChange','shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()');
         	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
-        	    $qf->freeze(array('to'));
+        	    $qf->freeze(array('shoutbox_to'));
 			//create text box
 			$qf->addElement($big?'textarea':'textarea','post',__('Message'),'class="border_radius_6px" id="shoutbox_text'.($big?'_big':'').'"');
 			$qf->addRule('post',__('Field required'),'required');
@@ -172,7 +172,7 @@ class Apps_Shoutbox extends Module {
 			$qf->addElement('submit','submit_button',__('Send'), 'id="shoutbox_button'.($big?'_big':'').'"');
 			//add it
 			$qf->setRequiredNote(null);
-			$qf->setDefaults(array('to'=>$to));
+			$qf->setDefaults(array('shoutbox_to'=>$to));
     		$theme = $this->init_module('Base/Theme');
 		    $qf->assign_theme('form', $theme);
 
@@ -180,7 +180,7 @@ class Apps_Shoutbox extends Module {
 			if($qf->validate()) {
 				 //get post group
 				$msg = $qf->exportValue('post');
-				$to = $qf->exportValue('to');
+				$to = $qf->exportValue('shoutbox_to');
 				//get msg from post group
 				$msg = Utils_BBCodeCommon::optimize($msg);
 				//get logged user id
