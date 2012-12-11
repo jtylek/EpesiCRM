@@ -5,8 +5,8 @@
  * @subpackage hu
  */
 global $translations;
-$translations['Project Name']='Projekt neve';
 $translations['Projects']='Projektek';
+$translations['Project Name']='Projekt neve';
 $translations['Due Date']='';
 $translations['Bugtrack']='Bug követő';
 $translations['Bug (attachment) #%d, %s']='';
