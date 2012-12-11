@@ -14,12 +14,38 @@ ob_start();
 ini_set('arg_separator.output','&');
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
 date_default_timezone_set(SYSTEM_TIMEZONE);
+
+define('_VALID_ACCESS',1);
+require_once('include/data_dir.php');
+require_once('modules/Libs/QuickForm/requires.php');
+
+// translation support
+$install_lang_dir = 'modules/Base/Lang/lang';
+$ls_langs = scandir($install_lang_dir);
+$langs = array();
+foreach ($ls_langs as $entry)
+    if (preg_match('/.\.php$/i', $entry)) {
+        $lang = substr($entry, 0, -4);
+        $langs[$lang] = $lang;
+    }
+$install_lang_code = & $_GET['install_lang'];
+require 'include/misc.php';
+require 'include/module_primitive.php';
+require 'include/module.php';
+require 'include/module_common.php';
+require 'modules/Base/Lang/LangCommon_0.php';
+$install_lang_load = isset($langs[$install_lang_code])
+    ? $langs[$install_lang_code] : 'en'; // fallback to english
+define('FORCE_LANG_CODE', $install_lang_load);
+include "{$install_lang_dir}/{$install_lang_load}.php";
+// end translations load
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-	  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-	  <title>EPESI setup</title>
+	  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+	  <title><?php echo __("EPESI setup"); ?></title>
 	  <link href="setup.css" type="text/css" rel="stylesheet"/>
 </head>
 <body>
@@ -35,8 +61,47 @@ date_default_timezone_set(SYSTEM_TIMEZONE);
 			<tr>
 				<td>
 <?php
-define('_VALID_ACCESS',1);
-require_once('include/data_dir.php');
+
+function footer() {
+?>
+				</td>
+			</tr>
+		</table>
+		</center>
+		<br>
+		<center>
+		<span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+		<br>
+		<p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
+		</center>
+</body>
+</html>
+<?php
+}
+register_shutdown_function('footer');
+
+// language selection form
+if (!isset($install_lang_code)) {
+    $form = new HTML_QuickForm('languageform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
+	$form->addElement('header', null, __('Select language'));
+    $form->addElement('select', 'lang', __('Language'), $langs);
+	$form->addElement('submit', 'submit', __('Next'));
+    $form->setDefaults(array('lang' => $install_lang_load));
+    
+    if ($form->validate()) {
+        $lang_from_form = $form->exportValue('lang');
+        if(isset($langs[$lang_from_form])) {
+            $_GET['install_lang'] = $lang_from_form;
+            header('Location: setup.php?' . http_build_query($_GET));
+        }
+    } else {
+        $renderer = & $form->defaultRenderer();
+        $renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"baseline\" colspan=\"2\">{header}</td>\n\t</tr>");
+        $renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"baseline\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"baseline\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
+        $form->accept($renderer);
+        die($renderer->toHtml());
+    }
+}
 
 /**
  * Check access to working directories
@@ -48,63 +113,67 @@ if(file_exists('easyinstall.php')){
 
 if (isset($_GET['check'])) {
 	require_once('check.php');
-	print('<br><br><a class="button" href="index.php" style="display:block;width:200px; margin:0 auto;">Continue with installation</a>');
+	print('<br><br><a class="button" href="index.php?install_lang='.$install_lang_code.'" style="display:block;width:200px; margin:0 auto;">' . __('Continue with installation') . '</a>');
 	die();
 }
 
 if(trim(ini_get("safe_mode")))
-	die('You cannot use EPESI with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and will be removed in PHP 6.0.');
+	die(__('You cannot use EPESI with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and is removed in PHP 5.4.'));
 
 if(file_exists(DATA_DIR.'/config.php'))
-	die('Cannot write into '.DATA_DIR.'/config.php file. Please delete this file.');
+	die(__('Cannot write into %s file. Please delete this file.', array(DATA_DIR.'/config.php')));
 
 if(!is_writable(DATA_DIR))
-	die('Cannot write into "'.DATA_DIR.'" directory. Please fix privileges.');
-
-@define("_VALID_ACCESS", true);
-require_once('modules/Libs/QuickForm/requires.php');
+	die(__('Cannot write into "%s" directory. Please fix privileges.', array(DATA_DIR)));
 
 if(!isset($_GET['license'])) {
-	print('<h1>Welcome to EPESI setup!<br></h1><div class="license">');
-	license();
-		print('</div><CENTER><br><h2>By clicking on Accept button you agree to the above License terms.</h2>');
-		print('<br><a class="button" href="setup.php?license=1">Accept</a></CENTER>');
+    print('<h1>' . __('Welcome to EPESI setup!') . '<br></h1><div class="license">');
+    license();
+    print('</div><center><br><h2>' . __('By clicking on Accept button you agree to the above License terms.') . '</h2>');
+    $_GET['license'] = 1;
+    print('<br><a class="button" href="setup.php?' . http_build_query($_GET) . '">' . __('Accept') . '</a></center>');
 } elseif(!isset($_GET['htaccess'])) {
 	ob_start();
-	print('<h1>Welcome to EPESI setup!<br></h1><h2>Hosting compatibility:</h2><br><div class="license">');
+	print('<h1>' . __('Welcome to EPESI setup!') . '<br></h1><h2>' . __('Hosting compatibility') . ':</h2><br><div class="license">');
 	if(check_htaccess()) {
 		$_GET['htaccess'] = 1;
 		ob_end_clean();
 	} else {
-		print('</div><br><a class="button" href="setup.php?license=1&htaccess=1">Ok</a>');
+		print('</div><br><a class="button" href="setup.php?license=1&htaccess=1&install_lang='.$install_lang_code.'">' . __('Ok') . '</a>');
 		ob_end_flush();
 	}
 }
 if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
-	$form -> addElement('header', null, 'Database server settings');
-	$form -> addElement('text', 'host', 'Database server address');
-	$form -> addRule('host', 'Field required', 'required');
-	$form -> addElement('select', 'engine', 'Database engine',array('postgres'=>'PostgreSQL', 'mysqlt'=>'MySQL'));
-	$form -> addRule('engine', 'Field required', 'required');
-	$form -> addElement('text', 'user', 'Database server user');
-	$form -> addRule('user', 'Field required', 'required');
-	$form -> addElement('password', 'password', 'Database server password');
-	$form -> addRule('password', 'Field required', 'required');
-	$form -> addElement('text', 'db', 'Database name');
-	$form -> addRule('db', 'Field required', 'required');
-	$form -> addElement('select', 'newdb', 'Create new database',array(0=>'No',1=>'Yes'),array('onChange'=>'if(this.value==1)alert("WARNING: Make sure you have CREATE access level to do this!","warning");'));
-	$form -> addRule('newdb', 'Field required', 'required');
-//	$form -> addElement('select', 'newuser', 'Create new user',array(1=>'Yes', 0=>'No'));
-//	$form -> addRule('newuser', 'Field required', 'required');
-	$form -> addElement('header', null, 'Other settings');
-	$form -> addElement('select', 'direction', 'Text direction',array(0=>'Left to Right',1=>'Right to Left'));
+	$form -> addElement('header', null, __('Database server settings'));
+	$form -> addElement('text', 'host', __('Database server address'));
+	$form -> addRule('host', __('Field required'), 'required');
+	$form -> addElement('select', 'engine', __('Database engine'), array('postgres'=>'PostgreSQL', 'mysqlt'=>'MySQL'));
+	$form -> addRule('engine', __('Field required'), 'required');
+	$form -> addElement('text', 'user', __('Database server user'));
+	$form -> addRule('user', __('Field required'), 'required');
+	$form -> addElement('password', 'password', __('Database server password'));
+	$form -> addRule('password', __('Field required'), 'required');
+	$form -> addElement('text', 'db', __('Database name'));
+	$form -> addRule('db', __('Field required'), 'required');
+    $create_db_warn_msg = __('WARNING: Make sure you have CREATE access level to do this!');
+	$form -> addElement('select', 'newdb', __('Create new database'),
+            array(0 => __('No'), 1 => __('Yes')),
+            array('onChange' => 'if(this.value==1) alert("' . $create_db_warn_msg . '","warning");'));
+	$form -> addRule('newdb', __('Field required'), 'required');
+	$form -> addElement('header', null, __('Other settings'));
+	$form -> addElement('select', 'direction', __('Text direction'),
+            array(0 => __('Left to Right'), 1 => __('Right to Left')));
 
-	$form -> addElement('submit', 'submit', 'Next');
+	$form -> addElement('submit', 'submit', __('Next'));
 	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
 
-	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">denotes required field</span>');
-	$form -> addElement('html','<tr><td colspan=2><br /><b>Any existing tables will be dropped!</b><br />The database will be populated with data.<br />This operation can take several minutes.</td></tr>');
+    $required_note_text = __('denotes required field');
+	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">' . $required_note_text . '</span>');
+	$form -> addElement('html', '<tr><td colspan=2><br /><b>'
+            . __('Any existing tables will be dropped!') . '</b><br />'
+            . __('The database will be populated with data.') . '<br />'
+            . __('This operation can take several minutes.') . '</td></tr>');
 	if($form -> validate()) {
 		$engine = $form -> exportValue('engine');
 		$direction = $form -> exportValue('direction');
@@ -115,11 +184,11 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 				$user = $form -> exportValue('user');
 				$pass = $form -> exportValue('password');
 				if(!function_exists('pg_connect')) {
-				    echo('Please enable postgresql extension in php.ini.');
+				    echo(__('Please enable postgresql extension in php.ini.'));
 				} else {
 					$link = pg_connect("host=$host user=$user password=$pass dbname=postgres");
 					if(!$link) {
-	 					echo('Could not connect.');
+	 					echo(__('Could not connect.'));
 					} else {
 						$dbname = $form -> exportValue('db');
 						if($form->exportValue('newdb')==1) {
@@ -128,15 +197,16 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 				   				//echo "Database '$dbname' created successfully\n";
 				   				write_config($host,$user,$pass,$dbname,$engine,$other);
 							} else {
-		 		  				echo 'Error creating database: ' . pg_last_error() . "\n";
+		 		  				echo __('Error creating database') . ': ' . pg_last_error() . "\n";
 		 	  				}
 		   					pg_close($link);
 						} else {
 							include_once('libs/adodb/adodb.inc.php');
 							$ado = & NewADOConnection('postgres');
 							if(!@$ado->Connect($host,$user,$pass,$dbname)) {
-								echo 'Database does not exist.'."\n";
-								echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
+								echo __('Database does not exist.') . "\n";
+                                echo '<br />' .__('Please create the database first or select option')
+                                        . ':<br /><b>' . __('Create new database') . '</b>';
 							} else {
 								write_config($host, $user, $pass, $dbname, $engine,$other);
 							}
@@ -144,46 +214,45 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 					}
 				}
 			break;
-		case 'mysqlt':
-			$host = $form->exportValue('host');
-			$user = $form->exportValue('user');
-			$pass = $form->exportValue('password');
-			if(!function_exists('mysql_connect')) {
-			    echo('Please enable mysql extension in php.ini.');
-			} else {
-    			    $link = @mysql_connect($host,$user,$pass);
-			    if (!$link) {
-				echo('Could not connect: ' . mysql_error());
-			    } else {
-				$dbname = $form->exportValue('db');
-				if($form->exportValue('newdb')==1) {
-					$sql = 'CREATE DATABASE `'.$dbname.'` CHARACTER SET utf8 COLLATE utf8_unicode_ci';
-					if(mysql_query($sql, $link)) {
-	   				//echo "Database '$dbname' created successfully\n";
-	   				write_config($host,$user,$pass,$dbname,$engine,$other);
-					}
-								else {
-		   			echo 'Error creating database: ' . mysql_error() . "\n";
-								}
-	   				mysql_close($link);
-				} else {
-					$result=mysql_select_db($dbname, $link);
-					if (!$result) {
-						echo 'Database does not exist: ' . mysql_error() . "\n";
-						echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
-					} else {
-						write_config($host, $user, $pass, $dbname, $engine,$other);
-					}
-				}
-			    }
-			}
-			break;
+            case 'mysqlt':
+                $host = $form->exportValue('host');
+                $user = $form->exportValue('user');
+                $pass = $form->exportValue('password');
+                if (!function_exists('mysql_connect')) {
+                    echo(__('Please enable mysql extension in php.ini.'));
+                } else {
+                    $link = @mysql_connect($host, $user, $pass);
+                    if (!$link) {
+                        echo(__('Could not connect') . ': ' . mysql_error());
+                    } else {
+                        $dbname = $form->exportValue('db');
+                        if ($form->exportValue('newdb') == 1) {
+                            $sql = 'CREATE DATABASE `' . $dbname . '` CHARACTER SET utf8 COLLATE utf8_unicode_ci';
+                            if (mysql_query($sql, $link)) {
+                                write_config($host, $user, $pass, $dbname, $engine, $other);
+                            } else {
+                                echo __('Error creating database: ') . mysql_error() . "\n";
+                            }
+                            mysql_close($link);
+                        } else {
+                            $result = mysql_select_db($dbname, $link);
+                            if (!$result) {
+                                echo __('Database does not exist') . ': ' . mysql_error() . "\n";
+                                echo '<br />' . __('Please create the database first or select option')
+                                . ':<br /><b>' . __('Create new database') . '</b>';
+                            } else {
+                                write_config($host, $user, $pass, $dbname, $engine, $other);
+                            }
+                        }
+                    }
+                }
+                break;
 		}
 	}
 
 	$renderer =& $form->defaultRenderer();
-	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"top\" colspan=\"2\">{header}</td>\n\t</tr>");
-	$renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"top\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"top\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
+	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"baseline\" colspan=\"2\">{header}</td>\n\t</tr>");
+	$renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"baseline\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"baseline\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
 		$form->accept($renderer);
 		print($renderer->toHtml());
 	}
@@ -213,7 +282,8 @@ function check_htaccess() {
 	if(!isset($ret)) {
 		unlink('data/.htaccess');
 		unlink('data/test.php');
-		print('Unable to check EPESI root .htaccess file hosting compatibility. You should tweak it yourself. <br>Suggested .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
+		print(__('Unable to check EPESI root .htaccess file hosting compatibility. You should tweak it yourself.')
+                . '<br>' . __('Suggested .htaccess file is:') . '<pre>' . file_get_contents('htaccess.txt') . '</pre>');
 		return false;
 	}
 	if($ret!=="OK") {
@@ -231,13 +301,15 @@ function check_htaccess() {
 		if($ret!=="OK") {
 			unlink('data/.htaccess');
 			unlink('data/test.php');
-			print('Your hosting is not compatible with default EPESI root .htaccess file. You should tweak it yourself. <br>Default .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
+			print(__('Your hosting is not compatible with default EPESI root .htaccess file. You should tweak it yourself.')
+                    . '<br>' . __('Default .htaccess file is:') . '<pre>' . file_get_contents('htaccess.txt') . '</pre>');
 			return false;
 		}
 	}
 	if(!is_writable('.')) {
 		unlink('data/test.php');
-		print('Your hosting is compatible with default EPESI root .htaccess file, but installer cannot write to EPESI root directory. You should paste following text to .htaccess file manually.<pre>'.file_get_contents('data/.htaccess').'</pre>');
+		print(__('Your hosting is compatible with default EPESI root .htaccess file, but installer cannot write to EPESI root directory. You should paste following text to .htaccess file manually.')
+                . '<pre>' . file_get_contents('data/.htaccess') . '</pre>');
 		unlink('data/.htaccess');
 		return false;
 	}
@@ -247,6 +319,7 @@ function check_htaccess() {
 }
 
 function write_config($host, $user, $pass, $dbname, $engine, $other) {
+    global $install_lang_code;
 	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 	$other_conf = '';
@@ -374,7 +447,7 @@ define(\'DATABASE_DRIVER\',\''.addcslashes($engine, '\'\\').'\');
 	ob_end_flush();
 
 	if(file_exists(DATA_DIR.'/config.php'))
-		header('Location: setup.php?check=1');
+		header("Location: setup.php?install_lang={$install_lang_code}&check=1");
 	ob_end_flush();
 }
 
@@ -455,26 +528,17 @@ function install_base() {
 }
 //////////////////////////////////////////////
 function license() {
-$fp = @fopen('license.html', 'r');
-if ($fp){
-	$license_txt = fread($fp,filesize('license.html'));
-	}
-fclose($fp);
-print $license_txt;
+    global $install_lang_code;
+    $file = "license_{$install_lang_code}.html";
+    if ($install_lang_code == null || !file_exists($file))
+        $file = 'license.html';
+    $fp = @fopen($file, 'r');
+    if ($fp) {
+        $license_txt = fread($fp, filesize($file));
+    }
+    fclose($fp);
+    print $license_txt;
 }
-?>
-				</td>
-			</tr>
-		</table>
-		</center>
-		<br>
-		<center>
-		<span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
-		<br>
-		<p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
-		</center>
-</body>
-</html>
-<?php
+
 ob_end_flush();
 ?>

@@ -20,6 +20,8 @@ class Base_LangInstall extends ModuleInstall {
 			mkdir(DATA_DIR.'/Base_Lang/base');
 		if (!is_dir(DATA_DIR.'/Base_Lang/custom'))
 			mkdir(DATA_DIR.'/Base_Lang/custom');
+        ModuleManager::include_common('Base_Lang', 0);
+        Base_LangCommon::install_translations('Base/Lang');
 		return Variable::set('default_lang','en');
 	}
 	

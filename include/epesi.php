@@ -174,10 +174,15 @@ class Epesi {
 			if($name==FIRST_RUN) $first_run=true;
 		}
 		ob_start();
-		if(!$first_run && !ModuleManager :: install(FIRST_RUN)) {
-			$x = ob_get_contents();
-			ob_end_clean();
-			trigger_error('Unable to install default module: '.$x,E_USER_ERROR);
+		if(!$first_run) {
+            if (ModuleManager :: install(FIRST_RUN)) {
+                $processed_modules = ModuleManager::get_processed_modules();
+                $_SESSION['first-run_post-install'] = $processed_modules['install'];                
+            } else {
+                $x = ob_get_contents();
+                ob_end_clean();
+                trigger_error('Unable to install default module: '.$x,E_USER_ERROR);
+            }
 		}
 		ob_end_clean();
 	}

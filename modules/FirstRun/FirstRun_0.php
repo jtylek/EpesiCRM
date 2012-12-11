@@ -13,11 +13,20 @@ class FirstRun extends Module {
 	private $ini;
 
 	public function body() {
+        // init lang from install process
+        $install_lang_code = & $_GET['install_lang'];
+        if (isset($install_lang_code)) {
+            Variable::set('default_lang', $install_lang_code);
+            Epesi::redirect('index.php');
+            return;
+        }
+        Base_LangCommon::load();
+        
 		$th = $this->init_module('Base/Theme');
 		ob_start();
 		print('<center>');
-		$post_install = & $this->get_module_variable('post-install',array());
-		if(ModuleManager::is_installed('Base')>=0 || !empty($post_install)) {
+        $post_install = & $_SESSION['first-run_post-install'];
+		if (!empty($post_install)) {
 			foreach($post_install as $i=>$v) {
 				$i = str_replace('/','_',$i);
 				ModuleManager::include_install($i);
@@ -29,7 +38,7 @@ class FirstRun extends Module {
 				}
 				$ret = call_user_func($f);
 				$form = $this->init_module('Libs/QuickForm',null,$i);
-				$form->addElement('header',null,'Post installation of '.str_replace('_','/',$i));
+				$form->addElement('header',null,__('Post installation of %s', array(str_replace('_','/',$i))));
 				$form->add_array($ret);
 				$form->addElement('submit',null,'OK');
 				if($form->validate()) {
@@ -44,7 +53,8 @@ class FirstRun extends Module {
 				Variable::set('default_module','Base_Box');
 				Epesi::redirect();
 			}
-		} else {
+		}
+        if (empty($post_install) && ModuleManager::is_installed('Base') < 0) {
 
 			$wizard = $this->init_module('Utils/Wizard');
 			/////////////////////////////////////////////////////////////
@@ -62,7 +72,7 @@ class FirstRun extends Module {
 					}
 					$f->addElement('radio', 'setup_type', '', $label, $name);
 				}
-				$f->addElement('html','<tr><td colspan=2><br /><STRONG>If you are not sure which package to choose select CRM Installation.<br>You can customize your installation later.</STRONG><br><br></td></tr>');
+				$f->addElement('html','<tr><td colspan=2><br /><strong>If you are not sure which package to choose select CRM Installation.<br>You can customize your installation later.</strong><br><br></td></tr>');
 				$wizard->next_page();
 			}
 
@@ -92,7 +102,7 @@ class FirstRun extends Module {
 
 			$f->addElement('header',null, __('Mail settings'));
 			$f->addElement('html','<tr><td colspan=2>'.__('If you are on a hosted server it probably should stay as it is now.').'</td></tr>');
-			$f->addElement('select','mail_method', __('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'));
+			$f->addElement('select','mail_method', __('Choose method'), array('smtp'=>__('remote smtp server'), 'mail'=>__('local php.ini settings')));
 			$f->setDefaults(array('mail_method'=>'mail'));
 
 			$wizard->next_page(array($this,'choose_mail_method'));
@@ -113,7 +123,7 @@ class FirstRun extends Module {
 			////////////////////////////////////////////////////////////
 			$f = $wizard->begin_page('setup_warning');
 			$f->addElement('header', null, __('Warning'));
-			$f->addElement('html','<tr><td colspan=2><br />Setup will now check for available modules and will install them.<br>This operation may take several minutes.<br><br></td></tr>');
+			$f->addElement('html','<tr><td colspan=2><br />' . __('Setup will now check for available modules and will install them.') . '<br>' . __('This operation may take several minutes.') . '<br><br></td></tr>');
 			$wizard->next_page();
 
 			/////////////////////////////////////////
@@ -218,10 +228,14 @@ class FirstRun extends Module {
 		Base_ThemeCommon::create_cache();
 		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
 
+		$t = microtime(true);
+		error_log(date('Y-m-d H:i:s').': Updating translation files ...'."\n",3,DATA_DIR.'/firstrun.log');
+		Base_LangCommon::update_translations();
+		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
 
 		$processed = ModuleManager::get_processed_modules();
 
-		$this->set_module_variable('post-install',$processed['install']);
+        $_SESSION['first-run_post-install'] = $processed['install'];
 		location();
 	}
 

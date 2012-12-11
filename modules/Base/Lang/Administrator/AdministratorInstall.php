@@ -47,25 +47,6 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 			array('name'=>'Base/Lang','version'=>0));
 	}
 
-	public static function post_install() {
-		$ls_langs = scandir(DATA_DIR.'/Base_Lang/base');
-		$langs = array();
-		foreach ($ls_langs as $entry)
-			if (preg_match('/.\.php$/i', $entry)) {
-				$lang = substr($entry,0,-4);
-				$langs[$lang] = $lang;
-			}
-		return array(
-				array('name'=>'allow_change','label'=>__('Allow users to change language'),'type'=>'checkbox','values'=>null,'default'=>true),
-				array('name'=>'lang_code','label'=>__('Default EPESI language'),'type'=>'select','values'=>$langs,'default'=>'en')
-			);
-	}
-
-	public static function post_install_process($v) {
-		Variable::set('default_lang',$v['lang_code']);
-		Variable::set('allow_lang_change',isset($v['allow_change']) && $v['allow_change']);
-	}
-
 	public static function simple_setup() {
 		return __('EPESI Core');
 	}
