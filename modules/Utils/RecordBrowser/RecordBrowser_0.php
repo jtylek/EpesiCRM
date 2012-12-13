@@ -2642,6 +2642,7 @@ class Utils_RecordBrowser extends Module {
 					$gb_row->add_data_array($vals);
 					if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) {
 						$gb_row->add_action($this->create_callback_href(array($this, 'edit_permissions_rule'), array($id)), 'edit', 'Edit');
+						$gb_row->add_action($this->create_callback_href(array($this, 'edit_permissions_rule'), array($id, true)), 'copy', __('Clone rule'), Base_ThemeCommon::get_template_file('Utils/Attachment','copy_small.png'));
 						$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_permissions_rule'), array($id)), 'delete', 'Delete');
 				}
 		}
@@ -2656,7 +2657,7 @@ class Utils_RecordBrowser extends Module {
 		return false;
 	}
 	
-	public function edit_permissions_rule($id = null) {
+	public function edit_permissions_rule($id = null, $clone = false) {
 		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')!=2) return false;
         if ($this->is_back()) {
             return false;
@@ -2853,7 +2854,7 @@ class Utils_RecordBrowser extends Module {
 				$blocked_fields[] = $k;
 			}
 			
-			if ($id===null)
+			if ($id===null || $clone)
 				Utils_RecordBrowserCommon::add_access($this->tab, $action, $clearance, $crits, $blocked_fields);
 			else
 				Utils_RecordBrowserCommon::update_access($this->tab, $id, $action, $clearance, $crits, $blocked_fields);
