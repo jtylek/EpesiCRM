@@ -42,13 +42,19 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 		Utils_RecordBrowserCommon::set_caption($recordsetName, __('Quick Search'));
 		Utils_RecordBrowserCommon::set_favorites($recordsetName, false);
 		Utils_RecordBrowserCommon::register_processing_callback($recordsetName, array('Applets_QuickSearchCommon', 'parse_values'));
-
+		//sets a default value on quick search data
+		Utils_RecordBrowserCommon::new_record($recordsetName, array("preset_name" => "Test Value", "placeholder" => "testholder",
+															"recordsets" => "company[A];contact", 
+															"select_field" => "company:company_name[A];company:short_name[A];contact:last_name[A]",
+															"result_format"=> "[%company:company_name%] [%company:short_name%] [%contact:last_name%]"));
+		
+		
 		Utils_RecordBrowserCommon::add_access($recordsetName, 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
 		Utils_RecordBrowserCommon::add_access($recordsetName, 'add', 'ACCESS:employee');
 		Utils_RecordBrowserCommon::add_access($recordsetName, 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
 		Utils_RecordBrowserCommon::add_access($recordsetName, 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access($recordsetName, 'delete', array('ACCESS:employee','ACCESS:manager'));
-	
+		//array('"~last_name'=>DB::Concat(DB::qstr('%'), DB::qstr('foo'), DB::qstr('%')))
 		return $ret;
 	}
 

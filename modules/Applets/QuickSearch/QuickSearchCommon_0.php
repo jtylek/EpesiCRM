@@ -323,7 +323,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 			return false;
 		}
 		else{
-			$formatStr = str_replace("[%", "{", $format);
+			$formatStr = str_replace("[%", "{", $stringFormat);
 			$formatStr = str_replace("%]", "}", $formatStr);
 			return $formatStr;
 		}
@@ -336,20 +336,8 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		//$arrResult[] = $arrRow;		
 	}
 	
-	public static function displayResult($resultArray){
-		$gb = $this->init_module('Utils/GenericBrowser', null, 'quick_search');
-		$gb->set_table_columns(
-			array(
-				array('name'=>'Row number', 'width'=>60),
-				array('name'=>'header 2', 'width'=>5),
-				array('name'=>'last header', 'width'=>25)
-			)
-		);	
-		
-		for( $i = 0; $i < 10; $i++) {
-			$gb->add_row( 'Row '.$i, 'narrow', 'last' );
-		}		
-		return $this->display_module($gb);	
+	public static function displayResult($resultArray, $format){
+
 	}
 }
 

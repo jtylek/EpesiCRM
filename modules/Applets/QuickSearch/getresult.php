@@ -29,12 +29,13 @@ $array_keys = array_keys($arrayQuick);
 				$arrRow["result"] = $rowValue["f_first_name"].', '. $rowValue["f_first_name"];
 				$arrRow["id"] = $rowValue["id"];
 				$arrRow["source"] = $key;
-				$arrResult[] = $arrRow;
+				$arrResult[$key] = $arrRow;
 			}
 		 }
 	}
+	print_r($arrResult);
 	//print Applets_QuickSearchCommon::displayResult($array = array());
-	if(is_array($arrResult) && !empty($arrResult)){
+	/*if(is_array($arrResult) && !empty($arrResult)){
 			foreach($arrResult as $rows){
 				//$gb->add_row('Row '.$rows["f_first_name"]);
 				$tooltip = ucwords($rows["result"]);
@@ -42,7 +43,7 @@ $array_keys = array_keys($arrayQuick);
 				<td class='Utils_GenericBrowser__td' style='width:10%'>".Utils_RecordBrowserCommon::get_caption($rows["source"])."</td></tr>";
 			}	
 		//print $gb	
-	}
+	}*/
 }
 
 $content = ob_get_contents();
