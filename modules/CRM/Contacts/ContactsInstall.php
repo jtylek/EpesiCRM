@@ -127,7 +127,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::add_access('company', 'view', 'ALL', array('id'=>'USER_COMPANY'));
 		Utils_RecordBrowserCommon::add_access('company', 'add', 'ACCESS:employee');
 		Utils_RecordBrowserCommon::add_access('company', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID'));
-		Utils_RecordBrowserCommon::add_access('company', 'edit', array('ALL','ACCESS:manager'), array('id'=>'USER_COMPANY'));
+		Utils_RecordBrowserCommon::add_access('company', 'edit', array('ALL','ACCESS:manager'), array('id'=>'USER_COMPANY'), array('group', 'permission'));
 		Utils_RecordBrowserCommon::add_access('company', 'edit', array('ACCESS:employee','ACCESS:manager'), array());
 		Utils_RecordBrowserCommon::add_access('company', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('company', 'delete', array('ACCESS:employee','ACCESS:manager'));
@@ -139,7 +139,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::add_access('contact', 'view', 'ALL', array('login'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('contact', 'add', 'ACCESS:employee');
 		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID'), array('access', 'login'));
-		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('login'=>'USER_ID'), array('company_name', 'related_companies', 'access', 'login'));
+		Utils_RecordBrowserCommon::add_access('contact', 'edit', 'ALL', array('login'=>'USER_ID'), array('company_name', 'related_companies', 'access', 'login', 'group', 'permission'));
 		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ALL','ACCESS:manager'), array('company_name'=>'USER_COMPANY'), array('login', 'company_name', 'related_companies'));
 		Utils_RecordBrowserCommon::add_access('contact', 'edit', array('ACCESS:employee','ACCESS:manager'), array());
 		Utils_RecordBrowserCommon::add_access('contact', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
