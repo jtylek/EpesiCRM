@@ -40,7 +40,7 @@ class Apps_Shoutbox extends Module {
 		$qf = $this->init_module('Libs/QuickForm');
 
   	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-       	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 ORDER BY name');
+       	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name'),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 ORDER BY name');
 	    } else
    		    $emps = DB::GetAssoc('SELECT id,login FROM user_login WHERE active=1 ORDER BY login');
    		$qf->addElement('select','user',__('User'),array('all'=>'['.__('All').']')+$emps);
@@ -97,9 +97,9 @@ class Apps_Shoutbox extends Module {
 
         if($ret)
 			while(($row=$ret->FetchRow())) {
-				$ulogin = Base_UserCommon::get_user_login($row['base_user_login_id']);
+				$ulogin = Base_UserCommon::get_user_label($row['base_user_login_id']);
 				if($row['to_user_login_id']!==null)
-    				$tologin = Base_UserCommon::get_user_login($row['to_user_login_id']);
+    				$tologin = Base_UserCommon::get_user_label($row['to_user_login_id']);
     		    else
     		        $tologin = '['.__('All').']';
                 $gb->add_row(
