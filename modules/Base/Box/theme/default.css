@@ -94,7 +94,7 @@ input, textarea, select {
 	/* end dark css3 green background gradient */
 }
 .button {
-	display: block;
+	display: inline-block;
 	white-space: nowrap;
 	padding: 0 5px;
 }
