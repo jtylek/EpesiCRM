@@ -151,10 +151,11 @@ class epesi_archive extends rcube_plugin
     $path = getcwd();
     chdir(str_replace('/modules/CRM/Roundcube/RC','',$path));
 
-    $msgs = array();    
+    $msgs = array();
+    if (!is_array($uids)) $uids = $uids->get();
     foreach($uids as $uid) {
         $msg = new rcube_message($uid);
-        if (empty($msg->headers)) {
+        if ($msg===null || empty($msg->headers)) {
             if($verbose) {
                 $rcmail->output->command('display_message','messageopenerror', 'error');
             }
