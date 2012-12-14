@@ -31,14 +31,6 @@ class CRM_FiltersInstall extends ModuleInstall {
 			print('Unable to create table crm_filters_contacts.<br>');
 			return false;
 		}
-		$ret &= DB::CreateTable('crm_filters_default','
-			user_login_id I4 NOTNULL,
-			filter C(16) DEFAULT "my"',
-			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
-		if(!$ret){
-			print('Unable to create table crm_filters_default.<br>');
-			return false;
-		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
 		Base_AclCommon::add_permission(_M('Manage Perspective'),array('ACCESS:employee'));
 		return $ret;
@@ -49,7 +41,6 @@ class CRM_FiltersInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::DropTable('crm_filters_contacts');
 		$ret &= DB::DropTable('crm_filters_group');
-		$ret &= DB::DropTable('crm_filters_default');
 		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}

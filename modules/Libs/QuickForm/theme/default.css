@@ -374,6 +374,7 @@
 
 .automulti .button,
 .automulti .button:hover {
+	padding: 0;
     background-image: none;
     width: 80px;
 	display: table-cell;

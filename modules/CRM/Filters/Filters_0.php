@@ -26,8 +26,8 @@ class CRM_Filters extends Module {
 		$th->assign('my','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'my').' id="crm_filters_my">'.__('My records').'</a>');
 		eval_js('Event.observe(\'crm_filters_my\',\'click\', crm_filters_deactivate)');
 
-		$th->assign('all','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'all').' id="crm_filters_all">'.__('All records').'</a>');
-		eval_js('Event.observe(\'crm_filters_all\',\'click\', crm_filters_deactivate)');
+		/*$th->assign('all','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'all').' id="crm_filters_all">'.__('All records').'</a>');
+		eval_js('Event.observe(\'crm_filters_all\',\'click\', crm_filters_deactivate)');*/
 
 		$th->assign('manage','<a '.$this->create_callback_href(array($this,'manage_filters')).' id="crm_filters_manage">'.__('Manage presets').'</a>');
 		eval_js('Event.observe(\'crm_filters_manage\',\'click\', crm_filters_deactivate)');
@@ -72,7 +72,7 @@ class CRM_Filters extends Module {
 
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,__('Perspective'),true);
 		if(!isset($_SESSION['client']['filter_'.Acl::get_user()]['desc']))
-			CRM_FiltersCommon::set_profile($this->get_default_filter());
+			CRM_FiltersCommon::set_profile('my');
 		    
 		//Base_ActionBarCommon::add('folder',__('Filters'),'class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',__('My records')));
 		if (isset($_REQUEST['__location'])) $in_use = (CRM_FiltersCommon::$in_use===$_REQUEST['__location']);
@@ -133,35 +133,17 @@ class CRM_Filters extends Module {
 		$this->display_module($gb);
 		
 		$qf = $this->init_module('Libs/QuickForm',null,'default_filter');
-		$qf->addElement('select','def_filter',__('Default perspective'),$def_opts,array('onChange'=>$qf->get_submit_form_js()));
 		$qf->addElement('checkbox','show_all_contacts_in_filters',__('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
-		$qf->addRule('def_filter',__('Field required'),'required');
-		$qf->setDefaults(array(	'def_filter'=>$this->get_default_filter($def_filter_exists),
-								'show_all_contacts_in_filters'=>Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')
+		$qf->setDefaults(array(	'show_all_contacts_in_filters'=>Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')
 						));
 		if($qf->validate()) {
 		    $vals = $qf->exportValues();
 			if (!isset($vals['show_all_contacts_in_filters'])) $vals['show_all_contacts_in_filters'] = 0;
 			Base_User_SettingsCommon::save('CRM_Contacts','show_all_contacts_in_filters',$vals['show_all_contacts_in_filters']);
-		    if($def_filter_exists)
-			DB::Execute('UPDATE crm_filters_default SET filter=%s WHERE user_login_id=%d',array($vals['def_filter'],Acl::get_user()));
-		    else
-			DB::Execute('INSERT INTO crm_filters_default(filter,user_login_id) VALUES (%s, %d)',array($vals['def_filter'],Acl::get_user()));
 		}
 		$qf->display();
 	}
 	
-	private function get_default_filter(& $def_filter_exists = false) {
-	    $def = DB::GetOne('SELECT filter FROM crm_filters_default WHERE user_login_id=%d',array(Acl::get_user()));
-	    if(!$def) {
-		$def_filter_exists = false;
-		$def = 'my';
-	    } else {
-		$def_filter_exists = true;
-	    }
-	    return $def;
-	}
-
 	public function edit_group($id=null) {
 		if($this->is_back()) return false;
 
@@ -183,6 +165,7 @@ class CRM_Filters extends Module {
 		$form->addRule('name',__('Field required'),'required');
 		$form->registerRule('unique','callback','check_group_name_exists', 'CRM_Filters');
 		$form->addRule('name',__('Group with this name already exists'),'unique',$id);
+		$form->addFormRule(array($this, 'check_amount_of_records'));
 		$form->addElement('automulti','contacts',__('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array(), array('CRM_ContactsCommon', 'contact_format_no_company')), array('CRM_ContactsCommon', 'contact_format_no_company'));
 		if ($form->validate()) {
 			$v = $form->exportValues();
@@ -206,6 +189,15 @@ class CRM_Filters extends Module {
 		}
 
 		return true;
+	}
+	
+	public function check_amount_of_records ($data) {
+		$sep = '__SEP__';
+		$c = explode($sep, trim($data['contacts'], $sep));
+		if (count($c) > 5)
+			return array('contacts'=>__('Too many records selected'));
+		else
+			return true;
 	}
 
 	public static function edit_group_sel($r) {
