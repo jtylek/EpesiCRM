@@ -14,6 +14,17 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
     public function install() {
         $this->create_data_dir();
+        // create htaccess to prevent logs to be available on the internet
+        $htaccess = $this->get_data_dir() . '.htaccess';
+        $f = fopen($htaccess, 'w');
+        if ($f === false) {
+            print("Cannot create .htaccess file ($htaccess). "
+                    . "Your Roundcube logs may be available on the internet!");
+        } else {
+            fwrite($f, "deny from all\n");
+            fclose($f);
+        }
+        
         Base_ThemeCommon::install_default_theme($this -> get_type());
 
 		@DB::DropSequence('rc_user_ids');
