@@ -27,20 +27,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         
         Base_ThemeCommon::install_default_theme($this -> get_type());
 
-		@DB::DropSequence('rc_user_ids');
-        @DB::DropTable('rc_users');
-		@DB::DropSequence('rc_identity_ids');
-        @DB::DropTable('rc_identities');
-		@DB::DropSequence('rc_contact_ids');
-        @DB::DropTable('rc_contacts');
-		@DB::DropSequence('rc_contactgroups_ids');
-        @DB::DropTable('rc_contactgroups');
-        @DB::DropTable('rc_contactgroupmembers');
-        @DB::DropTable('rc_session');
-		@DB::DropSequence('rc_cache_ids');
-        @DB::DropTable('rc_cache');
-		@DB::DropSequence('rc_message_ids');
-        @DB::DropTable('rc_messages');
+        $this->drop_all_rc_tables();
 
         if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
             $f = file_get_contents('modules/CRM/Roundcube/RC/SQL/mysql.initial.sql');
@@ -234,20 +221,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
     }
 
     public function uninstall() {
-		@DB::DropSequence('rc_user_ids');
-        @DB::DropTable('rc_users');
-		@DB::DropSequence('rc_identity_ids');
-        @DB::DropTable('rc_identities');
-		@DB::DropSequence('rc_contact_ids');
-        @DB::DropTable('rc_contacts');
-		@DB::DropSequence('rc_contactgroups_ids');
-        @DB::DropTable('rc_contactgroups');
-        @DB::DropTable('rc_contactgroupmembers');
-        @DB::DropTable('rc_session');
-		@DB::DropSequence('rc_cache_ids');
-        @DB::DropTable('rc_cache');
-		@DB::DropSequence('rc_message_ids');
-        @DB::DropTable('rc_messages');
+        $this->drop_all_rc_tables();
 
         Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon');
         Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Roundcube', 'addon');
@@ -266,6 +240,27 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Variable::delete('crm_roundcube_global_signature');
 
         return true;
+    }
+    
+    private function drop_all_rc_tables() {
+        @DB::DropSequence('rc_search_ids');
+        @DB::DropTable('rc_searches');
+        @DB::DropTable('rc_dictionary');
+        @DB::DropSequence('rc_cache_ids');
+        @DB::DropTable('rc_cache');
+        @DB::DropTable('rc_cache_index');
+        @DB::DropTable('rc_cache_messages');
+        @DB::DropTable('rc_cache_thread');
+        @DB::DropSequence('rc_identity_ids');
+        @DB::DropTable('rc_identities');
+        @DB::DropTable('rc_contactgroupmembers');
+        @DB::DropSequence('rc_contactgroups_ids');
+        @DB::DropTable('rc_contactgroups');
+        @DB::DropSequence('rc_contact_ids');
+        @DB::DropTable('rc_contacts');
+        @DB::DropTable('rc_session');
+        @DB::DropSequence('rc_user_ids');
+        @DB::DropTable('rc_users');
     }
 
     public function version() {
