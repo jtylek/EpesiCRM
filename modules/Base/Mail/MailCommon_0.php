@@ -73,6 +73,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 			$mailer->Username = Variable::get('mail_user');
 			$mailer->Password = Variable::get('mail_password');
 			$mailer->SMTPAuth = Variable::get('mail_auth');
+            $mailer->SMTPSecure = Variable::get('mail_security', false);
 		} elseif (HOSTING_MODE) {
 			if (!$critical) return false;
 		}

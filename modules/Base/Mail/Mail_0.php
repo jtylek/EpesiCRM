@@ -35,6 +35,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		$defaults['mail_from_addr'] = Variable::get('mail_from_addr');
 		$defaults['mail_from_name'] = Variable::get('mail_from_name');
 		$defaults['mail_host'] = Variable::get('mail_host');
+        $defaults['mail_security'] = Variable::get('mail_security', false);
 		$defaults['mail_auth'] = Variable::get('mail_auth');
 		$defaults['mail_password'] = Variable::get('mail_password');
 				
@@ -55,6 +56,9 @@ class Base_Mail extends Module implements Base_AdminInterface {
 			
 			$form->addElement('text','mail_host', __('SMTP host address'));
 			$form->addRule('mail_host', __('Field required'),'required');
+            
+            $form->addElement('select', 'mail_security', __('Security'),
+                    array('' => __('None'), 'ssl' => 'SSL', 'tls' => 'TLS'));
 			
 			$form->addElement('checkbox','mail_auth', __('SMTP authorization'),'','onChange="'.$form->get_submit_form_js(false).'"');
 			
@@ -107,6 +111,9 @@ class Base_Mail extends Module implements Base_AdminInterface {
 				Variable::set('mail_user', $data['mail_user']);
 				Variable::set('mail_password', $data['mail_password']);
 			}
+            
+            $security = isset($data['mail_security']) ? $data['mail_security'] : '';
+            Variable::set('mail_security', $security);
 		}
 		return true;
 	}
