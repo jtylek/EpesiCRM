@@ -1581,10 +1581,13 @@ class Utils_RecordBrowser extends Module {
                                         if (!isset($multi_adv_params['cols'])) $multi_adv_params['cols'] = array();
                                         if (!isset($multi_adv_params['format_callback'])) $multi_adv_params['format_callback'] = array();
                                         $ref = $ref[0];
-                                        @(list($tab, $col) = explode('::',$ref));
+										$refe = explode('::',$ref);
+										$tab = $refe[0];
+										$col = isset($refe[1])?$refe[1]:null;
                                         if (!isset($col)) trigger_error($field);
                                         if ($tab=='__COMMON__') {
-                                            $data = Utils_CommonDataCommon::get_translated_tree($col);
+											$order = isset($refe[2])?$refe[2]:'value';
+                                            $data = Utils_CommonDataCommon::get_translated_tree($col, $order=='key');
                                             if (!is_array($data)) $data = array();
                                             $comp = $comp+$data;
                                             $rec_count = 0;
@@ -2011,10 +2014,13 @@ class Utils_RecordBrowser extends Module {
                 break;
 			case 'multiselect':
 				if ($action=='edit') {
-					@list($tab, $col) = explode('::', $row['param']);
+					$refe = explode('::',$row['param']);
+					$tab = $refe[0];
+					$col = isset($refe[1])?$refe[1]:null;
 					if ($tab=='__COMMON__') {
+						$order = isset($refe[2])?$refe[2]:'value';
 						$row['param'] = '__'.$col;
-						$form->setDefaults(array('select_type'=>'multi'));
+						$form->setDefaults(array('select_type'=>'multi', 'order_by'=>$order=='key'?'key':'value'));
 					} else {
 						break;
 					}
@@ -2073,7 +2079,7 @@ class Utils_RecordBrowser extends Module {
 							break;
 				case 'multiselect':
 							if (isset($data['commondata_table'])) {
-								$param = '__COMMON__::'.$data['commondata_table'];
+								$param = '__COMMON__::'.$data['commondata_table'].'::'.$data['order_by'];
 								$data['select_data_type'] = 'multiselect';
 							} else $param = $row['param'];
 							break;
