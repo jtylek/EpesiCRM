@@ -43,10 +43,14 @@ div.navigation-menu > table td {
 	padding-right: 3px;
 }
 
-.button_cell {
+div.navigation-menu .button_cell {
 	width: 115px;
 	white-space: nowrap;
 	overflow: hidden;
+}
+
+div.navigation-menu .button_cell .button {
+	width: auto;
 }
 
 /* trash */
