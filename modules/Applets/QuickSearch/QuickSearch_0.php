@@ -39,7 +39,7 @@ class Applets_QuickSearch extends Module{
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
 		$theme->assign('search_id', $conf['criteria']);
-		$theme->display('quick_form');				
+		$theme->display('quick_form');						return true;
 	
 	}
 	public function caption() {

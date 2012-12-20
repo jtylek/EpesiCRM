@@ -12,10 +12,10 @@ $arrResult = array();
 $id = $_GET['crit'];
 $txt = trim(urldecode($_GET['q']));
 $arrTxt = explode(" ", $txt);
-$stmt = "";
 $arrayQuick = Applets_QuickSearchCommon::getRecordsetAndFields($id);
 $format = Applets_QuickSearchCommon::getResultFormat();
 $formatString = Applets_QuickSearchCommon::parseFormatString($format);
+$arrayKey = array(); 
 $array_keys = array_keys($arrayQuick);
 	foreach($array_keys as $key){
 		 $fieldsArray = Applets_QuickSearchCommon::parse_array($arrayQuick[$key]);
@@ -23,27 +23,27 @@ $array_keys = array_keys($arrayQuick);
 		 $qry = DB::SelectLimit($sql, 20, 0);	
 		 if($qry){
 			$arrRow = array();
+			$result = "";		
 			while($rowValue = $qry->FetchRow()){
-				/* TODO: Work on this method */
-				//Applets_QuickSearchCommon::parseResult($rowValue, $formatString);
-				$arrRow["result"] = $rowValue["f_first_name"].', '. $rowValue["f_first_name"];
-				$arrRow["id"] = $rowValue["id"];
-				$arrRow["source"] = $key;
-				$arrResult[$key] = $arrRow;
+				$rowValue["RECORD_SET"] = $key;
+				$arrayKey[] = $rowValue;
 			}
 		 }
 	}
-	print_r($arrResult);
-	//print Applets_QuickSearchCommon::displayResult($array = array());
-	/*if(is_array($arrResult) && !empty($arrResult)){
-			foreach($arrResult as $rows){
-				//$gb->add_row('Row '.$rows["f_first_name"]);
-				$tooltip = ucwords($rows["result"]);
-				print "<tr style='background:#FFFFD5;'><td colspan='2' class='Utils_GenericBrowser__td' style='width:80%;height:20px'><img border='0' src='data/Base_Theme/templates/default/Utils/GenericBrowser/info.png'> <a onclick=\"_chj('__jump_to_RB_table=".$rows["source"]."&amp;__jump_to_RB_record=".$rows["id"]."&amp;__jump_to_RB_action=view', '', '');\" href=\"javascript: void(0)\"><span ".Utils_TooltipCommon::open_tag_attrs($tooltip , false)."> ".ucwords($rows["result"])."</span></a></td>
-				<td class='Utils_GenericBrowser__td' style='width:10%'>".Utils_RecordBrowserCommon::get_caption($rows["source"])."</td></tr>";
+
+	if(is_array($arrayKey) && !empty($arrayKey)){		
+			foreach($arrayKey as $rows){
+				$result = "";
+				$keyRecordset = $rows["RECORD_SET"];
+				foreach(($formatString[$keyRecordset]) as $keyIdx){
+					 $result .= $rows[$keyIdx]." ";
+				}
+				$tooltip = ucwords($result);
+				print "<tr style='background:#FFFFD5;'><td colspan='2' class='Utils_GenericBrowser__td' style='width:80%;height:20px'><img border='0' src='data/Base_Theme/templates/default/Utils/GenericBrowser/info.png'> <a onclick=\"_chj('__jump_to_RB_table=".$keyRecordset."&amp;__jump_to_RB_record=".$rows["id"]."&amp;__jump_to_RB_action=view', '', '');\" href=\"javascript: void(0)\"><span ".Utils_TooltipCommon::open_tag_attrs($tooltip , false)."> ".ucwords($result)."</span></a></td>
+				<td class='Utils_GenericBrowser__td' style='width:10%'>".Utils_RecordBrowserCommon::get_caption($keyRecordset)."</td></tr>";
 			}	
 		//print $gb	
-	}*/
+	}
 }
 
 $content = ob_get_contents();

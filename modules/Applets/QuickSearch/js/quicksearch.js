@@ -1,5 +1,5 @@
 var searchTimeOut;
-var criteria = "";
+var criteria = "";var isFound = false;
 function setDelayOnSearch(crit){
 	if(searchTimeOut != undefined){
 		clearTimeout(searchTimeOut);
@@ -141,14 +141,14 @@ function call_js(){
 function call_js_add_field(mode){
 	var elemFields = $('select_field__to').options;
 	var resultFormat = $('result_format');
-	var holder = resultFormat.value;
+	var holder = resultFormat.value;		
 	for(el = 0; el < elemFields.length; el++){
 		if(elemFields[el].value.indexOf('[A]') == -1){
-			var field = elemFields[el].value
+			var field = elemFields[el].value;						var recordset = elemFields[el].value.substr(0, elemFields[el].value.indexOf(':') + 1);
 			if(mode == 'add'){
 				elemFields[el].value = elemFields[el].value + '[A]';
-				field = elemFields[el].value.substr(0,(elemFields[el].value.length - 3));			
-				resultFormat.value += '[%' + field + '%] ';
+				field = elemFields[el].value.substr(0,(elemFields[el].value.length - 3));															if(resultFormat.value.indexOf(recordset) != -1){					if(isFound){
+						resultFormat.value += '[%' + field + '%] ';						isFound = true;					}							console.log("found "  + isFound);				}					else{					isFound = false;					if(isFound == false){						if(resultFormat.value == "")							resultFormat.value += '[%' + field + '%]';						else							resultFormat.value += '\n[%' + field + '%]';						isFound = true;						}						console.log("not found " + isFound);				}	
 			}
 			else{				
 				if(elemFields[el].value.indexOf('[A]') == -1){

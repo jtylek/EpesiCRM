@@ -99,7 +99,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		else if($mode == 'edit' || $mode == 'view'){
 			$recordset_form = $form->addElement('multiselect', $field, $label, $data);
 			$recordset_form->on_add_js('call_js();');
-			$recordset_form->on_remove_js('call_js_remove_recordset();');			
+			//$recordset_form->on_remove_js('call_js_remove_recordset();');			
 			$form->setDefaults(array($field => self::parse_array($default)));
 			eval_js('changeAddedRecordset(\'recordsets__to\')');	
 			//self::recordsetsArray = $default;	
@@ -111,7 +111,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		if($mode == 'add'){
 			$recordset_form = $form->addElement('multiselect', $field, $label, null);
 			$recordset_form->on_add_js('call_js_add_field(\'add\');');
-			$recordset_form->on_remove_js('call_js_remove_fields();');
+			//$recordset_form->on_remove_js('call_js_remove_fields();');
 		}
 		else if($mode == 'edit' || $mode == 'view'){
 			$arrayAllValues = array();
@@ -172,9 +172,10 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 				$values['recordsets'] = explode(';', $values['recordsets']);
 				$values['select_field'] = explode(';', $values['select_field']);
 				break;	
-			default:	
+			default:	 
 				break;
 		}
+		
 		return $values;
 	}
 	
@@ -317,17 +318,38 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 	public static function getResultFormat(){
 		return self::$resultFormat;
 	}
+		
+	public static function parseFormatString($string){
 	
-	public static function parseFormatString($stringFormat){
-		if($stringFormat == ""){
+		if($string == ""){
 			return false;
 		}
-		else{
-			$formatStr = str_replace("[%", "{", $stringFormat);
-			$formatStr = str_replace("%]", "}", $formatStr);
-			return $formatStr;
-		}
-	}
+		
+		$arrayFields = array();
+		$arrayRecordset = array();		
+		$isNew = false;
+		if(preg_match_all("(%.*?%)", trim($string), $fields)){
+			foreach($fields[0] as $kets){
+				//print $kets."<br>";
+				$str = str_replace("%", "", $kets);
+				$strRecordset = substr($str, 0, strpos($str, ':'));
+				$strField = 'f_'.substr($str, strpos($str, ':') + 1, strlen($str));
+				if(!array_key_exists($strRecordset, $arrayRecordset)){ 
+					$arrayFields = array();
+					array_push($arrayFields, $strField);
+					$arrayRecordset[$strRecordset] = $arrayFields;
+				}else{
+					$arrayFields = $arrayRecordset[$strRecordset];
+					array_push($arrayFields, $strField);
+					$arrayRecordset[$strRecordset] = $arrayFields;
+					
+				}
+				
+				//array_push($arrayFields, $strRecordset.':'.$strField);
+			}
+		}		
+		return $arrayRecordset;
+	}	
 	
 	public static function parseResult($arrayQuery, $arrayFormat){
 		// it should return an array
