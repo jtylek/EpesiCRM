@@ -420,7 +420,8 @@ class CRM_Contacts_RBO_Employee extends CRM_Contacts_RBO_Contact {
     }
 
     public static function employee_crits() {
-        return array('access' => 'employee');
+        $my_company = CRM_ContactsCommon::get_main_company();
+        return array('(company_name' => $my_company, '|related_companies' => array($my_company));
     }
 
 }
