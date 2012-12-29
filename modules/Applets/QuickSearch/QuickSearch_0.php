@@ -21,9 +21,9 @@ class Applets_QuickSearch extends Module{
 		$btnQuery = 'query_button';
 		$id = $conf['criteria'];
 		$searchPrompt = Applets_QuickSearchCommon::getSearchPromptById($id);
+		$conf['a_title'] = ($conf['a_title'] == "Quick Search") ? Applets_QuickSearchCommon::getPresetNameById($id) : $conf['a_title'] ;
 		$placeholder = ($searchPrompt == "") ? "" : $searchPrompt;
-		
-		$opts['title'] = ($conf['a_title'] == "") ? $opts['title'] : $conf['a_title'];
+		$opts['title'] = $conf['a_title'];
 		$opts['go' ] = false;		
 		
 		load_css('modules/Applets/QuickSearch/theme/quick_form.css');

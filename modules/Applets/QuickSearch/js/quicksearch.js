@@ -54,19 +54,18 @@ function removeFromList(selectFrom, selectTo){
 	if(document.getElementById(selectFrom)){
 		var selected = document.getElementById(selectTo);
 		var returnto = document.getElementById(selectFrom);
-		for(x=0; x <= selected.length; x++){
+		for(x=0; x <= returnto.length; x++){
 			try{
-				if(selected[x].selected){
-					var optionRemove = selected[x];
-					optionRemove.selected = false;
-					returnto.appendChild(optionRemove);
-					removeFieldOnListFrom(optionRemove.text, 'fieldsfrom');
-					removeFieldOnListTo(optionRemove.text, 'fieldsto');
+				if(returnto[x].value.indexOf('[A]') != -1){
+					var optionRemove = returnto[x];
+					removeFieldOnListFrom(optionRemove.text, 'select_field__from');
+					removeFieldOnListTo(optionRemove.text, 'select_field__to');
+					returnto[x].value = returnto[x].value.substr(0, (returnto[x].value.length - 3));
+					console.log(returnto[x].value);
 				}
 			}
 			catch(err){}
 		}
-		selectAllFromList(selectFrom, selectTo);
 	}
 }
 
@@ -144,11 +143,29 @@ function call_js_add_field(mode){
 	var holder = resultFormat.value;		
 	for(el = 0; el < elemFields.length; el++){
 		if(elemFields[el].value.indexOf('[A]') == -1){
-			var field = elemFields[el].value;						var recordset = elemFields[el].value.substr(0, elemFields[el].value.indexOf(':') + 1);
+			var field = elemFields[el].value;						
+			var recordset = elemFields[el].value.substr(0, elemFields[el].value.indexOf(':') + 1);
 			if(mode == 'add'){
 				elemFields[el].value = elemFields[el].value + '[A]';
-				field = elemFields[el].value.substr(0,(elemFields[el].value.length - 3));															if(resultFormat.value.indexOf(recordset) != -1){					if(isFound){
-						resultFormat.value += '[%' + field + '%] ';						isFound = true;					}							console.log("found "  + isFound);				}					else{					isFound = false;					if(isFound == false){						if(resultFormat.value == "")							resultFormat.value += '[%' + field + '%]';						else							resultFormat.value += '\n[%' + field + '%]';						isFound = true;						}						console.log("not found " + isFound);				}	
+				field = elemFields[el].value.substr(0,(elemFields[el].value.length - 3));															
+				if(resultFormat.value.indexOf(recordset) != -1){					
+					if(isFound){
+						resultFormat.value += '[%' + field + '%] ';						
+						isFound = true;					
+						}							
+						console.log("found "  + isFound);				
+				}					
+				else{					
+					isFound = false;					
+					if(isFound == false){						
+						if(resultFormat.value == "")							
+							resultFormat.value += '[%' + field + '%]';						
+						else							
+							resultFormat.value += '\n[%' + field + '%]';						
+							isFound = true;						
+					}						
+					console.log("not found " + isFound);				
+				}	
 			}
 			else{				
 				if(elemFields[el].value.indexOf('[A]') == -1){
@@ -162,11 +179,11 @@ function call_js_add_field(mode){
 }
 
 function call_js_remove_recordset(){
-
+	removeFromList('recordsets__from', 'recordsets__to');
 }
 
 function call_js_remove_fields(){
-
+	//removeFromList('recordsets__from', 'recordsets__to');
 }
 
 function changeAddedRecordset(id){

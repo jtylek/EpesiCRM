@@ -6,6 +6,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 
 	private static $resultFormat = null;
 	private static $recordsetArray = array();
+	private static $presetName = "";
 	
 	public static function applet_caption() {
     	return __('Quick Search');
@@ -24,7 +25,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		$presets = self::getPresets();
 		return array(
 				array('name' => 'a_title', 'label' => __('Applet Title'),
-					'type' => 'text', 'values'=>'Quick Search', 'default' => 'Quick Search'),
+					'type' => 'text', 'values'=>'Quick Search', 'default' => "Quick Search"),
 				array('name' => 'criteria', 'label' => __('Presets Name'), 
 					'type' => 'select', 'values' => $presets, 'default' => '1' )
 					);
@@ -99,7 +100,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		else if($mode == 'edit' || $mode == 'view'){
 			$recordset_form = $form->addElement('multiselect', $field, $label, $data);
 			$recordset_form->on_add_js('call_js();');
-			//$recordset_form->on_remove_js('call_js_remove_recordset();');			
+			$recordset_form->on_remove_js('call_js_remove_recordset();');			
 			$form->setDefaults(array($field => self::parse_array($default)));
 			eval_js('changeAddedRecordset(\'recordsets__to\')');	
 			//self::recordsetsArray = $default;	
@@ -111,7 +112,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		if($mode == 'add'){
 			$recordset_form = $form->addElement('multiselect', $field, $label, null);
 			$recordset_form->on_add_js('call_js_add_field(\'add\');');
-			//$recordset_form->on_remove_js('call_js_remove_fields();');
+			$recordset_form->on_remove_js('call_js_remove_fields();');
 		}
 		else if($mode == 'edit' || $mode == 'view'){
 			$arrayAllValues = array();
