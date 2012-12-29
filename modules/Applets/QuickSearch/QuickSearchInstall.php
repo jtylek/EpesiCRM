@@ -14,7 +14,7 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 							'visible'=>true, 
 							'required'=>true),
 							
-					array('name'=>__('Placeholder'), 'type'=>'text', 'param'=>'255', 'visible'=>true, 'required'=>true),
+					array('name'=>__('Search prompt'), 'type'=>'text', 'param'=>'255', 'visible'=>true, 'required'=>true),
 					
 					array('name' => __('Recordsets'),
 							'type'=>'long text', 
@@ -43,9 +43,9 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 		Utils_RecordBrowserCommon::set_favorites($recordsetName, false);
 		Utils_RecordBrowserCommon::register_processing_callback($recordsetName, array('Applets_QuickSearchCommon', 'parse_values'));
 		//sets a default value on quick search data
-		Utils_RecordBrowserCommon::new_record($recordsetName, array("preset_name" => "Test Value", "placeholder" => "testholder",
-															"recordsets" => "company[A];contact", 
-															"select_field" => "company:company_name[A];company:short_name[A];contact:last_name[A];contact:first_name",
+		Utils_RecordBrowserCommon::new_record($recordsetName, array("preset_name" => "Test Value", "search_prompt" => "testholder",
+															"recordsets" => array("company[A]", "contact"), 
+															"select_field" => array("company:company_name[A]","company:short_name[A]","contact:last_name[A]","contact:first_name"),
 															"result_format"=> "[%company:company_name%] [%company:short_name%] [%contact:last_name%] [%contact:first_name%]"));
 		
 		
