@@ -16,8 +16,8 @@
 			<table cellspacing="0" cellpadding="0" width="100%" class="Utils_GenericBrowser">	
 				<thead>
 					<tr class="nonselectable">
-						<th style="width:80%" colspan='2'><span>Name</span></th>
-						<th style="width:20%"><span>Source</span></th>
+						<th style="width:80%" colspan='2'><span>Search Result(s)</span></th>
+						<th style="width:20%"><span>Recordset</span></th>
 					</tr>		
 				</thead>
 				<tbody id="tableID_{$search_id}">

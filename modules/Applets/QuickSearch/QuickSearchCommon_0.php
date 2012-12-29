@@ -26,7 +26,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 				array('name' => 'a_title', 'label' => __('Applet Title'),
 					'type' => 'text', 'values'=>'Quick Search', 'default' => 'Quick Search'),
 				array('name' => 'criteria', 'label' => __('Presets Name'), 
-					'type' => 'select', 'values' => $presets, 'default' => '0' )
+					'type' => 'select', 'values' => $presets, 'default' => '1' )
 					);
 	}
 	
@@ -160,7 +160,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 				$values['recordsets'] = explode(';', $values['recordsets']);
 				$values['select_field'] = explode(';', $values['select_field']);;
 				break;
-			case 'add':
+			case 'add':		
 			case 'edit':
 				$values['recordsets'] = implode(';', $values['recordsets']);
 				$values['select_field'] = implode(';', $values['select_field']);
@@ -351,15 +351,26 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		return $arrayRecordset;
 	}	
 	
-	public static function parseResult($arrayQuery, $arrayFormat){
-		// it should return an array
-		//
-		//$arrRow["source"] = $key;
-		//$arrResult[] = $arrRow;		
+	public static function getSearchPromptById($id){
+		$qry = Utils_RecordBrowserCommon::get_record("quick_search", $id, false);
+		if($qry){
+			$str = trim($qry["search_prompt"]);
+			return ($str != "") ? $str : "";
+		}
+		else{
+			return false;
+		}
 	}
 	
-	public static function displayResult($resultArray, $format){
-
+	public static function getPresetNameById($id){
+		$qry = Utils_RecordBrowserCommon::get_record("quick_search", $id, false);
+		if($qry){
+			$str = trim($qry["preset_name"]);
+			return ($str != "") ? $str : "";
+		}
+		else{
+			return false;
+		}	
 	}
 }
 

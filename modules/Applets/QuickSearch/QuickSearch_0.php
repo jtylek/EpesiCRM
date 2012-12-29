@@ -19,9 +19,10 @@ class Applets_QuickSearch extends Module{
 		$txtQuery = 'query_text';
 		$txtLabel = 'query_label';
 		$btnQuery = 'query_button';
-		$placeholder = "";
 		$id = $conf['criteria'];
-	
+		$searchPrompt = Applets_QuickSearchCommon::getSearchPromptById($id);
+		$placeholder = ($searchPrompt == "") ? "" : $searchPrompt;
+		
 		$opts['title'] = ($conf['a_title'] == "") ? $opts['title'] : $conf['a_title'];
 		$opts['go' ] = false;		
 		
@@ -39,7 +40,8 @@ class Applets_QuickSearch extends Module{
 		$theme->assign($txtLabel, __('Search'));
 		$theme->assign($txtQuery, $txt->toHtml());
 		$theme->assign('search_id', $conf['criteria']);
-		$theme->display('quick_form');						return true;
+		$theme->display('quick_form');						
+		return true;
 	
 	}
 	public function caption() {
