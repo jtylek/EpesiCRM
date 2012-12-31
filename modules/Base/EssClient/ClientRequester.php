@@ -10,7 +10,7 @@ class SecureConnectionException extends Exception {
  * ClientRequester to perform Epesi Service Server clients requests.
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2011, Telaxus LLC
- * @version 20111121
+ * @version 20121231
  */
 class ClientRequester implements IClient {
 
@@ -139,7 +139,8 @@ class ClientRequester implements IClient {
             IClient::param_client_version => IClient::client_version,
             IClient::param_serialize => $serialize_response,
             IClient::param_arguments => serialize($params),
-            IClient::param_lang => Base_LangCommon::get_lang_code()
+            IClient::param_lang => Base_LangCommon::get_lang_code(),
+            IClient::param_epesi_version => EPESI_VERSION
         );
     }
 

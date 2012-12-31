@@ -4,11 +4,11 @@
  * Use this interface to perform clients requests to Epesi Service Server.
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2011, Telaxus LLC
- * @version 20120310
+ * @version 20121231
  */
 interface IClient {
 
-    const client_version = 5;
+    const client_version = 6;
     const MESSAGES_INFO = 0;
     const MESSAGES_WARN = 1;
     const MESSAGES_ERROR = 2;
@@ -18,6 +18,7 @@ interface IClient {
     const param_client_version = 'v';
     const param_serialize = 's';
     const param_lang = 'l';
+    const param_epesi_version = 'e';
     const return_messages = 'msg';
     const return_value = 'val';
 
