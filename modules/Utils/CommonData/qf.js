@@ -52,6 +52,7 @@ Utils_CommonData.prototype = {
 			});
 	},
 	on_request: function(t) {
+		if (!t.responseText) return;
 		var new_opts = t.responseText.evalJSON();
 		var opts = this.obj.options;
 		opts.length=0;
