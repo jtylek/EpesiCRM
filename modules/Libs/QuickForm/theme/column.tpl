@@ -12,7 +12,7 @@
 			<td class="epesi_label" style="width: 150px;white-space: nowrap;">
 				{$f.label}{if $f.required}*{/if}
 			</td>
-			<td class="epesi_data" style="width: 350px;">
+			<td class="epesi_data{if $f.frozen} static_field{/if}" style="width: 350px;">
 				<div style="position: relative;">
 					{$f.error}
 					{$f.html}

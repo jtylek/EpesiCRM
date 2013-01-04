@@ -13,7 +13,7 @@
 			<td class="epesi_label" style="width: 10px;white-space: nowrap;">
 				{$f.label}{if $f.required}*{/if}
 			</td>
-			<td class="epesi_data"{if $f.type=='checkbox'} style="width: 10px;"{/if}>
+			<td class="epesi_data{if $f.frozen} static_field{/if}"{if $f.type=='checkbox'} style="width: 10px;"{/if}>
 				<div style="position: relative;">
 					{$f.error}
 					{$f.html}
