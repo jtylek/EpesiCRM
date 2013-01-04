@@ -273,6 +273,11 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $field;
     }
 
+    public static function employee_crits() {
+        $my_company = CRM_ContactsCommon::get_main_company();
+        return array('(company_name' => $my_company, '|related_companies' => array($my_company));
+    }
+
     public static function display_company_contact($record, $nolink, $desc) {
         $v = $record[$desc['id']];
 		if (!is_array($v) && isset($v[1]) && $v[1]!=':') return $v;
