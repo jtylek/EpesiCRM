@@ -416,7 +416,7 @@ class CRM_Contacts_RBO_Employee extends CRM_Contacts_RBO_Contact {
     public function __construct($display_name) {
         parent::__construct($display_name);
         $this->set_format_without_company();
-        $this->set_crits_callback(array(__CLASS__, 'employee_crits'));
+        $this->set_crits_callback(array('CRM_ContactsCommon', 'employee_crits'));
     }
 
     public static function employee_crits() {
