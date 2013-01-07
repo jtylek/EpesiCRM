@@ -14,9 +14,10 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_Login extends Module {
-	private $theme;
+	public $theme;
 
 	public function construct() {
+		$this->theme = $this->pack_module('Base/Theme');
 	}
 
 	private function autologin() {
@@ -38,8 +39,6 @@ class Base_User_Login extends Module {
 				return;
 			}
 		}
-
-		$this->theme = $this->pack_module('Base/Theme');
 
 		//if logged
 		$this->theme->assign('is_logged_in', Acl::is_user());
