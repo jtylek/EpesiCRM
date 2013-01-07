@@ -28,7 +28,7 @@ class Base_User_Login extends Module {
 		return false;
 	}
 
-	public function body() {
+	public function body($tpl=null) {
 		//check bans
 		$t = Variable::get('host_ban_time');
 		if($t>0) {
@@ -101,7 +101,7 @@ class Base_User_Login extends Module {
 		$form->addRule('username', __('Field required'), 'required');
 		$form->addRule('password', __('Field required'), 'required');
 
-		if($form->validate()) {
+		if($form->isSubmitted() && $form->validate()) {
 			$user = $form->exportValue('username');
 			$autologin = $form->exportValue('autologin');
 
@@ -114,9 +114,11 @@ class Base_User_Login extends Module {
 		} else {
 			$form->assign_theme('form', $this->theme);
 			$this->theme->assign('mode', 'login');
-			$this->theme->display();
-
-			eval_js("focus_by_id('username')");
+			if (!$tpl) {
+				$this->theme->display();
+				eval_js("focus_by_id('username')");
+			} else
+				Base_ThemeCommon::display_smarty($this->theme->get_smarty(),$tpl[0],$tpl[1]);
 		}
 	}
 
