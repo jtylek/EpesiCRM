@@ -1,11 +1,6 @@
 {if $is_logged_in}
-{$logged_as}
-{*
-{$__link.logout.open}
-	{$__link.logout.text}
-{$__link.logout.close}
-*}
-{$logout}
+	{$logged_as}
+	{$logout}
 {else}
 	{$form_data.javascript}
 
@@ -75,8 +70,8 @@
 							</tr>
 						{/if}
 					{/if}
-			<tr>
-			    <td colspan="2" class="autologin">{$form_data.warning.html}</td>
+						<tr>
+							<td colspan="2" class="autologin">{$form_data.warning.html}</td>
                         </tr>
                         <tr><td colspan="2" class="recover_password">{$form_data.recover_password.html}</td></tr>
                         <tr><td>&nbsp;</td></tr>
