@@ -213,7 +213,7 @@ class Base_LangCommon extends ModuleCommon {
 	 * For internal use only.
 	 */
 	public static function get_langpack($code, $s='base') {
-		if (!is_file(DATA_DIR.'/Base_Lang/'.$s.'/'.$code.'.php')) return false;
+		if (!is_file(DATA_DIR.'/Base_Lang/'.$s.'/'.$code.'.php')) return array();
 		global $translations;
 		global $custom_translations;
 		if ($s=='base')
