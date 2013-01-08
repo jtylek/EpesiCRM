@@ -723,8 +723,8 @@ class Utils_Attachment extends Module {
 		
 		$form->addRule('note',__('Maximal lenght of note exceeded'),'maxlength',65535);
 
-		$form->addElement('select','permission',__('Permission'),array(__('Public'),__('Protected'),__('Private')),array('style'=>'width:auto;'));
-		$form->addElement('checkbox','sticky',__('Sticky'));
+		$form->addElement('select','permission',__('Permission'),array(__('Public'),__('Protected'),__('Private')),array('style'=>'width:auto;', 'id'=>'note_permission'));
+		$form->addElement('checkbox','sticky',__('Sticky'), null, array('id'=>'note_sticky'));
 
 		if(isset($id))
 			$form->addElement('header',null,__('Replace attachment with file'));

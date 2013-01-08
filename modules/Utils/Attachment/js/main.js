@@ -120,6 +120,8 @@ utils_attachments_cancel_note_edit = function () {
 	$('delete_files').value = '';
 	$('clipboard_files').value = '';
 	$('filelist').innerHTML = '';
+	$("note_sticky").checked = false;
+	$("note_permission").value = 0;
 	if (utils_attachment_last_edited_note) {
 		utils_attachment_last_edited_note.style.display="";
 		utils_attachment_last_edited_note = null;
@@ -140,6 +142,8 @@ utils_attachment_edit_note = function(id) {
 		onSuccess:function(t) {
 			result = t.responseText.evalJSON();
 			CKEDITOR.instances.ckeditor_note.setData(result.note);
+			$("note_sticky").checked = result.sticky=='1'?true:false;
+			$("note_permission").value = result.permission;
 			for (var id in result.files) {
 				Utils_Attachment__add_file_to_list(result.files[id], null, id);
 			}
