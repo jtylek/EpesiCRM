@@ -56,7 +56,13 @@
 	line-height: 18px;
 }
 
-.Apps_Shoutbox__dashboard #shoutbox_to {
+.Apps_Shoutbox__dashboard #__shoutbox_to_select_span {
+	position: absolute;
+	top: 3px;
+	left: 0px;
+}
+
+.Apps_Shoutbox__dashboard #__shoutbox_to_autocomplete_span {
 	position: absolute;
 	top: 3px;
 	left: 0px;
