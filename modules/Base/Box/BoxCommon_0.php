@@ -15,8 +15,15 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_BoxCommon extends ModuleCommon {
 	public static $ini_file = null;
+	public static function get_ini_file() {
+		if (Base_BoxCommon::$ini_file)
+			$ini = Base_BoxCommon::$ini_file;
+		else
+			$ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini');
+		return $ini;
+	}
 	public static function get_main_module_name() {
-		$ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini');
+		$ini = self::get_ini_file();
 		if(!$ini) {
 			print(__('Unable to read Base_Box.ini file! Please create one, or change theme.'));
 			return;

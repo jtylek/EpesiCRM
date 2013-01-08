@@ -51,6 +51,20 @@ class Base_HomePageCommon extends ModuleCommon {
 
 	public static function login_check_init() {
 		self::$logged = Base_AclCommon::is_user();
+		if(isset($_REQUEST['Base_HomePage_load'])) {
+			if(Base_AclCommon::is_user())
+				Base_HomePageCommon::load();
+			else
+				$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));
+		} elseif(isset($_REQUEST['Base_HomePage_save'])) {
+			unset($_REQUEST['box_main_href']);
+			if (DEMO_MODE) {
+				Base_StatusBarCommon::message(__('You can\'t change home page in demo mode'), 'warning');
+			} else {
+				Base_HomePageCommon::save();
+				Base_StatusBarCommon::message(__('Home page saved'));
+			}
+		}
 	}
 
 	public static function login_check_exit() {
@@ -68,21 +82,6 @@ class Base_HomePageCommon extends ModuleCommon {
 	
 	public static function get_href() {
 		return Module::create_href(array('Base_HomePage_load'=>'1'));
-	}
-}
-
-if(isset($_REQUEST['Base_HomePage_load'])) {
-	if(Base_AclCommon::is_user())
-		Base_HomePageCommon::load();
-	else
-		$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));
-} elseif(isset($_REQUEST['Base_HomePage_save'])) {
-	unset($_REQUEST['box_main_href']);
-	if (DEMO_MODE) {
-		Base_StatusBarCommon::message(__('You can\'t change home page in demo mode'), 'warning');
-	} else {
-		Base_HomePageCommon::save();
-		Base_StatusBarCommon::message(__('Home page saved'));
 	}
 }
 
