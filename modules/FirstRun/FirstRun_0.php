@@ -13,10 +13,12 @@ class FirstRun extends Module {
 	private $ini;
 
 	public function body() {
-        Variable::set('anonymous_setup', true);
         // init lang from install process
         $install_lang_code = & $_GET['install_lang'];
         if (isset($install_lang_code)) {
+            // set anonymous setup to true at very first run to allow use admin tools.
+            Variable::set('anonymous_setup', true);
+            //
             Variable::set('default_lang', $install_lang_code);
             Epesi::redirect('index.php');
             return;
