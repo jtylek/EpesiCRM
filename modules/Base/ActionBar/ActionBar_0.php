@@ -46,12 +46,6 @@ class Base_ActionBar extends Module {
 		$this->help('ActionBar basics','main');
 		
 		$icons = Base_ActionBarCommon::get();
-		if(Base_AclCommon::is_user())
-			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
-		else
-			$display_settings = 'both';
-		$display_icon = ($display_settings == 'both' || $display_settings == 'icons only');
-		$display_text = ($display_settings == 'both' || $display_settings == 'text only');
 
 		//sort
 		usort($icons, array($this,'compare'));
@@ -59,13 +53,10 @@ class Base_ActionBar extends Module {
 		//translate
 		foreach($icons as &$i) {
 			$description = $i['description'];
-			if($display_text)
-				if($i['description'])
-					$t = Utils_TooltipCommon::open_tag_attrs($description);
-				else
-					$t = '';
-			else
-				$t = Utils_TooltipCommon::open_tag_attrs($i['label'].(($i['description'])?' - '.$description:''),false);
+            if($i['description'])
+                $t = Utils_TooltipCommon::open_tag_attrs($description);
+            else
+                $t = '';
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
 			$i['helpID'] = 'ActionBar_'.$i['label'];
@@ -132,8 +123,6 @@ class Base_ActionBar extends Module {
 
 		//display
 		$th = $this->pack_module('Base/Theme');
-		$th->assign('display_icon',$display_icon);
-		$th->assign('display_text',$display_text);
 		$th->assign('icons',$icons);
 		$th->assign('launcher',array_reverse($launcher));
 		$th->display();

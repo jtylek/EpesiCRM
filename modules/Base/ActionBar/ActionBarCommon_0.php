@@ -43,12 +43,6 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'reply'		=> 23,
 			'forward'	=> 24);
 
-	public static function user_settings(){
-		return array(__('Misc')=>array(
-			array('name'=>'display','label'=>__('Action bar displays'),'type'=>'select','values'=>array('icons only'=>__('Icons only'),'text only'=>__('Text only'),'both'=>__('Both')),'default'=>'both','reload'=>true)
-			));
-	}
-
 	public static function add($type, $text, $action, $description=null, $position = 0) {
 //		if(!array_key_exists($type,self::$available_icons)) trigger_error('Invalid action '.$type,E_USER_ERROR);
 		foreach (self::$icons as $k=>$v) {
