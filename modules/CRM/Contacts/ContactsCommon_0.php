@@ -292,6 +292,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $def;
     }
     public static function autoselect_company_contact_format($arg, $nolink=false) {
+        $icon = array('C' => Base_ThemeCommon::get_template_file('CRM/Contacts', 'company.png'),
+            'P' => Base_ThemeCommon::get_template_file('CRM/Contacts', 'person.png'));
+
         $x = explode(':', $arg);
         if(count($x)==2) {
             list($rset, $id) = $x;
@@ -307,7 +310,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$val = self::company_format_default($id, $nolink);
 			$rlabel = __('C');
 		}
-        $val = '['.$rlabel.'] '.$val;
+        $indicator_text = ($rset == 'P' ? __('Person') : __('Company'));
+        $rindicator = isset($icon[$rset]) ?
+                '<span style="width:16px; height:14px; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$rset].'\'); background-repeat:no-repeat; background-position:left center;"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$rlabel] ";
+        $val = $rindicator.$val;
         return $val;
     }
     public static function auto_company_contact_suggestbox($str, $fcallback) {
