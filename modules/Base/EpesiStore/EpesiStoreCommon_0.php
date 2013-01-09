@@ -228,6 +228,9 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
      * @return mixed string with error message or true on success
      */
     public static function download_module($module_license) {
+        // downloading invalidates updates count so remove
+        // store updates count to perform check again next time.
+        Variable::delete('epesi_store_updates', false);
         try {
             $file = self::download_module_file($module_license);
             self::extract_module_file($file);
