@@ -127,7 +127,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function get_files($group=null,$group_starts_with=false) {
-		return DB::GetAll('SELECT uaf.id as file_id, created_by as upload_by, created_on as upload_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE '.self::get_where($group,$group_starts_with).' AND ual.deleted=0 AND uaf.deleted=0');
+		return DB::GetAll('SELECT uaf.attach_id as note_id, uaf.id as file_id, created_by as upload_by, created_on as upload_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE '.self::get_where($group,$group_starts_with).' AND ual.deleted=0 AND uaf.deleted=0');
 	}
 
 	public static function search_group($group,$word,$view_func=false) {
