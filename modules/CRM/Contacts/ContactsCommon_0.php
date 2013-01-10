@@ -312,7 +312,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
         $indicator_text = ($rset == 'P' ? __('Person') : __('Company'));
         $rindicator = isset($icon[$rset]) ?
-                '<span style="width:16px; height:14px; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$rset].'\'); background-repeat:no-repeat; background-position:left center;"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$rlabel] ";
+                '<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$rset].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$rlabel] ";
         $val = $rindicator.$val;
         return $val;
     }
