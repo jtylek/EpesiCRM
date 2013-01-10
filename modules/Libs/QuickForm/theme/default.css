@@ -520,7 +520,7 @@ div.autocomplete ul li.selected { background-color: #CCFFCC;}
 div.autocomplete ul li {
 	display:block;
 	padding:2px;
-	height:14px;
+	max-height:48px;
 	cursor:pointer;
 	white-space: nowrap;
 	overflow: hidden;
