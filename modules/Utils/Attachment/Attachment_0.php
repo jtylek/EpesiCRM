@@ -481,6 +481,8 @@ class Utils_Attachment extends Module {
 			DB::Execute('UPDATE utils_attachment_note uac SET created_on=%T WHERE uac.attach_id=%d AND uac.revision=%d', array(date('Y-m-d H:i:s'), $_SESSION['attachment_copy']['id'], $rev));
 			$local_old = $this->get_data_dir().$_SESSION['attachment_copy']['group'];
 			$local_new = $this->get_data_dir().$this->group;
+			if (!file_exists($local_new))
+				mkdir($local_new,0777,true);
 			foreach ($files as $f_id=>$fname) {
 				$file = $local_old.'/'.$f_id;
 				if(file_exists($file)) {
