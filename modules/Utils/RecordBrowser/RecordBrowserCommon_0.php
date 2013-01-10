@@ -1723,7 +1723,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $th = Base_ThemeCommon::init_smarty();
             $cds = array();
             foreach ($def as $k=>$v) {
-                    $cds[] = array( 'label'=>$k,
+                    $cds[] = array( 'label'=>_V($k),
                                     'open'=>'<a OnClick="actionbar_rb_new_record_deactivate();'.Module::create_href_js(self::get_new_record_href($tab,$v['defaults'], $id, $check_defaults)).'">',
                                     'icon'=>$v['icon'],
                                     'close'=>'</a>'

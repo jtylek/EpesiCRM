@@ -6,7 +6,9 @@
 	        <td>
 				{$cd.open}
 				<div class="epesi_big_button">
+                    {if $cd.icon}
 					<img src="{$cd.icon}">
+                    {/if}
 					<span>{$cd.label}</span>
 				</div>
 				{$cd.close}
