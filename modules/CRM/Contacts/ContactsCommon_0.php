@@ -394,7 +394,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         } else {
             $group = '';
         }
-        return Utils_TooltipCommon::format_info_tooltip(array(__('Group')=>$group,
+        return Utils_TooltipCommon::format_info_tooltip(array(
+				__('Company')=>'<STRONG>'.$record['company_name'].'</STRONG>',
+				__('Group')=>$group,
                 __('Phone')=>$record['phone'],
                 __('Fax')=>$record['fax'],
                 __('Email')=>$record['email'],
