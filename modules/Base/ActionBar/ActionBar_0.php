@@ -130,20 +130,12 @@ class Base_ActionBar extends Module {
 	
 	public function launchpad() {
 		if (self::$launchpad==null) return;
-		if(Base_AclCommon::is_user())
-			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
-		else
-			$display_settings = 'both';
-		$display_icon = ($display_settings == 'both' || $display_settings == 'icons only');
-		$display_text = ($display_settings == 'both' || $display_settings == 'text only');
 
 		$launcher = array();
 		usort(self::$launchpad,array($this,'compare_launcher'));
 		if(!empty(self::$launchpad)) {
 			$icon = Base_ThemeCommon::get_template_file($this->get_type(),'launcher.png');
 			$th = $this->pack_module('Base/Theme');
-			$th->assign('display_icon',$display_icon);
-			$th->assign('display_text',$display_text);
 			usort(self::$launchpad,array($this,'compare_launcher'));
 			$th->assign('icons',self::$launchpad);
 			eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
@@ -154,8 +146,6 @@ class Base_ActionBar extends Module {
 			Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,__('Launchpad'),$big);
 			$launcher[] = array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
 			$th = $this->pack_module('Base/Theme');
-			$th->assign('display_icon',$display_icon);
-			$th->assign('display_text',$display_text);
 			$th->assign('icons',array());
 			$th->assign('launcher',array_reverse($launcher));
 			$th->display();
