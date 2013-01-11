@@ -93,11 +93,18 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $me;
     }
     /*--------------------------------------------------------------------*/
+    public static $menu_override = array('contact'=>null, 'company'=>null);
     public static function menu() {
         $ret = array();
-		$opts = array();
-		$br_contact = Utils_RecordBrowserCommon::get_access('contact','browse');
-		$br_company = Utils_RecordBrowserCommon::get_access('company','browse');
+                $opts = array();
+                if (self::$menu_override['contact']!==null)
+                        $br_contact = self::$menu_override['contact'];
+                else
+                        $br_contact = Utils_RecordBrowserCommon::get_access('contact','browse');
+                if (self::$menu_override['company']!==null)
+                        $br_company = self::$menu_override['company'];
+                else
+                        $br_company = Utils_RecordBrowserCommon::get_access('company','browse');
 		if ($br_contact===true || !isset($br_contact['login']))
 			$opts[_M('Contacts')] = array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
 		if ($br_company===true || !isset($br_company['id']))
