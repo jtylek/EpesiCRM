@@ -7,12 +7,8 @@
 
 	    {$__link.my.open}
 		<div class="epesi_big_button">
-            {if $display_icon}
             <img src="{$theme_dir}/CRM/Filters/my.png" alt="" align="middle" border="0" width="32" height="32">
-            {/if}
-            {if $display_text}
-                <span>{$__link.my.text}</span>
-            {/if}
+			<span>{$__link.my.text}</span>
         </div>
 	    {$__link.my.close}
 
@@ -24,12 +20,8 @@
 
 			{$__link.all.open}
 			<div class="epesi_big_button">
-				{if $display_icon}
 				<img src="{$theme_dir}/CRM/Filters/all.png" alt="" align="middle" border="0" width="32" height="32">
-				{/if}
-				{if $display_text}
-					<span>{$__link.all.text}</span>
-				{/if}
+				<span>{$__link.all.text}</span>
 			</div>
 			{$__link.all.close}
 
@@ -41,12 +33,8 @@
 
 	    {$__link.manage.open}
 		<div class="epesi_big_button">
-            {if $display_icon}
             <img src="{$theme_dir}/CRM/Filters/manage.png" alt="" align="middle" border="0" width="32" height="32">
-            {/if}
-            {if $display_text}
-                <span>{$__link.manage.text}</span>
-            {/if}
+			<span>{$__link.manage.text}</span>
         </div>
 	    {$__link.manage.close}
 

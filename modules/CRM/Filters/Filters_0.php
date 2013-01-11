@@ -15,11 +15,6 @@ class CRM_Filters extends Module {
 	public function body() {
 		if (!Acl::is_user()) return;
 		$th = $this->init_module('Base/Theme');
-		$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
-		$display_icon = ($display_settings == 'both' || $display_settings == 'icons only');
-		$display_text = ($display_settings == 'both' || $display_settings == 'text only');
-		$th->assign('display_icon',$display_icon);
-		$th->assign('display_text',$display_text);
 
 		eval_js_once('crm_filters_deactivate = function(){leightbox_deactivate(\'crm_filters\');}');
 
