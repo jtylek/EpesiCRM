@@ -1,17 +1,22 @@
 Base_Help = function(){
-	var compatibility_mode = false;
-	var pointerX = 0;
-	var pointerY = 0;
-	var context;
-	var step = 0;
-	var steps;
-	var suspended = 0;
-	var current_step;
-	var target;
-	var operation;
-	var help_hooks;
+	this.compatibility_mode = false;
+	this.pointerX = 0;
+	this.pointerY = 0;
+	this.context;
+	this.step = 0;
+	this.steps;
+	this.suspended = 0;
+	this.current_step;
+	this.target;
+	this.operation;
+	this.help_hooks;
 	this.click_icon = $("Base_Help__click_icon");
 	this.help_arrow = $("Base_Help__help_arrow");
+	this.comment_frame = $("Base_Help__help_comment");
+	this.screen = '';
+	this.last_keypress = 0;
+	this.trigger_search = false;
+	this.prompt_next_step = false;
 
 	this.init_help = function() {
 		this.check_compatibility();
@@ -34,36 +39,84 @@ Base_Help = function(){
 	this.start_tutorial = function(steps) {
 		this.step = 0;
 		this.steps = steps.split('##');
+		for (var i=0;i<this.steps.length; i++)
+			this.steps[i] = this.parse_step(i);
 		this.hide_menu();
 	}
 
 	this.clear_screen = function () {
 		if (!this.compatibility_mode)
 			this.context.clearRect(0,0,3000,3000);
-		else
-			this.help_arrow.style.display = 'none';
 	}
 
 	this.stop_tutorial = function() {
+		this.help_arrow.style.display = 'none';
+		this.comment_frame.style.display = 'none';
 		this.step = 0;
 		this.steps = 0;
 		Helper.clear_screen();
 	}
 
 	this.refresh_step = function() {
-		this.current_step = this.steps[this.step].split(':');
-		this.target = this.get_help_element(this.current_step[1]);
-		this.operation = this.current_step[0];
+		this.current_step = this.steps[this.step];
+		this.target = this.get_step_target(this.step);
+		this.operation = this.current_step.operation;
+		this.screen = jQuery('.Base_Help__screen_name').attr('value');
+	}
+	this.parse_step = function(step) {
+		var res = new Array();
+		var tmp = this.steps[step].split(':');
+		res.operation = tmp[0];
+		tmp = tmp[1].split('//');
+		if (tmp[1]) res.comment = tmp[1];
+		tmp = tmp[0].split('->');
+		if (tmp[1]) {
+			res.target = tmp[1].trim();
+			res.screen = tmp[0].trim();
+		} else {
+			res.target = tmp[0].trim();
+			res.screen = '';
+		}
+		return res;
+	}
+	this.is_screen = function(step) {
+		var step = this.steps[step];
+		return (!step.screen || step.screen==this.screen);
+	}
+	this.get_step_target = function(step) {
+		var step = this.steps[step];
+		return this.get_help_element(step.target);
 	}
 	this.timed_update = function() {
 		Helper.update();
-		setTimeout('Helper.timed_update();', 200);
+		setTimeout('Helper.timed_update();', 300);
+	}
+	this.operation_complete = function() {
+		if (this.operation=='prompt' || this.operation=='finish') {
+			if (this.prompt_next_step) {
+				this.prompt_next_step = false;
+				if (this.operation=='finish') Helper.stop_tutorial();
+				return true;
+			}
+			return false;
+		}
+		if (this.operation=='fill') {
+			if (!this.target.value) return false;
+			current = new Date().getTime();
+			if ((current - this.last_keypress)<800) return false;
+			return true;
+		}
+		return true;
 	}
 	this.update = function(e) {
+		current = new Date().getTime();
+		if (this.trigger_search && (current - this.last_keypress)>800) this.search($('Base_Help__search').value);
+		
 		if (!Helper.steps) return;
-		if (e||event) {
-			Helper.pointerX=(e||event).clientX;
-			Helper.pointerY=(e||event).clientY;
+		if (!e && typeof(event)!='undefined') e = event;
+		if (e) {
+			Helper.pointerX=e.clientX;
+			Helper.pointerY=e.clientY;
 		}
 		Helper.clear_screen();
 		var current = new Date().getTime();
@@ -73,20 +126,19 @@ Base_Help = function(){
 			Helper.click_icon.style.display = 'none';
 		}
 		Helper.refresh_step();
-		if (Helper.operation!='prompt' && Helper.steps[Helper.step+1]) {
-			if (is_visible(Helper.get_help_element(Helper.steps[Helper.step+1].split(':')[1])))
-				Helper.step += 1;
-			Helper.refresh_step();
+		if (Helper.operation_complete()) {
+			if (!this.steps) return;
+			if (Helper.steps[Helper.step+1]) {
+				if (Helper.is_screen(Helper.step+1) && is_visible(Helper.get_step_target(Helper.step+1)))
+					Helper.step += 1;
+				Helper.refresh_step();
+			}
 		}
-		if (Helper.operation=='finish') {
-			Helper.stop_tutorial();
-			return;
-		}
-		while(current>=Helper.suspended && Helper.step>0 && !is_visible(Helper.target)) {
+		while(current>=Helper.suspended && Helper.step>0 && (!Helper.is_screen(Helper.step) || !is_visible(Helper.target))) {
 			Helper.step -= 1;
 			Helper.refresh_step();
 		} 
-		if (!Epesi.procOn && Helper.target) {
+		if (!Epesi.procOn && Helper.target && Helper.is_screen(Helper.step)) {
 			Helper.draw_help_arrow(Helper.target);
 		}
 	}
@@ -96,10 +148,19 @@ Base_Help = function(){
 		$('Base_Help__menu').style.display="block";
 		this.stop_tutorial();
 		$('Base_Help__search').value='';
+		this.trigger_search = true;
 		this.search();
 		focus_by_id('Base_Help__search');
 	}
+	this.document_keydown = function() {
+		Helper.last_keypress = new Date().getTime();
+	}
+	this.search_keypress = function() {
+		this.last_keypress = new Date().getTime();
+		this.trigger_search = true;
+	}
 	this.search = function(value) {
+		this.trigger_search = false;
 		if (!value) {
 			$('Base_Help__help_suggestions').style.display='block';
 			$('Base_Help__help_links').style.display='none';
@@ -134,16 +195,16 @@ Base_Help = function(){
 	}
 
 	this.get_help_element = function (helpid) {
+		if (helpid[0]=='#') return jQuery(helpid)[0];
 		return this.hooks[helpid];
 	}
 
 	this.get_all_help_hooks = function() {
-		this.hooks = new Array();
-		var allElements = document.getElementsByTagName('*');
-		for (var i = 0; i < allElements.length; i++) {
-			attr = allElements[i].getAttribute('helpID');
-			if (attr) this.hooks[attr] = allElements[i];
-		}
+		$('Base_Help__button_next').onclick = function(){Helper.prompt_next_step = true;};
+		$('Base_Help__button_finish').onclick = function(){Helper.prompt_next_step = true;};
+		Helper.hooks = new Array();
+		jQuery('[helpID]').each(function(){Helper.hooks[jQuery(this).attr('helpID')] = this});
+		return;
 	}
 
 	this.draw_help_arrow = function (el) {
@@ -168,25 +229,56 @@ Base_Help = function(){
 		else if (this.pointerY<o_top) targetY = o_top;
 		if (this.pointerY>o_bottom) targetY = o_bottom;
 		var show_click = false;
-		if ((this.pointerX>=offset.left && this.pointerX<=offset.right && this.pointerY>=offset.top && this.pointerY<=offset.bottom) || this.compatibility_mode) {
+		if (this.operation=='finish') {
+			$('Base_Help__button_finish').style.display = 'block';
+			$('Base_Help__button_next').style.display = 'none';
+			this.help_arrow.style.display = "none";
+			o_right = (window.innerWidth - this.comment_frame.scrollWidth)/2 - 50;
+			o_bottom = (window.innerHeight - this.comment_frame.scrollHeight)/2 - 10;
 			targetX = o_right;
 			targetY = o_bottom;
-			sourceX = o_right+15;
-			sourceY = o_bottom+15;
-			if (this.operation=='click') {
-				this.click_icon.style.left = sourceX+'px';
-				this.click_icon.style.top = sourceY+'px';
-				show_click = true;
+			sourceX = targetX+50;
+			sourceY = targetY+100;
+		} else if (this.operation=='prompt') {
+			$('Base_Help__button_next').style.display = 'block';
+			$('Base_Help__button_finish').style.display = 'none';
+			targetX = o_right;
+			targetY = o_bottom;
+			sourceX = targetX+50;
+			sourceY = targetY+100;
+		} else {
+			$('Base_Help__button_next').style.display = 'none';
+			$('Base_Help__button_finish').style.display = 'none';
+			if ((this.pointerX>=offset.left && this.pointerX<=offset.right && this.pointerY>=offset.top && this.pointerY<=offset.bottom) || this.compatibility_mode || (this.operation=='fill' && this.target==document.activeElement)) {
+				targetX = o_right;
+				targetY = o_bottom;
+				sourceX = o_right+15;
+				sourceY = o_bottom+15;
+				if (this.operation=='click' || (this.operation=='fill' && this.target!=document.activeElement)) {
+					this.click_icon.style.left = sourceX+'px';
+					this.click_icon.style.top = sourceY+'px';
+					show_click = true;
+				}
 			}
 		}
 		if (show_click) this.click_icon.style.display="block";
 		else this.click_icon.style.display="none";
-		if (!this.compatibility_mode)
-			this.fancy_arrow(this.context, sourceX, sourceY, targetX, targetY);
-		else {
-			this.help_arrow.style.display = "block";
-			this.help_arrow.style.left = targetX+'px';
-			this.help_arrow.style.top = targetY+'px';
+		if (this.operation!='finish') {
+			if (!this.compatibility_mode)
+				this.fancy_arrow(this.context, sourceX, sourceY, targetX, targetY);
+			else {
+				this.help_arrow.style.display = "block";
+				this.help_arrow.style.left = targetX+'px';
+				this.help_arrow.style.top = targetY+'px';
+			}
+		}
+		if (this.steps[this.step].comment && (this.operation!='fill' || this.target==document.activeElement)) {
+			$('Base_Help__help_comment_contents').innerHTML = this.steps[this.step].comment;
+			this.comment_frame.style.display = 'block';
+			this.comment_frame.style.left = (o_right+50)+'px';
+			this.comment_frame.style.top = (o_bottom+10)+'px';
+		} else {
+			this.comment_frame.style.display = 'none';
 		}
 	}
 	this.fancy_arrow = function(ctx,x1,y1,x2,y2) {
@@ -265,3 +357,4 @@ Base_Help = function(){
 
 var Helper = new Base_Help();
 Helper.init_help();
+document.onkeydown = Helper.document_keydown;

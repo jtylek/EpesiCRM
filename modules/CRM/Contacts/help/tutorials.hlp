@@ -2,18 +2,14 @@
 [KEYWORDS:]
 [CONTEXT:true]
 [STEPS:
-hover:Menu // Here you can see all the bla...
-hover:Menu_CRM
-click:Menu_CRM_Contacts
-click:ActionBar_New
-click:ActionBar_Save
-finish:ActionBar_Edit]
-
-[LABEL:Search for contact]
-[KEYWORDS:]
-[CONTEXT:false]
-[STEPS:
 hover:Menu
 hover:Menu_CRM
 click:Menu_CRM_Contacts
-click:ActionBar_New]
+click:browse_contact->ActionBar_add
+click:rb_add_contact->ActionBar_save
+fill:rb_add_contact->#last_name // Enter last name
+fill:rb_add_contact->#first_name // Enter first name
+prompt:rb_add_contact->#company_name // Feel free to fill in any other information you may have
+click:rb_add_contact->ActionBar_save
+finish:rb_view_contact->ActionBar_edit // A new contact has been created
+]

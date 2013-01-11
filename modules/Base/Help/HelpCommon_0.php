@@ -14,6 +14,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_HelpCommon extends ModuleCommon {
+	public static function screen_name($name) {
+		print('<span style="display:none;" class="Base_Help__screen_name" value="'.$name.'"></span>');
+	}
 	public static function retrieve_help_from_file($module) {
 		$file = 'modules/'.str_replace('_','/',$module).'/help/tutorials.hlp';
 		if (file_exists($file))
@@ -35,7 +38,19 @@ class Base_HelpCommon extends ModuleCommon {
 				case 'LABEL': 	$i++;
 								$ret[$i] = array('label'=>$arg, 'context'=>false, 'steps'=>'');
 								break;
-				case 'STEPS': 	$ret[$i]['steps'] = $arg;
+				case 'STEPS': 	$arg = explode('##', $arg);
+								foreach ($arg as $k=>$v) {
+									if (!$v) {
+										unset($arg[$k]);
+										continue;
+									}
+									$tmp = explode('//', $v);
+									if (isset($tmp[1])) {
+										$arg[$k] = $tmp[0].'//'._V(trim($tmp[1]));
+									}
+								}
+								$arg = implode('##', $arg);
+								$ret[$i]['steps'] = $arg;
 								break;
 				case 'CONTEXT': $ret[$i]['context'] = (strtolower($arg)=='true')?true:false;
 								break;
