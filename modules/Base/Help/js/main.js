@@ -1,4 +1,5 @@
 Base_Help = function(){
+	var compatibility_mode = false;
 	var pointerX = 0;
 	var pointerY = 0;
 	var context;
@@ -9,8 +10,26 @@ Base_Help = function(){
 	var target;
 	var operation;
 	var help_hooks;
-	this.context = $("help_canvas").getContext("2d");
 	this.click_icon = $("Base_Help__click_icon");
+	this.help_arrow = $("Base_Help__help_arrow");
+
+	this.init_help = function() {
+		this.check_compatibility();
+		Helper.timed_update();
+		Event.observe(document, "mousemove", Helper.update);
+	}
+
+	this.check_compatibility = function() {
+		var has_pointerevents = jQuery("#help_canvas").css('pointer-events');
+		if (has_pointerevents=='auto') {
+			jQuery("#help_canvas").css('pointer-events', 'none');
+			this.context = $("help_canvas").getContext("2d");
+			this.compatibility_mode = false;
+		} else {
+			jQuery("#help_canvas").remove();
+			this.compatibility_mode = true;
+		}
+	}
 	
 	this.start_tutorial = function(steps) {
 		this.step = 0;
@@ -18,10 +37,17 @@ Base_Help = function(){
 		this.hide_menu();
 	}
 
+	this.clear_screen = function () {
+		if (!this.compatibility_mode)
+			this.context.clearRect(0,0,3000,3000);
+		else
+			this.help_arrow.style.display = 'none';
+	}
+
 	this.stop_tutorial = function() {
 		this.step = 0;
 		this.steps = 0;
-		Helper.context.clearRect(0,0,3000,3000);
+		Helper.clear_screen();
 	}
 
 	this.refresh_step = function() {
@@ -39,7 +65,7 @@ Base_Help = function(){
 			Helper.pointerX=(e||event).clientX;
 			Helper.pointerY=(e||event).clientY;
 		}
-		Helper.context.clearRect(0,0,3000,3000);
+		Helper.clear_screen();
 		var current = new Date().getTime();
 		Helper.click_icon.src = Helper.click_icon.getAttribute('frame'+(current%1000<500?1:2));
 		if (Epesi.procOn) {
@@ -61,7 +87,7 @@ Base_Help = function(){
 			Helper.refresh_step();
 		} 
 		if (!Epesi.procOn && Helper.target) {
-			Helper.help_arrow(Helper.target);
+			Helper.draw_help_arrow(Helper.target);
 		}
 	}
 	
@@ -120,7 +146,7 @@ Base_Help = function(){
 		}
 	}
 
-	this.help_arrow = function (el) {
+	this.draw_help_arrow = function (el) {
 		var offset = el.getBoundingClientRect();
 		var centerX = (offset.left + offset.right) / 2;
 		var centerY = (offset.top + offset.bottom) / 2;
@@ -142,7 +168,7 @@ Base_Help = function(){
 		else if (this.pointerY<o_top) targetY = o_top;
 		if (this.pointerY>o_bottom) targetY = o_bottom;
 		var show_click = false;
-		if (this.pointerX>=offset.left && this.pointerX<=offset.right && this.pointerY>=offset.top && this.pointerY<=offset.bottom) {
+		if ((this.pointerX>=offset.left && this.pointerX<=offset.right && this.pointerY>=offset.top && this.pointerY<=offset.bottom) || this.compatibility_mode) {
 			targetX = o_right;
 			targetY = o_bottom;
 			sourceX = o_right+15;
@@ -155,7 +181,13 @@ Base_Help = function(){
 		}
 		if (show_click) this.click_icon.style.display="block";
 		else this.click_icon.style.display="none";
-		this.fancy_arrow(this.context, sourceX, sourceY, targetX, targetY);
+		if (!this.compatibility_mode)
+			this.fancy_arrow(this.context, sourceX, sourceY, targetX, targetY);
+		else {
+			this.help_arrow.style.display = "block";
+			this.help_arrow.style.left = targetX+'px';
+			this.help_arrow.style.top = targetY+'px';
+		}
 	}
 	this.fancy_arrow = function(ctx,x1,y1,x2,y2) {
 		'use strict';
@@ -232,5 +264,4 @@ Base_Help = function(){
 }
 
 var Helper = new Base_Help();
-Helper.timed_update();
-Event.observe(document, "mousemove", Helper.update);
+Helper.init_help();

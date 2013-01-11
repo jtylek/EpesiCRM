@@ -202,11 +202,11 @@ function getTotalTopOffet(e) {
 	return ret;
 };
 is_visible = function(element) {
-	var compStyle = window.getComputedStyle(element, "");
-	if (!compStyle) return false;
-	var display = compStyle.getPropertyValue('display');
+	if (!element) return false;
+	var display = jQuery(element).css('display');
 	if (display == "none") return false;
 	if (element.parentNode && element.parentNode.style) {
+		xxx = element.parentNode;
 		return is_visible(element.parentNode);
 	}
 	return true;
