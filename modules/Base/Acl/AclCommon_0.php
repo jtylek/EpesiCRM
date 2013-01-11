@@ -153,6 +153,8 @@ class Base_AclCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM base_acl_permission WHERE id=%d', array($perm_id));
 	}
 	public static function check_permission($name) {
+		static $cache = array();
+		if (isset($cache[Acl::get_user()]) && isset($cache[Acl::get_user()][$name])) return $cache[Acl::get_user()][$name];
 		$perm_id = DB::GetOne('SELECT id FROM base_acl_permission WHERE name=%s', array($name));
 		if (!$perm_id) return false;
 		$clearance = self::get_clearance();
@@ -166,8 +168,8 @@ class Base_AclCommon extends ModuleCommon {
 			$sql .= ' AND NOT EXISTS (SELECT * FROM base_acl_rules_clearance WHERE rule_id=rule.id)';
 		}
 		$ids = DB::GetOne($sql, $vals);
-		if ($ids) return true;
-		else return false;
+		if ($ids) return $cache[Acl::get_user()][$name] = true;
+		else return $cache[Acl::get_user()][$name] = false;
 	}
 }
 
