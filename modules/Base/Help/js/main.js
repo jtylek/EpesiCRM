@@ -113,8 +113,8 @@ Base_Help = function(){
 		if (this.trigger_search && (current - this.last_keypress)>800) this.search($('Base_Help__search').value);
 		
 		if (!Helper.steps) return;
-		if (!e && typeof(event)!='undefined') e = event;
-		if (e) {
+		if (typeof(e)=='undefined' && typeof(event)!='undefined') e = event;
+		if (typeof(e)!='undefined') {
 			Helper.pointerX=e.clientX;
 			Helper.pointerY=e.clientY;
 		}
@@ -127,7 +127,7 @@ Base_Help = function(){
 		}
 		Helper.refresh_step();
 		if (Helper.operation_complete()) {
-			if (!this.steps) return;
+			if (!Helper.steps) return;
 			if (Helper.steps[Helper.step+1]) {
 				if (Helper.is_screen(Helper.step+1) && is_visible(Helper.get_step_target(Helper.step+1)))
 					Helper.step += 1;
