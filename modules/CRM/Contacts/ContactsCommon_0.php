@@ -346,7 +346,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         }
         $total = 0;
         foreach ($recordset_records as $records)
-            $total = count($records);
+            $total += count($records);
         foreach ($recordset_records as $key => $records)
             $recordset_records[$key] = array_slice($records, 0, ceil($final_nr_of_records * count($records) / $total));
         $ret = array();
