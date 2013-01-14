@@ -324,31 +324,38 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $val;
     }
     public static function auto_company_contact_suggestbox($str, $fcallback) {
-        $str = explode(' ', trim($str));
-        $ret = array();
-        foreach (array('contact'=>'P', 'company'=>'C') as $k=>$v) {
+        $words = explode(' ', trim($str));
+        $final_nr_of_records = 10;
+        $recordset_records = array();
+        foreach (array('contact'=>'P', 'company'=>'C') as $recordset=>$recordset_indicator) {
             $crits = array();
-            foreach ($str as $v2) if ($v2) {
-                $v2 = DB::Concat(DB::qstr('%'),DB::qstr($v2),DB::qstr('%'));
-                switch ($k) {
+            foreach ($words as $word) if ($word) {
+                $word = DB::Concat(DB::qstr('%'),DB::qstr($word),DB::qstr('%'));
+                switch ($recordset) {
                     case 'contact':
-                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v2,'|~"first_name'=>$v2));
+                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$word,'|~"first_name'=>$word));
                         $order = array('last_name'=>'ASC', 'first_name'=>'ASC');
                         break;
                     case 'company':
-                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~"company_name'=>$v2));
+                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~"company_name'=>$word));
                         $order = array('company_name'=>'ASC');
                         break;
                 }
             }
-            $recs = Utils_RecordBrowserCommon::get_records($k, $crits, array(), $order, 10);
-            foreach($recs as $v2) {
-                $key = $v.':'.$v2['id'];
-                $ret[$key] = self::autoselect_company_contact_format($key,true);
+            $recordset_records[$recordset_indicator] = Utils_RecordBrowserCommon::get_records($recordset, $crits, array(), $order, $final_nr_of_records);
+        }
+        $total = 0;
+        foreach ($recordset_records as $records)
+            $total = count($records);
+        foreach ($recordset_records as $key => $records)
+            $recordset_records[$key] = array_slice($records, 0, ceil($final_nr_of_records * count($records) / $total));
+        $ret = array();
+        foreach ($recordset_records as $recordset_indicator => $records) {
+            foreach ($records as $rec) {
+                $key = $recordset_indicator . ':' . $rec['id'];
+                $ret[$key] = call_user_func($fcallback, $key, true);
             }
         }
-        asort($ret);
-        $ret = array_slice($ret, 0, 10, true);
         return $ret;
     }
 
