@@ -356,6 +356,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                 $ret[$key] = call_user_func($fcallback, $key, true);
             }
         }
+        asort($ret);
         return $ret;
     }
 
