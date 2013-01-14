@@ -36,7 +36,7 @@ class Base_HelpCommon extends ModuleCommon {
 			$arg = implode(':', $line);
 			switch ($func) {
 				case 'LABEL': 	$i++;
-								$ret[$i] = array('label'=>$arg, 'context'=>false, 'steps'=>'');
+								$ret[$i] = array('label'=>$arg, 'keywords'=>'', 'context'=>false, 'steps'=>'');
 								break;
 				case 'STEPS': 	$arg = explode('##', $arg);
 								foreach ($arg as $k=>$v) {
@@ -51,6 +51,8 @@ class Base_HelpCommon extends ModuleCommon {
 								}
 								$arg = implode('##', $arg);
 								$ret[$i]['steps'] = $arg;
+								break;
+				case 'KEYWORDS': $ret[$i]['keywords'] = $arg;
 								break;
 				case 'CONTEXT': $ret[$i]['context'] = (strtolower($arg)=='true')?true:false;
 								break;

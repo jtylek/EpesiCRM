@@ -18,12 +18,15 @@ class Base_Help extends Module {
 	public function body() {
 		load_js('modules/Base/Help/js/canvasutilities.js');
 		load_js('modules/Base/Help/js/main.js');
-		eval_js('setTimeout("Helper.get_all_help_hooks();", 300);');
+		eval_js('Helper.stop_tutorial_message = "'.Epesi::escapeJS('Tutorial was stopped').'";');
+		eval_js('setTimeout("Helper.get_all_help_hooks();", 500);');
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		$theme = $this->init_module('Base_Theme');
 		$theme->assign('href', 'href="javascript:void(0);" onclick="Helper.menu()"');
 		$theme->assign('search_placeholder', __('Start typing to search help topics'));
 		$theme->assign('label', __('Help'));
+		Utils_ShortcutCommon::add(array('esc'), 'function(){Helper.escape();}');
+		Utils_ShortcutCommon::add(array('f1'), 'function(){Helper.menu();}');
 		$theme->display();
 	}
 }

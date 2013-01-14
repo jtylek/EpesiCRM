@@ -1110,7 +1110,7 @@ class Utils_RecordBrowser extends Module {
                 print(__('You don\'t have permission to view this record.'));
                 if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back']))) {
                     Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-                    Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
+                    //Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
                 }
                 return true;
             }
@@ -1119,7 +1119,7 @@ class Utils_RecordBrowser extends Module {
 			print(__('You don\'t have permission to perform this action.'));
 			if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back']))) {
 				Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-				Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
+				//Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
 			}
 			return true;
 		}
@@ -1219,7 +1219,7 @@ class Utils_RecordBrowser extends Module {
                 Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
                 Base_ActionBarCommon::add('delete', __('Cancel'), $this->create_back_href());
             }
-            Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
+            //Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
         }
 
         if ($mode!='add') {

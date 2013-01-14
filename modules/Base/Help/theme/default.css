@@ -93,3 +93,18 @@
 	position: fixed;
 	z-index: 9002;
 }
+
+#Base_Help__help_close_menu {
+	position: absolute;
+	cursor: pointer;
+	bottom: 5px;
+	right: 5px;
+	font-size: 16px;
+	font-weight: bold;
+	height: 20px;
+}
+
+#Base_Help__help_close_menu img {
+	margin-left: 4px;
+	float: right;
+}

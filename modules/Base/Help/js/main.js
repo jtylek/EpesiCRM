@@ -50,6 +50,7 @@ Base_Help = function(){
 	}
 
 	this.stop_tutorial = function() {
+		$('Base_Help__overlay').style.display = 'none';
 		this.help_arrow.style.display = 'none';
 		this.comment_frame.style.display = 'none';
 		this.step = 0;
@@ -60,6 +61,7 @@ Base_Help = function(){
 	this.refresh_step = function() {
 		this.current_step = this.steps[this.step];
 		this.target = this.get_step_target(this.step);
+		if (this.target) Event.observe(this.target, 'click', function(){Helper.prompt_next_step = true;});
 		this.operation = this.current_step.operation;
 		this.screen = jQuery('.Base_Help__screen_name').attr('value');
 	}
@@ -67,6 +69,10 @@ Base_Help = function(){
 		var res = new Array();
 		var tmp = this.steps[step].split(':');
 		res.operation = tmp[0];
+		if (res.operation[res.operation.length-1] == '?') {
+			res.optional = true;
+			res.operation = res.operation.substr(0, res.operation.length-1);
+		}
 		tmp = tmp[1].split('//');
 		if (tmp[1]) res.comment = tmp[1];
 		tmp = tmp[0].split('->');
@@ -81,6 +87,7 @@ Base_Help = function(){
 	}
 	this.is_screen = function(step) {
 		var step = this.steps[step];
+		if (!step) return;
 		return (!step.screen || step.screen==this.screen);
 	}
 	this.get_step_target = function(step) {
@@ -92,16 +99,21 @@ Base_Help = function(){
 		setTimeout('Helper.timed_update();', 300);
 	}
 	this.operation_complete = function() {
+		if (this.operation=='click') {
+			return this.prompt_next_step;
+		}
 		if (this.operation=='prompt' || this.operation=='finish') {
 			if (this.prompt_next_step) {
 				this.prompt_next_step = false;
-				if (this.operation=='finish') Helper.stop_tutorial();
+				if (this.operation=='finish') {
+					Helper.stop_tutorial();
+				}
 				return true;
 			}
 			return false;
 		}
 		if (this.operation=='fill') {
-			if (!this.target.value) return false;
+			if (!this.target || !this.target.value) return false;
 			current = new Date().getTime();
 			if ((current - this.last_keypress)<800) return false;
 			return true;
@@ -126,13 +138,13 @@ Base_Help = function(){
 			Helper.click_icon.style.display = 'none';
 		}
 		Helper.refresh_step();
-		if (Helper.operation_complete()) {
-			if (!Helper.steps) return;
-			if (Helper.steps[Helper.step+1]) {
-				if (Helper.is_screen(Helper.step+1) && is_visible(Helper.get_step_target(Helper.step+1)))
-					Helper.step += 1;
-				Helper.refresh_step();
-			}
+		if (!Helper.steps) return;
+		while (Helper.operation_complete() && Helper.steps[Helper.step+1] && ((Helper.is_screen(Helper.step+1) && is_visible(Helper.get_step_target(Helper.step+1))) || Helper.steps[Helper.step+1].optional)) {
+			Helper.prompt_next_step = false;
+			Helper.step += 1;
+			while (Helper.steps[Helper.step+1] && Helper.steps[Helper.step].optional)
+				Helper.step += 1;
+			Helper.refresh_step();
 		}
 		while(current>=Helper.suspended && Helper.step>0 && (!Helper.is_screen(Helper.step) || !is_visible(Helper.target))) {
 			Helper.step -= 1;
@@ -142,11 +154,20 @@ Base_Help = function(){
 			Helper.draw_help_arrow(Helper.target);
 		}
 	}
-	
+	this.escape = function() {
+		if ($('Base_Help__menu').style.display=="block") this.hide_menu();
+		else if (Helper.steps) {
+			if (this.steps[this.step].operation == 'finish') this.stop_tutorial();
+			else {
+				this.steps[this.step].operation = 'finish';
+				this.steps[this.step].comment = this.stop_tutorial_message;
+			}
+		}
+	}
 	this.menu = function () {
+		this.stop_tutorial();
 		$('Base_Help__overlay').style.display="block";
 		$('Base_Help__menu').style.display="block";
-		this.stop_tutorial();
 		$('Base_Help__search').value='';
 		this.trigger_search = true;
 		this.search();
@@ -195,8 +216,8 @@ Base_Help = function(){
 	}
 
 	this.get_help_element = function (helpid) {
-		if (helpid[0]=='#') return jQuery(helpid)[0];
-		return this.hooks[helpid];
+		if (typeof(this.hooks[helpid])!='undefined') return this.hooks[helpid];
+		return jQuery(helpid)[0];
 	}
 
 	this.get_all_help_hooks = function() {
@@ -230,6 +251,7 @@ Base_Help = function(){
 		if (this.pointerY>o_bottom) targetY = o_bottom;
 		var show_click = false;
 		if (this.operation=='finish') {
+			$('Base_Help__overlay').style.display = 'block';
 			$('Base_Help__button_finish').style.display = 'block';
 			$('Base_Help__button_next').style.display = 'none';
 			this.help_arrow.style.display = "none";

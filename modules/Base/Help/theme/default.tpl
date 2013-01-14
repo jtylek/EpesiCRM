@@ -11,4 +11,7 @@
 	</div>
 	<div id="Base_Help__help_links" class="tutorial_links" style="display:none;">
 	</div>
+	<div id="Base_Help__help_close_menu" class="tutorial_links" onclick="Helper.hide_menu();">
+		{'Close'|t}<img src="{$theme_dir}/Base/Help/close_black.png" />
+	</div>
 </div>

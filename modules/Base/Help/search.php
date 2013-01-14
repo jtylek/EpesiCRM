@@ -26,6 +26,10 @@ foreach($helps as $m=>$tutorials) {
 		foreach ($words as $w)
 			if (strpos($l, $w)!==false)
 				$match++;
+		$l = strtolower($tut['keywords']);
+		foreach ($words as $w)
+			if (strpos($l, $w)!==false)
+				$match++;
 		if ($match) $results[$match][] = $tut;
 	}
 }

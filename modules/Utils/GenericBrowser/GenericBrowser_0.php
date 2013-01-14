@@ -787,7 +787,7 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$this->form_s->addElement('text','search',__('Keyword'), array('placeholder'=>__('search keyword...'), 'x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$this->form_s->get_submit_form_js()));
+					$this->form_s->addElement('text','search',__('Keyword'), array('id'=>'gb_search_field', 'placeholder'=>__('search keyword...'), 'x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$this->form_s->get_submit_form_js()));
 					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:''));
 					$search_on=true;
 					break;
@@ -813,7 +813,7 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('search_fields', $search_fields);
 		}
 		if ($search_on) {
-			$this->form_s->addElement('submit','submit_search',__('Search'));
+			$this->form_s->addElement('submit','submit_search',__('Search'), array('id'=>'gb_search_button'));
 			if (Base_User_SettingsCommon::get($this->get_type(), 'show_all_button')) {
 				$el = $this->form_s->addElement('hidden','show_all_pressed');
 				$this->form_s->addElement('button','show_all',__('Show all'), array('onclick'=>'document.forms["'.$this->form_s->getAttribute('name').'"].show_all_pressed.value="1";'.$this->form_s->get_submit_form_js()));
@@ -1031,7 +1031,7 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('custom_label', $this->custom_label);
 		$theme->assign('custom_label_args', $this->custom_label_args);
 
-		if ($search_on) $theme->assign('adv_search','<a class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
+		if ($search_on) $theme->assign('adv_search','<a id="switch_search_'.($this->is_adv_search_on()?'simple':'advanced').'" class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
 		else $theme->assign('adv_search','');
 
 		if (Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $is_order){
