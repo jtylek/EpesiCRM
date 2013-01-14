@@ -680,7 +680,11 @@ class Utils_RecordBrowser extends Module {
 				$table_columns[$k]['width'] = $table_columns[$k]['width'].'%';
 			}
 		}
-		
+		if (empty($table_columns)) {
+			print('Invalid view, no fields to display');
+			return;
+		}
+
 		$gb->set_table_columns( $table_columns );
 		
 		if (!$pdf) {
@@ -2101,7 +2105,7 @@ class Utils_RecordBrowser extends Module {
 		
 		$form->addElement('select', 'select_data_type', __('Data Type'), $data_type, array('id'=>'select_data_type', 'onchange'=>'RB_hide_form_fields()'));
 
-		$form->addElement('text', 'text_length', __('Length'), array('id'=>'length'));
+		$form->addElement('text', 'text_length', __('Maximum Length'), array('id'=>'length'));
 
 		$form->addElement('select', 'data_source', __('Source of Data'), array('rset'=>__('Record Set'), 'commondata'=>__('CommonData')), array('id'=>'data_source', 'onchange'=>'RB_hide_form_fields()'));
 		$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Single value selection'), 'multi'=>__('Multiple values selection')), array('id'=>'select_type'));
@@ -2119,7 +2123,7 @@ class Utils_RecordBrowser extends Module {
 		$form->addFormRule(array($this, 'check_field_definitions'));
 
 		$form->addElement('checkbox', 'visible', __('Table view'));
-		$form->addElement('checkbox', 'required', __('Required'));
+		$form->addElement('checkbox', 'required', __('Required'), null, array('id'=>'required'));
 		$form->addElement('checkbox', 'filter', __('Filter enabled'));
 
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings()', 'id'=>'advanced'));
@@ -2153,6 +2157,9 @@ class Utils_RecordBrowser extends Module {
             if (preg_match('/^[a-z0-9_]*$/',$new_id)==0) trigger_error('Invalid new column name: '.$data['field']);
 			$param = '';
 			switch ($data['select_data_type']) {
+				case 'checkbox': 
+							$data['required'] = false;
+							break;
 				case 'text': if ($action=='add') $param = $data['text_length'];
 							else {
 								if ($data['text_length']<$row['param']) trigger_error('Invalid field length', E_USER_ERROR);
@@ -2817,7 +2824,7 @@ class Utils_RecordBrowser extends Module {
 			$c_all_fields = count($all_fields);
 			$c_fields = count($fields[$row['id']]);
 
-			$props = ($c_all_fields-$c_fields)/$c_all_fields;
+			$props = $c_all_fields?($c_all_fields-$c_fields)/$c_all_fields:0;
 			$color = dechex(255-68*$props).dechex(187+68*$props).'BB';
 			$fields_value = ($c_all_fields-$c_fields).' / '.$c_all_fields;
 			if ($props!=1) $fields_value = Utils_TooltipCommon::create($fields_value, '<b>'.__('Excluded fields').':</b><hr>'.implode('<br>',$fields[$row['id']]), false);

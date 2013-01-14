@@ -5,6 +5,7 @@ RB_hide_form_field = function (field, hide) {
 
 RB_hide_form_fields = function () {
 	var t = $('select_data_type').value;
+	RB_hide_form_field('required', t=='checkbox');
 	RB_hide_form_field('length', t!='text');
 	RB_hide_form_field('data_source', t!='select');
 	RB_hide_form_field('select_type', t!='select');
