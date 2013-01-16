@@ -234,7 +234,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return self::user_get_confirm_change_subscr_href(Acl::get_user(), $category_name, $id);
 	}
 	public static function add_actionbar_change_subscription_button($category_name, $id=null) {
-		return; // function disabled
+		if (!Base_AclCommon::check_permission('Watchdog - subscribe to categories')) return;
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		$href = self::get_change_subscr_href($category_name, $id);

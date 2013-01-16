@@ -58,6 +58,7 @@ class Utils_WatchdogInstall extends ModuleInstall {
 		DB::CreateIndex('utils_watchdog_event__cat_int__idx', 'utils_watchdog_event', array('category_id','internal_id'));
 		DB::CreateIndex('utils_watchdog_subscription__cat_int__idx', 'utils_watchdog_subscription', array('category_id','internal_id'));
 		DB::CreateIndex('utils_watchdog_subscription__user__idx', 'utils_watchdog_subscription', 'user_id');
+		Base_AclCommon::add_permission(_M('Watchdog - subscribe to categories'),array('ACCESS:employee','ACCESS:manager'));
 		return $ret;
 	}
 	

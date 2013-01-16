@@ -195,7 +195,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $settings[1][] = array('name'=>$row['tab'].'_auto_fav','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);
             if (Utils_WatchdogCommon::category_exists($row['tab'])) {
                 $settings[2][] = array('name'=>$row['tab'].'_auto_subs','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);
-//              $settings[3][] = array('name'=>$row['tab'].'_subs_category','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);
+/*				if (Base_AclCommon::check_permission('Watchdog - subscribe to categories'))
+					$settings[3][] = array('name'=>$row['tab'].'_subs_category','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);*/
             }
 			$settings[0][] = array('name'=>$row['tab'].'_show_filters','label'=>'','type'=>'hidden','default'=>0);
         }
@@ -211,8 +212,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_settings = array_merge($final_settings,$settings[1]);
         $subscribe_settings[] = array('name'=>'header_auto_subscriptions','label'=>__('Automatically watch records created by me'),'type'=>'header');
         $subscribe_settings = array_merge($subscribe_settings,$settings[2]);
-//      $final_settings[] = array('name'=>'header_category_subscriptions','label'=>__('Auto-subscribe to all new records'),'type'=>'header');
-//      $final_settings = array_merge($final_settings,$settings[3]);
+/*		if (Base_AclCommon::check_permission('Watchdog - subscribe to categories')) {
+			$subscribe_settings[] = array('name'=>'header_category_subscriptions','label'=>__('Auto-subscribe to all new records'),'type'=>'header');
+			$subscribe_settings = array_merge($subscribe_settings,$settings[3]);
+		}*/
         return array(__('Browsing records')=>$final_settings, __('Watchdog')=>$subscribe_settings);
     }
     public static function check_table_name($tab, $flush=false, $failure_on_missing=true){

@@ -70,7 +70,7 @@ class Utils_RecordBrowser extends Module {
     public $form = null;
     public $tab;
     public $grid = null;
-	
+
 	public function new_button($type, $label, $href) {
 		if ($this->fullscreen_table)
 			Base_ActionBarCommon::add($type, $label, $href);
@@ -82,7 +82,7 @@ class Utils_RecordBrowser extends Module {
 				'</a>';
 		}
 	}
-	
+
     public function enable_grid($arg) {
         $this->grid = $arg;
     }
@@ -236,7 +236,7 @@ class Utils_RecordBrowser extends Module {
             print(__('You are not authorised to browse this data.'));
             return;
         }
-//        if ($this->watchdog) Utils_WatchdogCommon::add_actionbar_change_subscription_button($this->tab); // Leave it out for now
+        if ($this->watchdog) Utils_WatchdogCommon::add_actionbar_change_subscription_button($this->tab);
         $this->is_on_main_page = true;
 
         $this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
