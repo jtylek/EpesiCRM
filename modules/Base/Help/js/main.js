@@ -305,7 +305,7 @@ Base_Help = function(){
 	}
 	this.fancy_arrow = function(ctx,x1,y1,x2,y2) {
 		'use strict';
-		ctx.fillStyle = '#A00';
+		ctx.fillStyle = 'rgba(240, 90, 0, 0.8)';
 
 		var angle = 0.45;
 		var d    = 40;
