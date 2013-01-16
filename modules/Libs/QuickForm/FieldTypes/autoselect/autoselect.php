@@ -56,7 +56,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
     	}
 		if (is_array($result)) {
 			foreach ($result as $k=>$v) {
-				$ret .= '<li><span style="display:none;">'.$k.'__'.$v.'</span><span class="informal">'.str_replace(' ','&nbsp;',$v).'</span></li>';
+				$ret .= '<li><span style="display:none;">'.$k.'__'.$v.'</span><span class="informal">'.$v.'</span></li>';
 			}
 			$ret .= '</ul>';
 		} else {
