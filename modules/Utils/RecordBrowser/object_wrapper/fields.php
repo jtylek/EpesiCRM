@@ -461,14 +461,17 @@ class RBO_Field_Autonumber extends RBO_FieldDefinition {
     
     public function set_prefix($char) {
         $this->prefix = $char;
+        return $this;
     }
     
     public function set_pad_length($pad_length) {
         $this->pad_length = $pad_length;
+        return $this;
     }
     
     public function set_pad_mask($char) {
         $this->pad_mask = $char;
+        return $this;
     }
     
     public static function QFfield_callback(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
