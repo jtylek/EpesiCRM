@@ -437,4 +437,85 @@ class CRM_Contacts_RBO_Company_or_Contact extends CRM_Contacts_RBO_Company {
 
 }
 
+
+class RBO_Field_Autonumber extends RBO_FieldDefinition {
+    
+    private $prefix;
+    private $pad_length;
+    private $pad_mask;
+    
+    public function __construct($display_name, $prefix = '#', $pad_length = 6, $pad_mask = '0') {
+        parent::__construct($display_name, 'autonumber');
+        $this->style = 'number';
+        $this->set_QFfield_callback(array(__CLASS__, 'QFfield_callback'));
+        $this->set_display_callback(array(__CLASS__, 'display_callback'));
+        $this->set_prefix($prefix);
+        $this->set_pad_length($pad_length);
+        $this->set_pad_mask($pad_mask);
+    }
+    
+    public function get_definition() {
+        $this->param = self::format_param($this->prefix, $this->pad_length, $this->pad_mask);
+        return parent::get_definition();
+    }
+    
+    public function set_prefix($char) {
+        $this->prefix = $char;
+    }
+    
+    public function set_pad_length($pad_length) {
+        $this->pad_length = $pad_length;
+    }
+    
+    public function set_pad_mask($char) {
+        $this->pad_mask = $char;
+    }
+    
+    public static function QFfield_callback(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        $record = & $rb_obj->record;
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, 'calculated');
+        $val = self::display_callback($record, false, $desc, array('id' => $field));
+        $form->addElement('static', $field, $label);
+        if ($mode == 'add' || $mode == 'edit') {
+            $record_id = isset($rb_obj->record['id']) ? $rb_obj->record['id'] : null;
+            $field_id = Utils_RecordBrowserCommon::get_calculated_id($rb_obj->tab, $field, $record_id);
+            $val = '<div class="static_field" id="' . $field_id . '">' . $val . '</div>';
+        }
+        $form->setDefaults(array($field => $val));
+    }
+    
+    public static function display_callback($record, $nolink, $desc) {
+        if (isset($record['id']) && strlen($record['id']))
+            return self::get_str($desc['param'], $record['id']);
+        return self::get_str($desc['param'], null);
+    }
+    
+    private static function parse_param($param, &$prefix, &$pad_length, &$pad_mask) {
+        $parsed = explode(',', $param, 4);
+        if (!is_array($parsed) || count($parsed) != 3)
+            trigger_error("Not well formed autonumber parameter: $param", E_USER_ERROR);
+        list($prefix, $pad_length, $pad_mask) = $parsed;
+    }
+
+    private static function format_param($prefix = '#', $pad_length = 6, $pad_mask = '0') {
+        if (!is_int($pad_length))
+            trigger_error('pad_length is not integer');
+        if ($pad_mask == ',')
+            trigger_error('pad_mask cannot be comma');
+        if ($prefix == ',')
+            trigger_error('prefix cannot be comma');
+        return implode(',', array($prefix, $pad_length, $pad_mask));
+    }    
+    
+    private static function get_id_string($id, $prefix, $pad_length, $pad_mask) {
+        return $prefix . str_pad($id, $pad_length, $pad_mask, STR_PAD_LEFT);
+    }
+    
+    private static function get_str($param, $id) {
+        self::parse_param($param, $prefix, $pad_length, $pad_mask);
+        if ($id === null)
+            $pad_mask = '?';
+        return self::get_id_string($id, $prefix, $pad_length, $pad_mask);
+    }
+}
 ?>
