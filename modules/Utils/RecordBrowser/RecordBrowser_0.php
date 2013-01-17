@@ -1924,11 +1924,11 @@ class Utils_RecordBrowser extends Module {
 					$rege = explode('::', $reg[0]);
 					if ($rege[0]!='__COMMON__') {
 						$param = __('Source').': Record Set'.'<br/>';
-						$param .= __('Record Set').': '.Utils_RecordBrowserCommon::get_caption($rege[0]).'<br/>';
+						$param .= __('Recordset').': '.Utils_RecordBrowserCommon::get_caption($rege[0]).'<br/>';
 						$fs = explode('|', isset($rege[1])?$rege[1]:'');
 						foreach ($fs as $k=>$v)
 							$fs[$k] = _V($v); // ****** RecordBrowser - field name
-						$param .= __('Related fields').': '.(implode(', ',$fs)).'<br/>';
+						$param .= __('Related field(s)').': '.(implode(', ',$fs)).'<br/>';
 						$param .= __('Crits callback').': '.(!isset($reg[1]) || $reg[1]=='::'?'---':$reg[1]);
 						$args['param'] = $param;
 						break;
@@ -2107,7 +2107,7 @@ class Utils_RecordBrowser extends Module {
 
 		$form->addElement('text', 'text_length', __('Maximum Length'), array('id'=>'length'));
 
-		$form->addElement('select', 'data_source', __('Source of Data'), array('rset'=>__('Record Set'), 'commondata'=>__('CommonData')), array('id'=>'data_source', 'onchange'=>'RB_hide_form_fields()'));
+		$form->addElement('select', 'data_source', __('Source of Data'), array('rset'=>__('Recordset'), 'commondata'=>__('CommonData')), array('id'=>'data_source', 'onchange'=>'RB_hide_form_fields()'));
 		$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Single value selection'), 'multi'=>__('Multiple values selection')), array('id'=>'select_type'));
 		$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value')), array('id'=>'order_by'));
 		$form->addElement('text', 'commondata_table', __('CommonData table'), array('id'=>'commondata_table'));
@@ -2117,7 +2117,7 @@ class Utils_RecordBrowser extends Module {
 		foreach($tabs as $v)
 			$tables[$v['tab']] = Utils_RecordBrowserCommon::get_caption($v['tab']);
 		asort($tables);
-		$form->addElement('select', 'rset', __('Record Set'), $tables, array('id'=>'rset'));
+		$form->addElement('select', 'rset', __('Recordset'), $tables, array('id'=>'rset'));
 		$form->addElement('text', 'label_field', __('Related field(s)'), array('id'=>'label_field'));
 
 		$form->addFormRule(array($this, 'check_field_definitions'));
