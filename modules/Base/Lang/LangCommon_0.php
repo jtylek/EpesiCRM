@@ -57,6 +57,36 @@ class Base_LangCommon extends ModuleCommon {
 		
 		return $translated;
 	}
+	
+	public static function get_languages() {
+	    return array(
+		    'ar'=>'Arabic',
+		    'bg'=>'Bulgarian',
+		    'cs'=>'Czech',
+		    'de'=>'German',
+		    'el'=>'Greek',
+		    'en'=>'English',
+		    'es'=>'Spanish',
+		    'et'=>'Estionian',
+		    'fr'=>'French',
+		    'he'=>'Hebrew',
+		    'hu'=>'Hungarian',
+		    'id'=>'Indonesian',
+		    'it'=>'Italian',
+		    'lt'=>'Lithuanian',
+		    'nl'=>'Dutch',
+		    'pl'=>'Polish',
+		    'pt'=>'Portuguese',
+		    'ro'=>'Romanian',
+		    'ru'=>'Russian',
+		    'sl'=>'Slovene',
+		    'sr'=>'Serbian',
+		    'sv'=>'Swedish',
+		    'tr'=>'Turkish',
+		    'vi'=>'Vietnamese',
+		    'zh'=>'Chinese'
+	    );
+	}
 
 	/**
 	 * For internal use only.
