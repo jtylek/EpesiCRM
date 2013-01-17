@@ -2490,6 +2490,324 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //		$ret[] = print_r($crits,true);
 		return $ret;
 	}
+    
+    ////////////////////////////
+    // default QFfield callbacks
+    
+    public static function get_default_QFfield_callback($type) {
+        $types = array('hidden', 'checkbox', 'calculated', 'integer', 'float',
+            'currency', 'text', 'long text', 'date', 'timestamp', 'time',
+            'commondata', 'select', 'multiselect');
+        if (array_search($type, $types) !== false) {
+            return array(__CLASS__, 'QFfield_' . self::get_field_id($type));
+        }
+        return null;
+    }
+    
+    private static function QFfield_static_display(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if ($mode !== 'add' && $mode !== 'edit') {
+            if ($desc['type'] != 'checkbox' || isset($rb_obj->display_callback_table[$field])) {
+                $def = self::get_val($rb_obj->tab, $field, $rb_obj->record, false, $desc);
+                $form->addElement('static', $field, $label, $def, array('id' => $field));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function QFfield_hidden(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        $form->addElement('hidden', $field);
+        $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_checkbox(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $form->addElement('checkbox', $field, $label, '', array('id' => $field));
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_calculated(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+        
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $form->addElement('static', $field, $label);
+        if (!is_array($rb_obj->record))
+            $values = $rb_obj->custom_defaults;
+        else {
+            $values = $rb_obj->record;
+            if (is_array($rb_obj->custom_defaults))
+                $values = $values + $rb_obj->custom_defaults;
+        }
+        $val = @self::get_val($rb_obj->tab, $field, $values, true, $desc);
+        if (!$val)
+            $val = '[' . __('formula') . ']';
+        $record_id = isset($rb_obj->record['id']) ? $rb_obj->record['id'] : null;
+        $form->setDefaults(array($field => '<div class="static_field" id="' . Utils_RecordBrowserCommon::get_calculated_id($rb_obj->tab, $field, $record_id) . '">' . $val . '</div>'));
+    }
+
+    public static function QFfield_integer(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $field);
+        $form->addElement('text', $field, $label, array('id' => $field));
+        $form->addRule($field, __('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_float(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $field);
+        $form->addElement('text', $field, $label, array('id' => $field));
+        $form->addRule($field, __('Only numbers are allowed.'), 'numeric');
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_currency(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $form->addElement('currency', $field, $label, array('id' => $field));
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_text(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+        
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $desc['param']);
+        $form->addElement('text', $field, $label, array('id' => $field, 'maxlength' => $desc['param']));
+        $form->addRule($field, __('Maximum length for this field is %s characters.', array($desc['param'])), 'maxlength', $desc['param']);
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_long_text(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+        
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $form->addElement('textarea', $field, $label, array('id' => $field));
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_date(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+        
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $form->addElement('datepicker', $field, $label, array('id' => $field));
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function timestamp_required($v) {
+        return $v['__datepicker'] !== '' && Base_RegionalSettingsCommon::reg2time($v['__datepicker'], false) !== false;
+    }
+
+    public static function QFfield_timestamp(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+
+        $f_param = array('id' => $field);
+        if ($desc['param'])
+            $f_param['optionIncrement'] = array('i' => $desc['param']);
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $form->addElement('timestamp', $field, $label, $f_param);
+        static $rule_defined = false;
+        if (!$rule_defined) {
+            $form->registerRule('timestamp_required', 'callback', 'timestamp_required', __CLASS__);
+            $rule_defined = true;
+        }
+        if (isset($desc['required']) && $desc['required'])
+            $form->addRule($field, __('Field required'), 'timestamp_required');
+        if ($mode !== 'add' && $default)
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_time(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+
+        $time_format = Base_RegionalSettingsCommon::time_12h() ? 'h:i a' : 'H:i';
+        $lang_code = Base_LangCommon::get_lang_code();
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $form->addElement('timestamp', $field, $label, array('date' => false, 'format' => $time_format, 'optionIncrement' => array('i' => 5), 'language' => $lang_code, 'id' => $field));
+        if ($mode !== 'add' && $default)
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_commondata(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+                  
+        $param = explode('::', $desc['param']['array_id']);
+        foreach ($param as $k => $v)
+            if ($k != 0)
+                $param[$k] = preg_replace('/[^a-z0-9]/', '_', strtolower($v));
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $desc['param']['array_id']);
+        $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => true, 'id' => $field, 'order_by_key' => $desc['param']['order_by_key']));
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_select(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+        
+        $record = & $rb_obj->record;
+        $comp = array();
+        $param = explode(';', $desc['param']);
+        $crits_callback = isset($param[1]) ? $param[1] : null;
+        $multi_adv_params_callback = isset($param[2]) ? explode('::', $param[2]) : null;
+        $multi_adv_params = array();
+        if (is_callable($multi_adv_params_callback))
+            $multi_adv_params = call_user_func($multi_adv_params_callback, $record);
+        // check multi_adv_params structure and fill empty values
+        if (!is_array($multi_adv_params))
+            $multi_adv_params = array();
+        if (!isset($multi_adv_params['order']))
+            $multi_adv_params['order'] = array();
+        if (!isset($multi_adv_params['cols']))
+            $multi_adv_params['cols'] = array();
+        if (!isset($multi_adv_params['format_callback']))
+            $multi_adv_params['format_callback'] = array();
+        $reference = explode('::', $param[0]);
+        $tab = $reference[0];
+        $columns = isset($reference[1]) ? $reference[1] : null;
+        if (!isset($columns))
+            trigger_error("Columns not set for field: $field");
+        if ($tab == '__COMMON__') {
+            $order = isset($reference[2]) ? $reference[2] : 'value';
+            $data = Utils_CommonDataCommon::get_translated_tree($columns, $order == 'key');
+            if (!is_array($data))
+                $data = array();
+            $comp = $comp + $data;
+            $rec_count = 0;
+            $label = Utils_RecordBrowserCommon::get_field_tooltip($label, 'commondata', $columns);
+        } else {
+            if (isset($crits_callback)) {
+                $crit_callback = explode('::', $crits_callback);
+                if (is_callable($crit_callback)) {
+                    $crits = call_user_func($crit_callback, false, $record);
+                    $adv_crits = call_user_func($crit_callback, true, $record);
+                } else
+                    $crits = $adv_crits = array();
+                if ($adv_crits === $crits)
+                    $adv_crits = null;
+                if ($adv_crits !== null) {
+                    $crits = $adv_crits;
+                }
+            } else
+                $crits = array();
+            
+            // get related records with proper columns
+            $columns = explode('|', $columns);
+            $col_id = array();
+            foreach ($columns as $c)
+                $col_id[] = self::get_field_id($c);
+            $rec_count = Utils_RecordBrowserCommon::get_records_count($tab, $crits, null);
+            if ($rec_count <= Utils_RecordBrowserCommon::$options_limit) {
+                $records = Utils_RecordBrowserCommon::get_records(
+                        $tab,
+                        $crits,
+                        empty($multi_adv_params['format_callback']) ? $col_id : array(),
+                        !empty($multi_adv_params['order']) ? $multi_adv_params['order'] : array());
+            } else {
+                $records = array();
+            }
+            // set current record field value to array
+            if (isset($record[$field])) {
+                if (!is_array($record[$field])) {
+                    if ($record[$field] != '')
+                        $record[$field] = array($record[$field] => $record[$field]);
+                    else
+                        $record[$field] = array();
+                }
+            }
+            if ($default) {
+                if (!is_array($default))
+                    $record[$field][$default] = $default;
+                else {
+                    foreach ($default as $v)
+                        $record[$field][$v] = $v;
+                }
+            }
+            $ext_rec = array();
+            $single_column = (count($col_id) == 1);
+            if (isset($record[$field])) {
+                $ext_rec = array_flip($record[$field]);
+                foreach ($ext_rec as $k => $v) {
+                    $c = Utils_RecordBrowserCommon::get_record($tab, $k);
+                    if (!empty($multi_adv_params['format_callback']))
+                        $n = call_user_func($multi_adv_params['format_callback'], $c);
+                    else {
+                        if ($single_column)
+                            $n = $c[$col_id[0]];
+                        else {
+                            $n = array();
+                            foreach ($col_id as $cid)
+                                $n[] = $c[$cid];
+                            $n = implode(' ', $n);
+                        }
+                    }
+                    $comp[$k] = $n;
+                }
+            }
+            if (!empty($multi_adv_params['order']))
+                natcasesort($comp);
+            foreach ($records as $k => $v) {
+                if (!empty($multi_adv_params['format_callback']))
+                    $n = call_user_func($multi_adv_params['format_callback'], $v);
+                else {
+                    if ($single_column)
+                        $n = $v[$col_id[0]];
+                    else {
+                        $n = array();
+                        foreach ($col_id as $cid)
+                            $n[] = $v[$cid];
+                        $n = implode(' ', $n);
+                    }
+                }
+                $comp[$k] = $n;
+                unset($ext_rec[$v['id']]);
+            }
+            if (empty($multi_adv_params['order']))
+                natcasesort($comp);
+            $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $tab, $crits);
+        }
+        if ($rec_count > Utils_RecordBrowserCommon::$options_limit) {
+            $f_callback = $multi_adv_params['format_callback'];
+            if ($desc['type'] == 'multiselect') {
+                $el = $form->addElement('automulti', $field, $label, array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $f_callback, $desc['param']), $f_callback);
+                ${'rp_' . $field} = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker', array());
+                $filters_defaults = isset($multi_adv_params['filters_defaults']) ? $multi_adv_params['filters_defaults'] : array();
+                $rb_obj->display_module(${'rp_' . $field}, array($rb_obj->tab, $field, $multi_adv_params['format_callback'], $crits, array(), array(), array(), $filters_defaults));
+                $el->set_search_button('<a ' . ${'rp_' . $field}->create_open_href() . ' ' . Utils_TooltipCommon::open_tag_attrs(__('Advanced Selection')) . ' href="javascript:void(0);"><img border="0" src="' . Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'icon_zoom.png') . '"></a>');
+            } else {
+                $form->addElement('autoselect', $field, $label, $comp, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $f_callback, $desc['param'])), $f_callback);
+            }
+        } else {
+            if ($desc['type'] === 'select')
+                $comp = array('' => '---') + $comp;
+            $form->addElement($desc['type'], $field, $label, $comp, array('id' => $field));
+        }
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
+    }
+
+    public static function QFfield_multiselect(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        self::QFfield_select($form, $field, $label, $mode, $default, $desc, $rb_obj);
+    }
 
     ///////////////////////////////////////////
     // mobile devices
