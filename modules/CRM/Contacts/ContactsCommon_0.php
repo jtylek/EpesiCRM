@@ -18,6 +18,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return Base_HelpCommon::retrieve_help_from_file(self::Instance()->get_type());
 	}
 
+	public static function home_page() {
+		return array(_M('My Contact')=>array('CRM/Contacts', 'body', array('my_contact')));
+	}
+
     public static function crm_clearance($all = false) {
 		$clearance = array();
 		$all |= Base_AclCommon::i_am_sa();

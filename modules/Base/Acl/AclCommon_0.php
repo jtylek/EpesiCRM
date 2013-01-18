@@ -96,6 +96,14 @@ class Base_AclCommon extends ModuleCommon {
 		return self::get_user()!==null;
 	}
 	
+	public static function display_clearances($clearances) {
+		$all_clearances = array_flip(Base_AclCommon::get_clearance(true));
+		foreach ($clearances as $k=>$v)
+			if (isset($all_clearances[$v])) $clearances[$k] = $all_clearances[$v];
+			else unset($clearances[$k]);
+		return '<span class="Base_Acl__permissions_clearance">'.implode(' <span class="joint">'.__('and').'</span> ',$clearances).'</span>';
+	}
+	
 	public static function basic_clearance($all=false) {
 		$user_clearance = array(__('All users')=>'ALL');
 		if ($all || Base_AclCommon::i_am_admin()) $user_clearance[__('Admin')] = 'ADMIN';

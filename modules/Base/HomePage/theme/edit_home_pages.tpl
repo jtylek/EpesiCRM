@@ -1,6 +1,6 @@
 {$form_open}
 
-<div style="width:98%; text-align:left;" class="epesi_grey_board Base_Acl__edit_permissions">
+<div style="max-width:800px; text-align:left;" class="epesi_grey_board Base_HomePage__edit_home_pages">
 	<div class="epesi_caption">
 		{$labels.caption}
 	</div>
@@ -8,12 +8,12 @@
 	<table>
 		<tr>
 			<td class="epesi_label" style="width:20%;">
-				{$form_data.permission.label}
+				{$form_data.home_page.label}
 			</td>
 			<td class="epesi_data" style="width:80%;">
 				<div style="position: relative;">
-					{$form_data.permission.error}
-					&nbsp;&nbsp;{$form_data.permission.html}
+					{$form_data.home_page.error}
+					&nbsp;&nbsp;{$form_data.home_page.html}
 				</div>
 			</td>
 		</tr>
@@ -32,7 +32,7 @@
 						{$form_data.$j.html}
 					</span>
 				{/section}
-				<div id="add_clearance" style="display: inline-block;" class="button" onclick="base_acl__add_clearance();">{$labels.add_clearance}</div>
+				<div id="add_clearance" style="display: inline-block;" class="button" onclick="base_home_page__add_clearance();">{$labels.add_clearance}</div>
 			</td>
 		</tr>
 	</table>

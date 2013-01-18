@@ -1,10 +1,8 @@
 <?php
 /**
- * HomePageInit class.
- * 
- * This class provides initialization data for HomePage module.
- * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * HomePage class.
+ *
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
  * @license MIT
  * @version 1.0
@@ -15,16 +13,23 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_HomePageInstall extends ModuleInstall {
 	public function install() {
-		$ret = DB::CreateTable('home_page',"user_login_id I KEY,url X2 NOTNULL",array('constraints' => ', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
-		if($ret===false) {
-			print('Invalid SQL query - homepage install');
-			return false;
-		}
+		DB::CreateTable('base_home_page',
+			'id I4 AUTO KEY,'.
+			'priority I4,'.
+			'home_page C(64)',
+			array('constraints' => ''));
+		DB::CreateTable('base_home_page_clearance',
+			'id I4 AUTO KEY,'.
+			'home_page_id I,'.
+			'clearance C(64)',
+			array('constraints' => ', FOREIGN KEY (home_page_id) REFERENCES base_home_page(id)'));
 		return true;
 	}
 	
 	public function uninstall() {
-		return DB::DropTable('home_page');
+		DB::DropTable('base_home_page');
+		DB::DropTable('base_home_page_clearance');
+		return true;
 	}
 	
 	public function version() {

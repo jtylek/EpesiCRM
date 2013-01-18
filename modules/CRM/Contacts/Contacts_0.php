@@ -39,9 +39,9 @@ class CRM_Contacts extends Module {
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 
-	public function body() {
+	public function body($mode='contact') {
 		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
-		$mode = $this->get_module_variable('mode','contact');
+		$mode = $this->get_module_variable('mode',$mode);
 		if ($mode=='my_contact') {
 			$this->rb = $this->init_module('Utils/RecordBrowser','contact','contact');
 			$me = CRM_ContactsCommon::get_my_record();

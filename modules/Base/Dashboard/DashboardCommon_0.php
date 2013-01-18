@@ -17,6 +17,10 @@ class Base_DashboardCommon extends ModuleCommon {
 		return array();
 	}
 
+	public static function home_page() {
+		return array(_M('Dashboard')=>array('Base/Dashboard'));
+	}
+
 	public static function admin_access_levels() {
 		return false;
 	}

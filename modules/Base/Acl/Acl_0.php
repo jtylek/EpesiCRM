@@ -20,7 +20,6 @@ class Base_Acl extends Module {
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-		$all_clearances = array_flip(Base_AclCommon::get_clearance(true));
 		Base_ThemeCommon::load_css('Base_Acl', 'edit_permissions');
 
 		$gb = $this->init_module('Utils_GenericBrowser', 'acl_editor', 'acl_editor');
@@ -38,15 +37,12 @@ class Base_Acl extends Module {
 			$perms = DB::GetAssoc('SELECT id, id FROM base_acl_rules WHERE permission_id=%d', array($p_id));
 			foreach ($perms as $r_id) {
 				$clearances = DB::GetAssoc('SELECT id, clearance FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
-				foreach ($clearances as $k=>$v)
-					if (isset($all_clearances[$v])) $clearances[$k] = $all_clearances[$v];
-					else unset($clearances[$k]);
 
 				$gb_row = $gb->get_new_row();
 				$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_rule'), array($r_id)), 'delete', __('Delete Rule'));
 				$gb_row->add_action($this->create_callback_href(array($this, 'edit_rule'), array($r_id, $p_id)), 'edit', __('Edit Rule'));
 				$gb_row->add_data(
-					'<span class="Base_Acl__permissions_clearance">'.implode(' <span class="joint">'.__('and').'</span> ',$clearances).'</span>'
+					Base_AclCommon::display_clearances($clearances)
 				);
 			}
 		}
@@ -81,7 +77,7 @@ class Base_Acl extends Module {
 			$form->setDefaults(array('permission'=>$p_id));
 			$form->freeze('permission');
 		} else {
-			$form->addRule('required', 'permission', __('Field required'));
+			$form->addRule('permission', __('Field required'), 'required');
 		}
 
 		for ($i=0; $i<$counts; $i++)
@@ -111,6 +107,7 @@ class Base_Acl extends Module {
 				DB::Execute('INSERT INTO base_acl_rules_clearance (rule_id, clearance) VALUES (%d, %s)', array($r_id, $c));
 			return false;
 		}
+		$form->add_error_closing_buttons();
 
 		$form->assign_theme('form', $theme);
 		$theme->assign('counts', $counts);

@@ -2,9 +2,7 @@
 /**
  * HomePage class.
  *
- * This class provides saving any page as homepage for each user.
- * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
  * @license MIT
  * @version 1.0
@@ -15,56 +13,44 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_HomePageCommon extends ModuleCommon {
 	public static $logged;
-
-	public static function load() {
-		if(!Base_AclCommon::is_user()) return;
-		$uid = Base_AclCommon::get_user();
-		if($uid === null)
-			return;
-		$ret = DB::GetOne('SELECT url FROM home_page WHERE user_login_id=%d',$uid);
-		if(!$ret) {
-			$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));
-			return;
-		}
-		$_SESSION['client']['__module_vars__'] = unserialize($ret);
-		$_REQUEST['__homepage_req_session__'] = 1;
-		location(array('__homepage__'=>1));
-	}
-
-	public static function save() {
-		if(!Base_AclCommon::is_user()) return;
-		$uid = Base_AclCommon::get_user();
-		
-		$m = Module::static_get_module_variable('/Base_Box|0','main');
-		$v = end($m);
-		if(str_replace('_','/',$v['module']) == Base_BoxCommon::get_main_module_name()) {
-			$url = '';
-		} else {
-			$url = serialize($_SESSION['client']['__module_vars__']);
-		}
-		DB::Replace('home_page',array('user_login_id'=>$uid,'url'=>$url), 'user_login_id',true);
-	}
-
-	public static function menu() {
-		return array(_M('My settings')=>array('__submenu__'=>1,_M('Set home page')=>array('Base_HomePage_save'=>'1','__module__'=>null)));
-	}
-
-	public static function login_check_init() {
-		self::$logged = Base_AclCommon::is_user();
-		if(isset($_REQUEST['Base_HomePage_load'])) {
-			if(Base_AclCommon::is_user())
-				Base_HomePageCommon::load();
-			else
-				$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));
-		} elseif(isset($_REQUEST['Base_HomePage_save'])) {
-			unset($_REQUEST['box_main_href']);
-			if (DEMO_MODE) {
-				Base_StatusBarCommon::message(__('You can\'t change home page in demo mode'), 'warning');
-			} else {
-				Base_HomePageCommon::save();
-				Base_StatusBarCommon::message(__('Home page saved'));
+	
+	public static function set_home_page($homepage) {
+		$args = func_get_args();
+		array_shift($args);
+		DB::StartTrans();
+		foreach ($args as $home_page) {
+			$prio = DB::GetOne('SELECT MAX(priority) FROM base_home_page') + 1;
+			DB::Execute('INSERT INTO base_home_page (home_page, priority) VALUES (%s, %d)', array($homepage, $prio));
+			$home_page_id = DB::Insert_ID('base_home_page', 'id');
+			if (!is_array($home_page)) $home_page = array($home_page);
+			foreach ($home_page as $clearance) {
+				DB::Execute('INSERT INTO base_home_page_clearance (home_page_id, clearance) VALUES (%d, %s)', array($home_page_id, $clearance));
 			}
 		}
+		DB::CompleteTrans();
+	}
+
+	public static function go_to_home_page($page) {
+		if (!isset($page[0])) return;
+		if (!isset($page[1])) $page[1] = 'body';
+		if (!isset($page[2])) $page[2] = null;
+		if (!isset($page[3])) $page[3] = null;
+		Base_BoxCommon::push_module($page[0], $page[1], $page[2], $page[3]);
+	}
+
+	public static function get_home_pages() {
+		static $cache = null;
+		if ($cache===null) {
+			$cache = array();
+			$tmp = ModuleManager::call_common_methods('home_page');
+			foreach ($tmp as $k=>$v)
+				$cache = array_merge($cache, $v);
+		}
+		return $cache;
+	}
+	
+	public static function admin_caption() {
+		return array('label'=>__('Home Page'), 'section'=>__('User Management'));
 	}
 
 	public static function login_check_exit() {
@@ -76,8 +62,24 @@ class Base_HomePageCommon extends ModuleCommon {
 	}
 
 	public static function homepage_icon() {
-//		Base_ActionBarCommon::add('home',__('Home'),Module::create_href(array('Base_HomePage_load'=>'1')));
 		Utils_ShortcutCommon::add(array('Ctrl','H'), 'function(){'.Module::create_href_js(array('Base_HomePage_load'=>'1')).'}');
+	}
+
+	public static function get_my_homepage() {
+		$clearance = Base_AclCommon::get_clearance();
+
+		$sql = 'SELECT home_page FROM base_home_page AS bhp WHERE ';
+		$vals = array();
+		if ($clearance!=null) {
+			$sql .= ' NOT EXISTS (SELECT * FROM base_home_page_clearance WHERE home_page_id=bhp.id AND '.implode(' AND ',array_fill(0, count($clearance), 'clearance!=%s')).')';
+			$vals = array_values($clearance);
+		} else {
+			$sql .= ' NOT EXISTS (SELECT * FROM base_home_page_clearance WHERE home_page_id=bhp.id)';
+		}
+		$sql .= ' ORDER BY priority';
+		$page = DB::GetOne($sql, $vals);
+		$pages = self::get_home_pages();
+		return isset($pages[$page])?$pages[$page]:array();
 	}
 	
 	public static function get_href() {
@@ -85,9 +87,10 @@ class Base_HomePageCommon extends ModuleCommon {
 	}
 }
 
-on_init(array('Base_HomePageCommon','login_check_init'));
-on_exit(array('Base_HomePageCommon','login_check_exit'));
-
+if (isset($_REQUEST['Base_HomePage_load'])) {
+	unset($_REQUEST['Base_HomePage_load']);
+	$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));
+}
 on_init(array('Base_HomePageCommon','homepage_icon'));
 
 ?>
