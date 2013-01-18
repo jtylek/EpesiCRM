@@ -1,5 +1,5 @@
 Base_Help = function(){
-	this.compatibility_mode = false;
+	this.compatibility_mode = null;
 	this.pointerX = 0;
 	this.pointerY = 0;
 	this.context;
@@ -153,6 +153,8 @@ Base_Help = function(){
 		if (!Epesi.procOn && Helper.target && Helper.is_screen(Helper.step)) {
 			Helper.draw_help_arrow(Helper.target);
 		}
+		if (Helper.compatibility_mode===false)
+			jQuery("#help_canvas").css('pointer-events', 'none');
 	}
 	this.escape = function() {
 		if ($('Base_Help__menu').style.display=="block") this.hide_menu();
@@ -380,3 +382,4 @@ Base_Help = function(){
 var Helper = new Base_Help();
 Helper.init_help();
 document.onkeydown = Helper.document_keydown;
+
