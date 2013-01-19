@@ -61,11 +61,21 @@ class ErrorHandler {
     
     public static function error_code_to_string($type) {
         $constants = get_defined_constants(true);
-        foreach ($constants['Core'] as $constant => $value) {
-            if ($value == $type && $constant[0] == 'E')
-                return $constant;
-        }
-        return '';
+        // based on changelog of get_defined_constants
+        $key = 'Core';
+        if (version_compare(phpversion(), "5.3.0", "<"))
+            $key = 'internal';
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
+                && version_compare(phpversion(), "5.3.1", "<")
+                && version_compare(phpversion(), "5.3.0", ">="))
+            $key = 'mhash';
+        $clist = & $constants[$key];
+        if (is_array($clist))
+            foreach ($clist as $constant => $value) {
+                if ($value == $type && $constant[0] == 'E')
+                    return $constant;
+            }
+        return 'error type not found';
     }
 
 	public static function debug_backtrace() {
