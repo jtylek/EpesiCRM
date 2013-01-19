@@ -124,6 +124,8 @@ Base_Help = function(){
 		current = new Date().getTime();
 		if (this.trigger_search && (current - this.last_keypress)>800) this.search($('Base_Help__search').value);
 		
+		if (Helper.compatibility_mode===false)
+			jQuery("#help_canvas").css('pointer-events', 'none');
 		if (!Helper.steps) return;
 		if (typeof(e)=='undefined' && typeof(event)!='undefined') e = event;
 		if (typeof(e)!='undefined') {
@@ -153,8 +155,6 @@ Base_Help = function(){
 		if (!Epesi.procOn && Helper.target && Helper.is_screen(Helper.step)) {
 			Helper.draw_help_arrow(Helper.target);
 		}
-		if (Helper.compatibility_mode===false)
-			jQuery("#help_canvas").css('pointer-events', 'none');
 	}
 	this.escape = function() {
 		if ($('Base_Help__menu').style.display=="block") this.hide_menu();
