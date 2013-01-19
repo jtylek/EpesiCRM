@@ -75,6 +75,7 @@ class Base_LangCommon extends ModuleCommon {
 		    'it'=>'Italian',
 		    'lt'=>'Lithuanian',
 		    'nl'=>'Dutch',
+		    'no'=>'Norwegian',
 		    'pl'=>'Polish',
 		    'pt'=>'Portuguese',
 		    'ro'=>'Romanian',
