@@ -1345,7 +1345,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return $records;
     }
-    public static function check_record_against_crits($tab, $id, $crits) {
+    public static function check_record_against_crits($tab, $id, $crits, & $problems = array()) {
         if ($crits===true || empty($crits)) return true;
         static $cache = array();
         if (is_numeric($id)) $r = self::get_record($tab, $id);
@@ -1357,7 +1357,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //      $r = self::get_record($tab, $id);
         $or_started = false;
         $or_result = false;
-		self::init($tab);
+	self::init($tab);
         foreach ($crits as $k=>$v) {
             $negative = $noquotes = $or_start = $or = false;
             $operator = '==';
@@ -1377,13 +1377,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $or |= $or_start;
             if ($or) {
                 if ($or_start && $or_started) {
-                    if (!$or_result) return $cache[$tab.'__'.$id] = false;
+                    if (!$or_result) {
+			$problems = $problems + $or_fields;
+                	return $cache[$tab.'__'.$id] = false;
+            	    }
                     $or_result = false;
                 }
-                if (!$or_started) $or_result = false;
+                if (!$or_started) {
+            	    $or_result = false;
+            	    $or_fields = array();
+            	}
                 $or_started = true;
+                $or_fields[] = $k;
             } else {
-                if ($or_started && !$or_result) return $cache[$tab.'__'.$id] = false;
+                if ($or_started && !$or_result) {
+	    	    $problems = $problems + $or_fields;
+            	    return $cache[$tab.'__'.$id] = false;
+            	}
                 $or_started = false;
             }
 			if (!isset($r[$k]) && $k[strlen($k)-1]==']') {
@@ -1414,9 +1424,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
             if ($negative) $result = !$result;
             if ($or_started) $or_result |= $result;
-            else if (!$result) return $cache[$tab.'__'.$id] = false;
+            else if (!$result) $problems[] = $k;
         }
-        if ($or_started && !$or_result) return $cache[$tab.'__'.$id] = false;
+        if (!empty($problems)) return $cache[$tab.'__'.$id] = false;
+        if ($or_started && !$or_result) {
+    	    $problems = $problems + $or_fields;
+    	    return $cache[$tab.'__'.$id] = false;
+    	}
         return $cache[$tab.'__'.$id] = true;
     }
 	public static function decode_access($str, $manage_permissions=false) {
@@ -1514,7 +1528,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($blocked_fields as $f)
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($id, $f));
 	}
-    public static function get_access($tab, $action, $record=null){
+    public static function get_access($tab, $action, $record=null, $return_crits=false){
         if (self::$admin_access && Base_AclCommon::i_am_admin()) {
             $ret = true;
         } elseif (isset($record[':active']) && !$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
@@ -1547,6 +1561,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$crits_raw = $cache[$tab]['crits_raw'];
 				$fields = $cache[$tab]['fields'];
 			}
+			if ($return_crits) return $crits[$action];
 			if ($action=='browse') {
 				return $crits['view']!==null?(empty($crits['view'])?true:$crits['view']):false;
 			}
@@ -1554,7 +1569,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$blocked_fields = array();
 			if ($action!='browse' && $action!='clone') {
 				foreach ($crits_raw[$action] as $rule_id=>$c) {
-					if (!self::check_record_against_crits($tab, $record, $c))
+					if ($action!='add' && !self::check_record_against_crits($tab, $record, $c))
 						continue;
 					if (!$ret) {
 						$ret = true;

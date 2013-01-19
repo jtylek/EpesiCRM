@@ -1053,7 +1053,6 @@ class Utils_RecordBrowser extends Module {
     }
     public function view_entry($mode='view', $id = null, $defaults = array(), $show_actions=true) {
 		Base_HelpCommon::screen_name('rb_'.$mode.'_'.$this->tab);
-		Base_HelpCommon::screen_name('rb2_'.$mode.'_'.$this->tab);
         if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
         self::$mode = $mode;
         if ($this->navigation_executed) {
@@ -1473,7 +1472,20 @@ class Utils_RecordBrowser extends Module {
         if (!$main_page && self::$mode=='view') print('</form>');
     }
 
+    public function check_new_record_access($data) {
+	$problems = array();
+	$ret = array();
+	$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
+	Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
+	foreach ($problems as $f) {
+	    $f = explode('[', $f);
+	    $ret[$f[0]] = __('Invalid value');
+	}
+	return empty($ret)?true:$ret;
+    }
     public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
+	if ($mode == 'add')
+	    $form->addFormRule(array($this, 'check_new_record_access'));
         foreach($this->table_rows as $field => $args){
             // check permissions
             if (isset($this->view_fields_permission[$args['id']]) && !$this->view_fields_permission[$args['id']]) continue;
