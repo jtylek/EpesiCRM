@@ -13,7 +13,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_HomePage extends Module {
 	public function body() {
-		Base_HomePageCommon::go_to_home_page(Base_HomePageCommon::get_my_homepage());
+		$this->show_home_page(Base_HomePageCommon::get_my_homepage());
+	}
+	public function show_home_page($page) {
+		if (!isset($page[0])) return;
+		if (!isset($page[1])) $page[1] = 'body';
+		if (!isset($page[2])) $page[2] = null;
+		if (!isset($page[3])) $page[3] = null;
+		$this->pack_module($page[0], $page[2], $page[1], $page[3]);
 	}
 
 	public function admin() {
@@ -74,7 +81,7 @@ class Base_HomePage extends Module {
 		$theme->assign('labels', array(
 			'and' => '<span class="joint">'.__('and').'</span>',
 			'or' => '<span class="joint">'.__('or').'</span>',
-			'caption' => $id?__('Edit permission rule'):__('Add permission rule'),
+			'caption' => $id?__('Edit home page'):__('Add home page'),
 			'clearance' => __('Clearance requried'),
 			'fields' => __('Fields allowed'),
 			'crits' => __('Criteria required'),

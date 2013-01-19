@@ -30,14 +30,6 @@ class Base_HomePageCommon extends ModuleCommon {
 		DB::CompleteTrans();
 	}
 
-	public static function go_to_home_page($page) {
-		if (!isset($page[0])) return;
-		if (!isset($page[1])) $page[1] = 'body';
-		if (!isset($page[2])) $page[2] = null;
-		if (!isset($page[3])) $page[3] = null;
-		Base_BoxCommon::push_module($page[0], $page[1], $page[2], $page[3]);
-	}
-
 	public static function get_home_pages() {
 		static $cache = null;
 		if ($cache===null) {

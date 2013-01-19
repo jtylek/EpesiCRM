@@ -122,7 +122,7 @@ class Base_AclCommon extends ModuleCommon {
 	
 	public static function get_clearance($all=false) {
 		static $cache = array();
-		if (!isset($cache[$all])) {
+		if (!isset($cache[Acl::get_user()]) || !isset($cache[Acl::get_user()][$all])) {
 			$ret = DB::Execute('SELECT * FROM base_acl_clearance');
 			$clearance = array();
 			while ($row = $ret->FetchRow()) {
@@ -130,9 +130,9 @@ class Base_AclCommon extends ModuleCommon {
 				$new = call_user_func($callback, $all);
 				$clearance = array_merge($clearance, $new);
 			}
-			$cache[$all] = $clearance;
+			$cache[Acl::get_user()][$all] = $clearance;
 		}
-		return $cache[$all];
+		return $cache[Acl::get_user()][$all];
 	}
 	
 	public static function add_permission($name) {
