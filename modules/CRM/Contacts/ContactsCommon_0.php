@@ -109,9 +109,9 @@ class CRM_ContactsCommon extends ModuleCommon {
                         $br_company = self::$menu_override['company'];
                 else
                         $br_company = Utils_RecordBrowserCommon::get_access('company','browse');
-		if ($br_contact===true || !isset($br_contact['login']))
+		if ($br_contact===true || (is_array($br_contact) && !isset($br_contact['login'])))
 			$opts[_M('Contacts')] = array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
-		if ($br_company===true || !isset($br_company['id']))
+		if ($br_company===true || (is_array($br_company) && !isset($br_company['id'])))
 			$opts[_M('Companies')] = array('mode'=>'company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
 		if (!empty($opts)) {
 			$opts['__submenu__'] = 1;
