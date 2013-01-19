@@ -237,7 +237,7 @@ class Utils_Attachment extends Module {
 		$gb->set_table_columns($cols);
 		
 
-		$query_from = ' FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE ual.local='.$group.' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id)'.$where;
+		$query_from = ' FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id)'.$where;
 		$query = 'SELECT ual.sticky,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,ual.func AS search_func, ual.args AS search_func_args'.$query_from;
 		$query_lim = 'SELECT count(ual.id)'.$query_from;
 
