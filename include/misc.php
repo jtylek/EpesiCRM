@@ -316,7 +316,7 @@ function recalculate_time($date,$time) {
 function escapeJS($str,$double=true,$single=true) {return Epesi::escapeJS($str,$double,$single);}
 
 function get_epesi_url() {
-	if(isset($GLOBALS['argv']))
+	if(php_sapi_name() == 'cli')
 		return dirname(dirname(__FILE__));
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
 	return rtrim($protocol.$_SERVER['HTTP_HOST'].EPESI_DIR,'/');
