@@ -24,13 +24,19 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 							'extra'=>false, 
 							'visible'=>true),
 						
-					array('name' => __('Select field'),
+					array('name' => __('Select field to search'),
 							'type'=>'long text', 
 							'QFfield_callback'=>array('Applets_QuickSearchCommon', 'QFfield_recordfields'), 
 							'display_callback'=>array('Applets_QuickSearchCommon', 'display_recordfields'), 
 							'required'=>true, 
 							'extra'=>false, 
 							'visible'=>true),	
+							
+					array('name' => __('Result Identifier'),
+							'type'=>'long text',
+							'required' => true,
+							'extra' => false,
+							'visible' => true),
 							
 					array('name'=>__('Result Format'), 
 							'type'=>'long text', 
@@ -43,11 +49,11 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 		Utils_RecordBrowserCommon::set_favorites($recordsetName, false);
 		Utils_RecordBrowserCommon::register_processing_callback($recordsetName, array('Applets_QuickSearchCommon', 'parse_values'));
 		//sets a default value on quick search data
-		Utils_RecordBrowserCommon::new_record($recordsetName, array("preset_name" => "Test Value", "search_prompt" => "testholder",
+		/* Utils_RecordBrowserCommon::new_record($recordsetName, array("preset_name" => "Test Value", "search_prompt" => "testholder",
 															"recordsets" => array("company[A]", "contact"), 
 															"select_field" => array("company:company_name[A]","company:short_name[A]","contact:last_name[A]","contact:first_name"),
 															"result_format"=> "[%company:company_name%] [%company:short_name%] [%contact:last_name%] [%contact:first_name%]"));
-		
+		*/
 		
 		Utils_RecordBrowserCommon::add_access($recordsetName, 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
 		Utils_RecordBrowserCommon::add_access($recordsetName, 'add', 'ACCESS:employee');

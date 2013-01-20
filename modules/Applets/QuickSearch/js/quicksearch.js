@@ -20,9 +20,6 @@ function getRecordFields(recordset, caption){
 								{ method: 'get', parameters: {tbName:recordset, tbCaption:caption}, insertion: Insertion.Bottom } );
 }
 
-function removeRecordFields(recordset){
-}
-
 function addToList(selectFrom, selectTo, callAjax){
 	if(document.getElementById(selectFrom)){
 		var selected = document.getElementById(selectFrom);
@@ -60,6 +57,7 @@ function removeFromList(selectFrom, selectTo){
 					var optionRemove = returnto[x];
 					removeFieldOnListFrom(optionRemove.text, 'select_field__from');
 					removeFieldOnListTo(optionRemove.text, 'select_field__to');
+					removeOnResultFormat(optionRemove.value);
 					returnto[x].value = returnto[x].value.substr(0, (returnto[x].value.length - 3));
 					console.log(returnto[x].value);
 				}
@@ -121,6 +119,20 @@ function removeFieldOnListTo(remField, listFieldId){
 		}
 	}
 }
+function removeOnResultFormat(keyword){
+
+	/*
+		/x5B/x25./x25/x5D/g
+	*/
+	var resultFormatText = document.getElementById('result_format');
+	if(resultFormatText.value != ""){
+		var strField = "[%"+ keyword.substr(0, (keyword.length - 3)) +":.*?%]";	
+		console.log('strField ' + strField);	
+		resultFormatText.value = resultFormatText.value.replace(strField, "");	
+		console.log('Removing ' + resultFormatText.value);
+	}
+}
+
 
 function call_js(){
 	var elem = $('recordsets__to').options;
@@ -183,7 +195,22 @@ function call_js_remove_recordset(){
 }
 
 function call_js_remove_fields(){
-	//removeFromList('recordsets__from', 'recordsets__to');
+	console.log('remove fields');
+	var resultFormatText = document.getElementById('result_format');
+	if(document.getElementById('select_field__from').length > 0){
+		var fieldsList = document.getElementById('select_field__from');
+		for(field = 0; field < fieldsList.length; field++){
+			if(fieldsList[field].value.indexOf('[A]') != -1){
+				var strField = '[%' + fieldsList[field].value.substr(0, (fieldsList[field].value.length - 3)) + '%]';
+				console.log('Fields Found =' +strField)
+				resultFormatText.value = resultFormatText.value.replace(strField, "");
+				console.log('Replaced ' + resultFormatText.value);
+				fieldsList[field].value = fieldsList[field].value.substr(0, (fieldsList[field].length - 3))	
+			}
+		}
+	}
+	
+	
 }
 
 function changeAddedRecordset(id){

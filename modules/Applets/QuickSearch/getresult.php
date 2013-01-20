@@ -38,11 +38,13 @@ $array_keys = array_keys($arrayQuick);
 				foreach(($formatString[$keyRecordset]) as $keyIdx){
 					 $result .= $rows[$keyIdx]." ";
 				}
+				//Tooltip Code = <span ".Utils_TooltipCommon::open_tag_attrs($tooltip , false)."><img border='0' src='data/Base_Theme/templates/default/Utils/GenericBrowser/info.png'></span>
 				$tooltip = ucwords($result);
-				print "<tr style='background:#FFFFD5;'><td colspan='2' class='Utils_GenericBrowser__td' style='width:80%;height:20px'><span ".Utils_TooltipCommon::open_tag_attrs($tooltip , false)."><img border='0' src='data/Base_Theme/templates/default/Utils/GenericBrowser/info.png'></span> <a onclick=\"_chj('__jump_to_RB_table=".$keyRecordset."&amp;__jump_to_RB_record=".$rows["id"]."&amp;__jump_to_RB_action=view', '', '');\" href=\"javascript: void(0)\">".ucwords($result)."</a></td>
-				<td class='Utils_GenericBrowser__td' style='width:10%'>".Utils_RecordBrowserCommon::get_caption($keyRecordset)."</td></tr>";
+				print "<tr style='background:#FFFFD5;'> 
+						<td class='Utils_GenericBrowser__td' style='width:80%;height:20px'></td>
+						<td class='Utils_GenericBrowser__td' style='width:80%;height:20px'> <a onclick=\"_chj('__jump_to_RB_table=".$keyRecordset."&amp;__jump_to_RB_record=".$rows["id"]."&amp;__jump_to_RB_action=view', '', '');\" href=\"javascript: void(0)\">".ucwords($result)."</a></td>
+						<td class='Utils_GenericBrowser__td' style='width:10%'>".Utils_RecordBrowserCommon::get_caption($keyRecordset)."</td></tr>";
 			}	
-		//print $gb	
 	}
 }
 

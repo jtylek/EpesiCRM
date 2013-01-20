@@ -126,8 +126,9 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 			}		
 			$recordset_form = $form->addElement('multiselect', $field, $label, $arrayAllValues);
 			$recordset_form->on_add_js('call_js_add_field(\'edit\');');
+			$recordset_form->on_remove_js('call_js_remove_fields();');
 			$form->setDefaults(array($field => self::parse_array($default)));
-			eval_js('changeAddedRecordset(\'select_field__to\')');
+			eval_js('changeAddedRecordset(\'select_field_to_search__to\')');
 		}
 
 	}
@@ -149,7 +150,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 	}
 	
 	public static function display_recordfields($rb, $nolink){
-		$strFields = self::arrayToString($rb['select_field']);
+		$strFields = self::arrayToString($rb['select_field_to_search']);
 		return $strFields;
 	}	
 	
@@ -159,19 +160,19 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 			case 'adding':
 			case 'editing':
 				$values['recordsets'] = explode(';', $values['recordsets']);
-				$values['select_field'] = explode(';', $values['select_field']);;
+				$values['select_field_to_search'] = explode(';', $values['select_field_to_search']);;
 				break;
 			case 'add':		
 			case 'edit':
 				$values['recordsets'] = implode(';', $values['recordsets']);
-				$values['select_field'] = implode(';', $values['select_field']);
+				$values['select_field_to_search'] = implode(';', $values['select_field_to_search']);
 				break;				
 			case 'display':
 				$values = "display";
 				break;
 			case 'view':
 				$values['recordsets'] = explode(';', $values['recordsets']);
-				$values['select_field'] = explode(';', $values['select_field']);
+				$values['select_field_to_search'] = explode(';', $values['select_field_to_search']);
 				break;	
 			default:	 
 				break;
@@ -301,7 +302,7 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		$qry = Utils_RecordBrowserCommon::get_record("quick_search", $id, false);
 		if($qry){
 			self::$resultFormat = $qry["result_format"];
-			return self::parse_recordset($qry["recordsets"], $qry["select_field"]);
+			return self::parse_recordset($qry["recordsets"], $qry["select_field_to_search"]);
 		}else{
 			return false;
 		}
