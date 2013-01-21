@@ -178,6 +178,29 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return implode('__', $param);
     }
+    public static function decode_autonumber_param($param, &$prefix, &$pad_length, &$pad_mask) {
+        $parsed = explode(',', $param, 4);
+        if (!is_array($parsed) || count($parsed) != 3)
+            trigger_error("Not well formed autonumber parameter: $param", E_USER_ERROR);
+        list($prefix, $pad_length, $pad_mask) = $parsed;
+    }
+    public static function format_autonumber_str($param, $id) {
+        self::decode_autonumber_param($param, $prefix, $pad_length, $pad_mask);
+        if ($id === null)
+            $pad_mask = '?';
+        return $prefix . str_pad($id, $pad_length, $pad_mask, STR_PAD_LEFT);
+    }
+    public static function format_autonumber_str_all_records($tab, $field, $param) {
+        self::decode_autonumber_param($param, $prefix, $pad_length, $pad_mask);
+        $ids = DB::GetCol('SELECT id FROM '.$tab.'_data_1');
+        DB::StartTrans();
+        foreach ($ids as $id) {
+            $str = $prefix . str_pad($id, $pad_length, $pad_mask, STR_PAD_LEFT);
+            DB::Execute('UPDATE ' . $tab . '_data_1 SET f_' . $field . '=%s WHERE id=%d', array($str, $id));
+        }
+        DB::CompleteTrans();
+    }
+
     public static function user_settings(){
         $ret = DB::Execute('SELECT tab, caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties');
         $settings = array(0=>array(), 1=>array(), 2=>array(), 3=>array());
@@ -536,7 +559,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (in_array($definition['type'], array('time','timestamp','currency')))
                 $definition['style'] = $definition['type'];
             else {
-                if (in_array($definition['type'], array('float','integer')))
+                if (in_array($definition['type'], array('float','integer', 'autonumber')))
                     $definition['style'] = 'number';
                 else
                     $definition['style'] = '';
@@ -590,7 +613,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$column = 'f_'.self::get_field_id($definition['name']);
 		if ($alter) {
 			self::init($tab, false, true);
-			if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN '.$column.' '.$f);
+			if ($f!=='') {
+                @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN '.$column.' '.$f);
+                if ($definition['type'] === 'autonumber') {
+                    self::format_autonumber_str_all_records($tab, self::get_field_id($definition['name']), $param);
+                }
+            }
 		} else {
 			if ($f!=='') return ','.$column.' '.$f;
 			else return '';
@@ -615,6 +643,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             case 'calculated': $f = (isset($param)?$param:''); break;
             case 'checkbox': $f = DB::dict()->ActualType('I1'); break;
             case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
+            case 'autonumber': $len = strlen(self::format_autonumber_str($param, null));
+                $f = DB::dict()->ActualType('C') . "($len)"; break;
         }
         return $f;
     }
@@ -810,6 +840,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				elseif (!is_array($values[$args['id']]))
 					$values[$args['id']] = self::decode_multi($values[$args['id']]);
 			}
+            if ($args['type'] === 'autonumber') {
+                $autonumber_value = self::format_autonumber_str($args['param'], $id);
+                self::update_record($tab, $id, array($args['id'] => $autonumber_value), false, null, true);
+                $values[$args['id']] = $autonumber_value;
+            }
 		$values['id'] = $id;
 		self::record_processing($tab, $values, 'added');
 
@@ -2328,6 +2363,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$args = func_get_args();
 		$type = array_shift($args);
 		switch ($type) {
+            case 'autonumber':
 			case 'calculated':	return __('This field is not editable');
 			case 'integer':		
 			case 'float':		return __('Enter a numeric value in the text field');
@@ -2512,7 +2548,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_default_QFfield_callback($type) {
         $types = array('hidden', 'checkbox', 'calculated', 'integer', 'float',
             'currency', 'text', 'long text', 'date', 'timestamp', 'time',
-            'commondata', 'select', 'multiselect');
+            'commondata', 'select', 'multiselect', 'autonumber');
         if (array_search($type, $types) !== false) {
             return array(__CLASS__, 'QFfield_' . self::get_field_id($type));
         }
@@ -2822,6 +2858,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function QFfield_multiselect(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         self::QFfield_select($form, $field, $label, $mode, $default, $desc, $rb_obj);
+    }
+    
+    public static function QFfield_autonumber(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+            return;
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $value = $default ? $default : self::format_autonumber_str($desc['param'], null);
+        $form->addElement('static', $field, $label);
+        $record_id = isset($rb_obj->record['id']) ? $rb_obj->record['id'] : null;
+        $field_id = Utils_RecordBrowserCommon::get_calculated_id($rb_obj->tab, $field, $record_id);
+        $val = '<div class="static_field" id="' . $field_id . '">' . $value . '</div>';
+        $form->setDefaults(array($field => $val));
     }
 
     ///////////////////////////////////////////
