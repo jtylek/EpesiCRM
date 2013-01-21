@@ -91,8 +91,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$start_time = $row['timeless_caption'];
 			$end_time = $start_time;
 			$ev_start = strtotime($row['timeless']);
-			if (!isset($row['start'])) $start_day = date('D', $ev_start);
-			else $start_day = date('D',$row['start']);
+			if (!isset($row['start'])) $start_day = _V(date('D', $ev_start));
+			else $start_day = _V(date('D',$row['start']));
 			$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false,true,false);
 			if($start_date == Base_RegionalSettingsCommon::time2reg(time(),false))
 				$start_t = __('Today');
