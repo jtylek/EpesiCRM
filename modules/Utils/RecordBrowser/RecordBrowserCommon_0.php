@@ -184,6 +184,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             trigger_error("Not well formed autonumber parameter: $param", E_USER_ERROR);
         list($prefix, $pad_length, $pad_mask) = $parsed;
     }
+    public static function encode_autonumber_param($prefix, $pad_length, $pad_mask) {
+        return implode(',', array($prefix, $pad_length, $pad_mask));
+    }
     public static function format_autonumber_str($param, $id) {
         self::decode_autonumber_param($param, $prefix, $pad_length, $pad_mask);
         if ($id === null)

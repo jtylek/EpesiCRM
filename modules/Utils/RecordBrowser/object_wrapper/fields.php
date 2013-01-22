@@ -388,7 +388,7 @@ class RBO_Field_Autonumber extends RBO_FieldDefinition {
             trigger_error('pad_mask cannot be comma');
         if ($prefix == ',')
             trigger_error('prefix cannot be comma');
-        return implode(',', array($prefix, $pad_length, $pad_mask));
+        return Utils_RecordBrowserCommon::encode_autonumber_param($prefix, $pad_length, $pad_mask);
     }    
 }
 ?>
