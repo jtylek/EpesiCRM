@@ -1847,6 +1847,7 @@ class Utils_RecordBrowser extends Module {
         if ($this->is_back()) return false;
         if ($this->check_for_jump()) return;
         $data_type = array(
+            'autonumber'=>__('Autonumber'),
             'currency'=>__('Currency'),
             'checkbox'=>__('Checkbox'),
             'date'=>__('Date'),
@@ -1914,6 +1915,13 @@ class Utils_RecordBrowser extends Module {
 					$param = Utils_RecordBrowserCommon::decode_commondata_param($row['param']);
 					$form->setDefaults(array('order_by'=>$param['order_by_key']?'key':'value', 'commondata_table'=>$param['array_id']));
 					break;
+                case 'autonumber':
+                    $row['select_data_type'] = 'autonumber';
+                    Utils_RecordBrowserCommon::decode_autonumber_param($row['param'], $autonumber_prefix, $autonumber_pad_length, $autonumber_pad_mask);
+                    $row['autonumber_prefix'] = $autonumber_prefix;
+                    $row['autonumber_pad_length'] = $autonumber_pad_length;
+                    $row['autonumber_pad_mask'] = $autonumber_pad_mask;
+                    break;
 				case 'text':
 					$row['text_length'] = $row['param'];
 				default:
@@ -1929,7 +1937,10 @@ class Utils_RecordBrowser extends Module {
 			$this->admin_field = $row;
         } else {
             $selected_data = $form->exportValue('select_data_type');
-            $form->setDefaults(array('visible'=>1));
+            $form->setDefaults(array('visible'=>1,
+                'autonumber_prefix'=>'#',
+                'autonumber_pad_length'=>'6',
+                'autonumber_pad_mask'=>'0'));
         }
 		$this->admin_field_mode = $action;
 		$this->admin_field_name = $field;
@@ -1955,7 +1966,14 @@ class Utils_RecordBrowser extends Module {
 
 		$form->addElement('checkbox', 'visible', __('Table view'));
 		$form->addElement('checkbox', 'required', __('Required'), null, array('id'=>'required'));
-		$form->addElement('checkbox', 'filter', __('Filter enabled'));
+		$form->addElement('checkbox', 'filter', __('Filter enabled'), null, array('id' => 'filter'));
+        
+        $form->addElement('text', 'autonumber_prefix', __('Prefix string'), array('id' => 'autonumber_prefix'));
+        $form->addRule('autonumber_prefix', __('Comma is not allowed'), 'regex', '/^[^,]*$/');
+        $form->addElement('text', 'autonumber_pad_length', __('Pad length'), array('id' => 'autonumber_pad_length'));
+        $form->addRule('autonumber_pad_length', __('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
+        $form->addElement('text', 'autonumber_pad_mask', __('Pad character'), array('id' => 'autonumber_pad_mask'));
+        $form->addRule('autonumber_pad_mask', __('Comma is not allowed'), 'regex', '/^[^,]*$/');
 
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings()', 'id'=>'advanced'));
 		$form->addElement('text', 'display_callback', __('Value display function'), array('maxlength'=>255, 'style'=>'width:300px', 'id'=>'display_callback'));
@@ -1988,6 +2006,20 @@ class Utils_RecordBrowser extends Module {
             if (preg_match('/^[a-z0-9_]*$/',$new_id)==0) trigger_error('Invalid new column name: '.$data['field']);
 			$param = '';
 			switch ($data['select_data_type']) {
+                case 'autonumber':
+                    $data['required'] = false;
+                    $data['filter'] = false;
+                    $param = Utils_RecordBrowserCommon::encode_autonumber_param(
+                            $data['autonumber_prefix'],
+                            $data['autonumber_pad_length'],
+                            $data['autonumber_pad_mask']);
+                    // delete field and add again later to generate values
+                    if ($action != 'add') {
+                        Utils_RecordBrowserCommon::delete_record_field($this->tab, $field);
+                        $action = 'add';
+                        $field = $data['field'];
+                    }
+                    break;
 				case 'checkbox': 
 							$data['required'] = false;
 							break;
