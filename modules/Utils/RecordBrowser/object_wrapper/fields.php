@@ -138,6 +138,19 @@ class RBO_Field_Timestamp extends RBO_FieldDefinition {
 /**
  * @author Adam Bukowski <abukowski@telaxus.com>
  */
+class RBO_Field_Time extends RBO_FieldDefinition {
+
+    const type = 'time';
+
+    public function __construct($display_name) {
+        parent::__construct($display_name, self::type);
+    }
+
+}
+
+/**
+ * @author Adam Bukowski <abukowski@telaxus.com>
+ */
 class RBO_Field_Currency extends RBO_FieldDefinition {
 
     const type = 'currency';
