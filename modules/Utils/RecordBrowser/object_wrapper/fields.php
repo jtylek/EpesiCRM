@@ -304,7 +304,7 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
      * @return RBO_Field_CommonData
      */
     public function set_order_by_key() {
-        $this->order_by_key = $value;
+        $this->order_by_key = true;
         return $this;
     }
 
