@@ -322,6 +322,10 @@ abstract class RBO_Recordset {
 
         Utils_RecordBrowserCommon::new_record_field($this->tab, $definition);
     }
+    
+    public function delete_record_field($field_name) {
+        Utils_RecordBrowserCommon::delete_record_field($this->tab, $field_name);
+    }
 
     /**
      * Retrieve currrent caption of RecordSet.
