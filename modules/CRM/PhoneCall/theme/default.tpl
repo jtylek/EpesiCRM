@@ -219,7 +219,8 @@
 									$k!='phone' &&
 									$k!='other_phone' &&
 									$k!='other_phone_number' &&
-									$k!='date_and_time')}
+									$k!='date_and_time' &&
+                                    $f.type != 'multiselect')}
 							<tr>
 								<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
 								<td class="data" align="left">
