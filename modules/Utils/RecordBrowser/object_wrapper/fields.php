@@ -282,6 +282,7 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
     private $chained_select_fields = array();
     private $commondata_array_name;
     private $order_by_key;
+    private $multiple = false;
 
     public function __construct($display_name, $commondata_array_name = null, $order_by_key = false) {
         $this->commondata_array_name = $commondata_array_name;
@@ -307,9 +308,19 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
         $this->order_by_key = true;
         return $this;
     }
+    
+    /**
+     * Set multiple selection field. Chained select won't work.
+     * @return RBO_Field_CommonData
+     */
+    public function set_multiple() {
+        $this->multiple = true;
+        return $this;
+    }
 
     /**
-     * Set chained select on this field
+     * Set chained select on this field. Chained select won't work on
+     * multiple selection.
      * @param RBO_FieldDefinition $field chained select field
      * @param RBO_FieldDefinition $_ several fields may be supplied
      * @return RBO_Field_CommonData
@@ -322,14 +333,21 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
     private function _fill_param() {
         if (!is_string($this->commondata_array_name))
             trigger_error("Commondata array name in field {$this->name} must be set!");
-        $param = array($this->commondata_array_name);
-        foreach ($this->chained_select_fields as $field) {
-            if (!is_a($field, 'RBO_FieldDefinition'))
-                trigger_error('Chained select param is not subclass of RBO_FieldDefinition', E_USER_ERROR);
-            $param[] = $field->name;
+        if ($this->multiple) {
+            $this->type = 'multiselect';
+            $param = Utils_RecordBrowserCommon::multiselect_from_common($this->commondata_array_name);
+            if ($this->order_by_key)
+                $param .= '::key';
+        } else {
+            $param = array($this->commondata_array_name);
+            foreach ($this->chained_select_fields as $field) {
+                if (!is_a($field, 'RBO_FieldDefinition'))
+                    trigger_error('Chained select param is not subclass of RBO_FieldDefinition', E_USER_ERROR);
+                $param[] = $field->name;
+            }
+            if ($this->order_by_key)
+                $param['order_by_key'] = true;
         }
-        if ($this->order_by_key)
-            $param['order_by_key'] = true;
         $this->param = $param;
     }
 
