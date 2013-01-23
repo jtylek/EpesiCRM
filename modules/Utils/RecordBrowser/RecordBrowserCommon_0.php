@@ -179,13 +179,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return implode('__', $param);
     }
     public static function decode_autonumber_param($param, &$prefix, &$pad_length, &$pad_mask) {
-        $parsed = explode(',', $param, 4);
+        $parsed = explode('__', $param, 4);
         if (!is_array($parsed) || count($parsed) != 3)
             trigger_error("Not well formed autonumber parameter: $param", E_USER_ERROR);
         list($prefix, $pad_length, $pad_mask) = $parsed;
     }
     public static function encode_autonumber_param($prefix, $pad_length, $pad_mask) {
-        return implode(',', array($prefix, $pad_length, $pad_mask));
+        return implode('__', array($prefix, $pad_length, $pad_mask));
     }
     public static function format_autonumber_str($param, $id) {
         self::decode_autonumber_param($param, $prefix, $pad_length, $pad_mask);

@@ -1969,11 +1969,11 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('checkbox', 'filter', __('Filter enabled'), null, array('id' => 'filter'));
         
         $form->addElement('text', 'autonumber_prefix', __('Prefix string'), array('id' => 'autonumber_prefix'));
-        $form->addRule('autonumber_prefix', __('Comma is not allowed'), 'regex', '/^[^,]*$/');
+        $form->addRule('autonumber_prefix', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
         $form->addElement('text', 'autonumber_pad_length', __('Pad length'), array('id' => 'autonumber_pad_length'));
         $form->addRule('autonumber_pad_length', __('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
         $form->addElement('text', 'autonumber_pad_mask', __('Pad character'), array('id' => 'autonumber_pad_mask'));
-        $form->addRule('autonumber_pad_mask', __('Comma is not allowed'), 'regex', '/^[^,]*$/');
+        $form->addRule('autonumber_pad_mask', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
 
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings()', 'id'=>'advanced'));
 		$form->addElement('text', 'display_callback', __('Value display function'), array('maxlength'=>255, 'style'=>'width:300px', 'id'=>'display_callback'));
@@ -2129,6 +2129,10 @@ class Utils_RecordBrowser extends Module {
 		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
 		
         return true;
+    }
+    
+    public static function qf_rule_without_double_underscore($str) {
+        return strpos($str, '__') === false;
     }
 	
 	public function check_field_definitions($data) {
