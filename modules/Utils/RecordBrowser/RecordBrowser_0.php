@@ -1473,15 +1473,15 @@ class Utils_RecordBrowser extends Module {
     }
 
     public function check_new_record_access($data) {
-	$problems = array();
-	$ret = array();
-	$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
-	Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
-	foreach ($problems as $f) {
-	    $f = explode('[', $f);
-	    $ret[$f[0]] = __('Invalid value');
-	}
-	return empty($ret)?true:$ret;
+		$problems = array();
+		$ret = array();
+		$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
+		Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
+		foreach ($problems as $f) {
+			$f = explode('[', $f);
+			$ret[$f[0]] = __('Invalid value');
+		}
+		return empty($ret)?true:$ret;
     }
     public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
 	if ($mode == 'add')
