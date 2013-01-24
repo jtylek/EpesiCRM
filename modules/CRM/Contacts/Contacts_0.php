@@ -145,21 +145,28 @@ class CRM_Contacts extends Module {
             $my_level = isset($admin_levels[Base_AclCommon::get_user()])
                         ? $admin_levels[Base_AclCommon::get_user()] : 0;
 
-        // 2 is superadmin
-        if ($my_level == 2 ||
-                (isset($admin_levels[$r['login']])
-                && $my_level > $admin_levels[$r['login']]) ) {
+        $mod = 'Base_User_Administrator';
+        $log_as_user = Base_AdminCommon::get_access($mod, 'log_as_user');
+        $log_as_admin = Base_AdminCommon::get_access($mod, 'log_as_admin');
+        
+        $user_level = isset($admin_levels[$r['login']]) ? $admin_levels[$r['login']] : 0;
+        // 2 is superadmin, 1 admin, 0 user
+        if ($my_level == 2 ||      // i am super admin or...
+                $my_level == 1 &&  // i am admin and...
+                ($user_level == 0 && $log_as_user ||  // contact is user and I can login as user
+                $user_level == 1 && $log_as_admin)) { // contact is admin and I can login as admin
             if (Base_UserCommon::is_active($r['login'])) {
                 $gb_row->add_action($this->create_callback_href(array($this, 'change_user_active_state'), array($r['login'], false)), 'Deactivate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-on.png'));
                 $gb_row->add_action(Module::create_href(array('log_as_user' => $r['login'])), 'Log as user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'restore.png'));
+                // action!
+                if (isset($_REQUEST['log_as_user']) && $_REQUEST['log_as_user'] == $r['login']) {
+                    Acl::set_user($r['login'], true);
+                    Epesi::redirect();
+                    return;
+                }
             } else {
                 $gb_row->add_action($this->create_callback_href(array($this, 'change_user_active_state'), array($r['login'], true)), 'Activate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-off.png'));
             }
-        }
-        if (isset($_REQUEST['log_as_user']) && $_REQUEST['log_as_user'] == $r['login']) {
-            Acl::set_user($r['login'], true);
-            Epesi::redirect();
-            return;
         }
     }
 	public function change_user_active_state($user, $state) {
