@@ -61,6 +61,10 @@ class Tests_RecordBrowser_Recordset extends RBO_Recordset {
 		$timestamp->set_visible();
 
 		//time - to add when it's available in RBO
+		$time_r = new RBO_Field_Time('Time Required');
+		$time_r->set_visible()->set_required();
+		$time = new RBO_Field_Time('Time');
+		$time->set_visible();
 		
 		//currency
 		$currency_r = new RBO_Field_Currency('Currency Required');
@@ -69,9 +73,9 @@ class Tests_RecordBrowser_Recordset extends RBO_Recordset {
 		$currency->set_visible();
 		
 		//select recordset
-		$select_r = new RBO_Field_Select('Select Required','task',array('title'));
+		$select_r = new RBO_Field_Select('Select Required','task',array('Title'));
 		$select_r->set_visible()->set_required();
-		$select = new RBO_Field_Select('Select','task',array('title'));
+		$select = new RBO_Field_Select('Select','task',array('Title'));
 		$select->set_visible();
 		
 		//select commondata
@@ -81,16 +85,16 @@ class Tests_RecordBrowser_Recordset extends RBO_Recordset {
 		$select_commondata->set_visible();
 
 		//multiselect recordset
-		$multiselect_r = new RBO_Field_Multiselect('Multiselect Required','task',array('title'));
+		$multiselect_r = new RBO_Field_Multiselect('Multiselect Required','task',array('Title'));
 		$multiselect_r->set_visible()->set_required();
-		$multiselect = new RBO_Field_Multiselect('Multiselect','task',array('title'));
+		$multiselect = new RBO_Field_Multiselect('Multiselect','task',array('Title'));
 		$multiselect->set_visible();
 		
-		//TODOmultiselect commondata
-		$multiselect_commondata_r = new RBO_Field_Multiselect('Multiselect Commondata Required','task',array('title'));
-		$multiselect_commondata_r->set_visible()->set_required();
-		$multiselect_commondata = new RBO_Field_Multiselect('Multiselect Commondata','task',array('title'));
-		$multiselect_commondata->set_visible();
+		//multiselect commondata
+		$multiselect_commondata_r = new RBO_Field_CommonData('Multiselect Commondata Required','Tests/RecordBrowser/Test_Commondata');
+		$multiselect_commondata_r->set_visible()->set_required()->set_multiple();
+		$multiselect_commondata = new RBO_Field_CommonData('Multiselect Commondata','Tests/RecordBrowser/Test_Commondata');
+		$multiselect_commondata->set_visible()->set_multiple();
 
 		//autonumber
 		$autonumber = new RBO_Field_Autonumber('Autonumber');
@@ -107,7 +111,7 @@ class Tests_RecordBrowser_Recordset extends RBO_Recordset {
 		$special = new RBO_Field_Text('Special');
 		$special->set_length(100)->set_visible();
 		
-        return array($autonumber,$text_r,$text,$longtext_r,$longtext,$integer_r,$integer,$float_r,$float,$checkbox,$calculated,$currency_r,$currency,$pagesplit1,$date_r,$date,$timestamp_r,$timestamp,$pagesplit2,$select_r,$select,$select_commondata_r,$select_commondata,$multiselect_r,$multiselect,$multiselect_commondata_r,$multiselect_commondata,$pagesplit3,$permission,$special);
+        return array($autonumber,$text_r,$text,$longtext_r,$longtext,$integer_r,$integer,$float_r,$float,$checkbox,$calculated,$currency_r,$currency,$pagesplit1,$date_r,$date,$timestamp_r,$timestamp,$time_r,$time,$pagesplit2,$select_r,$select,$select_commondata_r,$select_commondata,$multiselect_r,$multiselect,$multiselect_commondata_r,$multiselect_commondata,$pagesplit3,$permission,$special);
     }
 	
 }

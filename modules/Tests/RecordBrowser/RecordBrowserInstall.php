@@ -28,10 +28,7 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 		$records[$in]->save();
 		$this->update_record($records[$in],$this->prepare_data(5,true,true));
 		//records for permissions tests
-		for ($j=0;$j<6;$j++){
-			$records[++$in] = $ra->new_record($this->prepare_data($j,false,false));
-			$records[$in]->save();
-			$this->update_record($records[$in],$this->prepare_data($j,true,false));
+		for ($j=0;$j<5;$j++){
 			$records[++$in] = $ra->new_record($this->prepare_data($j,false,true));
 			$records[$in]->save();
 			$this->update_record($records[$in],$this->prepare_data($j,true,true));
@@ -51,12 +48,18 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 		return array(	array('name'=>'Utils/RecordBrowser','version'=>0));
 	}
 	
+	function create_sample_tasks(){
+		
+	}
+	
 	function prepare_data($permission = 0,$is_altered = false,$are_nonrequired_filled = false){
 		$ra_task = new RBO_RecordsetAccessor('task');
-		$t1 = $ra_task->new_record(array('title'=>'Sample task 1','status'=>0,'priority'=>0,'permission'=>0,'employees'=>array(1)));
-		$t2 = $ra_task->new_record(array('title'=>'Sample task 2','status'=>0,'priority'=>0,'permission'=>0,'employees'=>array(1)));
-		$t1->save();
-		$t2->save();
+		$tasks_number = 2;
+		$tasks = array_keys($ra_task->get_records(array(),array(),array(),$tasks_number));
+		while (count($tasks)<$tasks_number){
+			$t = $ra_task->new_record(array('title'=>'Sample task '.(count($tasks)+1),'status'=>0,'priority'=>0,'permission'=>0,'employees'=>array(1)));
+			$tasks[] = $t->id;
+		}
 		$data_required = array(
 				'text_required' => 'Sample text required', 
 				'long_text_required' => 'Permission:'.$permission.' Not required fields full:'.$are_nonrequired_filled.' Altered:false',
@@ -65,12 +68,13 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 				'checkbox' => 0,
 				'date_required' => date('Y-m-d'),
 				'timestamp_required' => date('Y-m-d H:i:s'),
+				'time_required' => date('Y-m-d 12:23:45'),
 				'currency_required' => Utils_CurrencyFieldCommon::format_default(100,1),
-				'select_required' => $t1->id,
+				'select_required' => $tasks[0],
 				'select_commondata_required' => 2,
-				'multiselect_required' => array($t1->id,$t2->id),
-//					'multiselect_commondata_required' => ,
-				'permission' => $permission,
+				'multiselect_required' => array($tasks[0]),
+				'multiselect_commondata_required' => array(0,1,2),
+				'permission' => $permission
 			);
 		$data_other = array(
 				'text' => 'Sample text', 
@@ -80,11 +84,12 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 				'checkbox' => 1,
 				'date' => date('Y-m-d',strtotime('+2 days')),
 				'timestamp' => date('Y-m-d H:i:s',strtotime('-3 days')),
+				'time' => date('Y-m-d 12:24:46'),
 				'currency' => Utils_CurrencyFieldCommon::format_default(200,1),
-				'select' => $t2->id,
-				'select_commondata_required' => 1,
-				'multiselect_required' => array($t1->id,$t2->id),
-//					'multiselect_commondata_required' => ,
+				'select' => $tasks[1],
+				'select_commondata' => 1,
+				'multiselect' => array($tasks[0]),
+				'multiselect_commondata' => array(0,1,2),
 			);
 		$data_required_altered = array(
 				'text_required' => 'Sample text required altered', 
@@ -94,12 +99,13 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 				'checkbox' => 1,
 				'date_required' => date('Y-m-d',strtotime('+2 days')),
 				'timestamp_required' => date('Y-m-d H:i:s',strtotime('-3 days')),
+				'time_required' => date('Y-m-d 12:26:47'),
 				'currency_required' => Utils_CurrencyFieldCommon::format_default(10,1),
-				'select_required' => $t1->id,
+				'select_required' => $tasks[0],
 				'select_commondata_required' => 3,
-				'multiselect_required' => array($t1->id),
-//					'multiselect_commondata_required' => ,
-				'permission' => $permission,
+				'multiselect_required' => array($tasks[0],$tasks[1]),
+				'multiselect_commondata_required' => array(1,2,3),
+				'permission' => $permission
 			);
 		$data_other_altered = array(
 				'text' => 'Sample text altered', 
@@ -109,11 +115,12 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 				'checkbox' => 0,
 				'date' => date('Y-m-d'),
 				'timestamp' => date('Y-m-d H:i:s'),
+				'time' => date('Y-m-d 12:27:47'),
 				'currency' => Utils_CurrencyFieldCommon::format_default(20,1),
-				'select' => $t1->id,
-				'select_commondata_required' => 3,
-				'multiselect_required' => array($t1->id),
-//					'multiselect_commondata_required' => ,
+				'select' => $tasks[0],
+				'select_commondata' => 3,
+				'multiselect' => array($tasks[0],$tasks[1]),
+				'multiselect_commondata' => array(1,2,3)
 			);
 		if ($is_altered){
 			$data1 = $data_required_altered; 
