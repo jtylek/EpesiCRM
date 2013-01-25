@@ -109,7 +109,7 @@ class CRM_Calendar extends Module {
 				case 'Agenda': $view = __('Agenda'); break;
 			}
 			if (isset($view)) {
-				$pdf = $this->pack_module('Libs/TCPDF', 'L');
+				$pdf = $this->pack_module('Libs/TCPDF', null, null, 'L');
 				if ($pdf->prepare()) {
 					set_time_limit(0);
 					$start = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['start']));
