@@ -2842,6 +2842,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         if ($rec_count > Utils_RecordBrowserCommon::$options_limit) {
             $f_callback = $multi_adv_params['format_callback'];
+			if (empty($f_callback)) $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
             if ($desc['type'] == 'multiselect') {
                 $el = $form->addElement('automulti', $field, $label, array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $f_callback, $desc['param']), $f_callback);
                 ${'rp_' . $field} = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker', array());

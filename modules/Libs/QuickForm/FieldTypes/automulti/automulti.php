@@ -270,9 +270,8 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$list = '';
 			$attrString = $this->_getAttrString($this->_attributes);
 			$mainElement .= $tabs . '<select' . $attrString . ' onclick="automulti_remove_button_update(\''.$myName.'\');">'."\n";
-			
 			if ($this->_format_callback) foreach ($this->_values as $value) {
-				$mainElement .= $tabs . "\t".'<option value="'.$value.'">' . call_user_func($this->_format_callback, $value) . '</option>'."\n";
+				$mainElement .= $tabs . "\t".'<option value="'.$value.'">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>'."\n";
 				$list .= '__SEP__'.$value;
             }
 			$mainElement .= $tabs . '</select>';

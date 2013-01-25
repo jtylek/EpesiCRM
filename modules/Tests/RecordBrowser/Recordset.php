@@ -16,9 +16,9 @@ class Tests_RecordBrowser_Recordset extends RBO_Recordset {
 	function fields() {
 		//text
         $text_r = new RBO_Field_Text('Text Required');
-        $text_r->set_length(24)->set_required()->set_visible();
+        $text_r->set_length(64)->set_required()->set_visible();
         $text = new RBO_Field_Text('Text');
-        $text->set_length(24)->set_visible();
+        $text->set_length(64)->set_visible();
 		
 		//long text
 		$longtext_r = new RBO_Field_LongText('Long Text Required');
