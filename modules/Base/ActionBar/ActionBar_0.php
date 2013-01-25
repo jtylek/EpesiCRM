@@ -73,7 +73,7 @@ class Base_ActionBar extends Module {
 		if(Base_AclCommon::is_user()) {
 			$opts = Base_Menu_QuickAccessCommon::get_options();
 			if(!empty($opts)) {
-				$dash = ($mod=ModuleManager::get_instance('/Base_Box|0')) && ($main=$mod->get_main_module()) && $main->get_type()=='Base_Dashboard';
+				$dash = ($mod=ModuleManager::get_instance('/Base_Box|0')) && ($main=$mod->get_main_module()) && $main->get_type()=='Base_HomePage';
 				self::$launchpad = array();
 				foreach ($opts as $k=>$v) {
 					if($dash && Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_d')) {
