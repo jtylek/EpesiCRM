@@ -1895,7 +1895,7 @@ class Utils_RecordBrowser extends Module {
 					break;
 				case 'multiselect':
 					$row['select_data_type'] = 'select';
-					$row['select_type'] = 'multi';
+					$row['select_type'] = 'multiselect';
 					$ref = explode(';', $row['param']);
 					$refe = explode('::',$ref[0]);
 					$tab = $refe[0];
@@ -1952,7 +1952,7 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('text', 'text_length', __('Maximum Length'), array('id'=>'length'));
 
 		$form->addElement('select', 'data_source', __('Source of Data'), array('rset'=>__('Recordset'), 'commondata'=>__('CommonData')), array('id'=>'data_source', 'onchange'=>'RB_hide_form_fields()'));
-		$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Single value selection'), 'multi'=>__('Multiple values selection')), array('id'=>'select_type'));
+		$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Single value selection'), 'multiselect'=>__('Multiple values selection')), array('id'=>'select_type'));
 		$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value')), array('id'=>'order_by'));
 		$form->addElement('text', 'commondata_table', __('CommonData table'), array('id'=>'commondata_table'));
 
@@ -2063,7 +2063,7 @@ class Utils_RecordBrowser extends Module {
 									DB::Execute('UPDATE '.$this->tab.'_data_1 SET f_'.$id.'=%s WHERE id=%d', array($v, $rr['id']));
 								}
 							}
-							if (isset($row) && isset($row['type'])  && $row['type']!='multiselect' && $data['select_type']=='multi') {
+							if (isset($row) && isset($row['type'])  && $row['type']!='multiselect' && $data['select_type']=='multiselect') {
 								if(DATABASE_DRIVER=='postgres')
 									DB::Execute('ALTER TABLE '.$this->tab.'_data_1 ALTER COLUMN f_'.$id.' TYPE TEXT');
 								else
@@ -2163,7 +2163,7 @@ class Utils_RecordBrowser extends Module {
 					$ret = $ret + $this->detranslate_field_names($data['rset'], $data['label_field']);
 				}
 			}
-			if ($this->admin_field_mode=='edit' && $data['select_type']=='select' && $this->admin_field['select_type']=='multi') {
+			if ($this->admin_field_mode=='edit' && $data['select_type']=='select' && $this->admin_field['select_type']=='multiselect') {
 				$count = DB::GetOne('SELECT COUNT(*) FROM '.$this->tab.'_data_1 WHERE f_'.Utils_RecordBrowserCommon::get_field_id($this->admin_field['field']).' '.DB::like().' %s', array('%_\_\__%'));
 				if ($count!=0) {
 					$ret['select_type'] = __('Cannot change type');
