@@ -837,7 +837,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_fav'))
             DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array($user, $id));
 		self::init($tab);
-		foreach(self::$table_rows as $field=>$args)
+		foreach(self::$table_rows as $field=>$args) {
 			if ($args['type']==='multiselect') {
 				if (!isset($values[$args['id']])) $values[$args['id']] = array();
 				elseif (!is_array($values[$args['id']]))
@@ -848,6 +848,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 self::update_record($tab, $id, array($args['id'] => $autonumber_value), false, null, true);
                 $values[$args['id']] = $autonumber_value;
             }
+        }
 		$values['id'] = $id;
 		self::record_processing($tab, $values, 'added');
 
