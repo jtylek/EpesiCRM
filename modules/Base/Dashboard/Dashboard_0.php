@@ -135,6 +135,7 @@ class Base_Dashboard extends Module {
 			print('</td></tr></table>');
 			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
 		}
+        Base_ActionBarCommon::show_quick_access_shortcuts();
 	}
 	
 	public function switch_config_mode() {

@@ -73,10 +73,10 @@ class Base_ActionBar extends Module {
 		if(Base_AclCommon::is_user()) {
 			$opts = Base_Menu_QuickAccessCommon::get_options();
 			if(!empty($opts)) {
-				$dash = ($mod=ModuleManager::get_instance('/Base_Box|0')) && ($main=$mod->get_main_module()) && $main->get_type()=='Base_HomePage';
 				self::$launchpad = array();
 				foreach ($opts as $k=>$v) {
-					if($dash && Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_d')) {
+					if(Base_ActionBarCommon::$quick_access_shortcuts
+                            && Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_d')) {
 						$ii = array();
 						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];

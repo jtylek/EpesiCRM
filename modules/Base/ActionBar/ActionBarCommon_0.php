@@ -15,6 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ActionBarCommon extends ModuleCommon {
 	private static $icons = array();
+    public static $quick_access_shortcuts = false;
 
 	public static $available_icons = array(
 			'home'		=> 0,
@@ -58,6 +59,10 @@ class Base_ActionBarCommon extends ModuleCommon {
 	public static function clean() {
 		self::$icons = array();
 	}
+    
+    public static function show_quick_access_shortcuts($value = true) {
+        self::$quick_access_shortcuts = $value;
+    }
 }
 on_exit(array('Base_ActionBarCommon','clean'));
 ?>
