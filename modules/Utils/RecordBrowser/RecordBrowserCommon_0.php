@@ -1244,7 +1244,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         $orderby[] = ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id='.Acl::get_user().') '.$v['direction'];
                         break;
                     case ':Visited_on'  :
-                        $orderby[] = ' (SELECT visited_on FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id='.Acl::get_user().' LIMIT 1) '.$v['direction'];
+                        $orderby[] = ' (SELECT MAX(visited_on) FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id='.Acl::get_user().') '.$v['direction'];
                         break;
                     case ':Edited_on'   :
                         $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
