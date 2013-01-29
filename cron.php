@@ -31,5 +31,3 @@ foreach($ret as $name=>$obj) {
     	print($name.":<br>".$obj."<hr>");
 }
 @unlink($lock);
-
-?>
