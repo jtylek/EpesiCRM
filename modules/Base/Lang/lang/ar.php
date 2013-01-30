@@ -5,12 +5,12 @@
  * @subpackage ar
  */
 global $translations;
-$translations['Birthdays']='تواريخ الميلاد';
-$translations['Displays upcoming Birthdays of your favorite contacts.']='يقوم بإظهار تواريخ ميلاد العملاء المفضلين';
+$translations['Birthdays']='أعياد الميلاد';
+$translations['Displays upcoming Birthdays of your favorite contacts.']='عرض اعياد ميلاد الاشخاص الموجودين بقائمة المعارف';
 $translations['Number of days']='عدد الأيام';
 $translations['Field must be numeric']='حقل رقمي';
 $translations['Field required']='حقل مطلوب';
-$translations['Title']='العنوان';
+$translations['Title']='لقب';
 $translations['Upcoming Birthdays']='تواريخ ميلاد قادمة';
 $translations['Contact Type']='';
 $translations['All']='الكل';
