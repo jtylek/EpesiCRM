@@ -16,6 +16,7 @@ class Base_Dashboard extends Module {
 
 	public function construct() {
 		$this->tb = $this->init_module('Utils/TabbedBrowser');
+        on_init(array('Base_ActionBarCommon', 'show_quick_access_shortcuts'), array(false));
 	}
 
 	public function body() {
@@ -26,6 +27,7 @@ class Base_Dashboard extends Module {
 			if(Utils_RecordBrowserCommon::check_for_jump()) return;
 
 		$this->dashboard();
+        Base_ActionBarCommon::show_quick_access_shortcuts(true);
 	}
 	
 	private function dashboard() {
@@ -135,7 +137,6 @@ class Base_Dashboard extends Module {
 			print('</td></tr></table>');
 			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
 		}
-        Base_ActionBarCommon::show_quick_access_shortcuts();
 	}
 	
 	public function switch_config_mode() {
