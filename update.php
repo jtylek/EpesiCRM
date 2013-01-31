@@ -2728,7 +2728,6 @@ foreach($versions as $v) {
 	$x = str_replace('.','_',$v);
 	if($go) {
 		if(is_callable('update_from_'.$last_ver.'_to_'.$x)) {
-//			print('Update from '.$last_ver.' to '.$x.'<br>');
 			call_user_func('update_from_'.$last_ver.'_to_'.$x);
 		}
         Variable::set('version',$v);
@@ -2737,10 +2736,15 @@ foreach($versions as $v) {
 	if($v==EPESI_VERSION) $go=false;
 	$last_ver = $x;
 }
-@unlink(DATA_DIR.'/cache/common.php');
-@recursive_rmdir(DATA_DIR.'/cache/minify');
 
 if ($cur_ver==EPESI_VERSION && !Base_AclCommon::i_am_sa()) die('Unauthorized access');
+
+// to simplify the update process
+ModuleManager::create_load_priority_array();
+PatchUtil::apply_new();
+
+@unlink(DATA_DIR.'/cache/common.php');
+@recursive_rmdir(DATA_DIR.'/cache/minify');
 
 themeup();
 Base_LangCommon::update_translations();
