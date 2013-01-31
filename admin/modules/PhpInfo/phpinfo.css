@@ -1,0 +1,108 @@
+body, table {
+        font-family: Verdana,Arial,Helvetica,sans-serif;
+        font-size: 12px;
+	margin: 0px 0px 0px 0px;
+        padding: 0px 0px 0px 0px;
+	background-color: #e6e6e7;
+        table-layout: fixed;     
+    }
+
+#phpinfo .pre{
+      margin: 0px;
+      font-family: monospace;
+    }
+    
+#phpinfo a:link{
+    color: #1d7dd1;
+    text-decoration: none;
+/*    background-color: #ffffff; */
+    }
+    
+#phpinfo a:hover{
+    text-decoration: underline;
+    }
+#phpinfo table{
+    border-collapse: collapse;
+    width:100%;
+    overflow: hidden;
+    word-break: break-all;
+    }
+    
+#phpinfo .center{
+    text-align: center;
+    }
+#phpinfo .center table{
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    }
+    
+#phpinfo .center th{
+    text-align: center !important;
+    }
+    
+#phpinfo td {
+    border: 1px solid #000000;
+    vertical-align: baseline;
+    }
+
+#phpinfo th {
+    border: 1px solid #000000;
+    vertical-align: baseline;
+    color: white;
+    width: 30%;
+    }
+    
+#phpinfo h1 {
+    font-size: 150%;
+    color: black;
+    }
+    
+#phpinfo h2 {
+    font-size: 125%;
+    color: white;
+    background-color: #ba4f4f;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    }
+    
+#phpinfo .p {
+    text-align: left;
+    }
+    
+#phpinfo .e {
+    background-color: #1b8a1b;
+    font-weight: bold;
+    color: white;
+    width: 30%;
+    }
+    
+#phpinfo .h {
+    background-color: #1d7dd1;
+    font-weight: bold;
+    color: #000000;
+    }
+    
+#phpinfo .v {
+    background-color: #ffffcc;
+    color: #000000;
+    }
+    
+#phpinfo .vr {
+    background-color: #cccccc;
+    text-align: right;
+    color: #000000;
+    }
+    
+#phpinfo img {
+    float: right;
+    border: 0px;
+    }
+    
+#phpinfo hr {
+    width: 100%;
+    background-color: #cccccc;
+    border: 0px;
+    height: 1px;
+    color: #000000;
+    }
