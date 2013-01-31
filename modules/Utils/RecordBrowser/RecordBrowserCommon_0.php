@@ -1417,8 +1417,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($or) {
                 if ($or_start && $or_started) {
                     if (!$or_result) {
-			$problems = $problems + $or_fields;
-                	return $cache[$tab.'__'.$id] = false;
+						$problems = $problems + $or_fields;
+						return $cache[$tab.'__'.$id] = false;
             	    }
                     $or_result = false;
                 }
@@ -1430,7 +1430,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $or_fields[] = $k;
             } else {
                 if ($or_started && !$or_result) {
-	    	    $problems = $problems + $or_fields;
+					$problems = $problems + $or_fields;
             	    return $cache[$tab.'__'.$id] = false;
             	}
                 $or_started = false;
@@ -2577,7 +2577,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function QFfield_checkbox(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
-        $form->addElement('checkbox', $field, $label, '', array('id' => $field));
+        $form->addElement('advcheckbox', $field, $label, '', array('id' => $field));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));
     }
