@@ -105,6 +105,7 @@ class Base_DashboardInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/ActionBar','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Base/HomePage','version'=>0),
 			array('name'=>'Base/User','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
