@@ -1133,18 +1133,16 @@ class CRM_ContactsCommon extends ModuleCommon {
             $result = self::get_contacts($crits);
 
             foreach ($result as $row)
-                $ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('contact', $row['id']).__( 'Contact #%d, %s %s', array($row['id'], $row['first_name'], $row['last_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
+                $ret[] = Utils_RecordBrowserCommon::record_link_open_tag('contact', $row['id']).__( 'Contact #%d, %s %s', array($row['id'], $row['first_name'], $row['last_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
         }
         if(Utils_RecordBrowserCommon::get_access('company','browse')) {
-            $result = self::get_companies(array('"~company_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+            $crits = array('("~company_name' => DB::Concat(DB::qstr('%'),DB::qstr($word),DB::qstr('%')),
+                '|"~short_name' => DB::Concat(DB::qstr('%'),DB::qstr($word),DB::qstr('%')));
+
+            $result = self::get_companies($crits);
 
             foreach ($result as $row)
-                $ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('company', $row['id']).__( 'Company #%d, %s', array($row['id'], $row['company_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
-
-            $result = self::get_companies(array('"~short_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
-
-            foreach ($result as $row)
-                $ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('company', $row['id']).__( 'Company #%d, %s', array($row['id'], $row['company_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
+                $ret[] = Utils_RecordBrowserCommon::record_link_open_tag('company', $row['id']).__( 'Company #%d, %s', array($row['id'], $row['company_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
         }
 
         return $ret;
