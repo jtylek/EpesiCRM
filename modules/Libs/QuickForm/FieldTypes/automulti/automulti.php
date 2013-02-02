@@ -90,7 +90,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     	foreach ($result as $k=>$v) {
     		if ($format) $disp = call_user_func($format, $k, $args);
 			else $disp = $v;
-			if ($v=='') $v = $disp;
+			if (!$v) $v = $disp;
 			$ret .= '<li><span style="display:none;">'.$k.'__'.$disp.'</span><span class="informal">'.$v.'</span></li>';
 		}
     	$ret .= '</ul>';

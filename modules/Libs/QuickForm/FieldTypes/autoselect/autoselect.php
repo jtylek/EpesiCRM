@@ -46,7 +46,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
     	$this->on_hide_js_code = $js;
     }
 
-    public static function get_autocomplete_suggestbox($string, $callback, $args) {
+    public static function get_autocomplete_suggestbox($string, $callback, $args, $format=null) {
 		if (!is_string($string)) $string = '';
 		$suggestbox_args = $args;
     	array_unshift($suggestbox_args, $string);
@@ -59,7 +59,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			foreach ($result as $k=>$v) {
 				if ($format) $disp = call_user_func($format, $k, $args);
 				else $disp = $v;
-				if ($v=='') $v = $disp;
+				if (!$v) $v = $disp;
 				$ret .= '<li><span style="display:none;">'.$k.'__'.$disp.'</span><span class="informal">'.$v.'</span></li>';
 			}
 			$ret .= '</ul>';
@@ -116,7 +116,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			$strHtml .= $tabs . '</select>';
 
 			$text_attrs = array('placeholder'=>$hint);
-			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args), $text_attrs);
+			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args, $this->more_opts_format), $text_attrs);
 			$search->on_hide_js('autoselect_on_hide("'.$myName.'",'.($mode?'1':'0').');'.$this->on_hide_js_code);
 
 			if ($mode==0) eval_js('Event.observe("'.$myName.'","change",function(){if($("'.$myName.'").value=="")autoselect_start_searching("'.$myName.'");});');
