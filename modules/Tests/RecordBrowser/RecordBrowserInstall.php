@@ -14,24 +14,21 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
         Utils_CommonDataCommon::new_array('Tests/RecordBrowser/Test_Commondata', array('Test0','Test1', 'Test2', 'Test3', 'Test4'));
 		Utils_CommonDataCommon::new_array('Tests/RecordBrowser/Test_Permissions', array('none','partial view','full view','partial edit','full edit','delete'));
 		
-		$test_recordset = new Tests_RecordBrowser_Recordset();
-		$test_recordset->install();
+		$tr = new Tests_RecordBrowser_Recordset();
+		$tr->install();
 		
-		$ra = new RBO_RecordsetAccessor('tests_record_set');
-		$records = array();
-		$in = -1;
+		//$ra = new RBO_RecordsetAccessor('tests_record_set');
+		//$records = array();
+		//$in = -1;
 		//records for RB tests (full permission)
-		$records[++$in] = $ra->new_record($this->prepare_data(5,false,false));
-		$records[$in]->save();
-		$this->update_record($records[$in],$this->prepare_data(5,true,false));
-		$records[++$in] = $ra->new_record($this->prepare_data(5,false,true));
-		$records[$in]->save();
-		$this->update_record($records[$in],$this->prepare_data(5,true,true));
+		$record = $tr->new_record($this->prepare_data(5,false,false));
+		$this->update_record($record,$this->prepare_data(5,true,false));
+		$record = $tr->new_record($this->prepare_data(5,false,true));
+		$this->update_record($record,$this->prepare_data(5,true,true));
 		//records for permissions tests
 		for ($j=0;$j<5;$j++){
-			$records[++$in] = $ra->new_record($this->prepare_data($j,false,true));
-			$records[$in]->save();
-			$this->update_record($records[$in],$this->prepare_data($j,true,true));
+			$record = $tr->new_record($this->prepare_data($j,false,true));
+			$this->update_record($record,$this->prepare_data($j,true,true));
 		}
 		//setting permissions
 		$this->prepare_permissions();
@@ -89,7 +86,7 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 				'select' => $tasks[1],
 				'select_commondata' => 1,
 				'multiselect' => array($tasks[0]),
-				'multiselect_commondata' => array(0,1,2),
+				'multiselect_commondata' => array(0,1,2)
 			);
 		$data_required_altered = array(
 				'text_required' => 'Sample text required altered', 
@@ -139,7 +136,7 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 	}
 	
 	function prepare_permissions(){
-		$fields = array('autonumber','text_required','text','long_text_required','long_text','integer_required','integer','float_required','float','checkbox','calculated','currency_required','currency','date_required','date','timestamp_required','timestamp','select_required','select','select_commondata_required','select_commondata','multiselect_required','multiselect','multiselect_commondata_required','multiselect_commondata');
+		$fields = array('autonumber','text_required','text','long_text_required','long_text','integer_required','integer','float_required','float','checkbox','calculated','currency_required','currency','date_required','date','timestamp_required','timestamp','time_required','time','select_required','select','select_commondata_required','select_commondata','multiselect_required','multiselect','multiselect_commondata_required','multiselect_commondata');
 		//view
 		Utils_RecordBrowserCommon::add_access('tests_record_set','view','ADMIN',array('permission'=>1),$fields);		
 		Utils_RecordBrowserCommon::add_access('tests_record_set','view','ADMIN',array('>permission'=>1));
@@ -148,6 +145,7 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 		Utils_RecordBrowserCommon::add_access('tests_record_set','edit','ADMIN',array('>permission'=>3));
 		//delete
 		Utils_RecordBrowserCommon::add_access('tests_record_set','delete','ADMIN',array('permission'=>5));		
+		Utils_RecordBrowserCommon::add_access('tests_record_set','add','ADMIN');		
 	}
 
 } 
