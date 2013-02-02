@@ -2577,7 +2577,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function QFfield_checkbox(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
-        $form->addElement('advcheckbox', $field, $label, '', array('id' => $field));
+        $el = $form->addElement('advcheckbox', $field, $label, '', array('id' => $field));
+        $el->setValues(array('0','1'));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));
     }
