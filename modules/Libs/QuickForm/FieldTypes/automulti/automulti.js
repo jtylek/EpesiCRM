@@ -29,7 +29,7 @@ automulti_remove_button_action = function (element, list_sep) {
 }
 
 automulti_on_hide = function (element, list_sep) {
-	var new_value=$("__autocomplete_id_"+element+"__search").value.split("__");
+	var new_value=$("__autocomplete_id_"+element+"__search").value.split('__');
 	if (new_value && typeof(new_value[1])!="undefined") {
 		$("__autocomplete_id_"+element+"__search").value="";
 		automulti_add_value(element, list_sep, new_value[0], new_value[1]);

@@ -81,17 +81,18 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     
     public static function get_autocomplete_suggestbox($string, $callback=null, $args=null, $format=null) {
     	if (!is_array($args)) $args = array();
-    	array_unshift($args, $string);
-    	$result = call_user_func_array($callback, $args);
+		$suggestbox_args = $args;
+    	array_unshift($suggestbox_args, $string);
+    	$result = call_user_func_array($callback, $suggestbox_args);
     	$ret = '<ul>';
-    	if (empty($result)) {
+    	if (empty($result))
 			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records founds').'</span></li>';
-    	}
     	foreach ($result as $k=>$v) {
-    		if ($format) $disp = call_user_func($format, $k);
+    		if ($format) $disp = call_user_func($format, $k, $args);
 			else $disp = $v;
+			if ($v=='') $v = $disp;
 			$ret .= '<li><span style="display:none;">'.$k.'__'.$disp.'</span><span class="informal">'.$v.'</span></li>';
-    	}
+		}
     	$ret .= '</ul>';
     	return $ret;
     }
@@ -249,7 +250,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			}
 			
 			$myName = $this->getName();
-			$this->updateAttributes(array('id' => $myName)); // Workaround for not processing attributes arg preoperly
+			$this->updateAttributes(array('id' => $myName)); // Workaround for not processing attributes arg properly
 
 			load_js('modules/Libs/QuickForm/FieldTypes/automulti/automulti.js');
 

@@ -1,5 +1,5 @@
 autoselect_on_hide = function (element,mode) {
-	var new_value=$("__autocomplete_id_"+element+"__search").value.split("__");
+	var new_value=$("__autocomplete_id_"+element+"__search").value.split('__');
 	if (new_value && typeof(new_value[1])!="undefined") {
 		$("__autocomplete_id_"+element+"__search").value="";
 		autoselect_add_value(element, new_value[0], new_value[1]);

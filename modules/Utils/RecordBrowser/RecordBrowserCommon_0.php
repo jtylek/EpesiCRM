@@ -2303,11 +2303,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $crits = self::merge_crits($crits,$crits2);
         $records = self::get_records($ref[0], $crits, array(), array(), 10);
         $ret = array();
-        if (empty($f_callback) || !is_callable($f_callback))
-            $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
-        foreach ($records as $r) {
-			$ret[$r['id']] = call_user_func($f_callback, $r['id'], array($tab, $crits, $f_callback, $params));
-		}
+        foreach ($records as $r)
+			$ret[$r['id']] = '';
         return $ret;
     }
 

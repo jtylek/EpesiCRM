@@ -48,15 +48,19 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 
     public static function get_autocomplete_suggestbox($string, $callback, $args) {
 		if (!is_string($string)) $string = '';
-    	array_unshift($args, $string);
-    	$result = call_user_func_array($callback, $args);
+		$suggestbox_args = $args;
+    	array_unshift($suggestbox_args, $string);
+    	$result = call_user_func_array($callback, $suggestbox_args);
     	$ret = '<ul style="width:auto;">';
     	if (empty($result)) {
 			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records founds').'</span></li>';
     	}
 		if (is_array($result)) {
 			foreach ($result as $k=>$v) {
-				$ret .= '<li><span style="display:none;">'.$k.'__'.$v.'</span><span class="informal">'.$v.'</span></li>';
+				if ($format) $disp = call_user_func($format, $k, $args);
+				else $disp = $v;
+				if ($v=='') $v = $disp;
+				$ret .= '<li><span style="display:none;">'.$k.'__'.$disp.'</span><span class="informal">'.$v.'</span></li>';
 			}
 			$ret .= '</ul>';
 		} else {
