@@ -2474,10 +2474,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 switch ($k) {
                     case ':Fav' :   		$next .= (!$v || ($negative && $v))?__('is not on %sfavorites%s', array('<b>','</b>')):__('is on %sfavorites%s', array('<b>','</b>'));
 											$ret[] = $next;
-											continue;
+											continue 2;
                     case ':Recent'  :   	$next .= (!$v || ($negative && $v))?__('wasn\'t %srecently%s viewed', array('<b>','</b>')):__('was %srecently%s viewed', array('<b>','</b>'));
 											$ret[] = $next;
-											continue;
+											continue 2;
                     case ':Created_on'  :	$next .= '<b>'.__('Created on').'</b> ';
 											break;
                     case ':Created_by'  :	$next .= '<b>'.__('Created by').'</b> ';
@@ -2502,7 +2502,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					case '<=':	$operand .= __('smaller or equal to'); break;
 					case '>':	$operand .= __('greater than'); break;
 					case '>=':	$operand .= __('greater or equal to'); break;
-					case DB::like(): $operand .= __('contains'); break;
+					case DB::like(): 
+								$operand = $negative?__('does not contain'):__('contains'); 
+								$v = str_replace(array('||', "'%'"), '', $v); // FIXME doesn't differentiate between "begins with", "contains" or "ends with"
+								break;
 					default:	$operand .= __('equal to');
 				}
 				$operand = $operand.' ';

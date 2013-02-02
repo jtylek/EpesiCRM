@@ -12,6 +12,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_HomePage extends Module {
+	private $m;
 	public function body() {
 		$this->show_home_page(Base_HomePageCommon::get_my_homepage());
 	}
@@ -20,7 +21,10 @@ class Base_HomePage extends Module {
 		if (!isset($page[1])) $page[1] = 'body';
 		if (!isset($page[2])) $page[2] = null;
 		if (!isset($page[3])) $page[3] = null;
-		$this->pack_module($page[0], $page[2], $page[1], $page[3]);
+		$this->m = $this->pack_module($page[0], $page[2], $page[1], $page[3]);
+	}
+	public function caption() {
+		if (isset($this->m)) return $this->m->caption();
 	}
 
 	public function admin() {

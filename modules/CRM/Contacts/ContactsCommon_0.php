@@ -959,7 +959,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
         $num = $r[$desc['id']];
         if($num && strpos($num,'+')===false) {
-            if($r['country']) {
+            if(isset($r['country']) && $r['country']) {
                 $calling_code = Utils_CommonDataCommon::get_value('Calling_Codes/'.$r['country']);
                 if($calling_code)
                     $num = $calling_code.$num;
