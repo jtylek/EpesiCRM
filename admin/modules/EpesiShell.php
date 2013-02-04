@@ -41,7 +41,7 @@ class EpesiShell extends AdminModule {
     }
 
     private function form($cmd = '') {
-        print('<pre>Command:<form method="post"><textarea type="text" name="cmd" style="width:100%">' . $cmd . '</textarea><input type="submit" value="execute"/></form></pre>');
+        print('<pre>Command:<form method="post"><textarea type="text" name="cmd" style="width:100%; display:block">' . $cmd . '</textarea><input type="submit" value="execute"/></form></pre>');
     }
 
 }
