@@ -2478,6 +2478,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case ':Recent'  :   	$next .= (!$v || ($negative && $v))?__('wasn\'t %srecently%s viewed', array('<b>','</b>')):__('was %srecently%s viewed', array('<b>','</b>'));
 											$ret[] = $next;
 											continue 2;
+                    case ':Sub'  :          $next .= (!$v || ($negative && $v))?__('is not %swatched%s', array('<b>','</b>')):__('is %swatched%s', array('<b>','</b>'));
+                                            $ret[] = $next;
+                                            continue 2;
                     case ':Created_on'  :	$next .= '<b>'.__('Created on').'</b> ';
 											break;
                     case ':Created_by'  :	$next .= '<b>'.__('Created by').'</b> ';
