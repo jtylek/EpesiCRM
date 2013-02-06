@@ -3,7 +3,7 @@
 class EpesiShell extends AdminModule {
 
     public function menu_entry() {
-        return 'Run PHP command';
+        return __('Run PHP command');
     }
 
     public function required_epesi_modules() {
@@ -12,7 +12,7 @@ class EpesiShell extends AdminModule {
 
     public function body() {
         ob_start();
-        print('<div class="title">EPESI Shell</div>');
+        print('<div class="title">'. __('EPESI Shell'). '</div>');
         print('<p>Place "return" statement to see returned value</p>');
         $cmd = $this->cmd();
         if ($cmd) {

@@ -30,7 +30,7 @@ class ConfigInfo extends AdminModule {
     }
 
     private function print_info() {
-        print('<div class="title">PHP environment check</div>');
+        print('<div class="title">' . __('PHP environment check') . '</div>');
 
         $this->startTable();
         $data_dir_ok = is_writable('data');
@@ -93,7 +93,7 @@ class ConfigInfo extends AdminModule {
     }
 
     public function menu_entry() {
-        return "PHP environment & config.php";
+        return __("PHP environment & config.php");
     }
 
 }
