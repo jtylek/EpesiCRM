@@ -14,6 +14,7 @@
 -	Serwer HTTP (apache, IIS) ze wsparciem PHP 5.1.3. Jeśli to możliwe, zainstaluj najnowszą wersję PHP ze względu na błędy w wersjach wcześniejszych.
 -   PHP w wersji 5.2.0 nie obsługuje poprawnie EPESI ze względu na błąd w implementacji json_decode. W wersji 5.2.1 zostało to poprawione.
 -	Serwer HTTP powinien być skonfigurowany tak, by index.php był jednym z domyślnych dokumentów.
+-   Serwer HTTP musi wspierać lokalne pliki .htaccess
 -	Zainstalowany PEAR z poprawnym include_path w PHP config.ini.
 -	Serwer bazodanowy MySQL 4+ lub PostgreSQL 7+.
 -	Dostęp do serwera przez FTP lub lokalnie/przez shell'a.
