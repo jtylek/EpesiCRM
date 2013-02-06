@@ -30,14 +30,10 @@ class Base_User_Login extends Module {
 
 	public function body($tpl=null) {
 		//check bans
-		$t = Variable::get('host_ban_time');
-		if($t>0) {
-			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
-			if($fails>=3) {
-				print __('You have exceeded the number of allowed login attempts.').'<br>';
-				print('<a href="'.get_epesi_url().'">'.__('Host banned. Click here to refresh.').'</a>');
-				return;
-			}
+        if (!Acl::is_user() && Base_User_LoginCommon::is_banned()) {
+            print __('You have exceeded the number of allowed login attempts.').'<br>';
+            print('<a href="'.get_epesi_url().'">'.__('Host banned. Click here to refresh.').'</a>');
+            return;
 		}
 
 		//if logged

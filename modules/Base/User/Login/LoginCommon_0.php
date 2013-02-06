@@ -35,12 +35,13 @@ class Base_User_LoginCommon extends ModuleCommon {
 		$pass = $x[1];
 		$ret = Base_User_LoginCommon::check_login($username, $pass);
 		if(!$ret) {
-			$t = Variable::get('host_ban_time');
-			if($t>0) {
-				DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d',array(time()-$t));
+			$ban_seconds = Variable::get('host_ban_time');
+            $tries = Variable::get('host_ban_nr_of_tries');
+			if($ban_seconds > 0 && $tries>0) {
+				DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d',array(time()-$ban_seconds));
 				DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)',array(time(),$_SERVER['REMOTE_ADDR']));
-				$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
-				if($fails>=3)
+				$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$ban_seconds,$_SERVER['REMOTE_ADDR']));
+				if($fails >= $tries)
 					location(array());
 			}
 		}
@@ -152,6 +153,22 @@ class Base_User_LoginCommon extends ModuleCommon {
 	public static function get_mail($id) {
 		return DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',array($id));
 	}
+    
+    public static function is_banned() {
+        $time_seconds = Variable::get('host_ban_time');
+        $tries = Variable::get('host_ban_nr_of_tries', false);
+        if ($tries === '') {// default value when there is no such variable
+            $tries = 3;
+            Variable::set('host_ban_nr_of_tries', $tries);
+        }
+		if($tries > 0 && $time_seconds > 0) {
+			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$time_seconds,$_SERVER['REMOTE_ADDR']));
+			if($fails>=$tries) {
+                return true;
+			}
+		}
+        return false;
+    }
 	
 	////////////////////////////////////////////////////
 	// mobile devices

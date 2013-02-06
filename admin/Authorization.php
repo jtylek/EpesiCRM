@@ -22,8 +22,8 @@ class AdminAuthorization {
             $form->addRule('user', 'Field required', 'required');
             $form->addElement('password', 'pass', 'Password');
             $form->addRule('pass', 'Field required', 'required');
-            $form->registerRule('check_login', 'callback', 'submit_login', 'AdminAuthorization');
-            $form->addRule('user', 'Login or password incorrect', 'check_login', $form);
+            $form->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
+            $form->addRule(array('user', 'pass'), 'Login or password incorrect', 'check_login', $form);
             $form->addElement('submit', null, 'Ok');
             if ($form->validate()) {
                 $user = $form->exportValue('user');
@@ -35,11 +35,6 @@ class AdminAuthorization {
             }
         }
     }
-
-    static function submit_login($username, $form) {
-        return ModuleManager::is_installed('Base_User_Login') >= 0 && Base_User_LoginCommon::check_login($username, $form->exportValue('pass'));
-    }
-
 }
 
 ?>
