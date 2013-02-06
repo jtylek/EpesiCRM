@@ -33,19 +33,23 @@ class Base_User_LoginCommon extends ModuleCommon {
 	public static function submit_login($x) {
 		$username = $x[0];
 		$pass = $x[1];
-		$ret = Base_User_LoginCommon::check_login($username, $pass);
-		if(!$ret) {
-			$ban_seconds = Variable::get('host_ban_time');
+        $ret = Base_User_LoginCommon::check_login($username, $pass);
+        if (!$ret) {
+            // we have to option to ban - by ip or by login. In both cases
+            // from_addr column is used to store ip or login name
+            $ban_by_login = Variable::get('host_ban_by_login', false);
+            $param = $ban_by_login ? $username : $_SERVER['REMOTE_ADDR'];
+            $ban_seconds = Variable::get('host_ban_time');
             $tries = Variable::get('host_ban_nr_of_tries');
-			if($ban_seconds > 0 && $tries>0) {
-				DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d',array(time()-$ban_seconds));
-				DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)',array(time(),$_SERVER['REMOTE_ADDR']));
-				$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$ban_seconds,$_SERVER['REMOTE_ADDR']));
-				if($fails >= $tries)
-					location(array());
-			}
-		}
-		return $ret;
+            if ($ban_seconds > 0 && $tries > 0) {
+                DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d', array(time() - $ban_seconds));
+                DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)', array(time(), $param));
+                $fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s', array(time() - $ban_seconds, $param));
+                if ($fails >= $tries && !$ban_by_login)
+                    location(array());
+            }
+        }
+        return $ret;
 	}
 
 	public static function set_logged($user) {
@@ -154,20 +158,30 @@ class Base_User_LoginCommon extends ModuleCommon {
 		return DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',array($id));
 	}
     
-    public static function is_banned() {
+    public static function is_banned($login = null) {
         $time_seconds = Variable::get('host_ban_time');
         $tries = Variable::get('host_ban_nr_of_tries', false);
         if ($tries === '') {// default value when there is no such variable
             $tries = 3;
             Variable::set('host_ban_nr_of_tries', $tries);
         }
+        // Some kind of hack. We are using user login as IP address
+        // because it's same kind of column defined (varchar 32).
+        $param = $login ? $login : $_SERVER['REMOTE_ADDR'];
 		if($tries > 0 && $time_seconds > 0) {
-			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$time_seconds,$_SERVER['REMOTE_ADDR']));
+			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$time_seconds,$param));
 			if($fails>=$tries) {
                 return true;
 			}
 		}
         return false;
+    }
+    
+    public static function rule_login_banned($login = null) {
+        $ban_by_login = Variable::get('host_ban_by_login', false);
+        if (!$ban_by_login)
+            return true;
+        return !self::is_banned($login);
     }
 	
 	////////////////////////////////////////////////////
