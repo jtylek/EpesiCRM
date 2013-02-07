@@ -35,19 +35,9 @@ class Base_User_LoginCommon extends ModuleCommon {
 		$pass = $x[1];
         $ret = Base_User_LoginCommon::check_login($username, $pass);
         if (!$ret) {
-            // we have to option to ban - by ip or by login. In both cases
-            // from_addr column is used to store ip or login name
-            $ban_by_login = Variable::get('host_ban_by_login', false);
-            $param = $ban_by_login ? $username : $_SERVER['REMOTE_ADDR'];
-            $ban_seconds = Variable::get('host_ban_time');
-            $tries = Variable::get('host_ban_nr_of_tries');
-            if ($ban_seconds > 0 && $tries > 0) {
-                DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d', array(time() - $ban_seconds));
-                DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)', array(time(), $param));
-                $fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s', array(time() - $ban_seconds, $param));
-                if ($fails >= $tries && !$ban_by_login)
-                    location(array());
-            }
+            $limit_exceeded = self::log_failed_login($username);
+            if ($limit_exceeded)
+                location(array());
         }
         return $ret;
 	}
@@ -158,18 +148,22 @@ class Base_User_LoginCommon extends ModuleCommon {
 		return DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',array($id));
 	}
     
-    public static function is_banned($login = null) {
+    public static function is_banned($login = null, $current_time = null) {
         $time_seconds = Variable::get('host_ban_time');
         $tries = Variable::get('host_ban_nr_of_tries', false);
         if ($tries === '') {// default value when there is no such variable
             $tries = 3;
             Variable::set('host_ban_nr_of_tries', $tries);
         }
-        // Some kind of hack. We are using user login as IP address
-        // because it's same kind of column defined (varchar 32).
-        $param = $login ? $login : $_SERVER['REMOTE_ADDR'];
+        // Some kind of hack. We are using md5 hash of user login and IP address
+        // like address to match host + username. We can because md5 is 32 char.
+        // long as from_addr field
+        $param = $login ? md5($login . $_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+        
+        // allow to inject time parameter
+        if (!$current_time) $current_time = time();
 		if($tries > 0 && $time_seconds > 0) {
-			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$time_seconds,$param));
+			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array($current_time-$time_seconds,$param));
 			if($fails>=$tries) {
                 return true;
 			}
@@ -183,8 +177,24 @@ class Base_User_LoginCommon extends ModuleCommon {
             return true;
         return !self::is_banned($login);
     }
-	
-	////////////////////////////////////////////////////
+    
+    public static function log_failed_login($username) {
+        $ban_seconds = Variable::get('host_ban_time');
+        $tries = Variable::get('host_ban_nr_of_tries');
+        if ($ban_seconds > 0 && $tries > 0) {
+            // we have to option to ban - by ip or by login. In both cases
+            // from_addr column is used to store ip or login name
+            $ban_by_login = Variable::get('host_ban_by_login', false);
+            $param = $ban_by_login ? md5($username . $_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+            $current_time = time();
+            DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d', array($current_time - $ban_seconds));
+            DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)', array($current_time, $param));
+            if (self::is_banned($ban_by_login ? $login : null, $current_time))
+                return true;
+        }
+    }
+
+    ////////////////////////////////////////////////////
 	// mobile devices
 	
 	public static function mobile_menu() {
