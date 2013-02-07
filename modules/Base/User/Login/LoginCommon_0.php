@@ -178,20 +178,20 @@ class Base_User_LoginCommon extends ModuleCommon {
         return !self::is_banned($login);
     }
     
-    public static function log_failed_login($username) {
+    public static function log_failed_login($login) {
         $ban_seconds = Variable::get('host_ban_time');
         $tries = Variable::get('host_ban_nr_of_tries');
         if ($ban_seconds > 0 && $tries > 0) {
             // we have to option to ban - by ip or by login. In both cases
             // from_addr column is used to store ip or login name
             $ban_by_login = Variable::get('host_ban_by_login', false);
-            $param = $ban_by_login ? md5($username . $_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+            $param = $ban_by_login ? md5($login . $_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
             $current_time = time();
             DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d', array($current_time - $ban_seconds));
             DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)', array($current_time, $param));
-            if (self::is_banned($ban_by_login ? $login : null, $current_time))
-                return true;
+            return self::is_banned($ban_by_login ? $login : null, $current_time);
         }
+        return null;
     }
 
     ////////////////////////////////////////////////////

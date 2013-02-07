@@ -92,7 +92,7 @@ class Base_User_Login extends Module {
 
         // register and add a rule to check if user is banned
         $form->registerRule('check_user_banned', 'callback', 'rule_login_banned', 'Base_User_LoginCommon');
-        $form->addRule('username', __('You have exceeded the number of allowed login attempts.'), 'check_user_banned');
+        $form->addRule('username', __('You have exceeded the number of allowed login attempts for this username. Try again later.'), 'check_user_banned');
         
 		// register and add a rule to check if a username and password is ok
 		$form->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
