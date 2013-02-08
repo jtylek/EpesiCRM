@@ -748,7 +748,7 @@ class Utils_Attachment extends Module {
 		$clipboard_files = trim($data['clipboard_files'], ';');
 		if ($clipboard_files) $clipboard_files = explode(';', $clipboard_files);
 		else $clipboard_files = array();
-		if ($data['note_id']) {
+		if (is_numeric($data['note_id'])) {
 			$current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($data['note_id']));
 			$remaining_files = $current_files;
 			$deleted_files = trim($data['delete_files'], ';');
