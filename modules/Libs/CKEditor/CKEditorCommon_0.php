@@ -29,12 +29,12 @@ class Libs_CKEditorCommon extends ModuleCommon {
             if ($mode=='edit') $form->setDefaults(array($field=>$default));
         } else {
             $form->addElement('static', $field, $label);
-            $form->setDefaults(array($field=>html_entity_decode($default)));
+            $form->setDefaults(array($field=>$default));
         }
     }
 
     public static function display_cb($r, $nolink=false, $desc=null) {
-        return html_entity_decode(html_entity_decode($r[$desc['id']]));
+        return $r[$desc['id']];
     }
 
 }
