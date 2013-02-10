@@ -19,6 +19,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * Http server user should have write access to those files.
  */
 class Base_LangCommon extends ModuleCommon {
+	public static function get_complete_languages() {
+		return explode(',', file_get_contents('modules/Base/Lang/complete'));
+	}
 	/**
 	 * Don not use this function to translate, use the __() call instead.
 	 */
@@ -56,6 +59,16 @@ class Base_LangCommon extends ModuleCommon {
 		if ($original && !$translated) $translated = '<b>Invalid translation, misused char % (use double %%)</b>';
 		
 		return $translated;
+	}
+	
+	public static function print_flag($code, $label, $href='') {
+		$file = 'modules/Base/Lang/theme/flag_'.$code.'.png';
+		if (!file_exists($file))
+			$file = 'modules/Base/Lang/theme/flag_placeholder.png';
+		print(	'<a '.$href.' class="flag_button">'.
+					'<img class="flag" src="'.$file.'" />'.
+					'<span class="label">'.$label.'</span>'.
+				'</a>');
 	}
 	
 	public static function get_languages() {

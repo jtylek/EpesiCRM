@@ -40,6 +40,10 @@ define('FORCE_LANG_CODE', $install_lang_load);
 include "{$install_lang_dir}/{$install_lang_load}.php";
 // end translations load
 
+function set_header($str) {
+	print('<script type="text/javascript">document.getElementById("setup_page_header").innerHTML="'.$str.'";</script>');
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -52,7 +56,8 @@ include "{$install_lang_dir}/{$install_lang_load}.php";
 		<table id="banner" border="0" cellpadding="0" cellspacing="0">
 			<tr>
 				<td class="image">&nbsp;</td>
-				<td class="back">&nbsp;</td>
+				<td class="back" id="setup_page_header">&nbsp;</td>
+				<td class="image back">&nbsp;</td>
 			</tr>
 		</table>
 		<br>
@@ -82,25 +87,34 @@ register_shutdown_function('footer');
 
 // language selection form
 if (!isset($install_lang_code)) {
-    $form = new HTML_QuickForm('languageform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
-	$form->addElement('header', null, __('Select language'));
-    $form->addElement('select', 'lang', __('Language'), $langs);
-	$form->addElement('submit', 'submit', __('Next'));
-    $form->setDefaults(array('lang' => $install_lang_load));
-    
-    if ($form->validate()) {
-        $lang_from_form = $form->exportValue('lang');
-        if(isset($langs[$lang_from_form])) {
-            $_GET['install_lang'] = $lang_from_form;
-            header('Location: setup.php?' . http_build_query($_GET));
-        }
-    } else {
-        $renderer = & $form->defaultRenderer();
-        $renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"baseline\" colspan=\"2\">{header}</td>\n\t</tr>");
-        $renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"baseline\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"baseline\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
-        $form->accept($renderer);
-        die($renderer->toHtml());
-    }
+	$complete = Base_LangCommon::get_complete_languages();
+	$labels = Base_LangCommon::get_languages();
+	$list = array();
+	foreach ($complete as $l) {
+		$list[$l] = isset($labels[$l])?$labels[$l]:$l;
+	}
+	$rest = array();
+	foreach ($langs as $l) {
+		$rest[$l] = isset($labels[$l])?$labels[$l]:$l;
+	}
+	asort($list);
+	asort($rest);
+	$list = array_merge(array('en'=>$labels['en']), $list);
+	print('<div id="complete_translations">');
+	foreach ($list as $l=>$label) {
+		Base_LangCommon::print_flag($l, $label, 'href="?install_lang='.$l.'"');
+		unset($rest[$l]);
+	}
+	print('</div>');
+	print('<a class="show_incomplete button" onclick="this.style.display=\'none\';document.getElementById(\'incomplete_translations\').style.display=\'\';">Show incomplete translations</a>');
+	print('<div id="incomplete_translations" style="display:none;">');
+	foreach ($rest as $l=>$label) {
+		Base_LangCommon::print_flag($l, $label, 'href="?install_lang='.$l.'"');
+	}
+	print('</div>');
+	
+	set_header('Select Language');
+	die();
 }
 
 /**
@@ -127,11 +141,21 @@ if(!is_writable(DATA_DIR))
 	die(__('Cannot write into "%s" directory. Please fix privileges.', array(DATA_DIR)));
 
 if(!isset($_GET['license'])) {
-    print('<h1>' . __('Welcome to EPESI setup!') . '<br></h1><div class="license">');
+	print('<form method="GET">');
+	print('<div class="license summary">');
+    // ** LINCENSE SUMMARY should be placed here **
+	print('</div>');
+	print('<div class="license">');
     license();
-    print('</div><center><br><h2>' . __('By clicking on Accept button you agree to the above License terms.') . '</h2>');
-    $_GET['license'] = 1;
-    print('<br><a class="button" href="setup.php?' . http_build_query($_GET) . '">' . __('Accept') . '</a></center>');
+	set_header('License Terms');
+	foreach ($_GET+array('submitted'=>'true') as $f=>$v)
+		print('<input type="hidden" name="'.$f.'" value="'.$v.'">');
+    print('</div><br>');
+	if (isset($_GET['submitted']))
+		print('<span class="error">'.__('You must agree to the License Terms to continue the installation').'</span>');
+	print('<h2>' . '<input name="license" type="checkbox"> ' . __('I agree to EPESI License Terms.') . '</h2>');
+    print('<input type="submit" class="button" value="' . __('Accept') . '" />');
+	print('</form>');
 } elseif(!isset($_GET['htaccess'])) {
 	ob_start();
 	print('<h1>' . __('Welcome to EPESI setup!') . '<br></h1><h2>' . __('Hosting compatibility') . ':</h2><br><div class="license">');
@@ -144,6 +168,7 @@ if(!isset($_GET['license'])) {
 	}
 }
 if(isset($_GET['htaccess']) && isset($_GET['license'])) {
+	set_header('Configuration');
 	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
 	$form -> addElement('header', null, __('Database server settings'));
 	$form -> addElement('text', 'host', __('Database server address'));

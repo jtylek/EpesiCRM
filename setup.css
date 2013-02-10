@@ -109,6 +109,15 @@ span.footer a:hover {
 }
 
 #banner .back {
+    font-size: 30px;
+    text-shadow: 1px 1px 2px gray;
+    font-weight: bold;
+    color: #339;
+    letter-spacing: 1px;
+    text-align: center;
+    background-repeat: repeat-x;
+    background-color: #E0E0E0;
+
 	background: #ffffff; /* Old browsers */
 	background: -moz-linear-gradient(top,  #ffffff 0%, #e0e0e0 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#e0e0e0)); /* Chrome,Safari4+ */
@@ -128,6 +137,11 @@ span.footer a:hover {
     margin: 10px 10px 10px 10px;
 }
 
+div.license.summary {
+	float: left;
+	width: 300px;
+}
+
 div.license {
     overflow: auto;
     height: 350px;
@@ -143,4 +157,37 @@ span.required_note_star {
 
 span.required_note_star {
     color: #FF0000;
+}
+
+.flag_button {
+	display: inline-block;
+	margin: 30px;
+}
+
+.flag_button img.flag {
+	max-width: 130px;
+}
+
+.flag_button .label {
+	font-size:20px;
+	padding-top: 6px;
+	display: block;
+	text-align: center;
+}
+
+a.show_incomplete.button {
+	text-align: center;
+	display: block;
+	margin: 10px auto;
+	width: 400px;
+	font-size: 20px;
+	line-height: 30px;
+	white-space: nowrap;
+	height: 30px;
+}
+
+.error {
+	color: red;
+	font-weight: bold;
+	font-size: 18px;
 }
