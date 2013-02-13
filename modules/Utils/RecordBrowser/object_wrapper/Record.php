@@ -47,7 +47,12 @@ class RBO_Record implements ArrayAccess {
      */
     public final function __construct(RBO_Recordset & $recordset, array $array) {
         $this->__recordset = $recordset;
+        if (isset($array[':active'])) {
+            $array['_active'] = $array[':active'];
+            unset($array[':active']);
+        }
         foreach ($array as $property => $value) {
+            $property = self::_get_field_id($property);
             $this->$property = $value;
         }
         if (isset($this->id))
