@@ -28,22 +28,21 @@ class Utils_BBCodeCommon extends ModuleCommon {
 	public static function parse($text, $optimize_only=false) {
 		self::$optimize_only = $optimize_only;
 		if (self::$bbcodes===null) self::init();
-		$matches = array();
-		$ret = preg_replace_callback('/\[(.*?)(=(.*?|".*?"))?\](.*?)\[\/\\1\]/', array('Utils_BBCodeCommon','replace'),$text);
-		return $ret?$ret:$text;
+		$ret = preg_replace_callback('/\[(.*?)(=(.*?|".*?"))?\](.*?)\[\/\\1\]/i', array('Utils_BBCodeCommon','replace'),$text);
+		$ret2 = preg_replace_callback('/(\s|^)(https?:\/\/(.+?))(\s|$)/i', array('Utils_BBCodeCommon','replace_url'),$ret);
+		return $ret2?$ret2:$text;
 	}
 	
 	public static function strip($text) {
 		if (self::$bbcodes===null) self::init();
-		$matches = array();
-		return preg_replace_callback('/\[(.*?)(=(.*?|".*?"))?\](.*?)\[\/\\1\]/', array('Utils_BBCodeCommon','cutout'),$text);
+		return preg_replace_callback('/\[(.*?)(=(.*?|".*?"))?\](.*?)\[\/\\1\]/i', array('Utils_BBCodeCommon','cutout'),$text);
 	}
 	
 	public static function cutout($match) {
 		$text = self::strip($match[4], self::$optimize_only);
 		return $text;
 		// optional (more precise) method:
-		$tag = strtolower($match[1]);
+/*		$tag = strtolower($match[1]);
 		$param = trim(str_replace('&quot;','"',$match[3]),'"');
 		$ret = null;
 		if (isset(self::$bbcodes[$tag])) {
@@ -51,7 +50,12 @@ class Utils_BBCodeCommon extends ModuleCommon {
 			$ret = call_user_func(self::$bbcodes[$tag], $text, $param, self::$optimize_only);
 		}
 		if ($ret) return $text;
-		return $match[0];
+		return $match[0];*/
+	}
+	
+	public static function replace_url($match) {
+	    if(self::$optimize_only) return $match[0];
+	    return $match[1].self::tag_url($match[3],$match[2]).$match[4];
 	}
 
 	public static function replace($match) {
@@ -102,7 +106,7 @@ class Utils_BBCodeCommon extends ModuleCommon {
 		return '<span style="color:'.$param.'">'.$text.'</span>';
 	}
 
-	public static function tag_url($text, $param, $optimize_only=false) {
+	public static function tag_url($text, $param=null, $optimize_only=false) {
 		if ($optimize_only) return null;
 		$url = trim($param?$param:$text, ' ');
 		if (strpos(strtolower($url), 'http://')===false && 
