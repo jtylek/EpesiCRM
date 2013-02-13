@@ -202,7 +202,6 @@ class epesi_archive extends rcube_plugin
         $mime_map = array();
         foreach($msg->mime_parts as $mid=>$m)
             $mime_map[$m->mime_id] = md5($k.microtime(true).$mid);
-        error_log(print_r($mime_map,true)."\n",3,'/tmp/1234567');
         if($msg->has_html_part()) {
 //            $body = $msg->first_html_part();
             foreach ($msg->mime_parts as $mime_id => $part) {
@@ -216,7 +215,6 @@ class epesi_archive extends rcube_plugin
                     break;
                 }
             }
-            error_log(print_r($cid_map,true)."\n",3,'/tmp/1234567');
             foreach($cid_map as $k=>&$v) {
                 if(preg_match('/_part=(.*?)&/',$v,$matches)) {
                     $mid = $matches[1];
@@ -236,8 +234,13 @@ class epesi_archive extends rcube_plugin
             if(is_string($v) && $k!='from' && $k!='to' && $k!='body_structure')
                 $headers[] = $k.': '.rcube_mime::decode_mime_string((string)$v);
         }
+        $data = array('contacts'=>$contacts,'date'=>$date,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'from'=>$rcmail->storage->decode_header($msg->headers->from),'to'=>$rcmail->storage->decode_header($msg->headers->to));
+        if(Utils_RecordBrowserCommon::get_records_count('rc_mails',$data)>0) {
+            $rcmail->output->command('display_message',$this->gettext('archived'), 'warning');
+            return false;
+        }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
-        $id = Utils_RecordBrowserCommon::new_record('rc_mails',array('contacts'=>$contacts,'date'=>$date,'employee'=>$employee,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'from'=>$rcmail->storage->decode_header($msg->headers->from),'to'=>$rcmail->storage->decode_header($msg->headers->to)));
+        $id = Utils_RecordBrowserCommon::new_record('rc_mails',array_merge($data,array('employee'=>$employee)));
         $epesi_mails[] = $id;
         foreach($contacts as $c) {
             list($rs,$con_id) = explode(':',$c);
