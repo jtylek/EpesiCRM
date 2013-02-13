@@ -80,7 +80,7 @@ class Base_BoxCommon extends ModuleCommon {
 		$version_no = __('version %s',array(EPESI_VERSION));
 		if (CHECK_VERSION && ModuleManager::is_installed('Base/EpesiStore')>=0) {
 			load_js('modules/Base/Box/check_for_new_version.js');
-			if ($force) eval_js('$("epesi_new_version").done = false;');
+			if ($force) eval_js('jq("#epesi_new_version").attr("done","0");');
 			eval_js('check_for_new_version();');
 			$version_no = '<span id="epesi_new_version">'.Utils_TooltipCommon::create($version_no, __('Checking if there are updates available...'), false).'</span>';
 			if (isset($_REQUEST['go_to_epesi_store_for_updates'])) {

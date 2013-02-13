@@ -211,3 +211,4 @@ is_visible = function(element) {
 	}
 	return true;
 };
+jq=jQuery;

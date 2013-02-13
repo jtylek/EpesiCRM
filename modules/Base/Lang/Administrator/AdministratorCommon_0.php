@@ -61,5 +61,4 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 		file_get_contents(self::translation_server_url.'/translations.php?'.http_build_query($q));
 	}
 }
-
 ?>
