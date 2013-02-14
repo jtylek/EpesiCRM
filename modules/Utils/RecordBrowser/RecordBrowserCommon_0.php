@@ -1568,7 +1568,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($id, $f));
 	}
     public static function get_access($tab, $action, $record=null, $return_crits=false){
-        if (self::$admin_access && Base_AclCommon::i_am_admin()) {
+        if (!$return_crits && self::$admin_access && Base_AclCommon::i_am_admin()) {
             $ret = true;
         } elseif (isset($record[':active']) && !$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
 			return false;
