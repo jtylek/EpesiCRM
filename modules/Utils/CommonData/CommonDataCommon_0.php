@@ -124,9 +124,10 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	/**
 	 * Creates new array for common use.
 	 *
-	 * @param string array name
-	 * @param array initialization value
-	 * @param bool whether method should overwrite if array already exists, otherwise the data will be appended
+	 * @param $name string array name
+	 * @param $array array initialization value
+	 * @param $overwrite bool whether method should overwrite if array already exists, otherwise the data will be appended
+     * @param $readonly bool do not allow user to change this array from GUI
 	 */
 	public static function new_array($name,$array,$overwrite=false,$readonly=false){
 		foreach($array as $k=>$v)
@@ -163,9 +164,9 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	/**
 	 * Extends common data array.
 	 *
-	 * @param string array name
-	 * @param array values to insert
-	 * @param bool whether method should overwrite data if array key already exists, otherwise the data will be preserved
+	 * @param $name string array name
+	 * @param $array array values to insert
+	 * @param $overwrite bool whether method should overwrite data if array key already exists, otherwise the data will be preserved
 	 */
 	public static function extend_array($name,$array,$overwrite=false,$readonly=false){
 		foreach($array as $k=>$v)
