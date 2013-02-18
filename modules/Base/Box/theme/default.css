@@ -169,6 +169,12 @@ hr.line {
     width: 100%;
 }
 
+@media print {
+    #body_content {
+        padding-top: 0;
+    }
+}
+
 #main_content {
 	position: relative;
 	/* width: 100%; */
@@ -213,6 +219,11 @@ hr.line {
     display: none;
 }
 
+@media print {
+    #top_bar {
+        display: none;
+    }
+}
 /*** top_bar_1 ***/
 
 #top_bar #top_bar_1 {
