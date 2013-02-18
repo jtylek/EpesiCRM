@@ -23,7 +23,7 @@ $order = $_SESSION['client']['utils_recordbrowser'][$key]['order'];
 $admin = $_SESSION['client']['utils_recordbrowser'][$key]['admin'];
 $tab = $_SESSION['client']['utils_recordbrowser'][$key]['tab'];
 $more_table_properties = $_SESSION['client']['utils_recordbrowser'][$key]['more_table_properties'];
-$print_limit = $_SESSION['client']['utils_recordbrowser'][$key]['limit'];
+$limit = $_SESSION['client']['utils_recordbrowser'][$key]['limit'];
 
 ModuleManager::load_modules();
 if (!Utils_RecordBrowserCommon::get_access($tab, 'print') && !Base_AclCommon::i_am_admin())
@@ -37,20 +37,23 @@ $rb->set_inline_display();
 $rb->set_header_properties($more_table_properties);
 
 ob_start();
-$rb->show_data($crits, $cols, $order, $admin, false, true, $print_limit);
+$rb->show_data($crits, $cols, $order, $admin, false, true, $limit);
 $html = ob_get_clean();
+
+$limit_info = '';
+if (is_array($limit)) {
+    $offset = $limit['offset'];
+    $per_page = $limit['numrows'];
+    $start = $offset + 1;
+    $end = $offset + $per_page;
+    if ($end > $rb->amount_of_records)
+        $end = $rb->amount_of_records;
+    $limit_info = __('Records %s to %s of %s', array($start, $end, $rb->amount_of_records)) . "\n";
+}
 
 $tcpdf = Libs_TCPDFCommon::new_pdf();
 
-/*$filters = array();
-foreach ($crits as $k=>$v) {
-	$field = trim($k,'(|:"~<>=');
-	$args = Utils_RecordBrowserCommon::$table_rows[Utils_RecordBrowserCommon::$hash[$field]];
-	$val = Utils_RecordBrowserCommon::get_val($tab, $field, array($field=>$v), true, $args);
-	$filters[] = $args['name'].': '.$val;
-}
-$filters = implode('   ', $filters);
-$filters = str_replace('&nbsp;',' ',$filters);*/
+$filters = $limit_info;
 $filters = implode(' ',Utils_RecordBrowserCommon::crits_to_words($tab, $crits));
 $filters = strip_tags($filters);
 $filters = str_replace('&nbsp;', ' ', $filters);
