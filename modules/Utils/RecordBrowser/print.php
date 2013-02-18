@@ -46,9 +46,10 @@ if (is_array($limit)) {
     $per_page = $limit['numrows'];
     $start = $offset + 1;
     $end = $offset + $per_page;
-    if ($end > $rb->amount_of_records)
-        $end = $rb->amount_of_records;
-    $limit_info = __('Records %s to %s of %s', array($start, $end, $rb->amount_of_records)) . "\n";
+    $total = Utils_RecordBrowserCommon::get_records_count($tab, $crits, $admin, $order);
+    if ($end > $total)
+        $end = $total;
+    $limit_info = __('Records %s to %s of %s', array($start, $end, $total)) . "\n";
 }
 
 $tcpdf = Libs_TCPDFCommon::new_pdf();
