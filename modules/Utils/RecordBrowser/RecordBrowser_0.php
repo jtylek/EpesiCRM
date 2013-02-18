@@ -559,7 +559,7 @@ class Utils_RecordBrowser extends Module {
         return $x->pop_main();
     }
     //////////////////////////////////////////////////////////////////////////////////////////
-    public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false, $pdf = false) {
+    public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false, $pdf = false, $limit = null) {
 		$this->help('RecordBrowser','main');
 		if (Utils_RecordBrowserCommon::$admin_access) $admin = true;
         if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
@@ -789,24 +789,31 @@ class Utils_RecordBrowser extends Module {
 
         $this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin, $order);
 
-		$key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin));
-		if (!$this->disabled['pdf'] && !$pdf && $this->get_access('print')) {
-			if ($this->amount_of_records<200)
-				$this->new_button('print', __('Print'), 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"');
-			else
-				$this->new_button('print', __('Print'), Utils_TooltipCommon::open_tag_attrs(__('Print not available due to amount of records'), false));
-		}
-		$_SESSION['client']['utils_recordbrowser'][$key] = array(
-			'tab'=>$this->tab,
-			'crits'=>$crits,
-			'cols'=>$cols,
-			'order'=>$order,
-			'admin'=>$admin,
-			'more_table_properties'=>$this->more_table_properties
-		);
+        if ($limit === null && !$this->disabled['pagination'])
+            $limit = $gb->get_limit($this->amount_of_records);
 
-        if ($pdf || $this->disabled['pagination']) $limit = null;
-		else $limit = $gb->get_limit($this->amount_of_records);
+		if (!$this->disabled['pdf'] && !$pdf && $this->get_access('print')) {
+            $limited_print_records = 200;
+            $limited_print = ($this->amount_of_records >= $limited_print_records);
+            $print_limit = $limited_print ? $limit : null;
+            $key = md5(serialize($this->tab).serialize($crits).serialize($cols).serialize($order).serialize($admin).serialize($print_limit));
+            $_SESSION['client']['utils_recordbrowser'][$key] = array(
+                'tab'=>$this->tab,
+                'crits'=>$crits,
+                'cols'=>$cols,
+                'order'=>$order,
+                'admin'=>$admin,
+                'more_table_properties'=>$this->more_table_properties,
+                'limit' => $print_limit,
+            );
+            $print_href = 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"';
+            $print_tooltip_text = $limited_print ?
+                __('Due to more than %d records, you are allowed to print current view', array($limited_print_records)) :
+                __('Print all records');
+            $print_tooltip = Utils_TooltipCommon::open_tag_attrs($print_tooltip_text, false);
+            $this->new_button('print', __('Print'), "$print_href $print_tooltip");
+		}
+
         $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 
         if (($this->get_access('export') || $this->enable_export) && !$this->disabled['export'])

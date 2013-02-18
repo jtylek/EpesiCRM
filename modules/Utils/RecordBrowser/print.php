@@ -23,6 +23,7 @@ $order = $_SESSION['client']['utils_recordbrowser'][$key]['order'];
 $admin = $_SESSION['client']['utils_recordbrowser'][$key]['admin'];
 $tab = $_SESSION['client']['utils_recordbrowser'][$key]['tab'];
 $more_table_properties = $_SESSION['client']['utils_recordbrowser'][$key]['more_table_properties'];
+$print_limit = $_SESSION['client']['utils_recordbrowser'][$key]['limit'];
 
 ModuleManager::load_modules();
 if (!Utils_RecordBrowserCommon::get_access($tab, 'print') && !Base_AclCommon::i_am_admin())
@@ -36,7 +37,7 @@ $rb->set_inline_display();
 $rb->set_header_properties($more_table_properties);
 
 ob_start();
-$rb->show_data($crits, $cols, $order, $admin, false, true);
+$rb->show_data($crits, $cols, $order, $admin, false, true, $print_limit);
 $html = ob_get_clean();
 
 $tcpdf = Libs_TCPDFCommon::new_pdf();
