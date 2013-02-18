@@ -54,14 +54,14 @@ if (is_array($limit)) {
 
 $tcpdf = Libs_TCPDFCommon::new_pdf();
 
-$filters = $limit_info;
 $filters = implode(' ',Utils_RecordBrowserCommon::crits_to_words($tab, $crits));
 $filters = strip_tags($filters);
 $filters = str_replace('&nbsp;', ' ', $filters);
 $filters = str_replace(' and ', "\n", $filters);
 $filters = str_replace(' is equal to', ':', $filters);
-	
-Libs_TCPDFCommon::prepare_header($tcpdf, _V(DB::GetOne('SELECT caption FROM recordbrowser_table_properties WHERE tab=%s', array($tab))), $filters, false);
+
+$subject = $limit_info . $filters;
+Libs_TCPDFCommon::prepare_header($tcpdf, _V(DB::GetOne('SELECT caption FROM recordbrowser_table_properties WHERE tab=%s', array($tab))), $subject, false);
 Libs_TCPDFCommon::add_page($tcpdf);
 
 Libs_TCPDFCommon::SetFont($tcpdf, Libs_TCPDFCommon::$default_font, '', 6);
