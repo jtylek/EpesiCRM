@@ -133,6 +133,32 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 
 	}
 	
+	public static function QFfield_identifierfields(&$form, $field, $label, $mode, $default, $desc, $rb_obj){
+		//print "<br>MODE on QFfield_recordfields == ". $mode; 
+		if($mode == 'add'){
+			$recordset_form = $form->addElement('multiselect', $field, $label, null);
+			$recordset_form->on_add_js('call_js_add_result(\'add\');');
+			$recordset_form->on_remove_js('call_js_remove_fields();');
+		}
+		else if($mode == 'edit' || $mode == 'view'){
+			$arrayAllValues = array();
+			$dataField = self::getRecordsetsOnly($default);
+			foreach($dataField as $tbName){			
+				$arrayFields = Utils_RecordBrowserCommon::init($tbName);
+				foreach($arrayFields as $key => $value){
+					$arrayAllValues[$tbName.":".$value['id']] = Utils_RecordBrowserCommon::get_caption($tbName)." - ".$value['name'];
+					
+				}
+			}		
+			$recordset_form = $form->addElement('multiselect', $field, $label, $arrayAllValues);
+			$recordset_form->on_add_js('call_js_add_result(\'edit\');');
+			$recordset_form->on_remove_js('call_js_remove_fields();');
+			$form->setDefaults(array($field => self::parse_array($default)));
+			eval_js('changeAddedRecordset(\'search_field_for_identifier__to\')');
+		}
+
+	}	
+	
 	public function get_recordsets(){
 		$options = array();
 		$rb_tabs = DB::GetAssoc('SELECT tab, tpl FROM recordbrowser_table_properties');
@@ -154,18 +180,25 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 		return $strFields;
 	}	
 	
+	public static function display_identifierfields($rb, $nolink){
+		$strFields = self::arrayToString($rb['search_field_for_identifier']);
+		return $strFields;
+	}	
+	
 	public static function parse_values($values, $mode){
 		//print "MODE ===== ". $mode;
 		switch($mode){
 			case 'adding':
 			case 'editing':
 				$values['recordsets'] = explode(';', $values['recordsets']);
-				$values['select_field_to_search'] = explode(';', $values['select_field_to_search']);;
+				$values['select_field_to_search'] = explode(';', $values['select_field_to_search']);
+				$values['search_field_for_identifier'] = explode(';', $values['search_field_for_identifier']);
 				break;
 			case 'add':		
 			case 'edit':
 				$values['recordsets'] = implode(';', $values['recordsets']);
 				$values['select_field_to_search'] = implode(';', $values['select_field_to_search']);
+				$values['search_field_for_identifier'] = implode(';', $values['search_field_for_identifier']);
 				break;				
 			case 'display':
 				$values = "display";
@@ -173,11 +206,12 @@ class Applets_QuickSearchCommon extends ModuleCommon{
 			case 'view':
 				$values['recordsets'] = explode(';', $values['recordsets']);
 				$values['select_field_to_search'] = explode(';', $values['select_field_to_search']);
+				$values['search_field_for_identifier'] = explode(';', $values['search_field_for_identifier']);
 				break;	
 			default:	 
 				break;
 		}
-		
+		//print_r($values["select_field_to_search"]);
 		return $values;
 	}
 	

@@ -32,8 +32,16 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 							'extra'=>false, 
 							'visible'=>true),	
 							
-					array('name' => __('Result Identifier'),
+					array('name'=>__('Search Format'), 
+							'type'=>'long text', 
+							'param'=>'255', 
+							'required'=>true, 
+							'visible'=>true),										
+								
+					array('name' => __('Search field for identifier'),
 							'type'=>'long text',
+							'QFfield_callback'=>array('Applets_QuickSearchCommon', 'QFfield_identifierfields'), 
+							'display_callback'=>array('Applets_QuickSearchCommon', 'display_identifierfields'), 							
 							'required' => true,
 							'extra' => false,
 							'visible' => true),
