@@ -2723,7 +2723,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
         
-        $record = & $rb_obj->record;
+        $record = $rb_obj->record;
         $comp = array();
         $param = explode(';', $desc['param']);
         $crits_callback = isset($param[1]) ? $param[1] : null;
