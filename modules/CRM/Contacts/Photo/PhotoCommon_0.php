@@ -39,8 +39,8 @@ class CRM_Contacts_PhotoCommon extends ModuleCommon {
 	}
 
     public static function add_photo($contact_id, $filename) {
-        self::del_photo($contact_id, $filename);
-        DB::Execute('INSERT INTO '.self::table_name.' VALUES (%d,%s) ON DUPLICATE KEY UPDATE filename=%s', array($contact_id, $filename, $filename));
+        self::del_photo($contact_id);
+        DB::Execute('INSERT INTO '.self::table_name.' VALUES (%d,%s)', array($contact_id, $filename));
     }
 
     public static function get_photo($contact_id) {
@@ -53,7 +53,7 @@ class CRM_Contacts_PhotoCommon extends ModuleCommon {
 
         $in = self::Instance();
         unlink($in->get_data_dir() . $filename);
-        DB::Execute('DELETE FROM `'.self::table_name.'` WHERE `contact_id`=%d', array($contact_id));
+        DB::Execute('DELETE FROM '.self::table_name.' WHERE contact_id=%d', array($contact_id));
     }
 }
 
