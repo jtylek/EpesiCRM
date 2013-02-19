@@ -29,7 +29,10 @@ if(!defined('CACHE_COMMON_FILES')) define("CACHE_COMMON_FILES",0);
 if(!defined('FORCE_CACHE_COMMON_FILES')) define("FORCE_CACHE_COMMON_FILES",0);
 if(!defined('MINIFY_ENCODE')) define('MINIFY_ENCODE',1);
 if(!defined('MINIFY_SOURCES')) define('MINIFY_SOURCES',0);
+
 if(!defined('MEMCACHE_SESSION_SERVER')) define('MEMCACHE_SESSION_SERVER','');
+if(!defined('FILE_SESSION_DIR')) define('FILE_SESSION_DIR','');
+if(!defined('FILE_SESSION_TOKEN')) define('FILE_SESSION_TOKEN','epesi_');
 
 if(!defined('SUGGEST_DONATION')) define('SUGGEST_DONATION',1);
 if(!defined('CHECK_VERSION')) define('CHECK_VERSION',1);

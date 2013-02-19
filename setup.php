@@ -458,6 +458,10 @@ define(\'DATABASE_DRIVER\',\''.addcslashes($engine, '\'\\').'\');
  * Disable some administrator preferences.
  */
 //define(\'DEMO_MODE\',0);
+
+define(\'FILE_SESSION_DIR\',\''.sys_get_temp_dir().'\');
+define(\'FILE_SESSION_TOKEN\',\'epesi_'.md5(__FILE__).'_\');
+
 '.$other_conf.'
 ?>');
 	fclose($c);

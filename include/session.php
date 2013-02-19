@@ -65,6 +65,10 @@ class DBSession {
                 }
                 if($ret)
                     $_SESSION['client'] = unserialize($ret);
+            } elseif(FILE_SESSION_DIR) {
+                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
+                if(file_exists($sess_file))
+                    $_SESSION['client'] = @unserialize(file_get_contents($sess_file));
             } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 if(READ_ONLY_SESSION) {
@@ -108,6 +112,10 @@ class DBSession {
                     else
                         self::$memcached->set('sess_'.$name.'_'.CID.'_'.$i, $d, 0, self::$lifetime);
                 }
+            } elseif(FILE_SESSION_DIR) {
+                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
+                if(!file_exists(FILE_SESSION_DIR)) mkdir(FILE_SESSION_DIR);
+                file_put_contents($sess_file,serialize($_SESSION['client']));
             } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
@@ -137,6 +145,9 @@ class DBSession {
         if(self::$memcached) {
         	for($k=0;;$k++)
                 	if(!self::$memcached->delete('sess_'.$name.'_'.$i.'_'.$k)) break;
+        } elseif(FILE_SESSION_DIR) {
+            $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.$i;
+            @unlink($sess_file);
         }
         DB::BeginTrans();
         DB::Execute('DELETE FROM history WHERE session_name=%s AND client_id=%d',array($name,$i));
@@ -149,6 +160,11 @@ class DBSession {
             for($i=0; $i<5; $i++)
         	for($k=0;;$k++)
                 	if(!self::$memcached->delete('sess_'.$name.'_'.$i.'_'.$k)) break;
+        } elseif(FILE_SESSION_DIR) {
+            for($i=0; $i<5; $i++) {
+                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.$i;
+                @unlink($sess_file);
+            }
         }
         DB::BeginTrans();
         DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
@@ -160,10 +176,20 @@ class DBSession {
 
     public static function gc($lifetime) {
         $t = time()-$lifetime;
-    $ret = DB::Execute('SELECT name FROM session WHERE expires <= %d',array($t));
-    while($row = $ret->FetchRow()) {
-        self::destroy($row['name']);
-    }
+        $ret = DB::Execute('SELECT name FROM session WHERE expires <= %d',array($t));
+        while($row = $ret->FetchRow()) {
+            self::destroy($row['name']);
+        }
+
+        if(FILE_SESSION_DIR) {
+            $files = @scandir(FILE_SESSION_DIR);
+            if(!$files) return;
+            foreach($files as $file) {
+                if(strpos($file,FILE_SESSION_TOKEN)!==0) continue;
+                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.$file;
+                if(filemtime($sess_file)<$t) @unlink($sess_file);
+            }
+        }
         return true;
     }
 }

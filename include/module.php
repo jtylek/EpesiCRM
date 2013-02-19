@@ -813,8 +813,11 @@ abstract class Module extends ModulePrimitive {
 		$m->mark_displayed();
 
 		
-		if($m->is_inline_display())
-			return Epesi::$content[$path]['value'];
+		if($m->is_inline_display()) {
+		    $ret = Epesi::$content[$path]['value'];
+		    Epesi::$content[$path]['value'] = '';
+			return $ret;
+		}
 		return '<span id="'.Epesi::$content[$path]['span'].'"></span>';
 	}
 
