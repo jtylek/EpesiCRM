@@ -244,7 +244,7 @@ class ClientRequester implements IClient {
         $referer = $_SERVER['HTTP_REFERER'];
         if (!$referer)
             $referer = ($_SERVER['HTTPS'] ? 'https://' : 'http://')
-                    . $_SERVER['HTTP_HOST'] . $SERVER['REQUEST_URI'];
+                    . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         return $referer;
     }
     
