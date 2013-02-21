@@ -116,6 +116,7 @@ class DBSession {
                 $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
                 if(!file_exists(FILE_SESSION_DIR)) mkdir(FILE_SESSION_DIR);
                 file_put_contents($sess_file,serialize($_SESSION['client']));
+                chmod($sess_file, 0600);
             } elseif(DATABASE_DRIVER=='postgres') {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
