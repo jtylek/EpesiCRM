@@ -148,7 +148,7 @@ class Utils_Messenger extends Module {
 	}
 	
 	private function orphan() {
-		DB::Execute('DELETE FROM utils_messenger_message WHERE (SELECT 1 FROM utils_messenger_users u WHERE u.message_id=id) is null');
+		DB::Execute('DELETE FROM utils_messenger_message WHERE (SELECT 1 FROM utils_messenger_users u WHERE u.message_id=id LIMIT 1) is null');
 	}
 	
 	public function delete_user_entry($id) {
