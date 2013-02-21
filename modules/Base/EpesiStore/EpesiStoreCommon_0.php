@@ -481,8 +481,9 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if (is_array($response)) {
             foreach ($response as $mod) {
                 if (isset($modules[$mod['id']]) &&
-                        self::version_compare($mod['version'], $modules[$mod['id']]['version']) > 0)
+                        self::version_compare($mod['version'], $modules[$mod['id']]['version']) > 0) {
                     $updates++;
+                }
             }
         }
         return $updates;
