@@ -234,13 +234,14 @@ class epesi_archive extends rcube_plugin
             if(is_string($v) && $k!='from' && $k!='to' && $k!='body_structure')
                 $headers[] = $k.': '.rcube_mime::decode_mime_string((string)$v);
         }
-        $data = array('contacts'=>$contacts,'date'=>$date,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'from'=>$rcmail->storage->decode_header($msg->headers->from),'to'=>$rcmail->storage->decode_header($msg->headers->to));
-        if(Utils_RecordBrowserCommon::get_records_count('rc_mails',$data)>0) {
+        $message_id = $msg->get_header('messageID');
+        if(Utils_RecordBrowserCommon::get_records_count('rc_mails',array('message_id'=>$message_id))>0) {
             $rcmail->output->command('display_message',$this->gettext('archived'), 'warning');
             return false;
         }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
-        $id = Utils_RecordBrowserCommon::new_record('rc_mails',array_merge($data,array('employee'=>$employee)));
+        $data = array('message_id'=>$message_id,'references'=>$msg->get_header('references'),'contacts'=>$contacts,'date'=>$date,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'from'=>$rcmail->storage->decode_header($msg->headers->from),'to'=>$rcmail->storage->decode_header($msg->headers->to),'employee'=>$employee);
+        $id = Utils_RecordBrowserCommon::new_record('rc_mails',$data);
         $epesi_mails[] = $id;
         foreach($contacts as $c) {
             list($rs,$con_id) = explode(':',$c);

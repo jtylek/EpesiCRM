@@ -1249,7 +1249,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case ':Edited_on'   :
                         $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
                         break;
-                    default     : trigger_error('Unknow paramter given to get_records order: '.$v, E_USER_ERROR);
+                    default     :
+                        $orderby[] = ' '.substr($v['order'],1).' ' . $v['direction'];
+                        //trigger_error('Unknow paramter given to get_records order: '.$v, E_USER_ERROR);
                 }
             } else {
                 self::init($tab);

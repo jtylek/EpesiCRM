@@ -139,6 +139,24 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'extra'=>false,
                 'visible'=>false,
                 'required'=>false
+            ),
+            array(
+                'name' => _M('Message ID'),
+                'type'=>'text',
+                'param'=>128,
+                'extra'=>false,
+                'visible'=>false,
+                'required'=>false,
+                'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_hidden')
+            ),
+            array(
+                'name' => _M('References'),
+                'type'=>'text',
+                'param'=>128,
+                'extra'=>false,
+                'visible'=>false,
+                'required'=>false,
+                'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_hidden')
             )
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails', $fields);

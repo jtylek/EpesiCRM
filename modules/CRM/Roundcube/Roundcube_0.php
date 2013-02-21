@@ -152,13 +152,22 @@ class CRM_Roundcube extends Module {
                         'attachments'=>array('width'=>5)
         ));
         $rb->set_additional_actions_method(array($this, 'actions_for_mails'));
+
+        //set order by threads:
+        //1 - if there is reference sort by parent message date, else sort by this message date ("group" messages by "parent" date)
+        //2 - if there is reference sort by parent message id, else sort by "my" message_id
+        $rb->force_order(array(':CASE WHEN f_references is null OR (SELECT rx.f_date FROM rc_mails_data_1 rx WHERE rx.active=1 AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' LIMIT 1) is null THEN f_date ELSE (SELECT rx.f_date FROM rc_mails_data_1 rx WHERE rx.active=1 AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' ORDER BY rx.f_date ASC LIMIT 1) END'=>'DESC',
+                    ':CASE WHEN f_references is null THEN f_message_id ELSE (SELECT rx.f_message_id FROM rc_mails_data_1 rx WHERE rx.f_references is null AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' ORDER BY rx.f_date ASC LIMIT 1) END'=>'DESC',
+                    'date'=>'ASC'
+        ));
+
         $assoc_mail_ids = array();
         $assoc_tmp = Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('recordset'=>$rs,'record_id'=>$id),array('mail'));
         foreach($assoc_tmp as $m)
         $assoc_mail_ids[] = $m['mail'];
         if($rs=='contact') {
         	//$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
-        	$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+        	$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|id'=>$assoc_mail_ids), array(), array()), 'show_data');
         } elseif($rs=='company') {
             $form = $this->init_module('Libs/QuickForm');
             $form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
@@ -180,9 +189,9 @@ class CRM_Roundcube extends Module {
                 foreach ($conts as $c)
                     $customers[] = 'P:'.$c['id'];
             }
-        	$this->display_module($rb, array(array('(contacts'=>$customers,'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+        	$this->display_module($rb, array(array('(contacts'=>$customers,'|id'=>$assoc_mail_ids), array(), array()), 'show_data');
         } else
-        $this->display_module($rb, array(array('id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+        $this->display_module($rb, array(array('id'=>$assoc_mail_ids), array(), array()), 'show_data');
         
     }
 
