@@ -2,11 +2,11 @@
 /**
  * Translation file.
  * @package epesi-translations
- * @subpackage vi
+ * @subpackage fa
  */
 global $translations;
-$translations['Projects']='Dự án';
-$translations['Project Name']='Tên dự án';
-$translations['Due Date']='Kết thúc';
+$translations['Projects']='پروژه ها';
+$translations['Project Name']='نام پروژه';
+$translations['Due Date']='موعد مقرر';
 $translations['Bugtrack']='';
 $translations['Bug (attachment) #%d, %s']='';
