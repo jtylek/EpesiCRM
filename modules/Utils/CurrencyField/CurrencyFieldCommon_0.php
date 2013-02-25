@@ -11,13 +11,15 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CurrencyFieldCommon extends ModuleCommon {
 	public static function format($val, $currency=null) {
+        static $params_cache = array();
 		if (!isset($currency) || !$currency) {
 			$val = self::get_values($val);
 			$currency = $val[1];
 			$val = $val[0];
 		}
-		$params = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($currency));
-		// TODO: cache here
+        if (!isset($params_cache[$currency]))
+            $params_cache[$currency] = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($currency));
+		$params = $params_cache[$currency];
 		$dec_delimiter = $params['decimal_sign'];
 		$thou_delimiter = $params['thousand_sign'];
 		$dec_digits = $params['decimals'];
