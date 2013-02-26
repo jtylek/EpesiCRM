@@ -25,7 +25,8 @@ if(!Base_AclCommon::is_user()) {
 }
 
 $default = $_POST['default_dash'];
-if($default && !Base_AdminCommon::get_access('Base_Dashboard')) {
+if(($default && !Base_AdminCommon::get_access('Base_Dashboard'))
+    || !isset($_POST['col']) || !isset($_POST['data'])) {
 	Epesi::alert('Permission denied');
 	Epesi::send_output();
 	exit();
@@ -37,9 +38,9 @@ if(!$default)
 $tab = json_decode($_POST['tab']);
 parse_str($_POST['data'], $x);
 
-for($i=0; $i<3 && !isset($x['dashboard_applets_'.$tab.'_'.$i]); $i++);
+if(!isset($x['ab_item'])) exit();
 
-if($i<3) {
+if(is_numeric($_POST['col']) && $_POST['col']<3 && $_POST['col']>=0) {
 	if ($default) {
 		$table = 'base_dashboard_default_applets';
 		$val = null;
@@ -47,31 +48,32 @@ if($i<3) {
 		$table = 'base_dashboard_applets';
 		$val = $user;
 	}
-	foreach($x['dashboard_applets_'.$tab.'_'.$i] as $pos=>$id) {
+	foreach($x['ab_item'] as $pos=>$id) {
 		if (is_numeric($id)) {
-			$vals = array($pos,$i,$id);
+			$vals = array($pos,$_POST['col'],$id);
 			if ($val) $vals[] = $val;
 			DB::Execute('UPDATE '.$table.' SET pos=%d, col=%d WHERE id=%d'.($val?' AND user_login_id=%d':''),$vals);
-		} else {
+		} elseif(strpos($id,'new_')===0) {
+            $id = substr($id,4);
 			$cleanId = str_replace('-','_',$id);
-			$vals = array($cleanId,$tab,$i,$pos);
+			$vals = array($cleanId,$tab,$_POST['col'],$pos);
 			if ($val) $vals[] = $val;
 			DB::Execute('INSERT INTO '.$table.'(module_name,tab,col,pos'.($val?',user_login_id':'').') VALUES (%s,%d,%d,%d'.($val?',%d':'').')',$vals);
 			$new_id = DB::Insert_ID('base_dashboard_applets', 'id');
-			print('if($("copy_ab_item_new_'.$id.'")){'.
-				'$("copy_dashboard_remove_applet_'.$id.'").onclick = function(){if(confirm(\''.__('Delete this applet?').'\'))remove_applet('.$new_id.','.($default?1:0).');};'.
-				'Effect.Appear("copy_dashboard_remove_applet_'.$id.'", { duration: 0.3 });'.
-				'Effect.BlindUp("copy_dashboard_applet_content_'.$id.'", { duration: 0.3 });'.
-				'$("copy_dashboard_remove_applet_'.$id.'").id="dashboard_remove_applet_'.$new_id.'";'.
-				'$("copy_dashboard_applet_content_'.$id.'").id="dashboard_applet_content_'.$new_id.'";'.
-				'$("copy_ab_item_new_'.$id.'").id = "ab_item_'.$new_id.'";'.
+			print('if(jq("#copy_ab_item_new_'.$id.'").length>0){'.
+				'jq("#copy_dashboard_remove_applet_'.$id.'").click(function(){if(confirm(\''.__('Delete this applet?').'\'))remove_applet('.$new_id.','.($default?1:0).');})'.
+				'.show("fade",300);'.
+				'jq("#copy_dashboard_applet_content_'.$id.'").hide("blind",300);'.
+				'jq("#copy_dashboard_remove_applet_'.$id.'").attr("id","dashboard_remove_applet_'.$new_id.'");'.
+				'jq("#copy_dashboard_applet_content_'.$id.'").attr("id","dashboard_applet_content_'.$new_id.'");'.
+				'jq("#copy_ab_item_new_'.$id.'").attr("id","ab_item_'.$new_id.'");'.
 				'dashboard_activate('.$tab.','.($default?1:0).');'.
 			'}'
 			);
 		}
 	}
-} elseif (isset($x['dashboard_applets_new'])) {
-	foreach ($x['dashboard_applets_new'] as $pos=>$id) {
+} elseif ($_POST['col']=='new') {
+	foreach ($x['ab_item'] as $pos=>$id) {
 		if (is_numeric($id))
 			Base_DashboardCommon::remove_applet($id, $default);
 	}

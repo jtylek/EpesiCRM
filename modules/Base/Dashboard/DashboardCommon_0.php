@@ -75,11 +75,9 @@ class Base_DashboardCommon extends ModuleCommon {
 		$app_cap = ModuleManager::call_common_methods('applet_caption');
 		asort($app_cap);
 		$app_info = ModuleManager::call_common_methods('applet_info');
-		$j = 0;
 		$html = '';
 		foreach($app_cap as $name=>$cap) {
 			if (!$cap) continue;
-			$j++;
 			$th = Base_ThemeCommon::init_smarty();
 			$id = str_replace('_','-',$name);
 
@@ -101,7 +99,7 @@ class Base_DashboardCommon extends ModuleCommon {
 
 			$th->assign('config_mode',true);
 
-			$html .= '<div class="applet" searchkey="'.($cap?$cap:$name).';'.$app_info[$name].'" order="'.$j.'" id="ab_item_'.'new_'.$id.'">';
+			$html .= '<div class="applet" searchkey="'.strtolower($cap?$cap:$name).';'.strtolower($app_info[$name]).'" id="ab_item_'.'new_'.$id.'">';
 			ob_start();
 			Base_ThemeCommon::display_smarty($th,'Base_Dashboard','default');
 			$html .= ob_get_clean();
