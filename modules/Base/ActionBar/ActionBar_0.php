@@ -83,7 +83,7 @@ class Base_ActionBar extends Module {
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
 						if(isset($arr['__url__']))
-							$ii['open'] = '<a href="'.$arr['__url__'].'">';
+							$ii['open'] = '<a href="'.$arr['__url__'].'" target="_blank">';
 						else
 							$ii['open'] = '<a '.Base_MenuCommon::create_href($this,$arr).'>';
 						$ii['close'] = '</a>';
@@ -102,7 +102,7 @@ class Base_ActionBar extends Module {
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
 						if(isset($arr['__url__']))
-							$ii['open'] = '<a href="'.$arr['__url__'].'" onClick="actionbar_launchpad_deactivate()">';
+							$ii['open'] = '<a href="'.$arr['__url__'].'" target="_blank" onClick="actionbar_launchpad_deactivate()">';
 						else {
 							$ii['open'] = '<a onClick="actionbar_launchpad_deactivate();'.Base_MenuCommon::create_href_js($this,$arr).'" href="javascript:void(0)">';
 						}
