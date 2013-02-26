@@ -62,7 +62,7 @@ class Utils_CurrencyField extends Module {
 		$form->addElement('header', 'header', __('Edit currency'));
 		$form->addElement('text', 'code', __('Code'));
 		$form->addElement('text', 'symbol', __('Symbol'));
-		$form->addElement('select', 'position', __('Symbol position'), self::$positions);
+		$form->addElement('select', 'pos_before', __('Symbol position'), self::$positions);
 		$form->addElement('text', 'decimal_sign', __('Decimal sign'));
 		$form->addElement('text', 'thousand_sign', __('Thousand sign'));
 		$form->addElement('text', 'decimals', __('Decimals'));
@@ -87,7 +87,7 @@ class Utils_CurrencyField extends Module {
 			$vals = $form->exportValues();
 			$vals = array(	$vals['code'],
 							$vals['symbol'],
-							$vals['position'],
+							$vals['pos_before'],
 							$vals['decimal_sign'],
 							$vals['thousand_sign'],
 							$vals['decimals'],
