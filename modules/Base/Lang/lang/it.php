@@ -5,7 +5,7 @@
  * @subpackage it
  */
 global $translations;
-$translations['Birthdays']='Compleanni';
+$translations['Birthdays']='Compleanno';
 $translations['Displays upcoming Birthdays of your favorite contacts.']='Mostra i prossimi Compleanni dei tuoi contatti preferiti';
 $translations['Number of days']='Numero di giorni';
 $translations['Field must be numeric']='Il campo deve essere numerico';
