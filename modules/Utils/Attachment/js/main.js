@@ -63,6 +63,7 @@ init_note_expandable = function(id, skipTimed, files) {
 		expandable_notes[id] = id;
 		expandable_notes_amount++;
 		utils_attachment_show_hide_buttons();
+        el.onclick = function () { if (el.style.height != "") utils_attachment_expand(id) };
 	} else {
 		$("utils_attachment_less_"+id).hide();
 		$("utils_attachment_more_"+id).show();
