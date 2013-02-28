@@ -55,6 +55,7 @@ abstract class RBO_Recordset {
     ///////////// magic QFfield and display callbacks //////////////
 
     public function refresh_magic_callbacks() {
+        /** @var $field RBO_FieldDefinition */
         foreach ($this->fields() as $field) {
             if (!$field->magic_callbacks())
                 continue;
