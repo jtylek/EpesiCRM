@@ -5,14 +5,14 @@
  * @subpackage en
  */
 global $translations;
-$translations['Birthdays']='Рожденни Дни';
-$translations['Displays upcoming Birthdays of your favorite contacts.']='Покажи предстоящите рожденни дни';
-$translations['Number of days']='Брои дни';
-$translations['Field must be numeric']='Полето трябва да е с цифри';
-$translations['Field required']='Полето е задължително';
-$translations['Title']='Заглавие';
-$translations['Upcoming Birthdays']='Предстоящи рожденни дни';
-$translations['Contact Type']='Контакти';
+$translations['Birthdays']='';
+$translations['Displays upcoming Birthdays of your favorite contacts.']='';
+$translations['Number of days']='';
+$translations['Field must be numeric']='';
+$translations['Field required']='';
+$translations['Title']='';
+$translations['Upcoming Birthdays']='';
+$translations['Contact Type']='';
 $translations['All']='';
 $translations['Favorites']='';
 $translations['EPESI Core']='';
