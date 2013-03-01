@@ -85,7 +85,7 @@ class Base_HomePage extends Module {
 		$theme->assign('labels', array(
 			'and' => '<span class="joint">'.__('and').'</span>',
 			'or' => '<span class="joint">'.__('or').'</span>',
-			'caption' => $id?__('Edit home page'):__('Add home page'),
+			'caption' => $id?__('Edit Home Page'):__('Add Home Page'),
 			'clearance' => __('Clearance requried'),
 			'fields' => __('Fields allowed'),
 			'crits' => __('Criteria required'),

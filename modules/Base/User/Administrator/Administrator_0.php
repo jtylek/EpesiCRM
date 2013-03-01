@@ -200,7 +200,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     
     private function banning_form() {
         $qf = $this->init_module('Libs/QuickForm', null, 'ban');
-        $qf->addElement('select', 'bantype', __('Ban by'), array("0" => __('IP address'), "1" => "User login from specific IP address"), array('onChange' => $qf->get_submit_form_js()));
+        $qf->addElement('select', 'bantype', __('Ban by'), array("0" => __('IP Address'), "1" => "User login from specific IP address"), array('onChange' => $qf->get_submit_form_js()));
         $qf->addElement('select', 'bantries', __('Number of failed logins to ban'), array(0 => __('Disable ban'), 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 10 => 10), array('onChange' => $qf->get_submit_form_js()));
         $qf->addElement('select', 'bantime', __('Ban time after  failed logins'), array(10 => __('10 seconds'), 30 => __('30 seconds'), 60 => __('1 minute'), 180 => __('3 minutes'), 300 => __('5 minutes'), 900 => __('15 minutes'), 1800 => __('30 minutes'), 3600 => __('1 hour'), (3600 * 6) => __('6 hours'), (3600 * 24) => __('1 day')), array('onChange' => $qf->get_submit_form_js()));
         $qf->setDefaults(array('bantype' => Variable::get('host_ban_by_login', false),
