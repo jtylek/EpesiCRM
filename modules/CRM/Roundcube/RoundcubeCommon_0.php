@@ -196,7 +196,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
             $last_message_id = $record['message_id'];
             return $ret;
         }
-        if(strpos($record['references'],$last_message_id)===false) return $ret;
+        if($last_message_id===null || strpos($record['references'],$last_message_id)===false) return $ret;
         return '<div style="margin-left:20px">'.$ret.'</div>';
 	}
 
