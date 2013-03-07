@@ -143,11 +143,11 @@ if(!is_writable(DATA_DIR))
 if(!isset($_GET['license'])) {
 	print('<form method="GET">');
 	print('<div class="license summary">');
-    // ** LINCENSE SUMMARY should be placed here **
+    print read_doc_file('license_summary');
 	print('</div>');
 	print('<div class="license">');
-    license();
-	set_header('License Terms');
+    print read_doc_file('license');
+	set_header(__('License Terms'));
 	foreach ($_GET+array('submitted'=>'true') as $f=>$v)
 		print('<input type="hidden" name="'.$f.'" value="'.$v.'">');
     print('</div><br>');
@@ -556,17 +556,19 @@ function install_base() {
 
 }
 //////////////////////////////////////////////
-function license() {
+function read_doc_file($file_basename, $suffix = 'html') {
     global $install_lang_code;
-    $file = "license_{$install_lang_code}.html";
-    if ($install_lang_code == null || !file_exists($file))
-        $file = 'license.html';
+    $dir = 'docs/';
+    $file = $dir . $file_basename . '.' . $suffix;  // default file
+    $custom_file = $dir . "{$file_basename}_{$install_lang_code}.{$suffix}";
+    if (file_exists($custom_file))
+        $file = $custom_file;
     $fp = @fopen($file, 'r');
     if ($fp) {
-        $license_txt = fread($fp, filesize($file));
+        $content = fread($fp, filesize($file));
     }
     fclose($fp);
-    print $license_txt;
+    return $content;
 }
 
 ob_end_flush();
