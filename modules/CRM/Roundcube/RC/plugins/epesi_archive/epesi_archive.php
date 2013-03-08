@@ -236,7 +236,7 @@ class epesi_archive extends rcube_plugin
         }
         $message_id = $msg->get_header('messageID');
         if(Utils_RecordBrowserCommon::get_records_count('rc_mails',array('message_id'=>$message_id))>0) {
-            $rcmail->output->command('display_message',$this->gettext('archived'), 'warning');
+            $rcmail->output->command('display_message',$this->gettext('archived_duplicate'), 'warning');
             return false;
         }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
