@@ -38,6 +38,10 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		else $ret = $ret.'&nbsp;'.$currency;
 		return $ret;
 	}
+
+    public static function is_empty($p) {
+        return strpos($p,'__') === 0;
+    }
 	
 	public static function get_values($p) {
 		if (!is_array($p)) $p = explode('__', $p);
