@@ -166,7 +166,8 @@ add_event:function(dest_id,ev_id,draggable,duration,max_cut) {
 	                handle:'.handle',
 	                revert: 'invalid',
 //	                zIndex: 1000
-                        stack:'.utils_calendar_event'
+                        stack:'.utils_calendar_event',
+                    start: Utils_Calendar.start_drag
 	        });
 	}
 },
@@ -360,10 +361,10 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 			accept: '.utils_calendar_event',
 			tolerance: 'pointer',
 			drop: function(ev,ui) {
-				if (!ui.draggable.data("originalPosition")) {
+/*				if (!ui.draggable.data("originalPosition")) {
 					ui.draggable.data("originalPosition",
 					ui.draggable.data("draggable").originalPosition);
-				}
+				}*/
 				var element = jQuery(ui.draggable);
 				var droppable = jQuery(this);
 				if(droppable.attr('id')==element.attr('last_cell')) return;
@@ -398,13 +399,15 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 								Utils_Calendar.flush_reload_event_tag();
                                 element.attr('max_cut',0);
 							}
+                            element.data("originalPosition", null);
                             element.draggable('destroy');
 
 							element.draggable({
 								handle: '.handle',
 								revert: 'invalid',
 //								zIndex: 1000
-                                stack: '.utils_calendar_event'
+                                stack: '.utils_calendar_event',
+                                start: Utils_Calendar.start_drag
 							});
 							},1);
 						} else {
@@ -429,10 +432,10 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 		accept: '.utils_calendar_event',
 		tolerance: 'pointer',
 		drop: function(ev,ui) {
-            if (!ui.draggable.data("originalPosition")) {
+/*            if (!ui.draggable.data("originalPosition")) {
                 ui.draggable.data("originalPosition",
                     ui.draggable.data("draggable").originalPosition);
-            }
+            }*/
 	        var element = jQuery(ui.draggable);
 			element.hide();
 //			droppable.appendChild(element);
@@ -469,6 +472,7 @@ delete_event:function(eid,mpath,ecid) {
 						Utils_Calendar.remove_event_tag(Utils_Calendar.jq_id(element.attr('last_cell')),element);
 						Utils_Calendar.flush_reload_event_tag();
 					}
+                    element.data("originalPosition", null);
 				}
 				Epesi.procOn--;
 				Epesi.updateIndicator();
@@ -492,6 +496,12 @@ revert_element:function(element) {
         }, 500, function() {
             element.data("originalPosition", null);
         });
+    }
+},
+start_drag:function(ev,ui) {
+    var h = jq(ui.helper);
+    if (!h.data("originalPosition")) {
+        h.data("originalPosition", ui.position);
     }
 },
 destroy:function() {
