@@ -15,7 +15,7 @@ class CRM_Assets extends Module {
 
     public function body() {
         $this->rb = $this->init_module('Utils/RecordBrowser','crm_assets','crm_assets');
-        $this->rb->set_filters_defaults(array('active'=>true));
+        $this->rb->set_filters_defaults(array('active'=>1));
         $this->rb->set_header_properties(array(
                 'asset_id'=>array('width'=>10),
                 'category'=>array('width'=>10),
