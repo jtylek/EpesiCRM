@@ -6,7 +6,7 @@
  */
 global $translations;
 $translations['Projects']='Проекты';
-$translations['Project Name']='Название проекта';
 $translations['Due Date']='Срок сдачи';
+$translations['Project Name']='Название проекта';
 $translations['Bugtrack']='Отладить';
 $translations['Bug (attachment) #%d, %s']='';

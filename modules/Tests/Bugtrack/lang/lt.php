@@ -6,7 +6,7 @@
  */
 global $translations;
 $translations['Projects']='Projektai';
-$translations['Project Name']='Projekto pavadinimas';
 $translations['Due Date']='Atlikti iki';
+$translations['Project Name']='Projekto pavadinimas';
 $translations['Bugtrack']='Klaidų sekimas';
 $translations['Bug (attachment) #%d, %s']='';
