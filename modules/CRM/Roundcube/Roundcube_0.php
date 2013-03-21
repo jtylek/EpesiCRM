@@ -126,7 +126,7 @@ class CRM_Roundcube extends Module {
             }
             if($ok) {
         	$this->lp = $this->init_module('Utils_LeightboxPrompt');
-   			$this->lp->add_option('cancel', __('Cancel'), null, null);
+   			$this->lp->add_option('cancel', __('Cancel'), Base_ThemeCommon::get_template_file('Base_ActionBar', 'icons/back.png'), null);
         	$this->lp->add_option('paste', __('Paste'), Base_ThemeCommon::get_template_file($this->get_type(), 'copy.png'), null);
         	$content = '';
         	foreach($_SESSION['rc_mails_cp'] as $mid) {
