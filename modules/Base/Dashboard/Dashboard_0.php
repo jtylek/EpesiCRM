@@ -238,6 +238,8 @@ class Base_Dashboard extends Module {
 			DB::Execute('DELETE FROM '.$table_settings.' WHERE applet_id=%d',array($row['id']));
 		DB::Execute('DELETE FROM '.$table_applets.' WHERE tab=%d',array($id));
 		DB::Execute('DELETE FROM '.$table_tabs.' WHERE id=%d',array($id));
+
+		$this->tb->switch_tab(0);
 	}
 
 	public function move_tab($id,$old_pos,$dir) {
