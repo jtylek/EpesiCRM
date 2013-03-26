@@ -180,11 +180,12 @@ class Utils_TabbedBrowser extends Module {
 	 * 
 	 * @param integer tab number
 	 */
-	public function switch_tab($i) {
+	public function switch_tab($i=null) {
 		if(!isset($i)) $i = count($this->tabs)-1;
 		$this->set_module_variable('page',$i);
 		$this->page = $i;
 		$this->set_module_variable('force',true);
+		location(array());
 	}
 	
 	public function get_tab() {
