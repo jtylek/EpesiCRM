@@ -67,7 +67,7 @@ if(is_numeric($_POST['col']) && $_POST['col']<3 && $_POST['col']>=0) {
 				'jq("#copy_dashboard_remove_applet_'.$id.'").attr("id","dashboard_remove_applet_'.$new_id.'");'.
 				'jq("#copy_dashboard_applet_content_'.$id.'").attr("id","dashboard_applet_content_'.$new_id.'");'.
 				'jq("#copy_ab_item_new_'.$id.'").attr("id","ab_item_'.$new_id.'");'.
-				'dashboard_activate('.$tab.','.($default?1:0).');'.
+//				'dashboard_activate('.$tab.','.($default?1:0).');'.
 			'}'
 			);
 		}

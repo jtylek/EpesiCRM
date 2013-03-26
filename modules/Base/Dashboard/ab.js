@@ -7,14 +7,15 @@ sort_applet_selection_panel = function () {
     a.children().sort(sort_applet_sort_fn).appendTo(a);
 }
 
-dashboard_activate = function(tab, default_dash) {
-	if(!jq('#dashboard').length) return;
-    sort_applet_selection_panel();
+dashboard_activate = function(tabs, default_dash) {
+  if(!jq('#dashboard').length) return;
+  sort_applet_selection_panel();
+  var new_applets = jq('#dashboard_applets_new');
 
+  jq(tabs).each(function(i,tab) {
     var cols = jq("#dashboard_applets_"+tab+"_0, #dashboard_applets_"+tab+"_1, #dashboard_applets_"+tab+"_2, #dashboard_applets_new");
-    var new_applets = jq('#dashboard_applets_new');
     for(var id=0; id<3; id++) {
-        jq("#dashboard_applets_"+tab+"_"+id).attr('col_id',id).sortable({handle:'.handle',connectWith:cols,update:function(ev,ui){
+        jq("#dashboard_applets_"+tab+"_"+id).attr('tab',tab).attr('col_id',id).sortable({handle:'.handle',connectWith:cols,update:function(ev,ui){
             var t = jq(this);
 
             t.children().each(function(ii,ee) {
@@ -38,24 +39,6 @@ dashboard_activate = function(tab, default_dash) {
                    });
                }
             });
-  /*          for (w in c.childNodes)
-                if (c.childNodes[w] && c.childNodes[w].id && c.childNodes[w].id.indexOf("ab_item_new_")!=-1) {
-                    var appletCopy = c.childNodes[w].cloneNode(true);
-                    $("dashboard_applets_new").appendChild(appletCopy);
-                    c.childNodes[w].id = "copy_"+c.childNodes[w].id;
-                    var links = c.childNodes[w].getElementsByTagName('A');
-                    for (i=0;i<links.length;i++) if (links[i].id.substr(0,24)=="dashboard_remove_applet_") {
-                        links[i].setAttribute("id","copy_"+links[i].id);
-                    }
-                    var divs = c.childNodes[w].getElementsByTagName('DIV');
-                    for (i=0;i<divs.length;i++) if (divs[i].id.substr(0,25)=="dashboard_applet_content_") {
-                        divs[i].setAttribute("id","copy_"+divs[i].id);
-                    }
-                    appletCopy.style.opacity = 1;
-                    appletCopy.style.top = 0;
-                    appletCopy.style.left = 0;
-                    sort_applet_selection_panel();
-                }*/
 
             jq.post("modules/Base/Dashboard/update.php",{
                     data:t.sortable('serialize',{expression:'(ab_item)_(.+)'}),
@@ -68,9 +51,9 @@ dashboard_activate = function(tab, default_dash) {
             );
         }});
     }
-
-	if (new_applets.length>0)
-        new_applets.sortable({handle:'.handle',connectWith:cols,update:function(ev,ui){
+  });
+  if (new_applets.length>0)
+        new_applets.sortable({handle:'.handle',connectWith:jq('#dashboard > .ui-sortable'),update:function(ev,ui){
             var t = jq(this);
             // remove instanced applets from the list
             t.children().each(function(ii,ee) {
@@ -82,27 +65,21 @@ dashboard_activate = function(tab, default_dash) {
             jq.post("modules/Base/Dashboard/update.php",{
                     data: t.sortable('serialize',{expression:'(ab_item)_(.+)'}),
                     default_dash: default_dash,
-                    tab: tab,
+                    tab: '',
                     col: 'new'
                 }, function(t) {
                     eval(t);
                 }
             );
         }});
-        /*Sortable.create("dashboard_applets_new",{dropOnEmpty:true,tag:'div',containment:["dashboard_applets_new","dashboard_applets_"+tab+"_0","dashboard_applets_"+tab+"_1","dashboard_applets_"+tab+"_2"],constraint:false, handle: 'handle',ghosting: false, onUpdate:function(c){
-			// remove instanced applets from the list
-			for (w in c.childNodes)
-				if (c.childNodes[w] && c.childNodes[w].id && c.childNodes[w].id.indexOf("ab_item_new_")==-1)
-					c.childNodes[w].style.display="none";
-		}});*/
 
-    //applet toggle buttons
-	jq('#dashboard .applet').each(function(i,a) {
+  //applet toggle buttons
+  jq('#dashboard .applet').each(function(i,a) {
         var aa = jq(a);
         aa.find('a.toggle').click(function(b) {
             aa.find('.content').toggle('blind');
         });
-    });
+  });
 }
 
 remove_applet = function(id, default_dash) {
