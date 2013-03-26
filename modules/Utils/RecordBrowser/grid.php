@@ -71,18 +71,17 @@ if ($mode=='submit') {// && $form->validate()) {
 	$rb->construct($tab);
 	$rb->init();
 	$record = Utils_RecordBrowserCommon::get_record($tab, $id);
-	$record['__grid_'.$element] = $value;
+	$record[$element] = $value;
 	$rb->record = $record;
 
 	$rb->view_fields_permission = $rb->get_access('view', $record);
-	$rb->prepare_view_entry_details($record, 'view', $id, $form, array($element=>true), true);
+	$rb->prepare_view_entry_details($record, 'view', $id, $form, array($element=>true));
 
 	$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 	$form->accept($renderer);
 	$data = $renderer->toArray();
 
-	$html = $data['__grid_'.$element]['html'];
-//	$html = print_r($data,true);
+	$html = $data[$element]['html'];
 	if ($form_name=='') {
 		$html = '<form '.$data['attributes'].'>'.$html.'</form>';
 	}
@@ -91,8 +90,6 @@ if ($mode=='submit') {// && $form->validate()) {
 	return;
 }
 ob_start();
-
-//$form->updateAttributes(array('onsubmit'=>'return false;'));
 
 $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 $form->accept($renderer);
@@ -117,21 +114,11 @@ if (isset($matches[1][0])) {
 		'el = document.getElementsByName("'.$v.'")[0];'.
 		'if(el){'.
 			'if(!el.id)el.id="grid_'.md5($v).'";';
-//	if (count($matches[1])==1)
-//		$js .= 'Event.observe(el.id,"blur",function(){setTimeout("grid_disable_edit(\''.$element.'\',\''.$id.'\');", 1500);});';
 	$js .=
 			'focus_by_id(el.id);'.
 		'}';
 	print($js);
 }
 
-/*
-$_SESSION['client']['__loaded_jses__'] = array();
-
-$out_js = Epesi::get_jses();
-foreach($out_js as $js) {
-	print('Epesi.load_js(\''.Epesi::escapeJS($js,false).'\');');
-}
-*/
-print(Epesi::get_eval_jses());
+Epesi::send_output();
 ?>
