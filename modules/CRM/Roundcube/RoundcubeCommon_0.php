@@ -198,11 +198,11 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $subject_label = Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
         $subject_label = Utils_TooltipCommon::create($subject_label, "<pre class=\"wrap\">$body_preview</pre>", false);
         $ret = $subject_label .'<br />From: '.$record['from'].'<br />To: '.$record['to'] . '<br />';
-        if(!$record['references']) {
+        if(!$record['references'] || $last_message_id===null || strpos($record['references'],$last_message_id)===false) {
             $last_message_id = $record['message_id'];
             return $ret;
         }
-        if(!$last_message_id || strpos($record['references'],$last_message_id)===false) return $ret;
+        if(!$last_message_id) return $ret;
         return '<div style="margin-left:20px">'.$ret.'</div>';
 	}
 
