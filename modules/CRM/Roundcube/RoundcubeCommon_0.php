@@ -198,12 +198,13 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $subject_label = Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
         $subject_label = Utils_TooltipCommon::create($subject_label, "<pre class=\"wrap\">$body_preview</pre>", false);
         $ret = $subject_label .'<br />From: '.$record['from'].'<br />To: '.$record['to'] . '<br />';
+        $replies = '<div style="text-align:center;float:right;width:20px;font-size:16px;line-height:20px;padding:8px;border-radius:18px;height:20px;background-color:gray;color:white;" class="num_of_replies"></div>';
         if(!$record['references'] || $last_message_id===null || strpos($record['references'],$last_message_id)===false) {
             $last_message_id = $record['message_id'];
-            return $ret;
+            return $replies.$ret;
         }
-        if(!$last_message_id) return $ret;
-        return '<div style="margin-left:20px">'.$ret.'</div>';
+        if(!$last_message_id) return $replies.$ret;
+        return '<div style="margin-left:20px" class="reply parent_'.md5($last_message_id).'">'.$ret.'</div>';
 	}
 
     public static function QFfield_direction(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
