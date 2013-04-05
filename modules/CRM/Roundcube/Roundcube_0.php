@@ -212,8 +212,8 @@ class CRM_Roundcube extends Module {
 
     public function actions_for_mails($r, $gb_row) {
         $gb_row->add_action($this->create_callback_href(array($this,'copy'),array($r['id'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
-        $gb_row->add_action('style="display:none;" href="javascript:void(0)" class="expand"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 5);
-        $gb_row->add_action('style="display:none;" href="javascript:void(0)" class="collapse"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 5);
+        $gb_row->add_action('style="display:none;" href="javascript:void(0)" class="expand"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand.gif'), 5);
+        $gb_row->add_action('style="display:none;" href="javascript:void(0)" class="collapse"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse.gif'), 5);
     }
 
     public function copy($id) {
