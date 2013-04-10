@@ -15,12 +15,12 @@ class EpesiShell extends AdminModule {
 
     public function body() {
         ob_start();
+        print('<div class="title">'. __('EPESI Shell'). '</div>');
         if (!isset($this->enabled)) {
-            print(__('Tool disabled. Please edit file admin/modules/EpesiShell.php and follow instructions there.'));
+            print(__('This tool is currently disabled. Please edit file admin/modules/EpesiShell.php and follow instructions there.'));
             print('<br/>');
             print(__("This tool allows you to execute any PHP code as it would be executed in EPESI application. It's intended mainly for developers. Don't leave it enabled on non-development installation."));
         } else {
-            print('<div class="title">'. __('EPESI Shell'). '</div>');
             print('<p>Place "return" statement to see returned value</p>');
             $cmd = $this->cmd();
             if ($cmd) {
