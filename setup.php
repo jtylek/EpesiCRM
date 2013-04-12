@@ -156,7 +156,7 @@ if(!isset($_GET['license'])) {
 	set_header(__('License Terms'));
     print('</div><br>');
 	if (isset($_GET['submitted']))
-		print('<p class="error">'.__('You must agree to the License Terms to continue the installation').'</p>');
+		print('<p class="error">'.__('You have to agree to the License Terms to continue the installation').'</p>');
     print('<p style="text-align: center"><input type="submit" class="button" value="' . __('Continue') . '" /></p>');
 	print('</form>');
 } elseif(!isset($_GET['htaccess'])) {
