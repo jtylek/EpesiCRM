@@ -140,21 +140,24 @@ if(file_exists(DATA_DIR.'/config.php'))
 if(!is_writable(DATA_DIR))
 	die(__('Cannot write into "%s" directory. Please fix privileges.', array(DATA_DIR)));
 
+if (isset($_GET['tos']) && count($_GET['tos']) == 4)
+    $_GET['license'] = 1;
+unset($_GET['tos']);
+
 if(!isset($_GET['license'])) {
 	print('<form method="GET">');
+    foreach ($_GET+array('submitted'=>'true') as $f=>$v)
+        print('<input type="hidden" name="'.$f.'" value="'.$v.'">');
 	print('<div class="license summary">');
     print read_doc_file('license_summary');
 	print('</div>');
 	print('<div class="license">');
     print read_doc_file('license');
 	set_header(__('License Terms'));
-	foreach ($_GET+array('submitted'=>'true') as $f=>$v)
-		print('<input type="hidden" name="'.$f.'" value="'.$v.'">');
     print('</div><br>');
 	if (isset($_GET['submitted']))
-		print('<span class="error">'.__('You must agree to the License Terms to continue the installation').'</span>');
-	print('<h2>' . '<input name="license" type="checkbox"> ' . __('I agree to EPESI License Terms.') . '</h2>');
-    print('<input type="submit" class="button" value="' . __('Accept') . '" />');
+		print('<p class="error">'.__('You must agree to the License Terms to continue the installation').'</p>');
+    print('<p style="text-align: center"><input type="submit" class="button" value="' . __('Continue') . '" /></p>');
 	print('</form>');
 } elseif(!isset($_GET['htaccess'])) {
 	ob_start();
