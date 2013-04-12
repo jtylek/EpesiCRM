@@ -91,7 +91,7 @@
  		</div>
 	</div>
 
-
+            <a href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>
 
 		</center>
 	</form>
