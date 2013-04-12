@@ -113,7 +113,7 @@ class Base_EssClient extends Module {
         print(__('If necessary, you can move your installation to another server and keep your EPESI License Key, but at any given time no two installations can use the same EPESI License Key.').' ');
         print(__('Sharing your License Key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
         print('<br><br>');
-        print(__('If you already have a License Key for this installation, you can enter it here:') . ' <a ' . $this->create_callback_href(array($this, 'license_key_form')) . '>' . __('enter License Key') . '</a>');
+        print('<strong>'.__('If you already have a License Key for this installation, you can enter it here:') . ' <a ' . $this->create_callback_href(array($this, 'license_key_form')) . '>' . __('enter License Key') . '</a></strong>');
         print('<br><br>');
         print(__('Full Terms and Conditions are available here:'));
         $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';

@@ -77,7 +77,7 @@ function footer() {
 		<center>
 		<span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
 		<br>
-		<p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
+		<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
 		</center>
 </body>
 </html>
