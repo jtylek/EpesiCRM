@@ -450,14 +450,14 @@ class Utils_RecordBrowser extends Module {
 
         $dont_hide = Base_User_SettingsCommon::get('Utils/RecordBrowser',$this->tab.'_show_filters');
 
+        $vals = $form->exportValues();
+
         $ret = DB::Execute('SELECT * FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($this->tab));
         while ($row = $ret->FetchRow()) {
             $m = $this->init_module($row['module']);
             $next_dont_hide = false; // FIXME deprecated, to be removed
             $this->display_module($m, array(& $form, & $external_filters, & $vals, & $this->crits, & $next_dont_hide, $this), $row['func']);
         }
-
-        $vals = $form->exportValues();
 
         foreach ($filters_all as $filter) {
             if (in_array(strtolower($filter), $external_filters)) continue;
