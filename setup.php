@@ -149,11 +149,11 @@ if(!isset($_GET['license'])) {
     foreach ($_GET+array('submitted'=>'true') as $f=>$v)
         print('<input type="hidden" name="'.$f.'" value="'.$v.'">');
 	print('<div class="license summary">');
-    print read_doc_file('license_summary');
+    print read_doc_file('license');
 	print('</div>');
 	print('<div class="license">');
-    print read_doc_file('license');
-	set_header(__('License Terms'));
+    print read_doc_file('license_summary');
+	set_header(__('License Agreement'));
     print('</div><br>');
 	if (isset($_GET['submitted']))
 		print('<p class="error">'.__('You have to agree to the License Terms to continue the installation').'</p>');

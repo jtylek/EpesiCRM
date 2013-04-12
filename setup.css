@@ -139,12 +139,12 @@ span.footer a:hover {
 
 div.license.summary {
 	float: left;
-	width: 300px;
+	width: 500px;
 }
 
 div.license {
     overflow: auto;
-    height: 350px;
+    height: 500px;
     border: 1px solid #B3B3B3;
     background-color: #FFFFFF;
     padding: 10px 10px 10px 10px;

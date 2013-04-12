@@ -1,3 +1,4 @@
+
 {if $is_logged_in}
 	{$logged_as}
 	{$logout}
