@@ -19,7 +19,16 @@ define('_VALID_ACCESS',1);
 require_once('include/data_dir.php');
 require_once('modules/Libs/QuickForm/requires.php');
 
-// fast install file
+/* You can predefine user, password, database name, etc in file defined by var below.
+Example installation_config.php file:
+<?php
+$CONFIG = array('user' => 'db_username', 'password' => 'db_password', 'db' => 'database_name', 'host' => 'db_server_host',
+    'newdb' => 0,  // or 1 to create new database
+    'engine' => 'mysqlt',  // or 'postgre' for PostgreSQL
+    'direction' => 0  // Left to Right, or 1 for Right to Left
+);
+?>
+*/
 $fast_install_filename = "installation_config.php";
 
 // translation support
