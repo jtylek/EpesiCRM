@@ -19,6 +19,9 @@ define('_VALID_ACCESS',1);
 require_once('include/data_dir.php');
 require_once('modules/Libs/QuickForm/requires.php');
 
+// fast install file
+$fast_install_filename = "installation_config.php";
+
 // translation support
 $install_lang_dir = 'modules/Base/Lang/lang';
 $ls_langs = scandir($install_lang_dir);
@@ -196,6 +199,17 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form -> addElement('submit', 'submit', __('Next'));
 	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
 
+    if (file_exists($fast_install_filename)) {
+        include $fast_install_filename;
+        if (isset($CONFIG) && is_array($CONFIG)) {
+            $txt = __('Some fields were filled to make installation easier.');
+            print '<div style="text-align:center"><p style="width: 250px;margin-left: auto;margin-right: auto;">' . $txt . '</p></div>';
+            foreach ($CONFIG as $key => $value) {
+                $form->setDefaults(array($key => $value));
+                $form->getElement($key)->freeze();
+            }
+        }
+    }
     $required_note_text = __('denotes required field');
 	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">' . $required_note_text . '</span>');
 	$form -> addElement('html', '<tr><td colspan=2><br /><b>'
@@ -206,11 +220,13 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 		$engine = $form -> exportValue('engine');
 		$direction = $form -> exportValue('direction');
 		$other = array('direction'=>$direction);
+        $host = $form -> exportValue('host');
+        $user = $form -> exportValue('user');
+        $pass = $form -> exportValue('password');
+        $dbname = $form -> exportValue('db');
+        $new_db = $form->exportValue('newdb');
 		switch($engine) {
 			case 'postgres':
-				$host = $form -> exportValue('host');
-				$user = $form -> exportValue('user');
-				$pass = $form -> exportValue('password');
 				if(!function_exists('pg_connect')) {
 				    echo(__('Please enable postgresql extension in php.ini.'));
 				} else {
@@ -218,8 +234,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 					if(!$link) {
 	 					echo(__('Could not connect.'));
 					} else {
-						$dbname = $form -> exportValue('db');
-						if($form->exportValue('newdb')==1) {
+						if ($new_db == 1) {
 							$sql = 'CREATE DATABASE '.$dbname;
 							if (pg_query($link, $sql)) {
 				   				//echo "Database '$dbname' created successfully\n";
@@ -243,9 +258,6 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 				}
 			break;
             case 'mysqlt':
-                $host = $form->exportValue('host');
-                $user = $form->exportValue('user');
-                $pass = $form->exportValue('password');
                 if (!function_exists('mysql_connect')) {
                     echo(__('Please enable mysql extension in php.ini.'));
                 } else {
@@ -253,8 +265,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
                     if (!$link) {
                         echo(__('Could not connect') . ': ' . mysql_error());
                     } else {
-                        $dbname = $form->exportValue('db');
-                        if ($form->exportValue('newdb') == 1) {
+                        if ($new_db == 1) {
                             $sql = 'CREATE DATABASE `' . $dbname . '` CHARACTER SET utf8 COLLATE utf8_unicode_ci';
                             if (mysql_query($sql, $link)) {
                                 write_config($host, $user, $pass, $dbname, $engine, $other);
