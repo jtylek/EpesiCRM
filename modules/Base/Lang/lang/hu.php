@@ -5,7 +5,7 @@
  * @subpackage hu
  */
 global $translations;
-$translations['Birthdays']='Születésnap';
+$translations['Birthdays']='Születésnapok';
 $translations['Displays upcoming Birthdays of your favorite contacts.']='Kedvenc kontaktok közeli születésnapjainak mutatása';
 $translations['Number of days']='Napok száma';
 $translations['Field must be numeric']='A mezőnek számnak kell lennie';
@@ -1037,6 +1037,7 @@ $translations['Value']='Érték';
 $translations['Only numbers are allowed.']='Csak számok engedélyezettek';
 $translations['Info']='Info';
 $translations['Warning']='';
+$translations['Source']='';
 $translations['Attachments - view full download history']='';
 $translations['Messenger Alerts']='';
 $translations['First']='Első';
@@ -1514,7 +1515,6 @@ $translations['Protected']='Védett';
 $translations['Google Username and Password']='';
 $translations['Unable to authenticate']='';
 $translations['Filter by user']='';
-$translations['Source']='';
 $translations['Attach']='';
 $translations['Save note']='';
 $translations['Paste note']='';

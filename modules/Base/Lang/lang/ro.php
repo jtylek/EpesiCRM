@@ -5,14 +5,14 @@
  * @subpackage ro
  */
 global $translations;
-$translations['Birthdays']='Zi de nastere';
-$translations['Displays upcoming Birthdays of your favorite contacts.']='Arata zilele de nastere de la contactactele tale favorite';
+$translations['Birthdays']='Zile de nastere';
+$translations['Displays upcoming Birthdays of your favorite contacts.']='Arata viitoarele zile de nastere ale contactelor tale favorite';
 $translations['Number of days']='Numar de zile';
 $translations['Field must be numeric']='Campul trebuie sa fie numeric';
 $translations['Field required']='Camp obligatoriu';
 $translations['Title']='Titlu';
-$translations['Upcoming Birthdays']='';
-$translations['Contact Type']='';
+$translations['Upcoming Birthdays']='Zile de nastere viitoare';
+$translations['Contact Type']='Tip Contact';
 $translations['All']='Toate';
 $translations['Favorites']='Favorite';
 $translations['EPESI Core']='';
@@ -21,8 +21,8 @@ $translations['Birthdays upcoming in the next: %d days.']='Zile de nastere in ur
 $translations['Calc']='Calculator';
 $translations['Simple calculator applet']='';
 $translations['Clock']='Ceas';
-$translations['Analog JS clock']='';
-$translations['Clock configurable on non-IE browsers only.']='';
+$translations['Analog JS clock']='Ceas Analog JS';
+$translations['Clock configurable on non-IE browsers only.']='Ceasul este configurabil doar in navigatoare non-IE';
 $translations['Clock skin']='Aspect ceas';
 $translations['Google']='';
 $translations['Simple Google Search applet']='';
@@ -1037,6 +1037,7 @@ $translations['Value']='Valoare';
 $translations['Only numbers are allowed.']='';
 $translations['Info']='Info';
 $translations['Warning']='Atentie';
+$translations['Source']='';
 $translations['Attachments - view full download history']='';
 $translations['Messenger Alerts']='';
 $translations['First']='Primul';
@@ -1514,7 +1515,6 @@ $translations['Protected']='Protejat';
 $translations['Google Username and Password']='';
 $translations['Unable to authenticate']='';
 $translations['Filter by user']='';
-$translations['Source']='';
 $translations['Attach']='';
 $translations['Save note']='Salvez nota';
 $translations['Paste note']='';
