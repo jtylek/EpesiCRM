@@ -20,7 +20,7 @@ global $custom_translations;
 
 $langs = Base_LangCommon::get_installed_langs();
 
-foreach ($langs as $l) {
+foreach ($langs as $l => $language_name) {
 	$ts = Base_LangCommon::get_langpack($l, 'custom');
 	foreach ($ts as $o=>$t) {
 		if (!$t) continue;

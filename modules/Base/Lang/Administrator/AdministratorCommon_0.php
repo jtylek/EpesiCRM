@@ -60,5 +60,17 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 		$q = array('first_name'=>$r['first_name'], 'last_name'=>$r['last_name'], 'lang'=>$lang, 'ip'=>$ip, 'original'=>$org, 'translation'=>$trans, 'credits'=>$r['credits'], 'credits_website'=>$r['credits_website'], 'contact_email'=>$r['contact_email']);
 		file_get_contents(self::translation_server_url.'/translations.php?'.http_build_query($q));
 	}
+
+    public static function available_new_languages() {
+        $all_langs = Base_LangCommon::get_all_languages();
+        $installed_langs = Base_LangCommon::get_installed_langs();
+        foreach ($installed_langs as $lang_code => $language_name) {
+            unset($all_langs[$lang_code]);
+        }
+        foreach ($all_langs as $code => $name) {
+            $all_langs[$code] .= " ($code)";
+        }
+        return $all_langs;
+    }
 }
 ?>

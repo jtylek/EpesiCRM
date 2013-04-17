@@ -136,8 +136,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			print('<span class="important_notice">'.__('Please make sure the correct language is selected in the box below before you start translating').' <a style="float:right;" '.$this->create_callback_href(array($this, 'hide_notice')).'>'.__('Discard').'</a>'.'</span>');
 		}
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate')) {
-			$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
-			$langs = array_combine($ls_langs,$ls_langs);
+			$langs = Base_LangCommon::get_installed_langs();
 			$form = $this->init_module('Libs/QuickForm',null,'language_selected');
 			$form->addElement('select','lang_code',__('Currently Translating'), $langs, array('onchange'=>$form->get_submit_form_js()));
 			
@@ -203,7 +202,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 
 		$form = $this->init_module('Libs/QuickForm',__('Creating new langpack...'),'new_langpack');
 		$form -> addElement('header',null,__('Create new langpack'));
-		$form -> addElement('text','code',__('Language code'),array('maxlength'=>2));
+		$form -> addElement('select','code',__('Language'),Base_Lang_AdministratorCommon::available_new_languages());
 		$form->registerRule('check_if_langpack_exists', 'callback', 'check_if_langpack_exists', $this);
 		$form -> addRule('code', __('Specified langpack already exists'), 'check_if_langpack_exists');
 		$form -> addRule('code', __('Field required'), 'required');
