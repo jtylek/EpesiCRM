@@ -152,25 +152,39 @@ if(file_exists(DATA_DIR.'/config.php'))
 if(!is_writable(DATA_DIR))
 	die(__('Cannot write into "%s" directory. Please fix privileges.', array(DATA_DIR)));
 
-if (isset($_GET['tos']) && count($_GET['tos']) == 4)
+if (isset($_GET['tos1']) && $_GET['tos1'] && isset($_GET['tos2']) && $_GET['tos2'] && isset($_GET['tos3']) && $_GET['tos3'] && isset($_GET['tos4']) && $_GET['tos4']) {
     $_GET['license'] = 1;
-unset($_GET['tos']);
+    unset($_GET['tos1']);
+    unset($_GET['tos2']);
+    unset($_GET['tos3']);
+    unset($_GET['tos4']);
+}
 
 if(!isset($_GET['license'])) {
-	print('<form method="GET">');
-    foreach ($_GET+array('submitted'=>'true') as $f=>$v)
-        print('<input type="hidden" name="'.$f.'" value="'.$v.'">');
+	set_header(__('License Agreement'));
 	print('<div class="license summary">');
     print read_doc_file('license');
 	print('</div>');
 	print('<div class="license">');
-    print read_doc_file('license_summary');
-	set_header(__('License Agreement'));
-    print('</div><br>');
-	if (isset($_GET['submitted']))
-		print('<p class="error">'.__('You have to agree to License Terms to continue.').'</p>');
-    print('<p style="text-align: center"><input type="submit" class="button" value="' . __('Continue') . '" /></p>');
-	print('</form>');
+//    print read_doc_file('license_summary');
+	$form = new HTML_QuickForm('licenceform','get');
+	$form -> addElement('html', '<tr><td colspan=2><h3>'.__('By installing and using this software you agree to the MIT license and following terms:').'</h3></td></tr>');
+	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Telaxus LLC"</strong> notice as required by the MIT license.'));
+	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"EPESI powered"</strong> logo and the link from the application login screen or the toolbar.'));
+	$form -> addElement('checkbox','tos3','',__('I will not remove <strong>"Support -> About"</strong> credit page from the application menu.'));
+	$form -> addElement('checkbox','tos4','',__('I will not remove or rename <strong>"EPESI Store"</strong> links from the application.'));
+	foreach($_GET as $f=>$v)
+	    $form->addElement('hidden',$f,$v);
+	$form->addElement('hidden','submitted',1);
+	$form -> addRule('tos1', __('Field required'), 'required');
+	$form -> addRule('tos2', __('Field required'), 'required');
+	$form -> addRule('tos3', __('Field required'), 'required');
+	$form -> addRule('tos4', __('Field required'), 'required');
+	isset($_GET['submitted']) && $_GET['submitted'] && $form->validate();
+	$form -> addElement('submit', null, __('Next'));
+	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.__('denotes required field').'</span>');
+	$form->display();
+    print('</div>');
 } elseif(!isset($_GET['htaccess'])) {
 	ob_start();
 	print('<h1>' . __('Welcome to EPESI setup!') . '<br></h1><h2>' . __('Hosting compatibility') . ':</h2><br><div class="license">');
@@ -183,7 +197,7 @@ if(!isset($_GET['license'])) {
 	}
 }
 if(isset($_GET['htaccess']) && isset($_GET['license'])) {
-	set_header('Configuration');
+	set_header(__('Configuration'));
 	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
 	$form -> addElement('header', null, __('Database server settings'));
 	$form -> addElement('text', 'host', __('Database server address'));
@@ -207,6 +221,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 
 	$form -> addElement('submit', 'submit', __('Next'));
 	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
+	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.__('denotes required field').'</span>');
 
     if (file_exists($fast_install_filename)) {
         include $fast_install_filename;
