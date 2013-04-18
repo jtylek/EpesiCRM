@@ -15,6 +15,7 @@
 -   PHP w wersji 5.2.0 nie obsługuje poprawnie EPESI ze względu na błąd w implementacji json_decode. W wersji 5.2.1 zostało to poprawione.
 -	Serwer HTTP powinien być skonfigurowany tak, by index.php był jednym z domyślnych dokumentów.
 -   Serwer HTTP musi wspierać lokalne pliki .htaccess
+        Jeśli serwer nie wspiera plików .htaccess, należy zabronić odczytu niektórych plików i katalogów z katalogu /data.
 -	Zainstalowany PEAR z poprawnym include_path w PHP config.ini.
 -	Serwer bazodanowy MySQL 4+ lub PostgreSQL 7+.
 -	Dostęp do serwera przez FTP lub lokalnie/przez shell'a.
