@@ -369,7 +369,6 @@ $translations['Original']='Algne';
 $translations['Translated']='Tõlgitud';
 $translations['Creating new langpack...']='Loon uut keelepaketti';
 $translations['Create new langpack']='Loo uus keelepakett';
-$translations['Language code']='Keele kood';
 $translations['Specified langpack already exists']='Määratud keelepakett on juba olemas';
 $translations['Loading...']='';
 $translations['EPESI Forum']='';

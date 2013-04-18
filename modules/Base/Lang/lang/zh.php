@@ -369,7 +369,6 @@ $translations['Original']='原文';
 $translations['Translated']='翻译';
 $translations['Creating new langpack...']='创建新语言包。。。';
 $translations['Create new langpack']='创建新语言包';
-$translations['Language code']='语言代码';
 $translations['Specified langpack already exists']='指定的语言包已存在';
 $translations['Loading...']='载入中...';
 $translations['EPESI Forum']='EPESI论坛';

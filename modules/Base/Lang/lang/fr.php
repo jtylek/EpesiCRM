@@ -369,7 +369,6 @@ $translations['Original']='Original';
 $translations['Translated']='Traduit';
 $translations['Creating new langpack...']='';
 $translations['Create new langpack']='';
-$translations['Language code']='';
 $translations['Specified langpack already exists']='';
 $translations['Loading...']='Chargement ...';
 $translations['EPESI Forum']='';

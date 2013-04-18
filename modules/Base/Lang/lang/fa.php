@@ -369,7 +369,6 @@ $translations['Original']='اصلی';
 $translations['Translated']='ترجمه';
 $translations['Creating new langpack...']='ساخت زبان جدید ...';
 $translations['Create new langpack']='ساخت زبان جدید';
-$translations['Language code']='کد زبان';
 $translations['Specified langpack already exists']='مشخصات زبان وجود دارد';
 $translations['Loading...']='بارگزاری ...';
 $translations['EPESI Forum']='انجمن EPESI ';

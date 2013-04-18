@@ -369,7 +369,6 @@ $translations['Original']='Originale';
 $translations['Translated']='Tradotto';
 $translations['Creating new langpack...']='Creazione di un nuovo file lingua …';
 $translations['Create new langpack']='Crea un nuovo file lingua';
-$translations['Language code']='Codice lingua';
 $translations['Specified langpack already exists']='Il file lingua specificato e\' gia\' presente';
 $translations['Loading...']='Caricamento in corso ...';
 $translations['EPESI Forum']='Forum EPESI';
