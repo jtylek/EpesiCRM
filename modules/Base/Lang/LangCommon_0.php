@@ -70,40 +70,21 @@ class Base_LangCommon extends ModuleCommon {
 					'<span class="label">'.$label.'</span>'.
 				'</a>');
 	}
-	
-	public static function get_languages() {
-	    return array(
-		    'ar'=>'Arabic',
-		    'bg'=>'Bulgarian',
-		    'cs'=>'Czech',
-            'da'=>'Danish',
-		    'de'=>'German',
-		    'el'=>'Greek',
-		    'en'=>'English',
-		    'es'=>'Spanish',
-		    'et'=>'Estonian',
-            'fa'=>'Persian',
-		    'fr'=>'French',
-		    'he'=>'Hebrew',
-		    'hu'=>'Hungarian',
-		    'id'=>'Indonesian',
-		    'it'=>'Italian',
-            'ko'=>'Korean',
-		    'lt'=>'Lithuanian',
-		    'nl'=>'Dutch',
-		    'no'=>'Norwegian',
-		    'pl'=>'Polish',
-		    'pt'=>'Portuguese',
-		    'ro'=>'Romanian',
-		    'ru'=>'Russian',
-		    'sl'=>'Slovene',
-		    'sr'=>'Serbian',
-		    'sv'=>'Swedish',
-		    'tr'=>'Turkish',
-		    'vi'=>'Vietnamese',
-		    'zh'=>'Chinese'
-	    );
-	}
+
+    public static function get_base_languages() {
+        $files = scandir('modules/Base/Lang/lang');
+        $langs = array();
+        $all_langs = self::get_all_languages();
+        foreach ($files as $file) {
+            if (pathinfo($file, PATHINFO_EXTENSION) == 'php' && strlen($file) == 6) {
+                $lang_code = substr($file, 0, 2);
+                if (isset($all_langs[$lang_code])) {
+                    $langs[$lang_code] = $all_langs[$lang_code];
+                }
+            }
+        }
+        return $langs;
+    }
 
     public static function get_all_languages() {
         return array (

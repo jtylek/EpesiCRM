@@ -100,7 +100,7 @@ register_shutdown_function('footer');
 // language selection form
 if (!isset($install_lang_code)) {
 	$complete = Base_LangCommon::get_complete_languages();
-	$labels = Base_LangCommon::get_languages();
+	$labels = Base_LangCommon::get_base_languages();
 	$list = array();
 	foreach ($complete as $l) {
 		$list[$l] = isset($labels[$l])?$labels[$l]:$l;
