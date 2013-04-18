@@ -1122,16 +1122,6 @@ hr.line {
 	min-height: 20px;
 }
 
-.epesi_data select {
-	margin-right: 2px;
-	height: 22px;
-    width: 98px;
-}
-.epesi_data select {
-	padding: 2px 0;
-}
-
-
 .epesi_data input[type='checkbox'] {
     width: 13px;
     height: 13px;
@@ -1146,6 +1136,7 @@ hr.line {
 .epesi_data select,
 .epesi_data textarea {
 	width: 97%;
+        min-width: 50px;
 	height: 14px;
     background-color: #FFFFF9;
     border: 0px;
@@ -1153,6 +1144,10 @@ hr.line {
 	-webkit-border-radius: 0 4px 4px 0;
 	-moz-border-radius: 0 4px 4px 0;
     border-radius: 0 4px 4px 0;
+}
+.epesi_data input[type=checkbox],
+.epesi_data input[type=radio] {
+        min-width: 10px;
 }
 .epesi_data textarea {
 	height: 63px;
@@ -1162,6 +1157,7 @@ hr.line {
 	padding: 0;
 	margin-left: 2px;
 	margin-top: 2px;
+	margin-right: 2px;
 }
 .epesi_data.static_field,
 .epesi_data input[disabled],
