@@ -166,7 +166,6 @@ if(!isset($_GET['license'])) {
     print read_doc_file('license');
 	print('</div>');
 	print('<div class="license">');
-//    print read_doc_file('license_summary');
 	$form = new HTML_QuickForm('licenceform','get');
 	$form -> addElement('html', '<tr><td colspan=2><h3>'.__('By installing and using this software you agree to the MIT license and following terms:').'</h3></td></tr>');
 	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Telaxus LLC"</strong> notice as required by the MIT license.'));
