@@ -114,11 +114,16 @@ class Base_User_Login extends Module {
 		} else {
 			$form->assign_theme('form', $this->theme);
 			$this->theme->assign('mode', 'login');
+			ob_start();
 			if (!$tpl) {
+			        $this->theme->set_inline_display();
 				$this->theme->display();
 				eval_js("focus_by_id('username')");
 			} else
 				Base_ThemeCommon::display_smarty($this->theme->get_smarty(),$tpl[0],$tpl[1]);
+			$ret = ob_get_clean();
+			if(stripos($ret,'<a href="http://www.telaxus.com">Telaxus LLC</a> &bull; Managing Business Your Way<sup>TM</sup>')===false) trigger_error('Epesi terms of use have been violated',E_USER_ERROR);
+			print($ret);
 		}
 	}
 
