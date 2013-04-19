@@ -96,7 +96,9 @@
  		</div>
 	</div>
 
+            <!-- Epesi Terms of Use require line below - do not remove it! -->
             <a href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>
+            <!-- Epesi Terms of Use require line above - do not remove it! -->
 
 		</center>
 	</form>

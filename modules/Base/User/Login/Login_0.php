@@ -122,7 +122,9 @@ class Base_User_Login extends Module {
 			} else
 				Base_ThemeCommon::display_smarty($this->theme->get_smarty(),$tpl[0],$tpl[1]);
 			$ret = ob_get_clean();
-			if(stripos($ret,'<a href="http://www.telaxus.com">Telaxus LLC</a> &bull; Managing Business Your Way<sup>TM</sup>')===false) trigger_error('Epesi terms of use have been violated',E_USER_ERROR);
+			if(stripos($ret,'<a href="http://www.telaxus.com">Telaxus LLC</a>')===false ||
+			    stripos($ret,'<a href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>')===false
+			    ) trigger_error('Epesi terms of use have been violated',E_USER_ERROR);
 			print($ret);
 		}
 	}
