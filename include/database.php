@@ -45,11 +45,36 @@ class DB {
         if(strcasecmp(DATABASE_DRIVER,"postgres")!==0) {
 			// For MySQL
     		$new->Execute('SET NAMES "utf8"');
+    		$new = self::_mysql_max_allowed_packet_hook($new);
 		} else {
 			// For PostgreSQL
 			@$new->Execute('SET bytea_output = "escape";');
 		}
 		return $new;
+	}
+	
+	private static function _mysql_max_allowed_packet_hook(& $connection) {
+        static $running = false; // kind of semaphor to forbid infinite recursion
+        if ($running || !isset($connection))
+            return;
+
+        $running = true;
+        $max_allowed_packet_size = 33554432; // 32MB
+        $row = $connection->GetRow("show variables like 'max_allowed_packet'");
+        $name = & $row[0];
+        $value = & $row[1];
+        if ($name == 'max_allowed_packet' && $value < $max_allowed_packet_size) {
+            $connection->Execute("set global max_allowed_packet=$max_allowed_packet_size");
+            if (isset(self::$ado) && $connection == self::$ado) {
+                // If first connection has too small allowed packet, then clear this static var
+                // to recreate it properly in Connect method.
+                self::$ado = null;
+            }
+            $connection->Close();
+            $connection = self::Connect();
+        }
+        $running = false;
+        return $connection;
 	}
 
 	/**
@@ -57,7 +82,7 @@ class DB {
 	 */
 	public static function Disconnect() {
 		self::$ado->Close();
-		unset(self::$ado);
+		self::$ado = null;
 	}
 
 
