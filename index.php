@@ -46,7 +46,7 @@ if($cur_ver!==EPESI_VERSION) {
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-      <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+      <meta content="text/html; charset=utf-8" http-equiv="content-type">
       <title>EPESI update</title>
       <link href="setup.css" type="text/css" rel="stylesheet"/>
 </head>
@@ -70,7 +70,7 @@ if($cur_ver!==EPESI_VERSION) {
         </center>
         <br>
         <center>
-        <span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+        <span class="footer">Copyright &copy; 2013 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
         <br>
         <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" alt="image" border="0"></a></p>
         </center>
