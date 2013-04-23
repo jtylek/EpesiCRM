@@ -57,7 +57,7 @@ class DB {
 	 */
 	public static function Disconnect() {
 		self::$ado->Close();
-		unset(self::$ado);
+		self::$ado = null;
 	}
 
 
