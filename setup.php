@@ -162,10 +162,10 @@ if (isset($_GET['tos1']) && $_GET['tos1'] && isset($_GET['tos2']) && $_GET['tos2
 
 if(!isset($_GET['license'])) {
 	set_header(__('License Agreement'));
-	print('<div class="license summary">');
+	print('<div class="license">');
     print read_doc_file('license');
 	print('</div>');
-	print('<div class="license">');
+	print('<div class="license agreement">');
 	$form = new HTML_QuickForm('licenceform','get');
 	$form -> addElement('html', '<tr><td colspan=2><h3>'.__('By installing and using this software you agree to the MIT license and following terms:').'</h3></td></tr>');
 	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Telaxus LLC"</strong> notice as required by the MIT license.'));
@@ -496,7 +496,7 @@ define(\'DATABASE_DRIVER\',\''.addcslashes($engine, '\'\\').'\');
  */
 //define(\'DEMO_MODE\',0);
 
-define(\'FILE_SESSION_DIR\',\''.sys_get_temp_dir().'\');
+define(\'FILE_SESSION_DIR\',\''.str_replace('\\', '/', sys_get_temp_dir()).'\');
 define(\'FILE_SESSION_TOKEN\',\'epesi_'.md5(__FILE__).'_\');
 
 '.$other_conf.'

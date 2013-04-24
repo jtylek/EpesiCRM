@@ -137,12 +137,9 @@ span.footer a:hover {
     margin: 10px 10px 10px 10px;
 }
 
-div.license.summary {
-	float: left;
-	width: 500px;
-}
-
 div.license {
+    display: inline-block;
+    width: 500px;
     overflow: auto;
     height: 500px;
     border: 1px solid #B3B3B3;
