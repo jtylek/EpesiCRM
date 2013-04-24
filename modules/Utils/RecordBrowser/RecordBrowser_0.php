@@ -1485,7 +1485,8 @@ class Utils_RecordBrowser extends Module {
     public function check_new_record_access($data) {
 		$problems = array();
 		$ret = array();
-		foreach (Utils_RecordBrowser::$last_record as $k=>$v) if (!isset($data[$k])) $data[$k] = $v;
+        if (is_array(Utils_RecordBrowser::$last_record))
+		    foreach (Utils_RecordBrowser::$last_record as $k=>$v) if (!isset($data[$k])) $data[$k] = $v;
 		$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
 		Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
 		foreach ($problems as $f) {
