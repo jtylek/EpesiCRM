@@ -35,4 +35,5 @@ print(Utils_TooltipCommon::create(count($unseen),implode('<br />',$unseen)));
 $err = imap_errors();
 print_r('<span style="display:none;">'.$err.'</span>');
 
+imap_close($mailbox);
 ?>
