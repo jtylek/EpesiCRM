@@ -546,7 +546,7 @@ class Base_EpesiStore extends Module {
     public function payments_show_user_settings() {
         $this->back_button();
         $module_to_show = $this->init_module('Base/User/Settings');
-        $this->display_module($module_to_show, array('EPESI Store'));
+        $this->display_module($module_to_show, array(__('EPESI Store')));
     }
 
     public function form_payment_frame($order_id, $value, $curr_code, $modules = null) {
