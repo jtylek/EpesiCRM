@@ -14,8 +14,6 @@ define('CID', false);
 $config = file_exists('data/config.php');
 if ($config) {
 	include_once('include.php');
-	ModuleManager::create_load_priority_array();
-	ModuleManager::create_common_cache();
 	ModuleManager::load_modules();
 }
 if ($config && class_exists('Base_AclCommon') && !Base_AclCommon::i_am_sa()) {
