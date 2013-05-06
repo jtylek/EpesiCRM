@@ -1910,5 +1910,5 @@ $translations['Watchdog - Selection']='Centro de Notificaciones - Selección';
 $translations['Click to stop watching this record for changes']='Click para dejar de seguir éste registro';
 $translations['Mark as read']='Marcar como leído';
 $translations['Mark all entries as read']='Marcar todas las entradas como leídas';
-$translations['This will mark all entries in selected categories as read, are you sure you want to continue?']='';
-$translations['Wizard complete! No more pages to display...']='';
+$translations['This will mark all entries in selected categories as read, are you sure you want to continue?']='Esto marcará todas las entradas de categorías seleccionadas como leídos, ¿estás seguro de que deseas continuar?';
+$translations['Wizard complete! No more pages to display...']='Asistente completo! No hay más páginas que mostrar ...';
