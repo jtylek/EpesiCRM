@@ -99,20 +99,8 @@ utils_attachment_add_note = function () {
 	$("attachments_new_note").style.display="";
 	$('note_id').value = null;
 
-	var tbody = $('attachments_new_note').parentNode;
-	var trs = tbody.getElementsByTagName('tr');
-	
-	var last_inserted = $("attachments_new_note").nextSibling;
-	while (trs[0] != $("attachments_new_note")) {
-		if (trs[0].parentNode != tbody) break;
-		if (trs[0] == $("attachments_new_note")) break;
-		var new_last_inserted = trs[0];
-		trs[0].parentNode.insertBefore(trs[0], last_inserted);
-		last_inserted = new_last_inserted.nextSibling;
-	}
-
 	scrollBy(0, -2000);
-	scrollBy(0, getTotalTopOffet($("attachments_new_note"))-140);
+	scrollBy(0, getTotalTopOffet($("attachments_new_note"))-160);
 }
 
 utils_attachments_cancel_note_edit = function () {
@@ -150,18 +138,10 @@ utils_attachment_edit_note = function(id) {
 			}
 		}
 	});
-	
-	var tbody = $('attachments_new_note').parentNode;
-	var trs = tbody.getElementsByTagName('tr');
-	
+
 	utils_attachment_last_edited_note = $('attachments_note_'+id);
 	utils_attachment_last_edited_note.style.display="none";
-	for (var i in trs) {
-		if (trs[i].parentNode != tbody) continue;
-		if (trs[i] == utils_attachment_last_edited_note) break;
-		trs[i].parentNode.insertBefore(trs[i], $("attachments_new_note"));
-	}
 
 	scrollBy(0, -2000);
-	scrollBy(0, getTotalTopOffet($("attachments_new_note"))-140);
+	scrollBy(0, getTotalTopOffet($("attachments_new_note"))-160);
 }
