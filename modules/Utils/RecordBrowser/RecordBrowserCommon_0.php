@@ -354,7 +354,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				self::$table_rows[$row['field']]['ref_table'] = substr($row['param'], 0, $pos);
 				if (self::$table_rows[$row['field']]['ref_table']=='__COMMON__') {
 					self::$table_rows[$row['field']]['ref_field'] = '__COMMON__';
-					self::$table_rows[$row['field']]['ref_table'] = substr($row['param'], $pos+2);
+                    $exploded = explode('::', $row['param']);
+					self::$table_rows[$row['field']]['ref_table'] = $exploded[1];
 					$commondata = true;
 				} else {
 				    $end = strpos($row['param'], ';', $pos+2);
