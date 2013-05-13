@@ -323,8 +323,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
         $indicator_text = ($rset == 'P' ? __('Person') : __('Company'));
         $rindicator = isset($icon[$rset]) ?
-                '<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$rset].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$rlabel] ";
+                '<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$rset].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
         $val = $rindicator.$val;
+        if ($nolink)
+            return strip_tags($val);
         return $val;
     }
     public static function auto_company_contact_suggestbox($str, $fcallback) {
