@@ -716,9 +716,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$cuss = array();
 		foreach ($r['customers'] as $c) {
 			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
-			$c = str_replace('&nbsp;',' ',$c);
-			if (mb_strlen($c,'UTF-8')>33) $c = mb_substr($c, 0, 30, 'UTF-8').'...';
-			$cuss[] = $c;
+            $cuss[] = str_replace('&nbsp;',' ',$c);
 		}
 
 		$inf2 += array(	__('Event')=> '<b>'.$next['title'].'</b>',
