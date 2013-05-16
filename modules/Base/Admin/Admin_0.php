@@ -70,10 +70,13 @@ class Base_Admin extends Module {
 			if (!isset($caption['section'])) $caption['section'] = __('Misc');
 			$mod_ok[$name] = $caption;
 		}
-		if (Base_AclCommon::i_am_sa())
+		if (Base_AclCommon::i_am_sa()) {
 			Base_ActionBarCommon::add('settings', __('Admin Panel Access'), $this->create_callback_href(array($this, 'set_module'), array('Base_Admin')));
-			$admin_tools_url = get_epesi_url() . '/admin/';
-			Base_ActionBarCommon::add('settings', __('Admin Tools'), 'href="'.htmlspecialchars($admin_tools_url).'" target="_blank"');
+            if (!DEMO_MODE && !HOSTING_MODE) {
+       			$admin_tools_url = get_epesi_url() . '/admin/';
+	    		Base_ActionBarCommon::add('settings', __('Admin Tools'), 'href="'.htmlspecialchars($admin_tools_url).'" target="_blank"');
+            }
+        }
                                 
 		$buttons = array();
 		foreach($mod_ok as $name=>$caption) {
