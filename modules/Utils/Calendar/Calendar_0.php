@@ -783,7 +783,7 @@ class Utils_Calendar extends Module {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
 		if ($diff<0) $diff += 7;
-		$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('-'.$diff.' days',$first_day_of_month)).' 00:00:00');
+		$currday = strtotime('-'.$diff.' days',$first_day_of_month);
 		$curmonth = date('m', $date);
 
 		$month = array();
@@ -799,14 +799,13 @@ class Utils_Calendar extends Module {
 							'day'=>date('j', $currday),
 							'day_link' => $this->create_unique_href(array('action'=>'switch', 'time'=>$currday, 'tab'=>'Day')),
 							'style'=>($main_month?(date('Y-m-d',$currday)==$today?'today':'current'):'other').(date('N',$currday)>=6?'_weekend':''),
-							'time'=>$currday
+							'time'=>Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$currday).' 00:00:00')
 							);
 				if ($main_month && isset($mark[date('Y-m-d',$currday)])) {
 					$next['style'].= ' event-'.$colors[$mark[date('Y-m-d',$currday)]];
 				}
 				$week[] = $next;
-				//$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 00:00:00',$currday))+3600*24).' '.date('H:i:s',$currday));
-				$currday = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime('+1 day',strtotime(Base_RegionalSettingsCommon::time2reg($currday,true,true,true,false)))).' 00:00:00');
+                $currday = strtotime('+1 day', $currday);
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
