@@ -322,13 +322,13 @@ class epesi_archive extends rcube_plugin
 
     $IMAP->set_mailbox($store_target);
     $uids = $IMAP->search_once('', 'HEADER Message-ID '.$msgid, true);
-    if(empty($uids)) return;
+    if($uids->is_empty()) return;
     
     $archived = $this->archive($uids,false);
 
     global $account;
     if($archived && isset($account['f_use_epesi_archive_directories']) && $account['f_use_epesi_archive_directories']) {
-        $rcmail->output->command('set_env', 'uid', array_shift($uids));
+        $rcmail->output->command('set_env', 'uid', $uids->get_element(0));
         $rcmail->output->command('set_env', 'mailbox',$store_target);
         $rcmail->output->command('move_messages', $this->archive_sent_mbox);
     }
