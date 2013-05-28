@@ -968,7 +968,7 @@ class Utils_RecordBrowser extends Module {
                 $visible_cols[$args['id']] = true;
             }
 
-			$this->record = $this->custom_defaults = Utils_RecordBrowserCommon::record_processing($this->tab, $this->custom_defaults, 'adding');
+			self::$last_record = $this->record = $this->custom_defaults = Utils_RecordBrowserCommon::record_processing($this->tab, $this->custom_defaults, 'adding');
 
             $this->prepare_view_entry_details($this->custom_defaults, 'add', null, $form, $visible_cols);
             $form->setDefaults($this->custom_defaults);
