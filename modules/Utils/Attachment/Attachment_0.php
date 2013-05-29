@@ -802,15 +802,13 @@ class Utils_Attachment extends Module {
 		}
 		if($file) {
 			DB::StartTrans();
-			$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=%d',array($id));
-			$rev = $rev+1;
-			DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($id,$oryg,Acl::get_user(),$rev));
+			DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by) VALUES(%d,%s,%d)',array($id,$oryg,Acl::get_user()));
 			DB::CompleteTrans();
 			$local = $this->get_data_dir().$this->group;
 			@mkdir($local,0777,true);
 			$dest_file = $local.'/'.$id.'_'.$rev;
 			rename($file,$dest_file);
-			if ($this->add_func) call_user_func($this->add_func,$id,$rev,$dest_file,$oryg,$this->add_args);
+			if ($this->add_func) call_user_func($this->add_func,$id,$dest_file,$oryg,$this->add_args);
 		}
 		$this->ret_attach = false;
 		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_~_'.$id);
@@ -819,12 +817,10 @@ class Utils_Attachment extends Module {
 	public function delete($id) {
 		if($this->persistent_deletion) {
 			DB::Execute('DELETE FROM utils_attachment_note WHERE attach_id=%d',array($id));
-			$rev = DB::GetAssoc('SELECT id,revision FROM utils_attachment_file WHERE attach_id=%d',array($id));
-			$file_base = $this->get_data_dir().$this->group.'/'.$id.'_';
-			foreach($rev as $mid=>$i) {
-			    @unlink($file_base.$i);
-			    DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($mid));
-			}
+			$mid = DB::GetOne('SELECT id FROM utils_attachment_file WHERE attach_id=%d',array($id));
+			$file_base = $this->get_data_dir().$this->group.'/'.$mid;
+		    @unlink($file_base);
+		    DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($mid));
 			DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
 			DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
 		} else {

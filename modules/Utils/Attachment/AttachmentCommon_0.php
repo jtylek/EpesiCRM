@@ -74,16 +74,15 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 	
 	public static function call_user_func_on_file($group,$func,$group_starts_with=false, $add_args=array()) {
-		$ret = DB::Execute('SELECT ual.id,ual.local, f.original, f.revision as rev, f.created_on
-				    FROM utils_attachment_link ual INNER JOIN utils_attachment_file f ON (f.attach_id=ual.id AND f.revision=(SELECT max(revision) FROM utils_attachment_file WHERE attach_id=ual.id))
-				    WHERE ual.deleted=0 AND '.self::get_where($group,$group_starts_with));
+		$ret = DB::Execute('SELECT f.id,ual.local, f.original, f.created_on
+				    FROM utils_attachment_link ual INNER JOIN utils_attachment_file f ON (f.attach_id=ual.id)
+				    WHERE ual.deleted=0 AND uaf.deleted=0 AND '.self::get_where($group,$group_starts_with));
 		while($row = $ret->FetchRow()) {
 			$id = $row['id'];
 			$local = $row['local'];
-			$rev = $row['rev'];
-			$file = self::Instance()->get_data_dir().$local.'/'.$id.'_'.$rev;
+			$file = self::Instance()->get_data_dir().$local.'/'.$id;
 			if(file_exists($file))
-    				call_user_func($func,$id,$rev,$file,$row['original'],$add_args,$row['created_on']);
+    				call_user_func($func,$id,$file,$row['original'],$add_args,$row['created_on']);
 		}
 	}
 	
@@ -109,13 +108,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$local = self::Instance()->get_data_dir().$note['local'];
 		if(!file_exists($local))
 			mkdir($local,0777,true);
-		$rev = DB::GetOne('SELECT MAX(revision) FROM utils_attachment_file WHERE attach_id=%d',array($note['id']));
-		$rev = $rev?$rev+1:1;
-		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($note['id'],$oryg,$user,$rev));
+		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by) VALUES(%d,%s,%d)',array($note['id'],$oryg,$user));
 		$id = DB::Insert_ID('utils_attachment_file','id');
 		$dest_file = $local.'/'.$id;
 		rename($file,$dest_file);
-		if ($add_func) call_user_func($add_func,$id,0,$dest_file,$oryg,$add_args);
+		if ($add_func) call_user_func($add_func,$id,$dest_file,$oryg,$add_args);
 	}
 
 	public static function count($group=null,$group_starts_with=false) {
@@ -163,10 +160,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function copy_notes($from_group, $to_group) {
-		$notes = self::get($from_group);
+		$notes = self::get_files($from_group);
 		$mapping = array();
 		foreach ($notes as $n) {
-			$file = self::Instance()->get_data_dir().$from_group.'/'.$n['id'].'_'.$n['file_revision'];
+			$file = self::Instance()->get_data_dir().$from_group.'/'.$n['file_id'];
 			if(file_exists($file)) {
 				$file2 = $file.'_tmp';
 				copy($file,$file2);
