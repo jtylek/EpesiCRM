@@ -33,13 +33,6 @@ ob_start(array('ErrorHandler','handle_fatal'));
 require_once('include/database.php');
 require_once('include/variables.php');
 $cur_ver = Variable::get('version');
-
-if (defined('PHPCONSOLE')) {
-    require_once('libs/PhpConsole/PhpConsole.php');
-    PhpConsole::start(true, true, dirname(__FILE__));
-    debug('Php Console activated...');
-}
-
 if($cur_ver!==EPESI_VERSION) {
 	if(isset($_GET['up'])) {
 		require_once('update.php');
