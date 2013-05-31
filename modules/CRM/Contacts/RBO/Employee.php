@@ -11,7 +11,7 @@ class CRM_Contacts_RBO_Employee extends CRM_Contacts_RBO_Contact {
      * 
      * Don't use <b>set_crits_callback</b> because it will overwrite
      * employee crits
-     * @param $display_name Field label
+     * @param string $display_name Field label
      */
     public function __construct($display_name) {
         parent::__construct($display_name);
