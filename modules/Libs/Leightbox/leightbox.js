@@ -118,39 +118,21 @@ leightbox.prototype = {
         window.scrollTo(x, y);
     },
 
-    displayLeightbox: function(display){
+    displayLeightbox: function (display) {
         var c = $(this.content);
         var co = $('leightbox_overlay');
-        var ccont = $('leightbox_container');
-        if(display == 'none') {
-            var tag = $(this.content+'__tag');
-            if(tag) {
-            tag.parentNode.insertBefore(c,tag);
-            tag.parentNode.removeChild(tag);
-            } else {
-                c.id = this.content+"__bak";
-            var c2 = $(this.content);
-            if(c2) c2.parentNode.removeChild(c2);
-                c.id = this.content;
-            }
-        } else {
-            var tag = document.createElement('div');
-            tag.id = this.content+'__tag';
-            c.parentNode.insertBefore(tag,c);
-            ccont.appendChild(c);
-            if(navigator.appName.indexOf('Explorer') != -1 ) {
-            co.style.position="absolute";
+        if (display != 'none' && navigator.appName.indexOf('Explorer') != -1) {
+            co.style.position = "absolute";
             co.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + 'px';
-            c.style.position="absolute";
-            c.style.top = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) + 'px';
-            c.style.left = (document.documentElement.scrollLeft + document.documentElement.clientWidth/6) + 'px';
-            c.style.height = (document.documentElement.clientHeight/2) + 'px';
-            c.style.width = (document.documentElement.clientWidth/1.5) + 'px';
-            }
+            c.style.position = "absolute";
+            c.style.top = (document.documentElement.scrollTop + document.documentElement.clientHeight / 4) + 'px';
+            c.style.left = (document.documentElement.scrollLeft + document.documentElement.clientWidth / 6) + 'px';
+            c.style.height = (document.documentElement.clientHeight / 2) + 'px';
+            c.style.width = (document.documentElement.clientWidth / 1.5) + 'px';
         }
         co.style.display = display;
         c.style.display = display;
-        if(display != 'none') this.actions();
+        if (display != 'none') this.actions();
     },
 
     // Search through new links within the lightbox, and attach click event
