@@ -71,7 +71,7 @@ class epesi_archive extends rcube_plugin
       }
 
 //      if(!$rcmail->config->get('create_default_folders'))
-      $this->add_hook('mailboxes_list', array($this, 'add_mailbox'));
+      $this->add_hook('storage_folders', array($this, 'add_mailbox'));
     }
   }
 
