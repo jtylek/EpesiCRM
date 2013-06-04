@@ -239,7 +239,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $conf = array(array('type'=>'header','label'=>__('Choose accounts')));
         $ret = Utils_RecordBrowserCommon::get_records('rc_accounts',array('epesi_user'=>Acl::get_user()));
         foreach($ret as $row)
-                $conf[] = array('name'=>'account_'.$row['id'], 'label'=>__('%s at %s', array($row['login'],$row['server'])), 'type'=>'checkbox', 'default'=>1);
+                $conf[] = array('name'=>'account_'.$row['id'], 'label'=>$row['account_name'], 'type'=>'checkbox', 'default'=>1);
         if(count($conf)==1)
             return array(array('type'=>'static','label'=>__('No accounts configured, go Menu->My settings->Control panel->E-mail accounts')));
         return $conf;

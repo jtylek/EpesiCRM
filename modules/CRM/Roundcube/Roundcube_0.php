@@ -30,7 +30,7 @@ class CRM_Roundcube extends Module {
             }
         }
         foreach($accounts as $a) {
-            Base_ActionBarCommon::add('add',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['server'],$a==$user_def?-1:0);
+            Base_ActionBarCommon::add('add',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['email'],$a==$user_def?-1:0);
         }
         if($def===null) {
 			print('<h1><a '.$this->create_callback_href(array($this,'push_settings'),array(__('E-mail Accounts'))).'>Please set your e-mail account</a></h1>');
@@ -241,7 +241,7 @@ class CRM_Roundcube extends Module {
         $accs = Utils_RecordBrowserCommon::get_records('rc_accounts',array('epesi_user'=>Acl::get_user(),'id'=>$accounts));
         print('<ul>');
         foreach($accs as $row) {
-            $mail = $row['login'];
+            $mail = $row['account_name'];
 
             $cell_id = 'mailaccount_'.$opts['id'].'_'.$row['id'];
 
