@@ -181,7 +181,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function create_remote($file_id, $description, $expires_on) {
-		$r = DB::GetRow('SELECT id, token FROM utils_attachment_download WHERE remote=1 AND attach_file_id=%d',array($file_id));
+		$r = DB::GetRow('SELECT id, token FROM utils_attachment_download WHERE remote=1 AND attach_file_id=%d AND created_on>'.DB::DBTimeStamp(time()-3600).' AND created_by=%d',array($file_id,Acl::get_user()));
 		if (!empty($r)) {
 			$id = $r['id'];
 			$token = $r['token'];
