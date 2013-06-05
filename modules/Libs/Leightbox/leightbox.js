@@ -222,10 +222,12 @@ addLeightboxMarkup();
 getBrowserInfo();
 
 function leightbox_reload() {
+    $('leightbox_container').innerHTML = '';
     lbox = document.getElementsByClassName('lbOn');
     for(i = 0; i < leightboxes.length; i++)
         delete(leightboxes[i]);
     for(i = 0; i < lbox.length; i++) {
+        lbox[i].stopObserving('click');
         leightboxes[i] = new leightbox(lbox[i]);
         if (leightbox_to_activate==lbox[i].getAttribute("rel")) {
             leightboxes[i].activate();
