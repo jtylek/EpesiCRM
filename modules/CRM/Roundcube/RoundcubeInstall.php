@@ -120,6 +120,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mail_threads', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_mail_threads', _M('Mail Thread'));
+        Utils_RecordBrowserCommon::new_addon('rc_mail_threads', 'CRM/Roundcube', 'thread_addon', _M('E-mails'));
 
         $fields = array(
             array(
@@ -199,7 +200,9 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'param'=>'rc_mail_threads::Count',
                 'extra'=>false,
                 'visible'=>false,
-                'required'=>false
+                'required'=>false,
+                'display_callback'=>array('CRM_RoundcubeCommon','display_mail_thread'),
+                'QFfield_callback'=>array('CRM_RoundcubeCommon','QFfield_mail_thread')
             ),
             array(
                 'name' => _M('Message ID'),

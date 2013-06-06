@@ -190,7 +190,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function QFfield_thread_attachments(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
-        $form->addElement('static', $field, $label,self::display_thread_attachments($rb->record,true,null));
+        $form->addElement('static', $field, $label,self::display_thread_attachments($rb_obj->record,true,null));
     }
 
     public static function display_thread_attachments($record, $nolink, $desc) {
@@ -198,23 +198,34 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function QFfield_thread_count(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
-        $form->addElement('static', $field, $label,self::display_thread_count($rb->record,true,null));
+        $form->addElement('static', $field, $label,self::display_thread_count($rb_obj->record,true,null));
     }
 
     public static function display_thread_count($record, $nolink, $desc) {
-        return DB::GetOne('SELECT count(mime_id) FROM rc_mails_data_1 WHERE f_thread=%d AND active=1',array($record['id']));
+        return DB::GetOne('SELECT count(*) FROM rc_mails_data_1 WHERE f_thread=%d AND active=1',array($record['id']));
+    }
+
+    public static function QFfield_mail_thread(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        $form->addElement('static', $field, $label,self::display_mail_thread($rb_obj->record,true,null));
+    }
+
+    public static function display_mail_thread($record, $nolink, $desc) {
+        return DB::GetOne('SELECT count(*) FROM rc_mails_data_1 WHERE f_thread=%d AND active=1',array($record['thread']));
     }
 
     public static function display_subject($record, $nolink, $desc) {
-    /*    static $last_message_id = null;
-        $chars_count = 100;
-        $body_preview = strip_tags($record['body']);
-        if (strlen($body_preview) > $chars_count)
-            $body_preview = substr($body_preview, 0, $chars_count) . " ...";
-        $subject_label = Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
-        $subject_label = Utils_TooltipCommon::create($subject_label, "<pre class=\"wrap\">$body_preview</pre>", false);*/
-        $subject_label = Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
-        $ret = $subject_label .'<br />From: '.$record['from'].'<br />To: '.$record['to'] . '<br />';
+    /*    static $last_message_id = null;*/
+        if(isset($record['body'])) {
+            $chars_count = 100;
+            $body_preview = strip_tags($record['body']);
+            if (strlen($body_preview) > $chars_count)
+                $body_preview = substr($body_preview, 0, $chars_count) . " ...";
+            $subject_label = Utils_RecordBrowserCommon::create_linked_label_r('rc_mails','subject',$record,$nolink);
+            $subject_label = Utils_TooltipCommon::create($subject_label, "<pre class=\"wrap\">$body_preview</pre>", false);
+            $ret = $subject_label .'<br />From: '.$record['from'].'<br />To: '.$record['to'] . '<br />';
+        } else {
+            $ret = Utils_RecordBrowserCommon::create_linked_label_r('rc_mail_threads','subject',$record,$nolink);
+        }
 /*        $replies = '<div style="text-align:center;float:right;width:20px;font-size:16px;line-height:20px;padding:8px;border-radius:18px;height:20px;background-color:gray;color:white;" class="num_of_replies"></div>';
         if(!$record['references'] || !$last_message_id || strpos($record['references'],$last_message_id)===false) {
             $last_message_id = $record['message_id'];
@@ -227,14 +238,16 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     
     public static function create_thread($id) {
         $m = Utils_RecordBrowserCommon::get_record('rc_mails',$id);
-        $thread = DB::GetOne('SELECT f_thread FROM rc_mails WHERE f_references LIKE '.DB::Concat('\'%\'','%s','\'%\'').' AND active=1',array($m['message_id']));
+        $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE f_references LIKE '.DB::Concat('\'%%\'','%s','\'%%\'').' AND active=1',array($m['message_id']));
         if(!$thread) {
-            $thread = DB::GetOne('SELECT f_thread FROM rc_mails WHERE %s LIKE '.DB::Concat('\'%\'','f_message_id','\'%\'').' AND active=1',array($m['references']));
+            $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE %s LIKE '.DB::Concat('\'%%\'','f_message_id','\'%%\'').' AND active=1',array($m['references']));
             if(!$thread) {
-                $thread = Utils_RecordBrowserCommon::new_record('rc_mail_threads',array('subject'=>$m['subject'],'contacts'=>array_merge($m['contacts'],$m['employee']),'first_date'=>$m['date'],'last_date'=>$m['date']));
+                $thread = Utils_RecordBrowserCommon::new_record('rc_mail_threads',array('subject'=>$m['subject'],'contacts'=>array_unique(array_merge($m['contacts'],array('P:'.$m['employee']))),'first_date'=>$m['date'],'last_date'=>$m['date']));
             }
         }
-        Utils_RecordBrowserCommon::update_record('rc_mails',$id,array('thread'=>$tid));
+        Utils_RecordBrowserCommon::update_record('rc_mails',$id,array('thread'=>$thread));
+        $t = Utils_RecordBrowserCommon::get_record('rc_mail_threads',$thread);
+        Utils_RecordBrowserCommon::update_record('rc_mail_threads',$thread,array('contacts'=>array_unique(array_merge($t['contacts'],$m['contacts'],array('P:'.$m['employee']))),'first_date'=>strtotime($m['date'])<strtotime($t['first_date'])?$m['date']:$t['first_date'],'last_date'=>strtotime($m['date'])>strtotime($t['last_date'])?$m['date']:$t['last_date'],'subject'=>(trim($m['references'])=='' ||  mb_strlen($m['subject'])<mb_strlen($t['subject']))?$m['subject']:$t['subject']));
     }
 
     public static function display_record_id($r, $nolink=false) {

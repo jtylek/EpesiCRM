@@ -245,6 +245,20 @@ class CRM_Roundcube extends Module {
             $this->display_module($rb, array(array('id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
     }
 
+    public function thread_addon($arg,$rb) {
+        $rb = $this->init_module('Utils/RecordBrowser','rc_mails','rc_mails_flat_thread');
+        $rb->set_header_properties(array(
+            'date'=>array('width'=>10),
+            'employee'=>array('name'=>__('Archived by'),'width'=>20),
+            'contacts'=>array('name'=>__('Involved contacts'), 'width'=>20),
+            'subject'=>array('name'=>__('Message'),'width'=>40),
+            'attachments'=>array('width'=>5)
+        ));
+        $rb->set_additional_actions_method(array($this, 'actions_for_mails'));
+
+        $this->display_module($rb, array(array('thread'=>$arg['id']), array(), array('date'=>'DESC')), 'show_data');
+    }
+
     public function paste($rs,$id) {
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
             foreach($_SESSION['rc_mails_cp'] as $mid) {
