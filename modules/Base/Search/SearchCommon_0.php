@@ -19,5 +19,9 @@ class Base_SearchCommon extends ModuleCommon {
 			return array(_M('Search')=>array());
 		return array();
 	}
+
+    public static function get_recordset_limit_records() {
+        return 50;
+    }
 }
 ?>

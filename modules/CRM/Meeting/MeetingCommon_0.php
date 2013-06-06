@@ -806,7 +806,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 	public static function search($word){
 		$ret = array();
 		if(Utils_RecordBrowserCommon::get_access('crm_meeting','browse')) {
-			$result = Utils_RecordBrowserCommon::get_records('crm_meeting',array('(~"title'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\''), '|~"description'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+			$crits = array('(~"title'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\''), '|~"description'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\''));
+            $limit = Base_SearchCommon::get_recordset_limit_records();
+			$result = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits, array(), array(), $limit);
 
 	 		foreach ($result as $row) {
 				$ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('crm_meeting', $row['id']).__( 'Meeting #%d, %s at %s', array($row['id'], $row['title'], Base_RegionalSettingsCommon::time2reg($row['date'], false))).Utils_RecordBrowserCommon::record_link_close_tag();
