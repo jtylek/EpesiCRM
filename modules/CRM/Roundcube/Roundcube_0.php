@@ -142,34 +142,36 @@ class CRM_Roundcube extends Module {
         	Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),__('Paste mail'), $this->lp->get_href());//$this->create_confirm_callback_href(__('Paste following email?'),array($this,'paste'),array($rs,$id)));
     	    }
         }
-        
-        $rb = $this->init_module('Utils/RecordBrowser','rc_mails','rc_mails');
+
+        $tb = $this->init_module('Utils/TabbedBrowser');
+        $tb->set_tab(__('Threaded'),array($this,'addon_threaded'),array($rs,$id));
+        $tb->set_tab(__('Flat'),array($this,'addon_flat'),array($rs,$id));
+        $this->display_module($tb);
+    }
+
+    public function addon_threaded($rs,$id) {
+        $rb = $this->init_module('Utils/RecordBrowser','rc_mail_threads','rc_mails_threaded');
         $rb->set_header_properties(array(
                         'date'=>array('width'=>10),
-                        'employee'=>array('name'=>__('Archived by'),'width'=>20),
                         'contacts'=>array('name'=>__('Involved contacts'), 'width'=>20),
                         'subject'=>array('name'=>__('Message'),'width'=>40),
-                        'attachments'=>array('width'=>5)
+                        'attachments'=>array('width'=>5),
+                        'count'=>array('width'=>5)
         ));
-        $rb->set_additional_actions_method(array($this, 'actions_for_mails'));
 
         //set order by threads:
         //1 - if there is reference sort by parent message date, else sort by this message date ("group" messages by "parent" date)
         //2 - if there is reference sort by parent message id, else sort by "my" message_id
-//        $rb->force_order(array(':CASE WHEN f_references is null OR (SELECT rx.f_date FROM rc_mails_data_1 rx WHERE rx.active=1 AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' LIMIT 1) is null THEN f_date ELSE (SELECT rx.f_date FROM rc_mails_data_1 rx WHERE rx.active=1 AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' ORDER BY rx.f_date ASC LIMIT 1) END'=>'DESC',
-          $rb->force_order(array(':CASE WHEN f_references is null OR (SELECT rx.f_date FROM rc_mails_data_1 rx WHERE rx.active=1 AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' LIMIT 1) is null THEN (SELECT rx.f_date FROM rc_mails_data_1 rx WHERE rx.active=1 AND rx.f_references LIKE '.DB::Concat('\'%\'','r.f_message_id','\'%\'').' ORDER BY rx.f_date DESC LIMIT 1) ELSE (SELECT rx2.f_date FROM rc_mails_data_1 rx2 WHERE rx2.active=1 AND rx2.f_references LIKE '.DB::Concat('\'%\'','(SELECT rx.f_message_id FROM rc_mails_data_1 rx WHERE rx.active=1 AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' ORDER BY rx.f_date ASC LIMIT 1)','\'%\'').' ORDER BY rx2.f_date DESC LIMIT 1) END'=>'DESC',
+/*          $rb->force_order(array(':CASE WHEN f_references is null OR (SELECT rx.f_date FROM rc_mails_data_1 rx WHERE rx.active=1 AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' LIMIT 1) is null THEN (SELECT rx.f_date FROM rc_mails_data_1 rx WHERE rx.active=1 AND rx.f_references LIKE '.DB::Concat('\'%\'','r.f_message_id','\'%\'').' ORDER BY rx.f_date DESC LIMIT 1) ELSE (SELECT rx2.f_date FROM rc_mails_data_1 rx2 WHERE rx2.active=1 AND rx2.f_references LIKE '.DB::Concat('\'%\'','(SELECT rx.f_message_id FROM rc_mails_data_1 rx WHERE rx.active=1 AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' ORDER BY rx.f_date ASC LIMIT 1)','\'%\'').' ORDER BY rx2.f_date DESC LIMIT 1) END'=>'DESC',
                     ':CASE WHEN f_references is null THEN f_message_id ELSE (SELECT rx.f_message_id FROM rc_mails_data_1 rx WHERE rx.f_references is null AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' ORDER BY rx.f_date ASC LIMIT 1) END'=>'DESC',
                     ':CASE WHEN f_references is null OR (SELECT rx.f_date FROM rc_mails_data_1 rx WHERE rx.active=1 AND r.f_references LIKE '.DB::Concat('\'%\'','rx.f_message_id','\'%\'').' LIMIT 1) is null THEN 0 ELSE 1 END'=>'ASC',
                     'date'=>'DESC'
-        ));
+        ));*/
 
-        $assoc_mail_ids = array();
-        $assoc_tmp = Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('recordset'=>$rs,'record_id'=>$id),array('mail'));
-        foreach($assoc_tmp as $m)
-        $assoc_mail_ids[] = $m['mail'];
+        $assoc_threads_ids = DB::GetCol('SELECT m.f_thread FROM rc_mails_data_1 m INNER JOIN rc_mails_assoc_data_1 a ON a.f_mail=m.id WHERE m.active=1 AND a.active=1 AND a.f_recordset=%s AND a.f_record_id=%d',array($rs,$id));
         if($rs=='contact') {
         	//$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
-        	$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|id'=>$assoc_mail_ids), array(), array()), 'show_data');
+        	$this->display_module($rb, array(array('(contacts'=>array('P:'.$id),'|id'=>$assoc_threads_ids), array(), array()), 'show_data');
         } elseif($rs=='company') {
             $form = $this->init_module('Libs/QuickForm');
             $form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
@@ -191,12 +193,55 @@ class CRM_Roundcube extends Module {
                 foreach ($conts as $c)
                     $customers[] = 'P:'.$c['id'];
             }
-        	$this->display_module($rb, array(array('(contacts'=>$customers,'|id'=>$assoc_mail_ids), array(), array()), 'show_data');
+        	$this->display_module($rb, array(array('(contacts'=>$customers,'|id'=>$assoc_threads_ids), array(), array()), 'show_data');
         } else
-        $this->display_module($rb, array(array('id'=>$assoc_mail_ids), array(), array()), 'show_data');
+        $this->display_module($rb, array(array('id'=>$assoc_threads_ids), array(), array()), 'show_data');
 
-        Epesi::load_js('modules/CRM/Roundcube/utils.js');
-        eval_js('CRM_RC.create_msg_tree("'.escapeJS($rb->get_path().'|0content',true).'")');
+        //Epesi::load_js('modules/CRM/Roundcube/utils.js');
+        //eval_js('CRM_RC.create_msg_tree("'.escapeJS($rb->get_path().'|0content',true).'")');
+    }
+
+    public function addon_flat($rs,$id) {
+        $rb = $this->init_module('Utils/RecordBrowser','rc_mails','rc_mails_flat');
+        $rb->set_header_properties(array(
+            'date'=>array('width'=>10),
+            'employee'=>array('name'=>__('Archived by'),'width'=>20),
+            'contacts'=>array('name'=>__('Involved contacts'), 'width'=>20),
+            'subject'=>array('name'=>__('Message'),'width'=>40),
+            'attachments'=>array('width'=>5)
+        ));
+        $rb->set_additional_actions_method(array($this, 'actions_for_mails'));
+
+        $assoc_mail_ids = array();
+        $assoc_tmp = Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('recordset'=>$rs,'record_id'=>$id),array('mail'));
+        foreach($assoc_tmp as $m)
+            $assoc_mail_ids[] = $m['mail'];
+        if($rs=='contact') {
+            $this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+        } elseif($rs=='company') {
+            $form = $this->init_module('Libs/QuickForm');
+            $form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
+            if ($form->validate()) {
+                $show_related = $form->exportValue('include_related');
+                $this->set_module_variable('include_related',$show_related);
+            }
+            $show_related = $this->get_module_variable('include_related');
+            $form->setDefaults(array('include_related'=>$show_related));
+
+            ob_start();
+            $form->display_as_row();
+            $html = ob_get_clean();
+
+            $rb->set_button(false, $html);
+            $customers = array('C:'.$id);
+            if ($show_related) {
+                $conts = CRM_ContactsCommon::get_contacts(array('company_name'=>$id));
+                foreach ($conts as $c)
+                    $customers[] = 'P:'.$c['id'];
+            }
+            $this->display_module($rb, array(array('(contacts'=>$customers,'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+        } else
+            $this->display_module($rb, array(array('id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
     }
 
     public function paste($rs,$id) {
