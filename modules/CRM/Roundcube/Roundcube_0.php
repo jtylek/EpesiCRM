@@ -214,6 +214,7 @@ class CRM_Roundcube extends Module {
 
         $assoc_mail_ids = array();
         $assoc_tmp = Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('recordset'=>$rs,'record_id'=>$id),array('mail'));
+
         foreach($assoc_tmp as $m)
             $assoc_mail_ids[] = $m['mail'];
         if($rs=='contact') {
