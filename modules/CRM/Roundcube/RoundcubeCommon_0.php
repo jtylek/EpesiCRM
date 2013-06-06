@@ -148,6 +148,8 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 		location(array());
 		return false;
 	    }
+	} else if($mode=='add') {
+	    self::create_thread($param['id']);
 	}
         return $param;
     }
@@ -206,11 +208,11 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function QFfield_mail_thread(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
-        $form->addElement('static', $field, $label,self::display_mail_thread($rb_obj->record,true,null));
+        $form->addElement('static', $field, $label,self::display_mail_thread($rb_obj->record,false,null));
     }
 
     public static function display_mail_thread($record, $nolink, $desc) {
-        return DB::GetOne('SELECT count(*) FROM rc_mails_data_1 WHERE f_thread=%d AND active=1',array($record['thread']));
+        return Utils_RecordBrowserCommon::record_link_open_tag('rc_mail_threads', $record['thread'], $nolink).DB::GetOne('SELECT count(*) FROM rc_mails_data_1 WHERE f_thread=%d AND active=1',array($record['thread'])).Utils_RecordBrowserCommon::record_link_close_tag();
     }
 
     public static function display_subject($record, $nolink, $desc) {
