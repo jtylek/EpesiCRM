@@ -12,13 +12,18 @@ ModuleManager::load_modules();
 
 if(!Acl::is_user()) die('Not logged in');
 
+$rec = Utils_RecordBrowserCommon::get_record('rc_mails', $_GET['id']);
+if (!$rec) die('Invalid e-mail id.');
+
+$access_fields = Utils_RecordBrowserCommon::get_access('rc_mails', 'view', $rec);
+if (!isset($access_fields['body']) || !$access_fields['body'])
+    die('Access forbidden');
+
 if (isset($_GET['field']) && $_GET['field']=='headers') {
 	$rec = Utils_RecordBrowserCommon::get_record('rc_mails', $_GET['id']);
 	$html = Utils_RecordBrowserCommon::get_val('rc_mails', 'headers_data', $rec, false, null);
-//	$html = DB::GetOne('SELECT f_headers_data FROM rc_mails_data_1 WHERE id=%d',array($_GET['id']));
 } else {
-//	$html = Utils_RecordBrowserCommon::get_val('rc_mails', 'body', $rec, false, null);
-	$html = DB::GetOne('SELECT f_body FROM rc_mails_data_1 WHERE id=%d',array($_GET['id']));
+	$html = $rec['body'];
 }
 
 if(!$html) die('Invalid e-mail id.');
