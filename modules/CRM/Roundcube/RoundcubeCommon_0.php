@@ -137,20 +137,22 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function submit_mail($param, $mode) {
-        if($mode=='delete') {
-	    $m = Base_BoxCommon::main_module_instance();
-	    $id = $m->record['id'];
-	    $rs = $m->tab;
-	    $c = Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('mail'=>$param['id'],'recordset'=>$rs,'record_id'=>$id),array('id'));
-	    if(count($c)) {
-		foreach($c as $cc)
-		    Utils_RecordBrowserCommon::delete_record('rc_mails_assoc',$cc['id']);
-		location(array());
-		return false;
-	    }
-	} else if($mode=='add') {
-	    self::create_thread($param['id']);
-	}
+        if ($mode == 'delete') {
+            $m = Base_BoxCommon::main_module_instance();
+            $id = $m->record['id'];
+            $rs = $m->tab;
+            $c = Utils_RecordBrowserCommon::get_records('rc_mails_assoc', array('mail' => $param['id'], 'recordset' => $rs, 'record_id' => $id), array('id'));
+            if (count($c)) {
+                foreach ($c as $cc)
+                    Utils_RecordBrowserCommon::delete_record('rc_mails_assoc', $cc['id']);
+                location(array());
+                return false;
+            }
+        } else if ($mode == 'add') {
+            $param['message_id'] = ltrim(rtrim($param['message_id'],'>'),'<');
+        } else if ($mode == 'added') {
+            self::create_thread($param['id']);
+        }
         return $param;
     }
 
