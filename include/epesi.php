@@ -150,15 +150,18 @@ class Epesi {
 	 * @return string escaped js code
 	 */
 	public final static function escapeJS($str,$double=true,$single=true) {
-        $str = trim(json_encode($str), '"');
 		$arr = array (
-			'</' => '<\/' // escape closing tags
+			'\\' => '\\\\',
+			"\r" => '\\r',
+			"\n" => '\\n',
+			'</' => '<\/',
+			"\xe2\x80\xa8" => "",
+			"\xe2\x80\xA9" => ""
 		);
 		if($single)
 			$arr["'"] = "\\'";
-        // json encode escapes ", so we want to revert them if not $double
-		if(!$double)
-			$arr['\\"'] = '"';
+		if($double)
+			$arr['"'] = '\\"';
 		// borrowed from smarty
 		return strtr($str, $arr);
 	}
