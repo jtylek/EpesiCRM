@@ -27,4 +27,5 @@ $buffer = file_get_contents($filename);
 header('Content-Type: '.$mimetype);
 header('Content-Length: '.strlen($buffer));
 header('Content-disposition: '.$disposition.'; filename="'.$name.'"');
-echo $buffer;?>
+echo $buffer;
+?>
