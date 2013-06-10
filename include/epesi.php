@@ -146,7 +146,9 @@ class Epesi {
 	/**
 	 * Escapes special characters in js code.
 	 *
-	 * @param string js code to escape
+	 * @param string $str js code to escape
+     * @param bool $double escape double quotes
+     * @param bool $single escape single quotes
 	 * @return string escaped js code
 	 */
 	public final static function escapeJS($str,$double=true,$single=true) {
@@ -155,8 +157,8 @@ class Epesi {
 			"\r" => '\\r',
 			"\n" => '\\n',
 			'</' => '<\/',
-			"\xe2\x80\xa8" => "",
-			"\xe2\x80\xA9" => ""
+			"\xe2\x80\xa8" => '\\u2028',
+			"\xe2\x80\xA9" => '\\u2029'
 		);
 		if($single)
 			$arr["'"] = "\\'";
