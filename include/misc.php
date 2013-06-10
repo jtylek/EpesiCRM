@@ -319,7 +319,14 @@ function get_epesi_url() {
 	if(php_sapi_name() == 'cli')
 		return dirname(dirname(__FILE__));
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
-	return rtrim($protocol.$_SERVER['HTTP_HOST'].EPESI_DIR,'/');
+    $domain_name = '';
+    if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) {
+        $domain_name = $_SERVER['HTTP_HOST'];
+    } else if (isset($_SERVER['SERVER_NAME']) && $_SERVER['SERVER_NAME']) {
+        $domain_name = $_SERVER['SERVER_NAME'];
+    }
+    $url = ($domain_name ? ($protocol . $domain_name) : '') . EPESI_DIR;
+    return trim($url);
 }
 
 function filesize_hr($size) {
