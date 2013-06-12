@@ -19,7 +19,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 
 			array('name' => _M('Description'), 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
 
-			array('name' => _M('Date'), 				'type'=>'date', 'required'=>true, 'extra'=>false, 'visible'=>true, 'param'=>'255'),
+			array('name' => _M('Date'), 				'type'=>'date', 'required'=>true, 'extra'=>false, 'visible'=>true, 'param'=>'255', 'display_callback'=>array('CRM_MeetingCommon', 'display_date')),
 			array('name' => _M('Time'), 				'type'=>'time', 'required'=>true, 'extra'=>false, 'visible'=>true, 'param'=>'255'),
 			array('name' => _M('Duration'), 			'type'=>'integer', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_duration')),
 

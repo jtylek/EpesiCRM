@@ -329,6 +329,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$ret = self::display_title($record, false);
 		return $ret;
 	}
+    public static function display_date($record) {
+        $time = strtotime($record['time']);
+        return Base_RegionalSettingsCommon::time2reg($record['date'] . ' ' . date('H:i:s', $time), false);
+    }
 	public static function get_status_change_leightbox_href($record, $nolink, $desc) {
 	    if($nolink) return false;
 		$prefix = 'crm_meeting_leightbox';
@@ -416,8 +420,16 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			if (isset($_REQUEST['day'])) $values['date'] = $_REQUEST['day'];
 			$ret = array();
-			$start = strtotime($values['date'].' '.date('H:i:s', $values['time']));
-			$start_disp = strtotime(Base_RegionalSettingsCommon::time2reg($start,true,true,true,false));
+            if ($values['time']) {
+                // normal event
+                $start = $values['time']; // time in unix timestamp UTC
+                $start_disp = strtotime(Base_RegionalSettingsCommon::time2reg($start,true,true,true,false));
+            } else {
+                // when event is timeless - all day event
+                $time = $values['date'].' 00:00:01';
+			    $start = Base_RegionalSettingsCommon::reg2time($time);
+                $start_disp = strtotime($time);
+            }
 			$end = strtotime('+'.$values['duration'].' seconds', $start);
 			$ret['day_details'] = array('start'=>array(
 				'day'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'day', 'default_date'=>strtotime($values['date']))), array()).'>'.date('j', $start_disp).'</a>', 
@@ -472,7 +484,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 					$reg_timestamp = $values['date'].' '.date('H:i:s', strtotime($time));
 					$timestamp = Base_RegionalSettingsCommon::reg2time($reg_timestamp);
 					$values['date'] = date('Y-m-d',$timestamp);
-					$values['time'] = date('1970-01-01 H:i:s',$timestamp);
+					$values['time'] = date('Y-m-d H:i:s',$timestamp);
 					if (isset($values['recurrence_end']) && $values['recurrence_end']) {
 						$values['recurrence_end'] = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($values['recurrence_end'].' '.date('H:i:s', strtotime($time))));
 						if ($values['recurrence_end']<$values['date']) $values['recurrence_end'] = $values['date'];
