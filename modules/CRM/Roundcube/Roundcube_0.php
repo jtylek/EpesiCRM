@@ -150,6 +150,12 @@ class CRM_Roundcube extends Module {
     }
 
     public function addon_threaded($rs,$id) {
+      $mails = Utils_RecordBrowserCommon::get_records('rc_mails');
+      foreach($mails as $m)
+          Utils_RecordBrowserCommon::update_record('rc_mails',$m['id'],array('thread'=>null));
+      foreach($mails as $m)
+          CRM_RoundcubeCommon::create_thread($m['id']);
+          print('opk');
         $rb = $this->init_module('Utils/RecordBrowser','rc_mail_threads','rc_mails_threaded');
         $rb->set_header_properties(array(
                         'date'=>array('width'=>10),

@@ -214,7 +214,8 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function display_mail_thread($record, $nolink, $desc) {
-        return Utils_RecordBrowserCommon::record_link_open_tag('rc_mail_threads', $record['thread'], $nolink).DB::GetOne('SELECT count(*) FROM rc_mails_data_1 WHERE f_thread=%d AND active=1',array($record['thread'])).Utils_RecordBrowserCommon::record_link_close_tag();
+        if($record['thread']) return Utils_RecordBrowserCommon::record_link_open_tag('rc_mail_threads', $record['thread'], $nolink).DB::GetOne('SELECT count(*) FROM rc_mails_data_1 WHERE f_thread=%d AND active=1',array($record['thread'])).Utils_RecordBrowserCommon::record_link_close_tag();
+        return '';
     }
 
     public static function display_subject($record, $nolink, $desc) {
@@ -242,9 +243,10 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     
     public static function create_thread($id) {
         $m = Utils_RecordBrowserCommon::get_record('rc_mails',$id);
-        $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE f_references LIKE '.DB::Concat('\'%%\'','%s','\'%%\'').' AND active=1',array($m['message_id']));
+        $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE f_references is not null AND f_references LIKE '.DB::Concat('\'%%\'','%s','\'%%\'').' AND active=1',array($m['message_id']));
         if(!$thread) {
-            $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE %s LIKE '.DB::Concat('\'%%\'','f_message_id','\'%%\'').' AND active=1',array($m['references']));
+            if($m['references'])
+                $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE %s LIKE '.DB::Concat('\'%%\'','f_message_id','\'%%\'').' AND active=1',array($m['references']));
             if(!$thread) {
                 $thread = Utils_RecordBrowserCommon::new_record('rc_mail_threads',array('subject'=>$m['subject'],'contacts'=>array_unique(array_merge($m['contacts'],array('P:'.$m['employee']))),'first_date'=>$m['date'],'last_date'=>$m['date']));
             }
