@@ -234,7 +234,7 @@ class epesi_archive extends rcube_plugin
             if(is_string($v) && $k!='from' && $k!='to' && $k!='body_structure')
                 $headers[] = $k.': '.rcube_mime::decode_mime_string((string)$v);
         }
-        $message_id = $msg->get_header('messageID');
+        $message_id = str_replace(array('<','>'),'',$msg->get_header('messageID'));
         if(Utils_RecordBrowserCommon::get_records_count('rc_mails',array('message_id'=>$message_id))>0) {
             $rcmail->output->command('display_message',$this->gettext('archived_duplicate'), 'warning');
             return false;

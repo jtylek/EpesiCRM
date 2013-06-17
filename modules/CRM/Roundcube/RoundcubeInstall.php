@@ -189,7 +189,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             array(
                 'name' => _M('To'),
                 'type'=>'text',
-                'param'=>512,
+                'param'=>4096,
                 'extra'=>false,
                 'visible'=>false,
                 'required'=>false
@@ -216,7 +216,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             array(
                 'name' => _M('References'),
                 'type'=>'text',
-                'param'=>128,
+                'param'=>4096*4,
                 'extra'=>false,
                 'visible'=>false,
                 'required'=>false,

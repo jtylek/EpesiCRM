@@ -150,14 +150,6 @@ class CRM_Roundcube extends Module {
     }
 
     public function addon_threaded($rs,$id) {
-      DB::Execute('UPDATE rc_mails_data_1 SET f_thread=null');
-      DB::Execute('DELETE FROM rc_mail_threads_edit_history_data');
-      DB::Execute('DELETE FROM rc_mail_threads_edit_history');
-      DB::Execute('DELETE FROM rc_mail_threads_data_1');
-      $mails = Utils_RecordBrowserCommon::get_records('rc_mails');
-      foreach($mails as $m)
-          CRM_RoundcubeCommon::create_thread($m['id']);
-          print('opk');
         $rb = $this->init_module('Utils/RecordBrowser','rc_mail_threads','rc_mails_threaded');
         $rb->set_header_properties(array(
                         'date'=>array('width'=>10),
@@ -179,7 +171,7 @@ class CRM_Roundcube extends Module {
         $assoc_threads_ids = DB::GetCol('SELECT m.f_thread FROM rc_mails_data_1 m INNER JOIN rc_mails_assoc_data_1 a ON a.f_mail=m.id WHERE m.active=1 AND a.active=1 AND a.f_recordset=%s AND a.f_record_id=%d',array($rs,$id));
         if($rs=='contact') {
         	//$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
-        	$this->display_module($rb, array(array('(contacts'=>array('P:'.$id),'|id'=>$assoc_threads_ids), array(), array()), 'show_data');
+        	$this->display_module($rb, array(array('(contacts'=>array('P:'.$id),'|id'=>$assoc_threads_ids), array(), array('last_date'=>'DESC')), 'show_data');
         } elseif($rs=='company') {
             $form = $this->init_module('Libs/QuickForm');
             $form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
@@ -201,9 +193,9 @@ class CRM_Roundcube extends Module {
                 foreach ($conts as $c)
                     $customers[] = 'P:'.$c['id'];
             }
-        	$this->display_module($rb, array(array('(contacts'=>$customers,'|id'=>$assoc_threads_ids), array(), array()), 'show_data');
+        	$this->display_module($rb, array(array('(contacts'=>$customers,'|id'=>$assoc_threads_ids), array(), array('last_date'=>'DESC')), 'show_data');
         } else
-        $this->display_module($rb, array(array('id'=>$assoc_threads_ids), array(), array()), 'show_data');
+        $this->display_module($rb, array(array('id'=>$assoc_threads_ids), array(), array('last_date'=>'DESC')), 'show_data');
 
         //Epesi::load_js('modules/CRM/Roundcube/utils.js');
         //eval_js('CRM_RC.create_msg_tree("'.escapeJS($rb->get_path().'|0content',true).'")');
