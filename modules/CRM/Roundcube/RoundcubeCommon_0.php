@@ -243,7 +243,9 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     
     public static function create_thread($id) {
         $m = Utils_RecordBrowserCommon::get_record('rc_mails',$id);
-        $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE f_references is not null AND f_references LIKE '.DB::Concat('\'%%\'','%s','\'%%\'').' AND active=1',array($m['message_id']));
+        $thread = null;
+        if($m['message_id'])
+          $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE f_references is not null AND f_references LIKE '.DB::Concat('\'%%\'','%s','\'%%\'').' AND active=1',array($m['message_id']));
         if(!$thread) {
             if($m['references'])
                 $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE f_message_id is not null AND %s LIKE '.DB::Concat('\'%%\'','f_message_id','\'%%\'').' AND active=1',array($m['references']));
