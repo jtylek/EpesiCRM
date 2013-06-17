@@ -39,6 +39,7 @@ class CRM_Filters extends Module {
 		$fcallback = array('CRM_ContactsCommon', 'contact_format_no_company');
 		$recent_crits = array();
 		if (!Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')) $recent_crits = array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company()));
+        if (Base_User_SettingsCommon::get('CRM_Contacts','show_only_users_in_filters')) $recent_crits['!login'] = '';
 		$contacts = CRM_ContactsCommon::get_contacts($recent_crits,array(),array(),15);
 		$cont = array();
 		foreach ($contacts as $v) { 
@@ -129,12 +130,16 @@ class CRM_Filters extends Module {
 		
 		$qf = $this->init_module('Libs/QuickForm',null,'default_filter');
 		$qf->addElement('checkbox','show_all_contacts_in_filters',__('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
-		$qf->setDefaults(array(	'show_all_contacts_in_filters'=>Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')
+        $qf->addElement('checkbox','show_only_users_in_filters',__('Show only users in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
+		$qf->setDefaults(array(	'show_all_contacts_in_filters'=>Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters'),
+            'show_only_users_in_filters' => Base_User_SettingsCommon::get('CRM_Contacts','show_only_users_in_filters')
 						));
 		if($qf->validate()) {
 		    $vals = $qf->exportValues();
 			if (!isset($vals['show_all_contacts_in_filters'])) $vals['show_all_contacts_in_filters'] = 0;
+			if (!isset($vals['show_only_users_in_filters'])) $vals['show_only_users_in_filters'] = 0;
 			Base_User_SettingsCommon::save('CRM_Contacts','show_all_contacts_in_filters',$vals['show_all_contacts_in_filters']);
+			Base_User_SettingsCommon::save('CRM_Contacts','show_only_users_in_filters',$vals['show_only_users_in_filters']);
 		}
 		$qf->display();
 	}
