@@ -776,7 +776,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$crits['recurrence_type'] = '';
 		
 		$count = 0;
-		$ret = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits, array(), array(), CRM_CalendarCommon::$events_limit);
+		$ret = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits, array(), array('date' => 'DESC'), CRM_CalendarCommon::$events_limit);
 
 		$result = array();
 		foreach ($ret as $r)
