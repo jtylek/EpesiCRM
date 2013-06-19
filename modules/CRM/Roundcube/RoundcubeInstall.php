@@ -264,6 +264,11 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             mime_id C(32),
             attachment I1 DEFAULT 1',
             array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES rc_mails_data_1(ID)'));
+        DB::CreateTable('rc_mails_attachments_download','
+            mail_id I4 NOTNULL,
+            hash C(32),
+            created_on T DEFTIMESTAMP',
+            array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES rc_mails_data_1(ID)'));
 
         Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'addon', _M('E-mails'));
         Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'addon', _M('E-mails'));
@@ -316,6 +321,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Roundcube', 'addon');
         Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon');
         DB::DropTable('rc_mails_attachments');
+        DB::DropTable('rc_mails_attachments_download');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails_assoc');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_accounts');

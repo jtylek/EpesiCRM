@@ -168,9 +168,15 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         if(isset($_GET['rc_reply']) || isset($_GET['rc_replyall']) || isset($_GET['rc_forward'])) {
             $attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($rb_obj->record['id']));
             $data = array();
-            foreach($attachments as $k=>&$n) {
-                $filename = DATA_DIR.'/CRM_Roundcube/attachments/'.$rb_obj->record['id'].'/'.$k;
-                if(file_exists($filename)) $data[] = '<a href="'.get_epesi_url().'/modules/CRM/Roundcube/get.php?'.http_build_query(array('mime_id'=>$k,'mail_id'=>$rb_obj->record['id'])).'" target="_blank">'.$n.'</a>';
+            if($attachments) {
+                $hash = md5(time().' '.serialize($rb_obj->record));
+                DB::Execute('INSERT INTO rc_mails_attachments_download(mail_id,hash) VALUES(%d,%s)',array($rb_obj->record['id'],$hash));
+                foreach($attachments as $k=>&$n) {
+                    $filename = DATA_DIR.'/CRM_Roundcube/attachments/'.$rb_obj->record['id'].'/'.$k;
+                    if(file_exists($filename)) {
+                        $data[] = '<a href="'.rtrim(get_epesi_url().'/').'/modules/CRM/Roundcube/get_remote.php?'.http_build_query(array('mime_id'=>$k,'mail_id'=>$rb_obj->record['id'],'hash'=>$hash)).'" target="_blank">'.$n.'</a>';
+                    }
+                }
             }
             $attachments = implode('<br />',$data);
         } else $attachments = '';
