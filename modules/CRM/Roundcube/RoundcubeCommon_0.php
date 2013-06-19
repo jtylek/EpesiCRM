@@ -165,8 +165,17 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function QFfield_attachments(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if(isset($_GET['rc_reply']) || isset($_GET['rc_replyall']) || isset($_GET['rc_forward'])) {
+            $attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($rb_obj->record['id']));
+            $data = array();
+            foreach($attachments as $k=>&$n) {
+                $filename = DATA_DIR.'/CRM_Roundcube/attachments/'.$rb_obj->record['id'].'/'.$k;
+                if(file_exists($filename)) $data[] = '<a href="'.get_epesi_url().'/modules/CRM/Roundcube/get.php?'.http_build_query(array('mime_id'=>$k,'mail_id'=>$rb_obj->record['id'])).'" target="_blank">'.$n.'</a>';
+            }
+            $attachments = implode('<br />',$data);
+        } else $attachments = '';
 	if(isset($_GET['rc_reply']) && $_GET['rc_reply']==$rb_obj->record['id']) {
-		Base_BoxCommon::push_module('CRM_Roundcube','new_mail',array(html_entity_decode($rb_obj->record['from']),(preg_match('/^Re:/i',$rb_obj->record['subject'])?'':'Re: ').$rb_obj->record['subject'],'<br /><br /><stron>On '.Base_RegionalSettingsCommon::time2reg($rb_obj->record['date']).', '.$rb_obj->record['from'].' wrote:</strong><br/>'.$rb_obj->record['body'],$rb_obj->record['message_id'],html_entity_decode($rb_obj->record['references'])));
+		Base_BoxCommon::push_module('CRM_Roundcube','new_mail',array(html_entity_decode($rb_obj->record['from']),(preg_match('/^Re:/i',$rb_obj->record['subject'])?'':'Re: ').$rb_obj->record['subject'],'<br /><br /><strong>'.__('On %s wrote',array(Base_RegionalSettingsCommon::time2reg($rb_obj->record['date']).', '.$rb_obj->record['from'])).':</strong><br/>'.$rb_obj->record['body'].($attachments?'<hr /><strong>'.__('Attachments').':</strong><br/>'.$attachments:''),$rb_obj->record['message_id'],html_entity_decode($rb_obj->record['references'])));
 	} elseif(isset($_GET['rc_replyall']) && $_GET['rc_replyall']==$rb_obj->record['id']) {
 		$to = explode(',',$rb_obj->record['to']);
 		$to[] = $rb_obj->record['from'];
@@ -180,9 +189,9 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 				}
 			}
 		}
-		Base_BoxCommon::push_module('CRM_Roundcube','new_mail',array(html_entity_decode(implode(', ',$to)),(preg_match('/^Re:/i',$rb_obj->record['subject'])?'':'Re: ').$rb_obj->record['subject'],'<br /><br /><stron>On '.Base_RegionalSettingsCommon::time2reg($rb_obj->record['date']).', '.$rb_obj->record['from'].' wrote:</strong><br/>'.$rb_obj->record['body'],$rb_obj->record['message_id'],html_entity_decode($rb_obj->record['references'])));
+		Base_BoxCommon::push_module('CRM_Roundcube','new_mail',array(html_entity_decode(implode(', ',$to)),(preg_match('/^Re:/i',$rb_obj->record['subject'])?'':'Re: ').$rb_obj->record['subject'],'<br /><br /><strong>'.__('On %s wrote',array(Base_RegionalSettingsCommon::time2reg($rb_obj->record['date']).', '.$rb_obj->record['from'])).':</strong><br/>'.$rb_obj->record['body'].($attachments?'<hr /><strong>'.__('Attachments').':</strong><br/>'.$attachments:''),$rb_obj->record['message_id'],html_entity_decode($rb_obj->record['references'])));
 	} elseif(isset($_GET['rc_forward']) && $_GET['rc_forward']==$rb_obj->record['id']) {
-		Base_BoxCommon::push_module('CRM_Roundcube','new_mail',array('',(preg_match('/^Re:/i',$rb_obj->record['subject'])?'':'Re: ').$rb_obj->record['subject'],'<br /><br /><stron>On '.Base_RegionalSettingsCommon::time2reg($rb_obj->record['date']).', '.$rb_obj->record['from'].' wrote:</strong><br/>'.$rb_obj->record['body']));
+		Base_BoxCommon::push_module('CRM_Roundcube','new_mail',array('',(preg_match('/^Re:/i',$rb_obj->record['subject'])?'':'Re: ').$rb_obj->record['subject'],'<br /><br /><strong>'.__('On %s wrote',array(Base_RegionalSettingsCommon::time2reg($rb_obj->record['date']).', '.$rb_obj->record['from'])).':</strong><br/>'.$rb_obj->record['body'].($attachments?'<hr /><strong>'.__('Attachments').':</strong><br/>'.$attachments:'')));
 	}
 	Base_ActionBarCommon::add('reply',__('Reply'), Module::create_href(array('rc_reply'=>$rb_obj->record['id'])));
 	Base_ActionBarCommon::add('reply',__('Reply All'), Module::create_href(array('rc_replyall'=>$rb_obj->record['id'])));

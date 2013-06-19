@@ -10,7 +10,7 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-if(!Acl::is_user()) die('Not logged in');
+//if(!Acl::is_user()) die('Not logged in');
 
 list($mimetype,$name,$attachment) = DB::GetRow('SELECT type,name,attachment FROM rc_mails_attachments WHERE mail_id=%d AND mime_id=%s',array($_GET['mail_id'],$_GET['mime_id']));
 
