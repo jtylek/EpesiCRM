@@ -15,7 +15,7 @@ DB::Execute('ALTER TABLE `rc_mails_data_1` CHANGE `f_to` `f_to` varchar(4096) ')
       $mails = Utils_RecordBrowserCommon::get_records('rc_mails');
       
       foreach($mails as $m) {
-        if(!$m['references'] && preg_match('/\nreferences:(.*)\n/i',$m['headers_data'],$match)) {
+        if(preg_match('/\nreferences:(.*)\n/i',$m['headers_data'],$match)) {
             $ref = trim($match[1]);
             Utils_RecordBrowserCommon::update_record('rc_mails',$m['id'],array('references'=>$ref));
         }
