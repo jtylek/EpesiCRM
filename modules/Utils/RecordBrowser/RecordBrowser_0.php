@@ -2330,7 +2330,7 @@ class Utils_RecordBrowser extends Module {
                     $gb_row->add_data(
                         $date_and_time,
                         $row['edited_by']!==null?$user:'',
-                        _V($field_hash[$k]), // TRSL
+                        _V($this->table_rows[$field_hash[$k]]['name']), // TRSL
                         $old,
                         $new
                     );

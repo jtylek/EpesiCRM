@@ -2059,7 +2059,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$field = self::$hash[$k];
 			$params = self::$table_rows[$field];
 			$event_display['what'][] = array(
-										_V($field),
+										_V($params['name']),
 										self::get_val($tab, $field, $r2, true, $params),
 										self::get_val($tab, $field, $r, true, $params)
 									);
