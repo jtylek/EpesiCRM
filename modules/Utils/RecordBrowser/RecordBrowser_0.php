@@ -366,7 +366,9 @@ class Utils_RecordBrowser extends Module {
 			if ($this->table_rows[$filter]['type']=='checkbox') {
                 $arr = array(''=>__('No'), 1=>__('Yes'));
             } else {
-                if ($this->table_rows[$filter]['type'] == 'commondata') {
+                if ($this->table_rows[$filter]['type'] == 'currency') {
+                    $arr = Utils_CurrencyFieldCommon::get_currencies();
+                } else if ($this->table_rows[$filter]['type'] == 'commondata') {
 					$parts = explode('::', $this->table_rows[$filter]['param']['array_id']);
 					$array_id = array_shift($parts);
 					$arr = Utils_CommonDataCommon::get_translated_array($array_id, $this->table_rows[$filter]['param']['order_by_key']);
@@ -478,6 +480,12 @@ class Utils_RecordBrowser extends Module {
                     $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
                 }
             } else {
+                if ($this->table_rows[$filter]['type'] == 'currency') {
+                    if (isset($vals[$field_id]) && $vals[$field_id] != "__NULL__") {
+                        $this->crits["~$filter"] = "%__" . $vals[$field_id];
+                    }
+                    continue;
+                }
 				if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
 					if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'])
 						$this->crits['>='.$filter_id] = $vals[$field_id.'__from'].' 00:00:00';
