@@ -365,7 +365,7 @@ abstract class RBO_Recordset {
      * Enable marking records as favorites.
      * @param bool $value enable
      */
-    public function set_favorites($value) {
+    public function set_favorites($value=20) {
         Utils_RecordBrowserCommon::set_favorites($this->tab, $value);
     }
 
@@ -390,7 +390,7 @@ abstract class RBO_Recordset {
      * Set recent entries amount.
      * @param int $amount Number of records to store as recent
      */
-    public function set_recent($amount) {
+    public function set_recent($amount=20) {
         Utils_RecordBrowserCommon::set_recent($this->tab, $amount);
     }
 
