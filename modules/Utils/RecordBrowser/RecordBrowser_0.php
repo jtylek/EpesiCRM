@@ -1909,7 +1909,7 @@ class Utils_RecordBrowser extends Module {
 					$ref = explode(';', $row['param']);
 					$refe = explode('::',$ref[0]);
 					$row['rset'] = $refe[0];
-					$row['label_field'] = str_replace('|', ', ', $refe[1]);
+					$row['label_field'] = str_replace('|', ',', $refe[1]);
 					break;
 				case 'multiselect':
 					$row['select_data_type'] = 'select';
@@ -1923,7 +1923,7 @@ class Utils_RecordBrowser extends Module {
 						$row['order_by'] = ($order=='key'?'key':'value');
 						$row['commondata_table'] = $refe[1];
 					} else {
-						$row['label_field'] = str_replace('|', ', ', $refe[1]);
+						$row['label_field'] = str_replace('|', ',', $refe[1]);
 						$row['data_source'] = 'rset';
 						$row['rset'] = $tab;
 					}
