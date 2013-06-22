@@ -17,7 +17,8 @@ class RBO_FieldDefinition {
     public $display_callback;
     public $QFfield_callback;
     public $position;
-    
+    public $style;
+
     private $_magic_callbacks = true;
 
     /**
@@ -37,7 +38,7 @@ class RBO_FieldDefinition {
      * @param callable $QFfield_callback QFfield callback
      * @param numeric|string $position position - use only to alter existing RecordSet
      */
-    function __construct($display_name, $type, $param = null, $extra = false, $required = false, $visible = false, $filter = false, $display_callback = null, $QFfield_callback = null, $position = null) {
+    function __construct($display_name, $type, $param = null, $extra = false, $required = false, $visible = false, $filter = false, $display_callback = null, $QFfield_callback = null, $position = null, $style = null) {
         $this->name = $display_name;
         $this->type = $type;
         $this->param = $param;
@@ -48,6 +49,7 @@ class RBO_FieldDefinition {
         $this->display_callback = $display_callback;
         $this->QFfield_callback = $QFfield_callback;
         $this->position = $position;
+        $this->style = $style;
     }
     
     /**
@@ -159,6 +161,16 @@ class RBO_FieldDefinition {
             $this->position = $position->name;
         else
             $this->position = $position;
+        return $this;
+    }
+
+    /**
+     * Set field style to number or currency. Aligns text to the right.
+     * @param string $style String defining style: number, currency
+     * @return \RBO_FieldDefinition
+     */
+    function set_style($style) {
+        $this->style = $style;
         return $this;
     }
 
