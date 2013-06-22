@@ -368,6 +368,8 @@ class Utils_RecordBrowser extends Module {
             } else {
                 if ($this->table_rows[$filter]['type'] == 'currency') {
                     $arr = Utils_CurrencyFieldCommon::get_currencies();
+                    if (count($arr) <= 1)
+                        continue;
                 } else if ($this->table_rows[$filter]['type'] == 'commondata') {
 					$parts = explode('::', $this->table_rows[$filter]['param']['array_id']);
 					$array_id = array_shift($parts);
