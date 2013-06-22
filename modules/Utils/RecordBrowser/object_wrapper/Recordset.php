@@ -329,6 +329,17 @@ abstract class RBO_Recordset {
     }
 
     /**
+     * @since 1.5.3
+     * @param string $action
+     * @param array|object $record
+     * @param bool $return_crits
+     * @return array|bool
+     */
+    public function get_access($action, $record, $return_crits = false) {
+        return Utils_RecordBrowserCommon::get_access($this->tab, $action, $record, $return_crits);
+    }
+
+    /**
      * Retrieve currrent caption of RecordSet.
      * @return string caption
      */
