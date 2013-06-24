@@ -329,17 +329,6 @@ abstract class RBO_Recordset {
     }
 
     /**
-     * @since 1.5.3
-     * @param string $action
-     * @param array|object $record
-     * @param bool $return_crits
-     * @return array|bool
-     */
-    public function get_access($action, $record, $return_crits = false) {
-        return Utils_RecordBrowserCommon::get_access($this->tab, $action, $record, $return_crits);
-    }
-
-    /**
      * Retrieve currrent caption of RecordSet.
      * @return string caption
      */
@@ -376,7 +365,7 @@ abstract class RBO_Recordset {
      * Enable marking records as favorites.
      * @param bool $value enable
      */
-    public function set_favorites($value=20) {
+    public function set_favorites($value = true) {
         Utils_RecordBrowserCommon::set_favorites($this->tab, $value);
     }
 
@@ -401,7 +390,7 @@ abstract class RBO_Recordset {
      * Set recent entries amount.
      * @param int $amount Number of records to store as recent
      */
-    public function set_recent($amount=20) {
+    public function set_recent($amount = 20) {
         Utils_RecordBrowserCommon::set_recent($this->tab, $amount);
     }
 
