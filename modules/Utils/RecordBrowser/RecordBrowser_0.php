@@ -208,7 +208,7 @@ class Utils_RecordBrowser extends Module {
 		if ($key==null) $key = $this->tab.'/'.$this->record['id'];
 		$a = $this->init_module('Utils_Attachment',array($key));
 		$a->set_view_func(array('Utils_RecordBrowserCommon','create_default_linked_label'),explode('/',$key));
-		$a->edit_note_queue();
+		$a->add_note_queue();
 	}
 	
 	public function add_note_button_href($key=null) {

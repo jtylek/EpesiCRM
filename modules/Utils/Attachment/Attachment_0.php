@@ -919,6 +919,67 @@ class Utils_Attachment extends Module {
 	public function user_addon($uid) {
 		$this->body(null, null, $uid);
 	}
+	
+	public function add_note() {
+		if(!$this->is_back()) {
+			load_js('modules/Utils/Attachment/js/lib/plupload.js');
+			load_js('modules/Utils/Attachment/js/lib/plupload.flash.js');
+			load_js('modules/Utils/Attachment/js/lib/plupload.browserplus.js');
+			load_js('modules/Utils/Attachment/js/lib/plupload.html4.js');
+			load_js('modules/Utils/Attachment/js/lib/plupload.html5.js');
+			load_js('modules/Utils/Attachment/attachments.js');
+			if (!isset($_SESSION['client']['utils_attachment'][CID])) $_SESSION['client']['utils_attachment'][CID] = array('files'=>array());
+			eval_js('Utils_Attachment__init_uploader()');
+			eval_js_once('var Utils_Attachment__delete_button = "'.Base_ThemeCommon::get_template_file('Utils_Attachment', 'delete.png').'";');
+			eval_js_once('var Utils_Attachment__restore_button = "'.Base_ThemeCommon::get_template_file('Utils_Attachment', 'restore.png').'";');
+			
+			$attachButtons = '<div id="multiple_attachments"><div id="filelist"></div></div>';
+
+			if (!is_array($this->group))
+    			Base_ActionBarCommon::add('add',__('Select files'),'href="javascript:void(0);" id="pickfiles"');
+
+			$new_note_form = $this->get_edit_form();
+			
+			eval_js('Utils_Attachment__submit_note = function() {'.$new_note_form->get_submit_form_js().'}');
+			$new_note_form->addElement('hidden', 'note_id', null, array('id'=>'note_id'));
+			$new_note_form->addElement('hidden', 'delete_files', null, array('id'=>'delete_files'));
+			$new_note_form->addElement('hidden', 'clipboard_files', null, array('id'=>'clipboard_files'));
+			
+			if ($new_note_form->validate()) {
+				$new_note_form->process(array($this, 'submit_attach'));
+				$this->ret_attach = false;
+				return $this->pop_box0();;
+			}
+			
+			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
+			$new_note_form->accept($renderer); 
+			$form_data = $renderer->toArray();
+
+			print($form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']);
+
+			$inline_form_theme = $this->init_module('Base_Theme');
+			$inline_form_theme->assign('form', $form_data);
+			$inline_form_theme->display('inline_form');
+			
+			print($attachButtons);
+			print('</form>');
+
+			Base_ActionBarCommon::add('save',__('Save'),'onclick="if(uploader.files.length)uploader.start();else Utils_Attachment__submit_note();"');
+			Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
+		} else {
+			$this->ret_attach = false;
+		}
+
+		$this->caption = __('Add note');
+
+		if(!$this->ret_attach)
+			return $this->pop_box0();
+	}
+
+
+	public function add_note_queue() {
+		$this->push_box0('add_note',array(),array($this->group,$this->persistent_deletion,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
+	}
 }
 
 ?>
