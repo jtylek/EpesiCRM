@@ -9,6 +9,10 @@ class epesi_archive extends rcube_plugin
   {
     global $account;
     
+    if($account['f_imap_root']) {
+        $this->archive_mbox = rtrim($account['f_imap_root'],'.').'.'.$this->archive_mbox;
+        $this->archive_sent_mbox = rtrim($account['f_imap_root'],'.').'.'.$this->archive_sent_mbox;
+    }
 
     $rcmail = rcmail::get_instance();
     $this->register_action('plugin.epesi_archive', array($this, 'request_action'));
@@ -343,7 +347,7 @@ class epesi_archive extends rcube_plugin
   function list_messages($p) {
     $IMAP = $imap = rcmail::get_instance()->storage;
     $mbox = $IMAP->get_mailbox_name();
-    if($mbox=='Epesi Archive Sent') {
+    if(preg_match('/Epesi Archive Sent$/i',$mbox)) {
         foreach($p['cols'] as &$c) {
             if($c=='from') $c = 'to';
         }
