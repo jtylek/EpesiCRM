@@ -1570,7 +1570,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($blocked_fields as $f)
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($id, $f));
 	}
-    public static function get_access($tab, $action, $record=null, $return_crits=false){
+    public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
         if (!$return_crits && self::$admin_access && Base_AclCommon::i_am_admin()) {
             $ret = true;
         } elseif (isset($record[':active']) && !$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
@@ -1603,7 +1603,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$crits_raw = $cache[$tab]['crits_raw'];
 				$fields = $cache[$tab]['fields'];
 			}
-			if ($return_crits) return $crits[$action];
+			if ($return_crits) {
+			    if($return_in_array) return $crits_raw[$action];
+			    return $crits[$action];
+			}
 			if ($action=='browse') {
 				return $crits['view']!==null?(empty($crits['view'])?true:$crits['view']):false;
 			}

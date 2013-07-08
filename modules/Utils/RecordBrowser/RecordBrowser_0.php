@@ -1497,13 +1497,18 @@ class Utils_RecordBrowser extends Module {
 		$ret = array();
         if (is_array(Utils_RecordBrowser::$last_record))
 		    foreach (Utils_RecordBrowser::$last_record as $k=>$v) if (!isset($data[$k])) $data[$k] = $v;
-		$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
-		Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
-		foreach ($problems as $f) {
-			$f = explode('[', $f);
-			$ret[$f[0]] = __('Invalid value');
-		}
-		return empty($ret)?true:$ret;
+//		$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
+		$crits2 = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true, true);
+		foreach($crits2 as $crits) {
+    		Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
+    		foreach ($problems as $f) {
+	    		$f = explode('[', $f);
+		    	$ret[$f[0]] = __('Invalid value');
+		    }
+    		if($problems) continue;
+    		return true;
+    	}
+		return $ret;
     }
     public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
 	if ($mode == 'add')
