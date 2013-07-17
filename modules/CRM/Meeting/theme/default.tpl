@@ -294,7 +294,9 @@
 							$k!='end_time' &&
 							$k!='priority' &&
 							$k!='status' &&
-							$k!='permission')}
+							$k!='permission' &&
+                            $f.type != 'multiselect'
+                    )}
 					<tr>
 						<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
 						<td class="data" align="left" colspan="2"  id="_{$f.element}__data">
