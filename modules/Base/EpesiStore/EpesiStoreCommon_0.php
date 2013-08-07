@@ -278,10 +278,15 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if (!file_exists($destfile))
             throw new ErrorException("file $destfile not exists");
         // extract
+        if (filesize($destfile) == 0)
+            throw new ErrorException(__('File download issue. File is empty.'));
         if (class_exists('ZipArchive')) {
             $zip = new ZipArchive();
-            if (filesize($destfile) == 0 || $zip->open($destfile) !== true || $zip->extractTo('./') == false) {
-                throw new ErrorException('Archive error');
+            $status = $zip->open($destfile);
+            if ($status !== true)
+                throw new ErrorException(__('Zip open error: %s', array($status)));
+            if ($zip->extractTo('./') == false) {
+                throw new ErrorException(__('Extract error'));
             } else {
                 $zip->close();
             }
