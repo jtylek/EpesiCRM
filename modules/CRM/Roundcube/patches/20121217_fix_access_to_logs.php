@@ -1,6 +1,6 @@
 <?php
 
-$htaccess = 'data/CRM_Roundcube/.htaccess';
+$htaccess = DATA_DIR . '/CRM_Roundcube/.htaccess';
 if (!file_exists($htaccess)) {
     $f = fopen($htaccess, 'w');
     if ($f === false) {
