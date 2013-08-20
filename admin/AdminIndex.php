@@ -13,10 +13,11 @@ class AdminIndex {
 
     private function include_epesi() {
         define('CID', false);
-        if (!file_exists('../data/config.php'))
-            return false;
-        
         require_once('../include.php');
+
+        if (!file_exists(DATA_DIR . '/config.php'))
+            return false;
+
         $this->module_loader->load(array('Base_User', 'Base_User_Login', 'Base_Acl', 'Base_User_Settings'));
         require_once('admin/Authorization.php');
         return true;
