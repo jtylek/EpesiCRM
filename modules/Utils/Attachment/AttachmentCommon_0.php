@@ -76,7 +76,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	public static function call_user_func_on_file($group,$func,$group_starts_with=false, $add_args=array()) {
 		$ret = DB::Execute('SELECT f.id,ual.local, f.original, f.created_on
 				    FROM utils_attachment_link ual INNER JOIN utils_attachment_file f ON (f.attach_id=ual.id)
-				    WHERE ual.deleted=0 AND uaf.deleted=0 AND '.self::get_where($group,$group_starts_with));
+				    WHERE ual.deleted=0 AND f.deleted=0 AND '.self::get_where($group,$group_starts_with));
 		while($row = $ret->FetchRow()) {
 			$id = $row['id'];
 			$local = $row['local'];
