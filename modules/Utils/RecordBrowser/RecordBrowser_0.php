@@ -1500,6 +1500,7 @@ class Utils_RecordBrowser extends Module {
 //		$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
 		$crits2 = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true, true);
 		foreach($crits2 as $crits) {
+		    $problems = array();
     		Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
     		foreach ($problems as $f) {
 	    		$f = explode('[', $f);
