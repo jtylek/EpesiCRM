@@ -29,6 +29,7 @@ class Utils_CurrencyField extends Module {
 
 		$gb = $this->init_module('Utils_GenericBrowser',null,'currencies');
 		$gb->set_table_columns(array(
+            array('name'=>__('ID')),
 			array('name'=>__('Code')),
 			array('name'=>__('Symbol')),
 			array('name'=>__('Symbol position')),
@@ -37,10 +38,11 @@ class Utils_CurrencyField extends Module {
 			array('name'=>__('Decimals')),
 			array('name'=>__('Active'))
 		));
-		$ret = DB::Execute('SELECT * FROM utils_currency ORDER BY active DESC, code ASC');
+		$ret = DB::Execute('SELECT * FROM utils_currency ORDER BY id ASC');
 		while($row = $ret->FetchRow()) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data_array(array(
+                    $row['id'],
 					$row['code'],
 					$row['symbol'],
 					self::$positions[$row['pos_before']],
