@@ -85,8 +85,8 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$args=array(
 					__('Meeting')=>'<b>'.$r['title'].'</b>',
 					__('Description')=>$r['description'],
-					__('Assigned to')=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
-					__('Contacts')=>CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default')),
+                    __('Assigned to')=>Utils_RecordBrowserCommon::get_val('crm_meeting', 'Employees', $r, true),
+					__('Customers')=>Utils_RecordBrowserCommon::get_val('crm_meeting', 'Customers', $r, true),
 					__('Status')=>$status[$r['status']],
 					__('Date')=>$r['duration']>=0?Base_RegionalSettingsCommon::time2reg($r['date'].' '.date('H:i:s',strtotime($r['time']))):Base_RegionalSettingsCommon::time2reg($r['date'],false),
 					__('Duration')=>$r['duration']>=0?Base_RegionalSettingsCommon::seconds_to_words($r['duration']):'---',
