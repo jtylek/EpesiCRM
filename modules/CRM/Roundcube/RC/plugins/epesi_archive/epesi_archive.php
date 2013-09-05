@@ -232,7 +232,7 @@ class epesi_archive extends rcube_plugin
         } else {
             $body = '<pre>'.$msg->first_text_part().'</pre>';
         }
-        $date = $msg->get_header('DATE');
+        $date = rcube_imap_generic::strToTime($msg->get_header('DATE'));
         $headers = array();
         foreach($msg->headers as $k=>$v) {
             if(is_string($v) && $k!='from' && $k!='to' && $k!='body_structure')
