@@ -232,19 +232,19 @@ class epesi_archive extends rcube_plugin
         } else {
             $body = '<pre>'.$msg->first_text_part().'</pre>';
         }
-        $date = $msg->get_header('timestamp');
+        $date = $msg->get_header('DATE');
         $headers = array();
         foreach($msg->headers as $k=>$v) {
             if(is_string($v) && $k!='from' && $k!='to' && $k!='body_structure')
                 $headers[] = $k.': '.rcube_mime::decode_mime_string((string)$v);
         }
-        $message_id = str_replace(array('<','>'),'',$msg->get_header('messageID'));
+        $message_id = str_replace(array('<','>'),'',$msg->get_header('MESSAGE-ID'));
         if(Utils_RecordBrowserCommon::get_records_count('rc_mails',array('message_id'=>$message_id))>0) {
             $rcmail->output->command('display_message',$this->gettext('archived_duplicate'), 'warning');
             return false;
         }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
-        $data = array('message_id'=>$message_id,'references'=>$msg->get_header('references'),'contacts'=>$contacts,'date'=>$date,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'from'=>$rcmail->storage->decode_header($msg->headers->from),'to'=>$rcmail->storage->decode_header($msg->headers->to),'employee'=>$employee);
+        $data = array('message_id'=>$message_id,'references'=>$msg->get_header('REFERENCES'),'contacts'=>$contacts,'date'=>$date,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'from'=>$rcmail->storage->decode_header($msg->headers->from),'to'=>$rcmail->storage->decode_header($msg->headers->to),'employee'=>$employee);
         $id = Utils_RecordBrowserCommon::new_record('rc_mails',$data);
         $epesi_mails[] = $id;
         foreach($contacts as $c) {
