@@ -810,7 +810,7 @@ $rcmail_config['flag_for_deletion'] = false;
 $rcmail_config['refresh_interval'] = 60;
 
 // If true all folders will be checked for recent messages
-$rcmail_config['check_all_folders'] = true;
+$rcmail_config['check_all_folders'] = false;
 
 // If true, after message delete/move, the next message will be displayed
 $rcmail_config['display_next'] = true;
