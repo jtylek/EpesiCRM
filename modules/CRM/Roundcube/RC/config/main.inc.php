@@ -145,7 +145,7 @@ $rcmail_config['imap_auth_cid'] = null;
 $rcmail_config['imap_auth_pw'] = null;
 
 // Type of IMAP indexes cache. Supported values: 'db', 'apc' and 'memcache'.
-$rcmail_config['imap_cache'] = 'db';
+$rcmail_config['imap_cache'] = MEMCACHE_SESSION_SERVER?'memcache':'db';
 
 // Enables messages cache. Only 'db' cache is supported.
 $rcmail_config['messages_cache'] = 'db';
@@ -202,6 +202,9 @@ $rcmail_config['smtp_timeout'] = 0;
 // ONLY ENABLE IT IF YOU'RE REALLY SURE WHAT YOU'RE DOING!
 $rcmail_config['enable_installer'] = false;
 
+// don't allow these settings to be overriden by the user
+$rcmail_config['dont_override'] = array();
+
 // provide an URL where a user can get support for this Roundcube installation
 // PLEASE DO NOT LINK TO THE ROUNDCUBE.NET WEBSITE HERE!
 $rcmail_config['support_url'] = 'http://epe.si';
@@ -214,6 +217,9 @@ $rcmail_config['skin_logo'] = null;
 // a new user will be created once the IMAP login succeeds.
 // set to false if only registered users can use this service
 $rcmail_config['auto_create_user'] = true;
+
+// Enables possibility to log in using email address from user identities
+$rcmail_config['user_aliases'] = false;
 
 // use this folder to store log files (must be writeable for apache user)
 // This is used by the 'file' log driver.
@@ -264,10 +270,16 @@ $rcmail_config['session_domain'] = '';
 // session name. Default: 'roundcube_sessid'
 $rcmail_config['session_name'] = null;
 
+// Session authentication cookie name. Default: 'roundcube_sessauth'
+$rcmail_config['session_auth_name'] = null;
+
+// Session path. Defaults to PHP session.cookie_path setting.
+$rcmail_config['session_path'] = null;
+
 // Backend to use for session storage. Can either be 'db' (default) or 'memcache'
 // If set to memcache, a list of servers need to be specified in 'memcache_hosts'
 // Make sure the Memcache extension (http://pecl.php.net/package/memcache) version >= 2.0.0 is installed
-$rcmail_config['session_storage'] = 'db';
+$rcmail_config['session_storage'] = MEMCACHE_SESSION_SERVER?'memcache':'db';
 
 // Use these hosts for accessing memcached
 // Define any number of hosts in the form of hostname:port or unix:///path/to/sock.file
@@ -362,8 +374,9 @@ $rcmail_config['line_length'] = 72;
 // send plaintext messages as format=flowed
 $rcmail_config['send_format_flowed'] = true;
 
-// don't allow these settings to be overriden by the user
-$rcmail_config['dont_override'] = array();
+// According to RFC2298, return receipt envelope sender address must be empty.
+// If this option is true, Roundcube will use user's identity as envelope sender for MDN responses.
+$rcmail_config['mdn_use_from'] = false;
 
 // Set identities access level:
 // 0 - many identities with possibility to edit all params
@@ -377,8 +390,15 @@ $rcmail_config['identities_level'] = 3;
 // either a comma-separated list or an array: 'text/plain,text/html,text/xml,image/jpeg,image/gif,image/png,application/pdf'
 $rcmail_config['client_mimetypes'] = null;  # null == default
 
-// mime magic database
-$rcmail_config['mime_magic'] = '/usr/share/misc/magic';
+// Path to a local mime magic database file for PHPs finfo extension.
+// Set to null if the default path should be used.
+$rcmail_config['mime_magic'] = null;
+
+// Absolute path to a local mime.types mapping table file.
+// This is used to derive mime-types from the filename extension or vice versa.
+// Such a file is usually part of the apache webserver. If you don't find a file named mime.types on your system,
+// download it from http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+$rcmail_config['mime_types'] = null;
 
 // path to imagemagick identify binary
 $rcmail_config['im_identify_path'] = null;
@@ -386,11 +406,20 @@ $rcmail_config['im_identify_path'] = null;
 // path to imagemagick convert binary
 $rcmail_config['im_convert_path'] = null;
 
+// Size of thumbnails from image attachments displayed below the message content.
+// Note: whether images are displayed at all depends on the 'inline_images' option.
+// Set to 0 to display images in full size.
+$rcmail_config['image_thumbnail_size'] = 240;
+
 // maximum size of uploaded contact photos in pixel
 $rcmail_config['contact_photo_size'] = 160;
 
 // Enable DNS checking for e-mail address validation
 $rcmail_config['email_dns_check'] = false;
+
+// Disables saving sent messages in Sent folder (like gmail) (Default: false)
+// Note: useful when SMTP server stores sent mail in user mailbox
+$rcmail_config['no_save_sent_messages'] = false;
 
 // ----------------------------------
 // PLUGINS
@@ -506,9 +535,8 @@ $rcmail_config['recipients_separator'] = ',';
 // don't let users set pagesize to more than this value if set
 $rcmail_config['max_pagesize'] = 200;
 
-// Minimal value of user's 'keep_alive' setting (in seconds)
-// Must be less than 'session_lifetime'
-$rcmail_config['min_keep_alive'] = 60;
+// Minimal value of user's 'refresh_interval' setting (in seconds)
+$rcmail_config['min_refresh_interval'] = 60;
 
 // ----------------------------------
 // ADDRESSBOOK SETTINGS
@@ -726,6 +754,12 @@ $rcmail_config['prefer_html'] = true;
 // 2 - Always show inline images
 $rcmail_config['show_images'] = 0;
 
+// open messages in new window
+$rcmail_config['message_extwin'] = false;
+
+// open message compose form in new window
+$rcmail_config['compose_extwin'] = false;
+
 // compose html formatted messages by default
 // 0 - never, 1 - always, 2 - on reply to HTML message only 
 $rcmail_config['htmleditor'] = 1;
@@ -770,23 +804,27 @@ $rcmail_config['read_when_deleted'] = true;
 // Use 'Purge' to remove messages marked as deleted
 $rcmail_config['flag_for_deletion'] = false;
 
-// Default interval for keep-alive/check-recent requests (in seconds)
-// Must be greater than or equal to 'min_keep_alive' and less than 'session_lifetime'
-$rcmail_config['keep_alive'] = 60;
+// Default interval for auto-refresh requests (in seconds)
+// These are requests for system state updates e.g. checking for new messages, etc.
+// Setting it to 0 disables the feature.
+$rcmail_config['refresh_interval'] = 60;
 
 // If true all folders will be checked for recent messages
-$rcmail_config['check_all_folders'] = false;
+$rcmail_config['check_all_folders'] = true;
 
 // If true, after message delete/move, the next message will be displayed
-$rcmail_config['display_next'] = false;
+$rcmail_config['display_next'] = true;
 
 // 0 - Do not expand threads
 // 1 - Expand all threads automatically
 // 2 - Expand only threads with unread messages
 $rcmail_config['autoexpand_threads'] = 0;
 
-// When replying place cursor above original message (top posting)
-$rcmail_config['top_posting'] = false;
+// When replying:
+// -1 - don't cite the original message
+// 0  - place cursor below the original message
+// 1  - place cursor above original message (top posting)
+$rcmail_config['reply_mode'] = 0;
 
 // When replying strip original signature from message
 $rcmail_config['strip_existing_sig'] = true;
@@ -797,9 +835,6 @@ $rcmail_config['strip_existing_sig'] = true;
 // 2 - New messages only
 // 3 - Forwards and Replies only
 $rcmail_config['show_sig'] = 1;
-
-// When replying or forwarding place sender's signature above existing message
-$rcmail_config['sig_above'] = false;
 
 // Use MIME encoding (quoted-printable) for 8bit characters in message body
 $rcmail_config['force_7bit'] = false;
@@ -851,7 +886,7 @@ $rcmail_config['autocomplete_single'] = false;
 // Default font for composed HTML message.
 // Supported values: Andale Mono, Arial, Arial Black, Book Antiqua, Courier New,
 // Georgia, Helvetica, Impact, Tahoma, Terminal, Times New Roman, Trebuchet MS, Verdana
-$rcmail_config['default_font'] = '';
+$rcmail_config['default_font'] = 'Verdana';
 
 // end of config file
 

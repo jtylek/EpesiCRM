@@ -47,14 +47,15 @@ $rcmail_config['db_table_cache'] = 'rc_cache';
 $rcmail_config['db_table_cache_index'] = 'rc_cache_index';
 $rcmail_config['db_table_cache_thread'] = 'rc_cache_thread';
 $rcmail_config['db_table_cache_messages'] = 'rc_cache_messages';
+$rcmail_config['db_table_dictionary'] = 'rc_dictionary';
 $rcmail_config['db_table_searches'] = 'rc_searches';
+$rcmail_config['db_table_system'] = 'rc_system';
 
 // you can define specific sequence names used in PostgreSQL
 $rcmail_config['db_sequence_users'] = 'rc_user_ids';
 $rcmail_config['db_sequence_identities'] = 'rc_identity_ids';
 $rcmail_config['db_sequence_contacts'] = 'rc_contact_ids';
 $rcmail_config['db_sequence_contactgroups'] = 'rc_contactgroups_ids';
-$rcmail_config['db_sequence_cache'] = 'rc_cache_ids';
 $rcmail_config['db_sequence_searches'] = 'rc_search_ids';
 
 
