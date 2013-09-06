@@ -145,7 +145,7 @@ $rcmail_config['imap_auth_cid'] = null;
 $rcmail_config['imap_auth_pw'] = null;
 
 // Type of IMAP indexes cache. Supported values: 'db', 'apc' and 'memcache'.
-$rcmail_config['imap_cache'] = MEMCACHE_SESSION_SERVER?'memcache':'db';
+$rcmail_config['imap_cache'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?'memcache':'db';
 
 // Enables messages cache. Only 'db' cache is supported.
 $rcmail_config['messages_cache'] = 'db';
@@ -279,11 +279,11 @@ $rcmail_config['session_path'] = null;
 // Backend to use for session storage. Can either be 'db' (default) or 'memcache'
 // If set to memcache, a list of servers need to be specified in 'memcache_hosts'
 // Make sure the Memcache extension (http://pecl.php.net/package/memcache) version >= 2.0.0 is installed
-$rcmail_config['session_storage'] = MEMCACHE_SESSION_SERVER?'memcache':'db';
+$rcmail_config['session_storage'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?'memcache':'db';
 
 // Use these hosts for accessing memcached
 // Define any number of hosts in the form of hostname:port or unix:///path/to/sock.file
-$rcmail_config['memcache_hosts'] = MEMCACHE_SESSION_SERVER?MEMCACHE_SESSION_SERVER:null; // e.g. array( 'localhost:11211', '192.168.1.12:11211', 'unix:///var/tmp/memcached.sock' );
+$rcmail_config['memcache_hosts'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?MEMCACHE_SESSION_SERVER:null; // e.g. array( 'localhost:11211', '192.168.1.12:11211', 'unix:///var/tmp/memcached.sock' );
 
 // check client IP in session athorization
 $rcmail_config['ip_check'] = false;
