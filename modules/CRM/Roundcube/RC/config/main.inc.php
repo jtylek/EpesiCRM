@@ -148,7 +148,7 @@ $rcmail_config['imap_auth_pw'] = null;
 $rcmail_config['imap_cache'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?'memcache':'db';
 
 // Enables messages cache. Only 'db' cache is supported.
-$rcmail_config['messages_cache'] = 'db';
+$rcmail_config['messages_cache'] = false;
 
 // ----------------------------------
 // SMTP
