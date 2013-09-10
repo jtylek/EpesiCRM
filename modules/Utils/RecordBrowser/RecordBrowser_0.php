@@ -1931,7 +1931,9 @@ class Utils_RecordBrowser extends Module {
 						$row['order_by'] = ($order=='key'?'key':'value');
 						$row['commondata_table'] = $refe[1];
 					} else {
-						$row['label_field'] = str_replace('|', ',', $refe[1]);
+						$row['label_field'] = '';
+                        if (isset($refe[1]))
+                            $row['label_field'] = str_replace('|', ',', $refe[1]);
 						$row['data_source'] = 'rset';
 						$row['rset'] = $tab;
 					}
