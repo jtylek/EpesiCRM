@@ -13,7 +13,6 @@ CREATE TABLE rc_users (
     preferences text DEFAULT ''::text NOT NULL,
     CONSTRAINT users_username_key UNIQUE (username, mail_host)
 );
-CREATE INDEX rc_users_alias_id_idx ON rc_users (alias);
 CREATE TABLE "rc_session" (
     sess_id varchar(128) DEFAULT '' PRIMARY KEY,
     created timestamp with time zone DEFAULT now() NOT NULL,

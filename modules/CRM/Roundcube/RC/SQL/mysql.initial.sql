@@ -16,8 +16,7 @@ CREATE TABLE `rc_users` (
  `language` varchar(5),
  `preferences` text,
  PRIMARY KEY(`user_id`),
- UNIQUE `username` (`username`, `mail_host`),
- INDEX `alias_index` (`alias`)
+ UNIQUE `username` (`username`, `mail_host`)
 );
 CREATE TABLE `rc_cache` (
  `cache_key` varchar(128) /*!40101 CHARACTER SET ascii COLLATE ascii_general_ci */ NOT NULL ,
