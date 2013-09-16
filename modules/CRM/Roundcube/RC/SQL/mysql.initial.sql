@@ -142,4 +142,4 @@ CREATE TABLE IF NOT EXISTS `rc_system` (
  `value` mediumtext,
  PRIMARY KEY(`name`)
 );
-INSERT INTO system (name, value) VALUES ('roundcube-version', '2013011700');
+INSERT INTO rc_system (name, value) VALUES ('roundcube-version', '2013011700');
