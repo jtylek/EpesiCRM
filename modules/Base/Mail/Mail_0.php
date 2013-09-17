@@ -31,6 +31,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		//defaults
 		$defaults = array();
 		$defaults['mail_method'] = Variable::get('mail_method');
+		$defaults['mail_use_replyto'] = Variable::get('mail_use_replyto');
 		$defaults['mail_user'] = Variable::get('mail_user');
 		$defaults['mail_from_addr'] = Variable::get('mail_from_addr');
 		$defaults['mail_from_name'] = Variable::get('mail_from_name');
@@ -50,6 +51,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		$form->addRule('mail_from_addr', __('Field required'), 'required');	
 		
 		$form->addElement('text','mail_from_name', __('Send e-mails from name'));
+		$form->addElement('checkbox','mail_use_replyto', __('Use "Reply-To" header'));
 	
 		$method = $form->getElement('mail_method')->getSelected();
 		if($method[0]=='smtp') {
@@ -102,6 +104,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		Variable::set('mail_method', $method);
 		Variable::set('mail_from_addr', $data['mail_from_addr']);
 		Variable::set('mail_from_name', $data['mail_from_name']);
+		Variable::set('mail_use_replyto', isset($data['mail_use_replyto']) && $data['mail_use_replyto']?1:0);
 		if($method=='smtp') {
 			Variable::set('mail_host', $data['mail_host']);
 			
