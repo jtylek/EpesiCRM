@@ -18,6 +18,7 @@ class Base_MailInstall extends ModuleInstall {
 		$ret = true;
 		if($ret) $ret = Variable::set('mail_from_addr','admin@example.com');
 		if($ret) $ret = Variable::set('mail_from_name','Administrator');
+		if($ret) $ret = Variable::set('mail_use_replyto',1);
 		if($ret) $ret = Variable::set('mail_method','mail');
 		if($ret) $ret = Variable::set('mail_user','');
 		if($ret) $ret = Variable::set('mail_password','');
@@ -33,6 +34,7 @@ class Base_MailInstall extends ModuleInstall {
 		$ret = true;
 		if($ret) $ret = Variable::delete('mail_from_addr');
 		if($ret) $ret = Variable::delete('mail_from_name');
+		if($ret) $ret = Variable::delete('mail_use_replyto');
 		if($ret) $ret = Variable::delete('mail_method');
 		if($ret) $ret = Variable::delete('mail_user');
 		if($ret) $ret = Variable::delete('mail_password');
