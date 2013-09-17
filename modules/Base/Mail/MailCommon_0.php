@@ -67,7 +67,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 		if(Variable::get('mail_method') == 'smtp') {
 			$mailer->IsSMTP();
 			$h = explode(':', Variable::get('mail_host'));
-			if(count($h)>=1)
+			if(count($h)>1)
 				$mailer->Port = array_pop($h);
 			$mailer->Host = implode(':',$h);
 			$mailer->Username = Variable::get('mail_user');
