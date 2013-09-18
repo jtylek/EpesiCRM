@@ -1550,12 +1550,12 @@ class Utils_RecordBrowser extends Module {
 
             if ($args['required']) {
                 $el = $form->getElement($args['id']);
-                if (!$form->isError($el)) {
+//                if (!$form->isError($el)) { //DON'T KNOW WHAT THIS GONNA DO??? It causes bug to not check required rule
                     if ($el->getType() != 'static') {
                         $form->addRule($args['id'], __('Field required'), 'required');
                         $el->setAttribute('placeholder', __('Field required'));
                     }
-                }
+//                }
             }
         }
     }
