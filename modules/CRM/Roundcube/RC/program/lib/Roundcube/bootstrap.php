@@ -55,7 +55,7 @@ foreach ($config as $optname => $optval) {
 }
 
 // framework constants
-define('RCUBE_VERSION', '0.9.3');
+define('RCUBE_VERSION', '0.9.4');
 define('RCUBE_CHARSET', 'UTF-8');
 
 if (!defined('RCUBE_LIB_DIR')) {
@@ -84,11 +84,14 @@ if (extension_loaded('mbstring')) {
     @mb_regex_encoding(RCUBE_CHARSET);
 }
 
-// make sure the lib directory is in the include_path
-$rcube_include_path = realpath(RCUBE_LIB_DIR . '..');
-$sep = PATH_SEPARATOR;
-if (!preg_match("!(^|$sep)$rcube_include_path($sep|\$)!", ini_get('include_path'))) {
-    set_include_path(ini_get('include_path') . PATH_SEPARATOR . $rcube_include_path);
+// make sure the Roundcube lib directory is in the include_path
+$rcube_path = realpath(RCUBE_LIB_DIR . '..');
+$sep        = PATH_SEPARATOR;
+$regexp     = "!(^|$sep)" . preg_quote($rcube_path, '!') . "($sep|\$)!";
+$path       = ini_get('include_path');
+
+if (!preg_match($regexp, $path)) {
+    set_include_path($path . PATH_SEPARATOR . $rcube_path);
 }
 
 // Register autoloader

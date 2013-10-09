@@ -257,6 +257,23 @@ class rcmail extends rcube
 
 
   /**
+   * Return identifier of the address book object
+   *
+   * @param rcube_addressbook Addressbook source object
+   *
+   * @return string Source identifier
+   */
+  public function get_address_book_id($object)
+  {
+    foreach ($this->address_books as $index => $book) {
+      if ($book === $object) {
+        return $index;
+      }
+    }
+  }
+
+
+  /**
    * Return address books list
    *
    * @param boolean True if the address book needs to be writeable
@@ -957,6 +974,10 @@ class rcmail extends rcube
             'mailto'  => $mailto,
             'options' => $options,
         ));
+
+        if ($plugin['abort']) {
+            return isset($plugin['result']) ? $plugin['result'] : false;
+        }
 
         $from    = $plugin['from'];
         $mailto  = $plugin['mailto'];

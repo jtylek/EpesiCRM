@@ -878,7 +878,7 @@ a.iconlink.upload {
 }
 
 /* fix scrolling within iframes in webkit browsers on touch devices */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio:0) and (max-device-width:1024px) {
 	.iframebox {
 		overflow: auto;
 		-webkit-overflow-scrolling: touch;
@@ -1592,6 +1592,7 @@ ul.proplist li {
 	-o-box-shadow: none;
 	background: url(images/buttons.png?v=abf1.36693) -100px 0 no-repeat transparent;
 	border: 0;
+	border-radius: 0;
 }
 
 .toolbar a.button.disabled {
