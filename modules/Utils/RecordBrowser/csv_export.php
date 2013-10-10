@@ -33,7 +33,7 @@ $records = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), $order,
 
 header('Content-Type: text/csv');
 //header('Content-Length: '.strlen($buffer));
-header('Content-disposition: attachement; filename="'.$tab.'_export_'.date('Y_m_d__h_i_s').'.csv"');
+header('Content-disposition: attachement; filename="'.$tab.'_export_'.date('Y_m_d__H_i_s').'.csv"');
 if (headers_sent())
     die('Some data has already been output to browser, can\'t send the file');
 $cols = array('Record ID');
@@ -42,7 +42,7 @@ foreach ($tab_info as $v) {
 	if ($v['style']=='currency') $cols[] = _V($v['name']).' - '.__('Currency');
 }
 $f = fopen('php://output','w');
-//fwrite($f, "\xEF\xBB\xBF");
+fwrite($f, "\xEF\xBB\xBF");
 fputcsv($f, $cols);
 $currency_codes = DB::GetAssoc('SELECT symbol, code FROM utils_currency');
 
@@ -79,25 +79,23 @@ foreach ($records as $r) {
 				$rec[] = '---';
 				continue;
 			}
+
 			$val = explode('_', $val[0]);
-			if (!isset($val[1])) {
-				$rec[] = '0';
-				$rec[] = '---';
-				continue;
+
+			$currency_symbol = '---';
+			$last = end($val);
+			$first = reset($val);
+
+			if(isset($currency_codes[$first])) {
+			    $currency_symbol = array_shift($val);
+			} elseif(isset($currency_codes[$last])) {
+			    $currency_symbol = array_pop($val);
 			}
-			if(isset($currency_codes[$val[0]])) {
-				$tmp = $val[1];
-				$val[1] = $val[0];
-				$val[0] = $tmp;
-			} elseif(!isset($currency_codes[$val[0]])) { //there is no currency code? skip parsing
-				$rec[] = $val[0];
-				$rec[] = $val[1];
-				continue;
-			}
-			$rec[] = rb_csv_export_format_currency_value($val[0],$val[1]);
-			$rec[] = isset($currency_codes[$val[1]])?$currency_codes[$val[1]]:$val[1];
+			$value = implode('', $val);
+			$rec[] = rb_csv_export_format_currency_value($value, $currency_symbol);
+			$rec[] = isset($currency_codes[$currency_symbol]) ? $currency_codes[$currency_symbol] : $currency_symbol;
 		} else {
-			$rec[] = $val;
+			$rec[] = trim($val);
 		}
 	}
 	fputcsv($f, $rec);
