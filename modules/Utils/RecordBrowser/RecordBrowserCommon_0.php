@@ -2973,6 +2973,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if(isset($access[$args['id']]) && !$access[$args['id']]) continue;
 
             $label = _V($args['name']); // TRSL
+            if (isset($rec[$args['id']])) {
+                $rec[$args['id']] = Utils_RecordBrowserCommon::get_val($tab,$args['id'],$rec,true,$args);
+            }
             //ignore callback fields
             if(isset($QFfield_callback_table[$field])) {
 //              if($id===false) continue;
@@ -3173,7 +3176,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         $values[$v['id']] = '';
                 } elseif($v['type']=='time') {
                     if($values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='')
-                        $values[$v['id']] = $values[$v['id']]['H'].':'.$values[$v['id']]['i'];
+                        $values[$v['id']] = Base_RegionalSettingsCommon::time2reg($values[$v['id']]['H'].':'.$values[$v['id']]['i'],true,true,true,false);
                     else
                         $values[$v['id']] = '';
                 }
