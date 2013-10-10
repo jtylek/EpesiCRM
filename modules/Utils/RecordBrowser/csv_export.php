@@ -92,8 +92,13 @@ foreach ($records as $r) {
 			    $currency_symbol = array_pop($val);
 			}
 			$value = implode('', $val);
-			$rec[] = rb_csv_export_format_currency_value($value, $currency_symbol);
-			$rec[] = isset($currency_codes[$currency_symbol]) ? $currency_codes[$currency_symbol] : $currency_symbol;
+			if (isset($currency_codes[$currency_symbol])) {
+			    $rec[] = rb_csv_export_format_currency_value($value, $currency_symbol);
+    			$rec[] = $currency_codes[$currency_symbol];
+			} else {
+                $rec[] = $value;
+                $rec[] = $currency_symbol;
+			}
 		} else {
 			$rec[] = trim($val);
 		}
