@@ -11,6 +11,8 @@
 
 1.	WYMAGANIA
 
+-   Korzystanie z klienta poczty RoundCube wymaga wersji PHP 5.2.1 lub wyższej (Uwaga: Sterownik bazy MySQL wymaga PHP 5.3 lub nowsze)
+        Więcej informacji odnośnie wymagań RoundCube w pliku: modules/CRM/RoundCube/RC/INSTALL
 -	Serwer HTTP (apache, IIS) ze wsparciem PHP 5.1.3. Jeśli to możliwe, zainstaluj najnowszą wersję PHP ze względu na błędy w wersjach wcześniejszych.
 -   PHP w wersji 5.2.0 nie obsługuje poprawnie EPESI ze względu na błąd w implementacji json_decode. W wersji 5.2.1 zostało to poprawione.
 -	Serwer HTTP powinien być skonfigurowany tak, by index.php był jednym z domyślnych dokumentów.
