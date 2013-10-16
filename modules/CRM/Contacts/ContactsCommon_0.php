@@ -712,6 +712,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 				}
             } else {
                 $comp = self::get_company(self::$paste_or_new);
+                foreach ($comp as & $cf) {
+                    if (is_string($cf)) {
+                        $cf = escapeJS($cf);
+                    }
+                }
                 $paste_company_info =
                     'document.getElementsByName(\'address_1\')[0].value=\''.$comp['address_1'].'\';'.
                     'document.getElementsByName(\'address_2\')[0].value=\''.$comp['address_2'].'\';'.
