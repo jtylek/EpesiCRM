@@ -1674,8 +1674,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
     }
     public static function get_html_record_info($tab, $id){
+        if (is_string($id)) {
+            //  to separate id in recurrent event
+            $tmp = explode('_', $id);
+            $id = $tmp[0];
+        }
         if (is_numeric($id)) $info = Utils_RecordBrowserCommon::get_record_info($tab, $id);
-        else $info = $id;
+        elseif (is_array($id)) $info = $id;
+        else trigger_error('Cannot decode record id: ' . print_r($id, true), E_USER_ERROR);
         if (isset($info['id'])) $id = $info['id'];
 
         // If CRM Module is not installed get user login only
