@@ -65,7 +65,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 		if(!isset($from_name)) $from_name = Variable::get('mail_from_name');
 		if(!isset($from_addr)) {
 		  $from_addr = Variable::get('mail_from_addr');
-		  if($mail_use_replyto)
+		  if($mail_use_replyto && strpos($mail_use_replyto,'@')!==false)
 		    $mailer->AddReplyTo($mail_use_replyto, $from_name);
 		  $mailer->SetFrom($from_addr, $from_name);
 		} else {
