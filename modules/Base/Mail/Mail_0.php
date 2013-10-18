@@ -51,7 +51,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		$form->addRule('mail_from_addr', __('Field required'), 'required');	
 		
 		$form->addElement('text','mail_from_name', __('Send e-mails from name'));
-		$form->addElement('checkbox','mail_use_replyto', __('Use "Reply-To" header'));
+		$form->addElement('text','mail_use_replyto', __('Set "Reply-To" header'));
 	
 		$method = $form->getElement('mail_method')->getSelected();
 		if($method[0]=='smtp') {

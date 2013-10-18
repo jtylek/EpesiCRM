@@ -66,18 +66,14 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 		if(!isset($from_addr)) {
 		  $from_addr = Variable::get('mail_from_addr');
 		  if($mail_use_replyto)
-		    $mailer->AddReplyTo($from_addr, $from_name);
-		  else
-		    $mailer->SetFrom($from_addr, $from_name);
+		    $mailer->AddReplyTo($mail_use_replyto, $from_name);
+		  $mailer->SetFrom($from_addr, $from_name);
 		} else {
 		  $mailer->AddReplyTo($from_addr, $from_name);
-		  if(!$mail_use_replyto) {
-		    $from_addr = Variable::get('mail_from_addr');
-		    $mailer->SetFrom($from_addr);
-		  }
+		  $from_addr = Variable::get('mail_from_addr');
+		  $mailer->SetFrom($from_addr);
 		}
 		
-		$mailer->AddReplyTo($from_addr, $from_name);
 		if(Variable::get('mail_method') == 'smtp') {
 			$mailer->IsSMTP();
 			$h = explode(':', Variable::get('mail_host'));
