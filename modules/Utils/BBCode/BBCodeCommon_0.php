@@ -29,7 +29,7 @@ class Utils_BBCodeCommon extends ModuleCommon {
 		self::$optimize_only = $optimize_only;
 		if (self::$bbcodes===null) self::init();
 		$ret = preg_replace_callback('/\[(.*?)(=(.*?|".*?"))?\](.*?)\[\/\\1\]/i', array('Utils_BBCodeCommon','replace'),$text);
-		$ret2 = preg_replace_callback('/(\s|^)(https?:\/\/(.+?))(\s)/i', array('Utils_BBCodeCommon','replace_url'),$ret);
+		$ret2 = preg_replace_callback('/(\s|^)(https?:\/\/(.+?))(\s|<)/i', array('Utils_BBCodeCommon','replace_url'),$ret);
 		return $ret2?$ret2:$text;
 	}
 	
