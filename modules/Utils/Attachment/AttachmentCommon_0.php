@@ -60,14 +60,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			$id = $row['id'];
 			$local = $row['local'];
 			DB::Execute('DELETE FROM utils_attachment_note WHERE attach_id=%d',array($id));
-			$rev = DB::GetOne('SELECT count(*) FROM utils_attachment_file WHERE attach_id=%d',array($id));
-			$file_base = self::Instance()->get_data_dir().$local.'/'.$id.'_';
-			for($i=0; $i<$rev; $i++) {
-				@unlink($file_base.$i);
+			$mids = DB::GetCol('SELECT id FROM utils_attachment_file WHERE attach_id=%d',array($id));
+			$file_base = self::Instance()->get_data_dir().$local.'/';
+			foreach($mids as $mid) {
+				@unlink($file_base.$mid);
+				DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($mid));
 			}
-			$ret2 = DB::Execute('SELECT id FROM utils_attachment_file WHERE attach_id=%d',array($id));
-			while($row2 = $ret2->FetchRow())
-				DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($row2['id']));
 			DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
 			DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
 		}
