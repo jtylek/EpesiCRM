@@ -1786,7 +1786,6 @@ function rcube_webmail()
         + (!flags.seen ? ' unread' : '')
         + (flags.deleted ? ' deleted' : '')
         + (flags.flagged ? ' flagged' : '')
-        + (flags.unread_children && flags.seen && !this.env.autoexpand_threads ? ' unroot' : '')
         + (message.selected ? ' selected' : ''),
       // for performance use DOM instead of jQuery here
       row = document.createElement('tr');
@@ -1839,6 +1838,9 @@ function rcube_webmail()
         expando = '<div id="rcmexpando' + uid + '" class="' + (message.expanded ? 'expanded' : 'collapsed') + '">&nbsp;&nbsp;</div>';
         row_class += ' thread' + (message.expanded? ' expanded' : '');
       }
+
+      if (flags.unread_children && flags.seen && !message.expanded)
+        row_class += ' unroot';
     }
 
     tree += '<span id="msgicn'+uid+'" class="'+css_class+'">&nbsp;</span>';
@@ -1885,7 +1887,7 @@ function rcube_webmail()
         html = expando;
       else if (c == 'subject') {
         if (bw.ie) {
-          col.onmouseover = function() { rcube_webmail.long_subject_title_ie(this, message.depth+1); };
+          col.onmouseover = function() { rcube_webmail.long_subject_title_ex(this, message.depth+1); };
           if (bw.ie8)
             tree = '<span></span>' + tree; // #1487821
         }
@@ -3602,7 +3604,12 @@ function rcube_webmail()
       att.html = '<a title="'+this.get_label('cancel')+'" onclick="return rcmail.cancel_attachment_upload(\''+name+'\', \''+att.frame+'\');" href="#cancelupload" class="cancelupload">'
         + (this.env.cancelicon ? '<img src="'+this.env.cancelicon+'" alt="" />' : this.get_label('cancel')) + '</a>' + att.html;
 
-    var indicator, li = $('<li>').attr('id', name).addClass(att.classname).html(att.html);
+    var indicator, li = $('<li>');
+
+    li.attr('id', name)
+      .addClass(att.classname)
+      .html(att.html)
+      .on('mouseover', function() { rcube_webmail.long_subject_title_ex(this, 0); });
 
     // replace indicator's li
     if (upload_id && (indicator = document.getElementById(upload_id))) {
@@ -6414,7 +6421,7 @@ function rcube_webmail()
   // post the given form to a hidden iframe
   this.async_upload_form = function(form, action, onload)
   {
-    var ts = new Date().getTime(),
+    var frame, ts = new Date().getTime(),
       frame_name = 'rcmupload'+ts;
 
     // upload progress support
@@ -6433,21 +6440,19 @@ function rcube_webmail()
     // have to do it this way for IE
     // otherwise the form will be posted to a new window
     if (document.all) {
-      var html = '<iframe name="'+frame_name+'" src="program/resources/blank.gif" style="width:0;height:0;visibility:hidden;"></iframe>';
-      document.body.insertAdjacentHTML('BeforeEnd', html);
+      document.body.insertAdjacentHTML('BeforeEnd', '<iframe name="'+frame_name+'"'
+        + ' src="program/resources/blank.gif" style="width:0;height:0;visibility:hidden;"></iframe>');
+      frame = $('iframe[name="'+frame_name+'"]');
     }
-    else { // for standards-compilant browsers
-      var frame = document.createElement('iframe');
-      frame.name = frame_name;
-      frame.style.border = 'none';
-      frame.style.width = 0;
-      frame.style.height = 0;
-      frame.style.visibility = 'hidden';
-      document.body.appendChild(frame);
+    // for standards-compliant browsers
+    else {
+      frame = $('<iframe>').attr('name', frame_name)
+        .css({border: 'none', width: 0, height: 0, visibility: 'hidden'})
+        .appendTo(document.body);
     }
 
     // handle upload errors, parsing iframe content in onload
-    $(frame_name).bind('load', {ts:ts}, onload);
+    frame.bind('load', {ts:ts}, onload);
 
     $(form).attr({
         target: frame_name,
@@ -6874,11 +6879,11 @@ rcube_webmail.long_subject_title = function(elem, indent)
   if (!elem.title) {
     var $elem = $(elem);
     if ($elem.width() + indent * 15 > $elem.parent().width())
-      elem.title = $elem.html();
+      elem.title = $elem.text();
   }
 };
 
-rcube_webmail.long_subject_title_ie = function(elem, indent)
+rcube_webmail.long_subject_title_ex = function(elem, indent)
 {
   if (!elem.title) {
     var $elem = $(elem),

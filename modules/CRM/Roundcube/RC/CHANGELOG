@@ -1,6 +1,43 @@
 CHANGELOG Roundcube Webmail
 ===========================
 
+RELEASE 0.9.5
+-------------
+- Fix failing vCard import when email address field contains spaces (#1489386)
+- Fix default spell-check configuration after Google suspended their spell service
+- Fix vulnerability in handling _session argument of utils/save-prefs (#1489382)
+- Fix iframe onload for upload errors handling (#1489379)
+- Fix address matching in Return-Path header on identity selection (#1489374)
+- Fix text wrapping issue with long unwrappable lines (#1489371)
+- Fixed mispelling: occured -> occurred (#1489366)
+- Fixed issues where HTML comments inside style tag would hang Internet Explorer
+- Fix setting domain in virtualmin password driver (#1489332)
+- Hide Delivery Status Notification option when smtp_server is unset (#1489336)
+- Display full attachment name using title attribute when name is too long to display (#1489320)
+- Fix attachment icon issue when rare font/language is used (#1489326)
+- Fix expanded thread root message styling after refreshing messages list (#1489327)
+- Fix issue where From address was removed from Cc and Bcc fields when editing a draft (#1489319)
+- Fix error_reporting directive check (#1489323)
+- Fix de_DE localization of "About" label in Help plugin (#1489325)
+
+RELEASE 0.9.4
+-------------
+- Make identities matching case insensitive (#1485480)
+- Fix issue where too big message data was stored in cache causing sql errors (#1489316)
+- Fix iframe scrollbars on webkit desktop browsers (#1489306)
+- Fix issue where legacy config was overriden by default config (#1489288)
+- Fix newmail_notifier issue where favicon wasn't changed back to default (#1489313)
+- Fix setting of Junk and NonJunk flags by markasjunk plugin (#1489285)
+- Fix lack of Reply-To address in header of forwarded message body (#1489298)
+- Fix bugs when invoking contact creation form when read-only addressbook is selected (#1489296)
+- Fix identity selection on reply (#1489291)
+- Fix so additional headers are added to all messages sent (#1489284)
+- Fix display issue after moving folder in Folder Manager (#1489293)
+- Fix handling of non-default date formats (#1489294)
+- Fix unquoted path in PREG expression on Windows (#1489290)
+- Fix Junk folder icon alignment when it's nested in inbox folder (#1489292)
+- Fix wrong close tag in /template/mail.html (#1489295)
+
 RELEASE 0.9.3
 -------------
 - Fix setting refresh_interval to "Never" in Preferences (#1489286)
@@ -232,4 +269,3 @@ RELEASE 0.9-beta
     Unified global functions naming (rcube_ prefix)
     Better classes separation
     Framework files moved to lib/Roundcube
-

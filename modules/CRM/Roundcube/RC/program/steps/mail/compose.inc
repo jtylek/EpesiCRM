@@ -368,7 +368,12 @@ foreach ($parts as $header) {
       $mailto = format_email(rcube_idn_to_utf8($addr_part['mailto']));
 
       if (!in_array($mailto, $a_recipients)
-        && ($header == 'to' || empty($MESSAGE->compose['from_email']) || $mailto != $MESSAGE->compose['from_email'])
+        && (
+          $header == 'to'
+          || $compose_mode != RCUBE_COMPOSE_REPLY
+          || empty($MESSAGE->compose['from_email'])
+          || $mailto != $MESSAGE->compose['from_email']
+        )
       ) {
         if ($addr_part['name'] && $addr_part['mailto'] != $addr_part['name'])
           $string = format_email_recipient($mailto, $addr_part['name']);
@@ -1335,8 +1340,9 @@ function rcmail_compose_attachment_list($attrib)
   if (!$attrib['id'])
     $attrib['id'] = 'rcmAttachmentList';
 
-  $out = "\n";
+  $out    = "\n";
   $jslist = array();
+  $button = '';
 
   if (is_array($COMPOSE['attachments'])) {
     if ($attrib['deleteicon']) {
@@ -1345,27 +1351,38 @@ function rcmail_compose_attachment_list($attrib)
         'alt' => rcube_label('delete')
       ));
     }
-    else
+    else if (rcube_utils::get_boolean($attrib['textbuttons'])) {
       $button = Q(rcube_label('delete'));
+    }
 
     foreach ($COMPOSE['attachments'] as $id => $a_prop) {
       if (empty($a_prop))
         continue;
 
-      $out .= html::tag('li', array('id' => 'rcmfile'.$id, 'class' => rcmail_filetype2classname($a_prop['mimetype'], $a_prop['name'])),
+      $out .= html::tag('li',
+        array(
+          'id'          => 'rcmfile'.$id,
+          'class'       => rcmail_filetype2classname($a_prop['mimetype'], $a_prop['name']),
+          'onmouseover' => "rcube_webmail.long_subject_title_ex(this, 0)",
+        ),
         html::a(array(
             'href' => "#delete",
             'title' => rcube_label('delete'),
             'onclick' => sprintf("return %s.command('remove-attachment','rcmfile%s', this)", JS_OBJECT_NAME, $id),
-            'class' => 'delete'),
-          $button) . Q($a_prop['name']));
+            'class' => 'delete'
+          ),
+          $button
+        ) . Q($a_prop['name'])
+      );
 
-        $jslist['rcmfile'.$id] = array('name' => $a_prop['name'], 'complete' => true, 'mimetype' => $a_prop['mimetype']);
+      $jslist['rcmfile'.$id] = array('name' => $a_prop['name'], 'complete' => true, 'mimetype' => $a_prop['mimetype']);
     }
   }
 
   if ($attrib['deleteicon'])
     $COMPOSE['deleteicon'] = $CONFIG['skin_path'] . $attrib['deleteicon'];
+  else if (rcube_utils::get_boolean($attrib['textbuttons']))
+    $COMPOSE['textbuttons'] = true;
   if ($attrib['cancelicon'])
     $OUTPUT->set_env('cancelicon', $CONFIG['skin_path'] . $attrib['cancelicon']);
   if ($attrib['loadingicon'])
