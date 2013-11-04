@@ -246,8 +246,8 @@ class Base_Dashboard extends Module {
 		$default_dash = $this->get_module_variable('default');
 		$table = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		DB::StartTrans();
-		$new_pos = DB::GetOne('SELECT '.($dir>0?'MIN':'MAX').'(pos) FROM '.$table.' WHERE pos'.($dir>0?'>':'<').'%d AND user_login_id=%s',array($old_pos, Base_AclCommon::get_user()));
-		$id2 = DB::GetOne('SELECT id FROM '.$table.' WHERE pos=%d AND user_login_id=%s',array($new_pos,Base_AclCommon::get_user()));
+		$new_pos = DB::GetOne('SELECT '.($dir>0?'MIN':'MAX').'(pos) FROM '.$table.' WHERE pos'.($dir>0?'>':'<').'%d '.($default_dash?'':'AND user_login_id=%s'),array($old_pos, Base_AclCommon::get_user()));
+		$id2 = DB::GetOne('SELECT id FROM '.$table.' WHERE pos=%d '.($default_dash?'':'AND user_login_id=%s'),array($new_pos,Base_AclCommon::get_user()));
 		DB::Execute('UPDATE '.$table.' SET pos=%d WHERE id=%d',array($old_pos,$id2));
 		DB::Execute('UPDATE '.$table.' SET pos=%d WHERE id=%d',array($new_pos,$id));
 		DB::CompleteTrans();
