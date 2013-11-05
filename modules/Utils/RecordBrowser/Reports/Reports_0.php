@@ -492,6 +492,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 			}
 		}
+        $ggrow = array();
 		/***** BOTTOM SUMMARY *****/
 		if ($this->col_summary!==false) {
 			if (!$this->pdf) $this->col_summary['label'] = $this->col_summary['label'].' ('.__('Page').')';
