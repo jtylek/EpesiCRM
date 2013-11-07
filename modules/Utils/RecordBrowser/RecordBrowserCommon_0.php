@@ -2965,6 +2965,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (is_array($access))
                 foreach ($access as $k=>$v)
                     if (!$v) unset($rec[$k]);
+            $defaults = $rec = self::record_processing($tab, $rec, 'editing');
         }
 
         $QFfield_callback_table = array();
@@ -2978,25 +2979,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach($cols as $field=>$args) {
             if(isset($access[$args['id']]) && !$access[$args['id']]) continue;
 
+            if(isset($rec[$args['id']]))
+                $val = $rec[$args['id']];
+            elseif(isset($defaults[$args['id']]))
+                $val = $defaults[$args['id']];
+            else
+                $val = null;
             $label = _V($args['name']); // TRSL
-            if (isset($rec[$args['id']])) {
-                $rec[$args['id']] = Utils_RecordBrowserCommon::get_val($tab,$args['id'],$rec,true,$args);
-            }
-            //ignore callback fields
             if(isset($QFfield_callback_table[$field])) {
-//              if($id===false) continue;
-//              $val = Utils_RecordBrowserCommon::get_val($tab,$args['name'],$rec,true,$args);
-//              if($val==='') continue;
-//              $qf->addElement('static',$args['id'],$label);
-//              $qf->setDefaults(array($args['id']=>$val));
-//              unset($defaults[$args['id']]);
                 $ff = $QFfield_callback_table[$field];
-                if(isset($rec[$args['id']]))
-                    $val = $rec[$args['id']];
-                elseif(isset($defaults[$args['id']]))
-                    $val = $defaults[$args['id']];
-                else
-                    $val = null;
 				$mobile_rb = new Utils_RecordBrowserMobile($tab, $rec);
                 call_user_func_array($ff, array(&$qf, $args['id'], $label, $mode, $val, $args, $mobile_rb, null));
                 if($mode=='edit')
@@ -3005,52 +2996,59 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
 
             switch ($args['type']) {
-                case 'calculated':  $qf->addElement('static', $args['id'], $label);
-                            if (!is_array($rec))
-                                $values = $defaults;
-                            else {
-                                $values = $rec;
-                                if (is_array($defaults)) $values = $values+$defaults;
-                            }
-                            $val = @Utils_RecordBrowserCommon::get_val($tab,$field,$values,true,$args);
-                            if (!$val) $val = '['.__('formula').']';
-                            $qf->setDefaults(array($args['id']=>$val));
-                            break;
+                case 'calculated':
+                    $qf->addElement('static', $args['id'], $label);
+                    if (!is_array($rec))
+                        $values = $defaults;
+                    else {
+                        $values = $rec;
+                        if (is_array($defaults)) $values = $values + $defaults;
+                    }
+                    $val = @Utils_RecordBrowserCommon::get_val($tab, $field, $values, true, $args);
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
                 case 'integer':
-                case 'float':       $qf->addElement('text', $args['id'], $label);
-                            if ($args['type']=='integer')
-                                $qf->addRule($args['id'], __('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
-                            else
-                                $qf->addRule($args['id'], __('Only numbers are allowed.'), 'numeric');
-                            if($id!==false)
-                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
-                            break;
-                case 'checkbox':    $qf->addElement('checkbox', $args['id'], $label, '');
-                            if($id!==false)
-                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
-                            break;
-                case 'currency':    $qf->addElement('currency', $args['id'], $label);
-                            if($id!==false)
-                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
-                            break;
-                case 'text':        $qf->addElement('text', $args['id'], $label, array('maxlength'=>$args['param']));
-                            $qf->addRule($args['id'], __('Maximum length for this field is %s characters.', array($args['param'])), 'maxlength', $args['param']);
-                            if($id!==false)
-                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
-                            break;
-                case 'long text':   $qf->addElement('textarea', $args['id'], $label,array('maxlength'=>200));
-                            $qf->addRule($args['id'], __('Maximum length for this field in mobile edition is 200 chars.'), 'maxlengt',200);
-                            if($id!==false)
-                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
-                            break;
-                case 'commondata':  $param = explode('::',$args['param']['array_id']);
-                            foreach ($param as $k=>$v) if ($k!=0) $param[$k] = self::get_field_id($v);
-                            if(count($param)==1) {
-                                $qf->addElement($args['type'], $args['id'], $label, $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
-                                if($id!==false)
-                                    $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
-                            }
-                            break;
+                case 'float':
+                    $qf->addElement('text', $args['id'], $label);
+                    if ($args['type'] == 'integer')
+                        $qf->addRule($args['id'], __('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
+                    else
+                        $qf->addRule($args['id'], __('Only numbers are allowed.'), 'numeric');
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'checkbox':
+                    $qf->addElement('checkbox', $args['id'], $label, '');
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'currency':
+                    $qf->addElement('currency', $args['id'], $label);
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'text':
+                    $qf->addElement('text', $args['id'], $label, array('maxlength' => $args['param']));
+                    $qf->addRule($args['id'], __('Maximum length for this field is %s characters.', array($args['param'])), 'maxlength', $args['param']);
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'long text':
+                    $qf->addElement('textarea', $args['id'], $label, array('maxlength' => 200));
+                    $qf->addRule($args['id'], __('Maximum length for this field in mobile edition is 200 chars.'), 'maxlengt', 200);
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'commondata':
+                    $param = explode('::', $args['param']['array_id']);
+                    foreach ($param as $k => $v) if ($k != 0) $param[$k] = self::get_field_id($v);
+                    if (count($param) == 1) {
+                        $qf->addElement($args['type'], $args['id'], $label, $param, array('empty_option' => true, 'id' => $args['id'], 'order_by_key' => $args['param']['order_by_key']));
+                        if ($val !== null)
+                            $qf->setDefaults(array($args['id'] => $val));
+                    }
+                    break;
                 case 'select':      $comp = array();
                             $ref = explode(';',$args['param']);
                             if (isset($ref[1])) $crits_callback = $ref[1];
@@ -3138,16 +3136,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
                             break;
                 case 'date':        $qf->addElement('date',$args['id'],$label,array('format'=>'d M Y', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5, 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
-                            if(isset($rec[$args['id']]) && $rec[$args['id']] && $id!==false)
-                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+                            if ($val)
+                                $qf->setDefaults(array($args['id'] => $val));
                             break;
                 case 'timestamp':   $qf->addElement('date',$args['id'],$label,array('format'=>'d M Y H:i', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5, 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
-                            if(isset($rec[$args['id']]) && $rec[$args['id']] && $id!==false)
-                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+                            if($val) {
+                                $default = Base_RegionalSettingsCommon::time2reg($val, true, true, true, false);
+                                $qf->setDefaults(array($args['id'] => $default));
+                            }
                             break;
                 case 'time':        $qf->addElement('date',$args['id'],$label,array('format'=>'H:i', 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
-                            if(isset($rec[$args['id']]) && $rec[$args['id']] && $id!==false)
-                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+                            if($val) {
+                                $default = Base_RegionalSettingsCommon::time2reg($val, true, true, true, false);
+                                $qf->setDefaults(array($args['id'] => $default));
+                            }
                             break;
                 case 'multiselect': //ignore
                             if($id===false) continue;
@@ -3162,8 +3164,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $qf->addRule($args['id'],__('Field required'),'required');
         }
 
-        $qf->setDefaults($defaults);
-
         $qf->addElement('submit', 'submit_button', __('Save'),IPHONE?'class="button white"':'');
 
         if($qf->validate()) {
@@ -3172,18 +3172,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]=0;
                 elseif($v['type']=='date') {
                     if(is_array($values[$v['id']]) && $values[$v['id']]['Y']!=='' && $values[$v['id']]['M']!=='' && $values[$v['id']]['d']!=='')
-                        $values[$v['id']] = $values[$v['id']]['Y'].'-'.$values[$v['id']]['M'].'-'.$values[$v['id']]['d'];
+                        $values[$v['id']] = sprintf("%d-%02d-%02d", $values[$v['id']]['Y'], $values[$v['id']]['M'], $values[$v['id']]['d']);
                     else
                         $values[$v['id']] = '';
                 } elseif($v['type']=='timestamp') {
-                    if($values[$v['id']]['Y']!=='' && $values[$v['id']]['M']!=='' && $values[$v['id']]['d']!=='' && $values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='')
-                        $values[$v['id']] = $values[$v['id']]['Y'].'-'.$values[$v['id']]['M'].'-'.$values[$v['id']]['d'].' '.$values[$v['id']]['H'].':'.$values[$v['id']]['i'];
-                    else
+                    if($values[$v['id']]['Y']!=='' && $values[$v['id']]['M']!=='' && $values[$v['id']]['d']!=='' && $values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='') {
+                        $timestamp = $values[$v['id']]['Y'] . '-' . $values[$v['id']]['M'] . '-' . $values[$v['id']]['d'] . ' ' . $values[$v['id']]['H'] . ':' . $values[$v['id']]['i'];
+                        $values[$v['id']] = Base_RegionalSettingsCommon::reg2time($timestamp, true);
+                    } else
                         $values[$v['id']] = '';
                 } elseif($v['type']=='time') {
-                    if($values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='')
-                        $values[$v['id']] = Base_RegionalSettingsCommon::time2reg($values[$v['id']]['H'].':'.$values[$v['id']]['i'],true,true,true,false);
-                    else
+                    if($values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='') {
+                        $timestamp = Base_RegionalSettingsCommon::reg2time($values[$v['id']]['H'].':'.$values[$v['id']]['i'], true);
+                        $values[$v['id']] = date('1970-01-01 H:i:s', $timestamp);
+                    } else
                         $values[$v['id']] = '';
                 }
             }
