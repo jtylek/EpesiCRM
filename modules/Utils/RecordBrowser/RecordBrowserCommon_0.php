@@ -3183,7 +3183,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         $values[$v['id']] = '';
                 } elseif($v['type']=='time') {
                     if($values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='') {
-                        $timestamp = Base_RegionalSettingsCommon::reg2time($values[$v['id']]['H'].':'.$values[$v['id']]['i'], true);
+                        $time = recalculate_time(date('Y-m-d'), $values[$v['id']]);
+                        $timestamp = Base_RegionalSettingsCommon::reg2time(date('1970-01-01 H:i:s', $time), true);
                         $values[$v['id']] = date('1970-01-01 H:i:s', $timestamp);
                     } else
                         $values[$v['id']] = '';
