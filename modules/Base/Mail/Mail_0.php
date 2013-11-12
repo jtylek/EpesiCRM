@@ -51,7 +51,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		$form->addRule('mail_from_addr', __('Field required'), 'required');	
 		
 		$form->addElement('text','mail_from_name', __('Send e-mails from name'));
-		$form->addElement('text','mail_use_replyto', __('Set "Reply-To" header'));
+		$form->addElement('text','mail_use_replyto', __('Set "Reply-To" email address'));
 		$form->addRule('mail_use_replyto', __('Invalid e-mail address'), 'email');
 	
 		$method = $form->getElement('mail_method')->getSelected();
@@ -105,7 +105,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		Variable::set('mail_method', $method);
 		Variable::set('mail_from_addr', $data['mail_from_addr']);
 		Variable::set('mail_from_name', $data['mail_from_name']);
-		Variable::set('mail_use_replyto', isset($data['mail_use_replyto']) && $data['mail_use_replyto']?1:0);
+		Variable::set('mail_use_replyto', $data['mail_use_replyto']);
 		if($method=='smtp') {
 			Variable::set('mail_host', $data['mail_host']);
 			
