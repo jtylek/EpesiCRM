@@ -19,8 +19,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 
 	public static function home_page() {
-		return array(_M('My Contact')=>array('CRM/Contacts', 'body', array('my_contact')));
-	}
+        return array(_M('My Contact') => array('CRM/Contacts', 'body', array('my_contact')),
+            _M('Main Company') => array('CRM/Contacts', 'body', array('main_company')));
+    }
 
     public static function crm_clearance($all = false) {
 		$clearance = array();
