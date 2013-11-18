@@ -1216,6 +1216,9 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 
     private static function copy_company_data_subroutine($values) {
+        $access = Utils_RecordBrowserCommon::get_access('contact', 'edit', $values);
+        if (!$access)
+            return;
         /* First click should generate html code for leightbox and show it.
          * This function is rarely used and we don't want to increase page size.
          * To do this we use REQUEST variable UCD.
@@ -1257,7 +1260,9 @@ class CRM_ContactsCommon extends ModuleCommon {
                     array('sid'=>'fax', 'tid'=>'fax', 'text'=>__('Fax'), 'checked'=>false),
             );
             foreach($data as $row) {
-                $form->addElement('checkbox', $row['sid'], $row['text'], '', $row['checked'] ? array('checked'=>'checked'): array());
+                if (is_array($access) && isset($access[$row['tid']]) && $access[$row['tid']]) {
+                    $form->addElement('checkbox', $row['sid'], $row['text'], '', $row['checked'] ? array('checked'=>'checked'): array());
+                }
             }
 
             $ok = $form->createElement('submit', 'submit', __('Confirm'), array('onclick'=>'leightbox_deactivate("'.$lid.'")'));
