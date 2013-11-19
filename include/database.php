@@ -938,4 +938,3 @@ return $ret;
 if (version_compare(PHP_VERSION, "5.3") == -1)
     @set_magic_quotes_runtime(false); // DEPRECATED since php 5.3
 DB::connect();
-?>

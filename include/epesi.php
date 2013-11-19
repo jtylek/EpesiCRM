@@ -416,4 +416,3 @@ class Epesi {
 		self::send_output();
 	}
 }
-?>

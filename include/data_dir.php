@@ -56,4 +56,3 @@ else {
 	die('Invalid address');
     }
 }
-?>

@@ -35,4 +35,3 @@ class ModuleCommon extends ModulePrimitive {
 		return $obj;
 	}
 }
-?>

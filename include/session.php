@@ -223,4 +223,3 @@ if(!defined('CID')) {
 session_name(ini_get('session.name'));
 session_set_cookie_params(0,EPESI_DIR);
 session_start();
-?>

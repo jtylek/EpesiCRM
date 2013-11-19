@@ -202,5 +202,3 @@ class ModulesAutoloader {
     );
 
 }
-
-?>

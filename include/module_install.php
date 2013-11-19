@@ -33,9 +33,9 @@ abstract class ModuleInstall extends ModulePrimitive{
 	/**
 	 * Returns array that contains information about modules required by this module.
 	 * The array should be determined by the version number that is given as parameter.
-	 * 
+	 *
+     * @param int $v module version number
 	 * @return array Array constructed as following: array(array('name'=>$ModuleName,'version'=>$ModuleVersion),...)  
 	 */
 	abstract public function requires($v);
 }
-?>

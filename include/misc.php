@@ -714,5 +714,3 @@ function curl_exec_follow($ch, $maxredirect = null) {
 	} 
 	return curl_exec($ch); 
 }
-
-?>

@@ -31,4 +31,3 @@ if (get_magic_quotes_gpc()) {
     $_COOKIE = undoMagicQuotes($_COOKIE);
     $_REQUEST = undoMagicQuotes($_REQUEST);
 }
-?>

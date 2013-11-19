@@ -955,4 +955,3 @@ class ModuleManager {
         return $ret;
     }
 }
-?>

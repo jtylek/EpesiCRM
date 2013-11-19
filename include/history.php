@@ -96,5 +96,3 @@ class History {
 		return self::$action;
 	}
 }
-
-?>

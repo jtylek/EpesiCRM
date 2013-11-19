@@ -965,5 +965,3 @@ abstract class Module extends ModulePrimitive {
 		return $ret;
 	}
 }
-
-?>

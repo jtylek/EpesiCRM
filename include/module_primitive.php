@@ -95,5 +95,3 @@ abstract class ModulePrimitive {
 			trigger_error('get_type_with_bt - execution outside epesi module');
 	}
 }
-
-?>

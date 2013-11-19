@@ -311,5 +311,3 @@ class BackupArchive extends ZipArchive {
     }
 
 }
-
-?>
