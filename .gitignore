@@ -1,0 +1,21 @@
+# Installation data dir
+data
+
+# htaccess file
+.htaccess
+
+# Additional modules - ignore all except those existing
+modules/*
+!modules/Applets
+!modules/Apps
+!modules/Base
+!modules/CRM
+!modules/Data
+!modules/FirstRun
+!modules/Libs
+!modules/Tests
+!modules/Tools
+!modules/Utils
+
+# IDE dirs/files
+.idea
