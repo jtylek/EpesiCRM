@@ -846,22 +846,25 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (class_exists('Utils_RecordBrowser') && isset(Utils_RecordBrowser::$last_record['login']) && is_numeric(Utils_RecordBrowser::$last_record['login'])) {
 			$default = Base_UserCommon::get_user_login(Utils_RecordBrowser::$last_record['login']);
 		}
-		$form->addElement('text', $field, $label, array('id'=>$field));
+		$form->addElement('text', $field, $label, array('id'=>$field, 'autocomplete' => 'off'));
 		$form->setDefaults(array($field=>$default));
 		$form->addFormRule(array('CRM_ContactsCommon','check_new_username'));
 	}
     public static function QFfield_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if ($mode=='view') return;
         if (!Base_AclCommon::i_am_admin()) return;
-		$form->addElement('password', $field, $label, array('id'=>$field));
+		$form->addElement('password', $field, $label, array('id'=>$field, 'autocomplete' => 'off'));
 	}
     public static function QFfield_repassword(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if ($mode=='view') return;
         if (!Base_AclCommon::i_am_admin()) return;
-		$form->addElement('password', $field, $label, array('id'=>$field));
+		$form->addElement('password', $field, $label, array('id'=>$field, 'autocomplete' => 'off'));
 		$form->addFormRule(array('CRM_ContactsCommon', 'check_pass'));
 	}
 	public static function check_pass($data) {
+        if (isset($data['login']) && !$data['login']) {
+            return true;
+        }
         $pass = & $data['set_password'];
         $repass = & $data['confirm_password'];
 		if ($pass == $repass) return true;
