@@ -5,12 +5,27 @@ abstract class RBO_Recordset {
     private $tab;
     private $class;
 
+    /**
+     * String that represents recordset in database
+     *
+     * @return string String that represents recordset in database
+     */
     abstract function table_name();
 
+    /**
+     * Class name that will be used as record's class. Must be derived from
+     * RBO_Record.
+     *
+     * @return string Class name that will be used as record's class.
+     */
     function class_name() {
         return 'RBO_Record';
     }
 
+    /**
+     * Return list of fields in recordset.
+     * @return array RBO_FieldDefinition
+     */
     abstract function fields();
 
     public function __construct() {
@@ -21,6 +36,13 @@ abstract class RBO_Recordset {
             trigger_error('Record class (' . $this->class . ') for recordset ' . $this->tab . ' is not instance of RBO_Record', E_USER_ERROR);
     }
 
+    /**
+     * Create Record object from data array
+     *
+     * @param array $array Data array
+     *
+     * @return RBO_Record|null RBO_Record instance or null when data is not array
+     */
     public function record_to_object($array) {
         if (is_array($array)) {
             return new $this->class($this, $array);
@@ -28,6 +50,13 @@ abstract class RBO_Recordset {
         return null;
     }
 
+    /**
+     * Convert array of RB data to array of objects
+     *
+     * @param array $array Array of data arrays
+     *
+     * @return RBO_Record[]
+     */
     public function array_of_records_to_array_of_objects($array) {
         $ret = array();
         foreach ($array as $k => $entry) {
@@ -36,6 +65,14 @@ abstract class RBO_Recordset {
         return $ret;
     }
 
+    /**
+     * Create RBO_Record instance from array data
+     *
+     * @param string $recordset_class Recordset class name
+     * @param array $record Data in recordbrowser array format
+     *
+     * @return RBO_Record|null RBO_Record object or null
+     */
     protected static function create_record_object($recordset_class, $record) {
         $recordset = self::recordset_instance($recordset_class);
         return $recordset->record_to_object($record);
@@ -43,6 +80,13 @@ abstract class RBO_Recordset {
 
     protected static $recordsets_instances = array();
 
+    /**
+     * Create and cache recordset object
+     *
+     * @param string $recordset_class
+     *
+     * @return RBO_Recordset
+     */
     protected static function recordset_instance($recordset_class) {
         if (is_object($recordset_class))
             return $recordset_class;
@@ -80,6 +124,19 @@ abstract class RBO_Recordset {
         }
     }
 
+    /**
+     * @ignore
+     *
+     * @param      $form
+     * @param      $field
+     * @param      $label
+     * @param      $mode
+     * @param      $default
+     * @param      $desc
+     * @param null $rb_obj
+     *
+     * @return mixed
+     */
     public static final function __QFfield_magic_callback(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
         list($recordset_class, $method) = $rb_obj->get_qffield_method($desc['name']);
         $args = func_get_args();
@@ -93,6 +150,15 @@ abstract class RBO_Recordset {
         trigger_error("Method $callback_name does not exist in recordset, nor record class", E_USER_ERROR);
     }
 
+    /**
+     * @ignore
+     *
+     * @param $record
+     * @param $nolink
+     * @param $desc
+     *
+     * @return mixed
+     */
     public static final function __display_magic_callback($record, $nolink, $desc) {
         list($recordset_class, $method) = $desc['display_callback'];
         $args = func_get_args();
@@ -146,7 +212,7 @@ abstract class RBO_Recordset {
 
     /**
      * Get single record from recordset by id
-     * @param numeric $id
+     * @param int $id
      * @param bool $htmlspecialchars quote values using htmlspecialchars
      * @return RBO_Record
      */
@@ -160,7 +226,7 @@ abstract class RBO_Recordset {
      * @param array $crits
      * @param array $cols
      * @param array $order
-     * @param numeric $limit
+     * @param mixed $limit
      * @param bool $admin
      * @return RBO_Record[]
      */
@@ -202,7 +268,7 @@ abstract class RBO_Recordset {
 
     /**
      * Updates record specified by id
-     * @param numeric $id Id of record
+     * @param int $id Id of record
      * @param array $values associative array (field => value)
      * @return bool success of records update
      */
@@ -252,7 +318,7 @@ abstract class RBO_Recordset {
 
     /**
      * Create default linked label to record
-     * @param numeric $id Record's ID
+     * @param int $id Record's ID
      * @param bool $nolink Do not create link
      * @param bool $table_name Prepend table caption
      * @return string html with link
@@ -267,7 +333,7 @@ abstract class RBO_Recordset {
      * Create linked label with text values from fields.
      * @param string|array $field Fields' ids list. In array or string separated
      * by '|'. e.g. array('first_name', 'last_name') or 'first_name|last_name'.
-     * @param numeric $id Record's ID
+     * @param int $id Record's ID
      * @param bool $nolink Do not create link
      * @return string html with link
      */
@@ -277,7 +343,7 @@ abstract class RBO_Recordset {
 
     /**
      * Create link to record with specific text.
-     * @param numeric $id Record id
+     * @param int $id Record id
      * @param string $text Text to display as link
      * @param bool $nolink Do not create link switch
      * @param string $action Link to specific action. 'view' or 'edit'.
@@ -405,10 +471,10 @@ abstract class RBO_Recordset {
     /**
      * Set author and creation timestamp of record. Use this function only
      * in special cases and if you are sure what you are doing.
-     * @param numeric $id Record's ID
+     * @param int $id Record's ID
      * @param string|null $created_on Formatted date and time like date('Y-m-d H:i:s')
      * or null to omit
-     * @param numeric|null $created_by Id of user from ACL module or null to omit.
+     * @param int|null $created_by Id of user from ACL module or null to omit.
      */
     public function set_record_properties($id, $created_on = null, $created_by = null) {
         $info = array();
@@ -467,7 +533,7 @@ abstract class RBO_Recordset {
 
     /**
      * Get html formatted info about record
-     * @param numeric $id Record's ID
+     * @param int $id Record's ID
      * @return string html with info about record
      */
     public function get_html_record_info($id) {
@@ -476,7 +542,7 @@ abstract class RBO_Recordset {
 
     /**
      * Get info about record. 0 means deleted, 1 means active.
-     * @param numeric $id Record's ID
+     * @param int $id Record's ID
      * @return bool record's state
      */
     public function is_active($id) {
