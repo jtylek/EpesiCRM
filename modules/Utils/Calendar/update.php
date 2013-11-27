@@ -41,8 +41,8 @@ if($_POST['cell_id']=='trash') {
 	if($_POST['page_type']=='month') {
 		if(isset($ev['timeless'])) $cc[1]=(isset($ev['custom_row_key'])?$ev['custom_row_key']:'timeless');
 		else $cc[0] = strtotime(Base_RegionalSettingsCommon::time2reg($cc[0], true,true,true,false)) + $ev['start'] - strtotime(Base_RegionalSettingsCommon::time2reg($ev['start'], false,true,true,false));
-	} else {
-		$cc[0] += $ev['start']-strtotime(date('Y-m-d H:00:00',$ev['start']));
+//	} else { //this code breaks calendar with interval less than 1 hour so commented this out
+//		$cc[0] += $ev['start']-strtotime(date('Y-m-d H:00:00',$ev['start']));
 	}
 
 	$ret = call_user_func_array(array($mod.'Common','update'),array(& $ev_id,$cc[0],$ev['duration'],isset($cc[1])?$cc[1]:null));
