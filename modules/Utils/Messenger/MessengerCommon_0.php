@@ -89,7 +89,8 @@ class Utils_MessengerCommon extends ModuleCommon {
 	}
 	
 	public static function cron() {
-		$arr = DB::GetAll('SELECT m.*,u.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.follow=0 AND m.alert_on+INTERVAL 4 minute<%T',array(time()));
+        $interval = DATABASE_DRIVER == 'postgres' ? DB::qstr('4 minute') : '4 minute';
+		$arr = DB::GetAll('SELECT m.*,u.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.follow=0 AND m.alert_on+INTERVAL ' . $interval . ' <%T',array(time()));
 		$ret = '';
 		foreach($arr as $row) {
 			Acl::set_user($row['user_login_id']);
