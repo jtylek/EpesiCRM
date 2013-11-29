@@ -43,7 +43,7 @@ CREATE TABLE rc_identities (
     html_signature integer DEFAULT 0 NOT NULL
 );
 CREATE INDEX rc_identities_user_id_idx ON rc_identities (user_id, del);
-CREATE INDEX rc_identities_email_idx ON identities (email, del);
+CREATE INDEX rc_identities_email_idx ON rc_identities (email, del);
 CREATE SEQUENCE rc_contact_ids
     START WITH 1
     INCREMENT BY 1
