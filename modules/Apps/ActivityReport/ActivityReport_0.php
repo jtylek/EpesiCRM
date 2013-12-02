@@ -119,6 +119,7 @@ class Apps_ActivityReport extends Module {
 		else $e_where = '';
 		if ($c_where) $c_where = ' WHERE'.$c_where;
 
+        $postgre_cast_type = DATABASE_DRIVER == 'postgres' ? '::varchar' : '';
 		// **** files ****
 		if (isset($filters['file']))
 			$tables[] = 'SELECT uaf.id AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('file').' AS action FROM utils_attachment_file uaf LEFT JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE original!='.DB::qstr('').' AND '.$af_where;
@@ -128,11 +129,11 @@ class Apps_ActivityReport extends Module {
 		// **** edit ****
 		if (isset($filters['edit']) || isset($filters['delete_restore']))
 			foreach($rb_tabs as $k=>$t)
-				$tables[] = 'SELECT id, edited_on, edited_by, '.$k.'_id as r_id, '.DB::qstr($k).' as tab, '.DB::qstr('edit').' as action FROM '.$k.'_edit_history eh LEFT JOIN '.$k.'_edit_history_data ehd ON ehd.edit_id=eh.id'.$e_where;
+				$tables[] = 'SELECT id, edited_on, edited_by, '.$k.'_id' . $postgre_cast_type . ' as r_id, '.DB::qstr($k).' as tab, '.DB::qstr('edit').' as action FROM '.$k.'_edit_history eh LEFT JOIN '.$k.'_edit_history_data ehd ON ehd.edit_id=eh.id'.$e_where;
 		// **** create ****
 		if (isset($filters['new']))
 			foreach($rb_tabs as $k=>$t)
-				$tables[] = 'SELECT 0 AS id, created_on AS edited_on, created_by AS edited_by, id as r_id, '.DB::qstr($k).' as tab, '.DB::qstr('create').' as action FROM '.$k.'_data_1'.$c_where;
+				$tables[] = 'SELECT 0 AS id, created_on AS edited_on, created_by AS edited_by, id' . $postgre_cast_type . ' as r_id, '.DB::qstr($k).' as tab, '.DB::qstr('create').' as action FROM '.$k.'_data_1'.$c_where;
 	
 		if (!empty($tables)) {
 			$tables = implode(' UNION ', $tables);
