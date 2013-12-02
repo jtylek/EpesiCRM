@@ -91,14 +91,6 @@
 								</div>
 							</td>
 						</tr>
-						{else}
-							{if $action == 'edit'}
-								{* empty *}
-{*								<tr>
-									<td class="label" align="left">&nbsp;</td>
-									<td class="data" colspan="2" align="left">&nbsp;</td>
-								</tr>*}
-							{/if}
 						{/if}
 						{assign var=x value=1}
 						{if $action=='view'}
@@ -107,12 +99,12 @@
 							{assign var=y value=2}
 						{/if}
 						{foreach key=k item=f from=$fields name=fields}
-							{if $f.type!="multiselect" && $f.element!="login"}
+							{if $f.type!="multiselect"}
 								{if !isset($focus) && $f.type=="text"}
 									{assign var=focus value=$f.element}
 								{/if}
 
-								{if $y==1 && $x==2}
+								{if $y == 1 && $x >= 2}
 								<td class="column" style="width: {$cols_percent}%;">
 									<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 								{/if}
