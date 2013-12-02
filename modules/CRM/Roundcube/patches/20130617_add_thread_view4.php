@@ -1,13 +1,13 @@
 <?php
-DB::Execute('ALTER TABLE `rc_mails_data_1` CHANGE `f_references` `f_references` varchar(16384) ');
-DB::Execute('ALTER TABLE `rc_mails_data_1` CHANGE `f_to` `f_to` varchar(4096) ');
+PatchUtil::db_alter_column('rc_mails_data_1', 'f_references', 'C(16384)');
+PatchUtil::db_alter_column('rc_mails_data_1', 'f_to', 'C(4096)');
 
       DB::Execute('UPDATE rc_mails_data_1 SET f_thread=null');
       DB::Execute('DELETE FROM rc_mail_threads_edit_history_data');
       DB::Execute('DELETE FROM rc_mail_threads_edit_history');
       DB::Execute('DELETE FROM rc_mail_threads_data_1');
-      DB::Execute('UPDATE rc_mails_data_1 SET f_message_id=REPLACE (f_message_id, "&lt;","")');
-      DB::Execute('UPDATE rc_mails_data_1 SET f_message_id=REPLACE (f_message_id, "&gt;","")');
+      DB::Execute("UPDATE rc_mails_data_1 SET f_message_id=REPLACE (f_message_id, '&lt;','')");
+      DB::Execute("UPDATE rc_mails_data_1 SET f_message_id=REPLACE (f_message_id, '&gt;','')");
         // create index to optimize counting completed field
         DB::CreateIndex('rc_mails_thread_idx', 'rc_mails_data_1', 'f_thread');
         DB::CreateIndex('rc_mails_msgid_idx', 'rc_mails_data_1', 'f_message_id');
