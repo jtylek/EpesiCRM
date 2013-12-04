@@ -35,6 +35,7 @@ $rb = ModuleManager::new_instance('Utils_RecordBrowser', null, 'print_rb');
 $rb->construct($tab);
 $rb->set_inline_display();
 $rb->set_header_properties($more_table_properties);
+$rb->disable_pagination();
 
 ob_start();
 $rb->show_data($crits, $cols, $order, $admin, false, true, $limit);
