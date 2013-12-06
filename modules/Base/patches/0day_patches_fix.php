@@ -10,7 +10,7 @@ foreach ($patches as $patch) {
     if ($backslash_pos !== false) {
         $filename[$backslash_pos + strlen($needle) - 1] = '\\';
         $id = md5($filename);
-        if ($patches_db->was_applied($id)) {
+        if ($patches_db->was_applied($id) && !$patch->was_applied()) {
             $patch->mark_applied();
         }
     }
