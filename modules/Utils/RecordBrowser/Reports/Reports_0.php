@@ -355,13 +355,13 @@ class Utils_RecordBrowser_Reports extends Module {
 
 		if ($this->pdf) {
 			$cols = count($this->gb_captions);
-			// 760 - total width for landscape page
-			$this->widths = array(floor((710-$this->bonus_width)/$cols+$this->bonus_width));
+            $total_width = 940;
+			$this->widths = array(floor(($total_width-$this->bonus_width)/$cols+$this->bonus_width));
 			for ($i=1;$i<$cols;$i++)
-				$this->widths[] = floor((710-$this->bonus_width)/$cols);
+				$this->widths[] = floor(($total_width-$this->bonus_width)/$cols);
 			$sum = 0;
 			foreach($this->widths as $v) $sum+=$v;
-			$this->widths[0]+= 720-$sum;
+			$this->widths[0]+= $total_width-$sum;
 			$this->fontsize = 12;
 			switch (true) {
 				case ($cols>16): $this->fontsize -=1;
@@ -757,11 +757,13 @@ class Utils_RecordBrowser_Reports extends Module {
 					}
 					$bar->set_values(array($total));
 					if($this->format=='currency') {
-						$max2 = $total;
+                        if ($total > $max2)
+    						$max2 = $total;
 						$f2->add_element( $bar );
 						$curr = true;
 					} else {
-						$max = $total;
+                        if ($total > $max)
+						    $max = $total;
 						$f->add_element( $bar );
 						$num = true;
 					}
