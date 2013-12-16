@@ -101,20 +101,23 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			foreach ($subscribers as $s)
 				self::user_subscribe($s, $category_name, $id);
 		}
-		$mail_users = DB::GetAssoc('SELECT user_id, user_id FROM utils_watchdog_subscription AS uws INNER JOIN base_user_settings AS bus ON uws.user_id=bus.user_login_id AND category_id=%d AND internal_id=%s AND bus.module=%s AND bus.variable=%s AND bus.value=%s', array($category_id, $id, 'Utils_Watchdog', 'email', serialize('1')));
+        $subscribers = self::get_subscribers($category_name, $id);
 
 		$c_user = Acl::get_user();
-		foreach ($mail_users as $m) {
-				if ($m==$c_user) continue;
-				Acl::set_user($m);
-				$email_data = self::display_events($category_id, array($event_id=>$message), $id);
-				if (!$email_data) continue;
-				$contact = Utils_RecordBrowserCommon::get_id('contact', 'login', $m);
-				if (!$contact) continue;
-				$email = Utils_RecordBrowserCommon::get_value('contact', $contact, 'email');
-				if (!$email) continue;
-				Base_MailCommon::send($email,__( 'EPESI notification - %s - %s', array($email_data['category'], strip_tags($email_data['title']))),$email_data['events'], null, null, true);
-		}
+		foreach ($subscribers as $user_id) {
+            if ($user_id==$c_user) continue;
+            $wants_email = Base_User_SettingsCommon::get('Utils_Watchdog', 'email', $user_id);
+            if (!$wants_email) continue;
+            Acl::set_user($user_id);
+            $email_data = self::display_events($category_id, array($event_id => $message), $id);
+            if (!$email_data) continue;
+            $contact = Utils_RecordBrowserCommon::get_id('contact', 'login', $user_id);
+            if (!$contact) continue;
+            $email = Utils_RecordBrowserCommon::get_value('contact', $contact, 'email');
+            if (!$email) continue;
+            $title = __('EPESI notification - %s - %s', array($email_data['category'], strip_tags($email_data['title'])));
+            Base_MailCommon::send($email, $title, $email_data['events'], null, null, true);
+        }
 		Acl::set_user($c_user);
 	}
 	// *************************** Subscription manipulation *******************
