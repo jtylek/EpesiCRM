@@ -30,10 +30,15 @@ Installation
 --- 
 
 1. REQUIREMENTS
+    - Using RoundCube client requires PHP Version 5.2.1 or greater (Note: MySQL database driver requires PHP 5.3 or newer)
+        See more informations in file: *modules/CRM/Roundcube/RC/INSTALL*
     - HTTP web server (apache, IIS) with PHP 5.1.3 support. If possible install the latest PHP version due to several bugs in older versions.
     - PHP 5.2.0 is not supported due to bug in json_decode function. (PHP >= 5.2.1 works)
     - HTTP server should be configured with index.php as one of default documents.
-    - HTTP server have to support local .htaccess files
+    - HTTP server has to support local .htaccess files to prevent security issues
+        If your server doesn't support .htaccess files then you have to deny access to certain directories
+        and files in data directory. From basic installation you should forbid to ready any file from:
+        *data/CRM_Roundcube* and *data/Utils_Attachment* directory.
     - PEAR installed with valid include_path in PHP config.ini.
     - MySQL 4+ or PostgreSQL 7+ database server.
     - FTP or local/shell access to the server.
