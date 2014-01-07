@@ -408,8 +408,8 @@ class Utils_Attachment extends Module {
 			if (!$text && $inline_img) $text = '<br/>';
 
 			if(!isset($row['deleted']) || !$row['deleted']) {
-        		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text)),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
-		    	$r->add_action($this->create_confirm_callback_href(__('Are you sure you want to cut this note?'), array($this,'cut'),array($row['id'],$text)),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
+        		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text, $row['local'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
+		    	$r->add_action($this->create_confirm_callback_href(__('Are you sure you want to cut this note?'), array($this,'cut'),array($row['id'],$text, $row['local'])),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
 		    }
 			
 			$text = $icon.$text;
@@ -464,12 +464,12 @@ class Utils_Attachment extends Module {
 	    $_SESSION['view_deleted_attachments'] = $val;
 	}
 
-	public function copy($id,$text) {
-	 	$_SESSION['attachment_copy'] = array('id'=>$id, 'group'=>$this->group,'text'=>$text);
+	public function copy($id, $text, $group) {
+	 	$_SESSION['attachment_copy'] = array('id'=>$id, 'group'=>$group,'text'=>$text);
 	}
 
-	public function cut($id,$text) {
-	 	$_SESSION['attachment_copy'] = array('id'=>$id, 'group'=>$this->group,'text'=>$text);
+	public function cut($id, $text, $group) {
+	 	$_SESSION['attachment_copy'] = array('id'=>$id, 'group'=>$group,'text'=>$text);
 	 	$_SESSION['attachment_cut'] = 1;
 	}
 
