@@ -23,6 +23,7 @@ RELEASE 1.5.5-20131217
 - Fix broken Contact's template (#2)
 - Fix printing all records from RecordBrowser
 - Fix watchdog email notifications (#3)
+- Update translations
 
 RELEASE 1.5.4-rev11060 (20131015)
 ---------------------------------
