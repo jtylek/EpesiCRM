@@ -2,11 +2,11 @@
 /**
  * Translation file.
  * @package epesi-translations
- * @subpackage de
+ * @subpackage hr
  */
 global $translations;
-$translations['Projects']='Projekte';
-$translations['Due Date']='Fällig am';
-$translations['Project Name']='Projektname';
+$translations['Projects']='';
+$translations['Due Date']='';
+$translations['Project Name']='';
 $translations['Bugtrack']='';
 $translations['Bug (attachment) #%d, %s']='';
