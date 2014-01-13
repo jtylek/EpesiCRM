@@ -1,7 +1,7 @@
 EPESI CHANGELOG
 ===============
 
-RELEASE 1.5.5-20131217
+RELEASE 1.5.5-20140113
 ----------------------
 - Fix recurrent meeting issue in Activities tab - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=2023)
 - Fix "Paste company data" button - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=2026)
