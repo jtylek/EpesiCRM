@@ -562,6 +562,10 @@ function install_base() {
 	if($ret===false)
 		die('Invalid SQL query - Setup module (modules table)');
 
+	$ret = DB::CreateTable('cron',"func C(32) KEY,last I NOTNULL, running I1 NOTNULL DEFAULT 0");
+	if($ret===false)
+		die('Invalid SQL query - Setup cron (cron table)');
+
 	$ret = DB::CreateTable('session',"name C(32) NOTNULL," .
 			"expires I NOTNULL DEFAULT 0, data B",array('constraints'=>', PRIMARY KEY(name)'));
 	if($ret===false)
