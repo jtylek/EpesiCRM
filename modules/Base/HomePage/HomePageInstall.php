@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_HomePageInstall extends ModuleInstall {
 	public function install() {
+        Base_ThemeCommon::install_default_theme($this->get_type());
 		DB::CreateTable('base_home_page',
 			'id I4 AUTO KEY,'.
 			'priority I4,'.
@@ -27,6 +28,7 @@ class Base_HomePageInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
+        Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		DB::DropTable('base_home_page');
 		DB::DropTable('base_home_page_clearance');
 		return true;
