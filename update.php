@@ -2674,28 +2674,11 @@ function update_from_1_2_2_to_1_3() {
         ModuleManager::install("Base_EpesiStore");
 	ob_end_clean();
         ModuleManager::create_load_priority_array();
-	PatchUtil::apply_new();
+	PatchUtil::apply_new(true);
 }
 
 //=========================================================================
-
-$versions[] = '1.4.0';
-function update_from_1_3_to_1_4_0() {
-	ModuleManager::create_load_priority_array();
-	PatchUtil::apply_new();
-}
-
-$versions[] = '1.4.1';
-function update_from_1_4_0_to_1_4_1() {
-	ModuleManager::create_load_priority_array();
-	PatchUtil::apply_new();
-}
-
-$versions[] = '1.4.2';
-function update_from_1_4_1_to_1_4_2() {
-	ModuleManager::create_load_priority_array();
-	PatchUtil::apply_new();
-}
+// Versions > 1.3 use patches
 
 $go=false;
 $last_ver = '';
@@ -2741,7 +2724,7 @@ if ($cur_ver==EPESI_VERSION && !Base_AclCommon::i_am_sa()) die('Unauthorized acc
 
 // to simplify the update process
 ModuleManager::create_load_priority_array();
-PatchUtil::apply_new();
+PatchUtil::apply_new(true);
 
 @unlink(DATA_DIR.'/cache/common.php');
 @recursive_rmdir(DATA_DIR.'/cache/minify');

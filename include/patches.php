@@ -13,10 +13,11 @@ class PatchUtil {
 
     /**
      * Apply all new patches
+     * @param $die_on_error bool Die on error within patch
      * @return Patch[] array of patches applied
      * @throws ErrorException when log file is unavailable
      */
-    static function apply_new() {
+    static function apply_new($die_on_error = false) {
         set_time_limit(0);
         $logfile = DATA_DIR . '/patches_log.txt';
         $fh = fopen($logfile, 'a');
@@ -28,6 +29,12 @@ class PatchUtil {
         foreach ($patches as $p) {
             $p->apply();
             fwrite($fh, $p->get_apply_log());
+            if ($die_on_error) {
+                if ($p->get_apply_success() == false) {
+                    $msg = "PATCH APPLY ERROR: " . $p->get_apply_error_msg();
+                    trigger_error($msg, E_USER_ERROR);
+                }
+            }
         }
         return $patches;
     }
