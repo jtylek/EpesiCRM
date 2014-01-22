@@ -55,9 +55,12 @@ foreach($cron_last as $func_md5=>$last) {
 
 //	print('call '.$cron_funcs_prior[$func_md5]."\n");
     ob_start();
-    $output = call_user_func(explode('::',$cron_funcs_prior[$func_md5]));
-    $output .= "<br />\n".ob_get_clean();
+    $output = array();
+    $output[0] = call_user_func(explode('::',$cron_funcs_prior[$func_md5]));
+    $output[1] = ob_get_clean();
+    $output = array_filter($output);
     if($output) {
+        $output = implode("<br />\n",$output);
         if(isset($argv))
             print($cron_funcs_prior[$func_md5].":\n".strip_tags($output)."\n\n");
         else
