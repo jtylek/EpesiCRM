@@ -386,7 +386,7 @@ function write_config($host, $user, $pass, $dbname, $engine, $other) {
 	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 	$other_conf = '';
 	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir))))
-		$other_conf .= "\n".'define("EPESI_DIR","'.str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])).'");';
+		$other_conf .= "\n".'@define("EPESI_DIR","'.str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])).'");';
 	$other_conf .= "\n".'define("DIRECTION_RTL","'.($other['direction']?'1':'0').'");';
 
 	$c = & fopen(DATA_DIR.'/config.php', 'w');
