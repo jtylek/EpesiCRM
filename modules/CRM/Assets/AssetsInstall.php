@@ -14,7 +14,9 @@ class CRM_AssetsInstall extends ModuleInstall {
 
     public function install() {
         Utils_CommonDataCommon::new_array('crm_assets_category', array(_M('Desktop'), _M('Server'), _M('Notebook'), _M('Monitor'), _M('Printer'), _M('Other')), true, true);
+        Utils_CommonDataCommon::new_id('crm_assets_monitor_type', true);
         Utils_CommonDataCommon::new_array('crm_assets_monitor_type', array(_M('CRT'), _M('LCD'), _M('Other')));
+        Utils_CommonDataCommon::new_id('crm_assets_printer_type', true);
         Utils_CommonDataCommon::new_array('crm_assets_printer_type', array(_M('Ink'), _M('Laser'), _M('Other')));
 
         $fields = array(

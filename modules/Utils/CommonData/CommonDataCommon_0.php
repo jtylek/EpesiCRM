@@ -45,7 +45,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		return $id;
 	}
 
-	public static function new_id($name) {
+	public static function new_id($name,$readonly=false) {
 		$name = trim($name,'/');
 		if(!$name) return false;
 		$pcs = explode('/',$name);
@@ -54,7 +54,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 			if($v==='') continue;
 			$id2 = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
 			if($id2===false || $id2===null) {
-				DB::Execute('INSERT INTO utils_commondata_tree(parent_id,akey) VALUES(%d,%s)',array($id,$v));
+				DB::Execute('INSERT INTO utils_commondata_tree(parent_id,akey,readonly) VALUES(%d,%s,%b)',array($id,$v,$readonly));
 				$id = DB::Insert_ID('utils_commondata_tree','id');
 			} else
 				$id=$id2;
@@ -72,7 +72,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	public static function set_value($name,$value,$overwrite=true,$readonly=false){
 		$id = self::get_id($name);
 		if ($id===false){
-			$id = self::new_id($name);
+			$id = self::new_id($name,$readonly);
 			if($id===false) return false;
 		} else {
 			if (!$overwrite) return false;
@@ -143,7 +143,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 				self::remove($name);
 			}
 		}
-		$id = self::new_id($name);
+		$id = self::new_id($name,$readonly);
 		if($id===false) return false;
 		if($overwrite)
 			DB::Execute('UPDATE utils_commondata_tree SET readonly=%b WHERE id=%d',array($readonly,$id));

@@ -275,6 +275,7 @@ class Data_CountriesInstall extends ModuleInstall {
 			'GE'=>'+995',
 			'KG'=>'+996',
 			'UZ'=>'+998');
+        Utils_CommonDataCommon::new_id('Calling_Codes', true);
 		Utils_CommonDataCommon::new_array('Calling_Codes',$calling_codes);
 
 		$countries = array(
@@ -523,6 +524,7 @@ class Data_CountriesInstall extends ModuleInstall {
 				"ZR"=>_M('Zaire'),
 				"ZM"=>_M('Zambia'),
 				"ZW"=>_M('Zimbabwe'));
+        Utils_CommonDataCommon::new_id('Countries', true);
 		Utils_CommonDataCommon::new_array('Countries',$countries);
 		$usa_states = array('AL'=>_M('Alabama'),  
 			'AK'=>_M('Alaska'),  
