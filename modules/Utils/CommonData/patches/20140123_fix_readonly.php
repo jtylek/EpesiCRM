@@ -1,16 +1,15 @@
 <?php
 $keys = array(
-    'Contact',
-    'Contact/Skills',
     'crm_assets_monitor_type',
     'crm_assets_printer_type',
     'CRM/Roundcube',
-    'Calling_Codes',
     'Contacts',
     'Contacts/Access',
     'Countries',
     'Calling_Codes',
 
+    'Contact',
+    'Contact/Skills',
     'CADES',
     'CADES/Appointments',
     'CADES/Appointments/Type',
