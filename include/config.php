@@ -51,6 +51,7 @@ if(!defined('TRIAL_MODE')) define('TRIAL_MODE',0);
 if(!defined('DEMO_MODE')) define('DEMO_MODE',0);
 
 if(!defined('STARTING_MESSAGE')) define('STARTING_MESSAGE','Starting epesi ...');
+if(!defined('EPESI')) define('EPESI','EPESI');
 
 //other
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());

@@ -44,7 +44,6 @@ class BaseInstall extends ModuleInstall {
 		    array('name'=>'Base/Setup','version'=>0),
 		    array('name'=>'Base/EpesiStore','version'=>0),
 		    array('name'=>'Base/Lang/Administrator','version'=>0),
-		    array('name'=>'Base/Mail/ContactUs','version'=>0),
 		    array('name'=>'Base/Menu/QuickAccess','version'=>0),
 		    array('name'=>'Base/MainModuleIndicator','version'=>0),
 		    array('name'=>'Base/Menu','version'=>0),

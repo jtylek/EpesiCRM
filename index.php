@@ -96,7 +96,7 @@ if(IPHONE) {
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
-	<title>EPESI CRM</title>
+	<title><?php print(EPESI);?></title>
 	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
 	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
 	<script type="text/javascript" charset="utf-8">
@@ -108,10 +108,10 @@ if(IPHONE) {
 
 <body>
 <div id="header">
-		<h1>EPESI CRM</h1>
+		<h1><?php print(EPESI);?></h1>
 </div>
 
-Please choose EPESI version:<ul>
+Please choose <?php print(EPESI);?> version:<ul>
 <li><a href="mobile.php" class="white button">mobile</a><br>
 <li><a href="index.php?force_epesi=1" class="green button">desktop</a>
 </ul>
@@ -134,7 +134,7 @@ Please choose EPESI version:<ul>
 		<head profile="http://www.w3.org/2005/11/profile">
 		<link rel="icon" type="image/png" href="images/favicon.png" />
 		<link rel="apple-touch-icon" href="images/apple-favicon.png" />
-		<title>EPESI</title>
+		<title><?php print(EPESI);?></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" /> 
@@ -235,7 +235,7 @@ Please choose EPESI version:<ul>
         <?php } else { ?>
 		<script type="text/javascript" src="init_js.php?<?php print(http_build_query($_GET));?>"></script>
         <?php } ?>
-        <noscript>Please enable JavaScript in your browser and let EPESI work!</noscript>
+        <noscript>Please enable JavaScript in your browser and let <?php print(EPESI);?> work!</noscript>
 		<?php if(IPHONE) { ?>
 		<script type="text/javascript">var iphone=true;</script>
 		<?php } ?>
