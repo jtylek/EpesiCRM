@@ -964,7 +964,7 @@ class ModuleManager {
      */
     public static function reset_cron($module,$method) {
         $func = $module.'Common::'.$method;
-        if(!is_callable(array($module,$method))) trigger_error('Invalid cron method: '.$func);
+        if(!is_callable(array($module.'Common',$method))) trigger_error('Invalid cron method: '.$func);
         $func_md5 = md5($func);
         $running = DB::GetOne('SELECT running FROM cron WHERE func=%s',array($func_md5));
         if($running) return false;
