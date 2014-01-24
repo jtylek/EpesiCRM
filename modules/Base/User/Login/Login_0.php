@@ -114,6 +114,11 @@ class Base_User_Login extends Module {
 		} else {
 			$form->assign_theme('form', $this->theme);
 			$this->theme->assign('mode', 'login');
+
+            $logo = $this->init_module('Base/MainModuleIndicator');
+            $logo->set_inline_display();
+            $this->theme->assign('logo', $this->get_html_of_module($logo,null,'login_logo'));
+
 			ob_start();
 			if (!$tpl) {
 			        $this->theme->set_inline_display();

@@ -19,6 +19,7 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 		Variable::set('show_caption_in_title','1');
 		Variable::set('show_module_indicator','1');
 		Variable::set('logo_file','');
+        Variable::set('login_logo_file','');
 		Base_ThemeCommon::install_default_theme('Base/MainModuleIndicator');
 		$this->create_data_dir();
 		return true;
@@ -26,6 +27,7 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		Variable::delete('logo_file');
+        Variable::delete('login_logo_file');
 		Variable::delete('base_page_title');
 		Variable::delete('show_caption_in_title');
 		Variable::delete('show_module_indicator');
