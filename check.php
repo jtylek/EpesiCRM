@@ -11,18 +11,25 @@ $fullscreen = !defined("_VALID_ACCESS");
 !$fullscreen || define("_VALID_ACCESS", true);
 
 define('CID', false);
-$config = file_exists('data/config.php');
+require_once('include/data_dir.php');
+$config = file_exists(DATA_DIR . '/config.php');
 if ($config) {
-	include_once('include.php');
-	ModuleManager::load_modules();
+    include_once('include.php');
+    ModuleManager::load_modules();
 }
-if ($config && class_exists('Base_AclCommon') && !Base_AclCommon::i_am_sa()) {
-	require_once('admin/Authorization.php');
-	$auth = AdminAuthorization::form();
-	if ($auth) {
-		print($auth);
-		die();
-	}
+if ($config && class_exists('Base_AclCommon')) {
+    if (Base_AclCommon::i_am_user()) {
+        if (!Base_AclCommon::i_am_sa()) {
+            die('Only super admin can access this page');
+        }
+    } else {
+        require_once('admin/Authorization.php');
+        $auth = AdminAuthorization::form();
+        if ($auth) {
+            print($auth);
+            die();
+        }
+    }
 }
 
 if (class_exists('Base_LangCommon'))
