@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_FrontPageCommon extends ModuleCommon {
 	public static function display($header, $content, $info=false) {
 	    $l = Variable::get('logo_file', false);
-		if (!$l) $l = Base_ThemeCommon::get_template_dir().'/images/logo-small.png';
+		if (!$l) $l = Base_ThemeCommon::get_template_file('images/logo-small.png');
 		
 		$smarty = Base_ThemeCommon::init_smarty();
 		$smarty->assign('header',$header);
