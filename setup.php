@@ -139,7 +139,7 @@ if(file_exists('easyinstall.php')){
 
 if (isset($_GET['check'])) {
 	require_once('check.php');
-	print('<br><br><a class="button" href="index.php?install_lang='.$install_lang_code.'" style="display:block;width:200px; margin:0 auto;">' . __('Continue with installation') . '</a>');
+	print('<br><br><a class="button" href="index.php?install_lang='.$install_lang_load.'" style="display:block;width:200px; margin:0 auto;">' . __('Continue with installation') . '</a>');
 	die();
 }
 
@@ -172,8 +172,10 @@ if(!isset($_GET['license'])) {
 	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"EPESI powered"</strong> logo and the link from the application login screen or the toolbar.'));
 	$form -> addElement('checkbox','tos3','',__('I will not remove <strong>"Support -> About"</strong> credit page from the application menu.'));
 	$form -> addElement('checkbox','tos4','',__('I will not remove or rename <strong>"EPESI Store"</strong> links from the application.'));
-	foreach($_GET as $f=>$v)
-	    $form->addElement('hidden',$f,$v);
+	foreach($_GET as $f=>$v) {
+        if (substr($f, 0, 3) != 'tos' && $f != 'submitted')
+            $form->addElement('hidden',$f,$v);
+    }
 	$form->addElement('hidden','submitted',1);
 	$form -> addRule('tos1', __('Field required'), 'required');
 	$form -> addRule('tos2', __('Field required'), 'required');
@@ -191,7 +193,7 @@ if(!isset($_GET['license'])) {
 		$_GET['htaccess'] = 1;
 		ob_end_clean();
 	} else {
-		print('</div><br><a class="button" href="setup.php?license=1&htaccess=1&install_lang='.$install_lang_code.'">' . __('Ok') . '</a>');
+		print('</div><br><a class="button" href="setup.php?license=1&htaccess=1&install_lang='.$install_lang_load.'">' . __('Ok') . '</a>');
 		ob_end_flush();
 	}
 }
@@ -381,7 +383,7 @@ function check_htaccess() {
 }
 
 function write_config($host, $user, $pass, $dbname, $engine, $other) {
-    global $install_lang_code;
+    global $install_lang_load;
 	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 	$other_conf = '';
@@ -513,7 +515,7 @@ define(\'FILE_SESSION_TOKEN\',\'epesi_'.md5(__FILE__).'_\');
 	ob_end_flush();
 
 	if(file_exists(DATA_DIR.'/config.php'))
-		header("Location: setup.php?install_lang={$install_lang_code}&check=1");
+		header("Location: setup.php?install_lang={$install_lang_load}&check=1");
 	ob_end_flush();
 }
 
@@ -598,10 +600,10 @@ function install_base() {
 }
 //////////////////////////////////////////////
 function read_doc_file($file_basename, $suffix = 'html') {
-    global $install_lang_code;
+    global $install_lang_load;
     $dir = 'docs/';
     $file = $dir . $file_basename . '.' . $suffix;  // default file
-    $custom_file = $dir . "{$file_basename}_{$install_lang_code}.{$suffix}";
+    $custom_file = $dir . "{$file_basename}_{$install_lang_load}.{$suffix}";
     if (file_exists($custom_file))
         $file = $custom_file;
     $fp = @fopen($file, 'r');
