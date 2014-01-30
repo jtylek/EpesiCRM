@@ -12,10 +12,14 @@
             {$form.note_title.html}
         </td>
         <td colspan="2" align="right">
-            {$form.crypted.label}
-            {$form.crypted.html}
-            {$form.note_password.label}
-            {$form.note_password.html}
+            {if isset($form.crypted)}
+                {$form.crypted.label}
+                {$form.crypted.html}
+                {$form.note_password.label}
+                {$form.note_password.html}
+                {$form.note_password2.label}
+                {$form.note_password2.html}
+            {/if}
 			{$form.sticky.label}
 			{$form.sticky.html}
 			{$form.permission.label}

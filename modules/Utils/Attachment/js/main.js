@@ -137,10 +137,12 @@ utils_attachment_edit_note = function(id,path) {
             },250);
 			$("note_sticky").checked = result.sticky=='1'?true:false;
 			$("note_permission").value = result.permission;
-            $("note_crypted").checked = result.crypted=='1'?true:false;
             $("note_title").value = result.title;
-            $("note_password").value = result.password;
-            $("note_password").disabled = result.crypted=='1'?false:true;
+            if($("note_crypted")) {
+                $("note_crypted").checked = result.crypted=='1'?true:false;
+                $("note_password").value = $("note_password2").value = result.password;
+                $("note_password").disabled = $("note_password2").disabled = result.crypted=='1'?false:true;
+            }
 			for (var id in result.files) {
 				Utils_Attachment__add_file_to_list(result.files[id], null, id);
 			}

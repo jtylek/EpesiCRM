@@ -773,8 +773,12 @@ class Utils_Attachment extends Module {
 
 		$form->addElement('select','permission',__('Permission'),array(__('Public'),__('Protected'),__('Private')),array('style'=>'width:auto;', 'id'=>'note_permission'));
 		$form->addElement('checkbox','sticky',__('Sticky'), null, array('id'=>'note_sticky'));
-        $form->addElement('checkbox','crypted',__('Encrypt'), null, array('id'=>'note_crypted','onChange'=>'this.form.elements["note_password"].disabled=!this.checked;'));
-        $form->addElement('password','note_password',__('Password'), array('disabled'=>isset($id)?(!$row['crypted']):1,'id'=>'note_password'));
+        if(extension_loaded('mcrypt')) {
+            $form->addElement('checkbox','crypted',__('Encrypt'), null, array('id'=>'note_crypted','onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=!this.checked;'));
+            $form->addElement('password','note_password',__('Password'), array('disabled'=>isset($id)?(!$row['crypted']):1,'id'=>'note_password'));
+            $form->addElement('password','note_password2',__('Confirm Password'), array('disabled'=>isset($id)?(!$row['crypted']):1,'id'=>'note_password2'));
+            $form->addRule(array('note_password', 'note_password2'), __('Your passwords don\'t match'), 'compare');
+        }
 
 		if(isset($id))
 			$form->addElement('header',null,__('Replace attachment with file'));
