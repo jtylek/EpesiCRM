@@ -84,11 +84,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 	}
 	
-	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$add_func=null,$add_args=array(),$sticky=false) {
+	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$add_func=null,$add_args=array(),$sticky=false,$note_title='',$crypted=false) {
 		if(($oryg && !$file) || ($file && !$oryg))
 		    trigger_error('Invalid add attachment call: missing original filename or temporary filepath',E_USER_ERROR);
-		$link = array('local'=>$group,'permission'=>$permission,'permission_by'=>$user,'func'=>serialize($func),'args'=>serialize($args),'sticky'=>$sticky?1:0);
-		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args,sticky) VALUES (%s,%d,%d,%s,%s,%d)',array_values($link));
+		$link = array('local'=>$group,'permission'=>$permission,'permission_by'=>$user,'func'=>serialize($func),'args'=>serialize($args),'sticky'=>$sticky?1:0,'title'=>$note_title,'crypted'=>$crypted?1:0);
+		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args,sticky,title,crypted) VALUES (%s,%d,%d,%s,%s,%b,%s,%b)',array_values($link));
 		$link['id'] = $id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
 		if($file)
@@ -129,7 +129,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$ret = array();
 		$r = DB::SelectLimit('SELECT ual.local,ual.id,ual.func,ual.args FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.
 				'(0!=(SELECT count(uan.id) FROM utils_attachment_note AS uan WHERE uan.attach_id=ual.id AND uan.text '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uan.revision=(SELECT MAX(xxx.revision) FROM utils_attachment_note xxx WHERE xxx.attach_id=ual.id)) OR '.
-				'0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ual.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0)) '.
+				'0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ual.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0) OR '.
+                '0!=(SELECT count(uaf.id) FROM utils_attachment_link AS uaf WHERE uaf.id=ual.id AND uaf.title '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).')) '.
 				'AND '.self::get_where($group), $limit, -1, array($word,$word,));
 		while($row = $r->FetchRow()) {
 			$view = '';
@@ -239,6 +240,40 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 		DB::CompleteTrans();
 	}
+
+    public static function encrypt($input,$password) {
+        $iv = '';
+        $input .= md5($input);
+        $encrypted = base64_encode(self::crypt($input,$password,self::ENCRYPT,$iv));
+        return $encrypted."\n".base64_encode($iv);
+    }
+
+    public static function decrypt($input,$password) {
+        list($note,$iv) = explode("\n",$input);
+        $ret = rtrim(self::crypt(base64_decode($note),$password,self::DECRYPT,base64_decode($iv)),"\0"); //we can trim, because on the end there is md5 sum (100% text character is last char in file)
+        $md5 = substr($ret,-32);
+        $ret = substr($ret,0,-32);
+        return md5($ret)==$md5?$ret:false;
+    }
+
+    const ENCRYPT = 1;
+    const DECRYPT = 2;
+
+    public static function crypt($input,$password,$mode,& $iv=null) {
+        $td = mcrypt_module_open('rijndael-256', '', 'cbc', '');
+        if(!$iv && $mode===self::ENCRYPT) $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td));
+        $iv2 = $iv;
+        $ks = mcrypt_enc_get_key_size($td);
+        $key = substr(sha1($password), 0, $ks);
+        mcrypt_generic_init($td, $key, $iv2);
+        if($mode==self::ENCRYPT)
+            $ret = mcrypt_generic($td, $input);
+        else
+            $ret = mdecrypt_generic($td, $input);
+        mcrypt_generic_deinit($td);
+        mcrypt_module_close($td);
+        return $ret;
+    }
 }
 
 ?>

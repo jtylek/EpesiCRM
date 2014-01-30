@@ -32,10 +32,11 @@ $public = Module::static_get_module_variable($path,'public',false);
 $protected = Module::static_get_module_variable($path,'protected',false);
 $private = Module::static_get_module_variable($path,'private',false);
 
-$row = DB::GetRow('SELECT uaf.id as id, uaf.attach_id, uaf.original,ual.local,ual.permission,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id='.DB::qstr($id));
+$row = DB::GetRow('SELECT ual.crypted,ual.id as id, uaf.attach_id, uaf.original,ual.local,ual.permission,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id=%d',array($id));
 $original = $row['original'];
 $local = $row['local'];
-$filename = $local.'/'.$row['id'];
+$filename = $local.'/'.$id;
+$crypted = $row['crypted'];
 
 if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
 	if(($row['permission']==0 && !$public) ||
@@ -44,7 +45,7 @@ if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
 		die('Permission denied');
 }
 
-require_once('mime.php');
+//require_once('mime.php');
 
 if(headers_sent())
 	die('Some data has already been output to browser, can\'t send file');
@@ -58,6 +59,11 @@ $f_filename = DATA_DIR.'/Utils_Attachment/'.$filename;
 if(!file_exists($f_filename))
 	die('File doesn\'t exists');
 $buffer = file_get_contents($f_filename);
+if($crypted) {
+    $password = Module::static_get_module_variable($path,'cp'.$row['id']);
+    $buffer = Utils_AttachmentCommon::decrypt($buffer,$password);
+    if($buffer===false) die('Invalid attachment or password');
+}
 $buffer_size = strlen($buffer);
 
 $g_auth = Utils_AttachmentCommon::get_google_auth();

@@ -238,7 +238,7 @@ class Utils_Attachment extends Module {
 		
 
 		$query_from = ' FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE (false OR ual.local='.$group.') AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id)'.$where;
-		$query = 'SELECT ual.sticky,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,ual.func AS search_func, ual.args AS search_func_args'.$query_from;
+		$query = 'SELECT ual.title, ual.crypted, ual.sticky,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text,ual.func AS search_func, ual.args AS search_func_args'.$query_from;
 		$query_lim = 'SELECT count(ual.id)'.$query_from;
 
 		$gb->set_default_order(array(__('Date')=>'DESC'));
@@ -300,11 +300,13 @@ class Utils_Attachment extends Module {
 			$new_note_form->accept($renderer); 
 			$form_data = $renderer->toArray();
 
-			$gb->set_prefix($form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']);
-			$gb->set_postfix('</form>');
+			//$gb->set_prefix($form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']);
+			//$gb->set_postfix('</form>');
 
 			$inline_form_theme = $this->init_module('Base_Theme');
 			$inline_form_theme->assign('form', $form_data);
+            $inline_form_theme->assign('form_open',$form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']);
+            $inline_form_theme->assign('form_close','</form>');
 			ob_start();
 			$inline_form_theme->display('inline_form');
 			$fields = ob_get_clean();
@@ -365,6 +367,7 @@ class Utils_Attachment extends Module {
 						__('Number of downloads: %d',array($f['downloads']));
 					$view_link = '';
 					$f['local'] = $row['local'];
+                    $f['crypted'] = $row['crypted'];
 					$link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.$this->get_file($f,$view_link);
 					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png');
 					if(Utils_AttachmentCommon::is_image($filename) && $view_link)
@@ -389,29 +392,64 @@ class Utils_Attachment extends Module {
 				__('On: %s',array($note_on_time)).'<br/>'.
 				__('Number of edits: %d',array($row['note_revision']));
 			$r->add_info($info);
-			if(Base_AclCommon::i_am_admin() ||
-			 	$row['permission_by']==Acl::get_user() ||
-			   ($row['permission']==0 && $this->public_write) ||
-			   ($row['permission']==1 && $this->protected_write) ||
-			   ($row['permission']==2 && $this->private_write)) {
-				if(!isset($row['deleted']) || !$row['deleted']) {
-    				$r->add_action('href="javascript:void(0);" onclick="utils_attachment_edit_note('.$row['id'].')"','edit');
-    				$r->add_action($this->create_confirm_callback_href(__('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
-    			} else {
-    				$r->add_action('','edit',__('You cannot edit deleted notes'),null,0,true);
-    			    $r->add_action($this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore', null,null, -1);
-				}
-			}
-			$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 
-			$text = trim(Utils_BBCodeCommon::parse($row['text']));
+            if($row['crypted']) {
+                $text = false;
+                if($this->isset_module_variable('cp'.$row['id'])) {
+                    $note_pass = $this->get_module_variable('cp'.$row['id']);
+                    $decoded = Utils_AttachmentCommon::decrypt($row['text'],$note_pass);
+                    if($decoded!==false) $text = $decoded;
+                }
+                if($text===false) {
+                    $cf = $this->init_module('Libs_QuickForm',null,'crypted_pass_'.$row['id']);
+                    $cf->set_inline_display();
+                    //$cf->addElement('header',null,__('Note encrypted'));
+                    $cf->addElement('password','note_password_decode',__('Password'));
+                    $cf->addElement('submit','submit',__('Submit'));
+                    if($cf->validate()) {
+                        $note_pass = $cf->exportValue('note_password_decode');
+                        $decoded = Utils_AttachmentCommon::decrypt($row['text'],$note_pass);
+                        if($decoded!==false) {
+                            $text = $decoded;
+                            $this->set_module_variable('cp'.$row['id'],$note_pass);
+                        } else Epesi::alert(__('Invalid password'));
+                    }
+                    if($text===false) {
+                        $text = '<div style="color:red">'.__('Note encrypted').'</div>'.$this->get_html_of_module($cf);
+                        $icon = '';
+                        $files = array();
+                    }
+                }
+            } else {
+                $text = $row['text'];
+            }
+
+            if(!$row['crypted'] || $this->isset_module_variable('cp'.$row['id'])) {
+                if(Base_AclCommon::i_am_admin() ||
+                    $row['permission_by']==Acl::get_user() ||
+                    ($row['permission']==0 && $this->public_write) ||
+                    ($row['permission']==1 && $this->protected_write) ||
+                    ($row['permission']==2 && $this->private_write)) {
+                    if(!isset($row['deleted']) || !$row['deleted']) {
+                        $r->add_action('href="javascript:void(0);" onclick="utils_attachment_edit_note('.$row['id'].',\''.Epesi::escapeJS($this->get_path()).'\')"','edit');
+                        $r->add_action($this->create_confirm_callback_href(__('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
+                    } else {
+                        $r->add_action('','edit',__('You cannot edit deleted notes'),null,0,true);
+                        $r->add_action($this->create_confirm_callback_href(__('Do you want to restore this entry?'),array($this,'restore'),$row['id']),'restore', null,null, -1);
+                    }
+                }
+                $r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
+
+                if(!isset($row['deleted']) || !$row['deleted']) {
+                    $r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text, $row['local'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
+                    $r->add_action($this->create_confirm_callback_href(__('Are you sure you want to cut this note?'), array($this,'cut'),array($row['id'],$text, $row['local'])),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
+                }
+            }
+
+            if($row['title']) $text = '<strong>'.$row['title'].'</strong><hr/>'.$text;
+			$text = trim(Utils_BBCodeCommon::parse($text));
 			if (!$text && $inline_img) $text = '<br/>';
 
-			if(!isset($row['deleted']) || !$row['deleted']) {
-        		$r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text, $row['local'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
-		    	$r->add_action($this->create_confirm_callback_href(__('Are you sure you want to cut this note?'), array($this,'cut'),array($row['id'],$text, $row['local'])),'cut',null,Base_ThemeCommon::get_template_file($this->get_type(),'cut_small.png'), 4);
-		    }
-			
 			$text = $icon.$text;
 			if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text;
 
@@ -494,10 +532,10 @@ class Utils_Attachment extends Module {
 			unset($_SESSION['attachment_copy']);
 			DB::CompleteTrans();
 		} else {
-			$oryg = DB::GetRow('SELECT ual.sticky,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE '.Utils_AttachmentCommon::get_where($_SESSION['attachment_copy']['group'],false).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.id=%d',array($_SESSION['attachment_copy']['id']));
+			$oryg = DB::GetRow('SELECT ual.crypted,ual.title,ual.sticky,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,ual.id,uac.created_on as note_on,uac.created_by as note_by,uac.text FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE '.Utils_AttachmentCommon::get_where($_SESSION['attachment_copy']['group'],false).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.id=%d',array($_SESSION['attachment_copy']['id']));
 			$local = $this->get_data_dir().$_SESSION['attachment_copy']['group'];
 			$files = DB::GetAssoc('SELECT id, original FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($_SESSION['attachment_copy']['id']));
-			$id = @Utils_AttachmentCommon::add($this->group,$oryg['permission'],Acl::get_user(),$oryg['text'],null,null,$this->func,$this->args,$this->add_func,$this->add_args);
+			$id = @Utils_AttachmentCommon::add($this->group,$oryg['permission'],Acl::get_user(),$oryg['text'],null,null,$this->func,$this->args,$this->add_func,$this->add_args,$oryg['sticky'],$oryg['title'],$oryg['crypted']);
 			foreach ($files as $f_id=>$fname) {
 				$file = $local.'/'.$f_id;
 				if(file_exists($file)) {
@@ -506,7 +544,6 @@ class Utils_Attachment extends Module {
 					Utils_AttachmentCommon::add_file($id, Acl::get_user(), $fname, $file2, $this->add_func, $this->add_args);
 				}
 			}
-			DB::Execute('UPDATE utils_attachment_link SET sticky=%b WHERE id=%d',array($oryg['sticky'],$id));
 
 			unset($_SESSION['attachment_copy']);
 		}
@@ -550,7 +587,7 @@ class Utils_Attachment extends Module {
 		$th->assign('view','<a href="'.$view_link.'" target="_blank" onClick="'.$onclick.'">'.$label.'</a><br>');
 		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.__('Download').'</a><br>');
 		load_js('modules/Utils/Attachment/remote.js');
-		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>');
+        if(!$row['crypted']) $th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>');
 		$th->assign('filename',$row['original']);
 		$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'];
 		if(!file_exists($f_filename)) return 'missing file: '.$f_filename;
@@ -561,16 +598,17 @@ class Utils_Attachment extends Module {
 			'file_size'=>__('File size')
 		));
 
-		$getters = ModuleManager::call_common_methods('attachment_getters');
-		$custom_getters = array();
-		foreach($getters as $mod=>$arr) {
-			if (is_array($arr))
-				foreach($arr as $caption=>$func) {
-					$custom_getters[] = array('open'=>'<a href="javascript:void(0)" onClick="'.Epesi::escapeJS($this->create_callback_href_js(array($mod.'Common',$func['func']),array($f_filename,$row['original'],$row['id'])),true,false).';leightbox_deactivate(\''.$lid.'\')">','close'=>'</a>','text'=>$caption,'icon'=>$func['icon']);
-				}
-		}
-//		$custom_getters[] = array('open'=>'<a>','close'=>'</a>','text'=>'tekst','icon'=>'Utils/Attachment/download.png');
-		$th->assign('custom_getters',$custom_getters);
+        $custom_getters = array();
+        if(!$row['crypted']) {
+            $getters = ModuleManager::call_common_methods('attachment_getters');
+		    foreach($getters as $mod=>$arr) {
+			    if (is_array($arr))
+				    foreach($arr as $caption=>$func) {
+					    $custom_getters[] = array('open'=>'<a href="javascript:void(0)" onClick="'.Epesi::escapeJS($this->create_callback_href_js(array($mod.'Common',$func['func']),array($f_filename,$row['original'],$row['id'])),true,false).';leightbox_deactivate(\''.$lid.'\')">','close'=>'</a>','text'=>$caption,'icon'=>$func['icon']);
+				    }
+		    }
+        }
+        $th->assign('custom_getters',$custom_getters);
 
 		ob_start();
 		$th->display('download');
@@ -587,10 +625,10 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edition_history_queue($id) {
-		$this->push_box0('edition_history',array($id),array($this->group,$this->persistent_deletion,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
+		$this->push_box0('edition_history',array($id,$this->get_module_variable('cp'.$id)),array($this->group,$this->persistent_deletion,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 
-	public function edition_history($id) {
+	public function edition_history($id,$pass) {
 		if($this->is_back()) {
 			return $this->pop_box0();
 		}
@@ -609,7 +647,7 @@ class Utils_Attachment extends Module {
 			));
 		$gb->set_default_order(array(__('Date')=>'DESC'));
 
-		$ret = $gb->query_order_limit('SELECT ual.permission_by,ual.permission,uac.revision,uac.created_on as note_on,uac.created_by as note_by,uac.text FROM utils_attachment_note uac INNER JOIN utils_attachment_link ual ON ual.id=uac.attach_id WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
+		$ret = $gb->query_order_limit('SELECT ual.crypted,ual.permission_by,ual.permission,uac.revision,uac.created_on as note_on,uac.created_by as note_by,uac.text FROM utils_attachment_note uac INNER JOIN utils_attachment_link ual ON ual.id=uac.attach_id WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
 			if(Base_AclCommon::i_am_admin() ||
@@ -618,7 +656,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
 				$r->add_action($this->create_confirm_callback_href(__('Do you want to restore note to this version?'),array($this,'restore_note'),array($id,$row['revision'])),'restore',__('Restore'));
-			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),Base_UserCommon::get_user_label($row['note_by']),$row['text']);
+			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),Base_UserCommon::get_user_label($row['note_by']),$row['crypted']?Utils_AttachmentCommon::decrypt($row['text'],$pass):$row['text']);
 		}
 		$this->display_module($gb);
 		$tb->end_tab();
@@ -633,7 +671,7 @@ class Utils_Attachment extends Module {
 			));
 		$gb->set_default_order(array(__('Date')=>'DESC'));
 
-		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.local,ual.permission_by,ual.permission,uaf.attach_id as id,uaf.deleted,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
+		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.local,ual.permission_by,ual.permission,ual.crypted,uaf.attach_id as id,uaf.deleted,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
 			if(Base_AclCommon::i_am_admin() ||
@@ -715,11 +753,19 @@ class Utils_Attachment extends Module {
 	}
 
 	public function get_edit_form($id=null) {
-		$form = $this->init_module('Libs/QuickForm',array(false));
-		if(isset($id))
+		$form = $this->init_module('Libs/QuickForm',array(false),'note_edit_form');
+
+        if(isset($id)) {
 			$form->addElement('header', 'upload', __('Edit note').': '.$this->add_header);
-		else
+            $row = DB::GetRow('SELECT l.title,l.sticky,l.crypt,x.text,l.permission FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
+        } else {
 			$form->addElement('header', 'upload', __('Attach note').': '.$this->add_header);
+            $row = array();
+        }
+
+        $form->addElement('text','note_title',__('Title'), array('id'=>'note_title'));
+        $form->addRule('note_title',__('Maximal lenght of title exceeded'),'maxlength',255);
+
 		$fck = $form->addElement('ckeditor', 'note', __('Note'));
 		$fck->setFCKProps('99%','200');
 		
@@ -727,13 +773,15 @@ class Utils_Attachment extends Module {
 
 		$form->addElement('select','permission',__('Permission'),array(__('Public'),__('Protected'),__('Private')),array('style'=>'width:auto;', 'id'=>'note_permission'));
 		$form->addElement('checkbox','sticky',__('Sticky'), null, array('id'=>'note_sticky'));
+        $form->addElement('checkbox','crypted',__('Encrypt'), null, array('id'=>'note_crypted','onChange'=>'this.form.elements["note_password"].disabled=!this.checked;'));
+        $form->addElement('password','note_password',__('Password'), array('disabled'=>isset($id)?(!$row['crypted']):1,'id'=>'note_password'));
 
 		if(isset($id))
 			$form->addElement('header',null,__('Replace attachment with file'));
 
-		if(isset($id)) {
-			$row = DB::GetRow('SELECT l.sticky,x.text,l.permission FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
-			$form->setDefaults(array('note'=>$row['text'],'permission'=>$row['permission'],'sticky'=>$row['sticky']));
+
+        if(isset($id)) {
+			$form->setDefaults(array('note'=>$row['text'],'permission'=>$row['permission'],'sticky'=>$row['sticky'],'crypted'=>$row['crypted'],'note_title'=>$row['title']));
 		} else {
 			$form->setDefaults(array('permission'=>Base_User_SettingsCommon::get('Utils_Attachment','default_permission')));
 		}
@@ -748,7 +796,53 @@ class Utils_Attachment extends Module {
 		$clipboard_files = trim($data['clipboard_files'], ';');
 		if ($clipboard_files) $clipboard_files = explode(';', $clipboard_files);
 		else $clipboard_files = array();
-		if (is_numeric($data['note_id'])) {
+
+        $note = $data['note'] = Utils_BBCodeCommon::optimize($data['note']);
+
+        if(!isset($data['note_password'])) $data['note_password']='';
+
+        $old_pass = $this->get_module_variable('cp'.$data['note_id'],false);
+        if($data['note_password']=='*@#old@#*')
+            $data['note_password'] = $old_pass;
+        if($data['note_password']===false) $data['note_password'] = '';
+
+        $crypted = isset($data['crypted']) && $data['crypted'];
+
+        //no password? no encryption!
+        if($crypted && $data['note_password']==='') {
+            $crypted=0;
+            Epesi::alert(__('Note cannot be encrypted with empty password. Saving unencrypted.'));
+        }
+
+        if($old_pass!=$data['note_password'] && is_numeric($data['note_id'])) {
+            //reencrypt old revisions
+            $old_notes = DB::GetAssoc('SELECT id,text FROM utils_attachment_note WHERE attach_id=%d', array($data['note_id']));
+            foreach($old_notes as $old_id=>$old_note) {
+                if($old_pass!==false) $old_note = Utils_AttachmentCommon::decrypt($old_note,$old_pass);
+                if($old_note===false) continue;
+                if($crypted && $data['note_password']) $old_note = Utils_AttachmentCommon::encrypt($old_note,$data['note_password']);
+                if($old_note===false) continue;
+                DB::Execute('UPDATE utils_attachment_note SET text=%s WHERE id=%d',array($old_note,$old_id));
+            }
+            //file reencryption
+            $old_files = DB::GetCol('SELECT uaf.id as id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d',array($data['note_id']));
+            foreach($old_files as $old_id) {
+                $filename = DATA_DIR.'/Utils_Attachment/'.$this->group.'/'.$old_id;
+                $content = @file_get_contents($filename);
+                if($content===false) continue;
+                if($old_pass!==false) $content = Utils_AttachmentCommon::decrypt($content,$old_pass);
+                if($content===false) continue;
+                if($crypted && $data['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$data['note_password']);
+                if($content===false) continue;
+                file_put_contents($filename,$content);
+            }
+        }
+
+        if($crypted) {
+            $note = Utils_AttachmentCommon::encrypt($note,$data['note_password']);
+        }
+
+        if (is_numeric($data['note_id'])) {
 			$current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($data['note_id']));
 			$remaining_files = $current_files;
 			$deleted_files = trim($data['delete_files'], ';');
@@ -764,12 +858,13 @@ class Utils_Attachment extends Module {
 				return;
 			}
 			$note_id = $data['note_id'];
-			$old = DB::GetOne('SELECT text FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.id=%d', array($note_id));
-			DB::Execute('UPDATE utils_attachment_link SET sticky=%b,permission=%d,permission_by=%d WHERE id=%d',array(isset($data['sticky']) && $data['sticky'],$data['permission'],Acl::get_user(),$note_id));
-			if($data['note']!=$old) {
+			$old = DB::GetRow('SELECT text,ual.crypted FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.id=%d', array($note_id));
+            if($old['crypted']) $old['text'] = Utils_AttachmentCommon::decrypt($old['text'],$this->get_module_variable('cp'.$note_id));
+			DB::Execute('UPDATE utils_attachment_link SET title=%s,sticky=%b,crypted=%b,permission=%d,permission_by=%d WHERE id=%d',array($data['note_title'],isset($data['sticky']) && $data['sticky'],$crypted,$data['permission'],Acl::get_user(),$note_id));
+			if($data['note']!=$old['text'] || $data['note_password'] != $this->get_module_variable('cp'.$note_id)) {
 				DB::StartTrans();
 				$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($note_id));
-				DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array(Utils_BBCodeCommon::optimize($data['note']),$note_id,$rev+1,Acl::get_user()));
+				DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($note,$note_id,$rev+1,Acl::get_user()));
 				DB::CompleteTrans();
 			}
 			foreach ($deleted_files as $v)
@@ -779,79 +874,51 @@ class Utils_Attachment extends Module {
 				Base_StatusBarCommon::message(__('Unable to create empty note'), 'warning');
 				return;
 			}
-			$note_id = Utils_AttachmentCommon::add($this->group,$data['permission'],Acl::get_user(),Utils_BBCodeCommon::optimize($data['note']),null,null,$this->func,$this->args,null,array(),isset($data['sticky']) && $data['sticky']);
+			$note_id = Utils_AttachmentCommon::add($this->group,$data['permission'],Acl::get_user(),$note,null,null,$this->func,$this->args,null,array(),isset($data['sticky']) && $data['sticky'],$data['note_title'],$crypted);
 		}
 		foreach ($clipboard_files as $cf_id) {
 			$cf = DB::GetOne('SELECT filename FROM utils_attachment_clipboard WHERE id=%d', array($cf_id));
 			Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), __('clipboard').'.png', $cf, $this->add_func, $this->add_args);
 		}
-		foreach ($files as $f)
+		foreach ($files as $f) {
+            if($crypted)
+                file_put_contents($f,Utils_AttachmentCommon::encrypt(file_get_contents($f),$data['note_password']));
 			Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), basename($f), $f, $this->add_func, $this->add_args);
+        }
+        if($crypted) {
+            $this->set_module_variable('cp'.$note_id,$data['note_password']);
+        } else {
+            $this->unset_module_variable('cp'.$note_id);
+        }
 		$this->ret_attach = false;
 	}
 
-	public function submit_edit($file,$oryg,$data,$id,$text) {
-		DB::Execute('UPDATE utils_attachment_link SET sticky=%b,permission=%d,permission_by=%d WHERE id=%d',array(isset($data['sticky']) && $data['sticky'],$data['permission'],Acl::get_user(),$id));
-		if($data['note']!=$text) {
-			if($file && trim($data['note'])=='')
-				$data['note'] = $oryg;
-			DB::StartTrans();
-			$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
-			DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array(Utils_BBCodeCommon::optimize($data['note']),$id,$rev+1,Acl::get_user()));
-			DB::CompleteTrans();
-		}
-		if($file) {
-			DB::StartTrans();
-			DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by) VALUES(%d,%s,%d)',array($id,$oryg,Acl::get_user()));
-			DB::CompleteTrans();
-			$local = $this->get_data_dir().$this->group;
-			@mkdir($local,0777,true);
-			$dest_file = $local.'/'.$id.'_'.$rev;
-			rename($file,$dest_file);
-			if ($this->add_func) call_user_func($this->add_func,$id,$dest_file,$oryg,$this->add_args);
-		}
-		$this->ret_attach = false;
-		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_~_'.$id);
-	}
-
-	public function delete($id) {
-		if($this->persistent_deletion) {
-			DB::Execute('DELETE FROM utils_attachment_note WHERE attach_id=%d',array($id));
-			$mids = DB::GetCol('SELECT id FROM utils_attachment_file WHERE attach_id=%d',array($id));
-			foreach($mids as $mid) {
-				$file_base = $this->get_data_dir().$this->group.'/'.$mid;
-				@unlink($file_base);
-				DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($mid));
-			}
-			DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
-			DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
-		} else {
-			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($id));
-		}
-		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_-_'.$id);
-	}
-
-	public function caption() {
+    public function caption() {
 		return $this->caption;
 	}
-	
-	public function enable_watchdog($category, $id) {
+
+    public function enable_watchdog($category, $id) {
 		$this->watchdog_category = $category;
 		$this->watchdog_id = $id;
 	}
-	
-	public function save_google_docs($note_id) {
+
+    public function save_google_docs($note_id) {
 		$edit_url = DB::GetOne('SELECT doc_id FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
 		if (!$edit_url) {
 			Base_StatusBarCommon::message(__('Document not found'), 'warning');
 			return false;
 		}
-		$doc = (strpos($edit_url, 'document%3A')!==false);
+        if(!preg_match('/(spreadsheet|document)%3A(.+)$/i',$edit_url,$matches)) {
+            Base_StatusBarCommon::message(__('Document not found'), 'warning');
+            return false;
+        }
+        $edit_url = $matches[2];
+		$doc = $matches[1]=='document';
 		if ($doc)
-			$export_url = 'https://docs.google.com/feeds/download/documents/Export?docID='.str_replace('https://docs.google.com/feeds/default/private/full/document%3A','',$edit_url).'&exportFormat=doc';
+			$export_url = 'https://docs.google.com/feeds/download/documents/Export?id='.$edit_url.'&exportFormat=doc';
 		else
-			$export_url = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key='.str_replace('https://docs.google.com/feeds/default/private/full/spreadsheet%3A','',$edit_url).'&exportFormat=csv';
-		
+			$export_url = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?id='.$edit_url.'&exportFormat=csv';
+
 		DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
 		$g_auth = Utils_AttachmentCommon::get_google_auth(null, null, $doc?'writely':'wise');
 		$curl = curl_init();
@@ -871,13 +938,20 @@ class Utils_Attachment extends Module {
 		curl_setopt($curl, CURLOPT_POST, false);
 		$response = curl_exec_follow($curl);
 
-		$row = DB::GetRow('SELECT * FROM utils_attachment_file WHERE id=%d',array($note_id));
-		
+		$row = DB::GetRow('SELECT f.*,l.crypted FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id WHERE f.id=%d',array($note_id));
+
 		$local = $this->get_data_dir().'temp/'.Acl::get_user().'/gdocs';
 		@mkdir($local,0777,true);
 		$dest_file = $local.'/'.$row['id'];
+        if($row['crypted']) {
+            $password = $this->get_module_variable('cp'.$row['attach_id']);
+            $response = Utils_AttachmentCommon::encrypt($response,$password);
+        }
 		file_put_contents($dest_file, $response);
-		
+        if(preg_match('/\.doc$/i',$row['original'])) {
+            $row['original'] = substr($row['original'],0,-4).'.docx';
+        }
+
 		Utils_AttachmentCommon::add_file($row['attach_id'], Acl::get_user(), $row['original'], $dest_file, $this->add_func, $this->add_args);
 		DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d',array($row['id']));
 
@@ -895,7 +969,24 @@ class Utils_Attachment extends Module {
 		Base_StatusBarCommon::message(__('Changes saved'));
 	}
 
-	public function discard_google_docs($note_id) {
+    public function delete($id) {
+        if($this->persistent_deletion) {
+            DB::Execute('DELETE FROM utils_attachment_note WHERE attach_id=%d',array($id));
+            $mids = DB::GetCol('SELECT id FROM utils_attachment_file WHERE attach_id=%d',array($id));
+            foreach($mids as $mid) {
+                $file_base = $this->get_data_dir().$this->group.'/'.$mid;
+                @unlink($file_base);
+                DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($mid));
+            }
+            DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
+            DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
+        } else {
+            DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($id));
+        }
+        if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_-_'.$id);
+    }
+
+    public function discard_google_docs($note_id) {
 		$edit_url = DB::GetOne('SELECT doc_id FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
 		DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
 		$g_auth = Utils_AttachmentCommon::get_google_auth();

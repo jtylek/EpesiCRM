@@ -17,10 +17,12 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('utils_attachment_link','
 			id I4 AUTO KEY NOTNULL,
 			local C(255) NOTNULL,
+			title C(255),
 			deleted I1 DEFAULT 0,
 			permission I2 DEFAULT 0,
 			permission_by I4,
 			sticky I1 DEFAULT 0,
+			crypted I1 DEFAULT 0,
 			func C(255),
 			args C(255)',
 			array('constraints'=>', FOREIGN KEY (permission_by) REFERENCES user_login(ID)'));

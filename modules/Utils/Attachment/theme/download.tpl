@@ -41,6 +41,7 @@
 					</div>
 				{$__link.download.close}
 			</td>
+            {if isset($link)}
 			<!-- LINK -->
 			<td valign="top">
 				{$__link.link.open}
@@ -50,6 +51,7 @@
 					</div>
 				{$__link.link.close}
 			</td>
+            {/if}
 		</tr>
 	</table>
 

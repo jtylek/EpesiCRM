@@ -118,7 +118,7 @@ utils_attachments_cancel_note_edit = function () {
 }
 
 var utils_attachment_last_edited_note = null;
-utils_attachment_edit_note = function(id) {
+utils_attachment_edit_note = function(id,path) {
 	utils_attachment_add_note();
 	$('note_id').value = id;
 	
@@ -126,13 +126,21 @@ utils_attachment_edit_note = function(id) {
 		method: "post",
 		parameters:{
 			cid: Epesi.client_id,
-			id: id
+			id: id,
+            path: path
 		},
 		onSuccess:function(t) {
 			result = t.responseText.evalJSON();
-			CKEDITOR.instances.ckeditor_note.setData(result.note);
+            if(typeof result.error != "undefined") return alert(result.error);
+            setTimeout(function(){
+			    CKEDITOR.instances.ckeditor_note.setData(result.note);
+            },250);
 			$("note_sticky").checked = result.sticky=='1'?true:false;
 			$("note_permission").value = result.permission;
+            $("note_crypted").checked = result.crypted=='1'?true:false;
+            $("note_title").value = result.title;
+            $("note_password").value = result.password;
+            $("note_password").disabled = result.crypted=='1'?false:true;
 			for (var id in result.files) {
 				Utils_Attachment__add_file_to_list(result.files[id], null, id);
 			}

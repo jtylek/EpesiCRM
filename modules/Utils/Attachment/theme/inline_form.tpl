@@ -1,3 +1,4 @@
+{$form_open}
 <table style="width:100%">
 	<tr>
 		<td width="105px">
@@ -6,7 +7,15 @@
 		<td width="105px">
 			{$form.cancel.html}
 		</td>
-		<td colspan="3" align="right">
+		<td>
+            {$form.note_title.label}
+            {$form.note_title.html}
+        </td>
+        <td colspan="2" align="right">
+            {$form.crypted.label}
+            {$form.crypted.html}
+            {$form.note_password.label}
+            {$form.note_password.html}
 			{$form.sticky.label}
 			{$form.sticky.html}
 			{$form.permission.label}
@@ -38,3 +47,4 @@
 		</td>
 	</tr>
 </table>
+{$form_close}
