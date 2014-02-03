@@ -13,6 +13,7 @@ if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']) || !isset($_REQUEST['path
 	die('Invalid usage');
 
 $id = $_REQUEST['id'];
+$path = $_REQUEST['path'];
 
 define('CID', $_REQUEST['cid']);
 define('READ_ONLY_SESSION',true);
