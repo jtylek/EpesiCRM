@@ -19,6 +19,9 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
+$public = Module::static_get_module_variable($path,'public',false);
+$protected = Module::static_get_module_variable($path,'protected',false);
+$private = Module::static_get_module_variable($path,'private',false);
 if(!Acl::is_user())
 	die(__('Permission denied'));
 
