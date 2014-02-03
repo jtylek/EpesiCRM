@@ -1577,7 +1577,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			return false;
 		} else {
 			static $cache = array();
-			if (!isset($cache[$tab])) {
+            $cache_key = "{$tab}__USER_" . Base_AclCommon::get_user();
+			if (!isset($cache[$cache_key])) {
 				self::check_table_name($tab);
 				$user_clearance = Base_AclCommon::get_clearance();
 				
@@ -1595,13 +1596,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				while ($row = $r->FetchRow()) {
 					$fields[$row['rule_id']][$row['block_field']] = $row['block_field'];
 				}
-				$cache[$tab]['crits'] = $crits;
-				$cache[$tab]['crits_raw'] = $crits_raw;
-				$cache[$tab]['fields'] = $fields;
+				$cache[$cache_key]['crits'] = $crits;
+				$cache[$cache_key]['crits_raw'] = $crits_raw;
+				$cache[$cache_key]['fields'] = $fields;
 			} else {
-				$crits = $cache[$tab]['crits'];
-				$crits_raw = $cache[$tab]['crits_raw'];
-				$fields = $cache[$tab]['fields'];
+				$crits = $cache[$cache_key]['crits'];
+				$crits_raw = $cache[$cache_key]['crits_raw'];
+				$fields = $cache[$cache_key]['fields'];
 			}
 			if ($return_crits) {
 			    if($return_in_array) return $crits_raw[$action];
