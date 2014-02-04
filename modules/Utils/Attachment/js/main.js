@@ -94,8 +94,8 @@ init_expand_note_space = function() {
 	if (add_span) el.setAttribute('colspan', parseInt(el.getAttribute('colspan')) + add_span - 1);
 }
 
-utils_attachment_add_note = function () {
-	utils_attachments_cancel_note_edit();
+utils_attachment_add_note = function (cancel) {
+    if(typeof cancel == "undefined" || cancel) utils_attachments_cancel_note_edit();
 	$("attachments_new_note").style.display="";
 	$('note_id').value = null;
 
@@ -109,7 +109,11 @@ utils_attachments_cancel_note_edit = function () {
 	$('delete_files').value = '';
 	$('clipboard_files').value = '';
 	$('filelist').innerHTML = '';
+    $("note_title").value = '';
 	$("note_sticky").checked = false;
+    $("note_crypted").checked = false;
+    $("note_password").disabled = true;
+    $("note_password2").disabled = true;
 	$("note_permission").value = 0;
 	if (utils_attachment_last_edited_note) {
 		utils_attachment_last_edited_note.style.display="";

@@ -289,13 +289,16 @@ class Utils_Attachment extends Module {
 			$new_note_form->addElement('hidden', 'clipboard_files', null, array('id'=>'clipboard_files'));
 			$new_note_form->addElement('button', 'save', __('Save note'), array('class'=>'button', 'onclick'=>'if(uploader.files.length)uploader.start();else Utils_Attachment__submit_note();'));
 			$new_note_form->addElement('button', 'cancel', __('Cancel'), array('class'=>'button', 'onclick'=>'utils_attachments_cancel_note_edit();'));
-			
+
+            $form_error = false;
 			if ($new_note_form->validate()) {
 				$new_note_form->process(array($this, 'submit_attach'));
 				location(array());
 				return;
-			}
-			
+			} elseif($new_note_form->isSubmitted()) {
+                $form_error = true;
+            }
+
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 			$new_note_form->accept($renderer); 
 			$form_data = $renderer->toArray();
@@ -341,7 +344,9 @@ class Utils_Attachment extends Module {
 			}
 			$col_span = $vd?5:4;
 			eval_js('init_expand_note_space();');
-		}
+            if($form_error)
+                eval_js('setTimeout(function(){utils_attachment_add_note(0);},100);');
+        }
 
 		while($row = $ret->FetchRow()) {
 			if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
@@ -763,32 +768,33 @@ class Utils_Attachment extends Module {
             $row = array();
         }
 
+        if(isset($id)) {
+            $form->setDefaults(array('note'=>$row['text'],'permission'=>$row['permission'],'sticky'=>$row['sticky'],'crypted'=>$row['crypted'],'note_title'=>$row['title']));
+        } else {
+            $form->setDefaults(array('permission'=>Base_User_SettingsCommon::get('Utils_Attachment','default_permission')));
+        }
+
         $form->addElement('text','note_title',__('Title'), array('id'=>'note_title'));
         $form->addRule('note_title',__('Maximal lenght of title exceeded'),'maxlength',255);
 
 		$fck = $form->addElement('ckeditor', 'note', __('Note'));
 		$fck->setFCKProps('99%','200');
-		
+
 		$form->addRule('note',__('Maximal lenght of note exceeded'),'maxlength',65535);
 
 		$form->addElement('select','permission',__('Permission'),array(__('Public'),__('Protected'),__('Private')),array('style'=>'width:auto;', 'id'=>'note_permission'));
 		$form->addElement('checkbox','sticky',__('Sticky'), null, array('id'=>'note_sticky'));
         if(extension_loaded('mcrypt')) {
             $form->addElement('checkbox','crypted',__('Encrypt'), null, array('id'=>'note_crypted','onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=!this.checked;'));
-            $form->addElement('password','note_password',__('Password'), array('disabled'=>isset($id)?(!$row['crypted']):1,'id'=>'note_password'));
-            $form->addElement('password','note_password2',__('Confirm Password'), array('disabled'=>isset($id)?(!$row['crypted']):1,'id'=>'note_password2'));
+            $form->addElement('password','note_password',__('Password'), array('id'=>'note_password'));
+            $form->addElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2'));
+            $crypted = $form->exportValue('crypted');
+            if(!$crypted) eval_js('$("note_password").disabled=1;$("note_password2").disabled=1;');
             $form->addRule(array('note_password', 'note_password2'), __('Your passwords don\'t match'), 'compare');
         }
 
 		if(isset($id))
 			$form->addElement('header',null,__('Replace attachment with file'));
-
-
-        if(isset($id)) {
-			$form->setDefaults(array('note'=>$row['text'],'permission'=>$row['permission'],'sticky'=>$row['sticky'],'crypted'=>$row['crypted'],'note_title'=>$row['title']));
-		} else {
-			$form->setDefaults(array('permission'=>Base_User_SettingsCommon::get('Utils_Attachment','default_permission')));
-		}
 
 		$this->ret_attach = true;
 		return $form;

@@ -17,6 +17,7 @@
                 {$form.crypted.html}
                 {$form.note_password.label}
                 {$form.note_password.html}
+                {$form.note_password.error}
                 {$form.note_password2.label}
                 {$form.note_password2.html}
             {/if}

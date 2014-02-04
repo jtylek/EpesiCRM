@@ -26,7 +26,6 @@ $private = Module::static_get_module_variable($path,'private',false);
 if(!Acl::is_user())
 	die(__('Permission denied'));
 
-
 $note = DB::GetRow('SELECT ual.id,crypted,text, sticky, permission, permission_by, title, crypted FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.id=%d', array($id));
 $files = DB::GetAssoc('SELECT id, original FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($id));
 if (empty($files)) $files = null; // otherwise JS parses the whole object with all method calls
