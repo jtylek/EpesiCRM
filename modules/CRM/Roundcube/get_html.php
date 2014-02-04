@@ -20,7 +20,6 @@ if (!isset($access_fields['body']) || !$access_fields['body'])
     die('Access forbidden');
 
 if (isset($_GET['field']) && $_GET['field']=='headers') {
-	$rec = Utils_RecordBrowserCommon::get_record('rc_mails', $_GET['id']);
 	$html = Utils_RecordBrowserCommon::get_val('rc_mails', 'headers_data', $rec, false, null);
 } else {
 	$html = $rec['body'];

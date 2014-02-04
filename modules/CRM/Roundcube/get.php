@@ -12,6 +12,13 @@ ModuleManager::load_modules();
 
 if(!Acl::is_user()) die('Not logged in');
 
+$rec = Utils_RecordBrowserCommon::get_record('rc_mails', $_GET['mail_id']);
+if (!$rec) die('Invalid e-mail id.');
+
+$access_fields = Utils_RecordBrowserCommon::get_access('rc_mails', 'view', $rec);
+if (!isset($access_fields['body']) || !$access_fields['body'])
+    die('Access forbidden');
+
 list($mimetype,$name,$attachment) = DB::GetRow('SELECT type,name,attachment FROM rc_mails_attachments WHERE mail_id=%d AND mime_id=%s',array($_GET['mail_id'],$_GET['mime_id']));
 
 $disposition = $attachment?'attachment':'inline';
