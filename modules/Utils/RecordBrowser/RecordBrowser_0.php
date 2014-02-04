@@ -507,6 +507,7 @@ class Utils_RecordBrowser extends Module {
 							$this->crits[preg_replace('/[^a-z0-9]/','_',strtolower(array_shift($param)))] = $v;
 					} else {
 						$this->crits[$filter_id] = $vals['filter__'.$filter_id];
+                        if ($this->table_rows[$filter]['type']=='checkbox' && $this->crits[$filter_id]=='') $this->crits[$filter_id] = array(null,0);
 					}
                 } else {
                     if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='';
@@ -1196,7 +1197,7 @@ class Utils_RecordBrowser extends Module {
 				if (isset($access[$k]) && !$access[$k]) $values[$k] = $v;
 			}
             foreach ($this->table_rows as $v) {
-                if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]='';
+                if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]=0;
             }
             $values['id'] = $id;
             foreach ($this->custom_defaults as $k=>$v)

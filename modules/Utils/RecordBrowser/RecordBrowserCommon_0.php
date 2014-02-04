@@ -883,9 +883,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
 			if ($args['type']=='checkbox') {
 				if ($values[$args['id']]) $values[$args['id']] = 1;
-				else $values[$args['id']] = '';
+				else $values[$args['id']] = 0;
 				if ($record[$args['id']]) $record[$args['id']] = 1;
-				else $record[$args['id']] = '';
+				else $record[$args['id']] = 0;
 			}
             if ($args['type']=='long text')
                 $values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
