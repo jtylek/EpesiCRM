@@ -78,7 +78,6 @@ class Utils_CommonData extends Module {
 	}
 
 	public function check_key($new_key,$arr) {
-        p(func_get_args());
 		if($arr[1]==$new_key) return true;
 		return Utils_CommonDataCommon::get_id($arr[0].'/'.$new_key)===false;
 	}
