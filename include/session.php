@@ -18,9 +18,15 @@ if(!SET_SESSION) {
 require_once('database.php');
 
 class DBSession {
+    const MAX_SESSION_ID_LENGTH = 128;
     private static $lifetime;
     private static $memcached;
     private static $ado; //for second postgresql connection - client session handling
+
+    private static function truncate_session_id($id)
+    {
+        return substr($id, 0, self::MAX_SESSION_ID_LENGTH);
+    }
 
     public static function open($path, $name) {
         self::$lifetime = ini_get("session.gc_maxlifetime");
@@ -43,6 +49,7 @@ class DBSession {
     }
 
     public static function read($name) {
+        $name = self::truncate_session_id($name);
         if(DATABASE_DRIVER=='mysqlt') {
             if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name,ini_get('max_execution_time'))))
                 trigger_error('Unable to get lock on session name='.$name,E_USER_ERROR);
@@ -98,6 +105,7 @@ class DBSession {
     }
 
     public static function write($name, $data) {
+        $name = self::truncate_session_id($name);
         if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
         $ret = 0;
         if(CID!==false && isset($_SESSION['client'])) {
@@ -143,6 +151,7 @@ class DBSession {
     }
     
     public static function destroy_client($name,$i) {
+        $name = self::truncate_session_id($name);
         if(self::$memcached) {
         	for($k=0;;$k++)
                 	if(!self::$memcached->delete('sess_'.$name.'_'.$i.'_'.$k)) break;
@@ -157,6 +166,7 @@ class DBSession {
     }
 
     public static function destroy($name) {
+        $name = self::truncate_session_id($name);
         if(self::$memcached) {
             for($i=0; $i<5; $i++)
         	for($k=0;;$k++)
