@@ -28,6 +28,11 @@ class DBSession {
         return substr($id, 0, self::MAX_SESSION_ID_LENGTH);
     }
 
+    public static function truncated_session_id()
+    {
+        return self::truncate_session_id(session_id());
+    }
+
     public static function open($path, $name) {
         self::$lifetime = ini_get("session.gc_maxlifetime");
         if(MEMCACHE_SESSION_SERVER) {
