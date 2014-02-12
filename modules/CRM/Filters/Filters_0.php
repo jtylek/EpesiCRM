@@ -107,15 +107,8 @@ class CRM_Filters extends Module {
 				array('name'=>__('Users in category'), 'width'=>50, 'order'=>'')
 				));
 
-		$def_opts = array('my'=>__('My records'), 'all'=>__('All records'));
-		$contacts = CRM_ContactsCommon::get_contacts(array(),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
-		foreach($contacts as $v)
-			$def_opts['c'.$v['id']] = $v['last_name'].' '.$v['first_name'];
-
 		$ret = DB::Execute('SELECT g.name,g.id,g.description FROM crm_filters_group g WHERE g.user_login_id='.Acl::get_user());
 		while($row = $ret->FetchRow()) {
-			$def_opts[$row['id']] = $row['name'];
-		
 			$gb_row = & $gb->get_new_row();
 			$gb_row->add_action($this->create_confirm_callback_href(__('Delete this group?'),array('CRM_Filters','delete_group'), $row['id']),'Delete');
 			$gb_row->add_action($this->create_callback_href(array($this,'edit_group'),$row['id']),'Edit');
