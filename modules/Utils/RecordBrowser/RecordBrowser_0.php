@@ -1189,7 +1189,7 @@ class Utils_RecordBrowser extends Module {
                 if (!$access[$args['id']])
                     $form->freeze($args['id']);
             }
-        if ($form->validate() && $form->exportValue('submited')) {
+        if ($form->exportValue('submited') && $form->validate()) {
             $values = $form->exportValues();
 			
 			foreach ($defaults as $k=>$v) {
