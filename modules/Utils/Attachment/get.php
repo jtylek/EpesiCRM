@@ -9,6 +9,8 @@
  * @subpackage attachment
  */
 
+
+//TODO: remove path
 if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']) || !isset($_REQUEST['path']))
 	die('Invalid usage');
 $cid = $_REQUEST['cid'];

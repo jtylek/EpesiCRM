@@ -84,7 +84,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 	}
 	
-	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$add_func=null,$add_args=array(),$sticky=false,$note_title='',$crypted=false) {
+	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$sticky=false,$note_title='',$crypted=false) {
 		if(($oryg && !$file) || ($file && !$oryg))
 		    trigger_error('Invalid add attachment call: missing original filename or temporary filepath',E_USER_ERROR);
 		$link = array('local'=>$group,'permission'=>$permission,'permission_by'=>$user,'func'=>serialize($func),'args'=>serialize($args),'sticky'=>$sticky?1:0,'title'=>$note_title,'crypted'=>$crypted?1:0);
@@ -92,7 +92,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$link['id'] = $id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
 		if($file)
-			self::add_file($link, $user, $oryg, $file, $add_func, $add_args);
+			self::add_file($link, $user, $oryg, $file);
 		$param = explode('/', $group);
 		if (isset($param[1]) && Utils_WatchdogCommon::get_category_id($param[0])!==null) {
 			Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$id);
@@ -100,7 +100,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return $id;
 	}
 	
-	public static function add_file($note, $user, $oryg, $file, $add_func=null, $add_args=array()) {
+	public static function add_file($note, $user, $oryg, $file) {
 		if (is_numeric($note)) $note = DB::GetRow('SELECT * FROM utils_attachment_link WHERE id=%d', array($note));
 		if($oryg===null) $oryg='';
 		$local = self::Instance()->get_data_dir().$note['local'];
@@ -110,7 +110,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$id = DB::Insert_ID('utils_attachment_file','id');
 		$dest_file = $local.'/'.$id;
 		rename($file,$dest_file);
-		if ($add_func) call_user_func($add_func,$id,$dest_file,$oryg,$add_args);
 	}
 
 	public static function count($group=null,$group_starts_with=false) {
@@ -274,6 +273,242 @@ class Utils_AttachmentCommon extends ModuleCommon {
         mcrypt_module_close($td);
         return $ret;
     }
+
+    public static function display_note($row, $nolink = false) {
+        $inline_img = '';
+        $link_href = '';
+        $link_img = '';
+        $icon = '';
+        if(!$row['crypted'] || isset($_SESSION['client']['cp'.$row['id']])) {
+            $files = DB::GetAll('SELECT id, created_by, created_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($row['id']));
+            foreach ($files as $f) {
+                $f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$f['id'];
+                if(file_exists($f_filename)) {
+                    $filename = $f['original'];
+                    $filetooltip = __('Filename: %s',array($filename)).'<br>'.__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
+                        __('Last uploaded by %s', array(Base_UserCommon::get_user_label($f['created_by'], true))).'<br/>'.
+                        __('On: %s',array(Base_RegionalSettingsCommon::time2reg($f['created_on']))).'<br/>'.
+                        __('Number of downloads: %d',array($f['downloads']));
+                    $view_link = '';
+                    $f['local'] = $row['local'];
+                    $f['crypted'] = $row['crypted'];
+                    $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.self::get_file_leightbox($f,$view_link);
+                    $link_img = Base_ThemeCommon::get_template_file('Utils_Attachment','z-attach.png');
+                    if(Utils_AttachmentCommon::is_image($filename) && $view_link)
+                        $inline_img .= '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
+                } else {
+                    $filename = __('Missing file: %s',array($f_filename));
+                    $link_href = Utils_TooltipCommon::open_tag_attrs($filename);
+                    $link_img = Base_ThemeCommon::get_template_file('Utils_Attachment','z-attach-off.png');
+                }
+                if ($link_href)
+                    $icon .= '<div class="file_link"><a '.$link_href.'><img src="'.$link_img.'"><span class="file_name">'.$filename.'</span></a></div>';
+            }
+        }
+
+        if($row['crypted']) {
+            $text = false;
+            if(isset($_SESSION['client']['cp'.$row['id']])) {
+                $note_pass = $_SESSION['client']['cp'.$row['id']];
+                $decoded = Utils_AttachmentCommon::decrypt($row['note'],$note_pass);
+                if($decoded!==false) $text = $decoded;
+            }
+            if($text===false) {
+                $text = '<div id="note_value_'.$row['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').':').'\','.$row['id'].')" style="color:red">'.__('Note encrypted').'</a></div>';
+                $icon = '';
+                $files = array();
+            }
+        } else {
+            $text = $row['note'];
+        }
+        if (!$text && $inline_img) $text = '<br/>';
+
+        $text = $icon.$text;
+        if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
+
+        return $text;
+    }
+
+    public static function get_file_leightbox($row, & $view_link = '') {
+        static $th;
+        if(!isset($th)) $th = Base_ThemeCommon::init_smarty();
+
+        if($row['original']==='') return '';
+
+        //tag for get.php
+        //TODO: replace with getacces
+        /*if(!$this->isset_module_variable('public')) {
+            $this->set_module_variable('public',$this->public_read);
+            $this->set_module_variable('protected',$this->protected_read);
+            $this->set_module_variable('private',$this->private_read);
+        }*/
+
+        $lid = 'get_file_'.md5(serialize($row));
+        if(isset($_GET['save_google_docs']) && $_GET['save_google_docs']==$lid) {
+            self::save_google_docs($row['id']);
+        }
+        if(isset($_GET['discard_google_docs']) && $_GET['discard_google_docs']==$lid) {
+            self::discard_google_docs($row['id']);
+        }
+
+        $close_leightbox_js = 'leightbox_deactivate(\''.$lid.'\');';
+        if (Variable::get('utils_attachments_google_user',false) && (strpos($row['original'], '.doc')!==false || strpos($row['original'], '.csv')!==false)) {
+            $label = __('Open with Google Docs');
+            $label = explode(' ', $label);
+            $mid = floor(count($label) / 2);
+            $label = implode('&nbsp;', array_slice($label, 0, $mid)).' '.implode('&nbsp;', array_slice($label, $mid));
+            $script = 'get_google_docs';
+            $onclick = '$(\'attachment_save_options_'.$row['id'].'\').style.display=\'\';$(\'attachment_download_options_'.$row['id'].'\').hide();';
+            $th->assign('save_options_id','attachment_save_options_'.$row['id']);
+            $th->assign('save','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.Module::create_href_js(array('save_google_docs'=>$lid)).'">'.__('Save Changes').'</a><br>');
+            $th->assign('discard','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.Module::create_href_js(array('discard_google_docs'=>$lid)).'">'.__('Discard Changes').'</a><br>');
+        } else {
+            $label = __('View');
+            $th->assign('save_options_id','');
+            $script = 'get';
+            $onclick = $close_leightbox_js;
+        }
+        $th->assign('download_options_id','attachment_download_options_'.$row['id']);
+        $view_link = 'modules/Utils/Attachment/'.$script.'.php?'.http_build_query(array('id'=>$row['id'],'cid'=>CID,'view'=>1));
+
+        $links = array();
+
+        $view_var = '<a href="'.$view_link.'" target="_blank" onClick="'.$onclick.'">'.$label.'</a><br>';
+        $th->assign('view',$view_var);
+        $links['view'] = Base_ThemeCommon::parse_links('view', $view_var);
+
+        $download_var = '<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.__('Download').'</a><br>';
+        $th->assign('download',$download_var);
+        $links['download'] = Base_ThemeCommon::parse_links('download', $download_var);
+
+        $th->assign('__link',$links);
+
+        load_js('modules/Utils/Attachment/remote.js');
+        if(!$row['crypted']) $th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['id'].', '.CID.',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>');
+        $th->assign('filename',$row['original']);
+        $f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'];
+        if(!file_exists($f_filename)) return 'missing file: '.$f_filename;
+        $th->assign('file_size',__('File size: %s',array(filesize_hr($f_filename))));
+
+        $th->assign('labels',array(
+            'filename'=>__('Filename'),
+            'file_size'=>__('File size')
+        ));
+
+        $custom_getters = array();
+        if(!$row['crypted']) {
+            $getters = ModuleManager::call_common_methods('attachment_getters');
+            foreach($getters as $mod=>$arr) {
+                if (is_array($arr))
+                    foreach($arr as $caption=>$func) {
+                        $cus_id = md5($mod.$caption.serialize($func));
+                        if(isset($_GET['utils_attachment_custom_getter']) && $_GET['utils_attachment_custom_getter']==$cus_id)
+                            call_user_func_array(array($mod.'Common',$func['func']),array($f_filename,$row['original'],$row['id']));
+                        $custom_getters[] = array('open'=>'<a href="javascript:void(0)" onClick="'.Epesi::escapeJS(Module::create_href_js(array('utils_attachment_custom_getter'=>$cus_id)),true,false).';leightbox_deactivate(\''.$lid.'\')">','close'=>'</a>','text'=>$caption,'icon'=>$func['icon']);
+                    }
+            }
+        }
+        $th->assign('custom_getters',$custom_getters);
+
+        ob_start();
+        Base_ThemeCommon::display_smarty($th,'Utils_Attachment','download');
+        $c = ob_get_clean();
+
+        Libs_LeightboxCommon::display($lid,$c,__('Attachment'));
+        return Libs_LeightboxCommon::get_open_href($lid);
+    }
+
+    public static function save_google_docs($note_id) {
+        $edit_url = DB::GetOne('SELECT doc_id FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
+        if (!$edit_url) {
+            Base_StatusBarCommon::message(__('Document not found'), 'warning');
+            return false;
+        }
+        if(!preg_match('/(spreadsheet|document)%3A(.+)$/i',$edit_url,$matches)) {
+            Base_StatusBarCommon::message(__('Document not found'), 'warning');
+            return false;
+        }
+        $edit_url = $matches[2];
+        $doc = $matches[1]=='document';
+        if ($doc)
+            $export_url = 'https://docs.google.com/feeds/download/documents/Export?id='.$edit_url.'&exportFormat=doc';
+        else
+            $export_url = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?id='.$edit_url.'&exportFormat=csv';
+
+        DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
+        $g_auth = Utils_AttachmentCommon::get_google_auth(null, null, $doc?'writely':'wise');
+        $curl = curl_init();
+
+        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+        $headers = array(
+            "Authorization: GoogleLogin auth=" . $g_auth,
+            "If-Match: *",
+            "GData-Version: 3.0",
+        );
+        curl_setopt($curl, CURLOPT_URL, $export_url);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_POST, false);
+        $response = curl_exec_follow($curl);
+
+        $row = DB::GetRow('SELECT f.*,l.crypted FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id WHERE f.id=%d',array($note_id));
+
+        $local = DATA_DIR.'/Utils_Attachment/temp/'.Acl::get_user().'/gdocs';
+        @mkdir($local,0777,true);
+        $dest_file = $local.'/'.$row['id'];
+
+        if($row['crypted']) {
+            $password = $_SESSION['client']['cp'.$row['attach_id']];
+            $response = Utils_AttachmentCommon::encrypt($response,$password);
+        }
+        file_put_contents($dest_file, $response);
+        if(preg_match('/\.doc$/i',$row['original'])) {
+            $row['original'] = substr($row['original'],0,-4).'.docx';
+        }
+
+        Utils_AttachmentCommon::add_file($row['attach_id'], Acl::get_user(), $row['original'], $dest_file);
+        DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d',array($row['id']));
+
+        $headers = array(
+            "Authorization: GoogleLogin auth=" . $g_auth,
+            "If-Match: *",
+            "GData-Version: 3.0",
+        );
+        curl_setopt($curl, CURLOPT_URL, $edit_url);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_POST, false);
+        $response = curl_exec($curl);
+
+        Base_StatusBarCommon::message(__('Changes saved'));
+    }
+
+    public static function discard_google_docs($note_id) {
+        $edit_url = DB::GetOne('SELECT doc_id FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
+        DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
+        $g_auth = Utils_AttachmentCommon::get_google_auth();
+        $curl = curl_init();
+
+        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+        $headers = array(
+            "Authorization: GoogleLogin auth=" . $g_auth,
+            "If-Match: *",
+            "GData-Version: 3.0",
+        );
+        curl_setopt($curl, CURLOPT_URL, $edit_url);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_POST, false);
+        $response = curl_exec($curl);
+        Base_StatusBarCommon::message(__('Changes discarded'));
+    }
+
 }
 
 ?>
