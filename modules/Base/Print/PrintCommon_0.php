@@ -13,6 +13,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_PrintCommon extends ModuleCommon
 {
 
+    public static function admin_caption()
+    {
+        return array('label'   => __('Print Templates'),
+                     'section' => __('Features Configuration'));
+    }
+
     public static function get_print_href($data, $printer)
     {
         $ret = array();
@@ -59,7 +65,13 @@ class Base_PrintCommon extends ModuleCommon
     public static function enabled_templates($printer_class)
     {
         $printer = self::printer_instance($printer_class);
-        return $printer->default_templates();
+        $templates = $printer->default_templates();
+        foreach ($templates as $name => $tpl) {
+            if (self::is_template_disabled($printer_class, $name)) {
+                unset($templates[$name]);
+            }
+        }
+        return $templates;
     }
 
     public static function get_default_print_href($data, $printer, $template, $handler_class = null, $additional_params = array())
@@ -186,6 +198,40 @@ class Base_PrintCommon extends ModuleCommon
     {
         ksort($document_types);
         Variable::set('print_document_types', $document_types);
+    }
+
+    public static function set_template_disabled($printer_class, $template_name, $active = false)
+    {
+        $disabled_templates = self::get_disabled_templates();
+        $id = "$printer_class::$template_name";
+        if ($active) {
+            unset($disabled_templates[$id]);
+        } else {
+            $disabled_templates[$id] = true;
+        }
+        self::set_disabled_templates($disabled_templates);
+    }
+
+    public static function is_template_disabled($printer_class, $template_name)
+    {
+        $disabled_templates = self::get_disabled_templates();
+        $id = "$printer_class::$template_name";
+        $ret = & $disabled_templates[$id];
+        return $ret == true;
+    }
+
+    protected static function get_disabled_templates()
+    {
+        $disabled_templates = Variable::get('print_disabled_templates', false);
+        if (!is_array($disabled_templates)) {
+            $disabled_templates = array();
+        }
+        return $disabled_templates;
+    }
+
+    protected static function set_disabled_templates($disabled_templates)
+    {
+        Variable::set('print_disabled_templates', $disabled_templates);
     }
 }
 
