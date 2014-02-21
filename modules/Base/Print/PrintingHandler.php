@@ -58,13 +58,7 @@ class Base_Print_PrintingHandler
     public function get_printer() {
         if (!isset($this->printer)) {
             $printer_classname = $this->get_printer_classname();
-            if (!$printer_classname || !class_exists($printer_classname)) {
-                throw new ErrorException('Wrong printer classname');
-            }
-            if (!is_subclass_of($printer_classname, 'Base_Print_Printer')) {
-                throw new ErrorException('Printer class has to extend Base_Print_Printer');
-            }
-            $printer = new $printer_classname();
+            $printer = Base_PrintCommon::printer_instance($printer_classname);
             $this->set_printer($printer);
         }
         return $this->printer;

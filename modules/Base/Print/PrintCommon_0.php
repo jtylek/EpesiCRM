@@ -36,9 +36,29 @@ class Base_PrintCommon extends ModuleCommon
         return $ret;
     }
 
+    /**
+     * Create printer object, but check if classname is a proper printer class.
+     *
+     * @param string $printer_classname Printer classname
+     *
+     * @return Base_Print_Printer Printer object
+     * @throws ErrorException When wrong classname is supplied
+     */
+    public static function printer_instance($printer_classname)
+    {
+        if (!$printer_classname || !class_exists($printer_classname)) {
+            throw new ErrorException('Wrong printer classname');
+        }
+        if (!is_subclass_of($printer_classname, 'Base_Print_Printer')) {
+            throw new ErrorException('Printer class has to extend Base_Print_Printer');
+        }
+        $printer = new $printer_classname();
+        return $printer;
+    }
+
     public static function enabled_templates($printer_class)
     {
-        $printer = new $printer_class();
+        $printer = self::printer_instance($printer_class);
         return $printer->default_templates();
     }
 
