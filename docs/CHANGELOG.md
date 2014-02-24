@@ -1,6 +1,27 @@
 EPESI CHANGELOG
 ===============
 
+RELEASE 1.5.6-20140224
+----------------------
+
+- Crypted notes
+- New module to generate printouts
+- Change cron mechanism
+- Trigger error, when patch has failed during update
+- Fix HomePage template installation
+- Add mod_alias rules to show 404 on .svn and .git directories
+- Set read-only attribute in commondata
+- Fix access restrictions and use proper data directory in check.php script
+- Fix logo file in Utils/FrontPage
+- Properly sanitize language variable in setup.php script
+- Fix get_access method to respect temporary user_id changes
+- Fix icon in RecordBrowser for different template
+- Extend session_id length
+- Allow filtering of custom status in task applet
+- Fix commondata edit form - do not allow to override values
+- Remove unused code that caused performance issues in CRM/Filters
+- Do not validate form in RB during soft submit
+
 RELEASE 1.5.5-20140113
 ----------------------
 - Fix recurrent meeting issue in Activities tab - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=2023)
