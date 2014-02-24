@@ -117,7 +117,7 @@ if (strpos($contentType, "multipart") !== false) {
 	        if($_FILES['file']['error']==UPLOAD_ERR_INI_SIZE || $_FILES['file']['error']==UPLOAD_ERR_FORM_SIZE)
 		        die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "File size exceeded."}, "id" : "id"}');
 	        else
-		        die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : "id"}');
+		        die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file (' . $_FILES['file']['error'] . ')."}, "id" : "id"}');
 	}
 } else {
 	// Open temp file
