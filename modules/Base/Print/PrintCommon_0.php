@@ -19,6 +19,18 @@ class Base_PrintCommon extends ModuleCommon
                      'section' => __('Features Configuration'));
     }
 
+    /**
+     * Get print href string. This method calls custom print href, that may
+     * return array or string. If array is returned then it will be used
+     * to create a leightbox select with buttons and it has to be the array
+     * of arrays('href' => .. , 'label' => ..)
+     *
+     * @param mixed  $data    data to pass to printer
+     * @param string $printer Printer classname
+     *
+     * @return string href to open printed document or to open leightbox
+     *                with buttons if multiple templates are enabled
+     */
     public static function get_print_href($data, $printer)
     {
         $ret = array();
@@ -62,6 +74,14 @@ class Base_PrintCommon extends ModuleCommon
         return $printer;
     }
 
+    /**
+     * Obtain array of enabled templates for specific printer class
+     *
+     * @param string $printer_class
+     *
+     * @return Base_Print_Template_Template[] array of enabled templates
+     *                                        for specific printer
+     */
     public static function enabled_templates($printer_class)
     {
         $printer = self::printer_instance($printer_class);
@@ -74,6 +94,20 @@ class Base_PrintCommon extends ModuleCommon
         return $templates;
     }
 
+    /**
+     * Get href to the printed document.
+     *
+     * You can use this method with your custom handler class.
+     *
+     * @param mixed       $data              Data to pass to printer
+     * @param string      $printer           Printer's classname
+     * @param int         $template          Template's id
+     * @param string|null $handler_class     Handler's classname. Has to be a
+     *                                       subclass of Base_Print_PrintingHandler
+     * @param array       $additional_params Additional parameters to pass in the request
+     *
+     * @return string href
+     */
     public static function get_default_print_href($data, $printer, $template, $handler_class = null, $additional_params = array())
     {
         $dir = self::Instance()->get_module_dir();
@@ -95,6 +129,13 @@ class Base_PrintCommon extends ModuleCommon
         return $href;
     }
 
+    /**
+     * Create a leightbox with buttons
+     *
+     * @param array $links array of array('href' => .. , 'label' => ..)
+     *
+     * @return string href to open leightbox
+     */
     protected static function choose_box_href(array $links)
     {
         $unique_id = md5(serialize($links));
@@ -117,16 +158,33 @@ class Base_PrintCommon extends ModuleCommon
         return Libs_LeightboxCommon::get_open_href($popup_id);
     }
 
+    /**
+     * Set custom print href callback.
+     *
+     * @param callable $callback
+     */
     public static function set_print_href_callback($callback)
     {
         Variable::set('print_href_callback', $callback);
     }
 
+    /**
+     * Get custom print href callback.
+     *
+     * @return string callback
+     */
     public static function get_print_href_callback()
     {
         return Variable::get('print_href_callback', false);
     }
 
+    /**
+     * Register a new printer class.
+     *
+     * You have to register printer to allow managing templates
+     *
+     * @param Base_Print_Printer $obj
+     */
     public static function register_printer(Base_Print_Printer $obj)
     {
         $registered_printers = self::get_registered_printers();
@@ -134,6 +192,12 @@ class Base_PrintCommon extends ModuleCommon
         self::set_registered_printers($registered_printers);
     }
 
+    /**
+     * Unregister printer.
+     *
+     * @param Base_Print_Printer|string $string_or_obj Object or classname
+     *                                                 of printer
+     */
     public static function unregister_printer($string_or_obj)
     {
         if (!is_string($string_or_obj)) {
@@ -144,6 +208,11 @@ class Base_PrintCommon extends ModuleCommon
         self::set_registered_printers($registered_printers);
     }
 
+    /**
+     * Get registered printers' classnames => document names.
+     *
+     * @return string[] Classnames is the key, document name is the value
+     */
     public static function get_registered_printers()
     {
         $registered_printers = Variable::get('printers_registered', false);
@@ -153,6 +222,11 @@ class Base_PrintCommon extends ModuleCommon
         return $registered_printers;
     }
 
+    /**
+     * Get registered printers' classnames and translated document names.
+     *
+     * @return string[] Classnames is the key, translated document name is the value
+     */
     public static function get_registered_printers_translated()
     {
         $registered_printers = self::get_registered_printers();
@@ -168,6 +242,11 @@ class Base_PrintCommon extends ModuleCommon
         Variable::set('printers_registered', $registered_printers);
     }
 
+    /**
+     * Register new document type. Default ones are PDF and HTML.
+     *
+     * @param Base_Print_Document_Document $obj
+     */
     public static function register_document_type(Base_Print_Document_Document $obj)
     {
         $document_types = self::get_registered_document_types();
@@ -175,6 +254,11 @@ class Base_PrintCommon extends ModuleCommon
         self::set_registered_document_types($document_types);
     }
 
+    /**
+     * Unregister document type.
+     *
+     * @param Base_Print_Document_Document|string $string_or_obj
+     */
     public static function unregister_document_type($string_or_obj)
     {
         if (is_object($string_or_obj)) {
@@ -185,6 +269,10 @@ class Base_PrintCommon extends ModuleCommon
         self::set_registered_document_types($document_types);
     }
 
+    /**
+     * Get registered document types.
+     * @return string[] classname is the key, document type name is the value
+     */
     public static function get_registered_document_types()
     {
         $document_types = Variable::get('print_document_types', false);
@@ -200,6 +288,13 @@ class Base_PrintCommon extends ModuleCommon
         Variable::set('print_document_types', $document_types);
     }
 
+    /**
+     * Disable specific template
+     *
+     * @param string $printer_class
+     * @param string $template_name
+     * @param bool   $active
+     */
     public static function set_template_disabled($printer_class, $template_name, $active = false)
     {
         $disabled_templates = self::get_disabled_templates();
@@ -212,6 +307,14 @@ class Base_PrintCommon extends ModuleCommon
         self::set_disabled_templates($disabled_templates);
     }
 
+    /**
+     * check if template is disabled
+     *
+     * @param string $printer_class
+     * @param string $template_name
+     *
+     * @return bool
+     */
     public static function is_template_disabled($printer_class, $template_name)
     {
         $disabled_templates = self::get_disabled_templates();
