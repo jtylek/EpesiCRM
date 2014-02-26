@@ -6,7 +6,16 @@ $fields = array(
         'type' => 'text',
         'param' => 255,
         'required' => true, 'extra' => false, 'visible' => false
-    ), array(
+    ),
+    array(
+        'name' => _M('Date'),
+        'type' => 'date',
+        'extra'=>false,
+        'visible'=>true,
+        'required' => false,
+        'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_date')
+    ),
+    array(
         'name' => _M('Title'),
         'type' => 'text',
         'param' => 255,
@@ -17,7 +26,8 @@ $fields = array(
         'required' => false,
         'extra' => false,
         'visible'=>true,
-        'display_callback'=>array('Utils_AttachmentCommon','display_note')
+        'display_callback'=>array('Utils_AttachmentCommon','display_note'),
+        'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_note'),
     ),
     array('name' => _M('Permission'),
         'type' => 'commondata',
@@ -26,10 +36,12 @@ $fields = array(
         'extra' => false),
     array('name' => _M('Sticky'),
         'type' => 'checkbox',
+        'visible' => true,
         'extra' => false),
     array('name' => _M('Crypted'),
         'type' => 'checkbox',
-        'extra' => false),
+        'extra' => false,
+        'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_crypted')),
     array(
         'name' => _M('Func'),
         'type' => 'text',
@@ -48,7 +60,8 @@ Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employ
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', array('ACCESS:employee','ACCESS:manager'));
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee');
-Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'));
+Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'),array('date'));
+Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
 
 //parse old notes
 $map = array();
@@ -58,7 +71,7 @@ foreach($links as $link) {
     $notes = DB::GetAll('SELECT * FROM utils_attachment_note WHERE attach_id=%d ORDER BY revision',$link['id']);
     $note = array_shift($notes);
     Acl::set_user($note['created_by']);
-    $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('local'=>$link['local'],'title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>$link['crypted'],'func'=>$link['func'],'args'=>$link['args']));
+    $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('local'=>$link['local'],'title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>$link['crypted'],'func'=>$link['func'],'args'=>$link['args'],'date'=>$note['created_on']));
     $map[$link['id']] = $rid;
     foreach($notes as $note) {
         Acl::set_user($note['created_by']);

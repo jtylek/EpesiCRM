@@ -10,7 +10,7 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-$row = Utils_RecordBrowserCommon::get_record('utils_attachment',$row['id']);
+$row = Utils_RecordBrowserCommon::get_record('utils_attachment',$id);
 if(!Utils_RecordBrowserCommon::get_access('utils_attachment','view',$row)) die(json_encode(array('error'=>__('Access denied'))));
 
 $decoded = Utils_AttachmentCommon::decrypt($row['note'],$pass);

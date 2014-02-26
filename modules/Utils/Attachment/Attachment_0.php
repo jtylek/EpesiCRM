@@ -127,9 +127,14 @@ class Utils_Attachment extends Module {
 		if (!isset($this->group) && !$uid) trigger_error('Key not given to attachment module',E_USER_ERROR);
 
         $this->rb = $this->init_module('Utils/RecordBrowser','utils_attachment','utils_attachment');
-        $this->rb->set_defaults(array('permission'=>'0'));
+        $this->rb->set_defaults(array('permission'=>'0','local'=>$this->group,'func'=>serialize($this->func),'args'=>serialize($this->args),'date'=>time()));
+        $this->rb->set_header_properties(array(
+            'sticky'=>array('width'=>1,'display'=>false),
+            'date'=>array('width'=>1),
+            'title'=>array('width'=>1),
+        ));
         if($uid) {
-            $this->display_module($this->rb, array(array(':Created_by'=>$uid), array(), array('sticky'=>'DESC', ':Edited_on'=>'DESC')), 'show_data');
+            $this->display_module($this->rb, array(array(':Created_by'=>$uid), array(), array('sticky'=>'DESC', 'date'=>'DESC')), 'show_data');
         } else {
             $crits = array();
             $first = true;
@@ -140,7 +145,7 @@ class Utils_Attachment extends Module {
                 $a .= 'local';
                 $crits[$a] = $g;
             }
-            $this->display_module($this->rb, array($crits, array(), array('sticky'=>'DESC', ':Edited_on'=>'DESC')), 'show_data');
+            $this->display_module($this->rb, array($crits, array(), array('sticky'=>'DESC', 'date'=>'DESC')), 'show_data');
         }
 
         //TODO: delete all below after rewrite

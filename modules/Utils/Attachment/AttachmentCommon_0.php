@@ -329,6 +329,107 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return $text;
     }
 
+    public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if ($mode=='add' || $mode=='edit') {
+            $fck = $form->addElement('ckeditor', $field, $label);
+            $fck->setFCKProps('99%','300',true);
+            if ($mode=='edit') $form->setDefaults(array($field=>$default));
+        } else {
+            $form->addElement('static', $field, $label);
+            $form->setDefaults(array($field=>self::display_note($rb_obj->record)));
+        }
+    }
+
+    public static function QFfield_crypted(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if ($mode=='view') {
+            $elem = $form->addElement('checkbox', $field, $label,'', array('id'=>$field));
+            $form->setDefaults(array($field=>$default));
+            $elem->freeze(1);
+        } else {
+            $elems = array();
+            $elems[] = $form->createElement('checkbox', $field, $label,'', array('id'=>$field,'onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=!this.checked;'));
+            $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password'));
+            $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2'));
+            $form->addGroup($elems,$field,__('Encryption'));
+
+            if($default) {
+                $form->setDefaults(array('crypted'=>array('crypted'=>$default,'note_password'=>'*@#old@#*','note_password2'=>'*@#old@#*')));
+            }
+            $crypted = $form->exportValue($field);
+            if(!$crypted) eval_js('$("note_password").disabled=1;$("note_password2").disabled=1;');
+
+            $form->addFormRule(array('Utils_AttachmentCommon','crypted_rules'));
+        }
+    }
+
+    public static function QFfield_date(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        $form->addElement('static', $field, $label);
+        $form->setDefaults(array($field=>Base_RegionalSettingsCommon::time2reg($default,false,true,false)));
+    }
+
+    public static function crypted_rules($a) {
+        if(isset($a['crypted']['crypted']) && $a['crypted']['crypted']) {
+            if(empty($a['crypted']['note_password']))
+                return array('crypted'=>__('Please provide password'));
+            if($a['crypted']['note_password']!=$a['crypted']['note_password2'])
+                return array('crypted'=>__('Password mismatch'));
+        }
+        return true;
+    }
+
+    public static function submit_attachment($values, $mode) {
+        switch ($mode) {
+            case 'adding':
+                $values['date'] = time();
+                return $values;
+            case 'add':
+            case 'edit':
+                if(isset($values['crypted']['crypted']) && $values['crypted']['crypted']) {
+                    $old_pass = isset($_SESSION['client']['cp'.$values['id']])?$_SESSION['client']['cp'.$values['id']]:'';
+                    if($values['crypted']['note_password']=='*@#old@#*')
+                        $values['crypted']['note_password'] = $old_pass;
+                    $crypted = 1;
+                }
+
+                if($mode=='edit' && $old_pass!=$values['crypted']['note_password']) {
+                    //reencrypt old revisions
+                    $old_notes = DB::GetAssoc('SELECT hd.edit_id,hd.old_value FROM utils_attachment_edit_history h INNER JOIN utils_attachment_edit_history_data hd ON h.id=hd.edit_id WHERE h.utils_attachment_id=%d AND hd.field="note"', array($values['id']));
+                    foreach($old_notes as $old_id=>$old_note) {
+                        if($old_pass!==false) $old_note = Utils_AttachmentCommon::decrypt($old_note,$old_pass);
+                        if($old_note===false) continue;
+                        if($crypted && $values['crypted']['note_password']) $old_note = Utils_AttachmentCommon::encrypt($old_note,$values['crypted']['note_password']);
+                        if($old_note===false) continue;
+                        DB::Execute('UPDATE utils_attachment_edit_history_data SET old_value=%s WHERE edit_id=%d AND field="note"',array($old_note,$old_id));
+                    }
+                    //file reencryption
+                    $old_files = DB::GetCol('SELECT uaf.id as id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d',array($values['id']));
+                    foreach($old_files as $old_id) {
+                        $filename = DATA_DIR.'/Utils_Attachment/'.$values['local'].'/'.$old_id;
+                        $content = @file_get_contents($filename);
+                        if($content===false) continue;
+                        if($old_pass!==false) $content = Utils_AttachmentCommon::decrypt($content,$old_pass);
+                        if($content===false) continue;
+                        if($crypted && $values['crypted']['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$values['crypted']['note_password']);
+                        if($content===false) continue;
+                        file_put_contents($filename,$content);
+                    }
+                }
+
+                if($crypted) {
+                    $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$values['crypted']['note_password']);
+                    $values['note_password']=$values['crypted']['note_password'];
+                    $values['crypted'] = 1;
+                } else {
+                    $values['crypted'] = 0;
+                }
+                break;
+            case 'added':
+                $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
+                break;
+        }
+        return $values;
+    }
+
     public static function get_file_leightbox($row, & $view_link = '') {
         static $th;
         if(!isset($th)) $th = Base_ThemeCommon::init_smarty();
