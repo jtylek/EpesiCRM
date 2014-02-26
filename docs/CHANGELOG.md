@@ -1,7 +1,7 @@
 EPESI CHANGELOG
 ===============
 
-RELEASE 1.5.6-20140224
+RELEASE 1.5.6-20140226
 ----------------------
 
 - Crypted notes
@@ -21,6 +21,7 @@ RELEASE 1.5.6-20140224
 - Fix commondata edit form - do not allow to override values
 - Remove unused code that caused performance issues in CRM/Filters
 - Do not validate form in RB during soft submit
+- Fix Related Notes company addon
 
 RELEASE 1.5.5-20140113
 ----------------------
