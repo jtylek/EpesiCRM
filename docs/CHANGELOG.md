@@ -1,7 +1,7 @@
 EPESI CHANGELOG
 ===============
 
-RELEASE 1.5.6-20140226
+RELEASE 1.5.6-20140227
 ----------------------
 
 - Crypted notes
@@ -22,6 +22,7 @@ RELEASE 1.5.6-20140226
 - Remove unused code that caused performance issues in CRM/Filters
 - Do not validate form in RB during soft submit
 - Fix Related Notes company addon
+- Update translations
 
 RELEASE 1.5.5-20140113
 ----------------------
