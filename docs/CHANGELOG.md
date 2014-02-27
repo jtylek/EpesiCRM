@@ -22,6 +22,7 @@ RELEASE 1.5.6-20140227
 - Remove unused code that caused performance issues in CRM/Filters
 - Do not validate form in RB during soft submit
 - Fix Related Notes company addon
+- Fix module_manager to generate proper list of module requirements
 - Update translations
 
 RELEASE 1.5.5-20140113
