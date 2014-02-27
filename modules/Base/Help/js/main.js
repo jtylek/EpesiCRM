@@ -30,6 +30,7 @@ Base_Help = function(){
 			jQuery("#help_canvas").css('pointer-events', 'none');
 			this.context = $("help_canvas").getContext("2d");
 			this.compatibility_mode = false;
+            jQuery("#help_canvas").hide();
 		} else {
 			jQuery("#help_canvas").remove();
 			this.compatibility_mode = true;
@@ -42,6 +43,7 @@ Base_Help = function(){
 		for (var i=0;i<this.steps.length; i++)
 			this.steps[i] = this.parse_step(i);
 		this.hide_menu();
+        jQuery("#help_canvas").show();
 	}
 
 	this.clear_screen = function () {
@@ -50,6 +52,7 @@ Base_Help = function(){
 	}
 
 	this.stop_tutorial = function() {
+        jQuery("#help_canvas").hide();
 		$('Base_Help__overlay').style.display = 'none';
 		this.help_arrow.style.display = 'none';
 		this.comment_frame.style.display = 'none';
