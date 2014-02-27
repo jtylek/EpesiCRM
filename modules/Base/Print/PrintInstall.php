@@ -29,6 +29,7 @@ class Base_PrintInstall extends ModuleInstall
         Variable::delete('printers_registered');
         Variable::delete('print_document_types');
         Variable::delete('print_href_callback');
+        Variable::delete('print_disabled_templates');
         return true;
     }
 
