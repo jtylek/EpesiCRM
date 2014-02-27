@@ -15,10 +15,10 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
         parent::set_filename($filename . ".pdf");
     }
 
-    public function __construct()
+    public function __construct($title = null, $subject = '', $created_by = false, $custom_logo_file = null)
     {
         $this->pdf = Libs_TCPDFCommon::new_pdf();
-        Libs_TCPDFCommon::prepare_header($this->pdf, null, '', false, null);
+        Libs_TCPDFCommon::prepare_header($this->pdf, $title, $subject, $created_by, $custom_logo_file);
         Libs_TCPDFCommon::add_page($this->pdf);
     }
 
@@ -43,11 +43,11 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
         $margins = $this->pdf->getOriginalMargins();
         $pages_total = $this->pdf->getNumPages();
         $page_width = $this->pdf->getPageWidth();
-        $footer_width = $page_width - $margins['left'] - $margins['right'] - 20;
+        $footer_width = $page_width - $margins['left'] - $margins['right'];
+        $footer_y = $this->pdf->getPageHeight() - $this->pdf->getFooterMargin() + 5;
         for ($page = 1; $page <= $pages_total; $page++) {
             $this->pdf->SetPage($page);
             $this->pdf->SetAutoPageBreak(false);
-            $footer_y = $this->pdf->getPageHeight() - $this->pdf->getFooterMargin();
             $this->pdf->WriteHTMLCell($footer_width, $this->pdf->getFooterMargin(),
                                       $margins['left'], $footer_y,
                                       $this->get_footer(), false, 0, false);
@@ -64,7 +64,7 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
         $margins = $this->pdf->getOriginalMargins();
         $page_height = $this->pdf->getPageHeight();
         $page_width = $this->pdf->getPageWidth();
-        $footer_width = $page_width - $margins['left'] - $margins['right'] - 20;
+        $footer_width = $page_width - $margins['left'] - $margins['right'];
         $success = false;
         while (!$success) {
             $tmppdf = clone($this->pdf);
@@ -85,7 +85,7 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
             unset($tmppdf);
         }
         // add some static value to set more space
-        $footer_margin += 5;
+        $footer_margin += 10;
         $this->pdf->setFooterMargin($footer_margin);
         $this->pdf->SetAutoPageBreak(true, $footer_margin);
     }
