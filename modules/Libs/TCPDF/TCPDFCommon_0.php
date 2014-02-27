@@ -58,18 +58,18 @@ class Libs_TCPDFCommon extends ModuleCommon {
     }
 
     public static function prepare_header(& $tcpdf, $title='', $subject='', $printed_by=true, $logo_filename=null, $l = array()) {
-        if ($logo_filename===null) $logo_filename = Libs_TCPDFCommon::get_logo_filename();
-        $default_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png');
-        if (!file_exists($logo_filename)) $logo_filename = $default_filename;
-        else {
+        if ($title!==null) {
+            if ($logo_filename===null) $logo_filename = Libs_TCPDFCommon::get_logo_filename();
+            if (!file_exists($logo_filename)) {
+                $logo_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png');
+            }
             $logo_size = getimagesize($logo_filename);
-//            $default_size = getimagesize($default_filename);
-//            $default_height = $default_size[1]*PDF_HEADER_LOGO_WIDTH/$default_size[0];
             $margins = $tcpdf->getMargins();
-            $logo_height = $logo_size[1]*PDF_HEADER_LOGO_WIDTH/$logo_size[0];
-            $tcpdf->SetTopMargin($logo_height+10);//+$margins['top']-$default_height);
+            $logo_height = $logo_size[1] * PDF_HEADER_LOGO_WIDTH / $logo_size[0];
+            $tcpdf->SetHeaderMargin(10);
+            $tcpdf->SetTopMargin($logo_height + $margins['top'] - 5);
+            $tcpdf->SetHeaderData($logo_filename, PDF_HEADER_LOGO_WIDTH, $title, $subject);
         }
-        if ($title!==null) $tcpdf->SetHeaderData($logo_filename, PDF_HEADER_LOGO_WIDTH, $title, $subject);
 
         //set some language-dependent strings
         $l['a_meta_charset'] = "UTF-8";
@@ -86,9 +86,6 @@ class Libs_TCPDFCommon extends ModuleCommon {
 			$l['w_page'] .= __('Page');
 		}
         $tcpdf->setLanguageArray($l);
-
-        //initialize document
-        $tcpdf->AliasNbPages();
 
         self::SetFont($tcpdf, self::$default_font, '', 9);
     }
