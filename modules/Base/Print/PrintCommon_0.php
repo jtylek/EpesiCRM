@@ -75,6 +75,30 @@ class Base_PrintCommon extends ModuleCommon
     }
 
     /**
+     * Create document object, but check if classname is a proper class.
+     *
+     * @param string $document_classname Document classname
+     * @param mixed  $_                  Optional parameters to the document constructor
+     *
+     * @return Base_Print_Document_Document Document object
+     * @throws ErrorException When wrong classname is supplied
+     */
+    public static function document_instance($document_classname, $_ = null)
+    {
+        if (!$document_classname || !class_exists($document_classname)) {
+            throw new ErrorException('Wrong document classname');
+        }
+        if (!is_subclass_of($document_classname, 'Base_Print_Document_Document')) {
+            throw new ErrorException('Document class has to extend Base_Print_Document_Document');
+        }
+        $args = func_get_args();
+        array_shift($args); // remove document_classname
+        $reflection_obj = new ReflectionClass($document_classname);
+        $document = $reflection_obj->newInstanceArgs($args);
+        return $document;
+    }
+
+    /**
      * Obtain array of enabled templates for specific printer class
      *
      * @param string $printer_class
