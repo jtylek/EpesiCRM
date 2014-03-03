@@ -1,7 +1,7 @@
 EPESI CHANGELOG
 ===============
 
-RELEASE 1.5.6-20140227
+RELEASE 1.5.6-20140303
 ----------------------
 
 - Crypted notes
@@ -24,6 +24,7 @@ RELEASE 1.5.6-20140227
 - Fix Related Notes company addon
 - Fix module_manager to generate proper list of module requirements
 - Fix some issues in reset pass script
+- Fix TCPDF top margin when logo is set but it's hidden
 - Update translations
 
 RELEASE 1.5.5-20140113
@@ -48,7 +49,6 @@ RELEASE 1.5.5-20140113
 - Fix broken Contact's template (#2)
 - Fix printing all records from RecordBrowser
 - Fix watchdog email notifications (#3)
-- Fix TCPDF top margin when logo is set but it's hidden
 - Update translations
 
 RELEASE 1.5.4-rev11060 (20131015)
