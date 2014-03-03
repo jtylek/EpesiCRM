@@ -23,6 +23,7 @@ RELEASE 1.5.6-20140227
 - Do not validate form in RB during soft submit
 - Fix Related Notes company addon
 - Fix module_manager to generate proper list of module requirements
+- Fix some issues in reset pass script
 - Update translations
 
 RELEASE 1.5.5-20140113
