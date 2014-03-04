@@ -10,16 +10,12 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
         return 'PDF';
     }
 
-    public function set_filename($filename)
-    {
-        parent::set_filename($filename . ".pdf");
-    }
-
     public function __construct($title = null, $subject = '', $created_by = false, $custom_logo_file = null)
     {
         $this->pdf = Libs_TCPDFCommon::new_pdf();
         Libs_TCPDFCommon::prepare_header($this->pdf, $title, $subject, $created_by, $custom_logo_file);
         Libs_TCPDFCommon::add_page($this->pdf);
+        $this->set_filename_extension('pdf');
     }
 
     public function write_text($html)
@@ -102,10 +98,11 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
         if ($this->content_length === null) {
             throw new ErrorException('Call get_output first to calculate output length');
         }
+        $filename = $this->get_filename_with_extension();
         header('Content-Type: application/pdf');
         header('Content-Length: ' . $this->content_length);
         header('Cache-Control: no-cache');
-        header('Content-disposition: inline; filename="' . $this->get_filename() . '"');
+        header('Content-disposition: inline; filename="' . $filename . '"');
     }
 
 

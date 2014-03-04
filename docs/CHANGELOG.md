@@ -4,6 +4,7 @@ EPESI CHANGELOG
 CURRENT
 -------
 
+- Fix Base/Print filename suffix
 
 
 RELEASE 1.5.6-20140303
