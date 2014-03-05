@@ -8,6 +8,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+// remember that even with SET_SESSION = false, class defined below is declared
 if(!SET_SESSION) {
     global $_SESSION;
     if(!isset($_SESSION) || !is_array($_SESSION))
@@ -23,14 +24,12 @@ class DBSession {
     private static $memcached;
     private static $ado; //for second postgresql connection - client session handling
 
-    private static function truncate_session_id($id)
+    public static function truncated_session_id($session_id = null)
     {
-        return substr($id, 0, self::MAX_SESSION_ID_LENGTH);
-    }
-
-    public static function truncated_session_id()
-    {
-        return self::truncate_session_id(session_id());
+        if ($session_id === null) {
+            $session_id = session_id();
+        }
+        return substr($session_id, 0, self::MAX_SESSION_ID_LENGTH);
     }
 
     public static function open($path, $name) {
@@ -54,7 +53,7 @@ class DBSession {
     }
 
     public static function read($name) {
-        $name = self::truncate_session_id($name);
+        $name = self::truncated_session_id($name);
         if(DATABASE_DRIVER=='mysqlt') {
             if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name,ini_get('max_execution_time'))))
                 trigger_error('Unable to get lock on session name='.$name,E_USER_ERROR);
@@ -110,7 +109,7 @@ class DBSession {
     }
 
     public static function write($name, $data) {
-        $name = self::truncate_session_id($name);
+        $name = self::truncated_session_id($name);
         if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
         $ret = 0;
         if(CID!==false && isset($_SESSION['client'])) {
@@ -156,7 +155,7 @@ class DBSession {
     }
     
     public static function destroy_client($name,$i) {
-        $name = self::truncate_session_id($name);
+        $name = self::truncated_session_id($name);
         if(self::$memcached) {
         	for($k=0;;$k++)
                 	if(!self::$memcached->delete('sess_'.$name.'_'.$i.'_'.$k)) break;
@@ -171,7 +170,7 @@ class DBSession {
     }
 
     public static function destroy($name) {
-        $name = self::truncate_session_id($name);
+        $name = self::truncated_session_id($name);
         if(self::$memcached) {
             for($i=0; $i<5; $i++)
         	for($k=0;;$k++)
