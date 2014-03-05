@@ -331,9 +331,28 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
     public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode=='add' || $mode=='edit') {
-            $fck = $form->addElement('ckeditor', $field, $label);
+            $fck = $form->createElement('ckeditor', $field, $label);
             $fck->setFCKProps('99%','300',true);
-            if ($mode=='edit') $form->setDefaults(array($field=>$default));
+
+            load_js('modules/Utils/Attachment/js/lib/plupload.js');
+            load_js('modules/Utils/Attachment/js/lib/plupload.flash.js');
+            load_js('modules/Utils/Attachment/js/lib/plupload.browserplus.js');
+            load_js('modules/Utils/Attachment/js/lib/plupload.html4.js');
+            load_js('modules/Utils/Attachment/js/lib/plupload.html5.js');
+            load_js('modules/Utils/Attachment/attachments.js');
+            if (!isset($_SESSION['client']['utils_attachment'][CID])) $_SESSION['client']['utils_attachment'][CID] = array('files'=>array());
+            eval_js('Utils_Attachment__init_uploader()');
+            eval_js_once('var Utils_Attachment__delete_button = "'.Base_ThemeCommon::get_template_file('Utils_Attachment', 'delete.png').'";');
+            eval_js_once('var Utils_Attachment__restore_button = "'.Base_ThemeCommon::get_template_file('Utils_Attachment', 'restore.png').'";');
+            eval_js('Utils_Attachment__submit_note = function() {'.$form->get_submit_form_js().'}');
+
+            $files = $form->createElement('static','files','','<div id="multiple_attachments">'.'<div id="filelist"></div></div>');
+            Base_ActionBarCommon::add('add',__('Select files'),'id="pickfiles" href="javascript:void(0);"');
+            $del = $form->createElement('hidden', 'delete_files', null, array('id'=>'delete_files'));
+            $add = $form->createElement('hidden', 'clipboard_files', null, array('id'=>'clipboard_files'));
+            $form->addGroup(array($fck,$files,$del,$add),$field,$label);
+
+            if ($mode=='edit') $form->setDefaults(array($field=>array($field=>$default)));
         } else {
             $form->addElement('static', $field, $label);
             $form->setDefaults(array($field=>self::display_note($rb_obj->record)));
@@ -422,9 +441,57 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 } else {
                     $values['crypted'] = 0;
                 }
+
+            Epesi::alert('a '.print_r($values,true));
+                $values['note'] = $values['note']['note'];
                 break;
             case 'added':
                 $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
+                //case 'edited': nie dziala edited
+                Epesi::alert('d '.print_r($values,true));
+                /*$current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($values['id']));
+                $remaining_files = $current_files;
+                $deleted_files = trim($values['delete_files'], ';');
+                    if ($deleted_files) $deleted_files = explode(';', $deleted_files);
+                    else $deleted_files = array();
+                    foreach ($deleted_files as $k=>$v) {
+                        $deleted_files[$k] = intVal($v);
+                        if (!isset($remaining_files[$v])) unset($deleted_files[$k]);
+                        else unset($remaining_files[$v]);
+                    }
+                    if (empty($clipboard_files) && empty($remaining_files) && empty($files) && !$data['note']) {
+                        Base_StatusBarCommon::message(__('Unable to create empty note'), 'warning');
+                        return;
+                    }
+                    $note_id = $data['note_id'];
+                    $old = DB::GetRow('SELECT text,ual.crypted FROM utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.id=%d', array($note_id));
+                    if($old['crypted']) $old['text'] = Utils_AttachmentCommon::decrypt($old['text'],$this->get_module_variable('cp'.$note_id));
+                    DB::Execute('UPDATE utils_attachment_link SET title=%s,sticky=%b,crypted=%b,permission=%d,permission_by=%d WHERE id=%d',array($data['note_title'],isset($data['sticky']) && $data['sticky'],$crypted,$data['permission'],Acl::get_user(),$note_id));
+                    if($data['note']!=$old['text'] || $data['note_password'] != $this->get_module_variable('cp'.$note_id)) {
+                        DB::StartTrans();
+                        $rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($note_id));
+                        DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($note,$note_id,$rev+1,Acl::get_user()));
+                        DB::CompleteTrans();
+                    }
+                    foreach ($deleted_files as $v)
+                        DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d', array($v));
+                } else {
+                    if (empty($clipboard_files) && empty($files) && !$data['note']) {
+                        Base_StatusBarCommon::message(__('Unable to create empty note'), 'warning');
+                        return;
+                    }
+                    $note_id = Utils_AttachmentCommon::add($this->group,$data['permission'],Acl::get_user(),$note,null,null,$this->func,$this->args,null,array(),isset($data['sticky']) && $data['sticky'],$data['note_title'],$crypted);
+                }
+                foreach ($clipboard_files as $cf_id) {
+                    $cf = DB::GetOne('SELECT filename FROM utils_attachment_clipboard WHERE id=%d', array($cf_id));
+                    Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), __('clipboard').'.png', $cf);
+                }
+                foreach ($files as $f) {
+                    if($crypted)
+                        file_put_contents($f,Utils_AttachmentCommon::encrypt(file_get_contents($f),$data['note_password']));
+                    Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), basename($f), $f);
+                }*/
+
                 break;
         }
         return $values;
