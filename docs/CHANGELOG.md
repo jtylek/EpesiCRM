@@ -1,12 +1,11 @@
 EPESI CHANGELOG
 ===============
 
-CURRENT
+RELEASE 1.5.6-20140305
 -------
 
 - Fix Base/Print filename suffix
 - Fix not working RoundCube due to not loaded DBSession class
-
 
 RELEASE 1.5.6-20140303
 ----------------------
