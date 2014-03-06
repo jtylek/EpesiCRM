@@ -26,10 +26,10 @@ class Base_PrintInstall extends ModuleInstall
     public function uninstall()
     {
         Base_ThemeCommon::uninstall_default_theme($this->get_type());
-        Variable::delete('printers_registered');
-        Variable::delete('print_document_types');
-        Variable::delete('print_href_callback');
-        Variable::delete('print_disabled_templates');
+        Variable::delete('printers_registered', false);
+        Variable::delete('print_document_types', false);
+        Variable::delete('print_href_callback', false);
+        Variable::delete('print_disabled_templates', false);
         return true;
     }
 

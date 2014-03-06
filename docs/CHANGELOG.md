@@ -1,6 +1,12 @@
 EPESI CHANGELOG
 ===============
 
+CURRENT
+-------
+
+- Add exception handling
+- Fix Base/Print uninstall method
+
 RELEASE 1.5.6-20140305
 -------
 
