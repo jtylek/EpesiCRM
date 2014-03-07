@@ -20,6 +20,8 @@
                 {$form.note_password.error}
                 {$form.note_password2.label}
                 {$form.note_password2.html}
+            {else}
+                <span style="margin-right: 15px; margin-left: 10px">{"Enable mcrypt extension to turn on notes encryption"|t}</span>
             {/if}
 			{$form.sticky.label}
 			{$form.sticky.html}
