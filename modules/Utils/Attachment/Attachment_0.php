@@ -396,8 +396,6 @@ class Utils_Attachment extends Module {
                     }
                     if($text===false) {
                         $text = '<div style="color:red">'.__('Note encrypted').'</div>'. $text_encryption;
-                        $icon = '';
-                        $files = array();
                     }
                 }
             } else {
