@@ -13,7 +13,17 @@ Since it is a web based application there is no installation required. Once setu
 
 Summing up EPESI CRM allows to store data on servers in a very simple and accessible way, allowing to use the safety and security of advanced computer technologies. In one package with CRM there is a high level PHP framework delivered – a collection of libraries and modules that allow rapid development of new apps. It has a CRUD engine together with user management, lightboxes, forms, themes and more, all with support via forum.
 
-The project has been started in 2006 by Telaxus LLC and the estimated costs to developed it reached $8 mln USD. Though EPESI is open sourced and available for free under the MIT license.
+This application is developed and is copyrighted by Telaxus LLC.
+For more information please visit <a href="epe.si">EPESIwww.epe.si</a>
+EPESI is released under the MIT License
+
+Copyright © 2006-2014 Telaxus LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/orsell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHERDEALINGS IN THE SOFTWARE.
 
 ---
 

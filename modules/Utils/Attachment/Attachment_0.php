@@ -357,35 +357,6 @@ class Utils_Attachment extends Module {
 			$r = $gb->get_new_row();
 			$r->set_attrs('id="attachments_note_'.$row['id'].'"');
 
-			$inline_img = '';
-			$link_href = '';
-			$link_img = '';
-			$icon = '';
-			$files = DB::GetAll('SELECT id, created_by, created_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($row['id']));
-			foreach ($files as $f) {
-				$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$f['id'];
-				if(file_exists($f_filename)) {
-					$filename = $f['original'];
-					$filetooltip = __('Filename: %s',array($filename)).'<br>'.__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
-						__('Last uploaded by %s', array(Base_UserCommon::get_user_label($f['created_by'], true))).'<br/>'.
-						__('On: %s',array(Base_RegionalSettingsCommon::time2reg($f['created_on']))).'<br/>'.
-						__('Number of downloads: %d',array($f['downloads']));
-					$view_link = '';
-					$f['local'] = $row['local'];
-                    $f['crypted'] = $row['crypted'];
-					$link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.$this->get_file($f,$view_link);
-					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png');
-					if(Utils_AttachmentCommon::is_image($filename) && $view_link)
-						$inline_img .= '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
-				} else {
-					$filename = __('Missing file: %s',array($f_filename));
-					$link_href = Utils_TooltipCommon::open_tag_attrs($filename);
-					$link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach-off.png');
-				}
-				if ($link_href)
-					$icon .= '<span class="file_link"><a '.$link_href.'><img src="'.$link_img.'"><span class="file_name">'.$filename.'</span></a></span>';
-			}
-
 			$def_permissions = array(__('Public'),__('Protected'),__('Private'));
 			$perm = $def_permissions[$row['permission']];
 			$created_on = $row['note_on'];
@@ -406,27 +377,58 @@ class Utils_Attachment extends Module {
                     if($decoded!==false) $text = $decoded;
                 }
                 if($text===false) {
-                    $cf = $this->init_module('Libs_QuickForm',null,'crypted_pass_'.$row['id']);
-                    $cf->set_inline_display();
-                    //$cf->addElement('header',null,__('Note encrypted'));
-                    $cf->addElement('password','note_password_decode',__('Password'));
-                    $cf->addElement('submit','submit',__('Submit'));
-                    if($cf->validate()) {
-                        $note_pass = $cf->exportValue('note_password_decode');
-                        $decoded = Utils_AttachmentCommon::decrypt($row['text'],$note_pass);
-                        if($decoded!==false) {
-                            $text = $decoded;
-                            $this->set_module_variable('cp'.$row['id'],$note_pass);
-                        } else Epesi::alert(__('Invalid password'));
+                    if (extension_loaded('mcrypt')) {
+                        $cf = $this->init_module('Libs_QuickForm',null,'crypted_pass_'.$row['id']);
+                        $cf->set_inline_display();
+                        $cf->addElement('password','note_password_decode',__('Password'));
+                        $cf->addElement('submit','submit',__('Submit'));
+                        if($cf->validate()) {
+                            $note_pass = $cf->exportValue('note_password_decode');
+                            $decoded = Utils_AttachmentCommon::decrypt($row['text'],$note_pass);
+                            if($decoded!==false) {
+                                $text = $decoded;
+                                $this->set_module_variable('cp'.$row['id'],$note_pass);
+                            } else Epesi::alert(__('Invalid password'));
+                        }
+                        $text_encryption = $this->get_html_of_module($cf);
+                    } else {
+                        $text_encryption = __('Please enable mcrypt extension to decode note');
                     }
                     if($text===false) {
-                        $text = '<div style="color:red">'.__('Note encrypted').'</div>'.$this->get_html_of_module($cf);
-                        $icon = '';
-                        $files = array();
+                        $text = '<div style="color:red">'.__('Note encrypted').'</div>'. $text_encryption;
                     }
                 }
             } else {
                 $text = $row['text'];
+            }
+
+            $inline_img = '';
+            $icon = '';
+            if ($this->isset_module_variable('cp'.$row['id'])) {
+                $files = DB::GetAll('SELECT id, created_by, created_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($row['id']));
+                foreach ($files as $f) {
+                    $f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$f['id'];
+                    if(file_exists($f_filename)) {
+                        $filename = $f['original'];
+                        $filetooltip = __('Filename: %s',array($filename)).'<br>'.__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
+                                       __('Last uploaded by %s', array(Base_UserCommon::get_user_label($f['created_by'], true))).'<br/>'.
+                                       __('On: %s',array(Base_RegionalSettingsCommon::time2reg($f['created_on']))).'<br/>'.
+                                       __('Number of downloads: %d',array($f['downloads']));
+                        $view_link = '';
+                        $f['local'] = $row['local'];
+                        $f['crypted'] = $row['crypted'];
+                        $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.$this->get_file($f,$view_link);
+                        $link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach.png');
+                        if(Utils_AttachmentCommon::is_image($filename) && $view_link)
+                            $inline_img .= '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
+                    } else {
+                        $filename = __('Missing file: %s',array($f_filename));
+                        $link_href = Utils_TooltipCommon::open_tag_attrs($filename);
+                        $link_img = Base_ThemeCommon::get_template_file($this->get_type(),'z-attach-off.png');
+                    }
+                    if ($link_href)
+                        $icon .= '<span class="file_link"><a '.$link_href.'><img src="'.$link_img.'"><span class="file_name">'.$filename.'</span></a></span>';
+                }
             }
 
             if(!$row['crypted'] || $this->isset_module_variable('cp'.$row['id'])) {

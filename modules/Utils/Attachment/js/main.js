@@ -111,9 +111,11 @@ utils_attachments_cancel_note_edit = function () {
 	$('filelist').innerHTML = '';
     $("note_title").value = '';
 	$("note_sticky").checked = false;
-    $("note_crypted").checked = false;
-    $("note_password").disabled = true;
-    $("note_password2").disabled = true;
+    if ($("note_crypted")) {
+        $("note_crypted").checked = false;
+        $("note_password").disabled = true;
+        $("note_password2").disabled = true;
+    }
 	$("note_permission").value = 0;
 	if (utils_attachment_last_edited_note) {
 		utils_attachment_last_edited_note.style.display="";

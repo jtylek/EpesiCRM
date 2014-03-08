@@ -4,9 +4,16 @@ EPESI CHANGELOG
 CURRENT
 -------
 
+- Add exception handling
+- Fix Base/Print uninstall method
+- Fix attachments when mcrypt module is not loaded
+- Do not show files in attachments when note is not decrypted
+
+RELEASE 1.5.6-20140305
+-------
+
 - Fix Base/Print filename suffix
 - Fix not working RoundCube due to not loaded DBSession class
-
 
 RELEASE 1.5.6-20140303
 ----------------------
