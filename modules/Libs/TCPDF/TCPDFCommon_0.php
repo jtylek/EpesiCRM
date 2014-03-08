@@ -110,7 +110,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
     }
 
     public static function SetFont(& $tcpdf, $family, $style='', $size=0) {
-        $tcpdf->SetFont(self::$default_font, $style, $size);
+        $tcpdf->SetFont($family?$family:self::$default_font, $style, $size);
     }
 
     public static function output(& $tcpdf) {

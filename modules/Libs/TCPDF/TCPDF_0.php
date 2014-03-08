@@ -39,7 +39,7 @@ class Libs_TCPDF extends Module {
 	}
 
 	public function SetFont($family, $style='', $size=0) {
-		$this->tcpdf->SetFont(self::$default_font, $style, $size);
+		$this->tcpdf->SetFont($family?$family:self::$default_font, $style, $size);
 	}
 
 	public function & __call($func_name, array $args=array()) {
