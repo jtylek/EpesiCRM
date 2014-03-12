@@ -65,7 +65,7 @@ $g_auth = Utils_AttachmentCommon::get_google_auth();
 
 if ($g_auth) {
 	DB::StartTrans();
-	$view_row = DB::GetRow('SELECT id, view_link FROM utils_attachment_googledocs WHERE note_id=%d', array($id));
+    $view_row = DB::GetRow('SELECT id, view_link FROM utils_attachment_googledocs WHERE note_id=%d', array($id));
 	if (empty($view_row)) {
 		$view_doc = null;
 		DB::Execute('INSERT INTO utils_attachment_googledocs (view_link, note_id, doc_id) VALUES (%s, %d, %s)', array('', $id, ''));
@@ -108,7 +108,7 @@ if ($g_auth) {
 		foreach ($response->link as $l)
 			if ($l['rel']=='http://schemas.google.com/g/2005#resumable-create-media') $upload_href = $l['href'];
 	// Reported broken, use default href instead
-		
+
 		// Check if collection exists
 		$folder_exists = false;
 		$folder_name = 'EPESI Docs';
@@ -164,12 +164,16 @@ if ($g_auth) {
 		// Create the file
 		$filename = 'EPESI Note '.$id;
 		switch (true) {
-			case strpos($row['original'], '.doc')!==false: $type = 'document'; $content_type = 'application/msword'; break;
-			case strpos($row['original'], '.csv')!==false: $type = 'spreadsheet'; $content_type = 'text/csv'; break;
+			case preg_match('/\.docx?$/i',$original): $type = 'document'; $content_type = 'application/msword'; break;
+            case preg_match('/\.odt$/i',$original): $type = 'document'; $content_type = 'application/vnd.oasis.opendocument.text'; break;
+            case preg_match('/\.ods$/i',$original): $type = 'spreadsheet'; $content_type = 'application/vnd.oasis.opendocument.spreadsheet'; break;
+            case preg_match('/\.csv$/i',$original): $type = 'spreadsheet'; $content_type = 'text/csv'; break;
+            case preg_match('/\.xlsx?$/i',$original): $type = 'spreadsheet'; $content_type = 'application/vnd.google-apps.spreadsheet'; break;
+            case preg_match('/\.txt$/i',$original): $type = 'document'; $content_type = 'text/plain'; break;
 			// application/vnd.oasis.opendocument.spreadsheet
 		}
 		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:docs="http://schemas.google.com/docs/2007"><category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/docs/2007#'.$type.'"/><title>'.$filename.'</title></entry>';
-		
+
 		$headers = array(
 			"Authorization: GoogleLogin auth=" . $g_auth,
 			"GData-Version: 3.0",

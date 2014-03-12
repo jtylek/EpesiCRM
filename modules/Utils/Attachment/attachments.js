@@ -85,7 +85,7 @@ Utils_Attachment__init_uploader = function () {
 }
 
 document.onpaste = function(event) {
-	if ($("attachments_new_note").style.display=='none') return;
+	if (jq("#clipboard_files").length==0) return;
     var items = event.clipboardData.items;
     var s = JSON.stringify(items);
 	for (var i in items) {

@@ -17,6 +17,7 @@ define('CID', false);
 define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 
+
 $query = 'SELECT ual.f_local,uaf.id,uaf.attach_id,uaf.original,uad.ip_address,uad.attach_file_id,uad.created_by,uad.created_on,uad.description FROM (utils_attachment_file uaf INNER JOIN utils_attachment_download uad ON uad.attach_file_id=uaf.id) INNER JOIN utils_attachment_data_1 ual ON uaf.attach_id=ual.id WHERE uad.id='.DB::qstr($id).' AND uad.token='.DB::qstr($token).' AND uad.expires_on>'.DB::DBTimeStamp(time()).' AND uad.remote=';
 $row = DB::GetRow($query.'1');
 if($row==false) {
@@ -27,7 +28,7 @@ if($row==false) {
 } else $duplicate = false;
 $original = $row['original'];
 $file_id = $row['id'];
-$local = $row['local'];
+$local = $row['f_local'];
 $filename = $local.'/'.$file_id;
 
 if(headers_sent())

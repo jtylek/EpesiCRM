@@ -291,9 +291,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         __('On: %s',array(Base_RegionalSettingsCommon::time2reg($f['created_on']))).'<br/>'.
                         __('Number of downloads: %d',array($f['downloads']));
                     $view_link = '';
-                    $f['local'] = $row['local'];
-                    $f['crypted'] = $row['crypted'];
-                    $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.self::get_file_leightbox($f,$view_link);
+                    $lb = array();
+                    $lb['local'] = $row['local'];
+                    $lb['crypted'] = $row['crypted'];
+                    $lb['original'] = $f['original'];
+                    $lb['id'] = $f['id'];
+                    $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.self::get_file_leightbox($lb,$view_link);
                     $link_img = Base_ThemeCommon::get_template_file('Utils_Attachment','z-attach.png');
                     if(Utils_AttachmentCommon::is_image($filename) && $view_link)
                         $inline_img .= '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
@@ -322,9 +325,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
         } else {
             $text = $row['note'];
         }
-        if (!$text && $inline_img) $text = '<br/>';
+        if ($text && $inline_img) $text = '<br/>';
 
-        $text = $icon.$text;
+        $text = $icon.$text.$inline_img;
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
 
         return $text;
@@ -510,13 +513,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
         if($row['original']==='') return '';
 
-        //tag for get.php
-        //TODO: replace with getacces
-        /*if(!$this->isset_module_variable('public')) {
-            $this->set_module_variable('public',$this->public_read);
-            $this->set_module_variable('protected',$this->protected_read);
-            $this->set_module_variable('private',$this->private_read);
-        }*/
+        $links = array();
 
         $lid = 'get_file_'.md5(serialize($row));
         if(isset($_GET['save_google_docs']) && $_GET['save_google_docs']==$lid) {
@@ -527,7 +524,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         }
 
         $close_leightbox_js = 'leightbox_deactivate(\''.$lid.'\');';
-        if (Variable::get('utils_attachments_google_user',false) && (strpos($row['original'], '.doc')!==false || strpos($row['original'], '.csv')!==false)) {
+        if (Variable::get('utils_attachments_google_user',false) && preg_match('/\.(xlsx?|docx?|txt|odt|ods|csv)$/i',$row['original'])) {
             $label = __('Open with Google Docs');
             $label = explode(' ', $label);
             $mid = floor(count($label) / 2);
@@ -535,8 +532,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $script = 'get_google_docs';
             $onclick = '$(\'attachment_save_options_'.$row['id'].'\').style.display=\'\';$(\'attachment_download_options_'.$row['id'].'\').hide();';
             $th->assign('save_options_id','attachment_save_options_'.$row['id']);
-            $th->assign('save','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.Module::create_href_js(array('save_google_docs'=>$lid)).'">'.__('Save Changes').'</a><br>');
-            $th->assign('discard','<a href="javascript:void(0);" onclick="'.$close_leightbox_js.Module::create_href_js(array('discard_google_docs'=>$lid)).'">'.__('Discard Changes').'</a><br>');
+            $links['save'] = '<a href="javascript:void(0);" onclick="'.$close_leightbox_js.Module::create_href_js(array('save_google_docs'=>$lid)).'">'.__('Save Changes').'</a><br>';
+            $links['discard'] ='<a href="javascript:void(0);" onclick="'.$close_leightbox_js.Module::create_href_js(array('discard_google_docs'=>$lid)).'">'.__('Discard Changes').'</a><br>';
         } else {
             $label = __('View');
             $th->assign('save_options_id','');
@@ -544,22 +541,15 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $onclick = $close_leightbox_js;
         }
         $th->assign('download_options_id','attachment_download_options_'.$row['id']);
+
         $view_link = 'modules/Utils/Attachment/'.$script.'.php?'.http_build_query(array('id'=>$row['id'],'cid'=>CID,'view'=>1));
-
-        $links = array();
-
-        $view_var = '<a href="'.$view_link.'" target="_blank" onClick="'.$onclick.'">'.$label.'</a><br>';
-        $th->assign('view',$view_var);
-        $links['view'] = Base_ThemeCommon::parse_links('view', $view_var);
-
-        $download_var = '<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.__('Download').'</a><br>';
-        $th->assign('download',$download_var);
-        $links['download'] = Base_ThemeCommon::parse_links('download', $download_var);
-
-        $th->assign('__link',$links);
+        $links['view'] = '<a href="'.$view_link.'" target="_blank" onClick="'.$onclick.'">'.$label.'</a><br>';
+        $links['download'] = '<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.__('Download').'</a><br>';
 
         load_js('modules/Utils/Attachment/remote.js');
-        if(!$row['crypted']) $th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['id'].', '.CID.',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>');
+        if(!$row['crypted']) {
+            $links['link'] = '<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['id'].', '.CID.',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>';
+        }
         $th->assign('filename',$row['original']);
         $f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'];
         if(!file_exists($f_filename)) return 'missing file: '.$f_filename;
@@ -569,6 +559,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
             'filename'=>__('Filename'),
             'file_size'=>__('File size')
         ));
+
+        foreach($links as $key=>&$l) {
+            $th->assign($key,$l);
+            $l = Base_ThemeCommon::parse_links($key, $l);
+        }
+        $th->assign('__link',$links);
 
         $custom_getters = array();
         if(!$row['crypted']) {
@@ -629,7 +625,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         curl_setopt($curl, CURLOPT_POST, false);
         $response = curl_exec_follow($curl);
 
-        $row = DB::GetRow('SELECT f.*,l.crypted FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id WHERE f.id=%d',array($note_id));
+        $row = DB::GetRow('SELECT f.*,l.f_crypted as crypted FROM utils_attachment_file f INNER JOIN utils_attachment_data_1 l ON l.id=f.attach_id WHERE f.id=%d',array($note_id));
 
         $local = DATA_DIR.'/Utils_Attachment/temp/'.Acl::get_user().'/gdocs';
         @mkdir($local,0777,true);
@@ -640,9 +636,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $response = Utils_AttachmentCommon::encrypt($response,$password);
         }
         file_put_contents($dest_file, $response);
-        if(preg_match('/\.doc$/i',$row['original'])) {
-            $row['original'] = substr($row['original'],0,-4).'.docx';
-        }
+        if($doc) {
+            $ext = 'docx';
+        } else $ext = 'csv';
+
+        $row['original'] = substr($row['original'],0,strrpos($row['original'],'.')).'.'.$ext;
 
         Utils_AttachmentCommon::add_file($row['attach_id'], Acl::get_user(), $row['original'], $dest_file);
         DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d',array($row['id']));
