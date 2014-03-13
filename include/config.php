@@ -17,6 +17,7 @@ if(!defined('DATABASE_PASSWORD')) trigger_error('Missing defined DATABASE_PASSWO
 if(!defined('DATABASE_NAME')) trigger_error('Missing defined DATABASE_NAME in '.DATA_DIR.'/config.php.',E_USER_ERROR);
 if(!defined('DATABASE_DRIVER')) trigger_error('Missing defined DATABASE_DRIVER in '.DATA_DIR.'/config.php.',E_USER_ERROR);
 if(!defined('DEBUG')) define("DEBUG",0);
+if(!defined('DEBUG_JS')) define('DEBUG_JS', 0);
 if(!defined('DEBUG_CSS')) define("DEBUG_CSS",0);
 if(!defined('MODULE_TIMES')) define("MODULE_TIMES",0);
 if(!defined('SQL_TIMES')) define("SQL_TIMES",0);

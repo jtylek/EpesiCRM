@@ -8,6 +8,7 @@ CURRENT
 - Fix Base/Print uninstall method
 - Fix attachments when mcrypt module is not loaded
 - Do not show files in attachments when note is not decrypted
+- Add DEBUG_JS option for better js errors handling
 
 RELEASE 1.5.6-20140305
 -------
