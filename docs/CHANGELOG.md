@@ -11,6 +11,7 @@ CURRENT
 - Add DEBUG_JS option for better js errors handling
 - Add option to forbid autologin
 - Add another admin access level to control ban and autologin
+- Do not generate watchdog notification when user doesn't have view access to modified field
 
 RELEASE 1.5.6-20140305
 -------
