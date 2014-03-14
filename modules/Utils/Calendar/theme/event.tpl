@@ -3,15 +3,12 @@
 {/php}
 
 <span class="event_menu" id="event_menu_{$event_id}" style="display:none;z-index:999;position:absolute;">
-    <!-- SHADIW BEGIN -->
 	{assign var=x value=$custom_actions|@count}
 	{assign var=x value=$x*20}
 	{assign var=x value=$x+100}
-    <div class="layer" style="padding: 10px; width: {$x}px;">
-    	<div class="content_shadow">
-    <!-- -->
+    <div class="layer" style="width: {$x}px;">
 
-        <span class="event_menu_content" style="display: block;height: 20px;background-color: #e6ecf2;">
+        <span class="event_menu_content" style="display: block;height: 20px;background-color: #e6ecf2;border:1px solid gray;">
 			<span id="Utils_Calendar__event_images">
 		    	{if isset($view_href)}
 		            <a {$view_href}><img border="0" src="{$theme_dir}/Utils/Calendar/view.png"></a>
@@ -31,24 +28,7 @@
 			</span>
         </span>
 
-    <!-- SHADOW END -->
- 		</div>
-	<div class="shadow-top">
-		<div class="left"></div>
-		<div class="center"></div>
-		<div class="right"></div>
 	</div>
-	<div class="shadow-middle">
-		<div class="left"></div>
-		<div class="right"></div>
-	</div>
-	<div class="shadow-bottom">
-		<div class="left"></div>
-		<div class="center"></div>
-		<div class="right"></div>
-	</div>
-	</div>
-    <!-- -->
 </span>
 
 {if $with_div}
