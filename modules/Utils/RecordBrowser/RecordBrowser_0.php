@@ -42,7 +42,7 @@ class Utils_RecordBrowser extends Module {
 	private $search_calculated_callback = false;
 	private $fields_in_tabs = array();
 	private $hide_tab = array();
-    public $action = 'Browsing';
+    public $action = 'Browsing'; // _M('Browsing');
     public $custom_defaults = array();
     public static $admin_filter = '';
     public static $tab_param = '';
@@ -1176,10 +1176,10 @@ class Utils_RecordBrowser extends Module {
             $form->setDefaults($defaults);
 
         switch ($mode) {
-            case 'add':     $this->action = 'New record'; break;
-            case 'edit':    $this->action = 'Edit record'; break;
-            case 'view':    $this->action = 'View record'; break;
-            case 'history':    $this->action = 'Record history view'; break;
+            case 'add':     $this->action = _M('New record'); break;
+            case 'edit':    $this->action = _M('Edit record'); break;
+            case 'view':    $this->action = _M('View record'); break;
+            case 'history':    $this->action = _M('Record history view'); break;
         }
 
         $this->prepare_view_entry_details($this->record, $mode=='history'?'view':$mode, $id, $form);
@@ -2424,7 +2424,7 @@ class Utils_RecordBrowser extends Module {
         $this->force_order = $arg;
     }
     public function caption(){
-        return $this->caption.': '.$this->action;
+        return $this->caption . ': ' . _V($this->action);
     }
     public function recordpicker($element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
         $this->init();
