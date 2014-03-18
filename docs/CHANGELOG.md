@@ -12,6 +12,7 @@ CURRENT
 - Add option to forbid autologin
 - Add another admin access level to control ban and autologin
 - Do not generate watchdog notification when user doesn't have view access to modified field
+- Fix Roundcube rc_contactgroups reference
 
 RELEASE 1.5.6-20140305
 -------

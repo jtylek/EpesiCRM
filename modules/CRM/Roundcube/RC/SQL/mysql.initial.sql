@@ -85,7 +85,7 @@ CREATE TABLE `rc_contactgroups` (
   `name` varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY(`contactgroup_id`),
   CONSTRAINT `user_id_fk_contactgroups` FOREIGN KEY (`user_id`)
-    REFERENCES `users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    REFERENCES `rc_users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   INDEX `contactgroups_user_index` (`user_id`,`del`)
 );
 CREATE TABLE `rc_contactgroupmembers` (
