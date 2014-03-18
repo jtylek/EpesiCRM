@@ -36,7 +36,7 @@ if (!isset($access_fields['note']) || !$access_fields['note'])
     die('Access forbidden');
 
 $original = $file['original'];
-$local = $rec['local'];
+$local = $rec['id'];
 $filename = $local.'/'.$id;
 $crypted = $rec['crypted'];
 

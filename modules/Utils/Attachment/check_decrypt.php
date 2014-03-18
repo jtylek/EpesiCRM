@@ -6,7 +6,7 @@ $id = $_REQUEST['id'];
 $pass = $_REQUEST['pass'];
 
 define('CID', $cid);
-define('READ_ONLY_SESSION',true);
+define('READ_ONLY_SESSION',false);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
@@ -16,8 +16,12 @@ if(!Utils_RecordBrowserCommon::get_access('utils_attachment','view',$row)) die(j
 $decoded = Utils_AttachmentCommon::decrypt($row['note'],$pass);
 if($decoded!==false) {
     $_SESSION['client']['cp'.$row['id']] = $pass;
+    ob_start();
+    $note = Utils_AttachmentCommon::display_note($row,false);
+    $note = ob_get_clean().$note;
     die(json_encode(array(
-        'note'=>Utils_AttachmentCommon::display_note($row,false)
+        'note'=>$note,
+        'js'=>Epesi::get_output()
     )));
 }
 die(json_encode(array('error'=>__('Invalid password'))));

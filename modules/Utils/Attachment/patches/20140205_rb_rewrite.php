@@ -2,12 +2,6 @@
 Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
 $fields = array(
     array(
-        'name' => _M('Local'),
-        'type' => 'text',
-        'param' => 255,
-        'required' => true, 'extra' => false, 'visible' => false
-    ),
-    array(
         'name' => _M('Date'),
         'type' => 'date',
         'extra'=>false,
@@ -56,12 +50,23 @@ $fields = array(
     ),
 );
 Utils_RecordBrowserCommon::install_new_recordset('utils_attachment',$fields);
-Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'), array('local','func','args'));
+Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'), array('func','args'));
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', array('ACCESS:employee','ACCESS:manager'));
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee');
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'),array('date'));
 Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
+Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename('Utils/Attachment', 'View_entry'));
+
+$ret &= DB::CreateTable('utils_attachment_local','
+			local C(255) NOTNULL,
+			attachment I4 NOTNULL',
+    array('constraints'=>', FOREIGN KEY (attachment) REFERENCES utils_attachment_data_1(ID)'));
+if(!$ret){
+    print('Unable to create table utils_attachment_link.<br>');
+    return false;
+}
+DB::CreateIndex('utils_attachment_local__idx', 'utils_attachment_local', 'local');
 
 //parse old notes
 $map = array();
@@ -71,7 +76,8 @@ foreach($links as $link) {
     $notes = DB::GetAll('SELECT * FROM utils_attachment_note WHERE attach_id=%d ORDER BY revision',$link['id']);
     $note = array_shift($notes);
     Acl::set_user($note['created_by']);
-    $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('local'=>$link['local'],'title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>$link['crypted'],'func'=>$link['func'],'args'=>$link['args'],'date'=>$note['created_on']));
+    $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>$link['crypted'],'func'=>$link['func'],'args'=>$link['args'],'date'=>$note['created_on']));
+    DB::Execute('INSERT INTO utils_attachment_local(local,attachment) VALUES(%s,%d)',array($link['local'],$rid));
     $map[$link['id']] = $rid;
     foreach($notes as $note) {
         Acl::set_user($note['created_by']);
@@ -93,9 +99,10 @@ if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
 }
 @DB::DropIndex('attach_id','utils_attachment_file');
 
-$files = DB::GetAssoc('SELECT id,attach_id FROM utils_attachment_file');
-foreach($files as $file_id=>$attach_id) {
-    //DB::Execute('UPDATE utils_attachent_file SET attach_id=%d WHERE id=%d',$map[$attach_id],$file_id);
+$files = DB::All('SELECT f.id,f.attach_id,l.local,l.id as aid FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id');
+foreach($files as $row) {
+    @rename(DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'],DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id']);
+    DB::Execute('UPDATE utils_attachent_file SET attach_id=%d WHERE id=%d',$map[$row['attach_id']],$row['id']);
 }
 
 if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {

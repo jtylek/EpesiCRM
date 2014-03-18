@@ -1,4 +1,4 @@
-var expandable_notes = new Array();
+/*var expandable_notes = new Array();
 var expandable_notes_amount = 0;
 var expanded_notes = 0;
 
@@ -125,8 +125,8 @@ var utils_attachment_last_edited_note = null;
 utils_attachment_edit_note = function(id,path) {
 	utils_attachment_add_note();
 	$('note_id').value = id;
-	
-	new Ajax.Request("modules/Utils/Attachment/get_note.php", {
+
+	new Ajax.Request("modules/Utils/Attachment/get_n ote.php", {
 		method: "post",
 		parameters:{
 			cid: Epesi.client_id,
@@ -176,3 +176,4 @@ utils_attachment_password = function(label,id) {
         }
     });
 }
+*/
