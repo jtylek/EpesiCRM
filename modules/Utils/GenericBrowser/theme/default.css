@@ -118,6 +118,7 @@
     padding-left: 6px;
 }
 
+.expand_collapse a.button,
 .letters-search .advanced a.button {
 	height: 23px;
 	padding: 4px 0px 3px 0px;
@@ -144,6 +145,9 @@
 	-moz-box-shadow: 1px 1px 3px gray;
 	box-shadow: 1px 1px 3px gray;
 	/* end css3 shadow border*/
+}
+.expand_collapse a.button {
+    width:120px;
 }
 
 .letters-search .advanced a.button:hover {
@@ -391,6 +395,7 @@ table.Utils_GenericBrowser > tbody > td img {
 
 .letters-search .letters {
     text-align: left;
+    padding: 0px 7px 0 0px;
 }
 
 .letters-search .reset {
@@ -398,9 +403,9 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 .letter_search_icon {
-	width: 105px;
-	padding: 0px 7px 0 0px;
-	color: white;
+    width: 105px;
+    padding: 0px 7px 0 0px;
+    color: white;
 }
 
 .letters-search .letters .all {
@@ -734,4 +739,13 @@ table.Utils_GenericBrowser > tbody > td img {
 	width: 28px;
 	height: 28px;
 	padding-right: 8px;
+}
+
+div.expandable.collapsed {
+    border-bottom: 1px dotted red;
+    overflow:hidden;
+}
+div.expandable.expanded {
+    border-bottom:none;
+    overflow:auto;
 }

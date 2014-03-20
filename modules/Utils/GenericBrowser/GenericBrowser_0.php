@@ -132,6 +132,7 @@ class Utils_GenericBrowser extends Module {
 	private $table_postfix = '';
 	private $absolute_width = false;
 	private $no_actions = array();
+    private $expandable = true;
 	public $form_s = null;
 
 	public function construct() {
@@ -358,6 +359,10 @@ class Utils_GenericBrowser extends Module {
 		return array(	'numrows'=>$per_page,
 						'offset'=>$offset);
 	}
+
+    public function set_expandable($b) {
+        $this->set_module_variable('expandable',$this->expandable = $b?true:false);
+    }
 
 	public function set_per_page($pp) {
 		if (!isset(Utils_GenericBrowserCommon::$possible_vals_for_per_page[$pp])) $pp = 5;
@@ -877,7 +882,7 @@ class Utils_GenericBrowser extends Module {
 		if ($this->en_actions) {
 			$max_actions = 0; // Possibly improve it to calculate it during adding actions
 			foreach($this->actions as $i=>$v) {
-				$this_width = 0;
+				$this_width = 1;
 				foreach ($v as $vv) {
 					$this_width += $vv['size'];
 				}
@@ -923,9 +928,30 @@ class Utils_GenericBrowser extends Module {
 
 		$out_data = array();
 
+        $expandable = $this->get_module_variable('expandable',$this->expandable);
+        if($expandable) {
+            eval_js('gb_expandable["'.$md5_id.'"] = {};');
+            eval_js('gb_expanded["'.$md5_id.'"] = 0;');
+
+            eval_js('gb_expand_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand.gif').'";');
+            eval_js('gb_collapse_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse.gif').'";');
+            eval_js('gb_expand_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand_gray.gif').'";');
+            eval_js('gb_collapse_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse_gray.gif').'";');
+        }
+
 		foreach($this->rows as $i=>$r) {
 			$col = array();
-			if ($this->en_actions) {
+
+            if($expandable) {
+                $row_id =  $md5_id.'_'.$i;
+                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_expand(\''.$md5_id.'\',\''.$i.'\')" id="gb_more_'.$row_id.'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 5);
+                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_collapse(\''.$md5_id.'\',\''.$i.'\')" id="gb_less_'.$row_id.'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 5, false, 0);
+                $this->__add_row_js($i,'gb_expandable_init("'.Epesi::escapeJS($md5_id,true,false).'","'.Epesi::escapeJS($i,true,false).'")');
+                if(!isset($this->row_attrs[$i])) $this->row_attrs[$i]='';
+                $this->row_attrs[$i] .= 'id="gb_row_'.$row_id.'"';
+            }
+
+            if ($this->en_actions) {
 				if ($actions_position==0) $column_no = -1;
 				else $column_no = count($this->columns);
 				$col[$column_no]['attrs'] = '';
@@ -990,7 +1016,7 @@ class Utils_GenericBrowser extends Module {
 			}
 			ksort($col);
 			foreach($col as $v)
-				$out_data[] = array('label'=>$v['label'],'attrs'=>$v['attrs']);
+				$out_data[] = array('label'=>'<div class="expandable">'.$v['label'].'</div>','attrs'=>$v['attrs']);
 			if(isset($this->rows_jses[$i]))
 				eval_js($this->rows_jses[$i]);
 		}
@@ -1030,6 +1056,19 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('last', $this->gb_last());
 		$theme->assign('custom_label', $this->custom_label);
 		$theme->assign('custom_label_args', $this->custom_label_args);
+
+        if($expandable) {
+            $theme->assign('expand_collapse',array(
+                'e_label'=>__('Expand All'),
+                'e_href'=>'href="javascript:void(0);" onClick=\'gb_expand_all("'.$md5_id.'")\'',
+                'e_id'=>'expand_all_button_'.$md5_id,
+                'c_label'=>__('Collapse All'),
+                'c_href'=>'href="javascript:void(0);" onClick=\'gb_collapse_all("'.$md5_id.'")\'',
+                'c_id'=>'collapse_all_button_'.$md5_id
+            ));
+
+            eval_js('gb_show_hide_buttons("'.$md5_id.'")');
+        }
 
 		if ($search_on) $theme->assign('adv_search','<a id="switch_search_'.($this->is_adv_search_on()?'simple':'advanced').'" class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
 		else $theme->assign('adv_search','');

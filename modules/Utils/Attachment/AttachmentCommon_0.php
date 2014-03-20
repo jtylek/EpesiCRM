@@ -76,7 +76,18 @@ class Utils_AttachmentCommon extends ModuleCommon {
     				call_user_func($func,$id,$file,$row['original'],$add_args,$row['created_on']);
 		}
 	}
-	
+
+    public static function watchdog_label($rid = null, $events = array(), $details = true) {
+        return Utils_RecordBrowserCommon::watchdog_label(
+            'utils_attachment',
+            __('Note'),
+            $rid,
+            $events,
+            'note',
+            $details
+        );
+    }
+
 	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$sticky=false,$note_title='',$crypted=false) {
 		if(($oryg && !$file) || ($file && !$oryg))
 		    trigger_error('Invalid add attachment call: missing original filename or temporary filepath',E_USER_ERROR);
@@ -477,6 +488,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'added':
                 $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 DB::Execute('INSERT INTO utils_attachment_local(attachment,local) VALUES(%d,%s)',array($values['id'],$values['local']));
+                $param = explode('/',$values['local']);
+                if (isset($param[1]) && Utils_WatchdogCommon::get_category_id($param[0])!==null) {
+                    Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$values['id']);
+                }
                 break;
             case 'display':
                 if(DB::GetOne('SELECT 1 FROM utils_attachment_file WHERE attach_id=%d AND deleted=0',array($values['id']))) {

@@ -79,3 +79,72 @@ Utils_GenericBrowser__overflow_div = function() {
 	else
 		div.onmouseover = table_overflow_hide_delayed;
 };
+
+var gb_expandable = {};
+var gb_expanded = {};
+
+gb_show_hide_buttons = function (table_id) {
+    if(typeof gb_expandable[table_id] == "undefined" || $("expand_all_button_"+table_id) == null) return;
+    if (Object.keys(gb_expandable[table_id]).length==0) {
+        $("expand_all_button_"+table_id).hide();
+        $("collapse_all_button_"+table_id).hide();
+        return;
+    }
+    if (gb_expanded[table_id]>=Object.keys(gb_expandable[table_id]).length) {
+        $("expand_all_button_"+table_id).hide();
+        $("collapse_all_button_"+table_id).show();
+    } else {
+        $("expand_all_button_"+table_id).show();
+        $("collapse_all_button_"+table_id).hide();
+    }
+}
+
+gb_expand = function(table,id) {
+    var e = jq("#gb_row_"+table+'_'+id+' div.expandable');
+    if(e.length>0) {
+        e.height("auto").addClass("expanded").removeClass('collapsed');
+        $("gb_more_"+table+'_'+id).hide();
+        $("gb_less_"+table+'_'+id).show();
+        if (gb_expandable[table][id])
+            gb_expanded[table]++;
+    }
+    gb_show_hide_buttons(table);
+};
+
+gb_expand_all = function(table) {
+    for(var n in gb_expandable[table]) gb_expand(table,n);
+    gb_expanded[table] = Object.keys(gb_expandable[table]).length;
+    gb_show_hide_buttons(table);
+};
+
+gb_collapse = function(table,id) {
+    var e = jq("#gb_row_"+table+'_'+id+' div.expandable')
+    if(e.length>0) {
+        e.height("18px").removeClass('expanded').addClass('collapsed');
+        $("gb_more_"+table+'_'+id).show();
+        $("gb_less_"+table+'_'+id).hide();
+        if (gb_expandable[table][id])
+            gb_expanded[table]--;
+    }
+    gb_show_hide_buttons(table);
+};
+
+gb_collapse_all = function(table) {
+    for(var n in gb_expandable[table]) gb_collapse(table,n);
+    gb_expanded[table] = 0;
+    gb_show_hide_buttons(table);
+};
+
+gb_expandable_init = function(table,id) {
+    var el = jq("#gb_row_"+table+'_'+id+' div.expandable');
+    var heights = el.map(function() {return jq(this).height();});
+    if(Math.max.apply(null,heights)<=18) {
+        $("gb_less_"+table+'_'+id).hide();
+        $("gb_more_"+table+'_'+id).hide();
+        return;
+    }
+    gb_collapse(table,id);
+    gb_expandable[table][id] = id;
+    $("gb_less_"+table+'_'+id).childNodes[0].src = gb_collapse_icon;
+    $("gb_more_"+table+'_'+id).childNodes[0].src = gb_expand_icon;
+};

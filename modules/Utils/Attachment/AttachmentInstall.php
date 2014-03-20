@@ -14,23 +14,76 @@ class Utils_AttachmentInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
-		$ret &= DB::CreateTable('utils_attachment_link','
-			id I4 AUTO KEY NOTNULL,
+        Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
+        $fields = array(
+            array(
+                'name' => _M('Date'),
+                'type' => 'date',
+                'extra'=>false,
+                'visible'=>true,
+                'required' => false,
+                'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_date')
+            ),
+            array(
+                'name' => _M('Title'),
+                'type' => 'text',
+                'param' => 255,
+                'required' => false, 'extra' => false, 'visible' => true
+            ),
+            array('name' => _M('Note'),
+                'type' => 'long text',
+                'required' => false,
+                'extra' => false,
+                'visible'=>true,
+                'display_callback'=>array('Utils_AttachmentCommon','display_note'),
+                'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_note'),
+            ),
+            array('name' => _M('Permission'),
+                'type' => 'commondata',
+                'required' => true,
+                'param' => array('order_by_key' => true, 'CRM/Access'),
+                'extra' => false),
+            array('name' => _M('Sticky'),
+                'type' => 'checkbox',
+                'visible' => true,
+                'extra' => false),
+            array('name' => _M('Crypted'),
+                'type' => 'checkbox',
+                'extra' => false,
+                'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_crypted')),
+            array(
+                'name' => _M('Func'),
+                'type' => 'text',
+                'param' => 255,
+                'required' => true, 'extra' => false, 'visible' => false
+            ),
+            array(
+                'name' => _M('Args'),
+                'type' => 'text',
+                'param' => 255,
+                'required' => true, 'extra' => false, 'visible' => false
+            ),
+        );
+        Utils_RecordBrowserCommon::install_new_recordset('utils_attachment',$fields);
+        Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'), array('func','args'));
+        Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
+        Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', array('ACCESS:employee','ACCESS:manager'));
+        Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee');
+        Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'),array('date'));
+        Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
+        Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename('Utils/Attachment', 'View_entry'));
+        Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_AttachmentCommon','watchdog_label'));
+
+        $ret &= DB::CreateTable('utils_attachment_local','
 			local C(255) NOTNULL,
-			title C(255),
-			deleted I1 DEFAULT 0,
-			permission I2 DEFAULT 0,
-			permission_by I4,
-			sticky I1 DEFAULT 0,
-			crypted I1 DEFAULT 0,
-			func C(255),
-			args C(255)',
-			array('constraints'=>', FOREIGN KEY (permission_by) REFERENCES user_login(ID)'));
-		if(!$ret){
-			print('Unable to create table utils_attachment_link.<br>');
-			return false;
-		}
-		DB::CreateIndex('utils_attachment_link__attachment__local__idx', 'utils_attachment_link', 'local');
+			attachment I4 NOTNULL',
+            array('constraints'=>', FOREIGN KEY (attachment) REFERENCES utils_attachment_data_1(ID)'));
+        if(!$ret){
+            print('Unable to create table utils_attachment_link.<br>');
+            return false;
+        }
+        DB::CreateIndex('utils_attachment_local__idx', 'utils_attachment_local', 'local');
+
 		$ret &= DB::CreateTable('utils_attachment_file','
 			id I4 AUTO KEY NOTNULL,
 			attach_id I4 NOTNULL,
@@ -106,10 +159,10 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		Variable::delete('utils_attachments_google_pass');
 
 		DB::DropTable('utils_attachment_googledocs');
-		$ret &= DB::DropTable('utils_attachment_note');
 		$ret &= DB::DropTable('utils_attachment_download');
 		$ret &= DB::DropTable('utils_attachment_file');
-		$ret &= DB::DropTable('utils_attachment_link');
+		$ret &= DB::DropTable('utils_attachment_local');
+        Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return $ret;
 	}
