@@ -60,7 +60,7 @@ Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_tem
 Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_AttachmentCommon','watchdog_label'));
 
 
-$ret &= DB::CreateTable('utils_attachment_local','
+$ret = DB::CreateTable('utils_attachment_local','
 			local C(255) NOTNULL,
 			attachment I4 NOTNULL',
     array('constraints'=>', FOREIGN KEY (attachment) REFERENCES utils_attachment_data_1(ID)'));
@@ -101,7 +101,7 @@ if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
 }
 @DB::DropIndex('attach_id','utils_attachment_file');
 
-$files = DB::All('SELECT f.id,f.attach_id,l.local,l.id as aid FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id');
+$files = DB::GetAll('SELECT f.id,f.attach_id,l.local,l.id as aid FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id');
 foreach($files as $row) {
     @rename(DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'],DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id']);
     DB::Execute('UPDATE utils_attachent_file SET attach_id=%d WHERE id=%d',$map[$row['attach_id']],$row['id']);
