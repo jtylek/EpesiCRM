@@ -2530,6 +2530,11 @@ class Utils_RecordBrowser extends Module {
         if ($tab) {
 			$this->record_management($tab);
 		}
+        $custom_recordsets_module = 'Premium/RecordSets';
+        if (ModuleManager::is_installed($custom_recordsets_module) >= 0) {
+            $href = $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array($custom_recordsets_module, 'admin'));
+            Base_ActionBarCommon::add('settings', __('Custom Recordsets'), $href);
+        }
     }
     public function record_management($table){
 		$this->tab = $table;
