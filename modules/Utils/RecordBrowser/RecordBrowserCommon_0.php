@@ -2028,7 +2028,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return self::get_edit_details_modify_record($tab, $rid, $edit_id,$details);
 	}
 
-	public static function get_edit_details_modify_record($tab, & $rid, $edit_id,$details=true) {
+	public static function get_edit_details_modify_record($tab, $rid, $edit_id, $details=true) {
 		self::init($tab);
 		if (is_numeric($rid)) {
 			$prev_rev = DB::GetOne('SELECT MIN(id) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d AND id>%d', array($rid, $edit_id));
@@ -2039,11 +2039,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$edit_info) return $event_display;
 
 		$event_display = array(
-							'who'=>Base_UserCommon::get_user_label($edit_info['edited_by']),
+							'who'=>Base_UserCommon::get_user_label($edit_info['edited_by'], true),
 							'when'=>Base_RegionalSettingsCommon::time2reg($edit_info['edited_on']),
 							'what'=>array()
 						);
-		if (!$details) return $event_display;
 		$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($edit_id));
         self::init($tab); // because get_user_label messes up
 		foreach ($r as $k=>$v) {
@@ -2056,15 +2055,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!isset(self::$hash[$k])) continue;
 			if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') {
 				$v = $edit_details[$k] = self::decode_multi($v);
-//				$r[$k] = self::decode_multi($r[$k]);
 			}
 			$r2[$k] = $v;
 		}
 		$access = self::get_access($tab,'view',$r);
+        $modifications_to_show = 0;
 		foreach ($edit_details as $k=>$v) {
 			$k = self::get_field_id($k); // failsafe
 			if (!isset(self::$hash[$k])) continue;
 			if (!$access[$k]) continue;
+            $modifications_to_show += 1;
+            if (!$details) continue; // do not generate content when we dont want them
 			self::init($tab);
 			$field = self::$hash[$k];
 			$params = self::$table_rows[$field];
@@ -2074,15 +2075,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 										self::get_val($tab, $field, $r, true, $params)
 									);
 		}
-		$r = $r2;
-		foreach ($edit_details as $k=>$v) {
-			$k = self::get_field_id($k); // failsafe
-			if (!isset(self::$hash[$k])) continue;
-			if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') {
-				$r[$k] = self::encode_multi($r[$k]);
-			}
-		}
-		return $event_display;
+        if ($modifications_to_show)
+            return $event_display;
+        return null;
 	}
 
     public static function get_edit_details_label($tab, $rid, $edit_id,$details = true) {
@@ -2117,13 +2112,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case 'D':   if (!isset($what)) $what = 'Deleted';
                     case 'R':   if (!isset($what)) $what = 'Restored';
 								$event_display = array(
-									'who'=> Base_UserCommon::get_user_label($r['created_by']),
+									'who'=> Base_UserCommon::get_user_label($r['created_by'], true),
 									'when'=>Base_RegionalSettingsCommon::time2reg($r['created_on']),
 									'what'=>_V($what)
 									);
                                 break;
                     case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r['id'], $param[1] ,$details);
-				if (!empty($event_display['what'])) $header = true;
+				                if (isset($event_display['what']) && !empty($event_display['what'])) $header = true;
                                 break;
 
                     case 'N':   $event_display = false;
@@ -2157,21 +2152,34 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if ($event_display) $events_display[] = $event_display;
             }
             foreach ($other_events as $k=>$v)
-		$events_display[] = array('what'=>_V($k).($v>1?' ['.$v.']':''));
+        		$events_display[] = array('what'=>_V($k).($v>1?' ['.$v.']':''));
 
-			$theme = Base_ThemeCommon::init_smarty();
+            if ($events_display) {
+                $theme = Base_ThemeCommon::init_smarty();
 
-			if ($header) {
-				$theme->assign('header', array(__('Field'), __('Old value'), __('New value')));
-			}
+                if ($header) {
+                    $theme->assign('header', array(__('Field'), __('Old value'), __('New value')));
+                }
 
-			$theme->assign('events', $events_display);
+                $theme->assign('events', $events_display);
 
-			ob_start();
-			Base_ThemeCommon::display_smarty($theme,'Utils_RecordBrowser','changes_list');
-			$output = ob_get_clean();
+                ob_start();
+                Base_ThemeCommon::display_smarty($theme,'Utils_RecordBrowser','changes_list');
+                $output = ob_get_clean();
 
-			$ret['events'] = $output;
+                $ret['events'] = $output;
+            } else {
+                // if we've generated empty events for certain record, then
+                // it's possible that some of the fields, that have changed,
+                // are hidden so we have to check if there are any other events
+                // If all events are the same and output is empty we can safely
+                // mark all as notified.
+                $all_events = Utils_WatchdogCommon::check_if_notified($tab, $rid);
+                if (count($all_events) == count($events)) {
+                    Utils_WatchdogCommon::notified($tab, $rid);
+                }
+                $ret = null;
+            }
         }
         return $ret;
     }

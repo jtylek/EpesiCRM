@@ -6,7 +6,7 @@ function event_menu(event_id) {
 		menu.style.zIndex = 21;
 //		ev.parentNode.appendChild(menu);
 	}
-	menu.clonePosition(ev,{setHeight: false, setWidth: false, offsetLeft: 10});
+	menu.clonePosition(ev,{setHeight: false, setWidth: false, offsetLeft: 20});
 
 	Effect.toggle(menu, 'appear', {duration:0.3});
 }

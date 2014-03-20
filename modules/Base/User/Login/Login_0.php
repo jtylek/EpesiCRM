@@ -83,9 +83,11 @@ class Base_User_Login extends Module {
 		}
 
 		// Display warning about storing a cookie
-		$warning=__('Keep this box unchecked if using a public computer');
-		$form->addElement('static','warning',null,$warning);
-		$form->addElement('checkbox', 'autologin', '',__('Remember me'));
+        if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
+    		$warning=__('Keep this box unchecked if using a public computer');
+	    	$form->addElement('static','warning',null,$warning);
+		    $form->addElement('checkbox', 'autologin', '',__('Remember me'));
+        }
 
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.__('Recover password').'</a>');
 		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'submit'));
@@ -103,12 +105,13 @@ class Base_User_Login extends Module {
 
 		if($form->isSubmitted() && $form->validate()) {
 			$user = $form->exportValue('username');
-			$autologin = $form->exportValue('autologin');
+            Base_User_LoginCommon::set_logged($user);
 
-			Base_User_LoginCommon::set_logged($user);
-
-			if($autologin)
-				Base_User_LoginCommon::new_autologin_id();
+            if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
+                $autologin = $form->exportValue('autologin');
+                if($autologin)
+                    Base_User_LoginCommon::new_autologin_id();
+            }
 
 			location(array());
 		} else {

@@ -42,7 +42,7 @@ class Utils_RecordBrowser extends Module {
 	private $search_calculated_callback = false;
 	private $fields_in_tabs = array();
 	private $hide_tab = array();
-    public $action = 'Browsing';
+    public $action = 'Browsing'; // _M('Browsing');
     public $custom_defaults = array();
     public static $admin_filter = '';
     public static $tab_param = '';
@@ -1176,10 +1176,10 @@ class Utils_RecordBrowser extends Module {
             $form->setDefaults($defaults);
 
         switch ($mode) {
-            case 'add':     $this->action = 'New record'; break;
-            case 'edit':    $this->action = 'Edit record'; break;
-            case 'view':    $this->action = 'View record'; break;
-            case 'history':    $this->action = 'Record history view'; break;
+            case 'add':     $this->action = _M('New record'); break;
+            case 'edit':    $this->action = _M('Edit record'); break;
+            case 'view':    $this->action = _M('View record'); break;
+            case 'history':    $this->action = _M('Record history view'); break;
         }
 
         $this->prepare_view_entry_details($this->record, $mode=='history'?'view':$mode, $id, $form);
@@ -1918,7 +1918,7 @@ class Utils_RecordBrowser extends Module {
 					$ref = explode(';', $row['param']);
 					$refe = explode('::',$ref[0]);
 					$row['rset'] = $refe[0];
-					$row['label_field'] = str_replace('|', ',', $refe[1]);
+					$row['label_field'] = isset($refe[1]) ? str_replace('|', ',', $refe[1]) : '';
 					break;
 				case 'multiselect':
 					$row['select_data_type'] = 'select';
@@ -2217,6 +2217,7 @@ class Utils_RecordBrowser extends Module {
 		$ret = array();
 		foreach ($fs as $k=>$f) {
 			$f = trim($f);
+            $fs[$k] = $f;
 			if (isset($fields[$f]) && $f==$fields[$f]) continue;
 			if (isset($fields[$f])) {
 				$fs[$k] = $fields[$f];
@@ -2321,13 +2322,13 @@ class Utils_RecordBrowser extends Module {
         while ($row = $ret->FetchRow()) {
 			$user = Base_UserCommon::get_user_label($row['edited_by']);
 			$date_and_time = Base_RegionalSettingsCommon::time2reg($row['edited_on']);
-			$dates_select[$row['edited_on']] = $date_and_time;
             $changed = array();
             $ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
             while($row2 = $ret2->FetchRow()) {
                 if ($row2['field']!='id' && (!isset($access[$row2['field']]) || !$access[$row2['field']])) continue;
                 $changed[$row2['field']] = $row2['old_value'];
                 $last_row = $row2;
+                $dates_select[$row['edited_on']] = $date_and_time;
             }
             foreach($changed as $k=>$v) {
                 if ($k=='id') {
@@ -2424,7 +2425,7 @@ class Utils_RecordBrowser extends Module {
         $this->force_order = $arg;
     }
     public function caption(){
-        return $this->caption.': '.$this->action;
+        return $this->caption . ': ' . _V($this->action);
     }
     public function recordpicker($element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
         $this->init();
@@ -2513,7 +2514,7 @@ class Utils_RecordBrowser extends Module {
         $opts = array();
         $first = false;
         while ($row=$ret->FetchRow()) {
-            $text = $row['caption'] ? $row['caption'] : $row['tab'];
+            $text = $row['caption'] ? _V($row['caption']) . " ($row[tab])" : $row['tab'];
             $opts[$row['tab']] = _V($text);
         }
 		asort($opts);
@@ -2530,6 +2531,11 @@ class Utils_RecordBrowser extends Module {
         if ($tab) {
 			$this->record_management($tab);
 		}
+        $custom_recordsets_module = 'Premium/RecordSets';
+        if (ModuleManager::is_installed($custom_recordsets_module) >= 0) {
+            $href = $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array($custom_recordsets_module, 'admin'));
+            Base_ActionBarCommon::add('settings', __('Custom Recordsets'), $href);
+        }
     }
     public function record_management($table){
 		$this->tab = $table;

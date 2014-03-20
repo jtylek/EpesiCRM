@@ -25,7 +25,8 @@ class Base_User_AdministratorCommon extends Base_AdminModuleCommon {
     public static function admin_access_levels() {
         return array(
              'log_as_user' => array('label' => __('Allow admin to login as user'), 'default' => 1),
-             'log_as_admin' => array('label' => __('Allow admin to login as other admin'), 'default' => 0)
+             'log_as_admin' => array('label' => __('Allow admin to login as other admin'), 'default' => 0),
+             'manage_ban' => array('label' => __('Allow admin to manage ban options and autologin'), 'default' => 0)
         );
     }
 	
