@@ -9,10 +9,11 @@
  * @subpackage attachment
  */
 
-if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']) || !isset($_REQUEST['path']))
+
+//TODO: remove path
+if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']))
 	die('Invalid usage');
 $cid = $_REQUEST['cid'];
-$path = $_REQUEST['path'];
 $id = $_REQUEST['id'];
 $disposition = (isset($_REQUEST['view']) && $_REQUEST['view'])?'inline':'attachment';
 
@@ -21,23 +22,19 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-$public = Module::static_get_module_variable($path,'public',false);
-$protected = Module::static_get_module_variable($path,'protected',false);
-$private = Module::static_get_module_variable($path,'private',false);
 if(!Acl::is_user())
 	die('Permission denied');
-$row = DB::GetRow('SELECT ual.id,uaf.attach_id, uaf.original,ual.crypted,ual.local,ual.permission,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id=%d',array($id));
-$original = $row['original'];
-$local = $row['local'];
-$filename = $local.'/'.$id;
-$crypted = $row['crypted'];
+$file = DB::GetRow('SELECT uaf.attach_id, uaf.original FROM utils_attachment_file uaf WHERE uaf.id=%d',array($id));
+$rec = Utils_RecordBrowserCommon::get_record('utils_attachment', $file['attach_id']);
+if (!$rec) die('Invalid attachment.');
+$access_fields = Utils_RecordBrowserCommon::get_access('utils_attachment', 'view', $rec);
+if (!isset($access_fields['note']) || !$access_fields['note'])
+    die('Access forbidden');
 
-if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
-	if(($row['permission']==0 && !$public) ||
-		($row['permission']==1 && !$protected) ||
-		($row['permission']==2 && !$private))
-		die('Permission denied');
-}
+$original = $file['original'];
+$local = $rec['id'];
+$filename = $local.'/'.$id;
+$crypted = $rec['crypted'];
 
 require_once('mime.php');
 
@@ -46,7 +43,7 @@ if(headers_sent())
 
 $password = '';
 if($crypted)
-    $password = Module::static_get_module_variable($path,'cp'.$row['id']);
+    $password = $_SESSION['client']['cp'.$rec['id']];
 
 $t = time();
 $remote_address = $_SERVER['REMOTE_ADDR'];

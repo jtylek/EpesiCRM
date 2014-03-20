@@ -9,10 +9,9 @@
  * @subpackage attachment
  */
 
-if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']) || !isset($_REQUEST['path']))
+if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']))
 	die('Invalid usage');
 $cid = $_REQUEST['cid'];
-$path = $_REQUEST['path'];
 $id = $_REQUEST['id'];
 $disposition = (isset($_REQUEST['view']) && $_REQUEST['view'])?'inline':'attachment';
 
@@ -28,22 +27,18 @@ ModuleManager::load_modules();
 
 if(!Acl::is_user())
 	die('Permission denied');
-$public = Module::static_get_module_variable($path,'public',false);
-$protected = Module::static_get_module_variable($path,'protected',false);
-$private = Module::static_get_module_variable($path,'private',false);
 
-$row = DB::GetRow('SELECT ual.crypted,ual.id as id, uaf.attach_id, uaf.original,ual.local,ual.permission,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id=%d',array($id));
-$original = $row['original'];
-$local = $row['local'];
+$file = DB::GetRow('SELECT uaf.attach_id, uaf.original FROM utils_attachment_file uaf WHERE uaf.id=%d',array($id));
+$rec = Utils_RecordBrowserCommon::get_record('utils_attachment', $file['attach_id']);
+if (!$rec) die('Invalid attachment.');
+$access_fields = Utils_RecordBrowserCommon::get_access('utils_attachment', 'view', $rec);
+if (!isset($access_fields['note']) || !$access_fields['note'])
+    die('Access forbidden');
+
+$original = $file['original'];
+$local = $rec['id'];
 $filename = $local.'/'.$id;
-$crypted = $row['crypted'];
-
-if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
-	if(($row['permission']==0 && !$public) ||
-		($row['permission']==1 && !$protected) ||
-		($row['permission']==2 && !$private))
-		die('Permission denied');
-}
+$crypted = $rec['crypted'];
 
 //require_once('mime.php');
 
@@ -60,7 +55,7 @@ if(!file_exists($f_filename))
 	die('File doesn\'t exists');
 $buffer = file_get_contents($f_filename);
 if($crypted) {
-    $password = Module::static_get_module_variable($path,'cp'.$row['id']);
+    $password = $_SESSION['client']['cp'.$rec['id']];
     $buffer = Utils_AttachmentCommon::decrypt($buffer,$password);
     if($buffer===false) die('Invalid attachment or password');
 }
@@ -70,7 +65,7 @@ $g_auth = Utils_AttachmentCommon::get_google_auth();
 
 if ($g_auth) {
 	DB::StartTrans();
-	$view_row = DB::GetRow('SELECT id, view_link FROM utils_attachment_googledocs WHERE note_id=%d', array($id));
+    $view_row = DB::GetRow('SELECT id, view_link FROM utils_attachment_googledocs WHERE note_id=%d', array($id));
 	if (empty($view_row)) {
 		$view_doc = null;
 		DB::Execute('INSERT INTO utils_attachment_googledocs (view_link, note_id, doc_id) VALUES (%s, %d, %s)', array('', $id, ''));
@@ -113,7 +108,7 @@ if ($g_auth) {
 		foreach ($response->link as $l)
 			if ($l['rel']=='http://schemas.google.com/g/2005#resumable-create-media') $upload_href = $l['href'];
 	// Reported broken, use default href instead
-		
+
 		// Check if collection exists
 		$folder_exists = false;
 		$folder_name = 'EPESI Docs';
@@ -169,12 +164,16 @@ if ($g_auth) {
 		// Create the file
 		$filename = 'EPESI Note '.$id;
 		switch (true) {
-			case strpos($row['original'], '.doc')!==false: $type = 'document'; $content_type = 'application/msword'; break;
-			case strpos($row['original'], '.csv')!==false: $type = 'spreadsheet'; $content_type = 'text/csv'; break;
+			case preg_match('/\.docx?$/i',$original): $type = 'document'; $content_type = 'application/msword'; break;
+            case preg_match('/\.odt$/i',$original): $type = 'document'; $content_type = 'application/vnd.oasis.opendocument.text'; break;
+            case preg_match('/\.ods$/i',$original): $type = 'spreadsheet'; $content_type = 'application/vnd.oasis.opendocument.spreadsheet'; break;
+            case preg_match('/\.csv$/i',$original): $type = 'spreadsheet'; $content_type = 'text/csv'; break;
+            case preg_match('/\.xlsx?$/i',$original): $type = 'spreadsheet'; $content_type = 'application/vnd.google-apps.spreadsheet'; break;
+            case preg_match('/\.txt$/i',$original): $type = 'document'; $content_type = 'text/plain'; break;
 			// application/vnd.oasis.opendocument.spreadsheet
 		}
 		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:docs="http://schemas.google.com/docs/2007"><category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/docs/2007#'.$type.'"/><title>'.$filename.'</title></entry>';
-		
+
 		$headers = array(
 			"Authorization: GoogleLogin auth=" . $g_auth,
 			"GData-Version: 3.0",

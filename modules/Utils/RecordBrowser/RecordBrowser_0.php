@@ -641,7 +641,7 @@ class Utils_RecordBrowser extends Module {
 			}
             $arr['name'] = _V($arr['name']); // ****** Translate field name for table header
             if (isset($this->more_table_properties[$args['id']])) {
-                foreach (array('name','wrapmode','width') as $v) if (isset($this->more_table_properties[$args['id']][$v])) {
+                foreach (array('name','wrapmode','width','display') as $v) if (isset($this->more_table_properties[$args['id']][$v])) {
                     if (is_numeric($this->more_table_properties[$args['id']][$v]) && $v=='width') $this->more_table_properties[$args['id']][$v] = $this->more_table_properties[$args['id']][$v]*10;
                     $arr[$v] = $this->more_table_properties[$args['id']][$v];
                 }

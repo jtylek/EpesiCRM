@@ -85,7 +85,7 @@ Utils_Attachment__init_uploader = function () {
 }
 
 document.onpaste = function(event) {
-	if ($("attachments_new_note").style.display=='none') return;
+	if (jq("#clipboard_files").length==0) return;
     var items = event.clipboardData.items;
     var s = JSON.stringify(items);
 	for (var i in items) {
@@ -109,4 +109,26 @@ document.onpaste = function(event) {
 			break;
 		}
 	}
+}
+
+utils_attachment_password = function(label,id) {
+    var pass = prompt(label);
+    new Ajax.Request("modules/Utils/Attachment/check_decrypt.php", {
+        method: "post",
+        parameters:{
+            cid: Epesi.client_id,
+            id: id,
+            pass: pass
+        },
+        onSuccess:function(t) {
+            result = t.responseText.evalJSON();
+            if(typeof result.error != "undefined") return alert(result.error);
+            Event.fire(document,'e:loading');
+            if(typeof result.js != "undefined") {
+                eval(result.js);
+            }
+            $("note_value_"+id).innerHTML = result.note;
+            Event.fire(document,'e:load');
+        }
+    });
 }

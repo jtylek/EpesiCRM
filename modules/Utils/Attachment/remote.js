@@ -1,10 +1,9 @@
-utils_attachment_get_link = function(attach_file_id,cidd,pathh,desc) {
+utils_attachment_get_link = function(attach_file_id,cidd,desc) {
 	new Ajax.Request('modules/Utils/Attachment/create_remote.php', {
 		method: 'post',
 		parameters: {
 			file: attach_file_id,
 			cid: cidd,
-			path: pathh,
 			description: desc
 		},
 		onComplete: function(t) {
