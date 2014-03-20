@@ -1918,7 +1918,7 @@ class Utils_RecordBrowser extends Module {
 					$ref = explode(';', $row['param']);
 					$refe = explode('::',$ref[0]);
 					$row['rset'] = $refe[0];
-					$row['label_field'] = str_replace('|', ',', $refe[1]);
+					$row['label_field'] = isset($refe[1]) ? str_replace('|', ',', $refe[1]) : '';
 					break;
 				case 'multiselect':
 					$row['select_data_type'] = 'select';
@@ -2217,6 +2217,7 @@ class Utils_RecordBrowser extends Module {
 		$ret = array();
 		foreach ($fs as $k=>$f) {
 			$f = trim($f);
+            $fs[$k] = $f;
 			if (isset($fields[$f]) && $f==$fields[$f]) continue;
 			if (isset($fields[$f])) {
 				$fs[$k] = $fields[$f];
