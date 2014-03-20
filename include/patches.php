@@ -9,6 +9,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+class PatchException extends Exception { }
+
 class PatchUtil {
 
     /**
@@ -228,14 +230,10 @@ class Patch {
         return $this->short_description;
     }
 
-    private static $current_patch = null;
-
     static function error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
         if (!(error_reporting() & $errno))
             return;
-        if (!self::$current_patch)
-            return;
-        self::$current_patch->apply_error .= "Error occured.\nFile: $errfile\nLine: $errline\nMessage: $errstr\n";
+        throw new PatchException("Error occured.\nFile: $errfile\nLine: $errline\nMessage: $errstr\n");
     }
 
     private function output_bufferring_interrupted($str) {
@@ -251,11 +249,12 @@ class Patch {
             return true;
         }
 
-        self::$current_patch = $this;
         set_error_handler(array('Patch', 'error_handler'));
         ob_start(array($this, 'output_bufferring_interrupted'));
         try {
             include $this->file;
+        } catch (PatchException $e) {
+            $this->apply_error = $e->getMessage();
         } catch (Exception $e) {
             $this->apply_error = "Exception occured.\nFile: {$e->getFile()}\nLine: {$e->getLine()}\nMessage: {$e->getMessage()}";
         }
