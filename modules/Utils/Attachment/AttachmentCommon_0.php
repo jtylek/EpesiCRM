@@ -444,6 +444,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 return $values;
             case 'add':
             case 'edit':
+                $crypted = 0;
                 if(isset($values['crypted']['crypted']) && $values['crypted']['crypted']) {
                     $old_pass = isset($_SESSION['client']['cp'.$values['id']])?$_SESSION['client']['cp'.$values['id']]:'';
                     if($values['crypted']['note_password']=='*@#old@#*')
