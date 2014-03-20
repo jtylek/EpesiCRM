@@ -568,17 +568,17 @@ function install_base() {
 	if($ret===false)
 		die('Invalid SQL query - Setup cron (cron table)');
 
-	$ret = DB::CreateTable('session',"name C(32) NOTNULL," .
+	$ret = DB::CreateTable('session',"name C(128) NOTNULL," .
 			"expires I NOTNULL DEFAULT 0, data B",array('constraints'=>', PRIMARY KEY(name)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (session table)');
 
-	$ret = DB::CreateTable('session_client',"session_name C(32) NOTNULL, client_id I2," .
+	$ret = DB::CreateTable('session_client',"session_name C(128) NOTNULL, client_id I2," .
 			"data B",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name), PRIMARY KEY(client_id,session_name)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (session_client table)');
 
-	$ret = DB::CreateTable('history',"session_name C(32) NOTNULL, page_id I, client_id I2," .
+	$ret = DB::CreateTable('history',"session_name C(128) NOTNULL, page_id I, client_id I2," .
 			"data B",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name), PRIMARY KEY(client_id,session_name,page_id)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (history table)');

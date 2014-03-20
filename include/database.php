@@ -88,7 +88,7 @@ class DB {
 		$arr = $dict->CreateTableSQL($name,$cols,isset($opts)?array_merge($def_opts,$opts):$def_opts);
 		if($arr===false) return false;
 		$ret = $dict->ExecuteSQLArray($arr);
-		if($ret != 2) trigger_error(var_dump($arr).'\n'.self::ErrorMsg().'\n', E_USER_ERROR); 
+		if($ret != 2) trigger_error(print_r($arr, true).'\n'.self::ErrorMsg().'\n', E_USER_ERROR);
 		return $ret==2;
 	}
 	
@@ -104,7 +104,7 @@ class DB {
 		$arr = $dict->CreateIndexSQL($name,$tab,$cols, $opts);
 		if($arr===false) return false;
 		$ret = $dict->ExecuteSQLArray($arr);
-		if($ret != 2) trigger_error(var_dump($arr).'\n'.self::ErrorMsg().'\n', E_USER_ERROR); 
+		if($ret != 2) trigger_error(print_r($arr, true).'\n'.self::ErrorMsg().'\n', E_USER_ERROR);
 		return $ret==2;
 	}
 	

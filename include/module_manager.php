@@ -936,7 +936,7 @@ class ModuleManager {
     public static function required_modules($verbose = false) {
         $ret = array();
         foreach (self::$modules as $name => $version) {
-			if (!self::include_install($name)) return array();
+			if (!self::include_install($name)) continue;
 			$required = call_user_func(array (
 				self::$modules_install[$name],
 				'requires'

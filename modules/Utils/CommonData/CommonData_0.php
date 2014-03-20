@@ -45,15 +45,18 @@ class Utils_CommonData extends Module {
 		$f = $this->init_module('Libs/QuickForm',null,'edit');
 		$f->addElement('header', null, ($key===null)?__('New node'):__('Edit node'));
 		$f->add_table('utils_commondata_tree',array(
-						array('name'=>'akey','label'=>__('Key'),
-							'rule'=>array('type'=>'callback','param'=>array($parent,$key),
+						array(
+                            'name'=>'akey',
+                            'label'=>__('Key'),
+							'rule'=>array(
+                                array('type'=>'callback','param'=>array($parent,$key),
 									'func'=>array($this,'check_key'),
 									'message'=>__('Specified key already exists')),
-							'rule'=>array('type'=>'callback','param'=>array($parent,$key),
+							    array('type'=>'callback','param'=>array($parent,$key),
 									'func'=>array($this,'check_key2'),
 									'message'=>__('Specified contains invalid character "/"'))
-									
-									),
+                            )
+						),
 						array('name'=>'value','label'=>__('Value'))
 						));
 		if($key!==null) {

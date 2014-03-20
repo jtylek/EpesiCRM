@@ -42,9 +42,15 @@ class CRM_Tasks extends Module {
 		$related = $conf['related'];
 		$rb = $this->init_module('Utils/RecordBrowser','task','task');
 		$status = array();
-		for ($i=0;$i<5;$i++)
-			if (isset($conf['status_'.$i]) && $conf['status_'.$i]) $status[] = $i;
-		$crits = array();
+        foreach (Utils_CommonDataCommon::get_array('CRM/Status')
+                 as $status_id => $label) {
+            if (isset($conf['status_' . $status_id]) &&
+                $conf['status_' . $status_id]
+            ) {
+                $status[] = $status_id;
+            }
+        }
+        $crits = array();
 		$crits['status'] = $status;
 		if ($short && !$long) $crits['!longterm'] = 1;
 		if (!$short && $long) $crits['longterm'] = 1;

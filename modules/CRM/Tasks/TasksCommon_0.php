@@ -84,15 +84,32 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 
 	public static function applet_settings() {
-		return Utils_RecordBrowserCommon::applet_settings(array(
-			array('label'=>__('Display tasks marked as'),'name'=>'term','type'=>'select','values'=>array('s'=>__('Short-term'),'l'=>__('Long-term'),'b'=>__('Both')),'default'=>'s','rule'=>array(array('message'=>__('Field required'), 'type'=>'required'))),
-			array('label'=>__('Display open tasks'),'name'=>'status_0','type'=>'checkbox','default'=>true),
-			array('label'=>__('Display in progress tasks'),'name'=>'status_1','type'=>'checkbox','default'=>true),
-			array('label'=>__('Display on hold tasks'),'name'=>'status_2','type'=>'checkbox','default'=>true),
-			array('label'=>__('Display closed tasks'),'name'=>'status_3','type'=>'checkbox','default'=>false),
-			array('label'=>__('Display canceled tasks'),'name'=>'status_4','type'=>'checkbox','default'=>false),
-			array('label'=>__('Related'),'name'=>'related','type'=>'select','values'=>array(__('Employee'),__('Customer'),__('Both')),'default'=>'0')
-			));
+        $settings = array(
+            array('label'   => __('Display tasks marked as'), 'name' => 'term',
+                  'type'    => 'select',
+                  'values'  => array('s' => __('Short-term'),
+                                     'l' => __('Long-term'), 'b' => __('Both')),
+                  'default' => 's',
+                  'rule'    => array(array('message' => __('Field required'),
+                                           'type'    => 'required')))
+        );
+        $statuses = Utils_CommonDataCommon::get_translated_array('CRM/Status');
+        ksort($statuses);
+        foreach ($statuses as $status_id => $status_label) {
+            $name = "status_$status_id";
+            $label = __('Display with status: %s', array($status_label));
+            $default = ($status_id < 3) ? true : false; // Open, In progress, On hold
+            $settings[] = array('label' => $label, 'name' => $name,
+                                'type'  => 'checkbox', 'default' => $default);
+        }
+        $settings[] = array('label'   => __('Related'),
+                            'name'    => 'related',
+                            'type'    => 'select',
+                            'values'  => array(__('Employee'),
+                                               __('Customer'),
+                                               __('Both')),
+                            'default' => '0');
+        return $settings;
 	}
 	
 	public static function employees_crits(){

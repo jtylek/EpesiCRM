@@ -14,11 +14,16 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class History {
 	private static $action = false; //it is back or forward(don't save history then...)
+
+    private static function session_id()
+    {
+        return DBSession::truncated_session_id();
+    }
 	
 	public static function back() {
 		self::$action = true;
 		if(self::is_back()) $_SESSION['client']['__history_id__']--;
-		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__']-1,CID));
+		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(self::session_id(),$_SESSION['client']['__history_id__']-1,CID));
 //		$data = DB::BlobDecode($data);
 		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$_SESSION['client']['__module_vars__'] = unserialize($data);
@@ -29,7 +34,7 @@ class History {
 		if(self::is_forward()) 
 			$_SESSION['client']['__history_id__']++;
 		self::$action = true;
-		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__']-1,CID));
+		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(self::session_id(),$_SESSION['client']['__history_id__']-1,CID));
 //		$data = DB::BlobDecode($data);
 		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$_SESSION['client']['__module_vars__'] = unserialize($data);
@@ -46,11 +51,11 @@ class History {
 		if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
 		else $data = DB::qstr($data);
 		DB::StartTrans();
-		DB::Replace('history',array('data'=>$data,'page_id'=>$_SESSION['client']['__history_id__'], 'session_name'=>DB::qstr(session_id()), 'client_id'=>CID),array('session_name','page_id'));
+		DB::Replace('history',array('data'=>$data,'page_id'=>$_SESSION['client']['__history_id__'], 'session_name'=>DB::qstr(self::session_id()), 'client_id'=>CID),array('session_name','page_id'));
 		$_SESSION['client']['__history_id__']++;
-		$ret = DB::Execute('SELECT page_id FROM history WHERE session_name=%s AND (page_id>=%d OR page_id<%d) AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__'],$_SESSION['client']['__history_id__']-20,CID));
+		$ret = DB::Execute('SELECT page_id FROM history WHERE session_name=%s AND (page_id>=%d OR page_id<%d) AND client_id=%d',array(self::session_id(),$_SESSION['client']['__history_id__'],$_SESSION['client']['__history_id__']-20,CID));
 		while($row = $ret->FetchRow())
-			DB::Execute('DELETE FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$row['page_id'],CID));
+			DB::Execute('DELETE FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(self::session_id(),$row['page_id'],CID));
 		DB::CompleteTrans();
 	}
 	
@@ -61,7 +66,7 @@ class History {
 	}
 	
 	public static function is_forward() {
-		$c = DB::GetOne('SELECT count(*) FROM history WHERE session_name=%s AND client_id=%d',array(session_id(),CID));
+		$c = DB::GetOne('SELECT count(*) FROM history WHERE session_name=%s AND client_id=%d',array(self::session_id(),CID));
 		return $_SESSION['client']['__history_id__']<$c;
 	}
 	
@@ -73,11 +78,11 @@ class History {
 	}
 
 	public static function set_id($id) {
-		$c = DB::GetRow('SELECT max(page_id) as max,min(page_id) as min FROM history WHERE session_name=%s AND client_id=%d',array(session_id(),CID));
+		$c = DB::GetRow('SELECT max(page_id) as max,min(page_id) as min FROM history WHERE session_name=%s AND client_id=%d',array(self::session_id(),CID));
 		if($id<1 || $id<$c['min']) $id = $c['min'];
 		elseif($id>$c['max']) $id=$c['max'];
 		$_SESSION['client']['__history_id__']=intval($id);
-		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND client_id=%d AND page_id=%d',array(session_id(),CID,$_SESSION['client']['__history_id__']-1));
+		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND client_id=%d AND page_id=%d',array(self::session_id(),CID,$_SESSION['client']['__history_id__']-1));
 		if($data===false) {
 			Epesi::alert('History expired.');
 			return;
@@ -89,7 +94,7 @@ class History {
 	
 	public static function clear() {
 		unset($_SESSION['client']['__history_id__']);
-		DB::Execute('DELETE FROM history WHERE session_name=%s AND client_id=%d',array(session_id(),CID));
+		DB::Execute('DELETE FROM history WHERE session_name=%s AND client_id=%d',array(self::session_id(),CID));
 	}
 	
 	public static function soft_call() {

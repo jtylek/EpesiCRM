@@ -58,6 +58,17 @@ class ErrorHandler {
 
 		return true;
 	}
+
+    public static function handle_exception(Exception $exception)
+    {
+        $backtrace = self::debug_backtrace($exception->getTrace());
+        while (@ob_end_clean());
+        $msg = get_class($exception) . '<br>Message: '
+               . $exception->getMessage() . '<br>File: ' .
+               $exception->getFile() . '<br>Line=' . $exception->getLine() .
+               $backtrace . '<hr>';
+        echo self::notify_client($msg);
+    }
     
     public static function error_code_to_string($type) {
         $constants = get_defined_constants(true);
@@ -78,11 +89,13 @@ class ErrorHandler {
         return 'error type not found';
     }
 
-	public static function debug_backtrace() {
-		if(function_exists('debug_backtrace')) {
+	public static function debug_backtrace($bt = null) {
+		if($bt === null && function_exists('debug_backtrace')) {
+            $bt = debug_backtrace();
+        }
+        if ($bt !== null) {
 			$backtrace = '<br />error backtrace:<br />';
-			$bt = debug_backtrace();
-		   
+
 			for($i = 0; $i <= count($bt) - 1; $i++) {
 				if(isset($bt[$i]['file']) && ($bt[$i]['function']=='debug_backtrace' || $bt[$i]['function']=='handle_error') && preg_match('/error.php$/',$bt[$i]["file"]))
 					continue;
@@ -206,6 +219,18 @@ function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
     }
     return true;
 }
+
+function handle_epesi_exception(Exception $exception)
+{
+    if (class_exists('ErrorHandler')) {
+        ErrorHandler::handle_exception($exception);
+    } else {
+        $msg = get_class($exception) . ': ' . $exception->getMessage()
+               . '<br/>' . $exception->getTraceAsString();
+        echo $msg;
+    }
+}
+
 if(REPORT_ALL_ERRORS) {
     if (version_compare(phpversion(), '5.4.0')==-1)
     	error_reporting(E_ALL); //all without notices
@@ -216,5 +241,6 @@ else
 	error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR);
 
 set_error_handler('handle_epesi_error');
+set_exception_handler('handle_epesi_exception');
 
 ?>

@@ -49,6 +49,7 @@ if($cur_ver!==EPESI_VERSION) {
       <meta content="text/html; charset=utf-8" http-equiv="content-type">
       <title>EPESI update</title>
       <link href="setup.css" type="text/css" rel="stylesheet"/>
+      <meta name="robots" content="NOINDEX, NOARCHIVE">
 </head>
 <body>
         <table id="banner" border="0" cellpadding="0" cellspacing="0">
@@ -70,7 +71,7 @@ if($cur_ver!==EPESI_VERSION) {
         </center>
         <br>
         <center>
-        <span class="footer">Copyright &copy; 2013 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+        <span class="footer">Copyright &copy; 2014 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
         <br>
         <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" alt="image" border="0"></a></p>
         </center>
@@ -95,6 +96,7 @@ if(IPHONE) {
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="NOINDEX, NOARCHIVE">
 	<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
 	<title><?php print(EPESI);?></title>
 	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
@@ -137,7 +139,8 @@ Please choose <?php print(EPESI);?> version:<ul>
 		<title><?php print(EPESI);?></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" /> 
+		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
+        <meta name="robots" content="NOINDEX, NOARCHIVE">
 <?php
 	ini_set('include_path','libs/minify'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.'libs'.PATH_SEPARATOR.ini_get('include_path'));
 	require_once('Minify/Build.php');
