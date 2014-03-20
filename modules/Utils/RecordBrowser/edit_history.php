@@ -16,6 +16,10 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
+if (!Base_AclCommon::is_user()) {
+    die();
+}
+
 $id = $_POST['id'];
 $tab = $_POST['tab'];
 

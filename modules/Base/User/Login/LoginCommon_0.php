@@ -224,7 +224,13 @@ class Base_User_LoginCommon extends ModuleCommon {
 		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)',array($uid,$autologin_id,$_SERVER['REMOTE_ADDR'],time()));
 	}
 
+    public static function is_autologin_forbidden()
+    {
+        return true == Variable::get('forbid_autologin', false);
+    }
+
 	public static function autologin() {
+        if (self::is_autologin_forbidden()) return false;
 		if(isset($_COOKIE['autologin_id'])) {
 			$arr = explode(' ',$_COOKIE['autologin_id']);
 			if(count($arr)==2) {

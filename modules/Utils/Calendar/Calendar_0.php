@@ -260,6 +260,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function body($arg = null) {
+		load_js($this->get_module_dir().'jquery.ui.touch-punch.min.js');
 		load_js($this->get_module_dir().'calendar-jq.js');
 
 //		load_js($this->get_module_dir().'calendar.js');

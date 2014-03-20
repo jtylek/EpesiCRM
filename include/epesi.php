@@ -62,7 +62,14 @@ class Epesi {
 		$jjj = '';
 		foreach(self::$jses as $cc) {
 			$x = rtrim($cc[0],';');
-			if($x) $jjj.=$x.';';
+			if ($x) {
+                if (DEBUG_JS) {
+                    $debug_info = isset($cc[2]) ? "/* {$cc[2]} */\n" : '';
+                    $jjj .= $debug_info . $x . ";\n";
+                } else {
+                    $jjj .= $x . ';';
+                }
+            }
 		}
 		return $jjj;
 	}
@@ -139,7 +146,28 @@ class Epesi {
 			require_once('libs/minify/JSMin.php');
 			$js = JSmin::minify($js);
 		}
-		self::$jses[] = array($js,$del_on_loc);
+        $js_def = array($js,$del_on_loc);
+        if (DEBUG_JS && function_exists('debug_backtrace')) {
+            $arg = false;
+            if (version_compare(PHP_VERSION, '5.3.6', '>=')) {
+                $arg = DEBUG_BACKTRACE_IGNORE_ARGS;
+            }
+            $bt = debug_backtrace($arg);
+            array_shift($bt); // remove first, because it's this function
+            $debug_str = '';
+            $limit = (int) DEBUG_JS;
+            while ($limit--) {
+                $x = array_shift($bt);
+                if (!$x) break;
+                $file = & $x['file'];
+                $line = & $x['line'];
+                $func = & $x['function'];
+                $debug_str .= "$func ($file:$line)";
+                if ($limit) $debug_str .= ' <-- ';
+            }
+            $js_def[] = $debug_str;
+        }
+		self::$jses[] = $js_def;
 		return true;
 	}
 

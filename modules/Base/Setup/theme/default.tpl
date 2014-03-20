@@ -17,7 +17,7 @@
 		{foreach key=name item=package from=$packages}
 			<div class="big-button" style="position:relative;"{foreach item=f from=$package.filter} {$f}="1"{/foreach}>
 				{if $package.url}
-					<a href="javascript:void(0);" onclick="base_setup__package_description('{$package.url}','{$package.name}');">
+					<a href="{$package.url}" target="_blank">
 				{/if}
 					<div class="package_label">
 						{$package.name}
