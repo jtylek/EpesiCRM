@@ -2513,7 +2513,7 @@ class Utils_RecordBrowser extends Module {
         $opts = array();
         $first = false;
         while ($row=$ret->FetchRow()) {
-            $text = $row['caption'] ? $row['caption'] : $row['tab'];
+            $text = $row['caption'] ? _V($row['caption']) . " ($row[tab])" : $row['tab'];
             $opts[$row['tab']] = _V($text);
         }
 		asort($opts);
