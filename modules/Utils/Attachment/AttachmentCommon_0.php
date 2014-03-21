@@ -477,8 +477,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
 
                 if($crypted) {
-                    $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$values['crypted']['note_password']);
-                    $values['note_password']=$values['crypted']['note_password'];
+                    if(isset($values['crypted']['note_password'])) {
+                        $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$values['crypted']['note_password']);
+                        $values['note_password']=$values['crypted']['note_password'];
+                    }
                     $values['crypted'] = 1;
                     if($mode=='edit') $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 } else {

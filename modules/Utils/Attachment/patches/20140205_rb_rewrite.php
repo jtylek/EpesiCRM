@@ -78,8 +78,8 @@ foreach($links as $link) {
     $notes = DB::GetAll('SELECT * FROM utils_attachment_note WHERE attach_id=%d ORDER BY revision',$link['id']);
     $note = array_shift($notes);
     Acl::set_user($note['created_by']);
-    $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>$link['crypted'],'func'=>$link['func'],'args'=>$link['args'],'date'=>$note['created_on']));
-    DB::Execute('INSERT INTO utils_attachment_local(local,attachment) VALUES(%s,%d)',array($link['local'],$rid));
+    $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>array('crypted'=>$link['crypted']),'func'=>$link['func'],'args'=>$link['args'],'date'=>$note['created_on'],'local'=>$link['local']));
+//    DB::Execute('INSERT INTO utils_attachment_local(local,attachment) VALUES(%s,%d)',array($link['local'],$rid));
     $map[$link['id']] = $rid;
     foreach($notes as $note) {
         Acl::set_user($note['created_by']);
@@ -103,8 +103,9 @@ if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
 
 $files = DB::GetAll('SELECT f.id,f.attach_id,l.local,l.id as aid FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id');
 foreach($files as $row) {
+    @mkdir(DATA_DIR.'/Utils_Attachment/'.$row['aid']);
     @rename(DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'],DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id']);
-    DB::Execute('UPDATE utils_attachent_file SET attach_id=%d WHERE id=%d',$map[$row['attach_id']],$row['id']);
+    DB::Execute('UPDATE utils_attachment_file SET attach_id=%d WHERE id=%d',array($map[$row['attach_id']],$row['id']));
 }
 
 if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
