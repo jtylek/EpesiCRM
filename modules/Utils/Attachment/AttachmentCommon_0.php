@@ -39,9 +39,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
 	public static function get_where($group,$group_starts_with=true) {
 		if($group_starts_with)
-			return DB::GetCol('SELECT attachment FROM util_attachment_local WHERE local '.DB::like().' \''.DB::addq($group).'%\'');
+			return DB::GetCol('SELECT attachment FROM utils_attachment_local WHERE local '.DB::like().' \''.DB::addq($group).'%\'');
 		else
-            return DB::GetCol('SELECT attachment FROM util_attachment_local WHERE local='.DB::qstr($group));
+            return DB::GetCol('SELECT attachment FROM utils_attachment_local WHERE local='.DB::qstr($group));
 	}
 	/**
 	 * Example usage:
