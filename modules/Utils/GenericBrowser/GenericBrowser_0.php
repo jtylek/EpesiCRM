@@ -691,9 +691,9 @@ class Utils_GenericBrowser extends Module {
 		foreach($this->rows as $k=>$v){
 			if ($this->check_if_row_fits_array($v,$this->is_adv_search_on())) {
 				$rows[] = $v;
-				$js[] = isset($this->rows_jses[$k])?$this->rows_jses[$k]:array();
+				$js[] = isset($this->rows_jses[$k])?$this->rows_jses[$k]:'';
 				$actions[] = isset($this->actions[$k])?$this->actions[$k]:array();
-				$row_attrs[] = isset($this->row_attrs[$k])?$this->row_attrs[$k]:array();
+				$row_attrs[] = isset($this->row_attrs[$k])?$this->row_attrs[$k]:'';
 			}
 		}
 		$this->sort_data($rows, $js, $actions, $row_attrs);
@@ -754,6 +754,9 @@ class Utils_GenericBrowser extends Module {
 		$theme = $this->init_module('Base/Theme');
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
+        if ($this->expandable) {
+            $this->en_actions = true;
+        }
 		if ($this->en_actions) $actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
 
 		$ch_adv_search = $this->get_unique_href_variable('adv_search');
