@@ -2420,7 +2420,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 										$cap = array();
 										foreach ($args[0] as $t) $cap[] = '<b>'.self::get_caption($t).'</b>';
 										$cap = implode(' '.__('or').' ',$cap);
-									} $cap = '<b>'.self::get_caption($args[0]).'</b>';
+									} else $cap = '<b>'.self::get_caption($args[0]).'</b>';
 									$ret .= ' '.__('of').' '.$cap;
 								}
 								if (isset($args[1])) {
@@ -2434,7 +2434,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 										$cap = array();
 										foreach ($args[0] as $t) $cap[] = '<b>'.self::get_caption($t).'</b>';
 										$cap = implode(' '.__('or').' ',$cap);
-									} $cap = '<b>'.self::get_caption($args[0]).'</b>';
+									} else $cap = '<b>'.self::get_caption($args[0]).'</b>';
 									$ret .= ' '.$cap;
 								}
 								if (isset($args[1])) {
