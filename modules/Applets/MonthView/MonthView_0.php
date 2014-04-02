@@ -20,7 +20,7 @@ class Applets_MonthView extends Module {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-Utils_PopupCalendarCommon::get_first_day_of_week();
 		if ($diff<0) $diff += 7;
-		$currday = strtotime(date('Y-m-d',$first_day_of_month-86400*($diff)));
+		$currday = strtotime("-$diff days", $first_day_of_month);
 		$curmonth = date('m', $date);
 
 		$month = array();

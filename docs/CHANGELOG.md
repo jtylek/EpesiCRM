@@ -14,6 +14,7 @@ CURRENT
 - Do not generate watchdog notification when user doesn't have view access to modified field
 - Fix Roundcube rc_contactgroups reference
 - Fix RecordBrowser's field tooltip for select and multiselect fields
+- Fix Month View applet issue related to the daylight saving shift
 
 RELEASE 1.5.6-20140305
 -------
