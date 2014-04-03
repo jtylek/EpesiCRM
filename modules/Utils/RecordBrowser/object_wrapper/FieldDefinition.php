@@ -37,6 +37,7 @@ class RBO_FieldDefinition {
      * @param callable $display_callback display callback
      * @param callable $QFfield_callback QFfield callback
      * @param numeric|string $position position - use only to alter existing RecordSet
+     * @param string $style style definition
      */
     function __construct($display_name, $type, $param = null, $extra = false, $required = false, $visible = false, $filter = false, $display_callback = null, $QFfield_callback = null, $position = null, $style = null) {
         $this->name = $display_name;
@@ -120,7 +121,7 @@ class RBO_FieldDefinition {
 
     /**
      * Sets custom display callback.
-     * @param type $callback
+     * @param callable $callback
      * @return \RBO_FieldDefinition
      */
     function set_display_callback($callback) {
