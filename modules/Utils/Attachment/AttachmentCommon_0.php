@@ -407,8 +407,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $elem->freeze(1);
         } else {
             $elems = array();
-            $elems[] = $form->createElement('checkbox', $field, $label,'', array('id'=>$field,'onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=!this.checked;'));
+            $elems[] = $form->createElement('checkbox', $field, $label,__('enable encryption'), array('id'=>$field,'onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=!this.checked;'));
+            $elems[] = $form->createElement('static','note_password_label','','<br />'.__('Password').':');
             $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password'));
+            $elems[] = $form->createElement('static','note_password2_label','',__('Confirm Password').':');
             $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2'));
             $form->addGroup($elems,$field,__('Encryption'));
 
