@@ -204,15 +204,8 @@ class Utils_RecordBrowser extends Module {
         return $x;
     }
 	
-	public function jump_new_note($key=null) {
-		if ($key==null) $key = $this->tab.'/'.$this->record['id'];
-		$a = $this->init_module('Utils_Attachment',array($key));
-		$a->set_view_func(array('Utils_RecordBrowserCommon','create_default_linked_label'),explode('/',$key));
-		$a->add_note_queue();
-	}
-	
 	public function add_note_button_href($key=null) {
-		return $this->create_callback_href(array($this, 'jump_new_note'), array($key));
+        return Utils_RecordBrowserCommon::create_new_record_href('utils_attachment',array('permission'=>'0','local'=>$key,'func'=>serialize(array('Utils_RecordBrowserCommon','create_default_linked_label')),'args'=>serialize(explode('/',$key))));
 	}
 	
 	public function add_note_button($key=null) {

@@ -25,14 +25,13 @@ class Utils_Attachment extends Module {
 	private $args = array();
 
 
-	public function construct($group=null,$pd=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null,$max_fs=null) {
+	public function construct($group=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null) {
 		$this->group = & $this->get_module_variable('group',isset($group)?$group:null);
 		$this->func = & $this->get_module_variable('func',isset($func)?$func:null);
 		$this->args = & $this->get_module_variable('args',isset($args)?$args:null);
 		
 		if(isset($watchdog_cat)) $this->watchdog_category = $watchdog_cat;
 		if(isset($watchdog_id)) $this->watchdog_id = $watchdog_id;
-		if(isset($max_fs)) $this->max_file_size = $max_fs;
 	}
 	
 	public function set_view_func($x, array $y=array()) {
@@ -105,7 +104,7 @@ class Utils_Attachment extends Module {
         Base_ThemeCommon::load_css('Utils_Attachment','browse');
 
         $this->rb = $this->init_module('Utils/RecordBrowser','utils_attachment','utils_attachment');
-        $this->rb->set_defaults(array('permission'=>'0','local'=>$this->group,'func'=>serialize($this->func),'args'=>serialize($this->args),'date'=>time()));
+        $this->rb->set_defaults(array('permission'=>'0','local'=>$this->group,'func'=>serialize($this->func),'args'=>serialize($this->args)));
         $this->rb->set_additional_actions_method(array($this,'add_actions'));
         $this->rb->set_header_properties(array(
             'sticky'=>array('width'=>1,'display'=>false),
