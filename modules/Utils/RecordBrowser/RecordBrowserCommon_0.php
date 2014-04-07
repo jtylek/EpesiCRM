@@ -2548,7 +2548,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case ':Created_by': $v = array(is_numeric($v)?Base_UserCommon::get_user_login($v):$v); break;
 					case ':Created_on': 
                     case ':Edited_on':  if (isset(self::$date_values[$v])) $v = array(self::$date_values[$v]);
-										else $v = array(Base_RegionalSettingCommon::time2reg($v)); break;
+										else $v = array(Base_RegionalSettingsCommon::time2reg($v)); break;
 					default: 			if (!is_array($v) && isset(self::$date_values[$v])) {
 											$v = array(self::$date_values[$v]);
 											break;
