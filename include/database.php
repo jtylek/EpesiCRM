@@ -304,7 +304,7 @@ return $ret;
 /** Improved method of initiating a transaction. Used together with CompleteTrans(). Advantages include: a. StartTrans/CompleteTrans is nestable, unlike BeginTrans/CommitTrans/RollbackTrans. Only the outermost block is treated as a transaction.
 b. CompleteTrans auto-detects SQL errors, and will rollback on errors, commit otherwise.
 c. All BeginTrans/CommitTrans/RollbackTrans inside a StartTrans/CompleteTrans block are disabled, making it backward compatible. */
-public static function StartTrans( $errfn = 'ADODB_TransMoni...' ) {
+public static function StartTrans( $errfn = 'ADODB_TransMonitor' ) {
 $args = func_get_args();
 $ret = call_user_func_array(array(self::$ado,"StartTrans"), $args);
 return $ret;
