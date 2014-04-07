@@ -109,7 +109,7 @@ class CRM_TasksCommon extends ModuleCommon {
                                                __('Customer'),
                                                __('Both')),
                             'default' => '0');
-        return $settings;
+        return Utils_RecordBrowserCommon::applet_settings($settings);
 	}
 	
 	public static function employees_crits(){
