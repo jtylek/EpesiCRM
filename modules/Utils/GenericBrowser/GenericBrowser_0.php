@@ -754,8 +754,13 @@ class Utils_GenericBrowser extends Module {
 		$theme = $this->init_module('Base/Theme');
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
+        $this->expandable = $this->get_module_variable('expandable',$this->expandable);
+        $expand_action_only = & $this->get_module_variable('expand_action_only',false);
         if ($this->expandable) {
-            $this->en_actions = true;
+            if(!$this->en_actions) {
+                $expand_action_only = true;
+                $this->en_actions = true;
+            }
         }
 		if ($this->en_actions) $actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
 
@@ -891,8 +896,8 @@ class Utils_GenericBrowser extends Module {
 				}
 				if ($this_width>$max_actions) $max_actions = $this_width;
 			}
-			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;"');
-			else $headers[count($this->columns)] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;"');
+			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;" class="Utils_GenericBrowser__actions"');
+			else $headers[count($this->columns)] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;" class="Utils_GenericBrowser__actions"');
 		}
 
 		$all_width = 0;
@@ -931,21 +936,20 @@ class Utils_GenericBrowser extends Module {
 
 		$out_data = array();
 
-        $expandable = $this->get_module_variable('expandable',$this->expandable);
-        if($expandable) {
-            eval_js('gb_expandable["'.$md5_id.'"] = {};');
-            eval_js('gb_expanded["'.$md5_id.'"] = 0;');
+        if($this->expandable) {
+            eval_js_once('gb_expandable["'.$md5_id.'"] = {};');
+            eval_js_once('gb_expanded["'.$md5_id.'"] = 0;');
 
-            eval_js('gb_expand_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand.gif').'";');
-            eval_js('gb_collapse_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse.gif').'";');
-            eval_js('gb_expand_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand_gray.gif').'";');
-            eval_js('gb_collapse_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse_gray.gif').'";');
+            eval_js_once('gb_expand_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand.gif').'";');
+            eval_js_once('gb_collapse_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse.gif').'";');
+            eval_js_once('gb_expand_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand_gray.gif').'";');
+            eval_js_once('gb_collapse_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse_gray.gif').'";');
         }
 
 		foreach($this->rows as $i=>$r) {
 			$col = array();
 
-            if($expandable) {
+            if($this->expandable) {
                 $row_id =  $md5_id.'_'.$i;
                 $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_expand(\''.$md5_id.'\',\''.$i.'\')" id="gb_more_'.$row_id.'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 5);
                 $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_collapse(\''.$md5_id.'\',\''.$i.'\')" id="gb_less_'.$row_id.'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 5, false, 0);
@@ -973,15 +977,16 @@ class Utils_GenericBrowser extends Module {
 						$actions .= '</a>';
 					}
 					$col[$column_no]['label'] = $actions;
-					
+                    $col[$column_no]['attrs'] .= ' class="Utils_GenericBrowser__actions Utils_GenericBrowser__td"';
+
 					// Add overflow_box to actions
 					$settings = Base_User_SettingsCommon::get('Utils_GenericBrowser', 'zoom_actions');
 					if ($settings==2 || ($settings==1 && detect_iphone()))
 						$col[$column_no]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,true);"';
 				} else {
 					$col[$column_no]['label'] = '&nbsp;';
+                    $col[$column_no]['attrs'] .= 'nowrap="nowrap"'.' class="Utils_GenericBrowser__td"';
 				}
-				$col[$column_no]['attrs'] .= 'nowrap="nowrap"'.' class="Utils_GenericBrowser__td"';
 				if (isset($this->no_actions[$i]))
 					$col[$column_no]['attrs'] .= ' style="display:none;"';
 			}
@@ -1049,6 +1054,10 @@ class Utils_GenericBrowser extends Module {
 
 		$theme->assign('row_attrs', $this->row_attrs);
 
+        $theme->assign('table_id','table_'.$md5_id);
+        if($expand_action_only) {
+            eval_js('gb_expandable_hide_actions("'.$md5_id.'")');
+        }
 		$theme->assign('table_prefix', $this->table_prefix);
 		$theme->assign('table_postfix', $this->table_postfix);
 
@@ -1060,7 +1069,7 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('custom_label', $this->custom_label);
 		$theme->assign('custom_label_args', $this->custom_label_args);
 
-        if($expandable) {
+        if($this->expandable) {
             $theme->assign('expand_collapse',array(
                 'e_label'=>__('Expand All'),
                 'e_href'=>'href="javascript:void(0);" onClick=\'gb_expand_all("'.$md5_id.'")\'',

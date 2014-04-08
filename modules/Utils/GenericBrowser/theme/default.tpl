@@ -44,6 +44,7 @@
                         {$expand_collapse.c_label}
                     </div>
                 </a>
+                &nbsp;
 			</td>
 			<!-- Advanced / Simple Search -->
 			{if isset($form_data_search)}
@@ -97,7 +98,8 @@
 		<div class="css3_content_shadow">
 			<div class="margin2px">
 				{$table_prefix}
-				{html_table_epesi table_attr='class="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"' loop=$data cols=$cols row_attrs=$row_attrs}
+                {capture name="table_attr"}id="{$table_id}" class="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
+				{html_table_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
 				{$table_postfix}
 
 				{if isset($form_data_paging)}

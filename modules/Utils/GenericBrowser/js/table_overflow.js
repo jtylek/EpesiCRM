@@ -138,7 +138,7 @@ gb_collapse_all = function(table) {
 gb_expandable_init = function(table,id) {
     var el = jq("#gb_row_"+table+'_'+id+' div.expandable');
     var heights = el.map(function() {return jq(this).height();});
-    if(Math.max.apply(null,heights)<=18) {
+    if(Math.max.apply(null,heights)<=18 && typeof gb_expandable[table][id] == "undefined") {
         $("gb_less_"+table+'_'+id).hide();
         $("gb_more_"+table+'_'+id).hide();
         return;
@@ -148,3 +148,7 @@ gb_expandable_init = function(table,id) {
     $("gb_less_"+table+'_'+id).childNodes[0].src = gb_collapse_icon;
     $("gb_more_"+table+'_'+id).childNodes[0].src = gb_expand_icon;
 };
+gb_expandable_hide_actions = function(table) {
+    if(gb_expandable[table].length>0)return;
+    jq('#table_'+table+' .Utils_GenericBrowser__actions').hide();
+}
