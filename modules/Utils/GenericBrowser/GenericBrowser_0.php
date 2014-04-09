@@ -1080,7 +1080,8 @@ class Utils_GenericBrowser extends Module {
             ));
 
             eval_js('gb_show_hide_buttons("'.$md5_id.'")');
-            eval_js('gb_expandable_adjust_action_column("'.$md5_id.'")');
+            $max_actions = isset($max_actions) ? $max_actions : 0;
+            eval_js('gb_expandable_adjust_action_column("'.$md5_id.'", ' . $max_actions . ')');
         }
 
 		if ($search_on) $theme->assign('adv_search','<a id="switch_search_'.($this->is_adv_search_on()?'simple':'advanced').'" class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');

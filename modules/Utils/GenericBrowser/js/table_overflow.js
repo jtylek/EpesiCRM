@@ -173,9 +173,10 @@ gb_expandable_hide_actions = function(table) {
     if(Object.keys(gb_expandable[table]).length > 0)return;
     jq('#table_'+table+' .Utils_GenericBrowser__actions').hide();
 }
-gb_expandable_adjust_action_column = function (table) {
+gb_expandable_adjust_action_column = function (table, actions) {
     if (Object.keys(gb_expandable[table]).length > 0) {
-        var el = jq('#table_' + table + ' th.Utils_GenericBrowser__actions:first');
-        el.css('width', el.width() + 16);
+        actions = actions + 1;
     }
+    var el = jq('#table_' + table + ' th.Utils_GenericBrowser__actions:first');
+    el.css('width', actions * 16 + 6);
 };
