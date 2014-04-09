@@ -108,8 +108,8 @@ class Utils_Attachment extends Module {
         $this->rb->set_additional_actions_method(array($this,'add_actions'));
         $this->rb->set_header_properties(array(
             'sticky'=>array('width'=>1,'display'=>false),
-            'date'=>array('width'=>1),
-            'title'=>array('width'=>1),
+            'date'=>array('width'=>"12em"),
+            'title'=>array('width'=>"20em"),
         ));
 
         if($uid) {
