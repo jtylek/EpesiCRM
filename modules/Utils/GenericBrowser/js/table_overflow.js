@@ -120,7 +120,7 @@ gb_expand_all = function(table) {
 gb_collapse = function(table,id) {
     var e = jq("#gb_row_"+table+'_'+id+' div.expandable')
     if(e.length>0) {
-        e.height("18px").removeClass('expanded').addClass('collapsed');
+        e.removeClass('expanded').addClass('collapsed');
         $("gb_more_"+table+'_'+id).show();
         $("gb_less_"+table+'_'+id).hide();
         if (gb_expandable[table][id])
@@ -137,16 +137,37 @@ gb_collapse_all = function(table) {
 
 gb_expandable_init = function(table,id) {
     var el = jq("#gb_row_"+table+'_'+id+' div.expandable');
-    var heights = el.map(function() {return jq(this).height();});
-    if(Math.max.apply(null,heights)<=18 && typeof gb_expandable[table][id] == "undefined") {
+    el.removeClass('collapsed'); // expand to calculate height properly
+    var heights = el.map(function() {return jq(this).outerHeight(true);});
+    if(Math.max.apply(null,heights)<=18) {
         $("gb_less_"+table+'_'+id).hide();
         $("gb_more_"+table+'_'+id).hide();
+        delete gb_expandable[table][id];
         return;
     }
+    el.each(function(index) {
+        if (jq(this).outerHeight(true) > 18) {
+            jq(this).addClass('exceedsHeight');
+        }
+    });
     gb_collapse(table,id);
     gb_expandable[table][id] = id;
     $("gb_less_"+table+'_'+id).childNodes[0].src = gb_collapse_icon;
     $("gb_more_"+table+'_'+id).childNodes[0].src = gb_expand_icon;
+    // handlers to expand on click in the empty space of the cell
+    el.unbind().click(function (e) {
+        if(!getSelection().toString()){
+            if (e.target == this) {
+                if (jq(this).hasClass("collapsed")) gb_expand(table, id);
+                else if (jq(this).hasClass("expanded")) gb_collapse(table, id);
+            }
+        }
+    });
+    el.parent("td").unbind().click(function (e) {
+        if (e.target == this) {
+            jq(this).children("div").click();
+        }
+    });
 };
 gb_expandable_hide_actions = function(table) {
     if(gb_expandable[table].length>0)return;

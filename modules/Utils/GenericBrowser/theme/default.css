@@ -742,10 +742,13 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 div.expandable.collapsed {
-    border-bottom: 1px dotted red;
+    height: 18px;
     overflow:hidden;
 }
-div.expandable.expanded {
-    border-bottom:none;
+div.expandable {
     overflow:auto;
+}
+div.expandable.collapsed.exceedsHeight {
+    height: 17px !important;
+    border-bottom: 1px dotted red;
 }
