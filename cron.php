@@ -9,8 +9,12 @@
  */
 define('CID',false);
 define('SET_SESSION',false);
-if(isset($argv))
+if(isset($argv)) {
 	define('EPESI_DIR','/');
+    if (isset($argv[1])) {
+        define('DATA_DIR', $argv[1]);
+    }
+}
 require_once('include.php');
 
 $lock = DATA_DIR.'/cron.lock';
