@@ -890,7 +890,7 @@ class Utils_GenericBrowser extends Module {
 		if ($this->en_actions) {
 			$max_actions = 0; // Possibly improve it to calculate it during adding actions
 			foreach($this->actions as $i=>$v) {
-				$this_width = 1;
+				$this_width = 0;
 				foreach ($v as $vv) {
 					$this_width += $vv['size'];
 				}
@@ -951,8 +951,8 @@ class Utils_GenericBrowser extends Module {
 
             if($this->expandable) {
                 $row_id =  $md5_id.'_'.$i;
-                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_expand(\''.$md5_id.'\',\''.$i.'\')" id="gb_more_'.$row_id.'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 5);
-                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_collapse(\''.$md5_id.'\',\''.$i.'\')" id="gb_less_'.$row_id.'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 5, false, 0);
+                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_expand(\''.$md5_id.'\',\''.$i.'\')" id="gb_more_'.$row_id.'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 1001);
+                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_collapse(\''.$md5_id.'\',\''.$i.'\')" id="gb_less_'.$row_id.'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 1001, false, 0);
                 $this->__add_row_js($i,'gb_expandable_init("'.Epesi::escapeJS($md5_id,true,false).'","'.Epesi::escapeJS($i,true,false).'")');
                 if(!isset($this->row_attrs[$i])) $this->row_attrs[$i]='';
                 $this->row_attrs[$i] .= 'id="gb_row_'.$row_id.'"';
@@ -1080,6 +1080,7 @@ class Utils_GenericBrowser extends Module {
             ));
 
             eval_js('gb_show_hide_buttons("'.$md5_id.'")');
+            eval_js('gb_expandable_adjust_action_column("'.$md5_id.'")');
         }
 
 		if ($search_on) $theme->assign('adv_search','<a id="switch_search_'.($this->is_adv_search_on()?'simple':'advanced').'" class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');

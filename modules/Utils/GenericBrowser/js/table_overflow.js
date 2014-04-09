@@ -170,6 +170,12 @@ gb_expandable_init = function(table,id) {
     });
 };
 gb_expandable_hide_actions = function(table) {
-    if(gb_expandable[table].length>0)return;
+    if(Object.keys(gb_expandable[table]).length > 0)return;
     jq('#table_'+table+' .Utils_GenericBrowser__actions').hide();
 }
+gb_expandable_adjust_action_column = function (table) {
+    if (Object.keys(gb_expandable[table]).length > 0) {
+        var el = jq('#table_' + table + ' th.Utils_GenericBrowser__actions:first');
+        el.css('width', el.width() + 16);
+    }
+};
