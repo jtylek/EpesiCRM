@@ -903,7 +903,7 @@ class Utils_GenericBrowser extends Module {
 		$all_width = 0;
 		foreach($this->columns as $k=>$v) {
 			if (!isset($this->columns[$k]['width'])) $this->columns[$k]['width'] = 100;
-			if (strpos($this->columns[$k]['width'], 'px')!==false) continue;
+			if (!is_numeric($this->columns[$k]['width'], 'px')) continue;
 			$all_width += $this->columns[$k]['width'];
 			if (isset($v['quickjump'])) {
 				$quickjump = $this->set_module_variable('quickjump',$v['quickjump']);
@@ -924,8 +924,9 @@ class Utils_GenericBrowser extends Module {
 			else $label = $v['name'];
 			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . $label . '</a>':$label).(isset($v['append'])?$v['append']:'');
 			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
-			if ($this->absolute_width || strpos($v['width'], 'px')!==false) $headers[$i]['attrs'] = 'width="'.$v['width'].'" ';
-			else $headers[$i]['attrs'] = 'width="'.intval(100*$v['width']/$all_width).'%" ';
+			if ($this->absolute_width || !is_numeric($v['width'])) $width = $v['width'];
+			else $headers[$i]['attrs'] = $width = intval(100*$v['width']/$all_width).'%';
+            $headers[$i]['attrs'] .= 'style="width:'.$width.'" ';
 			$headers[$i]['attrs'] .= 'nowrap="1" ';
 			if (isset($v['attrs'])) $headers[$i]['attrs'] .= $v['attrs'].' ';
 			$i++;
