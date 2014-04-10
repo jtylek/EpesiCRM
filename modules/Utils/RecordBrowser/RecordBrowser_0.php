@@ -1275,7 +1275,7 @@ class Utils_RecordBrowser extends Module {
 						$changed = false;
 						while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) { // match for keys in braces {key}
 							$replace_value = '';
-							if(key_exists($second_match[1], $data)) {
+							if(array_key_exists($second_match[1], $data)) {
 								$replace_value = $data[$second_match[1]];
 								$changed = true;
 							}
