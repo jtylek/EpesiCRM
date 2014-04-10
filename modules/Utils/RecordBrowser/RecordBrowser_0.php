@@ -931,7 +931,7 @@ class Utils_RecordBrowser extends Module {
                 }
 				if ($pdf) {
                     $value['overflow_box'] = false;
-					$value['attrs'] = $attrs.' style="border:1px solid black;" width="'.$table_columns[$k]['width'].'"';
+					$value['attrs'] = $attrs.' style="border:1px solid black;"';
 					$value['value'] = '&nbsp;'.$value['value'].'&nbsp;';
 				}
                 $row_data[] = $value;
