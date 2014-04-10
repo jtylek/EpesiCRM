@@ -582,7 +582,7 @@ class Utils_RecordBrowser extends Module {
         if ($this->data_gb!==null) $gb = $this->data_gb;
         else $gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 
-        if($pdf) $gb->set_expandable(false);
+        if(!$pdf) $gb->set_expandable(true);
 
         if ($special) {
             $gb_per_page = Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page');

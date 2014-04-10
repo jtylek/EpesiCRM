@@ -132,7 +132,7 @@ class Utils_GenericBrowser extends Module {
 	private $table_postfix = '';
 	private $absolute_width = false;
 	private $no_actions = array();
-    private $expandable = true;
+    private $expandable = false;
 	public $form_s = null;
 
 	public function construct() {
