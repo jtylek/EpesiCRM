@@ -42,6 +42,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $field = self::$hash[$field];
         }
         if ($args===null) $args = self::$table_rows[$field];
+        if(!array_key_exists('id',$record)) $record['id'] = null;
         if (!isset($record[$args['id']])) trigger_error($args['id'].' - unknown field for record '.serialize($record), E_USER_ERROR);
         $val = $record[$args['id']];
 		self::display_callback_cache($tab);
@@ -2628,7 +2629,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (is_array($rb_obj->custom_defaults))
                 $values = $values + $rb_obj->custom_defaults;
         }
-        $val = @self::get_val($rb_obj->tab, $field, $values, true, $desc);
+        $val = self::get_val($rb_obj->tab, $field, $values, true, $desc);
         if (!$val)
             $val = '[' . __('formula') . ']';
         $record_id = isset($rb_obj->record['id']) ? $rb_obj->record['id'] : null;
@@ -3013,7 +3014,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         $values = $rec;
                         if (is_array($defaults)) $values = $values + $defaults;
                     }
-                    $val = @Utils_RecordBrowserCommon::get_val($tab, $field, $values, true, $args);
+                    $val = Utils_RecordBrowserCommon::get_val($tab, $field, $values, true, $args);
                     if ($val !== null)
                         $qf->setDefaults(array($args['id'] => $val));
                     break;
