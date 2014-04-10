@@ -84,8 +84,8 @@ var gb_expandable = {};
 var gb_expanded = {};
 
 gb_show_hide_buttons = function (table_id) {
-    if(typeof gb_expandable[table_id] == "undefined" || $("expand_all_button_"+table_id) == null) return;
-    if (Object.keys(gb_expandable[table_id]).length==0) {
+    if($("expand_all_button_"+table_id) == null) return;
+    if (typeof gb_expandable[table_id] == "undefined" || Object.keys(gb_expandable[table_id]).length==0) {
         $("expand_all_button_"+table_id).hide();
         $("collapse_all_button_"+table_id).hide();
         return;
