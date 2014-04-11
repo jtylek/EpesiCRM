@@ -1,6 +1,6 @@
 <?php
 /* 
-  V5.06 16 Oct 2008   (c) 2006 John Lim (jlim#natsoft.com). All rights reserved.
+  V5.18 3 Sep 2012  (c) 2000-2012 (jlim#natsoft.com). All rights reserved.
 
   This is a version of the ADODB driver for DB2.  It uses the 'ibm_db2' PECL extension
   for PHP (http://pecl.php.net/package/ibm_db2), which in turn requires DB2 V8.2.2 or
@@ -22,6 +22,9 @@ if (!defined('ADODB_DIR')) die();
 	 
 /*--------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------*/
+
+
+
 
 
 class ADODB_db2 extends ADOConnection {
@@ -52,6 +55,7 @@ class ADODB_db2 extends ADOConnection {
 	var $uCaseTables = true; // for meta* functions, uppercase table names
 	var $hasInsertID = true;
 	
+	
     function _insertid()
     {
         return ADOConnection::GetOne('VALUES IDENTITY_VAL_LOCAL()');
@@ -75,10 +79,14 @@ class ADODB_db2 extends ADOConnection {
 		// Replaces the odbc_binmode() call that was in Execute()
 		ini_set('ibm_db2.binmode', $this->binmode);
 
-		if ($argDatabasename) {
-			$this->_connectionID = db2_connect($argDatabasename,$argUsername,$argPassword);
+		if ($argDatabasename && empty($argDSN)) {
+		
+			if (stripos($argDatabasename,'UID=') && stripos($argDatabasename,'PWD=')) $this->_connectionID = db2_connect($argDatabasename,null,null);
+			else $this->_connectionID = db2_connect($argDatabasename,$argUsername,$argPassword);
 		} else {
-			$this->_connectionID = db2_connect($argDSN,$argUsername,$argPassword);
+			if ($argDatabasename) $schema = $argDatabasename;
+			if (stripos($argDSN,'UID=') && stripos($argDSN,'PWD=')) $this->_connectionID = db2_connect($argDSN,null,null);
+			else $this->_connectionID = db2_connect($argDSN,$argUsername,$argPassword);
 		}
 		if (isset($php_errormsg)) $php_errormsg = '';
 
@@ -86,9 +94,9 @@ class ADODB_db2 extends ADOConnection {
 		// an array of valid options.  So far, we don't use them.
 
 		$this->_errorMsg = @db2_conn_errormsg();
- 
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
 		
+		if ($this->_connectionID && isset($schema)) $this->Execute("SET SCHEMA=$schema");
 		return $this->_connectionID != false;
 	}
 	
@@ -106,10 +114,14 @@ class ADODB_db2 extends ADOConnection {
 		if (isset($php_errormsg)) $php_errormsg = '';
 		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
 		
-		if ($argDatabasename) {
-			$this->_connectionID = db2_pconnect($argDatabasename,$argUsername,$argPassword);
+		if ($argDatabasename && empty($argDSN)) {
+		
+			if (stripos($argDatabasename,'UID=') && stripos($argDatabasename,'PWD=')) $this->_connectionID = db2_pconnect($argDatabasename,null,null);
+			else $this->_connectionID = db2_pconnect($argDatabasename,$argUsername,$argPassword);
 		} else {
-			$this->_connectionID = db2_pconnect($argDSN,$argUsername,$argPassword);
+			if ($argDatabasename) $schema = $argDatabasename;
+			if (stripos($argDSN,'UID=') && stripos($argDSN,'PWD=')) $this->_connectionID = db2_pconnect($argDSN,null,null);
+			else $this->_connectionID = db2_pconnect($argDSN,$argUsername,$argPassword);
 		}
 		if (isset($php_errormsg)) $php_errormsg = '';
 
@@ -117,6 +129,7 @@ class ADODB_db2 extends ADOConnection {
 		if ($this->_connectionID && $this->autoRollback) @db2_rollback($this->_connectionID);
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
 		
+		if ($this->_connectionID && isset($schema)) $this->Execute("SET SCHEMA=$schema");
 		return $this->_connectionID != false;
 	}
 
@@ -197,33 +210,20 @@ class ADODB_db2 extends ADOConnection {
 	
 	function ServerInfo()
 	{
-	
-		if (!empty($this->host) && ADODB_PHPVER >= 0x4300) {
-			$dsn = strtoupper($this->host);
-			$first = true;
-			$found = false;
-			
-			if (!function_exists('db2_data_source')) return false;
-			
-			while(true) {
-				
-				$rez = @db2_data_source($this->_connectionID,
-					$first ? SQL_FETCH_FIRST : SQL_FETCH_NEXT);
-				$first = false;
-				if (!is_array($rez)) break;
-				if (strtoupper($rez['server']) == $dsn) {
-					$found = true;
-					break;
-				}
-			} 
-			if (!$found) return ADOConnection::ServerInfo();
-			if (!isset($rez['version'])) $rez['version'] = '';
-			return $rez;
+		$row = $this->GetRow("SELECT service_level, fixpack_num FROM TABLE(sysproc.env_get_inst_info()) 
+			as INSTANCEINFO");
+
+		
+		if ($row) {		
+			$info['version'] = $row[0].':'.$row[1];
+			$info['fixpack'] = $row[1];
+			$info['description'] = '';
 		} else {
 			return ADOConnection::ServerInfo();
 		}
+		
+		return $info;
 	}
-
 	
 	function CreateSequence($seqname='adodbseq',$start=1)
 	{
@@ -237,6 +237,25 @@ class ADODB_db2 extends ADOConnection {
 	{
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
+	}
+	
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false)
+	{
+		$nrows = (integer) $nrows;
+		if ($offset <= 0) {
+		// could also use " OPTIMIZE FOR $nrows ROWS "
+			if ($nrows >= 0) $sql .=  " FETCH FIRST $nrows ROWS ONLY ";
+			$rs = $this->Execute($sql,$inputArr);
+		} else {
+			if ($offset > 0 && $nrows < 0);
+			else {
+				$nrows += $offset;
+				$sql .=  " FETCH FIRST $nrows ROWS ONLY ";
+			}
+			$rs = ADOConnection::SelectLimit($sql,-1,$offset,$inputArr);
+		}
+		
+		return $rs;
 	}
 	
 	/*
@@ -407,7 +426,6 @@ class ADODB_db2 extends ADOConnection {
 		}
 		
 		$arr = $rs->GetArray();
-		
 		$rs->Close();
 		$arr2 = array();
 		
@@ -417,12 +435,13 @@ class ADODB_db2 extends ADOConnection {
 		for ($i=0; $i < sizeof($arr); $i++) {
 			if (!$arr[$i][2]) continue;
 			$type = $arr[$i][3];
+			$owner = $arr[$i][1];
 			$schemaval = ($schema) ? $arr[$i][1].'.' : '';
 			if ($ttype) { 
 				if ($isview) {
 					if (strncmp($type,'V',1) === 0) $arr2[] = $schemaval.$arr[$i][2];
-				} else if (strncmp($type,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
-			} else if (strncmp($type,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
+				} else if (strncmp($owner,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
+			} else if (strncmp($owner,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
 		}
 		return $arr2;
 	}
@@ -591,6 +610,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		return $retarr;
 	}
 	
+		
 	function Prepare($sql)
 	{
 		if (! $this->_bindInputArray) return $sql; // no binding

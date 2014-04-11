@@ -1,6 +1,6 @@
 <?php
 /*
-  V5.09 25 June 2009   (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reserved.
+  V5.18 3 Sep 2012  (c) 2000-2012 John Lim (jlim#natsoft.com). All rights reserved.
    Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -55,13 +55,13 @@ class ADODB_ldap extends ADOConnection {
 		
 		if ( !function_exists( 'ldap_connect' ) ) return null;
 		
-		if (strpos('ldap://',$host) === 0 || strpos('ldaps://',$host) === 0) {
+		if (strpos($host,'ldap://') === 0 || strpos($host,'ldaps://') === 0) {
 			$this->_connectionID = @ldap_connect($host);
 		} else {
 			$conn_info = array( $host,$this->port);
 		
 			if ( strstr( $host, ':' ) ) {
-			    $conn_info = split( ':', $host );
+			    $conn_info = explode( ':', $host );
 			} 
 		
 			$this->_connectionID = @ldap_connect( $conn_info[0], $conn_info[1] );

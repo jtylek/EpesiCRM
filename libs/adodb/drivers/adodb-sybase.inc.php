@@ -1,6 +1,6 @@
 <?php
 /* 
-V5.09 25 June 2009   (c) 2000-2009 John Lim. All rights reserved.
+V5.18 3 Sep 2012  (c) 2000-2012 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -86,11 +86,11 @@ class ADODB_sybase extends ADOConnection {
 	}
 	
 	// http://www.isug.com/Sybase_FAQ/ASE/section6.1.html#6.1.4
-	function RowLock($tables,$where,$flds='top 1 null as ignore') 
+	function RowLock($tables,$where,$col='top 1 null as ignore') 
 	{
 		if (!$this->_hastrans) $this->BeginTrans();
 		$tables = str_replace(',',' HOLDLOCK,',$tables);
-		return $this->GetOne("select $flds from $tables HOLDLOCK where $where");
+		return $this->GetOne("select $col from $tables HOLDLOCK where $where");
 		
 	}	
 		
@@ -395,7 +395,7 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 		$themth = $ADODB_sybase_mths[$themth];
 		if ($themth <= 0) return false;
 		// h-m-s-MM-DD-YY
-		return  mktime(0,0,0,$themth,$rr[2],$rr[3]);
+		return  adodb_mktime(0,0,0,$themth,$rr[2],$rr[3]);
 	}
 	
 	static function UnixTimeStamp($v)
@@ -422,7 +422,7 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 			break;
 		}
 		// h-m-s-MM-DD-YY
-		return  mktime($rr[4],$rr[5],0,$themth,$rr[2],$rr[3]);
+		return  adodb_mktime($rr[4],$rr[5],0,$themth,$rr[2],$rr[3]);
 	}
 }
 ?>
