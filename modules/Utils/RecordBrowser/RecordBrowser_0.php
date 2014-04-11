@@ -1265,35 +1265,25 @@ class Utils_RecordBrowser extends Module {
 						$fval = Utils_RecordBrowserCommon::get_val($this->tab, $val['id'], $record, true);
 						if(strlen($fval)) $data[$val['id']] = $fval;
 					}
-					/* to some complicate preg match to find every occurence
+					/* some complicate preg match to find every occurence
 					 * of %{ .. {f_name} .. } pattern
 					 */
-					$elem = 0;
-					$match = array();
-					$original_text = $text;
-					$text = '%{'.$text.'}';
-					while(preg_match('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) { // match for pattern %{...{..}...}
-						$text_replace = $match[1];
-						$changed = false;
-						while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) { // match for keys in braces {key}
-							$replace_value = '';
-							if(array_key_exists($second_match[1], $data)) {
-								$replace_value = $data[$second_match[1]];
-								$changed = true;
-							}
-							$text_replace = str_replace($second_match[0], $replace_value, $text_replace);
-						}
-						if(! $changed ) $text_replace = '';
-						$data["int$elem"] = $text_replace;
-						$text = str_replace($match[0], '{int'.$elem.'}', $text);
-						$elem++;
-					}
-					$elem--;
-					if ($elem>=0) {
-						$text = str_replace('{int'.$elem.'}', $data["int$elem"], $text);
-					} else {
-						$text = $original_text;
-					}
+                    if (preg_match_all('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) { // match for all patterns %{...{..}...}
+                        foreach ($match[0] as $k => $matched_string) {
+                            $text_replace = $match[1][$k];
+                            $changed = false;
+                            while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) { // match for keys in braces {key}
+                                $replace_value = '';
+                                if(array_key_exists($second_match[1], $data)) {
+                                    $replace_value = $data[$second_match[1]];
+                                    $changed = true;
+                                }
+                                $text_replace = str_replace($second_match[0], $replace_value, $text_replace);
+                            }
+                            if(! $changed ) $text_replace = '';
+                            $text = str_replace($matched_string, $text_replace, $text);
+                        }
+                    }
 					load_js("modules/Utils/RecordBrowser/selecttext.js");
 					/* remove all php new lines, replace <br>|<br/> to new lines and quote all special chars */
 					$ftext = htmlspecialchars(preg_replace('#<[bB][rR]/?>#', "\n", str_replace("\n", '', $text)));
