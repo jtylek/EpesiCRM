@@ -743,10 +743,8 @@ table.Utils_GenericBrowser > tbody > td img {
 
 div.expandable.collapsed {
     height: 18px;
-    overflow:hidden;
 }
 div.expandable {
-    overflow:auto;
 }
 div.expandable.collapsed.exceedsHeight {
     height: 17px !important;
