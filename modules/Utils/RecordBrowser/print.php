@@ -17,6 +17,10 @@ define('CID', $cid);
 define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 
+if (!isset($_SESSION['client']['utils_recordbrowser'][$key])) {
+    die('Invalid request');
+}
+
 $crits = $_SESSION['client']['utils_recordbrowser'][$key]['crits'];
 $cols = $_SESSION['client']['utils_recordbrowser'][$key]['cols'];
 $order = $_SESSION['client']['utils_recordbrowser'][$key]['order'];
