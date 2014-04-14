@@ -14,17 +14,27 @@ table_overflow_show = function (e_td, force) {
 		if (utils_genericbrowser__last_td) table_overflow_hide(utils_genericbrowser__hide_current);
 		e_tip.style.minWidth = e_td.clientWidth+"px";
 		e_tip.style.minHeight = e_td.clientHeight+"px";
-		while (e_td.childNodes.length>0) {
+        var keep_height = jq(e_td).height();
+        while (e_td.childNodes.length>0) {
 			$("table_overflow_content").appendChild(e_td.firstChild);
 		}
 		utils_genericbrowser__last_td = e_td;
-		
-		e_td.innerHTML = $("table_overflow_content").innerHTML; // fix for cell height, TODO: find  a way to keep size without copying html, nodes ids are messing up
+
+        // put stub element to keep height of the cell
+        var stub_element = document.createElement('div');
+        stub_element.style.height = keep_height+"px";
+        stub_element.style.margin = stub_element.style.padding = 0;
+        e_td.appendChild(stub_element);
+        // replace collapsed class name to not expand while overflow is shown
+        var exp_el = jq('#table_overflow_content div.expandable');
+        if (exp_el.hasClass('collapsed')) exp_el.addClass('collapsed_hold').removeClass('collapsed');
+        if (exp_el.hasClass('expanded')) exp_el.addClass('expanded_hold').removeClass('expanded');
+
 		var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 		var leftOffset = -2;
 		if (is_chrome)
 			leftOffset = -1;
-		
+
 		e_tip.clonePosition(e_td,{setHeight: false, setWidth: false, offsetTop: -2, offsetLeft: leftOffset});
 		e_tip.show();
 		if (e_tip.clientWidth<=e_td.clientWidth && e_tip.clientHeight-3<=e_td.clientHeight) { // 3 pixels because Firefox is getting lost at what height should elements have
@@ -53,6 +63,8 @@ table_overflow_hide = function (current) {
 	if (!e_tip) return;
 	if (utils_genericbrowser__last_td) {
 		utils_genericbrowser__last_td.innerHTML = '';
+        jq('#table_overflow_content div.expandable.collapsed_hold').removeClass('collapsed_hold').addClass('collapsed');
+        jq('#table_overflow_content div.expandable.expanded_hold').removeClass('expanded_hold').addClass('expanded');
 		while ($("table_overflow_content").childNodes.length>0) {
 			utils_genericbrowser__last_td.appendChild($("table_overflow_content").firstChild);
 		}
@@ -100,6 +112,7 @@ gb_show_hide_buttons = function (table_id) {
 }
 
 gb_expand = function(table,id) {
+    table_overflow_hide(utils_genericbrowser__hide_current);
     var e = jq("#gb_row_"+table+'_'+id+' div.expandable');
     if(e.length>0) {
         e.height("auto").addClass("expanded").removeClass('collapsed');
@@ -118,6 +131,7 @@ gb_expand_all = function(table) {
 };
 
 gb_collapse = function(table,id) {
+    table_overflow_hide(utils_genericbrowser__hide_current);
     var e = jq("#gb_row_"+table+'_'+id+' div.expandable')
     if(e.length>0) {
         e.removeClass('expanded').addClass('collapsed');
