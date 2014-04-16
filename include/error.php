@@ -233,14 +233,16 @@ function handle_epesi_exception(Exception $exception)
 
 if(REPORT_ALL_ERRORS) {
     if (version_compare(phpversion(), '5.4.0')==-1)
-    	error_reporting(E_ALL); //all without notices
+    	$error_reporting_level = E_ALL; //all without notices
     else
-        error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED); // E_STRICT cause 5.4 unusable, E_DEPRECATED
+        $error_reporting_level = E_ALL & ~E_STRICT & ~E_DEPRECATED; // E_STRICT cause 5.4 unusable, E_DEPRECATED
 }
 else
-	error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR);
+	$error_reporting_level = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
 
-set_error_handler('handle_epesi_error');
+error_reporting($error_reporting_level);
+set_error_handler('handle_epesi_error', $error_reporting_level);
 set_exception_handler('handle_epesi_exception');
+unset($error_reporting_level);
 
 ?>
