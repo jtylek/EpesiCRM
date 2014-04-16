@@ -18,6 +18,10 @@ class Base_AclCommon extends ModuleCommon {
 		return array('label'=>__('Access Restrictions'), 'section'=>__('User Management'));
 	}
 
+    public static function admin_access() {
+        return DEMO_MODE?false:true;
+    }
+
 	public static function get_admin_level($user = null) {
 		if ($user === null) $user = self::get_user();
 		$admin = @DB::GetRow('SELECT * FROM user_login WHERE id=%d', array($user));

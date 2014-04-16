@@ -11,7 +11,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Contacts_Activities extends Module {
-	private $lang;
 	private $display;
 	private $theme;
 	private $activities_date = 0;

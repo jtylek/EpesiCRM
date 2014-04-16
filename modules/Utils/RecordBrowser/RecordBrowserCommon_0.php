@@ -304,6 +304,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function admin_caption() {
 		return array('label'=>__('Record Browser'), 'section'=>__('Data'));
     }
+    public static function admin_access() {
+        return DEMO_MODE?false:true;
+    }
 	public static function admin_access_levels() {
 		return array(
 			'records'=>array('label'=>__('Manage Records'), 'values'=>array(0=>__('No access'), 1=>__('View'), 2=>__('Full')), 'default'=>1),

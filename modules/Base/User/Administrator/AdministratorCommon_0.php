@@ -22,6 +22,10 @@ class Base_User_AdministratorCommon extends Base_AdminModuleCommon {
 		return array('label'=>__('Manage users'), 'section'=>__('User Management'));
 	}
     
+    public static function admin_access() {
+        return DEMO_MODE?false:true;
+    }
+
     public static function admin_access_levels() {
         return array(
              'log_as_user' => array('label' => __('Allow admin to login as user'), 'default' => 1),

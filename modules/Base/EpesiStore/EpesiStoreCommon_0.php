@@ -32,7 +32,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     public static function admin_access() {
         $trial = defined('TRIAL_MODE') ? TRIAL_MODE : 0;
-        return Base_AclCommon::i_am_sa() && !$trial;
+        return Base_AclCommon::i_am_sa() && !$trial && !DEMO_MODE;
     }
 
     public static function admin_caption() {
