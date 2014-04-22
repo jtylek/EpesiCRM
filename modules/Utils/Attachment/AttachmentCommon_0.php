@@ -447,14 +447,17 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'add':
             case 'edit':
                 $crypted = 0;
+                $old_pass = '';
                 if(isset($values['crypted']['crypted']) && $values['crypted']['crypted']) {
-                    $old_pass = isset($_SESSION['client']['cp'.$values['id']])?$_SESSION['client']['cp'.$values['id']]:'';
-                    if($values['crypted']['note_password']=='*@#old@#*')
-                        $values['crypted']['note_password'] = $old_pass;
+                    if(isset($values['crypted']['note_password'])) {
+                        $old_pass = isset($_SESSION['client']['cp'.$values['id']])?$_SESSION['client']['cp'.$values['id']]:'';
+                        if($values['crypted']['note_password']=='*@#old@#*')
+                            $values['crypted']['note_password'] = $old_pass;
+                    }
                     $crypted = 1;
                 }
 
-                if($mode=='edit' && $old_pass!=$values['crypted']['note_password']) {
+                if(isset($values['crypted']['note_password']) && $mode=='edit' && $old_pass!=$values['crypted']['note_password']) {
                     //reencrypt old revisions
                     $old_notes = DB::GetAssoc('SELECT hd.edit_id,hd.old_value FROM utils_attachment_edit_history h INNER JOIN utils_attachment_edit_history_data hd ON h.id=hd.edit_id WHERE h.utils_attachment_id=%d AND hd.field="note"', array($values['id']));
                     foreach($old_notes as $old_id=>$old_note) {
@@ -491,7 +494,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
                 break;
             case 'added':
-                $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
+                if(isset($values['note_password']))
+                    $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 DB::Execute('INSERT INTO utils_attachment_local(attachment,local) VALUES(%d,%s)',array($values['id'],$values['local']));
                 $param = explode('/',$values['local']);
                 if (isset($param[1]) && Utils_WatchdogCommon::get_category_id($param[0])!==null) {
@@ -522,25 +526,28 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($values['id']));
                 $remaining_files = $current_files;
                 //Epesi::alert(print_r($values,true));
-                $deleted_files = array_filter(explode(';',$values['delete_files']));
-                foreach ($deleted_files as $k=>$v) {
-                    $deleted_files[$k] = intVal($v);
-                    if (!isset($remaining_files[$v])) unset($deleted_files[$k]);
-                    else unset($remaining_files[$v]);
-                }
                 $note_id = $values['id'];
-                foreach ($deleted_files as $v)
-                    DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d', array($v));
-
-                $clipboard_files = array_filter(explode(';',$values['clipboard_files']));
-                foreach ($clipboard_files as $cf_id) {
-                    $cf = DB::GetOne('SELECT filename FROM utils_attachment_clipboard WHERE id=%d', array($cf_id));
-                    if($values['crypted'])
-                        file_put_contents($cf,Utils_AttachmentCommon::encrypt(file_get_contents($cf),$values['note_password']));
-                    Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), __('clipboard').'.png', $cf);
+                if(isset($values['delete_files'])) {
+                    $deleted_files = array_filter(explode(';',$values['delete_files']));
+                    foreach ($deleted_files as $k=>$v) {
+                        $deleted_files[$k] = intVal($v);
+                        if (!isset($remaining_files[$v])) unset($deleted_files[$k]);
+                        else unset($remaining_files[$v]);
+                    }
+                    foreach ($deleted_files as $v)
+                        DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d', array($v));
+                }
+                if(isset($values['clipboard_files'])) {
+                    $clipboard_files = array_filter(explode(';',$values['clipboard_files']));
+                    foreach ($clipboard_files as $cf_id) {
+                        $cf = DB::GetOne('SELECT filename FROM utils_attachment_clipboard WHERE id=%d', array($cf_id));
+                        if($values['crypted'])
+                            file_put_contents($cf,Utils_AttachmentCommon::encrypt(file_get_contents($cf),$values['note_password']));
+                        Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), __('clipboard').'.png', $cf);
+                    }
                 }
 
-                $files = $_SESSION['client']['utils_attachment'][CID]['files'];
+                $files = isset($_SESSION['client']['utils_attachment'][CID]['files'])?$_SESSION['client']['utils_attachment'][CID]['files']:array();
                 $_SESSION['client']['utils_attachment'][CID]['files'] = array();
                 foreach ($files as $f) {
                     if($values['crypted'])
