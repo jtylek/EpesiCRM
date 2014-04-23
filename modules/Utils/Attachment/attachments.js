@@ -93,6 +93,8 @@ document.onpaste = function(event) {
 			var blob = items[i].getAsFile();
 			var reader = new FileReader();
 			reader.onload = function(event) {
+                        	Epesi.procOn++;
+                        	Epesi.updateIndicator();
 				new Ajax.Request("modules/Utils/Attachment/paste.php", {
 					method: "post",
 					parameters:{
@@ -100,6 +102,8 @@ document.onpaste = function(event) {
 						data: event.target.result
 					},
 					onSuccess:function(t) {
+                                        	Epesi.procOn--;
+                                        	Epesi.updateIndicator();
 						var file = t.responseText.evalJSON();
 						Utils_Attachment__add_file_to_list(file.name, null, file.id, false, true);
 					}
