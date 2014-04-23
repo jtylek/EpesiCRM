@@ -506,7 +506,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
                 break;
             case 'display':
-                if(DB::GetOne('SELECT 1 FROM utils_attachment_file WHERE attach_id=%d AND deleted=0',array($values['id']))) {
+                if(DB::GetOne('SELECT 1 FROM utils_attachment_file WHERE attach_id=%d',array($values['id']))) {
                     $ret = array();
                     $ret['new'] = array();
                     $ret['new']['crm_filter'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('File history')).' '.Module::create_href(array('file_history'=>1)).'>F</a>';
@@ -660,10 +660,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if ($doc)
             $export_url = 'https://docs.google.com/feeds/download/documents/Export?id='.$edit_url.'&exportFormat=doc';
         else
-            $export_url = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key='.$edit_url.'&exportFormat=xlsx';
+            $export_url = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key='.$edit_url.'&exportFormat=xls';
 
         DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
-        $g_auth = Utils_AttachmentCommon::get_google_auth();
+        $g_auth = Utils_AttachmentCommon::get_google_auth(null, null, $doc?'writely':'wise');
         $curl = curl_init();
 
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
