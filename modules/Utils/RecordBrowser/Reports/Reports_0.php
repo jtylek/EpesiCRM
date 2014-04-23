@@ -339,9 +339,9 @@ class Utils_RecordBrowser_Reports extends Module {
 	
 	public function modify_cols_total($i, $val, $cat=null) {
 		if (empty($this->categories)) {
-			$this->cols_total[$i] += $val;
+			$this->cols_total[$i][0] += $val;
 		} else {
-			$this->cols_total[$cat][$i] += $val;
+			$this->cols_total[$cat][$i][0] += $val;
 		}
 	}
 
@@ -748,8 +748,8 @@ class Utils_RecordBrowser_Reports extends Module {
 							$res_ref = array_pop($res_ref);
 						$val = strip_tags($res_ref);
 							$total += $val;
-						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = 0;
-						$this->cols_total[$i] += $val;
+						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = array();
+						$this->cols_total[$i][0] += $val;
 						$i++;
 					}
 					$bar->set_values(array($total));
@@ -835,9 +835,13 @@ class Utils_RecordBrowser_Reports extends Module {
 				$bar->set_colour(self::$colours[0]);
 				$bar->set_key('Total',10);
 				$mm = 5;
-				foreach($this->cols_total as $val)
-					if($mm<$val) $mm=$val;
-				$bar->set_values($this->cols_total);
+                $values = array();
+				foreach($this->cols_total as $val) {
+                    $rval = $val[0];
+					if($mm < $rval) $mm = $rval;
+                    $values[] = $rval;
+                }
+				$bar->set_values($values);
 				if($this->format=='currency') {
 					$maxc2 = $mm;
 					$fc2->add_element( $bar );
