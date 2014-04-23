@@ -660,10 +660,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if ($doc)
             $export_url = 'https://docs.google.com/feeds/download/documents/Export?id='.$edit_url.'&exportFormat=doc';
         else
-            $export_url = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?id='.$edit_url.'&exportFormat=csv';
+            $export_url = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key='.$edit_url.'&exportFormat=csv';
 
         DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
-        $g_auth = Utils_AttachmentCommon::get_google_auth(null, null, $doc?'writely':'wise');
+        $g_auth = Utils_AttachmentCommon::get_google_auth();
         $curl = curl_init();
 
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
