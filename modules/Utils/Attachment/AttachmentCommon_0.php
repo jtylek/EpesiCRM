@@ -239,7 +239,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 	
 	public static function get_temp_dir() {
-		return DATA_DIR.'/Utils_Attachment/temp/'.Acl::get_user();
+	        $targetDir = DATA_DIR.'/Utils_Attachment/temp/'.Acl::get_user();
+                if(!file_exists($targetDir))
+                	mkdir($targetDir,0777,true);
+		return $targetDir;
 	}
 	
 	public static function cleanup_paste_temp() {

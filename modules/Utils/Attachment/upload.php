@@ -29,9 +29,6 @@ if(!Acl::is_user())
 // Settings
 $targetDir = Utils_AttachmentCommon::get_temp_dir();
 
-if(!file_exists($targetDir))
-	mkdir($targetDir,0777,true);
-
 $cleanupTargetDir = true; // Remove old files
 $maxFileAge = 5 * 3600; // Temp file age in seconds
 

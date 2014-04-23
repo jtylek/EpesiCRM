@@ -21,7 +21,6 @@ if(!Acl::is_user())
 	die('Permission denied');
 
 $targetDir = Utils_AttachmentCommon::get_temp_dir();
-@mkdir($targetDir);
 Utils_AttachmentCommon::cleanup_paste_temp();
 
 DB::Execute('INSERT INTO utils_attachment_clipboard (created_by) VALUES (%d)', array(Acl::get_user()));
