@@ -222,6 +222,7 @@ addLeightboxMarkup();
 getBrowserInfo();
 
 function leightbox_reload() {
+    if(leightbox_is_active) return;
     $('leightbox_container').innerHTML = '';
     lbox = document.getElementsByClassName('lbOn');
     for(i = 0; i < leightboxes.length; i++)
