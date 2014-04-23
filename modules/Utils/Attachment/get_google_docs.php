@@ -15,8 +15,8 @@ $cid = $_REQUEST['cid'];
 $id = $_REQUEST['id'];
 $disposition = (isset($_REQUEST['view']) && $_REQUEST['view'])?'inline':'attachment';
 
-function error_message() {
-	Utils_FrontPageCommon::display(__( 'Error occured'), __( 'There was an error accessing Google Docs service.').'<br><br>'.__( 'Please contact your administrator.'));
+function error_message($code='') {
+	Utils_FrontPageCommon::display(__( 'Error occured'), __( 'There was an error accessing Google Docs service.').'<br><br>'.__( 'Please contact your administrator.').'<br><br>'.$code);
 	die();
 }
 
@@ -168,7 +168,8 @@ if ($g_auth) {
             case preg_match('/\.odt$/i',$original): $type = 'document'; $content_type = 'application/vnd.oasis.opendocument.text'; break;
             case preg_match('/\.ods$/i',$original): $type = 'spreadsheet'; $content_type = 'application/vnd.oasis.opendocument.spreadsheet'; break;
             case preg_match('/\.csv$/i',$original): $type = 'spreadsheet'; $content_type = 'text/csv'; break;
-            case preg_match('/\.xlsx?$/i',$original): $type = 'spreadsheet'; $content_type = 'application/vnd.google-apps.spreadsheet'; break;
+            case preg_match('/\.xls$/i',$original): $type = 'spreadsheet'; $content_type = 'application/vnd.ms-excel'; break;
+            case preg_match('/\.xlsx$/i',$original): $type = 'spreadsheet'; $content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; break;
             case preg_match('/\.txt$/i',$original): $type = 'document'; $content_type = 'text/plain'; break;
 			// application/vnd.oasis.opendocument.spreadsheet
 		}
@@ -194,7 +195,7 @@ if ($g_auth) {
 
 		curl_setopt($curl, CURLOPT_HEADER, false); 
 
-		if ($info['http_code']!==200) error_message();
+		if ($info['http_code']!==200) error_message(print_r($info,true));
 		preg_match("/Location: ([^\s]+)/i", $response, $matches);
 		$location = $matches[1];
 		$part = 0;
@@ -245,7 +246,7 @@ if ($g_auth) {
 			if ($l['rel']=='edit') $edit_href = $l['href'];
 		}
 		$file_id = (string)($response->id);
-		if (!$file_id) error_message();
+		if (!$file_id) error_message(print_r($response,true));
 		
 		// Add the file to collection
 		$body = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom"><id>'.$file_id.'</id></entry>';
