@@ -2633,7 +2633,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (is_array($rb_obj->custom_defaults))
                 $values = $values + $rb_obj->custom_defaults;
         }
-        $val = self::get_val($rb_obj->tab, $field, $values, true, $desc);
+        $val = isset($values[$desc['id']]) ?
+            self::get_val($rb_obj->tab, $field, $values, true, $desc)
+            : '';
         if (!$val)
             $val = '[' . __('formula') . ']';
         $record_id = isset($rb_obj->record['id']) ? $rb_obj->record['id'] : null;
