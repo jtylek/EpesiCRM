@@ -85,16 +85,6 @@ class CRM_Contacts extends Module {
 		if (!Base_AclCommon::i_am_admin()) return false;
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-		$users = DB::GetAssoc('SELECT id, login FROM user_login');
-		if (count($users) > Utils_RecordBrowserCommon::get_records_count('contact', array('!login'=>''), true)) {
-			$recs = Utils_RecordBrowserCommon::get_records('contact', array('!login'=>''), array(), array(), array(), true);
-			foreach ($recs as $r)
-				unset($users[$r['login']]);
-			foreach ($users as $id=>$u)
-				Utils_RecordBrowserCommon::new_record('contact', array('login'=>$id, 'last_name'=>$u, 'permission'=>0));
-			Base_StatusBarCommon::message(__('Created %d contacts for unassigned users', array(count($users))));
-		}
-
 		$this->rb = $this->init_module('Utils/RecordBrowser','contact','contact');
 		$logins = DB::GetAll('SELECT * FROM user_login');
 		$active_logins = array();
