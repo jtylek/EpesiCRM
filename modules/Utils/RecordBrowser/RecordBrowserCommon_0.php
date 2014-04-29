@@ -2672,6 +2672,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $form->addElement('currency', $field, $label, array('id' => $field));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));
+        // set element value to persist currency over soft submit
+        if ($form->isSubmitted() && $form->exportValue('submited') == false) {
+            $default = $form->exportValue($field);
+            $form->getElement($field)->setValue($default);
+        }
     }
 
     public static function QFfield_text(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
