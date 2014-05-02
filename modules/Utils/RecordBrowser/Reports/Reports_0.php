@@ -448,6 +448,7 @@ class Utils_RecordBrowser_Reports extends Module {
 							}
 						}
 						$next = $this->format_cell($format, $v[$c]);
+						$next['class'] .= ' row_'.$c_id;
 						if(!isset($this->join_rows[$c_id]))
 							$next['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i]['name'], $next['value'], $c);
 						$grow[] = $next;
@@ -458,6 +459,7 @@ class Utils_RecordBrowser_Reports extends Module {
 						if($this->format[$c]=='percent') foreach($total as &$t) $t = 0;
 						if (isset($this->row_summary['callback'])) $total = call_user_func($this->row_summary['callback'], $results, $total, $c);
 						$next = $this->format_cell($format, $total, 'row_total');
+						$next['class'] .= ' row_'.$c_id;
 						if(!isset($this->join_rows[$c_id]))
 							$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value'], $c);
 						$grow[] = $next;
@@ -521,7 +523,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$this->first = true;
 				$count = count($this->categories);
 				$ggrow = array();
-				foreach ($this->categories as $c) {
+				foreach ($this->categories as $c_id=>$c) {
 					if ($this->first) {
 						$grow = array(0=>$this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 						$grow[0]['attrs'] .= 'rowspan="'.$count.'" ';
@@ -542,6 +544,7 @@ class Utils_RecordBrowser_Reports extends Module {
 						}
 						if (isset($this->col_summary['callback'])) $v = call_user_func($this->col_summary['callback'], $v, $c, $col);
 						$next = $this->format_cell($format, $v, 'col_total');
+						$next['class'] .= ' row_'.$c_id;
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $next['value'], $c);
 						$grow[] = $next;
 						$i++;
@@ -552,6 +555,7 @@ class Utils_RecordBrowser_Reports extends Module {
 						if (isset($this->row_summary['callback'])) $total = call_user_func($this->row_summary['callback'], $results, $total, $c);
 						$next = $this->format_cell($format, $total, 'total_all');
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value'], $c);
+						$next['class'] .= ' row_'.$c_id;
 						$grow[] = $next;
 					}
 					$this->first = false;
