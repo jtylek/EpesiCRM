@@ -92,7 +92,7 @@ class Utils_CurrencyField_Value
 
     public function set_amount($amount)
     {
-        if (!is_numeric($amount)) {
+        if ($amount && !is_numeric($amount)) {
             throw new Utils_CurrencyField_WrongAmountFormatException($amount);
         }
         $this->amount = $amount;
