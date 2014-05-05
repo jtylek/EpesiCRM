@@ -979,7 +979,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		} else {
 			foreach ($this->categories as $q=>$c) {
 				$title = strip_tags($c);
-				$tb->set_tab($title, array($this,'draw_category_chart'),array($title,$gb_captions));
+				$tb->set_tab($title, array($this,'draw_category_chart'),array($c,$gb_captions));
 			}
 		}
 		$tb->set_tab('Summary', array($this,'draw_summary_chart'),array($gb_captions));
