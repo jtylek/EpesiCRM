@@ -140,20 +140,23 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
 	public static function search_group($group,$word,$view_func=false,$limit=-1) {
 		$ret = array();
-		$r = DB::SelectLimit('SELECT ual.id,ual.f_func,ual.f_args FROM utils_attachment_data_1 ual WHERE ual.active=0 AND '.
+		$r = DB::SelectLimit('SELECT ual.id,ual.f_func,ual.f_args,ual.f_title FROM utils_attachment_data_1 ual WHERE ual.active=1 AND '.
 				'(f_title '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' OR
 				 f_note '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' OR
 				 0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ual.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0))'.
-				'AND ual.id in ('.self::get_where($group).')', $limit, -1, array($word,$word,));
+				'AND ual.id in ('. implode(',', self::get_where($group)) .')', $limit, -1, array($word,$word,$word));
 		while($row = $r->FetchRow()) {
-			$view = '';
 			if($view_func) {
-				$func = unserialize($row['func']);
-				if($func) {
-					$view = call_user_func_array($func,unserialize($row['args']));
-				}
-				if(!$view) continue;
-				$ret[$row['id']] = __('Note').': '.$view;
+				$func = unserialize($row['f_func']);
+                $record = $func
+                    ? call_user_func_array($func, unserialize($row['f_args']))
+                    : '';
+				if(!$record) continue;
+                $title = $row['f_title'] ? $row['f_title'] : __('Without Title');
+                $title = Utils_RecordBrowserCommon::record_link_open_tag('utils_attachment', $row['id'])
+                         . __('Note').': ' . $title
+                         . Utils_RecordBrowserCommon::record_link_close_tag();
+				$ret[$row['id']] = $title . " ($record)";
 			} else {
                 $groups = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',$row['id']);
                 foreach($groups as $group)
