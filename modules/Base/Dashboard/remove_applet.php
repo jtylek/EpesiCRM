@@ -24,7 +24,7 @@ if(!Base_AclCommon::is_user()) {
 	exit();
 }
 
-$default = $_POST['default_dash'];
+$default = isset($_POST['default_dash']) && $_POST['default_dash'];
 if($default && !Base_AdminCommon::get_access('Base_Dashboard')) {
 	Epesi::alert('Permission denied');
 	Epesi::send_output();
