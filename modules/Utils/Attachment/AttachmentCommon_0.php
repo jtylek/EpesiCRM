@@ -94,9 +94,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
         $old_user = Acl::get_user();
         if($old_user!=$user) Acl::set_user($user);
-        $id = Utils_RecordBrowserCommon::new_record('utils_attachment',array('note'=>$note,'permission'=>$permission,'func'=>serialize($func),'args'=>serialize($args),'sticky'=>$sticky?1:0,'title'=>$note_title,'crypted'=>$crypted?1:0));
+        $id = Utils_RecordBrowserCommon::new_record('utils_attachment',array('local'=>$group,'note'=>$note,'permission'=>$permission,'func'=>serialize($func),'args'=>serialize($args),'sticky'=>$sticky?1:0,'title'=>$note_title,'crypted'=>$crypted?1:0));
         if($old_user!=$user) Acl::set_user($old_user);
-        DB::Execute('INSERT INTO utils_attachment_local(attachment,local) VALUES (%d,%s)',array($id,$group));
 
 		if($file)
 			self::add_file($id, $user, $oryg, $file);
