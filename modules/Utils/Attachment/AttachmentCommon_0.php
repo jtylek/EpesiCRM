@@ -507,6 +507,18 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$values['id']);
                 }
                 break;
+            case 'view':
+                $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
+                $ret = false;
+                foreach($locals as $local) {
+                    list($recordset,$key) = explode('/',$local,2);
+                    if(is_numeric($key) && Utils_RecordBrowserCommon::check_table_name($recordset) &&
+                        Utils_RecordBrowserCommon::get_access($recordset,'view',$key)) {
+                        $ret = true;
+                        break;
+                    }
+                }
+                return $ret;
             case 'display':
                 if(DB::GetOne('SELECT 1 FROM utils_attachment_file WHERE attach_id=%d',array($values['id']))) {
                     $ret = array();
