@@ -1163,6 +1163,7 @@ class Utils_RecordBrowser extends Module {
             Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
 
 		$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $mode!='add'?$this->record:$this->custom_defaults, ($mode=='view' || $mode=='history')?'view':$mode.'ing');
+		if($dp===false) return false;
 		if (is_array($dp))
 			$defaults = $this->custom_defaults = self::$last_record = $this->record = $dp;
 
