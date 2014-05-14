@@ -1732,28 +1732,127 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return null;
         }
     }
-    public static function set_active($tab, $id, $state){
-        self::check_table_name($tab);
-        $current = DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id));
-		if ($current==($state?1:0)) return;
-	$values = self::record_processing($tab, self::get_record($tab, $id), $state?'restore':'delete');
-	if($values===false) return;
-        Utils_WatchdogCommon::new_event($tab,$id,$state?'R':'D');
-        DB::Execute('UPDATE '.$tab.'_data_1 SET active=%d WHERE id=%d',array($state?1:0,$id));
-        DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
-        $edit_id = DB::Insert_ID($tab.'_edit_history','id');
-        DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state?'RESTORED':'DELETED')));
 
-    }
-    public static function delete_record($tab, $id, $perma=false) {
-        if (!$perma) self::set_active($tab, $id, false);
-        else {
-            self::check_table_name($tab);
-            DB::Execute('DELETE FROM '.$tab.'_data_1 WHERE id=%d', array($id));
+    /**
+     * Change record state: active / inactive. Soft delete.
+     *
+     * @param $tab   Recordset identifier
+     * @param $id    Record ID
+     * @param $state Active / Inactive state
+     *
+     * @return bool True when status has been changed, false otherwise
+     */
+    public static function set_active($tab, $id, $state)
+    {
+        self::check_table_name($tab);
+        $current = DB::GetOne('SELECT active FROM ' . $tab . '_data_1 WHERE id=%d', array($id));
+        if ($current == ($state ? 1 : 0)) {
+            return false;
         }
+        $record = self::get_record($tab, $id);
+        if (!$record) {
+            return false;
+        }
+        $values = self::record_processing($tab, $record, $state ? 'restore' : 'delete');
+        if ($values === false) {
+            return false;
+        }
+        Utils_WatchdogCommon::new_event($tab, $id, $state ? 'R' : 'D');
+        DB::Execute('UPDATE ' . $tab . '_data_1 SET active=%d WHERE id=%d', array($state ? 1 : 0, $id));
+        DB::Execute('INSERT INTO ' . $tab . '_edit_history(edited_on, edited_by, ' . $tab . '_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
+        $edit_id = DB::Insert_ID($tab . '_edit_history', 'id');
+        DB::Execute('INSERT INTO ' . $tab . '_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state ? 'RESTORED' : 'DELETED')));
+        return true;
     }
+
+    /**
+     * Delete record.
+     *
+     * @param string $tab   Recordset identifier
+     * @param int    $id    Record ID
+     * @param bool   $perma Delete permanently with all edit history
+     *
+     * @return bool True when record has been deleted, false otherwise
+     */
+    public static function delete_record($tab, $id, $perma = false)
+    {
+        $ret = false;
+        if (!$perma) {
+            $ret = self::set_active($tab, $id, false);
+        } elseif (self::check_table_name($tab)) {
+            $values = self::record_processing($tab, self::get_record($tab, $id), 'delete');
+            if ($values === false) {
+                $ret = false;
+            } else {
+                self::delete_record_history($tab, $id);
+                self::delete_from_favorite($tab, $id);
+                self::delete_from_recent($tab, $id);
+
+                DB::Execute('DELETE FROM ' . $tab . '_data_1 WHERE id=%d', array($id));
+                $ret = DB::Affected_Rows() > 0;
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * Delete all history entries for specified record.
+     *
+     * @param $tab Recordset identifier
+     * @param $id  Record ID
+     *
+     * @return int Number of affected edits deleted
+     */
+    public static function delete_record_history($tab, $id)
+    {
+        $sql = 'DELETE FROM ' . $tab . '_edit_history_data WHERE edit_id IN' .
+               ' (SELECT id FROM ' . $tab . '_edit_history WHERE ' . $tab . '_id = %d)';
+        DB::Execute($sql, array($id));
+        $sql = 'DELETE FROM ' . $tab . '_edit_history WHERE ' . $tab . '_id = %d';
+        DB::Execute($sql, array($id));
+        return DB::Affected_Rows();
+    }
+
+    /**
+     * Delete favorites entries for specified record.
+     *
+     * @param $tab Recordset identifier
+     * @param $id  Record ID
+     *
+     * @return int Number of favorites entries deleted
+     */
+    public static function delete_from_favorite($tab, $id)
+    {
+        $sql = 'DELETE FROM ' . $tab . '_favorite WHERE ' . $tab . '_id = %d';
+        DB::Execute($sql, array($id));
+        return DB::Affected_Rows();
+    }
+
+    /**
+     * Delete recent entries for specified record.
+     *
+     * @param $tab Recordset identifier
+     * @param $id  Record ID
+     *
+     * @return int Number of recent entries deleted
+     */
+    public static function delete_from_recent($tab, $id)
+    {
+        $sql = 'DELETE FROM ' . $tab . '_recent WHERE ' . $tab . '_id = %d';
+        DB::Execute($sql, array($id));
+        return DB::Affected_Rows();
+    }
+
+    /**
+     * Restore record.
+     *
+     * @param $tab Recordset identifier
+     * @param $id  Record ID
+     *
+     * @return bool True when record has been restored, false otherwise
+     */
     public static function restore_record($tab, $id) {
-        self::set_active($tab, $id, true);
+        return self::set_active($tab, $id, true);
     }
     public static function no_wrap($s) {
         $content_no_wrap = $s;
