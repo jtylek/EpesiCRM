@@ -131,11 +131,12 @@ WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name='crm_import_attach' AND 
 }
 @DB::DropIndex('attach_id','utils_attachment_file');
 
-$files = DB::GetAll('SELECT f.id,f.attach_id,l.local,l.id as aid FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id');
+$files = DB::GetAll('SELECT f.id,f.attach_id,l.local FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id');
 foreach($files as $row) {
+    $row['aid'] = $map[$row['attach_id']];
     @mkdir(DATA_DIR.'/Utils_Attachment/'.$row['aid']);
     @rename(DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'],DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id']);
-    DB::Execute('UPDATE utils_attachment_file SET attach_id=%d WHERE id=%d',array($map[$row['attach_id']],$row['id']));
+    DB::Execute('UPDATE utils_attachment_file SET attach_id=%d WHERE id=%d',array($row['aid'],$row['id']));
 }
 
 if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
