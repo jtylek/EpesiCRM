@@ -65,9 +65,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 	
 	public static function call_user_func_on_file($group,$func,$group_starts_with=false, $add_args=array()) {
+	        $where = self::get_where($group,$group_starts_with);
+	        if(!$where) return;
 		$ret = DB::Execute('SELECT f.id, f.original, f.created_on, f.attach_id as aid
 				    FROM utils_attachment_data_1 ual INNER JOIN utils_attachment_file f ON (f.attach_id=ual.id)
-				    WHERE ual.active=1 AND f.deleted=0 AND ual.id IN ('.implode(',',self::get_where($group,$group_starts_with)).')');
+				    WHERE ual.active=1 AND f.deleted=0 AND ual.id IN ('.implode(',',$where).')');
 		while($row = $ret->FetchRow()) {
 			$id = $row['id'];
 			$local = $row['aid'];
@@ -134,16 +136,20 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function get_files($group=null,$group_starts_with=false) {
-		return DB::GetAll('SELECT uaf.attach_id as note_id, uaf.id as file_id, created_by as upload_by, created_on as upload_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE ual.id IN ('.implode(',',self::get_where($group,$group_starts_with)).') AND ual.active=0 AND uaf.deleted=0');
+	        $where = self::get_where($group,$group_starts_with);
+	        if(!$where) return array();
+		return DB::GetAll('SELECT uaf.attach_id as note_id, uaf.id as file_id, created_by as upload_by, created_on as upload_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE ual.id IN ('.implode(',',$where).') AND ual.active=0 AND uaf.deleted=0');
 	}
 
 	public static function search_group($group,$word,$view_func=false,$limit=-1) {
 		$ret = array();
+		$where = self::get_where($group);
+		if(!$where) return $ret;
 		$r = DB::SelectLimit('SELECT ual.id,ual.f_func,ual.f_args,ual.f_title FROM utils_attachment_data_1 ual WHERE ual.active=1 AND '.
 				'(f_title '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' OR
 				 f_note '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' OR
 				 0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ual.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0))'.
-				'AND ual.id in ('. implode(',', self::get_where($group)) .')', $limit, -1, array($word,$word,$word));
+				'AND ual.id in ('. implode(',',$where) .')', $limit, -1, array($word,$word,$word));
 		while($row = $r->FetchRow()) {
 			if($view_func) {
 				$func = unserialize($row['f_func']);
