@@ -93,7 +93,7 @@ if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
     $a = DB::GetRow('SHOW CREATE TABLE utils_attachment_file');
     if(preg_match('/CONSTRAINT (.+) FOREIGN KEY .*attach_id/',$a[1],$m))
         DB::Execute('alter table `utils_attachment_file` drop foreign key '.$m[1]);
-    $a = DB::GetRow('SHOW CREATE TABLE crm_import_attach');
+    $a = @DB::GetRow('SHOW CREATE TABLE crm_import_attach');
     if(preg_match('/CONSTRAINT (.+) FOREIGN KEY .*utils_attachment_link/',$a[1],$m))
         DB::Execute('alter table `crm_import_attach` drop foreign key '.$m[1]);
 
@@ -114,7 +114,7 @@ WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name='utils_attachment_file' 
         DB::Execute('alter table utils_attachment_file drop CONSTRAINT "'.$a.'"');
     }
 
-    $a = DB::GetOne("SELECT
+    $a = @DB::GetOne("SELECT
     tc.constraint_name, tc.table_name, kcu.column_name,
     ccu.table_name AS foreign_table_name,
     ccu.column_name AS foreign_column_name
