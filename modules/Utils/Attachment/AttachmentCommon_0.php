@@ -512,7 +512,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $ret = false;
                 foreach($locals as $local) {
                     list($recordset,$key) = explode('/',$local,2);
-                    if(is_numeric($key) && Utils_RecordBrowserCommon::check_table_name($recordset) &&
+                    if(!Utils_RecordBrowserCommon::check_table_name($recordset) || !is_numeric($key) ||
                         Utils_RecordBrowserCommon::get_access($recordset,'view',$key)) {
                         $ret = true;
                         break;
