@@ -99,6 +99,8 @@ class Utils_Attachment extends Module {
 			$this->set_view_func(array('Utils_RecordBrowserCommon','create_default_linked_label'),array($rb->tab, $arg['id']));
 		}
 		if (!isset($this->group) && !$uid) trigger_error('Key not given to attachment module',E_USER_ERROR);
+		
+		$_SESSION['client']['utils_attachment_group'] = $this->group;
 
         load_js('modules/Utils/Attachment/attachments.js');
         Base_ThemeCommon::load_css('Utils_Attachment','browse');

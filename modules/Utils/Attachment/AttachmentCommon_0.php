@@ -541,7 +541,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     Epesi::alert(__('Cannot delete encrypted note'));
                     return false;
                 }
-                break;
+                $count_locals = DB::GetOne('SELECT count(DISTINCT local) FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
+                if($count_locals>1) {
+                    DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
+                    location(array());
+                    return false;
+                }
+                location(array());
+                return true;
         }
         switch($mode) {
             case 'edit':
