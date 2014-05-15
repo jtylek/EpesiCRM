@@ -145,27 +145,25 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$ret = array();
 		$where = self::get_where($group);
 		if(!$where) return $ret;
-		$r = DB::SelectLimit('SELECT ual.id,ual.f_func,ual.f_args,ual.f_title FROM utils_attachment_data_1 ual WHERE ual.active=1 AND '.
+		$r = DB::SelectLimit('SELECT ua.id,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_data_1 ua INNER JOIN utils_attachment_local ual ON ual.attachment=ua.id WHERE ua.active=1 AND '.
 				'(f_title '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' OR
 				 f_note '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' OR
-				 0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ual.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0))'.
-				'AND ual.id in ('. implode(',',$where) .')', $limit, -1, array($word,$word,$word));
+				 0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ua.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0))'.
+				'AND ua.id in ('. implode(',',$where) .')', $limit, -1, array($word,$word,$word));
 		while($row = $r->FetchRow()) {
 			if($view_func) {
-				$func = unserialize($row['f_func']);
+				$func = unserialize($row['func']);
                 $record = $func
-                    ? call_user_func_array($func, unserialize($row['f_args']))
+                    ? call_user_func_array($func, unserialize($row['args']))
                     : '';
 				if(!$record) continue;
                 $title = $row['f_title'] ? $row['f_title'] : __('Without Title');
                 $title = Utils_RecordBrowserCommon::record_link_open_tag('utils_attachment', $row['id'])
                          . __('Note').': ' . $title
                          . Utils_RecordBrowserCommon::record_link_close_tag();
-				$ret[$row['id']] = $title . " ($record)";
+				$ret[$row['id'].'#'.$row['local']] = $title . " ($record)";
 			} else {
-                $groups = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',$row['id']);
-                foreach($groups as $group)
-				    $ret[] = array('id'=>$row['id'],'group'=>$group);
+				$ret[] = array('id'=>$row['id'],'group'=>$row['local']);
 			}
 		}
 		return $ret;
@@ -507,7 +505,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'added':
                 if(isset($values['note_password']))
                     $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
-                DB::Execute('INSERT INTO utils_attachment_local(attachment,local) VALUES(%d,%s)',array($values['id'],$values['local']));
+                DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['id'],$values['local'],$values['func'],$values['args']));
                 $param = explode('/',$values['local']);
                 if (isset($param[1]) && Utils_WatchdogCommon::get_category_id($param[0])!==null) {
                     Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$values['id']);

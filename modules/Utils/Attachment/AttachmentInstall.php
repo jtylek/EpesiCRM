@@ -65,7 +65,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
             ),
         );
         Utils_RecordBrowserCommon::install_new_recordset('utils_attachment',$fields);
-        Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'), array('func','args'));
+        Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employee', array('(!permission'=>2, '|employees'=>'USER'));
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', array('ACCESS:employee','ACCESS:manager'));
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee');
@@ -77,7 +77,9 @@ class Utils_AttachmentInstall extends ModuleInstall {
 
         $ret &= DB::CreateTable('utils_attachment_local','
 			local C(255) NOTNULL,
-			attachment I4 NOTNULL',
+			attachment I4 NOTNULL,
+			func C(255),
+			args C(255)',
             array('constraints'=>', FOREIGN KEY (attachment) REFERENCES utils_attachment_data_1(ID)'));
         if(!$ret){
             print('Unable to create table utils_attachment_link.<br>');
