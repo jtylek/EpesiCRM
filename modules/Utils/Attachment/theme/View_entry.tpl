@@ -74,9 +74,105 @@
             <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
                 <tbody>
                 <tr>
+                    <td>
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        <tr>
+                        <td class="label">{$fields.title.label}{if $fields.title.required}*{/if}</td>
+                        <td class="data {$fields.title.style}" id="_{$fields.title.element}__data">
+                            <div style="position:relative;">
+                                {if $fields.title.error}{$fields.title.error}{/if}{$fields.title.html}{if $action == 'view'}&nbsp;{/if}
+                            </div>
+                        </td>
+                        </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        <tr>
+                        <td class="label">{$fields.date.label}{if $fields.date.required}*{/if}</td>
+                        <td class="data {$fields.date.style}" id="_{$fields.date.element}__data">
+                            <div style="position:relative;">
+                                {if $fields.date.error}{$fields.date.error}{/if}{$fields.date.html}{if $action == 'view'}&nbsp;{/if}
+                            </div>
+                        </td>
+                        </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        <tr>
+                        <td class="label">{$fields.permission.label}{if $fields.permission.required}*{/if}</td>
+                        <td class="data {$fields.permission.style}" id="_{$fields.permission.element}__data">
+                            <div style="position:relative;">
+                                {if $fields.permission.error}{$fields.permission.error}{/if}{$fields.permission.html}{if $action == 'view'}&nbsp;{/if}
+                            </div>
+                        </td>
+                        </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        <tr>
+                        <td class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
+                            <div style="position:relative;">
+                                {if $longfields.note.error}{$longfields.note.error}{/if}{$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
+                            </div>
+                        </td>
+                        </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        <tr>
+                        <td class="label">{$fields.sticky.label}{if $fields.sticky.required}*{/if}</td>
+                        <td class="data {$fields.sticky.style}" id="_{$fields.sticky.element}__data">
+                            <div style="position:relative;">
+                                {if $fields.sticky.error}{$fields.sticky.error}{/if}{$fields.sticky.html}{if $action == 'view'}&nbsp;{/if}
+                            </div>
+                        </td>
+                        </tr>
+                        </table>
+                    </td>
+                    <td colspan="2">
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        <tr>
+                        <td class="label">{$fields.crypted.label}{if $fields.crypted.required}*{/if}</td>
+                        <td class="data {$fields.crypted.style}" id="_{$fields.crypted.element}__data">
+                            <div style="position:relative;">
+                                {if $fields.crypted.error}{$fields.crypted.error}{/if}{$fields.crypted.html}{if $action == 'view'}&nbsp;{/if}
+                            </div>
+                        </td>
+                        </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        <tr>
+                        <td class="label">{php}print(__('Files'));{/php}</td>
+                       <td class="data">
+                           <div id="multiple_attachments"><div id="filelist"></div></div>
+                           {php}print(__('Click here and press CTRL+V to paste your clipboard'));{/php}
+                       </td>
+                        </tr>
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+                <tbody>
+                <tr>
                     {assign var=x value=1}
                     {assign var=y value=1}
                     {foreach key=k item=f from=$fields name=fields}
+                        {if $k!='title' && $k!='permission' && $k!='date' && $k!='sticky' && $k!='crypted'}
                         {if $f.type!="multiselect"}
                             {if !isset($focus) && $f.type=="text"}
                                 {assign var=focus value=$f.element}
@@ -108,6 +204,7 @@
                             {else}
                                 {assign var=y value=$y+1}
                             {/if}
+                        {/if}
                         {/if}
                     {/foreach}
                 </tr>
@@ -149,14 +246,16 @@
                     <td colspan="{$cols}">
                         <table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
                             {foreach key=k item=f from=$longfields name=fields}
+                                {if $k!='note'}
                                 <tr>
                                     <td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">
                                         <div style="position:relative;">
                                             {if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
                                         </div>
                                     </td>
-                                    <td class="data long_label" style="vertical-align: top;"><div id="multiple_attachments"><div id="filelist"></div></div></td>
+                                    <td class="data long_label" style="vertical-align: top;"></td>
                                 </tr>
+                                {/if}
                             {/foreach}
                         </table>
                     </td>

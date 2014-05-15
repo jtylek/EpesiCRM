@@ -416,11 +416,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $elem->freeze(1);
         } else {
             $elems = array();
-            $elems[] = $form->createElement('checkbox', $field, $label,__('enable encryption'), array('id'=>$field,'onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=!this.checked;'));
-            $elems[] = $form->createElement('static','note_password_label','','<br />'.__('Password').':');
-            $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password'));
+            $elems[] = $form->createElement('checkbox', $field, '','', array('id'=>$field,'onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=!this.checked;','style'=>'margin-right:40px;'));
+            $elems[] = $form->createElement('static','note_password_label','',__('Password').':');
+            $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password','style'=>'width:200px;margin-right:20px;'));
             $elems[] = $form->createElement('static','note_password2_label','',__('Confirm Password').':');
-            $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2'));
+            $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2','style'=>'width:200px'));
             $form->addGroup($elems,$field,__('Encryption'));
 
             if($default) {
