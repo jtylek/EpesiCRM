@@ -347,7 +347,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         } else {
             $text = $row['note'];
         }
-        if ($text && $inline_img) $text = '<br/>';
+        if ($text && $inline_img) $text .= '<br/>';
 
         $text = $icon.$text.$inline_img;
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
