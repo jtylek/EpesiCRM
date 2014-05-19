@@ -151,6 +151,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 				 0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ua.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0))'.
 				'AND ua.id in ('. implode(',',$where) .')', $limit, -1, array($word,$word,$word));
 		while($row = $r->FetchRow()) {
+		        if(!self::get_access($row['id'])) continue;
 			if($view_func) {
 				$func = unserialize($row['func']);
                 $record = $func
@@ -345,9 +346,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
         } else {
             $text = $row['note'];
         }
-        if ($text && $inline_img) $text .= '<br/>';
 
-        $text = $icon.$text.$inline_img;
+        $text = $text.$icon.$inline_img;
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
 
         return $text;
@@ -512,16 +512,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
                 break;
             case 'view':
-                $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
-                $ret = false;
-                foreach($locals as $local) {
-                    list($recordset,$key) = explode('/',$local,2);
-                    if(!Utils_RecordBrowserCommon::check_table_name($recordset) || !is_numeric($key) ||
-                        Utils_RecordBrowserCommon::get_access($recordset,'view',$key)) {
-                        $ret = true;
-                        break;
-                    }
-                }
+                $ret = self::get_access($values['id']);
+                if(!$ret) print(__('Access denied'));
                 return $ret;
             case 'display':
                 if(DB::GetOne('SELECT 1 FROM utils_attachment_file WHERE attach_id=%d',array($values['id']))) {
@@ -541,7 +533,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
                 $count_locals = DB::GetOne('SELECT count(DISTINCT local) FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
                 if($count_locals>1) {
-                    DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
+                    $is_local = DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
+                    if($is_local)
+                        DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
+                    else
+                        Epesi::alert(__('This note is attached to multiple records - please go to record and delete note there.'));
                     location(array());
                     return false;
                 }
@@ -586,6 +582,20 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 break;
         }
         return $values;
+    }
+    
+    public static function get_access($id) {
+        $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($id));
+        $ret = false;
+        foreach($locals as $local) {
+            list($recordset,$key) = explode('/',$local,2);
+            if(!Utils_RecordBrowserCommon::check_table_name($recordset) || !is_numeric($key) ||
+                Utils_RecordBrowserCommon::get_access($recordset,'view',$key)) {
+                $ret = true;
+                break;
+            }
+        }
+        return $ret;
     }
 
     public static function get_file_leightbox($row, & $view_link = '') {

@@ -150,6 +150,7 @@
                         </table>
                     </td>
                 </tr>
+                {if $action != 'view'}
                 <tr>
                     <td colspan="3">
                         <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
@@ -163,6 +164,7 @@
                         </table>
                     </td>
                 </tr>
+                {/if}
                 </tbody>
             </table>
 
