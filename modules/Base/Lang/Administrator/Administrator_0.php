@@ -221,7 +221,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	}
 	
 	public function check_if_langpack_exists($langpack) {
-		return Base_LangCommon::get_langpack($langpack) === false;
+        $langs = Base_LangCommon::get_installed_langs();
+		return isset($langs[$langpack]) == false;
 	}
 
 	public function submit_admin($data) {
