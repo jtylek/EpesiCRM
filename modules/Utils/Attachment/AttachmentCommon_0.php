@@ -296,7 +296,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return $ret;
     }
 
-    public static function display_note($row, $nolink = false) {
+    public static function display_note($row, $nolink = false, $a=null,$view=false) {
         $inline_img = '';
         $link_href = '';
         $link_img = '';
@@ -347,7 +347,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $text = $row['note'];
         }
 
-        $text = $text.$icon.$inline_img;
+        $text = (!$view?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':'').$text.$icon.$inline_img;
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
 
         return $text;
@@ -405,7 +405,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             if ($mode=='edit') $form->setDefaults(array($field=>$default));
         } else {
             $form->addElement('static', $field, $label);
-            $form->setDefaults(array($field=>self::display_note($rb_obj->record)));
+            $form->setDefaults(array($field=>self::display_note($rb_obj->record,false,null,true)));
         }
     }
 

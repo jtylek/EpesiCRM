@@ -28,7 +28,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
                 'name' => _M('Title'),
                 'type' => 'text',
                 'param' => 255,
-                'required' => false, 'extra' => false, 'visible' => true
+                'required' => false, 'extra' => false, 'visible' => false
             ),
             array('name' => _M('Note'),
                 'type' => 'long text',
