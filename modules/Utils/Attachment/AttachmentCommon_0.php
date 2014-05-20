@@ -541,7 +541,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
                 $count_locals = DB::GetOne('SELECT count(DISTINCT local) FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
                 if($count_locals>1) {
-                    $is_local = DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
+                    $is_local = false;
+                    if(isset($_SESSION['client']['utils_attachment_group']))
+                       $is_local = DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
                     if($is_local)
                         DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
                     else
