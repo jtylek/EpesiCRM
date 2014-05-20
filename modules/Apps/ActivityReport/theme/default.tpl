@@ -40,24 +40,10 @@
 			{$form_data.new.html}
 		</td>
 		<td class="epesi_label">
-			{$form_data.note.label}
-		</td>
-		<td class="epesi_data">
-			{$form_data.note.html}
-		</td>
-	</tr>
-	<tr>
-		<td class="epesi_label">
 			{$form_data.edit.label}
 		</td>
 		<td class="epesi_data">
 			{$form_data.edit.html}
-		</td>
-		<td class="epesi_label">
-			{$form_data.file.label}
-		</td>
-		<td class="epesi_data">
-			{$form_data.file.html}
 		</td>
 	</tr>
 	<tr>
@@ -67,7 +53,11 @@
 		<td class="epesi_data">
 			{$form_data.delete_restore.html}
 		</td>
-		<td colspan="2">
+		<td class="epesi_label">
+			{$form_data.file.label}
+		</td>
+		<td class="epesi_data">
+			{$form_data.file.html}
 		</td>
 	</tr>
 </table>

@@ -37,7 +37,6 @@ class Apps_ActivityReport extends Module {
 		$form->addElement('checkbox', 'new', __('New record'));
 		$form->addElement('checkbox', 'edit', __('Record edit'));
 		$form->addElement('checkbox', 'delete_restore', __('Record Delete/restore'));
-		$form->addElement('checkbox', 'note', __('Notes'));
 		$form->addElement('checkbox', 'file', __('Files'));
 
 		$form->addElement('datepicker', 'start_date', __('Start Date'));
@@ -99,18 +98,15 @@ class Apps_ActivityReport extends Module {
 				$e_where[] = ' ehd.field='.DB::qstr('id');
 			}
 		}
-		$an_where = $af_where;
 		if ($filters['start_date']) {
 			$date = DB::qstr(date('Y-m-d', strtotime($filters['start_date'])));
 			$af_where .= ' AND uaf.created_on >= '.$date;
-			$an_where .= ' AND uan.created_on >= '.$date;
 			$c_where .= ($c_where?' AND':'').' created_on >= '.$date;
 			$e_where[] = ' edited_on >= '.$date;
 		}
 		if ($filters['end_date']) {
 			$date = DB::qstr(date('Y-m-d 23:59:59', strtotime($filters['end_date'])));
 			$af_where .= ' AND uaf.created_on <= '.$date;
-			$an_where .= ' AND uan.created_on <= '.$date;
 			$c_where .= ($c_where?' AND':'').' created_on <= '.$date;
 			$e_where[] = ' edited_on <= '.$date;
 		}
@@ -122,10 +118,7 @@ class Apps_ActivityReport extends Module {
         $postgre_cast_type = DATABASE_DRIVER == 'postgres' ? '::varchar' : '';
 		// **** files ****
 		if (isset($filters['file']))
-			$tables[] = 'SELECT uaf.id AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('file').' AS action FROM utils_attachment_file uaf LEFT JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE original!='.DB::qstr('').' AND '.$af_where;
-		// **** notes ****
-		if (isset($filters['note']))
-			$tables[] = 'SELECT uan.revision AS id,uan.created_on AS edited_on,uan.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('note').' AS action FROM utils_attachment_note uan LEFT JOIN utils_attachment_link ual ON uan.attach_id=ual.id WHERE '.$an_where;
+			$tables[] = 'SELECT uaf.id AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('file').' AS action FROM utils_attachment_file uaf INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local ual ON ua.id=ual.attachment WHERE original!='.DB::qstr('').' AND '.$af_where;
 		// **** edit ****
 		if (isset($filters['edit']) || isset($filters['delete_restore']))
 			foreach($rb_tabs as $k=>$t)
