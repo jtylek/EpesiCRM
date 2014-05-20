@@ -352,6 +352,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
         return $text;
     }
+    
+    public static function description_callback($row,$nolink=false) {
+        if($row['title']) return $row['title'];
+        if($row['crypted']) return $row['id'].' ('.__('encrypted note').')';
+        $ret = substr(strip_tags($row['note']),0,50);
+        if($ret) return $ret;
+        return $row['id'];
+    }
 
     public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if($rb_obj->record['crypted']) {
