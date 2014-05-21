@@ -233,7 +233,7 @@ class Patch {
     static function error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
         if (!(error_reporting() & $errno))
             return;
-        throw new PatchException("Error occured.\nFile: $errfile\nLine: $errline\nMessage: $errstr\n");
+        throw new PatchException("Error occured.\nFile: $errfile\nLine: $errline\nMessage: $errstr\n".print_r(debug_backtrace(),true));
     }
 
     private function output_bufferring_interrupted($str) {

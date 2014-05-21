@@ -62,7 +62,9 @@ Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_Atta
 
 $ret = DB::CreateTable('utils_attachment_local','
 			local C(255) NOTNULL,
-			attachment I4 NOTNULL',
+			attachment I4 NOTNULL,
+			func C(255),
+			args C(255)',
     array('constraints'=>', FOREIGN KEY (attachment) REFERENCES utils_attachment_data_1(ID)'));
 if(!$ret){
     print('Unable to create table utils_attachment_link.<br>');

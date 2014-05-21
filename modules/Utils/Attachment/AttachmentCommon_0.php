@@ -465,8 +465,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'edit':
                 $crypted = 0;
                 $old_pass = '';
-                if(isset($values['crypted']['crypted']) && $values['crypted']['crypted']) {
-                    if(isset($values['crypted']['note_password'])) {
+                if((is_array($values['crypted']) && isset($values['crypted']['crypted']) && $values['crypted']['crypted']) || (!is_array($values['crypted']) && $values['crypted'])) {
+                    if(is_array($values['crypted']) && isset($values['crypted']['note_password'])) {
                         $old_pass = isset($_SESSION['client']['cp'.$values['id']])?$_SESSION['client']['cp'.$values['id']]:'';
                         if($values['crypted']['note_password']=='*@#old@#*')
                             $values['crypted']['note_password'] = $old_pass;
@@ -474,7 +474,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $crypted = 1;
                 }
 
-                if(isset($values['crypted']['note_password']) && $mode=='edit' && $old_pass!=$values['crypted']['note_password']) {
+                if(is_array($values['crypted']) && isset($values['crypted']['note_password']) && $mode=='edit' && $old_pass!=$values['crypted']['note_password']) {
                     //reencrypt old revisions
                     $old_notes = DB::GetAssoc('SELECT hd.edit_id,hd.old_value FROM utils_attachment_edit_history h INNER JOIN utils_attachment_edit_history_data hd ON h.id=hd.edit_id WHERE h.utils_attachment_id=%d AND hd.field="note"', array($values['id']));
                     foreach($old_notes as $old_id=>$old_note) {
@@ -499,12 +499,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
 
                 if($crypted) {
-                    if(isset($values['crypted']['note_password'])) {
+                    if(is_array($values['crypted']) && isset($values['crypted']['note_password'])) {
                         $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$values['crypted']['note_password']);
                         $values['note_password']=$values['crypted']['note_password'];
                     }
                     $values['crypted'] = 1;
-                    if($mode=='edit') $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
+                    if($mode=='edit' && isset($values['note_password'])) $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 } else {
                     $values['crypted'] = 0;
                 }
@@ -543,7 +543,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 if($count_locals>1) {
                     $is_local = false;
                     if(isset($_SESSION['client']['utils_attachment_group']))
-                       $is_local = DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
+                        $is_local = DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
                     if($is_local)
                         DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
                     else
