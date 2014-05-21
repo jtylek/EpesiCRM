@@ -34,8 +34,8 @@ class Data_CountriesInstall extends ModuleInstall {
 			'VC'=>'+1784',
 			'PR'=>'+1787',
 			'DO'=>'+1809',
-			'DO'=>'+1829',
-			'DO'=>'+1849',
+//			'DO'=>'+1829', // valid duplicate
+//			'DO'=>'+1849', // valid duplicate
 			'TT'=>'+1868',
 			'KN'=>'+1869',
 			'JM'=>'+1876',
@@ -125,12 +125,11 @@ class Data_CountriesInstall extends ModuleInstall {
 			'EE'=>'+372',
 			'MD'=>'+373',
 			'AM'=>'+374',
-			'QN'=>'+374',
 			'BY'=>'+375',
 			'AD'=>'+376',
 			'MC'=>'+377',
 			'SM'=>'+378',
-			'VA'=>'+379',
+//			'VA'=>'+379', // duplicated key - calling code not used. use +39
 			'UA'=>'+380',
 			'RS'=>'+381',
 			'ME'=>'+382',
@@ -259,7 +258,6 @@ class Data_CountriesInstall extends ModuleInstall {
 			'PS'=>'+970',
 			'AE'=>'+971',
 			'IL'=>'+972',
-			'PS'=>'+972',
 			'BH'=>'+973',
 			'QA'=>'+974',
 			'BT'=>'+975',
@@ -271,7 +269,6 @@ class Data_CountriesInstall extends ModuleInstall {
 			'TJ'=>'+992',
 			'TM'=>'+993',
 			'AZ'=>'+994',
-			'QN'=>'+994',
 			'GE'=>'+995',
 			'KG'=>'+996',
 			'UZ'=>'+998');
@@ -284,7 +281,7 @@ class Data_CountriesInstall extends ModuleInstall {
 				"DZ"=>_M('Algeria'),
 				"AS"=>_M('American Samoa'),
 				"AD"=>_M('Andorra'),
-				"AG"=>_M('Angola'),
+				"AO"=>_M('Angola'),
 				"AI"=>_M('Anguilla'),
 				"AG"=>_M('Antigua & Barbuda'),
 				"AR"=>_M('Argentina'),
@@ -363,7 +360,7 @@ class Data_CountriesInstall extends ModuleInstall {
 				"DE"=>_M('Germany'),
 				"GH"=>_M('Ghana'),
 				"GI"=>_M('Gibraltar'),
-				"GB"=>_M('Great Britain'),
+//				"GB"=>_M('Great Britain'),
 				"GR"=>_M('Greece'),
 				"GL"=>_M('Greenland'),
 				"GD"=>_M('Grenada'),
@@ -469,7 +466,6 @@ class Data_CountriesInstall extends ModuleInstall {
 				"VC"=>_M('St Vincent & Grenadines'),
 				"SP"=>_M('Saipan'),
 				"SO"=>_M('Samoa'),
-				"AS"=>_M('Samoa American'),
 				"SM"=>_M('San Marino'),
 				"ST"=>_M('Sao Tome & Principe'),
 				"SA"=>_M('Saudi Arabia'),
@@ -672,7 +668,8 @@ class Data_CountriesInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
-		Utils_CommonDataCommon::remove_array('Countries');
+        Utils_CommonDataCommon::remove('Calling_Codes');
+        Utils_CommonDataCommon::remove('Countries');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}
