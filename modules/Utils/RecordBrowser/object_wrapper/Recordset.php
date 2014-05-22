@@ -266,6 +266,10 @@ abstract class RBO_Recordset {
         return $this->record_to_object(array());
     }
 
+    public function new_record_history($id,$old_value) {
+        return Utils_RecordBrowserCommon::new_record_history($this->tab, $id, $old_value);
+    }
+
     /**
      * Updates record specified by id
      * @param int $id Id of record

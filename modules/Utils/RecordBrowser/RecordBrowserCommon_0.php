@@ -864,6 +864,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         return $id;
     }
+
+    public static function new_record_history($tab,$id,$old_value) {
+        DB::Execute('INSERT INTO ' . $tab . '_edit_history(edited_on, edited_by, ' . $tab . '_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
+        $edit_id = DB::Insert_ID($tab . '_edit_history', 'id');
+        DB::Execute('INSERT INTO ' . $tab . '_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', $old_value));
+    }
+
     public static function update_record($tab,$id,$values,$all_fields = false, $date = null, $dont_notify = false) {
         DB::StartTrans();
         self::init($tab);

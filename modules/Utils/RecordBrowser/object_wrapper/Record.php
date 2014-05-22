@@ -187,6 +187,12 @@ class RBO_Record implements ArrayAccess {
         return $this->__recordset->get_html_record_info($this->__records_id);
     }
 
+    public function new_history($old_value) {
+        if (!$this->__records_id)
+            trigger_error("new_history may be called only for saved records", E_USER_ERROR);
+        return $this->__recordset->new_record_history($this->__records_id,$old_value);
+    }
+
     // ArrayAccess interface members
 
     public function offsetExists($offset) {

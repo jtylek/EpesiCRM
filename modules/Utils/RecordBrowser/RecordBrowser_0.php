@@ -1045,6 +1045,7 @@ class Utils_RecordBrowser extends Module {
         if (self::$clone_result!==null) {
             if (is_numeric(self::$clone_result)) {
                 Utils_RecordBrowserCommon::record_processing($this->tab, self::$clone_result, 'cloned', $id);
+                Utils_RecordBrowserCommon::new_record_history($this->tab,self::$clone_result,'CLONED '.$id);
                 $this->navigate('view_entry', 'view', self::$clone_result);
             }
             self::$clone_result = null;
