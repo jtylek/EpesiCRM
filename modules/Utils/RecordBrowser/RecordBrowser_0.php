@@ -955,7 +955,7 @@ class Utils_RecordBrowser extends Module {
                         else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $row['id'])),__('View edit history'),null,'history');
                     } else {
 						if (!isset($da['delete'])) {
-                            if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),__('Delete'), null, 'delete');
+                            if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this record?'),array($this,'delete_record'),array($row['id'], false)),__('Delete'), null, 'delete');
                             else $gb_row->add_action('',__('Delete'),__('You don\'t have permission to delete this record'),'delete',0,true);
                         }
 					}
@@ -1037,9 +1037,11 @@ class Utils_RecordBrowser extends Module {
 		$this->display_module($gb, $args);
     }
     //////////////////////////////////////////////////////////////////////////////////////////
-    public function delete_record($id) {
+    public function delete_record($id, $pop_main = true) {
         Utils_RecordBrowserCommon::delete_record($this->tab, $id);
-        return $this->back();
+        if ($pop_main) {
+            return $this->back();
+        }
     }
     public function clone_record($id) {
         if (self::$clone_result!==null) {
