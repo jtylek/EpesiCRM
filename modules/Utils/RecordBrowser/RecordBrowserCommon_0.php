@@ -1766,9 +1766,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         Utils_WatchdogCommon::new_event($tab, $id, $state ? 'R' : 'D');
         DB::Execute('UPDATE ' . $tab . '_data_1 SET active=%d WHERE id=%d', array($state ? 1 : 0, $id));
-        DB::Execute('INSERT INTO ' . $tab . '_edit_history(edited_on, edited_by, ' . $tab . '_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
-        $edit_id = DB::Insert_ID($tab . '_edit_history', 'id');
-        DB::Execute('INSERT INTO ' . $tab . '_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state ? 'RESTORED' : 'DELETED')));
+        self::new_record_history($tab,$id,$state ? 'RESTORED' : 'DELETED');
         return true;
     }
 
