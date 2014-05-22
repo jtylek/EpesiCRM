@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 $keys = Variable::get('license_key', false);
 if (is_array($keys) && array_key_exists("https://ess.epesibim.com/", $keys)) {

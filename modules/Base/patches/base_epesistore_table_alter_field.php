@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 //ModuleManager::uninstall($module_to_uninstall);
 if (ModuleManager::is_installed('Base_EpesiStore') === -1) {

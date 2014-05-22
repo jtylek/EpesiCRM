@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 $path = 'data/Base_Lang/base';
 $path2 = 'data/Base_Lang/custom';

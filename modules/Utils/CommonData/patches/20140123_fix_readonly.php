@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 $keys = array(
     'crm_assets_monitor_type',
     'crm_assets_printer_type',

@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if (in_array('base_lang_trans_contrib', DB::MetaTables())) return;
 

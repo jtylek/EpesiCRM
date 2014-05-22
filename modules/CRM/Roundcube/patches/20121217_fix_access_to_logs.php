@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 $htaccess = DATA_DIR . '/CRM_Roundcube/.htaccess';
 if (!file_exists($htaccess)) {

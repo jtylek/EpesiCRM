@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 if (ModuleManager::is_installed('Utils_RecordBrowser')==-1) return;
 
 if (DB::GetOne('SELECT 1 FROM contact_field WHERE field=%s', array('Username'))) return;

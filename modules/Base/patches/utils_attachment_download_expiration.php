@@ -1,4 +1,6 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
+
 if (ModuleManager::is_installed('Utils_Attachment')==-1) return;
 
 PatchUtil::db_add_column('utils_attachment_download','expires_on','T');

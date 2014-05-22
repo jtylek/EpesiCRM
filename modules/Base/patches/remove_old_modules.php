@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 $modules = array('Apps_Forum', 'Apps_Gallery', 'Apps_StaticPage', 'Apps_TwisterGame', 'Base_ModuleManager', 'Libs_Lytebox', 'Tests_BookmarkBrowser', 'Utils_BookmarkBrowser', 'Tests_Lytebox', 'Tools_FontSize', 'Utils_Gallery', 'Utils_BookmarkBrowser');
 foreach($modules as $m) {

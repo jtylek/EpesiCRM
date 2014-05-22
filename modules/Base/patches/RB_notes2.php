@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 if (ModuleManager::is_installed('Utils_RecordBrowser')==-1) return;
 
 $tables = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');

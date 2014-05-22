@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if (!array_key_exists(strtoupper('deleted'),DB::MetaColumnNames('utils_attachment_file'))) {
 	PatchUtil::db_add_column('utils_attachment_file','deleted','I1 DEFAULT 0');

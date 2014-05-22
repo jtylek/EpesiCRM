@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 @PatchUtil::db_add_column('utils_attachment_local','func','C(255)');
 @PatchUtil::db_add_column('utils_attachment_local','args','C(255)');

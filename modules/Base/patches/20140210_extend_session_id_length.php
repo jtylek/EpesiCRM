@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 $mysql = (DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt');
 
 if ($mysql) {

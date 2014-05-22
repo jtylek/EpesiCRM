@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 Utils_CommonDataCommon::extend_array('Contacts/Access',array('employee'=>_M('Employee')));
 

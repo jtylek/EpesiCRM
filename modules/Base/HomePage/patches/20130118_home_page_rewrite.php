@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 @DB::DropTable('home_page');
 @DB::CreateTable('base_home_page',

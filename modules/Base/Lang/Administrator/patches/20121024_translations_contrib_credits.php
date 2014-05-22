@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 PatchUtil::db_add_column('base_lang_trans_contrib','credits','I1');
 PatchUtil::db_add_column('base_lang_trans_contrib','credits_website','C(128)');

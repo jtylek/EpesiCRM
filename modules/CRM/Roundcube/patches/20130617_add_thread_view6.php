@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
         DB::CreateTable('rc_mails_attachments_download','
             mail_id I4 NOTNULL,
             hash C(32),

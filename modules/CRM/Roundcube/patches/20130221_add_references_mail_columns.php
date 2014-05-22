@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 Utils_RecordBrowserCommon::new_record_field('rc_mails',
     array(
         'name' => _M('Message ID'),

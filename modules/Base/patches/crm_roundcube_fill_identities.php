@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if (ModuleManager::is_installed('CRM_Roundcube') >= 0) {
     foreach(DB::GetCol('SELECT id FROM user_login') as $id) {

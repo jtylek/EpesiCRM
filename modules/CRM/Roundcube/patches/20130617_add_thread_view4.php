@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 PatchUtil::db_alter_column('rc_mails_data_1', 'f_references', 'C(16384)');
 PatchUtil::db_alter_column('rc_mails_data_1', 'f_to', 'C(4096)');
 

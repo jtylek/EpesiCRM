@@ -1,4 +1,6 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
+
 Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
 $fields = array(
     array(

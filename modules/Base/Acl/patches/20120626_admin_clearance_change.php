@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 PatchUtil::db_add_column('user_login','admin','I');
 

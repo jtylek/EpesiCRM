@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if (array_key_exists(strtoupper('revision'),DB::MetaColumnNames('utils_attachment_file'))) {
     @DB::Execute('ALTER TABLE utils_attachment_file DROP INDEX utils_attachment_file__revision__idx');

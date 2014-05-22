@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if (in_array('base_acl_permission', DB::MetaTables())) return;
 

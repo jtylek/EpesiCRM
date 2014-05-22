@@ -1,4 +1,5 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 @DB::CreateTable('utils_attachment_clipboard','
 	id I4 AUTO KEY NOTNULL,
