@@ -115,6 +115,8 @@ class Utils_Attachment extends Module {
         ));
 
         if($uid) {
+            $this->rb->set_button(false);
+            $this->rb->disable_actions(array('delete'));
             $this->display_module($this->rb, array(array(':Created_by'=>$uid), array(), array('sticky'=>'DESC', 'date'=>'DESC')), 'show_data');
         } else {
             $crits = array();
