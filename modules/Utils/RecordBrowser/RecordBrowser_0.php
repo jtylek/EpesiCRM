@@ -61,7 +61,7 @@ class Utils_RecordBrowser extends Module {
     private $current_field = null;
     private $additional_actions_method = null;
     private $filter_crits = array();
-    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false, 'jump_to_record'=>false);
+    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false);
     private $force_order;
     private $clipboard_pattern = false;
     private $show_add_in_table = false;
@@ -147,7 +147,6 @@ class Utils_RecordBrowser extends Module {
     public function disable_filters(){$this->disabled['filters'] = true;}
     public function disable_quickjump(){$this->disabled['quickjump'] = true;}
     public function disable_headline() {$this->disabled['headline'] = true;}
-    public function disable_jump_to_record() {$this->disabled['jump_to_record'] = true;}
     public function disable_pdf() {$this->disabled['pdf'] = true;}
     public function disable_export() {$this->disabled['export'] = true;}
     public function disable_actions($arg=true) {$this->disabled['actions'] = $arg;}
@@ -291,7 +290,7 @@ class Utils_RecordBrowser extends Module {
         ob_end_clean();
 
         $theme->assign('table', $table);
-        if (!$this->disabled['headline']) $theme->assign('caption', _V($this->caption).($this->additional_caption?' - '.$this->additional_caption:'').(!$this->disabled['jump_to_record']?' '.$this->get_jump_to_id_button():''));
+        if (!$this->disabled['headline']) $theme->assign('caption', _V($this->caption).($this->additional_caption?' - '.$this->additional_caption:'').($this->get_jump_to_id_button()));
         $theme->assign('icon', $this->icon);
         $theme->display('Browsing_records');
     }
@@ -1465,7 +1464,7 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('form_data', $data);
         $theme->assign('required_note', __('Indicates required fields.'));
 
-        $theme->assign('caption',_V($this->caption).' '.$this->get_jump_to_id_button());
+        $theme->assign('caption',_V($this->caption) . $this->get_jump_to_id_button());
         $theme->assign('icon',$this->icon);
 
         $theme->assign('main_page',$main_page);
@@ -2631,10 +2630,14 @@ class Utils_RecordBrowser extends Module {
     }
 	
 	public function get_jump_to_id_button() {
+        $jump_to_id = DB::GetOne('SELECT jump_to_id FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+        if (!$jump_to_id) {
+            return '';
+        }
 		$link = Module::create_href_js(Utils_RecordBrowserCommon::get_record_href_array($this->tab, '__ID__'));
 		if (isset($_REQUEST['__jump_to_RB_record'])) Base_StatusBarCommon::message(__('Record not found'), 'warning');
 		$link = str_replace('__ID__', '\'+this.value+\'', $link);
-		return '<a '.Utils_TooltipCommon::open_tag_attrs(__('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','jump_to.png').'"></a><input type="text" id="jump_to_record_input" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
+		return ' <a '.Utils_TooltipCommon::open_tag_attrs(__('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','jump_to.png').'"></a><input type="text" id="jump_to_record_input" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
 	}
 
     public function search_by_id_form($label) {

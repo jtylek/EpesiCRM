@@ -473,6 +473,16 @@ abstract class RBO_Recordset {
     }
 
     /**
+     * Enable or disable jump to id. By default it is enabled.
+     *
+     * @param bool $enabled True to enable, false to disable
+     */
+    public function set_jump_to_id($enabled = true)
+    {
+        Utils_RecordBrowserCommon::set_jump_to_id($this->tab, $enabled);
+    }
+
+    /**
      * Set author and creation timestamp of record. Use this function only
      * in special cases and if you are sure what you are doing.
      * @param int $id Record's ID

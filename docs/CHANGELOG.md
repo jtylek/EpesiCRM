@@ -17,6 +17,7 @@ CURRENT
 - Fix Month View applet issue related to the daylight saving shift
 - Fix new langpack rule issue.
 - Remove duplicated codes from countries list and calling codes
+- Move jump to id setting to database (remove function Utils_RecordBrowser::disable_jump_to_record)
 
 RELEASE 1.5.6-20140305
 -------

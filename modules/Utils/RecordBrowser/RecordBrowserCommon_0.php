@@ -748,6 +748,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('UPDATE recordbrowser_table_properties SET description_callback=%s WHERE tab=%s', array($callback, $tab));
     }
+
+    /**
+     * Enable or disable jump to id. By default it is enabled.
+     *
+     * @param string $tab     Recordset identifier
+     * @param bool   $enabled True to enable, false to disable
+     */
+    public static function set_jump_to_id($tab, $enabled = true)
+    {
+        $sql = 'UPDATE recordbrowser_table_properties SET jump_to_id=%d WHERE tab=%s';
+        DB::Execute($sql, array($enabled ? 1 : 0, $tab));
+    }
     public static function get_caption($tab) {
 		static $cache = null;
         if ($cache===null) $cache = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties');
