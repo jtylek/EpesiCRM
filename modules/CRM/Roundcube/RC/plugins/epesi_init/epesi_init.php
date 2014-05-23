@@ -75,8 +75,8 @@ class epesi_init extends rcube_plugin
 
     function lookup_user_name($args)
     {
-        global $account, $E_SESSION;
-        $rec = CRM_ContactsCommon::get_contact_by_user_id($E_SESSION['user']);
+        global $account;
+        $rec = CRM_ContactsCommon::get_contact_by_user_id($account['f_epesi_user']);
         if($rec) $args['user_name'] = $rec['first_name'].' '.$rec['last_name'];
         $args['user_email'] = $account['f_email'];
         return $args;
