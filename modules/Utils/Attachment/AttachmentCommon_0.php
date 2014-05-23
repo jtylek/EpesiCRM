@@ -414,6 +414,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
         } else {
             $form->addElement('static', $field, $label);
             $form->setDefaults(array($field=>self::display_note($rb_obj->record,false,null,true)));
+            if(class_exists('ZipArchive')) {
+                $files = DB::GetOne('SELECT 1 FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($rb_obj->record['id']));
+                if($files) Base_ActionBarCommon::add('download','Download all attachments','href="'.self::Instance()->get_module_dir().'get_all.php?id='.$rb_obj->record['id'].'&cid='.CID.'" target="_blank"');
+            }
         }
     }
 

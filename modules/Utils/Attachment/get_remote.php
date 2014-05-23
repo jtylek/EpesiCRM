@@ -46,6 +46,8 @@ else
 $f_filename = DATA_DIR.'/Utils_Attachment/'.$filename;
 if(!file_exists($f_filename))
 	die('File doesn\'t exists');
+
+@ini_set('memory_limit',ceil(filesize($f_filename)/1024/1024+64).'M');
 $buffer = file_get_contents($f_filename);
 header('Content-Type: '.get_mime_type($f_filename,$original));
 header('Content-Length: '.strlen($buffer));
