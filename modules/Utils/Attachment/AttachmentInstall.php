@@ -63,6 +63,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_AttachmentCommon','watchdog_label'));
         Utils_RecordBrowserCommon::set_caption('utils_attachment', _M('Note'));
         Utils_RecordBrowserCommon::set_description_callback('utils_attachment', array('Utils_AttachmentCommon','description_callback'));
+        Utils_RecordBrowserCommon::set_jump_to_id('utils_attachment', false);
 
         $ret &= DB::CreateTable('utils_attachment_local','
 			local C(255) NOTNULL,

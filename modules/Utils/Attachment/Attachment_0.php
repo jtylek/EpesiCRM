@@ -106,7 +106,6 @@ class Utils_Attachment extends Module {
         Base_ThemeCommon::load_css('Utils_Attachment','browse');
 
         $this->rb = $this->init_module('Utils/RecordBrowser','utils_attachment','utils_attachment');
-        $this->rb->disable_quickjump();
         $this->rb->set_defaults(array('permission'=>'0','local'=>$this->group,'func'=>serialize($this->func),'args'=>serialize($this->args)));
         $this->rb->set_additional_actions_method(array($this,'add_actions'));
         $this->rb->set_header_properties(array(
