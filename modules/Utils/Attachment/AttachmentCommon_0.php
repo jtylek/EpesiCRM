@@ -446,7 +446,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
 
     public static function QFfield_date(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
-        $form->addElement('static', $field, $label);
+        $form->addElement('static', $field, $label)->freeze();
         $form->setDefaults(array($field=>Base_RegionalSettingsCommon::time2reg($default,false,true,false)));
     }
 

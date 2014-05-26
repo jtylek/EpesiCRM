@@ -155,10 +155,10 @@
                     <td colspan="3">
                         <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
                         <tr>
-                        <td class="label">{php}print(__('Files'));{/php}</td>
-                       <td class="data">
+                        <td class="label">{'Files'|t}</td>
+                       <td class="data frozen">
                            <div id="multiple_attachments"><div id="filelist"></div></div>
-                           {php}print(__('Click here and press CTRL+V to paste your clipboard'));{/php}
+                           {'Click here and press CTRL+V to paste your clipboard'|t}
                        </td>
                         </tr>
                         </table>
