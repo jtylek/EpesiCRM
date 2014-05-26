@@ -10,7 +10,6 @@
  */
 
 
-//TODO: remove path
 if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']))
 	die('Invalid usage');
 $cid = $_REQUEST['cid'];
