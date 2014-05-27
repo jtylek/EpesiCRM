@@ -138,7 +138,16 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	public static function get_files($group=null,$group_starts_with=false) {
 	        $where = self::get_where($group,$group_starts_with);
 	        if(!$where) return array();
-		return DB::GetAll('SELECT uaf.attach_id as note_id, uaf.id as file_id, created_by as upload_by, created_on as upload_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON uaf.attach_id=ual.id WHERE ual.id IN ('.implode(',',$where).') AND ual.active=0 AND uaf.deleted=0');
+        $sql = 'SELECT uaf.attach_id as note_id,' .
+               ' uaf.id as file_id,' .
+               ' uaf.created_by as upload_by,' .
+               ' uaf.created_on as upload_on,' .
+               ' uaf.original,' .
+               ' (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads ' .
+               'FROM utils_attachment_file uaf INNER JOIN utils_attachment_data_1 note' .
+               ' ON uaf.attach_id=note.id ' .
+               'WHERE note.id IN (' . implode(',', $where) . ') AND note.active=1 AND uaf.deleted=0';
+        return DB::GetAll($sql);
 	}
 
 	public static function search_group($group,$word,$view_func=false,$limit=-1) {
@@ -603,8 +612,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $ret = false;
         foreach($locals as $local) {
             list($recordset,$key) = explode('/',$local,2);
-            if(!Utils_RecordBrowserCommon::check_table_name($recordset) || !is_numeric($key) ||
-                Utils_RecordBrowserCommon::get_access($recordset,'view',$key)) {
+            if(!Utils_RecordBrowserCommon::check_table_name($recordset, false, false)
+               || !is_numeric($key)
+               || Utils_RecordBrowserCommon::get_access($recordset,'view',$key)) {
                 $ret = true;
                 break;
             }

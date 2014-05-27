@@ -106,7 +106,14 @@ class Utils_Attachment extends Module {
         Base_ThemeCommon::load_css('Utils_Attachment','browse');
 
         $this->rb = $this->init_module('Utils/RecordBrowser','utils_attachment','utils_attachment');
-        $this->rb->set_defaults(array('permission'=>'0','local'=>$this->group,'func'=>serialize($this->func),'args'=>serialize($this->args)));
+        $defaults = array('permission' => '0', 'func' => serialize($this->func), 'args' => serialize($this->args));
+        if (is_string($this->group) || count($this->group) == 1) {
+            $group = is_string($this->group) ? $this->group : reset($this->group);
+            $defaults['local'] = $group;
+        } else {
+            $this->rb->set_button(false);
+        }
+        $this->rb->set_defaults($defaults);
         $this->rb->set_additional_actions_method(array($this,'add_actions'));
         $this->rb->set_header_properties(array(
             'sticky'=>array('width'=>1,'display'=>false),
