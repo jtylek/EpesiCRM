@@ -528,7 +528,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['id'],$values['local'],$values['func'],$values['args']));
                 $param = explode('/',$values['local']);
-                if (isset($param[1]) && Utils_WatchdogCommon::get_category_id($param[0])!==null) {
+                if (count($param)==2 && intval($param[1])==$param[1]) {
                     Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$values['id']);
                 }
                 break;
