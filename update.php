@@ -2707,6 +2707,16 @@ ModuleManager::create_common_cache();
 ob_start();
 ModuleManager::load_modules();
 ob_end_clean();
+
+// select first super admin user when running from shell.
+if (php_sapi_name() == 'cli') {
+    $uid = DB::GetOne('SELECT id FROM user_login WHERE admin=2 ORDER BY id ASC');
+    if (!$uid) {
+        die('Cannot find proper admin user to use.');
+    }
+    Base_AclCommon::set_user($uid);
+}
+
 foreach($versions as $v) {
 	$x = str_replace('.','_',$v);
 	if($go) {
