@@ -401,7 +401,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
             load_js('modules/Utils/Attachment/js/lib/plupload.html5.js');
             load_js('modules/Utils/Attachment/attachments.js');
             if (!isset($_SESSION['client']['utils_attachment'][CID])) $_SESSION['client']['utils_attachment'][CID] = array('files'=>array());
-            eval_js('Utils_Attachment__init_uploader()');
+            eval_js('Utils_Attachment__init_uploader("'.floor(self::max_upload_size()/1024/1024).'mb")');
+//            eval_js('alert("'.self::max_upload_size().'")');
             eval_js_once('var Utils_Attachment__delete_button = "'.Base_ThemeCommon::get_template_file('Utils_Attachment', 'delete.png').'";');
             eval_js_once('var Utils_Attachment__restore_button = "'.Base_ThemeCommon::get_template_file('Utils_Attachment', 'restore.png').'";');
             eval_js('Utils_Attachment__submit_note = function() {'.$form->get_submit_form_js().'}');
@@ -796,7 +797,26 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $response = curl_exec($curl);
         Base_StatusBarCommon::message(__('Changes discarded'));
     }
-
+    
+    //got from: http://www.kavoir.com/2010/02/php-get-the-file-uploading-limit-max-file-size-allowed-to-upload.html
+    private static function max_upload_size() {
+        $normalize = function($size) {
+            if (preg_match('/^([\d\.]+)([KMG])$/i', $size, $match)) {
+                $pos = array_search($match[2], array('K', 'M', 'G'));
+                if ($pos !== false) {
+                    $size = $match[1] * pow(1024, $pos + 1);
+                }
+            }
+            return $size;
+        };
+        $max_upload = $normalize(ini_get('upload_max_filesize'));
+        $max_post = (ini_get('post_max_size') == 0) ?2*1024*1024: $normalize(ini_get('post_max_size'));
+        $memory_limit = (ini_get('memory_limit') == -1) ?$max_post : $normalize(ini_get('memory_limit'));
+        if($memory_limit < $max_post || $memory_limit < $max_upload) return $memory_limit;
+        if($max_post < $max_upload) return $max_post;
+        $maxFileSize = min($max_upload, $max_post, $memory_limit);
+        return $maxFileSize;
+    }
 }
 
 ?>

@@ -48,12 +48,12 @@ Utils_Attachment__add_file_to_list = function (name, size, id, upload, clipboard
 	$('filelist').innerHTML += '<div class="file" id="' + id + '"><div class="indicator">'+button+'</div><div class="filename">' + name + (size!=null?' (' + plupload.formatSize(size) + ')':'')+'</div></div>';
 }
 
-Utils_Attachment__init_uploader = function () {
+Utils_Attachment__init_uploader = function (max_fs) {
 	uploader = new plupload.Uploader({
 		runtimes : 'html5,flash',
 		browse_button : 'pickfiles',
 		container: 'multiple_attachments',
-		max_file_size : '256mb',
+		max_file_size : max_fs,
 		url : 'modules/Utils/Attachment/upload.php?CID='+Epesi.client_id,
 		//resize : {width : 320, height : 240, quality : 90},
 		preinit: uploader_attach_cb,
@@ -61,6 +61,10 @@ Utils_Attachment__init_uploader = function () {
 	});
 
 	function uploader_attach_cb() {
+	uploader.bind('Error', function(up, e) {
+	        alert(e.message);
+	});
+
 	uploader.bind('FilesAdded', function(up, files) {
 		files.each(function(s, i) { 
 			Utils_Attachment__add_file_to_list(s.name, s.size, s.id, s);
