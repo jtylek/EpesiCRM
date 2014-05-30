@@ -50,7 +50,14 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 					'tab C(64),'.
 					'func C(255)',
 					array('constraints'=>', PRIMARY KEY(tab, func)'));
-        DB::CreateTable('recordbrowser_clipboard_pattern', 'tab C(64) KEY, pattern X, enabled I4');
+		DB::CreateTable('recordbrowser_clipboard_pattern', 'tab C(64) KEY, pattern X, enabled I4');
+
+		DB::CreateTable('recordbrowser_words_index', 'id I AUTO KEY,word C(3)',
+					array('constraints'=>', UNIQUE(word)'));
+		DB::CreateTable('recordbrowser_words_map', 'word_id I, tab C(64), record_id I, field_name C(32), position I',
+					array('constraints'=>', FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id)'));
+		DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','word_id,tab,record_id,field_name');
+		DB::CreateIndex('recordbrowser_words_map__idx2','recordbrowser_words_map','tab,record_id');
 		return true;
 	}
 	

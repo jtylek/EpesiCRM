@@ -57,6 +57,7 @@ if(!defined('EPESI')) define('EPESI','EPESI');
 //other
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
 date_default_timezone_set(SYSTEM_TIMEZONE);
+mb_internal_encoding("UTF-8");
 
 $local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 define('EPESI_LOCAL_DIR',$local_dir);

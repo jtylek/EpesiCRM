@@ -434,9 +434,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'created_on T NOT NULL,'.
                     'created_by I NOT NULL,'.
                     'private I4 DEFAULT 0,'.
+                    'indexed I1 DEFAULT 0,'.
                     'active I1 NOT NULL DEFAULT 1'.
 					$fields_sql,
                     array('constraints'=>''));
+        DB::CreateIndex($tab.'_idxed',$tab.'_data_1','indexed');
 
         DB::CreateTable($tab.'_edit_history',
                     'id I AUTO KEY,'.
@@ -3038,6 +3040,53 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $field_id = Utils_RecordBrowserCommon::get_calculated_id($rb_obj->tab, $field, $record_id);
         $val = '<div class="static_field" id="' . $field_id . '">' . $value . '</div>';
         $form->setDefaults(array($field => $val));
+    }
+    
+    public static function cron() {
+        return array('indexer'=>5);
+    }
+    
+    public static function indexer() {
+        $total = 0;
+        $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
+        foreach($tabs as $tab) {
+            self::init($tab);
+            $ret = DB::Execute('SELECT * FROM '.$tab.'_data_1 WHERE indexed=0 LIMIT 100');
+            while($row = $ret->FetchRow()) {
+                DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab=%s AND record_id=%d',array($tab,$row['id']));
+                foreach(self::$table_rows as $field_info) {
+                    $field = $field_info['id'];
+                    if(!isset($row['f_'.$field])) continue;
+                    $text = '';
+                    if($field_info['type']=='text' || $field_info['type']=='long text') {
+                        $text = $row['f_'.$field];
+                    }
+                    //TODO: add common data get values
+                    $text = mb_strtolower(strip_tags($text));
+                    $len = mb_strlen($text);
+                    if($len<3) continue;
+                    for($i=0;$i<=$len-3;$i++) {
+                        $word = mb_substr($text,$i,3);
+
+                        DB::StartTrans();
+                        $word_id = DB::GetOne('SELECT id FROM recordbrowser_words_index WHERE word=%s',array($word));
+                        if(!$word_id) {
+                            DB::Execute('INSERT INTO recordbrowser_words_index(word) VALUES(%s)',array($word));
+                            $word_id = DB::Insert_ID('recordbrowser_words_index','id');
+                        }
+                        DB::CompleteTrans();
+                        
+                        DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab,record_id,field_name,position) VALUES(%d,%s,%d,%s,%d)',
+                            array($word_id,$tab,$row['id'],$field,$i));
+                    }
+                }
+                
+                DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($row['id']));
+                
+                $total++;
+                if($total>=100) return;
+            }
+        }
     }
 
     ///////////////////////////////////////////
