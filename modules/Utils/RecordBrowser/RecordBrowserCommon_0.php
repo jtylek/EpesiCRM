@@ -538,13 +538,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::init($tab, false, true);
     }
 
+    private static $datatypes = null;
     public static function new_record_field($tab, $definition, $alter=true){
-        static $datatypes = null;
-        if ($datatypes===null) {
-            $datatypes = array();
+        if (self::$datatypes===null) {
+            self::$datatypes = array();
             $ret = DB::Execute('SELECT * FROM recordbrowser_datatype');
             while ($row = $ret->FetchRow())
-                $datatypes[$row['type']] = array($row['module'], $row['func']);
+                self::$datatypes[$row['type']] = array($row['module'], $row['func']);
         }
         if (!is_array($definition)) {
             // Backward compatibility - got to get rid of this one someday
@@ -579,7 +579,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!isset($definition['required'])) $definition['required'] = false;
         if (!isset($definition['filter'])) $definition['filter'] = false;
         if (!isset($definition['position'])) $definition['position'] = null;
-        if (isset($datatypes[$definition['type']])) $definition = call_user_func($datatypes[$definition['type']], $definition);
+        if (isset(self::$datatypes[$definition['type']])) $definition = call_user_func(self::$datatypes[$definition['type']], $definition);
 
         if (isset($definition['display_callback'])) self::set_display_callback($tab, $definition['name'], $definition['display_callback']);
         if (isset($definition['QFfield_callback'])) self::set_QFfield_callback($tab, $definition['name'], $definition['QFfield_callback']);
@@ -697,9 +697,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('UPDATE recordbrowser_addon SET pos=%d WHERE tab=%s AND module=%s AND func=%s', array($pos, $tab, $module, $func));
     }
     public static function register_datatype($type, $module, $func) {
+        if(self::$datatypes!==null) self::$datatypes[$type] = array($module,$func);
         DB::Execute('INSERT INTO recordbrowser_datatype (type, module, func) VALUES (%s, %s, %s)', array($type, $module, $func));
     }
     public static function unregister_datatype($type) {
+        if(self::$datatypes!==null) unset(self::$datatypes[$type]);
         DB::Execute('DELETE FROM recordbrowser_datatype WHERE type=%s', array($type));
     }
     public static function new_filter($tab, $col_name) {
