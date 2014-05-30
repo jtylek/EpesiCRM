@@ -107,7 +107,6 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			print('Unable to create table utils_attachment_download.<br>');
 			return false;
 		}
-		DB::CreateIndex('utils_attachment_note__revision__idx', 'utils_attachment_note', 'revision');
 		$ret &= DB::CreateTable('utils_attachment_clipboard','
 			id I4 AUTO KEY NOTNULL,
 			filename C(255),
