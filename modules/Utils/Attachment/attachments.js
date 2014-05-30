@@ -75,6 +75,7 @@ Utils_Attachment__init_uploader = function (max_fs) {
 		$(file.id).getElementsByTagName('div')[0].innerHTML = '<b>' + file.percent + "%</b>";
 	});
 	uploader.bind('UploadComplete', function(up,files){
+	        up.files.length = 0;
 		Utils_Attachment__submit_note();
 	});
 	uploader.bind('FileUploaded', function(up, file, response) {
