@@ -150,39 +150,31 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return DB::GetAll($sql);
 	}
 
-	public static function search_group($group,$word,$view_func=false,$limit=-1) {
+	public static function search($word, $keywords) {
+	        if(!$keywords) return;
+                
+                $limit = Base_SearchCommon::get_recordset_limit_records();
 		$ret = array();
-		$where = self::get_where($group);
-		if(!$where) return $ret;
-		$r = DB::SelectLimit('SELECT ua.id,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_data_1 ua INNER JOIN utils_attachment_local ual ON ual.attachment=ua.id WHERE ua.active=1 AND '.
-				'(f_title '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' OR
-				 f_note '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' OR
-				 0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ua.id AND uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0))'.
-				'AND ua.id in ('. implode(',',$where) .')', $limit, -1, array($word,$word,$word));
+		$r = DB::SelectLimit('SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_data_1 ua INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id INNER JOIN utils_attachment_file AS uaf ON uaf.attach_id=ua.id WHERE ua.active=1 AND '.
+				' uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0', $limit, -1, array($word));
 		while($row = $r->FetchRow()) {
 		        if(!self::get_access($row['id'])) continue;
-			if($view_func) {
-				$func = unserialize($row['func']);
-                $record = $func
-                    ? call_user_func_array($func, unserialize($row['args']))
-                    : '';
-				if(!$record) continue;
-                $title = $row['f_title'] ? $row['f_title'] : __('Without Title');
+			$func = unserialize($row['func']);
+                        $record = $func ? call_user_func_array($func, unserialize($row['args'])) : '';
+			if(!$record) continue;
+                $title = $row['original'].' - '.self::description_callback(Utils_RecordBrowserCommon::get_record('utils_attachment',$row['id']));
                 $title = Utils_RecordBrowserCommon::record_link_open_tag('utils_attachment', $row['id'])
-                         . __('Note').': ' . $title
+                         . __('Files').': ' . $title
                          . Utils_RecordBrowserCommon::record_link_close_tag();
 				$ret[$row['id'].'#'.$row['local']] = $title . " ($record)";
-			} else {
-				$ret[] = array('id'=>$row['id'],'group'=>$row['local']);
-			}
 		}
 		return $ret;
-	}
-	
-	public static function search($word) {
-        $limit = Base_SearchCommon::get_recordset_limit_records();
-		$attachs = Utils_AttachmentCommon::search_group('',$word,true,$limit);
+
 		return $attachs;
+	}
+
+	public static function search_categories() {
+	        return array('files'=>__('Files'));
 	}
 
 	public static function move_notes($to_group, $from_group) {
@@ -363,11 +355,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
     
     public static function description_callback($row,$nolink=false) {
-        if($row['title']) return $row['title'];
-        if($row['crypted']) return $row['id'].' ('.__('encrypted note').')';
-        $ret = substr(strip_tags($row['note']),0,50);
-        if($ret) return $ret;
-        return $row['id'];
+        if($row['title']) $ret = $row['title'];
+        elseif($row['crypted']) $ret = $row['id'].' ('.__('encrypted note').')';
+        else $ret = substr(strip_tags($row['note']),0,50);
+        if(!$ret) $ret = $row['id'];
+        return __('Note').': '.$ret;
     }
 
     public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {

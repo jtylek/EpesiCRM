@@ -72,7 +72,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			args C(255)',
             array('constraints'=>', FOREIGN KEY (attachment) REFERENCES utils_attachment_data_1(ID)'));
         if(!$ret){
-            print('Unable to create table utils_attachment_link.<br>');
+            print('Unable to create table utils_attachment_local.<br>');
             return false;
         }
         DB::CreateIndex('utils_attachment_local__idx', 'utils_attachment_local', 'local');
@@ -84,7 +84,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			created_by I4,
 			created_on T DEFTIMESTAMP,
 			deleted I1 NOTNULL DEFAULT 0',
-			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
+			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_data_1(id)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_file.<br>');
 			return false;

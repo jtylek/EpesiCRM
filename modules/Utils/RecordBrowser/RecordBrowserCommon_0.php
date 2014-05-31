@@ -14,6 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowserCommon extends ModuleCommon {
     private static $del_or_a = '';
+    public static $admin_filter = '';
     public static $table_rows = array();
     public static $hash = array();
     public static $admin_access = false;
@@ -1319,8 +1320,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         else $orderby = '';
 		if (!$having) $having = 'true';
         $final_tab = str_replace('('.$tab.'_data_1 AS r'.')',$tab.'_data_1 AS r',$final_tab);
-        $default_filter = (class_exists('Utils_RecordBrowser') && isset(Utils_RecordBrowser::$admin_filter))?Utils_RecordBrowser::$admin_filter:'';
-        $ret = array('sql'=>' '.$final_tab.' WHERE '.($admin?$default_filter:'active=1 AND ').$having,'order'=>$orderby,'vals'=>$vals);
+        $ret = array('sql'=>' '.$final_tab.' WHERE '.($admin?self::$admin_filter:'active=1 AND ').$having,'order'=>$orderby,'vals'=>$vals);
         return $cache[$cache_key] = $ret;
     }
     public static function get_records_count( $tab, $crits = null, $admin = false) {
@@ -3047,26 +3047,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     
     public static function cron() {
-        return array('indexer'=>5);
+        return array('indexer'=>10);
     }
     
     public static function indexer() {
         $total = 0;
+        self::$admin_filter = ' indexed=0 AND active=1 AND ';
         $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
         foreach($tabs as $tab) {
-            self::init($tab);
-            $ret = DB::Execute('SELECT * FROM '.$tab.'_data_1 WHERE indexed=0 AND active=1 LIMIT 100');
-            while($row = $ret->FetchRow()) {
+            $ret = self::get_records($tab,array(),array(),array(),100,true);
+            foreach($ret as $row) {
                 DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab=%s AND record_id=%d',array($tab,$row['id']));
                 foreach(self::$table_rows as $field_info) {
                     $field = $field_info['id'];
-                    if(!isset($row['f_'.$field])) continue;
-                    $text = '';
-                    if($field_info['type']=='text' || $field_info['type']=='long text') {
-                        $text = $row['f_'.$field];
-                    }
+                    if(!isset($row[$field])) continue;
+                    ob_start();
+                    $text = self::get_val($tab,$field,$row);
+                    ob_clean();
                     //TODO: add common data get values - use get_val and get_records?
-                    $text = mb_strtolower(strip_tags($text));
+                    $text = mb_strtolower(html_entity_decode(strip_tags($text)));
                     $len = mb_strlen($text);
                     if($len<3) continue;
                     for($i=0;$i<=$len-3;$i++) {
@@ -3088,13 +3087,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($row['id']));
                 
                 $total++;
-                if($total>=100) return;
+                if($total>=100) break;
             }
+            if($total>=100) break;
         }
+        self::$admin_filter = '';
     }
     
     public static function search($search,$categories) {
         if(!$categories) return;
+        $limit = Base_SearchCommon::get_recordset_limit_records();
         $categories = array_map(create_function('$a','return DB::qstr($a);'),$categories);
         $texts = array_filter(preg_split('/\s/i',mb_strtolower($search)));
         $total_results = array();
@@ -3103,7 +3105,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $results = array();
             $len = mb_strlen($text);
             $num_of_words = $len-2;
-            $total_max_score += $num_of_words;
+            $total_max_score += $len;
             for($i=0;$i<=$len-3;$i++) {
                 $word = mb_substr($text,$i,3);
                 $ret = DB::Execute('SELECT m.tab,m.record_id,m.field_name,m.position FROM recordbrowser_words_index w INNER JOIN recordbrowser_words_map m ON w.id=m.word_id WHERE w.word=%s AND m.tab IN ('.implode(',',$categories).')',array($word));
@@ -3128,17 +3130,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     }
                     if($results[$tab][$record]) {
                         $max = 0;
-                        $max_field = '';
+                        $max_field = array();
                         foreach($results[$tab][$record] as $field=>$score) {
                             if($max<$score) {
                                 $max = $score;
-                                $max_field = $field;
-                            }
+                                $max_field = array($field);
+                            } elseif($max==$score) $max_field[] = $field;
                         }
                         $results[$tab][$record] = $max;
                         if(!isset($total_results[$tab.'#'.$record])) $total_results[$tab.'#'.$record] = array('score'=>0,'fields'=>array());
-                        $total_results[$tab.'#'.$record]['score'] += $results[$tab][$record];
-                        $total_results[$tab.'#'.$record]['fields'][] = $max_field;
+                        $total_results[$tab.'#'.$record]['score'] += $results[$tab][$record]+2;
+                        $total_results[$tab.'#'.$record]['fields'] = array_unique(array_merge($total_results[$tab.'#'.$record]['fields'], $max_field));
                     } else unset($results[$tab][$record]);
                 }
             }
@@ -3147,6 +3149,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         
         $ret = array();
         $cols_cache = array();
+        $count = 0;
         foreach($total_results as $rec=>$score) {
             list($tab,$id) = explode('#',$rec,2);
             $record = self::get_record($tab, $id);
@@ -3160,6 +3163,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $fields = array();
             foreach($score['fields'] as $field) $fields[] = __($cols_cache[$tab][$field]);
             $ret[] = self::create_default_linked_label($tab,$id).' '.round($score['score']*100/$total_max_score).'% ('.implode(', ',$fields).')';
+
+            $count++;
+            if($count>=$limit) break;
         }
         
         return $ret;
