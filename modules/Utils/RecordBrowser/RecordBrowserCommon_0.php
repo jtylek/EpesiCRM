@@ -3075,6 +3075,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     if($len<$token_length) continue;
                     for($i=0;$i<=$len-$token_length;$i++) {
                         $word = mb_substr($text,$i,$token_length);
+                        if(mb_strpos($word,' ')!==false) continue;
 
                         DB::StartTrans();
                         $word_id = DB::GetOne('SELECT id FROM recordbrowser_words_index WHERE word=%s',array($word));
