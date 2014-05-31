@@ -3064,7 +3064,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     ob_start();
                     $text = self::get_val($tab,$field,$row);
                     ob_clean();
-                    //TODO: add common data get values - use get_val and get_records?
                     $text = mb_strtolower(html_entity_decode(strip_tags($text)));
                     $len = mb_strlen($text);
                     if($len<3) continue;
