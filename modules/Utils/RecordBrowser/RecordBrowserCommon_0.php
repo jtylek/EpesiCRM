@@ -3055,7 +3055,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::$admin_filter = ' indexed=0 AND active=1 AND ';
         $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
         foreach($tabs as $tab) {
-            $ret = self::get_records($tab,array(),array(),array(),100,true);
+            $ret = self::get_records($tab,array(),array(),array(),30,true);
             foreach($ret as $row) {
                 DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab=%s AND record_id=%d',array($tab,$row['id']));
                 foreach(self::$table_rows as $field_info) {
@@ -3087,9 +3087,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($row['id']));
                 
                 $total++;
-                if($total>=100) break;
+                if($total>=30) break;
             }
-            if($total>=100) break;
+            if($total>=30) break;
         }
         self::$admin_filter = '';
     }
