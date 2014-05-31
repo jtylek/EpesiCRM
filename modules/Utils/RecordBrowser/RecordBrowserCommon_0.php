@@ -3112,8 +3112,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $total_results = array();
         $total_max_score = 0;
         foreach($texts as $text) {
-            $results = array();
             $len = mb_strlen($text);
+            if($len<$token_length) continue;
+            $results = array();
             $num_of_words = $len-$token_length+1;
             $total_max_score += $len;
             for($i=0;$i<=$len-$token_length;$i++) {
@@ -3127,7 +3128,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             break;
                         }
         
-                    $results[$row['tab']][$row['record_id']][$row['field_name']][$row['position']] = $score;
+                    $results[$row['tab']][$row['record_id']][$row['field_name']][$row['position']] = min($num_of_words,$score);
                 }
             }
     
