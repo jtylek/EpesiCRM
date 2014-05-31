@@ -3077,6 +3077,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $word_id = DB::Insert_ID('recordbrowser_words_index','id');
                         }
                         DB::CompleteTrans();
+                        if(!$word_id) return;
                         
                         DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab,record_id,field_name,position) VALUES(%d,%s,%d,%s,%d)',
                             array($word_id,$tab,$row['id'],$field,$i));
