@@ -42,7 +42,7 @@ table#Base_Search__Search td.header_tail span.header {
 	padding-left: 5px;
 }
 
-table#Base_Search__Search input {
+table#Base_Search__Search input[type=text] {
 	color: #000000;
 	border: 1px solid #b3b3b3;
 	/*width: 173px;*/

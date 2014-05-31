@@ -30,6 +30,9 @@
 				<td align="left" class="data">{$form_data.quick_search.html}</td>
 			</tr>
 			<tr>
+				<td colspan="2" align="left" class="data">{$form_data.search_categories.html}</td>
+			</tr>
+			<tr>
 				<td colspan="2" align="right">{$form_data.quick_search_submit.html}</td>
 			</tr>
 		</table>

@@ -23,11 +23,23 @@ class Base_Search extends Module {
 		$form = $this->init_module('Libs/QuickForm',__('Searching'));
 		$theme = $this->pack_module('Base/Theme');
 
-		$modules_with_search = ModuleManager::check_common_methods('search');
-
 		$form->addElement('header', 'quick_search_header', __('Quick Search'));
 		$form->addElement('text', 'quick_search',  __('Keyword'), array('id'=>'quick_search_text'));
 		$form->addRule('quick_search', __('Field required'), 'required');
+		
+		$form->addElement('header','categories_header',__('Categories'));
+		$modules_with_search = ModuleManager::check_common_methods('search');
+		$search_categories = ModuleManager::call_common_methods('search_categories');
+		$search_categories_checkboxes = array();
+		$defaults['search_categories'];
+		foreach($search_categories as $mod=>$cats) {
+		    foreach($cats as $cat_id=>$cat_name) {
+		        $search_categories_checkboxes[] = $form->createElement('checkbox', $mod.'#'.$cat_id,  '', $cat_name);
+		        $defaults['search_categories'][$mod.'#'.$cat_id]=1;
+		    }
+		}
+		$form->addGroup($search_categories_checkboxes,'search_categories');
+		
 		$form->addElement('submit', 'quick_search_submit',  __('Search'), array('class'=>'submit'));
 
 		$defaults['quick_search']=$qs_keyword;
@@ -46,11 +58,19 @@ class Base_Search extends Module {
 			elseif(isset($qs_keyword))
 				$keyword = $qs_keyword;
 			if($keyword) {
+				$categories_tmp = $form->exportValue('search_categories');
+				$categories = array();
+				foreach($categories_tmp as $cat=>$val) {
+					list($mod,$cat_id) = explode('#',$cat,2);
+					if(!isset($categories[$mod])) $categories[$mod] = array();
+					$categories[$mod][]=$cat_id;
+				}
+				unset($categories_tmp);
 				$links = array();
 				$this->set_module_variable('quick_search',$keyword);
 				$count = 0;
 				foreach($modules_with_search as $k) {
-					$results = call_user_func(array($k.'Common','search'),$keyword);
+					$results = call_user_func(array($k.'Common','search'),$keyword,isset($categories[$k])?$categories[$k]:array());
 					if (!empty($results))
 						foreach ($results as $rk => $rv) {
 							$count++;
