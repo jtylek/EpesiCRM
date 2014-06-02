@@ -1,5 +1,0 @@
-<?php
-
-die('File removed');
-
-?>

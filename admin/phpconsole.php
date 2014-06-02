@@ -1,5 +1,0 @@
-<?php
-
-die('Tool removed');
-
-?>
