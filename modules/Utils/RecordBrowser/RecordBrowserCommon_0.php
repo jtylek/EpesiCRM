@@ -3112,11 +3112,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $texts = array_filter(preg_split('/\s/i',mb_strtolower($search)));
         $total_results = array();
         $total_max_score = 0;
-        foreach($texts as $text) {
+        foreach($texts as $text) { //for each word
             $len = mb_strlen($text);
-            if($len<$token_length) continue;
+            if($len<$token_length) continue; //if word is less then token lenght - ignore it
             $results = array();
-            $num_of_words = $len-$token_length+1;
+            $max_score = $len-$token_length+1;
             $total_max_score += $len;
             for($i=0;$i<=$len-$token_length;$i++) {
                 $word = mb_substr($text,$i,$token_length);
@@ -3129,35 +3129,40 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             break;
                         }
         
-                    $results[$row['tab']][$row['record_id']][$row['field_name']][$row['position']] = min($num_of_words,$score);
+                    $results[$row['tab']][$row['record_id']][$row['field_name']][$row['position']] = min($max_score,$score);
                 }
             }
     
             foreach($results as $tab=>$records) {
                 foreach($records as $record=>$fields) {
+                    //get max score for each field... if max score is 50% or more equal save it
                     foreach($fields as $field=>$scores) {
-                        $max_score = max($scores);
-                        if($max_score>$num_of_words/2) $results[$tab][$record][$field] = $max_score;
+                        $max_score_local = max($scores);
+                        if($max_score_local>$max_score/2) $results[$tab][$record][$field] = $max_score_local;
                         else unset($results[$tab][$record][$field]);
                     }
+                    //if some fields was saved
                     if($results[$tab][$record]) {
-                        $max = 0;
-                        $max_field = array();
+                        $max = 0; //get max score of all fields where the "word" was found
+                        $max_fields = array(); //get field names with maximal score
                         foreach($results[$tab][$record] as $field=>$score) {
                             if($max<$score) {
                                 $max = $score;
-                                $max_field = array($field);
-                            } elseif($max==$score) $max_field[] = $field;
+                                $max_fields = array($field);
+                            } elseif($max==$score) $max_fields[] = $field;
                         }
-                        $results[$tab][$record] = $max;
-                        if(!isset($total_results[$tab.'#'.$record])) $total_results[$tab.'#'.$record] = array('score'=>0,'fields'=>array());
-                        $total_results[$tab.'#'.$record]['score'] += $results[$tab][$record]+$token_length-1;
-                        $total_results[$tab.'#'.$record]['fields'] = array_unique(array_merge($total_results[$tab.'#'.$record]['fields'], $max_field));
+                        $max += $token_length-1;
+                        if(!isset($total_results[$tab.'#'.$record])) $total_results[$tab.'#'.$record] = array('score'=>0,'fields'=>array(),'fields_score'=>array());
+                        $total_results[$tab.'#'.$record]['score'] += $max;
+                        $total_results[$tab.'#'.$record]['fields_score'][] = $max;
+                        $total_results[$tab.'#'.$record]['fields'][] = $max_fields;
                     } else unset($results[$tab][$record]);
                 }
             }
+            unset($results);
         }
-        uasort($total_results,create_function('$a,$b','return $a["words"]>$b["words"]?-1:($a["score"]>$b["score"]?-1:1);'));
+        //sort with score... if score is the same sort with qty of fields where the "word" was found
+        uasort($total_results,create_function('$a,$b','return $a["score"]>$b["score"]?-1:($a["score"]<$b["score"]?1:($a["fields"]>$b["fields"]?-1:1));'));
         
         $ret = array();
         $cols_cache = array();
@@ -3165,15 +3170,36 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach($total_results as $rec=>$score) {
             list($tab,$id) = explode('#',$rec,2);
             $record = self::get_record($tab, $id);
+            
+            //get access
             $has_access = self::get_access($tab, 'view', $record);
-            if(!$has_access) continue;
+            if(!$has_access) continue; //no access at all
+            
+            //if there are fields that should not be visible, remove them from results list and recalculate score
+            foreach($score['fields'] as $fields_group => $fields) {
+                foreach($fields as $field_pos=>$field) {
+                    if(!isset($has_access[$field]) || !$has_access[$field]) {
+                        unset($score['fields'][$fields_group][$field_pos]);
+                    }
+                }
+                if(empty($score['fields'][$fields_group])) {
+                    $score['score']-=$score['fields_score'][$fields_group];
+                    unset($score['fields'][$fields_group]);
+                    unset($score['fields_score'][$fields_group]);
+                }
+            }
+            if(!$score['fields']) continue;
+            
+            //get fields names translations
             if(!isset($cols_cache[$tab])) {
                 self::init($tab);
                 $cols_cache[$tab] = array();
                 foreach(self::$table_rows as $col) $cols_cache[$tab][$col['id']] = $col['name'];
             }
             $fields = array();
-            foreach($score['fields'] as $field) $fields[] = _V($cols_cache[$tab][$field]);
+            foreach($score['fields'] as $fields_group) foreach($fields_group as $field) $fields[] = _V($cols_cache[$tab][$field]);
+            
+            //create link with default label
             $ret[] = self::create_default_linked_label($tab,$id).' '.round($score['score']*100/$total_max_score).'% ('.implode(', ',$fields).')';
 
             $count++;
