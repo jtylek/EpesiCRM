@@ -30,7 +30,8 @@ class Base_MainModuleIndicator extends Module {
 				$t->assign('text', '');
 			}
 			$show_caption = Variable::get('show_caption_in_title');
-			$base_title = Variable::get('base_page_title');
+            $maintenance_mode = MaintenanceMode::is_on() ? ' (Maintenance mode)' : '';
+            $base_title = Variable::get('base_page_title') . $maintenance_mode;
 			if($show_caption || strlen($base_title)>0) {
 				if($show_caption && strlen($base_title)>0)
 					$caption = $base_title.' - '.$caption;

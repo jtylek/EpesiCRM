@@ -15,6 +15,7 @@ chdir(dirname(__FILE__));
 require_once('include/include_path.php');
 require_once('include/data_dir.php');
 require_once('include/config.php');
+require_once('include/maintenance_mode.php');
 require_once('include/epesi.php');
 require_once('include/error.php');
 if(JS_OUTPUT)
