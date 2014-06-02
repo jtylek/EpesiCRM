@@ -101,10 +101,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
 		if($file)
 			self::add_file($id, $user, $oryg, $file);
-		$param = explode('/', $group);
-		if (isset($param[1]) && Utils_WatchdogCommon::get_category_id($param[0])!==null) {
-			Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$id);
-		}
 		return $id;
 	}
 	
@@ -528,10 +524,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 if(isset($values['note_password']))
                     $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['id'],$values['local'],$values['func'],$values['args']));
-                $param = explode('/',$values['local']);
-                if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
-                    Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$values['id']);
-                }
                 break;
             case 'view':
                 $ret = self::get_access($values['id']);
