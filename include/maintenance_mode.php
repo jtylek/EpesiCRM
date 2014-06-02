@@ -62,7 +62,7 @@ class MaintenanceMode
     public static function turn_on($message = null, $key = null)
     {
         if (!$key) {
-            $key = 'test';
+            $key = generate_password(16);
         }
         self::turn_off();
         self::generate_file($key, $message);
