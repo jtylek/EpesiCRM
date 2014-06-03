@@ -526,10 +526,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 if(isset($values['note_password']))
                     $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['id'],$values['local'],$values['func'],$values['args']));
-                $param = explode('/',$values['local']);
-                if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
-                    Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$values['id']);
-                }
                 $new_values = $values;
                 break;
             case 'edit_changes':
@@ -567,12 +563,22 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $is_local = false;
                     if(isset($_SESSION['client']['utils_attachment_group']))
                         $is_local = DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
-                    if($is_local)
+                    if($is_local) {
                         DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
-                    else
+                        $param = explode('/',$_SESSION['client']['utils_attachment_group']);
+                        if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+                            Utils_WatchdogCommon::new_event($param[0],$param[1],'N_-_'.$values['id']);
+                        }
+                    } else
                         Epesi::alert(__('This note is attached to multiple records - please go to record and delete note there.'));
                     location(array());
                     return false;
+                } else {
+                    $local = DB::GetOne('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
+                    $param = explode('/',$local);
+                    if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+                        Utils_WatchdogCommon::new_event($param[0],$param[1],'N_-_'.$values['id']);
+                    }
                 }
                 location(array());
                 return true;
@@ -582,7 +588,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'added':
                 $current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($values['id']));
                 $remaining_files = $current_files;
-                //Epesi::alert(print_r($values,true));
                 $note_id = $values['id'];
                 if(isset($values['delete_files'])) {
                     $deleted_files = array_filter(explode(';',$values['delete_files']));
@@ -610,6 +615,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     if($values['crypted'])
                         file_put_contents($f,Utils_AttachmentCommon::encrypt(file_get_contents($f),$values['note_password']));
                     Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), basename($f), $f);
+                }
+
+                $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
+                foreach($locals as $local) {
+                    $param = explode('/',$local);
+                    if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+                        Utils_WatchdogCommon::new_event($param[0],$param[1],'N_'.($mode=='edit'?'~':'+').'_'.$values['id']);
+                    }
                 }
 
                 break;
