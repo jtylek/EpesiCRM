@@ -95,7 +95,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	}
 	
 	public static function new_event($category_name, $id, $message) {
-		if($disabled) return;
+		if(self::$disabled) return;
 		$category_id = self::get_category_id($category_name, false);
 		if (!$category_id) return;
 		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message, event_time) VALUES (%d,%d,%s,%T)',array($category_id,$id,$message,time()));
