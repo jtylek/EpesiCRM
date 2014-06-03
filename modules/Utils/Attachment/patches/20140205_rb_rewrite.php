@@ -1,6 +1,9 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+
+Utils_WatchdogCommon::dont_notify();
+
 Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
 $fields = array(
     array(
@@ -152,3 +155,6 @@ DB::DropTable('utils_attachment_note');
 DB::DropTable('utils_attachment_link');
 
 Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_AttachmentCommon','watchdog_label'));
+
+Utils_WatchdogCommon::dont_notify(false);
+

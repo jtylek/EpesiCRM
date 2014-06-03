@@ -306,7 +306,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $link_href = '';
         $link_img = '';
         $icon = '';
-        if(!$row['crypted'] || isset($_SESSION['client']['cp'.$row['id']])) {
+        $crypted = Utils_RecordBrowserCommon::get_value('utils_attachment',$row['id'],'crypted');
+        if(!$crypted || isset($_SESSION['client']['cp'.$row['id']])) {
             $files = DB::GetAll('SELECT id, created_by, created_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($row['id']));
             foreach ($files as $f) {
                 $f_filename = DATA_DIR.'/Utils_Attachment/'.$row['id'].'/'.$f['id'];
@@ -319,7 +320,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $view_link = '';
                     $lb = array();
                     $lb['aid'] = $row['id'];
-                    $lb['crypted'] = $row['crypted'];
+                    $lb['crypted'] = $crypted;
                     $lb['original'] = $f['original'];
                     $lb['id'] = $f['id'];
                     $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.self::get_file_leightbox($lb,$view_link);
@@ -336,7 +337,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             }
         }
 
-        if($row['crypted']) {
+        if($crypted) {
             $text = false;
             if(isset($_SESSION['client']['cp'.$row['id']])) {
                 $note_pass = $_SESSION['client']['cp'.$row['id']];
@@ -467,6 +468,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
 
     public static function submit_attachment($values, $mode) {
+        static $new_values;
         switch ($mode) {
             case 'adding':
                 $values['date'] = time();
@@ -474,10 +476,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'add':
             case 'edit':
                 $crypted = 0;
-                $old_pass = '';
+                $old_pass = isset($_SESSION['client']['cp'.$values['id']])?$_SESSION['client']['cp'.$values['id']]:'';
                 if((is_array($values['crypted']) && isset($values['crypted']['crypted']) && $values['crypted']['crypted']) || (!is_array($values['crypted']) && $values['crypted'])) {
                     if(is_array($values['crypted']) && isset($values['crypted']['note_password'])) {
-                        $old_pass = isset($_SESSION['client']['cp'.$values['id']])?$_SESSION['client']['cp'.$values['id']]:'';
                         if($values['crypted']['note_password']=='*@#old@#*')
                             $values['crypted']['note_password'] = $old_pass;
                     }
@@ -488,7 +489,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     //reencrypt old revisions
                     $old_notes = DB::GetAssoc('SELECT hd.edit_id,hd.old_value FROM utils_attachment_edit_history h INNER JOIN utils_attachment_edit_history_data hd ON h.id=hd.edit_id WHERE h.utils_attachment_id=%d AND hd.field="note"', array($values['id']));
                     foreach($old_notes as $old_id=>$old_note) {
-                        if($old_pass!==false) $old_note = Utils_AttachmentCommon::decrypt($old_note,$old_pass);
+                        if($old_pass!=='') $old_note = Utils_AttachmentCommon::decrypt($old_note,$old_pass);
                         if($old_note===false) continue;
                         if($crypted && $values['crypted']['note_password']) $old_note = Utils_AttachmentCommon::encrypt($old_note,$values['crypted']['note_password']);
                         if($old_note===false) continue;
@@ -500,7 +501,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         $filename = DATA_DIR.'/Utils_Attachment/'.$values['id'].'/'.$old_id;
                         $content = @file_get_contents($filename);
                         if($content===false) continue;
-                        if($old_pass!==false) $content = Utils_AttachmentCommon::decrypt($content,$old_pass);
+                        if($old_pass!=='') $content = Utils_AttachmentCommon::decrypt($content,$old_pass);
                         if($content===false) continue;
                         if($crypted && $values['crypted']['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$values['crypted']['note_password']);
                         if($content===false) continue;
@@ -518,12 +519,28 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 } else {
                     $values['crypted'] = 0;
                 }
+                $new_values = $values;
 
                 break;
             case 'added':
                 if(isset($values['note_password']))
                     $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['id'],$values['local'],$values['func'],$values['args']));
+                $param = explode('/',$values['local']);
+                if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+                    Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$values['id']);
+                }
+                $new_values = $values;
+                break;
+            case 'edit_changes':
+                if(isset($values['note']) && isset($values['crypted']) && $new_values['crypted']!=$values['crypted']) {
+                    if($new_values['crypted'] && isset($new_values['note_password']))
+                        $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password']);
+                    elseif(!$new_values['crypted'] && isset($_SESSION['client']['cp'.$new_values['id']])) {
+                        $values['note'] = Utils_AttachmentCommon::decrypt($values['note'],$_SESSION['client']['cp'.$new_values['id']]);
+                        unset($_SESSION['client']['cp'.$new_values['id']]);
+                    }
+                }
                 break;
             case 'view':
                 $ret = self::get_access($values['id']);

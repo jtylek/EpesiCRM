@@ -89,7 +89,13 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM utils_watchdog_category WHERE id=%d',array($category_id));
 	}
 	// *********************************** New event ***************************
+	private static $disabled=true;
+	public static function dont_notify($d=true) {
+		self::$disabled=$d;
+	}
+	
 	public static function new_event($category_name, $id, $message) {
+		if($disabled) return;
 		$category_id = self::get_category_id($category_name, false);
 		if (!$category_id) return;
 		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message, event_time) VALUES (%d,%d,%s,%T)',array($category_id,$id,$message,time()));
