@@ -468,7 +468,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
 
     public static function submit_attachment($values, $mode) {
-        static $new_values;
+        static $new_values, $old_password;
         switch ($mode) {
             case 'adding':
                 $values['date'] = time();
@@ -515,7 +515,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         $values['note_password']=$values['crypted']['note_password'];
                     }
                     $values['crypted'] = 1;
-                    if($mode=='edit' && isset($values['note_password'])) $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 } else {
                     $values['crypted'] = 0;
                 }
@@ -523,19 +522,20 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
                 break;
             case 'added':
-                if(isset($values['note_password']))
-                    $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['id'],$values['local'],$values['func'],$values['args']));
                 $new_values = $values;
                 break;
             case 'edit_changes':
                 if(isset($values['note']) && isset($values['crypted']) && $new_values['crypted']!=$values['crypted']) {
-                    if($new_values['crypted'] && isset($new_values['note_password']))
+                    if($new_values['crypted'] && isset($new_values['note_password'])) {
                         $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password']);
-                    elseif(!$new_values['crypted'] && isset($_SESSION['client']['cp'.$new_values['id']])) {
+                    } elseif(!$new_values['crypted'] && isset($_SESSION['client']['cp'.$new_values['id']])) {
                         $values['note'] = Utils_AttachmentCommon::decrypt($values['note'],$_SESSION['client']['cp'.$new_values['id']]);
                         unset($_SESSION['client']['cp'.$new_values['id']]);
                     }
+                } elseif(isset($new_values['note_password']) && isset($old_password) && $new_values['note_password']!=$old_password) {
+                    $values['note'] = Utils_AttachmentCommon::decrypt($values['note'],$old_password);
+                    $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password']);
                 }
                 break;
             case 'view':
@@ -586,6 +586,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
         switch($mode) {
             case 'edit':
             case 'added':
+                if(isset($values['note_password'])) {
+                    $old_password = $_SESSION['client']['cp'.$values['id']];
+                    $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
+                }
+
                 $current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($values['id']));
                 $remaining_files = $current_files;
                 $note_id = $values['id'];
