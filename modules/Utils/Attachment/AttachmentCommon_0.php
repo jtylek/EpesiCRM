@@ -85,7 +85,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             __('Note'),
             $rid,
             $events,
-            'note',
+            array('Utils_AttachmentCommon','description_callback'),
             $details
         );
     }
