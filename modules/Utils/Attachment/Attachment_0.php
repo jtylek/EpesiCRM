@@ -117,6 +117,7 @@ class Utils_Attachment extends Module {
         $this->rb->set_additional_actions_method(array($this,'add_actions'));
         $this->rb->set_header_properties(array(
             'sticky'=>array('width'=>1,'display'=>false),
+            'note_id'=>array('width'=>"12em"),
             'date'=>array('width'=>"12em"),
             'title'=>array('width'=>"20em"),
         ));
