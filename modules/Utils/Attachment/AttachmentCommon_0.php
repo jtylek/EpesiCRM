@@ -587,7 +587,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'edit':
             case 'added':
                 if(isset($values['note_password'])) {
-                    $old_password = $_SESSION['client']['cp'.$values['id']];
+                    $old_password = isset($_SESSION['client']['cp' . $values['id']])
+                        ? $_SESSION['client']['cp' . $values['id']] : '';
                     $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 }
 
