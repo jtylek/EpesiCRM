@@ -358,6 +358,18 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
         return $text;
     }
+
+    public static function display_attached_to($row, $nolink = false, $a=null,$view=false) {
+        $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($row['id']));
+        $ret = array();
+        foreach ($locals as $local) {
+            $param = explode('/', $local);
+            if (count($param) == 2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+                $ret[] = Utils_RecordBrowserCommon::create_default_linked_label($param[0],$param[1],$nolink);
+            }
+        }
+        return implode(', ',$ret);;
+    }
     
     public static function description_callback($row,$nolink=false) {
         if($row['title']) return $row['title'];
@@ -521,8 +533,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $new_values = $values;
 
                 break;
+            case 'cloned':
+                $locals = DB::Execute('SELECT local,func,args FROM utils_attachment_local WHERE attachment=%d',array($values['original']));
+                while($local = $locals->FetchRow())
+                    DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['clone'],$local['local'],$local['func'],$local['args']));
+                break;
             case 'added':
-                DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['id'],$values['local'],$values['func'],$values['args']));
+                if(isset($values['local']))
+                    DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['id'],$values['local'],$values['func'],$values['args']));
                 $new_values = $values;
                 break;
             case 'edit_changes':
@@ -573,13 +591,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         Epesi::alert(__('This note is attached to multiple records - please go to record and delete note there.'));
                     location(array());
                     return false;
-                } else {
-                    $local = DB::GetOne('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
-                    $param = explode('/',$local);
-                    if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
-                        Utils_WatchdogCommon::new_event($param[0],$param[1],'N_-_'.$values['id']);
-                    }
-                }
+                } 
                 location(array());
                 return true;
         }
@@ -624,10 +636,13 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
 
                 $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
-                foreach($locals as $local) {
-                    $param = explode('/',$local);
-                    if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
-                        Utils_WatchdogCommon::new_event($param[0],$param[1],'N_'.($mode=='edit'?'~':'+').'_'.$values['id']);
+                foreach ($locals as $local) {
+                    $param = explode('/', $local);
+                    if (count($param) == 2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+                        $subscribers = Utils_WatchdogCommon::get_subscribers($param[0], $param[1]);
+                        foreach ($subscribers as $user_id) {
+                            Utils_WatchdogCommon::user_subscribe($user_id, 'utils_attachment', $values['id']);
+                        }
                     }
                 }
 

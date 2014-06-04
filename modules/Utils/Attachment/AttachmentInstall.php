@@ -51,6 +51,10 @@ class Utils_AttachmentInstall extends ModuleInstall {
                 'type' => 'checkbox',
                 'extra' => false,
                 'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_crypted')),
+            array('name' => _M('Attached to'),
+                'type' => 'calculated',
+                'extra' => false,
+                'display_callback'=>array('Utils_AttachmentCommon','display_attached_to')),
         );
         Utils_RecordBrowserCommon::install_new_recordset('utils_attachment',$fields);
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employee', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));

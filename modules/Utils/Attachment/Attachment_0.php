@@ -164,13 +164,21 @@ class Utils_Attachment extends Module {
 	public function paste() {
         $group = array_shift($this->group);
         reset($this->group);
+        $param = explode('/',$group);
+
         if(DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($_SESSION['attachment_copy']['id'],$group))) return;
 		if(isset($_SESSION['attachment_cut']) && $_SESSION['attachment_cut']) {
             DB::Execute('UPDATE utils_attachment_local SET local=%s,func=%s,args=%s WHERE attachment=%d AND local=%s',array($group,serialize($this->func),serialize($this->args), $_SESSION['attachment_copy']['id'],array_shift($_SESSION['attachment_copy']['group'])));
+		if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+		    Utils_WatchdogCommon::new_event($param[0],$param[1],'N_~_'.$_SESSION['attachment_copy']['id']);
+		}
             unset($_SESSION['attachment_cut']);
             unset($_SESSION['attachment_copy']);
 		} else {
             DB::Execute('INSERT INTO utils_attachment_local(local,attachment,func,args) VALUES(%s,%d,%s,%s)',array($group,$_SESSION['attachment_copy']['id'],serialize($this->func),serialize($this->args)));
+            if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+                Utils_WatchdogCommon::new_event($param[0],$param[1],'N_+_'.$_SESSION['attachment_copy']['id']);
+            }
 		}
 	}
 
