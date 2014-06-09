@@ -487,8 +487,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 return $values;
             case 'add':
             case 'edit':
+                if(!isset($values['date']) || !$values['date']) $values['date'] = time();
+                
                 $crypted = 0;
-                $old_pass = isset($_SESSION['client']['cp'.$values['id']])?$_SESSION['client']['cp'.$values['id']]:'';
+                $old_pass = ($mode=='edit' && isset($_SESSION['client']['cp'.$values['id']]))?$_SESSION['client']['cp'.$values['id']]:'';
                 if((is_array($values['crypted']) && isset($values['crypted']['crypted']) && $values['crypted']['crypted']) || (!is_array($values['crypted']) && $values['crypted'])) {
                     if(is_array($values['crypted']) && isset($values['crypted']['note_password'])) {
                         if($values['crypted']['note_password']=='*@#old@#*')

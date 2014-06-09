@@ -3,7 +3,7 @@
 class EpesiShell extends AdminModule {
 
     /* Uncomment (remove two leading slashes) following line to enable this tool. */
-    //private $enabled = true;
+    private $enabled = true;
 
     public function menu_entry() {
         return __('Run PHP command');
