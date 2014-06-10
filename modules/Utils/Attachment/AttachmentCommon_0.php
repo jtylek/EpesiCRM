@@ -464,6 +464,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
     public static function submit_attachment($values, $mode) {
         switch ($mode) {
+            case 'index':
+                if($values['crypted']) unset($values['note']);
+                return $values;
             case 'adding':
                 $values['date'] = time();
                 return $values;

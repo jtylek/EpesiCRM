@@ -3063,6 +3063,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach($tabs as $tab) {
             $ret = self::get_records($tab,array(),array(),array(),$limit,true);
             foreach($ret as $row) {
+                $row = self::record_processing($tab, $row, 'index');
+                if(!$row) continue;
                 DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab=%s AND record_id=%d',array($tab,$row['id']));
                 foreach(self::$table_rows as $field_info) {
                     $field = $field_info['id'];
