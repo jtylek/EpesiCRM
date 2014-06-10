@@ -61,7 +61,7 @@ class Base_Search extends Module {
 			if($keyword) {
 				$categories_tmp = $form->exportValue('search_categories');
 				$categories = array();
-				foreach($categories_tmp as $cat=>$val) {
+				if($categories_tmp) foreach($categories_tmp as $cat=>$val) {
 					list($mod,$cat_id) = explode('#',$cat,2);
 					if(!isset($categories[$mod])) $categories[$mod] = array();
 					$categories[$mod][]=$cat_id;
