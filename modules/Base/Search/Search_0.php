@@ -31,7 +31,8 @@ class Base_Search extends Module {
 		$modules_with_search = ModuleManager::check_common_methods('search');
 		$search_categories = ModuleManager::call_common_methods('search_categories');
 		$search_categories_checkboxes = array();
-		$defaults['search_categories'];
+		$defaults = array();
+		$defaults['search_categories'] = array();
 		foreach($search_categories as $mod=>$cats) {
 		    foreach($cats as $cat_id=>$cat_name) {
 		        $search_categories_checkboxes[] = $form->createElement('checkbox', $mod.'#'.$cat_id,  '', $cat_name);
