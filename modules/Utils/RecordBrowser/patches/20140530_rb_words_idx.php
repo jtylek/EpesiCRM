@@ -10,6 +10,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
 foreach($tabs as $tab) {
-    PatchUtil::db_add_column($tab.'_data_1', 'indexed', 'I1 NOT NULL DEFAULT 0');
-    DB::CreateIndex($tab.'_idxed',$tab.'_data_1','indexed,active');
+    @PatchUtil::db_add_column($tab.'_data_1', 'indexed', 'I1 NOT NULL DEFAULT 0');
+    @DB::CreateIndex($tab.'_idxed',$tab.'_data_1','indexed,active');
 }
