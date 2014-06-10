@@ -39,7 +39,7 @@ class Base_Search extends Module {
 		        $defaults['search_categories'][$mod.'#'.$cat_id]=1;
 		    }
 		}
-		$form->addGroup($search_categories_checkboxes,'search_categories');
+		$form->addGroup($search_categories_checkboxes,'search_categories','','</li><li>');
 		
 		$form->addElement('submit', 'quick_search_submit',  __('Search'), array('class'=>'submit'));
 
