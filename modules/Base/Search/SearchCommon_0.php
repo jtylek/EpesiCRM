@@ -21,7 +21,7 @@ class Base_SearchCommon extends ModuleCommon {
 	}
 
     public static function get_recordset_limit_records() {
-        return 50;
+        return 101;
     }
 }
 ?>

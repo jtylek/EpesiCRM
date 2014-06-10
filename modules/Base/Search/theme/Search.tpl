@@ -29,7 +29,7 @@
 				<td colspan="2" align="left" class="data"><ul><li>{$form_data.search_categories.html}</li></ul></td>
 			</tr>
 			<tr>
-				<td colspan="2" align="right">{$form_data.quick_search_submit.html}</td>
+				<td colspan="2" align="right">{$form_data.quick_search_select_none.html}&nbsp;{$form_data.quick_search_select_all.html}&nbsp;{$form_data.quick_search_submit.html}</td>
 			</tr>
 		</table>
 	</form>

@@ -33,15 +33,19 @@ class Base_Search extends Module {
 		$search_categories_checkboxes = array();
 		$defaults = array();
 		$defaults['search_categories'] = array();
+		$categories_tmp = & $this->get_module_variable('categories',array());
 		foreach($search_categories as $mod=>$cats) {
 		    foreach($cats as $cat_id=>$cat_name) {
 		        $search_categories_checkboxes[] = $form->createElement('checkbox', $mod.'#'.$cat_id,  '', $cat_name);
-		        $defaults['search_categories'][$mod.'#'.$cat_id]=1;
+		        if(!$categories_tmp || isset($categories_tmp[$mod.'#'.$cat_id]))
+		            $defaults['search_categories'][$mod.'#'.$cat_id]=1;
 		    }
 		}
 		$form->addGroup($search_categories_checkboxes,'search_categories','','</li><li>');
 		
 		$form->addElement('submit', 'quick_search_submit',  __('Search'), array('class'=>'submit'));
+		$form->addElement('button', 'quick_search_select_none',  __('Deselect all'), array('onClick'=>'jq("#'.$form->getAttribute('name').' input[type=checkbox]").removeAttr("checked")','class'=>'submit'));
+		$form->addElement('button', 'quick_search_select_all',  __('Select all'), array('onClick'=>'jq("#'.$form->getAttribute('name').' input[type=checkbox]").attr("checked","checked")','class'=>'submit'));
 
 		$defaults['quick_search']=$qs_keyword;
 
