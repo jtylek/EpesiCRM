@@ -381,13 +381,16 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
     public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if($rb_obj->record['crypted']) {
-            if(!isset($_SESSION['client']['cp'.$rb_obj->record['id']])) {
+            if(!(isset($rb_obj->record['id']) && isset($_SESSION['client']['cp'.$rb_obj->record['id']])) && !(isset($rb_obj->record['clone_id']) && isset($_SESSION['client']['cp'.$rb_obj->record['clone_id']]))) {
                 Epesi::alert(__('Note encrypted.'));
                 $x = ModuleManager::get_instance('/Base_Box|0');
                 if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
                 return $x->pop_main();
             } else {
-                $note_pass = $_SESSION['client']['cp'.$rb_obj->record['id']];
+                if(isset($rb_obj->record['id']) && isset($_SESSION['client']['cp'.$rb_obj->record['id']]))
+                    $note_pass = $_SESSION['client']['cp'.$rb_obj->record['id']];
+                else
+                    $note_pass = $_SESSION['client']['cp'.$rb_obj->record['clone_id']];
                 $decoded = Utils_AttachmentCommon::decrypt($default,$note_pass);
                 if($decoded!==false) $default = $decoded;
                 else {
@@ -422,14 +425,16 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
             Libs_QuickFormCommon::add_on_submit_action('if(uploader.files.length){uploader.start();return;}');
 
-            if(isset($rb_obj->record['id'])) {
+            if(isset($rb_obj->record['id']))
                 $files = DB::GetAssoc('SELECT id, original FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($rb_obj->record['id']));
-                foreach($files as $id=>$name) {
-                    eval_js('Utils_Attachment__add_file_to_list("'.Epesi::escapeJS($name,true,false).'", null, '.$id.');');
-			    }
+            elseif(isset($rb_obj->record['clone_id']))
+                $files = DB::GetAssoc('SELECT id, original FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($rb_obj->record['clone_id']));
+            else $files = array();
+            foreach($files as $id=>$name) {
+                eval_js('Utils_Attachment__add_file_to_list("'.Epesi::escapeJS($name,true,false).'", null, '.$id.');');
             }
 
-            if ($mode=='edit') $form->setDefaults(array($field=>$default));
+            $form->setDefaults(array($field=>$default));
         } else {
             $form->addElement('static', $field, $label);
             $form->setDefaults(array($field=>self::display_note($rb_obj->record,false,null,true)));
@@ -487,10 +492,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 return $values;
             case 'add':
             case 'edit':
-                if(!isset($values['date']) || !$values['date']) $values['date'] = time();
+                $values['date'] = time();
                 
                 $crypted = 0;
-                $old_pass = ($mode=='edit' && isset($_SESSION['client']['cp'.$values['id']]))?$_SESSION['client']['cp'.$values['id']]:'';
+                $old_pass = ($mode=='edit' && isset($_SESSION['client']['cp'.$values['id']]))?$_SESSION['client']['cp'.$values['id']]:($mode=='add' && isset($_SESSION['client']['cp'.$values['clone_id']])?$_SESSION['client']['cp'.$values['clone_id']]:'');
                 if((is_array($values['crypted']) && isset($values['crypted']['crypted']) && $values['crypted']['crypted']) || (!is_array($values['crypted']) && $values['crypted'])) {
                     if(is_array($values['crypted']) && isset($values['crypted']['note_password'])) {
                         if($values['crypted']['note_password']=='*@#old@#*')
@@ -535,10 +540,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $new_values = $values;
 
                 break;
-            case 'cloned':
-                $locals = DB::Execute('SELECT local,func,args FROM utils_attachment_local WHERE attachment=%d',array($values['original']));
-                while($local = $locals->FetchRow())
-                    DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['clone'],$local['local'],$local['func'],$local['args']));
+            case 'cloning':
+                $values['clone_id']=$values['id'];
                 break;
             case 'added':
                 if(isset($values['local']))
@@ -606,19 +609,51 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 }
 
-                $current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($values['id']));
-                $remaining_files = $current_files;
                 $note_id = $values['id'];
-                if(isset($values['delete_files'])) {
+                $files_dir = self::Instance()->get_data_dir().$note_id;
+                
+                if(isset($values['delete_files']))
                     $deleted_files = array_filter(explode(';',$values['delete_files']));
-                    foreach ($deleted_files as $k=>$v) {
-                        $deleted_files[$k] = intVal($v);
-                        if (!isset($remaining_files[$v])) unset($deleted_files[$k]);
-                        else unset($remaining_files[$v]);
+                else
+                    $deleted_files = array();
+                foreach ($deleted_files as $k=>$v)
+                    $deleted_files[$k] = intVal($v);
+                $deleted_files = array_combine($deleted_files,$deleted_files);
+                
+                if($mode=='added' && isset($values['clone_id'])) { //on cloning
+                    $locals = DB::Execute('SELECT local,func,args FROM utils_attachment_local WHERE attachment=%d',array($values['clone_id']));
+                    while($local = $locals->FetchRow())
+                        DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($note_id,$local['local'],$local['func'],$local['args']));
+                    
+                    $clone_files = DB::GetAll('SELECT id,original,created_by,created_on FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($values['clone_id']));
+                    foreach($clone_files as $file) {
+                        $cf = self::Instance()->get_data_dir().$values['clone_id'].'/'.$file['id'];
+                        if(!file_exists($cf)) continue;
+                        if(!file_exists($files_dir))
+                            mkdir($files_dir,0777,true);
+
+                        DB::Execute('INSERT INTO utils_attachment_file (attach_id,deleted,original,created_by,created_on) VALUES(%d,0,%s,%d,%T)',array($note_id,$file['original'],$file['created_by'],$file['created_on']));
+                        $new_file_id = DB::Insert_ID('utils_attachment_file','id');
+                        if(isset($deleted_files[$file['id']])) $deleted_files[$file['id']] = $new_file_id;
+
+                        $cf2 = $files_dir.'/'.$new_file_id;
+                        copy($cf,$cf2);
+                        if(isset($_SESSION['client']['cp'.$values['clone_id']]) && $_SESSION['client']['cp'.$values['clone_id']])
+                            file_put_contents($cf2,Utils_AttachmentCommon::decrypt(file_get_contents($cf2),$_SESSION['client']['cp'.$values['clone_id']]));
+                        if($values['crypted'])
+                            file_put_contents($cf2,Utils_AttachmentCommon::encrypt(file_get_contents($cf2),$values['note_password']));
                     }
-                    foreach ($deleted_files as $v)
-                        DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d', array($v));
                 }
+
+                $current_files = DB::GetAssoc('SELECT id, id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($note_id));
+                $remaining_files = $current_files;
+                foreach ($deleted_files as $k=>$v) {
+                    if (!isset($remaining_files[$v])) unset($deleted_files[$k]);
+                    else unset($remaining_files[$v]);
+                }
+                foreach ($deleted_files as $v)
+                    DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d', array($v));
+
                 if(isset($values['clipboard_files'])) {
                     $clipboard_files = array_filter(explode(';',$values['clipboard_files']));
                     foreach ($clipboard_files as $cf_id) {
@@ -637,13 +672,13 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), basename($f), $f);
                 }
 
-                $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
+                $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($note_id));
                 foreach ($locals as $local) {
                     $param = explode('/', $local);
                     if (count($param) == 2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
                         $subscribers = Utils_WatchdogCommon::get_subscribers($param[0], $param[1]);
                         foreach ($subscribers as $user_id) {
-                            Utils_WatchdogCommon::user_subscribe($user_id, 'utils_attachment', $values['id']);
+                            Utils_WatchdogCommon::user_subscribe($user_id, 'utils_attachment', $note_id);
                         }
                     }
                 }
