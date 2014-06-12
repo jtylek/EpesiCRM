@@ -3216,6 +3216,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $ret = array();
         foreach($tabs as $tab) $ret[$tab] = self::get_caption($tab);
         $ret = array_filter($ret);
+        natcasesort($ret);
         return $ret;
     }
 
