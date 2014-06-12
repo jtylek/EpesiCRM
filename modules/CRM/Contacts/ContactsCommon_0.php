@@ -1139,34 +1139,6 @@ class CRM_ContactsCommon extends ModuleCommon {
         return Utils_RecordBrowserCommon::record_link_open_tag('company', $row['id']).__( 'Company (attachment) #%d, %s', array($row['id'], $row['company_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
     }
 
-    public static function search($word){
-        $ret = array();
-        $limit_per_recordset = Base_SearchCommon::get_recordset_limit_records();
-        if(Utils_RecordBrowserCommon::get_access('contact','browse')) {
-            $wo = explode(' ', $word);
-
-            $crits = array();
-            foreach ($wo as $w)
-                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('("~first_name'=>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%')), '|"~last_name'=>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'))));
-
-            $result = self::get_contacts($crits, array(), array(), $limit_per_recordset);
-
-            foreach ($result as $row)
-                $ret[] = Utils_RecordBrowserCommon::record_link_open_tag('contact', $row['id']).__( 'Contact #%d, %s %s', array($row['id'], $row['first_name'], $row['last_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
-        }
-        if(Utils_RecordBrowserCommon::get_access('company','browse')) {
-            $crits = array('("~company_name' => DB::Concat(DB::qstr('%'),DB::qstr($word),DB::qstr('%')),
-                '|"~short_name' => DB::Concat(DB::qstr('%'),DB::qstr($word),DB::qstr('%')));
-
-            $result = self::get_companies($crits, array(), array(), $limit_per_recordset);
-
-            foreach ($result as $row)
-                $ret[] = Utils_RecordBrowserCommon::record_link_open_tag('company', $row['id']).__( 'Company #%d, %s', array($row['id'], $row['company_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
-        }
-
-        return $ret;
-    }
-
     public static function contact_watchdog_label($rid = null, $events = array(), $details = true) {
         return Utils_RecordBrowserCommon::watchdog_label(
                 'contact',

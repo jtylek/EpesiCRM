@@ -1,3 +1,7 @@
+table#Base_Search__Search {
+    width:970px;
+    margin:0px auto;
+}
 table#Base_Search__Search span.error {
 	color: red;
 }
@@ -42,7 +46,7 @@ table#Base_Search__Search td.header_tail span.header {
 	padding-left: 5px;
 }
 
-table#Base_Search__Search input {
+table#Base_Search__Search input[type=text] {
 	color: #000000;
 	border: 1px solid #b3b3b3;
 	/*width: 173px;*/
@@ -157,6 +161,12 @@ table#Base_Search__Search .label {
 	color: #000000;
 	font-size: 11px;
 	vertical-align: middle;
+}
+table#Base_Search__Search ul li {
+    width:170px;
+    display:block;
+    float:left;
+    margin-right:14px;
 }
 
 table#Base_Search__Search td.data select {
