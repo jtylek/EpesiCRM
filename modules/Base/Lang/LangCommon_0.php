@@ -364,7 +364,8 @@ class Base_LangCommon extends ModuleCommon {
 	public static function load($lang_code = null) {
 		global $translations;
 		global $custom_translations;
-        if ($lang_code === null) 
+        self::$lang_code = $lang_code;
+        if ($lang_code === null)
             $lang_code = self::get_lang_code();
 		if (!$lang_code) return;
 
@@ -381,19 +382,20 @@ class Base_LangCommon extends ModuleCommon {
 			
 		eval_js_once('Epesi.default_indicator="'.__('Loading...').'";');
 	}
+	
+	private static $lang_code;
 
 	public static function get_lang_code() {
 		if(defined('FORCE_LANG_CODE')) return FORCE_LANG_CODE;
-		static $lang_code;
-		if(!isset($lang_code)) {
+		if(!isset(self::$lang_code)) {
 			if (!Acl::is_user() ||
 				ModuleManager::is_installed('Base/User/Settings')==-1 ||
 				!Variable::get('allow_lang_change', false))
 					return Variable::get('default_lang');
 			if(class_exists('Base_User_SettingsCommon'))
-				$lang_code = Base_User_SettingsCommon::get('Base_Lang_Administrator','language');
+				self::$lang_code = Base_User_SettingsCommon::get('Base_Lang_Administrator','language');
 		}
-		return $lang_code;
+		return self::$lang_code;
 	}
 
 	/**
