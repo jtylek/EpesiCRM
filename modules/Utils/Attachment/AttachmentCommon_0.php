@@ -504,7 +504,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 return $values;
             case 'add':
             case 'edit':
-                $values['date'] = time();
+                if(isset($values['force_date'])) $values['date'] = $values['force_date'];
+                else $values['date'] = time();
                 
                 $crypted = 0;
                 $old_pass = ($mode=='edit' && isset($_SESSION['client']['cp'.$values['id']]))?$_SESSION['client']['cp'.$values['id']]:($mode=='add' && isset($values['clone_id']) && isset($_SESSION['client']['cp'.$values['clone_id']])?$_SESSION['client']['cp'.$values['clone_id']]:'');

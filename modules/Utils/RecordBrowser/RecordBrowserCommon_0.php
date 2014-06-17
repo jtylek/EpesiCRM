@@ -539,7 +539,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         @DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.$f_id);
 		@DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE block_field=%s', array($f_id));
         self::init($tab, false, true);
-        DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
+        @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
     }
 
     private static $datatypes = null;
@@ -636,7 +636,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($f!=='') return ','.$column.' '.$f;
 			else return '';
 		}
-        DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
+        @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
     }
     public static function actual_db_type($type, $param=null) {
         $f = '';
@@ -938,7 +938,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             else DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'=NULL WHERE id=%d',array($id));
             $diff[$args['id']] = $old;
         }
-        if(!empty($diff)) DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0 WHERE id=%d',array($id));
+        if(!empty($diff)) @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0 WHERE id=%d',array($id));
         if (!$dont_notify && !empty($diff)) {
 			$diff = self::record_processing($tab, $diff, 'edit_changes');
             DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array((($date==null)?date('Y-m-d G:i:s'):$date), Acl::get_user(), $id));
@@ -1784,7 +1784,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return false;
         }
         Utils_WatchdogCommon::new_event($tab, $id, $state ? 'R' : 'D');
-        DB::Execute('UPDATE ' . $tab . '_data_1 SET active=%d,indexed=0 WHERE id=%d', array($state ? 1 : 0, $id));
+        @DB::Execute('UPDATE ' . $tab . '_data_1 SET active=%d,indexed=0 WHERE id=%d', array($state ? 1 : 0, $id));
         DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab=%s AND record_id=%d',array($tab,$id));
         self::new_record_history($tab,$id,$state ? 'RESTORED' : 'DELETED');
         return true;

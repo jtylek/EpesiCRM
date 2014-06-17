@@ -84,7 +84,7 @@ foreach($links as $link) {
     $notes = DB::GetAll('SELECT * FROM utils_attachment_note WHERE attach_id=%d ORDER BY revision',$link['id']);
     $note = array_shift($notes);
     Acl::set_user($note['created_by']);
-    $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>array('crypted'=>$link['crypted']),'func'=>$link['func'],'args'=>$link['args'],'date'=>$note['created_on'],'local'=>$link['local']));
+    $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>array('crypted'=>$link['crypted']),'func'=>$link['func'],'args'=>$link['args'],'force_date'=>$note['created_on'],'local'=>$link['local']));
 //    DB::Execute('INSERT INTO utils_attachment_local(local,attachment) VALUES(%s,%d)',array($link['local'],$rid));
     $map[$link['id']] = $rid;
     foreach($notes as $note) {
