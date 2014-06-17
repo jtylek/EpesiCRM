@@ -17,8 +17,17 @@ class Base_Acl extends Module {
 	public function admin() {
 		if ($this->is_back()) {
 			$this->parent->reset();
+            return;
 		}
-		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+
+        $this->edit_permissions();
+    }
+
+    public function edit_permissions($permission_name = null) {
+        if ($this->is_back()) {
+            Base_BoxCommon::pop_main();
+        }
+        Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
 		Base_ThemeCommon::load_css('Base_Acl', 'edit_permissions');
 
@@ -26,8 +35,17 @@ class Base_Acl extends Module {
 		$gb->set_table_columns(array(
 			array('name'=>'&nbsp;', 'width'=>20)
 		));
-		$perms = DB::GetAssoc('SELECT id, name FROM base_acl_permission ORDER BY name ASC');
-		Base_ActionBarCommon::add('add', __('Add rule'), $this->create_callback_href(array($this, 'edit_rule'), array(null, null)));
+        $sql = 'SELECT id, name FROM base_acl_permission';
+        $args = array();
+        $perm_id = null;
+        if ($permission_name) {
+            $sql .= ' WHERE name=%s';
+            $args[] = $permission_name;
+            $perm_id = DB::GetOne('SELECT id FROM base_acl_permission WHERE name=%s', array($permission_name));
+        }
+        $sql .= ' ORDER BY name ASC';
+        $perms = DB::GetAssoc($sql, $args);
+		Base_ActionBarCommon::add('add', __('Add rule'), $this->create_callback_href(array($this, 'edit_rule'), array(null, $perm_id)));
 		foreach ($perms as $p_id=>$p_name) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data(
