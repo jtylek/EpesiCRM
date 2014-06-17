@@ -133,6 +133,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
             } else
                 $param['default_account']=1;
         }
+        if($mode=='index') return array();
         return $param;
     }
 

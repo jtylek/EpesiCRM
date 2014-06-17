@@ -504,7 +504,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 return $values;
             case 'add':
             case 'edit':
-                if(isset($values['force_date'])) $values['date'] = $values['force_date'];
+                if(isset($values['__date'])) $values['date'] = $values['__date'];
                 else $values['date'] = time();
                 
                 $crypted = 0;
