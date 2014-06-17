@@ -20,6 +20,7 @@ CURRENT
 - Move jump to id setting to database (remove function Utils_RecordBrowser::disable_jump_to_record)
 - Add option to run update procedure from commandline interface
 - Add maintenance mode
+- Add Utils_CurrencyFieldCommon::parse_currency method
 
 RELEASE 1.5.6-20140305
 -------

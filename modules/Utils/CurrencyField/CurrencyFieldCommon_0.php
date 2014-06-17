@@ -127,6 +127,57 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		if (!isset($cache[$arg])) $cache[$arg] = DB::GetOne('SELECT pos_before FROM utils_currency WHERE id=%d', array($arg));
 		return $cache[$arg];
 	}
+
+    /**
+     * Parse currency using existing currencies set in the system.
+     *
+     * @param $string Currency string to parse
+     *
+     * @return array|null null on failure and array(value, currency_id) on success - like get_values returns.
+     */
+    public static function parse_currency($string) {
+        $string = html_entity_decode($string);
+        $string = preg_replace('/[\pZ\pC\s]/u', '', $string); // remove whitespaces, including unicode nbsp
+        $currencies = Utils_CurrencyFieldCommon::get_currencies();
+        foreach (array_keys($currencies) as $cur_id) {
+            $symbol = Utils_CurrencyFieldCommon::get_symbol($cur_id);
+            $symbol_pos_before = Utils_CurrencyFieldCommon::get_symbol_position($cur_id);
+            // check for symbol
+            if ($symbol_pos_before) {
+                if (strpos($string, $symbol) === 0) {
+                    $string = substr($string, strlen($symbol));
+                } else continue;
+            } else {
+                $pos_of_sym = strlen($string) - strlen($symbol);
+                if (strrpos($string, $symbol) == $pos_of_sym) {
+                    $string = substr($string, 0, $pos_of_sym);
+                } else continue;
+            }
+            // separate by decimal point
+            $exp = explode(Utils_CurrencyFieldCommon::get_decimal_point($cur_id), $string);
+            if (count($exp) > 2)
+                continue;
+            $fraction = count($exp) == 2 ? $exp[1] : '0';
+            $int = $exp[0];
+            if (!preg_match('/^\d+$/', $fraction))
+                continue;
+            $th_point = Utils_CurrencyFieldCommon::get_thousand_point($cur_id);
+            if (strlen($th_point)) {
+                $thparts = explode($th_point, $int);
+                if (count($thparts) > 1) {
+                    for ($i = 1; $i < count($thparts); $i++)
+                        if (strlen($thparts[$i]) != 3)
+                            continue 2;
+                }
+                $int = str_replace($th_point, '', $int);
+            }
+            if (preg_match('/^\d+$/', $int)) {
+                return array($int . '.' . $fraction, $cur_id);
+            }
+        }
+        return null;
+    }
+
 }
 
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
