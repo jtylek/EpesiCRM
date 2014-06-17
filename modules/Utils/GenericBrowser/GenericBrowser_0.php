@@ -755,7 +755,7 @@ class Utils_GenericBrowser extends Module {
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
         $this->expandable = $this->get_module_variable('expandable',$this->expandable);
-        $expand_action_only = & $this->get_module_variable('expand_action_only',false);
+        $expand_action_only = false;
         if ($this->expandable) {
             if(!$this->en_actions) {
                 $expand_action_only = true;
