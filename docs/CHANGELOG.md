@@ -21,6 +21,7 @@ CURRENT
 - Add option to run update procedure from commandline interface
 - Add maintenance mode
 - Add Utils_CurrencyFieldCommon::parse_currency method
+- Improve RB uninstall method to remove processing callbacks and others
 
 RELEASE 1.5.6-20140305
 -------
