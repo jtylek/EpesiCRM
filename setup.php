@@ -391,6 +391,17 @@ function write_config($host, $user, $pass, $dbname, $engine, $other) {
 		$other_conf .= "\n".'@define("EPESI_DIR","'.str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])).'");';
 	$other_conf .= "\n".'define("DIRECTION_RTL","'.($other['direction']?'1':'0').'");';
 
+	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
+        $domain_name = '';
+        if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) {
+            $domain_name = $_SERVER['HTTP_HOST'];
+        } else if (isset($_SERVER['SERVER_NAME']) && $_SERVER['SERVER_NAME']) {
+            $domain_name = $_SERVER['SERVER_NAME'];
+        }
+        if($domain_name) {
+            $url = $protocol . $domain_name . dirname($_SERVER['REQUEST_URI']);
+	    $other_conf .= "\n".'define("EPESI_URL","'.$url.'");';
+        }
 	$c = & fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
 /**
