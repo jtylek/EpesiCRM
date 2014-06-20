@@ -341,6 +341,11 @@ class CRM_Roundcube extends Module {
         }
         print('</ul>');
         $this->js($update_applet);
+
+        $href = $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array($this->get_type(), 'account_manager', array(true)));
+        $img = '<img src="' . Base_ThemeCommon::get_template_file('Base_Dashboard', 'configure.png') . '" border="0">';
+        $tooltip = Utils_TooltipCommon::open_tag_attrs(__('Go to account settings'));
+        $opts['actions'][] = "<a $tooltip $href>$img</a>";
     }
 
 	public function mail_addresses_addon($arg,$rb) {
@@ -355,13 +360,31 @@ class CRM_Roundcube extends Module {
 
     ////////////////////////////////////////////////////////////
     //account management
-    public function account_manager() {
-		Base_ActionBarCommon::add('back',__('Back'),$this->create_main_href('Base_User_Settings'));
-		
+    public function account_manager($pushed_on_top = false) {
+        if ($pushed_on_top) {
+            if ($this->is_back()) {
+                Base_BoxCommon::pop_main();
+                return;
+            }
+            Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
+        } else {
+            Base_ActionBarCommon::add('back',__('Back'),$this->create_main_href('Base_User_Settings'));
+        }
+
         $this->rb = $this->init_module('Utils/RecordBrowser','rc_accounts','rc_accounts');
         $this->rb->set_defaults(array('epesi_user'=>Acl::get_user()));
         $order = array(array('login'=>'DESC'), array('epesi_user'=>Acl::get_user()),array('epesi_user'=>false));
         $this->display_module($this->rb,$order);
+
+        // other settings
+        $qf = $this->init_module('Libs/QuickForm');
+        $qf->addElement('advcheckbox', 'standard_mailto', __("Use standard mailto links"), null, array('onchange' => $qf->get_submit_form_js()));
+        $use_standard_mailto = CRM_RoundcubeCommon::use_standard_mailto();
+        $qf->setDefaults(array('standard_mailto' => $use_standard_mailto));
+        if ($qf->validate()) {
+            CRM_RoundcubeCommon::set_standard_mailto($qf->exportValue('standard_mailto'));
+        }
+        $qf->display_as_row();
     }
 
     public function caption() {
