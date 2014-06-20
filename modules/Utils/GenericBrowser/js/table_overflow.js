@@ -14,6 +14,11 @@ table_overflow_show = function (e_td, force) {
 		if (utils_genericbrowser__last_td) table_overflow_hide(utils_genericbrowser__hide_current);
 		e_tip.style.minWidth = e_td.clientWidth+"px";
 		e_tip.style.minHeight = e_td.clientHeight+"px";
+        var maxWidth = 400
+        if (e_td.clientWidth > maxWidth) {
+            maxWidth = e_td.clientWidth;
+        }
+        e_tip.style.maxWidth = maxWidth + "px";
         var keep_height = jq(e_td).height();
         while (e_td.childNodes.length>0) {
 			$("table_overflow_content").appendChild(e_td.firstChild);

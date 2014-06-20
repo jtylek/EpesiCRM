@@ -726,7 +726,6 @@ table.Utils_GenericBrowser > tbody > td img {
 
 .Utils_GenericBrowser__overflow_div_content {
 	padding: 3px;
-	max-width: 400px;
 	word-wrap: break-word;
 }
 
@@ -749,4 +748,7 @@ div.expandable {
 div.expandable.collapsed.exceedsHeight {
     height: 17px !important;
     border-bottom: 1px dotted red;
+}
+div.expandable.expanded {
+    white-space: normal;
 }
