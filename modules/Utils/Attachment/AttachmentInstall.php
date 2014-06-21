@@ -17,11 +17,12 @@ class Utils_AttachmentInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
         $fields = array(
             array(
-                'name' => _M('Date'),
-                'type' => 'date',
+                'name' => _M('Edited on'),
+                'type' => 'timestamp',
                 'extra'=>false,
                 'visible'=>true,
                 'required' => false,
+                'display_callback'=>array('Utils_AttachmentCommon','display_date'),
                 'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_date')
             ),
             array(
@@ -60,8 +61,8 @@ class Utils_AttachmentInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employee', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', array('ACCESS:employee','ACCESS:manager'));
-        Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee',array(),array('date'));
-        Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID'),array('date'));
+        Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee',array(),array('edited_on'));
+        Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID'),array('edited_on'));
         Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
         Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename('Utils/Attachment', 'View_entry'));
         Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_AttachmentCommon','watchdog_label'));

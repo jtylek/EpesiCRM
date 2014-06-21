@@ -159,6 +159,7 @@
                        <td class="data frozen">
                            <div id="multiple_attachments"><div id="filelist"></div></div>
                            {'Click here and press CTRL+V to paste your clipboard'|t}
+                           <a href="javascript:void(0)" id="pickfiles" class="button">{'Select files'|t}</a>
                        </td>
                         </tr>
                         </table>

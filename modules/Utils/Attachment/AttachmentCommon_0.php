@@ -30,7 +30,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if(Acl::is_user()) {
 			return array(
 				__('Misc')=>array(
-					array('name'=>'default_permission','label'=>__('Default notes permission'), 'type'=>'select', 'default'=>0, 'values'=>array(__('Public'),__('Protected'),__('Private')))
+					array('name'=>'editor','label'=>__('Notes editor'), 'type'=>'select', 'default'=>0, 'values'=>array(__('Simple'),__('Advanced')))
 				)
 			);
 		}
@@ -310,6 +310,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return $ret;
     }
 
+    public static function display_date($row, $nolink = false, $a=null,$view=false) {
+        return $row['edited_on']?'<p>'.str_replace(' ','</p><p>',Base_RegionalSettingsCommon::time2reg($row['edited_on'], 'without_seconds')).'</p>':'';
+    }
+    
     public static function display_note($row, $nolink = false, $a=null,$view=false) {
         $inline_img = '';
         $link_href = '';
@@ -413,7 +417,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if ($mode=='add' || $mode=='edit') {
 
             $fck = $form->addElement('ckeditor', $field, $label);
-            $fck->setFCKProps('99%','300',true);
+            $fck->setFCKProps('99%','300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
 
             load_js('modules/Utils/Attachment/js/lib/plupload.js');
             load_js('modules/Utils/Attachment/js/lib/plupload.flash.js');
@@ -428,7 +432,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
             eval_js_once('var Utils_Attachment__restore_button = "'.Base_ThemeCommon::get_template_file('Utils_Attachment', 'restore.png').'";');
             eval_js('Utils_Attachment__submit_note = function() {'.$form->get_submit_form_js().'}');
 
-            Base_ActionBarCommon::add('add',__('Select files'),'id="pickfiles" href="javascript:void(0);"');
             $del = $form->addElement('hidden', 'delete_files', null, array('id'=>'delete_files'));
             $add = $form->addElement('hidden', 'clipboard_files', null, array('id'=>'clipboard_files'));
 
@@ -500,13 +503,13 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 if($values['crypted']) unset($values['note']);
                 return $values;
             case 'adding':
-                $values['date'] = time();
+                $values['edited_on'] = time();
                 return $values;
             case 'add':
             case 'edit':
-                if(isset($values['__date'])) $values['date'] = $values['__date'];
-                else $values['date'] = time();
-                
+                if(isset($values['__date'])) $values['edited_on'] = $values['__date'];
+                else $values['edited_on'] = time();
+
                 $crypted = 0;
                 $old_pass = ($mode=='edit' && isset($_SESSION['client']['cp'.$values['id']]))?$_SESSION['client']['cp'.$values['id']]:($mode=='add' && isset($values['clone_id']) && isset($_SESSION['client']['cp'.$values['clone_id']])?$_SESSION['client']['cp'.$values['clone_id']]:'');
                 if((is_array($values['crypted']) && isset($values['crypted']['crypted']) && $values['crypted']['crypted']) || (!is_array($values['crypted']) && $values['crypted'])) {

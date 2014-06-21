@@ -7,12 +7,13 @@ Utils_WatchdogCommon::dont_notify();
 Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
 $fields = array(
     array(
-        'name' => _M('Date'),
-        'type' => 'date',
+        'name' => _M('Edited on'),
+        'type' => 'timestamp',
         'extra'=>false,
         'visible'=>true,
         'required' => false,
-        'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_date')
+        'display_callback'=>array('Utils_AttachmentCommon','display_date'),
+        'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_date'),
     ),
     array(
         'name' => _M('Title'),
@@ -59,7 +60,7 @@ Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employ
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'delete', array('ACCESS:employee','ACCESS:manager'));
 Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee');
-Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'),array('date'));
+Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'),array('edited_on'));
 Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
 Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename('Utils/Attachment', 'View_entry'));
 

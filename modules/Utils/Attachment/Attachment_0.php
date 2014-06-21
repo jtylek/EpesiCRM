@@ -118,14 +118,14 @@ class Utils_Attachment extends Module {
         $this->rb->set_header_properties(array(
             'sticky'=>array('width'=>1,'display'=>false),
             'note_id'=>array('width'=>"12em"),
-            'date'=>array('width'=>"12em"),
+            'edited_on'=>array('width'=>"12em"),
             'title'=>array('width'=>"20em"),
         ));
 
         if($uid) {
             $this->rb->set_button(false);
             $this->rb->disable_actions(array('delete'));
-            $this->display_module($this->rb, array(array(':Created_by'=>$uid), array(), array('sticky'=>'DESC', 'date'=>'DESC')), 'show_data');
+            $this->display_module($this->rb, array(array(':Created_by'=>$uid), array(), array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
         } else {
             $crits = array();
             if(!is_array($this->group)) $this->group = array($this->group);
@@ -138,7 +138,7 @@ class Utils_Attachment extends Module {
 
             $g = array_map(array('DB','qstr'),$this->group);
             $crits['id'] = DB::GetCol('SELECT attachment FROM utils_attachment_local WHERE local IN ('.implode(',',$g).')');
-            $this->display_module($this->rb, array($crits, array(), array('sticky'=>'DESC', 'date'=>'DESC')), 'show_data');
+            $this->display_module($this->rb, array($crits, array(), array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
         }
 	}
 
