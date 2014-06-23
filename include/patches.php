@@ -103,6 +103,7 @@ class PatchUtil
 
     /**
      * Return patches from the old installations. Located in /patches directory
+     *
      * @param bool $only_new True to list not applied, false to list all
      *
      * @return Patch[]
@@ -388,6 +389,7 @@ class Patch
             return false;
         }
 
+        $this->init_checkpoints();
         set_error_handler(array('Patch', 'error_handler'));
         ob_start(array($this, 'output_bufferring_interrupted'));
         try {
@@ -414,6 +416,7 @@ class Patch
         }
         if ($this->apply_status == self::STATUS_SUCCESS) {
             $this->mark_applied();
+            $this->destroy_checkpoints();
             return true;
         }
         return false;
@@ -504,6 +507,112 @@ class Patch
             throw new Exception("Wrong patch description - use this filename scheme: YYYYMMDD_short_description.php");
         }
         $this->short_description = str_replace('_', ' ', $short_description);
+    }
+
+    /***** checkpoints *****/
+
+    /**
+     * @var array Checkpoints data
+     */
+    private static $checkpoints_data = array();
+
+    /**
+     * @var string Checkpoints file path
+     */
+    private static $checkpoints_file;
+
+    /**
+     * Get unique file path per patch to use as checkpoints data file
+     * @return string
+     */
+    private function get_checkpoints_file()
+    {
+        $file = rtrim(DATA_DIR, '/\\') . '/patch_checkpoints_' . $this->get_identifier() . '.dat';
+        return $file;
+    }
+
+    /**
+     * Init checkpoints data file.
+     *
+     * We'd like to store them separately, because in some scenarios patches
+     * may be run simultanously. E.g.
+     * 1. Run patch B without success - checkpoint file is left
+     * 2. Create patch A (before B)
+     * 3. Running patch A could overwrite B's checkpoints.
+     * That's the reason why patch id is in the filename
+     */
+    private function init_checkpoints()
+    {
+        $file = $this->get_checkpoints_file();
+        self::$checkpoints_file = $file;
+        self::$checkpoints_data = array();
+        if (file_exists($file)) {
+            $content = file_get_contents($file);
+            $data = @unserialize($content);
+            if (is_array($data)) {
+                self::$checkpoints_data = $data;
+            }
+        }
+    }
+
+    /**
+     * Remove checkpoints data file.
+     */
+    private function destroy_checkpoints()
+    {
+        @unlink($this->get_checkpoints_file());
+    }
+
+    /**
+     * Save a checkpoint for currently executed patch.
+     * Use only in the patch context.
+     *
+     * Checkpoints will be stored until patch is fully applied.
+     *
+     * @param string $name Unique checkpoint name - unique per patch
+     * @param mixed  $data Any data to store in the checkpoint. By default
+     *                     it's just true to store that you've done something
+     */
+    public static function save_checkpoint($name, $data = true)
+    {
+        self::$checkpoints_data[$name] = $data;
+        $serialized_checkpoints_data = serialize(self::$checkpoints_data);
+        file_put_contents(self::$checkpoints_file, $serialized_checkpoints_data);
+    }
+
+    /**
+     * Read checkpoint's data.
+     *
+     * @param string $name    Unique checkpoint name
+     * @param mixed  $default Default value
+     *
+     * @return mixed Data saved in the checkpoint. $default if checkpoint has not
+     *               been set.
+     */
+    public static function read_checkpoint($name, $default = null)
+    {
+        $ret = $default;
+        if (isset(self::$checkpoints_data[$name])) {
+            $ret = self::$checkpoints_data[$name];
+        }
+        return $ret;
+    }
+
+    /**
+     * Calls PatchUtil::require_time
+     *
+     * Require some amount of time. Throws exception to stop patch execution
+     * if there is not enough time. Exception is catched by the apply function
+     * of Patch object, and patch is marked as error.
+     *
+     * @param float $seconds Seconds of required time before the execution deadline.
+     *
+     * @throws NotEnoughExecutionTimeException
+     * @see PatchUtil::require_time
+     */
+    public static function require_time($seconds)
+    {
+        PatchUtil::require_time($seconds);
     }
 
 }
