@@ -368,7 +368,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
                 return '<a '.Module::create_href(array('rc_mailto'=>$v)).'>'.$v.'</a>';
             }
         }
-    	return '<a href="mailto:'.$v.'" target="_blank">'.$v.'</a>';
+    	return '<a href="mailto:'.$v.'">'.$v.'</a>';
 	}
 	
 	public static function admin_caption() {
