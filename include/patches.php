@@ -1,47 +1,69 @@
 <?php
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
- * @version 0.1
- * @copyright Copyright &copy; 2012, Telaxus LLC
- * @license SPL
- * @package epesi-base
+ * @author    Adam Bukowski <abukowski@telaxus.com>
+ * @version   0.2
+ * @copyright Copyright &copy; 2012,2014 Telaxus LLC
+ * @license   MIT
+ * @package   epesi-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class PatchException extends Exception { }
+class PatchException extends Exception
+{
+}
 
-class PatchUtil {
+class NotEnoughExecutionTimeException extends Exception
+{
+}
+
+class PatchUtil
+{
 
     /**
      * Apply all new patches
+     *
      * @param $die_on_error bool Die on error within patch
+     *
      * @return Patch[] array of patches applied
      * @throws ErrorException when log file is unavailable
      */
-    static function apply_new($die_on_error = false) {
+    static function apply_new($die_on_error = false)
+    {
         set_time_limit(0);
+        self::start_timing();
         $logfile = DATA_DIR . '/patches_log.txt';
         $fh = fopen($logfile, 'a');
-        if ($fh === false)
-            throw ErrorException("Can't open patches log file " . $logfile);
+        if ($fh === false) {
+            throw new ErrorException("Can't open patches log file " . $logfile);
+        }
 
         fwrite($fh, "========= " . date("Y/m/d H:i:s") . " =========\n");
         $patches = self::list_patches();
         foreach ($patches as $p) {
             $p->apply();
             fwrite($fh, $p->get_apply_log());
-            if ($die_on_error) {
-                if ($p->get_apply_success() == false) {
+            if ($p->get_apply_status() !== Patch::STATUS_SUCCESS) {
+                if ($die_on_error) {
                     $msg = "PATCH APPLY ERROR: " . $p->get_apply_error_msg();
                     trigger_error($msg, E_USER_ERROR);
                 }
+                break;
             }
         }
+        fclose($fh);
         return $patches;
     }
 
-    static function mark_applied($module) {
+    /**
+     * Mark all new patches for the module as applied, without applying them.
+     *
+     * @param string $module Module name
+     *
+     * @return Patch[]
+     */
+    static function mark_applied($module)
+    {
         $patches = self::list_for_module($module);
         foreach ($patches as $patch) {
             $patch->mark_applied();
@@ -49,7 +71,15 @@ class PatchUtil {
         return $patches;
     }
 
-    static function list_patches($only_new = true) {
+    /**
+     * List patches available in the system.
+     *
+     * @param bool $only_new True to list not applied, false to list all
+     *
+     * @return Patch[] Array of patches
+     */
+    static function list_patches($only_new = true)
+    {
         $patches = self::list_core($only_new);
         $modules_list = array_keys(ModuleManager::$modules);
         foreach ($modules_list as $module) {
@@ -60,18 +90,43 @@ class PatchUtil {
         return $patches;
     }
 
-    static function list_for_module($module, $only_new = true) {
+    /**
+     * @param string $module   Module name
+     * @param bool   $only_new True to list not applied, false to list all
+     *
+     * @return Patch[]
+     */
+    static function list_for_module($module, $only_new = true)
+    {
         return self::_list_patches(self::_module_patches_path($module), $only_new);
     }
 
-    static function list_core($only_new = true) {
+    /**
+     * Return patches from the old installations. Located in /patches directory
+     * @param bool $only_new True to list not applied, false to list all
+     *
+     * @return Patch[]
+     */
+    static function list_core($only_new = true)
+    {
         $patches = self::_list_patches('patches/', $only_new, true);
         return $patches;
     }
 
-    private static function _list_patches($directory, $only_new = false, $legacy = false) {
-        if (!is_dir($directory))
+    /**
+     * @param string $directory Directory with patches
+     * @param bool   $only_new  True to list not applied, false to list all
+     * @param bool   $legacy    True when patch is located in /tools directory.
+     *                          Required to calculate proper patch id. Should not
+     *                          be used, because it's for compatibility.
+     *
+     * @return Patch[]
+     */
+    private static function _list_patches($directory, $only_new = false, $legacy = false)
+    {
+        if (!is_dir($directory)) {
             return array();
+        }
 
         $patches_db = new PatchesDB();
 
@@ -84,8 +139,9 @@ class PatchUtil {
                 $x = new Patch($entry, $patches_db);
                 $x->set_legacy($legacy);
                 if ($only_new) {
-                    if (!$x->was_applied())
+                    if (!$x->was_applied()) {
                         $patches[] = $x;
+                    }
                 } else {
                     $patches[] = $x;
                 }
@@ -96,97 +152,165 @@ class PatchUtil {
         return $patches;
     }
 
-    private static function _is_patch_file($file) {
-        if (!is_file($file))
+    private static function _is_patch_file($file)
+    {
+        if (!is_file($file)) {
             return false;
-        if (basename($file) == 'index.php')
+        }
+        if (basename($file) == 'index.php') {
             return false;
+        }
         $ext = pathinfo($file, PATHINFO_EXTENSION);
         return strtolower($ext) == 'php';
     }
 
-    private static function _module_patches_path($module) {
+    private static function _module_patches_path($module)
+    {
         return 'modules/' . ModuleManager::get_module_dir_path($module) . '/patches/';
     }
 
-    private static function _sort_patches_by_date(array & $patches) {
+    private static function _sort_patches_by_date(array & $patches)
+    {
         usort($patches, array('Patch', 'cmp_by_date'));
     }
 
 // ******************* Database Patch functions *************
-    static function db_add_column($table_name, $table_column, $table_column_def) {
+    static function db_add_column($table_name, $table_column, $table_column_def)
+    {
         // First check if table needs to be altered
         if (!array_key_exists(strtoupper($table_column), DB::MetaColumnNames($table_name))) {
             $q = DB::dict()->AddColumnSQL($table_name, $table_column . ' ' . $table_column_def);
-            foreach ($q as $qq)
+            foreach ($q as $qq) {
                 DB::Execute($qq);
+            }
             return true;
         } else {
             return false;
         }
     }
 
-    static function db_drop_column($table_name, $table_column) {
+    static function db_drop_column($table_name, $table_column)
+    {
         // First check if table needs to be altered
         if (array_key_exists(strtoupper($table_column), DB::MetaColumnNames($table_name))) {
             $q = DB::dict()->DropColumnSQL($table_name, $table_column);
-            foreach ($q as $qq)
+            foreach ($q as $qq) {
                 DB::Execute($qq);
+            }
             return true;
         } else {
             return false;
         }
     }
 
-    static function db_rename_column($table_name, $old_table_column, $new_table_column, $table_column_def) {
+    static function db_rename_column($table_name, $old_table_column, $new_table_column, $table_column_def)
+    {
         // First check if column exists
         if (array_key_exists(strtoupper($old_table_column), DB::MetaColumnNames($table_name))) {
             $q = DB::dict()->RenameColumnSQL($table_name, $old_table_column, $new_table_column, $new_table_column . ' ' . $table_column_def);
-            foreach ($q as $qq)
+            foreach ($q as $qq) {
                 DB::Execute($qq);
+            }
             return true;
         } else {
             return false;
         }
     }
 
-    static function db_alter_column($table_name, $table_column_name, $table_column_def) {
+    static function db_alter_column($table_name, $table_column_name, $table_column_def)
+    {
         // First check if column exists
         if (array_key_exists(strtoupper($table_column_name), DB::MetaColumnNames($table_name))) {
             $q = DB::dict()->AlterColumnSQL($table_name, $table_column_name . ' ' . $table_column_def);
-            foreach ($q as $qq)
+            foreach ($q as $qq) {
                 DB::Execute($qq);
+            }
             return true;
         } else {
             return false;
+        }
+    }
+
+    /***** TIME MANAGEMENT FUNCTIONS *****/
+
+    private static $start_time;
+    private static $deadline_time;
+
+    private static function start_timing($total_run_time_in_seconds = 30)
+    {
+        self::$start_time = microtime(true);
+        self::$deadline_time = self::$start_time + $total_run_time_in_seconds;
+    }
+
+    /**
+     * Require some amount of time. Throws exception to stop patch execution
+     * if there is not enough time. Exception is catched by the apply function
+     * of Patch object, and patch is marked as error.
+     *
+     * @param float $seconds Seconds of required time before the execution deadline.
+     *
+     * @throws NotEnoughExecutionTimeException
+     */
+    public static function require_time($seconds)
+    {
+        $now = microtime(true);
+        if ($now + $seconds > self::$deadline_time) {
+            throw new NotEnoughExecutionTimeException();
         }
     }
 
 }
 
-class PatchesDB {
+class PatchesDB
+{
 
-    function __construct() {
+    function __construct()
+    {
         $this->_check_table();
     }
 
-    private function _check_table() {
+    private function _check_table()
+    {
         $tables_db = DB::MetaTables();
-        if (!in_array('patches', $tables_db))
-            DB::CreateTable('patches', "id C(32) KEY NOTNULL"); //md5 id
+        if (!in_array('patches', $tables_db)) {
+            DB::CreateTable('patches', "id C(32) KEY NOTNULL");
+        } //md5 id
     }
 
-    public function was_applied($identifier) {
+    public function was_applied($identifier)
+    {
         return 1 == DB::GetOne('SELECT 1 FROM patches WHERE id=%s', array($identifier));
     }
 
-    public function mark_applied($identifier) {
+    public function mark_applied($identifier)
+    {
         DB::Execute('INSERT INTO patches VALUES(%s)', array($identifier));
     }
 
 }
 
-class Patch {
+class Patch
+{
+    /**
+     * When patch has not been run, but it's not installed in the system.
+     */
+    const STATUS_NEW = 'NEW';
+    /**
+     * Patch has been applied with success.
+     */
+    const STATUS_SUCCESS = 'SUCCESS';
+    /**
+     * Timeout occured during patch execution. It will run again.
+     */
+    const STATUS_TIMEOUT = 'TIMEOUT';
+    /**
+     * Some error occured during patch execution.
+     */
+    const STATUS_ERROR = 'ERROR';
+    /**
+     * Patch has been applied in the system. It won't run.
+     */
+    const STATUS_OLD = 'OLD';
 
     private $creation_date;
     private $module;
@@ -195,130 +319,163 @@ class Patch {
     private $DB;
     private $legacy;
     private $apply_log;
-    private $apply_success;
+    private $apply_status;
     private $apply_error;
 
-    function __construct($file, PatchesDB $db, $is_legacy = false) {
+    function __construct($file, PatchesDB $db, $is_legacy = false)
+    {
         $this->file = $file;
         $this->_parse_module();
         $this->_parse_filename();
         $this->DB = $db;
         $this->legacy = $is_legacy;
+
+        $this->apply_status = $this->was_applied()
+            ? self::STATUS_OLD : self::STATUS_NEW;
     }
 
-    static function cmp_by_date($patch1, $patch2) {
+    static function cmp_by_date($patch1, $patch2)
+    {
         $p1_date = $patch1->get_creation_date();
         $p2_date = $patch2->get_creation_date();
-        if ((!$p1_date && !$p2_date) || $p1_date == $p2_date)
+        if ((!$p1_date && !$p2_date) || $p1_date == $p2_date) {
             return strcmp($patch1->file, $patch2->file);
-        if (!$p1_date)
+        }
+        if (!$p1_date) {
             return -1;
-        if (!$p2_date)
+        }
+        if (!$p2_date) {
             return 1;
+        }
         return strcmp($p1_date, $p2_date);
     }
 
-    function get_creation_date() {
+    function get_creation_date()
+    {
         return $this->creation_date;
     }
 
-    function get_module() {
+    function get_module()
+    {
         return $this->module ? $this->module : 'EPESI Core';
     }
 
-    function get_short_description() {
+    function get_short_description()
+    {
         return $this->short_description;
     }
 
-    static function error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
-        if (!(error_reporting() & $errno))
+    static function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
+    {
+        if (!(error_reporting() & $errno)) {
             return;
-        throw new PatchException("Error occured.\nFile: $errfile\nLine: $errline\nMessage: $errstr\n".print_r(debug_backtrace(),true));
+        }
+        throw new PatchException("Error occured.\nFile: $errfile\nLine: $errline\nMessage: $errstr\n" . print_r(debug_backtrace(), true));
     }
 
-    private function output_bufferring_interrupted($str) {
+    private function output_bufferring_interrupted($str)
+    {
         return "Patch output buffering interrupted. Maybe die or exit function was used.\nFile: {$this->file}\nOutput buffer: $str";
     }
 
-    function apply() {
-        if (!file_exists($this->file))
+    function apply()
+    {
+        if (!file_exists($this->file)) {
             return false;
+        }
 
-        if ($this->was_applied()) {
-            $this->apply_success = true;
-            return true;
+        if ($this->apply_status == self::STATUS_OLD) {
+            return false;
         }
 
         set_error_handler(array('Patch', 'error_handler'));
         ob_start(array($this, 'output_bufferring_interrupted'));
         try {
+            PatchUtil::require_time(1);
             include $this->file;
+            $this->apply_status = self::STATUS_SUCCESS;
+        } catch (NotEnoughExecutionTimeException $ex) {
+            $this->apply_status = self::STATUS_TIMEOUT;
         } catch (PatchException $e) {
+            $this->apply_status = self::STATUS_ERROR;
             $this->apply_error = $e->getMessage();
         } catch (Exception $e) {
+            $this->apply_status = self::STATUS_ERROR;
             $this->apply_error = "Exception occured.\nFile: {$e->getFile()}\nLine: {$e->getLine()}\nMessage: {$e->getMessage()}";
         }
         $output = ob_get_clean();
         restore_error_handler();
-        $success = $this->apply_error ? 'ERROR' : 'OK';
-        $this->apply_log = "[md5: {$this->get_identifier()}] [$success] {$this->get_file()}\n";
-        if ($output)
+        $this->apply_log = "[md5: {$this->get_identifier()}] [{$this->apply_status}] {$this->get_file()}\n";
+        if ($output) {
             $this->apply_log .= " === OUTPUT ===\n$output\n === END OUTPUT ===\n";
+        }
         if ($this->apply_error) {
             $this->apply_log .= " !!! ERROR !!!\n{$this->apply_error}\n !!! END ERROR !!!\n";
-            $this->apply_success = false;
-            return false;
         }
-        $this->mark_applied();
-        $this->apply_success = true;
-        return true;
+        if ($this->apply_status == self::STATUS_SUCCESS) {
+            $this->mark_applied();
+            return true;
+        }
+        return false;
     }
 
-    function mark_applied() {
+    function mark_applied()
+    {
         $this->DB->mark_applied($this->get_identifier());
     }
 
-    function was_applied() {
+    function was_applied()
+    {
         return $this->DB->was_applied($this->get_identifier());
     }
 
-    function get_identifier() {
+    function get_identifier()
+    {
         $str = $this->legacy ? 'tools/' . $this->file : $this->file;
         return md5($str);
     }
 
-    function get_legacy() {
+    function get_legacy()
+    {
         return $this->legacy;
     }
 
-    function set_legacy($legacy) {
+    function set_legacy($legacy)
+    {
         $this->legacy = $legacy;
     }
 
-    function get_file() {
+    function get_file()
+    {
         return $this->file;
     }
 
-    function get_apply_log() {
+    function get_apply_log()
+    {
         return $this->apply_log;
     }
 
-    function get_apply_success() {
-        return $this->apply_success;
+    function get_apply_status()
+    {
+        return $this->apply_status;
     }
 
-    function get_apply_error_msg() {
+    function get_apply_error_msg()
+    {
         return $this->apply_error;
     }
 
-    private function _parse_module() {
+    private function _parse_module()
+    {
         $dirname = pathinfo($this->file, PATHINFO_DIRNAME);
         $modules_dir = 'modules/';
-        if (strpos($dirname, $modules_dir) === 0)
+        if (strpos($dirname, $modules_dir) === 0) {
             $this->module = substr($dirname, strlen($modules_dir), -strlen('/patches'));
+        }
     }
 
-    private function _parse_filename() {
+    private function _parse_filename()
+    {
         // to preserve compatibility PHP < 5.2
         $filename = basename($this->file, '.' . pathinfo($this->file, PATHINFO_EXTENSION));
         $sep_pos = strpos($filename, '_');
@@ -333,15 +490,19 @@ class Patch {
         }
     }
 
-    private function set_creation_date($creation_date) {
-        if (!is_numeric($creation_date))
+    private function set_creation_date($creation_date)
+    {
+        if (!is_numeric($creation_date)) {
             throw new Exception("Wrong patch creation date - use this filename scheme: YYYYMMDD_short_description.php");
+        }
         $this->creation_date = $creation_date;
     }
 
-    private function set_short_description($short_description) {
-        if (strlen($short_description) == 0)
+    private function set_short_description($short_description)
+    {
+        if (strlen($short_description) == 0) {
             throw new Exception("Wrong patch description - use this filename scheme: YYYYMMDD_short_description.php");
+        }
         $this->short_description = str_replace('_', ' ', $short_description);
     }
 
