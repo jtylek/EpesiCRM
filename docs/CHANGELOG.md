@@ -22,6 +22,7 @@ CURRENT
 - Add maintenance mode
 - Add Utils_CurrencyFieldCommon::parse_currency method
 - Improve RB uninstall method to remove processing callbacks and others
+- Add option to create mailto: links even when RoundCube accounts are set
 
 RELEASE 1.5.6-20140305
 -------
