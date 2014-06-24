@@ -29,7 +29,7 @@ class Base_AclCommon extends ModuleCommon {
 		else $admin = isset($admin['admin'])?$admin['admin']:0;
 		return $admin;
 	}
-	
+
 	/**
 	 * Return if user calling this function is Super Administrator.
 	 * 
@@ -91,6 +91,10 @@ class Base_AclCommon extends ModuleCommon {
 			unset($_SESSION['user']);
 	}
     
+	public static function set_sa_user() {
+		self::$cached_user = DB::GetOne('SELECT id FROM user_login WHERE admin=2');
+	}
+	
     	/**
 	 * Are you logged?
 	 *
