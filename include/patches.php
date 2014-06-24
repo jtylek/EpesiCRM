@@ -19,6 +19,11 @@ class NotEnoughExecutionTimeException extends Exception
 
 class PatchUtil
 {
+    static function log($message)
+    {
+        $logfile = DATA_DIR . '/patches_log.txt';
+        file_put_contents($logfile, $message, FILE_APPEND);
+    }
 
     /**
      * Apply all new patches
@@ -32,17 +37,13 @@ class PatchUtil
     {
         set_time_limit(0);
         self::start_timing();
-        $logfile = DATA_DIR . '/patches_log.txt';
-        $fh = fopen($logfile, 'a');
-        if ($fh === false) {
-            throw new ErrorException("Can't open patches log file " . $logfile);
-        }
 
-        fwrite($fh, "========= " . date("Y/m/d H:i:s") . " =========\n");
+        self::log("========= " . date("Y/m/d H:i:s") . " =========\n");
         $patches = self::list_patches();
         foreach ($patches as $p) {
+            self::log("[{$p->get_file()}] Running...\n");
             $p->apply();
-            fwrite($fh, $p->get_apply_log());
+            self::log($p->get_apply_log());
             if ($p->get_apply_status() !== Patch::STATUS_SUCCESS) {
                 if ($die_on_error) {
                     $msg = "PATCH APPLY ERROR: " . $p->get_apply_error_msg();
@@ -51,7 +52,6 @@ class PatchUtil
                 break;
             }
         }
-        fclose($fh);
         return $patches;
     }
 
@@ -255,8 +255,16 @@ class PatchUtil
     public static function require_time($seconds)
     {
         $now = microtime(true);
+        // if running time is less than a second,
+        // then allow every query, even if it's too long
+        $allow = ($now - self::$start_time < 1);
         if ($now + $seconds > self::$deadline_time) {
-            throw new NotEnoughExecutionTimeException();
+            if ($allow) {
+                // issue a warning
+                self::log("Patch requires too much execution time ($seconds), but running anyway\n");
+            } else {
+                throw new NotEnoughExecutionTimeException();
+            }
         }
     }
 
@@ -407,7 +415,7 @@ class Patch
         }
         $output = ob_get_clean();
         restore_error_handler();
-        $this->apply_log = "[md5: {$this->get_identifier()}] [{$this->apply_status}] {$this->get_file()}\n";
+        $this->apply_log = "[{$this->get_file()}] [{$this->get_identifier()}] {$this->apply_status}\n";
         if ($output) {
             $this->apply_log .= " === OUTPUT ===\n$output\n === END OUTPUT ===\n";
         }
@@ -600,7 +608,9 @@ class PatchCheckpoint extends ArrayObject
     {
         if (file_exists($file)) {
             $content = file_get_contents($file);
-            return unserialize($content);
+            $obj = unserialize($content);
+            $obj->file = $file;
+            return $obj;
         }
         return new PatchCheckpoint($file);
     }
@@ -650,7 +660,12 @@ class PatchCheckpoint extends ArrayObject
 
     public function serialize()
     {
-        unset($this->file);
+        if (isset($this->file)) {
+            $obj = clone $this;
+            unset($obj->timer_last_run);
+            unset($obj->file);
+            return $obj->serialize();
+        }
         return parent::serialize();
     }
 
@@ -662,7 +677,7 @@ class PatchCheckpoint extends ArrayObject
      * $cp->test = 3; $cp['test'] = 3, $cp->set_value('test', 3)
      *
      * @param string $name
-     * @param mixed $val
+     * @param mixed  $val
      */
     public function set_value($name, $val)
     {
@@ -682,6 +697,37 @@ class PatchCheckpoint extends ArrayObject
     {
         return $this[$name];
     }
+
+    /**
+     * Require specific amount of time, but adjust it dynamically to the longest
+     * run between calls to the function.
+     *
+     * First call - use argument value to require_time. Next - use calculated.
+     *
+     * @param float $time Default required time - only for the first run.
+     *                    Every consecutive call to this function will use
+     *                    stored time - calculated during runtime
+     */
+    public function require_time($time = 0.0)
+    {
+        $now = microtime(true);
+        $last_measured = null;
+        if (isset($this->timer_last_run)) {
+            $last_measured = $now - $this->timer_last_run;
+            if ($last_measured > $this->timer_max_time) {
+                $this->timer_max_time = $last_measured;
+            }
+        }
+        $this->timer_last_run = $now;
+        if (isset($this->timer_max_time)) {
+            $time = $this->timer_max_time;
+        }
+        $this->save_data();
+        PatchUtil::require_time($time);
+    }
+
+    private $timer_max_time;
+    private $timer_last_run;
 
     private $done = false;
     private $file;
