@@ -89,7 +89,7 @@ class Patches extends SteppedAdminModule {
         print('<tr><td><div class="content infotext">Press NEXT to rebuild common cache, theme files and base language files. This operation can take a minute...</div></td></tr>');
         print('</table>');
 
-        if ($patches_to_run) {
+        if ($patches_to_run || $patched_failure) {
             $this->set_next_step(1);
             $this->set_button_text('Run again');
         }

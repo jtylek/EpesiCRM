@@ -512,24 +512,10 @@ class Patch
     /***** checkpoints *****/
 
     /**
-     * @var array Checkpoints data
-     */
-    private static $checkpoints_data = array();
-
-    /**
      * @var string Checkpoints file path
      */
-    private static $checkpoints_file;
+    private static $checkpoints_dir;
 
-    /**
-     * Get unique file path per patch to use as checkpoints data file
-     * @return string
-     */
-    private function get_checkpoints_file()
-    {
-        $file = rtrim(DATA_DIR, '/\\') . '/patch_checkpoints_' . $this->get_identifier() . '.dat';
-        return $file;
-    }
 
     /**
      * Init checkpoints data file.
@@ -543,58 +529,37 @@ class Patch
      */
     private function init_checkpoints()
     {
-        $file = $this->get_checkpoints_file();
-        self::$checkpoints_file = $file;
-        self::$checkpoints_data = array();
-        if (file_exists($file)) {
-            $content = file_get_contents($file);
-            $data = @unserialize($content);
-            if (is_array($data)) {
-                self::$checkpoints_data = $data;
+        $dir = rtrim(DATA_DIR, '/\\') . '/patch_' . $this->get_identifier();
+        self::$checkpoints_dir = $dir;
+        if (file_exists($dir)) {
+            if (!is_dir($dir)) {
+                throw new ErrorException('Cannot create patch checkpoints dir');
             }
+        } else {
+            mkdir($dir);
         }
     }
 
     /**
-     * Remove checkpoints data file.
+     * Remove checkpoints data dir.
      */
     private function destroy_checkpoints()
     {
-        @unlink($this->get_checkpoints_file());
+        recursive_rmdir(self::$checkpoints_dir);
     }
 
     /**
-     * Save a checkpoint for currently executed patch.
-     * Use only in the patch context.
+     * Get checkpoint's object
      *
-     * Checkpoints will be stored until patch is fully applied.
+     * @param string $name Unique checkpoint name
      *
-     * @param string $name Unique checkpoint name - unique per patch
-     * @param mixed  $data Any data to store in the checkpoint. By default
-     *                     it's just true to store that you've done something
+     * @return PatchCheckpoint Checkpoint object
      */
-    public static function save_checkpoint($name, $data = true)
+    public static function checkpoint($name)
     {
-        self::$checkpoints_data[$name] = $data;
-        $serialized_checkpoints_data = serialize(self::$checkpoints_data);
-        file_put_contents(self::$checkpoints_file, $serialized_checkpoints_data);
-    }
-
-    /**
-     * Read checkpoint's data.
-     *
-     * @param string $name    Unique checkpoint name
-     * @param mixed  $default Default value
-     *
-     * @return mixed Data saved in the checkpoint. $default if checkpoint has not
-     *               been set.
-     */
-    public static function read_checkpoint($name, $default = null)
-    {
-        $ret = $default;
-        if (isset(self::$checkpoints_data[$name])) {
-            $ret = self::$checkpoints_data[$name];
-        }
+        $suffix = "/" . md5($name) . ".dat";
+        $file = self::$checkpoints_dir . $suffix;
+        $ret = PatchCheckpoint::get_for_file($file);
         return $ret;
     }
 
@@ -615,4 +580,109 @@ class Patch
         PatchUtil::require_time($seconds);
     }
 
+}
+
+/**
+ * Class PatchCheckpoint to store checkpoints on disk.
+ * Do not use directly. Retrieve checkpoint from the patch context only.
+ * Use Patch::checkpoint('name').
+ */
+class PatchCheckpoint extends ArrayObject
+{
+    /**
+     * Read from serialized file or create new object
+     *
+     * @param $file
+     *
+     * @return mixed|PatchCheckpoint
+     */
+    public static function get_for_file($file)
+    {
+        if (file_exists($file)) {
+            $content = file_get_contents($file);
+            return unserialize($content);
+        }
+        return new PatchCheckpoint($file);
+    }
+
+    /**
+     * New instance of checkpoint object.
+     *
+     * @param string $file Filename to store serialized object
+     */
+    public function __construct($file)
+    {
+        $this->file = $file;
+        $flags = ArrayObject::ARRAY_AS_PROPS;
+        parent::__construct(array(), $flags);
+    }
+
+    private function save_data()
+    {
+        file_put_contents($this->file, serialize($this));
+    }
+
+    /**
+     * Check is checkpoint done
+     *
+     * @return bool
+     */
+    public function is_done()
+    {
+        return $this->done;
+    }
+
+    /**
+     * Set checkpoint as done
+     */
+    public function done()
+    {
+        $this->done = true;
+        $this->save_data();
+    }
+
+    public function offsetSet($index, $newval)
+    {
+        $ret = parent::offsetSet($index, $newval);
+        $this->save_data();
+        return $ret;
+    }
+
+    public function serialize()
+    {
+        unset($this->file);
+        return parent::serialize();
+    }
+
+    /**
+     * Set value for the checkpoint.
+     * You can also use array like access or properties
+     *
+     * All of those are the same:
+     * $cp->test = 3; $cp['test'] = 3, $cp->set_value('test', 3)
+     *
+     * @param string $name
+     * @param mixed $val
+     */
+    public function set_value($name, $val)
+    {
+        $this[$name] = $val;
+    }
+
+    /**
+     * Get value for the checkpoint.
+     * You can also use array like access or properties
+     *
+     * All of those are the same:
+     * $cp->test; $cp['test'], $cp->get_value('test')
+     *
+     * @param string $name
+     */
+    public function get_value($name)
+    {
+        return $this[$name];
+    }
+
+    private $done = false;
+    private $file;
 }
