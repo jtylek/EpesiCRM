@@ -1380,7 +1380,9 @@ class Utils_RecordBrowser extends Module {
                     $row['label'] = $result['label'];
                 } else {
 					if ($mode=='add' || $mode=='edit') continue;
-					$row['label'] = _V($row['label']); // ****** Translate addons captions frrom the DB
+					$labels = explode('#',$row['label']);
+					foreach($labels as $i=>$label) $labels[$i] = _V($label); // translate labels from database
+					$row['label'] = implode('#',$labels);
 				}
                 $mod_id = md5(serialize($row));
 				if (method_exists($row['module'].'Common',$row['func'].'_access') && !call_user_func(array($row['module'].'Common',$row['func'].'_access'), $this->record, $this)) continue;
