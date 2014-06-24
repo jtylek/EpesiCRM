@@ -595,7 +595,7 @@ class Patch
  * Do not use directly. Retrieve checkpoint from the patch context only.
  * Use Patch::checkpoint('name').
  */
-class PatchCheckpoint extends ArrayObject
+class PatchCheckpoint
 {
     /**
      * Read from serialized file or create new object
@@ -606,13 +606,19 @@ class PatchCheckpoint extends ArrayObject
      */
     public static function get_for_file($file)
     {
+        $ret = null;
         if (file_exists($file)) {
-            $content = file_get_contents($file);
-            $obj = unserialize($content);
-            $obj->file = $file;
-            return $obj;
+            $content = @file_get_contents($file);
+            $obj = @unserialize($content);
+            if (is_object($obj)) {
+                $obj->file = $file;
+                $ret = $obj;
+            }
         }
-        return new PatchCheckpoint($file);
+        if ($ret === null) {
+            $ret = new PatchCheckpoint($file);
+        }
+        return $ret;
     }
 
     /**
@@ -623,8 +629,6 @@ class PatchCheckpoint extends ArrayObject
     public function __construct($file)
     {
         $this->file = $file;
-        $flags = ArrayObject::ARRAY_AS_PROPS;
-        parent::__construct(array(), $flags);
     }
 
     private function save_data()
@@ -651,24 +655,6 @@ class PatchCheckpoint extends ArrayObject
         $this->save_data();
     }
 
-    public function offsetSet($index, $newval)
-    {
-        $ret = parent::offsetSet($index, $newval);
-        $this->save_data();
-        return $ret;
-    }
-
-    public function serialize()
-    {
-        if (isset($this->file)) {
-            $obj = clone $this;
-            unset($obj->timer_last_run);
-            unset($obj->file);
-            return $obj->serialize();
-        }
-        return parent::serialize();
-    }
-
     /**
      * Set value for the checkpoint.
      * You can also use array like access or properties
@@ -679,9 +665,10 @@ class PatchCheckpoint extends ArrayObject
      * @param string $name
      * @param mixed  $val
      */
-    public function set_value($name, $val)
+    public function set($name, $val)
     {
-        $this[$name] = $val;
+        $this->data[$name] = $val;
+        $this->save_data();
     }
 
     /**
@@ -692,10 +679,22 @@ class PatchCheckpoint extends ArrayObject
      * $cp->test; $cp['test'], $cp->get_value('test')
      *
      * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
      */
-    public function get_value($name)
+    public function get($name, $default = null)
     {
-        return $this[$name];
+        $ret = $default;
+        if ($this->has($name)) {
+            $ret = $this->data[$name];
+        }
+        return $ret;
+    }
+
+    public function has($name)
+    {
+        return isset($this->data[$name]);
     }
 
     /**
@@ -726,9 +725,15 @@ class PatchCheckpoint extends ArrayObject
         PatchUtil::require_time($time);
     }
 
+    public function __sleep()
+    {
+        return array('timer_max_time', 'done', 'data');
+    }
+
     private $timer_max_time;
     private $timer_last_run;
 
     private $done = false;
+    private $data = array();
     private $file;
 }
