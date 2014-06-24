@@ -24,7 +24,7 @@ Example installation_config.php file:
 <?php
 $CONFIG = array('user' => 'db_username', 'password' => 'db_password', 'db' => 'database_name', 'host' => 'db_server_host',
     'newdb' => 0,  // or 1 to create new database
-    'engine' => 'mysqlt',  // or 'postgre' for PostgreSQL
+    'engine' => 'mysqlt',  // or 'postgres' for PostgreSQL
     'direction' => 0  // Left to Right, or 1 for Right to Left
 );
 ?>
