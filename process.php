@@ -20,6 +20,10 @@ define('JS_OUTPUT',1);
 define('EPESI_PROCESS',1);
 require_once('include.php');
 
+if (epesi_requires_update()) {
+    die ('window.location = "index.php";');
+}
+
 if(!isset($_SESSION['num_of_clients'])) {
 	Epesi::alert('Session expired, restarting epesi');
 	Epesi::redirect();
