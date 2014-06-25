@@ -23,6 +23,9 @@ CURRENT
 - Add Utils_CurrencyFieldCommon::parse_currency method
 - Improve RB uninstall method to remove processing callbacks and others
 - Add option to create mailto: links even when RoundCube accounts are set
+- Time management for patches
+- Allow patches to save some state and run from that place
+- Update process reinvented to match new patches with restart
 
 RELEASE 1.5.6-20140305
 -------
