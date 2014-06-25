@@ -44,11 +44,13 @@ class PatchUtil
             self::log("[{$p->get_file()}] Running...\n");
             $p->apply();
             self::log($p->get_apply_log());
-            if ($p->get_apply_status() !== Patch::STATUS_SUCCESS) {
-                if ($die_on_error) {
-                    $msg = "PATCH APPLY ERROR: " . $p->get_apply_error_msg();
-                    trigger_error($msg, E_USER_ERROR);
-                }
+            $status = $p->get_apply_status();
+            if ($status == Patch::STATUS_ERROR && $die_on_error) {
+                $msg = "PATCH APPLY ERROR: " . $p->get_apply_error_msg();
+                trigger_error($msg, E_USER_ERROR);
+            }
+            // break always if somethings is wrong
+            if ($status != Patch::STATUS_SUCCESS) {
                 break;
             }
         }
