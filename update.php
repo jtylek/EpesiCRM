@@ -41,7 +41,7 @@ class EpesiUpdate
     protected function quit($msg)
     {
         if ($this->CLI) {
-            die($msg);
+            die($msg . "\n");
         } else {
             $this->body($msg);
             die();
@@ -93,7 +93,7 @@ class EpesiUpdate
             $this->perform_update_start();
             $this->perform_update_patches(false);
             $this->perform_update_end();
-            $this->quit(__('Done') . "\n");
+            $this->quit(__('Done'));
         }
 
         // browser
@@ -253,6 +253,12 @@ class EpesiUpdate
     protected $current_version;
 }
 
+if(isset($argv)) {
+    define('EPESI_DIR','/');
+    if (isset($argv[1])) {
+        define('DATA_DIR', $argv[1]);
+    }
+}
 
 $x = new EpesiUpdate();
 $x->run();
