@@ -548,6 +548,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (mb_strlen($e,'UTF-8')>33) $e = mb_substr($e , 0, 30, 'UTF-8').'...';
 			$emps[] = $e;
 		}
+		$next['busy_label'] = $emps;
+
 		$cuss = array();
 		$c = CRM_ContactsCommon::display_company_contact(array('customer'=>$r['customer']), true, array('id'=>'customer'));
 		$cuss[] = str_replace('&nbsp;',' ',$c);

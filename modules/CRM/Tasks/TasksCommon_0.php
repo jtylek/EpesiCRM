@@ -420,6 +420,8 @@ class CRM_TasksCommon extends ModuleCommon {
 			if (mb_strlen($e,'UTF-8')>33) $e = mb_substr($e , 0, 30, 'UTF-8').'...';
 			$emps[] = $e;
 		}
+		$next['busy_label'] = $emps;
+
 		$cuss = array();
 		foreach ($r['customers'] as $c) {
 			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
