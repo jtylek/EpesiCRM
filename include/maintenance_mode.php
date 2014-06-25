@@ -103,6 +103,7 @@ if (!defined('BYPASS_EPESI_MAINTENANCE_MODE')) {
 
             die ('window.location = "index.php";');
         } else {
+            global $maintenance_mode_message;
             $msg = isset($maintenance_mode_message)
                 ? $maintenance_mode_message
                 : "System is in the maintenance mode. Please wait until your system administrator will turn it off.";
