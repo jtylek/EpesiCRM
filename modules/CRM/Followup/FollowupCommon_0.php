@@ -102,15 +102,13 @@ class CRM_FollowupCommon extends ModuleCommon {
 							'<input type="hidden" name="form_name" value="'.$prefix.'_follow_up_form" />'.
 							'<input type="hidden" name="id" value="" />'.
 							'<input type="hidden" name="action" value="" />');
+			$status_select_options = '';
+
+			$statuses = Utils_CommonDataCommon::get_translated_array('CRM/Status');
+			foreach($statuses as $key=>$value) $status_select_options.= '<option value="'.htmlspecialchars($key).'"'.($key==3?' selected="1"':'').'>'.htmlspecialchars($value).'</option>';
 			$theme->assign('form_closecancel',	array(
 							'label'=>__('Status'),
-							'html'=>'<select name="closecancel" id="'.$prefix.'_closecancel" value="0">'.
-								'<option value="0">'.__( 'Open').'</option>'.
-								'<option value="1">'.__( 'In Progress').'</option>'.
-								'<option value="2">'.__( 'On Hold').'</option>'.
-								'<option value="3" selected="1">'.__( 'Close').'</option>'.
-								'<option value="4">'.__( 'Canceled').'</option>'.
-							'</select>'));
+							'html'=>'<select name="closecancel" id="'.$prefix.'_closecancel" value="0">'.$status_select_options.'</select>'));
 			$theme->assign('form_note',			array(
 							'label'=>__('Note'),
 							'html'=>'<textarea name="note" id="'.$prefix.'_note"></textarea>'));
