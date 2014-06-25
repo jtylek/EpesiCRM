@@ -238,9 +238,13 @@ class PatchUtil
 
     private static $start_time;
     private static $deadline_time;
+    private static $disable_time_management = false;
 
     private static function start_timing($total_run_time_in_seconds = 30)
     {
+        if (self::$disable_time_management) {
+            return;
+        }
         self::$start_time = microtime(true);
         self::$deadline_time = self::$start_time + $total_run_time_in_seconds;
     }
@@ -256,6 +260,9 @@ class PatchUtil
      */
     public static function require_time($seconds)
     {
+        if (self::$disable_time_management) {
+            return;
+        }
         $now = microtime(true);
         // if running time is less than a second,
         // then allow every query, even if it's too long
@@ -268,6 +275,11 @@ class PatchUtil
                 throw new NotEnoughExecutionTimeException();
             }
         }
+    }
+
+    public static function disable_time_management($val = true)
+    {
+        self::$disable_time_management = $val;
     }
 
 }
