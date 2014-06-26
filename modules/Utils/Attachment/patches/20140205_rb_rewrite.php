@@ -168,21 +168,27 @@ if (!$delete_old_fk_checkpoint->is_done()) {
 }
 
 $files_checkpoint = Patch::checkpoint('files');
-if($files_checkpoint->has('files'))
-    $files = $files_checkpoint->get('files');
-else
-    $files = DB::GetAll('SELECT f.id,f.attach_id,l.local FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id');
+if(!$files_checkpoint->is_done()) {
+    if($files_checkpoint->has('files'))
+        $files = $files_checkpoint->get('files');
+    else
+        $files = 0;
     
-foreach($files as $i=>$row) {
-    Patch::require_time(2);
+    while($ret = DB::SelectLimit('SELECT f.id,f.attach_id,l.local FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id ORDER BY f.id',1,$files++)) {
+        $row = $ret->FetchRow();
+        if(!$row) break;
 
-    $row['aid'] = $map[$row['attach_id']];
-    @mkdir(DATA_DIR.'/Utils_Attachment/'.$row['aid']);
-    @rename(DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'],DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id']);
-    DB::Execute('UPDATE utils_attachment_file SET attach_id=%d WHERE id=%d',array($row['aid'],$row['id']));
+        $files_checkpoint->require_time(2);
 
-    unset($files[$i]);
-    $files_checkpoint->set('files',$files);
+        $row['aid'] = $map[$row['attach_id']];
+        @mkdir(DATA_DIR.'/Utils_Attachment/'.$row['aid']);
+        @rename(DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'],DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id']);
+        DB::Execute('UPDATE utils_attachment_file SET attach_id=%d WHERE id=%d',array($row['aid'],$row['id']));
+
+        $files_checkpoint->set('files',$files);
+    }
+    
+    $files_checkpoint->done();
 }
 
 $new_fk_checkpoint = Patch::checkpoint('create_new_fk');
