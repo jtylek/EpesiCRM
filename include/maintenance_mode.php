@@ -97,20 +97,18 @@ class MaintenanceMode
 
 }
 
-if (!defined('BYPASS_EPESI_MAINTENANCE_MODE')) {
-    if (!MaintenanceMode::can_access()) {
-        if (defined('JS_OUTPUT') && JS_OUTPUT) {
-            header("Content-type: text/javascript");
-            header("Cache-Control: no-cache, must-revalidate");
-            header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
+if (!MaintenanceMode::can_access()) {
+    if (defined('JS_OUTPUT') && JS_OUTPUT) {
+        header("Content-type: text/javascript");
+        header("Cache-Control: no-cache, must-revalidate");
+        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-            die ('window.location = "index.php";');
-        } else {
-            global $maintenance_mode_message;
-            $msg = isset($maintenance_mode_message)
-                ? $maintenance_mode_message
-                : "System is in the maintenance mode. Please wait until your system administrator will turn it off.";
-            die ($msg);
-        }
+        die ('window.location = "index.php";');
+    } else {
+        global $maintenance_mode_message;
+        $msg = isset($maintenance_mode_message)
+            ? $maintenance_mode_message
+            : "System is in the maintenance mode. Please wait until your system administrator will turn it off.";
+        die ($msg);
     }
 }
