@@ -84,7 +84,10 @@ class MaintenanceMode
 
     public static function generate_file($key, $message = null)
     {
+        $user = Base_UserCommon::get_my_user_login();
+        $date = date('Y-m-d H:i:s');
         $str = "<?php\n";
+        $str .= "// by $user on $date\n";
         $str .= '$maintenance_mode_key = ' . var_export($key, true);
         $str .= ";\n";
         $str .= '$maintenance_mode_message = ' . var_export($message, true);
