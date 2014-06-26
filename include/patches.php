@@ -30,8 +30,8 @@ class PatchUtil
      *
      * @param $die_on_error bool Die on error within patch
      *
-     * @return Patch[] array of patches applied
-     * @throws ErrorException when log file is unavailable
+     * @return Patch[] array of patches that should be applied
+     * @see PatchUtil::all_successful
      */
     static function apply_new($die_on_error = false)
     {
@@ -55,6 +55,24 @@ class PatchUtil
             }
         }
         return $patches;
+    }
+
+    /**
+     * Check if all patches supplied as argument has been successfully applied
+     *
+     * @param Patch[] $patches
+     *
+     * @return bool true when all applied, false otherwise
+     */
+    public static function all_successful($patches)
+    {
+        /** @var Patch $p */
+        foreach ($patches as $p) {
+            if ($p->get_apply_status() != Patch::STATUS_SUCCESS) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
