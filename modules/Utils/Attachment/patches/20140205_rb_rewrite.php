@@ -1,7 +1,6 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-
 Utils_WatchdogCommon::dont_notify();
 
 $rs_checkpoint = Patch::checkpoint('recordset');
@@ -86,30 +85,35 @@ if (!$rs_checkpoint->is_done()) {
 //parse old notes
 $old_checkpoint = Patch::checkpoint('old');
 $map = $old_checkpoint->get('map', array());
-$us = Acl::get_user();
-if($old_checkpoint->has('links'))
-    $links = $old_checkpoint->get('links');
-else
-    $links = DB::GetAll('SELECT * FROM utils_attachment_link');
-foreach($links as $i=>$link) {
-    $old_checkpoint->require_time(2);
+if(!$old_checkpoint->is_done()) {
+    $us = Acl::get_user();
+    if($old_checkpoint->has('links'))
+        $links = $old_checkpoint->get('links');
+    else
+        $links = 0;
+    while($ret = DB::SelectLimit('SELECT * FROM utils_attachment_link ORDER BY id',1,$links++)) {
+        $link=$ret->FetchRow();
+        if(!$link) break;
 
-    $notes = DB::GetAll('SELECT * FROM utils_attachment_note WHERE attach_id=%d ORDER BY revision',$link['id']);
-    $note = array_shift($notes);
-    Acl::set_user($note['created_by']);
-    $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>array('crypted'=>$link['crypted']),'func'=>$link['func'],'args'=>$link['args'],'__date'=>$note['created_on'],'local'=>$link['local']));
-//    DB::Execute('INSERT INTO utils_attachment_local(local,attachment) VALUES(%s,%d)',array($link['local'],$rid));
-    $map[$link['id']] = $rid;
-    foreach($notes as $note) {
+        $old_checkpoint->require_time(2);
+
+        $notes = DB::GetAll('SELECT * FROM utils_attachment_note WHERE attach_id=%d ORDER BY revision',$link['id']);
+        $note = array_shift($notes);
         Acl::set_user($note['created_by']);
-        Utils_RecordBrowserCommon::update_record('utils_attachment',$rid,array('note'=>$note['text'],'__date'=>$note['created_on']));
-    }
-    Acl::set_user($us);
+        $rid = Utils_RecordBrowserCommon::new_record('utils_attachment',array('title'=>$link['title'],'note'=>$note['text'],'permission'=>$link['permission'],'sticky'=>$link['sticky'],'crypted'=>array('crypted'=>$link['crypted']),'func'=>$link['func'],'args'=>$link['args'],'__date'=>$note['created_on'],'local'=>$link['local']));
+//    DB::Execute('INSERT INTO utils_attachment_local(local,attachment) VALUES(%s,%d)',array($link['local'],$rid));
+        $map[$link['id']] = $rid;
+        foreach($notes as $note) {
+            Acl::set_user($note['created_by']);
+            Utils_RecordBrowserCommon::update_record('utils_attachment',$rid,array('note'=>$note['text'],'__date'=>$note['created_on']));
+        }
+        Acl::set_user($us);
 
-    unset($links[$i]);
-    $old_checkpoint->set('links',$links);
-    $old_checkpoint->set('map',$map);
+        $old_checkpoint->set('links',$links);
+        $old_checkpoint->set('map',$map);
+    }
 }
+$old_checkpoint->done();
 
 $delete_old_fk_checkpoint = Patch::checkpoint('delete_old_fk');
 if (!$delete_old_fk_checkpoint->is_done()) {
