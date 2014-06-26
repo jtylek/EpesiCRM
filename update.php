@@ -135,7 +135,7 @@ class EpesiUpdate
     {
         $do_not_close = __('Please do not close this window until process will be fully finished.');
         $url_text = __('help file');
-        $url = get_epesi_url() . '/docs/updating.md';
+        $url = get_epesi_url() . '/docs/UPDATE.md';
         $url = htmlspecialchars($url);
         $link = "<a href=\"$url\" target=\"_blank\">$url_text</a>";
         $info = __('Your browser drives update process. For more information read %s', array($link));
