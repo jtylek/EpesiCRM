@@ -39,7 +39,7 @@ foreach($ret as $name=>$obj) {
            //if first cron run exists and it was executed in specified time or it keep running less then 24h - skip
            if(isset($cron_last[$func_md5]) && ($cron_last[$func_md5]['last']>$t-$every*60 || ($cron_last[$func_md5]['running'] && $cron_last[$func_md5]['last']>$t-24*60*60))) continue;
            if(!isset($cron_last[$func_md5])) {
-               DB::Execute('INSERT INTO cron(func,last,running) VALUES (%s,%d,%b)',array($func_md5,0,0));
+               DB::Execute('INSERT INTO cron(func,last,running,description) VALUES (%s,%d,%b,%s)',array($func_md5,0,0,$func));
                $cron_last = array_merge(array($func_md5 => array('last'=>0,'running'=>0)),$cron_last);
            }
            $cron_funcs_prior[$func_md5] = $func;
