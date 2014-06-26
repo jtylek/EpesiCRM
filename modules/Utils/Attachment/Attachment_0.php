@@ -136,8 +136,10 @@ class Utils_Attachment extends Module {
                 );
             }
 
-            $g = array_map(array('DB','qstr'),$this->group);
-            $crits['id'] = DB::GetCol('SELECT attachment FROM utils_attachment_local WHERE local IN ('.implode(',',$g).')');
+            if($this->group) {
+                $g = array_map(array('DB','qstr'),$this->group);
+                $crits['id'] = DB::GetCol('SELECT attachment FROM utils_attachment_local WHERE local IN ('.implode(',',$g).')');
+            } else $crits['id'] = 0;
             $this->display_module($this->rb, array($crits, array(), array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
         }
 	}
