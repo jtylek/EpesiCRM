@@ -1,6 +1,9 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+@ini_set('memory_limit','256M');
+@ini_set('memory_limit','512M');
+
 Utils_WatchdogCommon::dont_notify();
 
 $rs_checkpoint = Patch::checkpoint('recordset');
