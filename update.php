@@ -127,15 +127,15 @@ class EpesiUpdate
 
     protected function update_msg()
     {
-        $msg = __('Updating EPESI from version %s to %s. This operation may take several minutes.', array($this->system_version, $this->current_version));
+        $msg = __('Update EPESI from version %s to %s.', array($this->system_version, $this->current_version));
         return "<p>$msg</p>";
     }
 
     protected function update_process_info_msg()
     {
-        $do_not_close = __('Please do not close this window until process is fully finished.');
+        $do_not_close = __('Please do not close this window until process will be fully finished.');
         $url_text = __('help file');
-        $url = get_epesi_url() . '/docs/CHANGELOG.md';
+        $url = get_epesi_url() . '/docs/updating.md';
         $url = htmlspecialchars($url);
         $link = "<a href=\"$url\" target=\"_blank\">$url_text</a>";
         $info = __('Your browser drives update process. For more information read %s', array($link));
@@ -148,7 +148,7 @@ class EpesiUpdate
     {
         $msg = $this->update_msg();
         $msg .= $this->update_process_info_msg();
-        $msg .= ' <a href="?up=start">' . __('Click here to proceed') . '</a>';
+        $msg .= ' <a class="button" href="?up=start">' . __('Update!') . '</a>';
         $this->quit($msg);
     }
 
@@ -173,26 +173,37 @@ class EpesiUpdate
         $patches = PatchUtil::apply_new(true);
 
         if ($browser) {
-            $success = 0;
-            $total = count($patches);
-            /** @var Patch $p */
-            foreach ($patches as $p) {
-                if ($p->get_apply_status() == Patch::STATUS_SUCCESS) {
-                    $success += 1;
-                } else {
-                    break;
-                }
-            }
-            $ret = ($success == $total);
-            if (!$ret) {
-                $msg = "<p>" . date('Y-m-d H:i:s') . "</p>";
-                $msg .= "<p>" . __('Patches') . ": $success / $total </p>";
-                $msg .= "<p>" . __('Still working...') . "</p>";
-                $msg .= '<script type="text/javascript">location.reload()</script>';
+            $success = PatchUtil::all_successful($patches);
+            if (!$success) {
+                $msg = self::format_patches_msg($patches);
                 $this->body($msg);
             }
-            return $ret;
+            return $success;
         }
+    }
+
+    protected function format_patches_msg($patches)
+    {
+        $msg = "<h1>" . __('Patches to apply') . ":</h1><pre>";
+
+        $format = "%-20.20s %-40.40s %15.15s\n";
+        $header = sprintf($format, __('Module'), __('Patch'), __('Status'));
+        $msg .= "<strong>" . $header . "</strong>\n";
+        /** @var Patch $patch */
+        foreach ($patches as $patch) {
+            // show only awaiting or processed one
+            if ($patch->get_apply_status() == Patch::STATUS_SUCCESS) {
+                continue;
+            }
+            $status = 'Waiting';
+            if ($patch->get_apply_status() == Patch::STATUS_TIMEOUT) {
+                $status = __('In Progress');
+            }
+            $msg .= sprintf($format, $patch->get_module(), $patch->get_short_description(), $status);
+        }
+        $msg .= "</pre><p>" . date('Y-m-d H:i:s') . ' - ' . __('Still working...') . "</p>";
+        $msg .= '<script type="text/javascript">location.reload()</script>';
+        return $msg;
     }
 
     protected function perform_update_end()
@@ -228,7 +239,9 @@ class EpesiUpdate
             <table id="main" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                     <td>
+                        <center>
                         <?php print $html; ?>
+                        </center>
                     </td>
                 </tr>
             </table>
