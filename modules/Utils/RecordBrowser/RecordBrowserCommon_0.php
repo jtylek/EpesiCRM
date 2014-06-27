@@ -3205,7 +3205,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach($score['fields'] as $fields_group) foreach($fields_group as $field) $fields[] = _V($cols_cache[$tab][$field]);
             
             //create link with default label
-            $ret[] = self::create_default_linked_label($tab,$id).' '.round($score['score']*100/$total_max_score).'% ('.implode(', ',$fields).')';
+            $ret[] = self::create_default_linked_label($tab,$id).' <span style="color: red">'.round($score['score']*100/$total_max_score).'%</span> ('.implode(', ',$fields).')';
 
             $count++;
             if($count>=$limit) break;
