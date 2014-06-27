@@ -353,6 +353,12 @@ class Patch
      */
     const STATUS_OLD = 'OLD';
 
+    /**
+     * @var Patch|null Currently executed patch with the apply.
+     *                 May be null if no patch is executed
+     */
+    public static $current_patch;
+
     private $creation_date;
     private $module;
     private $short_description;
@@ -362,6 +368,7 @@ class Patch
     private $apply_log;
     private $apply_status;
     private $apply_error;
+    private $user_message;
 
     function __construct($file, PatchesDB $db, $is_legacy = false)
     {
@@ -429,6 +436,8 @@ class Patch
             return false;
         }
 
+        self::$current_patch = $this;
+
         $this->init_checkpoints();
         set_error_handler(array('Patch', 'error_handler'));
         ob_start(array($this, 'output_bufferring_interrupted'));
@@ -454,12 +463,14 @@ class Patch
         if ($this->apply_error) {
             $this->apply_log .= " !!! ERROR !!!\n{$this->apply_error}\n !!! END ERROR !!!\n";
         }
+        $return = false;
         if ($this->apply_status == self::STATUS_SUCCESS) {
             $this->mark_applied();
             $this->destroy_checkpoints();
-            return true;
+            $return = true;
         }
-        return false;
+        self::$current_patch = null;
+        return $return;
     }
 
     function mark_applied()
@@ -620,6 +631,42 @@ class Patch
         PatchUtil::require_time($seconds);
     }
 
+    /***** user messages *****/
+
+    /**
+     * Set user message like progress or something else that will be shown
+     * to user during update process. This applies to currently running patch.
+     * Call this method only within patch scope.
+     *
+     * @param string $message
+     */
+    public static function set_message($message)
+    {
+        if (self::$current_patch) {
+            self::$current_patch->set_user_message($message);
+        }
+    }
+
+    /**
+     * Set user message like progress or something else that will be shown
+     * to user during update process.
+     *
+     * @param string $message
+     */
+    public function set_user_message($message)
+    {
+        $this->user_message = $message;
+    }
+
+    /**
+     * Get user message
+     *
+     * @return string|null message or null if it's not been set
+     */
+    public function get_user_message()
+    {
+        return $this->user_message;
+    }
 }
 
 /**
