@@ -170,10 +170,12 @@ class EpesiUpdate
 
     protected function perform_update_patches($browser = true)
     {
-        $patches = PatchUtil::apply_new(true);
+//        $patches = PatchUtil::apply_new(true);
+        $patches = PatchUtil::list_patches(false);
 
         if ($browser) {
             $success = PatchUtil::all_successful($patches);
+            $success = false;
             if (!$success) {
                 $msg = self::format_patches_msg($patches);
                 $this->body($msg);
@@ -184,24 +186,30 @@ class EpesiUpdate
 
     protected function format_patches_msg($patches)
     {
-        $msg = "<h1>" . __('Patches to apply') . ":</h1><pre>";
+        $msg = "<h1>" . __('Patches to apply') . ":</h1>";
+        $msg .= "<p>" . __('Last refresh') . ' - ' . date('Y-m-d H:i:s') . "</p>";
+        $msg .= '<table>';
+        // table header
+        $format = "<tr><th>%s</th><th>%s</th><th>%s</th></tr>\n";
+        $msg .= sprintf($format, __('Module'), __('Patch'), __('Status'));
 
-        $format = "%-20.20s %-40.40s %15.15s\n";
-        $header = sprintf($format, __('Module'), __('Patch'), __('Status'));
-        $msg .= "<strong>" . $header . "</strong>\n";
+        $format = "<tr><td>%s</td><td>%s</td><td style=\"text-align: center; font-size: 0.8em; color: gray\">%s</td></tr>\n";
         /** @var Patch $patch */
         foreach ($patches as $patch) {
             // show only awaiting or processed one
             if ($patch->get_apply_status() == Patch::STATUS_SUCCESS) {
                 continue;
             }
-            $status = 'Waiting';
+            $status = __('pending');
             if ($patch->get_apply_status() == Patch::STATUS_TIMEOUT) {
-                $status = __('In Progress');
+                $status = '<img src="images/loader.gif" alt="Processing..." width="128" height="5" border="0">';
+            }
+            if (($user_message = $patch->get_user_message()) != null) {
+                $status .= "<div>$user_message</div>";
             }
             $msg .= sprintf($format, $patch->get_module(), $patch->get_short_description(), $status);
         }
-        $msg .= "</pre><p>" . date('Y-m-d H:i:s') . ' - ' . __('Still working...') . "</p>";
+        $msg .= '</table>';
         $msg .= '<script type="text/javascript">location.reload()</script>';
         return $msg;
     }
