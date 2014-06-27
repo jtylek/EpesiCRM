@@ -86,18 +86,27 @@ if (!$rs_checkpoint->is_done()) {
 }
 
 //parse old notes
+Patch::set_message('Processing notes');
 $old_checkpoint = Patch::checkpoint('old');
 $map = $old_checkpoint->get('map', array());
 if(!$old_checkpoint->is_done()) {
     $us = Acl::get_user();
-    if($old_checkpoint->has('links'))
+    if($old_checkpoint->has('links')) {
         $links = $old_checkpoint->get('links');
-    else
+    } else {
         $links = 0;
+    }
+    if($old_checkpoint->has('links_qty')) {
+        $links_qty = $old_checkpoint->get('links_qty');
+    } else {
+        $links_qty = DB::GetOne('SELECT count(*) FROM utils_attachment_link');
+        $old_checkpoint->set('links_qty',$links_qty);
+    }
     while($ret = DB::SelectLimit('SELECT * FROM utils_attachment_link ORDER BY id',1,$links++)) {
         $link=$ret->FetchRow();
         if(!$link) break;
 
+        Patch::set_message('Processing note: '.$links.'/'.$links_qty);
         $old_checkpoint->require_time(2);
 
         $notes = DB::GetAll('SELECT * FROM utils_attachment_note WHERE attach_id=%d ORDER BY revision',$link['id']);
@@ -111,13 +120,14 @@ if(!$old_checkpoint->is_done()) {
             Utils_RecordBrowserCommon::update_record('utils_attachment',$rid,array('note'=>$note['text'],'__date'=>$note['created_on']));
         }
         Acl::set_user($us);
-
+        
         $old_checkpoint->set('links',$links);
         $old_checkpoint->set('map',$map);
     }
 }
 $old_checkpoint->done();
 
+Patch::set_message('Updating database');
 $delete_old_fk_checkpoint = Patch::checkpoint('delete_old_fk');
 if (!$delete_old_fk_checkpoint->is_done()) {
     Patch::require_time(5);
@@ -167,17 +177,26 @@ if (!$delete_old_fk_checkpoint->is_done()) {
     $delete_old_fk_checkpoint->done();
 }
 
+Patch::set_message('Processing files');
 $files_checkpoint = Patch::checkpoint('files');
 if(!$files_checkpoint->is_done()) {
-    if($files_checkpoint->has('files'))
+    if($files_checkpoint->has('files')) {
         $files = $files_checkpoint->get('files');
-    else
+    } else {
         $files = 0;
+    }
+    if($old_checkpoint->has('files_qty')) {
+        $files_qty = $old_checkpoint->get('files_qty');
+    } else {
+        $files_qty = DB::GetOne('SELECT count(*) FROM utils_attachment_file');
+        $old_checkpoint->set('files_qty',$files_qty);
+    }
     
     while($ret = DB::SelectLimit('SELECT f.id,f.attach_id,l.local FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id ORDER BY f.id',1,$files++)) {
         $row = $ret->FetchRow();
         if(!$row) break;
 
+        Patch::set_message('Processing file: '.$files.'/'.$files_qty);
         $files_checkpoint->require_time(2);
 
         $row['aid'] = $map[$row['attach_id']];
@@ -191,6 +210,7 @@ if(!$files_checkpoint->is_done()) {
     $files_checkpoint->done();
 }
 
+Patch::set_message('Updating database');
 $new_fk_checkpoint = Patch::checkpoint('create_new_fk');
 if (!$new_fk_checkpoint->is_done()) {
     Patch::require_time(5);
@@ -203,6 +223,7 @@ if (!$new_fk_checkpoint->is_done()) {
     $new_fk_checkpoint->done();
 }
 
+Patch::set_message('Finishing');
 $cleanup_checkpoint = Patch::checkpoint('cleanup');
 if (!$cleanup_checkpoint->is_done()) {
     Patch::require_time(3);
