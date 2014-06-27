@@ -3060,7 +3060,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function indexer() {
         $total = 0;
         $token_length = self::get_token_length();
-        $limit = 30;
+        $limit = 100;
         self::$admin_filter = ' indexed=0 AND active=1 AND ';
         $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
         foreach($tabs as $tab) {
