@@ -311,7 +311,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
 
     public static function display_date($row, $nolink = false, $a=null,$view=false) {
-        return $row['edited_on']?'<p>'.str_replace(' ','</p><p>',Base_RegionalSettingsCommon::time2reg($row['edited_on'], 'without_seconds'),1).'</p>':'';
+        return $row['edited_on']?'<p>'.preg_replace('/ /','</p><p>',Base_RegionalSettingsCommon::time2reg($row['edited_on'], 'without_seconds'),1).'</p>':'';
     }
     
     public static function display_note($row, $nolink = false, $a=null,$view=false) {
