@@ -3074,7 +3074,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     if(!isset($row[$field])) continue;
                     ob_start();
                     $text = self::get_val($tab,$field,$row);
-                    ob_clean();
+                    ob_end_clean();
                     $text = mb_strtolower(html_entity_decode(strip_tags($text)));
                     $len = mb_strlen($text);
                     if($len<$token_length) continue;
