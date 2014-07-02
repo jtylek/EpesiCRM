@@ -58,9 +58,7 @@ class CRM_LoginAuditCommon extends ModuleCommon {
 	}
 
 	public static function init() {
-		if(isset($_SESSION['base_login_audit']) && isset($_SESSION['base_login_audit_user']) && $_SESSION['base_login_audit_user']==Acl::get_user()) {
-			DB::Execute('UPDATE base_login_audit SET end_time=%T WHERE id=%d',array(time(),$_SESSION['base_login_audit']));
-		} elseif(Acl::is_user()) {
+		if((!isset($_SESSION['base_login_audit']) || !isset($_SESSION['base_login_audit_user']) || $_SESSION['base_login_audit_user']!=Acl::get_user()) && Acl::is_user()) {
 			$now = time();
 			$remote_address = $_SERVER['REMOTE_ADDR'];
 			$remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
@@ -69,6 +67,12 @@ class CRM_LoginAuditCommon extends ModuleCommon {
 			$_SESSION['base_login_audit_user'] = Acl::get_user();
 		}
 	}
+	public static function update() {
+		if(isset($_SESSION['base_login_audit']) && isset($_SESSION['base_login_audit_user']) && $_SESSION['base_login_audit_user']==Acl::get_user()) {
+			DB::Execute('UPDATE base_login_audit SET end_time=%T WHERE id=%d',array(time(),$_SESSION['base_login_audit']));
+		}
+	}
 }
 on_init(array('CRM_LoginAuditCommon','init'));
+register_shutdown_function(array('CRM_LoginAuditCommon','update'));
 ?>
