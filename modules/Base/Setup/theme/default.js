@@ -30,7 +30,9 @@ base_setup__show_actions = function (name, option) {
 		$('hide_actions_button_'+name+'__'+option).style.display='';
 		Effect.BlindDown($('hide_actions_'+el_id), {duration:0.5});
 	} else {
-		Effect.Appear($('hide_actions_'+el_id), {duration:0.2});
+        if ($('hide_actions_'+el_id)) {
+		    Effect.Appear($('hide_actions_'+el_id), {duration:0.2});
+        }
 	}
 	base_setup__last_actions = name;
 	base_setup__last_actions_option = option;
@@ -44,7 +46,9 @@ base_setup__hide_actions = function (name, option) {
 		$('hide_actions_button_'+name+'__'+option).style.display='none';
 		Effect.BlindUp($('hide_actions_'+el_id), {duration:0.5});
 	} else {
-		Effect.Fade($('hide_actions_'+el_id), {duration:0.2});
+        if ($('hide_actions_'+el_id)) {
+		    Effect.Fade($('hide_actions_'+el_id), {duration:0.2});
+        }
 	}
 	base_setup__last_actions = false;
 	base_setup__last_actions_option = false;

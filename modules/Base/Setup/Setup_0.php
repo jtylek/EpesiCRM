@@ -354,8 +354,11 @@ class Base_Setup extends Module {
             Base_ActionBarCommon::add($icon, $text, $href, $desc);
 		}
 
-		foreach ($sorted as $name=>$v)
+		foreach ($sorted as $name=>$v) {
 			ksort($sorted[$name]['options']);
+            $buttons_tooltip = & $sorted[$name]['buttons_tooltip'];
+            $buttons_tooltip = $buttons_tooltip ? Utils_TooltipCommon::open_tag_attrs($buttons_tooltip, false) : '';
+        }
 		
 		uasort($sorted, array($this, 'simple_setup_sort'));
 		
@@ -374,12 +377,10 @@ class Base_Setup extends Module {
 			if (is_string($ret) && $ret) $msg .= ': '.$ret;
 			Base_StatusBarCommon::message($msg, 'error');
 		} else {
+            $msg = __('Action successful');
 			switch ($action) {
 				case Base_EpesiStoreCommon::ACTION_BUY:
 					$msg = __( 'Purchase successful');
-					break;
-//				case Base_EpesiStoreCommon::ACTION_PAY:
-//					$msg = __( 'Payment successful');
 					break;
 				case Base_EpesiStoreCommon::ACTION_DOWNLOAD:
 				case Base_EpesiStoreCommon::ACTION_UPDATE:
@@ -390,6 +391,9 @@ class Base_Setup extends Module {
 				case Base_EpesiStoreCommon::ACTION_INSTALL:
 					$msg = __( 'Install successful');
 					break;
+                case Base_EpesiStoreCommon::ACTION_RESTORE:
+                    $msg = __('Restore successful');
+                    break;
 			}
 			Base_StatusBarCommon::message($msg);
 		}
@@ -423,24 +427,35 @@ class Base_Setup extends Module {
         if(!$store)
             return;
 		foreach ($store as $s) {
-			$name = _V(htmlspecialchars_decode($s['name'])); // ****** FIXME - modules names from the store
+			$name = $s['name']; // Module name is translated on the server
 
-			$label = $s['action'];
-			if (!isset($s['total_price'])) $s['total_price'] = $s['price'];
+            $label = $s['action'];
+            $downloaded = ($label != Base_EpesiStoreCommon::ACTION_BUY
+                           && $label != Base_EpesiStoreCommon::ACTION_DOWNLOAD);
+            if (!isset($s['total_price'])) $s['total_price'] = $s['price'];
 			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['total_price']===0) {
 				$s['total_price'] = __('Free');
 				$label = 'obtain license';
 			}
 			$b_label = _V(ucfirst($label)); // ****** EpesiStoreCommon - translations added in comments
-            $button = array('label'=>$b_label,'style'=>$label==Base_EpesiStoreCommon::ACTION_UPDATE?'problem':'install','href'=>  Base_EpesiStoreCommon::action_href($s, $s['action'], array('Base_Setup', 'response_callback')));
-			if (isset($sorted[$name]) && ($label==Base_EpesiStoreCommon::ACTION_INSTALL || $label==Base_EpesiStoreCommon::ACTION_UPDATE)) {
+            $button = array(
+                'label' => $b_label,
+                'style' => 'install',
+                'href'  => Base_EpesiStoreCommon::action_href($s, $s['action'], array('Base_Setup', 'response_callback')));
+            if (isset($sorted[$name]) && $downloaded) {
 				$sorted[$name]['filter'][] = 'purchases';
-				if ($label==Base_EpesiStoreCommon::ACTION_UPDATE) {
-					$sorted[$name]['buttons'][] = $button;
-					$sorted[$name]['filter'][] = 'updates';
-					$sorted[$name]['style'] = 'problem';
-				}
-				$sorted[$name]['url'] = $s['description_url'];
+                if ($label == Base_EpesiStoreCommon::ACTION_UPDATE) {
+                    $sorted[$name]['buttons'][] = $button;
+                    $sorted[$name]['filter'][] = 'updates';
+                    $sorted[$name]['style'] = 'problem';
+                }
+                if ($label == Base_EpesiStoreCommon::ACTION_RESTORE) {
+                    $button['style'] = 'problem';
+                    $sorted[$name]['buttons'][] = $button;
+                    $sorted[$name]['style'] = 'disabled';
+                    $sorted[$name]['status'] = __('Files modified');
+                }
+                $sorted[$name]['url'] = $s['description_url'];
 				$sorted[$name]['icon'] = $s['icon_url'];
 				continue;
 			}
@@ -451,22 +466,39 @@ class Base_Setup extends Module {
 			$sorted[$name]['name'] = $name; // ****** FIXME - modules names from the store
 			$sorted[$name]['modules'] = array();
 			$sorted[$name]['options'] = array();
-            $buttons_tooltip = $this->included_modules_text($s);
-            $buttons_tooltip = $buttons_tooltip ? Utils_TooltipCommon::open_tag_attrs($buttons_tooltip, false) : '';
-            $sorted[$name]['buttons_tooltip'] = $buttons_tooltip;
 			if (isset($s['paid']) && $s['paid']) {
-				$sorted[$name]['status'] = __('Purchased');
-				$sorted[$name]['style'] = 'problem';
+                $status = __('Purchased');
+                $style = 'problem';
+                switch ($label) {
+                    case Base_EpesiStoreCommon::ACTION_RESTORE:
+                        $status = __('Files modified');
+                        $button['style'] = 'uninstall';
+                        $style = 'disabled';
+                        break;
+                    case Base_EpesiStoreCommon::ACTION_INSTALL:
+                        $status = __('Ready to use');
+                        $style = 'disabled';
+                        break;
+                    case Base_EpesiStoreCommon::ACTION_UPDATE:
+                        $status = __('To update');
+                        break;
+                }
+				$sorted[$name]['status'] = $status;
+				$sorted[$name]['style'] = $style;
 				$sorted[$name]['filter'] = array('purchases');
 			} else {
 				$sorted[$name]['status'] = __('Price: %s', array($s['total_price']));
 				$sorted[$name]['style'] = 'store';
 				$sorted[$name]['filter'] = array('store');
+                $sorted[$name]['buttons_tooltip'] = $this->included_modules_text($s);
 			}
-			$sorted[$name]['buttons'] = array($button);
+            if ($label != Base_EpesiStoreCommon::ACTION_INSTALL) {
+                $sorted[$name]['buttons'] = array($button);
+            }
 			$sorted[$name]['version'] = $s['version'];
-            if($label == Base_EpesiStoreCommon::ACTION_UPDATE || $label == Base_EpesiStoreCommon::ACTION_DOWNLOAD)
+            if ($label == Base_EpesiStoreCommon::ACTION_UPDATE) {
                 $sorted[$name]['filter'][] = 'updates';
+            }
 			$sorted[$name]['installed'] = null;
 			$sorted[$name]['instalable'] = 0;
 			$sorted[$name]['uninstalable'] = 0;

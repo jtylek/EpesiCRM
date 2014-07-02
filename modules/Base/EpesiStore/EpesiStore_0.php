@@ -224,7 +224,6 @@ class Base_EpesiStore extends Module {
 
     private function _module_license_needs_download_or_update($module_license) {
         return !$module_license['downloaded_version']
-                || !Base_EpesiStoreCommon::is_module_downloaded($module_license['module'])
                 || $this->_version_is_newer($module_license['downloaded_version'], $module_license['current_version']);
     }
 

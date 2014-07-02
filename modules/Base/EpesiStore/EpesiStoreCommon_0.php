@@ -17,6 +17,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     const ACTION_DOWNLOAD = 'download'; // __('Download')
     const ACTION_UPDATE = 'update';  // __('Update')
     const ACTION_INSTALL = 'install';  // __('Install')
+    const ACTION_RESTORE = 'restore';  // __('Restore')
     //
     const MOD_PATH = 'Base_EpesiStoreCommon';
     const CART_VAR = 'cart';
@@ -72,8 +73,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 return self::ACTION_DOWNLOAD;
             else if (self::version_compare($module['version'], $downloaded_modules[$module['id']]['version']) > 0)
                 return self::ACTION_UPDATE;
-            else if (!self::is_module_downloaded($module['id'])) // check on the end to prevent call this function at first
-                return self::ACTION_DOWNLOAD;
+            else if (self::is_module_modified($module['id'])) // check on the end to prevent call this function at first
+                return self::ACTION_RESTORE;
             else
                 return self::ACTION_INSTALL;
         }
@@ -377,6 +378,19 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 break;
             case self::ACTION_INSTALL:
                 break;
+            case self::ACTION_RESTORE:
+                $modules = self::get_downloaded_modules();
+                $download_info = & $modules[$module['id']];
+                $return = false;
+                if (isset($download_info)) {
+                    try {
+                        self::extract_module_file($download_info['file']);
+                        $return = true;
+                    } catch (ErrorException $ex) {
+                        $return = $ex->getMessage();
+                    }
+                }
+                break;
         }
         if (is_callable($response_callback)) {
             call_user_func($response_callback, $action, $return);
@@ -429,9 +443,9 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
      * 2. files in zipped package matches files in epesi installation
      * to compare files crc32b is used which is present in stat info of zip file
      * @param int $module_id
-     * @return boolean true when above requirements are satisfied, false otherwise
+     * @return boolean true if files has been modified from the downloaded module
      */
-    public static function is_module_downloaded($module_id) {
+    public static function is_module_modified($module_id) {
         $file = DB::GetOne('SELECT file FROM epesi_store_modules WHERE module_id=%s', array($module_id));
         if (!$file)
             return false;
@@ -440,11 +454,11 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if ($zip->open($file) !== true)
             return false;
 
-        $ret = true;
+        $ret = false;
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $stat = $zip->statIndex($i);
             if (!self::crc_file_matches($stat['name'], $stat['crc'])) {
-                $ret = false;
+                $ret = true;
                 break;
             }
         }
