@@ -170,12 +170,10 @@ class EpesiUpdate
 
     protected function perform_update_patches($browser = true)
     {
-//        $patches = PatchUtil::apply_new(true);
-        $patches = PatchUtil::list_patches(false);
+        $patches = PatchUtil::apply_new(true);
 
         if ($browser) {
             $success = PatchUtil::all_successful($patches);
-            $success = false;
             if (!$success) {
                 $msg = self::format_patches_msg($patches);
                 $this->body($msg);
