@@ -3166,6 +3166,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
             unset($results);
         }
+        
+        if($total_max_score==0) {
+            Epesi::alert(__('Displaying only partial results - please enter at least one word of 3 or more letters'));
+            return;
+        }
+        
         //sort with score... if score is the same sort with qty of fields where the "word" was found
         uasort($total_results,create_function('$a,$b','return $a["score"]>$b["score"]?-1:($a["score"]<$b["score"]?1:($a["fields"]>$b["fields"]?-1:1));'));
         
