@@ -12,6 +12,7 @@ abstract class SteppedAdminModule extends AdminModule {
     private $button_text = 'Next';
     private $next_step;
     private $step = false;
+    private $auto_run = false;
 
     abstract function header();
 
@@ -77,11 +78,17 @@ abstract class SteppedAdminModule extends AdminModule {
     }
 
     private function _run_button() {
-        return '<form method="post">
+        $ret = '<form method="post" name="action_button">
             <input type="hidden" name="' . self::$step_var . '" value="' . 
-                htmlspecialchars($this->next_step) . '" />
-            <input type="submit" class="button" value="' .
-                htmlspecialchars($this->button_text) . '" /></form>';
+                htmlspecialchars($this->next_step) . '" />';
+        if ($this->auto_run) {
+            $ret .= '</form>';
+            $ret .= '<script type="text/javascript">document.action_button.submit()</script>';
+        } else {
+            $ret .= '<input type="submit" class="button" value="' .
+                    htmlspecialchars($this->button_text) . '" /></form>';
+        }
+        return $ret;
     }
     
     protected function set_button_text($text) {
@@ -92,6 +99,10 @@ abstract class SteppedAdminModule extends AdminModule {
         $this->next_step = $value;
     }
 
+    protected function set_auto_run($arg = true)
+    {
+        $this->auto_run = $arg;
+    }
 }
 
 ?>

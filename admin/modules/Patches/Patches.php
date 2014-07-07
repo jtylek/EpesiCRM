@@ -72,8 +72,8 @@ class Patches extends SteppedAdminModule {
             } elseif ($apply_status === Patch::STATUS_ERROR) {
                 $this->print_row_install_failure($patch);
                 $patched_failure++;
-            } elseif ($apply_status === Patch::STATUS_TIMEOUT) { // null case - doesn't run
-                $this->print_row_install_timeout($patch);
+            } elseif ($apply_status === Patch::STATUS_TIMEOUT) {
+                $this->print_row_install_in_progress($patch);
                 $patches_to_run++;
             } elseif ($apply_status === Patch::STATUS_NEW) {
                 $this->print_row_install_no_run($patch);
@@ -84,15 +84,19 @@ class Patches extends SteppedAdminModule {
             print('<tr><td><div class="left">&nbsp;</div><div class="center strong">Patches successfully installed: </div><div class="right green strong">' . $patched_success . '</div></td></tr>');
         if ($patched_failure)
             print('<tr><td><div class="left">&nbsp;</div><div class="center strong">Patches with errors: </div><div class="right red strong">' . $patched_failure . '</div></td></tr>');
-        if ($patches_to_run)
+        if ($patches_to_run) {
             print('<tr><td><div class="left">&nbsp;</div><div class="center strong">Patches to run: </div><div class="right gray strong">' . $patches_to_run . '</div></td></tr>');
-        print('<tr><td><div class="content infotext">Press NEXT to rebuild common cache, theme files and base language files. This operation can take a minute...</div></td></tr>');
-        print('</table>');
+        }
 
         if ($patches_to_run || $patched_failure) {
+            $this->set_auto_run();
             $this->set_next_step(1);
-            $this->set_button_text('Run again');
+            $msg = 'Do not close this page. Browser should reload this page until all patches will be applied.';
+        } else {
+            $msg = 'Press NEXT to rebuild common cache, theme files and base language files. This operation can take a minute...';
         }
+        print('<tr><td><div class="content infotext">' . $msg . '</div></td></tr>');
+        print('</table>');
     }
 
     private function _print_patches_list() {
@@ -140,8 +144,12 @@ class Patches extends SteppedAdminModule {
         print("<tr><td><div class=\"left\">{$patch->get_module()}</div><div class=\"center\">{$patch->get_short_description()}</div><div class=\"right gray strong\">patch not applied</div></td></tr>");
     }
 
-    private function print_row_install_timeout(Patch $patch) {
-        print("<tr><td><div class=\"left\">{$patch->get_module()}</div><div class=\"center\">{$patch->get_short_description()}</div><div class=\"right blue strong\">execution timeout</div></td></tr>");
+    private function print_row_install_in_progress(Patch $patch) {
+        $user_message = $patch->get_user_message();
+        if ($user_message) {
+            $user_message = "<div class=\"gray\">$user_message</div>";
+        }
+        print("<tr><td><div class=\"left\">{$patch->get_module()}</div><div class=\"center\">{$patch->get_short_description()}</div><div class=\"right blue strong\">in progress...$user_message</div></td></tr>");
     }
 
     private function print_row_install_failure(Patch $patch) {
