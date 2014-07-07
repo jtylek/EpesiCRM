@@ -208,7 +208,7 @@ class EpesiUpdate
             $msg .= sprintf($format, $patch->get_module(), $patch->get_short_description(), $status);
         }
         $msg .= '</table>';
-        $msg .= '<script type="text/javascript">location.reload()</script>';
+        $msg .= '<script type="text/javascript">location.reload(true)</script>';
         return $msg;
     }
 
