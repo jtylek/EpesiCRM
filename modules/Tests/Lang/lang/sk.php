@@ -2,7 +2,7 @@
 /**
  * Translation file.
  * @package epesi-translations
- * @subpackage es
+ * @subpackage sk
  */
 global $translations;
 $translations['This text can be translated.']='';
