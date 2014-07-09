@@ -427,7 +427,7 @@ class Base_Setup extends Module {
         if(!$store)
             return;
 		foreach ($store as $s) {
-			$name = $s['name']; // Module name is translated on the server
+			$name = htmlspecialchars_decode($s['name']); // Module name is translated on the server
 
             $label = $s['action'];
             $downloaded = ($label != Base_EpesiStoreCommon::ACTION_BUY
