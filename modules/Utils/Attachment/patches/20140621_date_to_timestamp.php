@@ -10,7 +10,7 @@ if(DB::GetOne('SELECT 1 FROM utils_attachment_field WHERE field=%s',array('Date'
                 'required' => false,
                 'display_callback'=>array('Utils_AttachmentCommon','display_date'),
                 'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_date'),
-                'position'=>0
+                'position'=>'Date'
             )
     );
     DB::Execute('UPDATE utils_attachment_data_1 SET f_edited_on=f_date');

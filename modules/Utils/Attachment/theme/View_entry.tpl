@@ -175,7 +175,7 @@
                     {assign var=x value=1}
                     {assign var=y value=1}
                     {foreach key=k item=f from=$fields name=fields}
-                        {if $k!='title' && $k!='permission' && $k!='date' && $k!='sticky' && $k!='crypted'}
+                        {if $k!='title' && $k!='permission' && $k!='edited_on' && $k!='sticky' && $k!='crypted'}
                         {if $f.type!="multiselect"}
                             {if !isset($focus) && $f.type=="text"}
                                 {assign var=focus value=$f.element}
