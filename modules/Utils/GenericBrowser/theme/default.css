@@ -749,6 +749,9 @@ div.expandable.collapsed.exceedsHeight {
     height: 17px !important;
     border-bottom: 1px dotted red;
 }
+div.expandable p {
+    margin-top: 0;
+}
 div.expandable.expanded {
     white-space: normal;
 }
