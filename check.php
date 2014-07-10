@@ -94,6 +94,16 @@ if ($config) {
 }
 // ********************* DATABASE ***********************
 
+// ********************* SYSTEM ***********************
+$system_tests = array();
+$php_version = phpversion();
+$desired_version = '5.3';
+$php_version_ok = version_compare($php_version, $desired_version, '>=');
+$status = $php_version_ok ? $php_version : $php_version . ' - EPESI requires at least ' . $desired_version;
+$system_tests[] = array('label' => 'PHP version', 'status' => $status, 'severity' => $php_version_ok ? 0 : 2);
+$checks[] = array('label' => 'System', 'tests' => $system_tests, 'solution' => 'http://forum.epesibim.com');
+// ********************* SYSTEM ***********************
+
 // ********************* ERRORS ***********************
 $err = error_reporting();
 $strict = (($err | E_STRICT) == $err);
@@ -191,7 +201,7 @@ $error_tests[] = array('label'=>'cURL library loaded', 'status'=>$curl?'Loaded':
 $error_tests[] = array('label'=>'Modules directory writable', 'status'=>$modules_writable?'Yes':'No', 'severity'=>$modules_writable?0:1);
 
 
-$checks[] = array('label'=>'Error reporting', 'tests'=>$error_tests, 'solution'=>'http://forum.epesibim.com');
+$checks[] = array('label'=>'Features', 'tests'=>$error_tests, 'solution'=>'http://forum.epesibim.com');
 // ********************* FEATURES ***********************
 
 foreach ($checks as $c) {
