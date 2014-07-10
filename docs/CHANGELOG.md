@@ -4,6 +4,7 @@ EPESI CHANGELOG
 CURRENT
 -------
 
+- New attachments based on RecordBrowser
 - Add exception handling
 - Fix Base/Print uninstall method
 - Fix attachments when mcrypt module is not loaded
