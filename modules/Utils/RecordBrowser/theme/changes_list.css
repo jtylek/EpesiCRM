@@ -52,4 +52,5 @@ table.Utils_RB__changelist {
 .Utils_RB__changelist .data {
 	width: 35%;
 	word-wrap: break-word;
+    overflow-x: hidden;
 }
