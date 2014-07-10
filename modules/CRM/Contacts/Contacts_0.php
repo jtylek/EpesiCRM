@@ -114,13 +114,16 @@ class CRM_Contacts extends Module {
 		$this->rb->disable_export();
 		$this->display_module($this->rb, array(array(), array('!login'=>''), array('work_phone'=>false, 'admin'=>true, 'mobile_phone'=>false, 'city'=>false, 'zone'=>false, 'login'=>true, 'access'=>true, 'email'=>true), array('username'=>true, 'admin'=>true, 'access'=>true, 'related_companies'=>false)));
 
-		Base_ActionBarCommon::add('edit',__('E-mail header'),$this->create_callback_href(array($this,'change_email_header')),__('Edit the header of the message that is sent to each newly created user'));
+		Base_ActionBarCommon::add('edit',__('E-mail header'),$this->create_callback_href(array('Base_BoxCommon', 'push_module'), array($this->get_type(), 'change_email_header')),__('Edit the header of the message that is sent to each newly created user'));
 	}
 
     public function change_email_header() {
 		$adm = $this->init_module('Base_User_Administrator');
 		$back = $adm->is_back();
-		if ($back) return false;
+		if ($back) {
+            Base_BoxCommon::pop_main();
+            return false;
+        }
 		$result = $this->display_module($adm, array(), 'change_email_header');
 		print('<span style="display:none;">'.microtime(true).'</span>');
 		return true;
