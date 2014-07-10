@@ -85,7 +85,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             __('Note'),
             $rid,
             $events,
-            array('Utils_AttachmentCommon','description_callback'),
+            array('Utils_AttachmentCommon','note_title_with_attached_to'),
             $details
         );
     }
@@ -384,7 +384,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $ret[] = Utils_RecordBrowserCommon::create_default_linked_label($param[0],$param[1],$nolink);
             }
         }
-        return implode(', ',$ret);;
+        return implode(', ',$ret);
     }
     
     public static function description_callback($row,$nolink=false) {
@@ -393,6 +393,13 @@ class Utils_AttachmentCommon extends ModuleCommon {
         else $ret = substr(strip_tags($row['note']),0,50);
         if(!$ret) $ret = $row['id'];
         return __('Note').': '.$ret;
+    }
+
+    public static function note_title_with_attached_to($row, $nolink = false) {
+        $note = self::description_callback($row, $nolink);
+        $of = Utils_RecordBrowserCommon::get_val('utils_attachment', 'attached_to', $row, $nolink);
+        $of = " [ $of ]";
+        return $note . $of;
     }
 
     public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
@@ -607,10 +614,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         $is_local = DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
                     if($is_local) {
                         DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
-                        $param = explode('/',$_SESSION['client']['utils_attachment_group']);
-                        if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
-                            Utils_WatchdogCommon::new_event($param[0],$param[1],'N_-_'.$values['id']);
-                        }
+                        self::new_watchdog_event($_SESSION['client']['utils_attachment_group'], '-', $values['id']);
                     } else
                         Epesi::alert(__('This note is attached to multiple records - please go to record and delete note there.'));
                     location(array());
@@ -915,6 +919,25 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if($max_post < $max_upload) return $max_post;
         $maxFileSize = min($max_upload, $max_post, $memory_limit);
         return $maxFileSize;
+    }
+
+    /**
+     * Create new watchdog event for record if $group denotes record.
+     *
+     * @param string $group   <Recordset>/<Id>
+     * @param string $action  Action string
+     * @param int    $note_id Note id
+     *
+     * @return bool True if events has been created, false otherwise
+     */
+    public static function new_watchdog_event($group, $action, $note_id)
+    {
+        $param = explode('/', $group);
+        if (count($param)==2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+            Utils_WatchdogCommon::new_event($param[0], $param[1], implode('_', array('N', $action, $note_id, time(), Base_AclCommon::get_user())));
+            return true;
+        }
+        return false;
     }
 }
 

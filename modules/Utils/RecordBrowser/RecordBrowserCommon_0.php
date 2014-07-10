@@ -2256,19 +2256,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case 'N':   $event_display = false;
                                 switch($param[1]) {
                                     case '+':
-                                        $action = __('Note added');
-                                        break;
-                                    case '~':
-                                        $action = __('Note edited');
+                                        $action = __('Note linked');
                                         break;
                                     case '-':
-                                        $action = __('Note deleted');
-                                        break;
-                                    case 'r':
-                                        $action = __('Note restored');
-                                        break;
-                                    case 'p':
-                                        $action = __('Note pasted');
+                                        $action = __('Note unlinked');
                                         break;
                                     default:
                                 	if (!isset($other_events[$param[1]])) $other_events[$param[1]] = 0;
@@ -2276,8 +2267,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                 	$event_display = null;
                                 	break;
                                 }
-                                if($event_display===false)
-                                    $event_display = array('what'=>$action);
+                                if($event_display===false) {
+                                    $date = isset($param[3]) ? Base_RegionalSettingsCommon::time2reg($param[3]) : '';
+                                    $who = isset($param[4]) ? Base_UserCommon::get_user_label($param[4], true) : '';
+                                    $action .= ' - ' . self::create_default_linked_label('utils_attachment', $param[2]);
+                                    $event_display = array('what'=>$action,
+                                         'who' => $who,
+                                         'when' => $date);
+                                }
                                 break;
                     default:    $event_display = array('what'=>_V($v));
                 }
