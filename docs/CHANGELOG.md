@@ -1,7 +1,7 @@
 EPESI CHANGELOG
 ===============
 
-CURRENT
+RELEASE 1.6.0-20140710
 -------
 
 - New attachments based on RecordBrowser
