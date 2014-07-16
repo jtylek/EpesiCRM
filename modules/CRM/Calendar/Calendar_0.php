@@ -20,7 +20,7 @@ class CRM_Calendar extends Module {
 			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers');
 		}
 		$callback = explode('::', $callback);
-		$ret = call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, $this);
+		$ret = call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, null, $this);
 		if (!$ret) {
 			$x = ModuleManager::get_instance('/Base_Box|0');
 			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
@@ -32,7 +32,7 @@ class CRM_Calendar extends Module {
 		list($label,$id,$int_id) = explode('__',$option);
 		$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d',$id);
 		$callback = explode('::', $callback);
-		call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, $this);
+		call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, null, $this);
 /*		if (!is_numeric($timestamp)) $timestamp = strtotime($timestamp);
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);

@@ -1,0 +1,20 @@
+#Utils_Calendar__event_tip {
+    width: 200px;    
+}
+
+#Utils_Calendar__event_tip .label {
+    font-weight: bold;
+}
+
+#Utils_Calendar__event_tip .info {
+    background-color: white;
+    text-align: center;
+}
+
+#Utils_Calendar__event_tip .title {
+    background-color: white;
+    text-align: center;
+    font-weight: bold;
+    padding-left: 1em;
+    padding-right: 1em;
+}

@@ -311,12 +311,13 @@ class CRM_TasksCommon extends ModuleCommon {
 		$rb->view_entry('edit', $id);
 		return true;
 	}
-	public static function crm_new_event($timestamp, $timeless, $id, $cal_obj) {
+	public static function crm_new_event($timestamp, $timeless, $id, $object, $cal_obj) {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>$me['id'], 'priority'=>1, 'permission'=>0, 'status'=>0);
 		$defaults['deadline'] = date('Y-m-d', $timestamp);
+		if($object) $defaults['employees'] = $object;
 		$x->push_main('Utils_RecordBrowser','view_entry',array('add', null, $defaults), 'task');
 	}
 
@@ -420,7 +421,7 @@ class CRM_TasksCommon extends ModuleCommon {
 			if (mb_strlen($e,'UTF-8')>33) $e = mb_substr($e , 0, 30, 'UTF-8').'...';
 			$emps[] = $e;
 		}
-		$next['busy_label'] = $emps;
+		$next['busy_label'] = $r['employees'];
 
 		$cuss = array();
 		foreach ($r['customers'] as $c) {
