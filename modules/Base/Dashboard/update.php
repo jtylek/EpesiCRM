@@ -61,7 +61,7 @@ if(is_numeric($_POST['col']) && $_POST['col']<3 && $_POST['col']>=0) {
 			DB::Execute('INSERT INTO '.$table.'(module_name,tab,col,pos'.($val?',user_login_id':'').') VALUES (%s,%d,%d,%d'.($val?',%d':'').')',$vals);
 			$new_id = DB::Insert_ID('base_dashboard_applets', 'id');
 			print('if(jq("#copy_ab_item_new_'.$id.'").length>0){'.
-				'jq("#copy_dashboard_remove_applet_'.$id.'").click(function(){if(confirm(\''.__('Delete this applet?').'\'))remove_applet('.$new_id.','.($default?1:0).');})'.
+				'jq("#copy_dashboard_remove_applet_'.$id.'").attr("onclick","if(confirm(\''.__('Delete this applet?').'\'))remove_applet('.$new_id.','.($default?1:0).');")'.
 				'.show("fade",300);'.
 				'jq("#copy_dashboard_applet_content_'.$id.'").hide("blind",300);'.
 				'jq("#copy_dashboard_remove_applet_'.$id.'").attr("id","dashboard_remove_applet_'.$new_id.'");'.
