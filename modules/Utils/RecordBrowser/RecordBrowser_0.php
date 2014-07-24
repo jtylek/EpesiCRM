@@ -650,7 +650,7 @@ class Utils_RecordBrowser extends Module {
             foreach ($each as $e) {
                 if ($args['type']=='text' || $args['type']=='currency' || $args['type'] == 'autonumber' || ($args['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$args['param'])!==0)) $arr[$e] = $args['id'];
 				
-                if (isset($args['ref_field'])) $arr[$e] = $args['id'];
+                if (isset($args['ref_field']) && $args['ref_field']) $arr[$e] = $args['id'];
                 if ($args['commondata'] && (!is_array($args['param']) || strpos($args['param']['array_id'],':')===false)) {
                     $arr[$e] = $args['id'];
                 }
@@ -715,7 +715,7 @@ class Utils_RecordBrowser extends Module {
 				$f_id = str_replace(array('"','~'),'',$k);
 				$args = $this->table_rows[$hash[$f_id]];
 				if ($args['commondata']) $k = $k.'[]';
-				elseif (isset($args['ref_field'])) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
+				elseif (isset($args['ref_field']) && $args['ref_field']) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
                 if ($k[0]=='"') {
                     $search_res['~_'.$k] = $v;
                     continue;
@@ -750,7 +750,7 @@ class Utils_RecordBrowser extends Module {
                     }
 					$args = $this->table_rows[$hash[trim($k, '(|')]];
 					if ($args['commondata']) $k = $k.'[]';
-					elseif (isset($args['ref_field'])) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
+					elseif (isset($args['ref_field']) && $args['ref_field']) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
 					if (!$args['commondata']) {
 						$w = DB::Concat(DB::qstr('%'),DB::qstr($vv),DB::qstr('%'));
 						$op = '"';
@@ -1776,9 +1776,17 @@ class Utils_RecordBrowser extends Module {
 				case 'multiselect':
 					$reg = explode(';', $args['param']);
 					$rege = explode('::', $reg[0]);
-					if ($rege[0]!='__COMMON__') {
+					if ($rege[0]=='__COMMON__') {
+						$args['param'] = array('array_id'=>$rege[1], 'order_by_key'=>(isset($rege[2]) && $rege[2]=='key'));
+						$args['type'] = 'multiselect';
+					} elseif ($rege[0]=='__RECORDSETS__') {
+						$param = __('Source').': Record Sets'.'<br/>';
+						$param .= __('Crits callback').': '.(!isset($reg[1]) || $reg[1]=='::'?'---':$reg[1]);
+						$args['param'] = $param;
+						break;
+					} else {
 						$param = __('Source').': Record Set'.'<br/>';
-						$param .= __('Recordset').': '.Utils_RecordBrowserCommon::get_caption($rege[0]).'<br/>';
+						$param .= __('Recordset').': '.Utils_RecordBrowserCommon::get_caption($rege[0]).' ('.$rege[0].')<br/>';
 						$fs = explode('|', isset($rege[1])?$rege[1]:'');
 						foreach ($fs as $k=>$v)
 							$fs[$k] = _V($v); // ****** RecordBrowser - field name
@@ -1786,9 +1794,6 @@ class Utils_RecordBrowser extends Module {
 						$param .= __('Crits callback').': '.(!isset($reg[1]) || $reg[1]=='::'?'---':$reg[1]);
 						$args['param'] = $param;
 						break;
-					} else {
-						$args['param'] = array('array_id'=>$rege[1], 'order_by_key'=>(isset($rege[2]) && $rege[2]=='key'));
-						$args['type'] = 'multiselect';
 					}
 				case 'commondata':
 					if ($args['type']=='commondata') $args['type'] = 'select';
@@ -1911,7 +1916,7 @@ class Utils_RecordBrowser extends Module {
 					$row['data_source'] = 'rset';
 					$ref = explode(';', $row['param']);
 					$refe = explode('::',$ref[0]);
-					$row['rset'] = $refe[0];
+					$row['rset'] = array_filter(explode(',',$refe[0]));
 					$row['label_field'] = isset($refe[1]) ? str_replace('|', ',', $refe[1]) : '';
 					break;
 				case 'multiselect':
@@ -1930,7 +1935,7 @@ class Utils_RecordBrowser extends Module {
                         if (isset($refe[1]))
                             $row['label_field'] = str_replace('|', ',', $refe[1]);
 						$row['data_source'] = 'rset';
-						$row['rset'] = $tab;
+						$row['rset'] = array_filter(explode(',',$tab));
 					}
 					break;
 				case 'commondata':
@@ -1954,7 +1959,7 @@ class Utils_RecordBrowser extends Module {
 					if (!isset($data_type[$row['type']]))
 						$data_type[$row['type']] = _V(ucfirst($row['type'])); // ****** - field type
 			}
-			if (!isset($row['rset'])) $row['rset'] = 'contact';
+			if (!isset($row['rset'])) $row['rset'] = array('contact');
 			if (!isset($row['data_source'])) $row['data_source'] = 'commondata';
             $form->setDefaults($row);
             $selected_data = $row['type'];
@@ -1980,11 +1985,13 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('text', 'commondata_table', __('CommonData table'), array('id'=>'commondata_table'));
 
 		$tabs = DB::GetAll('SELECT tab FROM recordbrowser_table_properties');
-		$tables = array();
-		foreach($tabs as $v)
-			$tables[$v['tab']] = Utils_RecordBrowserCommon::get_caption($v['tab']);
+		$tables = array(''=>'---');
+		foreach($tabs as $v) {
+			$caption = Utils_RecordBrowserCommon::get_caption($v['tab']);
+			$tables[$v['tab']] = $caption?$caption:$v['tab'];
+		}
 		asort($tables);
-		$form->addElement('select', 'rset', __('Recordset'), $tables, array('id'=>'rset'));
+		$form->addElement('multiselect', 'rset', '<span id="rset_label">'.__('Recordset').'</span>', $tables, array('id'=>'rset'));
 		$form->addElement('text', 'label_field', __('Related field(s)'), array('id'=>'label_field'));
 
 		$form->addFormRule(array($this, 'check_field_definitions'));
@@ -2073,8 +2080,15 @@ class Utils_RecordBrowser extends Module {
 								$data['select_data_type'] = $data['select_type'];
 								if (!isset($row) || !isset($row['param'])) $row['param'] = ';::';
 								$props = explode(';', $row['param']);
-								$ret = $this->detranslate_field_names($data['rset'], $data['label_field']);
-								if (!empty($ret)) trigger_error('Invalid fields: '.$data['label_field']);
+								if($data['rset']) {
+								    foreach($data['rset'] as $rset) {
+        								$ret = $this->detranslate_field_names($rset, $data['label_field']);
+	        							if (!empty($ret)) trigger_error('Invalid fields: '.$data['label_field']);
+	        						    }
+	        						    $data['rset'] = implode(',',$data['rset']);
+								} else {
+								    $data['rset'] = '__RECORDSETS__';
+								}
 								$props[0] = $data['rset'].'::'.implode('|', $data['label_field']);
 								$param = implode(';', $props);
 							}
@@ -2177,13 +2191,12 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($type == 'select') {
 			if (!isset($data['data_source'])) $data['data_source'] = $this->admin_field['data_source'];
-			if (!isset($data['rset'])) $data['rset'] = $this->admin_field['rset'];
+			if (!isset($data['rset'])) $data['rset'] = array($this->admin_field['rset']);
 			if ($data['data_source']=='commondata' && $data['commondata_table']=='') $ret['commondata_table'] = __('Field required');
 			if ($data['data_source']=='rset') {
-				if ($data['label_field']=='') $ret['label_field'] = __('Field required');
-				else {
-					$rset = $data['rset'];
-					$ret = $ret + $this->detranslate_field_names($data['rset'], $data['label_field']);
+				if ($data['label_field']!='') {
+				    foreach($data['rset'] as $rset)
+				        $ret = $ret + $this->detranslate_field_names($rset, $data['label_field']);
 				}
 			}
 			if ($this->admin_field_mode=='edit' && $data['select_type']=='select' && $this->admin_field['select_type']=='multiselect') {

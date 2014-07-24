@@ -60,9 +60,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $pp = explode('::',$param[0]);
                 $tab = $pp[0];
                 if (isset($pp[1])) $col = $pp[1];
-                else return;//trigger_error("\"param\" attribute of field \"$field\" is not valid. Please set <recordset>::<field>");
+                else $col = null;//return;//trigger_error("\"param\" attribute of field \"$field\" is not valid. Please set <recordset>::<field>");
+                if(!$col && $tab=='__COMMON__') return;
+                
                 if (!is_array($val)) $val = array($val);
 //              if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_translated_array($col, true);
+
+                if($tab == '__RECORDSETS__') $single_tab = false;
+                else {
+                    $tabs = explode(',',$tab);
+                    $single_tab = count($tabs)==1;
+                }
+
                 $ret = '';
                 $first = true;
                 foreach ($val as $k=>$v){
@@ -93,15 +102,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         if ($tooltip) $res = '<span '.Utils_TooltipCommon::open_tag_attrs($tooltip, false).'>'.$res.'</span>';
                         $ret .= $res;
                     } else {
-                        $columns = explode('|', $col);
-						if ($first) $first = false;
-						else $ret .= '<br>';
-						$ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $columns, $v, $links_not_recommended);
-					}
+                        if(!$single_tab) list($tab,$v) = explode('/',$v,2);
+                        if ($first) $first = false;
+                        else $ret .= '<br>';
+                        if($col) {
+                            $columns = explode('|', $col);
+                            $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $columns, $v, $links_not_recommended);
+                        } else {
+                            $ret .= Utils_RecordBrowserCommon::create_default_linked_label($tab, $v, $links_not_recommended);
+                        }
+                    }
                 }
                 if ($ret=='') $ret = '---';
-            }
-            if ($args['type']=='commondata') {
+            } elseif ($args['type']=='commondata') {
                 if (!isset($val) || $val==='') {
                     $ret = '';
                 } else {
@@ -111,28 +124,32 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $path .= '/'.$record[$args['id']];
                     $ret = Utils_CommonDataCommon::get_value($path,true);
                 }
-            }
-            if ($args['type']=='currency') {
+/*            } elseif ($args['type']=='record') {
+                if (!isset($val) || $val==='') {
+                    $ret = '';
+                } else {
+                    @list($rs,$rid) = explode('#',$record[$args['id']],2);
+                    if(!$rid) $ret = '';
+                    else {
+                        $ret = self::create_default_linked_label($rs,$rid,$links_not_recommended);
+                    }
+                }*/
+            } elseif ($args['type']=='currency') {
                 $val = Utils_CurrencyFieldCommon::get_values($val);
                 $ret = Utils_CurrencyFieldCommon::format($val[0], $val[1]);
-            }
-            if ($args['type']=='checkbox') {
+            } elseif ($args['type']=='checkbox') {
                 $ret = $ret?__('Yes'):__('No');
-            }
-            if ($args['type']=='date') {
+            } elseif ($args['type']=='date') {
                 if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, false,true,false);
-            }
-            if ($args['type']=='timestamp') {
+            } elseif ($args['type']=='timestamp') {
                 if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, 'without_seconds');
-            }
-            if ($args['type']=='time') {
+            } elseif ($args['type']=='time') {
                 if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, 'without_seconds',false);
-            }
-			if ($args['type']=='long text') {
-				$ret = htmlspecialchars($val);
+            } elseif ($args['type']=='long text') {
+                $ret = htmlspecialchars($val);
                 $ret = str_replace("\n",'<br>',$ret);
                 $ret = Utils_BBCodeCommon::parse($ret);
-			}
+            }
         }
         return $ret;
     }
@@ -365,7 +382,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				} else {
 				    $end = strpos($row['param'], ';', $pos+2);
 				    if ($end==0) $end = strlen($row['param']);
-					self::$table_rows[$row['field']]['ref_field'] = substr($row['param'], $pos+2, $end-$pos-2);
+				    self::$table_rows[$row['field']]['ref_field'] = substr($row['param'], $pos+2, $end-$pos-2);
 				    if (!self::$table_rows[$row['field']]['ref_field'] && $tab=='company') trigger_error($pos.$tab.print_r($row,true));
 				}
 			}
@@ -647,7 +664,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             case 'page_split': $f = ''; break;
 
             case 'text': $f = DB::dict()->ActualType('C').'('.$param.')'; break;
-            case 'select': $f = DB::dict()->ActualType('I4'); break;
+            case 'select': 
+                $param = explode(';', $param);
+                $ref = explode('::', $param[0]);
+
+                $tabs = $ref[0];
+                if($tabs == '__RECORDSETS__') $single_tab = false;
+                else {
+                    $tabs = explode(',',$tabs);
+                    $single_tab = count($tabs)==1;
+                }
+                if($single_tab) $f = DB::dict()->ActualType('I4'); 
+                else $f = DB::dict()->ActualType('X'); 
+                break;
             case 'multiselect': $f = DB::dict()->ActualType('X'); break;
             case 'commondata': $f = DB::dict()->ActualType('C').'(128)'; break;
             case 'integer': $f = DB::dict()->ActualType('I4'); break;
@@ -2431,38 +2460,72 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return $ret;
     }
-	
-	public static function autoselect_label($id, $def) {
-		$param = $def[3];
+
+    public static function autoselect_label($id, $def) {
+        $param = $def[3];
         $param = explode(';', $param);
         $ref = explode('::', $param[0]);
-        return self::create_linked_label($ref[0], $ref[1], $id, true);
-	}
+
+        $tabs = $ref[0];
+        if($tabs == '__RECORDSETS__') $single_tab = false;
+        else {
+            $tabs = explode(',',$tabs);
+            $single_tab = count($tabs)==1;
+        }
+
+        $kk = explode('/',$id,2);
+        if(count($kk)==1) {
+            if($single_tab && is_numeric($kk[0])) {
+                $t = $tab;
+                $record_id = $kk[0];
+            } else return '';
+        } else {
+            $t = $kk[0];
+            $record_id = $kk[1];
+            if(!self::check_table_name($t) || !is_numeric($record_id)) continue;
+        }
+
+        if($ref[1] && $single_tab && $ref[0]==$t)
+            return self::create_linked_label($ref[0], $ref[1], $record_id, true);
+        else
+            return self::create_default_linked_label($t, $record_id, true);
+    }
 
     public static function automulti_suggestbox($str, $tab, $crits, $f_callback, $params) {
         $param = explode(';', $params);
         $ref = explode('::', $param[0]);
-        $fields = explode('|', $ref[1]);
-        $crits2 = array();
-        $str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
-        $op = '(';
-        foreach ($fields as $f) {
-            $crits2[$op.'~"'.self::get_field_id($f)] = $str;
-            $op = '|';
-        }
-        $crits = self::merge_crits($crits,$crits2);
-        $records = self::get_records($ref[0], $crits, array(), array(), 10);
+
+        $tabs = $ref[0];
+        if($tabs == '__RECORDSETS__') $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
+        else $tabs = explode(',',$tabs);
+        $single_tab = count($tabs)==1;
+
         $ret = array();
+        $str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
         
-// don't know why Arek made this change        
-        if (empty($f_callback) || !is_callable($f_callback))
-             $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
-        foreach ($records as $r) {
-            $ret[$r['id']] = call_user_func($f_callback, $r['id'], array($tab, $crits, $f_callback, $params));
+        foreach($tabs as $t) {
+            if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
+
+            $fields = array_filter(explode('|', $ref[1]));
+            if(!$fields) $fields = DB::GetCol('SELECT field FROM '.$t.'_field WHERE active=1 AND type NOT IN ("calculated","page_split","hidden")');
+            
+            $crits2 = array();
+            $op = '(';
+            foreach ($fields as $f) {
+                $crits2[$op.'~"'.self::get_field_id($f)] = $str;
+                $op = '|';
+            }
+            $crits3 = self::merge_crits($single_tab?$crits:$crits[$t],$crits2);
+            $records = self::get_records($t, $crits3, array(), array(), 10);
+        
+            if (empty($f_callback) || !is_callable($f_callback))
+                 $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
+            foreach ($records as $r) {
+                $ret[$t.'/'.$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3, $f_callback, $params));
+            }
+            
+            if(count($ret)>=10) break;
         }
-// to this... reverted old code
-//        foreach ($records as $r)
-//			$ret[$r['id']] = '';
         return $ret;
     }
 
@@ -2933,19 +2996,33 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 }
             } else
                 $crits = array();
-            
+                
+            if($tab == '__RECORDSETS__') $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
+            else $tabs = explode(',',$tab);
+            $single_tab = count($tabs)==1;
+
             // get related records with proper columns
-            $columns = explode('|', $columns);
             $col_id = array();
-            foreach ($columns as $c)
-                $col_id[] = self::get_field_id($c);
-            $rec_count = Utils_RecordBrowserCommon::get_records_count($tab, $crits, null);
+            if($single_tab) {
+                $columns = array_filter(explode('|', $columns));
+                foreach ($columns as $c)
+                    $col_id[] = self::get_field_id($c);
+            }
+            $rec_count = 0;
+            foreach($tabs as $t)
+                $rec_count += Utils_RecordBrowserCommon::get_records_count($t, $signle_tab?$crits:$crits[$t], null);
             if ($rec_count <= Utils_RecordBrowserCommon::$options_limit) {
-                $records = Utils_RecordBrowserCommon::get_records(
-                        $tab,
-                        $crits,
-                        empty($multi_adv_params['format_callback']) ? $col_id : array(),
-                        !empty($multi_adv_params['order']) ? $multi_adv_params['order'] : array());
+                $records = array();
+                foreach($tabs as $t) {
+                    if(empty($crits) || (!$single_tab && isset($crits[$t]))) {
+                        $records_tmp = Utils_RecordBrowserCommon::get_records(
+                            $t,
+                            $single_tab?$crits:$crits[$t],
+                            empty($multi_adv_params['format_callback']) ? $col_id : array(),
+                            !empty($multi_adv_params['order']) ? $multi_adv_params['order'] : array());
+                        foreach($records_tmp as $key=>$rec) $records[($single_tab?'':$t.'/').$key] = $rec;
+                    }
+                }
             } else {
                 $records = array();
             }
@@ -2967,15 +3044,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 }
             }
             $ext_rec = array();
-            $single_column = (count($col_id) == 1);
+            $columns_qty = count($col_id);
             if (isset($record[$field])) {
                 $ext_rec = array_flip($record[$field]);
                 foreach ($ext_rec as $k => $v) {
-                    $c = Utils_RecordBrowserCommon::get_record($tab, $k);
+                    $kk = explode('/',$k,2);
+                    if(count($kk)==1) {
+                        if($single_tab && is_numeric($kk[0])) {
+                            $t = $tab;
+                            $record_id = $kk[0];
+                        } else continue;
+                    } else {
+                        $t = $kk[0];
+                        $record_id = $kk[1];
+                        if(!self::check_table_name($t) || !is_numeric($record_id)) continue;
+                    }
+                    $c = Utils_RecordBrowserCommon::get_record($t, $record_id);
                     if (!empty($multi_adv_params['format_callback']))
                         $n = call_user_func($multi_adv_params['format_callback'], $c);
                     else {
-                        if ($single_column)
+                        if ($columns_qty==0) 
+                            $n = self::create_default_linked_label($t,$record_id);
+                        elseif ($columns_qty==1)
                             $n = $c[$col_id[0]];
                         else {
                             $n = array();
@@ -2984,18 +3074,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $n = implode(' ', $n);
                         }
                     }
-                    $comp[$k] = $n;
+                    $comp[($single_tab?'':$t.'/').$record_id] = $n;
                 }
             }
-            if (!empty($multi_adv_params['order']))
-                natcasesort($comp);
+//            if (!empty($multi_adv_params['order']))
+//                natcasesort($comp);
             foreach ($records as $k => $v) {
                 if (!empty($multi_adv_params['format_callback']))
                     $n = call_user_func($multi_adv_params['format_callback'], $v);
                 else {
-                    if ($single_column)
+                    if ($columns_qty==0) {
+                        if($single_tab && is_numeric($k)) {
+                            $t = $tab;
+                            $record_id = $k;
+                        } else {
+                            $kk = explode('/',$k,2);
+                            $t = $kk[0];
+                            $record_id = $kk[1];
+                        }
+                        $n = self::create_default_linked_label($t,$record_id);
+                    } elseif ($columns_qty==1) {
                         $n = $v[$col_id[0]];
-                    else {
+                    } else {
                         $n = array();
                         foreach ($col_id as $cid)
                             $n[] = $v[$cid];
@@ -3004,20 +3104,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 }
                 $comp[$k] = $n;
                 unset($ext_rec[$v['id']]);
+                unset($ext_rec[$k]);
             }
             if (empty($multi_adv_params['order']))
                 natcasesort($comp);
-            $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $tab, $crits);
+
+            if($single_tab)
+                $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], reset($tabs), $crits);
         }
         if ($rec_count > Utils_RecordBrowserCommon::$options_limit) {
             $f_callback = $multi_adv_params['format_callback'];
 			if (empty($f_callback)) $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
             if ($desc['type'] == 'multiselect') {
                 $el = $form->addElement('automulti', $field, $label, array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $f_callback, $desc['param']), $f_callback);
-                ${'rp_' . $field} = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker', array());
-                $filters_defaults = isset($multi_adv_params['filters_defaults']) ? $multi_adv_params['filters_defaults'] : array();
-                $rb_obj->display_module(${'rp_' . $field}, array($tab, $field, $multi_adv_params['format_callback'], $crits, array(), array(), array(), $filters_defaults));
-                $el->set_search_button('<a ' . ${'rp_' . $field}->create_open_href() . ' ' . Utils_TooltipCommon::open_tag_attrs(__('Advanced Selection')) . ' href="javascript:void(0);"><img border="0" src="' . Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'icon_zoom.png') . '"></a>');
+                if($single_tab) {
+                    ${'rp_' . $field} = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker', array());
+                    $filters_defaults = isset($multi_adv_params['filters_defaults']) ? $multi_adv_params['filters_defaults'] : array();
+                    $rb_obj->display_module(${'rp_' . $field}, array($tab, $field, $multi_adv_params['format_callback'], $crits, array(), array(), array(), $filters_defaults));
+                    $el->set_search_button('<a ' . ${'rp_' . $field}->create_open_href() . ' ' . Utils_TooltipCommon::open_tag_attrs(__('Advanced Selection')) . ' href="javascript:void(0);"><img border="0" src="' . Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'icon_zoom.png') . '"></a>');
+                }
             } else {
                 $form->addElement('autoselect', $field, $label, $comp, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $f_callback, $desc['param'])), $f_callback);
             }
@@ -3387,6 +3492,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $ref = $ref[0];
                             @(list($tab2, $col) = explode('::',$ref));
                             if (!isset($col)) trigger_error($field);
+                            if($tab2=='__RECORDSETS__') continue; //skip multi recordsets chained selector
                             if ($tab2=='__COMMON__') {
                                 $data = Utils_CommonDataCommon::get_translated_tree($col);
                                 if (!is_array($data)) $data = array();

@@ -15,7 +15,7 @@ RB_hide_form_fields = function () {
     RB_hide_form_field('autonumber_pad_mask', t!='autonumber');
 	if ($('data_source')) {
 		var d = $('data_source').value;
-		RB_hide_form_field('rset', d!='rset' || t!='select');
+		RB_hide_form_field('rset_label', d!='rset' || t!='select');
 		RB_hide_form_field('label_field', d!='rset' || t!='select');
 		RB_hide_form_field('commondata_table', d!='commondata' || t!='select');
 		RB_hide_form_field('order_by', d!='commondata' || t!='select');
