@@ -641,7 +641,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $deleted_files = array();
                 foreach ($deleted_files as $k=>$v)
                     $deleted_files[$k] = intVal($v);
-                $deleted_files = array_combine($deleted_files,$deleted_files);
+                if($deleted_files) $deleted_files = array_combine($deleted_files,$deleted_files);
                 
                 if($mode=='added' && isset($values['clone_id'])) { //on cloning
                     $locals = DB::Execute('SELECT local,func,args FROM utils_attachment_local WHERE attachment=%d',array($values['clone_id']));
