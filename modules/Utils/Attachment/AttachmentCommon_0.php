@@ -187,7 +187,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function search_categories() {
-	        return array('files'=>__('Files'),'downloads'=>Utils_TooltipCommon::create(_('Downloads'),_('Paste file download remote URL as "Keyword"')));
+	        return array('files'=>__('Files'),'downloads'=>Utils_TooltipCommon::create(__('Downloads'),__('Paste file download remote URL as "Keyword"')));
 	}
 
 	public static function move_notes($to_group, $from_group) {
