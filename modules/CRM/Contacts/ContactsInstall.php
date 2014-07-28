@@ -105,7 +105,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 // ************ other ************** //
 		Utils_CommonDataCommon::new_array('Companies_Groups',array('customer'=>_M('Customer'),'vendor'=>_M('Vendor'),'other'=>_M('Other'),'manager'=>_M('Manager')),true,true);
 		Utils_CommonDataCommon::new_array('Contacts_Groups',array('office'=>_M('Office Staff'),'field'=>_M('Field Staff'),'custm'=>_M('Customer')),true,true);
-		Utils_CommonDataCommon::new_array('Contacts/Access',array('manager'=>_M('Manager')));
+		Utils_CommonDataCommon::new_array('Contacts/Access',array('manager'=>_M('Manager')),true,true);
 		
 		Utils_BBCodeCommon::new_bbcode('contact', 'CRM_ContactsCommon', 'contact_bbcode');
 		Utils_BBCodeCommon::new_bbcode('company', 'CRM_ContactsCommon', 'company_bbcode');
