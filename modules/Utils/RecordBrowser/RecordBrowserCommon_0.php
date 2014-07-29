@@ -2835,7 +2835,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $field);
         $form->addElement('text', $field, $label, array('id' => $field));
-        $form->addRule($field, __('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
+        $form->addRule($field, __('Only integer numbers are allowed.'), 'regex', '/^\-?[0-9]*$/');
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));
     }
