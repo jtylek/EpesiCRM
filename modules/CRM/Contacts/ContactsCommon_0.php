@@ -13,6 +13,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ContactsCommon extends ModuleCommon {
     public static $paste_or_new = 'new';
+	static $field = null;
+	static $rset = null;
+	static $rid = null;
 	
 	public static function help() {
 		return Base_HelpCommon::retrieve_help_from_file(self::Instance()->get_type());
@@ -717,6 +720,54 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->setDefaults(array($field=>self::display_webaddress(array('webaddress'=>$default), null, array('id'=>'webaddress'))));
         }
     }
+    public static function QFfield_tax_id(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if ($mode=='add' || $mode=='edit') {
+            $form->addElement('text', $field, 'X'.$label, array('id'=>$field));
+            self::$rid = isset($rb_obj->record['id'])?$rb_obj->record['id']:null;
+            $form->addFormRule(array('CRM_ContactsCommon','check_tax_id_unique'));
+            if ($mode=='edit') $form->setDefaults(array($field=>$default));
+        } else {
+            $form->addElement('static', $field, $label);
+            $form->setDefaults(array($field=>$default));
+        }
+    }
+    public static function check_tax_id_unique($data) {
+        if(trim($data['tax_id'])) {
+            if(self::$rid)
+                $c = self::get_companies(array('tax_id'=>$data['tax_id'],'!id'=>self::$rid));
+            else
+                $c = self::get_companies(array('tax_id'=>$data['tax_id']));
+            if($c) {
+                $rec = array_shift($c);
+                return array('tax_id'=>__( 'Tax ID duplicate found: %s', array(Utils_RecordBrowserCommon::create_default_linked_label('company', $rec['id']))));
+            }
+        }
+        return array();
+    }
+    public static function QFfield_cname(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if ($mode=='add' || $mode=='edit') {
+            $form->addElement('text', $field, $label, array('id'=>$field));
+            self::$rid = isset($rb_obj->record['id'])?$rb_obj->record['id']:null;
+            $form->addFormRule(array('CRM_ContactsCommon','check_cname_unique'));
+            if ($mode=='edit') $form->setDefaults(array($field=>$default));
+        } else {
+            $form->addElement('static', $field, $label);
+            $form->setDefaults(array($field=>$default));
+        }
+    }
+    public static function check_cname_unique($data) {
+        if(trim($data['company_name'])) {
+            if(self::$rid)
+                $c = self::get_companies(array('company_name'=>$data['company_name'],'!id'=>self::$rid));
+            else
+                $c = self::get_companies(array('company_name'=>$data['company_name']));
+            if($c) {
+                $rec = array_shift($c);
+                return array('company_name'=>__( 'Company name duplicate found: %s', array(Utils_RecordBrowserCommon::create_default_linked_label('company', $rec['id']))));
+            }
+        }
+        return array();
+    }
     public static function QFfield_email(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode=='add' || $mode=='edit') {
             $form->addElement('text', $field, $label, array('id'=>$field));
@@ -1226,9 +1277,6 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $ret;
     }
 	
-	static $field = null;
-	static $rset = null;
-	static $rid = null;
 	public static function add_rule_email_unique($form, $field, $rset=null, $rid=null) {
 		self::$field = $field;
 		self::$rset = $rset;

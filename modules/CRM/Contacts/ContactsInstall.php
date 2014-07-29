@@ -23,7 +23,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		ModuleManager::include_common('CRM_Contacts',0);
 // ************ companies ************** //
 		$fields = array(
-			array('name' => _M('Company Name'),	'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname')),
+			array('name' => _M('Company Name'),	'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname'), 'display_callback'=>array('CRM_ContactsCommon', 'QFfield_cname')),
 			array('name' => _M('Short Name'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name' => _M('Phone'), 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name' => _M('Fax'), 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
@@ -37,7 +37,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name' => _M('Country'),		'type'=>'commondata', 'required'=>true, 'param'=>array('Countries'), 'extra'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
 			array('name' => _M('Zone'),			'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>true, 'visible'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name' => _M('Postal Code'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
-			array('name' => _M('Tax ID'), 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true)
+			array('name' => _M('Tax ID'), 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true,'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_tax_id'))
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('company', $fields);
 // ************ contacts ************** //
