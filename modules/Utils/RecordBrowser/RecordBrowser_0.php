@@ -173,7 +173,8 @@ class Utils_RecordBrowser extends Module {
     }
 
     public function init($admin=false, $force=false) {
-        $params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+        if($this->tab=='__RECORDSETS__' || preg_match('/,/',$this->tab)) $params=array('','',0,0,0);
+        else $params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
         list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
         $this->favorites &= !$this->disabled['fav'];
@@ -189,6 +190,7 @@ class Utils_RecordBrowser extends Module {
         $this->requires = array();
         $this->display_callback_table = array();
         $this->QFfield_callback_table = array();
+        if($this->tab=='__RECORDSETS__' || preg_match('/,/',$this->tab)) return;
         $ret = DB::Execute('SELECT * FROM '.$this->tab.'_callback');
         while ($row = $ret->FetchRow())
             if ($row['freezed']==1) $this->display_callback_table[$row['field']] = explode('::',$row['callback']);
@@ -2868,7 +2870,7 @@ class Utils_RecordBrowser extends Module {
  		));
 		$current_clearance = 0;
 		$sub_values = array();
-		if ($id!==null) {
+		if ($id!==null && $this->tab!='__RECORDSETS__' && !preg_match('/,/',$this->tab)) {
 			$row = DB::GetRow('SELECT * FROM '.$this->tab.'_access AS acs WHERE id=%d', array($id));
 			
 			$defaults['action'] = $row['action'];

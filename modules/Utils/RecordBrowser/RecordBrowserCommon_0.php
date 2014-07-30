@@ -28,6 +28,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             self::$clear_get_val_cache = false;
             self::$display_callback_table = array();
         }
+        if($tab=='__RECORDSETS__' || preg_match('/,/',$tab)) return;
         if (!isset(self::$display_callback_table[$tab])) {
             $ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=1');
             while ($row = $ret->FetchRow())
@@ -265,6 +266,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function check_table_name($tab, $flush=false, $failure_on_missing=true){
         static $tables = null;
+        if($tab=='__RECORDSETS__' || preg_match('/,/',$tab)) return true;
         if ($tables===null || $flush) {
             $r = DB::GetAll('SELECT tab FROM recordbrowser_table_properties');
             $tables = array();
@@ -346,6 +348,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return self::$table_rows = $cache[$cache_str]['rows'];
         }
         self::$table_rows = array();
+        if($tab=='__RECORDSETS__' || preg_match('/,/',$tab)) return;
         self::check_table_name($tab);
 		self::display_callback_cache($tab);
         $ret = DB::Execute('SELECT * FROM '.$tab.'_field'.($admin?'':' WHERE active=1 AND type!=\'page_split\'').' ORDER BY position');
