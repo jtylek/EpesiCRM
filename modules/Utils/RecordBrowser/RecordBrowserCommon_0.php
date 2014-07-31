@@ -3437,6 +3437,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         $values = $rec;
                         if (is_array($defaults)) $values = $values + $defaults;
                     }
+                    if(!isset($values[$args['id']])) $values[$args['id']] = '';
                     $val = Utils_RecordBrowserCommon::get_val($tab, $field, $values, true, $args);
                     if ($val !== null)
                         $qf->setDefaults(array($args['id'] => $val));
