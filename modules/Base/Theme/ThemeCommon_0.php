@@ -234,7 +234,7 @@ class Base_ThemeCommon extends ModuleCommon {
      * @return string path to icon
      */
     public static function get_icon($name) {
-        return self::get_template_dir().'images/icons/'.$name.'.png';
+        return self::get_template_file('images/icons/'.$name.'.png');
     }
 	
 	private static function get_images($dir) {
