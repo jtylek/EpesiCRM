@@ -3017,14 +3017,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($rec_count <= Utils_RecordBrowserCommon::$options_limit) {
                 $records = array();
                 foreach($tabs as $t) {
-                    if(empty($crits) || (!$single_tab && isset($crits[$t]))) {
-                        $records_tmp = Utils_RecordBrowserCommon::get_records(
+                    if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
+                    $records_tmp = Utils_RecordBrowserCommon::get_records(
                             $t,
                             $single_tab?$crits:$crits[$t],
                             empty($multi_adv_params['format_callback']) ? $col_id : array(),
                             !empty($multi_adv_params['order']) ? $multi_adv_params['order'] : array());
-                        foreach($records_tmp as $key=>$rec) $records[($single_tab?'':$t.'/').$key] = $rec;
-                    }
+                    foreach($records_tmp as $key=>$rec) $records[($single_tab?'':$t.'/').$key] = $rec;
                 }
             } else {
                 $records = array();
