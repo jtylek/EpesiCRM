@@ -24,7 +24,7 @@ class Base_Cron extends Module {
 
 		$this->token();
 		$url = get_epesi_url().'/cron.php?token='.CRON_TOKEN;
-		print(__('Cron URL: %s',array('<a href="'.$url.'" target="_blank">'.$url.'</a>')).'<br />Please aware that some premium modules need to cron be run by commandline without time limit.<br /><br />');
+		print(__('Cron URL: %s',array('<a href="'.$url.'" target="_blank">'.$url.'</a>')).'<br />Please aware that some premium modules need cron to be run by commandline without time limit.<br /><br />');
 		
  		$m = $this->init_module('Utils/GenericBrowser',null,'cron');
  		$m->set_table_columns(array(
