@@ -15,14 +15,16 @@ if(isset($argv)) {
         define('DATA_DIR', $argv[1]);
     }
 } elseif(!isset($_GET['token'])) {
-    die('Missing token in URL');
+    die('Missing token in URL - please go to Administrator Panel->Cron and copy valid cron URL.');
 } else {
     defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
     require_once('include/include_path.php');
     require_once('include/data_dir.php');
+    if(!file_exists(DATA_DIR.'/cron_token.php'))
+        die('Invalid token in URL - please go to Administrator Panel->Cron and copy valid cron URL.');
     require_once(DATA_DIR.'/cron_token.php');
     if(CRON_TOKEN!=$_GET['token'])
-        die('Invalid token in URL');
+        die('Invalid token in URL - please go to Administrator Panel->Cron and copy valid cron URL.');
 }
 require_once('include.php');
 
