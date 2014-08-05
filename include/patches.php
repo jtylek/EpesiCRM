@@ -735,14 +735,10 @@ class PatchCheckpoint
     }
 
     /**
-     * Set value for the checkpoint.
-     * You can also use array like access or properties
+     * Set value for the checkpoint variable.
      *
-     * All of those are the same:
-     * $cp->test = 3; $cp['test'] = 3, $cp->set_value('test', 3)
-     *
-     * @param string $name
-     * @param mixed  $val
+     * @param string $name Variable name
+     * @param mixed  $val  Variable value
      */
     public function set($name, $val)
     {
@@ -751,16 +747,12 @@ class PatchCheckpoint
     }
 
     /**
-     * Get value for the checkpoint.
-     * You can also use array like access or properties
+     * Get value for the checkpoint variable.
      *
-     * All of those are the same:
-     * $cp->test; $cp['test'], $cp->get_value('test')
+     * @param string $name    Variable name
+     * @param mixed  $default Default value
      *
-     * @param string $name
-     * @param mixed  $default
-     *
-     * @return mixed
+     * @return mixed Variable value
      */
     public function get($name, $default = null)
     {
@@ -771,6 +763,12 @@ class PatchCheckpoint
         return $ret;
     }
 
+    /**
+     * Check is checkpoint variable set.
+     *
+     * @param string $name Variable name
+     * @return bool True if isset, false otherwise
+     */
     public function has($name)
     {
         return isset($this->data[$name]);
