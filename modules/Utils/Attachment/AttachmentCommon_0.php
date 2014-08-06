@@ -314,7 +314,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $date = Base_RegionalSettingsCommon::time2reg($row['edited_on'], false);
         $time = Base_RegionalSettingsCommon::time2reg($row['edited_on'], true, false);
         $separator = $nolink ? ' ' : '<br><br>';
-        return "$date{$separator}$time";
+        $info = Utils_RecordBrowserCommon::get_record_info('utils_attachment',$row['id']);
+        $by = Base_UserCommon::get_user_label($info['edited_by']?$info['edited_by']:$info['created_by']);
+        return "$date{$separator}$time{$separator}$by";
     }
     
     public static function display_note($row, $nolink = false, $a=null,$view=false) {
