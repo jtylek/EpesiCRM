@@ -23,13 +23,13 @@ class CRM_ContactsInstall extends ModuleInstall {
 		ModuleManager::include_common('CRM_Contacts',0);
 // ************ companies ************** //
 		$fields = array(
-			array('name' => _M('Company Name'),	'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname'), 'display_callback'=>array('CRM_ContactsCommon', 'QFfield_cname')),
+			array('name' => _M('Company Name'),	'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_cname')),
 			array('name' => _M('Short Name'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name' => _M('Phone'), 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name' => _M('Fax'), 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name' => _M('Email'), 		'type'=>'email', 'required'=>false, 'param'=>array('unique'=>true), 'extra'=>true, 'visible'=>false),
 			array('name' => _M('Web address'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
-			array('name' => _M('Group'), 		'type'=>'multiselect', 'required'=>false, 'visible'=>true, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Companies_Groups'), 'extra'=>false, 'visible'=>true, 'filter'=>true),
+			array('name' => _M('Group'), 		'type'=>'multiselect', 'required'=>false, 'visible'=>true, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Companies_Groups'), 'extra'=>false, 'filter'=>true),
 			array('name' => _M('Permission'),	'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>true),
 			array('name' => _M('Address 1'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('CRM_ContactsCommon','maplink')),
 			array('name' => _M('Address 2'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('CRM_ContactsCommon','maplink')),
