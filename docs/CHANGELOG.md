@@ -1,6 +1,11 @@
 EPESI CHANGELOG
 ===============
 
+CURRENT
+-------
+
+- Fix Email applet issue with password encoding
+
 RELEASE 1.6.0-20140710
 -------
 

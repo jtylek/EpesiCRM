@@ -15,7 +15,8 @@ if($rec['epesi_user']!==Acl::get_user()) die('invalid account id');
 
 $port = $rec['security']=='ssl'?993:143;
 
-$mailbox = @imap_open('{'.$rec['server'].'/imap/readonly/novalidate-cert'.($rec['security']?'/'.$rec['security']:'').':'.$port.'}',$rec['login'],$rec['password'],OP_READONLY || OP_SILENT);
+$server_str = '{'.$rec['server'].'/imap/readonly/novalidate-cert'.($rec['security']?'/'.$rec['security']:'').':'.$port.'}';
+$mailbox = @imap_open(imap_utf7_encode($server_str),imap_utf7_encode($rec['login']),imap_utf7_encode($rec['password']),OP_READONLY || OP_SILENT);
 $err = imap_errors();
 if(!$mailbox || $err) die(Utils_TooltipCommon::create(__('Connection error'), $err, false));
 $uns = @imap_search($mailbox,'UNSEEN ALL');
