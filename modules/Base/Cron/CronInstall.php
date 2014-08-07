@@ -15,10 +15,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_CronInstall extends ModuleInstall {
 
 	public function install() {
+        Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
 	
 	public function uninstall() {
+        Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}
 	

@@ -18,14 +18,14 @@ class Base_Cron extends Module {
 			$this->parent->reset();
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-		
-		print(__('Cron is used to periodically execute some job. Every module can define several methods with different intervals. All you need to do is to set up a system to run cron.php file every 1 minute.').'<br />');
-		print(__('You can read more on our wiki: %s',array('<a href="http://www.epesi.org/Cron">http://www.epesi.org/Cron</a>')).'<br /><br />');
 
-		$this->token();
-		$url = get_epesi_url().'/cron.php?token='.CRON_TOKEN;
-		print(__('Cron URL: %s',array('<a href="'.$url.'" target="_blank">'.$url.'</a>')).'<br />Please aware that some premium modules need cron to be run by commandline without time limit.<br /><br />');
-		
+        $theme = $this->init_module('Base/Theme');
+
+        $new_token_href = $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'new_token'));
+        $theme->assign('new_token_href', $new_token_href);
+        $theme->assign('wiki_url', 'http://www.epesi.org/Cron');
+        $theme->assign('cron_url', Base_CronCommon::get_cron_url());
+
  		$m = $this->init_module('Utils/GenericBrowser',null,'cron');
  		$m->set_table_columns(array(
 							  array('name'=>'Description','width'=>65),
@@ -35,16 +35,16 @@ class Base_Cron extends Module {
 		while($row = $ret->FetchRow()) {
 			$m->add_row($row['description']?$row['description']:'???',$row['last']?Base_RegionalSettingsCommon::time2reg($row['last']):'---',$row['running']?'<span style="color:red">'.__('Yes').'</span>':'<span style="color:green">'.__('No').'</span>');
 		}
- 		$this->display_module($m);
-	}
-	
-	private function token() {
-	        if(!file_exists(DATA_DIR.'/cron_token.php')) {
-	            file_put_contents(DATA_DIR.'/cron_token.php','<?php define("CRON_TOKEN", "'.md5(time().getcwd()).'");');
-	        }
-	        require_once(DATA_DIR.'/cron_token.php');
+ 		$html = $this->get_html_of_module($m);
+        $theme->assign('history', $html);
+        $theme->display();
 	}
 
+    public function new_token()
+    {
+        Base_CronCommon::generate_token();
+    }
+	
 	public function body() {
 	}
 
