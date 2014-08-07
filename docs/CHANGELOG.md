@@ -4,6 +4,20 @@ EPESI CHANGELOG
 CURRENT
 -------
 
+- Fix dashboard applets removal
+- Add field to select from multiple recordsets in RecordBrowser
+- Fix attachments PHP 5.3 code issue
+- Fix RoundCube addressbook contacts search
+- Set Contacts/Access Manager as read-only
+- Fix translation functions in Attachments
+- Allow negative integer numbers in RecordBrowser
+- Set "Company Name" and "Tax ID" fields as unique
+- Fix mobile RB edit bug
+- Fix Base/Theme get_icon function
+- Add Cron Management to Administrator Panel
+- Add Custom Recordsets tool to RecordBrowser
+- Fix cron CLI detection
+- Add who made last edit in attachments display
 - Fix Email applet issue with password encoding
 
 RELEASE 1.6.0-20140710
