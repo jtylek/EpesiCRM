@@ -571,7 +571,7 @@ function install_base() {
 	require_once('include/config.php');
 	require_once('include/database.php');
 	
-	@DB::Execute('ALTER DATABASE dbname CHARACTER SET utf8 COLLATE utf8_general_ci');
+	@DB::Execute('ALTER DATABASE '.DATABASE_NAME.' CHARACTER SET utf8 COLLATE utf8_general_ci');
 
 	$ret = DB::CreateTable('modules',"name C(128) KEY,version I NOTNULL, priority I NOTNULL DEFAULT 0");
 	if($ret===false)
