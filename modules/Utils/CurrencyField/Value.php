@@ -70,6 +70,11 @@ class Utils_CurrencyField_Value
         $this->set_amount(self::add_amounts($this->get_amount(), $numeric_value));
     }
 
+    public function subtract_amount($numeric_value)
+    {
+        $this->set_amount(self::subtract_amounts($this->get_amount(), $numeric_value));
+    }
+
     public function subtract(Utils_CurrencyField_Value $other, $report_error = true)
     {
         if ($this->get_currency_id() == $other->get_currency_id()) {
@@ -125,6 +130,11 @@ class Utils_CurrencyField_Value
     protected static function add_amounts($am1, $am2)
     {
         return $am1 + $am2;
+    }
+
+    protected static function subtract_amounts($am1, $am2)
+    {
+        return $am1 - $am2;
     }
 
     private $amount;
