@@ -284,7 +284,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		
 		Utils_RecordBrowserCommon::set_favorites('rc_multiple_emails', true);
 		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', _M('Mail addresses'));
-		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundube', 'icon.png'));
+		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'icon.png'));
 
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));
