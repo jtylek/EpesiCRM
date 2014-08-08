@@ -1302,9 +1302,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$vals = array($email);
 			$where_id = '';
 			if ($rid!=null) {
-				$vals[] = $rset;
-				$vals[] = $rid;
-				$where_id = ' AND (f_record_type!=%s OR f_record_id!=%d)';
+                if ($rset == 'rc_multiple_emails') {
+                    $vals[] = $rid;
+                    $where_id = ' AND id!=%d';
+                } else {
+                    $vals[] = $rset;
+                    $vals[] = $rid;
+                    $where_id = ' AND (f_record_type!=%s OR f_record_id!=%d)';
+                }
 			}
 			$tmp = DB::GetRow('SELECT id, f_record_id, f_record_type FROM rc_multiple_emails_data_1 WHERE active=1 AND f_email '.DB::like().' %s'.$where_id.' ORDER BY f_record_type DESC', $vals);
 			if ($tmp)

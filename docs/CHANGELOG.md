@@ -19,6 +19,7 @@ CURRENT
 - Fix cron CLI detection
 - Add who made last edit in attachments display
 - Fix Email applet issue with password encoding
+- Fix unique email rule
 
 RELEASE 1.6.0-20140710
 -------
