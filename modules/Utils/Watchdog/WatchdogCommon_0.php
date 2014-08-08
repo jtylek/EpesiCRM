@@ -287,7 +287,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			} else {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
 				$ev = self::display_events($category_id, $last_seen, $id);
-				$tooltip = Utils_TooltipCommon::open_tag_attrs(__('You are watching this record, click to stop watching this record for changes.').'<br>'.__('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']);
+				$tooltip = Utils_TooltipCommon::open_tag_attrs(__('You are watching this record, click to stop watching this record for changes.').($ev?'<br>'.__('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']:''));
 			}
 		}
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
