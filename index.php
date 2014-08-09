@@ -30,7 +30,6 @@ if(!is_writable(DATA_DIR))
 require_once('include/config.php');
 require_once('include/maintenance_mode.php');
 require_once('include/error.php');
-ob_start(array('ErrorHandler','handle_fatal'));
 require_once('include/database.php');
 require_once('include/variables.php');
 if(epesi_requires_update()) {
@@ -75,7 +74,6 @@ Please choose <?php print(EPESI);?> version:<ul>
 </body>
 </html>
 <?php
-		ob_end_flush();
 		exit();
 	}
 } elseif(detect_mobile_device()) {

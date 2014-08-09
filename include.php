@@ -18,8 +18,6 @@ require_once('include/config.php');
 require_once('include/maintenance_mode.php');
 require_once('include/epesi.php');
 require_once('include/error.php');
-//if(JS_OUTPUT)
-	ob_start(array('ErrorHandler','handle_fatal'));
 require_once('include/magicquotes.php');
 require_once('include/database.php');
 require_once('include/session.php');
@@ -32,6 +30,3 @@ require_once('include/module_common.php');
 require_once('include/module.php');
 require_once('include/module_manager.php');
 require_once('include/patches.php');
-//if(JS_OUTPUT)
-	ob_end_clean();
-?>

@@ -86,3 +86,4 @@ foreach($cron_last as $func_md5=>$last) {
     break;
 }
 @unlink($lock);
+

@@ -32,9 +32,7 @@ if(!isset($_SESSION['num_of_clients'])) {
 	//session_commit();
 	//DBSession::destroy(session_id());
 } else {
-	ob_start(array('ErrorHandler','handle_fatal'));
 	Epesi::process($_POST['url'],isset($_POST['history'])?$_POST['history']:false);
-	ob_end_flush();
 }
 $content = ob_get_contents();
 ob_end_clean();

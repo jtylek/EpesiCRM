@@ -34,16 +34,6 @@ class ErrorHandler {
 		return $buffer;
 	}
 	
-	public static function handle_fatal($buffer) {
-	    if (preg_match("/(error<\/b>:)(.+)(<br)/", $buffer, $regs)  || preg_match("/(error:)(.+)(\n)/", $buffer, $regs) ) {
-		$err = preg_replace("/<.*?>/","",$regs[2]);
-		$err .= self::debug_backtrace();
-		error_log($err);
-		return self::notify_client('Fatal: '.$err);
-	    }
-	    return $buffer;
-	}
-
 	public static function handle_error($type, $message,$errfile,$errline,$errcontext) {
     	if (($type & error_reporting()) > 0) {
 				$backtrace = self::debug_backtrace();
@@ -234,6 +224,13 @@ function handle_epesi_exception(Exception $exception)
     }
 }
 
+function check_for_fatal()
+{
+    $error = error_get_last();
+    if ( $error["type"] == E_ERROR )
+        ErrorHandler::handle_error( $error["type"], $error["message"], $error["file"], $error["line"], '' );
+}
+
 if(REPORT_ALL_ERRORS) {
     if (version_compare(phpversion(), '5.4.0')==-1)
     	$error_reporting_level = E_ALL; //all without notices
@@ -244,8 +241,7 @@ else
 	$error_reporting_level = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
 
 error_reporting($error_reporting_level);
+register_shutdown_function( "check_for_fatal" );
 set_error_handler('handle_epesi_error', $error_reporting_level);
 set_exception_handler('handle_epesi_exception');
 unset($error_reporting_level);
-
-?>
