@@ -2518,7 +2518,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $crits2[$op.'~"'.self::get_field_id($f)] = $str;
                 $op = '|';
             }
-            $crits3 = self::merge_crits($single_tab?$crits:$crits[$t],$crits2);
+            $crits3 = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2);
             $records = self::get_records($t, $crits3, array(), array(), 10);
         
             if (empty($f_callback) || !is_callable($f_callback))
@@ -3003,6 +3003,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if($tab == '__RECORDSETS__') $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
             else $tabs = explode(',',$tab);
             $single_tab = count($tabs)==1;
+            if(!$single_tab && empty($crits)) {
+                foreach($tabs as $tab)
+                    $crits[$tab] = array();
+            }
 
             // get related records with proper columns
             $col_id = array();
@@ -3012,8 +3016,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $col_id[] = self::get_field_id($c);
             }
             $rec_count = 0;
-            foreach($tabs as $t)
-                $rec_count += Utils_RecordBrowserCommon::get_records_count($t, $signle_tab?$crits:$crits[$t], null);
+            foreach($tabs as $t) {
+                if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
+                $rec_count += Utils_RecordBrowserCommon::get_records_count($t, $single_tab?$crits:$crits[$t], null);
+            }
             if ($rec_count <= Utils_RecordBrowserCommon::$options_limit) {
                 $records = array();
                 foreach($tabs as $t) {
