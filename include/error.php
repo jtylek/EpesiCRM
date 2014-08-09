@@ -37,6 +37,7 @@ class ErrorHandler {
 	public static function handle_fatal($buffer) {
 	    if (preg_match("/(error<\/b>:)(.+)(<br)/", $buffer, $regs)  || preg_match("/(error:)(.+)(\n)/", $buffer, $regs) ) {
 		$err = preg_replace("/<.*?>/","",$regs[2]);
+		$err .= self::debug_backtrace();
 		error_log($err);
 		return self::notify_client('Fatal: '.$err);
 	    }
