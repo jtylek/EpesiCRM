@@ -2083,7 +2083,7 @@ class Utils_RecordBrowser extends Module {
 								if (!isset($row) || !isset($row['param'])) $row['param'] = ';::';
 								$props = explode(';', $row['param']);
 								if($data['rset']) {
-								    foreach($data['rset'] as $rset) {
+								    if($data['label_field']) foreach($data['rset'] as $rset) {
         								$ret = $this->detranslate_field_names($rset, $data['label_field']);
 	        							if (!empty($ret)) trigger_error('Invalid fields: '.$data['label_field']);
 	        						    }
@@ -2091,7 +2091,7 @@ class Utils_RecordBrowser extends Module {
 								} else {
 								    $data['rset'] = '__RECORDSETS__';
 								}
-								$props[0] = $data['rset'].'::'.implode('|', $data['label_field']);
+								$props[0] = $data['rset'].'::'.$data['label_field'];
 								$param = implode(';', $props);
 							}
 							if (isset($row) && isset($row['type']) && $row['type']=='multiselect' && $data['select_type']=='select') {
