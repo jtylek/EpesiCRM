@@ -227,7 +227,7 @@ function handle_epesi_exception(Exception $exception)
 function check_for_fatal()
 {
     $error = error_get_last();
-    if ( $error["type"] == E_ERROR )
+    if ( in_array($error["type"], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING)) );
         ErrorHandler::handle_error( $error["type"], $error["message"], $error["file"], $error["line"], '' );
 }
 
