@@ -386,7 +386,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				    $end = strpos($row['param'], ';', $pos+2);
 				    if ($end==0) $end = strlen($row['param']);
 				    self::$table_rows[$row['field']]['ref_field'] = substr($row['param'], $pos+2, $end-$pos-2);
-				    if (!self::$table_rows[$row['field']]['ref_field'] && $tab=='company') trigger_error($pos.$tab.print_r($row,true));
 				}
 			}
 			self::$table_rows[$row['field']]['commondata'] = $commondata;
