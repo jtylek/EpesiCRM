@@ -226,8 +226,10 @@ function handle_epesi_exception(Exception $exception)
 
 function check_for_fatal()
 {
+    global $error_reporting_level;
     $error = error_get_last();
-    if ( in_array($error["type"], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING)) );
+    $fatal_reporting_level = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR;
+    if ( $error["type"] & $error_reporting_level & $fatal_reporting_level )
         ErrorHandler::handle_error( $error["type"], $error["message"], $error["file"], $error["line"], '' );
 }
 
@@ -244,4 +246,3 @@ error_reporting($error_reporting_level);
 register_shutdown_function( "check_for_fatal" );
 set_error_handler('handle_epesi_error', $error_reporting_level);
 set_exception_handler('handle_epesi_exception');
-unset($error_reporting_level);
