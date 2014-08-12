@@ -2478,7 +2478,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $kk = explode('/',$id,2);
         if(count($kk)==1) {
             if($single_tab && is_numeric($kk[0])) {
-                $t = $tab;
+                $t = $tabs[0];
                 $record_id = $kk[0];
             } else return '';
         } else {
@@ -2509,7 +2509,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
 
             $fields = array_filter(explode('|', $ref[1]));
-            if(!$fields) $fields = DB::GetCol('SELECT field FROM '.$t.'_field WHERE active=1 AND type NOT IN ("calculated","page_split","hidden")');
+            if(!$fields) $fields = DB::GetCol('SELECT field FROM '.$t.'_field WHERE active=1 AND visible=1 AND type NOT IN ("calculated","page_split","hidden")');
             
             $crits2 = array();
             $op = '(';
@@ -2523,7 +2523,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (empty($f_callback) || !is_callable($f_callback))
                  $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
             foreach ($records as $r) {
-                $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($t, $crits3, $f_callback, $params));
+                $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3, $f_callback, $params));
             }
             
             if(count($ret)>=10) break;
