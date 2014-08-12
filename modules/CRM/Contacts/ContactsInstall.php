@@ -79,6 +79,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('contact', $fields);
         DB::CreateIndex('contact_data_1__f_login_idx','contact_data_1','f_login,active');
+
 // ************ company settings ************** //
 		Utils_RecordBrowserCommon::register_processing_callback('company', array('CRM_ContactsCommon', 'submit_company'));
 		Utils_RecordBrowserCommon::set_quickjump('company', 'Company Name');
@@ -86,6 +87,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('company', 15);
 		Utils_RecordBrowserCommon::set_caption('company', _M('Companies'));
 		Utils_RecordBrowserCommon::set_icon('company', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'companies.png'));
+                Utils_RecordBrowserCommon::set_description_callback('company', array('CRM_ContactsCommon','company_format_default'));
 		Utils_RecordBrowserCommon::enable_watchdog('company', array('CRM_ContactsCommon','company_watchdog_label'));
         Utils_RecordBrowserCommon::set_clipboard_pattern('company', "%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {phone}<BR>}\n%{fax. {fax}<BR>}\n%{{web_address}<BR>}");
 // ************ contacts settings ************** //
@@ -96,6 +98,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('contact', 15);
 		Utils_RecordBrowserCommon::set_caption('contact', _M('Contacts'));
 		Utils_RecordBrowserCommon::set_icon('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'icon.png'));
+                Utils_RecordBrowserCommon::set_description_callback('contact', array('CRM_ContactsCommon','contact_format_default'));
 		Utils_RecordBrowserCommon::enable_watchdog('contact', array('CRM_ContactsCommon','contact_watchdog_label'));
         Utils_RecordBrowserCommon::set_clipboard_pattern('contact', "%{{first_name} {last_name}<BR>}\n%{{title}<BR>}\n%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {work_phone}<BR>}\n%{{email}<BR>}");
 // ************ addons ************** //
