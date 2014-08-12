@@ -2523,7 +2523,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (empty($f_callback) || !is_callable($f_callback))
                  $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
             foreach ($records as $r) {
-                $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3, $f_callback, $params));
+                $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($t, $crits3, $f_callback, $params));
             }
             
             if(count($ret)>=10) break;
