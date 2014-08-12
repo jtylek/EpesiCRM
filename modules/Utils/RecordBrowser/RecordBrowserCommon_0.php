@@ -2785,7 +2785,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return null;
     }
     
-    private static function QFfield_static_display(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+    public static function QFfield_static_display(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode !== 'add' && $mode !== 'edit') {
             if ($desc['type'] != 'checkbox' || isset($rb_obj->display_callback_table[$field])) {
                 $def = self::get_val($rb_obj->tab, $field, $rb_obj->record, false, $desc);
