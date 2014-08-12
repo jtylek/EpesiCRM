@@ -223,7 +223,7 @@
                                     $f.type != 'multiselect')}
 							<tr>
 								<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
-								<td class="data" align="left">
+								<td class="data {$f.style}" align="left">
 									<div style="position:relative;">
 										<span class="error">{$f.error}</span>
 										{$f.html}
