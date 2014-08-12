@@ -95,6 +95,11 @@ class Utils_CurrencyField_Value
         return $this->currency_id;
     }
 
+    public function get_currency_code()
+    {
+        return Utils_CurrencyFieldCommon::get_code($this->currency_id);
+    }
+
     public function set_amount($amount)
     {
         if ($amount && !is_numeric($amount)) {
