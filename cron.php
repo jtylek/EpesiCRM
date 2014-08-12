@@ -36,7 +36,7 @@ file_put_contents($lock,'');
 set_time_limit(0);
 ini_set('memory_limit', '512M');
 ModuleManager::load_modules();
-Base_AclCommon::set_user(1);
+Base_AclCommon::set_sa_user();
 $ret = ModuleManager::call_common_methods('cron');
 $cron_last = DB::GetAssoc('SELECT func,last,running FROM cron ORDER BY last');
 $cron_funcs_prior = array(); //array of outdated cron callbacks
