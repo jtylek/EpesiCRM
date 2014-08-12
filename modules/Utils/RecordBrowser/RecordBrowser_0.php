@@ -1804,6 +1804,11 @@ class Utils_RecordBrowser extends Module {
 					$param .= __('Order by').': '.($args['param']['order_by_key']?__('Key'):__('Value'));
 					$args['param'] = $param;
 					break;
+                case 'time':
+                case 'timestamp':
+                    $interval = $args['param'] ? $args['param'] : __('Default');
+                    $args['param'] = __('Minutes Interval') . ': ' . $interval;
+                    break;
 				default:
 					$args['param'] = '';
 			}
@@ -1881,6 +1886,8 @@ class Utils_RecordBrowser extends Module {
             'currency'=>__('Currency'),
             'checkbox'=>__('Checkbox'),
             'date'=>__('Date'),
+            'time' => __('Time'),
+            'timestamp' => __('Timestamp'),
             'integer'=>__('Integer'),
             'float'=>__('Float'),
             'text'=>__('Text'),
@@ -1955,7 +1962,14 @@ class Utils_RecordBrowser extends Module {
                     $row['autonumber_pad_mask'] = $autonumber_pad_mask;
                     break;
 				case 'text':
+                    $row['select_data_type'] = $row['type'];
 					$row['text_length'] = $row['param'];
+                    break;
+                case 'time':
+                case 'timestamp':
+                    $row['select_data_type'] = $row['type'];
+                    $row['minute_increment'] = $row['param'];
+                    break;
 				default:
 					$row['select_data_type'] = $row['type'];
 					if (!isset($data_type[$row['type']]))
@@ -1980,6 +1994,8 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('select', 'select_data_type', __('Data Type'), $data_type, array('id'=>'select_data_type', 'onchange'=>'RB_hide_form_fields()'));
 
 		$form->addElement('text', 'text_length', __('Maximum Length'), array('id'=>'length'));
+        $minute_increment_values = array(1=>1,2=>2,5=>5,10=>10,15=>15,20=>20,30=>30,60=>__('Full hours'));
+		$form->addElement('select', 'minute_increment', __('Minutes Interval'), $minute_increment_values, array('id'=>'minute_increment'));
 
 		$form->addElement('select', 'data_source', __('Source of Data'), array('rset'=>__('Recordset'), 'commondata'=>__('CommonData')), array('id'=>'data_source', 'onchange'=>'RB_hide_form_fields()'));
 		$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Single value selection'), 'multiselect'=>__('Multiple values selection')), array('id'=>'select_type'));
@@ -2114,6 +2130,10 @@ class Utils_RecordBrowser extends Module {
 								}
 							}
 							break;
+                case 'time':
+                case 'timestamp':
+                    $param = $data['minute_increment'];
+                    break;
 				default:	if (isset($row) && isset($row['param']))
 								$param = $row['param'];
 							break;

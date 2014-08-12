@@ -13,6 +13,7 @@ RB_hide_form_fields = function () {
     RB_hide_form_field('autonumber_prefix', t!='autonumber');
     RB_hide_form_field('autonumber_pad_length', t!='autonumber');
     RB_hide_form_field('autonumber_pad_mask', t!='autonumber');
+    RB_hide_form_field('minute_increment', t!='time' && t!='timestamp');
 	if ($('data_source')) {
 		var d = $('data_source').value;
 		RB_hide_form_field('rset_label', d!='rset' || t!='select');
