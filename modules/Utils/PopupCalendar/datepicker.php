@@ -35,6 +35,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			$ex_date = Base_RegionalSettingsCommon::time2reg(null,false,true,false);
 			$date_format = Base_RegionalSettingsCommon::date_format();
 			$this->setType('text');
+            $this->setAttribute('placeholder', __('Click to select date'));
             $js = Utils_PopupCalendarCommon::create_href(md5($id),
                     'new Ajax.Request(\'modules/Utils/PopupCalendar/up.php\','.
                     '{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
