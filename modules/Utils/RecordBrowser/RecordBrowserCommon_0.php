@@ -2930,7 +2930,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $time_format = Base_RegionalSettingsCommon::time_12h() ? 'h:i a' : 'H:i';
         $lang_code = Base_LangCommon::get_lang_code();
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
-        $form->addElement('timestamp', $field, $label, array('date' => false, 'format' => $time_format, 'optionIncrement' => array('i' => 5), 'language' => $lang_code, 'id' => $field));
+        $minute_increment = 5;
+        if ($desc['param']) {
+            $minute_increment = $desc['param'];
+        }
+        $form->addElement('timestamp', $field, $label, array('date' => false, 'format' => $time_format, 'optionIncrement' => array('i' => $minute_increment), 'language' => $lang_code, 'id' => $field));
         if ($mode !== 'add' && $default)
             $form->setDefaults(array($field => $default));
     }
