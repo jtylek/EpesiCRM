@@ -20,6 +20,12 @@ CURRENT
 - Add who made last edit in attachments display
 - Fix Email applet issue with password encoding
 - Fix unique email rule
+- Add time and timestamp fields to RB GUI admin
+- Add datepicker placeholder text
+- Fix phonecalls template
+- Add ability to sort RB fields with drag n drop
+- Update ckeditor version to the most recent
+- Add button to switch full toolbar in ckeditor
 
 RELEASE 1.6.0-20140710
 -------
