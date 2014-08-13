@@ -660,6 +660,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
         @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
     }
+    public static function change_field_position($tab, $field, $new_pos){
+        if ($new_pos <= 2) return; // make sure that no field is before "General" tab split
+        DB::StartTrans();
+        $pos = DB::GetOne('SELECT position FROM ' . $tab . '_field WHERE field=%s', array($field));
+        if ($pos) {
+            // move all following fields back
+            DB::Execute('UPDATE '.$tab.'_field SET position=position-1 WHERE position>%d',array($pos));
+            // make place for moved field
+            DB::Execute('UPDATE '.$tab.'_field SET position=position+1 WHERE position>=%d',array($new_pos));
+            // set new field position
+            DB::Execute('UPDATE '.$tab.'_field SET position=%d WHERE field=%s',array($new_pos, $field));
+        }
+        DB::CompleteTrans();
+    }
+
     public static function actual_db_type($type, $param=null) {
         $f = '';
         switch ($type) {

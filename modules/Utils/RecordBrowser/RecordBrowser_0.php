@@ -1724,6 +1724,12 @@ class Utils_RecordBrowser extends Module {
         }
     }
     public function setup_loader() {
+        if (isset($_REQUEST['field_pos'])) {
+            list($field, $position) = $_REQUEST['field_pos'];
+            // adjust position
+            $position += 2;
+            Utils_RecordBrowserCommon::change_field_position($this->tab, $field, $position);
+        }
         $this->init(true);
         $action = $this->get_module_variable_or_unique_href_variable('setup_action', 'show');
         $subject = $this->get_module_variable_or_unique_href_variable('subject', 'regular');
@@ -1765,10 +1771,10 @@ class Utils_RecordBrowser extends Module {
 					if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate', null, 'active-on');
 					else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate', null, 'active-off');
 				}
-				if ($args['position']<$rows && $args['position']>2)
-					$gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], +1)),'Move down', null, 'move-down');
-				if ($args['position']>3)
-					$gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], -1)),'Move up', null, 'move-up');
+                if ($field != 'General') {
+                    $gb_row->add_action('class="move-handle"','Move', __('Drag to change field position'), 'move-down');
+                    $gb_row->set_attrs("field_name=\"$field\" class=\"sortable\"");
+                }
 			}
             switch ($args['type']) {
 				case 'text':
@@ -1860,12 +1866,11 @@ class Utils_RecordBrowser extends Module {
 				}
         }
         $this->display_module($gb);
-    }
-    public function move_field($field, $pos, $dir){
-        DB::StartTrans();
-        DB::Execute('UPDATE '.$this->tab.'_field SET position=%d WHERE position=%d',array($pos, $pos+$dir));
-        DB::Execute('UPDATE '.$this->tab.'_field SET position=%d WHERE field=%s',array($pos+$dir, $field));
-        DB::CompleteTrans();
+
+        // sorting
+        load_js($this->get_module_dir() . 'sort_fields.js');
+        $table_md5 = md5($gb->get_path());
+        eval_js("rb_admin_sort_fields_init(\"$table_md5\")");
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function set_field_active($field, $set=true) {
