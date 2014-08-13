@@ -33,64 +33,6 @@
 	padding-right: 3px;
 }
 
-/* button */
-
-table#Utils_LeightboxPrompt .big-button {
-	/*width: 200px;*/
-	height: auto;
-	vertical-align: middle;
-	text-align: center;
-	font-size: 11px;
-	display: block;
-	padding-top: 3px;
-	cursor: pointer;
-	color: #336699;
-	height: 100%;
-}
-
-table#Utils_LeightboxPrompt .big-button:hover {
-	color: #993333;
-}
-
-table#Utils_LeightboxPrompt a .big-button {
-	color: #336699;
-	font-weight: bold;
-}
-
-table#Utils_LeightboxPrompt a .big-button .desc {
-	font-weight: normal;
-}
-
-table#Utils_LeightboxPrompt .big-button span {
-	display: block;
-}
-
-table#Utils_LeightboxPrompt .big-button span.text {
-	padding-bottom: 5px;
-}
-
-table#Utils_LeightboxPrompt .big-button span.desc {
-	width: 100px;
-	text-align: left;
-	margin-left: 10px;
-}
-
-/* small button */
-
-table#Utils_LeightboxPrompt .button-small {
-	display: block;
-	line-height: 20px;
-	width: 200px;
-	border: 0px;
-	color: #FFFFFF;
-	background-color: #336699;
-	text-align: center;
-}
-
-table#Utils_LeightboxPrompt .button-small:hover {
-	background-color: #339933;
-	color: #FFFFFF;
-}
 
 /* a */
 

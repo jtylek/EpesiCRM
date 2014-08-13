@@ -1,18 +1,3 @@
-table#Utils_LeightboxPrompt__form .button-small {
-	display: block;
-	line-height: 20px;
-	width: 200px;
-	border: 0px;
-	color: #FFFFFF;
-	background-color: #336699;
-	text-align: center;
-}
-
-table#Utils_LeightboxPrompt__form .button-small:hover {
-	background-color: #339933;
-	color: #FFFFFF;
-}
-
 /* a */
 
 table#Utils_LeightboxPrompt__form a:hover {
