@@ -8,4 +8,9 @@ CKEDITOR.editorConfig = function( config ) {
 	// config.language = 'fr';
 	// config.uiColor = '#AADC6E';
     config.removeButtons = "Save";
+    config.extraPlugins = 'toolbarswitch';
+    config.allowedContent = true;
+    config.toolbar_Basic = [['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink', '-', 'Source', '-', 'About'], ['Toolbarswitch']];
+    config.smallToolbar = 'Basic';
+    config.maximizedToolbar = 'Full';
 };

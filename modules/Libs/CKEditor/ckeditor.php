@@ -20,8 +20,7 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
                          ,$sHeight            = NULL
                          ,$bToolbarAdvanced   = false
                          ,$mCkRequestedAttrs = NULL) {
-        $basic_toolbar = array(array('Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink', '-', 'Source', '-', 'About'));
-        $this->setConfig(array('width'=>$sWidth,'height'=>$sHeight,'toolbar'=>($bToolbarAdvanced)?'Full':$basic_toolbar));
+        $this->setConfig(array('width'=>$sWidth,'height'=>$sHeight,'toolbar'=>($bToolbarAdvanced)?'Full':'Basic'));
     }
     
     function setConfig(array $conf) {
