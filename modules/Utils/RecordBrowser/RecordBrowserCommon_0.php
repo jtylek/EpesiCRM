@@ -2531,7 +2531,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         } else {
             $t = $kk[0];
             $record_id = $kk[1];
-            if(!self::check_table_name($t) || !is_numeric($record_id)) continue;
+            if(!self::check_table_name($t) || !is_numeric($record_id)) return '';
         }
 
         if($ref[1] && $single_tab && $ref[0]==$t)
