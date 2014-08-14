@@ -2007,12 +2007,7 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value')), array('id'=>'order_by'));
 		$form->addElement('text', 'commondata_table', __('CommonData table'), array('id'=>'commondata_table'));
 
-		$tabs = DB::GetAll('SELECT tab FROM recordbrowser_table_properties');
-		$tables = array(''=>'---');
-		foreach($tabs as $v) {
-			$caption = Utils_RecordBrowserCommon::get_caption($v['tab']);
-			$tables[$v['tab']] = $caption?$caption:$v['tab'];
-		}
+		$tables = array(''=>'---') + Utils_RecordBrowserCommon::list_installed_recordsets();
 		asort($tables);
 		$form->addElement('multiselect', 'rset', '<span id="rset_label">'.__('Recordset').'</span>', $tables, array('id'=>'rset'));
 		$form->addElement('text', 'label_field', __('Related field(s)'), array('id'=>'label_field'));
@@ -2543,14 +2538,8 @@ class Utils_RecordBrowser extends Module {
 		}
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
-        $ret = DB::Execute('SELECT tab, caption FROM recordbrowser_table_properties');
         $form = $this->init_module('Libs/QuickForm');
-        $opts = array();
-        $first = false;
-        while ($row=$ret->FetchRow()) {
-            $text = $row['caption'] ? _V($row['caption']) . " ($row[tab])" : $row['tab'];
-            $opts[$row['tab']] = _V($text);
-        }
+        $opts = Utils_RecordBrowserCommon::list_installed_recordsets('%caption (%tab)');
 		asort($opts);
 		$first = array_keys($opts);
 		$first = reset($first);
