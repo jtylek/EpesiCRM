@@ -278,7 +278,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	public static function get_array_count($name){
 		$id = self::get_id($name);
 		if($id===false) return false;
-		return DB::GetAssoc('SELECT count(akey) FROM utils_commondata_tree WHERE parent_id=%d',array($id));
+		return DB::GetOne('SELECT count(akey) FROM utils_commondata_tree WHERE parent_id=%d',array($id));
 	}
 
 	public static function rename_key($parent,$old,$new) {
