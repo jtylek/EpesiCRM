@@ -10,8 +10,8 @@ PatchUtil::db_alter_column('rc_mails_data_1', 'f_to', 'C(4096)');
       DB::Execute("UPDATE rc_mails_data_1 SET f_message_id=REPLACE (f_message_id, '&lt;','')");
       DB::Execute("UPDATE rc_mails_data_1 SET f_message_id=REPLACE (f_message_id, '&gt;','')");
         // create index to optimize counting completed field
-        DB::CreateIndex('rc_mails_thread_idx', 'rc_mails_data_1', 'f_thread');
-        DB::CreateIndex('rc_mails_msgid_idx', 'rc_mails_data_1', 'f_message_id');
+        @DB::CreateIndex('rc_mails_thread_idx', 'rc_mails_data_1', 'f_thread');
+        @DB::CreateIndex('rc_mails_msgid_idx', 'rc_mails_data_1', 'f_message_id');
 
       $mails = Utils_RecordBrowserCommon::get_records('rc_mails');
       
