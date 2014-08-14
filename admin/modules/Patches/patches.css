@@ -71,6 +71,9 @@ a.button:hover {
     padding-left: 40px;
     padding-right: 40px;
     color: gray;
+    overflow: auto;
+    width: 500px;
+    height: 500px;
 }
 
 #patches {

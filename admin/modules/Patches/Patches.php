@@ -88,7 +88,10 @@ class Patches extends SteppedAdminModule {
             print('<tr><td><div class="left">&nbsp;</div><div class="center strong">Patches to run: </div><div class="right gray strong">' . $patches_to_run . '</div></td></tr>');
         }
 
-        if ($patches_to_run || $patched_failure) {
+        if ($patched_failure) {
+            $this->set_next_step(1);
+            $msg = 'Some errors occured. Try to fix them and rerun patch.';
+        } elseif ($patches_to_run) {
             $this->set_auto_run();
             $this->set_next_step(1);
             $msg = 'Do not close this page. Browser should reload this page until all patches will be applied.';
