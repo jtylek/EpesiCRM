@@ -675,6 +675,38 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::CompleteTrans();
     }
 
+    /**
+     * List all installed recordsets.
+     * @param string $format Simple formatting of the values
+     *
+     *      You can use three keys that will be replaced with values: <br>
+     *       - %tab - table identifier <br>
+     *       - %orig_caption - original table caption <br>
+     *       - %caption - translated table caption <br>
+     *      Default is '%caption'. If no caption is specified then
+     *      table identifier is used as caption. <br>
+     *      Other common usage: '%caption (%tab)'
+     * @return array Keys are tab identifiers, values according to $format param
+     */
+    public static function list_installed_recordsets($format = '%caption')
+    {
+        $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties');
+        $ret = array();
+        foreach ($tabs as $tab_id => $caption) {
+            if (!$caption) {
+                $translated_caption = $caption = $tab_id;
+            } else {
+                $translated_caption = _V($caption);
+            }
+            $ret[$tab_id] = str_replace(
+                array('%tab', '%orig_caption', '%caption'),
+                array($tab_id, $caption, $translated_caption),
+                $format
+            );
+        }
+        return $ret;
+    }
+
     public static function actual_db_type($type, $param=null) {
         $f = '';
         switch ($type) {
