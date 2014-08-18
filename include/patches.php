@@ -418,7 +418,21 @@ class Patch
         if (!(error_reporting() & $errno)) {
             return;
         }
-        throw new PatchException("Error occured.\nFile: $errfile\nLine: $errline\nMessage: $errstr\n" . print_r(debug_backtrace(), true));
+        $debug_backtrace = debug_backtrace();
+        // remove unwanted stacktrace entries.
+        //  1. This function
+        array_shift($debug_backtrace);
+        //  2. All function calls before Patch::apply
+        $delete = false;
+        foreach ($debug_backtrace as $k => $v) {
+            if ($v['file'] == __FILE__ && $v['function'] == 'apply') {
+                $delete = true;
+            }
+            if ($delete) {
+                unset($debug_backtrace[$k]);
+            }
+        }
+        throw new PatchException("Error occured.\nFile: $errfile\nLine: $errline\nMessage: $errstr\n" . print_r($debug_backtrace, true));
     }
 
     private function output_bufferring_interrupted($str)
