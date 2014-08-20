@@ -98,7 +98,7 @@ class SimpleLayout {
         ?>
                     <hr/>
                     <p><a href="http://www.epesi.org"><img src="./images/epesi-powered.png" border="0" alt="EPESI powered"/></a></p>
-                    <span class="footer">Copyright &copy; 2012 &bull; <a href="http://www.epesi.org/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+                    <span class="footer">Copyright &copy; 2014 &bull; <a href="http://www.epesi.org/">EPESI framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a></span>
                     <br/>
                 </center>
 
