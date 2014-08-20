@@ -182,10 +182,13 @@ class CRM_AssetsInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::new_addon('company', 'CRM/Assets', 'assets_addon', _M('Assets'));
 		Utils_AttachmentCommon::new_addon('crm_assets');
 
+        Base_ThemeCommon::install_default_theme($this->get_type());
+
         return true;
     }
 
     public function uninstall() {
+        Base_ThemeCommon::uninstall_default_theme($this->get_type());
         Utils_CommonDataCommon::remove('crm_assets_category');
         Utils_CommonDataCommon::remove('crm_assets_monitor_type');
         Utils_CommonDataCommon::remove('crm_assets_printer_type');
