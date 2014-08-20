@@ -387,9 +387,11 @@ function write_config($host, $user, $pass, $dbname, $engine, $other) {
 	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 	$other_conf = '';
-	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir))))
-		$other_conf .= "\n".'@define("EPESI_DIR","'.str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])).'");';
-	$other_conf .= "\n".'define("DIRECTION_RTL","'.($other['direction']?'1':'0').'");';
+	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir)))) {
+        $epesi_dir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+        $other_conf .= "\n".'@define(\'EPESI_DIR\',\''. addcslashes($epesi_dir, '\'\\') .'\');';
+    }
+	$other_conf .= "\n".'define(\'DIRECTION_RTL\',\''.($other['direction']?'1':'0').'\');';
 
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
         $domain_name = '';
@@ -398,10 +400,11 @@ function write_config($host, $user, $pass, $dbname, $engine, $other) {
         } else if (isset($_SERVER['SERVER_NAME']) && $_SERVER['SERVER_NAME']) {
             $domain_name = $_SERVER['SERVER_NAME'];
         }
-        if($domain_name) {
-            $url = $protocol . $domain_name . dirname($_SERVER['REQUEST_URI']);
-	    $other_conf .= "\n".'define("EPESI_URL","'.$url.'");';
-        }
+    if ($domain_name) {
+        $url = $protocol . $domain_name . dirname($_SERVER['REQUEST_URI']);
+        $url = str_replace('\\', '/', $url);
+        $other_conf .= "\n" . 'define(\'EPESI_URL\',\'' . addcslashes($url, '\'\\') . '\');';
+    }
 	$c = & fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
 /**
