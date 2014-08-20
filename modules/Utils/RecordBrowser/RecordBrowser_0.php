@@ -1508,10 +1508,16 @@ class Utils_RecordBrowser extends Module {
     	}
 		return $ret;
     }
+    private static function sort_by_processing_order($f1, $f2)
+    {
+        return $f1['processing_order'] > $f2['processing_order'];
+    }
     public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
 	if ($mode == 'add')
 	    $form->addFormRule(array($this, 'check_new_record_access'));
-        foreach($this->table_rows as $field => $args){
+        $fields_by_processing_order = $this->table_rows;
+        uasort($fields_by_processing_order, array(__CLASS__, 'sort_by_processing_order'));
+        foreach($fields_by_processing_order as $field => $args){
             // check permissions
             if (isset($this->view_fields_permission[$args['id']]) && !$this->view_fields_permission[$args['id']]) continue;
             // check visible cols

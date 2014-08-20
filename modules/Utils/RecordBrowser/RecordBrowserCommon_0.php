@@ -369,6 +369,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'extra'=>$row['extra'],
                         'active'=>$row['active'],
                         'position'=>$row['position'],
+                        'processing_order' => $row['processing_order'],
                         'filter'=>$row['filter'],
                         'style'=>$row['style'],
                         'param'=>$row['param']);
@@ -433,6 +434,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'required I1 DEFAULT 1,'.
                     'active I1 DEFAULT 1,'.
                     'position I,'.
+                    'processing_order I NOTNULL,'.
                     'filter I1 DEFAULT 0,'.
                     'param C(255),'.
                     'style C(64)',
@@ -443,8 +445,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'freezed I1',
                     array('constraints'=>''));
 
-        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, visible, position) VALUES(\'id\', \'foreign index\', 0, 0, 1)');
-        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'General\', \'page_split\', 0, 2)');
+        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, visible, position, processing_order) VALUES(\'id\', \'foreign index\', 0, 0, 1, 1)');
+        DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position, processing_order) VALUES(\'General\', \'page_split\', 0, 2, 2)');
 
 		$fields_sql = '';
         foreach ($fields as $v)
@@ -585,7 +587,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     5=>'style',
                     6=>'extra',
                     7=>'filter',
-                    8=>'position') as $k=>$w)
+                    8=>'position',
+                    9=>'processing_order') as $k=>$w)
                 if (isset($args[$k])) $definition[$w] = $args[$k];
         }
         if (!isset($definition['type'])) trigger_error(print_r($definition,true));
@@ -626,6 +629,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($definition['position']));
         DB::CompleteTrans();
+        if (!isset($definition['processing_order'])) $definition['processing_order'] = $definition['position'];
 
         $param = $definition['param'];
         if (is_array($param)) {
@@ -644,7 +648,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
         }
         $f = self::actual_db_type($definition['type'], $param);
-        DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($definition['name'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0));
+        DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, processing_order, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d, %d)', array($definition['name'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0));
 		$column = 'f_'.self::get_field_id($definition['name']);
 		if ($alter) {
 			self::init($tab, false, true);
