@@ -26,6 +26,8 @@ CURRENT
 - Add ability to sort RB fields with drag n drop
 - Update ckeditor version to the most recent
 - Add button to switch full toolbar in ckeditor
+- Improve patches util error reporting in admin tools
+- Maintain QFfields callbacks order during position change
 
 RELEASE 1.6.0-20140710
 -------
