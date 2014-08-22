@@ -2510,7 +2510,6 @@ class Utils_RecordBrowser extends Module {
             } else $this->crits[$k] = $v;
         }
         $theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
-		if (empty(self::$browsed_records)) return;
         if ($this->amount_of_records>=10000) {
             $theme->assign('disabled', '_disabled');
             $theme->assign('select_all', array('js'=>'', 'label'=>__('Select all')));
@@ -2522,8 +2521,10 @@ class Utils_RecordBrowser extends Module {
         }
 
         load_js('modules/Utils/RecordBrowser/rpicker_fs.js');
-        foreach(self::$browsed_records['records'] as $id=>$i) {
-            eval_js('rpicker_fs_init('.$id.','.(isset($selected[$id]) && $selected[$id]?1:0).',\''.$this->get_path().'\')');
+        if (isset(self::$browsed_records['records'])) {
+            foreach(self::$browsed_records['records'] as $id=>$i) {
+                eval_js('rpicker_fs_init('.$id.','.(isset($selected[$id]) && $selected[$id]?1:0).',\''.$this->get_path().'\')');
+            }
         }
 /*
         $rpicker_ind = $this->get_module_variable('rpicker_ind');
