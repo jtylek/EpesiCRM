@@ -189,10 +189,10 @@ class Utils_RecordBrowser_Reports extends Module {
 			$form->addElement('select', 'date_range_type', __('Display report'), array('day'=>__('Days'), 'week'=>__('Weeks'), 'month'=>__('Months'), 'year'=>__('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
 			$form->addElement('datepicker', 'from_day', __('From Date'));
 			$form->addElement('datepicker', 'to_day', __('To Date'));
-			$form->addElement('date', 'from_week', __('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
-			$form->addElement('date', 'to_week', __('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
-			$form->addElement('date', 'from_month', __('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
-			$form->addElement('date', 'to_month', __('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'from_week', __('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
+			$form->addElement('date', 'to_week', __('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
+			$form->addElement('date', 'from_month', __('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
+			$form->addElement('date', 'to_month', __('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
 			$form->addElement('date', 'from_year', __('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
 			$form->addElement('date', 'to_year', __('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
 			$form->registerRule('check_dates', 'callback', 'check_dates', $this);
