@@ -111,10 +111,12 @@ if (strpos($contentType, "multipart") !== false) {
 		} else
 			die('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}');
 	} else {
-	        if($_FILES['file']['error']==UPLOAD_ERR_INI_SIZE || $_FILES['file']['error']==UPLOAD_ERR_FORM_SIZE)
+	        if($_FILES['file']['error']==UPLOAD_ERR_INI_SIZE || $_FILES['file']['error']==UPLOAD_ERR_FORM_SIZE) {
 		        die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "File size exceeded."}, "id" : "id"}');
-	        else
-		        die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file (' . $_FILES['file']['error'] . ')."}, "id" : "id"}');
+            } else {
+                $file_err = isset($_FILES['file']['error']) ? ' (' . $_FILES['file']['error'] . ')' : '';
+                die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file' . $file_err . '."}, "id" : "id"}');
+            }
 	}
 } else {
 	// Open temp file
