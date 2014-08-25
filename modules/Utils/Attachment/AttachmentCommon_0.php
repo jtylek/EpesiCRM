@@ -28,9 +28,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
 	public static function user_settings() {
 		if(Acl::is_user()) {
+            $info = '%D - ' . __('Date') . '<br>%T - ' . __('Time') . '<br>%U - ' . __('User');
+            $help = ' <img src="'.Base_ThemeCommon::get_icon('info').'" '.Utils_TooltipCommon::open_tag_attrs($info, false).'/>';
 			return array(
-				__('Misc')=>array(
-					array('name'=>'editor','label'=>__('Notes editor'), 'type'=>'select', 'default'=>0, 'values'=>array(__('Simple'),__('Advanced')))
+				__('Notes')=>array(
+					array('name'=>'editor','label'=>__('Editor'), 'type'=>'select', 'default'=>0, 'values'=>array(__('Simple'),__('Advanced'))),
+                    array('name' => 'edited_on_format', 'label' => __('Edited on format') . $help, 'type' => 'text', 'default' => '%D<br><br>%T<br><br>%U')
 				)
 			);
 		}
@@ -313,10 +316,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
     public static function display_date($row, $nolink = false, $a=null,$view=false) {
         $date = Base_RegionalSettingsCommon::time2reg($row['edited_on'], false);
         $time = Base_RegionalSettingsCommon::time2reg($row['edited_on'], true, false);
-        $separator = $nolink ? ' ' : '<br><br>';
         $info = Utils_RecordBrowserCommon::get_record_info('utils_attachment',$row['id']);
         $by = Base_UserCommon::get_user_label($info['edited_by']?$info['edited_by']:$info['created_by']);
-        return "$date{$separator}$time{$separator}$by";
+        $format = Base_User_SettingsCommon::get('Utils/Attachment', 'edited_on_format');
+        return str_replace(array('%D', '%T', '%U'), array($date, $time, $by), $format);
     }
     
     public static function display_note($row, $nolink = false, $a=null,$view=false) {
