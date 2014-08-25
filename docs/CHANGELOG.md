@@ -28,6 +28,8 @@ CURRENT
 - Add button to switch full toolbar in ckeditor
 - Improve patches util error reporting in admin tools
 - Maintain QFfields callbacks order during position change
+- Configurable edited_on field format in Attachments
+- Allow to disable expandable rows in user settings
 
 RELEASE 1.6.0-20140710
 -------
