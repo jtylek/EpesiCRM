@@ -361,6 +361,8 @@ class Utils_GenericBrowser extends Module {
 	}
 
     public function set_expandable($b) {
+        if (Base_User_SettingsCommon::get($this->get_type(), 'disable_expandable'))
+            return;
         $this->set_module_variable('expandable',$this->expandable = $b?true:false);
     }
 
