@@ -363,7 +363,7 @@ class Utils_GenericBrowser extends Module {
     public function set_expandable($b) {
         if (Base_User_SettingsCommon::get($this->get_type(), 'disable_expandable'))
             return;
-        $this->set_module_variable('expandable',$this->expandable = $b?true:false);
+        $this->set_module_variable('expandable',$this->expandable = ($b ? true : false));
     }
 
 	public function set_per_page($pp) {
@@ -1076,19 +1076,19 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('custom_label', $this->custom_label);
 		$theme->assign('custom_label_args', $this->custom_label_args);
 
-        $theme->assign('expand_collapse',array(
-            'e_label'=>__('Expand All'),
-            'e_href'=>'href="javascript:void(0);" onClick=\'gb_expand_all("'.$md5_id.'")\'',
-            'e_id'=>'expand_all_button_'.$md5_id,
-            'c_label'=>__('Collapse All'),
-            'c_href'=>'href="javascript:void(0);" onClick=\'gb_collapse_all("'.$md5_id.'")\'',
-            'c_id'=>'collapse_all_button_'.$md5_id
-        ));
         if($this->expandable) {
+            $theme->assign('expand_collapse',array(
+                'e_label'=>__('Expand All'),
+                'e_href'=>'href="javascript:void(0);" onClick=\'gb_expand_all("'.$md5_id.'")\'',
+                'e_id'=>'expand_all_button_'.$md5_id,
+                'c_label'=>__('Collapse All'),
+                'c_href'=>'href="javascript:void(0);" onClick=\'gb_collapse_all("'.$md5_id.'")\'',
+                'c_id'=>'collapse_all_button_'.$md5_id
+            ));
             $max_actions = isset($max_actions) ? $max_actions : 0;
             eval_js('gb_expandable_adjust_action_column("'.$md5_id.'", ' . $max_actions . ')');
+            eval_js('gb_show_hide_buttons("'.$md5_id.'")');
         }
-        eval_js('gb_show_hide_buttons("'.$md5_id.'")');
 
 		if ($search_on) $theme->assign('adv_search','<a id="switch_search_'.($this->is_adv_search_on()?'simple':'advanced').'" class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
 		else $theme->assign('adv_search','');

@@ -4,7 +4,7 @@
 
 <div>
 
-{if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search)}
+{if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search) || isset($expand_collapse)}
 <table class="letters-search nonselectable" border="0" cellpadding="0" cellspacing="0" style="table-layout:auto;">
 	<tbody>
 		<tr>
@@ -33,19 +33,22 @@
 					</div>
 				</td>
 			{/if}
-			<td class="expand_collapse">
-                <a id="{$expand_collapse.e_id}" class="button" {$expand_collapse.e_href}><img src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
-                    <div style="display:inline-block;position:relative;top:-4px">
-                        {$expand_collapse.e_label}
-                    </div>
-                </a>
-                <a id="{$expand_collapse.c_id}" class="button" {$expand_collapse.c_href}><img src="{$theme_dir}/Base/ActionBar/icons/collapse_big.png" />
-                    <div style="display:inline-block;position:relative;top:-4px">
-                        {$expand_collapse.c_label}
-                    </div>
-                </a>
-                &nbsp;
-			</td>
+            <!-- Expand/Collapse -->
+            {if isset($expand_collapse)}
+                <td class="expand_collapse">
+                    <a id="{$expand_collapse.e_id}" class="button" {$expand_collapse.e_href}><img src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
+                        <div style="display:inline-block;position:relative;top:-4px">
+                            {$expand_collapse.e_label}
+                        </div>
+                    </a>
+                    <a id="{$expand_collapse.c_id}" class="button" {$expand_collapse.c_href}><img src="{$theme_dir}/Base/ActionBar/icons/collapse_big.png" />
+                        <div style="display:inline-block;position:relative;top:-4px">
+                            {$expand_collapse.c_label}
+                        </div>
+                    </a>
+                    &nbsp;
+                </td>
+            {/if}
 			<!-- Advanced / Simple Search -->
 			{if isset($form_data_search)}
 				<td style="width:470px;">
