@@ -14,31 +14,42 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Contacts_NotesAggregate extends Module {
 	public function contact_addon($contact) {
 		$attachment_groups = array();
-		
-		if (ModuleManager::is_installed('CRM_Meeting')>=0) {
-			$ret = DB::Execute('SELECT id FROM crm_meeting_data_1 WHERE f_customers '.DB::like().' '.DB::Concat(DB::qstr('%'), DB::qstr('\_\_P:'.$contact['id'].'\_\_'), DB::qstr('%')));
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'crm_meeting/'.$row['id'];
-		}
-		
-		if (ModuleManager::is_installed('CRM_Tasks')>=0) {
-			$ret = DB::Execute('SELECT id FROM task_data_1 WHERE f_customers '.DB::like().' '.DB::Concat(DB::qstr('%'), DB::qstr('\_\_P:'.$contact['id'].'\_\_'), DB::qstr('%')));
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'task/'.$row['id'];
-		}
-		
-		if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
-			$ret = DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_customer = %s', array('P:'.$contact['id']));
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'phonecall/'.$row['id'];
-		}
-		
-		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0) {
-			$ret = DB::Execute('SELECT id FROM premium_salesopportunity_data_1 WHERE f_customers '.DB::like().' '.DB::Concat(DB::qstr('%'), DB::qstr('\_\_P:'.$contact['id'].'\_\_'), DB::qstr('%')));
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'premium_salesopportunity/'.$row['id'];
-		}
+
+        $ids = array('P:' . $contact['id']);
+
+        if (ModuleManager::is_installed('CRM_Meeting')>=0) {
+            $records = Utils_RecordBrowserCommon::get_records('crm_meeting', array('customers' => $ids), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'crm_meeting/' . $rec['id'];
+            }
+        }
+
+        if (ModuleManager::is_installed('CRM_Tasks')>=0) {
+            $records = Utils_RecordBrowserCommon::get_records('task', array('customers' => $ids), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'task/' . $rec['id'];
+            }
+        }
+
+        if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
+            $records = Utils_RecordBrowserCommon::get_records('phonecall', array('customer' => $ids), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'phonecall/' . $rec['id'];
+            }
+        }
+
+        if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0) {
+            $records = Utils_RecordBrowserCommon::get_records('premium_salesopportunity', array('customers' => $ids), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'premium_salesopportunity/' . $rec['id'];
+            }
+        }
 		
 		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
 			$attachment_groups[] = 'contact/'.$contact['id'];
 
 		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
+        $a->set_multiple_group_mode();
 		$this->display_module($a);
 	}
 
@@ -53,38 +64,40 @@ class CRM_Contacts_NotesAggregate extends Module {
 			$ids[] = 'P:'.$v['id'];
 			$attachment_groups[] = 'contact/'.$v['id'];
 		}
-		$multi_ids = array();
-		$single_ids = array();
-		
-		foreach ($ids as $id) $multi_ids[] = DB::Concat(DB::qstr('%'), DB::qstr('\_\_'.$id.'\_\_'), DB::qstr('%'));
-		foreach ($ids as $id) $single_ids[] = DB::qstr($id);
-		$multi_ids = implode(' OR f_customers '.DB::like().' ', $multi_ids);
-		$single_ids = implode(' OR f_customer = ', $single_ids);
-		
+
 		if (ModuleManager::is_installed('CRM_Meeting')>=0) {
-			$ret = DB::Execute('SELECT id FROM crm_meeting_data_1 WHERE f_customers '.DB::like().' '.$multi_ids);
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'crm_meeting/'.$row['id'];
+            $records = Utils_RecordBrowserCommon::get_records('crm_meeting', array('customers' => $ids), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'crm_meeting/' . $rec['id'];
+            }
 		}
 		
 		if (ModuleManager::is_installed('CRM_Tasks')>=0) {
-			$ret = DB::Execute('SELECT id FROM task_data_1 WHERE f_customers '.DB::like().' '.$multi_ids);
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'task/'.$row['id'];
+            $records = Utils_RecordBrowserCommon::get_records('task', array('customers' => $ids), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'task/' . $rec['id'];
+            }
 		}
 		
 		if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
-			$ret = DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_customer = '.$single_ids);
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'phonecall/'.$row['id'];
+            $records = Utils_RecordBrowserCommon::get_records('phonecall', array('customer' => $ids), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'phonecall/' . $rec['id'];
+            }
 		}
 		
 		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0) {
-			$ret = DB::Execute('SELECT id FROM premium_salesopportunity_data_1 WHERE f_customers '.DB::like().' '.$multi_ids);
-			while ($row = $ret->FetchRow()) $attachment_groups[] = 'premium_salesopportunity/'.$row['id'];
+            $records = Utils_RecordBrowserCommon::get_records('premium_salesopportunity', array('customers' => $ids), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'premium_salesopportunity/' . $rec['id'];
+            }
 		}
 		
 		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
 			$attachment_groups[] = 'company/'.$company['id'];
-		
+
 		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
+        $a->set_multiple_group_mode();
 		$this->display_module($a);
 	}
 
@@ -92,24 +105,31 @@ class CRM_Contacts_NotesAggregate extends Module {
 		$attachment_groups = array();
 		
 		if (ModuleManager::is_installed('CRM_Meeting')>=0) {
-			$ret = @DB::Execute('SELECT id FROM crm_meeting_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
-			if ($ret) while ($row = $ret->FetchRow()) $attachment_groups[] = 'crm_meeting/'.$row['id'];
+            $records = Utils_RecordBrowserCommon::get_records('crm_meeting', array('opportunity' => $salesopportunity['id']), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'crm_meeting/' . $rec['id'];
+            }
 		}
 		
 		if (ModuleManager::is_installed('CRM_Tasks')>=0) {
-			$ret = @DB::Execute('SELECT id FROM task_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
-			if ($ret) while ($row = $ret->FetchRow()) $attachment_groups[] = 'task/'.$row['id'];
+            $records = Utils_RecordBrowserCommon::get_records('task', array('opportunity' => $salesopportunity['id']), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'task/' . $rec['id'];
+            }
 		}
 		
 		if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
-			$ret = @DB::Execute('SELECT id FROM phonecall_data_1 WHERE f_opportunity = '.DB::qstr($salesopportunity['id']));
-			if ($ret) while ($row = $ret->FetchRow()) $attachment_groups[] = 'phonecall/'.$row['id'];
+            $records = Utils_RecordBrowserCommon::get_records('phonecall', array('opportunity' => $salesopportunity['id']), array());
+            foreach ($records as $rec) {
+                $attachment_groups[] = 'phonecall/' . $rec['id'];
+            }
 		}
 		
 		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
 			$attachment_groups[] = 'premium_salesopportunity/'.$salesopportunity['id'];
 		
 		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
+        $a->set_multiple_group_mode();
 		$this->display_module($a);
 	}
 }
