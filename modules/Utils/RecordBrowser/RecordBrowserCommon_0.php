@@ -3244,7 +3244,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     if($len<$token_length) continue;
                     for($i=0;$i<=$len-$token_length;$i++) {
                         $word = mb_substr($text,$i,$token_length);
-                        if(mb_strpos($word,' ')!==false) continue;
+                        if(preg_match('/[^\p{L}0-9]/u',$word)) continue;
 
                         DB::StartTrans();
                         $word_id = DB::GetOne('SELECT id FROM recordbrowser_words_index WHERE word=%s',array($word));
@@ -3278,7 +3278,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $token_length = self::get_token_length();
         $limit = Base_SearchCommon::get_recordset_limit_records();
         $categories = array_map(create_function('$a','return DB::qstr($a);'),$categories);
-        $texts = array_filter(preg_split('/\s/i',mb_strtolower($search)));
+        $texts = array_filter(preg_split('/[^\p{L}0-9]/u',mb_strtolower($search)));
         $total_results = array();
         $total_max_score = 0;
         foreach($texts as $text) { //for each word
