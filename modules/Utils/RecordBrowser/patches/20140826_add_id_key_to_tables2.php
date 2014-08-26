@@ -3,6 +3,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 $tab_ids_checkpoint = Patch::checkpoint('tab_ids');
 if(!$tab_ids_checkpoint->is_done()) {
+    Patch::require_time(30);
+
     if(DATABASE_DRIVER=='postgres') {
         DB::Execute('ALTER TABLE recordbrowser_table_properties DROP CONSTRAINT recordbrowser_table_properties_pkey');
         DB::Execute('ALTER TABLE recordbrowser_table_properties ADD COLUMN id SERIAL PRIMARY KEY');
@@ -16,6 +18,8 @@ if(!$tab_ids_checkpoint->is_done()) {
 
 $tab_id_col_checkpoint = Patch::checkpoint('tab_id_col');
 if(!$tab_id_col_checkpoint->is_done()) {
+    Patch::require_time(30);
+
     PatchUtil::db_add_column('recordbrowser_words_map', 'tab_id', 'I4');
     if(DATABASE_DRIVER=='postgres') {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD CONSTRAINT tab_id_fk FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties');
@@ -27,6 +31,8 @@ if(!$tab_id_col_checkpoint->is_done()) {
 
 $remove_idx_checkpoint = Patch::checkpoint('remove_idx');
 if(!$remove_idx_checkpoint->is_done()) {
+    Patch::require_time(30);
+
     if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
         $a = DB::GetRow('SHOW CREATE TABLE recordbrowser_words_map');
         if(preg_match('/CONSTRAINT (.+) FOREIGN KEY .*word_id/',$a[1],$m))
@@ -70,6 +76,8 @@ if(!$update_map_checkpoint->is_done()) {
 
 $finalize_checkpoint = Patch::checkpoint('finalize');
 if(!$finalize_checkpoint->is_done()) {
+    Patch::require_time(30);
+
     PatchUtil::db_drop_column('recordbrowser_words_map', 'tab');
 
     DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','word_id,tab_id,record_id,field_name');
