@@ -1870,7 +1870,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         Utils_WatchdogCommon::new_event($tab, $id, $state ? 'R' : 'D');
         @DB::Execute('UPDATE ' . $tab . '_data_1 SET active=%d,indexed=0 WHERE id=%d', array($state ? 1 : 0, $id));
-        DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab=%s AND record_id=%d',array($tab,$id));
+        $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+        DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%d AND record_id=%d',array($tab_id,$id));
         self::new_record_history($tab,$id,$state ? 'RESTORED' : 'DELETED');
         return true;
     }
@@ -3226,13 +3227,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $token_length = self::get_token_length();
         $limit = 100;
         self::$admin_filter = ' indexed=0 AND active=1 AND ';
-        $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
-        foreach($tabs as $tab) {
+        $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties');
+        foreach($tabs as $tab_id=>$tab) {
             $ret = self::get_records($tab,array(),array(),array(),$limit,true);
             foreach($ret as $row) {
                 $row = self::record_processing($tab, $row, 'index');
                 if(!$row) continue;
-                DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab=%s AND record_id=%d',array($tab,$row['id']));
+                DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%s AND record_id=%d',array($tab_id,$row['id']));
                 foreach(self::$table_rows as $field_info) {
                     $field = $field_info['id'];
                     if(!isset($row[$field])) continue;
@@ -3258,8 +3259,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             return;
                         }
                         
-                        DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab,record_id,field_name,position) VALUES(%d,%s,%d,%s,%d)',
-                            array($word_id,$tab,$row['id'],$field,$i));
+                        DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab_id,record_id,field_name,position) VALUES(%d,%d,%d,%s,%d)',
+                            array($word_id,$tab_id,$row['id'],$field,$i));
                     }
                 }
                 
@@ -3289,43 +3290,43 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $total_max_score += $len;
             for($i=0;$i<=$len-$token_length;$i++) {
                 $word = mb_substr($text,$i,$token_length);
-                $ret = DB::Execute('SELECT m.tab,m.record_id,m.field_name,m.position FROM recordbrowser_words_index w INNER JOIN recordbrowser_words_map m ON w.id=m.word_id WHERE w.word=%s AND m.tab IN ('.implode(',',$categories).')',array($word));
+                $ret = DB::Execute('SELECT m.tab_id,m.record_id,m.field_name,m.position FROM recordbrowser_words_index w INNER JOIN recordbrowser_words_map m ON w.id=m.word_id WHERE w.word=%s AND m.tab_id IN ('.implode(',',$categories).')',array($word));
                 while($row = $ret->FetchRow()) {
                     $score = 1;
                     for($k=1;$k<=$token_length+1;$k++)
-                        if(isset($results[$row['tab']][$row['record_id']][$row['field_name']][$row['position']-$k])) {
-                            $score += $results[$row['tab']][$row['record_id']][$row['field_name']][$row['position']-$k];
+                        if(isset($results[$row['tab_id']][$row['record_id']][$row['field_name']][$row['position']-$k])) {
+                            $score += $results[$row['tab_id']][$row['record_id']][$row['field_name']][$row['position']-$k];
                             break;
                         }
         
-                    $results[$row['tab']][$row['record_id']][$row['field_name']][$row['position']] = min($max_score,$score);
+                    $results[$row['tab_id']][$row['record_id']][$row['field_name']][$row['position']] = min($max_score,$score);
                 }
             }
     
-            foreach($results as $tab=>$records) {
+            foreach($results as $tab_id=>$records) {
                 foreach($records as $record=>$fields) {
                     //get max score for each field... if max score is 50% or more equal save it
                     foreach($fields as $field=>$scores) {
                         $max_score_local = max($scores);
-                        if($max_score_local>$max_score/2) $results[$tab][$record][$field] = $max_score_local;
-                        else unset($results[$tab][$record][$field]);
+                        if($max_score_local>$max_score/2) $results[$tab_id][$record][$field] = $max_score_local;
+                        else unset($results[$tab_id][$record][$field]);
                     }
                     //if some fields was saved
-                    if($results[$tab][$record]) {
+                    if($results[$tab_id][$record]) {
                         $max = 0; //get max score of all fields where the "word" was found
                         $max_fields = array(); //get field names with maximal score
-                        foreach($results[$tab][$record] as $field=>$score) {
+                        foreach($results[$tab_id][$record] as $field=>$score) {
                             if($max<$score) {
                                 $max = $score;
                                 $max_fields = array($field);
                             } elseif($max==$score) $max_fields[] = $field;
                         }
                         $max += $token_length-1;
-                        if(!isset($total_results[$tab.'#'.$record])) $total_results[$tab.'#'.$record] = array('score'=>0,'fields'=>array(),'fields_score'=>array());
-                        $total_results[$tab.'#'.$record]['score'] += $max;
-                        $total_results[$tab.'#'.$record]['fields_score'][] = $max;
-                        $total_results[$tab.'#'.$record]['fields'][] = $max_fields;
-                    } else unset($results[$tab][$record]);
+                        if(!isset($total_results[$tab_id.'#'.$record])) $total_results[$tab_id.'#'.$record] = array('score'=>0,'fields'=>array(),'fields_score'=>array());
+                        $total_results[$tab_id.'#'.$record]['score'] += $max;
+                        $total_results[$tab_id.'#'.$record]['fields_score'][] = $max;
+                        $total_results[$tab_id.'#'.$record]['fields'][] = $max_fields;
+                    } else unset($results[$tab_id][$record]);
                 }
             }
             unset($results);
@@ -3339,11 +3340,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         //sort with score... if score is the same sort with qty of fields where the "word" was found
         uasort($total_results,create_function('$a,$b','return $a["score"]>$b["score"]?-1:($a["score"]<$b["score"]?1:($a["fields"]>$b["fields"]?-1:1));'));
         
+        $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties');
         $ret = array();
         $cols_cache = array();
         $count = 0;
         foreach($total_results as $rec=>$score) {
-            list($tab,$id) = explode('#',$rec,2);
+            list($tab_id,$id) = explode('#',$rec,2);
+            $tab = $tabs[$tab_id];
             $record = self::get_record($tab, $id);
             
             //get access
@@ -3385,9 +3388,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     
     public static function search_categories() {
-        $tabs = DB::GetCol('SELECT tab FROM recordbrowser_words_map GROUP BY tab');
+        $tabs = DB::GetAssoc('SELECT m.tab_id,t.tab FROM recordbrowser_words_map m INNER JOIN recordbrowser_table_properties t ON t.id=m.tab_id GROUP BY tab_id');
         $ret = array();
-        foreach($tabs as $tab) $ret[$tab] = self::get_caption($tab);
+        foreach($tabs as $tab_id=>$tab) $ret[$tab_id] = self::get_caption($tab);
         $ret = array_filter($ret);
         natcasesort($ret);
         return $ret;

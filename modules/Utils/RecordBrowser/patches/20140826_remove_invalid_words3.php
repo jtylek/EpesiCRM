@@ -17,6 +17,7 @@ if(!$words_checkpoint->is_done()) {
     }
     
     for(;$words<=$words_qty;$words++) {
+        Patch::set_message('Processing word: '.$id.'/'.$words_qty);
         $id = $words;
         $word = DB::GetOne('SELECT word FROM recordbrowser_words_index WHERE id=%d',array($id));
 
