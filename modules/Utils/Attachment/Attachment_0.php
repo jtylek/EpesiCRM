@@ -113,7 +113,10 @@ class Utils_Attachment extends Module {
         Base_ThemeCommon::load_css('Utils_Attachment','browse');
 
         $this->rb = $this->init_module('Utils/RecordBrowser','utils_attachment','utils_attachment');
-        $defaults = array('permission' => '0', 'func' => serialize($this->func), 'args' => serialize($this->args));
+        $defaults = array(
+            'permission' => Base_User_SettingsCommon::get('CRM_Common','default_record_permission'),
+            'func' => serialize($this->func),
+            'args' => serialize($this->args));
         $rb_cols = array();
         $single_group = (is_string($this->group) || count($this->group) == 1);
         if ($this->force_multiple) {
