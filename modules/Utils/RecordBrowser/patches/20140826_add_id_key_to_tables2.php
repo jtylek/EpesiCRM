@@ -66,7 +66,7 @@ if(!$update_map_checkpoint->is_done()) {
         $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties');
     }
     foreach($tabs as $id=>$tab) {
-        $words_checkpoint->require_time(3);
+        $update_map_checkpoint->require_time(3);
         DB::Execute('UPDATE recordbrowser_words_map SET tab_id=%d WHERE tab=%s',array($id,$tab));
         unset($tabs[$id]);
         $update_map_checkpoint->set('tabs',$tabs);
