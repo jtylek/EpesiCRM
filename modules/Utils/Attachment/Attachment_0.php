@@ -24,6 +24,8 @@ class Utils_Attachment extends Module {
 	private $func = null;
 	private $args = array();
 
+    private $force_multiple = false;
+
 
 	public function construct($group=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null) {
 		$this->group = & $this->get_module_variable('group',isset($group)?$group:null);
@@ -38,6 +40,11 @@ class Utils_Attachment extends Module {
 		$this->func = $x;
 		$this->args = $y;
 	}
+
+    public function set_multiple_group_mode($arg = true)
+    {
+        $this->force_multiple = $arg;
+    }
 	
 	public function admin() {
 		if ($this->is_back()) {
@@ -108,7 +115,11 @@ class Utils_Attachment extends Module {
         $this->rb = $this->init_module('Utils/RecordBrowser','utils_attachment','utils_attachment');
         $defaults = array('permission' => '0', 'func' => serialize($this->func), 'args' => serialize($this->args));
         $rb_cols = array();
-        if (is_string($this->group) || count($this->group) == 1) {
+        $single_group = (is_string($this->group) || count($this->group) == 1);
+        if ($this->force_multiple) {
+            $single_group = false;
+        }
+        if ($single_group) {
             $group = is_string($this->group) ? $this->group : reset($this->group);
             $defaults['local'] = $group;
         } else {
