@@ -29,7 +29,7 @@ class Utils_Attachment extends Module {
 		$this->group = & $this->get_module_variable('group',isset($group)?$group:null);
 		$this->func = & $this->get_module_variable('func',isset($func)?$func:null);
 		$this->args = & $this->get_module_variable('args',isset($args)?$args:null);
-		
+
 		if(isset($watchdog_cat)) $this->watchdog_category = $watchdog_cat;
 		if(isset($watchdog_id)) $this->watchdog_id = $watchdog_id;
 	}
@@ -107,17 +107,20 @@ class Utils_Attachment extends Module {
 
         $this->rb = $this->init_module('Utils/RecordBrowser','utils_attachment','utils_attachment');
         $defaults = array('permission' => '0', 'func' => serialize($this->func), 'args' => serialize($this->args));
+        $rb_cols = array();
         if (is_string($this->group) || count($this->group) == 1) {
             $group = is_string($this->group) ? $this->group : reset($this->group);
             $defaults['local'] = $group;
         } else {
+            // force attached to display
+            $rb_cols['attached_to'] = true;
             $this->rb->set_button(false);
         }
         $this->rb->set_defaults($defaults);
         $this->rb->set_additional_actions_method(array($this,'add_actions'));
         $this->rb->set_header_properties(array(
             'sticky'=>array('width'=>1,'display'=>false),
-            'note_id'=>array('width'=>"12em"),
+            'attached_to' => array('width'=>"16em"),
             'edited_on'=>array('width'=>"12em"),
             'title'=>array('width'=>"20em"),
         ));
@@ -125,7 +128,7 @@ class Utils_Attachment extends Module {
         if($uid) {
             $this->rb->set_button(false);
             $this->rb->disable_actions(array('delete'));
-            $this->display_module($this->rb, array(array(':Created_by'=>$uid), array(), array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
+            $this->display_module($this->rb, array(array(':Created_by'=>$uid), $rb_cols, array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
         } else {
             $crits = array();
             if(!is_array($this->group)) $this->group = array($this->group);
@@ -140,7 +143,7 @@ class Utils_Attachment extends Module {
                 $g = array_map(array('DB','qstr'),$this->group);
                 $crits['id'] = DB::GetCol('SELECT attachment FROM utils_attachment_local WHERE local IN ('.implode(',',$g).')');
             } else $crits['id'] = 0;
-            $this->display_module($this->rb, array($crits, array(), array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
+            $this->display_module($this->rb, array($crits, $rb_cols, array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
         }
 	}
 
