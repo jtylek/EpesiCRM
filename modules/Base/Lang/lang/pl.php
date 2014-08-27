@@ -685,6 +685,7 @@ $translations['Starts']='Zaczyna się';
 $translations['Duration']='Czas trwania';
 $translations['Ends']='Kończy się';
 $translations['New Event']='Nowe wydarzenie';
+$translations['New Meeting']='Nowe spotkanie';
 $translations['Daily agenda']='Terminarz dzienny';
 $translations['Monthly agenda']='Terminarz miesięczny';
 $translations['Weekly agenda']='Terminarz tygodniowy';
