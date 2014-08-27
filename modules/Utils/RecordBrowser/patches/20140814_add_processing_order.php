@@ -7,7 +7,7 @@ foreach ($recordsets as $tab => $caption) {
     $tab = $tab . "_field";
     $columns = DB::MetaColumnNames($tab);
     if (!isset($columns['PROCESSING_ORDER'])) {
-        PatchUtil::db_add_column($tab, 'processing_order', 'I4');
+        PatchUtil::db_add_column($tab, 'processing_order', 'I2');
         DB::Execute("UPDATE $tab SET processing_order=position");
     }
 }

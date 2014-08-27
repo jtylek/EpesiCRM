@@ -434,8 +434,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'visible I1 DEFAULT 1,'.
                     'required I1 DEFAULT 1,'.
                     'active I1 DEFAULT 1,'.
-                    'position I,'.
-                    'processing_order I NOTNULL,'.
+                    'position I2,'.
+                    'processing_order I2 NOTNULL,'.
                     'filter I1 DEFAULT 0,'.
                     'param C(255),'.
                     'style C(64)',

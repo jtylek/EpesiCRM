@@ -25,7 +25,6 @@ if(!$field_ids_checkpoint->is_done()) {
         $tab = $tab . "_field";
         $columns = DB::MetaColumnNames($tab);
         if (!isset($columns['ID'])) {
-            PatchUtil::db_add_column($tab, 'id', 'I2');
             if(DATABASE_DRIVER=='postgres') {
                 @DB::Execute('ALTER TABLE '.$tab.' DROP CONSTRAINT '.$tab.'_pkey');
                 DB::Execute('ALTER TABLE '.$tab.' ADD COLUMN id SERIAL PRIMARY KEY');
