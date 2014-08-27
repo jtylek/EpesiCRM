@@ -16,7 +16,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme('Utils/RecordBrowser');
 		DB::CreateTable('recordbrowser_table_properties',
-						'id I4 AUTO KEY,'.
+						'id I2 AUTO KEY,'.
 						'tab C(64),'.
 						'quickjump C(64) DEFAULT \'\','.
 						'tpl C(255) DEFAULT \'\','.
@@ -55,7 +55,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 
 		DB::CreateTable('recordbrowser_words_index', 'id I AUTO KEY,word C(3)',
 					array('constraints'=>', UNIQUE(word)'));
-		DB::CreateTable('recordbrowser_words_map', 'word_id I, tab_id I, record_id I, field_name C(32), position I',
+		DB::CreateTable('recordbrowser_words_map', 'word_id I, tab_id I2, record_id I, field_id I2, position I',
 					array('constraints'=>', FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id), FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties(id)'));
 		DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','word_id,tab_id,record_id,field_name');
 		DB::CreateIndex('recordbrowser_words_map__idx2','recordbrowser_words_map','tab_id,record_id');

@@ -10,17 +10,41 @@ if(!$tab_ids_checkpoint->is_done()) {
         DB::Execute('ALTER TABLE recordbrowser_table_properties ADD COLUMN id SERIAL PRIMARY KEY');
     } else {
         DB::Execute('ALTER TABLE recordbrowser_table_properties DROP PRIMARY KEY');
-        DB::Execute('ALTER TABLE recordbrowser_table_properties ADD id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY');
+        DB::Execute('ALTER TABLE recordbrowser_table_properties ADD id SMALLINT NOT NULL AUTO_INCREMENT PRIMARY KEY');
     }
     DB::CreateIndex('recordbrowser_table_properties_tab','recordbrowser_table_properties','tab',array('UNIQUE'=>1));
     $tab_ids_checkpoint->done();
+}
+
+$field_ids_checkpoint = Patch::checkpoint('field_ids');
+if(!$field_ids_checkpoint->is_done()) {
+    Patch::require_time(30);
+
+    $recordsets = Utils_RecordBrowserCommon::list_installed_recordsets();
+    foreach ($recordsets as $tab => $caption) {
+        $tab = $tab . "_field";
+        $columns = DB::MetaColumnNames($tab);
+        if (!isset($columns['ID'])) {
+            PatchUtil::db_add_column($tab, 'id', 'I2');
+            if(DATABASE_DRIVER=='postgres') {
+                @DB::Execute('ALTER TABLE '.$tab.' DROP CONSTRAINT '.$tab.'_pkey');
+                DB::Execute('ALTER TABLE '.$tab.' ADD COLUMN id SERIAL PRIMARY KEY');
+            } else {
+                @DB::Execute('ALTER TABLE '.$tab.' DROP PRIMARY KEY');
+                DB::Execute('ALTER TABLE '.$tab.' ADD id SMALLINT NOT NULL AUTO_INCREMENT PRIMARY KEY');
+            }
+            DB::CreateIndex($tab.'_field',$tab,'field',array('UNIQUE'=>1));
+        }
+    }
+    $field_ids_checkpoint->done();
 }
 
 $tab_id_col_checkpoint = Patch::checkpoint('tab_id_col');
 if(!$tab_id_col_checkpoint->is_done()) {
     Patch::require_time(30);
 
-    PatchUtil::db_add_column('recordbrowser_words_map', 'tab_id', 'I4');
+    PatchUtil::db_add_column('recordbrowser_words_map', 'tab_id', 'I2');
+    PatchUtil::db_add_column('recordbrowser_words_map', 'field_id', 'I2');
     if(DATABASE_DRIVER=='postgres') {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD CONSTRAINT tab_id_fk FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties');
     } else {
@@ -65,10 +89,23 @@ if(!$update_map_checkpoint->is_done()) {
     } else {
         $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties');
     }
-    foreach($tabs as $id=>$tab) {
-        $update_map_checkpoint->require_time(3);
-        DB::Execute('UPDATE recordbrowser_words_map SET tab_id=%d WHERE tab=%s',array($id,$tab));
-        unset($tabs[$id]);
+    foreach($tabs as $tab_id=>$tab) {
+//        DB::Execute('UPDATE recordbrowser_words_map SET tab_id=%d WHERE tab=%s',array($tab_id,$tab));
+        
+        if($update_map_checkpoint->has('fields')) {
+            $fields = $update_map_checkpoint->get('fields');
+        } else {
+            $fields = DB::GetAssoc('SELECT id,field FROM '.$tab.'_field');
+        }
+        foreach($fields as $field_id=>$field) {
+            $update_map_checkpoint->require_time(10);
+            
+            DB::Execute('UPDATE recordbrowser_words_map SET tab_id=%d,field_id=%d WHERE tab=%s AND field_name=%s',array($tab_id,$field_id,$tab,$field));
+            unset($fields[$field_id]);
+            $update_map_checkpoint->set('fields',$fields);
+        }
+        
+        unset($tabs[$tab_id]);
         $update_map_checkpoint->set('tabs',$tabs);
     }
     $update_map_checkpoint->done();
@@ -79,8 +116,9 @@ if(!$finalize_checkpoint->is_done()) {
     Patch::require_time(30);
 
     PatchUtil::db_drop_column('recordbrowser_words_map', 'tab');
+    PatchUtil::db_drop_column('recordbrowser_words_map', 'field_name');
 
-    DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','word_id,tab_id,record_id,field_name');
+    DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','word_id,tab_id,record_id,field_id');
     DB::CreateIndex('recordbrowser_words_map__idx2','recordbrowser_words_map','tab_id,record_id');
     if(DATABASE_DRIVER=='postgres') {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD CONSTRAINT word_id_fk FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index');

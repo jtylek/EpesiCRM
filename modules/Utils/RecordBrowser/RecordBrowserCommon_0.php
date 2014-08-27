@@ -427,7 +427,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         self::check_table_name(null, true);
         DB::CreateTable($tab.'_field',
-                    'field C(32) UNIQUE NOT NULL,'.
+                    'id I2 AUTO KEY NOTNULL,'.
+                    'field C(32) UNIQUE NOTNULL,'.
                     'type C(32),'.
                     'extra I1 DEFAULT 1,'.
                     'visible I1 DEFAULT 1,'.
