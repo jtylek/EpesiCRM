@@ -363,6 +363,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             self::$table_rows[$row['field']] =
                 array(  'name'=>str_replace('%','%%',$row['field']),
                         'id'=>self::get_field_id($row['field']),
+                        'pkey'=>$row['id'],
                         'type'=>$row['type'],
                         'visible'=>$row['visible'],
                         'required'=>($row['type']=='calculated'?false:$row['required']),
@@ -3260,8 +3261,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             return;
                         }
                         
-                        DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab_id,record_id,field_name,position) VALUES(%d,%d,%d,%s,%d)',
-                            array($word_id,$tab_id,$row['id'],$field,$i));
+                        DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab_id,record_id,field_id,position) VALUES(%d,%d,%d,%d,%d)',
+                            array($word_id,$tab_id,$row['id'],$field_info['pkey'],$i));
                     }
                 }
                 
@@ -3291,16 +3292,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $total_max_score += $len;
             for($i=0;$i<=$len-$token_length;$i++) {
                 $word = mb_substr($text,$i,$token_length);
-                $ret = DB::Execute('SELECT m.tab_id,m.record_id,m.field_name,m.position FROM recordbrowser_words_index w INNER JOIN recordbrowser_words_map m ON w.id=m.word_id WHERE w.word=%s AND m.tab_id IN ('.implode(',',$categories).')',array($word));
+                $ret = DB::Execute('SELECT m.tab_id,m.record_id,m.field_id,m.position FROM recordbrowser_words_index w INNER JOIN recordbrowser_words_map m ON w.id=m.word_id WHERE w.word=%s AND m.tab_id IN ('.implode(',',$categories).')',array($word));
                 while($row = $ret->FetchRow()) {
                     $score = 1;
                     for($k=1;$k<=$token_length+1;$k++)
-                        if(isset($results[$row['tab_id']][$row['record_id']][$row['field_name']][$row['position']-$k])) {
-                            $score += $results[$row['tab_id']][$row['record_id']][$row['field_name']][$row['position']-$k];
+                        if(isset($results[$row['tab_id']][$row['record_id']][$row['field_id']][$row['position']-$k])) {
+                            $score += $results[$row['tab_id']][$row['record_id']][$row['field_id']][$row['position']-$k];
                             break;
                         }
         
-                    $results[$row['tab_id']][$row['record_id']][$row['field_name']][$row['position']] = min($max_score,$score);
+                    $results[$row['tab_id']][$row['record_id']][$row['field_id']][$row['position']] = min($max_score,$score);
                 }
             }
     
@@ -3350,13 +3351,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $tab = $tabs[$tab_id];
             $record = self::get_record($tab, $id);
             
+            //get fields names translations
+            if(!isset($cols_cache[$tab])) {
+                self::init($tab);
+                $cols_cache[$tab] = array();
+                foreach(self::$table_rows as $col) $cols_cache[$tab][$col['pkey']] = array('name'=>$col['name'],'id'=>$col['id']);
+            }
+            
             //get access
             $has_access = self::get_access($tab, 'view', $record);
             if(!$has_access) continue; //no access at all
             
             //if there are fields that should not be visible, remove them from results list and recalculate score
             foreach($score['fields'] as $fields_group => $fields) {
-                foreach($fields as $field_pos=>$field) {
+                foreach($fields as $field_pos=>$field_id) {
+                    $field = $cols_cache[$tab][$field_id]['id'];
                     if(!isset($has_access[$field]) || !$has_access[$field]) {
                         unset($score['fields'][$fields_group][$field_pos]);
                     }
@@ -3369,14 +3378,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
             if(!$score['fields']) continue;
             
-            //get fields names translations
-            if(!isset($cols_cache[$tab])) {
-                self::init($tab);
-                $cols_cache[$tab] = array();
-                foreach(self::$table_rows as $col) $cols_cache[$tab][$col['id']] = $col['name'];
-            }
             $fields = array();
-            foreach($score['fields'] as $fields_group) foreach($fields_group as $field) $fields[] = _V($cols_cache[$tab][$field]);
+            foreach($score['fields'] as $fields_group) foreach($fields_group as $field) $fields[] = _V($cols_cache[$tab][$field]['name']);
             
             //create link with default label
             $ret[] = self::create_default_linked_label($tab,$id).' <span style="color: red">'.round($score['score']*100/$total_max_score).'%</span> ('.implode(', ',$fields).')';
