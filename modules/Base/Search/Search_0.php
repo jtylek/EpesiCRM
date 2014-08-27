@@ -36,9 +36,15 @@ class Base_Search extends Module {
 		$categories_tmp = & $this->get_module_variable('categories',array());
 		foreach($search_categories as $mod=>$cats) {
 		    foreach($cats as $cat_id=>$cat_name) {
+		        $checked = 0;
+		        if(is_array($cat_name)) {
+		            if(!isset($cat_name['caption'])) continue;
+		            $checked = isset($cat_name['checked']) && $cat_name['checked'];
+		            $cat_name = $cat_name['caption'];
+		        }
 		        $search_categories_checkboxes[] = $form->createElement('checkbox', $mod.'#'.$cat_id,  '', $cat_name);
 		        if(!$categories_tmp || isset($categories_tmp[$mod.'#'.$cat_id]))
-		            $defaults['search_categories'][$mod.'#'.$cat_id]=1;
+		            $defaults['search_categories'][$mod.'#'.$cat_id]=$checked;
 		    }
 		}
 		$form->addGroup($search_categories_checkboxes,'search_categories','','</li><li>');

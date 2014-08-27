@@ -1602,6 +1602,12 @@ class Utils_RecordBrowser extends Module {
 			'args'=>array()
 		),
 		array(
+			'access'=>'settings',
+			'func'=>array($this, 'settings'),
+			'label'=>__('Settings'),
+			'args'=>array()
+		),
+		array(
 			'access'=>'pattern',
 			'func'=>array($this, 'setup_clipboard_pattern'),
 			'label'=>__('Clipboard Pattern'),
@@ -1630,6 +1636,34 @@ class Utils_RecordBrowser extends Module {
         DB::Execute('UPDATE recordbrowser_addon SET pos=%d WHERE tab=%s AND pos=0', array($pos+$v, $tab));
         DB::CompleteTrans();
         return false;
+    }
+    
+    public function settings() {
+        $full_access = Base_AdminCommon::get_access('Utils_RecordBrowser', 'settings')==2;
+        
+        $form = $this->init_module('Libs/QuickForm');
+        $r = DB::GetRow('SELECT caption,favorites,recent,full_history,jump_to_id,search_include,search_priority FROM recordbrowser_table_properties WHERE tab=%s',array($this->tab));
+        $form->addElement('text', 'caption', __('Caption'));
+        $form->addElement('select', 'favorites', __('Favorites'), array(__('No'), __('Yes')));
+        $form->addElement('select', 'recent', __('Recent'), array(__('No'), __('Yes')));
+        $form->addElement('select', 'full_history', __('History'), array(__('No'), __('Yes')));
+        $form->addElement('select', 'jump_to_id', __('Jump to ID'), array(__('No'), __('Yes')));
+        $form->addElement('select', 'search_include', __('Search'), array(__('Exclude'), __('Include by default'), __('Include optional')));
+        $form->addElement('select', 'search_priority', __('Search priority'), array(-2=>__('Lowest'),-1=>__('Low'), 0=>__('Default'), 1=>__('High'), 2=>__('Highest')));
+        
+	if ($full_access) {
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+	} else {
+		$form->freeze();
+	}
+        if($r) $form->setDefaults($r);
+        $form->display();
+        if ($form->validate()) {
+            $enable = $form->exportValue('enable');
+            $pattern = $form->exportValue('pattern');
+            DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,favorites=%b,recent=%b,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
+                array($form->exportValue('caption'),$form->exportValue('favorites'),$form->exportValue('recent'),$form->exportValue('full_history'),$form->exportValue('jump_to_id'),$form->exportValue('search_include'),$form->exportValue('search_priority'),$this->tab));
+        }
     }
 
     public function manage_addons() {

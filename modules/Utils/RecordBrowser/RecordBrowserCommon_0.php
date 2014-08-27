@@ -331,6 +331,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return array(
 			'records'=>array('label'=>__('Manage Records'), 'values'=>array(0=>__('No access'), 1=>__('View'), 2=>__('Full')), 'default'=>1),
 			'fields'=>array('label'=>__('Manage Fields'), 'values'=>array(0=>__('No access'), 1=>__('View'), 2=>__('Full')), 'default'=>1),
+			'settings'=>array('label'=>__('Manage Settings'), 'values'=>array(0=>__('No access'), 1=>__('View'), 2=>__('Full')), 'default'=>1),
 			'addons'=>array('label'=>__('Manage Addons'), 'values'=>array(0=>__('No access'), 1=>__('View'), 2=>__('Full')), 'default'=>2),
 			'permissions'=>array('label'=>__('Permissions'), 'values'=>array(0=>__('No access'), 1=>__('View'), 2=>__('Full')), 'default'=>1),
 			'pattern'=>array('label'=>__('Clipboard Pattern'), 'values'=>array(0=>__('No access'), 1=>__('View'), 2=>__('Full')), 'default'=>2)
@@ -457,7 +458,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'id I AUTO KEY,'.
                     'created_on T NOT NULL,'.
                     'created_by I NOT NULL,'.
-                    'private I4 DEFAULT 0,'.
                     'indexed I1 NOT NULL DEFAULT 0,'.
                     'active I1 NOT NULL DEFAULT 1'.
 					$fields_sql,
@@ -837,6 +837,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function set_icon($tab, $value) {
         DB::Execute('UPDATE recordbrowser_table_properties SET icon=%s WHERE tab=%s', array($value, $tab));
+    }
+    public static function set_search($tab, $value,$priority=0) {
+        DB::Execute('UPDATE recordbrowser_table_properties SET search_include=%d,search_priority=%d WHERE tab=%s', array($value, $priority,$tab));
     }
     public static function set_description_callback($tab, $callback){
         if (is_array($callback)) $callback = implode('::',$callback);
@@ -3227,16 +3230,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function indexer() {
         $total = 0;
         $token_length = self::get_token_length();
-        $limit = 100;
+        $limit = 50;
         self::$admin_filter = ' indexed=0 AND active=1 AND ';
-        $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties');
+        $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties WHERE search_include>0');
         foreach($tabs as $tab_id=>$tab) {
+            $table_rows = self::init($tab);
             $ret = self::get_records($tab,array(),array(),array(),$limit,true);
             foreach($ret as $row) {
                 $row = self::record_processing($tab, $row, 'index');
                 if(!$row) continue;
                 DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%s AND record_id=%d',array($tab_id,$row['id']));
-                foreach(self::$table_rows as $field_info) {
+                foreach($table_rows as $field_info) {
                     $field = $field_info['id'];
                     if(!isset($row[$field])) continue;
                     ob_start();
@@ -3280,10 +3284,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if(!$categories) return;
         $token_length = self::get_token_length();
         $limit = Base_SearchCommon::get_recordset_limit_records();
+        $tabs_priority = DB::GetAssoc('SELECT id,search_priority FROM recordbrowser_table_properties WHERE search_include>0');
+        $categories = array_intersect($categories,array_keys($tabs_priority));
         $categories = array_map(create_function('$a','return DB::qstr($a);'),$categories);
         $texts = array_filter(preg_split('/[^\p{L}0-9]/u',mb_strtolower($search)));
         $total_results = array();
         $total_max_score = 0;
+
         foreach($texts as $text) { //for each word
             $len = mb_strlen($text);
             if($len<$token_length) continue; //if word is less then token lenght - ignore it
@@ -3324,7 +3331,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             } elseif($max==$score) $max_fields[] = $field;
                         }
                         $max += $token_length-1;
-                        if(!isset($total_results[$tab_id.'#'.$record])) $total_results[$tab_id.'#'.$record] = array('score'=>0,'fields'=>array(),'fields_score'=>array());
+                        if(!isset($total_results[$tab_id.'#'.$record])) $total_results[$tab_id.'#'.$record] = array('score'=>0,'fields'=>array(),'fields_score'=>array(),'priority'=>$tabs_priority[$tab_id]);
                         $total_results[$tab_id.'#'.$record]['score'] += $max;
                         $total_results[$tab_id.'#'.$record]['fields_score'][] = $max;
                         $total_results[$tab_id.'#'.$record]['fields'][] = $max_fields;
@@ -3340,22 +3347,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         
         //sort with score... if score is the same sort with qty of fields where the "word" was found
-        uasort($total_results,create_function('$a,$b','return $a["score"]>$b["score"]?-1:($a["score"]<$b["score"]?1:($a["fields"]>$b["fields"]?-1:1));'));
+        uasort($total_results,create_function('$a,$b','return $a["score"]>$b["score"]?-1:($a["score"]<$b["score"]?1:($a["priority"]>$b["priority"]?-1:($a["priority"]<$b["priority"]?1:($a["fields"]>$b["fields"]?-1:1))));'));
         
-        $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties');
+        $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties WHERE search_include>0');
         $ret = array();
         $cols_cache = array();
         $count = 0;
         foreach($total_results as $rec=>$score) {
             list($tab_id,$id) = explode('#',$rec,2);
+            
             $tab = $tabs[$tab_id];
             $record = self::get_record($tab, $id);
             
             //get fields names translations
             if(!isset($cols_cache[$tab])) {
-                self::init($tab);
+                $table_rows = self::init($tab);
                 $cols_cache[$tab] = array();
-                foreach(self::$table_rows as $col) $cols_cache[$tab][$col['pkey']] = array('name'=>$col['name'],'id'=>$col['id']);
+                foreach($table_rows as $col) $cols_cache[$tab][$col['pkey']] = array('name'=>$col['name'],'id'=>$col['id']);
             }
             
             //get access
@@ -3392,11 +3400,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     
     public static function search_categories() {
-        $tabs = DB::GetAssoc('SELECT m.tab_id,t.tab FROM recordbrowser_words_map m INNER JOIN recordbrowser_table_properties t ON t.id=m.tab_id GROUP BY tab_id');
+        $tabs = DB::GetAssoc('SELECT m.tab_id,t.tab,t.search_include FROM recordbrowser_words_map m INNER JOIN recordbrowser_table_properties t ON t.id=m.tab_id WHERE t.search_include>0 GROUP BY tab_id');
         $ret = array();
-        foreach($tabs as $tab_id=>$tab) $ret[$tab_id] = self::get_caption($tab);
-        $ret = array_filter($ret);
-        natcasesort($ret);
+        foreach($tabs as $tab_id=>$tab) {
+            $caption = self::get_caption($tab['tab']);
+            if(!$caption) continue;
+            $ret[$tab_id] = array('caption'=>$caption,'checked'=>$tab['search_include']==1);
+        }
+        uasort($ret,create_function('$a,$b','return strnatcasecmp($a["caption"],$b["caption"]);'));
         return $ret;
     }
 
