@@ -82,6 +82,9 @@ if(!$remove_idx_checkpoint->is_done()) {
     }
     DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','word_id,tab,record_id,field_name',array('DROP'=>1));
     DB::CreateIndex('recordbrowser_words_map__idx2','recordbrowser_words_map','tab,record_id',array('DROP'=>1));
+    
+    DB::Execute('TRUNCATE TABLE recordbrowser_words_index');
+    
     $remove_idx_checkpoint->done();
 }
 
