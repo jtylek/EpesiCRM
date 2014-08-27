@@ -696,6 +696,10 @@ class Utils_RecordBrowser extends Module {
 		if (!$pdf) {
 			$clean_order = array();
 			foreach ($order as $k => $v) {
+                if ($k[0] == ':') {
+                    $clean_order[$k] = $v;
+                    continue;
+                }
 				if(!in_array($k,$query_cols)) continue;
 				if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name'];
 				elseif (isset($hash[$k])) $key = $hash[$k];

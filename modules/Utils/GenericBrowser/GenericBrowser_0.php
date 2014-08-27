@@ -198,6 +198,10 @@ class Utils_GenericBrowser extends Module {
 		$order=array();
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		foreach($arg as $k=>$v){
+            if ($k[0] == ':') {
+                $order[] = array('column' => $k, 'direction' => $v, 'order' => $k);
+                continue;
+            }
 			$ord = false;
 			foreach($this->columns as $val)
 				if ($val['name'] == $k && isset($val['order'])) {
