@@ -125,12 +125,11 @@ if(!$finalize_checkpoint->is_done()) {
     PatchUtil::db_drop_column('recordbrowser_words_map', 'tab');
     PatchUtil::db_drop_column('recordbrowser_words_map', 'field_name');
 
-    DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','word_id,tab_id,record_id,field_id');
-    DB::CreateIndex('recordbrowser_words_map__idx2','recordbrowser_words_map','tab_id,record_id');
     if(DATABASE_DRIVER=='postgres') {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD CONSTRAINT word_id_fk FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index');
     } else {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id)');
     }
+    DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','word_id,tab_id');
     $finalize_checkpoint->done();
 }
