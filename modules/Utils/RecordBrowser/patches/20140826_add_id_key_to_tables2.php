@@ -2,7 +2,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 DB::Execute('TRUNCATE TABLE recordbrowser_words_map');
-DB::Execute('TRUNCATE TABLE recordbrowser_words_index');
 
 $tab_ids_checkpoint = Patch::checkpoint('tab_ids');
 if(!$tab_ids_checkpoint->is_done()) {
