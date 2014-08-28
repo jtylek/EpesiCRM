@@ -41,7 +41,8 @@ class Base_PrintInstall extends ModuleInstall
     public function requires($v)
     {
         return array(
-            array('name' => 'Base', 'version' => 0),
+            array('name' => 'Base/Lang', 'version' => 0),
+            array('name' => 'Base/Theme', 'version' => 0)
         );
     }
 
