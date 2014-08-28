@@ -2828,7 +2828,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //		$ret[] = print_r($crits,true);
 		return $ret;
 	}
-    
+
+    public static function get_printer($tab)
+    {
+        return new Utils_RecordBrowser_RecordPrinter();
+    }
     ////////////////////////////
     // default QFfield callbacks
     
