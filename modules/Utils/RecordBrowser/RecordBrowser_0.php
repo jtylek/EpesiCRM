@@ -1662,10 +1662,8 @@ class Utils_RecordBrowser extends Module {
 		$form->freeze();
 	}
         if($r) $form->setDefaults($r);
-        $form->display();
+        $form->display_as_column();
         if ($full_access && $form->validate()) {
-            $enable = $form->exportValue('enable');
-            $pattern = $form->exportValue('pattern');
             DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,favorites=%b,recent=%b,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
                 array($form->exportValue('caption'),$form->exportValue('favorites'),$form->exportValue('recent'),$form->exportValue('full_history'),$form->exportValue('jump_to_id'),$form->exportValue('search_include'),$form->exportValue('search_priority'),$this->tab));
         }
@@ -1765,7 +1763,7 @@ class Utils_RecordBrowser extends Module {
 		}
         if($r) $form->setDefaults(array('enable'=>($r['enabled']?1:0), 'pattern'=>$r['pattern']));
         else $form->setDefaults(array('enable'=>0));
-        $form->display();
+        $form->display_as_column();
         if ($full_access && $form->validate()) {
             $enable = $form->exportValue('enable');
             $pattern = $form->exportValue('pattern');
