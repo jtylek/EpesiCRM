@@ -24,17 +24,17 @@ if(!$field_ids_checkpoint->is_done()) {
 
     $recordsets = Utils_RecordBrowserCommon::list_installed_recordsets();
     foreach ($recordsets as $tab => $caption) {
-        $tab = $tab . "_field";
-        $columns = DB::MetaColumnNames($tab);
+        $tab_f = $tab . "_field";
+        $columns = DB::MetaColumnNames($tab_f);
         if (!isset($columns['ID'])) {
             if(DATABASE_DRIVER=='postgres') {
-                @DB::Execute('ALTER TABLE '.$tab.' DROP CONSTRAINT '.$tab.'_pkey');
-                DB::Execute('ALTER TABLE '.$tab.' ADD COLUMN id SERIAL PRIMARY KEY');
+                @DB::Execute('ALTER TABLE '.$tab_f.' DROP CONSTRAINT '.$tab_f.'_pkey');
+                DB::Execute('ALTER TABLE '.$tab_f.' ADD COLUMN id SERIAL PRIMARY KEY');
             } else {
-                @DB::Execute('ALTER TABLE '.$tab.' DROP PRIMARY KEY');
-                DB::Execute('ALTER TABLE '.$tab.' ADD id SMALLINT NOT NULL AUTO_INCREMENT PRIMARY KEY');
+                @DB::Execute('ALTER TABLE '.$tab_f.' DROP PRIMARY KEY');
+                DB::Execute('ALTER TABLE '.$tab_f.' ADD id SMALLINT NOT NULL AUTO_INCREMENT PRIMARY KEY');
             }
-            DB::CreateIndex($tab.'_field',$tab,'field',array('UNIQUE'=>1));
+            DB::CreateIndex($tab_f.'_field',$tab_f,'field',array('UNIQUE'=>1));
         }
         DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
     }
