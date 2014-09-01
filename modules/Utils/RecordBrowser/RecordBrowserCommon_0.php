@@ -3404,7 +3404,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     
     public static function search_categories() {
-        $tabs = DB::GetAssoc('SELECT m.tab_id,t.tab,t.search_include FROM recordbrowser_words_map m INNER JOIN recordbrowser_table_properties t ON t.id=m.tab_id WHERE t.search_include>0 GROUP BY tab_id');
+        $tabs = DB::GetAssoc('SELECT t.id,t.tab,t.search_include FROM recordbrowser_table_properties t WHERE t.search_include>0 AND t.id IN (SELECT DISTINCT m.tab_id FROM recordbrowser_words_map m)');
         $ret = array();
         foreach($tabs as $tab_id=>$tab) {
             $caption = self::get_caption($tab['tab']);
