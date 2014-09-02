@@ -208,7 +208,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			} else {
 				$file2 = null;
 			}
-			$mapping[$n['id']] = @Utils_AttachmentCommon::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$file2);
+			$mapping[$n['note_id']] = @Utils_AttachmentCommon::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$file2);
 		}
 		return $mapping;
 	}
