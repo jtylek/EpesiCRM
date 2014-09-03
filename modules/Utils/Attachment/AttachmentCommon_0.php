@@ -317,7 +317,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $date = Base_RegionalSettingsCommon::time2reg($row['edited_on'], false);
         $time = Base_RegionalSettingsCommon::time2reg($row['edited_on'], true, false);
         $info = Utils_RecordBrowserCommon::get_record_info('utils_attachment',$row['id']);
-        $by = Base_UserCommon::get_user_label($info['edited_by']?$info['edited_by']:$info['created_by']);
+        $by = Base_UserCommon::get_user_label($info['edited_by']?$info['edited_by']:$info['created_by'], $nolink);
         $format = Base_User_SettingsCommon::get('Utils/Attachment', 'edited_on_format');
         return str_replace(array('%D', '%T', '%U'), array($date, $time, $by), $format);
     }
