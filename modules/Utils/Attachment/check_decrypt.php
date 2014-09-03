@@ -17,7 +17,7 @@ $decoded = Utils_AttachmentCommon::decrypt($row['note'],$pass);
 if($decoded!==false) {
     $_SESSION['client']['cp'.$row['id']] = $pass;
     ob_start();
-    $note = Utils_AttachmentCommon::display_note($row,false);
+    $note = Utils_AttachmentCommon::display_note($row,false, null, true);
     $note = ob_get_clean().$note;
     die(json_encode(array(
         'note'=>$note,
