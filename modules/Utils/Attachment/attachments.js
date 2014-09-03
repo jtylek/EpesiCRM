@@ -120,10 +120,13 @@ document.onpaste = function(event) {
 	}
 }
 
-utils_attachment_password = function(label,id) {
-    var pass = prompt(label);
-    if (pass != null) {
-        new Ajax.Request("modules/Utils/Attachment/check_decrypt.php", {
+utils_attachment_password = function(label,label_button,id) {
+    var elem = jq('#note_value_'+id);
+    elem.html('<form id="attachment_pass_form_'+id+'">'+label+'<input type="password" id="attachment_pass_'+id+'" name="pass_'+id+'"></input><input type="submit" value="'+label_button+'" id="attachment_submit_pass_'+id+'"/></form>');
+    jq('#attachment_pass_form_'+id).submit(function() {
+        var pass = jq('#attachment_pass_'+id).val();
+        if (pass!=null && pass!='') {
+          new Ajax.Request("modules/Utils/Attachment/check_decrypt.php", {
             method: "post",
             parameters:{
                 cid: Epesi.client_id,
@@ -140,6 +143,8 @@ utils_attachment_password = function(label,id) {
                 $("note_value_"+id).innerHTML = result.note;
                 Event.fire(document,'e:load');
             }
-        });
-    }
+          });
+        }
+        return false;
+    });
 }

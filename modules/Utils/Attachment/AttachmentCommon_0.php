@@ -366,7 +366,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 if($decoded!==false) $text = $decoded;
             }
             if($text===false) {
-                $text = '<div id="note_value_'.$row['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').':').'\','.$row['id'].')" style="color:red">'.__('Note encrypted').'</a></div>';
+                $text = '<div id="note_value_'.$row['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').':').'\',\''.Epesi::escapeJS(__('OK')).'\','.$row['id'].')" style="color:red">'.__('Note encrypted').'</a></div>';
                 $icon = '';
                 $files = array();
             }
