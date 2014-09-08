@@ -76,7 +76,10 @@ class Libs_TCPDFCommon extends ModuleCommon {
         $l['a_meta_dir'] = "ltr";
         $l['a_meta_language'] = "pl";
 
-        $who = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
+        $who = null;
+        if (ModuleManager::is_installed('CRM/Contacts') >= 0) {
+            $who = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
+        }
         if ($who!==null) $who = $who['last_name'].' '.$who['first_name'];
         else $who= Base_UserCommon::get_user_login(Acl::get_user());
         $when = date('Y-m-d H:i:s');
