@@ -8,6 +8,11 @@ abstract class Base_Print_Document_Document
 
     abstract public function document_type_name();
 
+    public function init($data)
+    {
+
+    }
+
     public function set_filename($filename)
     {
         $this->filename = $filename;

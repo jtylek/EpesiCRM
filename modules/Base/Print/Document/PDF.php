@@ -10,10 +10,10 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
         return 'PDF';
     }
 
-    public function __construct($title = null, $subject = '', $created_by = false, $custom_logo_file = null)
+    public function init($data)
     {
         $this->pdf = Libs_TCPDFCommon::new_pdf();
-        Libs_TCPDFCommon::prepare_header($this->pdf, $title, $subject, $created_by, $custom_logo_file);
+        Libs_TCPDFCommon::prepare_header($this->pdf);
         Libs_TCPDFCommon::add_page($this->pdf);
         $this->set_filename_extension('pdf');
     }

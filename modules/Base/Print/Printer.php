@@ -193,6 +193,7 @@ abstract class Base_Print_Printer
      */
     public function get_printed_document($data)
     {
+        $this->get_document()->init($data);
         $this->check_template();
         $this->print_document($data);
         $file_suffix = $this->get_printed_filename_suffix();

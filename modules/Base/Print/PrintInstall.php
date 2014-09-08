@@ -42,7 +42,8 @@ class Base_PrintInstall extends ModuleInstall
     {
         return array(
             array('name' => 'Base/Lang', 'version' => 0),
-            array('name' => 'Base/Theme', 'version' => 0)
+            array('name' => 'Base/Theme', 'version' => 0),
+            array('name' => 'Libs/TCPDF', 'version' => 0)
         );
     }
 
