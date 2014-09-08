@@ -47,7 +47,8 @@ class Utils_CurrencyField_Value
 
     public function to_string()
     {
-        return Utils_CurrencyFieldCommon::format_default($this->get_amount(), $this->get_currency_id());
+        $str = $this->get_amount() . '__' . $this->get_currency_id();
+        return $str;
     }
 
     public function format()

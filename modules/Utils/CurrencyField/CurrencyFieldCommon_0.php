@@ -46,6 +46,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	public static function get_values($p) {
 		if (!is_array($p)) $p = explode('__', $p);
 		if (!isset($p[1])) $p[1] = Base_User_SettingsCommon::get('Utils_CurrencyField', 'default_currency');
+        $p[0] = str_replace(array(',', self::get_decimal_point($p[1])), '.', $p[0]);
 		return $p;
 	}
 	
