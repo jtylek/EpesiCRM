@@ -438,11 +438,21 @@ class Utils_RecordBrowser extends Module {
         }
         $form->addElement('submit', 'submit', __('Show'));
 
+        $use_saving_filters = Base_User_SettingsCommon::get($this->get_type(), 'save_filters');
 		if ($this->data_gb->show_all()) {
 			$this->set_module_variable('def_filter', $empty_defaults);
+            if ($use_saving_filters) {
+                Base_User_SettingsCommon::save($this->get_type(), $this->tab . '_filters', $empty_defaults);
+            }
 			print('<span style="display:none;">'.microtime(true).'</span>');
 		}
         $def_filt = $this->get_module_variable('def_filter', array());
+        if ($use_saving_filters) {
+            $saved_filters = Base_User_SettingsCommon::get($this->get_type(), $this->tab . '_filters');
+            if ($saved_filters) {
+                $def_filt = $saved_filters;
+            }
+        }
 
         $this->crits = array();
 
@@ -537,6 +547,11 @@ class Utils_RecordBrowser extends Module {
         foreach ($vals as $k=>$v) {
             $c = str_replace('filter__','',$k);
             if (isset($this->custom_filters[$c]) && $this->custom_filters[$c]['type']=='checkbox' && $v==='__NULL__') unset($vals[$k]);
+        }
+        if ($use_saving_filters && isset($vals['submited']) && $vals['submited']) {
+            unset($vals['submited']);
+            unset($vals['submit']);
+            Base_User_SettingsCommon::save($this->get_type(), $this->tab . '_filters', $vals);
         }
         $this->set_module_variable('def_filter', $vals);
         $theme = $this->init_module('Base/Theme');
