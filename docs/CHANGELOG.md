@@ -30,6 +30,10 @@ CURRENT
 - Maintain QFfields callbacks order during position change
 - Configurable edited_on field format in Attachments
 - Allow to disable expandable rows in user settings
+- Search improvements - optimization, set defaults, disable certain recordsets
+- Attachments - do not show password in decrypt form
+- RecordBrowser - save filters per user
+- RecordBrowser - do not show filter for blocked field
 
 RELEASE 1.6.0-20140710
 -------
