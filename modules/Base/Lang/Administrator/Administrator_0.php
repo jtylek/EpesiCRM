@@ -72,8 +72,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$ip = gethostbyname($_SERVER['SERVER_NAME']);
 		$me = CRM_ContactsCommon::get_my_record();
 		$form->addElement('static', 'header', '<div id="decription_label" />', $desc);
-		$form->addElement('checkbox', 'allow', __('Enable sending translations'), null, array('id'=>'allow', 'onchange'=>'$("include_credits").disabled=$("send_current").disabled=$("first_name").disabled=$("last_name").disabled=!this.checked;update_credits();'));
-		$form->addElement('checkbox', 'send_current', __('Send your current translations'), null, array('id'=>'send_current'));
+		$form->addElement('checkbox', 'allow', __('Enable sending translations'), null, array('id'=>'allow', 'onchange'=>'$("include_credits").disabled=$("first_name").disabled=$("last_name").disabled=!this.checked;update_credits();'));
 		$form->addElement('text', 'first_name', __('First Name'), array('id'=>'first_name'));
 		$form->addElement('text', 'last_name', __('Last Name'), array('id'=>'last_name'));
 		$form->addElement('checkbox', 'include_credits', __('Include in credits'), null, array('id'=>'include_credits', 'onchange'=>'update_credits();'));
@@ -81,7 +80,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$form->addElement('text', 'contact_email', __('Contact e-mail'), array('id'=>'contact_email'));
 		$form->addElement('static', 'IP', __('IP'), $ip);
 		$lp->add_option(null, null, null, $form);
-		eval_js('$("send_current").disabled=$("first_name").disabled=$("last_name").disabled=!$("allow").checked;');
+		eval_js('$("first_name").disabled=$("last_name").disabled=!$("allow").checked;');
 		$vals = $lp->export_values();
 		if ($vals) {
 			$values = $vals['form'];
@@ -93,19 +92,17 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			if (!isset($values['contact_email'])) $values['contact_email'] = '';
 			DB::Execute('DELETE FROM base_lang_trans_contrib WHERE user_id=%d', array(Acl::get_user()));
 			DB::Execute('INSERT INTO base_lang_trans_contrib (user_id, allow, first_name, last_name, credits, credits_website, contact_email) VALUES (%d, %d, %s, %s, %d, %s, %s)', array(Acl::get_user(), $values['allow'], $values['first_name'], $values['last_name'], $values['include_credits'], $values['credits_website'], $values['contact_email']));
-			if (isset($values['send_current'])) eval_js('new Ajax.Request("modules/Base/Lang/Administrator/send_current.php",{method:"post",parameters:{cid:Epesi.client_id}});');
 		}
 
 		$allow_sending = Base_Lang_AdministratorCommon::allow_sending(true);
 		if ($allow_sending===null || $allow_sending===false) {
-			$form->setDefaults(array('allow'=>1, 'send_current'=>1, 'first_name'=>$me['first_name'], 'last_name'=>$me['last_name'], 'contact_email'=>$me['email']));
-			$lp->open();
+			$form->setDefaults(array('allow'=>0, 'first_name'=>$me['first_name'], 'last_name'=>$me['last_name'], 'contact_email'=>$me['email']));
 		} else {
 			$r = DB::GetRow('SELECT * FROM base_lang_trans_contrib WHERE user_id=%d', array(Acl::get_user()));
 			if (!$r['first_name']) $r['first_name'] = $me['first_name'];
 			if (!$r['last_name']) $r['last_name'] = $me['last_name'];
 			if (!$r['contact_email']) $r['contact_email'] = $me['email'];
-			$form->setDefaults(array('allow'=>$r['allow'], 'send_current'=>0, 'first_name'=>$r['first_name'], 'last_name'=>$r['last_name'], 'contact_email'=>$r['contact_email'], 'credits_website'=>$r['credits_website'], 'include_credits'=>$r['credits']));
+			$form->setDefaults(array('allow'=>$r['allow'], 'first_name'=>$r['first_name'], 'last_name'=>$r['last_name'], 'contact_email'=>$r['contact_email'], 'credits_website'=>$r['credits_website'], 'include_credits'=>$r['credits']));
 		}
 		Base_ActionBarCommon::add('settings', __('Translations Contributions'), $lp->get_href());
 		$this->display_module($lp, array(__('Translations Contributions settings')));
@@ -139,13 +136,26 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			$langs = Base_LangCommon::get_installed_langs();
 			$form = $this->init_module('Libs/QuickForm',null,'language_selected');
 			$form->addElement('select','lang_code',__('Currently Translating'), $langs, array('onchange'=>$form->get_submit_form_js()));
-			
-			$form->setDefaults(array('lang_code'=>$_SESSION['client']['base_lang_administrator']['currently_translating']));
+            $currently_translating = $_SESSION['client']['base_lang_administrator']['currently_translating'];
+			$form->setDefaults(array('lang_code'=>$currently_translating));
 			
 			if($form->validate()) {
 				$form->process(array($this,'submit_language_select'));
 			}
-			$form->display_as_column();
+            if ($allow_sending) {
+                $warning_mgs = __('All custom translations will be sent to our server right after you will input them. Use this mode only, if you wish to contribute your translations. If you are going to change meaning of any string, then please disable sending translations.');
+                print "<h1 style=\"color:red; width: 70%\">$warning_mgs</h1>";
+            } else {
+                $contribution_mgs = __('If you wish to help us with translating EPESI to your language, then click Translation Contribution in the Action Bar.');
+                print "<h3>$contribution_mgs</h3>";
+            }
+            $form->display_as_column();
+            if ($allow_sending) {
+                $href = $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'send_lang_ajax'), array($currently_translating));
+                print "<h4><a $href>" . __('Send all your custom translations for language %s', array($langs[$currently_translating])) . "</a></h4>";
+            }
+            $help_msg = __('You can open next string to translate with space button');
+            print "<p>$help_msg</p>";
 		}
 		
 		Base_LangCommon::load($_SESSION['client']['base_lang_administrator']['currently_translating']);
@@ -219,7 +229,16 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$form->display();
 		return true;
 	}
-	
+
+    public function send_lang_ajax($lang)
+    {
+        $params = array('cid' => CID, 'lang' => $lang);
+        $request = array('method' => 'post', 'parameters' => $params);
+        $query = json_encode($request);
+        $js = 'new Ajax.Request("modules/Base/Lang/Administrator/send_current.php",' . $query . ');';
+        eval_js($js);
+    }
+
 	public function check_if_langpack_exists($langpack) {
         $langs = Base_LangCommon::get_installed_langs();
 		return isset($langs[$langpack]) == false;

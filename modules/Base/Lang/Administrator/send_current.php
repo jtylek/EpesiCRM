@@ -7,7 +7,7 @@
  * @package epesi-lang
  * @subpackage timesheet
  */
-if(!isset($_POST['cid']))
+if(!isset($_POST['cid']) || !isset($_POST['lang']))
 	die('alert(\'Invalid request\')');
 
 define('JS_OUTPUT',1);
@@ -16,16 +16,11 @@ define('READ_ONLY_SESSION',true);
 require_once('../../../../include.php');
 ModuleManager::load_modules();
 
-global $custom_translations;
-
-$langs = Base_LangCommon::get_installed_langs();
-
-foreach ($langs as $l => $language_name) {
-	$ts = Base_LangCommon::get_langpack($l, 'custom');
-	foreach ($ts as $o=>$t) {
-		if (!$t) continue;
-		Base_Lang_AdministratorCommon::send_translation($l, $o, $t);
-	}
+if (!Base_AclCommon::i_am_admin()) {
+    die('');
 }
+
+$lang = $_POST['lang'];
+Base_Lang_AdministratorCommon::send_lang($lang);
 
 ?>
