@@ -25,6 +25,7 @@ require_once('libs/adodb/adodb.inc.php');
 class DB {
 	public static $ado;
 	private static $queries=array();
+	private static $queries_qty=0;
 	
 	/**
 	 * Connect to database.
@@ -67,6 +68,10 @@ class DB {
 	 */
 	public static function GetQueries() {
 		return self::$queries;
+	}
+
+	public static function GetQueriesQty() {
+		return self::$queries_qty;
 	}
 	
 	public static function & dict() {
@@ -337,6 +342,7 @@ $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"Execute"), $args);
+self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"Execute", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
 }
@@ -431,6 +437,7 @@ $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[3]);
 $ret = call_user_func_array(array(self::$ado,"SelectLimit"), $args);
+self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"SelectLimit", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
 }
@@ -448,6 +455,7 @@ $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetAll"), $args);
+self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetAll", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
 }
@@ -458,6 +466,7 @@ $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetAssoc"), $args);
+self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetAssoc", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
 }
@@ -478,6 +487,7 @@ $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetOne"), $args);
+self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetOne", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
 }
@@ -498,6 +508,7 @@ $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetCol"), $args);
+self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetCol", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
 }
@@ -532,6 +543,7 @@ $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetArray"), $args);
+self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetArray", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
 }
@@ -562,6 +574,7 @@ $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetRow"), $args);
+self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetRow", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
 }
@@ -909,6 +922,7 @@ $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[3]);
 $ret = call_user_func_array(array(self::$ado,"PageExecute"), $args);
+self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"PageExecute", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
 }

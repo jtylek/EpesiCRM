@@ -3235,7 +3235,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function indexer() {
         $total = 0;
         $token_length = self::get_token_length();
-        $limit = 50;
+        $limit = defined('RB_INDEXER_LIMIT_RECORDS')?RB_INDEXER_LIMIT_RECORDS:50;
         self::$admin_filter = ' indexed=0 AND active=1 AND ';
         $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties WHERE search_include>0');
         foreach($tabs as $tab_id=>$tab) {
@@ -3279,8 +3279,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 
                 $total++;
                 if($total>=$limit) break;
+                if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<DB::GetQueriesQty()) break;
             }
             if($total>=$limit) break;
+            if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<DB::GetQueriesQty()) break;
         }
         self::$admin_filter = '';
     }
