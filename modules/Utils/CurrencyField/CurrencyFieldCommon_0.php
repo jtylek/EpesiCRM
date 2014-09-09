@@ -51,17 +51,9 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 	
 	public static function format_default($v, $c=null) {
-		if ($c===null) {
-			$c = explode('__',$v);
-			if (!isset($c[1])) {
-				$c = 1;
-			} else {
-				$v = $c[0];
-				$c = $c[1];
-			}
-		}
-		$v = round($v,self::get_precission($c));
-		$v = str_replace('.', self::get_decimal_point($c), $v);
+        $values = ($c === null ? self::get_values($v) : self::get_values(array($v, $c)));
+        $c = $values[1];
+        $v = round($values[0], self::get_precission($c));
 		return $v.'__'.$c;
 	}
 
