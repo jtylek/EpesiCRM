@@ -363,7 +363,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
             if(isset($_SESSION['client']['cp'.$row['id']])) {
                 $note_pass = $_SESSION['client']['cp'.$row['id']];
                 $decoded = Utils_AttachmentCommon::decrypt($row['note'],$note_pass);
-                if($decoded!==false) $text = $decoded;
+                if($decoded!==false) {
+                    $text = $decoded;
+                    Utils_WatchdogCommon::notified('utils_attachment', $row['id']);
+                }
             }
             if($text===false) {
                 $text = '<div id="note_value_'.$row['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').':').'\',\''.Epesi::escapeJS(__('OK')).'\','.$row['id'].')" style="color:red">'.__('Note encrypted').'</a></div>';
@@ -372,6 +375,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             }
         } else {
             $text = $row['note'];
+            Utils_WatchdogCommon::notified('utils_attachment', $row['id']);
         }
 
         $text = (!$view?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':'').$text.$icon.$inline_img;
