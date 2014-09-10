@@ -839,8 +839,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function set_icon($tab, $value) {
         DB::Execute('UPDATE recordbrowser_table_properties SET icon=%s WHERE tab=%s', array($value, $tab));
     }
-    public static function set_search($tab, $value,$priority=0) {
-        DB::Execute('UPDATE recordbrowser_table_properties SET search_include=%d,search_priority=%d WHERE tab=%s', array($value, $priority,$tab));
+    /**
+     * Enable search
+     * @param string $tab recordset identifier
+     * @param int $mode 0 - search disabled, 1 - enabled by default, 2 - optional
+     * @param int $priority Possible values: -2, -1, 0, 1, 2
+     */
+    public static function set_search($tab, $mode,$priority=0) {
+        DB::Execute('UPDATE recordbrowser_table_properties SET search_include=%d,search_priority=%d WHERE tab=%s', array($mode, $priority, $tab));
     }
     public static function set_description_callback($tab, $callback){
         if (is_array($callback)) $callback = implode('::',$callback);

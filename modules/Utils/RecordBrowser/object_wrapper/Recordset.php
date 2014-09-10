@@ -580,6 +580,16 @@ abstract class RBO_Recordset {
     public function delete_filter($column_name) {
         Utils_RecordBrowserCommon::delete_filter($this->tab, $column_name);
     }
+
+    /**
+     * Enable search
+     * @param int $mode 0 - search disabled, 1 - enabled by default, 2 - optional
+     * @param int $priority Possible values: -2, -1, 0, 1, 2
+     */
+    public function set_search($mode, $priority)
+    {
+        Utils_RecordBrowserCommon::set_search($this->tab, $mode, $priority);
+    }
 }
 
 ?>
