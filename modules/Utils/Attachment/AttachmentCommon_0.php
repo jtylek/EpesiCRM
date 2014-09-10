@@ -372,9 +372,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $text = '<div id="note_value_'.$row['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').':').'\',\''.Epesi::escapeJS(__('OK')).'\','.$row['id'].')" style="color:red">'.__('Note encrypted').'</a></div>';
                 $icon = '';
                 $files = array();
+            } else {
+                $text = Utils_BBCodeCommon::parse($text);
             }
         } else {
             $text = $row['note'];
+            $text = Utils_BBCodeCommon::parse($text);
             Utils_WatchdogCommon::notified('utils_attachment', $row['id']);
         }
 

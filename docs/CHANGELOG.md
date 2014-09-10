@@ -37,6 +37,7 @@ CURRENT
 - Improve Translation panel
 - Fix watchdog notification for notes
 - Update translations
+- Fix bbcodes in attachments
 
 RELEASE 1.6.0-20140710
 -------
