@@ -112,8 +112,10 @@ class CRM_ContactsInstall extends ModuleInstall {
 		
 		Utils_BBCodeCommon::new_bbcode('contact', 'CRM_ContactsCommon', 'contact_bbcode');
 		Utils_BBCodeCommon::new_bbcode('company', 'CRM_ContactsCommon', 'company_bbcode');
-		
-		Base_AclCommon::add_clearance_callback(array('CRM_ContactsCommon','crm_clearance'));
+        Utils_RecordBrowserCommon::set_search('company',1,2);
+        Utils_RecordBrowserCommon::set_search('contact',1,2);
+
+        Base_AclCommon::add_clearance_callback(array('CRM_ContactsCommon','crm_clearance'));
 
 		Utils_CommonDataCommon::extend_array('Contacts/Access',array('employee'=>_M('Employee')));
 

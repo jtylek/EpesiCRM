@@ -178,6 +178,7 @@ class CRM_AssetsInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::enable_watchdog('crm_assets', array('CRM_AssetsCommon','watchdog_label'));
 
 		Utils_RecordBrowserCommon::add_default_access('crm_assets');
+        Utils_RecordBrowserCommon::set_search('crm_assets',2,0);
 
         Utils_RecordBrowserCommon::new_addon('company', 'CRM/Assets', 'assets_addon', _M('Assets'));
 		Utils_AttachmentCommon::new_addon('crm_assets');

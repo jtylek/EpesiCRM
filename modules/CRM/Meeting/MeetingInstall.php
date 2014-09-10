@@ -58,6 +58,7 @@ class CRM_MeetingInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::add_access('crm_meeting', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customers'=>'USER'));
 		Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', 'ACCESS:employee', array(':Created_by'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('crm_meeting', 'delete', array('ACCESS:employee','ACCESS:manager'));
+        Utils_RecordBrowserCommon::set_search('crm_meeting',2,0);
 
 		return true;
 	}

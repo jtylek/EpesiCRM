@@ -121,6 +121,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::install_new_recordset('rc_mail_threads', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_mail_threads', _M('Mail Thread'));
         Utils_RecordBrowserCommon::new_addon('rc_mail_threads', 'CRM/Roundcube', 'thread_addon', _M('E-mails'));
+        Utils_RecordBrowserCommon::set_search('rc_mail_threads',2,-1);
 
         $fields = array(
             array(
@@ -227,6 +228,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::set_caption('rc_mails', _M('Mails'));
 		Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'mails'));
     	Utils_RecordBrowserCommon::register_processing_callback('rc_mails', array('CRM_RoundcubeCommon', 'submit_mail'));
+        Utils_RecordBrowserCommon::set_search('rc_mails',2,-1);
 
         DB::CreateIndex('rc_mails_thread_idx', 'rc_mails_data_1', 'f_thread');
         DB::CreateIndex('rc_mails_msgid_idx', 'rc_mails_data_1', 'f_message_id');
@@ -285,6 +287,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_favorites('rc_multiple_emails', true);
 		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', _M('Mail addresses'));
 		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'icon.png'));
+        Utils_RecordBrowserCommon::set_search('rc_multiple_emails',2,0);
 
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));

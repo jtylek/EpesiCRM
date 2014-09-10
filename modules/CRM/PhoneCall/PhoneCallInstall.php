@@ -46,7 +46,8 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('phonecall', 5);
 		Utils_RecordBrowserCommon::set_caption('phonecall', _M('Phonecalls'));
 		Utils_RecordBrowserCommon::enable_watchdog('phonecall', array('CRM_PhoneCallCommon','watchdog_label'));
-		
+        Utils_RecordBrowserCommon::set_search('phonecall',2,0);
+
 // ************ addons ************** //
 		Utils_AttachmentCommon::new_addon('phonecall');
 		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'messanger_addon', _M('Alerts'));

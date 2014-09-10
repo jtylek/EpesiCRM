@@ -37,6 +37,7 @@ class CRM_TasksInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('task', 5);
 		Utils_RecordBrowserCommon::set_caption('task', _M('Tasks'));
 		Utils_RecordBrowserCommon::enable_watchdog('task', array('CRM_TasksCommon','watchdog_label'));
+        Utils_RecordBrowserCommon::set_search('task',2,0);
 // ************ addons ************** //
 		Utils_AttachmentCommon::new_addon('task');
 		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'messanger_addon', _M('Alerts'));
