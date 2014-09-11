@@ -34,6 +34,7 @@ CURRENT
 - Attachments - do not show password in decrypt form
 - RecordBrowser - save filters per user
 - RecordBrowser - do not show filter for blocked field
+- RecordBrowser - add ability to print any record
 - Improve Translation panel
 - Fix watchdog notification for notes
 - Update translations
