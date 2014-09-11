@@ -1,22 +1,13 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-DB::Execute('TRUNCATE TABLE recordbrowser_words_map');
-
-$tab_ids_checkpoint = Patch::checkpoint('tab_ids');
-if(!$tab_ids_checkpoint->is_done()) {
-    Patch::require_time(20);
-
-    if(DATABASE_DRIVER=='postgres') {
-        DB::Execute('ALTER TABLE recordbrowser_table_properties DROP CONSTRAINT recordbrowser_table_properties_pkey');
-        DB::Execute('ALTER TABLE recordbrowser_table_properties ADD COLUMN id SERIAL PRIMARY KEY');
-    } else {
-        DB::Execute('ALTER TABLE recordbrowser_table_properties DROP PRIMARY KEY');
-        DB::Execute('ALTER TABLE recordbrowser_table_properties ADD id SMALLINT NOT NULL AUTO_INCREMENT PRIMARY KEY');
-    }
-    DB::CreateIndex('recordbrowser_table_properties_tab','recordbrowser_table_properties','tab',array('UNIQUE'=>1));
-    $tab_ids_checkpoint->done();
+// this patch has been splitted from the other one.
+$db = new PatchesDB();
+if ($db->was_applied('8fd8dd050f628900ac035305d0cab140')) {
+    return;
 }
+
+DB::Execute('TRUNCATE TABLE recordbrowser_words_map');
 
 $field_ids_checkpoint = Patch::checkpoint('field_ids');
 if(!$field_ids_checkpoint->is_done()) {
@@ -24,18 +15,6 @@ if(!$field_ids_checkpoint->is_done()) {
 
     $recordsets = Utils_RecordBrowserCommon::list_installed_recordsets();
     foreach ($recordsets as $tab => $caption) {
-        $tab_f = $tab . "_field";
-        $columns = DB::MetaColumnNames($tab_f);
-        if (!isset($columns['ID'])) {
-            if(DATABASE_DRIVER=='postgres') {
-                @DB::Execute('ALTER TABLE '.$tab_f.' DROP CONSTRAINT '.$tab_f.'_pkey');
-                DB::Execute('ALTER TABLE '.$tab_f.' ADD COLUMN id SERIAL PRIMARY KEY');
-            } else {
-                @DB::Execute('ALTER TABLE '.$tab_f.' DROP PRIMARY KEY');
-                DB::Execute('ALTER TABLE '.$tab_f.' ADD id SMALLINT NOT NULL AUTO_INCREMENT PRIMARY KEY');
-            }
-            DB::CreateIndex($tab_f.'_field',$tab_f,'field',array('UNIQUE'=>1));
-        }
         DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
     }
     $field_ids_checkpoint->done();
@@ -86,37 +65,6 @@ if(!$remove_idx_checkpoint->is_done()) {
     
     $remove_idx_checkpoint->done();
 }
-
-/*$update_map_checkpoint = Patch::checkpoint('update_map');
-if(!$update_map_checkpoint->is_done()) {
-    if($update_map_checkpoint->has('tabs')) {
-        $tabs = $update_map_checkpoint->get('tabs');
-    } else {
-        $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties');
-    }
-    foreach($tabs as $tab_id=>$tab) {
-//        DB::Execute('UPDATE recordbrowser_words_map SET tab_id=%d WHERE tab=%s',array($tab_id,$tab));
-        
-        if($update_map_checkpoint->has('fields_'.$tab_id)) {
-            $fields = $update_map_checkpoint->get('fields_'.$tab_id);
-        } else {
-            $fields = DB::GetAssoc('SELECT id,field FROM '.$tab.'_field');
-        }
-        foreach($fields as $field_id=>$field) {
-            $update_map_checkpoint->require_time(10);
-            
-            DB::Execute('UPDATE recordbrowser_words_map SET tab_id=%d,field_id=%d WHERE tab=%s AND field_name=%s',array($tab_id,$field_id,$tab,Utils_RecordBrowserCommon::get_field_id($field)));
-            unset($fields[$field_id]);
-            $update_map_checkpoint->set('fields_'.$tab_id,$fields);
-        }
-        
-        unset($tabs[$tab_id]);
-        $update_map_checkpoint->set('tabs',$tabs);
-    }
-    $update_map_checkpoint->done();
-}
-
-DB::Execute('DELETE FROM recordbrowser_words_map WHERE field_id is null');*/
 
 $finalize_checkpoint = Patch::checkpoint('finalize');
 if(!$finalize_checkpoint->is_done()) {
