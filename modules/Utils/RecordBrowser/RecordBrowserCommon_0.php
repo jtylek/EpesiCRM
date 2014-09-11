@@ -1324,7 +1324,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							$w = date('Y-m-d', $w);
 
 						if ($postgre && $operator==DB::like()) $key .= '::varchar';
-                        if (self::$table_rows[$f]['type']!='text' && self::$table_rows[$f]['type']!='long text' && ($w==='' || $w===null || $w===false)) {
+                        if (self::$table_rows[$f]['type']=='checkbox' && !$w) {
+                            if($operator=='=')
+                                $having .= ' OR r.f_'.$key.' IS NULL OR r.f_'.$key.'=0';
+                            else
+                                $having .= ' OR (r.f_'.$key.' IS NOT NULL AND r.f_'.$key.'!=0)';
+                        } elseif (self::$table_rows[$f]['type']!='text' && self::$table_rows[$f]['type']!='long text' && ($w==='' || $w===null || $w===false)) {
                             if($operator=='=')
                                 $having .= ' OR r.f_'.$key.' IS NULL';
                             else

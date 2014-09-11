@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_RecordBrowser_RecordPickerFS extends Module {
 	private $tab,$crits,$cols,$order,$filters;
 	
-	public function construct($tab, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
+	public function construct($tab=null, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
 		$this->tab = $tab;
 		$this->crits = $crits;
 		$this->cols = $cols;
@@ -26,9 +26,17 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 	public function open() {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		$x->push_main('Utils/RecordBrowser/RecordPickerFS','show',array($this->tab,$this->crits,$this->cols,$this->order,$this->filters,$this->get_path()));
+		$selected = $this->get_module_variable('selected',array());
+		$this->set_module_variable('old_selected',$selected);
 	}
 	
 	public function back() {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x->pop_main();
+	}
+
+	public function cancel() {
+		$GLOBALS['rpfs_old_sel'] = $this->get_module_variable('old_selected',array());
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		$x->pop_main();
 	}
@@ -40,6 +48,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 
 		$this->display_module($rb, array($crits, $cols, $order, $filters, $path), 'recordpicker_fs');
 	        Base_ActionBarCommon::add('save', __('Commit Selection'), $this->create_callback_href(array($this,'back')));
+	        Base_ActionBarCommon::add('back', __('Cancel'), $this->create_callback_href(array($this,'cancel')));
 	}
 
 	public function create_open_link($label,$form = null,$select = null) {
@@ -82,6 +91,8 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 	}
 	
 	public function get_selected() {
+		if(isset($GLOBALS['rpfs_old_sel']))
+			$this->set_module_variable('selected',$GLOBALS['rpfs_old_sel']);
 		$ret = $this->get_module_variable('selected',array());
 		return array_keys($ret);
 	}
