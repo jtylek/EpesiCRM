@@ -354,6 +354,7 @@ class Utils_RecordBrowser extends Module {
                 continue;
             }
             $arr = array();
+            $autoselect = false;
             if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
 				$form->addElement('datepicker', $field_id.'__from', _V($filter).' ('.__('From').')', array('label'=>false)); // TRSL
 				$form->addElement('datepicker', $field_id.'__to', _V($filter).' ('.__('To').')', array('label'=>false)); // TRSL
@@ -414,26 +415,47 @@ class Utils_RecordBrowser extends Module {
                                 if (!is_array($crits)) $crits = array();
                             }
                         }
-                        $ret2 = Utils_RecordBrowserCommon::get_records($tab,$crits,$col);
-                        if (count($col)!=1) {
-                            foreach ($ret2 as $k=>$v) {
-                                $txt = array();
-                                foreach ($col as $kk=>$vv)
-                                    $txt[] = $v[$vv];
-                                $arr[$k] = implode(' ',$txt);
+                        if($tab!='__RECORDSETS__' && !preg_match('/,/',$tab)) {
+                            $qty = Utils_RecordBrowserCommon::get_records_count($tab,$crits);
+                            if($qty <= Utils_RecordBrowserCommon::$options_limit) {
+                                $ret2 = Utils_RecordBrowserCommon::get_records($tab,$crits,$col);
+                                if (count($col)!=1) {
+                                    foreach ($ret2 as $k=>$v) {
+                                        $txt = array();
+                                        foreach ($col as $kk=>$vv)
+                                            $txt[] = $v[$vv];
+                                        $arr[$k] = implode(' ',$txt);
+                                    }
+                                } else {
+                                    foreach ($ret2 as $k=>$v) {
+                                        $arr[$k] = $v[$col[0]];
+                                    }
+                                }
+                                natcasesort($arr);
+                            } else {
+                                $arr = array();
+                                $autoselect = true;
+                                $param = array($tab,$crits);
                             }
                         } else {
-                            foreach ($ret2 as $k=>$v) {
-                                $arr[$k] = $v[$col[0]];
-                            }
+                            $arr = array();
+                            $autoselect = true;
+                            $param = array($tab,$crits);
                         }
-                        natcasesort($arr);
-						if (isset($x[0]) && $x[0]=='contact') $arr = array($this->crm_perspective_default()=>'['.__('Perspective').']')+$arr;
-                    }
+                        if ($tab=='contact') $arr = array($this->crm_perspective_default()=>'['.__('Perspective').']')+$arr;
+                    } 
                 }
             }
-            $arr = array('__NULL__'=>'---')+$arr;
-            $form->addElement('select', $field_id, _V($filter), $arr); // TRSL
+            
+            if($autoselect) {
+                $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
+                $arr = array('__NULL__'=>'---')+$arr;
+                $form->addElement('autoselect', $field_id, _V($filter), $arr, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array_merge($param,array($f_callback, $this->table_rows[$filter]['param']))), $f_callback);
+            } else {
+                $arr = array('__NULL__'=>'---')+$arr;
+                $form->addElement('select', $field_id, _V($filter), $arr); // TRSL
+            }
+
             $filters[] = $filter_id;
         }
         $form->addElement('submit', 'submit', __('Show'));
