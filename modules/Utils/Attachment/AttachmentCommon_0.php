@@ -402,7 +402,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
     public static function description_callback($row,$nolink=false) {
         if($row['title']) $ret = $row['title'];
         elseif($row['crypted']) $ret = $row['id'].' ('.__('encrypted note').')';
-        else $ret = substr(strip_tags($row['note']),0,50);
+        else {
+            $ret = Utils_BBCodeCommon::strip(strip_tags($row['note']));
+            $ret = substr($ret,0,50);
+        }
         if(!$ret) $ret = $row['id'];
         return __('Note').': '.$ret;
     }
