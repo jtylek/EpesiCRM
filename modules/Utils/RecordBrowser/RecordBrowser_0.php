@@ -58,7 +58,7 @@ class Utils_RecordBrowser extends Module {
     public static $mode = 'view';
     private $navigation_executed = false;
     private $current_field = null;
-    private $additional_actions_method = null;
+    private $additional_actions_methods = array();
     private $filter_crits = array();
     private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false);
     private $force_order;
@@ -124,7 +124,16 @@ class Utils_RecordBrowser extends Module {
     }
 
     public function set_additional_actions_method($callback) {
-        $this->additional_actions_method = $callback;
+        $this->additional_actions_methods[] = $callback;
+    }
+
+    private function call_additional_actions_methods($row, $gb_row)
+    {
+        foreach ($this->additional_actions_methods as $callback) {
+            if (is_callable($callback)) {
+                call_user_func($callback, $row, $gb_row, $this);
+            }
+        }
     }
 
     public function set_table_column_order($arg) {
@@ -1012,8 +1021,7 @@ class Utils_RecordBrowser extends Module {
 					}
                 }
                 if (!isset($da['info'])) $gb_row->add_info(($this->browse_mode=='recent'?'<b>'.__('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
-                if ($this->additional_actions_method!==null && is_callable($this->additional_actions_method))
-                    call_user_func($this->additional_actions_method, $row, $gb_row, $this);
+                $this->call_additional_actions_methods($row, $gb_row);
             }
         }
         if (!$special && $this->add_in_table && $this->view_fields_permission) {
@@ -2748,8 +2756,7 @@ class Utils_RecordBrowser extends Module {
                 if ($r_info['edited_on']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
                 else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $v['id'])),'View edit history',null,'history');
             }
-            if ($this->additional_actions_method!==null && is_callable($this->additional_actions_method))
-                call_user_func($this->additional_actions_method, $v, $gb_row, $this);
+            $this->call_additional_actions_methods($v, $gb_row);
         }
         $this->display_module($gb);
     }

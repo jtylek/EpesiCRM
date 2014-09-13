@@ -39,6 +39,7 @@ CURRENT
 - Fix watchdog notification for notes
 - Update translations
 - Fix bbcodes in attachments
+- RecordBrowser - allow multiple additional actions methods
 
 RELEASE 1.6.0-20140710
 -------
