@@ -1,7 +1,7 @@
 EPESI CHANGELOG
 ===============
 
-CURRENT
+RELEASE 1.6.1-20140913
 -------
 
 - Fix dashboard applets removal
