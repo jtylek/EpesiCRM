@@ -14,6 +14,8 @@ defined("_VALID_ACCESS") || die();
 
 class Utils_RecordBrowserInstall extends ModuleInstall {
 	public function install() {
+		$this->create_data_dir();
+		
 		Base_ThemeCommon::install_default_theme('Utils/RecordBrowser');
 		DB::CreateTable('recordbrowser_table_properties',
 						'id I2 AUTO KEY,'.

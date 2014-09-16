@@ -3243,15 +3243,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return 3;
     }
     
-    public static function indexer() {
-        $total = 0;
+    public static function indexer($limit=null,&$total=0) {
         $token_length = self::get_token_length();
-        $limit = defined('RB_INDEXER_LIMIT_RECORDS')?RB_INDEXER_LIMIT_RECORDS:50;
+        if(!$limit) $limit = defined('RB_INDEXER_LIMIT_RECORDS')?RB_INDEXER_LIMIT_RECORDS:50;
         self::$admin_filter = ' indexed=0 AND active=1 AND ';
         $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties WHERE search_include>0');
         foreach($tabs as $tab_id=>$tab) {
             $table_rows = self::init($tab);
             $ret = self::get_records($tab,array(),array(),array(),$limit,true);
+            if(!$ret) continue;
+
+            $lock = DATA_DIR.'/Utils_RecordBrowser/'.$tab_id.'.lock';
+            if(file_exists($lock) && filemtime($lock)>time()-1200) continue;
+            register_shutdown_function(create_function('','@unlink("'.$lock.'");'));
+            file_put_contents($lock,'');
+
             foreach($ret as $row) {
                 $row = self::record_processing($tab, $row, 'index');
                 if(!$row) continue;
@@ -3292,6 +3298,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if($total>=$limit) break;
                 if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<DB::GetQueriesQty()) break;
             }
+            
+            @unlink($lock);
+            
             if($total>=$limit) break;
             if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<DB::GetQueriesQty()) break;
         }
@@ -3762,4 +3771,10 @@ class Utils_RecordBrowserMobile { // mini class to simulate full RB object, TODO
 
 require_once 'modules/Utils/RecordBrowser/object_wrapper/include.php';
 
+if(!READ_ONLY_SESSION) {
+    if(!isset($_SESSION['rb_indexer_token']))
+        $_SESSION['rb_indexer_token'] = md5(microtime(true));
+    load_js('modules/Utils/RecordBrowser/indexer.js');
+    eval_js_once('rb_indexer("'.$_SESSION['rb_indexer_token'].'")');
+}
 ?>
