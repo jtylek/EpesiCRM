@@ -10,7 +10,7 @@ if(!isset($_SESSION['rb_indexer_token']) || $_SESSION['rb_indexer_token']!=$_GET
     die('Invalid token');
 
 $total = 0;
-if(file_get_contents(DATA_DIR.'/Utils_RecordBrowser/last')<time()-50) {
+if(@file_get_contents(DATA_DIR.'/Utils_RecordBrowser/last')<time()-50) {
     ModuleManager::load_modules();
     Base_AclCommon::set_sa_user();
 
