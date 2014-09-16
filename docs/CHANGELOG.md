@@ -1,6 +1,11 @@
 EPESI CHANGELOG
 ===============
 
+CURRENT
+-------
+
+- Fix user activity report issues
+
 RELEASE 1.6.1-20140913
 -------
 

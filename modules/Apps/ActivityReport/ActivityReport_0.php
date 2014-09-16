@@ -78,16 +78,17 @@ class Apps_ActivityReport extends Module {
 		}
 
 		$af_where = array();
-		foreach($rb_tabs as $k=>$t)
+		foreach($rb_tabs as $k=>$t) {
 			$af_where[] = 'ual.local '.DB::like().' '.DB::Concat(DB::qstr($k.'/'),DB::qstr('%'));
-		$af_where = ' ('.implode(' OR ',$af_where).')';
+        }
+        $af_where = count($af_where) ?' ('.implode(' OR ',$af_where).')' : 'TRUE ';
 
 		$e_where = array();
 		$c_where = '';
 		if ($filters['user']) {
 			$e_where[] = ' edited_by = '.$filters['user'];
 			$c_where = ' created_by = '.$filters['user'];
-			$af_where .= ' AND created_by = '.$filters['user'];
+			$af_where .= ' AND uaf.created_by = '.$filters['user'];
 		}
 		if (isset($filters['edit'])) {
 			if (!isset($filters['delete_restore'])) {
