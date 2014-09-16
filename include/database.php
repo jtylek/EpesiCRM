@@ -118,13 +118,20 @@ class DB {
 	public static function TypeControl($sql, & $arr) {
 		$x = preg_split('/(%[%DTdsbf])/', $sql, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		if (isset($arr) && !is_array($arr))
+		if (isset($arr) && !is_array($arr)) {
 			$arr = array($arr);
+		} elseif (!isset($arr)) {
+		    $arr = array();
+		}
 	
 		$ret = '';
 		$j=0;
 		$arr_count = count($arr);
 		foreach($x as $y) {
+		    if ($y == '%%') {
+		        $ret .= '%';
+		        continue;
+		    }
 			if($arr_count<=$j) {
 				$ret .= $y;
 				continue;
@@ -168,9 +175,6 @@ class DB {
 					$arr[$j] = (boolean) $arr[$j]?1:0;
 					$j++;
 					$ret .= '?';
-					break;
-				case '%%':
-					$ret .= '%';
 					break;
 				default:
 					$ret .= $y;
