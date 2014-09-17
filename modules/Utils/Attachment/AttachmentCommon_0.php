@@ -418,12 +418,18 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
 
     public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        load_js('modules/Utils/Attachment/attachments.js');
+
         if($rb_obj->record['crypted']) {
             if(!(isset($rb_obj->record['id']) && isset($_SESSION['client']['cp'.$rb_obj->record['id']])) && !(isset($rb_obj->record['clone_id']) && isset($_SESSION['client']['cp'.$rb_obj->record['clone_id']]))) {
-                Epesi::alert(__('Note encrypted.'));
+                /*Epesi::alert(__('Note encrypted.'));
                 $x = ModuleManager::get_instance('/Base_Box|0');
                 if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-                return $x->pop_main();
+                return $x->pop_main();*/
+                $form->addElement('static', $field, $label);
+                $txt = '<div id="note_value_'.$rb_obj->record['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').':').'\',\''.Epesi::escapeJS(__('OK')).'\','.$rb_obj->record['id'].',1)" style="color:red">'.__('Note encrypted').'</a></div>';
+                $form->setDefaults(array($field=>$txt));
+                return;
             } else {
                 if(isset($rb_obj->record['id']) && isset($_SESSION['client']['cp'.$rb_obj->record['id']]))
                     $note_pass = $_SESSION['client']['cp'.$rb_obj->record['id']];
@@ -449,7 +455,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
             load_js('modules/Utils/Attachment/js/lib/plupload.browserplus.js');
             load_js('modules/Utils/Attachment/js/lib/plupload.html4.js');
             load_js('modules/Utils/Attachment/js/lib/plupload.html5.js');
-            load_js('modules/Utils/Attachment/attachments.js');
             if (!isset($_SESSION['client']['utils_attachment'][CID])) $_SESSION['client']['utils_attachment'][CID] = array('files'=>array());
             eval_js('Utils_Attachment__init_uploader("'.floor(self::max_upload_size()/1024/1024).'mb")');
 //            eval_js('alert("'.self::max_upload_size().'")');
