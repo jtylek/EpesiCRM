@@ -460,6 +460,7 @@ class Utils_RecordBrowser extends Module {
                 $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
                 $arr = array('__NULL__'=>'---')+$arr;
                 $form->addElement('autoselect', $field_id, _V($filter), $arr, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array_merge($param,array($f_callback, $this->table_rows[$filter]['param']))), $f_callback);
+                $form->setDefaults(array($field_id=>'__NULL__'));
             } else {
                 $arr = array('__NULL__'=>'---')+$arr;
                 $form->addElement('select', $field_id, _V($filter), $arr); // TRSL
