@@ -161,13 +161,18 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		        $r = DB::SelectLimit('SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_data_1 ua INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id INNER JOIN utils_attachment_file AS uaf ON uaf.attach_id=ua.id WHERE ua.active=1 AND '.
 				' uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0', $limit, -1, array($word));
                     } elseif($type=='downloads') {
-                        $query = parse_url($word,PHP_URL_QUERY);
-                        if($query) {
-                            $vars = array();
-                            parse_str($query,$vars);
-                            if($vars && isset($vars['id']) && isset($vars['token'])) {
-                                $query = 'SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_file uaf INNER JOIN utils_attachment_download uad ON uad.attach_file_id=uaf.id INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id WHERE uad.id='.DB::qstr($vars['id']).' AND uad.token='.DB::qstr($vars['token']);
-                                $r = DB::Execute($query);
+                        if(strlen($word)==32) {
+                            $query = 'SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_file uaf INNER JOIN utils_attachment_download uad ON uad.attach_file_id=uaf.id INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id WHERE uad.token='.DB::qstr($word);
+                            $r = DB::Execute($query);
+                        } else {
+                            $query = parse_url($word,PHP_URL_QUERY);
+                            if($query) {
+                                $vars = array();
+                                parse_str($query,$vars);
+                                if($vars && isset($vars['id']) && isset($vars['token'])) {
+                                    $query = 'SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_file uaf INNER JOIN utils_attachment_download uad ON uad.attach_file_id=uaf.id INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id WHERE uad.id='.DB::qstr($vars['id']).' AND uad.token='.DB::qstr($vars['token']);
+                                    $r = DB::Execute($query);
+                                }
                             }
                         }
                     }
