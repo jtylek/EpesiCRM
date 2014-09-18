@@ -3244,6 +3244,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     
     public static function indexer($limit=null,&$total=0) {
+        $limit_sum = 0;
+        $limit_file = DATA_DIR.'/Utils_RecordBrowser/limit';
+        if(defined('RB_INDEXER_LIMIT_QUERIES')) { //limit queries per hour
+            $time = time();
+            $limit_time = 0;
+            if(file_exists($limit_file)) {
+                $tmp = array_filter(explode("\n",file_get_contents($limit_file)));
+                $limit_time = array_shift($tmp);
+                if($limit_time>$time-3600) {
+                    $limit_sum = array_sum($tmp);
+                    if($limit_sum>RB_INDEXER_LIMIT_QUERIES) return;
+                }
+            }
+            if($limit_sum==0)
+                file_put_contents($limit_file,$time."\n", LOCK_EX);
+        }
+    
         $token_length = self::get_token_length();
         if(!$limit) $limit = defined('RB_INDEXER_LIMIT_RECORDS')?RB_INDEXER_LIMIT_RECORDS:50;
         self::$admin_filter = ' indexed=0 AND active=1 AND ';
@@ -3296,14 +3313,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 
                 $total++;
                 if($total>=$limit) break;
-                if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<DB::GetQueriesQty()) break;
+                if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<$limit_sum+DB::GetQueriesQty()) break;
             }
             
             @unlink($lock);
             
             if($total>=$limit) break;
-            if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<DB::GetQueriesQty()) break;
+            if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<$limit_sum+DB::GetQueriesQty()) break;
         }
+
+        if(defined('RB_INDEXER_LIMIT_QUERIES')) {
+            file_put_contents($limit_file,DB::GetQueriesQty()."\n",FILE_APPEND | LOCK_EX);
+        }
+        
         self::$admin_filter = '';
     }
     
