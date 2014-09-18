@@ -224,7 +224,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			$id = $r['id'];
 			$token = $r['token'];
 		} else {
-			$token = md5($file_id.$expires_on);
+			$token = md5($file_id.$expires_on.mt_rand().$description);
 			DB::Execute('INSERT INTO utils_attachment_download(remote,attach_file_id,created_by,created_on,expires_on,description,token) VALUES (1,%d,%d,%T,%T,%s,%s)',array($file_id,Acl::get_user(),time(),$expires_on,$description,$token));
 			$id = DB::Insert_ID('utils_attachment_download','id');
 		}
