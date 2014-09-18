@@ -3243,6 +3243,47 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return 3;
     }
     
+    public static function index_record($tab,$record,$table_rows=null,$tab_id=null) {
+        if($tab_id===null) $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+        if($table_rows===null) $table_rows = self::init($tab);
+        
+        $record = self::record_processing($tab, $record, 'index');
+        if($record) {
+            DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%s AND record_id=%d',array($tab_id,$record['id']));
+            $token_length = self::get_token_length();
+            foreach($table_rows as $field_info) {
+                $field = $field_info['id'];
+                if(!isset($record[$field])) continue;
+                ob_start();
+                $text = self::get_val($tab,$field,$record);
+                ob_end_clean();
+                $text = mb_strtolower(html_entity_decode(strip_tags($text)));
+                $len = mb_strlen($text);
+                if($len<$token_length) continue;
+                for($i=0;$i<=$len-$token_length;$i++) {
+                    $word = mb_substr($text,$i,$token_length);
+                    if(preg_match('/[^\p{L}0-9]/u',$word)) continue;
+
+                    DB::StartTrans();
+                    $word_id = DB::GetOne('SELECT id FROM recordbrowser_words_index WHERE word=%s',array($word));
+                    if(!$word_id) {
+                        DB::Execute('INSERT INTO recordbrowser_words_index(word) VALUES(%s)',array($word));
+                        $word_id = DB::Insert_ID('recordbrowser_words_index','id');
+                    }
+                    DB::CompleteTrans();
+                    if(!$word_id) {
+                        return;
+                    }
+                    
+                    DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab_id,record_id,field_id,position) VALUES(%d,%d,%d,%d,%d)',
+                        array($word_id,$tab_id,$record['id'],$field_info['pkey'],$i));
+                }
+            }
+        }
+        
+        DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($record['id']));
+    }
+    
     public static function indexer($limit=null,&$total=0) {
         $limit_sum = 0;
         $limit_file = DATA_DIR.'/Utils_RecordBrowser/limit';
@@ -3260,14 +3301,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if($limit_sum==0)
                 file_put_contents($limit_file,$time."\n", LOCK_EX);
         }
-    
-        $token_length = self::get_token_length();
+        
         if(!$limit) $limit = defined('RB_INDEXER_LIMIT_RECORDS')?RB_INDEXER_LIMIT_RECORDS:50;
-        self::$admin_filter = ' indexed=0 AND active=1 AND ';
         $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties WHERE search_include>0');
         foreach($tabs as $tab_id=>$tab) {
+    
             $table_rows = self::init($tab);
+            self::$admin_filter = ' indexed=0 AND active=1 AND ';
             $ret = self::get_records($tab,array(),array(),array(),$limit,true);
+            self::$admin_filter = '';
+            
             if(!$ret) continue;
 
             $lock = DATA_DIR.'/Utils_RecordBrowser/'.$tab_id.'.lock';
@@ -3276,40 +3319,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             file_put_contents($lock,'');
 
             foreach($ret as $row) {
-                $row = self::record_processing($tab, $row, 'index');
-                if(!$row) continue;
-                DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%s AND record_id=%d',array($tab_id,$row['id']));
-                foreach($table_rows as $field_info) {
-                    $field = $field_info['id'];
-                    if(!isset($row[$field])) continue;
-                    ob_start();
-                    $text = self::get_val($tab,$field,$row);
-                    ob_end_clean();
-                    $text = mb_strtolower(html_entity_decode(strip_tags($text)));
-                    $len = mb_strlen($text);
-                    if($len<$token_length) continue;
-                    for($i=0;$i<=$len-$token_length;$i++) {
-                        $word = mb_substr($text,$i,$token_length);
-                        if(preg_match('/[^\p{L}0-9]/u',$word)) continue;
-
-                        DB::StartTrans();
-                        $word_id = DB::GetOne('SELECT id FROM recordbrowser_words_index WHERE word=%s',array($word));
-                        if(!$word_id) {
-                            DB::Execute('INSERT INTO recordbrowser_words_index(word) VALUES(%s)',array($word));
-                            $word_id = DB::Insert_ID('recordbrowser_words_index','id');
-                        }
-                        DB::CompleteTrans();
-                        if(!$word_id) {
-                            self::$admin_filter = '';
-                            return;
-                        }
-                        
-                        DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab_id,record_id,field_id,position) VALUES(%d,%d,%d,%d,%d)',
-                            array($word_id,$tab_id,$row['id'],$field_info['pkey'],$i));
-                    }
-                }
-                
-                DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($row['id']));
+                self::index_record($tab,$row,$table_rows,$tab_id);
                 
                 $total++;
                 if($total>=$limit) break;
@@ -3326,7 +3336,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             file_put_contents($limit_file,DB::GetQueriesQty()."\n",FILE_APPEND | LOCK_EX);
         }
         
-        self::$admin_filter = '';
     }
     
     public static function search($search,$categories) {
