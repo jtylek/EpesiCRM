@@ -5,6 +5,13 @@ CURRENT
 -------
 
 - Fix user activity report issues
+- Update AdoDB to 5.19
+- Fix Roundcube cache issue
+- Decrypt note in view - allows to enter crypted note from search
+- Fix autoselect filter issue
+- Fix tax_id label
+- Search file downloads just by token
+- Index records for search without cron
 
 RELEASE 1.6.1-20140913
 -------
