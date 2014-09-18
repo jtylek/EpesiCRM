@@ -722,7 +722,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function QFfield_tax_id(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode=='add' || $mode=='edit') {
-            $form->addElement('text', $field, 'X'.$label, array('id'=>$field));
+            $form->addElement('text', $field, $label, array('id'=>$field));
             self::$rid = isset($rb_obj->record['id'])?$rb_obj->record['id']:null;
             $form->addFormRule(array('CRM_ContactsCommon','check_tax_id_unique'));
             if ($mode=='edit') $form->setDefaults(array($field=>$default));
