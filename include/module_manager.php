@@ -43,7 +43,7 @@ class ModuleManager {
 		ob_end_clean();
 		$x = $module_class_name.'Install';
 		if(!(class_exists($x, false)) || !array_key_exists('ModuleInstall',class_parents($x)))
-			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
+			trigger_error('Module '.$module_class_name.': Invalid install file '.$path,E_USER_ERROR);
 		self::$modules_install[$module_class_name] = new $x($module_class_name);
 		return true;
 	}
@@ -601,7 +601,8 @@ class ModuleManager {
 	 * @param string module name
 	 * @return bool true if uninstallation success, false otherwise
 	 */
-	public static final function uninstall($module_to_uninstall) {
+	public static final function uninstall($module) {
+		$module_to_uninstall = self::get_module_class_name($module);
 		$installed_version = self::is_installed($module_to_uninstall);
 		if ($installed_version<0) {
 			print($module_to_uninstall . ' module not installed<br>');
