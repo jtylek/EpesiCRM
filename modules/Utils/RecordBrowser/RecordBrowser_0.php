@@ -2311,7 +2311,8 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($type == 'select') {
 			if (!isset($data['data_source'])) $data['data_source'] = $this->admin_field['data_source'];
-			if (!isset($data['rset'])) $data['rset'] = array($this->admin_field['rset']);
+			if (!isset($data['rset'])) $data['rset'] = $this->admin_field['rset'];
+			if (!is_array($data['rset'])) $data['rset'] = array($data['rset']);
 			if ($data['data_source']=='commondata' && $data['commondata_table']=='') $ret['commondata_table'] = __('Field required');
 			if ($data['data_source']=='rset') {
 				if ($data['label_field']!='') {
