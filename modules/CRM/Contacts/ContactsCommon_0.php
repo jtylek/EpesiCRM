@@ -30,7 +30,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$clearance = array();
 		$all |= Base_AclCommon::i_am_sa();
 		$me = CRM_ContactsCommon::get_my_record(); 
-		$mc = CRM_ContactsCommon::get_main_company();
+		//$mc = CRM_ContactsCommon::get_main_company();
 		if ($all || $me['id']!=-1) {
 			$access_vals = Utils_CommonDataCommon::get_array('Contacts/Access', true);
 			if ($all) $access = array_keys($access_vals);
