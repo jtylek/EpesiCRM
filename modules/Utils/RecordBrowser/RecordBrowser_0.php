@@ -2197,13 +2197,16 @@ class Utils_RecordBrowser extends Module {
 								if (!isset($row) || !isset($row['param'])) $row['param'] = ';::';
 								$props = explode(';', $row['param']);
 								if($data['rset']) {
+								    $fs = explode(',', $data['label_field']);
 								    if($data['label_field']) foreach($data['rset'] as $rset) {
-        								$ret = $this->detranslate_field_names($rset, $data['label_field']);
-	        							if (!empty($ret)) trigger_error('Invalid fields: '.$data['label_field']);
+        								$ret = $this->detranslate_field_names($rset, $fs);
+	        							if (!empty($ret)) trigger_error('Invalid fields: '.implode(',',$fs));
 	        						    }
 	        						    $data['rset'] = implode(',',$data['rset']);
+	        						    $data['label_field'] = implode(',',$fs);
 								} else {
 								    $data['rset'] = '__RECORDSETS__';
+								    $data['label_field'] = '';
 								}
 								$props[0] = $data['rset'].'::'.$data['label_field'];
 								$param = implode(';', $props);
@@ -2316,8 +2319,9 @@ class Utils_RecordBrowser extends Module {
 			if ($data['data_source']=='commondata' && $data['commondata_table']=='') $ret['commondata_table'] = __('Field required');
 			if ($data['data_source']=='rset') {
 				if ($data['label_field']!='') {
+				    $fs = explode(',', $data['label_field']);
 				    foreach($data['rset'] as $rset)
-				        $ret = $ret + $this->detranslate_field_names($rset, $data['label_field']);
+				        $ret = $ret + $this->detranslate_field_names($rset, $fs);
 				}
 			}
 			if ($this->admin_field_mode=='edit' && $data['select_type']=='select' && $this->admin_field['select_type']=='multiselect') {
@@ -2341,7 +2345,6 @@ class Utils_RecordBrowser extends Module {
 		foreach ($fields as $k=>$f)
 			$fields[_V($f)] = $f; // ****** RecordBrowser - field name
 		
-		$fs = explode(',', $fs);
 		$ret = array();
 		foreach ($fs as $k=>$f) {
 			$f = trim($f);
