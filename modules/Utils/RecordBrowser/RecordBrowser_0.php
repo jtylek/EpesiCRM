@@ -935,6 +935,7 @@ class Utils_RecordBrowser extends Module {
                 self::$browsed_records['records'][$row['id']] = $i;
                 $i++;
             }
+            $row = Utils_RecordBrowserCommon::record_processing($this->tab, $row, 'browse');
             self::$access_override['id'] = $row['id'];
             $gb_row = $gb->get_new_row();
 			$row_data = array();
