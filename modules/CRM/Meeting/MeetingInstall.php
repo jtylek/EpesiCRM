@@ -19,8 +19,8 @@ class CRM_MeetingInstall extends ModuleInstall {
 
 			array('name' => _M('Description'), 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
 
-			array('name' => _M('Date'), 				'type'=>'date', 'required'=>true, 'extra'=>false, 'visible'=>true, 'param'=>'255', 'display_callback'=>array('CRM_MeetingCommon', 'display_date')),
-			array('name' => _M('Time'), 				'type'=>'time', 'required'=>true, 'extra'=>false, 'visible'=>true, 'param'=>'255'),
+			array('name' => _M('Date'), 				'type'=>'date', 'required'=>true, 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_MeetingCommon', 'display_date')),
+			array('name' => _M('Time'), 				'type'=>'time', 'required'=>true, 'extra'=>false, 'visible'=>true, 'param'=>'5'),
 			array('name' => _M('Duration'), 			'type'=>'integer', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_MeetingCommon','QFfield_duration')),
 
 			array('name' => _M('Employees'), 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_MeetingCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('CRM_MeetingCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true, 'filter'=>true),
