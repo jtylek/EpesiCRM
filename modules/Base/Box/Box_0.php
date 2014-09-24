@@ -22,6 +22,11 @@ class Base_Box extends Module {
     }
 
     public function body() {
+        if (isset(Base_BoxCommon::$override_box_main)) {
+            $this->pack_module(Base_BoxCommon::$override_box_main);
+            return;
+        }
+
         $theme = $this->pack_module('Base/Theme');
 		$ini = Base_BoxCommon::get_ini_file();
 		
