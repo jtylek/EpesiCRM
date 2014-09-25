@@ -536,7 +536,7 @@ class Utils_RecordBrowser extends Module {
 					continue;
 				}
                 if (!isset($text_filters[$filter_id])) {
-                    if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='__NULL__';
+                    if (!isset($vals['filter__'.$filter_id]) || ($this->table_rows[$filter]['type']=='select' && $vals['filter__'.$filter_id]==='')) $vals['filter__'.$filter_id]='__NULL__';
 					if ($vals['filter__'.$filter_id]==='__NULL__') continue;
 					if ($this->table_rows[$filter]['type']=='commondata') {
 						$vals2 = explode('/',$vals['filter__'.$filter_id]);
