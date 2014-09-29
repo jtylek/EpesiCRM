@@ -10,8 +10,10 @@ if ($db->was_applied('8fd8dd050f628900ac035305d0cab140')) {
     return;
 }
 
-$tab_ids_checkpoint = Patch::checkpoint('tab_ids');
-if(!$tab_ids_checkpoint->is_done()) {
+$columns = DB::MetaColumnNames('recordbrowser_table_properties');
+if (!isset($columns['ID'])) {
+  $tab_ids_checkpoint = Patch::checkpoint('tab_ids');
+  if(!$tab_ids_checkpoint->is_done()) {
     Patch::require_time(20);
 
     if(DATABASE_DRIVER=='postgres') {
@@ -23,6 +25,7 @@ if(!$tab_ids_checkpoint->is_done()) {
     }
     DB::CreateIndex('recordbrowser_table_properties_tab','recordbrowser_table_properties','tab',array('UNIQUE'=>1));
     $tab_ids_checkpoint->done();
+  }
 }
 
 $field_ids_checkpoint = Patch::checkpoint('field_ids');
