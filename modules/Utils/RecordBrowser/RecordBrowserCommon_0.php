@@ -1281,17 +1281,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                         $having .= ' (rec.user_id='.Acl::get_user().' AND rec.user_id IS NOT NULL)';
                                         break;
                     case ':Created_on'  :
-                            $inj = $operator.DB::qstr($v);
-							$having .= ' created_on '.$inj;
-                            break;
+                        $inj = $operator.'%T';
+                        $timestamp = Base_RegionalSettingsCommon::reg2time($v, false);
+                        $vals[] = $timestamp;
+                        $having .= ' created_on '.$inj;
+                        break;
                     case ':Created_by'  :
                             $having .= ' created_by = '.$v;
                             break;
                     case ':Edited_on'   :
-                            $inj = $operator.DB::qstr($v);
-							$having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
-									'((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
-                            break;
+                        $inj = $operator.'%T';
+                        $having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
+                                     '((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
+                        $timestamp = Base_RegionalSettingsCommon::reg2time($v, false);
+                        $vals[] = $timestamp;
+                        $vals[] = $timestamp;
+                        break;
                     default:
                         trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
                 }
@@ -1318,10 +1323,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $key = self::$table_rows[$k]['id'];
                         } else trigger_error('In table "'.$tab.'" - unknow column "'.$k.'" in criteria "'.print_r($crits,true).'". Available columns are: "'.print_r(self::$table_rows,true).'"', E_USER_ERROR);
 
-						if (self::$table_rows[self::$hash[$key]]['type']=='timestamp' && is_numeric($w))
-							$w = date('Y-m-d H:i:s', $w);
-						elseif (self::$table_rows[self::$hash[$key]]['type']=='date' && is_numeric($w))
-							$w = date('Y-m-d', $w);
+						if (self::$table_rows[self::$hash[$key]]['type']=='timestamp') {
+                            $w = Base_RegionalSettingsCommon::reg2time($w, false);
+                            $w = date('Y-m-d H:i:s', $w);
+                        } elseif (self::$table_rows[self::$hash[$key]]['type']=='date') {
+                            $w = Base_RegionalSettingsCommon::reg2time($w, false);
+                            $w = date('Y-m-d', $w);
+                        }
 
 						if ($postgre && $operator==DB::like()) $key .= '::varchar';
                         if (self::$table_rows[$f]['type']=='checkbox' && !$w) {
@@ -1588,6 +1596,29 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
             $result = false;
             $k = strtolower($k);
+            self::init($tab);
+            $transform_date = false;
+            if ($k == 'created_on') {
+                $transform_date = 'timestamp';
+            } else if ($k == 'edited_on') {
+                $details = self::get_record_info($tab, $id);
+                $r[$k] = $details['edited_on'];
+                $transform_date = 'timestamp';
+            } else if (isset(self::$hash[$k]) && isset(self::$table_rows[self::$hash[$k]])) {
+                $type = self::$table_rows[self::$hash[$k]]['type'];
+                if ($type == 'timestamp') {
+                    $transform_date = 'timestamp';
+                } elseif ($type == 'date') {
+                    $transform_date = 'date';
+                }
+            }
+            if ($transform_date == 'timestamp') {
+                $v = Base_RegionalSettingsCommon::reg2time($v, false);
+                $v = date('Y-m-d H:i:s', $v);
+            } else if ($transform_date == 'date') {
+                $v = Base_RegionalSettingsCommon::reg2time($v, false);
+                $v = date('Y-m-d', $v);
+            }
             if (!isset($r[$k])) $r[$k] = '';
             if (is_array($r[$k])) $result = in_array($v, $r[$k]);
             else switch ($operator) {
@@ -1748,7 +1779,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$blocked_fields = array();
 			if ($action!='browse' && $action!='clone') {
 				foreach ($crits_raw[$action] as $rule_id=>$c) {
-					if ($action!='add' && !self::check_record_against_crits($tab, $record, $c))
+					if ($action!='add' && $record != null && !self::check_record_against_crits($tab, $record, $c))
 						continue;
 					if (!$ret) {
 						$ret = true;
