@@ -12,6 +12,11 @@ CURRENT
 - Fix tax_id label
 - Search file downloads just by token
 - Index records for search without cron
+- Fix RB select field edit issues
+- Fix some RB field edit issues
+- Fix handling of relative date crits
+- Add new processing callback: browse
+- Fix time intervals in meetings
 
 RELEASE 1.6.1-20140913
 -------
