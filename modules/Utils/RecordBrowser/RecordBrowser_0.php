@@ -320,7 +320,7 @@ class Utils_RecordBrowser extends Module {
         $access = $this->get_access('view');
         $filters_all = array();
         foreach ($this->table_rows as $k => $v) {
-            if ($access[$v['id']]) {
+            if (isset($access[$v['id']]) && $access[$v['id']]) {
                 if ((!isset($filters_set[$v['id']]) && $v['filter']) || (isset($filters_set[$v['id']]) && $filters_set[$v['id']])) {
                     $filters_all[] = $k;
                     if (isset($filters_set[$v['id']])) {
