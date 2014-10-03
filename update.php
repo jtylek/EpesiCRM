@@ -15,10 +15,10 @@ class EpesiUpdate
     public function run()
     {
         $this->load_epesi();
-        if (!epesi_requires_update()) {
-            $this->version_up_to_date();
-        }
         if ($this->check_user()) {
+            if (!epesi_requires_update()) {
+                $this->version_up_to_date();
+            }
             $this->update_process();
         } else {
             $this->require_admin_login();
@@ -67,8 +67,7 @@ class EpesiUpdate
 
     protected function require_admin_login()
     {
-        $msg = $this->update_msg();
-        $msg .= '<p><strong>' . __("You need to be logged in as super admin to perform update.") . '</strong></p>';
+        $msg = '<p><strong>' . __("You need to be logged in as super admin use this script.") . '</strong></p>';
         $msg .= $this->login_form();
         $this->quit($msg);
     }
@@ -78,8 +77,7 @@ class EpesiUpdate
         if (Base_AclCommon::i_am_user() && !Base_AclCommon::i_am_sa()) {
             Base_User_LoginCommon::logout();
         }
-        require_once 'admin/Authorization.php';
-        $form = AdminAuthorization::form();
+        $form = SimpleLogin::form();
         return "<p>$form</p>";
     }
 

@@ -19,7 +19,6 @@ class AdminIndex {
             return false;
 
         $this->module_loader->load(array('Base_User', 'Base_User_Login', 'Base_Acl', 'Base_User_Settings'));
-        require_once('admin/Authorization.php');
         return true;
     }
     
@@ -39,12 +38,7 @@ class AdminIndex {
     private function authorized() {
         // execute form only if not banned to prevent user check for fake post
         // requests, but check again after form processed to get right info.
-        if (!Base_User_LoginCommon::is_banned()) $auth = AdminAuthorization::form();
-        if (Base_User_LoginCommon::is_banned()) {
-            $this->layout->hide_action_links();
-            $this->layout->display_html(__('You have exceeded the number of allowed login attempts.'));
-            return false;
-        }
+        $auth = SimpleLogin::form();
         if ($auth) {
             $this->layout->hide_action_links();
             $this->layout->display_html($auth);

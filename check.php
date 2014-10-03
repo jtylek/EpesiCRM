@@ -23,8 +23,7 @@ if ($config && class_exists('Base_AclCommon')) {
             die('Only super admin can access this page');
         }
     } else {
-        require_once('admin/Authorization.php');
-        $auth = AdminAuthorization::form();
+        $auth = SimpleLogin::form();
         if ($auth) {
             print($auth);
             die();
