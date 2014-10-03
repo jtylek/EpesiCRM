@@ -18,6 +18,7 @@ class ClientRequester implements IClient {
     protected $server;
     protected $license_key;
     private $secure = true;
+    private $connection_timeout = 300;
 
     public function __construct($server) {
         $this->server = $server;
@@ -25,6 +26,11 @@ class ClientRequester implements IClient {
 
     public function set_client_license_key($license_key) {
         $this->license_key = $license_key;
+    }
+
+    public function set_connection_timeout($timeout = 300)
+    {
+        $this->connection_timeout = $timeout;
     }
 
     public function download_prepare($order_ids) {
@@ -193,6 +199,7 @@ class ClientRequester implements IClient {
         $http['header'] = "Content-Type: application/x-www-form-urlencoded\r\n" 
                         . "Referer: " . self::get_referer();
         $http['content'] = $post_data;
+        $http['timeout'] = $this->connection_timeout;
 
         set_error_handler(create_function('$code, $message', 'throw new ErrorException($message);'));
         $exception = null;
@@ -216,7 +223,7 @@ class ClientRequester implements IClient {
         $ch = curl_init($this->server);
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->connection_timeout);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
