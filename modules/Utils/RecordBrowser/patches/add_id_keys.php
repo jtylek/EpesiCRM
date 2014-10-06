@@ -16,7 +16,7 @@ if (!isset($columns['ID'])) {
   if(!$tab_ids_checkpoint->is_done()) {
     Patch::require_time(20);
 
-    if(DATABASE_DRIVER=='postgres') {
+    if(DB::is_postgresql()) {
         DB::Execute('ALTER TABLE recordbrowser_table_properties DROP CONSTRAINT recordbrowser_table_properties_pkey');
         DB::Execute('ALTER TABLE recordbrowser_table_properties ADD COLUMN id SERIAL PRIMARY KEY');
     } else {
@@ -37,7 +37,7 @@ if(!$field_ids_checkpoint->is_done()) {
         $tab_f = $tab . "_field";
         $columns = DB::MetaColumnNames($tab_f);
         if (!isset($columns['ID'])) {
-            if(DATABASE_DRIVER=='postgres') {
+            if(DB::is_postgresql()) {
                 @DB::Execute('ALTER TABLE '.$tab_f.' DROP CONSTRAINT '.$tab_f.'_pkey');
                 DB::Execute('ALTER TABLE '.$tab_f.' ADD COLUMN id SERIAL PRIMARY KEY');
             } else {

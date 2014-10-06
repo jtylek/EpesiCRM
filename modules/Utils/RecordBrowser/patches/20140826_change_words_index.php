@@ -26,7 +26,7 @@ if(!$tab_id_col_checkpoint->is_done()) {
 
     PatchUtil::db_add_column('recordbrowser_words_map', 'tab_id', 'I2');
     PatchUtil::db_add_column('recordbrowser_words_map', 'field_id', 'I2');
-    if(DATABASE_DRIVER=='postgres') {
+    if(DB::is_postgresql()) {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD CONSTRAINT tab_id_fk FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties');
     } else {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties(id)');
@@ -38,7 +38,7 @@ $remove_idx_checkpoint = Patch::checkpoint('remove_idx');
 if(!$remove_idx_checkpoint->is_done()) {
     Patch::require_time(20);
 
-    if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
+    if(DB::is_mysql()) {
         $a = DB::GetRow('SHOW CREATE TABLE recordbrowser_words_map');
         if(preg_match('/CONSTRAINT (.+) FOREIGN KEY .*word_id/',$a[1],$m))
             DB::Execute('alter table `recordbrowser_words_map` drop foreign key '.$m[1]);
@@ -73,7 +73,7 @@ if(!$finalize_checkpoint->is_done()) {
     PatchUtil::db_drop_column('recordbrowser_words_map', 'tab');
     PatchUtil::db_drop_column('recordbrowser_words_map', 'field_name');
 
-    if(DATABASE_DRIVER=='postgres') {
+    if(DB::is_postgresql()) {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD CONSTRAINT word_id_fk FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index');
     } else {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id)');

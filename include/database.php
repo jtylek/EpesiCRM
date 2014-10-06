@@ -43,10 +43,10 @@ class DB {
 					die("Connect to database failed");
 			$new = self::$ado;
 		}
-        if(strcasecmp(DATABASE_DRIVER,"postgres")!==0) {
+        if (self::is_mysql()) {
 			// For MySQL
     		$new->Execute('SET NAMES "utf8"');
-		} else {
+		} elseif (self::is_postgresql()) {
 			// For PostgreSQL
 			@$new->Execute('SET bytea_output = "escape";');
 		}
@@ -61,6 +61,17 @@ class DB {
 		self::$ado = null;
 	}
 
+    public static function is_postgresql()
+    {
+        $ret = stripos(DATABASE_DRIVER, 'postgre') !== false;
+        return $ret;
+    }
+
+    public static function is_mysql()
+    {
+        $ret = stripos(DATABASE_DRIVER, 'mysql') !== false;
+        return $ret;
+    }
 
  	/**
 	 * Statistics only. Get number of queries till now.
@@ -184,7 +195,7 @@ class DB {
 	}
 	
 	public static function ifelse($a,$b,$c) {
-        if(strcasecmp(DATABASE_DRIVER,"postgres")===0)
+        if(self::is_postgresql())
     	    return '(CASE WHEN '.$a.' THEN '.$b.' ELSE '.$c.' END)';
 	    return 'IF('.$a.','.$b.','.$c.')';
 	}
@@ -944,7 +955,7 @@ return $ret;
 	public static function like() {
 		static $like = null;
 		if ($like===null) {
-            if(strcasecmp(DATABASE_DRIVER,"postgres")!==0) $like = 'LIKE';
+            if(!DB::is_postgresql()) $like = 'LIKE';
 			else $like = 'ILIKE';
 		}
 		return $like;

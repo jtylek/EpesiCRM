@@ -8,13 +8,13 @@ $substr_func = 'substr';
 
 $time_field = 'f_time';
 $date_field = 'f_date';
-if (DATABASE_DRIVER == 'postgres') {
+if (DB::is_postgresql()) {
     // apply types cast required by postgres
     $time_field .= '::text';
     $date_field .= '::text';
 }
 $new_time_sql = DB::Concat($date_field, DB::qstr(' '), "$substr_func($time_field,12)");
-if (DATABASE_DRIVER == 'postgres') {
+if (DB::is_postgresql()) {
     // apply type cast again for postgres
     $new_time_sql = "cast($new_time_sql as timestamp)";
 }

@@ -54,7 +54,7 @@ class DBSession {
 
     public static function read($name) {
         $name = self::truncated_session_id($name);
-        if(DATABASE_DRIVER=='mysqlt') {
+        if(DB::is_mysql()) {
             if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name,ini_get('max_execution_time'))))
                 trigger_error('Unable to get lock on session name='.$name,E_USER_ERROR);
         }
@@ -80,7 +80,7 @@ class DBSession {
                 $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
                 if(file_exists($sess_file))
                     $_SESSION['client'] = @unserialize(file_get_contents($sess_file));
-            } elseif(DATABASE_DRIVER=='postgres') {
+            } elseif(DB::is_postgresql()) {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 if(READ_ONLY_SESSION) {
                     self::$ado = DB::$ado;
@@ -129,7 +129,7 @@ class DBSession {
                 if(!file_exists(FILE_SESSION_DIR)) mkdir(FILE_SESSION_DIR);
                 file_put_contents($sess_file,serialize($_SESSION['client']));
                 chmod($sess_file, 0600);
-            } elseif(DATABASE_DRIVER=='postgres') {
+            } elseif(DB::is_postgresql()) {
                 //code below need testing on postgresql - concurrent epesi execution with session blocking
                 $data = '\''.self::$ado->BlobEncode($data).'\'';
                 $ret &= self::$ado->Replace('session_client',array('data'=>$data,'session_name'=>self::$ado->qstr($name),'client_id'=>CID),array('session_name','client_id'));
@@ -145,10 +145,10 @@ class DBSession {
         }
         if(isset($_SESSION['client'])) unset($_SESSION['client']);
         $data = serialize($_SESSION);
-        if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
+        if(DB::is_postgresql()) $data = '\''.DB::BlobEncode($data).'\'';
         else $data = DB::qstr($data);
         $ret &= @DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($name)),'name');
-        if(DATABASE_DRIVER=='mysqlt') {
+        if(DB::is_mysql()) {
             DB::Execute('SELECT RELEASE_LOCK(%s)',array($name));
         }
         return ($ret>0)?true:false;

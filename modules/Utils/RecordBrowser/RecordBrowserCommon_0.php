@@ -1114,14 +1114,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $a;
     }
     public static function build_query( $tab, $crits = null, $admin = false, $order = array()) {
-		$PG = (DATABASE_DRIVER == "postgres");
 		if (!is_array($order)) $order = array();
         $cache_key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
         static $cache = array();
         self::init($tab, $admin);
 		if (isset($cache[$cache_key])) return $cache[$cache_key];
         if (!$tab) return false;
-		$postgre = (strcasecmp(DATABASE_DRIVER,"postgres")===0);
+		$postgre = DB::is_postgresql();
         $having = '';
         $fields = '';
         $final_tab = $tab.'_data_1 AS r';
@@ -1235,7 +1234,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$col2m = array();
 					
 					$conv = '';
-					if ($PG) $conv = '::varchar';
+					if ($postgre) $conv = '::varchar';
 					foreach ($col2 as $c) {
 						if (self::$table_rows[self::$hash[$c]]['type']=='multiselect')
 							$col2m[] = $c.$conv;

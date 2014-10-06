@@ -2177,7 +2177,7 @@ class Utils_RecordBrowser extends Module {
 								if ($data['text_length']<$row['param']) trigger_error('Invalid field length', E_USER_ERROR);
 								$param = $data['text_length'];
 								if ($data['text_length']!=$row['param']) {
-									if(DATABASE_DRIVER=='postgres')
+									if(DB::is_postgresql())
 										DB::Execute('ALTER TABLE '.$this->tab.'_data_1 ALTER COLUMN f_'.$id.' TYPE VARCHAR('.$param.')');
 									else
 										DB::Execute('ALTER TABLE '.$this->tab.'_data_1 MODIFY f_'.$id.' VARCHAR('.$param.')');
@@ -2221,7 +2221,7 @@ class Utils_RecordBrowser extends Module {
 								}
 							}
 							if (isset($row) && isset($row['type'])  && $row['type']!='multiselect' && $data['select_type']=='multiselect') {
-								if(DATABASE_DRIVER=='postgres')
+								if(DB::is_postgresql())
 									DB::Execute('ALTER TABLE '.$this->tab.'_data_1 ALTER COLUMN f_'.$id.' TYPE TEXT');
 								else
 									DB::Execute('ALTER TABLE '.$this->tab.'_data_1 MODIFY f_'.$id.' TEXT');
@@ -2258,7 +2258,7 @@ class Utils_RecordBrowser extends Module {
             DB::StartTrans();
             if ($id!=$new_id) {
                 Utils_RecordBrowserCommon::check_table_name($this->tab);
-                if(DATABASE_DRIVER=='postgres')
+                if(DB::is_postgresql())
                     DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$new_id);
                 else {
                     $old_param = DB::GetOne('SELECT param FROM '.$this->tab.'_field WHERE field=%s', array($field));

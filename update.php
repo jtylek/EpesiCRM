@@ -271,7 +271,7 @@ class EpesiUpdate
     {
         $this->turn_on_maintenance_mode();
         //restore innodb tables in case of db reimport
-        if (strcasecmp(DATABASE_DRIVER, "postgres") !== 0) {
+        if (DB::is_mysql()) {
             $tbls = DB::MetaTables('TABLE', true);
             foreach ($tbls as $t) {
                 $tbl = DB::GetRow('SHOW CREATE TABLE ' . $t);

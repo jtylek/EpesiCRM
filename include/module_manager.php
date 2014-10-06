@@ -533,7 +533,7 @@ class ModuleManager {
 		}
 
 		$debug .= '<b>' . $module_class_name . '</b>' . ': calling install method<br>';
-        if(preg_match('/^mysql/i',DATABASE_DRIVER))
+        if(DB::is_mysql())
             DB::Execute('SET FOREIGN_KEY_CHECKS = 0');
 		//call install script and fill database
 		if(!call_user_func(array (
@@ -547,11 +547,11 @@ class ModuleManager {
 			));
 			self::remove_data_dir($module_class_name);
 			print($debug.'<b>' . $module_class_name . '</b>' . ': uninstalled<br>');
-            if(preg_match('/^mysql/i',DATABASE_DRIVER))
+            if(DB::is_mysql())
                 DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
 			return false;
 		}
-        if(preg_match('/^mysql/i',DATABASE_DRIVER))
+        if(DB::is_mysql())
             DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
 
 		$debug .= '<b>' . $module_class_name . '</b>' . ': registering<br>';

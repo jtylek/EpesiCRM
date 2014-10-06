@@ -1,6 +1,6 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
-$mysql = (DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt');
+$mysql = DB::is_mysql();
 
 if ($mysql) {
     // remove foregin keys

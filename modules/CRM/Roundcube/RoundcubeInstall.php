@@ -29,7 +29,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
         $this->drop_all_rc_tables();
 
-        if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
+        if(DB::is_mysql())
             $f = file_get_contents('modules/CRM/Roundcube/RC/SQL/mysql.initial.sql');
         else
             $f = file_get_contents('modules/CRM/Roundcube/RC/SQL/postgres.initial.sql');
