@@ -9,7 +9,7 @@
 if (version_compare(phpversion(), '5.4.0')==-1)
 	error_reporting(E_ALL); //all without notices
 else
-	error_reporting(E_ALL & ~E_STRICT);
+	error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED);
 ob_start();
 ini_set('arg_separator.output','&');
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
