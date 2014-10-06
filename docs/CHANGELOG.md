@@ -15,8 +15,12 @@ CURRENT
 - Fix RB select field edit issues
 - Fix some RB field edit issues
 - Fix handling of relative date crits
-- Add new processing callback: browse
+- Add new processing callback: browse (Dev)
 - Fix time intervals in meetings
+- ESS - test connection before registration
+- Functions to check database type (Dev)
+- Extract SimpleLogin class from admin tools for easy login (Dev)
+- Fix setup script for PHP >= 5.6
 
 RELEASE 1.6.1-20140913
 -------
