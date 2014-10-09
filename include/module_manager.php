@@ -492,13 +492,9 @@ class ModuleManager {
 			else
 				$check=true;
 		}
-		$debug = '<div class="green" style="text-align: left;">';
 
         $module_class_name = self::get_module_class_name($module);
         
-		//already installed?
-		$debug .= '<b>' . $module_class_name . '</b>' .': is installed?<br>';
-
 		self::include_install($module_class_name);
 		
 		if (!isset(self::$modules_install[$module_class_name])) return false;
@@ -515,7 +511,7 @@ class ModuleManager {
 			$version = $inst_ver-1;
 		} else {
 			if($inst_ver<$version) {
-				print($debug.'Module ' . '<b>' . $module_class_name . '</b>' .' is too old. Please download newer version<br>');
+				print('Module ' . '<b>' . $module_class_name . '</b>' .' is too old. Please download newer version<br>');
 				return false;
 			}
 		}
@@ -528,11 +524,10 @@ class ModuleManager {
 
 		//check dependecies
 		if(!self::satisfy_dependencies($module_class_name,$version,$check)) {
-			print($debug.'<b>' . $module_class_name . '</b>' . ': dependencies not satisfied.<br>');
+			print('<b>' . $module_class_name . '</b>' . ': dependencies not satisfied.<br>');
 			return false;
 		}
 
-		$debug .= '<b>' . $module_class_name . '</b>' . ': calling install method<br>';
         if(DB::is_mysql())
             DB::Execute('SET FOREIGN_KEY_CHECKS = 0');
 		//call install script and fill database
@@ -540,13 +535,12 @@ class ModuleManager {
 			self::$modules_install[$module_class_name],
 			'install'
 		))) {
-			$debug .= '<b>' . $module_class_name . '</b>' . ': failed install, calling uninstall<br>';
 			call_user_func(array (
 				self::$modules_install[$module_class_name],
 				'uninstall'
 			));
 			self::remove_data_dir($module_class_name);
-			print($debug.'<b>' . $module_class_name . '</b>' . ': uninstalled<br>');
+			print('<b>' . $module_class_name . '</b>' . ': uninstalled<br>');
             if(DB::is_mysql())
                 DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
 			return false;
@@ -554,10 +548,9 @@ class ModuleManager {
         if(DB::is_mysql())
             DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
 
-		$debug .= '<b>' . $module_class_name . '</b>' . ': registering<br>';
 		$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_class_name);
 		if (!$ret) {
-			print ($debug.'<b>' . $module_class_name . '</b>' . ' module installation failed: database<br>');
+			print ('<b>' . $module_class_name . '</b>' . ' module installation failed: database<br>');
 			return false;
 		}
 
@@ -566,30 +559,25 @@ class ModuleManager {
         PatchUtil::mark_applied($module_class_name);
 
 		if ($check) {
-			$debug .= '<b>' . $module_class_name . '</b>' . ': rewriting priorities<br>';
 			self::create_load_priority_array();
 		}
 
 		print ('<b>' . $module_class_name . '</b>' . ' module installed!<br>');
 
 		if($version!=0) {
-			$debug .= '<b>' . $module_class_name . '</b>' . ': upgrades...<br>';
 			$up = self::upgrade($module_class_name, $version);
 			if(!$up) {
-				print($debug);
 				return false;
 			}
 		}
 		self::$not_loaded_modules[] = array('name'=>$module_class_name,'version'=>$version);
 
-		//$debug .= '<b>' . $module_to_install . '</b>' . ': deps ok, including common class<br>';
 		if($include_common) {
             self::include_common($module_class_name,$version);
 //    		self::create_common_cache();
         }
         if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
 
-		//$debug .= '</div>';
 		self::$processed_modules['install'][$module_class_name] = $version;
 		return true;
 
