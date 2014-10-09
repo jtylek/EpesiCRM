@@ -13,7 +13,7 @@
 			<span style="display: table-cell;  width:10px" class="epesi_label">
 				{$f.label}{if $f.required}*{/if}
 			</span>
-			<span style="display: table-cell{if $f.type=='checkbox'}; width: 10px;{/if}" class="epesi_data{if $f.frozen} static_field{/if}">
+			<span style="display: table-cell; width: auto;" class="epesi_data{if $f.frozen} static_field{/if}">
 					{$f.error}
 					{$f.html}
 			</span>
