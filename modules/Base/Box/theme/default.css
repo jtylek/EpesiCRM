@@ -1125,8 +1125,7 @@ hr.line {
 .epesi_data input[type='checkbox'] {
     width: 13px;
     height: 13px;
-    vertical-align: middle;
-    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .epesi_data input:focus,
