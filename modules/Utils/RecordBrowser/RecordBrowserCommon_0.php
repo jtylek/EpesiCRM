@@ -1711,6 +1711,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE rule_id=%d', array($id));
 		DB::Execute('DELETE FROM '.$tab.'_access WHERE id=%d', array($id));
 	}
+    public static function delete_access_rules($tab, $action, $clearance, $crits = array())
+    {
+        if (!self::check_table_name($tab, false, false)) return;
+        if (!is_array($clearance)) $clearance = array($clearance);
+        $clearance_c = count($clearance);
+        $ids = DB::GetCol('SELECT id FROM ' . $tab . '_access WHERE crits=%s AND action=%s', array(serialize($crits), $action));
+        $ret = 0;
+        foreach ($ids as $rule_id) {
+            $existing_clearance = DB::GetCol('SELECT clearance FROM ' . $tab . '_access_clearance WHERE rule_id=%d', array($rule_id));
+            if ($clearance_c == count($existing_clearance) &&
+                $clearance_c == count(array_intersect($existing_clearance, $clearance))) {
+                self::delete_access($tab, $rule_id);
+                $ret += 1;
+            }
+        }
+        return $ret;
+    }
 	public static function add_access($tab, $action, $clearance, $crits=array(), $blocked_fields=array()) {
 		if (!self::check_table_name($tab, false, false)) return;
 		DB::Execute('INSERT INTO '.$tab.'_access (crits, action) VALUES (%s, %s)', array(serialize($crits), $action));
