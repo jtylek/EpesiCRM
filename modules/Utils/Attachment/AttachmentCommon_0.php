@@ -715,9 +715,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $files = isset($_SESSION['client']['utils_attachment'][CID]['files'])?$_SESSION['client']['utils_attachment'][CID]['files']:array();
                 $_SESSION['client']['utils_attachment'][CID]['files'] = array();
                 foreach ($files as $f) {
+                    $file_path = $f['path'];
+                    $file_name = $f['name'];
                     if($values['crypted'])
-                        file_put_contents($f,Utils_AttachmentCommon::encrypt(file_get_contents($f),$values['note_password']));
-                    Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), basename($f), $f);
+                        file_put_contents($file_path,Utils_AttachmentCommon::encrypt(file_get_contents($file_path),$values['note_password']));
+                    Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), $file_name, $file_path);
                 }
 
                 $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($note_id));
