@@ -852,6 +852,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('UPDATE recordbrowser_table_properties SET description_callback=%s WHERE tab=%s', array($callback, $tab));
     }
+    public static function set_printer($tab,$class) {
+        Base_PrintCommon::register_printer(new $class());
+        DB::Execute('UPDATE recordbrowser_table_properties SET printer=%s WHERE tab=%s', array($class, $tab));
+    }
 
     /**
      * Enable or disable jump to id. By default it is enabled.
@@ -2888,6 +2892,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function get_printer($tab)
     {
+        $class = DB::GetOne('SELECT printer FROM recordbrowser_table_properties WHERE tab=%s',$tab);
+        if($class && class_exists($class))
+            return new $class();
         return new Utils_RecordBrowser_RecordPrinter();
     }
     ////////////////////////////

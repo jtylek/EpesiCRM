@@ -31,7 +31,8 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'description_callback C(128) DEFAULT \'\','.
                         'jump_to_id I1 DEFAULT 1,'.
                         'search_include I1 DEFAULT 0,'.
-                        'search_priority I1 DEFAULT 0',
+                        'search_priority I1 DEFAULT 0,',
+                        'printer C(255) DEFAULT \'\'',
 						array('constraints'=>', UNIQUE(tab)'));
 		DB::CreateTable('recordbrowser_datatype',
 						'type C(32) KEY,'.
