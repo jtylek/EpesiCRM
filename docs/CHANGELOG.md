@@ -1,6 +1,8 @@
 EPESI CHANGELOG
 ===============
 
+(Dev) means that this change is significant only for developers.
+
 CURRENT
 -------
 
@@ -21,6 +23,16 @@ CURRENT
 - Functions to check database type (Dev)
 - Extract SimpleLogin class from admin tools for easy login (Dev)
 - Fix setup script for PHP >= 5.6
+- Fix blank index page issue
+- Fix bad character at the bottom of the page
+- Make display_as_row to wrap fields
+- Improve module install failure message
+- Add method to remove access rules by definition to RecordBrowser (Dev)
+- Keep form field focus on soft refresh
+- Include Utils/Tray module (Dev)
+- Reopen leightbox when error occured in a form
+- Add function to replace Base_Box main (Dev)
+- Admin tools - add Update Manager to download updates
 
 RELEASE 1.6.1-20140913
 -------
