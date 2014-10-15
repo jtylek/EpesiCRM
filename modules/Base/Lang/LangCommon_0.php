@@ -372,11 +372,17 @@ class Base_LangCommon extends ModuleCommon {
 		$translations = array();
 		$custom_translations = array();
 
-		@include(DATA_DIR.'/Base_Lang/base/'. $lang_code .'.php');
+        $file = DATA_DIR . '/Base_Lang/base/' . $lang_code . '.php';
+        if (file_exists($file)) {
+            include($file);
+        }
 		if(!is_array($translations))
 			$translations=array();
 
-		@include(DATA_DIR.'/Base_Lang/custom/'. $lang_code .'.php');
+        $file = DATA_DIR . '/Base_Lang/custom/' . $lang_code . '.php';
+        if (file_exists($file)) {
+            include($file);
+        }
 		if(!is_array($custom_translations))
 			$custom_translations=array();
 			
