@@ -108,15 +108,16 @@ class Admin_UpdateManager extends SteppedAdminModule
 
         $ret = '';
         $delete_file = isset($_GET[$k]) ? $_GET[$k] : null;
-        if ($delete_file && file_exists($delete_file)) {
+        $files = glob('epesi-*.ei.zip');
+        if ($delete_file && in_array($delete_file, $files) && file_exists($delete_file)) {
             if (unlink($delete_file)) {
                 unset($_GET[$k]);
                 header('Location: ?' . http_build_query($_GET));
+                die();
             } else {
                 $ret .= "Can't remove file: $delete_file.<br/>";
             }
         }
-        $files = glob('epesi-*.ei.zip');
         foreach ($files as $f) {
             $str = "$f - <a href=\"" . $this->href(array($k => $f)) . "\">delete</a>";
             $ret .= "$str<br>";
@@ -226,15 +227,8 @@ class Admin_UpdateManager extends SteppedAdminModule
 
     public static function public_key()
     {
-        $key = "-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvWFAZMVAGr3fPNK0v9Vt
-IErRSpl4I3wIWTr1kybpY8/+j9IX/t9qLvOPY4OVrkzURmKvS+VbSU8MSYZz9QIL
-TJUmNYkkyqJieSpQCq/7x5J2it+i1TeGKk8m3sOpL17+NUa/1e8a4W6FmLl9hwLd
-8TQnlVQJIva3JXA46S1E3BNPbaWdQrwABs5xGUterE890+rW63/pgD1pT1qEbmif
-oiTuG+dyhCo+REcjo8YWIpi+8BNJoo3Nn7Xxi71yA2Ps8DElIjjNRa/ca5A6SE61
-euoJaHtTSc7OsuDug2Rv0aQkvR7OmFyfIJAdAasZHWePWeuezlKJAAcvNFdjZ0Zw
-KwIDAQAB
------END PUBLIC KEY-----";
+        $file = dirname(__FILE__) . '/public_key.pem';
+        $key = file_get_contents($file);
         return $key;
     }
 }
