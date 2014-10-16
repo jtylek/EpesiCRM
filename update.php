@@ -180,8 +180,14 @@ class EpesiUpdate
                 }
             } else {
                 $header = __('Easy update package found!');
+                $current_ver = __('Your current EPESI version') . ': <strong>' . $this->current_version . '</strong>';
                 $text_p = __('Package') . ': <strong>' . $package->get_file() . '</strong>';
-                $msg = "<p><strong>$header</strong></p><p>$text_p</p>";
+                $warning_message = __('All core files will be overwritten!') . '<br/><br/>'
+                                   . __('If you have changed any of those files, then all custom modifications will be lost.');
+                $info_message = __('Custom modules and your data will be preserved.');
+                $msg = "<p><strong>$header</strong></p><p>$current_ver</p><p>$text_p</p>";
+                $msg .= "<p style=\"color: red; font-weight: bold\">$warning_message</p>";
+                $msg .= "<p style=\"font-weight: bold\">$info_message</p>";
                 $msg .= '<p><a class="button" href="?package=extract">' . __('Extract!') . '</a></p>';
                 $this->quit($msg);
             }
