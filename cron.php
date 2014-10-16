@@ -72,7 +72,7 @@ class CronErrorObserver extends ErrorObserver {
 
         global $cron_funcs_prior;
         $backtrace = htmlspecialchars_decode(str_replace(array('<br />','&nbsp;'),array("\n",' '),$backtrace));
-        $x = $cron_funcs_prior[$func_md5].":\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
+        $x = $cron_funcs_prior[$this->func_md5].":\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
         error_log($x."\n",3,DATA_DIR.'/cron.txt');
 
         return true;
