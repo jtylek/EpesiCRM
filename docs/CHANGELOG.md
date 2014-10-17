@@ -33,6 +33,7 @@ CURRENT
 - Reopen leightbox when error occured in a form
 - Add function to replace Base_Box main (Dev)
 - Admin tools - add Update Manager to download updates
+- Update translations
 
 RELEASE 1.6.1-20140913
 -------
