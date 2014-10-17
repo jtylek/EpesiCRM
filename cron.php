@@ -61,6 +61,7 @@ foreach($ret as $name=>$obj) {
 //print_r($cron_last);
 //print_r($cron_funcs_prior);
 
+function adodb_error() {}
 class CronErrorObserver extends ErrorObserver {
     private $func_md5;
     public function __construct($func_md5) {
@@ -68,12 +69,30 @@ class CronErrorObserver extends ErrorObserver {
     }
     
     public function update_observer($type, $message, $errfile, $errline, $errcontext, $backtrace) {
-        DB::Execute('UPDATE cron SET last=%d,running=0 WHERE func=%s',array(time(),$this->func_md5));
-
         global $cron_funcs_prior;
         $backtrace = htmlspecialchars_decode(str_replace(array('<br />','&nbsp;'),array("\n",' '),$backtrace));
         $x = $cron_funcs_prior[$this->func_md5].":\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
         error_log($x."\n",3,DATA_DIR.'/cron.txt');
+        
+        DB::IgnoreErrors(array('adodb_error',null)); //ignore adodb errors
+        $query_args = array(time(),$this->func_md5);
+        $query = DB::TypeControl('UPDATE cron SET last=%d,running=0 WHERE func=%s',$query_args);
+        if(!DB::Execute($query,$query_args)) { //if not - probably server gone away - retry every 10 seconds for 1h
+            for($i=0; $i<360; $i++) {
+                sleep(10);
+                $connection = null;
+                try {
+                    $connection = DB::Connect(); //reconnect database as new connection
+                } catch(Exception $e) {
+                    continue; //no connection - wait
+                }
+                if($connection->Execute($query,$query_args)) {  //if ok then break and exit
+                    $connection->Close();
+                    break;
+                }
+                $connection->Close();
+            }
+        }
 
         return true;
     }

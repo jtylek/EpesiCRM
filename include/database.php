@@ -35,7 +35,7 @@ class DB {
 			$new = NewADOConnection(DATABASE_DRIVER);
 			$new->autoRollback = true; // default is false 
 			if(!@$new->NConnect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
-				die("Connect to database failed");
+				throw new Exception("Connect to database failed");
 		} else {
 			self::$ado = NewADOConnection(DATABASE_DRIVER);
 			self::$ado->autoRollback = true; // default is false 
