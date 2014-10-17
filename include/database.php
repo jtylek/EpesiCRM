@@ -35,7 +35,7 @@ class DB {
 			$new = NewADOConnection(DATABASE_DRIVER);
 			$new->autoRollback = true; // default is false 
 			if(!@$new->NConnect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
-				die("Connect to database failed");
+				throw new Exception("Connect to database failed");
 		} else {
 			self::$ado = NewADOConnection(DATABASE_DRIVER);
 			self::$ado->autoRollback = true; // default is false 
@@ -43,10 +43,10 @@ class DB {
 					die("Connect to database failed");
 			$new = self::$ado;
 		}
-        if(strcasecmp(DATABASE_DRIVER,"postgres")!==0) {
+        if (self::is_mysql()) {
 			// For MySQL
     		$new->Execute('SET NAMES "utf8"');
-		} else {
+		} elseif (self::is_postgresql()) {
 			// For PostgreSQL
 			@$new->Execute('SET bytea_output = "escape";');
 		}
@@ -61,6 +61,17 @@ class DB {
 		self::$ado = null;
 	}
 
+    public static function is_postgresql()
+    {
+        $ret = stripos(DATABASE_DRIVER, 'postgre') !== false;
+        return $ret;
+    }
+
+    public static function is_mysql()
+    {
+        $ret = stripos(DATABASE_DRIVER, 'mysql') !== false;
+        return $ret;
+    }
 
  	/**
 	 * Statistics only. Get number of queries till now.
@@ -118,13 +129,20 @@ class DB {
 	public static function TypeControl($sql, & $arr) {
 		$x = preg_split('/(%[%DTdsbf])/', $sql, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		if (isset($arr) && !is_array($arr))
+		if (isset($arr) && !is_array($arr)) {
 			$arr = array($arr);
+		} elseif (!isset($arr)) {
+		    $arr = array();
+		}
 	
 		$ret = '';
 		$j=0;
 		$arr_count = count($arr);
 		foreach($x as $y) {
+		    if ($y == '%%') {
+		        $ret .= '%';
+		        continue;
+		    }
 			if($arr_count<=$j) {
 				$ret .= $y;
 				continue;
@@ -169,9 +187,6 @@ class DB {
 					$j++;
 					$ret .= '?';
 					break;
-				case '%%':
-					$ret .= '%';
-					break;
 				default:
 					$ret .= $y;
 			}
@@ -180,7 +195,7 @@ class DB {
 	}
 	
 	public static function ifelse($a,$b,$c) {
-        if(strcasecmp(DATABASE_DRIVER,"postgres")===0)
+        if(self::is_postgresql())
     	    return '(CASE WHEN '.$a.' THEN '.$b.' ELSE '.$c.' END)';
 	    return 'IF('.$a.','.$b.','.$c.')';
 	}
@@ -940,7 +955,7 @@ return $ret;
 	public static function like() {
 		static $like = null;
 		if ($like===null) {
-            if(strcasecmp(DATABASE_DRIVER,"postgres")!==0) $like = 'LIKE';
+            if(!DB::is_postgresql()) $like = 'LIKE';
 			else $like = 'ILIKE';
 		}
 		return $like;

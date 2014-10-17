@@ -79,6 +79,7 @@ var Epesi = {
 	request: function(url,history_id) {
 		Epesi.procOn++;
 		Epesi.updateIndicator();
+		var keep_focus_field = null;
 		new Ajax.Request(Epesi.process_file, {
 			method: 'post',
 			parameters: {
@@ -88,8 +89,10 @@ var Epesi = {
 			onComplete: function(t) {
 				Epesi.procOn--;
 				Epesi.append_js('Event.fire(document,\'e:load\');Epesi.updateIndicator();');
+				if(keep_focus_field!=null) Epesi.append_js('document.getElementById("'+keep_focus_field+'").focus();');
 			},
 			onSuccess: function(t) {
+				if(typeof document.activeElement != "undefined") keep_focus_field = document.activeElement.getAttribute("id");
 				Event.fire(document,'e:loading');
 			},
 			onException: function(t,e) {

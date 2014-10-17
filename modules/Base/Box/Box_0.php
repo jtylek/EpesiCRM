@@ -22,6 +22,11 @@ class Base_Box extends Module {
     }
 
     public function body() {
+        if (isset(Base_BoxCommon::$override_box_main)) {
+            $this->pack_module(Base_BoxCommon::$override_box_main);
+            return;
+        }
+
         $theme = $this->pack_module('Base/Theme');
 		$ini = Base_BoxCommon::get_ini_file();
 		
@@ -168,15 +173,20 @@ class Base_Box extends Module {
         return isset($this->modules['main'])?$this->modules['main']:null;
     }
 
-    public function push_main($module=null,$func=null,$args=null,$constr_args=null,$name=null) {
+    public function push_main($module=null,$func=null,$args=null,$constr_args=null,$name=null,$replace=false) {
         static $pushed = false;
         if($pushed)
             return;
 //          trigger_error('Double push box!',E_USER_ERROR);
         $pushed = true;
         $mains = & $this->get_module_variable('main');
-        $x = count($mains);
-        $arr = $mains[$x-1];
+        if($replace) {
+            $arr = array_pop($mains);
+            $x = count($mains);
+        } else {
+            $x = count($mains);
+            $arr = $mains[$x-1];
+        }
         if(isset($name)) {
             $arr['name'] = $name;
         } else {
@@ -189,6 +199,10 @@ class Base_Box extends Module {
         $mains[$x] = & $arr;
         if($x>=5) array_shift($mains);
         location(array());
+    }
+    
+    public function replace_main($module=null,$func=null,$args=null,$constr_args=null,$name=null) {
+        $this->push_main($module,$func,$args,$constr_args,$name,true);
     }
 
     public function pop_main($c=1) {

@@ -275,7 +275,7 @@ class epesi_archive extends rcube_plugin
     //$rcmail->output->command('delete_messages');
     global $E_SESSION_ID;
     $lifetime = ini_get("session.gc_maxlifetime");
-    if(DATABASE_DRIVER=='mysqlt') {
+    if(DB::is_mysql()) {
         if(!DB::GetOne('SELECT GET_LOCK(%s,%d)',array($E_SESSION_ID,ini_get('max_execution_time'))))
             trigger_error('Unable to get lock on session name='.$E_SESSION_ID,E_USER_ERROR);
     }
@@ -284,10 +284,10 @@ class epesi_archive extends rcube_plugin
         $ret = unserialize($ret);
         $ret['rc_mails_cp'] = $epesi_mails;
         $data = serialize($ret);
-        if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
+        if(DB::is_postgresql()) $data = '\''.DB::BlobEncode($data).'\'';
         else $data = DB::qstr($data);
         $ret &= DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($E_SESSION_ID)),'name');
-        if(DATABASE_DRIVER=='mysqlt') {
+        if(DB::is_mysql()) {
             DB::Execute('SELECT RELEASE_LOCK(%s)',array($E_SESSION_ID));
         }
     }

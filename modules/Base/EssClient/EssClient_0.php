@@ -84,12 +84,31 @@ class Base_EssClient extends Module {
         print Base_EssClientCommon::client_messages_frame();
     }
 
+    private function connection_problem_form()
+    {
+        print('<div class="important_notice">');
+        print('<h1 style="color:red; text-align: center">');
+        print(__('Connection problem'));
+        print('</h1><br>');
+        print(__('Cannot estabilish connection to registration server. Please read error information in the bottom right corner.'));
+        print('<br><br>');
+        $help_url = "http://epesi.org/ESS_Connection_Issues";
+        $help_link = "<a href=\"$help_url\" target=\"_blank\">$help_url</a>";
+        print(__('For more information please visit this page: %s', array($help_link)));
+        print('</div>');
+
+    }
+
     private function terms_and_conditions() {
         if ($this->get_module_variable('t_and_c_accepted')) {
             $this->register_form();
             return;
         }
 
+        if (!Base_EssClientCommon::test_connection()) {
+            $this->connection_problem_form();
+            return;
+        }
         $form = $this->init_module('Libs_QuickForm');
         $form->addElement('checkbox', 'agree', __('I agree to Terms and Conditions'));
         $form->addRule('agree', __('You must accept Terms and Conditions to proceed'), 'required');

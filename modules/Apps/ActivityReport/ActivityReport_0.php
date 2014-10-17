@@ -78,16 +78,17 @@ class Apps_ActivityReport extends Module {
 		}
 
 		$af_where = array();
-		foreach($rb_tabs as $k=>$t)
+		foreach($rb_tabs as $k=>$t) {
 			$af_where[] = 'ual.local '.DB::like().' '.DB::Concat(DB::qstr($k.'/'),DB::qstr('%'));
-		$af_where = ' ('.implode(' OR ',$af_where).')';
+        }
+        $af_where = count($af_where) ?' ('.implode(' OR ',$af_where).')' : 'TRUE ';
 
 		$e_where = array();
 		$c_where = '';
 		if ($filters['user']) {
 			$e_where[] = ' edited_by = '.$filters['user'];
 			$c_where = ' created_by = '.$filters['user'];
-			$af_where .= ' AND created_by = '.$filters['user'];
+			$af_where .= ' AND uaf.created_by = '.$filters['user'];
 		}
 		if (isset($filters['edit'])) {
 			if (!isset($filters['delete_restore'])) {
@@ -115,7 +116,7 @@ class Apps_ActivityReport extends Module {
 		else $e_where = '';
 		if ($c_where) $c_where = ' WHERE'.$c_where;
 
-        $postgre_cast_type = DATABASE_DRIVER == 'postgres' ? '::varchar' : '';
+        $postgre_cast_type = DB::is_postgresql() ? '::varchar' : '';
 		// **** files ****
 		if (isset($filters['file']))
 			$tables[] = 'SELECT uaf.id AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('file').' AS action FROM utils_attachment_file uaf INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local ual ON ua.id=ual.attachment WHERE original!='.DB::qstr('').' AND '.$af_where;

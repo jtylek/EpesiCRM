@@ -15,32 +15,32 @@ $translations['Upcoming Birthdays']='تواريخ ميلاد قادمة';
 $translations['Contact Type']='نوع الحساب';
 $translations['All']='الكل';
 $translations['Favorites']='المفضلة';
-$translations['EPESI Core']='';
-$translations['Additional applets']='';
-$translations['Birthdays upcoming in the next: %d days.']='';
+$translations['EPESI Core']='Features Configuration';
+$translations['Additional applets']='تطبيقات اضافيه';
+$translations['Birthdays upcoming in the next: %d days.']='اعياد الميلاد القادمه في الايام المقبله';
 $translations['Calc']='احسب';
 $translations['Simple calculator applet']='برمجية حاسبة مضافة';
 $translations['Clock']='الساعة';
 $translations['Analog JS clock']='ساعة ';
-$translations['Clock configurable on non-IE browsers only.']='';
+$translations['Clock configurable on non-IE browsers only.']=' ';
 $translations['Clock skin']='سمة الساعة';
 $translations['Google']='جوجل';
-$translations['Simple Google Search applet']='';
+$translations['Simple Google Search applet']='بحث بسيط في google';
 $translations['Search']='إبحث';
 $translations['IP utils']='';
 $translations['Gets host ip or domain']='';
 $translations['OK']='تم';
-$translations['No such domain']='';
-$translations['No such ip entry']='';
+$translations['No such domain']='لايوجد مثل هذا النطاق';
+$translations['No such ip entry']='لا يوجد مثل هذا الـ IP  المدخل';
 $translations['Month View']='عرض شهري';
-$translations['Displays Month and marks days with events']='';
+$translations['Displays Month and marks days with events']='عرض الشهر وعلامات الايام مع الاحداث';
 $translations['Note']='ملاحظة';
-$translations['Simple note applet']='';
+$translations['Simple note applet']='انشاء مذكره بسيطه';
 $translations['Background color']='لون الخلفية';
 $translations['Yellow']='اصفر';
 $translations['Blue']='ازرق';
 $translations['Red']='احمر';
-$translations['Bleak Yellow']='';
+$translations['Bleak Yellow']='اصفر غامق';
 $translations['Green']='اخضر';
 $translations['White']='أبيض';
 $translations['Gradient']='تدرج';
@@ -50,24 +50,25 @@ $translations['Dark blue']='أزرق داكن';
 $translations['Dark red']='أحمر داكن';
 $translations['Dark yellow']='أصفر داكن';
 $translations['Dark green']='أخضر داكن';
-$translations['Text to display']='';
+$translations['Text to display']='لعرض النص';
 $translations['Quick Search']='بحث سريع';
-$translations['Features Configuration']='';
-$translations['Applet Title']='';
+$translations['Features Configuration']='مميزات التكوين';
+$translations['Applet Title']='العنوان الرئيسي';
 $translations['Presets Name']='';
 $translations['Preset name']='';
 $translations['Search prompt']='';
-$translations['Recordsets']='';
-$translations['Select field to search']='';
-$translations['Search Format']='';
-$translations['Search field for identifier']='';
-$translations['Result Format']='';
+$translations['Recordsets']='السجلات';
+$translations['Select field to search']='تحديد مجال البحث';
+$translations['Search Format']='تنسيق البحث';
+$translations['Search field for identifier']='نتيجة البحث غير معروفه';
+$translations['Result Format']='نتيجة التنسيق';
 $translations['Back']='إالى الخلف';
 $translations['RSS Feed']='';
 $translations['Simple RSS Feed']='';
 $translations['Invalid RSS Feed or server has disabled url_fopen support']='';
 $translations['Invalid address']='';
-$translations['Number of news']='';
+$translations['Number of news']='عدد الاخبار
+';
 $translations['Title (leave empty for RSS Feed value)']='';
 $translations['Loading RSS...']='';
 $translations['Error getting RSS: %s']='';
@@ -80,13 +81,13 @@ $translations['Fahrenheit / Celsius']='فهرنهايت  /  مئوي';
 $translations['Loading Weather...']='تحميل حالة الطقس';
 $translations['Error getting RSS']='';
 $translations['Reports']='التقارير';
-$translations['User Activity Report']='';
-$translations['View Activity Report']='';
+$translations['User Activity Report']='تقرير نشاط المستخدم';
+$translations['View Activity Report']='عرض تقرير النشاط';
 $translations['User']='المستخدم';
-$translations['Record Type']='';
+$translations['Record Type']='نوع قياسي';
 $translations['New record']='سجل جديد';
-$translations['Record edit']='';
-$translations['Record Delete/restore']='';
+$translations['Record edit']='سجل تحرير';
+$translations['Record Delete/restore']='سجل حذف / استعادة';
 $translations['Files']='ملف';
 $translations['Start Date']='تاريخ البداية';
 $translations['End Date']='تاريخ الانتهاء';
@@ -94,15 +95,15 @@ $translations['Show']='اعرض';
 $translations['Date']='تاريخ';
 $translations['Type']='';
 $translations['Label']='';
-$translations['Actions taken']='';
+$translations['Actions taken']='الاجراءات المتخذه';
 $translations['Deleted']='ممسوح';
 $translations['Restored']='';
 $translations['Edited']='';
-$translations['Created']='';
-$translations['Attachment']='';
+$translations['Created']='انشاء';
+$translations['Attachment']='مرفقات';
 $translations['New']='جديد';
 $translations['Updated']='';
-$translations['Access restricted']='';
+$translations['Access restricted']='الدخول محدود';
 $translations['Activity Report']='تقرير النشاط';
 $translations['Shoutbox']='';
 $translations['Mini shoutbox']='';
@@ -121,8 +122,8 @@ $translations['Send']='أرسل';
 $translations['Please log in to post message']='';
 $translations['Support']='الدعم';
 $translations['About']='';
-$translations['Click to get more info']='';
-$translations['Access Restrictions']='';
+$translations['Click to get more info']='انقر للحصول على مزيد من المعلومات';
+$translations['Access Restrictions']='القيود المفروضة على الوصول';
 $translations['User Management']='ادارة المستخدم';
 $translations['and']='و';
 $translations['All users']='كل المستخدمين';
@@ -136,17 +137,20 @@ $translations['or']='أو';
 $translations['Edit permission rule']='';
 $translations['Add permission rule']='';
 $translations['Clearance requried']='';
-$translations['Fields allowed']='';
-$translations['Criteria required']='';
-$translations['Add clearance']='';
-$translations['Add criteria (or)']='';
-$translations['Add criteria (and)']='';
+$translations['Fields allowed']='السماح بالحقول
+';
+$translations['Criteria required']='المعايير المطلوبة';
+$translations['Add clearance']='إضافة التخليص';
+$translations['Add criteria (or)']='إضافة معايير (أو)
+';
+$translations['Add criteria (and)']='إضافة معايير (و)
+';
 $translations['Permission']='صلاحيات';
 $translations['Clearance']='';
 $translations['Save']='إحفظ';
 $translations['Cancel']='إلغاء';
 $translations['Employee']='موظف';
-$translations['Launchpad']='';
+$translations['Launchpad']='منصة الانطلاق';
 $translations['Administration']='';
 $translations['Administrator']='';
 $translations['Data']='البيانات';
@@ -154,10 +158,11 @@ $translations['Regional Settings']='إعدادات اقليمية';
 $translations['Server Configuration']='';
 $translations['Admin Panel Access']='';
 $translations['Admin Tools']='';
-$translations['Administration: Control Panel']='';
+$translations['Administration: Control Panel']='الإدارة: لوحة تحكم ';
 $translations['Administration: %s']='';
 $translations['Access blocked']='';
-$translations['Allow access']='';
+$translations['Allow access']='السماح بالوصول
+';
 $translations['Unable to read Base_Box.ini file! Please create one, or change theme.']='';
 $translations['version %s']='';
 $translations['Checking if there are updates available...']='';
@@ -171,21 +176,22 @@ $translations['Home']='صفحة البدء';
 $translations['There are updates available for download, click to go to EPESI store.']='';
 $translations['There are updates available for download. Please contact your administrator.']='';
 $translations['Updates Available!']='';
-$translations['Next']='';
+$translations['Next']='التالي
+';
 $translations['Finish']='';
 $translations['Cron']='';
 $translations['Are you sure?']='';
 $translations['Yes']='';
 $translations['No']='';
-$translations['Cron is used to periodically execute some job. Every module can define several methods with different intervals. All you need to do is to set up a system to run cron.php file every 1 minute.']='';
+$translations['Cron is used to periodically execute some job. Every module can define several methods with different intervals. All you need to do is to set up a system to run cron.php file every 1 minute.']='يستخدم كرون لتنفيذ بعض الوظائف بشكل دوري. كل وحدة نمطية يمكن أن تحدد عدة طرق مع فترات مختلفة. كل ما عليك القيام به هو وضع نظام لتشغيل ملف cron.php كل 1 دقيقة.';
 $translations['You can read more on our wiki']='';
 $translations['EPESI uses token to verify cron url. Only link with valid token can execute cron. Do not reveal Cron URL. If you suspect that someone knows your unique token, then make a new one.']='';
 $translations['Cron URL']='';
-$translations['New Token']='';
-$translations['Dashboard']='';
-$translations['Default dashboard']='';
-$translations['Default dashboard applet color']='';
-$translations['Remember last visited dashboard tab']='';
+$translations['New Token']='رمز جديد';
+$translations['Dashboard']='لوحة القيادة';
+$translations['Default dashboard']='لوحة أجهزة القياس الافتراضية ';
+$translations['Default dashboard applet color']='لوحة أجهزة القياس الصغير اللون الافتراضي ';
+$translations['Remember last visited dashboard tab']=' تذكر الماضي  لوحة القيادة  زار التبويب';
 $translations['Black']='';
 $translations['Dark gray']='';
 $translations['Remove']='';
@@ -193,10 +199,12 @@ $translations['Delete this applet?']='';
 $translations['My Contact']='';
 $translations['Done']='';
 $translations['Config']='';
-$translations['Enter label for the Dashboard tab']='';
+$translations['Enter label for the Dashboard tab']='أدخل تسمية للوحة علامة التبويب ';
 $translations['Label cannot be empty']='';
-$translations['Delete this tab and all applets assigned to it?']='';
-$translations['Add new Tab']='';
+$translations['Delete this tab and all applets assigned to it?']='حذف هذا التبويب وجميع تطبيقات المخصصة لذلك؟
+';
+$translations['Add new Tab']='إضافة علامة تبويب جديدة
+';
 $translations['Search applets...']='';
 $translations['Add applet']='';
 $translations['Toggle']='';
@@ -212,7 +220,8 @@ $translations['Restore Defaults']='';
 $translations['Buy']='';
 $translations['Download']='';
 $translations['Update']='';
-$translations['Install']='';
+$translations['Install']='تثبيت
+';
 $translations['Restore']='';
 $translations['EPESI Store']='';
 $translations['Modules Administration & Store']='';
@@ -229,15 +238,18 @@ $translations['Invoices']='';
 $translations['Simple view']='';
 $translations['Empty']='';
 $translations['Cart']='';
-$translations['Data is stored until close or refresh of browser\'s EPESI window or tab']='';
+$translations['Data is stored until close or refresh of browser\'s EPESI window or tab']='يتم تخزين البيانات حتى إغلاق أو التحديث من EPESI نافذة المتصفح أو التبويب
+';
 $translations['Downloads']='';
 $translations['Orders']='';
 $translations['Here you can pay for ordered modules']='';
 $translations['Your modules']='';
-$translations['Install bought modules, check for updates']='';
+$translations['Install bought modules, check for updates']='تركيب وحدات ، والتحقق من وجود تحديثات
+';
 $translations['Unfortunately there are no modules available for you.']='';
 $translations['You haven\'t bought any modules']='';
-$translations['Download newer']='تحميل النسخة الاحدث';
+$translations['Download newer']='تحميل الاحدث
+';
 $translations['Clear cart']='';
 $translations['Cart is empty!']='';
 $translations['Some modules has changed on server. This is updated list.']='';
@@ -249,7 +261,8 @@ $translations['No items']='';
 $translations['Clear list']='';
 $translations['Success!']='تم بنجاح!';
 $translations['Modules']='';
-$translations['Install module']='';
+$translations['Install module']='تثبيت وحدة
+';
 $translations['Other files:']='';
 $translations['Payment data']='بيانات الدفع';
 $translations['Here you can edit your default credentials used to payments']='';
@@ -258,7 +271,8 @@ $translations['Paid']='';
 $translations['Unrecognized module']='';
 $translations['No - Go to orders to pay']='';
 $translations['You can download newer version if it\'s available']='';
-$translations['You cannot download newer version']='';
+$translations['You cannot download newer version']='لا يمكنك تحميل أحدث نسخة
+';
 $translations['Add to cart']='';
 $translations['Remove from cart']='';
 $translations['Queue download']='';
@@ -267,7 +281,8 @@ $translations['Error reporting']='';
 $translations['Send bugs to']='';
 $translations['Invalid e-mail address']='';
 $translations['Leave empty to disable bug reports.']='';
-$translations['Your installation is locked, you can\'t download new modules. Switching to paid hosting will enable you to unlock your installation and purchase and download new modules.']='';
+$translations['Your installation is locked, you can\'t download new modules. Switching to paid hosting will enable you to unlock your installation and purchase and download new modules.']='مقفل التثبيت، لا يمكن تحميل وحدات جديدة. سوف التحول إلى استضافة مدفوعة تمكنك من فتح التثبيت وشراء وتنزيل وحدات جديدة.
+';
 $translations['Remote server error']='';
 $translations['Your EPESI is fine. Our server had some problem. Please give us some time to fix this.']='';
 $translations['Hide messages']='';
@@ -278,7 +293,8 @@ $translations['Error messages']='';
 $translations['Warning messages']='';
 $translations['Information messages']='';
 $translations['SSL settings']='';
-$translations['Thank you for registering your EPESI installation.']='';
+$translations['Thank you for registering your EPESI installation.']='أشكركم على تتفعيل EPESI الخاص بك.
+';
 $translations['registration done']='';
 $translations['The registration process is complete.']='تمت عملية التسجيل';
 $translations['waiting for e-mail confirmation']='';
@@ -294,6 +310,9 @@ $translations['There was an error while trying to connect to Epesi Store Server.
 $translations['If the problem persists, please contact us at %s']='';
 $translations['Error message: ']='رسالة خلل:';
 $translations['Retry']='أعد المحاولة';
+$translations['Connection problem']='';
+$translations['Cannot estabilish connection to registration server. Please read error information in the bottom right corner.']='';
+$translations['For more information please visit this page: %s']='';
 $translations['I agree to Terms and Conditions']='أنا أوافق على البنود والشروط';
 $translations['You must accept Terms and Conditions to proceed']='';
 $translations['Obtain Epesi License Key']='';
@@ -339,48 +358,68 @@ $translations['Terms of Service']='';
 $translations['Start typing to search help topics']='';
 $translations['Help']='مساعدة';
 $translations['Close']='';
-$translations['Home Page']='';
-$translations['Add Home Page']='';
-$translations['Edit Home Page']='';
-$translations['Target Home Page']='';
-$translations['Language & Translations']='';
+$translations['Home Page']='الصفحة الرئيسية
+';
+$translations['Add Home Page']='أضف الصفحة الرئيسية
+';
+$translations['Edit Home Page']='تحرير الصفحة الرئيسية
+';
+$translations['Target Home Page']='هدف الصفحة الرئيسية
+';
+$translations['Language & Translations']='اللغة والترجمة
+';
 $translations['Select language']='';
 $translations['Enable users to select language']='';
-$translations['Custom translations']='';
-$translations['New language pack']='';
+$translations['Custom translations']='الترجمات مخصصة
+';
+$translations['New language pack']='حزمة لغة جديدة
+';
 $translations['Language']='';
 $translations['Language you want to use']='';
 $translations['Default language']='';
 $translations['Allow users to change language']='';
-$translations['You have now option to contribute with your translations to help us deliver EPESI in various languages. You can opt in to send your translations to EPESI central database, allowing to deliver EPESI in your language to other users.']='';
-$translations['Please note that the translations you submit aren\'t subject to copyright. EPESI Team will distribute the translations free of charge to the end users.']='';
-$translations['The only data being sent is the values of the fields presented below and the translated strings, we do not receive any other information contained in EPESI.']='';
-$translations['You can also change your Translations Contribution settings at later time.']='';
-$translations['Enable sending translations']='';
+$translations['You have now option to contribute with your translations to help us deliver EPESI in various languages. You can opt in to send your translations to EPESI central database, allowing to deliver EPESI in your language to other users.']='لديك الخيار الآن للمساهمة مع EPESI  في تقديم ترجماتك  بلغات مختلفة. يمكنك الاشتراك في إرسال ترجماتك إلى قاعدة بيانات مركزية EPESI، مما يسمح لتقديم EPESI بلغتك للمستخدمين الآخرين. ';
+$translations['Please note that the translations you submit aren\'t subject to copyright. EPESI Team will distribute the translations free of charge to the end users.']='يرجى ملاحظة أن الترجمات التي تقدمها لا تخضع لحقوق المؤلف. سوف EPESI فريق توزيع الترجمات مجانا للمستخدمين النهائيين.
+';
+$translations['The only data being sent is the values of the fields presented below and the translated strings, we do not receive any other information contained in EPESI.']='البيانات الوحيدة التي أرسلت هي قيم الحقول الواردة أدناه والنصوص المترجمة، لم نحصل على أي معلومات أخرى واردة في EPESI.
+';
+$translations['You can also change your Translations Contribution settings at later time.']='يمكنك أيضا تغيير إعدادات الترجمات مساهمتكم في وقت لاحق.
+';
+$translations['Enable sending translations']='التمكين من إرسال الترجمات
+';
 $translations['First Name']='';
 $translations['Last Name']='';
 $translations['Include in credits']='';
 $translations['Credits website']='';
 $translations['Contact e-mail']='';
 $translations['IP']='';
-$translations['Translations Contributions']='';
-$translations['Translations Contributions settings']='';
-$translations['New langpack']='';
-$translations['Refresh languages']='';
-$translations['Show all']='';
-$translations['Show with custom translation']='';
-$translations['Show with translation']='';
-$translations['Show without translation']='';
-$translations['Please make sure the correct language is selected in the box below before you start translating']='';
+$translations['Translations Contributions']='المشاركة بالترجمه';
+$translations['Translations Contributions settings']='إعدادات الترجمات  و الاشتراكات 
+';
+$translations['New langpack']='اضافة ترجمه جديده';
+$translations['Refresh languages']='تحديث اللغات
+';
+$translations['Show all']='عرض الجميع ';
+$translations['Show with custom translation']='تظهر مع الترجمة مخصصة
+';
+$translations['Show with translation']='الاظهار مع الترجمة
+';
+$translations['Show without translation']='مشاهدة دون ترجمة
+';
+$translations['Please make sure the correct language is selected in the box below before you start translating']='من فضلك تأكد من اختيار اللغة الصحيحة في المربع أدناه قبل البدء في ترجمة
+';
 $translations['Currently Translating']='';
-$translations['All custom translations will be sent to our server right after you will input them. Use this mode only, if you wish to contribute your translations. If you are going to change meaning of any string, then please disable sending translations.']='';
-$translations['If you wish to help us with translating EPESI to your language, then click Translation Contribution in the Action Bar.']='';
-$translations['Send all your custom translations for language %s']='';
-$translations['You can open next string to translate with space button']='';
-$translations['Original']='';
-$translations['Translated']='';
-$translations['Creating new langpack...']='';
-$translations['Create new langpack']='';
+$translations['All custom translations will be sent to our server right after you will input them. Use this mode only, if you wish to contribute your translations. If you are going to change meaning of any string, then please disable sending translations.']='سيتم إرسال جميع الترجمات مخصصة إلى خادمنا بعد تصحيح التعبير. استخدام هذا الوضع فقط، إذا كنت ترغب في مساهمة ترجماتك. إذا كنت تسير على تغيير معنى أي سلسلة،  الرجاء ارسال تعطيل الترجمات. 
+';
+$translations['If you wish to help us with translating EPESI to your language, then click Translation Contribution in the Action Bar.']='إذا كنت ترغب في مساعدتنا في ترجمة EPESI إلى اللغة الخاصة بك، ثم انقر فوق مساهمة الترجمة في شريط الإجراءات.
+';
+$translations['Send all your custom translations for language %s']='ترسل جميع الترجمات المخصصة للغة %s';
+$translations['You can open next string to translate with space button']='يمكنك فتح سلسلة  لترجمة مع زر الفضاء
+';
+$translations['Original']='الاصل';
+$translations['Translated']='ترجمة';
+$translations['Creating new langpack...']='يتم انشاء ترجمه جديده';
+$translations['Create new langpack']='انشاء ترجمه جديده';
 $translations['Specified langpack already exists']='';
 $translations['Loading...']='';
 $translations['EPESI Forum']='';
@@ -407,10 +446,13 @@ $translations['If you are reading this, it means that your e-mail server configu
 $translations['E-mail was sent successfully']='';
 $translations['An error has occured']='';
 $translations['Title and logo']='';
-$translations['Base page title']='';
-$translations['Display module captions inside page title']='';
+$translations['Base page title']='عنوان  قاعدة الصفحة 
+';
+$translations['Display module captions inside page title']='تعليق وحدة العرض داخل عنوان الصفحة
+';
 $translations['Display module captions inside module']='';
-$translations['Small Logo']='';
+$translations['Small Logo']='شعار صغير
+';
 $translations['Logo image should be 193px by 83px in JPG/JPEG, GIF, PNG or BMP format']='';
 $translations['Upload']='';
 $translations['Login Logo']='';
@@ -442,8 +484,10 @@ $translations['This language does not support 12h clock']='';
 $translations['Searching']='';
 $translations['Keyword']='';
 $translations['Categories']='';
-$translations['Deselect all']='';
-$translations['Select all']='';
+$translations['Deselect all']='إلغاء جميع
+';
+$translations['Select all']='تحديد كافة
+';
 $translations['Only 100 results are displayed.']='';
 $translations['Search results']='';
 $translations['Modules Administration']='';
@@ -458,13 +502,15 @@ $translations['Advanced view']='معاينة متقدمة';
 $translations['Switch to advanced view?']='حول الى معاينة متقدمة';
 $translations['Uncategorized']='';
 $translations['Options only']='';
-$translations['Uninstall']='';
+$translations['Uninstall']='إلغاء
+';
 $translations['Are you sure you want to uninstall this package and remove all associated data?']='';
 $translations['EPESI Core can not be uninstalled']='';
 $translations['This package can not be uninstalled']='';
 $translations['This package is required by the following packages: %s']='';
 $translations['Available']='';
-$translations['Installed']='';
+$translations['Installed']='تثبيت
+';
 $translations['Partially']='';
 $translations['Disable EPESI Store']='';
 $translations['Enable EPESI Store']='';
@@ -475,10 +521,11 @@ $translations['Error']='';
 $translations['Action successful']='';
 $translations['Purchase successful']='';
 $translations['Download successful']='';
-$translations['Install successful']='';
+$translations['Install successful']='تم التثبيت بنجاح ';
 $translations['Restore successful']='';
 $translations['EPESI Store is not accessible during the trial.']='';
-$translations['To access EPESI Store it is necessary that you register your EPESI installation. Would you like to do this now?']='';
+$translations['To access EPESI Store it is necessary that you register your EPESI installation. Would you like to do this now?']='للوصول إلى متجر EPESI فمن الضروري أن تقوم بالتسجيل تركيب EPESI الخاص بك. هل ترغب في القيام بذلك الآن؟
+';
 $translations['Updates']='';
 $translations['My Purchases']='';
 $translations['Store']='';
@@ -490,7 +537,9 @@ $translations['To update']='';
 $translations['Price: %s']='';
 $translations['With this module you also need some other modules.']='';
 $translations['Here is the list of what you will buy:']='';
-$translations['Couldn\'t install the package.']='';
+$translations['Couldn\'t install the package.']='لا يمكن تثبيت حزمة.
+';
+$translations['Review error at the top of the page']='';
 $translations['Click anywhere to dismiss']='';
 $translations['Change theme']='';
 $translations['Themes Administration']='';
@@ -499,24 +548,31 @@ $translations['Preload selected template images']='';
 $translations['Preload default template images']='';
 $translations['Upload template']='';
 $translations['Manage templates']='';
-$translations['Template installed']='';
+$translations['Template installed']='قالب تثبيت
+';
 $translations['Invalid template file']='';
 $translations['Update templates list']='';
 $translations['Account']='';
 $translations['Manage users']='';
-$translations['Allow admin to login as user']='';
-$translations['Allow admin to login as other admin']='';
-$translations['Allow admin to manage ban options and autologin']='';
+$translations['Allow admin to login as user']='يسمح المشرف للدخول كمستخدم
+';
+$translations['Allow admin to login as other admin']='يسمح المشرف للدخول كمشرف الآخرين
+';
+$translations['Allow admin to manage ban options and autologin']='سماح المشرف على إدارة خيارات الحظر والدخول التلقائي
+';
 $translations['My settings']='إعداداتي';
 $translations['Change password']='';
 $translations['First log in to the system.']='';
 $translations['Leave password boxes empty if you prefer your current password']='';
-$translations['New password']='';
-$translations['Confirm new password']='';
+$translations['New password']='كلمة مرور جديدة
+';
+$translations['Confirm new password']='تأكيد كلمة المرور الجديدة
+';
 $translations['Your passwords don\'t match']='';
 $translations['Your password must be longer then 5 chars']='';
 $translations['Change e-mail']='';
-$translations['New e-mail address']='';
+$translations['New e-mail address']='عنوان البريد الإلكتروني الجديد
+';
 $translations['Delete autologin']='';
 $translations['Confirmation']='';
 $translations['Old password']='';
@@ -535,7 +591,8 @@ $translations['Access']='';
 $translations['Actions']='';
 $translations['Super Administrator']='';
 $translations['Log as user']='';
-$translations['New user']='';
+$translations['New user']='مستخدم جديد
+';
 $translations['Forbid Remember Me']='';
 $translations['Ban by']='';
 $translations['IP Address']='';
@@ -553,13 +610,16 @@ $translations['1 hour']='';
 $translations['6 hours']='';
 $translations['1 day']='';
 $translations['Applying changes']='';
-$translations['Creating new user']='';
+$translations['Creating new user']='يتم انشاء مستخدم جديد
+';
 $translations['Edit user']='';
-$translations['Create new user']='';
+$translations['Create new user']='إنشاء مستخدم جديد
+';
 $translations['Username']='';
 $translations['A username must be between 3 and 32 chars']='';
 $translations['E-mail']='';
-$translations['If you leave password fields empty random password is automatically generated and e-mailed to the user.']='';
+$translations['If you leave password fields empty random password is automatically generated and e-mailed to the user.']='إذا تركت حقول كلمة المرور يتم إنشاء كلمة مرور عشوائية فارغة تلقائيا وترسل بالبريد الإلكتروني للمستخدم.
+';
 $translations['If you leave this fields empty, password is generated.']='';
 $translations['If you leave password fields empty, password is not changed.']='';
 $translations['If you leave this fields empty, password is not changed.']='';
@@ -575,22 +635,26 @@ $translations['This e-mail is to inform you that a user account was setup for yo
 $translations['Your username is: %s']='';
 $translations['Your password is: %s']='';
 $translations['For security reasons it is recommened that you log in immediately and change your password.']='';
-$translations['This e-mail was generated automatically and you do not need to respond to it.']='';
+$translations['This e-mail was generated automatically and you do not need to respond to it.']='تم إنشاء هذا البريد الإلكتروني تلقائيا ولست بحاجة للرد عليه.
+';
 $translations['Account creation failed.']='';
 $translations['Unable to add user to database.']='';
 $translations['Unable to get id of added user.']='';
 $translations['Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.']='';
 $translations['Logout']='سجل الخروج';
-$translations['You have exceeded the number of allowed login attempts.']='';
-$translations['Host banned. Click here to refresh.']='';
+$translations['You have exceeded the number of allowed login attempts.']='لقد تجاوز عدد محاولات الدخول المسموح بها.
+';
+$translations['Host banned. Click here to refresh.']='استضافة المحظورة. انقر هنا لتحديث.
+';
 $translations['Login or password incorrect']='';
 $translations['Logged as %s']='الدخول مسجل باسم ';
-$translations['An e-mail with a new password has been sent.']='';
+$translations['An e-mail with a new password has been sent.']='تم إرسال رسالة بريد إلكتروني مع كلمة مرور جديدة';
 $translations['Logging in']='';
 $translations['Keep this box unchecked if using a public computer']='';
 $translations['Remember me']='';
 $translations['Recover password']='';
-$translations['You have exceeded the number of allowed login attempts for this username. Try again later.']='';
+$translations['You have exceeded the number of allowed login attempts for this username. Try again later.']='لقد تجاوز عدد محاولات الدخول المسموح بها لهذا المستخدم. حاول مرة أخرى في وقت لاحق.
+';
 $translations['Processing request']='';
 $translations['Username or e-mail invalid']='';
 $translations['Password reset instructions were sent.']='';
@@ -602,10 +666,12 @@ $translations['If you did not use the Password Recovery form, inform your admini
 $translations['Request failed. Authentication link is valid for 2 hours since sending request.']='';
 $translations['Unable to update password. Please contact system administrator.']='';
 $translations['Unable to send e-mail with password. Mail module configuration invalid. Please contact system administrator.']='';
-$translations['Control panel']='';
+$translations['Control panel']='لوحة التحكم
+';
 $translations['Default user settings']='اعدادت المستخدم القياسي';
 $translations['Advanced User Settings']='اعدادت المستخدم الخبير';
-$translations['Setting saved - reloading page']='';
+$translations['Setting saved - reloading page']='اعدادات الحفظ -  إعادة تحميل
+ الصفحة';
 $translations['Setting saved']='تم حفظ الإعدادات';
 $translations['User Settings']='';
 $translations['Default settings']='';
@@ -638,7 +704,8 @@ $translations['No info']='';
 $translations['This is non-categorized asset.']='';
 $translations['Assets (attachment) #%d, %s (%s)']='';
 $translations['Check what should appear in General Info']='';
-$translations[' and set order of appearance(smaller number -> earlier showed)']='';
+$translations[' and set order of appearance(smaller number -> earlier showed)']='وتحديد ترتيب ظهور (عدد أقل -> في وقت سابق أظهرت)
+';
 $translations['Computer']='';
 $translations['Position']='';
 $translations['Optical Devices']='';
@@ -664,7 +731,7 @@ $translations['Serial Number']='';
 $translations['General Info']='';
 $translations['Operating System']='';
 $translations['Processor']='';
-$translations['Calendar']='';
+$translations['Calendar']='التقويم';
 $translations['Cyan']='';
 $translations['Magenta']='';
 $translations['Default view']='';
@@ -687,14 +754,16 @@ $translations['2 weeks']='';
 $translations['1 month']='';
 $translations['2 months']='شهرين';
 $translations['Show current week']='';
-$translations['Show next week']='';
+$translations['Show next week']='تظهر الاسبوع المقبل
+';
 $translations['Description']='الشرح';
 $translations['Assigned to']='';
 $translations['Related with']='';
 $translations['Starts']='';
 $translations['Duration']='';
 $translations['Ends']='';
-$translations['New Event']='';
+$translations['New Event']='حدث جديد
+';
 $translations['Daily agenda']='';
 $translations['Monthly agenda']='';
 $translations['Weekly agenda']='';
@@ -728,7 +797,8 @@ $translations['Timeless']='';
 $translations['Selection (%d)']='';
 $translations['Processing...']='';
 $translations['Save selection']='';
-$translations['Skype and other "callto" protocol applications']='';
+$translations['Skype and other "callto" protocol applications']='سكايب وغيرها "callto" بروتوكول التطبيقات
+';
 $translations['Dialing']='';
 $translations['Dialing Method']='';
 $translations['Default Records Permission']='';
@@ -744,13 +814,13 @@ $translations['In Progress']='تحت المتابعة';
 $translations['On Hold']='فى الانتظار';
 $translations['Closed']='مغلق';
 $translations['Canceled']='الغاء';
-$translations['Browsing records']='';
+$translations['Browsing records']='استعراض السجل';
 $translations['Filtering Companies']='';
 $translations['Account Manager - default set to Perspective']='';
 $translations['Account Manager']='';
 $translations['Activities']='';
 $translations['Meetings']='';
-$translations['Tasks']='';
+$translations['Tasks']='المهام';
 $translations['Phonecalls']='مكالمات الهاتف';
 $translations['Activities date']='';
 $translations['Future']='';
@@ -775,9 +845,12 @@ $translations['C']='';
 $translations['Person']='';
 $translations['Group']='';
 $translations['Email']='';
-$translations['Create new company']='';
-$translations['Create a new company for this contact']='';
-$translations['New company name']='';
+$translations['Create new company']='انشاء شركة جديدة
+';
+$translations['Create a new company for this contact']='إنشاء شركة جديدة لهذا الاتصال
+';
+$translations['New company name']='اسم الشركة الجديد
+';
 $translations['Paste Company Info']='';
 $translations['w/o company']='';
 $translations['Tax ID duplicate found: %s']='';
@@ -785,15 +858,19 @@ $translations['Company name duplicate found: %s']='';
 $translations['Field requried']='';
 $translations['User Login']='';
 $translations['EPESI User']='';
-$translations['E-mail is required when creating new user']='';
+$translations['E-mail is required when creating new user']='مطلوب البريد الإلكتروني عند إنشاء مستخدم جديد
+';
 $translations['Click here to search this location using google maps']='';
-$translations['New Meeting']='';
-$translations['New Task']='';
-$translations['New Phonecall']='';
+$translations['New Meeting']='اجتماع جديد
+';
+$translations['New Task']='مهمة جديدة
+';
+$translations['New Phonecall']='هاتفي جديد
+';
 $translations['Set CRM Filter']='تصفية خدمة العملاء';
 $translations['Contact (attachment) #%d, %s %s']='';
 $translations['Company (attachment) #%d, %s']='';
-$translations['Record ID']='';
+$translations['Record ID']='رقم السجل';
 $translations['Copy company data']='';
 $translations['Select company:']='';
 $translations['Select which fields should be copied:']='';
@@ -806,7 +883,7 @@ $translations['Recent']='';
 $translations['Contacts display']='';
 $translations['Contact format']='';
 $translations['Filters']='';
-$translations['Show All Contacts in Filters']='';
+$translations['Show All Contacts in Filters']='عرض جميع جهات الاتصال في الفلاتر';
 $translations['E-mail address duplicate found: %s']='';
 $translations['This person is up to date with all changes made to this record.']='';
 $translations['This person has notifications pending about changes made to this record.']='';
@@ -828,10 +905,12 @@ $translations['Short company name']='';
 $translations['Your first name']='';
 $translations['Your last name']='';
 $translations['Users']='';
-$translations['Edit the header of the message that is sent to each newly created user']='';
+$translations['Edit the header of the message that is sent to each newly created user']='تحرير رأس الرسالة التي يتم إرسالها إلى كل مستخدم تم إنشاؤها حديثا
+';
 $translations['Add contact']='';
 $translations['Update Contacts']='';
-$translations['New Note']='';
+$translations['New Note']='ملاحظة جديدة
+';
 $translations['This action will update all contacts within this company with values copied from company record.']='';
 $translations['Please check which data would you like to copy to company contacts:']='';
 $translations['County']='';
@@ -844,38 +923,45 @@ $translations['Child Companies']='';
 $translations['Click to change']='';
 $translations['Click to change the photo']='';
 $translations['Contact Photo']='';
-$translations['Upload new photo']='';
+$translations['Upload new photo']='تحميل صور جديدة
+';
 $translations['Clear']='';
 $translations['Filename extension should be one of these (letter size doesn\'t matter): ']='';
 $translations['Fax - Browse']='';
-$translations['Fax - Send']='';
+$translations['Fax - Send']='الفاكس - إرسال
+';
 $translations['No fax providers installed or configured.']='';
 $translations['Provider']='';
 $translations['Invalid fax provider.']='';
-$translations['Send file']='';
+$translations['Send file']='إرسال ملف
+';
 $translations['Select file']='';
-$translations['Send fax']='';
+$translations['Send fax']='إرسال الفاكس
+';
 $translations['No fax providers installed or configured for this type of file.']='';
 $translations['Faxing file: %s']='';
 $translations['Other fax numbers (comma separated)']='';
 $translations['Custom filter']='';
-$translations['My records']='';
-$translations['All records']='';
+$translations['My records']='سجلاتي
+';
+$translations['All records']='جميع السجلات';
 $translations['Manage Perspective']='';
 $translations['Manage presets']='';
-$translations['Records of']='';
+$translations['Records of']='سجلات
+ الــ';
 $translations['Saved Presets']='';
 $translations['Perspective']='';
 $translations['Add preset']='';
 $translations['Users in category']='';
 $translations['Delete this group?']='';
-$translations['Show all contacts in Perspective selection']='';
+$translations['Show all contacts in Perspective selection']='عرض كل الاتصالات في المنظور اختيار';
 $translations['Show only users in Perspective selection']='';
 $translations['Edit group "%s"']='';
-$translations['New preset']='';
+$translations['New preset']='تنسيق جديد
+';
 $translations['Max length of field exceeded']='';
 $translations['Group with this name already exists']='';
-$translations['Too many records selected']='';
+$translations['Too many records selected']='تم تحديد سجلات كثيره';
 $translations['Follow-up after']='';
 $translations['Follow-up']='';
 $translations['Inactive']='';
@@ -987,9 +1073,10 @@ $translations['Reply']='';
 $translations['Reply All']='';
 $translations['Forward']='';
 $translations['Mail indicator']='';
-$translations['Checks if there is new mail']='';
+$translations['Checks if there is new mail']='التاكد من وجود ايميلات جديده';
 $translations['Choose accounts']='';
-$translations['No accounts configured, go Menu->My settings->Control panel->E-mail accounts']='';
+$translations['No accounts configured, go Menu->My settings->Control panel->E-mail accounts']='لا حسابات تكوينه، انتقل القائمة-> بلدي إعدادات-> لوحة التحكم-> حسابات البريد الإلكتروني
+';
 $translations['E-mails']='';
 $translations['Mail addresses']='';
 $translations['Nickname already in use']='';
@@ -1005,7 +1092,8 @@ $translations['SMTP Password']='';
 $translations['SMTP Security']='';
 $translations['Default Account']='';
 $translations['Advanced']='';
-$translations['Archive on sending']='';
+$translations['Archive on sending']='الارشفة خلال الإرسال
+';
 $translations['Use EPESI Archive directories']='';
 $translations['IMAP Root']='';
 $translations['IMAP Delimiter']='';
@@ -1042,7 +1130,8 @@ $translations['Go to account settings']='';
 $translations['Use standard mailto links']='';
 $translations['Roundcube Mail Client']='';
 $translations['Connection error']='';
-$translations['File expired. Please contact your correspondent to get new link.']='';
+$translations['File expired. Please contact your correspondent to get new link.']='انتهت صلاحية الملف. يرجى اتصال مراسلكم للحصول على رابط جديد.
+';
 $translations['To do list']='';
 $translations['Deadline']='';
 $translations['Not set']='';
@@ -1062,13 +1151,15 @@ $translations['%d user online']='';
 $translations['%d users online']='';
 $translations['Displaying %s of %s records']='';
 $translations['Display all records']='';
+$translations['Pending']='';
 $translations['All active']='';
 $translations['Permissions']='';
 $translations['Order by']='';
 $translations['Value']='';
 $translations['Only numbers are allowed.']='';
 $translations['Settings']='';
-$translations['Add new']='';
+$translations['Add new']='إضافة جديد
+';
 $translations['Table']='';
 $translations['Charts']='';
 $translations['Info']='';
@@ -1076,6 +1167,11 @@ $translations['Warning']='';
 $translations['Source']='';
 $translations['Attachments - view full download history']='';
 $translations['Messenger Alerts']='';
+$translations['Page']='الصفحة
+';
+$translations['Page (%s to %s)']='الصفحة (٪ s إلى٪ s)
+';
+$translations['Records %s to %s of %s']='';
 $translations['First']='';
 $translations['Prev']='';
 $translations['Last']='';
@@ -1087,7 +1183,7 @@ $translations['This field is required']='';
 $translations['Weeks']='';
 $translations['Code']='';
 $translations['Advanced Search']='بحث متقدم';
-$translations['No records found']='';
+$translations['No records found']='لم يتم العثور على سجل';
 $translations['Enable']='';
 $translations['Download PDF']='';
 $translations['From Date']='';
@@ -1480,7 +1576,7 @@ $translations['This operation may take several minutes.']='';
 $translations['Resize']='';
 $translations['Search disabled in grid view']='';
 $translations['Minimum %d letters are required.']='';
-$translations['No records founds']='';
+$translations['No records founds']='لم يتم العثور على سجلات';
 $translations['Start typing to search...']='';
 $translations['Forms']='';
 $translations['Auto-select - display for empty fields']='';
@@ -1490,12 +1586,12 @@ $translations['denotes required field']='';
 $translations['This is not a valid number']='';
 $translations['Text too long']='';
 $translations['Printing settings']='إعدادت الطباعة';
-$translations['Page format']='';
+$translations['Page format']='تنسيق صفحة
+';
 $translations['A4']='';
 $translations['LETTER']='';
 $translations['LEGAL']='';
 $translations['Printed with %s by %s, on %s, ']='';
-$translations['Page']='';
 $translations['Printing options']='';
 $translations['Create PDF']='';
 $translations['Upload company logo']='';
@@ -1519,7 +1615,7 @@ $translations['Sep']='';
 $translations['Oct']='';
 $translations['Nov']='';
 $translations['Dec']='';
-$translations['Add record']='';
+$translations['Add record']='اضافة سجل';
 $translations['Report']='';
 $translations['Key']='';
 $translations['Select']='';
@@ -1529,14 +1625,18 @@ $translations['Today']='';
 $translations['Clone']='';
 $translations['Symbol']='';
 $translations['This field is not editable']='';
-$translations['View record']='';
+$translations['View record']='استعراض سجل';
+$translations['Hidden']='';
+$translations['Indicates required fields.']='';
+$translations['Never']='';
 $translations['Only integer numbers are allowed.']='';
 $translations['Currencies']='العملات';
 $translations['Advanced Selection']='إختيار متقدم';
 $translations['Keywords']='';
 $translations['Enabled']='';
 $translations['Disabled']='';
-$translations['Pages']='';
+$translations['Pages']='صفحات
+';
 $translations['Are you sure you want to delete this record?']='';
 $translations['default server time (%s minutes)']='';
 $translations['Keep session at least']='';
@@ -1619,15 +1719,19 @@ $translations['November']='';
 $translations['December']='';
 $translations['Add event']='';
 $translations['Drag and drop to delete']='';
-$translations['Next day']='';
+$translations['Next day']='اليوم التالي
+';
 $translations['Previous day']='';
 $translations['Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event']='';
 $translations['Day calendar']='';
-$translations['Next week']='';
+$translations['Next week']='الاسبوع المقبل
+';
 $translations['Previous week']='';
 $translations['Week calendar']='';
-$translations['Next year']='';
-$translations['Next month']='';
+$translations['Next year']='العام المقبل
+';
+$translations['Next month']='الشهر المقبل
+';
 $translations['Previous month']='';
 $translations['Previous year']='';
 $translations['Month calendar']='';
@@ -1640,10 +1744,10 @@ $translations['Comment whole thread']='';
 $translations['Are you sure you want to delete this post?']='';
 $translations['Reported %d time(s)']='';
 $translations['Post reported']='';
-$translations['Indicates required fields.']='';
 $translations['CommonData']='';
 $translations['No such array']='';
-$translations['New node']='';
+$translations['New node']='عقد جديدة
+';
 $translations['Edit node']='';
 $translations['Specified key already exists']='';
 $translations['Specified contains invalid character "/"']='';
@@ -1666,7 +1770,8 @@ $translations['Field must hold numeric value']='';
 $translations['Example value: %s']='';
 $translations['Menu Editor: no ID given - unable to edit menus']='';
 $translations['Menu entry path']='';
-$translations['New menu entry']='';
+$translations['New menu entry']='دخول القائمة الجديدة
+';
 $translations['Field too long, max 255 chars']='';
 $translations['Specified path already exists']='';
 $translations['Download finished']='';
@@ -1675,27 +1780,26 @@ $translations['Processing file...']='';
 $translations['Specify file']='';
 $translations['Uploading...']='';
 $translations['Browsing tables']='';
-$translations['Records per page']='';
+$translations['Records per page']='سجلات لكل صفحة
+';
 $translations['Position of \'Actions\' column']='';
 $translations['Left']='';
 $translations['Right']='';
 $translations['Advanced search by default']='';
 $translations['Advanced order history']='';
 $translations['Hide \'No records found\' message']='';
-$translations['Display \'Show all\' button']='';
+$translations['Display \'Show all\' button']='اظهار ايقونة \'عرض الجميع\' ';
 $translations['Zoom "Actions" buttons']='';
-$translations['Never']='';
 $translations['For mobile devices']='';
 $translations['Always']='';
 $translations['Do not use expandable rows']='';
-$translations['Number of rows per page']='';
-$translations['Page (%s to %s)']='';
+$translations['Number of rows per page']='عدد الصفوف في الصفحة
+';
 $translations['search keyword...']='كلمة البحث';
 $translations['Expand All']='';
 $translations['Collapse All']='';
 $translations['Simple Search']='';
 $translations['Reset Order']='';
-$translations['Records %s to %s of %s']='';
 $translations['Messenger alarms']='';
 $translations['Displays last alarms']='';
 $translations['Alert on: %s']='';
@@ -1708,7 +1812,8 @@ $translations['Alert time']='';
 $translations['Assigned users']='';
 $translations['At least one user must be assigned to an alarm.']='';
 $translations['Alert on']='';
-$translations['New alert']='';
+$translations['New alert']='تنبيه جديد
+';
 $translations['Purge old alerts']='';
 $translations['Purge all done alerts?']='';
 $translations['24 hours']='';
@@ -1728,9 +1833,11 @@ $translations['Custom Recordsets']='';
 $translations['Custom Recordsets Creator']='';
 $translations['Caption']='';
 $translations['Menu Entry']='';
-$translations['Create new']='';
+$translations['Create new']='إنشاء جديد
+';
 $translations['Edit RecordSet properties']='';
-$translations['Create new RecordSet']='';
+$translations['Create new RecordSet']='إنشاء سجلات جديدة
+';
 $translations['Table name']='';
 $translations['Enter Menu or Submenu label']='';
 $translations['Enable Recent']='';
@@ -1740,7 +1847,8 @@ $translations['Maximum length for this field is %s characters.']='';
 $translations['RecordSet already exists']='';
 $translations['Menu label cannot contain %s']='';
 $translations['Watched']='';
-$translations['Quick new record - show by default']='';
+$translations['Quick new record - show by default']='سريع جديد سجل - المعرض افتراضيا
+';
 $translations['Hide empty fields']='';
 $translations['Enable autocomplete in select/multiselect at']='';
 $translations['%s records']='';
@@ -1749,7 +1857,8 @@ $translations['Save filters']='';
 $translations['Default data view']='';
 $translations['Automatically add to favorites records created by me']='';
 $translations['Automatically watch records created by me']='';
-$translations['Auto-subscribe to all new records']='';
+$translations['Auto-subscribe to all new records']=' الاشتراك في جميع السجلات جديدة
+ تلقائي';
 $translations['Watchdog']='';
 $translations['Record Browser']='';
 $translations['Manage Records']='';
@@ -1770,7 +1879,8 @@ $translations['And more...']='';
 $translations['Note linked']='';
 $translations['Note unlinked']='';
 $translations['Old value']='';
-$translations['New value']='';
+$translations['New value']='قيمة جديدة
+';
 $translations['Enter a numeric value in the text field']='';
 $translations['Click to switch between checked/unchecked state']='';
 $translations['Enter the amount in text field and select currency']='';
@@ -1783,7 +1893,8 @@ $translations['Enter the date in your selected format']='';
 $translations['Click on the text field to bring up a popup Calendar that allows you to pick the date']='';
 $translations['Click again on the text field to close popup Calendar']='';
 $translations['Enter the date in your selected format and the time using select elements']='';
-$translations['You can change 12/24-hour format in Control Panel, Regional Settings']='';
+$translations['You can change 12/24-hour format in Control Panel, Regional Settings']='يمكنك تغيير شكل 12/24 ساعة في لوحة التحكم، الإعدادات الإقليمية
+';
 $translations['Enter the time using select elements']='';
 $translations['Select value']='';
 $translations['from %s table']='';
@@ -1823,7 +1934,7 @@ $translations['Show records']='';
 $translations['All deactivated']='';
 $translations['Due to more than %d records, you are allowed to print current view']='';
 $translations['Print all records']='';
-$translations['Add new record']='';
+$translations['Add new record']='اضافة تسجيل جديد';
 $translations['You don\'t have permission to edit this record.']='';
 $translations['This record was never edited']='';
 $translations['You don\'t have permission to delete this record']='';
@@ -1849,10 +1960,13 @@ $translations['Lowest']='';
 $translations['Highest']='';
 $translations['Addon caption']='';
 $translations['Called method']='';
-$translations['Edit page properties']='';
-$translations['Field or Page with this name already exists.']='';
+$translations['Edit page properties']='تحرير خصائص الصفحة
+';
+$translations['Field or Page with this name already exists.']='الحقل أو صفحة بهذا الاسم موجود بالفعل.
+';
 $translations['Only letters and space are allowed.']='';
-$translations['"ID" as page name is not allowed.']='';
+$translations['"ID" as page name is not allowed.']='"ID"لا يسمح  كاسم للصفحة.
+';
 $translations['This is an html pattern. All html tags are allowed.']='';
 $translations['Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.']='';
 $translations['Conditional use:']='';
@@ -1861,8 +1975,10 @@ $translations['lorem ipsum will be shown only when at least one of keywords has 
 $translations['Normal use:']='';
 $translations['%%{{keyword}}']='';
 $translations['Pattern']='';
-$translations['New field']='';
-$translations['New page']='';
+$translations['New field']='حقل جديد
+';
+$translations['New page']='صفحة جديدة
+';
 $translations['Table view']='';
 $translations['Value display function']='';
 $translations['Field generator function']='';
@@ -1871,7 +1987,6 @@ $translations['Length']='';
 $translations['Crits callback']='';
 $translations['Related field(s)']='';
 $translations['Minutes Interval']='';
-$translations['Hidden']='';
 $translations['Calculated']='';
 $translations['Checkbox']='';
 $translations['Integer']='';
@@ -1882,7 +1997,8 @@ $translations['Multiselect field']='';
 $translations['Page Split']='';
 $translations['Autonumber']='';
 $translations['Timestamp']='';
-$translations['Add new field']='';
+$translations['Add new field']='إضافة حقل جديد
+';
 $translations['Edit field properties']='';
 $translations['Field with this name already exists.']='';
 $translations['Field length cannot be over 32 characters.']='';
@@ -1950,10 +2066,28 @@ $translations['Monthly report -  %s  -  %s']='';
 $translations['Yearly report -  %s  -  %s']='';
 $translations['Too many columns to prepare printable version - please limit number of columns']='';
 $translations['Page(0-%d)']='';
-$translations['Invalid page number']='';
+$translations['Invalid page number']='رقم الصفحة غير صالح
+';
 $translations['Access forbidden']='';
 $translations['Show help tooltips']='أظهر نصائح المساعدة';
-$translations['Send e-mail on new events']='';
+$translations['Tray']='';
+$translations['Displays overview of pending items.']='';
+$translations['Tray Limit']='';
+$translations['No Limit']='';
+$translations['Slots Limit']='';
+$translations['Tray settings']='';
+$translations['Tray Columns']='';
+$translations['Tray Layout']='';
+$translations['title']='';
+$translations['name']='';
+$translations['Tray Title']='';
+$translations['Pending Slot Title']='';
+$translations['Overdue Slot Title']='';
+$translations['Click to edit tray settings']='';
+$translations['Displaying %d of %d pending']='';
+$translations['Slot']='';
+$translations['Send e-mail on new events']='إرسال بريد الإلكتروني للأحداث الجديدة
+';
 $translations['Helps tracking changes made in the system']='';
 $translations['EPESI notification - %s - %s']='';
 $translations['Are you sure you want to stop watching this record?']='';
@@ -1972,4 +2106,5 @@ $translations['Click to stop watching this record for changes']='';
 $translations['Mark as read']='';
 $translations['Mark all entries as read']='';
 $translations['This will mark all entries in selected categories as read, are you sure you want to continue?']='';
-$translations['Wizard complete! No more pages to display...']='';
+$translations['Wizard complete! No more pages to display...']='المعالج كاملة! لا مزيد من الصفحات لعرض ...
+';

@@ -132,7 +132,7 @@ $delete_old_fk_checkpoint = Patch::checkpoint('delete_old_fk');
 if (!$delete_old_fk_checkpoint->is_done()) {
     Patch::require_time(5);
 
-    if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
+    if(DB::is_mysql()) {
         $a = DB::GetRow('SHOW CREATE TABLE utils_attachment_file');
         if(preg_match('/CONSTRAINT (.+) FOREIGN KEY .*attach_id/',$a[1],$m))
             DB::Execute('alter table `utils_attachment_file` drop foreign key '.$m[1]);
@@ -215,7 +215,7 @@ $new_fk_checkpoint = Patch::checkpoint('create_new_fk');
 if (!$new_fk_checkpoint->is_done()) {
     Patch::require_time(5);
 
-    if(DATABASE_DRIVER=='mysqli' || DATABASE_DRIVER=='mysqlt') {
+    if(DB::is_mysql()) {
         DB::Execute('ALTER TABLE utils_attachment_file ADD FOREIGN KEY (attach_id) REFERENCES utils_attachment_data_1(id)');
     } else {
         DB::Execute('ALTER TABLE utils_attachment_file ADD CONSTRAINT attach_id_fk FOREIGN KEY (attach_id) REFERENCES utils_attachment_data_1');

@@ -214,7 +214,7 @@ class Utils_Messenger extends Module {
 
 		$t = time();
         // postgres compatible interval with type cast
-        $interval = DATABASE_DRIVER == 'postgres' ? '::timestamp - interval \'1 hour\'' : '-INTERVAL 1 hour';
+        $interval = DB::is_postgresql() ? '::timestamp - interval \'1 hour\'' : '-INTERVAL 1 hour';
 		$ret = DB::Execute('(SELECT u.done,m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T)'.
 					' UNION '.
 				'(SELECT u.done,m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND m.alert_on<%T AND u.done_on>=%T'.$interval.' AND u.done=1 ORDER BY m.alert_on DESC LIMIT 3)'.

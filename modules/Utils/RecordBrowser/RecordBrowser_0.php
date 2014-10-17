@@ -320,7 +320,7 @@ class Utils_RecordBrowser extends Module {
         $access = $this->get_access('view');
         $filters_all = array();
         foreach ($this->table_rows as $k => $v) {
-            if ($access[$v['id']]) {
+            if (isset($access[$v['id']]) && $access[$v['id']]) {
                 if ((!isset($filters_set[$v['id']]) && $v['filter']) || (isset($filters_set[$v['id']]) && $filters_set[$v['id']])) {
                     $filters_all[] = $k;
                     if (isset($filters_set[$v['id']])) {
@@ -460,6 +460,7 @@ class Utils_RecordBrowser extends Module {
                 $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
                 $arr = array('__NULL__'=>'---')+$arr;
                 $form->addElement('autoselect', $field_id, _V($filter), $arr, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array_merge($param,array($f_callback, $this->table_rows[$filter]['param']))), $f_callback);
+                $form->setDefaults(array($field_id=>'__NULL__'));
             } else {
                 $arr = array('__NULL__'=>'---')+$arr;
                 $form->addElement('select', $field_id, _V($filter), $arr); // TRSL
@@ -535,7 +536,7 @@ class Utils_RecordBrowser extends Module {
 					continue;
 				}
                 if (!isset($text_filters[$filter_id])) {
-                    if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='__NULL__';
+                    if (!isset($vals['filter__'.$filter_id]) || ($this->table_rows[$filter]['type']=='select' && $vals['filter__'.$filter_id]==='')) $vals['filter__'.$filter_id]='__NULL__';
 					if ($vals['filter__'.$filter_id]==='__NULL__') continue;
 					if ($this->table_rows[$filter]['type']=='commondata') {
 						$vals2 = explode('/',$vals['filter__'.$filter_id]);
@@ -934,6 +935,7 @@ class Utils_RecordBrowser extends Module {
                 self::$browsed_records['records'][$row['id']] = $i;
                 $i++;
             }
+            $row = Utils_RecordBrowserCommon::record_processing($this->tab, $row, 'browse');
             self::$access_override['id'] = $row['id'];
             $gb_row = $gb->get_new_row();
 			$row_data = array();
@@ -2175,7 +2177,7 @@ class Utils_RecordBrowser extends Module {
 								if ($data['text_length']<$row['param']) trigger_error('Invalid field length', E_USER_ERROR);
 								$param = $data['text_length'];
 								if ($data['text_length']!=$row['param']) {
-									if(DATABASE_DRIVER=='postgres')
+									if(DB::is_postgresql())
 										DB::Execute('ALTER TABLE '.$this->tab.'_data_1 ALTER COLUMN f_'.$id.' TYPE VARCHAR('.$param.')');
 									else
 										DB::Execute('ALTER TABLE '.$this->tab.'_data_1 MODIFY f_'.$id.' VARCHAR('.$param.')');
@@ -2196,13 +2198,16 @@ class Utils_RecordBrowser extends Module {
 								if (!isset($row) || !isset($row['param'])) $row['param'] = ';::';
 								$props = explode(';', $row['param']);
 								if($data['rset']) {
+								    $fs = explode(',', $data['label_field']);
 								    if($data['label_field']) foreach($data['rset'] as $rset) {
-        								$ret = $this->detranslate_field_names($rset, $data['label_field']);
-	        							if (!empty($ret)) trigger_error('Invalid fields: '.$data['label_field']);
+        								$ret = $this->detranslate_field_names($rset, $fs);
+	        							if (!empty($ret)) trigger_error('Invalid fields: '.implode(',',$fs));
 	        						    }
 	        						    $data['rset'] = implode(',',$data['rset']);
+	        						    $data['label_field'] = implode(',',$fs);
 								} else {
 								    $data['rset'] = '__RECORDSETS__';
+								    $data['label_field'] = '';
 								}
 								$props[0] = $data['rset'].'::'.$data['label_field'];
 								$param = implode(';', $props);
@@ -2216,7 +2221,7 @@ class Utils_RecordBrowser extends Module {
 								}
 							}
 							if (isset($row) && isset($row['type'])  && $row['type']!='multiselect' && $data['select_type']=='multiselect') {
-								if(DATABASE_DRIVER=='postgres')
+								if(DB::is_postgresql())
 									DB::Execute('ALTER TABLE '.$this->tab.'_data_1 ALTER COLUMN f_'.$id.' TYPE TEXT');
 								else
 									DB::Execute('ALTER TABLE '.$this->tab.'_data_1 MODIFY f_'.$id.' TEXT');
@@ -2253,7 +2258,7 @@ class Utils_RecordBrowser extends Module {
             DB::StartTrans();
             if ($id!=$new_id) {
                 Utils_RecordBrowserCommon::check_table_name($this->tab);
-                if(DATABASE_DRIVER=='postgres')
+                if(DB::is_postgresql())
                     DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$new_id);
                 else {
                     $old_param = DB::GetOne('SELECT param FROM '.$this->tab.'_field WHERE field=%s', array($field));
@@ -2310,12 +2315,14 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($type == 'select') {
 			if (!isset($data['data_source'])) $data['data_source'] = $this->admin_field['data_source'];
-			if (!isset($data['rset'])) $data['rset'] = array($this->admin_field['rset']);
+			if (!isset($data['rset'])) $data['rset'] = $this->admin_field['rset'];
+			if (!is_array($data['rset'])) $data['rset'] = array($data['rset']);
 			if ($data['data_source']=='commondata' && $data['commondata_table']=='') $ret['commondata_table'] = __('Field required');
 			if ($data['data_source']=='rset') {
 				if ($data['label_field']!='') {
+				    $fs = explode(',', $data['label_field']);
 				    foreach($data['rset'] as $rset)
-				        $ret = $ret + $this->detranslate_field_names($rset, $data['label_field']);
+				        $ret = $ret + $this->detranslate_field_names($rset, $fs);
 				}
 			}
 			if ($this->admin_field_mode=='edit' && $data['select_type']=='select' && $this->admin_field['select_type']=='multiselect') {
@@ -2339,7 +2346,6 @@ class Utils_RecordBrowser extends Module {
 		foreach ($fields as $k=>$f)
 			$fields[_V($f)] = $f; // ****** RecordBrowser - field name
 		
-		$fs = explode(',', $fs);
 		$ret = array();
 		foreach ($fs as $k=>$f) {
 			$f = trim($f);

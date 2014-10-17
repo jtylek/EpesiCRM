@@ -134,7 +134,15 @@ class Libs_QuickForm extends Module {
 				$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 				'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
 				break;
-			
+			case 'multiselect':
+				$elem = $this -> createElement('multiselect',$v['name'],$v['label'],$v['values'],$v['param']);
+				if (!is_array($v['default'])) $v['default'] = array($v['default']);
+				$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].'__from;'.
+				'ms_remove_all(\''.$v['name'].'\', \'__SEP__\');'.
+				$v['name'].'__default=[\''.implode('\',\'',$v['default']).'\'];'.
+				'for(i=0; i<e.length; i++) if('.$v['name'].'__default.indexOf(e.options[i].value)!=-1){e.options[i].selected=true;};'.
+				'ms_add_selected(\''.$v['name'].'\', \'__SEP__\');';
+				break;
 			case 'static':
 			case 'header':
 				$elem = $this -> createElement($v['type'],isset($v['name'])?$v['name']:null,$v['label'],isset($v['values'])?$v['values']:'');

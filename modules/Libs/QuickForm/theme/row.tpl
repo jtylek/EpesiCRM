@@ -6,32 +6,30 @@
 		{$h}
 	</div>
 {/foreach}
-<table style="border-spacing: 3px; table-layout:auto;">
-	<tr>
+<div style="margin:5px; line-height: 200%">
 		{foreach from=$form_data item=f}
 		{if is_array($f) && isset($f.type) && $f.type!='hidden' && $f.type!='button' && $f.type!='submit'}
-			<td class="epesi_label" style="width: 10px;white-space: nowrap;">
+            <div style="display: inline-block; white-space: nowrap;">
+			<span style="display: table-cell;  width:10px" class="epesi_label">
 				{$f.label}{if $f.required}*{/if}
-			</td>
-			<td class="epesi_data{if $f.frozen} static_field{/if}"{if $f.type=='checkbox'} style="width: 10px;"{/if}>
-				<div style="position: relative;">
+			</span>
+			<span style="display: table-cell; width: auto;" class="epesi_data{if $f.frozen} static_field{/if}">
 					{$f.error}
 					{$f.html}
-				</div>
-			</td>
+			</span>
+            </div>
 		{/if}
 		{/foreach}
-		<td colspan="2">
-			<center class="child_button">
 			{foreach from=$form_data item=f}
 				{if is_array($f) && isset($f.type) && ($f.type=='button' || $f.type=='submit')}
+                    <div style="display: inline-block; white-space: nowrap">
+                        <div class="child_button" style="display: table-cell">
 					{$f.html}
+                        </div>
+                    </div>
 				{/if}
 			{/foreach}
-			</center>
-		</td>
-	</tr>
-</table>
+</div>
 
 
 {$form_close}

@@ -32,6 +32,8 @@ class Utils_LeightboxPrompt extends Module {
 
     public function add_option($key, $label, $icon, $form=null) {
         $this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label);
+        
+        if (isset($form) && $form->exportValue('submited') && !$form->validate()) $this->open();
     }
 
     public function body($header='', $params = array(), $add_disp='', $big=true) {
@@ -79,6 +81,11 @@ class Utils_LeightboxPrompt extends Module {
                     $next_button['open'] = '<a href="javascript:void(0);" onclick="f'.$this->group.'_show_form(\''.$k.'\');">';
                     $sections[] = '<div id="'.$k.'_'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>';
                     eval_js('$(\''.$k.'_'.$this->group.'_form_section\').style.display=\''.(count($this->options)!=1?'none':'block').'\';');
+                	
+                    if ($v['form']->exportValue('submited') && !$v['form']->validate()) {
+						// open this selection
+						eval_js('f' . $this->get_group_key() . "_show_form('$k')");
+					}
                 } else {
 //                  $next_button['open'] = '<a '.$this->create_callback_href(array($this,'option_chosen'), array($k)).' onmouseup="f'.$this->group.'_prompt_deactivate();">';
                     $next_button['open'] = '<a href="javascript:void(0);" onmouseup="f'.$this->group.'_prompt_deactivate();'.$form->get_submit_form_js().';">';

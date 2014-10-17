@@ -9,7 +9,7 @@
 if (version_compare(phpversion(), '5.4.0')==-1)
 	error_reporting(E_ALL); //all without notices
 else
-	error_reporting(E_ALL & ~E_STRICT);
+	error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED);
 ob_start();
 ini_set('arg_separator.output','&');
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
@@ -548,9 +548,9 @@ function clean_database() {
 	require_once('include/database.php');
 	$tables_db = DB::MetaTables();
 	$tables = array();
-	if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
+	if(DB::is_mysql())
 		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
-	if(DATABASE_DRIVER=='postgres' && strpos(DB::GetOne('SELECT version()'),'PostgreSQL 8.2')!==false) {
+	if(DB::is_postgresql() && strpos(DB::GetOne('SELECT version()'),'PostgreSQL 8.2')!==false) {
     	    foreach ($tables_db as $t) {
 	            $idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t).'\' ORDER BY t.tgrelid');
 		    $matches = array(1=>array());
@@ -566,7 +566,7 @@ function clean_database() {
 	foreach($tables_db as $t) {
 		DB::DropTable($t);
 	}
-	if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
+	if(DB::is_mysql())
 		DB::Execute('SET FOREIGN_KEY_CHECKS=1');
 }
 

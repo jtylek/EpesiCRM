@@ -14,6 +14,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_BoxCommon extends ModuleCommon {
+    public static $override_box_main = null;
 	public static $ini_file = null;
 	public static function get_ini_file() {
 		if (Base_BoxCommon::$ini_file)

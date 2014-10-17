@@ -34,6 +34,18 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     public static function get_invoices_url() {
         return 'https://ess.epe.si/invoice/';
     }
+
+    public static function test_connection()
+    {
+        $srv = self::server();
+        $srv->set_connection_timeout(15);
+        $status = $srv->installation_status();
+        $ret = false; // assume error error
+        if ($status === false) $ret = true; // not registered
+        if (is_string($status)) $ret = true; // registered with status
+        $srv->set_connection_timeout(); // restore default timeout
+        return $ret;
+    }
     
     private static function get_server_url_base() {
         $url = self::get_server_url();

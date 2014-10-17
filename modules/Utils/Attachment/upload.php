@@ -41,10 +41,10 @@ $maxFileAge = 5 * 3600; // Temp file age in seconds
 // Get parameters
 $chunk = isset($_REQUEST["chunk"]) ? intval($_REQUEST["chunk"]) : 0;
 $chunks = isset($_REQUEST["chunks"]) ? intval($_REQUEST["chunks"]) : 0;
-$fileName = isset($_REQUEST["name"]) ? $_REQUEST["name"] : '';
+$orig_fileName = isset($_REQUEST["name"]) ? $_REQUEST["name"] : '';
 
 // Clean the fileName for security reasons
-$fileName = preg_replace('/[^\w\._]+/', '_', $fileName);
+$fileName = preg_replace('/[^\w\._]+/', '_', $orig_fileName);
 
 // Make sure the fileName is unique but only if chunking is disabled
 if ($chunks < 2 && file_exists($targetDir . DIRECTORY_SEPARATOR . $fileName)) {
@@ -141,7 +141,7 @@ if (strpos($contentType, "multipart") !== false) {
 if (!$chunks || $chunk == $chunks - 1) {
 	// Strip the temp .part suffix off 
 	rename("{$filePath}.part", $filePath);
-	$_SESSION['client']['utils_attachment'][CID]['files'][] = $filePath;
+	$_SESSION['client']['utils_attachment'][CID]['files'][] = array('path' => $filePath, 'name' => $orig_fileName);
 	session_commit();
 }
 

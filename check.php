@@ -23,8 +23,7 @@ if ($config && class_exists('Base_AclCommon')) {
             die('Only super admin can access this page');
         }
     } else {
-        require_once('admin/Authorization.php');
-        $auth = AdminAuthorization::form();
+        $auth = SimpleLogin::form();
         if ($auth) {
             print($auth);
             die();
@@ -64,7 +63,7 @@ if ($config) {
 	} else $alter = $create = null;
 	$insert = @DB::Execute('INSERT INTO test (id) VALUES (1)');
 	$update = @DB::Execute('UPDATE test SET id=1 WHERE id=1');
-	if(DATABASE_DRIVER=='mysqlt') {
+	if(DB::is_mysql()) {
 		$lock = DB::GetOne('SELECT GET_LOCK(%s,%d)',array('test',ini_get('max_execution_time')));
 		$lock &= !DB::GetOne('SELECT IS_FREE_LOCK(%s)',array('test'));
 		$end_lock = DB::GetOne('SELECT RELEASE_LOCK(%s)',array('test'));
@@ -83,7 +82,7 @@ if ($config) {
 		$db_tests[] = array('label'=>'ALTER permission', 'status'=>$alter?'OK':'Failed', 'severity'=>$alter?0:2);
 	$db_tests[] = array('label'=>'INSERT permission', 'status'=>$insert?'OK':'Failed', 'severity'=>$insert?0:2);
 	$db_tests[] = array('label'=>'UPDATE permission', 'status'=>$update?'OK':'Failed', 'severity'=>$update?0:2);
-	if(DATABASE_DRIVER=='mysqlt')
+	if(DB::is_mysql())
 		$db_tests[] = array('label'=>'LOCK permission', 'status'=>$lock?'OK':'Failed', 'severity'=>$lock?0:2);
 	$db_tests[] = array('label'=>'DELETE permission', 'status'=>$delete?'OK':'Failed', 'severity'=>$delete?0:2);
 	$db_tests[] = array('label'=>'DROP permission', 'status'=>$drop?'OK':'Failed', 'severity'=>$drop?0:2);

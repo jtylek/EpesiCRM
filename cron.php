@@ -61,6 +61,43 @@ foreach($ret as $name=>$obj) {
 //print_r($cron_last);
 //print_r($cron_funcs_prior);
 
+function adodb_error() {}
+class CronErrorObserver extends ErrorObserver {
+    private $func_md5;
+    public function __construct($func_md5) {
+        $this->func_md5 = $func_md5;
+    }
+    
+    public function update_observer($type, $message, $errfile, $errline, $errcontext, $backtrace) {
+        global $cron_funcs_prior;
+        $backtrace = htmlspecialchars_decode(str_replace(array('<br />','&nbsp;'),array("\n",' '),$backtrace));
+        $x = $cron_funcs_prior[$this->func_md5].":\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
+        error_log($x."\n",3,DATA_DIR.'/cron.txt');
+        
+        DB::IgnoreErrors(array('adodb_error',null)); //ignore adodb errors
+        $query_args = array(time(),$this->func_md5);
+        $query = DB::TypeControl('UPDATE cron SET last=%d,running=0 WHERE func=%s',$query_args);
+        if(!DB::Execute($query,$query_args)) { //if not - probably server gone away - retry every 10 seconds for 1h
+            for($i=0; $i<360; $i++) {
+                sleep(10);
+                $connection = null;
+                try {
+                    $connection = DB::Connect(); //reconnect database as new connection
+                } catch(Exception $e) {
+                    continue; //no connection - wait
+                }
+                if($connection->Execute($query,$query_args)) {  //if ok then break and exit
+                    $connection->Close();
+                    break;
+                }
+                $connection->Close();
+            }
+        }
+
+        return true;
+    }
+}
+
 //call oldest executed callback
 foreach($cron_last as $func_md5=>$last) {
     if(!isset($cron_funcs_prior[$func_md5])) continue;
@@ -69,17 +106,25 @@ foreach($cron_last as $func_md5=>$last) {
     @unlink($lock);
 
 //	print('call '.$cron_funcs_prior[$func_md5]."\n");
+    $error_handler = new CronErrorObserver($func_md5);
+    ErrorHandler::add_observer($error_handler);
     ob_start();
     $output = array();
-    $output[0] = call_user_func(explode('::',$cron_funcs_prior[$func_md5]));
+    try {
+        $output[0] = call_user_func(explode('::',$cron_funcs_prior[$func_md5]));
+    } catch(Exception $e) {
+        $output[0] = $e->getMessage();
+    }
     $output[1] = ob_get_clean();
     $output = array_filter($output);
     if($output) {
         $output = implode("<br />\n",$output);
+        $stripped = $cron_funcs_prior[$func_md5].":\n".strip_tags($output)."\n\n";
         if(isset($argv))
-            print($cron_funcs_prior[$func_md5].":\n".strip_tags($output)."\n\n");
+            print($stripped);
         else
             print($cron_funcs_prior[$func_md5].":<br>".$output."<hr>");
+        error_log($stripped,3,DATA_DIR.'/cron.txt');
     }
 
     DB::Execute('UPDATE cron SET last=%d,running=0 WHERE func=%s',array(time(),$func_md5));

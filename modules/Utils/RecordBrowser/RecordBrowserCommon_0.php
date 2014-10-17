@@ -852,6 +852,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('UPDATE recordbrowser_table_properties SET description_callback=%s WHERE tab=%s', array($callback, $tab));
     }
+    public static function set_printer($tab,$class) {
+        Base_PrintCommon::register_printer(new $class());
+        DB::Execute('UPDATE recordbrowser_table_properties SET printer=%s WHERE tab=%s', array($class, $tab));
+    }
+
+    public static function unset_printer($tab)
+    {
+        $printer_class = DB::GetOne('SELECT printer FROM recordbrowser_table_properties WHERE tab=%s',$tab);
+        if ($printer_class) {
+            Base_PrintCommon::unregister_printer($printer_class);
+            DB::Execute('UPDATE recordbrowser_table_properties SET printer=%s WHERE tab=%s', array('', $tab));
+            return $printer_class;
+        }
+        return false;
+    }
 
     /**
      * Enable or disable jump to id. By default it is enabled.
@@ -1114,14 +1129,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $a;
     }
     public static function build_query( $tab, $crits = null, $admin = false, $order = array()) {
-		$PG = (DATABASE_DRIVER == "postgres");
 		if (!is_array($order)) $order = array();
         $cache_key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
         static $cache = array();
         self::init($tab, $admin);
 		if (isset($cache[$cache_key])) return $cache[$cache_key];
         if (!$tab) return false;
-		$postgre = (strcasecmp(DATABASE_DRIVER,"postgres")===0);
+		$postgre = DB::is_postgresql();
         $having = '';
         $fields = '';
         $final_tab = $tab.'_data_1 AS r';
@@ -1235,7 +1249,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$col2m = array();
 					
 					$conv = '';
-					if ($PG) $conv = '::varchar';
+					if ($postgre) $conv = '::varchar';
 					foreach ($col2 as $c) {
 						if (self::$table_rows[self::$hash[$c]]['type']=='multiselect')
 							$col2m[] = $c.$conv;
@@ -1281,17 +1295,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                         $having .= ' (rec.user_id='.Acl::get_user().' AND rec.user_id IS NOT NULL)';
                                         break;
                     case ':Created_on'  :
-                            $inj = $operator.DB::qstr($v);
-							$having .= ' created_on '.$inj;
-                            break;
+                        $inj = $operator.'%T';
+                        $timestamp = Base_RegionalSettingsCommon::reg2time($v, false);
+                        $vals[] = $timestamp;
+                        $having .= ' created_on '.$inj;
+                        break;
                     case ':Created_by'  :
                             $having .= ' created_by = '.$v;
                             break;
                     case ':Edited_on'   :
-                            $inj = $operator.DB::qstr($v);
-							$having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
-									'((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
-                            break;
+                        $inj = $operator.'%T';
+                        $having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
+                                     '((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
+                        $timestamp = Base_RegionalSettingsCommon::reg2time($v, false);
+                        $vals[] = $timestamp;
+                        $vals[] = $timestamp;
+                        break;
                     default:
                         trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
                 }
@@ -1318,10 +1337,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $key = self::$table_rows[$k]['id'];
                         } else trigger_error('In table "'.$tab.'" - unknow column "'.$k.'" in criteria "'.print_r($crits,true).'". Available columns are: "'.print_r(self::$table_rows,true).'"', E_USER_ERROR);
 
-						if (self::$table_rows[self::$hash[$key]]['type']=='timestamp' && is_numeric($w))
-							$w = date('Y-m-d H:i:s', $w);
-						elseif (self::$table_rows[self::$hash[$key]]['type']=='date' && is_numeric($w))
-							$w = date('Y-m-d', $w);
+						if (self::$table_rows[self::$hash[$key]]['type']=='timestamp') {
+                            $w = Base_RegionalSettingsCommon::reg2time($w, false);
+                            $w = date('Y-m-d H:i:s', $w);
+                        } elseif (self::$table_rows[self::$hash[$key]]['type']=='date') {
+                            $w = Base_RegionalSettingsCommon::reg2time($w, false);
+                            $w = date('Y-m-d', $w);
+                        }
 
 						if ($postgre && $operator==DB::like()) $key .= '::varchar';
                         if (self::$table_rows[$f]['type']=='checkbox' && !$w) {
@@ -1525,9 +1547,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         static $cache = array();
         if (is_numeric($id)) $r = self::get_record($tab, $id);
         else $r = $id;
-        if(is_array($r) && isset($r['id']))
-		$id = $r['id'];
-	else $id = '';
+        $id = isset($r['id']) ? $r['id'] : '';
 //      if (isset($cache[$tab.'__'.$id])) return $cache[$tab.'__'.$id];
 //      $r = self::get_record($tab, $id);
         $or_started = false;
@@ -1588,6 +1608,29 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
             $result = false;
             $k = strtolower($k);
+            self::init($tab);
+            $transform_date = false;
+            if ($k == 'created_on') {
+                $transform_date = 'timestamp';
+            } else if ($k == 'edited_on') {
+                $details = self::get_record_info($tab, $id);
+                $r[$k] = $details['edited_on'];
+                $transform_date = 'timestamp';
+            } else if (isset(self::$hash[$k]) && isset(self::$table_rows[self::$hash[$k]])) {
+                $type = self::$table_rows[self::$hash[$k]]['type'];
+                if ($type == 'timestamp') {
+                    $transform_date = 'timestamp';
+                } elseif ($type == 'date') {
+                    $transform_date = 'date';
+                }
+            }
+            if ($transform_date == 'timestamp') {
+                $v = Base_RegionalSettingsCommon::reg2time($v, false);
+                $v = date('Y-m-d H:i:s', $v);
+            } else if ($transform_date == 'date') {
+                $v = Base_RegionalSettingsCommon::reg2time($v, false);
+                $v = date('Y-m-d', $v);
+            }
             if (!isset($r[$k])) $r[$k] = '';
             if (is_array($r[$k])) $result = in_array($v, $r[$k]);
             else switch ($operator) {
@@ -1683,6 +1726,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE rule_id=%d', array($id));
 		DB::Execute('DELETE FROM '.$tab.'_access WHERE id=%d', array($id));
 	}
+    public static function delete_access_rules($tab, $action, $clearance, $crits = array())
+    {
+        if (!self::check_table_name($tab, false, false)) return;
+        if (!is_array($clearance)) $clearance = array($clearance);
+        $clearance_c = count($clearance);
+        $ids = DB::GetCol('SELECT id FROM ' . $tab . '_access WHERE crits=%s AND action=%s', array(serialize($crits), $action));
+        $ret = 0;
+        foreach ($ids as $rule_id) {
+            $existing_clearance = DB::GetCol('SELECT clearance FROM ' . $tab . '_access_clearance WHERE rule_id=%d', array($rule_id));
+            if ($clearance_c == count($existing_clearance) &&
+                $clearance_c == count(array_intersect($existing_clearance, $clearance))) {
+                self::delete_access($tab, $rule_id);
+                $ret += 1;
+            }
+        }
+        return $ret;
+    }
 	public static function add_access($tab, $action, $clearance, $crits=array(), $blocked_fields=array()) {
 		if (!self::check_table_name($tab, false, false)) return;
 		DB::Execute('INSERT INTO '.$tab.'_access (crits, action) VALUES (%s, %s)', array(serialize($crits), $action));
@@ -1748,7 +1808,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$blocked_fields = array();
 			if ($action!='browse' && $action!='clone') {
 				foreach ($crits_raw[$action] as $rule_id=>$c) {
-					if ($action!='add' && !self::check_record_against_crits($tab, $record, $c))
+					if ($action!='add' && $record != null && !self::check_record_against_crits($tab, $record, $c))
 						continue;
 					if (!$ret) {
 						$ret = true;
@@ -2843,6 +2903,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function get_printer($tab)
     {
+        $class = DB::GetOne('SELECT printer FROM recordbrowser_table_properties WHERE tab=%s',$tab);
+        if($class && class_exists($class))
+            return new $class();
         return new Utils_RecordBrowser_RecordPrinter();
     }
     ////////////////////////////
@@ -3243,59 +3306,99 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return 3;
     }
     
-    public static function indexer() {
-        $total = 0;
-        $token_length = self::get_token_length();
-        $limit = defined('RB_INDEXER_LIMIT_RECORDS')?RB_INDEXER_LIMIT_RECORDS:50;
-        self::$admin_filter = ' indexed=0 AND active=1 AND ';
+    public static function index_record($tab,$record,$table_rows=null,$tab_id=null) {
+        if($tab_id===null) $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+        if($table_rows===null) $table_rows = self::init($tab);
+        
+        $record = self::record_processing($tab, $record, 'index');
+        if($record) {
+            DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%s AND record_id=%d',array($tab_id,$record['id']));
+            $token_length = self::get_token_length();
+            foreach($table_rows as $field_info) {
+                $field = $field_info['id'];
+                if(!isset($record[$field])) continue;
+                ob_start();
+                $text = self::get_val($tab,$field,$record);
+                ob_end_clean();
+                $text = mb_strtolower(html_entity_decode(strip_tags($text)));
+                $len = mb_strlen($text);
+                if($len<$token_length) continue;
+                for($i=0;$i<=$len-$token_length;$i++) {
+                    $word = mb_substr($text,$i,$token_length);
+                    if(preg_match('/[^\p{L}0-9]/u',$word)) continue;
+
+                    DB::StartTrans();
+                    $word_id = DB::GetOne('SELECT id FROM recordbrowser_words_index WHERE word=%s',array($word));
+                    if(!$word_id) {
+                        DB::Execute('INSERT INTO recordbrowser_words_index(word) VALUES(%s)',array($word));
+                        $word_id = DB::Insert_ID('recordbrowser_words_index','id');
+                    }
+                    DB::CompleteTrans();
+                    if(!$word_id) {
+                        return;
+                    }
+                    
+                    DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab_id,record_id,field_id,position) VALUES(%d,%d,%d,%d,%d)',
+                        array($word_id,$tab_id,$record['id'],$field_info['pkey'],$i));
+                }
+            }
+        }
+        
+        DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($record['id']));
+    }
+    
+    public static function indexer($limit=null,&$total=0) {
+        $limit_sum = 0;
+        $limit_file = DATA_DIR.'/Utils_RecordBrowser/limit';
+        if(defined('RB_INDEXER_LIMIT_QUERIES')) { //limit queries per hour
+            $time = time();
+            $limit_time = 0;
+            if(file_exists($limit_file)) {
+                $tmp = array_filter(explode("\n",file_get_contents($limit_file)));
+                $limit_time = array_shift($tmp);
+                if($limit_time>$time-3600) {
+                    $limit_sum = array_sum($tmp);
+                    if($limit_sum>RB_INDEXER_LIMIT_QUERIES) return;
+                }
+            }
+            if($limit_sum==0)
+                file_put_contents($limit_file,$time."\n", LOCK_EX);
+        }
+        
+        if(!$limit) $limit = defined('RB_INDEXER_LIMIT_RECORDS')?RB_INDEXER_LIMIT_RECORDS:50;
         $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties WHERE search_include>0');
         foreach($tabs as $tab_id=>$tab) {
+    
             $table_rows = self::init($tab);
+            self::$admin_filter = ' indexed=0 AND active=1 AND ';
             $ret = self::get_records($tab,array(),array(),array(),$limit,true);
-            foreach($ret as $row) {
-                $row = self::record_processing($tab, $row, 'index');
-                if(!$row) continue;
-                DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%s AND record_id=%d',array($tab_id,$row['id']));
-                foreach($table_rows as $field_info) {
-                    $field = $field_info['id'];
-                    if(!isset($row[$field])) continue;
-                    ob_start();
-                    $text = self::get_val($tab,$field,$row);
-                    ob_end_clean();
-                    $text = mb_strtolower(html_entity_decode(strip_tags($text)));
-                    $len = mb_strlen($text);
-                    if($len<$token_length) continue;
-                    for($i=0;$i<=$len-$token_length;$i++) {
-                        $word = mb_substr($text,$i,$token_length);
-                        if(preg_match('/[^\p{L}0-9]/u',$word)) continue;
+            self::$admin_filter = '';
+            
+            if(!$ret) continue;
 
-                        DB::StartTrans();
-                        $word_id = DB::GetOne('SELECT id FROM recordbrowser_words_index WHERE word=%s',array($word));
-                        if(!$word_id) {
-                            DB::Execute('INSERT INTO recordbrowser_words_index(word) VALUES(%s)',array($word));
-                            $word_id = DB::Insert_ID('recordbrowser_words_index','id');
-                        }
-                        DB::CompleteTrans();
-                        if(!$word_id) {
-                            self::$admin_filter = '';
-                            return;
-                        }
-                        
-                        DB::Execute('INSERT INTO recordbrowser_words_map(word_id,tab_id,record_id,field_id,position) VALUES(%d,%d,%d,%d,%d)',
-                            array($word_id,$tab_id,$row['id'],$field_info['pkey'],$i));
-                    }
-                }
-                
-                DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($row['id']));
+            $lock = DATA_DIR.'/Utils_RecordBrowser/'.$tab_id.'.lock';
+            if(file_exists($lock) && filemtime($lock)>time()-1200) continue;
+            register_shutdown_function(create_function('','@unlink("'.$lock.'");'));
+            file_put_contents($lock,'');
+
+            foreach($ret as $row) {
+                self::index_record($tab,$row,$table_rows,$tab_id);
                 
                 $total++;
                 if($total>=$limit) break;
-                if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<DB::GetQueriesQty()) break;
+                if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<$limit_sum+DB::GetQueriesQty()) break;
             }
+            
+            @unlink($lock);
+            
             if($total>=$limit) break;
-            if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<DB::GetQueriesQty()) break;
+            if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<$limit_sum+DB::GetQueriesQty()) break;
         }
-        self::$admin_filter = '';
+
+        if(defined('RB_INDEXER_LIMIT_QUERIES')) {
+            file_put_contents($limit_file,DB::GetQueriesQty()."\n",FILE_APPEND | LOCK_EX);
+        }
+        
     }
     
     public static function search($search,$categories) {
@@ -3762,4 +3865,10 @@ class Utils_RecordBrowserMobile { // mini class to simulate full RB object, TODO
 
 require_once 'modules/Utils/RecordBrowser/object_wrapper/include.php';
 
+if(!READ_ONLY_SESSION) {
+    if(!isset($_SESSION['rb_indexer_token']))
+        $_SESSION['rb_indexer_token'] = md5(microtime(true));
+    load_js('modules/Utils/RecordBrowser/indexer.js');
+    eval_js_once('rb_indexer("'.$_SESSION['rb_indexer_token'].'")');
+}
 ?>

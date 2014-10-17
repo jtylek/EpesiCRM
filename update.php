@@ -10,15 +10,88 @@
  */
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 
+class EpesiUpdatePackage
+{
+    private $file;
+    private $zip;
+
+    public function __construct($file)
+    {
+        $this->file = $file;
+        $this->zip = new ZipArchive();
+        $status = $this->zip->open($file);
+        if ($status !== true) {
+            throw new ErrorException(__('Zip open error: %s', array($status)));
+        }
+    }
+
+    public function __destruct()
+    {
+        $this->zip->close();
+    }
+
+    public function get_file()
+    {
+        return $this->file;
+    }
+
+    public function files_not_writable()
+    {
+        $problems = array();
+        for ($i = 0; $i < $this->zip->numFiles; $i++) {
+            $stat = $this->zip->statIndex($i);
+            $f = './' . $stat['name'];
+            if (file_exists($f)) {
+                if (!is_writable($f)) {
+                    $problems[] = $f;
+                }
+            } else {
+                $up_f = basename($f);
+                if (file_exists($up_f) && !is_writable($up_f)) {
+                    $problems[] = $up_f;
+                }
+            }
+        }
+        return $problems;
+    }
+
+    public function extract()
+    {
+        $success = $this->zip->extractTo('./');
+        return $success;
+    }
+
+    public static function system_requirements()
+    {
+        return class_exists('ZipArchive');
+    }
+
+    public static function package()
+    {
+        if (!self::system_requirements()) {
+            return false;
+        }
+
+        $possible_files = glob('epesi-*.ei.zip');
+        if (count($possible_files)) {
+            rsort($possible_files);
+            return new self($possible_files[0]);
+        }
+        return false;
+    }
+}
+
 class EpesiUpdate
 {
     public function run()
     {
         $this->load_epesi();
-        if (!epesi_requires_update()) {
-            $this->version_up_to_date();
-        }
         if ($this->check_user()) {
+            if (!epesi_requires_update()) {
+                if ($this->handle_update_package() == false) {
+                    $this->version_up_to_date();
+                }
+            }
             $this->update_process();
         } else {
             $this->require_admin_login();
@@ -67,8 +140,7 @@ class EpesiUpdate
 
     protected function require_admin_login()
     {
-        $msg = $this->update_msg();
-        $msg .= '<p><strong>' . __("You need to be logged in as super admin to perform update.") . '</strong></p>';
+        $msg = '<p><strong>' . __("You need to be logged in as super admin use this script.") . '</strong></p>';
         $msg .= $this->login_form();
         $this->quit($msg);
     }
@@ -78,9 +150,49 @@ class EpesiUpdate
         if (Base_AclCommon::i_am_user() && !Base_AclCommon::i_am_sa()) {
             Base_User_LoginCommon::logout();
         }
-        require_once 'admin/Authorization.php';
-        $form = AdminAuthorization::form();
+        $form = SimpleLogin::form();
         return "<p>$form</p>";
+    }
+
+    protected function handle_update_package()
+    {
+        if ($this->CLI) {
+            return false;
+        }
+        $package = EpesiUpdatePackage::package();
+        if ($package) {
+            $action = & $_GET['package'];
+            if ($action) {
+                $files_not_writable = $package->files_not_writable();
+                if (empty($files_not_writable)) {
+                    $this->turn_on_maintenance_mode();
+                    if ($package->extract()) {
+                        $this->redirect(array());
+                    } else {
+                        $this->quit(__('Extract error occured'));
+                    }
+                } else {
+                    $msg = '<p><strong>' . __('Files with bad permissions:') . '</strong></p>';
+                    foreach ($files_not_writable as $file) {
+                        $msg .= "$file</br>";
+                    }
+                    $this->quit($msg);
+                }
+            } else {
+                $header = __('Easy update package found!');
+                $current_ver = __('Your current EPESI version') . ': <strong>' . $this->current_version . '</strong>';
+                $text_p = __('Package') . ': <strong>' . $package->get_file() . '</strong>';
+                $warning_message = __('All core files will be overwritten!') . '<br/><br/>'
+                                   . __('If you have changed any of those files, then all custom modifications will be lost.');
+                $info_message = __('Custom modules and your data will be preserved.');
+                $msg = "<p><strong>$header</strong></p><p>$current_ver</p><p>$text_p</p>";
+                $msg .= "<p style=\"color: red; font-weight: bold\">$warning_message</p>";
+                $msg .= "<p style=\"font-weight: bold\">$info_message</p>";
+                $msg .= '<p><a class="button" href="?package=extract">' . __('Extract!') . '</a></p>';
+                $this->quit($msg);
+            }
+        }
+        return false;
     }
 
     protected function update_process()
@@ -119,7 +231,10 @@ class EpesiUpdate
         if (is_string($url_or_get)) {
             $location = $url_or_get;
         } else {
-            $location = $_SERVER['PHP_SELF'] . '?' . http_build_query($url_or_get);
+            $location = $_SERVER['PHP_SELF'];
+            if (count($url_or_get)) {
+                $location .= '?' . http_build_query($url_or_get);
+            }
         }
         header("Location: $location");
         die();
@@ -152,12 +267,17 @@ class EpesiUpdate
         $this->quit($msg);
     }
 
-    protected function perform_update_start()
+    protected function turn_on_maintenance_mode()
     {
         $msg = __('EPESI is currently updating. Please wait or contact your system administrator.');
         MaintenanceMode::turn_on_with_cookie($msg);
+    }
+
+    protected function perform_update_start()
+    {
+        $this->turn_on_maintenance_mode();
         //restore innodb tables in case of db reimport
-        if (strcasecmp(DATABASE_DRIVER, "postgres") !== 0) {
+        if (DB::is_mysql()) {
             $tbls = DB::MetaTables('TABLE', true);
             foreach ($tbls as $t) {
                 $tbl = DB::GetRow('SHOW CREATE TABLE ' . $t);

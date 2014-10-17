@@ -567,16 +567,20 @@ class Base_Setup extends Module {
 			return;
 		}
 		$module_dirs = $this->get_module_dirs();
-		ob_start();
 		foreach ($modules as $k) {
+            ob_start();
 			$versions = array_keys($module_dirs[$k]);
 			if (!ModuleManager::install($k, max($versions))) {
-				ob_end_clean();
-				Base_StatusBarCommon::message(__('Couldn\'t install the package.'),'error');
+				$content = "<div class=\"important_notice\">" . ob_get_clean() . '</div>';
+                print $content;
+                $msg = __('Couldn\'t install the package.') . '<br>'
+                       . __('Review error at the top of the page');
+                Base_StatusBarCommon::message($msg,'error');
 				return false;
-			}
+			} else {
+                ob_end_clean();
+            }
 		}
-		ob_end_clean();
 		Base_StatusBarCommon::message('Package installed.');
 		
 		$processed = ModuleManager::get_processed_modules();

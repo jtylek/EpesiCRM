@@ -24,25 +24,36 @@ if(!file_exists($data_dir))
 if(!file_exists($log_dir))
     mkdir($log_dir);
 
-if(!isset($E_SESSION['user']))
-    die('Not logged');
+try {
+    if(!isset($E_SESSION['user'])) {
+        throw new Exception('Not logged');
+    }
 
-if(isset($_GET['_autologin_id'])) {
-    $id = $_GET['_autologin_id'];
-    setcookie('rc_account',$id);
-} elseif(isset($_COOKIE['rc_account'])) {
-    $id = $_COOKIE['rc_account'];
-} else
-    die('Forbidden');
+    if(isset($_GET['_autologin_id'])) {
+        $id = $_GET['_autologin_id'];
+        setcookie('rc_account',$id);
+    } elseif(isset($_COOKIE['rc_account'])) {
+        $id = $_COOKIE['rc_account'];
+    } else {
+        throw new Exception('Forbidden');
+    }
 
-if(!is_numeric($id))
-    die('Invalid account id');
+    if(!is_numeric($id)) {
+        throw new Exception('Invalid account id');
+    }
 
-global $account;
-$account = DB::GetRow('SELECT * FROM rc_accounts_data_1 WHERE id=%d AND active=1',array($id));
-if($E_SESSION['user']!==$account['f_epesi_user'])
-    die('Access Denied');
-
+    global $account;
+    $account = DB::GetRow('SELECT * FROM rc_accounts_data_1 WHERE id=%d AND active=1',array($id));
+    if($E_SESSION['user']!==$account['f_epesi_user']) {
+        throw new Exception('Access Denied');
+    }
+} catch (Exception $ex) {
+    header("Cache-Control: private, no-cache, no-store, must-revalidate, post-check=0, pre-check=0");
+    header("Pragma: no-cache");
+    header("Expires: ".gmdate("D, d M Y H:i:s")." GMT");
+    header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
+    die($ex->getMessage());
+}
 $rcmail_config = array();
 
 // ----------------------------------

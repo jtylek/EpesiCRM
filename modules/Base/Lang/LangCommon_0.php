@@ -52,7 +52,9 @@ class Base_LangCommon extends ModuleCommon {
 			
 		if (!isset($translations[$original]) && !isset($custom_translations[$original])) {
 			$custom_translations[$original] = '';
-			Base_LangCommon::append_custom(null, array($original => ''));
+            if (self::$loaded) {
+                Base_LangCommon::append_custom(null, array($original => ''));
+            }
 		}
 
 		$translated = @vsprintf($translated,$arg);
@@ -372,18 +374,26 @@ class Base_LangCommon extends ModuleCommon {
 		$translations = array();
 		$custom_translations = array();
 
-		@include(DATA_DIR.'/Base_Lang/base/'. $lang_code .'.php');
+        $file = DATA_DIR . '/Base_Lang/base/' . $lang_code . '.php';
+        if (file_exists($file)) {
+            include($file);
+        }
 		if(!is_array($translations))
 			$translations=array();
 
-		@include(DATA_DIR.'/Base_Lang/custom/'. $lang_code .'.php');
+        $file = DATA_DIR . '/Base_Lang/custom/' . $lang_code . '.php';
+        if (file_exists($file)) {
+            include($file);
+        }
 		if(!is_array($custom_translations))
 			$custom_translations=array();
-			
+		
+		self::$loaded = true;
 		eval_js_once('Epesi.default_indicator="'.__('Loading...').'";');
 	}
 	
 	private static $lang_code;
+	private static $loaded = false;
 
 	public static function get_lang_code() {
 		if(defined('FORCE_LANG_CODE')) return FORCE_LANG_CODE;
