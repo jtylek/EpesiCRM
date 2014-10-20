@@ -3,6 +3,11 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+RELEASE 1.6.2-20141020
+-------
+
+- Fix like operator on date fields - used by birthdays applet
+
 RELEASE 1.6.2-20141017
 -------
 
