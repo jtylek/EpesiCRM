@@ -33,6 +33,29 @@ class Base_PrintCommon extends ModuleCommon
      */
     public static function get_print_href($data, $printer)
     {
+        $ret = self::get_print_templates($data,$printer);
+        if (is_array($ret)) {
+            if (count($ret) == 1) {
+                $ret = reset($ret);
+                $ret = $ret['href'];
+            } else {
+                $ret = self::choose_box_href($ret);
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * Get print available templates. This method calls custom print href, that should
+     * return array with href,label,handler and template keys.
+     *
+     * @param mixed  $data    data to pass to printer
+     * @param string $printer Printer classname
+     *
+     * @return array with href,label,handler and template keys.
+     */
+    public static function get_print_templates($data, $printer)
+    {
         $ret = array();
         $callback = self::get_print_href_callback();
         if ($callback && is_callable($callback)) {
@@ -42,13 +65,7 @@ class Base_PrintCommon extends ModuleCommon
         if (is_array($ret)) {
             foreach (self::enabled_templates($printer) as $label => $tpl) {
                 $href = self::get_default_print_href($data, $printer, $label);
-                $ret[] = array('href' => $href, 'label' => _V($label));
-            }
-            if (count($ret) == 1) {
-                $ret = reset($ret);
-                $ret = $ret['href'];
-            } else {
-                $ret = self::choose_box_href($ret);
+                $ret[] = array('href' => $href, 'label' => _V($label), 'template'=>$label,'handler'=>null);
             }
         }
         return $ret;
