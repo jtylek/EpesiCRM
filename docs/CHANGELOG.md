@@ -3,6 +3,12 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+CURRENT
+-------
+
+- Base/Print add method to obtain all templates (Dev)
+- Fix recordset uninstall issue caused by words map table constraint 
+
 RELEASE 1.6.2-20141017
 -------
 
