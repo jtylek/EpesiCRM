@@ -19,3 +19,5 @@ modules/*
 
 # IDE dirs/files
 .idea
+
+Thumbs.db
