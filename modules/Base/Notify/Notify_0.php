@@ -25,9 +25,12 @@ class Base_Notify extends Module {
 		load_js('modules/Base/Notify/js/desktop-notify.js');
 		load_js('modules/Base/Notify/js/main.js');
 
-		eval_js("if (notify.isSupported) var Base_Notify__interval = setInterval(function () {Base_Notify__refresh('".CID."');}, ".(self::refresh_rate*1000).");");
+		eval_js("if (notify.isSupported) {
+		clearInterval(Base_Notify__interval);
+		var Base_Notify__interval = setInterval(function () {Base_Notify__refresh('".CID."');}, ".(self::refresh_rate*1000).");
+		}");
 
-		eval_js('function Base_Notify__alert () {alert(\''.__('Notifications disabled or not supported!').'\n'.__('Check your browser settings...').'\');}');
+		eval_js_once('function Base_Notify__alert () {alert(\''.__('Notifications disabled or not supported!').'\n'.__('Check your browser settings...').'\');}');
 	}
 }
 ?>
