@@ -61,7 +61,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		DB::CreateTable('recordbrowser_words_index', 'id I AUTO KEY,word C(3)',
 					array('constraints'=>', UNIQUE(word)'));
 		DB::CreateTable('recordbrowser_words_map', 'word_id I, tab_id I2, record_id I, field_id I2, position I',
-					array('constraints'=>', FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id), FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties(id)'));
+					array('constraints'=>', FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties(id) ON DELETE CASCADE ON UPDATE CASCADE'));
 		DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','tab_id,record_id');
 		return true;
 	}
