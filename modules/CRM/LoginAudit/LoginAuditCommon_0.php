@@ -69,7 +69,7 @@ class CRM_LoginAuditCommon extends ModuleCommon {
 				$remote_address = $_SERVER['HTTP_CF_CONNECTING_IP'];
 			elseif(isset($_SERVER['HTTP_CLIENT_IP']))
 				$remote_address = $_SERVER['HTTP_CLIENT_IP'];
-			$remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+			$remote_host = gethostbyaddr($remote_address);
 			DB::Execute('INSERT INTO base_login_audit(user_login_id,start_time,end_time,ip_address,host_name) VALUES(%d,%T,%T,%s,%s)',array(Acl::get_user(),$now,$now,$remote_address,$remote_host));
 			$_SESSION['base_login_audit'] = DB::Insert_ID('base_login_audit','id');
 			$_SESSION['base_login_audit_user'] = Acl::get_user();
