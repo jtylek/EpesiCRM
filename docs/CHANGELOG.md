@@ -9,6 +9,11 @@ CURRENT
 - Base/Print add method to obtain all templates (Dev)
 - Fix recordset uninstall issue caused by words map table constraint 
 
+RELEASE 1.6.2-20141020
+-------
+
+- Fix like operator on date fields - used by birthdays applet
+
 RELEASE 1.6.2-20141017
 -------
 
