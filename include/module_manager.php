@@ -220,8 +220,9 @@ class ModuleManager {
 
 				print('Inst/Up required module: ' . '<b>' . $m['name'] . '</b>' . ' version='.$m['version'].' by ' . '<b>' . $module_to_install . '</b>' . '<br>');
 				if(self :: is_installed($m['name'])<0){
-					if (!self :: install($m['name'], $m['version'],$check))
-						return false;
+					if (!self :: install($m['name'], $m['version'],$check)) {
+                        throw new Exception('Cannot install module: ' . $m['name']);
+                    }
 				} else {
 					if (!self :: upgrade($m['name'], $m['version'])) return false;
 				}
