@@ -180,11 +180,14 @@ class Base_Setup extends Module {
 		//validation or display
 		if ($form->exportValue('submited') && $form->validate()) {
 			ob_start();
-			if (!$this->validate($form->getSubmitValues()))
-				print('<hr class="line"><center><a class="button"' . $this -> create_href(array()) . '>Back</a></center>');
-			ob_end_clean();
-			location(array());
-			return;
+			if (!$this->validate($form->getSubmitValues())) {
+                print ob_get_clean();
+                print('<hr class="line"><center><a class="button"' . $this->create_href(array()) . '>Back</a></center>');
+            } else {
+                ob_end_clean();
+                location(array());
+            }
+            return;
 		}
 		$form->display();
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
