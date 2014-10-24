@@ -23,9 +23,9 @@ if ($general_setting == -1) {
 	echo json_encode(array('disable'=>1));
 	exit();
 }
-//unset($_SESSION['Base_Notify']);
+
 $ret = null;
-$pileup = -1;
+$notify_count = 0;
 $group_similar = Base_NotifyCommon::group_similar();
 $notifications = Base_NotifyCommon::get_notifications();
 
@@ -33,30 +33,40 @@ foreach ($notifications as $module=>$notify) {
 	$timeout = Base_NotifyCommon::get_module_setting($module);
 	if ($timeout == -1) continue;
 
-	foreach ($notify['tray'] as $id=>$message) {
-		if (isset($_SESSION['Base_Notify']['notified_cache'][$module][$id])) continue;
-		$pileup++;
-		if ($pileup>=1 && !$group_similar) break;
+	$msg_count = 0;
+	$new_messages = Base_NotifyCommon::get_new_messages($module, $notify['tray']);
+	foreach ($new_messages as $id=>$message) {
+		$msg_count++;
+		if (!$group_similar) {
+			$notify_count++;
+			if ($notify_count>Base_NotifyCommon::message_refresh_limit) break;
+		}
 
 		$_SESSION['Base_Notify']['notified_cache'][$module][$id] = 1;
+		
+		if ($group_similar && count($new_messages) >1) continue;
 
 		$title = EPESI.' '.Base_NotifyCommon::strip_html($message['title']);
 		$body = Base_NotifyCommon::strip_html($message['body']);
 		$icon = Base_NotifyCommon::get_icon($module, $message);
+
+		$ret[] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon), 'timeout'=>$timeout);
 	}
 
-	if (($pileup>=0 && !$group_similar) || $pileup == 0) break;
-	if ($pileup == -1) continue;
-	$title = EPESI.' '.__('Module %s', array(Base_NotifyCommon::get_module_caption($module)));
-	$body = __('%d new notifications', array($pileup+1));
-	break;
+	if ($notify_count>Base_NotifyCommon::message_refresh_limit) break;
+	if (!$group_similar || $msg_count<=1) continue;
+	$notify_count++;
+	
+	$title = EPESI.' '.Base_NotifyCommon::get_module_caption($module);
+	$body = __('%d new notifications', array($msg_count));
+	$icon = Base_NotifyCommon::get_icon($module);
+
+	$ret[] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon), 'timeout'=>$timeout);
 }
 
 if (!isset($title) || !isset($icon)) {
 	exit();
 }
-
-$ret = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon), 'timeout'=>$timeout, 'pileup'=>$pileup);
 
 if (isset($ret))
 echo json_encode($ret);

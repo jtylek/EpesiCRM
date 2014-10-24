@@ -63,7 +63,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 			if(!$row['login']) $row['login']='Anonymous';
 			$ret['shoutbox_'.$row['id']] = vsprintf('<font color="gray">[%s]</font><font color="blue">%s</font>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], $row['message']));
 		
-			$tray['shoutbox_'.$row['id']] = array('title'=>__('Shoutbox - New Message'), 'body'=>__('You have new message by %s', array(Base_UserCommon::get_user_label($row['user_id'], true))));
+			$tray['shoutbox_'.$row['id']] = array('title'=>__('Shoutbox Message'), 'body'=>__('%s wrote: %s', array(Base_UserCommon::get_user_label($row['user_id'], true),$row['message'])));
 		}
 
 		return array('notifications'=>$ret, 'tray'=>$tray);

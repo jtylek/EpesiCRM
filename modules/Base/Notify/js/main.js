@@ -1,18 +1,17 @@
-function Base_Notify__refresh (cid, pileup) {
+function Base_Notify__refresh (cid) {
 	if (Base_Notify__disable_refresh(false)) return;
 
-	pileup = pileup || 1;
 	jq.getJSON('modules/Base/Notify/refresh.php?cid='+cid, function(json){
-		if (typeof json === 'undefined' || jq.isEmptyObject(json)) return;
-		if (Base_Notify__disable_refresh(typeof json.disable !== 'undefined')) return;
+		if (typeof json === 'undefined' || jq.isEmptyObject(json) || json.length==0) return;
+		if (Base_Notify__disable_refresh(typeof json.disable !== 'undefined')) return;		
 
-		if (typeof json.timeout !== 'undefined') notify.config({pageVisibility: false, autoClose: json.timeout});
-		Base_Notify__notify(json.title, json.opts);
+		jq.each(json, function(i, m) {
+			setTimeout(function(){
+				if (typeof m.timeout !== 'undefined') notify.config({pageVisibility: false, autoClose: m.timeout});
+				Base_Notify__notify(m.title, m.opts);			
+			}, i*500);
+		});
 
-		if (typeof json.pileup !== 'undefined' && json.pileup >= 1 && pileup < 3) {
-			Base_Notify__refresh (cid, pileup+1);
-			return;
-		}
 	});
 }
 

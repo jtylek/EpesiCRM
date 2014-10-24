@@ -14,16 +14,13 @@ class Base_NotifyInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme($this->get_type());
 
-		$box_ini_file = Base_ThemeCommon::get_template_file('Base/Box', 'default.ini');
-		$ini_setting = PHP_EOL.'[notify]'.PHP_EOL.'module = "Base/Notify"'.PHP_EOL.'display = "logged"';
-		file_put_contents($box_ini_file, $ini_setting, FILE_APPEND);
-
 		Utils_CommonDataCommon::new_array('Base_TrayNotify/Timeout', array(-1=>_M('Disable Notification'), 0=>_M('Manually'), 10000=>_M('10 seconds'), 30000=>_M('30 seconds'), 60000=>_M('1 minute')), true, true);
 		return true;
 	}
 
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
+		Utils_CommonDataCommon::remove('Base_TrayNotify/Timeout');
 		return true;
 	}
 
