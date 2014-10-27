@@ -105,6 +105,12 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		if ($cache===null) $cache = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
 		return $cache;
 	}
+
+	public static function get_all_currencies() {
+		static $cache=null;
+		if ($cache===null) $cache = DB::GetAssoc('SELECT id, code FROM utils_currency');
+		return $cache;
+	}
 	
 	public static function admin_caption() {
 		return array('label'=>__('Currencies'), 'section'=>__('Regional Settings'));
