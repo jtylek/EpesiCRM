@@ -1341,8 +1341,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $w = Base_RegionalSettingsCommon::reg2time($w, false);
                             $w = date('Y-m-d H:i:s', $w);
                         } elseif (self::$table_rows[self::$hash[$key]]['type']=='date' && $operator != DB::like()) {
-                            $w = Base_RegionalSettingsCommon::reg2time($w, false);
-                            $w = date('Y-m-d', $w);
+                            if($w!='') {
+                                $w = Base_RegionalSettingsCommon::reg2time($w, false);
+                                $w = date('Y-m-d', $w);
+                            }
                         }
 
 						if ($postgre && $operator==DB::like()) $key .= '::varchar';
