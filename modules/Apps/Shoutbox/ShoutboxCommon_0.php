@@ -54,16 +54,19 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	public static function tray_notification($time) {
 		if(!$time)
 			$time = time()-24*3600;
-		$arr = DB::GetAll('SELECT ul.login, asm.id, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND (asm.to_user_login_id=%d OR asm.to_user_login_id is null) ORDER BY asm.posted_on DESC LIMIT 10',array($time, Base_AclCommon::get_user(), Base_AclCommon::get_user()));
+		$arr = DB::GetAll('SELECT ul.login, ul.id as user_id, asm.id, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND (asm.to_user_login_id=%d OR asm.to_user_login_id is null) ORDER BY asm.posted_on DESC LIMIT 10',array($time, Base_AclCommon::get_user(), Base_AclCommon::get_user()));
 		if(empty($arr)) return array();
 		//print it out
 		$ret = array();
+		$tray = array();
 		foreach($arr as $row) {
 			if(!$row['login']) $row['login']='Anonymous';
 			$ret['shoutbox_'.$row['id']] = vsprintf('<font color="gray">[%s]</font><font color="blue">%s</font>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], $row['message']));
+		
+			$tray['shoutbox_'.$row['id']] = array('title'=>__('Shoutbox Message'), 'body'=>__('%s wrote: %s', array(Base_UserCommon::get_user_label($row['user_id'], true),$row['message'])));
 		}
 
-		return array('notifications'=>$ret);
+		return array('notifications'=>$ret, 'tray'=>$tray);
 	}
 
 	public static function user_settings(){
