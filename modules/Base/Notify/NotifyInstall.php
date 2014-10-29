@@ -14,13 +14,15 @@ class Base_NotifyInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme($this->get_type());
 
-		Utils_CommonDataCommon::new_array('Base_TrayNotify/Timeout', array(-1=>_M('Disable Notification'), 0=>_M('Manually'), 10000=>_M('10 seconds'), 30000=>_M('30 seconds'), 60000=>_M('1 minute')), true, true);
+		Utils_CommonDataCommon::new_id('Base_Notify/Timeout', true);
+		Utils_CommonDataCommon::new_array('Base_Notify/Timeout', array(-1=>_M('Disable Notification'), 0=>_M('Manually')), true, true);
+		Utils_CommonDataCommon::new_array('Base_Notify/Timeout', array(10000=>_M('10 seconds'), 30000=>_M('30 seconds'), 60000=>_M('1 minute')));
 		return true;
 	}
 
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
-		Utils_CommonDataCommon::remove('Base_TrayNotify/Timeout');
+		Utils_CommonDataCommon::remove('Base_Notify');
 		return true;
 	}
 

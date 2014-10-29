@@ -44,7 +44,7 @@ class Base_NotifyCommon extends ModuleCommon {
 
 		$ret = array(
 		array('name'=>null,'label'=>__('General'),'type'=>'header'),
-		array('name'=>'general_timeout', 'reload'=>1, 'label'=>__('Close Message Timeout'),'type'=>'select','values'=>Utils_CommonDataCommon::get_translated_array('Base_TrayNotify/Timeout', true),'default'=>0),
+		array('name'=>'general_timeout', 'reload'=>1, 'label'=>__('Close Message Timeout'),'type'=>'select','values'=>Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', true),'default'=>0),
 		array('name'=>'general_group','label'=>__('Group Similar Notifications'),'type'=>'checkbox','default'=>1),
 
 		array('name'=>null,'label'=>__('Module Specific Timeout'),'type'=>'header')
@@ -55,7 +55,7 @@ class Base_NotifyCommon extends ModuleCommon {
 		foreach ($modules as $module) {
 			$label = self::get_module_caption($module);
 
-			$ret = array_merge($ret, array(array('name'=>$module.'_timeout','label'=>$label,'type'=>'select','values'=>array(-2=>_M('Use general setting')) + Utils_CommonDataCommon::get_translated_array('Base_TrayNotify/Timeout', true),'default'=>-2)));
+			$ret = array_merge($ret, array(array('name'=>$module.'_timeout','label'=>$label,'type'=>'select','values'=>array(-2=>_M('Use general setting')) + Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', true),'default'=>-2)));
 		}
 
 		return array(__('Notify')=>$ret);
