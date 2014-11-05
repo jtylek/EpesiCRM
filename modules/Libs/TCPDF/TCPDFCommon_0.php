@@ -60,15 +60,21 @@ class Libs_TCPDFCommon extends ModuleCommon {
     public static function prepare_header(& $tcpdf, $title='', $subject='', $printed_by=true, $logo_filename=null, $l = array()) {
         if ($title!==null) {
             if ($logo_filename===null) $logo_filename = Libs_TCPDFCommon::get_logo_filename();
-            if (!file_exists($logo_filename)) {
+            if ($logo_filename!==false && !file_exists($logo_filename)) {
                 $logo_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png');
             }
-            $logo_size = getimagesize($logo_filename);
             $margins = $tcpdf->getMargins();
-            $logo_height = $logo_size[1] * PDF_HEADER_LOGO_WIDTH / $logo_size[0];
+            if($logo_filename) {
+                $logo_size = getimagesize($logo_filename);
+                $logo_height = $logo_size[1] * PDF_HEADER_LOGO_WIDTH / $logo_size[0];
+            } else {
+                $logo_height = 0;
+            }
             $tcpdf->SetHeaderMargin(10);
-            $tcpdf->SetTopMargin($logo_height + $margins['top'] - 5);
-            $tcpdf->SetHeaderData($logo_filename, PDF_HEADER_LOGO_WIDTH, $title, $subject);
+            $tcpdf->SetTopMargin($logo_height + $margins['top']);
+            $tcpdf->SetHeaderData($logo_filename, $logo_filename?PDF_HEADER_LOGO_WIDTH:0, $title, $subject);
+        } else {
+            $tcpdf->setPrintHeader(false);
         }
 
         //set some language-dependent strings
