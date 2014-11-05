@@ -4,16 +4,25 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
 {
     private $pdf;
     private $content_length;
+    private $printed_by;
+    private $subject;
+    private $title;
+    
+    public function __construct($config) {
+        $this->printed_by = !isset($config['printed_by']) || $config['printed_by'];
+        $this->title = isset($config['title'])?$config['title']:'';
+        $this->subject = isset($config['subject'])?$config['subject']:'';
+    }
 
     public function document_type_name()
     {
         return 'PDF';
     }
-
+    
     public function init($data)
     {
         $this->pdf = Libs_TCPDFCommon::new_pdf();
-        Libs_TCPDFCommon::prepare_header($this->pdf);
+        Libs_TCPDFCommon::prepare_header($this->pdf,$this->title,$this->subject,$this->printed_by);
         Libs_TCPDFCommon::add_page($this->pdf);
         $this->set_filename_extension('pdf');
     }

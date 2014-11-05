@@ -8,6 +8,8 @@ abstract class Base_Print_Printer
 
     /** @var Base_Print_Template_Template */
     private $template;
+    /** @var array */
+    protected $document_config;
 
     /**
      * Document name is a string used to identify the document type printed
@@ -203,7 +205,14 @@ abstract class Base_Print_Printer
         }
         return $this->get_document();
     }
-
+    
+    /**
+     * Get document config array.
+     */
+    public function get_document_config() {
+        return $this->document_config;
+    }
+    
     /**
      * Fill the template with default template's sections.
      */

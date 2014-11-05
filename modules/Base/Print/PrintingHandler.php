@@ -40,7 +40,7 @@ class Base_Print_PrintingHandler
     public function printed_document()
     {
         $printer = $this->get_printer();
-        $printer->set_document(new Base_Print_Document_PDF());
+        $printer->set_document(new Base_Print_Document_PDF($printer->get_document_config()));
         $this->set_selected_template();
 
         return $printer->get_printed_document($this->get_data());
