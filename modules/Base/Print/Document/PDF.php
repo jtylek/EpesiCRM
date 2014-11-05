@@ -4,14 +4,18 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
 {
     private $pdf;
     private $content_length;
-    private $printed_by;
-    private $subject;
-    private $title;
+    private $printed_by=true;
+    private $subject='';
+    private $title='';
+    private $logo=null;
     
-    public function __construct($config) {
-        $this->printed_by = !isset($config['printed_by']) || $config['printed_by'];
-        $this->title = isset($config['title'])?$config['title']:'';
-        $this->subject = isset($config['subject'])?$config['subject']:'';
+    public function __construct($config = array()) {
+        if(is_array($config)) {
+            $this->printed_by = !isset($config['printed_by']) || $config['printed_by'];
+            $this->title = array_key_exists('title',$config)?$config['title']:'';
+            $this->subject = array_key_exists('subject',$config)?$config['subject']:'';
+            $this->logo = array_key_exists('logo',$config)?$config['logo']:null;
+        }
     }
 
     public function document_type_name()
@@ -22,7 +26,7 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
     public function init($data)
     {
         $this->pdf = Libs_TCPDFCommon::new_pdf();
-        Libs_TCPDFCommon::prepare_header($this->pdf,$this->title,$this->subject,$this->printed_by);
+        Libs_TCPDFCommon::prepare_header($this->pdf,$this->title,$this->subject,$this->printed_by,$this->logo);
         Libs_TCPDFCommon::add_page($this->pdf);
         $this->set_filename_extension('pdf');
     }
