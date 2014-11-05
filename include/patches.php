@@ -425,7 +425,7 @@ class Patch
         //  2. All function calls before Patch::apply
         $delete = false;
         foreach ($debug_backtrace as $k => $v) {
-            if ($v['file'] == __FILE__ && $v['function'] == 'apply') {
+            if (isset($v['file']) && $v['file'] == __FILE__ && $v['function'] == 'apply') {
                 $delete = true;
             }
             if ($delete) {
