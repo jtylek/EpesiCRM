@@ -29,7 +29,8 @@ $notify_count = 0;
 $group_similar = Base_NotifyCommon::group_similar();
 $notifications = Base_NotifyCommon::get_notifications();
 
-foreach ($notifications as $module=>$notify) {
+foreach ($notifications as $module => $notify) {
+    if (!isset($notify['tray'])) continue;
 	$timeout = Base_NotifyCommon::get_module_setting($module);
 	if ($timeout == -1) continue;
 
