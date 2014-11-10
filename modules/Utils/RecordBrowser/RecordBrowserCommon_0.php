@@ -2209,7 +2209,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if($descr)
             $label = call_user_func($descr,$rec,$nolink);
         else {
-            $field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE (type=\'text\' OR type=\'commondata\' OR type=\'integer\' OR type=\'date\') AND required=1 AND visible=1 AND active=1 ORDER BY position');
+            $field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE (type=\'autonumber\' OR ((type=\'text\' OR type=\'commondata\' OR type=\'integer\' OR type=\'date\') AND required=1)) AND visible=1 AND active=1 ORDER BY position');
             if(!$field)
                 $label = ($table_name?$cap.': ':'').$id;
             else
