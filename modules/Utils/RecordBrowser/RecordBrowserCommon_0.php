@@ -2709,6 +2709,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 	
 	public static function get_field_tooltip($label) {
+		if(strpos($label,'Utils_Tooltip')!==false) return $label;
 		$args = func_get_args();
 		array_shift($args);
 		return Utils_TooltipCommon::ajax_create($label, array('Utils_RecordBrowserCommon', 'ajax_get_field_tooltip'), $args);
