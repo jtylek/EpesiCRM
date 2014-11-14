@@ -3371,6 +3371,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if(!$limit) $limit = defined('RB_INDEXER_LIMIT_RECORDS')?RB_INDEXER_LIMIT_RECORDS:50;
         $tabs = DB::GetAssoc('SELECT id,tab FROM recordbrowser_table_properties WHERE search_include>0');
         foreach($tabs as $tab_id=>$tab) {
+            $lock = DATA_DIR.'/Utils_RecordBrowser/'.$tab_id.'.lock';
+            if(file_exists($lock) && filemtime($lock)>time()-1200) continue;
     
             $table_rows = self::init($tab);
             self::$admin_filter = ' indexed=0 AND active=1 AND ';
@@ -3379,9 +3381,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             
             if(!$ret) continue;
 
-            $lock = DATA_DIR.'/Utils_RecordBrowser/'.$tab_id.'.lock';
-            if(file_exists($lock) && filemtime($lock)>time()-1200) continue;
             register_shutdown_function(create_function('','@unlink("'.$lock.'");'));
+            if(file_exists($lock) && filemtime($lock)>time()-1200) continue;
             file_put_contents($lock,'');
 
             foreach($ret as $row) {
