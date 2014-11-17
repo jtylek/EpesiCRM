@@ -1635,17 +1635,17 @@ class Utils_RecordBrowser extends Module {
 		
 		$tabs = array(
 		array(
-			'access'=>'records',
-			'func'=>array($this, 'show_data'),
-			'label'=>__('Manage Records'),
-			'args'=>array(array(), array(), array(), Base_AdminCommon::get_access('Utils_RecordBrowser', 'records')==2)
-		),
-		array(
 			'access'=>'fields',
 			'func'=>array($this, 'setup_loader'),
 			'label'=>__('Manage Fields'),
 			'args'=>array()
 		),
+        array(
+            'access'=>'records',
+            'func'=>array($this, 'show_data'),
+            'label'=>__('Manage Records'),
+            'args'=>array(array(), array(), array(), Base_AdminCommon::get_access('Utils_RecordBrowser', 'records')==2)
+        ),
 		array(
 			'access'=>'addons',
 			'func'=>array($this, 'manage_addons'),
