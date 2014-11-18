@@ -96,6 +96,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 		$value = $this->getAttribute('value');
 		if (!$value) return $value;
 //		print('get_value('.$this->getName().')='.$value.' '.Base_RegionalSettingsCommon::time2reg($value,false,true,false).'<hr>');
+                if(!is_numeric($value) && is_string($value) && !strtotime($value)) return $value;
 		return Base_RegionalSettingsCommon::time2reg($value,false,true,false);
 	} // end func setValue
 
