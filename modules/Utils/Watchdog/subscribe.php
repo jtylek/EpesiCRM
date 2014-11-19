@@ -28,6 +28,6 @@ if ($state)
 else
 	Utils_WatchdogCommon::unsubscribe($cat, $id);
 
-print('$("'.$element.'").innerHTML="'.Epesi::escapeJS(Utils_WatchdogCommon::get_change_subscription_icon_tags($cat, $id)).'";');
+print('jq("#'.$element.'").html("'.Epesi::escapeJS(Utils_WatchdogCommon::get_change_subscription_icon_tags($cat, $id)).'");');
 
 ?>
