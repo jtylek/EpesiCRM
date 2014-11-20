@@ -65,7 +65,9 @@ class Base_PrintCommon extends ModuleCommon
         if (is_array($ret)) {
             foreach (self::enabled_templates($printer) as $label => $tpl) {
                 $href = self::get_default_print_href($data, $printer, $label);
-                $ret[] = array('href' => $href, 'label' => _V($label), 'template'=>$label,'handler'=>null);
+                $ret[] = array('href' => $href, 'label' => _V($label),
+                               'template' => $label,
+                               'handler' => 'Base_Print_PrintingHandler');
             }
         }
         return $ret;
