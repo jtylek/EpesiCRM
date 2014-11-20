@@ -2204,7 +2204,7 @@ class Utils_RecordBrowser extends Module {
 	        							if (!empty($ret)) trigger_error('Invalid fields: '.implode(',',$fs));
 	        						    }
 	        						    $data['rset'] = implode(',',$data['rset']);
-	        						    $data['label_field'] = implode(',',$fs);
+	        						    $data['label_field'] = implode('|',$fs);
 								} else {
 								    $data['rset'] = '__RECORDSETS__';
 								    $data['label_field'] = '';
