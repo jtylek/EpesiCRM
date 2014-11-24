@@ -72,7 +72,11 @@ class Base_Acl extends Module {
 			return false;
 		$counts = 5;
 		$all_clearances = array(''=>'---')+array_flip(Base_AclCommon::get_clearance(true));
-		$perms = array(''=>'---')+DB::GetAssoc('SELECT id, name FROM base_acl_permission ORDER BY name ASC');
+        $translated_permission_names = array();
+        foreach (DB::GetAssoc('SELECT id, name FROM base_acl_permission ORDER BY name ASC') as $k => $v) {
+            $translated_permission_names[$k] = _V($v);
+        }
+		$perms = array(''=>'---')+$translated_permission_names;
 		$current_clearance = 0;
 
 		$form = $this->init_module('Libs_QuickForm');
