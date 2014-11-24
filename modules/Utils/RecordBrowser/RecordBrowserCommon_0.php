@@ -632,7 +632,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($definition['position']));
         DB::CompleteTrans();
-        if (!isset($definition['processing_order'])) $definition['processing_order'] = $definition['position'];
+        if (!isset($definition['processing_order'])) $definition['processing_order'] = DB::GetOne('SELECT MAX(processing_order) FROM '.$tab.'_field') + 1;
 
         $param = $definition['param'];
         if (is_array($param)) {
