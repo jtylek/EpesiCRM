@@ -914,9 +914,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 
 	public static function display_phone($r,$nolink,$desc) {
-	//      Does not return href="tel:
-//      if(MOBILE_DEVICE && IPHONE && !$nolink && preg_match('/^([0-9\t\+-]+)/',$r[$desc['id']],$args))
-//          return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
+        if ($nolink) {
+            return $r[$desc['id']];
+        }
 
         if(MOBILE_DEVICE && IPHONE && preg_match('/^([0-9\t\+-]+)/',$r[$desc['id']],$args))
             return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
