@@ -1626,10 +1626,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $transform_date = 'date';
                 }
             }
-            if ($transform_date == 'timestamp') {
+            if ($transform_date == 'timestamp' && $v) {
                 $v = Base_RegionalSettingsCommon::reg2time($v, false);
                 $v = date('Y-m-d H:i:s', $v);
-            } else if ($transform_date == 'date') {
+            } else if ($transform_date == 'date' && $v) {
                 $v = Base_RegionalSettingsCommon::reg2time($v, false);
                 $v = date('Y-m-d', $v);
             }
