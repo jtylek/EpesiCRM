@@ -1,16 +1,18 @@
 utils_watchdog_set_subscribe = function(state,cat,id,element) {
-	$(element).innerHTML = '...';
-	new Ajax.Request('modules/Utils/Watchdog/subscribe.php', {
-		method: 'post',
-		parameters:{
-			cat:Object.toJSON(cat),
-			id:Object.toJSON(id),
-			state:Object.toJSON(state),
-			element:Object.toJSON(element),
+	if (!JSON) return;	
+	jq('#'+element).html('...');
+	jq.ajax({
+		type: 'POST',
+		url: 'modules/Utils/Watchdog/subscribe.php', 
+		data:{
+			cat:JSON.stringify(cat),
+			id:JSON.stringify(id),
+			state:JSON.stringify(state),
+			element:JSON.stringify(element),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			eval(t.responseText);
+		success:function(t) {
+			eval(t);
 		}
 	});
 };
