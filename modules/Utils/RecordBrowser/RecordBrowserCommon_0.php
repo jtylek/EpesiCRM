@@ -1337,14 +1337,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $key = self::$table_rows[$k]['id'];
                         } else trigger_error('In table "'.$tab.'" - unknow column "'.$k.'" in criteria "'.print_r($crits,true).'". Available columns are: "'.print_r(self::$table_rows,true).'"', E_USER_ERROR);
 
-						if (self::$table_rows[self::$hash[$key]]['type']=='timestamp' && $operator != DB::like()) {
+						if ($w && self::$table_rows[self::$hash[$key]]['type']=='timestamp' && $operator != DB::like()) {
                             $w = Base_RegionalSettingsCommon::reg2time($w, false);
                             $w = date('Y-m-d H:i:s', $w);
-                        } elseif (self::$table_rows[self::$hash[$key]]['type']=='date' && $operator != DB::like()) {
-                            if($w!='') {
-                                $w = Base_RegionalSettingsCommon::reg2time($w, false);
-                                $w = date('Y-m-d', $w);
-                            }
+                        } elseif ($w && self::$table_rows[self::$hash[$key]]['type']=='date' && $operator != DB::like()) {
+                            $w = Base_RegionalSettingsCommon::reg2time($w, false);
+                            $w = date('Y-m-d', $w);
                         }
 
 						if ($postgre && $operator==DB::like()) $key .= '::varchar';
