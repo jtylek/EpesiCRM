@@ -1748,18 +1748,21 @@ class Utils_RecordBrowser extends Module {
     public function new_page() {
         DB::StartTrans();
         $max_f = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field');
+        $max_p = DB::GetOne('SELECT MAX(processing_order) FROM '.$this->tab.'_field');
         $num = 1;
         do {
             $num++;
             $x = DB::GetOne('SELECT position FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field = %s', array('Details '.$num));
         } while ($x!==false && $x!==null);
-        DB::Execute('INSERT INTO '.$this->tab.'_field (field, type, extra, position) VALUES(%s, \'page_split\', 1, %d)', array('Details '.$num, $max_f+1));
+        DB::Execute('INSERT INTO '.$this->tab.'_field (field, type, extra, position, processing_order) VALUES(%s, \'page_split\', 1, %d, %d)', array('Details '.$num, $max_f+1, $max_p+1));
         DB::CompleteTrans();
     }
     public function delete_page($id) {
         DB::StartTrans();
         $p = DB::GetOne('SELECT position FROM '.$this->tab.'_field WHERE field=%s', array($id));
+        $po = DB::GetOne('SELECT processing_order FROM '.$this->tab.'_field WHERE field=%s', array($id));
         DB::Execute('UPDATE '.$this->tab.'_field SET position = position-1 WHERE position > %d', array($p));
+        DB::Execute('UPDATE '.$this->tab.'_field SET processing_order = processing_order-1 WHERE processing_order > %d', array($po));
         DB::Execute('DELETE FROM '.$this->tab.'_field WHERE field=%s', array($id));
         DB::CompleteTrans();
     }
