@@ -8,13 +8,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-// remember that even with SET_SESSION = false, class defined below is declared
-if(!SET_SESSION) {
-    global $_SESSION;
-    if(!isset($_SESSION) || !is_array($_SESSION))
-    	$_SESSION = array();
-    return;
-}
 
 require_once('database.php');
 
@@ -297,6 +290,14 @@ class EpesiMemcache {
     public function __call($f,$a) {
         return call_user_func_array(array($this->memcached,$f),$a);
     }
+}
+
+// remember that even with SET_SESSION = false, class defined below is declared
+if(!SET_SESSION) {
+    global $_SESSION;
+    if(!isset($_SESSION) || !is_array($_SESSION))
+    	$_SESSION = array();
+    return;
 }
 
 if(defined('EPESI_PROCESS')) {
