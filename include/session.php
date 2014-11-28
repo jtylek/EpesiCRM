@@ -22,7 +22,9 @@ class DBSession {
     const MAX_SESSION_ID_LENGTH = 128;
     private static $lifetime;
     private static $memcached;
-    private static $ado; //for second postgresql connection - client session handling
+    private static $session_fp;
+    private static $session_client_fp;
+    private static $session_type;
 
     public static function truncated_session_id($session_id = null)
     {
@@ -33,16 +35,25 @@ class DBSession {
     }
 
     public static function open($path, $name) {
-        self::$lifetime = ini_get("session.gc_maxlifetime");
-        if(MEMCACHE_SESSION_SERVER) {
-            $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
-            if(extension_loaded('memcached'))
-                self::$memcached = new Memcached();
-            elseif(extension_loaded('memcache'))
-                self::$memcached = new Memcache();
-
-            if(self::$memcached && !self::$memcached->addServer($srv[0],(isset($srv[1])?$srv[1]:11211)))
-                die('Cannot connect to memcache server');
+        self::$lifetime = min(ini_get("session.gc_maxlifetime"),2592000-1); //less then 30 days
+        switch(SESSION_TYPE) {
+            case 'file':
+            case 'sql':
+                self::$session_type = SESSION_TYPE;
+                break;
+            case 'memcache':
+                if(MEMCACHE_SESSION_SERVER) {
+                    $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
+                    self::$memcached = new EpesiMemcache();
+                    
+                    if(!self::$memcached->addServer($srv[0],(isset($srv[1])?$srv[1]:11211)))
+                        trigger_error('Cannot connect to memcache server',E_USER_ERROR);
+                }
+                if(self::$memcached) self::$session_type = SESSION_TYPE;
+                else self::$session_type = 'file';
+                break;
+            default:
+                self::$session_type = 'file';
         }
         return true;
     }
@@ -54,54 +65,65 @@ class DBSession {
 
     public static function read($name) {
         $name = self::truncated_session_id($name);
-        if(DB::is_mysql()) {
-            if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name,ini_get('max_execution_time'))))
-                trigger_error('Unable to get lock on session name='.$name,E_USER_ERROR);
+        
+        //main session
+        switch(self::$session_type) {
+            case 'file':
+                if(!file_exists(FILE_SESSION_DIR)) mkdir(FILE_SESSION_DIR);
+                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name;
+                if(!file_exists($sess_file)) file_put_contents($sess_file,'');
+                self::$session_fp = fopen($sess_file,'r+');
+                if(!READ_ONLY_SESSION && !flock(self::$session_fp,LOCK_EX)) 
+                    trigger_error('Unable to get lock on session file='.$sess_file,E_USER_ERROR);
+                $ret = stream_get_contents(self::$session_fp);
+                break;
+            case 'memcache':
+                if(!READ_ONLY_SESSION && !self::$memcached->lock(MEMCACHE_SESSION_TOKEN.$name,time()+self::$lifetime))
+                    trigger_error('Unable to get lock on session mem='.$name,E_USER_ERROR);
+                $ret = '';
+                for($i=0;; $i++) {
+                    $rr = self::$memcached->get(MEMCACHE_SESSION_TOKEN.$name.'/'.$i);
+                    if($rr==='' || $rr===false || $rr===null) break;
+                    $ret .= $rr;
+                }
+                break;
+            case 'sql':
+                $ret = DB::GetCol('SELECT data FROM session WHERE name = %s AND expires > %d'.(READ_ONLY_SESSION?'':' FOR UPDATE'), array($name, time()-self::$lifetime));
+                if($ret) $ret = $ret[0];
+                break;
         }
-        $ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
-        if($ret) {
-                $_SESSION = unserialize($ret);
-        }
+        if($ret) $_SESSION = unserialize($ret);
 
         if(CID!==false) {
             if(!is_numeric(CID))
                 trigger_error('Invalid client id.',E_USER_ERROR);
 
-            if(self::$memcached) {
-                $ret = '';
-                for($i=0;; $i++) {
-                    $rr = self::$memcached->get('sess_'.$name.'_'.CID.'_'.$i);
-                    if($rr==='' || $rr===false || $rr===null) break;
-                    $ret .= $rr;
-                }
-                if($ret)
-                    $_SESSION['client'] = unserialize($ret);
-            } elseif(FILE_SESSION_DIR) {
-                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
-                if(file_exists($sess_file))
-                    $_SESSION['client'] = @unserialize(file_get_contents($sess_file));
-            } elseif(DB::is_postgresql()) {
-                //code below need testing on postgresql - concurrent epesi execution with session blocking
-                if(READ_ONLY_SESSION) {
-                    self::$ado = DB::$ado;
-                } else {
-                    self::$ado = DB::Connect();
-                    self::$ado->BeginTrans();
-                }
-                if($ret = self::$ado->GetCol('SELECT data FROM session_client WHERE session_name='.self::$ado->qstr($name).' AND client_id='.CID.' LIMIT 1 FOR UPDATE')) {
-                    $_SESSION['client'] = unserialize($ret[0]);
-                } else {
-                    self::$ado->RollbackTrans();
-                    self::$ado->BeginTrans();
-                }
-            } else {
-                 //mysql working alternative
-                if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name.'_'.CID,ini_get('max_execution_time'))))
-                    trigger_error('Unable to get lock on session_client name='.$name.' cid='.CID,E_USER_ERROR);
-
-                if($ret = DB::GetCol('SELECT data FROM session_client WHERE session_name=%s AND client_id=%d', array($name,CID)))
-                    $_SESSION['client'] = unserialize($ret[0]);
+            switch(self::$session_type) {
+                case 'file':
+                    $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
+                    if(!file_exists($sess_file)) file_put_contents($sess_file,'');
+                    self::$session_client_fp = fopen($sess_file,'r+');
+                    if(!READ_ONLY_SESSION && !flock(self::$session_client_fp,LOCK_EX)) 
+                        trigger_error('Unable to get lock on session file='.$sess_file,E_USER_ERROR);
+                    $ret = stream_get_contents(self::$session_client_fp);
+                    break;
+                case 'memcache':
+                    if(!READ_ONLY_SESSION && !self::$memcached->lock(MEMCACHE_SESSION_TOKEN.$name.'_'.CID,time()+self::$lifetime))
+                        trigger_error('Unable to get lock on session mem='.$name.'_'.CID,E_USER_ERROR);
+                    $ret = '';
+                    for($i=0;; $i++) {
+                        $rr = self::$memcached->get(MEMCACHE_SESSION_TOKEN.$name.'_'.CID.'/'.$i);
+                        if($rr==='' || $rr===false || $rr===null) break;
+                        $ret .= $rr;
+                    }
+                    break;
+                case 'sql':
+                    $ret = DB::GetCol('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d'.(READ_ONLY_SESSION?'':' FOR UPDATE'), array($name, CID));
+                    if($ret) $ret = $ret[0];
+                    break;
             }
+            if($ret) $_SESSION['client'] = unserialize($ret);
+
             if(!isset($_SESSION['client']['__module_vars__']))
                 $_SESSION['client']['__module_vars__'] = array();
         }
@@ -111,75 +133,101 @@ class DBSession {
     public static function write($name, $data) {
         $name = self::truncated_session_id($name);
         if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
-        $ret = 0;
+        $ret = 1;
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
-            if(self::$memcached) {
-                $data = str_split($data,1000000); //something little less then 1MB
-                $data[] = '';
-                $mcd = extension_loaded('memcached');
-                foreach($data as $i=>$d) {
-                    if($mcd)
-                        self::$memcached->set('sess_'.$name.'_'.CID.'_'.$i, $d, self::$lifetime);
+            
+            switch(self::$session_type) {
+                case 'file':
+                    ftruncate(self::$session_client_fp, 0);      // truncate file
+                    rewind(self::$session_client_fp);
+                    fwrite(self::$session_client_fp, $data);
+                    fflush(self::$session_client_fp);            // flush output before releasing the lock
+                    flock(self::$session_client_fp, LOCK_UN);    // release the lock
+                    fclose(self::$session_client_fp);
+                    break;
+                case 'memcache':
+                    $data = str_split($data,1000000); //something little less then 1MB
+                    $data[] = '';
+                    foreach($data as $i=>$d) {
+                        self::$memcached->set(MEMCACHE_SESSION_TOKEN.$name.'_'.CID.'/'.$i, $d, self::$lifetime);
+                    }
+                    self::$memcached->unlock(MEMCACHE_SESSION_TOKEN.$name.'_'.CID);
+                    break;
+                case 'sql':
+                    if(DB::is_mysql())
+                        $data = DB::qstr($data);
                     else
-                        self::$memcached->set('sess_'.$name.'_'.CID.'_'.$i, $d, 0, self::$lifetime);
-                }
-            } elseif(FILE_SESSION_DIR) {
-                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
-                if(!file_exists(FILE_SESSION_DIR)) mkdir(FILE_SESSION_DIR);
-                file_put_contents($sess_file,serialize($_SESSION['client']));
-                chmod($sess_file, 0600);
-            } elseif(DB::is_postgresql()) {
-                //code below need testing on postgresql - concurrent epesi execution with session blocking
-                $data = '\''.self::$ado->BlobEncode($data).'\'';
-                $ret &= self::$ado->Replace('session_client',array('data'=>$data,'session_name'=>self::$ado->qstr($name),'client_id'=>CID),array('session_name','client_id'));
-                self::$ado->CommitTrans();
-                self::$ado->Close();
-            } else {
-                 //mysql one connection working alternative
-                $data = DB::qstr($data);
-                $ret &= DB::Replace('session_client',array('data'=>$data,'session_name'=>DB::qstr($name),'client_id'=>CID),array('session_name','client_id'));
-                DB::Execute('SELECT RELEASE_LOCK(%s)',array($name.'_'.CID));
+                        $data = '\''.DB::BlobEncode($data).'\'';
+                    $ret &= DB::Replace('session_client',array('data'=>$data,'session_name'=>DB::qstr($name),'client_id'=>CID),array('session_name','client_id'));
+                    break;
             }
-
         }
         if(isset($_SESSION['client'])) unset($_SESSION['client']);
         $data = serialize($_SESSION);
-        if(DB::is_postgresql()) $data = '\''.DB::BlobEncode($data).'\'';
-        else $data = DB::qstr($data);
-        $ret &= @DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($name)),'name');
-        if(DB::is_mysql()) {
-            DB::Execute('SELECT RELEASE_LOCK(%s)',array($name));
+        switch(self::$session_type) {
+            case 'file':
+                ftruncate(self::$session_fp, 0);      // truncate file
+                rewind(self::$session_fp);
+                fwrite(self::$session_fp, $data);
+                fflush(self::$session_fp);            // flush output before releasing the lock
+                flock(self::$session_fp, LOCK_UN);    // release the lock
+                fclose(self::$session_fp);
+                $ret &= DB::Replace('session',array('expires'=>time(),'name'=>DB::qstr($name)),'name');
+                break;
+            case 'memcache':
+                $data = str_split($data,1000000); //something little less then 1MB
+                $data[] = '';
+                foreach($data as $i=>$d) {
+                    self::$memcached->set(MEMCACHE_SESSION_TOKEN.$name.'/'.$i, $d, self::$lifetime);
+                }
+                self::$memcached->unlock(MEMCACHE_SESSION_TOKEN.$name);
+                $ret &= DB::Replace('session',array('expires'=>time(),'name'=>DB::qstr($name)),'name');
+                break;
+            case 'sql':
+                if(DB::is_mysql())
+                    $data = DB::qstr($data);
+                else
+                    $data = '\''.DB::BlobEncode($data).'\'';
+                $ret &= DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($name)),'name');
+                break;
         }
+
         return ($ret>0)?true:false;
     }
     
     public static function destroy_client($name,$i) {
         $name = self::truncated_session_id($name);
-        if(self::$memcached) {
-        	for($k=0;;$k++)
-                	if(!self::$memcached->delete('sess_'.$name.'_'.$i.'_'.$k)) break;
-        } elseif(FILE_SESSION_DIR) {
-            $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.$i;
-            @unlink($sess_file);
+        switch(self::$session_type) {
+            case 'file':
+                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.$i;
+                @unlink($sess_file);
+                break;
+            case 'memcache':
+                for($k=0;;$k++)
+                    if(!self::$memcached->delete(MEMCACHE_SESSION_TOKEN.$name.'_'.$i.'/'.$k)) break;
+                break;
+            case 'sql':
+                DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',array($name,$i));
+                break;
         }
-        DB::BeginTrans();
         DB::Execute('DELETE FROM history WHERE session_name=%s AND client_id=%d',array($name,$i));
-        DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',array($name,$i));
-        DB::CommitTrans();
     }
 
     public static function destroy($name) {
         $name = self::truncated_session_id($name);
-        if(self::$memcached) {
-            for($i=0; $i<5; $i++)
-        	for($k=0;;$k++)
-                	if(!self::$memcached->delete('sess_'.$name.'_'.$i.'_'.$k)) break;
-        } elseif(FILE_SESSION_DIR) {
-            for($i=0; $i<5; $i++) {
-                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.$i;
+        for($i=0; $i<5; $i++)
+            self::destroy_client($name,$i);
+        
+        switch(self::$session_type) {
+            case 'file':
+                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name;
                 @unlink($sess_file);
-            }
+                break;
+            case 'memcache':
+                for($k=0;;$k++)
+                    if(!self::$memcached->delete(MEMCACHE_SESSION_TOKEN.$name.'/'.$k)) break;
+                break;
         }
         DB::BeginTrans();
         DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
@@ -197,15 +245,57 @@ class DBSession {
         }
 
         if(FILE_SESSION_DIR) {
-            $files = @scandir(FILE_SESSION_DIR);
+            $files = @glob(rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.'*');
             if(!$files) return;
-            foreach($files as $file) {
-                if(strpos($file,FILE_SESSION_TOKEN)!==0) continue;
-                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.$file;
+            foreach($files as $sess_file) {
                 if(filemtime($sess_file)<$t) @unlink($sess_file);
             }
         }
         return true;
+    }
+}
+
+class EpesiMemcache {
+    private $memcached = null;
+    private $mcd = false;
+    
+    public function __construct() {
+        if(extension_loaded('memcached')) {
+            $this->memcached = new Memcached();
+            $this->mcd = true;
+        } elseif(extension_loaded('memcache')) {
+            $this->memcached = new Memcache();
+        } else {
+            trigger_error('Missing memcache PHP extension',E_USER_ERROR);
+        }
+    }
+    
+    public function add($key,$var,$exp=null) {
+        if($this->mcd) return $this->memcached->add($key,$var,$exp);
+        return $this->memcached->add($key,$var,null,$exp);
+    }
+    
+    public function set($key,$var,$exp=null) {
+        if($this->mcd) return $this->memcached->set($key,$var,$exp);
+        return $this->memcached->set($key,$var,null,$exp);
+    }
+    
+    public function lock($key,$exp) {
+        $v = microtime(true);
+        $key .= '#lock';
+        while(!$this->add($key,$v,$exp) || $this->memcached->get($key)!=$v) {
+            if(time()>$exp) return false;
+            usleep(100);
+        }
+        return true;
+    }
+    
+    public function unlock($key) {
+        $this->memcached->delete($key.'#lock');
+    }
+    
+    public function __call($f,$a) {
+        return call_user_func_array(array($this->memcached,$f),$a);
     }
 }
 
