@@ -2109,7 +2109,7 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value')), array('id'=>'order_by'));
 		$form->addElement('text', 'commondata_table', __('CommonData table'), array('id'=>'commondata_table'));
 
-		$tables = array(''=>'---') + Utils_RecordBrowserCommon::list_installed_recordsets();
+		$tables = Utils_RecordBrowserCommon::list_installed_recordsets();
 		asort($tables);
 		$form->addElement('multiselect', 'rset', '<span id="rset_label">'.__('Recordset').'</span>', $tables, array('id'=>'rset'));
 		$form->addElement('text', 'label_field', __('Related field(s)'), array('id'=>'label_field'));
@@ -2200,6 +2200,7 @@ class Utils_RecordBrowser extends Module {
 								$data['select_data_type'] = $data['select_type'];
 								if (!isset($row) || !isset($row['param'])) $row['param'] = ';::';
 								$props = explode(';', $row['param']);
+                                $change_param = false;
 								if($data['rset']) {
 								    $fs = explode(',', $data['label_field']);
 								    if($data['label_field']) foreach($data['rset'] as $rset) {
@@ -2208,12 +2209,18 @@ class Utils_RecordBrowser extends Module {
 	        						    }
 	        						    $data['rset'] = implode(',',$data['rset']);
 	        						    $data['label_field'] = implode('|',$fs);
-								} else {
+                                    $change_param = true;
+								} else if ($action == 'add') {
 								    $data['rset'] = '__RECORDSETS__';
 								    $data['label_field'] = '';
+                                    $change_param = true;
 								}
-								$props[0] = $data['rset'].'::'.$data['label_field'];
-								$param = implode(';', $props);
+                                if ($change_param) {
+                                    $props[0] = $data['rset'].'::'.$data['label_field'];
+                                    $param = implode(';', $props);
+                                } else {
+                                    $param = $row['param'];
+                                }
 							}
 							if (isset($row) && isset($row['type']) && $row['type']=='multiselect' && $data['select_type']=='select') {
 								$ret = DB::Execute('SELECT id, f_'.$id.' AS v FROM '.$this->tab.'_data_1 WHERE f_'.$id.' IS NOT NULL');
@@ -3169,25 +3176,31 @@ class Utils_RecordBrowser extends Module {
 				if (!$in_depth) continue;
 
 				$last_tab = $this->tab;
-				$this->tab = $args['ref_table'];
-				$this->init();
-				if (!isset($all_fields[$this->tab]))
-					foreach ($this->table_rows as $k=>$v)
-						$all_fields[$this->tab][$v['id']] = $k;
-						
+                $tabs = explode(',', $args['ref_table']);
+                if (count($tabs) != 1) break;
+                $one_tab = reset($tabs);
+                if ($one_tab != '__RECORDSETS__'
+                        && Utils_RecordBrowserCommon::check_table_name($one_tab, false, false)) {
+                    $this->tab = $one_tab;
+                    $this->init();
+                    if (!isset($all_fields[$this->tab]))
+                        foreach ($this->table_rows as $k=>$v)
+                            $all_fields[$this->tab][$v['id']] = $k;
 
-				foreach ($all_fields[$this->tab] as $k=>$v) {
-					if ($this->table_rows[$v]['type']=='calculated' || $this->table_rows[$v]['type']=='hidden') unset($all_fields[$this->tab][$k]);
-					else {
-						$arr2 = $this->permissions_get_field_values($k, false, $this->tab);
-						foreach ($arr2 as $k2=>$v2)
-							$arr2[$k2] = '"'.$k2.'":"'.$v2.'"';
-						eval_js('utils_recordbrowser__field_sub_values["'.$field.'__'.$k.'"] = {'.implode(',',$arr2).'};');
-					}
-				}
-				foreach ($all_fields[$this->tab] as $k=>$v) {
-					$arr[$k] = __(' records with %s set to ', array(_V($v)));
-				}
+
+                    foreach ($all_fields[$this->tab] as $k=>$v) {
+                        if ($this->table_rows[$v]['type']=='calculated' || $this->table_rows[$v]['type']=='hidden') unset($all_fields[$this->tab][$k]);
+                        else {
+                            $arr2 = $this->permissions_get_field_values($k, false, $this->tab);
+                            foreach ($arr2 as $k2=>$v2)
+                                $arr2[$k2] = '"'.$k2.'":"'.$v2.'"';
+                            eval_js('utils_recordbrowser__field_sub_values["'.$field.'__'.$k.'"] = {'.implode(',',$arr2).'};');
+                        }
+                    }
+                    foreach ($all_fields[$this->tab] as $k=>$v) {
+                        $arr[$k] = __(' records with %s set to ', array(_V($v)));
+                    }
+                }
 
 				$this->tab = $last_tab;
 				$this->init();
