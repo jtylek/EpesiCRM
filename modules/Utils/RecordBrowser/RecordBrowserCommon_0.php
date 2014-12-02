@@ -3319,7 +3319,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $field = $field_info['id'];
                 if(!isset($record[$field])) continue;
                 ob_start();
-                $text = self::get_val($tab,$field,$record);
+                $text = self::get_val($tab,$field,$record, true);
                 ob_end_clean();
                 $text = mb_strtolower(html_entity_decode(strip_tags($text)));
                 $len = mb_strlen($text);
