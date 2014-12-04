@@ -8,6 +8,7 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
     private $subject='';
     private $title='';
     private $logo=null;
+    private $output = null;
     
     public function __construct($config = array()) {
         if(is_array($config)) {
@@ -38,10 +39,13 @@ class Base_Print_Document_PDF extends Base_Print_Document_Document
 
     public function get_output()
     {
+        if ($this->output) {
+            return $this->output;
+        }
         $this->append_footers();
-        $content = Libs_TCPDFCommon::output($this->pdf);
-        $this->content_length = strlen($content);
-        return $content;
+        $this->output = Libs_TCPDFCommon::output($this->pdf);
+        $this->content_length = strlen($this->output);
+        return $this->output;
     }
 
     protected function append_footers()
