@@ -1874,7 +1874,7 @@ class Utils_RecordBrowser extends Module {
 					else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate', null, 'active-off');
 				}
                 if ($field != 'General') {
-                    $gb_row->add_action('class="move-handle"','Move', __('Drag to change field position'), 'move-down');
+                    $gb_row->add_action('class="move-handle"','Move', __('Drag to change field position'), 'move-up-down');
                     $gb_row->set_attrs("field_name=\"$field\" class=\"sortable\"");
                 }
 			}
