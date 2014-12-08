@@ -70,7 +70,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return array(__('Regional Settings')=>array(
 				array('name'=>'currency_header', 'label'=>__('Currency'), 'type'=>'header'),
 				array('name'=>'default_currency','label'=>__('Default currency'),'type'=>'select','values'=>$currency_options,'default'=>$def['id']),
-				array('name'=>'decimal_point','label'=>__('Currency decimal point'),'type'=>'select','values'=>$decimal_point_options,'default'=>1)
+				array('name'=>'decimal_point','label'=>__('Currency decimal point'),'type'=>'select','values'=>$decimal_point_options,'default'=>$decimal_point_options_def)
 					));
 	}
 	
