@@ -36,6 +36,7 @@ class Utils_CurrencyField extends Module {
 			array('name'=>__('Decimal sign')),
 			array('name'=>__('Thousand sign')),
 			array('name'=>__('Decimals')),
+			array('name'=>__('Default')),
 			array('name'=>__('Active'))
 		));
 		$ret = DB::Execute('SELECT * FROM utils_currency ORDER BY id ASC');
@@ -49,6 +50,7 @@ class Utils_CurrencyField extends Module {
 					$row['decimal_sign'],
 					$row['thousand_sign'],
 					$row['decimals'],
+					self::$active[$row['default']],
 					self::$active[$row['active']]
 				));
 			$gb_row->add_action($this->create_callback_href(array($this, 'edit_currency'),array($row['id'])),'edit');
@@ -68,6 +70,7 @@ class Utils_CurrencyField extends Module {
 		$form->addElement('text', 'decimal_sign', __('Decimal sign'));
 		$form->addElement('text', 'thousand_sign', __('Thousand sign'));
 		$form->addElement('text', 'decimals', __('Decimals'));
+		$form->addElement('select', 'default', __('Default'), self::$active);
 		$form->addElement('select', 'active', __('Active'), self::$active);
 
 		$form->addRule('code', __('Code must be up to 16 characters long'), 'maxlength', 16);
@@ -87,13 +90,15 @@ class Utils_CurrencyField extends Module {
 		}
 		if ($form->validate()) {
 			$vals = $form->exportValues();
+			DB::Execute('UPDATE utils_currency SET default=0');
 			$vals = array(	$vals['code'],
 							$vals['symbol'],
 							$vals['pos_before'],
 							$vals['decimal_sign'],
 							$vals['thousand_sign'],
 							$vals['decimals'],
-							$vals['active']);
+							$vals['active'],
+							$vals['default']);
 			if ($id!==null) {
 				$vals[] = $id;
 				$sql = 'UPDATE utils_currency SET '.
@@ -103,7 +108,8 @@ class Utils_CurrencyField extends Module {
 							'decimal_sign=%s, '.
 							'thousand_sign=%s, '.
 							'decimals=%d, '.
-							'active=%d'.
+							'active=%d,'.
+							'default=%d'.
 							' WHERE id=%d';
 			} else {
 				$sql = 'INSERT INTO utils_currency ('.
@@ -113,13 +119,15 @@ class Utils_CurrencyField extends Module {
 							'decimal_sign, '.
 							'thousand_sign, '.
 							'decimals, '.
-							'active'.
+							'active, '.
+							'default'.
 						') VALUES ('.
 							'%s, '.
 							'%s, '.
 							'%d, '.
 							'%s, '.
 							'%s, '.
+							'%d, '.
 							'%d, '.
 							'%d'.
 						')';

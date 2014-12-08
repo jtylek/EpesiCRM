@@ -112,6 +112,12 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $cache;
 	}
 	
+	public static function get_default_currency() {
+		static $cache=null;
+		if ($cache===null) $cache = DB::GetRow('SELECT * FROM utils_currency WHERE default=1');
+		return $cache;
+	}
+	
 	public static function admin_caption() {
 		return array('label'=>__('Currencies'), 'section'=>__('Regional Settings'));
 	}

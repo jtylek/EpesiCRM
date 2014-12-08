@@ -21,10 +21,11 @@ class Utils_CurrencyFieldInstall extends ModuleInstall {
 					'thousand_sign C(2),'.
 					'decimals I1,'.
 					'active I1,'.
+					'default I1,'.
 					'pos_before I1',
 					array('constraints'=>''));
-		DB::Execute('INSERT INTO utils_currency (id, symbol, code, decimal_sign, thousand_sign, decimals, pos_before, active) VALUES (%d, %s, %s, %s, %s, %d, %d, %d)',
-					array(1, '$', 'USD', '.', ',', 2, 1, 1));
+		DB::Execute('INSERT INTO utils_currency (id, symbol, code, decimal_sign, thousand_sign, decimals, pos_before, active,default) VALUES (%d, %s, %s, %s, %s, %d, %d, %d, %d)',
+					array(1, '$', 'USD', '.', ',', 2, 1, 1, 1));
 		return true;
 	}
 	

@@ -83,4 +83,3 @@ class CRM_LoginAuditCommon extends ModuleCommon {
 }
 on_init(array('CRM_LoginAuditCommon','init'));
 register_shutdown_function(array('CRM_LoginAuditCommon','update'));
-?>
