@@ -59,10 +59,17 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 
 	public static function user_settings() {
 		$currency_options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
-		$decimal_point_options = DB::GetAssoc('SELECT id, decimal_sign FROM utils_currency WHERE active=1');
+		$def = self::get_default_currency();
+		$decimal_point_options = DB::GetAssoc('SELECT id, decimal_sign FROM utils_currency WHERE active=1 GROUP BY decimal_sign');
+		$decimal_point_options_def = 1;
+		foreach($decimal_point_options as $id=>$dec_sign)
+		    if($dec_sign==$def['decimal_sign']) {
+		        $decimal_point_options_def = $id;
+		        break;
+		    }
 		return array(__('Regional Settings')=>array(
 				array('name'=>'currency_header', 'label'=>__('Currency'), 'type'=>'header'),
-				array('name'=>'default_currency','label'=>__('Default currency'),'type'=>'select','values'=>$currency_options,'default'=>1),
+				array('name'=>'default_currency','label'=>__('Default currency'),'type'=>'select','values'=>$currency_options,'default'=>$def['id']),
 				array('name'=>'decimal_point','label'=>__('Currency decimal point'),'type'=>'select','values'=>$decimal_point_options,'default'=>1)
 					));
 	}
@@ -114,7 +121,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	
 	public static function get_default_currency() {
 		static $cache=null;
-		if ($cache===null) $cache = DB::GetRow('SELECT * FROM utils_currency WHERE default=1');
+		if ($cache===null) $cache = DB::GetRow('SELECT * FROM utils_currency WHERE default_currency=1');
 		return $cache;
 	}
 	

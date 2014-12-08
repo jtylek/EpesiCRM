@@ -50,7 +50,7 @@ class Utils_CurrencyField extends Module {
 					$row['decimal_sign'],
 					$row['thousand_sign'],
 					$row['decimals'],
-					self::$active[$row['default']],
+					self::$active[$row['default_currency']],
 					self::$active[$row['active']]
 				));
 			$gb_row->add_action($this->create_callback_href(array($this, 'edit_currency'),array($row['id'])),'edit');
@@ -70,7 +70,7 @@ class Utils_CurrencyField extends Module {
 		$form->addElement('text', 'decimal_sign', __('Decimal sign'));
 		$form->addElement('text', 'thousand_sign', __('Thousand sign'));
 		$form->addElement('text', 'decimals', __('Decimals'));
-		$form->addElement('select', 'default', __('Default'), self::$active);
+		$form->addElement('select', 'default_currency', __('Default'), self::$active);
 		$form->addElement('select', 'active', __('Active'), self::$active);
 
 		$form->addRule('code', __('Code must be up to 16 characters long'), 'maxlength', 16);
@@ -87,10 +87,11 @@ class Utils_CurrencyField extends Module {
 		if ($id!==null) {
 			$defs = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($id));
 			$form->setDefaults($defs);
+			if($defs['default_currency']) $form->freeze(array('default_currency'));
 		}
 		if ($form->validate()) {
 			$vals = $form->exportValues();
-			DB::Execute('UPDATE utils_currency SET default=0');
+			if(isset($vals['default_currency']) && $vals['default_currency']) DB::Execute('UPDATE utils_currency SET default_currency=0');
 			$vals = array(	$vals['code'],
 							$vals['symbol'],
 							$vals['pos_before'],
@@ -98,7 +99,7 @@ class Utils_CurrencyField extends Module {
 							$vals['thousand_sign'],
 							$vals['decimals'],
 							$vals['active'],
-							$vals['default']);
+							isset($vals['default_currency'])?$vals['default_currency']:1);
 			if ($id!==null) {
 				$vals[] = $id;
 				$sql = 'UPDATE utils_currency SET '.
@@ -109,7 +110,7 @@ class Utils_CurrencyField extends Module {
 							'thousand_sign=%s, '.
 							'decimals=%d, '.
 							'active=%d,'.
-							'default=%d'.
+							'default_currency=%d'.
 							' WHERE id=%d';
 			} else {
 				$sql = 'INSERT INTO utils_currency ('.
@@ -120,7 +121,7 @@ class Utils_CurrencyField extends Module {
 							'thousand_sign, '.
 							'decimals, '.
 							'active, '.
-							'default'.
+							'default_currency'.
 						') VALUES ('.
 							'%s, '.
 							'%s, '.
