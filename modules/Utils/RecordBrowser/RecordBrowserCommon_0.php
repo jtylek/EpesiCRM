@@ -1050,7 +1050,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             else DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'=NULL WHERE id=%d',array($id));
             $diff[$args['id']] = $old;
         }
-        if(!empty($diff)) @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0 WHERE id=%d',array($id));
+        if(!empty($diff)) {
+            @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0 WHERE id=%d',array($id));
+            self::record_processing($tab, $values, 'edited');
+        }
         if (!$dont_notify && !empty($diff)) {
 			$diff = self::record_processing($tab, $diff, 'edit_changes');
             DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array((($date==null)?date('Y-m-d G:i:s'):$date), Acl::get_user(), $id));
