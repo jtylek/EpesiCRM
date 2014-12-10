@@ -1953,6 +1953,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
         DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%d AND record_id=%d',array($tab_id,$id));
         self::new_record_history($tab,$id,$state ? 'RESTORED' : 'DELETED');
+        self::record_processing($tab, $record, $state ? 'restored' : 'deleted');
         return true;
     }
 
