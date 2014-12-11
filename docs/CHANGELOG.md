@@ -8,6 +8,36 @@ CURRENT
 
 - Base/Print add method to obtain all templates (Dev)
 - Fix recordset uninstall issue caused by words map table constraint 
+- Add desktop notifications for Shoutbox, Watchdog and Messenger modules (georgehristov)
+- Add desktop notifications possibility (Dev) (georgehristov)
+- Login audit - obtain real IP for proxy connections
+- Improve module dependencies issue reporting
+- Add method Utils_CurrencyFieldCommon::get_all_currencies (Dev)
+- Add printer document config (Dev)
+- Rename recordset_printer RB patch to fix updates from older EPESI versions
+- Whitelabel fixes - replace EPESI text with constant
+- Include autonumber fields in default description callback
+- Fix duplicate tooltip on field's label - RecordBrowser
+- Fix popup calendar event
+- Fix locking issues with RB indexer
+- Make fields management as a first tab in RecordBrowser's admin
+- Sort patches by name (not by path), when no date is supplied in the filename
+- Rewrite to JQuery: Utils/Watchdog, Utils/Tooltip (georgehristov)
+- Base/Print - change PrintingHandler::output_document to public (Dev)
+- Fix fields editor in RecordBrowser - issues with select/multiselect
+- Fix display_phone to not create links when nolink is true
+- Fix translations in Access Restrictions admin panel
+- Fix fields processing order for new fields with *position* set
+- Fix date/time crits issues
+- Rewrite Session class
+- Fix issues with crm_company_contact field edit
+- Fix records indexing - create labels with *nolink* param
+- Fix Base/Print - buffer PDF output to append footers just once
+- Change icon for drag and drop fields sorting
+- Add default currency concept
+- Add new processing modes to RecordBrowser: edited, deleted, restored
+- Fix access issues for autocomplete fields
+- Fix desktop notifications to not show shoutbox notifications every time
 
 RELEASE 1.6.2-20141020
 -------
