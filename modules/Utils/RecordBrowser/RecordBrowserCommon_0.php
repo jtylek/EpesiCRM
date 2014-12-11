@@ -135,6 +135,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         $ret = self::create_default_linked_label($rs,$rid,$links_not_recommended);
                     }
                 }*/
+            } elseif ($args['type']=='autonumber') {
+                if(!$links_not_recommended && isset($record['id']) && $record['id']) $ret = self::record_link_open_tag($tab, $record['id']).$val.self::record_link_close_tag();
             } elseif ($args['type']=='currency') {
                 $val = Utils_CurrencyFieldCommon::get_values($val);
                 $ret = Utils_CurrencyFieldCommon::format($val[0], $val[1]);
