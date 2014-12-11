@@ -62,7 +62,13 @@ class Base_NotifyCommon extends ModuleCommon {
 	}
 
 	public static function get_notifications() {
-		return ModuleManager::call_common_methods('tray_notification', false, array(time()-self::reset_time*3600));
+        $module = 'Base_Notify';
+        $notifications_date = Base_User_SettingsCommon::get($module, 'last_update');
+        if (!$notifications_date) {
+            $notifications_date = time() - self::reset_time * 3600;
+        }
+        Base_User_SettingsCommon::save($module, 'last_update', time());
+		return ModuleManager::call_common_methods('tray_notification', false, array($notifications_date));
 	}
 
 	public static function get_module_caption($module) {
