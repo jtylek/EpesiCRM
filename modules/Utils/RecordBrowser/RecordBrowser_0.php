@@ -42,6 +42,7 @@ class Utils_RecordBrowser extends Module {
 	private $search_calculated_callback = false;
 	private $fields_in_tabs = array();
 	private $hide_tab = array();
+    private $jump_to_new_record = false;
     public $action = 'Browsing'; // _M('Browsing');
     public $custom_defaults = array();
     public static $tab_param = '';
@@ -113,6 +114,10 @@ class Utils_RecordBrowser extends Module {
 
     public function set_additional_caption($arg) {
         $this->additional_caption = $arg;
+    }
+
+    public function set_jump_to_new_record($arg = true) {
+        $this->jump_to_new_record = $arg;
     }
 
     public function get_display_method($ar) {
@@ -228,12 +233,7 @@ class Utils_RecordBrowser extends Module {
         if ($this->check_for_jump()) return;
         $this->fullscreen_table=true;
         $this->init();
-        if (self::$clone_result!==null) {
-            if (is_numeric(self::$clone_result)) $this->navigate('view_entry', 'view', self::$clone_result);
-            $clone_result = self::$clone_result;
-            self::$clone_result = null;
-            if ($clone_result!='canceled') return;
-        }
+        $this->jump_to_new_record = true;
         if ($this->get_access('browse')===false) {
             print(__('You are not authorised to browse this data.'));
             return;
@@ -619,6 +619,12 @@ class Utils_RecordBrowser extends Module {
 		$this->help('RecordBrowser','main');
 		if (Utils_RecordBrowserCommon::$admin_access) $admin = true;
         if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
+        if (self::$clone_result!==null && $this->jump_to_new_record) {
+            if (is_numeric(self::$clone_result)) $this->navigate('view_entry', 'view', self::$clone_result);
+            $clone_result = self::$clone_result;
+            self::$clone_result = null;
+            if ($clone_result!='canceled') return;
+        }
         if ($this->check_for_jump()) return;
         Utils_RecordBrowserCommon::$cols_order = $this->col_order;
         if ($this->get_access('browse')===false) {
