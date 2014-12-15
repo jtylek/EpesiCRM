@@ -2030,7 +2030,7 @@ class Utils_RecordBrowser extends Module {
 
 
         if ($action=='edit') {
-            $row = DB::GetRow('SELECT field, type, visible, required, param, filter, extra FROM '.$this->tab.'_field WHERE field=%s',array($field));
+            $row = DB::GetRow('SELECT field, type, visible, required, param, filter, extra, position FROM '.$this->tab.'_field WHERE field=%s',array($field));
 			switch ($row['type']) {
 				case 'select':
 					$row['select_data_type'] = 'select';
@@ -2262,7 +2262,11 @@ class Utils_RecordBrowser extends Module {
                     $style = $data['select_data_type'];
                 else
                     $style = '';
-                Utils_RecordBrowserCommon::new_record_field($this->tab, $data['field'], $data['select_data_type'], 0, 0, $param, $style);
+                $new_field_data = array('name' => $data['field'], 'type' => $data['select_data_type'], 'param' => $param, 'style' => $style);
+                if (isset($this->admin_field['position']) && $this->admin_field['position']) {
+                    $new_field_data['position'] = (int) $this->admin_field['position'];
+                }
+                Utils_RecordBrowserCommon::new_record_field($this->tab, $new_field_data);
             }
             if(!isset($data['visible']) || $data['visible'] == '') $data['visible'] = 0;
             if(!isset($data['required']) || $data['required'] == '') $data['required'] = 0;
