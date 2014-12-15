@@ -221,7 +221,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::StartTrans();
         foreach ($ids as $id) {
             $str = $prefix . str_pad($id, $pad_length, $pad_mask, STR_PAD_LEFT);
-            DB::Execute('UPDATE ' . $tab . '_data_1 SET f_' . $field . '=%s WHERE id=%d', array($str, $id));
+            DB::Execute('UPDATE ' . $tab . '_data_1 SET indexed = 0, f_' . $field . '=%s WHERE id=%d', array($str, $id));
         }
         DB::CompleteTrans();
     }
