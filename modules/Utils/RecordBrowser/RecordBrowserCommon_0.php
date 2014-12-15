@@ -562,6 +562,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::$clear_get_val_cache = true;
         $exists = DB::GetOne('SELECT 1 FROM '.$tab.'_field WHERE field=%s', array($field));
         if(!$exists) return;
+        // move to the end
+        self::change_field_position($tab, $field, 16000);
         DB::Execute('DELETE FROM '.$tab.'_field WHERE field=%s', array($field));
         DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s', array($field));
 		$f_id = self::$table_rows[$field]['id'];
