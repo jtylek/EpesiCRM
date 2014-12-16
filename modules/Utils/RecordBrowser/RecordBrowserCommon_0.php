@@ -3322,7 +3322,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         
         $record = self::record_processing($tab, $record, 'index');
         if($record) {
-            DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%s AND record_id=%d',array($tab_id,$record['id']));
+            DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%d AND record_id=%d',array($tab_id,$record['id']));
             $token_length = self::get_token_length();
             foreach($table_rows as $field_info) {
                 $field = $field_info['id'];
@@ -3355,6 +3355,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         
         DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($record['id']));
+    }
+
+    public static function clean_search_index($tab)
+    {
+        $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+        if ($tab_id) {
+            DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%d',array($tab_id));
+            DB::Execute('UPDATE ' . $tab . '_data_1 SET indexed=0');
+            return true;
+        }
+        return false;
     }
     
     public static function indexer($limit=null,&$total=0) {

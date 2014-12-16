@@ -1721,9 +1721,21 @@ class Utils_RecordBrowser extends Module {
 	}
         if($r) $form->setDefaults($r);
         $form->display_as_column();
-        if ($full_access && $form->validate()) {
-            DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,favorites=%b,recent=%b,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
-                array($form->exportValue('caption'),$form->exportValue('favorites'),$form->exportValue('recent'),$form->exportValue('full_history'),$form->exportValue('jump_to_id'),$form->exportValue('search_include'),$form->exportValue('search_priority'),$this->tab));
+        if ($full_access) {
+            $clean_index_href = $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'clean_search_index'), array($this->tab));
+            echo "<a $clean_index_href>" . __('Clean search index') . "</a>";
+            if ($form->validate()) {
+                DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,favorites=%b,recent=%b,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
+                            array($form->exportValue('caption'), $form->exportValue('favorites'), $form->exportValue('recent'), $form->exportValue('full_history'), $form->exportValue('jump_to_id'), $form->exportValue('search_include'), $form->exportValue('search_priority'), $this->tab));
+            }
+        }
+    }
+
+    public function clean_search_index($tab)
+    {
+        $ret = Utils_RecordBrowserCommon::clean_search_index($tab);
+        if ($ret) {
+            Base_StatusBarCommon::message(__('Index cleaned for this table. Indexing again - it may take some time.'));
         }
     }
 
