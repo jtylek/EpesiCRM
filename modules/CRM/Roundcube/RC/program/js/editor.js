@@ -23,7 +23,7 @@ function rcmail_editor_init(config)
       apply_source_formatting: true,
       theme: 'advanced',
       language: config.lang,
-      content_css: config.skin_path + '/editor_content.css',
+      content_css: config.skin_path + '/editor_content.css?v2',
       theme_advanced_toolbar_location: 'top',
       theme_advanced_toolbar_align: 'left',
       theme_advanced_buttons3: '',
@@ -41,11 +41,11 @@ function rcmail_editor_init(config)
     $.extend(conf, {
       plugins: 'paste,tabfocus',
       theme_advanced_buttons1: 'bold,italic,underline,strikethrough,justifyleft,justifycenter,justifyright,justifyfull,separator,outdent,indent,charmap,hr,link,unlink,code,forecolor',
-      theme_advanced_buttons2: ',fontselect,fontsizeselect'
+      theme_advanced_buttons2: 'fontselect,fontsizeselect'
     });
   else { // mail compose
     $.extend(conf, {
-      plugins: 'paste,emotions,media,nonbreaking,table,searchreplace,visualchars,directionality,inlinepopups,tabfocus' + (config.spellcheck ? ',spellchecker' : ''),
+      plugins: 'paste,emotions,media,nonbreaking,table,searchreplace,visualchars,directionality,inlinepopups,tabfocus,contextmenu' + (config.spellcheck ? ',spellchecker' : ''),
       theme_advanced_buttons1: 'bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,outdent,indent,ltr,rtl,blockquote,|,forecolor,backcolor,fontselect,fontsizeselect',
       theme_advanced_buttons2: 'link,unlink,table,|,emotions,charmap,image,media,|,code,search,undo,redo',
       spellchecker_languages: (rcmail.env.spellcheck_langs ? rcmail.env.spellcheck_langs : 'Dansk=da,Deutsch=de,+English=en,Espanol=es,Francais=fr,Italiano=it,Nederlands=nl,Polski=pl,Portugues=pt,Suomi=fi,Svenska=sv'),
@@ -61,6 +61,9 @@ function rcmail_editor_init(config)
         if (!active)
           rcmail.spellcheck_state();
       });
+      ed.onKeyPress.add(function(ed, e) {
+          rcmail.compose_type_activity++;
+      });
     }
   }
 
@@ -74,11 +77,18 @@ function rcmail_editor_init(config)
 // react to real individual tinyMCE editor init
 function rcmail_editor_callback()
 {
-  var elem = rcube_find_object('_from'),
+  var css = {},
+    elem = rcube_find_object('_from'),
     fe = rcmail.env.compose_focus_elem;
 
   if (rcmail.env.default_font)
-    $(tinyMCE.get(rcmail.env.composebody).getBody()).css('font-family', rcmail.env.default_font);
+    css['font-family'] = rcmail.env.default_font;
+
+  if (rcmail.env.default_font_size)
+    css['font-size'] = rcmail.env.default_font_size;
+
+  if (css['font-family'] || css['font-size'])
+    $(tinyMCE.get(rcmail.env.composebody).getBody()).css(css);
 
   if (elem && elem.type == 'select-one') {
     rcmail.change_identity(elem);
@@ -154,8 +164,8 @@ function rcmail_editor_images()
 
   for (i in files) {
     att = files[i];
-    if (att.complete && att.mimetype.indexOf('image/') == 0) {
-      list.push([att.name, rcmail.env.comm_path+'&_action=display-attachment&_file='+i+'&_id='+rcmail.env.compose_id]);
+    if (att.complete && att.mimetype.startsWith('image/')) {
+      list.push([att.name, rcmail.env.comm_path+'&_id='+rcmail.env.compose_id+'&_action=display-attachment&_file='+i]);
     }
   }
 

@@ -29,9 +29,12 @@ class rcube_smtp
     private $conn = null;
     private $response;
     private $error;
+    private $anonymize_log = 0;
 
     // define headers delimiter
     const SMTP_MIME_CRLF = "\r\n";
+
+    const DEBUG_LINE_LENGTH = 4098; // 4KB + 2B for \r\n
 
 
     /**
@@ -65,6 +68,7 @@ class rcube_smtp
             'smtp_auth_type' => $rcube->config->get('smtp_auth_type'),
             'smtp_helo_host' => $rcube->config->get('smtp_helo_host'),
             'smtp_timeout'   => $rcube->config->get('smtp_timeout'),
+            'smtp_conn_options'   => $rcube->config->get('smtp_conn_options'),
             'smtp_auth_callbacks' => array(),
         ));
 
@@ -104,10 +108,11 @@ class rcube_smtp
         // IDNA Support
         $smtp_host = rcube_utils::idn_to_ascii($smtp_host);
 
-        $this->conn = new Net_SMTP($smtp_host, $smtp_port, $helo_host);
+        $this->conn = new Net_SMTP($smtp_host, $smtp_port, $helo_host, false, 0, $CONFIG['smtp_conn_options']);
 
         if ($rcube->config->get('smtp_debug')) {
             $this->conn->setDebug(true, array($this, 'debug_handler'));
+            $this->anonymize_log = 0;
         }
 
         // register authentication methods
@@ -327,6 +332,21 @@ class rcube_smtp
      */
     public function debug_handler(&$smtp, $message)
     {
+        // catch AUTH commands and set anonymization flag for subsequent sends
+        if (preg_match('/^Send: AUTH ([A-Z]+)/', $message, $m)) {
+            $this->anonymize_log = $m[1] == 'LOGIN' ? 2 : 1;
+        }
+        // anonymize this log entry
+        else if ($this->anonymize_log > 0 && strpos($message, 'Send:') === 0 && --$this->anonymize_log == 0) {
+            $message = sprintf('Send: ****** [%d]', strlen($message) - 8);
+        }
+
+        if (($len = strlen($message)) > self::DEBUG_LINE_LENGTH) {
+            $diff    = $len - self::DEBUG_LINE_LENGTH;
+            $message = substr($message, 0, self::DEBUG_LINE_LENGTH)
+                . "... [truncated $diff bytes]";
+        }
+
         rcube::write_log('smtp', preg_replace('/\r\n$/', '', $message));
     }
 
@@ -433,9 +453,9 @@ class rcube_smtp
         $recipients = rcube_utils::explode_quoted_string(',', $recipients);
 
         reset($recipients);
-        while (list($k, $recipient) = each($recipients)) {
+        foreach ($recipients as $recipient) {
             $a = rcube_utils::explode_quoted_string(' ', $recipient);
-            while (list($k2, $word) = each($a)) {
+            foreach ($a as $word) {
                 if (strpos($word, "@") > 0 && $word[strlen($word)-1] != '"') {
                     $word = preg_replace('/^<|>$/', '', trim($word));
                     if (in_array($word, $addresses) === false) {

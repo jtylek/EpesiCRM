@@ -1,10 +1,10 @@
-CREATE SEQUENCE rc_user_ids
+CREATE SEQUENCE rc_users_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 CREATE TABLE rc_users (
-    user_id integer DEFAULT nextval('rc_user_ids'::text) PRIMARY KEY,
+    user_id integer DEFAULT nextval('rc_users_seq'::text) PRIMARY KEY,
     username varchar(128) DEFAULT '' NOT NULL,
     mail_host varchar(128) DEFAULT '' NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
@@ -21,14 +21,14 @@ CREATE TABLE "rc_session" (
     vars text NOT NULL
 );
 CREATE INDEX rc_session_changed_idx ON rc_session (changed);
-CREATE SEQUENCE rc_identity_ids
+CREATE SEQUENCE rc_identities_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 CREATE TABLE rc_identities (
-    identity_id integer DEFAULT nextval('rc_identity_ids'::text) PRIMARY KEY,
+    identity_id integer DEFAULT nextval('rc_identities_seq'::text) PRIMARY KEY,
     user_id integer NOT NULL
         REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     changed timestamp with time zone DEFAULT now() NOT NULL,
@@ -44,14 +44,14 @@ CREATE TABLE rc_identities (
 );
 CREATE INDEX rc_identities_user_id_idx ON rc_identities (user_id, del);
 CREATE INDEX rc_identities_email_idx ON rc_identities (email, del);
-CREATE SEQUENCE rc_contact_ids
+CREATE SEQUENCE rc_contacts_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 CREATE TABLE rc_contacts (
-    contact_id integer DEFAULT nextval('rc_contact_ids'::text) PRIMARY KEY,
+    contact_id integer DEFAULT nextval('rc_contacts_seq'::text) PRIMARY KEY,
     user_id integer NOT NULL
         REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     changed timestamp with time zone DEFAULT now() NOT NULL,
@@ -64,13 +64,13 @@ CREATE TABLE rc_contacts (
     words text
 );
 CREATE INDEX rc_contacts_user_id_idx ON rc_contacts (user_id, del);
-CREATE SEQUENCE rc_contactgroups_ids
+CREATE SEQUENCE rc_contactgroups_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 CREATE TABLE rc_contactgroups (
-    contactgroup_id integer DEFAULT nextval('rc_contactgroups_ids'::text) PRIMARY KEY,
+    contactgroup_id integer DEFAULT nextval('rc_contactgroups_seq'::text) PRIMARY KEY,
     user_id integer NOT NULL
         REFERENCES rc_users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     changed timestamp with time zone DEFAULT now() NOT NULL,
@@ -89,57 +89,65 @@ CREATE TABLE rc_contactgroupmembers (
 CREATE INDEX rc_contactgroupmembers_contact_id_idx ON rc_contactgroupmembers (contact_id);
 CREATE TABLE "rc_cache" (
     user_id integer NOT NULL
-    	REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     cache_key varchar(128) DEFAULT '' NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL,
+    expires timestamp with time zone DEFAULT NULL,
     data text NOT NULL
 );
 CREATE INDEX rc_cache_user_id_idx ON "rc_cache" (user_id, cache_key);
-CREATE INDEX rc_cache_created_idx ON "rc_cache" (created);
+CREATE INDEX rc_cache_expires_idx ON "rc_cache" (expires);
+CREATE TABLE "rc_cache_shared" (
+    cache_key varchar(255) NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    expires timestamp with time zone DEFAULT NULL,
+    data text NOT NULL
+);
+CREATE INDEX rc_cache_shared_cache_key_idx ON "rc_cache_shared" (cache_key);
+CREATE INDEX rc_cache_shared_expires_idx ON "rc_cache_shared" (expires);
 CREATE TABLE rc_cache_index (
     user_id integer NOT NULL
-    	REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     mailbox varchar(255) NOT NULL,
-    changed timestamp with time zone DEFAULT now() NOT NULL,
+    expires timestamp with time zone DEFAULT NULL,
     valid smallint NOT NULL DEFAULT 0,
     data text NOT NULL,
     PRIMARY KEY (user_id, mailbox)
 );
-CREATE INDEX rc_cache_index_changed_idx ON rc_cache_index (changed);
+CREATE INDEX rc_cache_index_expires_idx ON rc_cache_index (expires);
 CREATE TABLE rc_cache_thread (
     user_id integer NOT NULL
-    	REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     mailbox varchar(255) NOT NULL,
-    changed timestamp with time zone DEFAULT now() NOT NULL,
+    expires timestamp with time zone DEFAULT NULL,
     data text NOT NULL,
     PRIMARY KEY (user_id, mailbox)
 );
-CREATE INDEX rc_cache_thread_changed_idx ON rc_cache_thread (changed);
+CREATE INDEX rc_cache_thread_expires_idx ON rc_cache_thread (expires);
 CREATE TABLE rc_cache_messages (
     user_id integer NOT NULL
-    	REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     mailbox varchar(255) NOT NULL,
     uid integer NOT NULL,
-    changed timestamp with time zone DEFAULT now() NOT NULL,
+    expires timestamp with time zone DEFAULT NULL,
     data text NOT NULL,
     flags integer NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id, mailbox, uid)
 );
-CREATE INDEX rc_cache_messages_changed_idx ON rc_cache_messages (changed);
+CREATE INDEX rc_cache_messages_expires_idx ON rc_cache_messages (expires);
 CREATE TABLE rc_dictionary (
     user_id integer DEFAULT NULL
-    	REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
    "language" varchar(5) NOT NULL,
     data text NOT NULL,
     CONSTRAINT dictionary_user_id_language_key UNIQUE (user_id, "language")
 );
-CREATE SEQUENCE rc_search_ids
+CREATE SEQUENCE rc_searches_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 CREATE TABLE rc_searches (
-    search_id integer DEFAULT nextval('rc_search_ids'::text) PRIMARY KEY,
+    search_id integer DEFAULT nextval('rc_searches_seq'::text) PRIMARY KEY,
     user_id integer NOT NULL
         REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     "type" smallint DEFAULT 0 NOT NULL,
@@ -151,4 +159,4 @@ CREATE TABLE rc_system (
     name varchar(64) NOT NULL PRIMARY KEY,
     value text
 );
-INSERT INTO rc_system (name, value) VALUES ('roundcube-version', '2013011700');
+INSERT INTO rc_system (name, value) VALUES ('roundcube-version', '2014042900');

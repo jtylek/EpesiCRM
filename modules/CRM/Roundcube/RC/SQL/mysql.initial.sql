@@ -14,51 +14,60 @@ CREATE TABLE `rc_users` (
  `created` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
  `last_login` datetime DEFAULT NULL,
  `language` varchar(5),
- `preferences` text,
+ `preferences` longtext,
  PRIMARY KEY(`user_id`),
  UNIQUE `username` (`username`, `mail_host`)
 );
 CREATE TABLE `rc_cache` (
- `cache_key` varchar(128) /*!40101 CHARACTER SET ascii COLLATE ascii_general_ci */ NOT NULL ,
- `created` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
- `data` longtext NOT NULL,
  `user_id` int(10) UNSIGNED NOT NULL,
+ `cache_key` varchar(128) /*!40101 CHARACTER SET ascii COLLATE ascii_general_ci */ NOT NULL,
+ `created` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
+ `expires` datetime DEFAULT NULL,
+ `data` longtext NOT NULL,
  CONSTRAINT `user_id_fk_cache` FOREIGN KEY (`user_id`)
    REFERENCES `rc_users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
- INDEX `created_index` (`created`),
+ INDEX `expires_index` (`expires`),
  INDEX `user_cache_index` (`user_id`,`cache_key`)
+);
+CREATE TABLE `rc_cache_shared` (
+ `cache_key` varchar(255) /*!40101 CHARACTER SET ascii COLLATE ascii_general_ci */ NOT NULL,
+ `created` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
+ `expires` datetime DEFAULT NULL,
+ `data` longtext NOT NULL,
+ INDEX `expires_index` (`expires`),
+ INDEX `cache_key_index` (`cache_key`)
 );
 CREATE TABLE `rc_cache_index` (
  `user_id` int(10) UNSIGNED NOT NULL,
  `mailbox` varchar(255) BINARY NOT NULL,
- `changed` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
+ `expires` datetime DEFAULT NULL,
  `valid` tinyint(1) NOT NULL DEFAULT '0',
  `data` longtext NOT NULL,
  CONSTRAINT `user_id_fk_cache_index` FOREIGN KEY (`user_id`)
    REFERENCES `rc_users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
- INDEX `changed_index` (`changed`),
+ INDEX `expires_index` (`expires`),
  PRIMARY KEY (`user_id`, `mailbox`)
 );
 CREATE TABLE `rc_cache_thread` (
  `user_id` int(10) UNSIGNED NOT NULL,
  `mailbox` varchar(255) BINARY NOT NULL,
- `changed` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
+ `expires` datetime DEFAULT NULL,
  `data` longtext NOT NULL,
  CONSTRAINT `user_id_fk_cache_thread` FOREIGN KEY (`user_id`)
    REFERENCES `rc_users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
- INDEX `changed_index` (`changed`),
+ INDEX `expires_index` (`expires`),
  PRIMARY KEY (`user_id`, `mailbox`)
 );
 CREATE TABLE `rc_cache_messages` (
  `user_id` int(10) UNSIGNED NOT NULL,
  `mailbox` varchar(255) BINARY NOT NULL,
  `uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
- `changed` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
+ `expires` datetime DEFAULT NULL,
  `data` longtext NOT NULL,
  `flags` int(11) NOT NULL DEFAULT '0',
  CONSTRAINT `user_id_fk_cache_messages` FOREIGN KEY (`user_id`)
    REFERENCES `rc_users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
- INDEX `changed_index` (`changed`),
+ INDEX `expires_index` (`expires`),
  PRIMARY KEY (`user_id`, `mailbox`, `uid`)
 );
 CREATE TABLE `rc_contacts` (
@@ -142,4 +151,4 @@ CREATE TABLE IF NOT EXISTS `rc_system` (
  `value` mediumtext,
  PRIMARY KEY(`name`)
 );
-INSERT INTO rc_system (name, value) VALUES ('roundcube-version', '2013011700');
+INSERT INTO rc_system (name, value) VALUES ('roundcube-version', '2014042900');

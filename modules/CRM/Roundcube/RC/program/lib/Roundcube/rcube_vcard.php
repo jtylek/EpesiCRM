@@ -47,6 +47,7 @@ class rcube_vcard
         'manager'     => 'X-MANAGER',
         'spouse'      => 'X-SPOUSE',
         'edit'        => 'X-AB-EDIT',
+        'groups'      => 'CATEGORIES',
     );
     private $typemap = array(
         'IPHONE'   => 'mobile',
@@ -109,7 +110,7 @@ class rcube_vcard
     public function load($vcard, $charset = RCUBE_CHARSET, $detect = false)
     {
         self::$values_decoded = false;
-        $this->raw = self::vcard_decode($vcard);
+        $this->raw = self::vcard_decode(self::cleanup($vcard));
 
         // resolve charset parameters
         if ($charset == null) {
@@ -147,6 +148,11 @@ class rcube_vcard
             $tmp = $this->email[0];
             $this->email[0] = $this->email[$pref_index];
             $this->email[$pref_index] = $tmp;
+        }
+
+        // fix broken vcards from Outlook that only supply ORG but not the required N or FN properties
+        if (!strlen(trim($this->displayname . $this->surname . $this->firstname)) && strlen($this->organization)) {
+            $this->displayname = $this->organization;
         }
     }
 
@@ -357,8 +363,8 @@ class rcube_vcard
 
         case 'birthday':
         case 'anniversary':
-            if (($val = rcube_utils::strtotime($value)) && ($fn = self::$fieldmap[$field])) {
-                $this->raw[$fn][] = array(0 => date('Y-m-d', $val), 'value' => array('date'));
+            if (($val = rcube_utils::anytodatetime($value)) && ($fn = self::$fieldmap[$field])) {
+                $this->raw[$fn][] = array(0 => $val->format('Y-m-d'), 'value' => array('date'));
             }
             break;
 
@@ -377,7 +383,7 @@ class rcube_vcard
         default:
             if ($field == 'phone' && $this->phonetypemap[$type_uc]) {
                 $type = $this->phonetypemap[$type_uc];
-             }
+            }
 
             if (($tag = self::$fieldmap[$field]) && (is_array($value) || strlen($value))) {
                 $index = count($this->raw[$tag]);
@@ -481,7 +487,7 @@ class rcube_vcard
         $vcard_block    = '';
         $in_vcard_block = false;
 
-        foreach (preg_split("/[\r\n]+/", $data) as $i => $line) {
+        foreach (preg_split("/[\r\n]+/", $data) as $line) {
             if ($in_vcard_block && !empty($line)) {
                 $vcard_block .= $line . "\n";
             }
@@ -490,7 +496,7 @@ class rcube_vcard
 
             if (preg_match('/^END:VCARD$/i', $line)) {
                 // parse vcard
-                $obj = new rcube_vcard(self::cleanup($vcard_block), $charset, true, self::$fieldmap);
+                $obj = new rcube_vcard($vcard_block, $charset, true, self::$fieldmap);
                 // FN and N is required by vCard format (RFC 2426)
                 // on import we can be less restrictive, let's addressbook decide
                 if (!empty($obj->displayname) || !empty($obj->surname) || !empty($obj->firstname) || !empty($obj->email)) {
@@ -517,29 +523,34 @@ class rcube_vcard
      */
     public static function cleanup($vcard)
     {
-        // Convert special types (like Skype) to normal type='skype' classes with this simple regex ;)
-        $vcard = preg_replace(
-            '/item(\d+)\.(TEL|EMAIL|URL)([^:]*?):(.*?)item\1.X-ABLabel:(?:_\$!<)?([\w-() ]*)(?:>!\$_)?./s',
-            '\2;type=\5\3:\4',
-            $vcard);
-
         // convert Apple X-ABRELATEDNAMES into X-* fields for better compatibility
         $vcard = preg_replace_callback(
             '/item(\d+)\.(X-ABRELATEDNAMES)([^:]*?):(.*?)item\1.X-ABLabel:(?:_\$!<)?([\w-() ]*)(?:>!\$_)?./s',
             array('self', 'x_abrelatednames_callback'),
             $vcard);
 
-        // Remove cruft like item1.X-AB*, item1.ADR instead of ADR, and empty lines
-        $vcard = preg_replace(array('/^item\d*\.X-AB.*$/m', '/^item\d*\./m', "/\n+/"), array('', '', "\n"), $vcard);
+        // Cleanup
+        $vcard = preg_replace(array(
+                // convert special types (like Skype) to normal type='skype' classes with this simple regex ;)
+                '/item(\d+)\.(TEL|EMAIL|URL)([^:]*?):(.*?)item\1.X-ABLabel:(?:_\$!<)?([\w-() ]*)(?:>!\$_)?./si',
+                '/^item\d*\.X-AB.*$/mi',  // remove cruft like item1.X-AB*
+                '/^item\d*\./mi',         // remove item1.ADR instead of ADR
+                '/\n+/',                 // remove empty lines
+                '/^(N:[^;\R]*)$/m',      // if N doesn't have any semicolons, add some
+            ),
+            array(
+                '\2;type=\5\3:\4',
+                '',
+                '',
+                "\n",
+                '\1;;;;',
+            ), $vcard);
 
         // convert X-WAB-GENDER to X-GENDER
         if (preg_match('/X-WAB-GENDER:(\d)/', $vcard, $matches)) {
             $value = $matches[1] == '2' ? 'male' : 'female';
             $vcard = preg_replace('/X-WAB-GENDER:\d/', 'X-GENDER:' . $value, $vcard);
         }
-
-        // if N doesn't have any semicolons, add some 
-        $vcard = preg_replace('/^(N:[^;\R]*)$/m', '\1;;;;', $vcard);
 
         return $vcard;
     }
@@ -583,29 +594,34 @@ class rcube_vcard
     private static function vcard_decode($vcard)
     {
         // Perform RFC2425 line unfolding and split lines
-        $vcard = preg_replace(array("/\r/", "/\n\s+/"), '', $vcard);
-        $lines = explode("\n", $vcard);
-        $data  = array();
+        $vcard  = preg_replace(array("/\r/", "/\n\s+/"), '', $vcard);
+        $lines  = explode("\n", $vcard);
+        $result = array();
 
         for ($i=0; $i < count($lines); $i++) {
-            if (!preg_match('/^([^:]+):(.+)$/', $lines[$i], $line))
+            if (!($pos = strpos($lines[$i], ':'))) {
                 continue;
+            }
 
-            if (preg_match('/^(BEGIN|END)$/i', $line[1]))
+            $prefix = substr($lines[$i], 0, $pos);
+            $data   = substr($lines[$i], $pos+1);
+
+            if (preg_match('/^(BEGIN|END)$/i', $prefix)) {
                 continue;
+            }
 
             // convert 2.1-style "EMAIL;internet;home:" to 3.0-style "EMAIL;TYPE=internet;TYPE=home:"
-            if ($data['VERSION'][0] == "2.1"
-                && preg_match('/^([^;]+);([^:]+)/', $line[1], $regs2)
+            if ($result['VERSION'][0] == "2.1"
+                && preg_match('/^([^;]+);([^:]+)/', $prefix, $regs2)
                 && !preg_match('/^TYPE=/i', $regs2[2])
             ) {
-                $line[1] = $regs2[1];
+                $prefix = $regs2[1];
                 foreach (explode(';', $regs2[2]) as $prop) {
-                    $line[1] .= ';' . (strpos($prop, '=') ? $prop : 'TYPE='.$prop);
+                    $prefix .= ';' . (strpos($prop, '=') ? $prop : 'TYPE='.$prop);
                 }
             }
 
-            if (preg_match_all('/([^\\;]+);?/', $line[1], $regs2)) {
+            if (preg_match_all('/([^\\;]+);?/', $prefix, $regs2)) {
                 $entry = array();
                 $field = strtoupper($regs2[1][0]);
                 $enc   = null;
@@ -618,10 +634,10 @@ class rcube_vcard
                             // add next line(s) to value string if QP line end detected
                             if ($value == 'QUOTED-PRINTABLE') {
                                 while (preg_match('/=$/', $lines[$i])) {
-                                    $line[2] .= "\n" . $lines[++$i];
+                                    $data .= "\n" . $lines[++$i];
                                 }
                             }
-                            $enc = $value;
+                            $enc = $value == 'BASE64' ? 'B' : $value;
                         }
                         else {
                             $lc_key = strtolower($key);
@@ -641,20 +657,30 @@ class rcube_vcard
                         // should we use vCard 3.0 instead?
                         // $entry['base64'] = true;
                     }
-                    $line[2] = self::decode_value($line[2], $enc ? $enc : 'base64');
+
+                    $data = self::decode_value($data, $enc ? $enc : 'base64');
+                }
+                else if ($field == 'PHOTO') {
+                    // vCard 4.0 data URI, "PHOTO:data:image/jpeg;base64,..."
+                    if (preg_match('/^data:[a-z\/_-]+;base64,/i', $data, $m)) {
+                        $entry['encoding'] = $enc = 'B';
+                        $data = substr($data, strlen($m[0]));
+                        $data = self::decode_value($data, 'base64');
+                    }
                 }
 
                 if ($enc != 'B' && empty($entry['base64'])) {
-                    $line[2] = self::vcard_unquote($line[2]);
+                    $data = self::vcard_unquote($data);
                 }
 
-                $entry = array_merge($entry, (array) $line[2]);
-                $data[$field][] = $entry;
+                $entry = array_merge($entry, (array) $data);
+                $result[$field][] = $entry;
             }
         }
 
-        unset($data['VERSION']);
-        return $data;
+        unset($result['VERSION']);
+
+        return $result;
     }
 
     /**
@@ -756,7 +782,7 @@ class rcube_vcard
      *
      * @return string Joined and quoted string
      */
-    private static function vcard_quote($s, $sep = ';')
+    public static function vcard_quote($s, $sep = ';')
     {
         if (is_array($s)) {
             foreach($s as $part) {
@@ -765,7 +791,7 @@ class rcube_vcard
             return(implode($sep, (array)$r));
         }
 
-        return strtr($s, array('\\' => '\\\\', "\r" => '', "\n" => '\n', ',' => '\,', ';' => '\;'));
+        return strtr($s, array('\\' => '\\\\', "\r" => '', "\n" => '\n', $sep => '\\'.$sep));
     }
 
     /**

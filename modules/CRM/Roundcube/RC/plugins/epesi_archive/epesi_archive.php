@@ -24,6 +24,8 @@ class epesi_archive extends rcube_plugin
 
     $this->include_script('archive.js');
     $skin_path = $rcmail->config->get('skin_path');
+    if (is_file($this->home . "/$skin_path/archive.css"))
+        $this->include_stylesheet("$skin_path/archive.css");
     $this->add_texts('localization', true);
 
     $this->add_hook('messages_list', array($this, 'list_messages'));
@@ -58,10 +60,7 @@ class epesi_archive extends rcube_plugin
 
       // set env variable for client
       $rcmail->output->set_env('archive_mailbox', $this->archive_mbox);
-      $rcmail->output->set_env('archive_mailbox_icon', $this->url($skin_path.'/foldericon.png'));
-
       $rcmail->output->set_env('archive_sent_mailbox', $this->archive_sent_mbox);
-      $rcmail->output->set_env('archive_sent_mailbox_icon', $this->url($skin_path.'/foldericon.png'));
 
       // add archive folder to the list of default mailboxes
       if (($default_folders = $rcmail->config->get('default_imap_folders')) && !in_array($this->archive_mbox, $default_folders)) {
