@@ -62,7 +62,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name' => _M('Other Phone Number'),	'type'=>'text', 'param'=>'64', 'extra'=>false),
 			array('name' => _M('Date and Time'),		'type'=>'timestamp', 'required'=>true, 'extra'=>false, 'visible'=>true),			
 
-			array('name' => _M('Description'), 		'type'=>'long text', 'required'=>false, 'param'=>'255', 'extra'=>false)
+			array('name' => _M('Description'), 		'type'=>'long text', 'required'=>false, 'param'=>'255', 'extra'=>false),
             array(
                 'name'     => _M('Related'),
                 'type'     => 'multiselect',
