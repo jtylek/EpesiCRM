@@ -157,7 +157,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		if (isset($format['total_all'])) $css_class .= ' total-all';
 		elseif (isset($format['total'])) $css_class .= ' total';
 		$ret = implode('<br>',$ret);
-		if ($this->pdf) $ret = array('value'=>$ret, 'style'=>$format, 'attrs'=>'');
+		if ($this->pdf) $ret = array('value'=>$ret, 'style'=>$format, 'attrs'=>'', 'class' => '');
 		else $ret = array('value'=>$ret, 'style'=>$style, 'attrs'=>$attrs, 'class'=>$css_class);
 		return $ret;
 	}
@@ -352,7 +352,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 		if ($this->pdf) {
 			$cols = count($this->gb_captions);
-            $total_width = 940;
+            $total_width = 800;
 			$this->widths = array(floor(($total_width-$this->bonus_width)/$cols+$this->bonus_width));
 			for ($i=1;$i<$cols;$i++)
 				$this->widths[] = floor(($total_width-$this->bonus_width)/$cols);
