@@ -453,12 +453,12 @@ class CRM_TasksCommon extends ModuleCommon {
 
     public static function QFfield_recordset(&$form, $field, $label, $mode, $default) {
         if ($mode == 'add' || $mode == 'edit') {
-            $rss = array_merge(array('task_related'), DB::GetCol('SELECT f_recordset FROM task_related_data_1 WHERE active=1'));
+            $rss = DB::GetCol('SELECT f_recordset FROM task_related_data_1 WHERE active=1');
             // remove currently selected value
             $key = array_search($default, $rss);
             if ($key !== false) 
                 unset($rss[$key]);
-            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\')');
+            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like "%_related"');
             foreach ($tabs as $k => $v) {
                 $tabs[$k] = _V($v) . " ($k)";
             }
