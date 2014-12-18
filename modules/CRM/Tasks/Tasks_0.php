@@ -92,6 +92,36 @@ class CRM_Tasks extends Module {
 	public function caption(){
 		if (isset($this->rb)) return $this->rb->caption();
 	}
+
+    public function addon($r, $rb_parent) {
+        $rb = $this->init_module('Utils/RecordBrowser', 'task');
+        $params = array(
+            array(
+                'related' => $rb_parent->tab . '/' . $r['id'],
+            ),
+            array(
+                'related' => false,
+            ),
+            array(
+                'status' => 'ASC',
+                'deadline' => 'DESC'
+            ),
+        );
+        $me = CRM_ContactsCommon::get_my_record();
+        $rb->set_defaults(array('related' => $rb_parent->tab . '/' . $r['id'],'employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1));
+        $this->display_module($rb, $params, 'show_data');
+    }
+
+    public function admin() {
+        if ($this->is_back()) {
+            $this->parent->reset();
+            return;
+        }
+        $rb = $this->init_module('Utils/RecordBrowser', 'task_related', 'task_related');
+        $this->display_module($rb);
+        Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+    }
+
 }
 
 ?>

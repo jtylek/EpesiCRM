@@ -13,7 +13,33 @@ defined("_VALID_ACCESS") || die();
 
 class CRM_PhoneCallInstall extends ModuleInstall {
 	public function install() {
-// ************ contacts ************** //
+        //addons table
+        $fields = array(
+            array(
+                'name'  => _M('Recordset'),
+                'type'  => 'text',
+                'param' => 64,
+                'display_callback' => array(
+                    $this->get_type() . 'Common',
+                    'display_recordset',
+                ),
+                'QFfield_callback' => array(
+                    $this->get_type() . 'Common',
+                    'QFfield_recordset',
+                ),
+                'required' => true,
+                'extra'    => false,
+                'visible'  => true,
+            ),
+        );
+        Utils_RecordBrowserCommon::install_new_recordset('phonecall_related', $fields);
+        Utils_RecordBrowserCommon::set_caption('phonecall_related', _M('Phonecalls Related Recordsets'));
+        Utils_RecordBrowserCommon::register_processing_callback('phonecall_related', array('CRM_PhoneCallCommon', 'processing_related'));
+        Utils_RecordBrowserCommon::add_access('phonecall_related', 'view', 'ACCESS:employee');
+        Utils_RecordBrowserCommon::add_access('phonecall_related', 'add', 'ADMIN');
+        Utils_RecordBrowserCommon::add_access('phonecall_related', 'edit', 'SUPERADMIN');
+        Utils_RecordBrowserCommon::add_access('phonecall_related', 'delete', 'SUPERADMIN');
+// ************ phone calls ************** //
 		Base_ThemeCommon::install_default_theme('CRM/PhoneCall');
 		$fields = array(
 			array('name' => _M('Subject'), 			'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_subject')),
@@ -27,7 +53,6 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 
 			array('name' => _M('Permission'), 		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
 			array('name' => _M('Employees'), 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false, 'visible'=>true, 'filter'=>true),
-			array('name' => _M('Related to'), 		'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array(), 'format'=>array('CRM_ContactsCommon','contact_format_default')), 'required'=>false, 'extra'=>false, 'visible'=>false, 'filter'=>true),
 
 			array('name' => _M('Status'),				'type'=>'commondata', 'required'=>true, 'filter'=>true, 'param'=>array('order_by_key'=>true,'CRM/Status'), 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_status')),
 			array('name' => _M('Priority'), 			'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Priority'), 'extra'=>false),
@@ -38,6 +63,18 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name' => _M('Date and Time'),		'type'=>'timestamp', 'required'=>true, 'extra'=>false, 'visible'=>true),			
 
 			array('name' => _M('Description'), 		'type'=>'long text', 'required'=>false, 'param'=>'255', 'extra'=>false)
+            array(
+                'name'     => _M('Related'),
+                'type'     => 'multiselect',
+                'QFfield_callback' => array(
+                    'CRM_MeetingCommon',
+                    'QFfield_related',
+                ),
+                'param'    => '__RECORDSETS__::;CRM_MeetingCommon::related_crits',
+                'extra'    => false,
+                'required' => false,
+                'visible'  => true,
+            ),
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('phonecall', $fields);
 		Utils_RecordBrowserCommon::set_tpl('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'default'));

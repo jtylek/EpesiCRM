@@ -14,6 +14,33 @@ class CRM_TasksInstall extends ModuleInstall {
 
 	public function install() {
 		Base_ThemeCommon::install_default_theme('CRM/Tasks');
+        //addons table
+        $fields = array(
+            array(
+                'name'  => _M('Recordset'),
+                'type'  => 'text',
+                'param' => 64,
+                'display_callback' => array(
+                    $this->get_type() . 'Common',
+                    'display_recordset',
+                ),
+                'QFfield_callback' => array(
+                    $this->get_type() . 'Common',
+                    'QFfield_recordset',
+                ),
+                'required' => true,
+                'extra'    => false,
+                'visible'  => true,
+            ),
+        );
+        Utils_RecordBrowserCommon::install_new_recordset('task_related', $fields);
+        Utils_RecordBrowserCommon::set_caption('task_related', _M('Tasks Related Recordsets'));
+        Utils_RecordBrowserCommon::register_processing_callback('task_related', array('CRM_TasksCommon', 'processing_related'));
+        Utils_RecordBrowserCommon::add_access('task_related', 'view', 'ACCESS:employee');
+        Utils_RecordBrowserCommon::add_access('task_related', 'add', 'ADMIN');
+        Utils_RecordBrowserCommon::add_access('task_related', 'edit', 'SUPERADMIN');
+        Utils_RecordBrowserCommon::add_access('task_related', 'delete', 'SUPERADMIN');
+        //task recordset
 		$fields = array(
 			array('name' => _M('Title'), 				'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_TasksCommon','display_title')),
 
@@ -29,7 +56,19 @@ class CRM_TasksInstall extends ModuleInstall {
 			array('name' => _M('Longterm'),			'type'=>'checkbox', 'extra'=>false, 'filter'=>true, 'visible'=>true),
 
 //			array('name' => _M('Is Deadline'),		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_TasksCommon','QFfield_is_deadline')),			
-			array('name' => _M('Deadline'),			'type'=>'date', 'extra'=>false, 'visible'=>true)
+			array('name' => _M('Deadline'),			'type'=>'date', 'extra'=>false, 'visible'=>true),
+            array(
+                'name'     => _M('Related'),
+                'type'     => 'multiselect',
+                'QFfield_callback' => array(
+                    'CRM_TasksCommon',
+                    'QFfield_related',
+                ),
+                'param'    => '__RECORDSETS__::;CRM_TasksCommon::related_crits',
+                'extra'    => false,
+                'required' => false,
+                'visible'  => true,
+            ),
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
 		Utils_RecordBrowserCommon::register_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));

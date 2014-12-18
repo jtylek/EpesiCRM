@@ -576,5 +576,77 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
 		return $next;
 	}
+
+    public static function QFfield_recordset(&$form, $field, $label, $mode, $default) {
+        if ($mode == 'add' || $mode == 'edit') {
+            $rss = array_merge(array('phonecall_related'), DB::GetCol('SELECT f_recordset FROM phonecall_related_data_1 WHERE active=1'));
+            // remove currently selected value
+            $key = array_search($default, $rss);
+            if ($key !== false) 
+                unset($rss[$key]);
+            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\')');
+            foreach ($tabs as $k => $v) {
+                $tabs[$k] = _V($v) . " ($k)";
+            }
+            $form->addElement('select', $field, $label, $tabs, array('id' => $field));
+            $form->addRule($field, 'Field required', 'required');
+            if ($mode == 'edit') 
+                $form->setDefaults(array($field => $default));
+        } else {
+            $form->addElement('static', $field, $label);
+            $form->setDefaults(array($field => $default));
+        }
+    }
+
+    public static function display_recordset($r, $nolink = false) {
+        $caption = Utils_RecordBrowserCommon::get_caption($r['recordset']);
+        return $caption . ' (' . $r['recordset'] . ')';
+    }
+    
+    public static function QFfield_related(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if(DB::GetOne('SELECT 1 FROM phonecall_related_data_1 WHERE active=1'))
+            Utils_RecordBrowserCommon::QFfield_select($form, $field, $label, $mode, $default, $desc, $rb_obj);
+    }
+
+    public static function related_crits() {
+        $recordsets = DB::GetCol('SELECT f_recordset FROM phonecall_related_data_1 WHERE active=1');
+        $crits = array(
+            '' => array(),
+        );
+        foreach ($recordsets as $rec) 
+            $crits[$rec] = array();
+        return $crits;
+    }
+
+    public static function processing_related($values, $mode) {
+        switch ($mode) {
+            case 'edit':
+            $rec = Utils_RecordBrowserCommon::get_record('phonecall_related', $values['id']);
+            $rs = $rec['recordset'];
+            self::delete_addon($rs);
+            case 'add':
+            $rs = $values['recordset'];
+            self::new_addon($rs);
+            break;
+
+            case 'delete':
+            $rs = $values['recordset'];
+            self::delete_addon($rs);
+            break;
+        }
+        return $values;
+    }
+
+    public static function new_addon($table) {
+        Utils_RecordBrowserCommon::new_addon($table, 'CRM/PhoneCall', 'addon', 'Phonecalls');
+    }
+
+    public static function delete_addon($table) {
+        Utils_RecordBrowserCommon::delete_addon($table, 'CRM/PhoneCall', 'addon');
+    }
+
+    public static function admin_caption() {
+        return array('label' => __('Phonecalls'), 'section' => __('Features Configuration'));
+    }
 }
 ?>
