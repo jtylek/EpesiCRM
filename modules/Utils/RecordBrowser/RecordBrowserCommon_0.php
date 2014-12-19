@@ -2630,38 +2630,90 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return self::create_default_linked_label($t, $record_id, true);
     }
 
+    private static $automulti_order_tabs;
+    public static function automulti_order_by($a,$b) {
+	    $aa = __($a);
+	    $bb = __($b);
+	    $aam = preg_match(self::$automulti_order_tabs,$aa) || preg_match(self::$automulti_order_tabs,$a);
+	    $bbm = preg_match(self::$automulti_order_tabs,$bb) || preg_match(self::$automulti_order_tabs,$b);
+	    if($aam && !$bbm)
+		return -1;
+	    if($bbm && !$aam)
+		return 1;
+	    return strcasecmp($aa,$bb);
+	}
+
     public static function automulti_suggestbox($str, $tab, $crits, $f_callback, $params) {
         $param = explode(';', $params);
         $ref = explode('::', $param[0]);
 
+	$words = array_filter(explode(' ',$str));
+	$words_db = $words;
+	self::$automulti_order_tabs = array();
+	foreach($words_db as & $w) {
+	    if(mb_strlen($w)>=3) self::$automulti_order_tabs[] = preg_quote($w,'/');
+	    $w = DB::qstr($w);
+	    $w = 'CONCAT("%%",'.$w.',"%%")';
+	}
+	self::$automulti_order_tabs = '/('.implode('|',self::$automulti_order_tabs).')/i';
+
         $tabs = $ref[0];
-        if($tabs == '__RECORDSETS__') $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
-        else $tabs = explode(',',$tabs);
+        if($tabs == '__RECORDSETS__') $tabs = DB::GetAssoc('SELECT tab,caption FROM recordbrowser_table_properties');
+        else {
+	    $tabs = explode(',',$tabs);
+	    foreach($tabs as & $t) $t = DB::qstr($t);
+	    $tabs = DB::GetAssoc('SELECT tab,caption FROM recordbrowser_table_properties WHERE tab IN ('.implode(',',$tabs).')');
+	}
         $single_tab = count($tabs)==1;
+	
+	uasort($tabs,array('Utils_RecordBrowserCommon','automulti_order_by'));
 
         $ret = array();
         $str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
         
-        foreach($tabs as $t) {
+        foreach($tabs as $t=>$caption) {
             if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
 
             $fields = array_filter(explode('|', $ref[1]));
-            if(!$fields) $fields = DB::GetCol('SELECT field FROM '.$t.'_field WHERE active=1 AND visible=1 AND type NOT IN ("calculated","page_split","hidden")');
+            if(!$fields) $fields = DB::GetCol('SELECT field FROM '.$t.'_field WHERE active=1 AND visible=1 AND (type NOT IN ("calculated","page_split","hidden") OR (type="calculated" AND param is not null AND param!=""))');
             
-            $crits2 = array();
-            $op = '(';
-            foreach ($fields as $f) {
-                $crits2[$op.'~"'.self::get_field_id($f)] = $str;
-                $op = '|';
-            }
-            $crits3 = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2);
-            $records = self::get_records($t, $crits3, array(), array(), 10);
-        
+	    $words_db_tmp = $words_db;
+	    $words_tmp = $words;
+	    foreach($words_tmp as $pos => $word) {
+		$expr = '/'.preg_quote($word,'/').'/i';
+		if(preg_match($expr,$caption) || preg_match($expr,__($caption))) {
+		    unset($words_db_tmp[$pos]);
+		    unset($words_tmp[$pos]);
+		}
+	    }
+	    $str_db = DB::qstr('%%'.implode(' ',$words_tmp).'%%');
+
             if (empty($f_callback) || !is_callable($f_callback))
                  $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
+
+            $crits2A = array();
+            $crits2B = array();
+            $op = '(';
+            foreach ($fields as $f) {
+                $crits2A[$op.'~"'.self::get_field_id($f)] = $str_db;
+                $crits2B[$op.'~"'.self::get_field_id($f)] = $words_db_tmp;
+                $op = '|';
+            }
+            $crits3A = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2A);
+            $crits3B = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2B);
+            $records = self::get_records($t, $crits3A, array(), array(), 10);
+        
             foreach ($records as $r) {
                 if(!self::get_access($t,'view',$r)) continue;
-                $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3, $f_callback, $params));
+                $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3A, $f_callback, $params));
+            }
+
+            $records = self::get_records($t, $crits3B, array(), array(), 10);
+
+            foreach ($records as $r) {
+		if(isset($ret[($single_tab?'':$t.'/').$r['id']]) ||
+            	    !self::get_access($t,'view',$r)) continue;
+                $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3B, $f_callback, $params));
             }
             
             if(count($ret)>=10) break;
