@@ -73,7 +73,7 @@ class EpesiUpdatePackage
         }
 
         $possible_files = glob('epesi-*.ei.zip');
-        if (count($possible_files)) {
+        if (is_array($possible_files) && count($possible_files)) {
             rsort($possible_files);
             return new self($possible_files[0]);
         }
