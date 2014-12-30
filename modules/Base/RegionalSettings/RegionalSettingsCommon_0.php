@@ -215,6 +215,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'.UTF-8',
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
 		setlocale(LC_NUMERIC,'en_EN.utf8','en_EN.UTF-8','en_US.utf8','en_US.UTF-8','C','POSIX','en_EN','en_US','en','en.utf8','en.UTF-8','english');
+		
+		// detect turkish issues - fixed in php 5.5
+		// https://bugs.php.net/bug.php?id=18556
+		// http://www.i18nguy.com/unicode/turkish-i18n.html#problem
+        if (version_compare(phpversion(), '5.5', '<') && strtolower('I') != 'i') {
+            setlocale(LC_CTYPE,'en_EN.utf8','en_EN.UTF-8','en_US.utf8','en_US.UTF-8','C','POSIX','en_EN','en_US','en','en.utf8','en.UTF-8','english');
+        }
 	}
 
 	public static function set_tz() {
