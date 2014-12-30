@@ -42,7 +42,7 @@ class Base_AdminCommon extends ModuleCommon {
 			$cache[$module] = array();
 			$ret = DB::GetAssoc('SELECT section, allow FROM base_admin_access WHERE module=%s', array($module));
 			$defaults = array(''=>1);
-			if (class_exists($module.'Common') && is_callable(array($module.'Common', 'admin_access_levels'))) {
+			if (class_exists($module.'Common') && method_exists($module.'Common', 'admin_access_levels')) {
 				$raws = call_user_func(array($module.'Common', 'admin_access_levels'));
 				if ($raws==false) {
 					$defaults[''] = $raws;
