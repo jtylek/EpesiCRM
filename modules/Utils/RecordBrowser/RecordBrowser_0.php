@@ -2040,9 +2040,10 @@ class Utils_RecordBrowser extends Module {
         $form->addRule('field', __('Invalid field name.'), 'regex', '/^[a-zA-Z][a-zA-Z \(\)\%0-9]*$/');
         $form->addRule('field', __('Invalid field name.'), 'check_if_no_id');
 
+        $form->addElement('text', 'caption', __('Caption'), array('maxlength'=>255));
 
         if ($action=='edit') {
-            $row = DB::GetRow('SELECT field, type, visible, required, param, filter, extra, position FROM '.$this->tab.'_field WHERE field=%s',array($field));
+            $row = DB::GetRow('SELECT field, caption, type, visible, required, param, filter, extra, position FROM '.$this->tab.'_field WHERE field=%s',array($field));
 			switch ($row['type']) {
 				case 'select':
 					$row['select_data_type'] = 'select';
@@ -2150,7 +2151,7 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('text', 'QFfield_callback', __('Field generator function'), array('maxlength'=>255, 'style'=>'width:300px', 'id'=>'QFfield_callback'));
 		
         if ($action=='edit') {
-			if (!$row['extra']) $form->freeze('field');
+			$form->freeze('field');
 			$form->freeze('select_data_type');
 			$form->freeze('data_source');
 			$form->freeze('rset');
@@ -2165,6 +2166,7 @@ class Utils_RecordBrowser extends Module {
 
         if ($form->validate()) {
             $data = $form->exportValues();
+            $data['caption'] = trim($data['caption']);
             $data['field'] = trim($data['field']);
 			$type = DB::GetOne('SELECT type FROM '.$this->tab.'_field WHERE field=%s', array($field));
 			if (!isset($data['select_data_type'])) $data['select_data_type'] = $type;
@@ -2287,7 +2289,7 @@ class Utils_RecordBrowser extends Module {
             foreach($data as $key=>$val)
                 if (is_string($val)) $data[$key] = htmlspecialchars($val);
 
-            DB::StartTrans();
+/*            DB::StartTrans();
             if ($id!=$new_id) {
                 Utils_RecordBrowserCommon::check_table_name($this->tab);
                 if(DB::is_postgresql())
@@ -2296,12 +2298,12 @@ class Utils_RecordBrowser extends Module {
                     $old_param = DB::GetOne('SELECT param FROM '.$this->tab.'_field WHERE field=%s', array($field));
                     DB::RenameColumn($this->tab.'_data_1', 'f_'.$id, 'f_'.$new_id, Utils_RecordBrowserCommon::actual_db_type($type, $old_param));
                 }
-            }
-            DB::Execute('UPDATE '.$this->tab.'_field SET param=%s, type=%s, field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
-                        array($param, $data['select_data_type'], $data['field'], $data['visible'], $data['required'], $data['filter'], $field));
-            DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
+            }*/
+            DB::Execute('UPDATE '.$this->tab.'_field SET caption=%s, param=%s, type=%s, field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
+                        array($data['caption'], $param, $data['select_data_type'], $data['field'], $data['visible'], $data['required'], $data['filter'], $field));
+/*            DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
                         array($new_id, $id));
-            DB::CompleteTrans();
+            DB::CompleteTrans();*/
 			
 			DB::Execute('DELETE FROM '.$this->tab.'_callback WHERE freezed=1 AND field=%s', array($field));
 			if ($data['display_callback'])

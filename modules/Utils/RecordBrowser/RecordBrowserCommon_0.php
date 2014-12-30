@@ -365,7 +365,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$commondata = true;
 			}
             self::$table_rows[$row['field']] =
-                array(  'name'=>str_replace('%','%%',$row['field']),
+                array(  'name'=>str_replace('%','%%',$row['caption']?$row['caption']:$row['field']),
                         'id'=>self::get_field_id($row['field']),
                         'pkey'=>$row['id'],
                         'type'=>$row['type'],
@@ -434,6 +434,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::CreateTable($tab.'_field',
                     'id I2 AUTO KEY NOTNULL,'.
                     'field C(32) UNIQUE NOTNULL,'.
+                    'caption C(255),'.
                     'type C(32),'.
                     'extra I1 DEFAULT 1,'.
                     'visible I1 DEFAULT 1,'.
@@ -595,11 +596,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     6=>'extra',
                     7=>'filter',
                     8=>'position',
-                    9=>'processing_order') as $k=>$w)
+                    9=>'processing_order',
+                    10=>'caption') as $k=>$w)
                 if (isset($args[$k])) $definition[$w] = $args[$k];
         }
         if (!isset($definition['type'])) trigger_error(print_r($definition,true));
         if (!isset($definition['param'])) $definition['param'] = '';
+        if (!isset($definition['caption'])) $definition['caption'] = '';
         if (!isset($definition['style'])) {
             if (in_array($definition['type'], array('time','timestamp','currency')))
                 $definition['style'] = $definition['type'];
@@ -655,7 +658,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
         }
         $f = self::actual_db_type($definition['type'], $param);
-        DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, processing_order, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d, %d)', array($definition['name'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0));
+        DB::Execute('INSERT INTO '.$tab.'_field(field, caption, type, visible, param, style, position, processing_order, extra, required, filter) VALUES(%s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d)', array($definition['name'], $definition['caption'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0));
 		$column = 'f_'.self::get_field_id($definition['name']);
 		if ($alter) {
 			self::init($tab, false, true);
