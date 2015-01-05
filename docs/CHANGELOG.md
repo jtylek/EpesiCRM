@@ -38,6 +38,21 @@ CURRENT
 - Add new processing modes to RecordBrowser: edited, deleted, restored
 - Fix access issues for autocomplete fields
 - Fix desktop notifications to not show shoutbox notifications every time
+- Create link to record for autonumber fields
+- Add option to jump to new record or not in RB object (Dev)
+- Fix indexing when autonumber field has changed
+- Fix fields position numbers when removing field
+- Keep autonumber position during field edit
+- Add method to clear search index for certain tab (Dev)
+- Add button to clear search index in RB admin
+- Update RoundCube to 1.0.3
+- Add related records concept to meetings, tasks and phone calls
+- Change table width in RecordBrowser Reports printout
+- Fix undefined index issue in RB Reports
+- Fix update script to detect glob errors
+- Fix admin access - check for method with method exists instead of is callbable
+- Fix turkish language issues
+- Fix year bug in QuickForm
 
 RELEASE 1.6.2-20141020
 -------
