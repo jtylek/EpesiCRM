@@ -53,6 +53,7 @@ CURRENT
 - Fix admin access - check for method with method exists instead of is callbable
 - Fix turkish language issues
 - Fix year bug in QuickForm
+- Allow to set custom caption for every field in RB
 
 RELEASE 1.6.2-20141020
 -------
