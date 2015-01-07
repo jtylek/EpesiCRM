@@ -3,7 +3,7 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
-CURRENT
+RELEASE 1.6.3-20150107
 -------
 
 - Base/Print add method to obtain all templates (Dev)
