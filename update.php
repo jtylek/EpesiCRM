@@ -101,6 +101,15 @@ class EpesiUpdate
     protected function load_epesi()
     {
         $this->CLI = (php_sapi_name() == 'cli');
+        if ($this->CLI) {
+            // allow to define DATA directory for CLI in argument
+            if(isset($argv)) {
+                define('EPESI_DIR','/');
+                if (isset($argv[1])) {
+                    define('DATA_DIR', $argv[1]);
+                }
+            }
+        }
 
         define('CID', false);
         require_once('include.php');
@@ -135,7 +144,12 @@ class EpesiUpdate
     public function version_up_to_date()
     {
         $msg = __('Your EPESI does not require update');
-        $this->quit($msg);
+        if ($this->CLI) {
+            print ($msg . "\n");
+            print (__('Update procedure forced') . "\n");
+        } else {
+            $this->quit($msg);
+        }
     }
 
     protected function require_admin_login()
@@ -270,7 +284,11 @@ class EpesiUpdate
     protected function turn_on_maintenance_mode()
     {
         $msg = __('EPESI is currently updating. Please wait or contact your system administrator.');
-        MaintenanceMode::turn_on_with_cookie($msg);
+        if ($this->CLI) {
+            MaintenanceMode::turn_on($msg);
+        } else {
+            MaintenanceMode::turn_on_with_cookie($msg);
+        }
     }
 
     protected function perform_update_start()
@@ -390,13 +408,6 @@ class EpesiUpdate
     protected $CLI;
     protected $system_version;
     protected $current_version;
-}
-
-if(isset($argv)) {
-    define('EPESI_DIR','/');
-    if (isset($argv[1])) {
-        define('DATA_DIR', $argv[1]);
-    }
 }
 
 $x = new EpesiUpdate();
