@@ -1797,7 +1797,7 @@ class Utils_RecordBrowser extends Module {
         $form->registerRule('check_if_no_id', 'callback', 'check_if_no_id', $this);
         $form->addRule('label', __('Field required'), 'required');
         $form->addRule('label', __('Field or Page with this name already exists.'), 'check_if_column_exists');
-        $form->addRule('label', __('Only letters and space are allowed.'), 'regex', '/^[a-zA-Z ]*$/');
+        $form->addRule('label', __('Only letters, numbers and space are allowed.'), 'regex', '/^[a-zA-Z ]*$/');
         $form->addRule('label', __('"ID" as page name is not allowed.'), 'check_if_no_id');
         $form->setDefaults(array('label'=>$id));
 
@@ -1863,6 +1863,7 @@ class Utils_RecordBrowser extends Module {
         $gb = $this->init_module('Utils/GenericBrowser', null, 'fields');
         $gb->set_table_columns(array(
             array('name'=>__('Field'), 'width'=>20),
+            array('name'=>__('Caption'), 'width'=>20),
             array('name'=>__('Type'), 'width'=>10),
             array('name'=>__('Table view'), 'width'=>5),
             array('name'=>__('Required'), 'width'=>5),
@@ -1954,6 +1955,7 @@ class Utils_RecordBrowser extends Module {
             if ($args['type'] == 'page_split')
                     $gb_row->add_data(
                         array('style'=>'background-color: #DFDFFF;', 'value'=>$field),
+                        array('style'=>'background-color: #DFDFFF;', 'value'=>$args['name']),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>__('Page Split')),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
@@ -1975,6 +1977,7 @@ class Utils_RecordBrowser extends Module {
 					} else $QF_c = '';
                     $gb_row->add_data(
                         $field,
+                        $args['name'],
                         isset($types[$args['type']])?$types[$args['type']]:$args['type'],
                         $args['visible']?'<b>'.__('Yes').'</b>':__('No'),
                         $args['required']?'<b>'.__('Yes').'</b>':__('No'),
@@ -2040,7 +2043,7 @@ class Utils_RecordBrowser extends Module {
         $form->addRule('field', __('Invalid field name.'), 'regex', '/^[a-zA-Z][a-zA-Z \(\)\%0-9]*$/');
         $form->addRule('field', __('Invalid field name.'), 'check_if_no_id');
 
-        $form->addElement('text', 'caption', __('Caption'), array('maxlength'=>255));
+        $form->addElement('text', 'caption', __('Caption'), array('maxlength'=>255, 'placeholder' => __('Leave empty to use default label')));
 
         if ($action=='edit') {
             $row = DB::GetRow('SELECT field, caption, type, visible, required, param, filter, extra, position FROM '.$this->tab.'_field WHERE field=%s',array($field));
