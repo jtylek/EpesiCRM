@@ -210,6 +210,10 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	public function new_lang_pack(){
 		if ($this->is_back()) return false;
 
+		$url = 'http://forum.epesibim.com/';
+		$forum_link = "<a target=\"_blank\" href=\"$url\">$url</a>";
+		$info_msg = __('If you wish to add other language or dialect of existing language, then please contact us via forum: %s', array($forum_link));
+		print "<div class=\"important_notice\">$info_msg</div>";
 		$form = $this->init_module('Libs/QuickForm',__('Creating new langpack...'),'new_langpack');
 		$form -> addElement('header',null,__('Create new langpack'));
 		$form -> addElement('select','code',__('Language'),Base_Lang_AdministratorCommon::available_new_languages());

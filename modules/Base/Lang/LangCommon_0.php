@@ -78,8 +78,8 @@ class Base_LangCommon extends ModuleCommon {
         $langs = array();
         $all_langs = self::get_all_languages();
         foreach ($files as $file) {
-            if (pathinfo($file, PATHINFO_EXTENSION) == 'php' && strlen($file) == 6) {
-                $lang_code = substr($file, 0, 2);
+            if (pathinfo($file, PATHINFO_EXTENSION) == 'php') {
+                $lang_code = pathinfo($file, PATHINFO_FILENAME);
                 if (isset($all_langs[$lang_code])) {
                     $langs[$lang_code] = $all_langs[$lang_code];
                 }
@@ -218,7 +218,8 @@ class Base_LangCommon extends ModuleCommon {
             'fa' => 'Persian',
             'pl' => 'Polish',
             'ps' => 'Pashto',
-            'pt' => 'Portuguese',
+            'pt' => 'Portuguese - Brazil',
+            'pt_PT' => 'Portuguese - Portugal',
             'qu' => 'Quechua',
             'rm' => 'Romansh',
             'rn' => 'Kirundi',
