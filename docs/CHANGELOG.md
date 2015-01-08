@@ -7,6 +7,7 @@ CURRENT
 -------
 
 - Change cookie expiration time to 7 days for maintenance mode
+- Improve update process - make sure maintenance mode is on during patches
 
 RELEASE 1.6.3-20150107
 -------
