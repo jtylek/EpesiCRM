@@ -72,7 +72,7 @@ class MaintenanceMode
     public static function turn_on_with_cookie($message = null, $key = null)
     {
         $key = self::turn_on($message, $key);
-        setcookie(self::COOKIE_NAME, $key, time() + 5 * 365 * 24 * 60 * 60, EPESI_DIR);
+        setcookie(self::COOKIE_NAME, $key, time() + 7 * 24 * 60 * 60, EPESI_DIR);
     }
 
     public static function turn_off()
