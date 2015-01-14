@@ -86,8 +86,21 @@ class CRM_Meeting extends Module {
                 'start' => 'DESC'
             ),
         );
+        
+        //look for customers
+        $customers = array();
+        if(isset($r['customers'])) $customers = $r['customers'];
+        elseif(isset($r['customer'])) $customers = $r['customer'];
+        if(!is_array($customers)) $customers = array($customers);
+        foreach($customers as $i=>&$customer) {
+            if(preg_match('/^(C\:|company\/)([0-9]+)$/',$customer,$req)) {
+                $customer = 'C:'.$req[2];
+            } elseif(is_numeric($customer)) $customer = 'C:'.$customer;
+            else unset($customers[$i]);
+        }
+        
         $me = CRM_ContactsCommon::get_my_record();
-        $rb->set_defaults(array('related' => $rb_parent->tab . '/' . $r['id'],'employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1, 'date'=>date('Y-m-d'), 'time'=>date('H:i:s'), 'duration'=>3600));
+        $rb->set_defaults(array('related' => $rb_parent->tab . '/' . $r['id'],'employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1, 'date'=>date('Y-m-d'), 'time'=>date('H:i:s'), 'duration'=>3600,'customers'=>$customers));
         $this->display_module($rb, $params, 'show_data');
     }
 
