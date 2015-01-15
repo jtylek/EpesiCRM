@@ -98,8 +98,8 @@ class CRM_PhoneCall extends Module {
         if(!is_array($customers)) $customers = array($customers);
         foreach($customers as $i=>&$customer) {
             if(preg_match('/^(C\:|company\/)([0-9]+)$/',$customer,$req)) {
-                $customer = 'C:'.$req[2];
-            } elseif(is_numeric($customer)) $customer = 'C:'.$customer;
+                $customer = $req[2];
+            } elseif(is_numeric($customer)) $customer = $customer;
             else unset($customers[$i]);
         }
 
