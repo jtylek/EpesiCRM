@@ -37,6 +37,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	private static $pdf_ready = 0;
 	private $bonus_width = 15;
 	private $join_rows = array();
+	private $show_empty_rows = true;
 	
 	public function construct() {
 		$this->gb = $this->init_module('Utils/GenericBrowser',null,'report_page');
@@ -98,6 +99,10 @@ class Utils_RecordBrowser_Reports extends Module {
 
 	public function set_format($arg) {
 		$this->format = $arg;
+	}
+	
+	public function hide_empty_rows($val=true) {
+		$this->show_empty_rows = !$val;
 	}
 
 	public function format_cell($format, $val, $type='none') {
@@ -431,9 +436,11 @@ class Utils_RecordBrowser_Reports extends Module {
 					$grow[] = $this->format_cell(array(), $c);
 					$total = array();
 					$i = 0;
+					$empty = true;
 					if (!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
 					$format = array($this->format[$c]);
 					foreach ($results as $v) {
+						if($v[$c]) $empty = false;
 						if (!is_array($v[$c])) $v[$c] = array($v[$c]);
 						if ($this->row_summary!==false) {
 							foreach ($v[$c] as $k=>$w) {
@@ -465,8 +472,10 @@ class Utils_RecordBrowser_Reports extends Module {
 							$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value'], $c);
 						$grow[] = $next;
 					}
-					$this->first = false;
-					$ggrow[] = $grow;
+					if(!$empty || $this->show_empty_rows) {
+						$this->first = false;
+						$ggrow[] = $grow;
+					}
 				}
 			}
 			foreach($this->join_rows as $m=>$a) {
