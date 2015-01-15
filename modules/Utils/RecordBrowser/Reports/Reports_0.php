@@ -143,8 +143,9 @@ class Utils_RecordBrowser_Reports extends Module {
 		if (isset($format['currency'])) {
 			foreach ($ret as $k=>$v) {
 				if (count($ret)==1) break;
-				if ($v==0) unset($ret[$k]);
-			}			
+				$value = Utils_CurrencyFieldCommon::parse_currency($v);
+				if ($value[0]==0) unset($ret[$k]);
+			}
 		}
 		if (isset($format['currency']) || isset($format['numeric']) || isset($format['percent'])) {
 			$css_class .= ' number';
