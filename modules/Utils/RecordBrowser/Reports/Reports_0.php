@@ -440,11 +440,11 @@ class Utils_RecordBrowser_Reports extends Module {
 					if (!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
 					$format = array($this->format[$c]);
 					foreach ($results as $v) {
-						if($v[$c]) $empty = false;
 						if (!is_array($v[$c])) $v[$c] = array($v[$c]);
 						if ($this->row_summary!==false) {
 							foreach ($v[$c] as $k=>$w) {
 								if (!isset($total[$k])) $total[$k] = 0;
+								if($w) $empty = false;
 								$total[$k] += strip_tags($w);
 							}
 						}
@@ -490,7 +490,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				for($i=2; $i<count($ggrow[$m]); $i++)
 					$ggrow[$m][$i]['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i-2]['name'], $ggrow[$m][$i]['value'],$ggrow[$m][1]['value']);
 			}
-			if(!empty($this->categories))
+			if(!empty($this->categories) && !empty($ggrow))
 				$ggrow[0][0]['attrs'] .= ' rowspan="'.count($ggrow).'" ';
 			if ($this->pdf) {
 				$this->display_pdf_row($ggrow);
