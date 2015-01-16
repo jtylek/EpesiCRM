@@ -319,6 +319,9 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function display_pdf_row($grow) {
+		if(empty($grow)) return;
+		static $first_row;
+		if(!isset($first_row)) $first_row = true;
 		$table = '';
 		foreach ($grow as $row) {
 			$theme = $this->init_module('Base/Theme');
@@ -332,8 +335,9 @@ class Utils_RecordBrowser_Reports extends Module {
 		$pages = $this->pdf_ob->getNumPages();
 		$tmppdf = clone($this->pdf_ob->tcpdf);
 		$tmppdf->WriteHTML($table,false,0,false);
-		if ($pages==$tmppdf->getNumPages()) {
+		if ($pages==$tmppdf->getNumPages() || $first_row) {
 			$this->pdf_ob->writeHTML($table,false);
+			$first_row = false;
 			return;
 		}
 		$this->pdf_ob->AddPage();
@@ -499,6 +503,8 @@ class Utils_RecordBrowser_Reports extends Module {
 				for($i=2; $i<count($ggrow[$m]); $i++)
 					$ggrow[$m][$i]['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i-2]['name'], $ggrow[$m][$i]['value'],$ggrow[$m][1]['value']);
 			}
+			if(!empty($this->categories) && !empty($ggrow))
+				$ggrow[0][0]['attrs'] .= ' rowspan="'.count($ggrow).'" ';
 			if($this->csv) {
 				$first = '';
 				foreach($ggrow as $grow) {
@@ -508,10 +514,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					elseif(!$csv_row[0]) $csv_row[0] = $first;
 					$this->csv_ob[] = $csv_row;
 				}
-			}
-			if(!empty($this->categories) && !empty($ggrow))
-				$ggrow[0][0]['attrs'] .= ' rowspan="'.count($ggrow).'" ';
-			if ($this->pdf) {
+			} elseif ($this->pdf) {
 				$this->display_pdf_row($ggrow);
 			} else {
 				foreach ($ggrow as $grow) {
@@ -613,8 +616,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				elseif(!$csv_row[0]) $csv_row[0] = $first;
 				$this->csv_ob[] = $csv_row;
 			}
-		}
-		if ($this->pdf) {
+		} elseif ($this->pdf) {
 			$this->display_pdf_row($ggrow,true);
 		} else {
 			foreach ($ggrow as $grow) {
