@@ -1078,7 +1078,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->pdf_ob->set_subject($this->pdf_subject);
 			$this->pdf_ob->prepare_header();
 			$this->pdf_ob->AddPage();
-		} elseif (!$this->charts) {
+		} elseif (!$this->charts && !$this->csv) {
 			Base_ActionBarCommon::add('report',__('Charts'),$this->create_callback_href(array($this, 'body'), array(false,true)));
 		}
 
@@ -1094,16 +1094,18 @@ class Utils_RecordBrowser_Reports extends Module {
 			Base_ActionBarCommon::add('report',__('Table'),$this->create_back_href());
 			return true;
 		} else {
-			if ($this->pdf){
-				Base_ActionBarCommon::add('save',__('Download PDF'),'target="_blank" href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
-				self::$pdf_ready = 1;
-			} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
-				if (count($this->gb_captions)<20)
-					Base_ActionBarCommon::add('print',__('Create PDF'),$this->create_href(array('rb_reports_enable_pdf'=>1)));
-				else
-					Base_ActionBarCommon::add('print',__('Create PDF'),'',__('Too many columns to prepare printable version - please limit number of columns'));
+			if(!$this->csv) {
+				if ($this->pdf){
+					Base_ActionBarCommon::add('save',__('Download PDF'),'target="_blank" href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
+					self::$pdf_ready = 1;
+				} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
+					if (count($this->gb_captions)<20)
+						Base_ActionBarCommon::add('print',__('Create PDF'),$this->create_href(array('rb_reports_enable_pdf'=>1)));
+					else
+						Base_ActionBarCommon::add('print',__('Create PDF'),'',__('Too many columns to prepare printable version - please limit number of columns'));
+				}
 			}
-			if($this->pdf_filename) {
+			if($this->pdf_filename && !$this->pdf) {
 				if ($this->csv)
 					Base_ActionBarCommon::add('save',__('Download CSV'),'target="_blank" href="'.$this->get_module_dir().'/csv.php?'.http_build_query(array('p'=>$this->get_path(),'id'=>CID,'filename'=>$this->pdf_filename)).'"');
 				else 
