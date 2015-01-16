@@ -26,7 +26,7 @@ if ($csv===null)
 	die('Invalid link');
 header('Content-Type: text/csv');
 //header('Content-Length: '.strlen($buffer));
-header('Content-disposition: filename="'.$filename.'.csv"');
+header('Content-disposition: attachment;filename="'.$filename.'.csv"');
 
 $fp = fopen('php://output', 'w');
 foreach($csv as $array)
