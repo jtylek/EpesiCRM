@@ -4,7 +4,7 @@ defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 chdir(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))));
 define('SET_SESSION',false);
 define('CID',false);
-define('READ_ONLY_SESSION',true);
+define('READ_ONLY_SESSION',$_GET['_action']=='plugin.epesi_archive'?false:true);
 require_once('include/data_dir.php');
 require_once('include/config.php');
 require_once('include/database.php');
@@ -13,10 +13,11 @@ global $E_SESSION,$E_SESSION_ID;
 $E_SESSION_ID = $_COOKIE[session_name()];
 if(!$E_SESSION_ID)
     $E_SESSION_ID = $_REQUEST[session_name()];
+$tmp = $_SESSION;
 DBSession::open('',$E_SESSION_ID);
 DBSession::read($E_SESSION_ID);
 $E_SESSION = $_SESSION;
-$_SESSION = array();
+$_SESSION = $tmp;
 
 chdir($d);
 $data_dir = '../../../../'.DATA_DIR.'/CRM_Roundcube/tmp/';
