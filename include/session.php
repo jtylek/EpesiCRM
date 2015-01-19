@@ -124,8 +124,8 @@ class DBSession {
     }
 
     public static function write($name, $data) {
-        $name = self::truncated_session_id($name);
         if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
+        $name = self::truncated_session_id($name);
         $ret = 1;
         if(CID!==false && isset($_SESSION['client'])) {
             $data = serialize($_SESSION['client']);
