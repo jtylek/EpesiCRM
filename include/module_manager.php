@@ -578,6 +578,7 @@ class ModuleManager {
 //    		self::create_common_cache();
         }
         if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
+		Cache::clear();
 
 		self::$processed_modules['install'][$module_class_name] = $version;
 		return true;
@@ -644,6 +645,7 @@ class ModuleManager {
 		}
 
 		self::create_load_priority_array();
+		Cache::clear();
 //		self::create_common_cache();
         if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
 
@@ -792,13 +794,16 @@ class ModuleManager {
 	 * Do not use directly.
 	 */
 	public static final function load_modules() {
+		ModulesAutoloader::enable(false);
+
 		self::$modules = array();
 		$installed_modules = ModuleManager::get_load_priority_array(true);
 		self::$not_loaded_modules = $installed_modules;
 		self::$loaded_modules = array();
+
 		$cached = false;
 		if(FORCE_CACHE_COMMON_FILES) {
-    		$cache_file = DATA_DIR.'/cache/common.php';
+			$cache_file = DATA_DIR.'/cache/common.php';
 			if(!file_exists($cache_file))
 				self::create_common_cache();
 			ob_start();
@@ -806,15 +811,70 @@ class ModuleManager {
 			ob_end_clean();
 			$cached = true;
 		}
-		foreach($installed_modules as $row) {
+
+		foreach ($installed_modules as $row) {
 			$module = $row['name'];
 			$version = $row['version'];
-			if(!$cached)
-				ModuleManager :: include_common($module, $version);
-			ModuleManager :: register($module, $version, self::$modules);
+			ModuleManager::register($module, $version, self::$modules);
 		}
-        
-        ModulesAutoloader::enable(false);
+
+		// all commons already loaded by FORCE_CACHE_COMMON_FILES
+		if ($cached) return;
+
+		$commons_with_code = Cache::get('commons_with_code');
+		if ($commons_with_code === null) {
+			$commons_with_code = array();
+			foreach ($installed_modules as $row) {
+				$module = $row['name'];
+				$version = $row['version'];
+				if (self::common_has_code($module, $version)) {
+					$commons_with_code[$module] = $version;
+				}
+			}
+			Cache::set('commons_with_code', $commons_with_code);
+			// this code includes all Common files to check for the code
+			// because there is a return
+			return;
+		}
+
+		foreach ($commons_with_code as $module => $version) {
+			if (isset(self::$modules[$module])) {
+				self::include_common($module, $version);
+			}
+		}
+	}
+
+	public static final function common_has_code($module_name, $version)
+	{
+		$class_name = $module_name . 'Common';
+		if (!class_exists($class_name, false)) {
+			self::include_common($module_name, $version);
+		}
+		if (!class_exists($class_name, false)) {
+			return false;
+		}
+		$rc = new ReflectionClass($class_name);
+		$file_content = '';
+		$file_lines = file($rc->getFileName());
+		$start = $rc->getStartLine()-1;
+		$end = $rc->getEndLine();
+
+		$VA_regex = '/Direct access forbidden/i';
+
+		foreach ($file_lines as $i => $line) {
+			if ($i >= $start && $i < $end) continue;
+			if (preg_match($VA_regex, $line)) continue;
+			$file_content .= $line;
+		}
+		$tmp_file = 'data/cache/tmp_' . md5($file_content) . '.php';
+		file_put_contents($tmp_file, $file_content);
+		$stripped_file = php_strip_whitespace($tmp_file);
+		@unlink($tmp_file);
+		// heuristic to get info about code. Some very short code can be ommited.
+		if (strlen($stripped_file) > 20) {
+			return true;
+		}
+		return false;
 	}
 	
 	public static final function create_common_cache() {
@@ -889,32 +949,33 @@ class ModuleManager {
 
 	public static final function call_common_methods($method,$cached=true,$args=array()) {
 		static $cache;
+		$modules_with_method = self::check_common_methods($method);
 		$cache_id = $method.md5(serialize($args));
 		if(!isset($cache[$cache_id]) || !$cached) {
 			$ret = array();
 			ob_start();
-			foreach(self::$modules as $name=>$version)
-				if(class_exists($name.'Common') && method_exists($name.'Common', $method)) {
-					$ret[$name] = call_user_func_array(array($name.'Common',$method),$args);
-				}
+			foreach($modules_with_method as $name) {
+				$ret[$name] = call_user_func_array(array($name . 'Common', $method), $args);
+			}
 			ob_end_clean();
 			$cache[$cache_id]=$ret;
 		}
 		return $cache[$cache_id];
 	}
 
-	public static final function check_common_methods($method,$cached=true) {
-		static $cache;
-		$cache_id = $method;
-		if(!isset($cache[$cache_id]) || !$cached) {
-			$ret = array();
-			foreach(self::$modules as $name=>$version)
-				if(class_exists($name.'Common') && method_exists($name.'Common', $method)) {
-					$ret[] = $name;
+	public static final function check_common_methods($method) {
+		$cache_key = "common_method_" . $method;
+		$modules_with_method = Cache::get($cache_key);
+		if ($modules_with_method === null) {
+			$modules_with_method = array();
+			foreach(self::$modules as $name=>$version) {
+				if (class_exists($name . 'Common') && method_exists($name . 'Common', $method)) {
+					$modules_with_method[] = $name;
 				}
-			$cache[$cache_id]=&$ret;
+			}
+			Cache::set($cache_key, $modules_with_method);
 		}
-		return $cache[$cache_id];
+		return $modules_with_method;
 	}
 
     /**
