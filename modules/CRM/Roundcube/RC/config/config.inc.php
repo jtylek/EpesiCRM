@@ -4,7 +4,7 @@ defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 chdir(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))));
 define('SET_SESSION',false);
 define('CID',false);
-define('READ_ONLY_SESSION',$_GET['_action']=='plugin.epesi_archive'?false:true);
+define('READ_ONLY_SESSION',isset($_GET['_action']) && $_GET['_action']=='plugin.epesi_archive'?false:true);
 require_once('include/data_dir.php');
 require_once('include/config.php');
 require_once('include/database.php');
