@@ -320,6 +320,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
 		Utils_RecordBrowserCommon::add_access('rc_mails', 'view', 'ACCESS:employee', array(), array('headers_data'));
 		Utils_RecordBrowserCommon::add_access('rc_mails', 'delete', 'ACCESS:employee');
+        	Utils_RecordBrowserCommon::add_access('rc_mails', 'edit', 'ACCESS:employee',array(),array('subject','employee','date','headers_data','body','from','to','thread','message_id','references'));
 
         Utils_RecordBrowserCommon::add_access('rc_mail_threads', 'view', 'ACCESS:employee');
         Utils_RecordBrowserCommon::add_access('rc_mail_threads', 'delete', 'ACCESS:employee');

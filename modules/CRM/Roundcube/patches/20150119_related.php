@@ -46,6 +46,8 @@ if (!$rs_checkpoint->is_done()) {
             
         Utils_RecordBrowserCommon::new_record('rc_related',array('recordset'=>'company'));
         Utils_RecordBrowserCommon::new_record('rc_related',array('recordset'=>'contact'));
+
+	Utils_RecordBrowserCommon::add_access('rc_mails', 'edit', 'ACCESS:employee',array(),array('subject','employee','date','headers_data','body','from','to','thread','message_id','references'));
         $rs_checkpoint->done();
 }
 
