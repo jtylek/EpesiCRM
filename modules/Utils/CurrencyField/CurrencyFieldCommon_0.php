@@ -61,7 +61,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	public static function user_settings() {
 		$currency_options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
 		$def = self::get_default_currency();
-		$decimal_point_options = DB::GetAssoc('SELECT id, decimal_sign FROM utils_currency WHERE active=1 GROUP BY decimal_sign');
+		$decimal_point_options = DB::GetAssoc('SELECT MIN(id), decimal_sign FROM utils_currency WHERE active=1 GROUP BY decimal_sign');
 		$decimal_point_options_def = 1;
 		foreach($decimal_point_options as $id=>$dec_sign)
 		    if($dec_sign==$def['decimal_sign']) {
