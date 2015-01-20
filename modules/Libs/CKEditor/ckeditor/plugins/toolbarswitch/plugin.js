@@ -28,46 +28,14 @@
  */
 
 
-function switchMe(editor, callback) {
-
-	var origCustomConfig = editor.config.customConfig;
-	var origContentCss = editor.config.contentsCss;
-	var origExtraPlugins = editor.config.extraPlugins;
-
-	var origToolbar =  editor.config.toolbar;
-	var origSmallToolbar = editor.config.smallToolbar;
-	var origMaximizedToolbar = editor.config.maximizedToolbar;
-	var newToolbar;
-	if (origToolbar == origSmallToolbar) {
-		newToolbar = origMaximizedToolbar;
+function switchMe(editor) {
+	if (editor.config.toolbar == editor.config.smallToolbar) {
+		editor.config.toolbar = editor.config.maximizedToolbar;
 	} else {
-		newToolbar = origSmallToolbar;
+		editor.config.toolbar = editor.config.smallToolbar;
 	}
-	
-	// Copy data to original text element before getting rid of the old editor
-	var data = editor.getData();
-	var domTextElement = editor.element.$;
-	jQuery(domTextElement).val(data);
-	
-	// Remove old editor and the DOM elements, else you get two editors
-	var id = domTextElement.id;
-	editor.destroy(true);
 
-	CKEDITOR.replace(id, {
-		customConfig : origCustomConfig,
-		contentsCss : origContentCss,
-		toolbar : newToolbar,
-		smallToolbar: origSmallToolbar,
-		maximizedToolbar: origMaximizedToolbar,
-		extraPlugins : origExtraPlugins,
-		on: {
-			instanceReady: function(e) {
-				if (callback) {
-					callback.call(null, e);
-				}
-			}
-		}
-	});
+	ckeditor_reload(editor.name); // function from EPESI ck.js
 }
 
 CKEDITOR.plugins.add('toolbarswitch', {
@@ -84,15 +52,9 @@ CKEDITOR.plugins.add('toolbarswitch', {
                     if (editor.commands.maximize.state == CKEDITOR.TRISTATE_ON) {
 					    editor.commands.maximize.exec();
                     }
-					switchMe(editor, function(e){
-						var newEditor = e.editor;
-						newEditor.fire('triggerResize');
-					});
+					switchMe(editor);
 				} else {
-					switchMe(editor, function(e){
-						var newEditor = e.editor;
-						newEditor.fire('triggerResize');
-					});
+					switchMe(editor);
 				}
 			}
 		}
