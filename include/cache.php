@@ -23,9 +23,11 @@ class FileCache
     {
         $data = false;
         if (file_exists($this->file)) {
-            $file_data = file_get_contents($this->file);
-            if ($file_data !== false) {
-                $data = @unserialize($file_data);
+            global $global_cache;
+            @include $this->file;
+            $data = isset($global_cache) ? $global_cache : false;
+            if (!$data) {
+                @unlink($this->file);
             }
         }
         $this->data = is_array($data) ? $data : array();
@@ -33,7 +35,8 @@ class FileCache
 
     protected function save()
     {
-        $data = serialize($this->data);
+        $data_str = var_export($this->data, true);
+        $data = '<?php $global_cache = ' . $data_str . ';';
         file_put_contents($this->file, $data);
     }
 
@@ -87,4 +90,4 @@ class Cache
 
 }
 
-Cache::init(new FileCache(rtrim(FILE_SESSION_DIR, '\\/') . '/' . FILE_SESSION_TOKEN . 'cache'));
+Cache::init(new FileCache(DATA_DIR . '/cache/common_cache.php'));
