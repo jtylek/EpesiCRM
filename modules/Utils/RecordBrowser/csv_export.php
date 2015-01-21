@@ -60,9 +60,9 @@ function rb_csv_export_format_currency_value($v, $symbol) {
 
 foreach ($records as $r) {
 	$rec = array($r['id']);
-	foreach ($tab_info as $v) {
+	foreach ($tab_info as $field_name=>$v) {
 		ob_start();
-		$val = Utils_RecordBrowserCommon::get_val($tab, str_replace('%%','%',$v['name']), $r, true, $v);
+		$val = Utils_RecordBrowserCommon::get_val($tab, $field_name, $r, true, $v);
 		ob_end_clean();
 		$val = str_replace('&nbsp;',' ',htmlspecialchars_decode(strip_tags(preg_replace('/\<[Bb][Rr]\/?\>/',"\n",$val))));
 		if ($v['style']=='currency') {
