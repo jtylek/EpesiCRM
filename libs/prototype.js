@@ -5640,6 +5640,12 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
   }
 
   function observe(element, eventName, handler) {
+    if (eventName.indexOf(':') > -1) {
+      var selector;
+      selector = typeof element == 'string' ? '#' + element : element;
+      jQuery(selector).bind(eventName, handler);
+    }
+
     element = $(element);
 
     var responder = _createResponder(element, eventName, handler);
