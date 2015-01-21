@@ -11,6 +11,7 @@ class ModulesUp extends SteppedAdminModule {
     }
 
     public function action() {
+        Cache::clear();
         ModuleManager::create_load_priority_array();
         return true;
     }
