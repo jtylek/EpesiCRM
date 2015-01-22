@@ -1786,8 +1786,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$user_clearance = Base_AclCommon::get_clearance();
 				
 				$r = DB::Execute('SELECT * FROM '.$tab.'_access AS acs WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($user_clearance), 'clearance!=%s')).')', array_values($user_clearance));
-				$crits = array('view'=>null, 'edit'=>null, 'delete'=>null, 'add'=>null, 'print'=>null, 'export'=>null);
-				$crits_raw = array('view'=>array(), 'edit'=>array(), 'delete'=>array(), 'add'=>array(), 'print'=>array(), 'export'=>array());
+				$crits = array('view'=>null, 'edit'=>null, 'delete'=>null, 'add'=>null, 'print'=>null, 'export'=>null, 'selection'=>null);
+				$crits_raw = array('view'=>array(), 'edit'=>array(), 'delete'=>array(), 'add'=>array(), 'print'=>array(), 'export'=>array(),'selection'=>array());
 				$fields = array();
 				while ($row = $r->FetchRow()) {
 					$fields[$row['id']] = array();
@@ -2632,7 +2632,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         else
             return self::create_default_linked_label($t, $record_id, true);
     }
-
+    
     private static $automulti_order_tabs;
     public static function automulti_order_by($a,$b) {
 	    $aa = __($a);
@@ -2676,6 +2676,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         
         foreach($tabs as $t=>$caption) {
             if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
+            
+            $access = self::get_access($tab, 'selection',null,true);
+            if ($access===false) continue;
+            if ($access!==true && is_array($access)) {
+                if($single_tab) $crits = self::merge_crits($crits, $access);
+                elseif(isset($crits[$t]) && is_array($crits[$t]) && $crits[$t]) $crits[$t] = self::merge_crits($crits[$t], $access);
+                else $crits[$t] = $access;
+            }
 
             $fields = array_filter(explode('|', $ref[1]));
             if(!$fields) $fields = DB::GetCol('SELECT field FROM '.$t.'_field WHERE active=1 AND visible=1 AND (type NOT IN ("calculated","page_split","hidden") OR (type="calculated" AND param is not null AND param!=""))');
@@ -3228,6 +3236,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $records = array();
                 foreach($tabs as $t) {
                     if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
+
+                    $access = self::get_access($t, 'selection',null,true);
+                    if ($access===false) continue;
+                    if ($access!==true && is_array($access)) {
+                        if($single_tab) $crits = self::merge_crits($crits, $access);
+                        elseif(isset($crits[$t]) && is_array($crits[$t]) && $crits[$t]) $crits[$t] = self::merge_crits($crits[$t], $access);
+                        else $crits[$t] = $access;
+                    }
+                    
                     $records_tmp = Utils_RecordBrowserCommon::get_records(
                             $t,
                             $single_tab?$crits:$crits[$t],

@@ -3157,7 +3157,8 @@ class Utils_RecordBrowser extends Module {
 			'add'=>__('Add'),
 			'delete'=>__('Delete'),
 			'print'=>__('Print'),
-			'export'=>__('Export')
+			'export'=>__('Export'),
+			'selection'=>__('Selection')
 		);
 	}
 	
