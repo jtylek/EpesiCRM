@@ -2677,7 +2677,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach($tabs as $t=>$caption) {
             if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
             
-            $access = self::get_access($tab, 'selection',null,true);
+            $access = self::get_access($t, 'selection',null,true);
             if ($access===false) continue;
             if ($access!==true && is_array($access)) {
                 if($single_tab) $crits = self::merge_crits($crits, $access);
