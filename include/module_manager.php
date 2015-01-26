@@ -847,17 +847,21 @@ class ModuleManager {
 	public static final function common_has_code($module_name, $version)
 	{
 		$class_name = $module_name . 'Common';
+		$file = 'modules/' . self::get_module_dir_path($module_name) . '/' . self::get_module_file_name($module_name) . 'Common_' . $version . '.php';
 		if (!class_exists($class_name, false)) {
 			self::include_common($module_name, $version);
 		}
-		if (!class_exists($class_name, false)) {
+		if (!file_exists($file)) {
 			return false;
 		}
-		$rc = new ReflectionClass($class_name);
+		$start = $end = -1;
+		if (class_exists($class_name, false)) {
+			$rc = new ReflectionClass($class_name);
+			$start = $rc->getStartLine()-1;
+			$end = $rc->getEndLine();
+		}
 		$file_content = '';
-		$file_lines = file($rc->getFileName());
-		$start = $rc->getStartLine()-1;
-		$end = $rc->getEndLine();
+		$file_lines = file($file);
 
 		$VA_regex = '/Direct access forbidden/i';
 
