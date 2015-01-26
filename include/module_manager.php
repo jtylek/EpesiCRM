@@ -16,6 +16,9 @@ require_once 'autoloader.php';
  * @subpackage module
  */
 class ModuleManager {
+	const MODULE_ENABLED = 0;
+	const MODULE_DISABLED = 1;
+	const MODULE_NOT_FOUND = 2;
 	public static $not_loaded_modules = null;
 	public static $loaded_modules = array();
 	public static $modules = array();
@@ -37,7 +40,10 @@ class ModuleManager {
 		$path = self::get_module_dir_path($module_class_name);
 		$file = self::get_module_file_name($module_class_name);
 		$full_path = 'modules/' . $path . '/' . $file . 'Install.php';
-		if (!file_exists($full_path)) return false;
+		if (!file_exists($full_path)) {
+			self::check_is_module_available($module_class_name);
+			return false;
+		}
 		ob_start();
 		$ret = require_once($full_path);
 		ob_end_clean();
@@ -76,6 +82,8 @@ class ModuleManager {
 				call_user_func(array($x, 'Instance'), $class_name);
     			return true;
 			}
+		} else {
+			self::check_is_module_available($class_name);
 		}
 		return false;
 	}
@@ -107,6 +115,8 @@ class ModuleManager {
                     trigger_error('Module '.$path.': Invalid main file',E_USER_ERROR);
                 return true;
             }
+		} else {
+			self::check_is_module_available($class_name);
 		}
 		return false;
 	}
@@ -669,7 +679,7 @@ class ModuleManager {
 		static $load_prior_array=null;
 		if($load_prior_array===null || $force) {
 			$priorities = array();
-			$installed_modules = DB::Execute('SELECT name,version,priority FROM modules ORDER BY priority');
+			$installed_modules = DB::Execute('SELECT * FROM modules ORDER BY priority');
 			if ($installed_modules!==false) {
 				$load_prior_array = array();
 				while (($row = $installed_modules->FetchRow())) {
@@ -678,7 +688,9 @@ class ModuleManager {
 						return self::get_load_priority_array($force);
 					}
 					$priorities[$row['priority']] = true;
-					$load_prior_array[] = $row;
+					if (!isset($row['state']) || $row['state'] == self::MODULE_ENABLED) {
+						$load_prior_array[] = $row;
+					}
 				}
 			}
 		}
@@ -959,7 +971,10 @@ class ModuleManager {
 			$ret = array();
 			ob_start();
 			foreach($modules_with_method as $name) {
-				$ret[$name] = call_user_func_array(array($name . 'Common', $method), $args);
+				$common_class = $name . 'Common';
+				if (class_exists($common_class)) {
+					$ret[$name] = call_user_func_array(array($common_class, $method), $args);
+				}
 			}
 			ob_end_clean();
 			$cache[$cache_id]=$ret;
@@ -1026,4 +1041,22 @@ class ModuleManager {
         DB::Execute('UPDATE cron SET last=0 WHERE func=%s',array($func_md5));
         return true;
     }
+
+	public static function check_is_module_available($module)
+	{
+		if (!self::module_dir_exists($module)) {
+			self::set_module_state($module, self::MODULE_NOT_FOUND);
+			self::unregister($module, self::$modules);
+		}
+	}
+
+	public static function module_dir_exists($module) {
+		$dir = 'modules/' . self::get_module_dir_path($module);
+		return file_exists($dir);
+	}
+
+	public static function set_module_state($module, $state) {
+		DB::Execute('UPDATE modules SET state=%d WHERE name=%s', array($state, $module));
+		Cache::clear();
+	}
 }

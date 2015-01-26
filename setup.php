@@ -576,7 +576,7 @@ function install_base() {
 	
 	@DB::Execute('ALTER DATABASE '.DATABASE_NAME.' CHARACTER SET utf8 COLLATE utf8_general_ci');
 
-	$ret = DB::CreateTable('modules',"name C(128) KEY,version I NOTNULL, priority I NOTNULL DEFAULT 0");
+	$ret = DB::CreateTable('modules',"name C(128) KEY,version I NOTNULL, priority I NOTNULL DEFAULT 0, state I NOTNULL DEFAULT 0");
 	if($ret===false)
 		die('Invalid SQL query - Setup module (modules table)');
 
