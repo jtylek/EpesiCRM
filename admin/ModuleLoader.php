@@ -21,7 +21,7 @@ class ModuleLoader {
             $this->lpa_count = count($this->lpa);
             ModuleManager::$not_loaded_modules = $this->lpa;
             ModuleManager::$loaded_modules = array();
-            ModulesAutoloader::enable(false);
+            ModulesAutoloader::enable();
         }
     }
 

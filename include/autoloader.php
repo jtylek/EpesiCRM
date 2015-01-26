@@ -61,11 +61,9 @@ class ModulesAutoloader {
 
     private static $instance = null;
 
-    public static function enable($with_hooks = true) {
+    public static function enable() {
         if (self::$instance === null) {
             self::$instance = new ModulesAutoloader();
-            if ($with_hooks)
-                self::$instance->hooks();
         }
     }
 
@@ -80,24 +78,6 @@ class ModulesAutoloader {
 
     public function __destruct() {
         spl_autoload_unregister(array($this, 'autoload'));
-    }
-
-    private function hooks() {
-        // These are hooks to load, when loading common files at startup
-        // is disabled. There is possibility, that more common files should
-        // be loaded to proper EPESI run.
-        $this->autoload_hook('Base_LangCommon');
-        $this->autoload_hook('Libs_QuickFormCommon');
-        $this->autoload_hook('Utils_GenericBrowserCommon');
-        $this->autoload_hook('Libs_ScriptAculoUsCommon');
-        $this->autoload_hook('Base_BoxCommon');
-        $this->autoload_hook('Base_HomePageCommon');
-        $this->autoload_hook('Develop_MiscUtilsCommon');
-    }
-
-    private function autoload_hook($class_name) {
-        if (!class_exists($class_name, false))
-            $this->autoload($class_name);
     }
 
     private function get_calling_place() {
@@ -140,10 +120,6 @@ class ModulesAutoloader {
         if ($this->class_from_modules($class_name))
             return true;
 
-        if (isset($this->autoload_hooks[$class_name])) {
-            require_once $this->autoload_hooks[$class_name];
-            return 'hooked';
-        }
         return false;
     }
 
@@ -178,27 +154,5 @@ class ModulesAutoloader {
         }
         return false;
     }
-
-    /*
-     * Below are class names with files where they are defined.
-     * This is used to locate file and load it if it is in strange place.
-     */
-    private $autoload_hooks =
-            array(
-        'HTML_Common' => 'modules/Libs/QuickForm/3.2.11/HTML/Common.php',
-        'HTML_QuickForm' => 'modules/Libs/QuickForm/3.2.11/HTML/QuickForm.php',
-        'HTML_QuickForm_Error' => 'modules/Libs/QuickForm/3.2.11/HTML/QuickForm.php',
-        'HTML_QuickForm_Renderer' => 'modules/Libs/QuickForm/3.2.11/HTML/QuickForm/Renderer.php',
-        'HTML_QuickForm_Renderer_TCMSArray' => 'modules/Libs/QuickForm/Renderer/TCMSArray.php',
-        'HTML_QuickForm_Renderer_TCMSArraySmarty' => 'modules/Libs/QuickForm/Renderer/TCMSArraySmarty.php',
-        'HTML_QuickForm_Renderer_TCMSDefault' => 'modules/Libs/QuickForm/Renderer/TCMSDefault.php',
-        'HTML_QuickForm_autocomplete' => 'modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php',
-        'HTML_QuickForm_automulti' => 'modules/Libs/QuickForm/FieldTypes/automulti/automulti.php',
-        'HTML_QuickForm_autoselect' => 'modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php',
-        'HTML_QuickForm_element' => 'modules/Libs/QuickForm/3.2.11/HTML/QuickForm/element.php',
-        'HTML_QuickForm_input' => 'modules/Libs/QuickForm/3.2.11/HTML/QuickForm/input.php',
-        'HTML_QuickForm_select' => 'modules/Libs/QuickForm/3.2.11/HTML/QuickForm/select.php',
-        'HTML_QuickForm_text' => 'modules/Libs/QuickForm/3.2.11/HTML/QuickForm/text.php',
-    );
 
 }
