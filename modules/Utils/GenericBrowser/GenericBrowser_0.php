@@ -1035,7 +1035,7 @@ class Utils_GenericBrowser extends Module {
 			}
 			ksort($col);
 			foreach($col as $v)
-				$out_data[] = array('label'=>'<div class="expandable">'.$v['label'].'</div>','attrs'=>$v['attrs']);
+				$out_data[] = array('label'=>'<div class="expandable expanded">'.$v['label'].'</div>','attrs'=>$v['attrs']);
 			if(isset($this->rows_jses[$i]))
 				eval_js($this->rows_jses[$i]);
 		}
