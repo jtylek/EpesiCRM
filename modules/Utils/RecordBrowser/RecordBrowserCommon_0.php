@@ -3250,7 +3250,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $single_tab?$crits:$crits[$t],
                             empty($multi_adv_params['format_callback']) ? $col_id : array(),
                             !empty($multi_adv_params['order']) ? $multi_adv_params['order'] : array());
-                    foreach($records_tmp as $key=>$rec) $records[($single_tab?'':$t.'/').$key] = $rec;
+                    foreach($records_tmp as $key=>$rec) {
+                        if(!self::get_access($t,'view',$rec)) continue;
+                        $records[($single_tab?'':$t.'/').$key] = $rec;
+                    }
                 }
             } else {
                 $records = array();
