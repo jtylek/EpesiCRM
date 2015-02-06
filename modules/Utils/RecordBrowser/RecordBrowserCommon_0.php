@@ -1151,7 +1151,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_tab = $tab.'_data_1 AS r';
         $vals = array();
         if (!$crits) $crits = array();
-		$access = $admin || self::get_access($tab, 'browse');
+		$access = $admin ? true : self::get_access($tab, 'browse');
 		if ($access===false) return array();
 		elseif ($access!==true && is_array($access))
 			$crits = self::merge_crits($crits, $access);
