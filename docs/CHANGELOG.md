@@ -8,6 +8,24 @@ CURRENT
 
 - Change cookie expiration time to 7 days for maintenance mode
 - Improve update process - make sure maintenance mode is on during patches
+- Set default customer for phonecalls, tasks and meetings
+- Fix toolbar mode switch in ckeditor
+- Add global cache stored in the file (Dev)
+- Update ckeditor to the latest version
+- Replace CustomRoundcubeAddons with built-in related mechanism
+- Fix Roundcube archive copy/paste
+- Add option to export RB report to csv file
+- Fix issues in currencies admin panel for PostgreSQL database
+- Register custom Prototype events also in jQuery (Dev)
+- Add selection rules to RecordBrowser
+- Currency field - fix frozen value display
+- Add option to disable module without uninstall
+- Improve /admin script to manage disabled modules
+- Base/Print - add more document config params to PDF
+- Base/Print - pass printer classname to document_config method (Dev)
+- Fix GenericBrowser's default template when expandable is disabled
+- Changes in expandable calculation to wrap long text fields - GenericBrowser
+- Fix admin access param to get_records method - RecordBrowser
 
 RELEASE 1.6.3-20150107
 -------
