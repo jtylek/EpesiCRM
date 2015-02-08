@@ -1818,7 +1818,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$blocked_fields = array();
 			if ($action!='browse' && $action!='clone') {
 				foreach ($crits_raw[$action] as $rule_id=>$c) {
-					if ($action!='add' && $record != null && !self::check_record_against_crits($tab, $record, $c))
+					if ($record != null && !self::check_record_against_crits($tab, $record, $c))
 						continue;
 					if (!$ret) {
 						$ret = true;
