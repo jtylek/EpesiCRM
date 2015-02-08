@@ -3179,6 +3179,10 @@ class Utils_RecordBrowser extends Module {
 		$args = $this->table_rows[$all_fields[$this->tab][$field]];
 		$arr = array(''=>'['.__('Empty').']');
 		switch (true) {
+			case $args['type']=='text' && $args['filter']:
+				$arr_add = @DB::GetAssoc('SELECT f_'.$args['id'].', f_'.$args['id'].' FROM '.$this->tab.'_data_1 GROUP BY f_'.$args['id'].' ORDER BY count(*) DESC LIMIT 20');
+				if($arr_add) $arr += $arr_add;
+				break;
 			case $args['commondata']:
 				$array_id = is_array($args['param']) ? $args['param']['array_id'] : $args['ref_table'];
 				if (strpos($array_id, '::')===false) 
