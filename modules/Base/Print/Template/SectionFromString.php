@@ -29,6 +29,10 @@ class Base_Print_Template_SectionFromString extends
     {
         $this->set_template_dir($section->template_dir);
         $filename = $this->create_section_tpl_file();
+        if (DEMO_MODE || HOSTING_MODE) {
+            $section->security = true;
+            $section->security_settings['PHP_TAGS'] = false;
+        }
         $text = $section->fetch($filename);
         return $text;
     }
