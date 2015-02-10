@@ -166,6 +166,21 @@ abstract class Module extends ModulePrimitive {
 	}
 
 	/**
+	 * Sets variable that will be available only for all instances of that module.
+	 * Note that after page refresh, this variable will preserve its value in contrary to module field variables.
+	 * Module variables are hold separately for every client.
+	 *
+	 * @param string $name  key
+	 * @param mixed  $value value
+	 *
+	 * @return mixed variable value
+	 */
+	public final function set_shared_module_variable($name, $value)
+	{
+		return $_SESSION['client']['__module_vars__'][$this->get_type()][$name] = $value;
+	}
+
+	/**
 	 * Sets variable that will be available only for module instance that called this function.
 	 * Note that after page refresh, this variable will preserve its value in contrary to module field variables.
 	 * Module variables are hold separately for every client.
@@ -193,6 +208,25 @@ abstract class Module extends ModulePrimitive {
 		if(isset($default) && !$this->isset_module_variable($name))
 			$_SESSION['client']['__module_vars__'][$path][$name] = & $default;
 		return $_SESSION['client']['__module_vars__'][$path][$name];
+	}
+
+	/**
+	 * Returns value of a shared module variable.
+	 * If the variable is not set, function will return value given as second parameter.
+	 * For details concerning shared module variables, see set_shared_module_variable.
+	 *
+	 * @param string $name    key
+	 * @param mixed  $default default value
+	 *
+	 * @return mixed value
+	 */
+	public final function & get_shared_module_variable($name, $default = null)
+	{
+		$type = $this->get_type();
+		if (isset($default) && !$this->isset_shared_module_variable($name)) {
+			$_SESSION['client']['__module_vars__'][$type][$name] = &$default;
+		}
+		return $_SESSION['client']['__module_vars__'][$type][$name];
 	}
 
 
@@ -242,6 +276,19 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function isset_module_variable($name) {
 		return isset($_SESSION['client']['__module_vars__'][$this->get_path()][$name]);
+	}
+
+	/**
+	 * Checks if shared module variable exists.
+	 * For details concerning shared module variables, see set_shared_module_variable.
+	 *
+	 * @param string $name key
+	 *
+	 * @return bool true if variable exists, false otherwise
+	 */
+	public final function isset_shared_module_variable($name)
+	{
+		return isset($_SESSION['client']['__module_vars__'][$this->get_type()][$name]);
 	}
 
 	/**
