@@ -203,6 +203,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form -> addElement('header', null, __('Database server settings'));
 	$form -> addElement('text', 'host', __('Database server address'));
 	$form -> addRule('host', __('Field required'), 'required');
+	$form -> addElement('text', 'port', __('Custom database port'));
 	$form -> addElement('select', 'engine', __('Database engine'), array('postgres'=>'PostgreSQL', 'mysqlt'=>'MySQL'));
 	$form -> addRule('engine', __('Field required'), 'required');
 	$form -> addElement('text', 'user', __('Database server user'));
@@ -246,6 +247,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 		$direction = $form -> exportValue('direction');
 		$other = array('direction'=>$direction);
         $host = $form -> exportValue('host');
+		$port = $form->exportValue('port');
         $user = $form -> exportValue('user');
         $pass = $form -> exportValue('password');
         $dbname = $form -> exportValue('db');
@@ -255,10 +257,14 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 				if(!function_exists('pg_connect')) {
 				    echo(__('Please enable postgresql extension in php.ini.'));
 				} else {
-					$link = pg_connect("host=$host user=$user password=$pass dbname=postgres");
+					$port_def = $port ? " port=$port" : '';
+					$link = pg_connect("host=$host user=$user password=$pass dbname=postgres" . $port_def);
 					if(!$link) {
 	 					echo(__('Could not connect.'));
 					} else {
+						if ($port) {
+							$host .= ':' . $port;
+						}
 						if ($new_db == 1) {
 							$sql = 'CREATE DATABASE '.$dbname;
 							if (pg_query($link, $sql)) {
@@ -286,6 +292,9 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
                 if (!function_exists('mysql_connect')) {
                     echo(__('Please enable mysql extension in php.ini.'));
                 } else {
+					if ($port) {
+						$host .= ':' . $port;
+					}
                     $link = @mysql_connect($host, $user, $pass);
                     if (!$link) {
                         echo(__('Could not connect') . ': ' . mysql_error());
