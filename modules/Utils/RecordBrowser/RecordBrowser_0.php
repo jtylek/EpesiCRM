@@ -370,15 +370,25 @@ class Utils_RecordBrowser extends Module {
 				$filters[] = $filter_id.'__from';
 				$filters[] = $filter_id.'__to';
 				continue;
-            }
-			if ($this->table_rows[$filter]['type']=='checkbox') {
+            } elseif ($this->table_rows[$filter]['type']=='checkbox') {
                 $arr = array(''=>__('No'), 1=>__('Yes'));
-            } else {
-                if ($this->table_rows[$filter]['type'] == 'currency') {
-                    $arr = Utils_CurrencyFieldCommon::get_currencies();
-                    if (count($arr) <= 1)
-                        continue;
-                } else if ($this->table_rows[$filter]['type'] == 'commondata') {
+            } elseif (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
+		    $form->addElement('text', $field_id.'__from', _V($filter).' ('.__('From').')', array('label'=>false)); // TRSL
+		    $form->addElement('text', $field_id.'__to', _V($filter).' ('.__('To').')', array('label'=>false)); // TRSL
+		    $form->addRule($field_id.'__from',__('Only numbers are allowed.'),'numeric');
+		    $form->addRule($field_id.'__to',__('Only numbers are allowed.'),'numeric');
+		    $filters[] = $filter_id.'__from';
+		    $filters[] = $filter_id.'__to';
+		    if ($this->table_rows[$filter]['type'] == 'currency' || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && $this->table_rows[$filter]['style'] == 'currency')) {
+                        $arr = Utils_CurrencyFieldCommon::get_currencies();
+                        if (count($arr) > 1) {
+                            $arr = array('__NULL__'=>'---')+$arr;
+                            $form->addElement('select', $field_id.'__currency', _V($filter).' ('.__('Currency').')', $arr); // TRSL
+                            $filters[] = $filter_id.'__currency';
+                        }
+                    }
+                    continue;
+            } else if ($this->table_rows[$filter]['type'] == 'commondata') {
 					$parts = explode('::', $this->table_rows[$filter]['param']['array_id']);
 					$array_id = array_shift($parts);
 					$arr = Utils_CommonDataCommon::get_translated_array($array_id, $this->table_rows[$filter]['param']['order_by_key']);
@@ -393,7 +403,7 @@ class Utils_RecordBrowser extends Module {
 						$arr = $next_arr;
 					}
                     natcasesort($arr);
-                } else {
+            } else {
                     $param = explode(';',$this->table_rows[$filter]['param']);
                     $x = explode('::',$param[0]);
                     if (!isset($x[1])) continue;
@@ -453,8 +463,8 @@ class Utils_RecordBrowser extends Module {
                         }
                         if ($tab=='contact') $arr = array($this->crm_perspective_default()=>'['.__('Perspective').']')+$arr;
                     } 
-                }
             }
+            
             
             if($autoselect) {
                 $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
@@ -522,10 +532,13 @@ class Utils_RecordBrowser extends Module {
                     $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
                 }
             } else {
-                if ($this->table_rows[$filter]['type'] == 'currency') {
-                    if (isset($vals[$field_id]) && $vals[$field_id] != "__NULL__") {
-                        $this->crits["~$filter"] = "%__" . $vals[$field_id];
-                    }
+                if (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
+                    if (isset($vals[$field_id.'__currency']) && $vals[$field_id.'__currency'] != "__NULL__")
+                        $this->crits["~$filter"] = "%__" . $vals[$field_id.'__currency'];
+                    if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'] !== "")
+                        $this->crits[">=\"$filter"] = floatval($vals[$field_id.'__from']);
+                    if (isset($vals[$field_id.'__to']) && $vals[$field_id.'__to'] !== "")
+                        $this->crits["<=\"$filter"] = floatval($vals[$field_id.'__to']);
                     continue;
                 }
 				if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
