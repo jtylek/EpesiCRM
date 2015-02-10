@@ -19,8 +19,6 @@ class ModuleManager {
 	const MODULE_ENABLED = 0;
 	const MODULE_DISABLED = 1;
 	const MODULE_NOT_FOUND = 2;
-	public static $not_loaded_modules = null;
-	public static $loaded_modules = array();
 	public static $modules = array();
 	public static $modules_install = array();
 	public static $modules_common = array();
@@ -581,7 +579,6 @@ class ModuleManager {
 				return false;
 			}
 		}
-		self::$not_loaded_modules[] = array('name'=>$module_class_name,'version'=>$version);
 
 		if($include_common) {
             self::include_common($module_class_name,$version);
@@ -704,29 +701,14 @@ class ModuleManager {
 	 * Use pack_module instead.
 	 *
 	 * @param module name
-	 * @return object newly created module object
-	 * @throws exception 'module not loaded' if the module is not registered
+	 * @return Module Return newly created subclass of module object
 	 */
 	public static final function & new_instance($mod,$parent,$name,$clear_vars=false) {
-		if(!array_key_exists($mod, self::$loaded_modules)) {
-			$loaded = false;
-			foreach(self::$not_loaded_modules as $i=>$v) {
-				$version = $v['version'];
-				$module = $v['name'];
-				ModuleManager :: include_main($module, $version);
-				unset(self::$not_loaded_modules[$i]);
-				self::$loaded_modules[$module] = true;
-				if($module==$mod) {
-					$loaded=true;
-					break;
-				}
-			}
-			if (!$loaded)
-				throw new Exception('module '.$mod.' not loaded');
+		$class = str_replace('#', '_', $mod);
+		if (!in_array('Module', class_parents($class))) {
+			trigger_error("Class $mod is not a subclass of Module", E_USER_ERROR);
 		}
-		if(!class_exists($mod, false))
-			trigger_error('Class not exists: '.$mod,E_USER_ERROR);
-		$m = new $mod($mod,$parent,$name,$clear_vars);
+		$m = new $class($mod,$parent,$name,$clear_vars);
 		return $m;
 	}
 
@@ -810,8 +792,6 @@ class ModuleManager {
 
 		self::$modules = array();
 		$installed_modules = ModuleManager::get_load_priority_array(true);
-		self::$not_loaded_modules = $installed_modules;
-		self::$loaded_modules = array();
 
 		$cached = false;
 		if(FORCE_CACHE_COMMON_FILES) {
