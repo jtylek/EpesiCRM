@@ -483,6 +483,10 @@ class ModuleManager {
 	}
     
     public static final function get_module_class_name($module) {
+		$submodule_delimiter = strpos($module, '#');
+		if ($submodule_delimiter) {
+			$module = substr($module, 0, $submodule_delimiter);
+		}
         return str_replace('/', '_', $module);
     }
 
