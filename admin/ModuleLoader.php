@@ -19,8 +19,6 @@ class ModuleLoader {
             $this->initialized = true;
             $this->lpa = ModuleManager::get_load_priority_array();
             $this->lpa_count = count($this->lpa);
-            ModuleManager::$not_loaded_modules = $this->lpa;
-            ModuleManager::$loaded_modules = array();
             ModulesAutoloader::enable();
         }
     }
