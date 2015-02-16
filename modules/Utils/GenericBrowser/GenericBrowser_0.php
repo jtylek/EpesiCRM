@@ -157,12 +157,11 @@ class Utils_GenericBrowser extends Module {
 	}
 	
 	public function set_fixed_columns_class($classes = array()){
-		if (empty($classes)) return;
-	
 		if (!is_array($classes)) {
-			$this->fixed_columns_selector = '.'.$classes;
-			return;
+			$classes = array($classes);
 		}
+		
+		$classes[] = 'Utils_GenericBrowser__actions';
 	
 		$classes = array_map(function($c){return '.'.$c;}, $classes);	
 		$this->fixed_columns_selector = implode(',', $classes);

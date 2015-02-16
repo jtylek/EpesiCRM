@@ -70,7 +70,7 @@ class Utils_RecordBrowser extends Module {
     public $form = null;
     public $tab;
     public $grid = null;
-    private $fixed_columns_class = array('Utils_GenericBrowser__actions', 'Utils_RecordBrowser__favs', 'Utils_RecordBrowser__watchdog');
+    private $fixed_columns_class = array('Utils_RecordBrowser__favs', 'Utils_RecordBrowser__watchdog');
 
 	public function new_button($type, $label, $href) {
 		if ($this->fullscreen_table)
