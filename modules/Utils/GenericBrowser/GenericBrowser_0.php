@@ -135,7 +135,7 @@ class Utils_GenericBrowser extends Module {
     private $expandable = false;
 	public $form_s = null;
 	private $resizable_columns = true;
-	private $fixed_columns_selector = '';
+	private $fixed_columns_selector = '.Utils_GenericBrowser__actions';
 
 	public function construct() {
 		$this->form_s = $this->init_module('Libs/QuickForm');
@@ -163,7 +163,7 @@ class Utils_GenericBrowser extends Module {
 		
 		$classes[] = 'Utils_GenericBrowser__actions';
 	
-		$classes = array_map(function($c){return '.'.$c;}, $classes);	
+		$classes = array_map(function($c){return (substr($c,0,1)=='.')? $c: '.'.$c;}, $classes);	
 		$this->fixed_columns_selector = implode(',', $classes);
 	}
 
