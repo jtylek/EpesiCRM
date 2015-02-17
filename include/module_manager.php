@@ -866,10 +866,11 @@ class ModuleManager {
 			if (preg_match($VA_regex, $line)) continue;
 			$file_content .= $line;
 		}
-		$tmp_file = 'data/cache/tmp_' . md5($file_content) . '.php';
-		file_put_contents($tmp_file, $file_content);
-		$stripped_file = php_strip_whitespace($tmp_file);
-		@unlink($tmp_file);
+        $tmp_file = tmpfile();
+        fwrite($tmp_file, $file_content);
+        $info = stream_get_meta_data($tmp_file);
+		$stripped_file = php_strip_whitespace($info['uri']);
+        fclose($tmp_file);
 		// heuristic to get info about code. Some very short code can be ommited.
 		if (strlen($stripped_file) > 20) {
 			return true;
