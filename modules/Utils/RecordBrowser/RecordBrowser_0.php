@@ -70,6 +70,7 @@ class Utils_RecordBrowser extends Module {
     public $form = null;
     public $tab;
     public $grid = null;
+    private $fixed_columns_class = array('Utils_RecordBrowser__favs', 'Utils_RecordBrowser__watchdog');
 
 	public function new_button($type, $label, $href) {
 		if ($this->fullscreen_table)
@@ -654,6 +655,9 @@ class Utils_RecordBrowser extends Module {
         else $gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 
         if(!$pdf) $gb->set_expandable(true);
+        
+        if($pdf) $gb->set_resizable_columns(false);
+        else $gb->set_fixed_columns_class($this->fixed_columns_class);
 
         if ($special) {
             $gb_per_page = Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page');
@@ -679,12 +683,12 @@ class Utils_RecordBrowser extends Module {
         } else {
             $table_columns = array();
             if (!$pdf && !$admin && $this->favorites) {
-                $fav = array('name'=>'&nbsp;', 'width'=>'24px');
+                $fav = array('name'=>'&nbsp;', 'width'=>'24px', 'attrs'=>'class="Utils_RecordBrowser__favs"');
                 if (!isset($this->force_order)) $fav['order'] = ':Fav';
                 $table_columns[] = $fav;
             }
             if (!$pdf && !$admin && $this->watchdog)
-                $table_columns[] = array('name'=>'', 'width'=>'24px');
+                $table_columns[] = array('name'=>'', 'width'=>'24px', 'attrs'=>'class="Utils_RecordBrowser__watchdog"');
         }
         if (!$this->disabled['quickjump']) $quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         else $quickjump = '';
@@ -2765,6 +2769,7 @@ class Utils_RecordBrowser extends Module {
             $header[] = $arr;
         }
         $gb->set_table_columns($header);
+        $gb->set_fixed_columns_class($this->fixed_columns_class);
 
         $clean_order = array();
         foreach($order as $k=>$v) {

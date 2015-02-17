@@ -134,6 +134,8 @@ class Utils_GenericBrowser extends Module {
 	private $no_actions = array();
     private $expandable = false;
 	public $form_s = null;
+	private $resizable_columns = true;
+	private $fixed_columns_selector = '.Utils_GenericBrowser__actions';
 
 	public function construct() {
 		$this->form_s = $this->init_module('Libs/QuickForm');
@@ -148,6 +150,21 @@ class Utils_GenericBrowser extends Module {
 	public function set_custom_label($arg, $args=''){
 		$this->custom_label = $arg;
 		$this->custom_label_args = $args;
+	}
+	
+	public function set_resizable_columns($arg = true){
+		$this->resizable_columns = $arg;
+	}
+	
+	public function set_fixed_columns_class($classes = array()){
+		if (!is_array($classes)) {
+			$classes = array($classes);
+		}
+		
+		$classes[] = 'Utils_GenericBrowser__actions';
+	
+		$classes = array_map(function($c){return (substr($c,0,1)=='.')? $c: '.'.$c;}, $classes);	
+		$this->fixed_columns_selector = implode(',', $classes);
 	}
 
 	public function absolute_width($arg){
@@ -1103,6 +1120,14 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('order',$this->get_module_variable('order_history_display'));
 		}
 		$theme->assign('id',md5($this->get_path()));
+		
+		if ($this->resizable_columns) {
+			load_js($this->get_module_dir().'js/col_resizable.js');
+				
+			$fixed_col_setting = !empty($this->fixed_columns_selector)? ', skipColumnClass:"'.$this->fixed_columns_selector.'"':'';
+			eval_js('jq("#table_'.$md5_id.'").colResizable({liveDrag:true, postbackSafe:true, partialRefresh:true'.$fixed_col_setting.'});');
+		}
+		
 		if(isset($template))
 			$theme->display($template,true);
 		else
