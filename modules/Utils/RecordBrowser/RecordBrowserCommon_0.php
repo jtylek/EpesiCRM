@@ -2199,7 +2199,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return self::record_link_open_tag($tab, $id, $nolink) . 
                 implode(' ', $vals ) . self::record_link_close_tag();
     }
-    public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true){
+    public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true, $detailed_tooltip = true){
         if (!is_numeric($id)) return '';
         $rec = self::get_record($tab,$id);
         if(!$rec) return '';
@@ -2225,7 +2225,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $label = ($table_name?$cap.': ':'').self::get_val($tab,$field,$rec,$nolink);
         }
         $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
+        if ($nolink == false && $detailed_tooltip
+            && Utils_TooltipCommon::is_tooltip_code_in_str($ret) == false) {
+            $ret = Utils_TooltipCommon::ajax_create($ret, array(__CLASS__, 'default_record_tooltip'), array($tab, $id));
+        }
         return $ret;
+    }
+
+    public static function default_record_tooltip($tab, $record_id)
+    {
+        $record = self::get_record($tab, $record_id);
+        if (!$record[':active']) {
+            return '';
+        }
+        $cols = self::init($tab);
+        $access = self::get_access($tab, 'view', $record);
+        $data = array();
+        foreach ($cols as $c) {
+            if ($c['visible'] && $access[$c['id']]) {
+                $data[_V($c['name'])] = self::get_val($tab, $c['id'], $record, true);
+            }
+        }
+        return Utils_TooltipCommon::format_info_tooltip($data);
     }
     public static function create_linked_label_r($tab, $cols, $r, $nolink=false){
         if (!is_array($cols))
