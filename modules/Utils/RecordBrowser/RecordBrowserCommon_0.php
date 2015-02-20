@@ -373,6 +373,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'required'=>($row['type']=='calculated'?false:$row['required']),
                         'extra'=>$row['extra'],
                         'active'=>$row['active'],
+                        'export'=>$row['export'],
                         'position'=>$row['position'],
                         'processing_order' => $row['processing_order'],
                         'filter'=>$row['filter'],
@@ -439,6 +440,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'extra I1 DEFAULT 1,'.
                     'visible I1 DEFAULT 1,'.
                     'required I1 DEFAULT 1,'.
+                    'export I1 DEFAULT 1,'.
                     'active I1 DEFAULT 1,'.
                     'position I2,'.
                     'processing_order I2 NOTNULL,'.

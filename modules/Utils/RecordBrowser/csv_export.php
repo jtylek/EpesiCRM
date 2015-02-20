@@ -38,6 +38,7 @@ if (headers_sent())
     die('Some data has already been output to browser, can\'t send the file');
 $cols = array('Record ID');
 foreach ($tab_info as $v) {
+	if(!$v['export']) continue;
 	$cols[] = _V($v['name']);
 	if ($v['style']=='currency') $cols[] = _V($v['name']).' - '.__('Currency');
 }
@@ -61,6 +62,7 @@ function rb_csv_export_format_currency_value($v, $symbol) {
 foreach ($records as $r) {
 	$rec = array($r['id']);
 	foreach ($tab_info as $field_name=>$v) {
+		if(!$v['export']) continue;
 		ob_start();
 		$val = Utils_RecordBrowserCommon::get_val($tab, $field_name, $r, true, $v);
 		ob_end_clean();
