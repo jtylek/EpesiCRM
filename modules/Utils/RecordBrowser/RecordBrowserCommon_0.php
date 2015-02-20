@@ -374,6 +374,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'extra'=>$row['extra'],
                         'active'=>$row['active'],
                         'export'=>$row['export'],
+                        'tooltip'=>$row['tooltip'],
                         'position'=>$row['position'],
                         'processing_order' => $row['processing_order'],
                         'filter'=>$row['filter'],
@@ -439,6 +440,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'type C(32),'.
                     'extra I1 DEFAULT 1,'.
                     'visible I1 DEFAULT 1,'.
+                    'tooltip I1 DEFAULT 1,'.
                     'required I1 DEFAULT 1,'.
                     'export I1 DEFAULT 1,'.
                     'active I1 DEFAULT 1,'.
@@ -616,7 +618,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
         }
         if (!isset($definition['extra'])) $definition['extra'] = true;
+        if (!isset($definition['export'])) $definition['export'] = true;
         if (!isset($definition['visible'])) $definition['visible'] = false;
+        if (!isset($definition['tooltip'])) $definition['tooltip'] = $definition['visible'];
         if (!isset($definition['required'])) $definition['required'] = false;
         if (!isset($definition['filter'])) $definition['filter'] = false;
         if (!isset($definition['position'])) $definition['position'] = null;
@@ -660,7 +664,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
         }
         $f = self::actual_db_type($definition['type'], $param);
-        DB::Execute('INSERT INTO '.$tab.'_field(field, caption, type, visible, param, style, position, processing_order, extra, required, filter) VALUES(%s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d)', array($definition['name'], $definition['caption'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0));
+        DB::Execute('INSERT INTO '.$tab.'_field(field, caption, type, visible, param, style, position, processing_order, extra, required, filter, export, tooltip) VALUES(%s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d)', array($definition['name'], $definition['caption'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0, $definition['export']?1:0, $definition['tooltip']?1:0));
 		$column = 'f_'.self::get_field_id($definition['name']);
 		if ($alter) {
 			self::init($tab, false, true);
@@ -2244,7 +2248,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $access = self::get_access($tab, 'view', $record);
         $data = array();
         foreach ($cols as $c) {
-            if ($c['visible'] && $access[$c['id']]) {
+            if ($c['tooltip'] && $access[$c['id']]) {
                 $data[_V($c['name'])] = self::get_val($tab, $c['id'], $record, true);
             }
         }
