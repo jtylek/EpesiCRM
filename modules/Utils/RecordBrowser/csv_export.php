@@ -36,7 +36,7 @@ header('Content-Type: text/csv');
 header('Content-disposition: attachement; filename="'.$tab.'_export_'.date('Y_m_d__H_i_s').'.csv"');
 if (headers_sent())
     die('Some data has already been output to browser, can\'t send the file');
-$cols = array('Record ID');
+$cols = array(__('Record ID'),__('Created on'),__('Created by'),__('Edited on'),__('Edited by'));
 foreach ($tab_info as $v) {
 	if(!$v['export']) continue;
 	$cols[] = _V($v['name']);
@@ -61,6 +61,11 @@ function rb_csv_export_format_currency_value($v, $symbol) {
 
 foreach ($records as $r) {
 	$rec = array($r['id']);
+	$details = Utils_RecordBrowserCommon::get_record_info($tab, $r['id']);
+	$rec[] = $details['created_on'];
+	$rec[] = Base_UserCommon::get_user_label($details['created_by'],true);
+	$rec[] = $details['edited_on'];
+	$rec[] = $details['edited_by']?Base_UserCommon::get_user_label($details['edited_by'],true):'';
 	foreach ($tab_info as $field_name=>$v) {
 		if(!$v['export']) continue;
 		ob_start();
