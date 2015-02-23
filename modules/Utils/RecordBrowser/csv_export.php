@@ -60,6 +60,8 @@ function rb_csv_export_format_currency_value($v, $symbol) {
 }
 
 foreach ($records as $r) {
+	$has_access = Utils_RecordBrowserCommon::get_access($tab, 'view', $r);
+	if(!$has_access) continue;
 	$rec = array($r['id']);
 	$details = Utils_RecordBrowserCommon::get_record_info($tab, $r['id']);
 	$rec[] = $details['created_on'];
@@ -67,7 +69,7 @@ foreach ($records as $r) {
 	$rec[] = $details['edited_on'];
 	$rec[] = $details['edited_by']?Base_UserCommon::get_user_label($details['edited_by'],true):'';
 	foreach ($tab_info as $field_name=>$v) {
-		if(!$v['export']) continue;
+		if(!$v['export'] || !isset($has_access[$v['id']]) || !$has_access[$v['id']]) continue;
 		ob_start();
 		$val = Utils_RecordBrowserCommon::get_val($tab, $field_name, $r, true, $v);
 		ob_end_clean();
