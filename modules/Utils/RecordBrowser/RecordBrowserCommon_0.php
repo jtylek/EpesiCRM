@@ -559,6 +559,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('DELETE FROM recordbrowser_processing_methods WHERE tab=%s', array($tab));
         DB::Execute('DELETE FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($tab));
         DB::Execute('DELETE FROM recordbrowser_clipboard_pattern WHERE tab=%s', array($tab));
+        DB::Execute('DELETE FROM recordbrowser_addon WHERE tab=%s', array($tab));
         return true;
     }
 
