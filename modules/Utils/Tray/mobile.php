@@ -56,7 +56,7 @@ foreach ($tray_settings as $module=>$module_settings) {
 Utils_TrayCommon::sort_trays($tray_def);
 
 if(IPHONE) {
-	$html .= '<ul>';
+	$html = '';
 } else
 $data_out = array();
 
