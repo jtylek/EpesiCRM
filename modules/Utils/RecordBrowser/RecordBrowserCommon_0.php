@@ -2239,7 +2239,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $ret;
     }
 
-    public static function default_record_tooltip($tab, $record_id)
+    public static function get_record_tooltip_data($tab, $record_id)
     {
         $record = self::get_record($tab, $record_id);
         if (!$record[':active']) {
@@ -2253,6 +2253,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $data[_V($c['name'])] = self::get_val($tab, $c['id'], $record, true);
             }
         }
+        return $data;
+    }
+    public static function default_record_tooltip($tab, $record_id)
+    {
+        $data = self::get_record_tooltip_data($tab, $record_id);
         return Utils_TooltipCommon::format_info_tooltip($data);
     }
     public static function create_linked_label_r($tab, $cols, $r, $nolink=false){
@@ -2416,7 +2421,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $ret['events'];
 	}
 	
-    public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null, $details = true) {
+    public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null, $details = true, $for_email = false) {
         $ret = array('category'=>$cat);
         if ($rid!==null) {
             $r = self::get_record($tab, $rid);
@@ -2497,8 +2502,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
                 $theme->assign('events', $events_display);
 
+                $tpl = 'changes_list';
+                if ($for_email) {
+                    $record_data = self::get_record_tooltip_data($tab, $rid);
+                    $theme->assign('record', $record_data);
+                    $tpl = 'changes_list_email';
+                }
                 ob_start();
-                Base_ThemeCommon::display_smarty($theme,'Utils_RecordBrowser','changes_list');
+                Base_ThemeCommon::display_smarty($theme,'Utils_RecordBrowser', $tpl);
                 $output = ob_get_clean();
 
                 $ret['events'] = $output;

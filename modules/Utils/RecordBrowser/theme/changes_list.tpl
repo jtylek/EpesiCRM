@@ -22,6 +22,7 @@
 				<td colspan="3" class="message">
 					{$e.what}
 				</td>
+            </tr>
 		{else}
 			{foreach from=$e.what item=r}
 				{if isset($e.who)}
@@ -38,7 +39,7 @@
 					<td class="data">
 						{$r.2}
 					</td>
-				<tr>
+				</tr>
 			{/foreach}
 		{/if}
 		{if isset($e.who)}
@@ -51,6 +52,5 @@
 				</td>
 			</tr>
 		{/if}
-		</tr>
 	{/foreach}
 </table>

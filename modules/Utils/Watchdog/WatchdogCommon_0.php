@@ -115,7 +115,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
             $wants_email = Base_User_SettingsCommon::get('Utils_Watchdog', 'email', $user_id);
             if (!$wants_email) continue;
             Acl::set_user($user_id);
-            $email_data = self::display_events($category_id, array($event_id => $message), $id);
+            $email_data = self::display_events($category_id, array($event_id => $message), $id, true);
             if (!$email_data) continue;
             $contact = Utils_RecordBrowserCommon::get_id('contact', 'login', $user_id);
             if (!$contact) continue;
@@ -257,12 +257,12 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}
 		Base_ActionBarCommon::add($icon,$label,$href);
 	}
-	public static function display_events($category_name, $changes, $id) {
+	public static function display_events($category_name, $changes, $id, $for_email = false) {
 		if (!is_array($changes)) return '';
 		$category_id = self::get_category_id($category_name);
 		$method = DB::GetOne('SELECT callback FROM utils_watchdog_category WHERE id=%d', array($category_id));
 		$method = explode('::', $method);
-		$data = call_user_func($method, $id, $changes);
+		$data = call_user_func($method, $id, $changes, true, $for_email);
 		if (!isset($data['events'])) return '';
 		return $data;
 	}
