@@ -2422,11 +2422,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $r = self::get_record($tab, $rid);
             if ($r===null) return null;
 			if (!self::get_access($tab, 'view', $r)) return null;
-            if (is_array($label)) $label = call_user_func($label, $r, true);
-            elseif ($label) $label = $r[$label];
-            $ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid).$label;
-            $close = Utils_RecordBrowserCommon::record_link_close_tag();
-            $ret['title'] .= $close;
+            if (is_array($label)) {
+                $label = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid)
+                        . call_user_func($label, $r, true)
+                        . Utils_RecordBrowserCommon::record_link_close_tag();
+            } elseif ($label) {
+                $label = Utils_RecordBrowserCommon::create_linked_label_r($tab, $label, $r);
+            } else {
+                $label = Utils_RecordBrowserCommon::create_default_linked_label($tab, $rid, false, false);
+            }
+
+            $ret['title'] = $label;
             $ret['view_href'] = Utils_RecordBrowserCommon::create_record_href($tab, $rid);
             $events_display = array();
             $events = array_reverse($events);
