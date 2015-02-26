@@ -93,7 +93,15 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function dont_notify($d=true) {
 		self::$disabled=$d;
 	}
-	
+
+    public static function email_mode($set = null)
+    {
+        static $email_mode = false;
+        if ($set !== null) {
+            $email_mode = ($set == true);
+        }
+        return $email_mode;
+    }
 	public static function new_event($category_name, $id, $message) {
 		if(self::$disabled) return;
 		$category_id = self::get_category_id($category_name, false);
@@ -110,6 +118,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
         $subscribers = self::get_subscribers($category_name, $id);
 
 		$c_user = Acl::get_user();
+        self::email_mode(true);
 		foreach ($subscribers as $user_id) {
             if ($user_id==$c_user) continue;
             $wants_email = Base_User_SettingsCommon::get('Utils_Watchdog', 'email', $user_id);
@@ -127,6 +136,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
         }
 		Acl::set_user($c_user);
         Base_LangCommon::load();
+        self::email_mode(false);
     }
 	// *************************** Subscription manipulation *******************
 	public static function user_purge_notifications($user_id, $category_name, $time=null) {

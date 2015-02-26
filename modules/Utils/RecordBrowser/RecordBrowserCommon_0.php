@@ -2232,11 +2232,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $label = ($table_name?$cap.': ':'').self::get_val($tab,$field,$rec,$nolink);
         }
         $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
-        if ($nolink == false && $detailed_tooltip
-            && Utils_TooltipCommon::is_tooltip_code_in_str($ret) == false) {
-            $ret = Utils_TooltipCommon::ajax_create($ret, array(__CLASS__, 'default_record_tooltip'), array($tab, $id));
+        if ($nolink == false && $detailed_tooltip) {
+            $ret = self::create_default_record_tooltip_ajax($ret, $tab, $id);
         }
         return $ret;
+    }
+
+    public static function create_default_record_tooltip_ajax($string, $tab, $id, $force = false)
+    {
+        if ($force == false && Utils_TooltipCommon::is_tooltip_code_in_str($string)) {
+            return $string;
+        }
+        $string = Utils_TooltipCommon::ajax_create($string, array(__CLASS__, 'default_record_tooltip'), array($tab, $id));
+        return $string;
     }
 
     public static function get_record_tooltip_data($tab, $record_id)
@@ -2421,18 +2429,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $ret['events'];
 	}
 	
-    public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null, $details = true, $for_email = false) {
+    public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null, $details = true) {
         $ret = array('category'=>$cat);
         if ($rid!==null) {
             $r = self::get_record($tab, $rid);
             if ($r===null) return null;
 			if (!self::get_access($tab, 'view', $r)) return null;
             if (is_array($label)) {
-                $label = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid)
-                        . call_user_func($label, $r, true)
-                        . Utils_RecordBrowserCommon::record_link_close_tag();
+                $label = call_user_func($label, $r);
             } elseif ($label) {
                 $label = Utils_RecordBrowserCommon::create_linked_label_r($tab, $label, $r);
+                $label = self::create_default_record_tooltip_ajax($label, $tab, $rid);
             } else {
                 $label = Utils_RecordBrowserCommon::create_default_linked_label($tab, $rid, false, false);
             }
@@ -2503,7 +2510,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $theme->assign('events', $events_display);
 
                 $tpl = 'changes_list';
-                if ($for_email) {
+                if (Utils_WatchdogCommon::email_mode()) {
                     $record_data = self::get_record_tooltip_data($tab, $rid);
                     $theme->assign('record', $record_data);
                     $tpl = 'changes_list_email';
