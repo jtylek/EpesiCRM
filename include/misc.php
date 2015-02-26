@@ -330,6 +330,21 @@ function get_epesi_url() {
     return trim($url);
 }
 
+function get_client_ip_address()
+{
+    $remote_address = $_SERVER['REMOTE_ADDR'];
+    if (isset($_SERVER['HTTP_X_REAL_IP'])) {
+        $remote_address = $_SERVER['HTTP_X_REAL_IP'];
+    } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $remote_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } elseif (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        $remote_address = $_SERVER['HTTP_CF_CONNECTING_IP'];
+    } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
+        $remote_address = $_SERVER['HTTP_CLIENT_IP'];
+    }
+    return $remote_address;
+}
+
 function filesize_hr($size) {
 	if(!is_numeric($size)) $size = filesize($size);
 	$bytes = array('B','KB','MB','GB','TB');
