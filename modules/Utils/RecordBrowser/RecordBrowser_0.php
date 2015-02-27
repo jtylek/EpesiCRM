@@ -1244,6 +1244,9 @@ class Utils_RecordBrowser extends Module {
         self::$tab_param = $tb->get_path();
 
         $form = $this->init_module('Libs/QuickForm',null, $mode);
+        if(Base_User_SettingsCommon::get($this->get_type(), 'confirm_leave') && ($mode == 'add' || $mode == 'edit'))
+        	$form->set_confirm_leave_page();
+        
         $this->form = $form;
 
         if($mode!='add')
