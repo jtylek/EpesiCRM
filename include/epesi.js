@@ -148,6 +148,7 @@ var Epesi = {
 		});
 	},
 	href: function(url,indicator,mode) {
+		if (!Epesi.confirmLeave.check()) return;
 		if(Epesi.procOn==0 || mode=='allow'){
 			if(indicator=='') indicator=Epesi.default_indicator;
 			Epesi.updateIndicatorText(indicator);
