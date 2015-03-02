@@ -194,6 +194,8 @@
 .Utils_RecordBrowser__View_entry .form_error img {
 	margin-left: 5px;
 	border: none;
+	position: absolute;
+	right:3px;
 }
 .Utils_RecordBrowser__View_entry .form_error a {
 	color: white;
@@ -209,7 +211,7 @@
 	display: block;
 	height: 15px;
 	margin: 0;
-	padding: 3px 5px 2px 15px;
+	padding: 3px 15px 2px 15px;
 	font-weight: bold;
 	z-index: 5;
 	white-space: nowrap;
@@ -229,6 +231,10 @@
 	background: -ms-linear-gradient(top,  #a72527 0%,#d32f32 50%,#a72527 51%,#881e20 100%); /* IE10+ */
 	background: linear-gradient(top,  #a72527 0%,#d32f32 50%,#a72527 51%,#881e20 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a72527', endColorstr='#881e20',GradientType=0 ); /* IE6-9 */
+	
+	max-width:50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .Utils_RecordBrowser__View_entry .longfields .form_error,

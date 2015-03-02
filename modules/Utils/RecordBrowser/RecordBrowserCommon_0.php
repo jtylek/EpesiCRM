@@ -1913,9 +1913,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function get_record($tab, $id, $htmlspecialchars=true) {
         if (!is_numeric($id)) return null;
-        self::init($tab);
         if (isset($id)) {
-            self::check_table_name($tab);
+            if(!self::check_table_name($tab,false,false)) return null;
+            self::init($tab);
             $row = DB::GetRow('SELECT * FROM '.$tab.'_data_1 WHERE id=%d', array($id));
             $record = array('id'=>$id);
             if (!isset($row['active'])) return null;
@@ -3341,7 +3341,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     } else {
                         $t = $kk[0];
                         $record_id = $kk[1];
-                        if(!self::check_table_name($t) || !is_numeric($record_id)) continue;
+                        if(!self::check_table_name($t,false,false) || !is_numeric($record_id)) continue;
                     }
                     $c = Utils_RecordBrowserCommon::get_record($t, $record_id);
                     if (!empty($multi_adv_params['format_callback']))
