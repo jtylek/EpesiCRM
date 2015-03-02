@@ -20,6 +20,12 @@ function wait_while_null(id,action) {
 };
 
 var Epesi = {
+	default_indicator:'loading...',
+	procOn:0,
+	client_id:0,
+	process_file:'process.php',
+	indicator:'epesiStatus',
+	indicator_text:'epesiStatusText',
 	confirmLeave: {
 		//array of form ids which require confirmation for leaving the page
 		forms:[], 
@@ -63,12 +69,6 @@ var Epesi = {
 			if (!this.forms.length) jQuery(window).unbind('beforeunload');
 		}		
 	},
-	default_indicator:'loading...',
-	procOn:0,
-	client_id:0,
-	process_file:'process.php',
-	indicator:'epesiStatus',
-	indicator_text:'epesiStatusText',
 	updateIndicator: function() {
 		var s = $(Epesi.indicator);
 		if(s) s.style.visibility = Epesi.procOn ? 'visible' : 'hidden';
