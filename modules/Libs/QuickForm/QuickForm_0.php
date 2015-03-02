@@ -103,7 +103,10 @@ class Libs_QuickForm extends Module {
 		$chj = '';
 		$post = '';
 		foreach ($form_name as $f) {
-			if ($submited) $pre .= "$('".addslashes($f)."').submited.value=1;";
+			if ($submited) {
+				$pre .= 'Epesi.confirmLeave.deactivate(\''.addslashes($f).'\');';
+				$pre .= "$('".addslashes($f)."').submited.value=1;";
+			}
 			$pre .= "Event.fire(document,'e:submit_form','".$f."');";
 			$pre .= str_replace('this',"$('".addslashes($f)."')",Libs_QuickFormCommon::get_on_submit_actions());
 			if ($chj) $chj .= "+'&'+";
@@ -323,12 +326,20 @@ class Libs_QuickForm extends Module {
 		$this->assign_theme('form', $t);
 		$t->display('column');
 	}
+	
 	public function display_as_row() {
 		$t = $this->init_module('Base_Theme');
 		$this->add_error_closing_buttons();
 		$this->assign_theme('form', $t);
 		$t->display('row');
 	}
-
+	
+	public function set_confirm_leave_page($activate = true, $message = null) {
+		if ($activate) {
+			$message = empty($message)? __('Leave page without saving changes?'): $message;
+			eval_js('if (Epesi.hasOwnProperty(\'confirmLeave\')) {Epesi.confirmLeave.activate(\''.addslashes($this->get_name()).'\', \''.addslashes($message).'\');}');
+		}
+		else eval_js('if (Epesi.hasOwnProperty(\'confirmLeave\')) Epesi.confirmLeave.deactivate(\''.addslashes($this->get_name()).'\');');
+	}
 }
 ?>
