@@ -20,6 +20,49 @@ function wait_while_null(id,action) {
 };
 
 var Epesi = {
+	confirmLeave: {
+		//array of form ids which require confirmation for leaving the page
+		forms:[], 
+		message:'Leave page?',
+		//checks if leaving the page is approved
+		check: function() {
+			//remove non-existent forms from the array
+			jQuery.each(this.forms, function(i, f) {
+				if (!jQuery('#'+f).length) Epesi.confirmLeave.deactivate(f);
+			});
+			//if forms array contains values means leave page confirmation is activated
+			if (this.forms.length) {
+				//take care if user disabled alert messages
+				var openTime = new Date();
+				try {
+					var confirmed = confirm(this.message);
+				} catch(e) {
+					var confirmed = true;
+				}
+				var closeTime = new Date();
+				if ((closeTime - openTime) > 350 && !confirmed) return false;
+				this.deactivate();
+			}
+			return true;
+		},
+		activate: function(f, m) {
+			this.forms.push(f);
+			this.message = m;
+			//take care if user refreshing or going to another page
+			jQuery(window).on('beforeunload', function() {
+				return Epesi.confirmLeave.message;
+			});
+		},
+		deactivate: function(f) {
+			if (arguments.length) {
+				var i = this.forms.indexOf(f);
+				if (i > -1) this.forms.splice(i, 1);				
+			}
+			else this.forms = [];
+				
+			if (!this.forms.length) jQuery(window).unbind('beforeunload');
+		}		
+	},
 	default_indicator:'loading...',
 	procOn:0,
 	client_id:0,
@@ -105,6 +148,7 @@ var Epesi = {
 		});
 	},
 	href: function(url,indicator,mode) {
+		if (!Epesi.confirmLeave.check()) return;
 		if(Epesi.procOn==0 || mode=='allow'){
 			if(indicator=='') indicator=Epesi.default_indicator;
 			Epesi.updateIndicatorText(indicator);
