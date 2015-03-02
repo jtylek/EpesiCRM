@@ -3644,7 +3644,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             //if there are fields that should not be visible, remove them from results list and recalculate score
             foreach($score['fields'] as $fields_group => $fields) {
                 foreach($fields as $field_pos=>$field_id) {
-                    $field = $cols_cache[$tab][$field_id]['id'];
+                    if(isset($cols_cache[$tab][$field_id]))
+                        $field = $cols_cache[$tab][$field_id]['id'];
+                    else
+                        $field = '';
                     if(!isset($has_access[$field]) || !$has_access[$field]) {
                         unset($score['fields'][$fields_group][$field_pos]);
                     }
