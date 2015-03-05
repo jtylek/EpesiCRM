@@ -203,17 +203,3 @@ class Base_Admin extends Module {
 		$theme->display('access_panel');
 	}
 }
-
-if(!interface_exists('Base_AdminInterface', false)) {
-/**
- * Interface which you must implement if you would like to have module administration entry.
- * 
- * @package epesi-base-extra
- * @subpackage admin
- */
-	interface Base_AdminInterface {
-		public function admin();
-	}
-}
-
-?>
