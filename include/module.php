@@ -53,7 +53,7 @@ abstract class Module extends ModulePrimitive {
 		if($parent) {
 			$this->parent = & $parent;
 			if(isset($name))
-				$this->instance = (string)$name;
+				$this->instance = (string)preg_replace('/[^A-Z0-9\_]+/i','_',$name);
 			else
 				$this->instance = $parent->get_new_child_instance_id($this->type_with_submodule);
 			$parent->register_child($this);
