@@ -45,7 +45,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         if ($args===null) $args = self::$table_rows[$field];
         if(!array_key_exists('id',$record)) $record['id'] = null;
-        if (!isset($record[$args['id']])) trigger_error($args['id'].' - unknown field for record '.serialize($record), E_USER_ERROR);
+        if (!array_key_exists($args['id'],$record)) trigger_error($args['id'].' - unknown field for record '.serialize($record), E_USER_ERROR);
         $val = $record[$args['id']];
 		self::display_callback_cache($tab);
         if (isset(self::$display_callback_table[$tab][$field])) {
@@ -3004,9 +3004,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 										}
 										if (!is_array($v)) $v = array($v);
 										$args = self::$table_rows[self::$hash[$k]];
+										if($args['type']=='checkbox' && count($v)==2 && !$v[0] && !$v[1]) unset($v[1]);
 										foreach ($v as $kk=>$vv) {
 											if (!is_numeric($vv) && !$args['commondata'] && isset($args['ref_table'])) {
-												$v[$kk] = $vv;
 												continue;
 											}
 											$v[$kk] = self::get_val($tab, $k, array($k=>$vv), true);
