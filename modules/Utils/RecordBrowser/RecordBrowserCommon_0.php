@@ -2198,11 +2198,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (isset(self::$table_rows[$col])) $cols[$k] = self::$table_rows[$col]['id'];
             elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
 		}
-        $row = DB::GetRow('SELECT f_'.implode(', f_',$cols).' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
+        $record = self::get_record($tab, $id);
         foreach ($cols as $col) {
-			$val = & $row['f_'.$col];
-            if (isset($val) && $val)
-                $vals[] = $val;
+            if (isset($record[$col])) {
+                $val = self::get_val($tab, $col, $record, true);
+                if ($val) {
+                    $vals[] = $val;;
+                }
+            }
         }
         return self::record_link_open_tag($tab, $id, $nolink) . 
                 implode(' ', $vals ) . self::record_link_close_tag();
@@ -3349,13 +3352,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         $n = call_user_func($multi_adv_params['format_callback'], $c);
                     else {
                         if ($columns_qty==0) 
-                            $n = self::create_default_linked_label($t,$record_id);
+                            $n = self::create_default_linked_label($t,$record_id, true);
                         elseif ($columns_qty==1)
-                            $n = $c[$col_id[0]];
+                            $n = self::get_val($t, $col_id[0], $c, true);
                         else {
                             $n = array();
                             foreach ($col_id as $cid)
-                                $n[] = $c[$cid];
+                                $n[] = self::get_val($t, $cid, $c, true);
                             $n = implode(' ', $n);
                         }
                     }
@@ -3368,22 +3371,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if (!empty($multi_adv_params['format_callback']))
                     $n = call_user_func($multi_adv_params['format_callback'], $v);
                 else {
+                    if($single_tab && is_numeric($k)) {
+                        $t = $tab;
+                        $record_id = $k;
+                    } else {
+                        $kk = explode('/',$k,2);
+                        $t = $kk[0];
+                        $record_id = $kk[1];
+                    }
                     if ($columns_qty==0) {
-                        if($single_tab && is_numeric($k)) {
-                            $t = $tab;
-                            $record_id = $k;
-                        } else {
-                            $kk = explode('/',$k,2);
-                            $t = $kk[0];
-                            $record_id = $kk[1];
-                        }
-                        $n = self::create_default_linked_label($t,$record_id);
+                        $n = self::create_default_linked_label($t, $record_id, true);
                     } elseif ($columns_qty==1) {
-                        $n = $v[$col_id[0]];
+                        $n = self::get_val($t, $col_id[0], $v, true);
                     } else {
                         $n = array();
                         foreach ($col_id as $cid)
-                            $n[] = $v[$cid];
+                            $n[] = self::get_val($t, $cid, $v, true);
                         $n = implode(' ', $n);
                     }
                 }
