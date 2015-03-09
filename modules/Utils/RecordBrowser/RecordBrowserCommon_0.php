@@ -37,6 +37,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	
     public static function get_val($tab, $field, $record, $links_not_recommended = false, $args = null) {
+        static $recurrence_call_stack = array();
         self::init($tab);
         $commondata_sep = '/';
         if (!isset(self::$table_rows[$field])) {
@@ -47,6 +48,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if(!array_key_exists('id',$record)) $record['id'] = null;
         if (!array_key_exists($args['id'],$record)) trigger_error($args['id'].' - unknown field for record '.serialize($record), E_USER_ERROR);
         $val = $record[$args['id']];
+        $function_call_id = implode('|', array($tab, $field, serialize($val)));
+        if (isset($recurrence_call_stack[$function_call_id])) {
+            return '!! ' . __('recurrence issue') . ' !!';
+        } else {
+            $recurrence_call_stack[$function_call_id] = true;
+        }
 		self::display_callback_cache($tab);
         if (isset(self::$display_callback_table[$tab][$field])) {
             $ret = call_user_func(self::$display_callback_table[$tab][$field], $record, $links_not_recommended, self::$table_rows[$field]);
@@ -55,6 +62,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($args['type']=='select' || $args['type']=='multiselect') {
                 if ((is_array($val) && empty($val)) || (!is_array($val) && $val=='')) {
                     $ret = '---';
+                    unset($recurrence_call_stack[$function_call_id]);
                     return $ret;
                 }
                 $param = explode(';',$args['param']);
@@ -62,7 +70,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $tab = $pp[0];
                 if (isset($pp[1])) $col = $pp[1];
                 else $col = null;//return;//trigger_error("\"param\" attribute of field \"$field\" is not valid. Please set <recordset>::<field>");
-                if(!$col && $tab=='__COMMON__') return;
+                if(!$col && $tab=='__COMMON__') {
+                    unset($recurrence_call_stack[$function_call_id]);
+                    return;
+                }
                 
                 if (!is_array($val)) $val = array($val);
 //              if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_translated_array($col, true);
@@ -154,6 +165,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $ret = Utils_BBCodeCommon::parse($ret);
             }
         }
+        unset($recurrence_call_stack[$function_call_id]);
         return $ret;
     }
     public static function multiselect_from_common($arrid) {
