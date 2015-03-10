@@ -26,6 +26,24 @@ CURRENT
 - Fix GenericBrowser's default template when expandable is disabled
 - Changes in expandable calculation to wrap long text fields - GenericBrowser
 - Fix admin access param to get_records method - RecordBrowser
+- Fix RB access rules - edit form and add check
+- Improve Demo mode security issue check for Base/Print module
+- Add filtering in RB for currency, integer and float fields
+- Add submodule concept and clean module manager code (Dev)
+- Add shared module variables concept (Dev)
+- Add custom port for SQL server during installation
+- Add resizable columns to GB (georgehristov)
+- Add small delay to load tooltips with AJAX
+- Add record info tooltips for every default linked label in RB
+- Fix access to csv export
+- Remove addons during recordset uninstallation
+- Add global function to get client IP address
+- Translate watchdog email notifications to user's language
+- Separate and improve watchdog email template
+- Confirm leaving edit form
+- Fix bugs in: RB search, module instance name
+- Fix recurrent calls to get_val
+- Improve select field labels to retrieve nested select values
 
 RELEASE 1.6.3-20150107
 -------
