@@ -104,7 +104,7 @@ class Libs_QuickForm extends Module {
 		$post = '';
 		foreach ($form_name as $f) {
 			if ($submited) {
-				$pre .= 'Epesi.confirmLeave.deactivate(\''.addslashes($f).'\');';
+				$pre .= 'Epesi.confirmLeave.freeze(\''.addslashes($f).'\');';
 				$pre .= "$('".addslashes($f)."').submited.value=1;";
 			}
 			$pre .= "Event.fire(document,'e:submit_form','".$f."');";
