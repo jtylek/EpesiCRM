@@ -44,6 +44,7 @@ CURRENT
 - Fix bugs in: RB search, module instance name
 - Fix recurrent calls to get_val
 - Improve select field labels to retrieve nested select values
+- Fix PostgreSQL database creation - quote db name
 
 RELEASE 1.6.3-20150107
 -------

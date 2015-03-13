@@ -266,7 +266,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 							$host .= ':' . $port;
 						}
 						if ($new_db == 1) {
-							$sql = 'CREATE DATABASE '.$dbname;
+							$sql = 'CREATE DATABASE "'.$dbname.'"';
 							if (pg_query($link, $sql)) {
 				   				//echo "Database '$dbname' created successfully\n";
 				   				write_config($host,$user,$pass,$dbname,$engine,$other);
