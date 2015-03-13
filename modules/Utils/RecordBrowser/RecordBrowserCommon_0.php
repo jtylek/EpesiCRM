@@ -2452,7 +2452,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($r===null) return null;
 			if (!self::get_access($tab, 'view', $r)) return null;
             if (is_array($label)) {
-                $label = call_user_func($label, $r);
+                $label = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid)
+                         . call_user_func($label, $r, true)
+                         . Utils_RecordBrowserCommon::record_link_close_tag();
+                $label = self::create_default_record_tooltip_ajax($label, $tab, $rid);
             } elseif ($label) {
                 $label = Utils_RecordBrowserCommon::create_linked_label_r($tab, $label, $r);
                 $label = self::create_default_record_tooltip_ajax($label, $tab, $rid);
