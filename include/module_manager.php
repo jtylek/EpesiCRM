@@ -1041,6 +1041,12 @@ class ModuleManager {
 	}
 
 	public static function set_module_state($module, $state) {
+        static $column_present;
+        if ($column_present === null) {
+            $column_names = DB::MetaColumnNames('modules');
+            $column_present = isset($column_names['STATE']);
+        }
+        if (!$column_present) return;
 		DB::Execute('UPDATE modules SET state=%d WHERE name=%s', array($state, $module));
 		Cache::clear();
 	}
