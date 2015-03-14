@@ -879,7 +879,9 @@ class ModuleManager {
 	}
 	
 	public static final function create_common_cache() {
-		$installed_modules = ModuleManager::get_load_priority_array(true);
+        if(!FORCE_CACHE_COMMON_FILES) return;
+
+        $installed_modules = ModuleManager::get_load_priority_array(true);
 		$ret = '';
 		foreach($installed_modules as $row) {
 			$module = $row['name'];
