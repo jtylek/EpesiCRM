@@ -370,7 +370,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $decoded = Utils_AttachmentCommon::decrypt($row['note'],$note_pass);
                 if($decoded!==false) {
                     $text = $decoded;
-                    Utils_WatchdogCommon::notified('utils_attachment', $row['id']);
+                    Utils_WatchdogCommon::notified('utils_attachment', $row['id']); // notified only when decrypted
                 }
             }
             if($text===false) {
@@ -383,7 +383,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
         } else {
             $text = $row['note'];
             $text = Utils_BBCodeCommon::parse($text);
-            Utils_WatchdogCommon::notified('utils_attachment', $row['id']);
+            // mark as read all 'browsed' records
+            foreach (self::$mark_as_read as $note_id) {
+                Utils_WatchdogCommon::notified('utils_attachment', $note_id);
+            }
+            self::$mark_as_read = array();
         }
 
         $text = (!$view?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':'').$text.$icon.$inline_img;
@@ -531,9 +535,17 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return true;
     }
 
+    private static $mark_as_read = array();
     public static function submit_attachment($values, $mode) {
         static $new_values, $old_password;
         switch ($mode) {
+            case 'browse':
+                if (isset($values['id']) && isset($values['crypted']) && $values['crypted'] == false) {
+                    // store to mark as read. Do not mark it here, because
+                    // we won't get red eye in the table view
+                    self::$mark_as_read[] = $values['id'];
+                }
+                return $values;
             case 'index':
                 if($values['crypted']) unset($values['note']);
                 return $values;
