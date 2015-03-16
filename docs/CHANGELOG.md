@@ -3,7 +3,7 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
-CURRENT
+RELEASE 1.6.4-20150316
 -------
 
 - Change cookie expiration time to 7 days for maintenance mode
