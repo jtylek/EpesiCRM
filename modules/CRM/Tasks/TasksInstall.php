@@ -43,20 +43,21 @@ class CRM_TasksInstall extends ModuleInstall {
         //task recordset
 		$fields = array(
 			array('name' => _M('Title'), 				'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_TasksCommon','display_title')),
-
 			array('name' => _M('Description'), 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
-
 			array('name' => _M('Employees'), 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_TasksCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('CRM_TasksCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true, 'filter'=>true),
 			array('name' => _M('Customers'), 			'type'=>'crm_company_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_TasksCommon','customers_crits')), 'extra'=>false, 'visible'=>true),
-
 			array('name' => _M('Status'),				'type'=>'commondata', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>array('order_by_key'=>true,'CRM/Status'), 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_TasksCommon','display_status')),
 			array('name' => _M('Priority'), 			'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>array('order_by_key'=>true,'CRM/Priority'), 'extra'=>false, 'filter'=>true),
 			array('name' => _M('Permission'), 		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
-
 			array('name' => _M('Longterm'),			'type'=>'checkbox', 'extra'=>false, 'filter'=>true, 'visible'=>true),
-
-//			array('name' => _M('Is Deadline'),		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_TasksCommon','QFfield_is_deadline')),			
-			array('name' => _M('Deadline'),			'type'=>'date', 'extra'=>false, 'visible'=>true),
+			array('name' => _M('Deadline'),			'type'=>'date', 'extra'=>false, 'visible'=>true,'display_callback'=>array('CRM_TasksCommon','display_deadline')),
+            array(
+                'name'     => _M('Deadline Time'),
+                'type'     => 'time',
+                'required' => false,
+                'extra'    => false,
+                'visible'  => true,
+            ),
             array(
                 'name'     => _M('Related'),
                 'type'     => 'multiselect',

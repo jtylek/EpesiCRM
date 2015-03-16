@@ -25,8 +25,10 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $first = false;
 	private $date_range;
 	private $pdf = false;
+	private $csv = false;
 	private $charts = false;
 	private $pdf_ob = null;
+	private $csv_ob = array();
 	private $widths = array();
 	private $fontsize = 12;
 	private $height = 14;
@@ -317,6 +319,9 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function display_pdf_row($grow) {
+		if(empty($grow)) return;
+		static $first_row;
+		if(!isset($first_row)) $first_row = true;
 		$table = '';
 		foreach ($grow as $row) {
 			$theme = $this->init_module('Base/Theme');
@@ -330,8 +335,9 @@ class Utils_RecordBrowser_Reports extends Module {
 		$pages = $this->pdf_ob->getNumPages();
 		$tmppdf = clone($this->pdf_ob->tcpdf);
 		$tmppdf->WriteHTML($table,false,0,false);
-		if ($pages==$tmppdf->getNumPages()) {
+		if ($pages==$tmppdf->getNumPages() || $first_row) {
 			$this->pdf_ob->writeHTML($table,false);
+			$first_row = false;
 			return;
 		}
 		$this->pdf_ob->AddPage();
@@ -355,6 +361,13 @@ class Utils_RecordBrowser_Reports extends Module {
 		if ($this->row_summary!==false)
 			$this->gb_captions[] = array('name'=>$this->row_summary['label'], 'wrapmode'=>'nowrap');
 		$this->new_table_page();
+		
+		if($this->csv) {
+			$cols = array();
+			foreach($this->gb_captions as $a)
+				$cols[] = html_entity_decode(strip_tags($a['name']));
+			$this->csv_ob[] = $cols;
+		}
 
 		if ($this->pdf) {
 			$cols = count($this->gb_captions);
@@ -395,7 +408,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			if (empty($this->categories)) {
 				$total = array();
 				$i = 0;
-				$ref_rec = call_user_func($this->ref_record_display_callback, $r, $this->pdf?true:false);
+				$ref_rec = call_user_func($this->ref_record_display_callback, $r, $this->pdf || $this->csv?true:false);
 				foreach ($results as & $res_ref) {
 					if (!is_array($res_ref)) $res_ref = array($res_ref);
 					if ($this->row_summary!==false) {
@@ -430,7 +443,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$count = count($this->categories);
 				foreach ($this->categories as $c_id=>$c) {
 					if ($this->first) {
-						$ref_rec = call_user_func($this->ref_record_display_callback, $r, $this->pdf?true:false);
+						$ref_rec = call_user_func($this->ref_record_display_callback, $r, $this->pdf || $this->csv?true:false);
 						$grow = array(0=>$this->format_cell(array('row_desc'), $ref_rec));
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
 					$grow[] = $this->format_cell(array(), $c);
@@ -492,7 +505,16 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 			if(!empty($this->categories) && !empty($ggrow))
 				$ggrow[0][0]['attrs'] .= ' rowspan="'.count($ggrow).'" ';
-			if ($this->pdf) {
+			if($this->csv) {
+				$first = '';
+				foreach($ggrow as $grow) {
+					$csv_row = array();
+					foreach($grow as $elem) $csv_row[] = html_entity_decode(strip_tags(preg_replace('/<(h|b)r\s*\/?>/i',"\n",isset($elem['value'])?$elem['value']:(!is_array($elem)?$elem:'?'))));
+					if(!$first && $csv_row[0]) $first = $csv_row[0];
+					elseif(!$csv_row[0]) $csv_row[0] = $first;
+					$this->csv_ob[] = $csv_row;
+				}
+			} elseif ($this->pdf) {
 				$this->display_pdf_row($ggrow);
 			} else {
 				foreach ($ggrow as $grow) {
@@ -585,10 +607,17 @@ class Utils_RecordBrowser_Reports extends Module {
 			for($i=2; $i<count($ggrow[$m]); $i++)
 				$ggrow[$m][$i]['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i-2]['name'], $ggrow[$m][$i]['value'],$ggrow[$m][1]['value']);
 		}
-		if ($this->pdf) {
+		if($this->csv) {
+			$first = '';
+			foreach($ggrow as $grow) {
+				$csv_row = array();
+				foreach($grow as $elem) $csv_row[] = html_entity_decode(strip_tags(preg_replace('/<(h|b)r\s*\/?>/i',"\n",isset($elem['value'])?$elem['value']:(!is_array($elem)?$elem:'?'))));
+				if(!$first && $csv_row[0]) $first = $csv_row[0];
+				elseif(!$csv_row[0]) $csv_row[0] = $first;
+				$this->csv_ob[] = $csv_row;
+			}
+		} elseif ($this->pdf) {
 			$this->display_pdf_row($ggrow,true);
-		} elseif($this->charts) {
-
 		} else {
 			foreach ($ggrow as $grow) {
 				$gb_row = $this->gb->get_new_row();
@@ -1040,6 +1069,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
 		$this->pdf = $pdf || isset($_REQUEST['rb_reports_enable_pdf']);
+		$this->csv = isset($_REQUEST['rb_reports_enable_csv']);
 		unset($_REQUEST['rb_reports_enable_pdf']);
 		$this->charts = $charts;
 		if ($this->pdf) {
@@ -1048,7 +1078,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->pdf_ob->set_subject($this->pdf_subject);
 			$this->pdf_ob->prepare_header();
 			$this->pdf_ob->AddPage();
-		} elseif (!$this->charts) {
+		} elseif (!$this->charts && !$this->csv) {
 			Base_ActionBarCommon::add('report',__('Charts'),$this->create_callback_href(array($this, 'body'), array(false,true)));
 		}
 
@@ -1056,19 +1086,30 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->make_charts();
 		else
 			$this->make_table();
+		if($this->csv) {
+			$this->set_module_variable('csv',$this->csv_ob);
+		}
 
 		if($charts) {
 			Base_ActionBarCommon::add('report',__('Table'),$this->create_back_href());
 			return true;
 		} else {
-			if ($this->pdf){
-				Base_ActionBarCommon::add('save',__('Download PDF'),'target="_blank" href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
-				self::$pdf_ready = 1;
-			} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
-				if (count($this->gb_captions)<20)
-					Base_ActionBarCommon::add('print',__('Create PDF'),$this->create_href(array('rb_reports_enable_pdf'=>1)));
-				else
-					Base_ActionBarCommon::add('print',__('Create PDF'),'',__('Too many columns to prepare printable version - please limit number of columns'));
+			if(!$this->csv) {
+				if ($this->pdf){
+					Base_ActionBarCommon::add('save',__('Download PDF'),'target="_blank" href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
+					self::$pdf_ready = 1;
+				} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
+					if (count($this->gb_captions)<20)
+						Base_ActionBarCommon::add('print',__('Create PDF'),$this->create_href(array('rb_reports_enable_pdf'=>1)));
+					else
+						Base_ActionBarCommon::add('print',__('Create PDF'),'',__('Too many columns to prepare printable version - please limit number of columns'));
+				}
+			}
+			if($this->pdf_filename && !$this->pdf) {
+				if ($this->csv)
+					Base_ActionBarCommon::add('save',__('Download CSV'),'target="_blank" href="'.$this->get_module_dir().'/csv.php?'.http_build_query(array('p'=>$this->get_path(),'id'=>CID,'filename'=>$this->pdf_filename)).'"');
+				else 
+					Base_ActionBarCommon::add('print',__('Create CSV'),$this->create_href(array('rb_reports_enable_csv'=>1)));
 			}
 		}
 		return false;

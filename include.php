@@ -21,6 +21,7 @@ require_once('include/error.php');
 require_once('include/magicquotes.php');
 require_once('include/database.php');
 require_once('include/session.php');
+require_once('include/cache.php');
 require_once('include/variables.php');
 require_once('include/history.php');
 require_once('include/misc.php');

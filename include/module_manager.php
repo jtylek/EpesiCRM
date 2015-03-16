@@ -16,8 +16,9 @@ require_once 'autoloader.php';
  * @subpackage module
  */
 class ModuleManager {
-	public static $not_loaded_modules = null;
-	public static $loaded_modules = array();
+	const MODULE_ENABLED = 0;
+	const MODULE_DISABLED = 1;
+	const MODULE_NOT_FOUND = 2;
 	public static $modules = array();
 	public static $modules_install = array();
 	public static $modules_common = array();
@@ -37,7 +38,10 @@ class ModuleManager {
 		$path = self::get_module_dir_path($module_class_name);
 		$file = self::get_module_file_name($module_class_name);
 		$full_path = 'modules/' . $path . '/' . $file . 'Install.php';
-		if (!file_exists($full_path)) return false;
+		if (!file_exists($full_path)) {
+			self::check_is_module_available($module_class_name);
+			return false;
+		}
 		ob_start();
 		$ret = require_once($full_path);
 		ob_end_clean();
@@ -76,6 +80,8 @@ class ModuleManager {
 				call_user_func(array($x, 'Instance'), $class_name);
     			return true;
 			}
+		} else {
+			self::check_is_module_available($class_name);
 		}
 		return false;
 	}
@@ -107,6 +113,8 @@ class ModuleManager {
                     trigger_error('Module '.$path.': Invalid main file',E_USER_ERROR);
                 return true;
             }
+		} else {
+			self::check_is_module_available($class_name);
 		}
 		return false;
 	}
@@ -475,6 +483,10 @@ class ModuleManager {
 	}
     
     public static final function get_module_class_name($module) {
+		$submodule_delimiter = strpos($module, '#');
+		if ($submodule_delimiter) {
+			$module = substr($module, 0, $submodule_delimiter);
+		}
         return str_replace('/', '_', $module);
     }
 
@@ -571,13 +583,13 @@ class ModuleManager {
 				return false;
 			}
 		}
-		self::$not_loaded_modules[] = array('name'=>$module_class_name,'version'=>$version);
 
 		if($include_common) {
             self::include_common($module_class_name,$version);
 //    		self::create_common_cache();
         }
         if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
+		Cache::clear();
 
 		self::$processed_modules['install'][$module_class_name] = $version;
 		return true;
@@ -644,6 +656,7 @@ class ModuleManager {
 		}
 
 		self::create_load_priority_array();
+		Cache::clear();
 //		self::create_common_cache();
         if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
 
@@ -667,7 +680,7 @@ class ModuleManager {
 		static $load_prior_array=null;
 		if($load_prior_array===null || $force) {
 			$priorities = array();
-			$installed_modules = DB::Execute('SELECT name,version,priority FROM modules ORDER BY priority');
+			$installed_modules = DB::Execute('SELECT * FROM modules ORDER BY priority');
 			if ($installed_modules!==false) {
 				$load_prior_array = array();
 				while (($row = $installed_modules->FetchRow())) {
@@ -676,7 +689,9 @@ class ModuleManager {
 						return self::get_load_priority_array($force);
 					}
 					$priorities[$row['priority']] = true;
-					$load_prior_array[] = $row;
+					if (!isset($row['state']) || $row['state'] == self::MODULE_ENABLED) {
+						$load_prior_array[] = $row;
+					}
 				}
 			}
 		}
@@ -690,29 +705,14 @@ class ModuleManager {
 	 * Use pack_module instead.
 	 *
 	 * @param module name
-	 * @return object newly created module object
-	 * @throws exception 'module not loaded' if the module is not registered
+	 * @return Module Return newly created subclass of module object
 	 */
 	public static final function & new_instance($mod,$parent,$name,$clear_vars=false) {
-		if(!array_key_exists($mod, self::$loaded_modules)) {
-			$loaded = false;
-			foreach(self::$not_loaded_modules as $i=>$v) {
-				$version = $v['version'];
-				$module = $v['name'];
-				ModuleManager :: include_main($module, $version);
-				unset(self::$not_loaded_modules[$i]);
-				self::$loaded_modules[$module] = true;
-				if($module==$mod) {
-					$loaded=true;
-					break;
-				}
-			}
-			if (!$loaded)
-				throw new Exception('module '.$mod.' not loaded');
+		$class = str_replace('#', '_', $mod);
+		if (!in_array('Module', class_parents($class))) {
+			trigger_error("Class $mod is not a subclass of Module", E_USER_ERROR);
 		}
-		if(!class_exists($mod, false))
-			trigger_error('Class not exists: '.$mod,E_USER_ERROR);
-		$m = new $mod($mod,$parent,$name,$clear_vars);
+		$m = new $class($mod,$parent,$name,$clear_vars);
 		return $m;
 	}
 
@@ -792,13 +792,14 @@ class ModuleManager {
 	 * Do not use directly.
 	 */
 	public static final function load_modules() {
+		ModulesAutoloader::enable();
+
 		self::$modules = array();
 		$installed_modules = ModuleManager::get_load_priority_array(true);
-		self::$not_loaded_modules = $installed_modules;
-		self::$loaded_modules = array();
+
 		$cached = false;
 		if(FORCE_CACHE_COMMON_FILES) {
-    		$cache_file = DATA_DIR.'/cache/common.php';
+			$cache_file = DATA_DIR.'/cache/common.php';
 			if(!file_exists($cache_file))
 				self::create_common_cache();
 			ob_start();
@@ -806,19 +807,81 @@ class ModuleManager {
 			ob_end_clean();
 			$cached = true;
 		}
-		foreach($installed_modules as $row) {
+
+		foreach ($installed_modules as $row) {
 			$module = $row['name'];
 			$version = $row['version'];
-			if(!$cached)
-				ModuleManager :: include_common($module, $version);
-			ModuleManager :: register($module, $version, self::$modules);
+			ModuleManager::register($module, $version, self::$modules);
 		}
-        
-        ModulesAutoloader::enable(false);
+
+		// all commons already loaded by FORCE_CACHE_COMMON_FILES
+		if ($cached) return;
+
+		$commons_with_code = Cache::get('commons_with_code');
+		if ($commons_with_code === null) {
+			$commons_with_code = array();
+			foreach ($installed_modules as $row) {
+				$module = $row['name'];
+				$version = $row['version'];
+				if (self::common_has_code($module, $version)) {
+					$commons_with_code[$module] = $version;
+				}
+			}
+			Cache::set('commons_with_code', $commons_with_code);
+			// this code includes all Common files to check for the code
+			// because there is a return
+			return;
+		}
+
+		foreach ($commons_with_code as $module => $version) {
+			if (isset(self::$modules[$module])) {
+				self::include_common($module, $version);
+			}
+		}
+	}
+
+	public static final function common_has_code($module_name, $version)
+	{
+		$class_name = $module_name . 'Common';
+		$file = 'modules/' . self::get_module_dir_path($module_name) . '/' . self::get_module_file_name($module_name) . 'Common_' . $version . '.php';
+		if (!class_exists($class_name, false)) {
+			self::include_common($module_name, $version);
+		}
+		if (!file_exists($file)) {
+			return false;
+		}
+		$start = $end = -1;
+		if (class_exists($class_name, false)) {
+			$rc = new ReflectionClass($class_name);
+			$start = $rc->getStartLine()-1;
+			$end = $rc->getEndLine();
+		}
+		$file_content = '';
+		$file_lines = file($file);
+
+		$VA_regex = '/Direct access forbidden/i';
+
+		foreach ($file_lines as $i => $line) {
+			if ($i >= $start && $i < $end) continue;
+			if (preg_match($VA_regex, $line)) continue;
+			$file_content .= $line;
+		}
+        $tmp_file = tmpfile();
+        fwrite($tmp_file, $file_content);
+        $info = stream_get_meta_data($tmp_file);
+		$stripped_file = php_strip_whitespace($info['uri']);
+        fclose($tmp_file);
+		// heuristic to get info about code. Some very short code can be ommited.
+		if (strlen($stripped_file) > 20) {
+			return true;
+		}
+		return false;
 	}
 	
 	public static final function create_common_cache() {
-		$installed_modules = ModuleManager::get_load_priority_array(true);
+        if(!FORCE_CACHE_COMMON_FILES) return;
+
+        $installed_modules = ModuleManager::get_load_priority_array(true);
 		$ret = '';
 		foreach($installed_modules as $row) {
 			$module = $row['name'];
@@ -889,32 +952,36 @@ class ModuleManager {
 
 	public static final function call_common_methods($method,$cached=true,$args=array()) {
 		static $cache;
+		$modules_with_method = self::check_common_methods($method);
 		$cache_id = $method.md5(serialize($args));
 		if(!isset($cache[$cache_id]) || !$cached) {
 			$ret = array();
 			ob_start();
-			foreach(self::$modules as $name=>$version)
-				if(class_exists($name.'Common') && method_exists($name.'Common', $method)) {
-					$ret[$name] = call_user_func_array(array($name.'Common',$method),$args);
+			foreach($modules_with_method as $name) {
+				$common_class = $name . 'Common';
+				if (class_exists($common_class)) {
+					$ret[$name] = call_user_func_array(array($common_class, $method), $args);
 				}
+			}
 			ob_end_clean();
 			$cache[$cache_id]=$ret;
 		}
 		return $cache[$cache_id];
 	}
 
-	public static final function check_common_methods($method,$cached=true) {
-		static $cache;
-		$cache_id = $method;
-		if(!isset($cache[$cache_id]) || !$cached) {
-			$ret = array();
-			foreach(self::$modules as $name=>$version)
-				if(class_exists($name.'Common') && method_exists($name.'Common', $method)) {
-					$ret[] = $name;
+	public static final function check_common_methods($method) {
+		$cache_key = "common_method_" . $method;
+		$modules_with_method = Cache::get($cache_key);
+		if ($modules_with_method === null) {
+			$modules_with_method = array();
+			foreach(self::$modules as $name=>$version) {
+				if (class_exists($name . 'Common') && method_exists($name . 'Common', $method)) {
+					$modules_with_method[] = $name;
 				}
-			$cache[$cache_id]=&$ret;
+			}
+			Cache::set($cache_key, $modules_with_method);
 		}
-		return $cache[$cache_id];
+		return $modules_with_method;
 	}
 
     /**
@@ -961,4 +1028,29 @@ class ModuleManager {
         DB::Execute('UPDATE cron SET last=0 WHERE func=%s',array($func_md5));
         return true;
     }
+
+	public static function check_is_module_available($module)
+	{
+        return; // temporary disable this feature, because of issues
+		if (!self::module_dir_exists($module)) {
+			self::set_module_state($module, self::MODULE_NOT_FOUND);
+			self::unregister($module, self::$modules);
+		}
+	}
+
+	public static function module_dir_exists($module) {
+		$dir = 'modules/' . self::get_module_dir_path($module);
+		return file_exists($dir);
+	}
+
+	public static function set_module_state($module, $state) {
+        static $column_present;
+        if ($column_present === null) {
+            $column_names = DB::MetaColumnNames('modules');
+            $column_present = isset($column_names['STATE']);
+        }
+        if (!$column_present) return;
+		DB::Execute('UPDATE modules SET state=%d WHERE name=%s', array($state, $module));
+		Cache::clear();
+	}
 }

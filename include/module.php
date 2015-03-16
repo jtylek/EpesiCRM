@@ -22,7 +22,7 @@ abstract class Module extends ModulePrimitive {
 	private $jses = array();
 	private $instance;
 	private $children_count_display;
-	private $type;
+	private $type_with_submodule;
 	private $path;
 	private $reload = null;
 	private $fast_process = false;
@@ -36,17 +36,26 @@ abstract class Module extends ModulePrimitive {
 	 * Constructor. Should not be called directly using new Module('name').
 	 * Use $this->pack_module or $this->init_module (inside other module).
 	 *
-	 * @param string module name
+	 * @param string $type Module name with submodule class delimited with hash
+	 * @param Module|null $parent Parent module
+	 * @param mixed $name Unique instance name. If null, then it will be generated
+	 * @param bool $clear_vars Clear module variables
+	 *
+	 * @throws Exception Exception is thrown, when instance id cannot be generated.
 	 */
 	public final function __construct($type,$parent,$name,$clear_vars) {
-		parent::__construct($type);
-		$this->type = $type;
+		$submodule_delimiter = strpos($type, '#');
+		$this->type_with_submodule = $main_module = $type;
+		if ($submodule_delimiter !== false) {
+			$main_module = substr($type, 0, $submodule_delimiter);
+		}
+		parent::__construct($main_module);
 		if($parent) {
 			$this->parent = & $parent;
 			if(isset($name))
-				$this->instance = (string)$name;
+				$this->instance = (string)preg_replace('/[^A-Z0-9\_]+/i','_',$name);
 			else
-				$this->instance = $parent->get_new_child_instance_id($type);
+				$this->instance = $parent->get_new_child_instance_id($this->type_with_submodule);
 			$parent->register_child($this);
 		} elseif(isset($name))
 			$this->instance = (string)$name;
@@ -60,13 +69,13 @@ abstract class Module extends ModulePrimitive {
 	}
 
 	private final function register_child($ch) {
-		$type = $ch->get_type();
+		$type = $ch->type_with_submodule;
 		$instance = $ch->get_instance_id();
 		if(!isset($this->children[$type]))
 			$this->children[$type] = array();
 		$this->children[$type][$instance] = & $ch;
 		if(DEBUG)
-			Epesi::debug('registering '.$this->get_path().'/'.$type.'|'.$instance);
+			Epesi::debug('registering '.$this->get_path().'/'.$ch->get_node_id());
 	}
 
 	private final function get_new_child_instance_id($type) {
@@ -120,8 +129,9 @@ abstract class Module extends ModulePrimitive {
 	 *
 	 * @return string
 	 */
-	public final function get_node_id() {
-		return $this->type.'|'.$this->instance;
+	public final function get_node_id()
+	{
+		return $this->type_with_submodule . '|' . $this->instance;
 	}
 
 	/**
@@ -156,6 +166,21 @@ abstract class Module extends ModulePrimitive {
 	}
 
 	/**
+	 * Sets variable that will be available only for all instances of that module.
+	 * Note that after page refresh, this variable will preserve its value in contrary to module field variables.
+	 * Module variables are hold separately for every client.
+	 *
+	 * @param string $name  key
+	 * @param mixed  $value value
+	 *
+	 * @return mixed variable value
+	 */
+	public final function set_shared_module_variable($name, $value)
+	{
+		return $_SESSION['client']['__module_vars__'][$this->get_type()][$name] = $value;
+	}
+
+	/**
 	 * Sets variable that will be available only for module instance that called this function.
 	 * Note that after page refresh, this variable will preserve its value in contrary to module field variables.
 	 * Module variables are hold separately for every client.
@@ -183,6 +208,25 @@ abstract class Module extends ModulePrimitive {
 		if(isset($default) && !$this->isset_module_variable($name))
 			$_SESSION['client']['__module_vars__'][$path][$name] = & $default;
 		return $_SESSION['client']['__module_vars__'][$path][$name];
+	}
+
+	/**
+	 * Returns value of a shared module variable.
+	 * If the variable is not set, function will return value given as second parameter.
+	 * For details concerning shared module variables, see set_shared_module_variable.
+	 *
+	 * @param string $name    key
+	 * @param mixed  $default default value
+	 *
+	 * @return mixed value
+	 */
+	public final function & get_shared_module_variable($name, $default = null)
+	{
+		$type = $this->get_type();
+		if (isset($default) && !$this->isset_shared_module_variable($name)) {
+			$_SESSION['client']['__module_vars__'][$type][$name] = &$default;
+		}
+		return $_SESSION['client']['__module_vars__'][$type][$name];
 	}
 
 
@@ -232,6 +276,19 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function isset_module_variable($name) {
 		return isset($_SESSION['client']['__module_vars__'][$this->get_path()][$name]);
+	}
+
+	/**
+	 * Checks if shared module variable exists.
+	 * For details concerning shared module variables, see set_shared_module_variable.
+	 *
+	 * @param string $name key
+	 *
+	 * @return bool true if variable exists, false otherwise
+	 */
+	public final function isset_shared_module_variable($name)
+	{
+		return isset($_SESSION['client']['__module_vars__'][$this->get_type()][$name]);
 	}
 
 	/**
@@ -684,6 +741,9 @@ abstract class Module extends ModulePrimitive {
 	 * @return mixed if access denied returns null, else child module object
 	 */
 	public final function init_module($module_type, $args = null, $name=null,$clear_vars=false) {
+		if (strpos($module_type, '#') === 0) {
+			$module_type = $this->get_type() . $module_type;
+		}
 		$module_type = str_replace('/','_',$module_type);
 		$m = & ModuleManager::new_instance($module_type,$this,$name,($clear_vars || $this->clear_child_vars));
 

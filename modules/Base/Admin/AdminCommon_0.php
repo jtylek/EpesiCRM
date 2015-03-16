@@ -81,4 +81,16 @@ abstract class Base_AdminModuleCommon extends ModuleCommon implements Base_Admin
     public static function admin_caption() {
     }
 }
-?>
+
+if(!interface_exists('Base_AdminInterface', false)) {
+/**
+ * Interface which you must implement if you would like to have module administration entry.
+ * 
+ * @package epesi-base-extra
+ * @subpackage admin
+ */
+	interface Base_AdminInterface {
+		public function admin();
+	}
+}
+

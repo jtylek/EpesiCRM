@@ -70,6 +70,7 @@ class Utils_RecordBrowser extends Module {
     public $form = null;
     public $tab;
     public $grid = null;
+    private $fixed_columns_class = array('Utils_RecordBrowser__favs', 'Utils_RecordBrowser__watchdog');
 
 	public function new_button($type, $label, $href) {
 		if ($this->fullscreen_table)
@@ -370,15 +371,25 @@ class Utils_RecordBrowser extends Module {
 				$filters[] = $filter_id.'__from';
 				$filters[] = $filter_id.'__to';
 				continue;
-            }
-			if ($this->table_rows[$filter]['type']=='checkbox') {
+            } elseif ($this->table_rows[$filter]['type']=='checkbox') {
                 $arr = array(''=>__('No'), 1=>__('Yes'));
-            } else {
-                if ($this->table_rows[$filter]['type'] == 'currency') {
-                    $arr = Utils_CurrencyFieldCommon::get_currencies();
-                    if (count($arr) <= 1)
-                        continue;
-                } else if ($this->table_rows[$filter]['type'] == 'commondata') {
+            } elseif (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
+		    $form->addElement('text', $field_id.'__from', _V($filter).' ('.__('From').')', array('label'=>false)); // TRSL
+		    $form->addElement('text', $field_id.'__to', _V($filter).' ('.__('To').')', array('label'=>false)); // TRSL
+		    $form->addRule($field_id.'__from',__('Only numbers are allowed.'),'numeric');
+		    $form->addRule($field_id.'__to',__('Only numbers are allowed.'),'numeric');
+		    $filters[] = $filter_id.'__from';
+		    $filters[] = $filter_id.'__to';
+		    if ($this->table_rows[$filter]['type'] == 'currency' || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && $this->table_rows[$filter]['style'] == 'currency')) {
+                        $arr = Utils_CurrencyFieldCommon::get_currencies();
+                        if (count($arr) > 1) {
+                            $arr = array('__NULL__'=>'---')+$arr;
+                            $form->addElement('select', $field_id.'__currency', _V($filter).' ('.__('Currency').')', $arr); // TRSL
+                            $filters[] = $filter_id.'__currency';
+                        }
+                    }
+                    continue;
+            } else if ($this->table_rows[$filter]['type'] == 'commondata') {
 					$parts = explode('::', $this->table_rows[$filter]['param']['array_id']);
 					$array_id = array_shift($parts);
 					$arr = Utils_CommonDataCommon::get_translated_array($array_id, $this->table_rows[$filter]['param']['order_by_key']);
@@ -393,7 +404,7 @@ class Utils_RecordBrowser extends Module {
 						$arr = $next_arr;
 					}
                     natcasesort($arr);
-                } else {
+            } else {
                     $param = explode(';',$this->table_rows[$filter]['param']);
                     $x = explode('::',$param[0]);
                     if (!isset($x[1])) continue;
@@ -453,8 +464,8 @@ class Utils_RecordBrowser extends Module {
                         }
                         if ($tab=='contact') $arr = array($this->crm_perspective_default()=>'['.__('Perspective').']')+$arr;
                     } 
-                }
             }
+            
             
             if($autoselect) {
                 $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
@@ -522,10 +533,13 @@ class Utils_RecordBrowser extends Module {
                     $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
                 }
             } else {
-                if ($this->table_rows[$filter]['type'] == 'currency') {
-                    if (isset($vals[$field_id]) && $vals[$field_id] != "__NULL__") {
-                        $this->crits["~$filter"] = "%__" . $vals[$field_id];
-                    }
+                if (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
+                    if (isset($vals[$field_id.'__currency']) && $vals[$field_id.'__currency'] != "__NULL__")
+                        $this->crits["~$filter"] = "%__" . $vals[$field_id.'__currency'];
+                    if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'] !== "")
+                        $this->crits[">=\"$filter"] = floatval($vals[$field_id.'__from']);
+                    if (isset($vals[$field_id.'__to']) && $vals[$field_id.'__to'] !== "")
+                        $this->crits["<=\"$filter"] = floatval($vals[$field_id.'__to']);
                     continue;
                 }
 				if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
@@ -641,6 +655,9 @@ class Utils_RecordBrowser extends Module {
         else $gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 
         if(!$pdf) $gb->set_expandable(true);
+        
+        if($pdf) $gb->set_resizable_columns(false);
+        else $gb->set_fixed_columns_class($this->fixed_columns_class);
 
         if ($special) {
             $gb_per_page = Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page');
@@ -666,12 +683,12 @@ class Utils_RecordBrowser extends Module {
         } else {
             $table_columns = array();
             if (!$pdf && !$admin && $this->favorites) {
-                $fav = array('name'=>'&nbsp;', 'width'=>'24px');
+                $fav = array('name'=>'&nbsp;', 'width'=>'24px', 'attrs'=>'class="Utils_RecordBrowser__favs"');
                 if (!isset($this->force_order)) $fav['order'] = ':Fav';
                 $table_columns[] = $fav;
             }
             if (!$pdf && !$admin && $this->watchdog)
-                $table_columns[] = array('name'=>'', 'width'=>'24px');
+                $table_columns[] = array('name'=>'', 'width'=>'24px', 'attrs'=>'class="Utils_RecordBrowser__watchdog"');
         }
         if (!$this->disabled['quickjump']) $quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         else $quickjump = '';
@@ -694,7 +711,7 @@ class Utils_RecordBrowser extends Module {
 			}
             $arr['name'] = _V($arr['name']); // ****** Translate field name for table header
             if (isset($this->more_table_properties[$args['id']])) {
-                foreach (array('name','wrapmode','width','display') as $v) if (isset($this->more_table_properties[$args['id']][$v])) {
+                foreach (array('name','wrapmode','width','display','order') as $v) if (isset($this->more_table_properties[$args['id']][$v])) {
                     if (is_numeric($this->more_table_properties[$args['id']][$v]) && $v=='width') $this->more_table_properties[$args['id']][$v] = $this->more_table_properties[$args['id']][$v]*10;
                     $arr[$v] = $this->more_table_properties[$args['id']][$v];
                 }
@@ -1227,6 +1244,9 @@ class Utils_RecordBrowser extends Module {
         self::$tab_param = $tb->get_path();
 
         $form = $this->init_module('Libs/QuickForm',null, $mode);
+        if(Base_User_SettingsCommon::get($this->get_type(), 'confirm_leave') && ($mode == 'add' || $mode == 'edit'))
+        	$form->set_confirm_leave_page();
+        
         $this->form = $form;
 
         if($mode!='add')
@@ -1866,8 +1886,10 @@ class Utils_RecordBrowser extends Module {
             array('name'=>__('Caption'), 'width'=>20),
             array('name'=>__('Type'), 'width'=>10),
             array('name'=>__('Table view'), 'width'=>5),
+            array('name'=>__('Tooltip'), 'width'=>5),
             array('name'=>__('Required'), 'width'=>5),
             array('name'=>__('Filter'), 'width'=>5),
+            array('name'=>__('Export'), 'width'=>5),
             array('name'=>__('Parameters'), 'width'=>27),
             array('name'=>__('Value display function'), 'width'=>5),
             array('name'=>__('Field generator function'), 'width'=>5)
@@ -1962,6 +1984,8 @@ class Utils_RecordBrowser extends Module {
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
+                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
+                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>'')
                     );
                 else {
@@ -1980,8 +2004,10 @@ class Utils_RecordBrowser extends Module {
                         $args['name'],
                         isset($types[$args['type']])?$types[$args['type']]:$args['type'],
                         $args['visible']?'<b>'.__('Yes').'</b>':__('No'),
+                        $args['tooltip']?'<b>'.__('Yes').'</b>':__('No'),
                         $args['required']?'<b>'.__('Yes').'</b>':__('No'),
                         $args['filter']?'<b>'.__('Yes').'</b>':__('No'),
+                        $args['export']?'<b>'.__('Yes').'</b>':__('No'),
                         is_array($args['param'])?serialize($args['param']):$args['param'],
 						$d_c,
 						$QF_c
@@ -2046,7 +2072,7 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('text', 'caption', __('Caption'), array('maxlength'=>255, 'placeholder' => __('Leave empty to use default label')));
 
         if ($action=='edit') {
-            $row = DB::GetRow('SELECT field, caption, type, visible, required, param, filter, extra, position FROM '.$this->tab.'_field WHERE field=%s',array($field));
+            $row = DB::GetRow('SELECT field, caption, type, visible, required, param, filter, export, tooltip, extra, position FROM '.$this->tab.'_field WHERE field=%s',array($field));
 			switch ($row['type']) {
 				case 'select':
 					$row['select_data_type'] = 'select';
@@ -2139,8 +2165,10 @@ class Utils_RecordBrowser extends Module {
 		$form->addFormRule(array($this, 'check_field_definitions'));
 
 		$form->addElement('checkbox', 'visible', __('Table view'));
+		$form->addElement('checkbox', 'tooltip', __('Tooltip view'));
 		$form->addElement('checkbox', 'required', __('Required'), null, array('id'=>'required'));
 		$form->addElement('checkbox', 'filter', __('Filter enabled'), null, array('id' => 'filter'));
+		$form->addElement('checkbox', 'export', __('Export'));
         
         $form->addElement('text', 'autonumber_prefix', __('Prefix string'), array('id' => 'autonumber_prefix'));
         $form->addRule('autonumber_prefix', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
@@ -2288,6 +2316,8 @@ class Utils_RecordBrowser extends Module {
             if(!isset($data['visible']) || $data['visible'] == '') $data['visible'] = 0;
             if(!isset($data['required']) || $data['required'] == '') $data['required'] = 0;
             if(!isset($data['filter']) || $data['filter'] == '') $data['filter'] = 0;
+            if(!isset($data['export']) || $data['export'] == '') $data['export'] = 0;
+            if(!isset($data['tooltip']) || $data['tooltip'] == '') $data['tooltip'] = 0;
 
             foreach($data as $key=>$val)
                 if (is_string($val)) $data[$key] = htmlspecialchars($val);
@@ -2302,8 +2332,8 @@ class Utils_RecordBrowser extends Module {
                     DB::RenameColumn($this->tab.'_data_1', 'f_'.$id, 'f_'.$new_id, Utils_RecordBrowserCommon::actual_db_type($type, $old_param));
                 }
             }*/
-            DB::Execute('UPDATE '.$this->tab.'_field SET caption=%s, param=%s, type=%s, field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
-                        array($data['caption'], $param, $data['select_data_type'], $data['field'], $data['visible'], $data['required'], $data['filter'], $field));
+            DB::Execute('UPDATE '.$this->tab.'_field SET caption=%s, param=%s, type=%s, field=%s, visible=%d, required=%d, filter=%d, export=%d, tooltip=%d WHERE field=%s',
+                        array($data['caption'], $param, $data['select_data_type'], $data['field'], $data['visible'], $data['required'], $data['filter'], $data['export'], $data['tooltip'], $field));
 /*            DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
                         array($new_id, $id));
             DB::CompleteTrans();*/
@@ -2752,6 +2782,7 @@ class Utils_RecordBrowser extends Module {
             $header[] = $arr;
         }
         $gb->set_table_columns($header);
+        $gb->set_fixed_columns_class($this->fixed_columns_class);
 
         $clean_order = array();
         foreach($order as $k=>$v) {
@@ -3157,7 +3188,8 @@ class Utils_RecordBrowser extends Module {
 			'add'=>__('Add'),
 			'delete'=>__('Delete'),
 			'print'=>__('Print'),
-			'export'=>__('Export')
+			'export'=>__('Export'),
+			'selection'=>__('Selection')
 		);
 	}
 	
@@ -3178,6 +3210,10 @@ class Utils_RecordBrowser extends Module {
 		$args = $this->table_rows[$all_fields[$this->tab][$field]];
 		$arr = array(''=>'['.__('Empty').']');
 		switch (true) {
+			case $args['type']=='text' && $args['filter']:
+				$arr_add = @DB::GetAssoc('SELECT f_'.$args['id'].', f_'.$args['id'].' FROM '.$this->tab.'_data_1 GROUP BY f_'.$args['id'].' ORDER BY count(*) DESC LIMIT 20');
+				if($arr_add) $arr += $arr_add;
+				break;
 			case $args['commondata']:
 				$array_id = is_array($args['param']) ? $args['param']['array_id'] : $args['ref_table'];
 				if (strpos($array_id, '::')===false) 

@@ -20,6 +20,7 @@ class epesi_init extends rcube_plugin
     $d = getcwd();
     chdir('../../../../');
     require_once('include/epesi.php');
+    require_once('include/cache.php');
     require_once('include/variables.php');
     require_once('include/misc.php');
     require_once('include/module_primitive.php');

@@ -30,6 +30,7 @@ class Patches extends SteppedAdminModule {
                 ModuleManager::create_common_cache();
                 Base_ThemeCommon::themeup();
                 Base_LangCommon::update_translations();
+                Cache::clear();
                 break;
         }
         return $success;

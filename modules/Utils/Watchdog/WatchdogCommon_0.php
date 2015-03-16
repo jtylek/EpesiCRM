@@ -93,7 +93,15 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function dont_notify($d=true) {
 		self::$disabled=$d;
 	}
-	
+
+    public static function email_mode($set = null)
+    {
+        static $email_mode = false;
+        if ($set !== null) {
+            $email_mode = ($set == true);
+        }
+        return $email_mode;
+    }
 	public static function new_event($category_name, $id, $message) {
 		if(self::$disabled) return;
 		$category_id = self::get_category_id($category_name, false);
@@ -110,12 +118,14 @@ class Utils_WatchdogCommon extends ModuleCommon {
         $subscribers = self::get_subscribers($category_name, $id);
 
 		$c_user = Acl::get_user();
+        self::email_mode(true);
 		foreach ($subscribers as $user_id) {
             if ($user_id==$c_user) continue;
             $wants_email = Base_User_SettingsCommon::get('Utils_Watchdog', 'email', $user_id);
             if (!$wants_email) continue;
             Acl::set_user($user_id);
-            $email_data = self::display_events($category_id, array($event_id => $message), $id);
+            Base_LangCommon::load();
+            $email_data = self::display_events($category_id, array($event_id => $message), $id, true);
             if (!$email_data) continue;
             $contact = Utils_RecordBrowserCommon::get_id('contact', 'login', $user_id);
             if (!$contact) continue;
@@ -125,7 +135,9 @@ class Utils_WatchdogCommon extends ModuleCommon {
             Base_MailCommon::send($email, $title, $email_data['events'], null, null, true);
         }
 		Acl::set_user($c_user);
-	}
+        Base_LangCommon::load();
+        self::email_mode(false);
+    }
 	// *************************** Subscription manipulation *******************
 	public static function user_purge_notifications($user_id, $category_name, $time=null) {
 		$category_id = self::get_category_id($category_name);
@@ -257,12 +269,12 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}
 		Base_ActionBarCommon::add($icon,$label,$href);
 	}
-	public static function display_events($category_name, $changes, $id) {
+	public static function display_events($category_name, $changes, $id, $for_email = false) {
 		if (!is_array($changes)) return '';
 		$category_id = self::get_category_id($category_name);
 		$method = DB::GetOne('SELECT callback FROM utils_watchdog_category WHERE id=%d', array($category_id));
 		$method = explode('::', $method);
-		$data = call_user_func($method, $id, $changes);
+		$data = call_user_func($method, $id, $changes, true, $for_email);
 		if (!isset($data['events'])) return '';
 		return $data;
 	}

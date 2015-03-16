@@ -147,20 +147,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function submit_mail($param, $mode) {
-        if ($mode == 'delete') {
-            $m = Base_BoxCommon::main_module_instance();
-            if(get_class($m)=='Utils_RecordBrowser') {
-                $id = $m->record['id'];
-                $rs = $m->tab;
-                $c = Utils_RecordBrowserCommon::get_records('rc_mails_assoc', array('mail' => $param['id'], 'recordset' => $rs, 'record_id' => $id), array('id'));
-                if (count($c)) {
-                    foreach ($c as $cc)
-                        Utils_RecordBrowserCommon::delete_record('rc_mails_assoc', $cc['id']);
-                    location(array());
-                    return false;
-                }
-            }
-        } else if ($mode == 'add') {
+        if ($mode == 'add') {
             $param['message_id'] = ltrim(rtrim($param['message_id'],'>'),'<');
         } else if ($mode == 'added') {
             self::create_thread($param['id']);
@@ -372,7 +359,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 	}
 	
 	public static function admin_caption() {
-		return array('label'=>__('Outgoing mail global signature'), 'section'=>__('Server Configuration'));
+		return array('label'=>__('Mail'), 'section'=>__('Features Configuration'));
 	}
 
 	public static function attachment_getters() {
@@ -387,6 +374,66 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		$x->push_main('CRM_Roundcube','new_mail',array('',__('File attachment, expires on: %s',array(Base_RegionalSettingsCommon::time2reg($t))),"<br /><br />".$url));
 	}
+
+    public static function QFfield_recordset(&$form, $field, $label, $mode, $default) {
+        if ($mode == 'add' || $mode == 'edit') {
+            $rss = DB::GetCol('SELECT f_recordset FROM rc_related_data_1 WHERE active=1');
+            // remove currently selected value
+            $key = array_search($default, $rss);
+            if ($key !== false) 
+                unset($rss[$key]);
+            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like "%_related" AND tab not like "rc_%"');
+            foreach ($tabs as $k => $v) {
+                $tabs[$k] = _V($v) . " ($k)";
+            }
+            $form->addElement('select', $field, $label, $tabs, array('id' => $field));
+            $form->addRule($field, 'Field required', 'required');
+            if ($mode == 'edit') 
+                $form->setDefaults(array($field => $default));
+        } else {
+            $form->addElement('static', $field, $label);
+            $form->setDefaults(array($field => $default));
+        }
+    }
+
+    public static function display_recordset($r, $nolink = false) {
+        $caption = Utils_RecordBrowserCommon::get_caption($r['recordset']);
+        return $caption . ' (' . $r['recordset'] . ')';
+    }
+    
+    public static function QFfield_related(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        if(DB::GetOne('SELECT 1 FROM rc_related_data_1 WHERE active=1'))
+            Utils_RecordBrowserCommon::QFfield_select($form, $field, $label, $mode, $default, $desc, $rb_obj);
+    }
+
+    public static function related_crits() {
+        $recordsets = DB::GetCol('SELECT f_recordset FROM rc_related_data_1 WHERE active=1');
+        $crits = array(
+            '' => array(),
+        );
+        foreach ($recordsets as $rec) 
+            $crits[$rec] = array();
+        return $crits;
+    }
+
+    public static function processing_related($values, $mode) {
+        switch ($mode) {
+            case 'edit':
+            $rec = Utils_RecordBrowserCommon::get_record('rc_related', $values['id']);
+            $rs = $rec['recordset'];
+            self::delete_addon($rs);
+            case 'add':
+            $rs = $values['recordset'];
+            self::new_addon($rs);
+            break;
+
+            case 'delete':
+            $rs = $values['recordset'];
+            self::delete_addon($rs);
+            break;
+        }
+        return $values;
+    }
 }
 
 ?>

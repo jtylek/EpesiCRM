@@ -8,6 +8,43 @@ CURRENT
 
 - Change cookie expiration time to 7 days for maintenance mode
 - Improve update process - make sure maintenance mode is on during patches
+- Set default customer for phonecalls, tasks and meetings
+- Fix toolbar mode switch in ckeditor
+- Add global cache stored in the file (Dev)
+- Update ckeditor to the latest version
+- Replace CustomRoundcubeAddons with built-in related mechanism
+- Fix Roundcube archive copy/paste
+- Add option to export RB report to csv file
+- Fix issues in currencies admin panel for PostgreSQL database
+- Register custom Prototype events also in jQuery (Dev)
+- Add selection rules to RecordBrowser
+- Currency field - fix frozen value display
+- Add option to disable module without uninstall
+- Improve /admin script to manage disabled modules
+- Base/Print - add more document config params to PDF
+- Base/Print - pass printer classname to document_config method (Dev)
+- Fix GenericBrowser's default template when expandable is disabled
+- Changes in expandable calculation to wrap long text fields - GenericBrowser
+- Fix admin access param to get_records method - RecordBrowser
+- Fix RB access rules - edit form and add check
+- Improve Demo mode security issue check for Base/Print module
+- Add filtering in RB for currency, integer and float fields
+- Add submodule concept and clean module manager code (Dev)
+- Add shared module variables concept (Dev)
+- Add custom port for SQL server during installation
+- Add resizable columns to GB (georgehristov)
+- Add small delay to load tooltips with AJAX
+- Add record info tooltips for every default linked label in RB
+- Fix access to csv export
+- Remove addons during recordset uninstallation
+- Add global function to get client IP address
+- Translate watchdog email notifications to user's language
+- Separate and improve watchdog email template
+- Confirm leaving edit form
+- Fix bugs in: RB search, module instance name
+- Fix recurrent calls to get_val
+- Improve select field labels to retrieve nested select values
+- Fix PostgreSQL database creation - quote db name
 
 RELEASE 1.6.3-20150107
 -------

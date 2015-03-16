@@ -55,7 +55,19 @@ class CRM_Roundcube extends Module {
 		}
 
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-	
+		
+        $tb = $this->init_module('Utils/TabbedBrowser');
+        $tb->set_tab(__('Global Signature'),array($this,'admin_signature'));
+        $tb->set_tab(__('Related'),array($this,'admin_related'));
+        $this->display_module($tb);
+    }
+    
+    public function admin_related() {
+        $rb = $this->init_module('Utils/RecordBrowser', 'rc_related', 'rc_related');
+        $this->display_module($rb);
+    }
+    
+    public function admin_signature() {
 		$f = $this->init_module('Libs/QuickForm');
 		
 		$f->addElement('header',null,__('Outgoing mail global signature'));
@@ -76,7 +88,6 @@ class CRM_Roundcube extends Module {
 			return;
 		}
 		$f->display();	
-        
     }
 
     public function new_mail($to='',$subject='',$body='',$message_id='',$references='') {
@@ -91,11 +102,6 @@ class CRM_Roundcube extends Module {
 
     public function account($id) {
         $this->set_module_variable('default',$id);
-    }
-
-    public function assoc_addon($arg,$rb) {
-        $rb = $this->init_module('Utils/RecordBrowser','rc_mails_assoc','rc_mails_assoc');
-        $this->display_module($rb, array(array('mail'=>$arg['id'])), 'show_data');
     }
 
     public function attachments_addon($arg,$rb) {
@@ -137,19 +143,14 @@ class CRM_Roundcube extends Module {
             Base_ActionBarCommon::add('reload',__('Reload mails'),$this->create_callback_href(array($this,'reload_mails'),$arg['id']));
         }
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
-    	    $ok = true;
-            foreach($_SESSION['rc_mails_cp'] as $mid) {
-				if(!DB::GetOne('SELECT active FROM rc_mails_data_1 WHERE id=%d',array($mid))) {
-					$ok = false;
-					break;
-				}
-                $c = Utils_RecordBrowserCommon::get_records_count('rc_mails_assoc',array('mail'=>$mid,'recordset'=>$rs,'record_id'=>$id));
-                if($rs == 'contact' || $rs=='company')
-            	    $c += Utils_RecordBrowserCommon::get_records_count('rc_mails',array('id'=>$mid, '(employee'=>$id,'|contacts'=>$id));
-                if($c) {
-            	    $ok = false;
-            	    break;
-            	}
+            $ok = true;
+            $mails = Utils_RecordBrowserCommon::get_records('rc_mails',array('id'=>$_SESSION['rc_mails_cp']),array('related','employee','contacts'));
+            if(count($mails)!=count($_SESSION['rc_mails_cp'])) $ok=false;
+            if($ok) foreach($mails as $mail) {
+                if(in_array($rs.'/'.$id,$mail['related']) || (($rs == 'contact' || $rs=='company') && (in_array(($rs=='contact'?'P:':'C:').$id,$mail['contacts']) || ($rs=='contact' && $id==$mail['employee'])))) {
+		    $ok = false;
+		    break;
+		}
             }
             if($ok) {
         	$this->lp = $this->init_module('Utils_LeightboxPrompt');
@@ -195,7 +196,7 @@ class CRM_Roundcube extends Module {
                     'date'=>'DESC'
         ));*/
 
-        $assoc_threads_ids = DB::GetCol('SELECT m.f_thread FROM rc_mails_data_1 m INNER JOIN rc_mails_assoc_data_1 a ON a.f_mail=m.id WHERE m.active=1 AND a.active=1 AND a.f_recordset=%s AND a.f_record_id=%d',array($rs,$id));
+        $assoc_threads_ids = DB::GetCol('SELECT m.f_thread FROM rc_mails_data_1 m WHERE m.active=1 AND m.f_related '.DB::like().' '.DB::Concat(DB::qstr('%\_\_'),'%s',DB::qstr('\_\_%')),array($rs.'/'.$id));
         if($rs=='contact') {
         	//$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
         	$this->display_module($rb, array(array('(contacts'=>array('P:'.$id),'|id'=>$assoc_threads_ids), array(), array('last_date'=>'DESC')), 'show_data');
@@ -239,13 +240,8 @@ class CRM_Roundcube extends Module {
         ));
         $rb->set_additional_actions_method(array($this, 'actions_for_mails'));
 
-        $assoc_mail_ids = array();
-        $assoc_tmp = Utils_RecordBrowserCommon::get_records('rc_mails_assoc',array('recordset'=>$rs,'record_id'=>$id),array('mail'));
-
-        foreach($assoc_tmp as $m)
-            $assoc_mail_ids[] = $m['mail'];
         if($rs=='contact') {
-            $this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+            $this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
         } elseif($rs=='company') {
             $form = $this->init_module('Libs/QuickForm');
             $form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
@@ -267,9 +263,9 @@ class CRM_Roundcube extends Module {
                 foreach ($conts as $c)
                     $customers[] = 'P:'.$c['id'];
             }
-            $this->display_module($rb, array(array('(contacts'=>$customers,'|id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+            $this->display_module($rb, array(array('(contacts'=>$customers,'|related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
         } else
-            $this->display_module($rb, array(array('id'=>$assoc_mail_ids), array(), array('date'=>'DESC')), 'show_data');
+            $this->display_module($rb, array(array('related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
     }
 
     public function thread_addon($arg,$rb) {
@@ -289,9 +285,11 @@ class CRM_Roundcube extends Module {
     public function paste($rs,$id) {
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
             foreach($_SESSION['rc_mails_cp'] as $mid) {
-                $c = Utils_RecordBrowserCommon::get_records_count('rc_mails_assoc',array('mail'=>$mid,'recordset'=>$rs,'record_id'=>$id));
-                if(!$c)
-                    Utils_RecordBrowserCommon::new_record('rc_mails_assoc',array('mail'=>$mid,'recordset'=>$rs,'record_id'=>$id));
+                $mail = Utils_RecordBrowserCommon::get_record('rc_mails',$mid);
+                if(!in_array($rs.'/'.$id,$mail['related'])) {
+                    $mail['related'][] = $rs.'/'.$id;
+                    Utils_RecordBrowserCommon::update_record('rc_mails',$mid,array('related'=>$mail['related']));
+                }
             }
 			location(array());
         }

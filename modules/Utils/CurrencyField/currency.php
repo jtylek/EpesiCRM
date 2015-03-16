@@ -20,7 +20,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	} //end constructor
 
 	function getFrozenHtml() {
-		$val = Utils_CurrencyFieldCommon::get_values($this->getValue());
+		$val = Utils_CurrencyFieldCommon::get_values(str_replace(Utils_CurrencyFieldCommon::get_decimal_point(), '.', $this->getValue()));
 		return Utils_CurrencyFieldCommon::format($val[0], isset($this->currency)?$this->currency:1);
 	}
 

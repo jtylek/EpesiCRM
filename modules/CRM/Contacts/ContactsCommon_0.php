@@ -232,6 +232,9 @@ class CRM_ContactsCommon extends ModuleCommon {
             return strip_tags($val);
         return $val;
     }
+    public static function company_contact_format_default($arg,$nolink=false) {
+        return self::autoselect_company_contact_format($arg, $nolink);
+    }
     public static function auto_company_contact_suggestbox($str, $fcallback) {
         $words = explode(' ', trim($str));
         $final_nr_of_records = 10;

@@ -67,10 +67,10 @@ class CRM_PhoneCallInstall extends ModuleInstall {
                 'name'     => _M('Related'),
                 'type'     => 'multiselect',
                 'QFfield_callback' => array(
-                    'CRM_MeetingCommon',
+                    'CRM_PhoneCallCommon',
                     'QFfield_related',
                 ),
-                'param'    => '__RECORDSETS__::;CRM_MeetingCommon::related_crits',
+                'param'    => '__RECORDSETS__::;CRM_PhoneCallCommon::related_crits',
                 'extra'    => false,
                 'required' => false,
                 'visible'  => true,

@@ -104,6 +104,11 @@ class Utils_TooltipCommon extends ModuleCommon {
 		return '<span '.self::ajax_open_tag_attrs($callback,$args,$max_width).'>'.$text.'</span>';
 	}
 
+    public static function is_tooltip_code_in_str($str)
+    {
+        return strpos($str, 'Utils_Toltip__showTip(') !== false;
+    }
+
 	/**
 	* Returns a 2-column formatted table
 	*

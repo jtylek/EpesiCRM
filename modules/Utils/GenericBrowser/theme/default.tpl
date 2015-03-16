@@ -34,8 +34,8 @@
 				</td>
 			{/if}
             <!-- Expand/Collapse -->
-            {if isset($expand_collapse)}
-                <td class="expand_collapse">
+			<td class="expand_collapse">
+				{if isset($expand_collapse)}
                     <a id="{$expand_collapse.e_id}" class="button" {$expand_collapse.e_href}><img src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
                         <div style="display:inline-block;position:relative;top:-4px">
                             {$expand_collapse.e_label}
@@ -46,9 +46,9 @@
                             {$expand_collapse.c_label}
                         </div>
                     </a>
-                    &nbsp;
-                </td>
-            {/if}
+				{/if}
+				&nbsp;
+			</td>
 			<!-- Advanced / Simple Search -->
 			{if isset($form_data_search)}
 				<td style="width:470px;">

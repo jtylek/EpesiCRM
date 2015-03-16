@@ -40,7 +40,35 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         }
 
         Utils_CommonDataCommon::new_array('CRM/Roundcube/Security', array('tls'=>_M('TLS'),'ssl'=>_M('SSL')),true,true);
-
+        //addons table
+        $fields = array(
+            array(
+                'name'  => _M('Recordset'),
+                'type'  => 'text',
+                'param' => 64,
+                'display_callback' => array(
+                    $this->get_type() . 'Common',
+                    'display_recordset',
+                ),
+                'QFfield_callback' => array(
+                    $this->get_type() . 'Common',
+                    'QFfield_recordset',
+                ),
+                'required' => true,
+                'extra'    => false,
+                'visible'  => true,
+            ),
+        );
+        Utils_RecordBrowserCommon::install_new_recordset('rc_related', $fields);
+        Utils_RecordBrowserCommon::set_caption('rc_related', _M('Mail Related Recordsets'));
+        Utils_RecordBrowserCommon::register_processing_callback('rc_related', array('CRM_RoundcubeCommon', 'processing_related'));
+        Utils_RecordBrowserCommon::add_access('rc_related', 'view', 'ACCESS:employee');
+        Utils_RecordBrowserCommon::add_access('rc_related', 'add', 'ADMIN');
+        Utils_RecordBrowserCommon::add_access('rc_related', 'edit', 'SUPERADMIN');
+        Utils_RecordBrowserCommon::add_access('rc_related', 'delete', 'SUPERADMIN');
+        Utils_RecordBrowserCommon::new_record('rc_related',array('recordset'=>'company'));
+        Utils_RecordBrowserCommon::new_record('rc_related',array('recordset'=>'contact'));
+        //accounts table
         $fields = array(
             array('name' => _M('EPESI User'),             'type'=>'integer', 'extra'=>false, 'visible'=>true, 'required'=>true, 'display_callback'=>array('CRM_RoundcubeCommon', 'display_epesi_user'), 'QFfield_callback'=>array('CRM_RoundcubeCommon', 'QFfield_epesi_user')),
             array('name' => _M('Email'),             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>128),
@@ -150,6 +178,18 @@ class CRM_RoundcubeInstall extends ModuleInstall {
                 'required'=>false
             ),
             array(
+                'name'     => _M('Related'),
+                'type'     => 'multiselect',
+                'QFfield_callback' => array(
+                    'CRM_RoundcubeCommon',
+                    'QFfield_related',
+                ),
+                'param'    => '__RECORDSETS__::;CRM_RoundcubeCommon::related_crits',
+                'extra'    => false,
+                'required' => false,
+                'visible'  => true,
+            ),
+            array(
                 'name' => _M('Date'),
                 'type'=>'timestamp',
                 'extra'=>false,
@@ -233,28 +273,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         DB::CreateIndex('rc_mails_thread_idx', 'rc_mails_data_1', 'f_thread');
         DB::CreateIndex('rc_mails_msgid_idx', 'rc_mails_data_1', 'f_message_id');
 
-        $fields = array(
-            array(
-                'name' => _M('Mail'),
-                'type'=>'select',
-                'param'=>'rc_mails::Subject' ,
-                'required'=>true, 'extra'=>false, 'visible'=>false
-            ), array(
-                'name' => _M('Recordset'),
-                'type'=>'text',
-                'param'=>64,
-                'required'=>true, 'extra'=>false, 'visible'=>false
-            ), array(
-                'name' => _M('Record ID'),
-                'type'=>'integer',
-                'display_callback'=>array($this->get_type().'Common', 'display_record_id'),
-                'required'=>true, 'extra'=>false, 'visible'=>true, 'style'=>''
-            )
-        );
-        Utils_RecordBrowserCommon::install_new_recordset('rc_mails_assoc', $fields);
-        Utils_RecordBrowserCommon::set_caption('rc_mails_assoc', _M('Mails Associations'));
 		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_body_addon', _M('Body'));
-        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon', _M('Associated records'));
         Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', _M('Attachments'));
 		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_headers_addon', _M('Headers'));
 
@@ -301,12 +320,10 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 
 		Utils_RecordBrowserCommon::add_access('rc_mails', 'view', 'ACCESS:employee', array(), array('headers_data'));
 		Utils_RecordBrowserCommon::add_access('rc_mails', 'delete', 'ACCESS:employee');
+        	Utils_RecordBrowserCommon::add_access('rc_mails', 'edit', 'ACCESS:employee',array(),array('subject','employee','date','headers_data','body','from','to','thread','message_id','references'));
 
         Utils_RecordBrowserCommon::add_access('rc_mail_threads', 'view', 'ACCESS:employee');
         Utils_RecordBrowserCommon::add_access('rc_mail_threads', 'delete', 'ACCESS:employee');
-
-        Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'view', 'ACCESS:employee', array(), array('recordset'));
-		Utils_RecordBrowserCommon::add_access('rc_mails_assoc', 'delete', 'ACCESS:employee');
 
 		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'view', 'ACCESS:employee');
 		Utils_RecordBrowserCommon::add_access('rc_multiple_emails', 'add', 'ACCESS:employee');
@@ -322,10 +339,8 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon');
         Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Roundcube', 'addon');
         Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Roundcube', 'addon');
-        Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon');
         DB::DropTable('rc_mails_attachments');
         DB::DropTable('rc_mails_attachments_download');
-        Utils_RecordBrowserCommon::uninstall_recordset('rc_mails_assoc');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_accounts');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_multiple_emails');

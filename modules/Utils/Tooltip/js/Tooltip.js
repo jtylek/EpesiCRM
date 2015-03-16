@@ -35,32 +35,39 @@ Utils_Tooltip__showTip = function(o,my_event,max_width) {
 	div_tip.css('display', 'block');
 }
 
+var Utils_Tooltip__timeout_obj = false;
+
 Utils_Tooltip__load_ajax_Tip = function(o,my_event,max_width) {
 	tooltip_id = o.getAttribute('tooltip_id');
-	o.setAttribute('tooltip_id','done');
-	if (tooltip_id!='done') {
-		Utils_Tooltip__showTip(o,my_event);
-		jq.ajax({
-			type: 'POST',
-			url: 'modules/Utils/Tooltip/req.php', 
-			data:{
-				tooltip_id: tooltip_id,
-				cid: Epesi.client_id
-			},
-			success:function(t) {
-				if (t) {
-					o.setAttribute('tip',t);
-					jq('#tooltip_text').html(t);
-					if (jq("#tooltip_leightbox_mode_content")) jq("#tooltip_leightbox_mode_content").html(t);
-				}
-			}
-		});
-	} else {
-		Utils_Tooltip__showTip(o,my_event,max_width);
+    Utils_Tooltip__showTip(o, my_event, max_width);
+	if (tooltip_id!='done' && Utils_Tooltip__timeout_obj == false) {
+        Utils_Tooltip__timeout_obj = setTimeout(function () {
+            o.setAttribute('tooltip_id','done');
+            jq.ajax({
+                type: 'POST',
+                url: 'modules/Utils/Tooltip/req.php',
+                data:{
+                    tooltip_id: tooltip_id,
+                    cid: Epesi.client_id
+                },
+                success:function(t) {
+                    if (t) {
+                        o.setAttribute('tip',t);
+                        jq('#tooltip_text').html(t);
+                        if (jq("#tooltip_leightbox_mode_content")) jq("#tooltip_leightbox_mode_content").html(t);
+                    }
+                }
+            });
+            Utils_Tooltip__timeout_obj = false;
+        }, 300);
 	}
 }
 
 Utils_Tooltip__hideTip = function() {
+    if (Utils_Tooltip__timeout_obj) {
+        clearTimeout(Utils_Tooltip__timeout_obj);
+        Utils_Tooltip__timeout_obj = false;
+    }
 	jq('#tooltip_div').css('display', 'none');
 } 
 
