@@ -76,6 +76,7 @@ class Utils_LeightboxPrompt extends Module {
                     ob_start();
                     $th = $this->init_module('Base/Theme');
                     $v['form']->assign_theme('form', $th);
+                    $th->assign('id', $this->get_instance_id());
                     $th->display('form');
                     $form_contents = ob_get_clean();
                     $next_button['open'] = '<a href="javascript:void(0);" onclick="f'.$this->group.'_show_form(\''.$k.'\');">';

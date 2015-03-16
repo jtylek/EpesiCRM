@@ -14,7 +14,7 @@
 					{$e.label}
 				</td>
 				<td class="epesi_data{if $e.type=='static' || $e.frozen==1} static_field{/if}{if $e.type=='group'} timestamp{/if}" style="width:70%;">
-					<div style="position:relative;" id="{$e.name}__leightbox_prompt__data_span">
+					<div style="position:relative;" id="{$e.name}__leightbox_prompt__{$id}__data_span">
 						{$e.error}
 						{$e.html}
 					</div>
