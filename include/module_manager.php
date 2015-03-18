@@ -37,7 +37,7 @@ class ModuleManager {
 		if(isset(self::$modules_install[$module_class_name])) return true;
 		$path = self::get_module_dir_path($module_class_name);
 		$file = self::get_module_file_name($module_class_name);
-		$full_path = 'modules/' . $path . '/' . $file . 'Install.php';
+		$full_path = EPESI_LOCAL_DIR . '/modules/' . $path . '/' . $file . 'Install.php';
 		if (!file_exists($full_path)) {
 			self::check_is_module_available($module_class_name);
 			return false;
@@ -67,7 +67,7 @@ class ModuleManager {
         $path = str_replace('_', '/',$class_name);
         $pos = strrpos($class_name, '_');
 		$file = ($pos !== false) ? substr($class_name, $pos+1):$class_name;
-		$file_url = 'modules/' . $path . '/' . $file . 'Common_'.$version.'.php';
+		$file_url = EPESI_LOCAL_DIR . '/modules/' . $path . '/' . $file . 'Common_'.$version.'.php';
         //
 		if(file_exists($file_url)) {
 			ob_start();
@@ -102,7 +102,7 @@ class ModuleManager {
 		$path = str_replace('_', '/',$class_name);
         $pos = strrpos($class_name, '_');
 		$file = ($pos !== false) ? substr($class_name, $pos+1):$class_name;
-		$file_url = 'modules/' . $path . '/' . $file . '_'.$version.'.php';
+		$file_url = EPESI_LOCAL_DIR . '/modules/' . $path . '/' . $file . '_'.$version.'.php';
         //
 		if (file_exists($file_url) ) {
 			ob_start();

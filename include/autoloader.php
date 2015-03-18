@@ -124,7 +124,7 @@ class ModulesAutoloader {
     }
 
     private function class_from_modules($class_name) {
-        $file = 'modules' . DIRECTORY_SEPARATOR;
+        $file = EPESI_LOCAL_DIR . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR;
         $file .= str_replace('_', DIRECTORY_SEPARATOR, $class_name);
         $file .= '.php';
         if (file_exists($file)) {
