@@ -261,7 +261,7 @@ add_event_tag:function(dest,ev) {
 			duration = 0;
 		h++;
 	} while(duration>0);
-	ev.height((h * dest.height() - 2)+'px');
+	ev.height((h * (dest.height()+1) - 2)+'px');
 
 	var ev_w = ev.width();
 	var offset_step = ev_w/5;
