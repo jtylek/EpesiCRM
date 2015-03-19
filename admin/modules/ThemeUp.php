@@ -16,7 +16,7 @@ class ThemeUp extends SteppedAdminModule {
 
     public function action() {
         set_time_limit(0);
-        if(function_exists('xcache_clear_cache')) xcache_clear_cache(XC_TYPE_PHP);
+        if(function_exists('xcache_clear_cache')) xcache_clear_cache(XC_TYPE_PHP,-1);
         ModuleManager::create_common_cache();
         Base_ThemeCommon::themeup();
         return true;
