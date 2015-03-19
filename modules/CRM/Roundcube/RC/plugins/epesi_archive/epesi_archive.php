@@ -162,6 +162,7 @@ class epesi_archive extends rcube_plugin
             if($verbose) {
                 $rcmail->output->command('display_message','messageopenerror', 'error');
             }
+            define('SESSION_EXPIRED',true);
             return false;
         } else {
             $msgs[$uid] = $msg;
@@ -193,6 +194,7 @@ class epesi_archive extends rcube_plugin
         if(!$ret && !isset($_SESSION['force_archive'][$k]) && $verbose) {
             $_SESSION['force_archive'][$k] = 1;
             $rcmail->output->command('display_message',$this->gettext('contactnotfound'), 'error');
+            define('SESSION_EXPIRED',true);
             return false;
         }
     }
@@ -240,6 +242,7 @@ class epesi_archive extends rcube_plugin
         $message_id = str_replace(array('<','>'),'',$msg->get_header('MESSAGE-ID'));
         if(Utils_RecordBrowserCommon::get_records_count('rc_mails',array('message_id'=>$message_id))>0) {
             $rcmail->output->command('display_message',$this->gettext('archived_duplicate'), 'warning');
+            define('SESSION_EXPIRED',true);
             return false;
         }
         $employee = DB::GetOne('SELECT id FROM contact_data_1 WHERE active=1 AND f_login=%d',array($E_SESSION['user']));
