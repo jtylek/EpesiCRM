@@ -335,7 +335,7 @@ class epesi_archive extends rcube_plugin
   function list_messages($p) {
     $IMAP = $imap = rcmail::get_instance()->storage;
     $mbox = $IMAP->get_mailbox_name();
-    if(preg_match('/CRM Archive Sent$/i',$mbox)) {
+    if(preg_match('/Epesi Archive Sent$/i',$mbox)) {
         foreach($p['cols'] as &$c) {
             if($c=='from') $c = 'to';
         }
