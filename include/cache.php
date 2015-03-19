@@ -54,6 +54,7 @@ class FileCache
 
     public function clear($name = null)
     {
+        if(function_exists('xcache_clear_cache')) xcache_clear_cache(XC_TYPE_PHP);
         if ($name === null) {
             $this->data = array();
         } else {
