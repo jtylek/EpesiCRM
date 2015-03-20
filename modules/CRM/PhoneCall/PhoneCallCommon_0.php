@@ -400,7 +400,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 	public static function mobile_phone_calls() {
 		$me = CRM_ContactsCommon::get_my_record();
-		$defaults = array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>'1');
+		$defaults = array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>CRM_CommonCommon::get_default_priority());
 		Utils_RecordBrowserCommon::mobile_rb('phonecall',array('employees'=>array($me['id'])),array('status'=>'ASC', 'date_and_time'=>'ASC', 'subject'=>'ASC'),array(),$defaults);
 	}
 

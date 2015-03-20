@@ -52,5 +52,9 @@ class CRM_CommonCommon extends ModuleCommon {
 		$rb->set_custom_filter('status',array('type'=>'select','label'=>__('Status'),'args'=>array('__NULL__'=>'['.__('All').']','__NO_CLOSED__'=>'['.__('Not closed').']')+$sts,'trans'=>$trans));
 	}
 
+    public static function get_default_priority()
+    {
+        return 1; // Medium
+    }
 }
 ?>

@@ -18,7 +18,7 @@ class CRM_Meeting extends Module {
 		$me = CRM_ContactsCommon::get_my_record();
 		CRM_CommonCommon::status_filter($this->rb);
 		$this->rb->set_filters_defaults(array('employees'=>$this->rb->crm_perspective_default(), 'date__to'=>date('Y-m-d')));
-		$this->rb->set_defaults(array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1, 'date'=>date('Y-m-d'), 'time'=>date('H:i:s'), 'duration'=>3600));
+		$this->rb->set_defaults(array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>CRM_CommonCommon::get_default_priority(), 'date'=>date('Y-m-d'), 'time'=>date('H:i:s'), 'duration'=>3600));
 		$this->rb->set_default_order(array('date'=>'DESC', 'time'=>'DESC', 'status'=>'DESC'));
 		$this->display_module($this->rb);
 	}
@@ -53,7 +53,7 @@ class CRM_Meeting extends Module {
 									$conf,
 									& $opts
 				);
-		$opts['actions'][] = Utils_RecordBrowserCommon::applet_new_record_button('crm_meeting',array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1, 'date'=>$this->get_module_variable('date',date('Y-m-d')), 'time'=>$this->get_module_variable('time',date('H:i:s')), 'duration'=>3600));
+		$opts['actions'][] = Utils_RecordBrowserCommon::applet_new_record_button('crm_meeting',array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>CRM_CommonCommon::get_default_priority(), 'date'=>$this->get_module_variable('date',date('Y-m-d')), 'time'=>$this->get_module_variable('time',date('H:i:s')), 'duration'=>3600));
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 
@@ -100,7 +100,7 @@ class CRM_Meeting extends Module {
         }
         
         $me = CRM_ContactsCommon::get_my_record();
-        $rb->set_defaults(array('related' => $rb_parent->tab . '/' . $r['id'],'employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1, 'date'=>date('Y-m-d'), 'time'=>date('H:i:s'), 'duration'=>3600,'customers'=>$customers));
+        $rb->set_defaults(array('related' => $rb_parent->tab . '/' . $r['id'],'employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>CRM_CommonCommon::get_default_priority(), 'date'=>date('Y-m-d'), 'time'=>date('H:i:s'), 'duration'=>3600,'customers'=>$customers));
         $this->display_module($rb, $params, 'show_data');
     }
 

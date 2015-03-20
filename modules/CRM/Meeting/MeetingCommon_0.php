@@ -42,7 +42,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$me = CRM_ContactsCommon::get_my_record();
-		$defaults = array('employees'=>$me['id'], 'priority'=>1, 'permission'=>0, 'status'=>0);
+		$defaults = array('employees'=>$me['id'], 'priority'=>CRM_CommonCommon::get_default_priority(), 'permission'=>0, 'status'=>0);
 		$defaults['date'] = date('Y-m-d', $timestamp);
 		$defaults['time'] = date('H:i:s', $timestamp);
 		if($object) $defaults['employees'] = $object;
@@ -914,7 +914,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	
 	public static function mobile_meetings() {
 		$me = CRM_ContactsCommon::get_my_record();
-		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1);
+		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>CRM_CommonCommon::get_default_priority());
 		Utils_RecordBrowserCommon::mobile_rb('crm_meeting',array('employees'=>array($me['id'])),array('date'=>'ASC', 'time'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('date'=>1,'time'=>1,'priority'=>1,'longterm'=>1),$defaults);
 	}
 }

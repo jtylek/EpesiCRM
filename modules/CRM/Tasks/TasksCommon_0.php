@@ -279,7 +279,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	
 	public static function mobile_tasks() {
 		$me = CRM_ContactsCommon::get_my_record();
-		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1);
+		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=> CRM_CommonCommon::get_default_priority());
 		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id']),'status'=>array(0,1)),array('deadline'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('priority'=>1, 'deadline'=>1,'longterm'=>1),$defaults);
 	}
 
@@ -323,7 +323,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$me = CRM_ContactsCommon::get_my_record();
-		$defaults = array('employees'=>$me['id'], 'priority'=>1, 'permission'=>0, 'status'=>0);
+		$defaults = array('employees'=>$me['id'], 'priority'=>CRM_CommonCommon::get_default_priority(), 'permission'=>0, 'status'=>0);
 		$defaults['deadline'] = date('Y-m-d', $timestamp);
 		if($object) $defaults['employees'] = $object;
 		$x->push_main('Utils_RecordBrowser','view_entry',array('add', null, $defaults), 'task');

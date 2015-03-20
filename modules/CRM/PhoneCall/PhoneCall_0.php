@@ -22,7 +22,7 @@ class CRM_PhoneCall extends Module {
 		$me = CRM_ContactsCommon::get_my_record();
 		CRM_CommonCommon::status_filter($this->rb);
 		$this->rb->set_filters_defaults(array('employees'=>$this->rb->crm_perspective_default(), 'status'=>'__NO_CLOSED__'));
-		$this->rb->set_defaults(array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>'1'));
+		$this->rb->set_defaults(array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>CRM_CommonCommon::get_default_priority()));
 		$this->rb->set_default_order(array('status'=>'ASC', 'date_and_time'=>'ASC', 'subject'=>'ASC'));
 		$this->display_module($this->rb);
 	}
@@ -61,7 +61,7 @@ class CRM_PhoneCall extends Module {
 									& $opts
 				);
 		$date = $this->get_module_variable('applet_date',date('Y-m-d H:i:s'));
-		$opts['actions'][] = Utils_RecordBrowserCommon::applet_new_record_button('phonecall',array('date_and_time'=>$date, 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>'1'));
+		$opts['actions'][] = Utils_RecordBrowserCommon::applet_new_record_button('phonecall',array('date_and_time'=>$date, 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>CRM_CommonCommon::get_default_priority()));
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 
@@ -104,7 +104,7 @@ class CRM_PhoneCall extends Module {
         }
 
         $me = CRM_ContactsCommon::get_my_record();
-        $rb->set_defaults(array('related' => $rb_parent->tab . '/' . $r['id'],'employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1, 'date_and_time'=>date('Y-m-d H:i:s'),'customer'=>array_shift($customers)));
+        $rb->set_defaults(array('related' => $rb_parent->tab . '/' . $r['id'],'employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>CRM_CommonCommon::get_default_priority(), 'date_and_time'=>date('Y-m-d H:i:s'),'customer'=>array_shift($customers)));
         $this->display_module($rb, $params, 'show_data');
     }
 
