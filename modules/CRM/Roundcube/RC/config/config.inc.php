@@ -20,8 +20,8 @@ $E_SESSION = $_SESSION;
 $_SESSION = $tmp;
 
 chdir($d);
-$data_dir = '../../../../'.DATA_DIR.'/CRM_Roundcube/tmp/';
-$log_dir = '../../../../'.DATA_DIR.'/CRM_Roundcube/log/';
+$data_dir = EPESI_LOCAL_DIR.'/'.DATA_DIR.'/CRM_Roundcube/tmp/';
+$log_dir = EPESI_LOCAL_DIR.'/'.DATA_DIR.'/CRM_Roundcube/log/';
 if(!file_exists($data_dir))
     mkdir($data_dir);
 if(!file_exists($log_dir))
