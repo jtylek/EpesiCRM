@@ -1397,12 +1397,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             elseif (!$noquotes) $w = DB::qstr($w);
 
                             if (false || $postgre && ($operator=='<' || $operator=='<=' || $operator=='>' || $operator=='>=')) {
+                                $field_full_name = 'r.f_' . $key;
 								switch (self::$table_rows[$f]['type']) {
 									case 'timestamp': $cast_type = 'timestamp'; break;
 									case 'date': $cast_type = 'date'; break;
+                                    case 'currency': $field_full_name = "split_part($field_full_name, '__', 1)";
+                                                     $cast_type = 'integer';
+                                                     break;
 									default: $cast_type = 'integer';
 								}
-								$c_field = 'CAST(r.f_'.$key.' AS '.$cast_type.')';
+								$c_field = 'CAST('.$field_full_name.' AS '.$cast_type.')';
 							} else $c_field = 'r.f_'.$key;
                             $having .= ' OR ('.$c_field.' '.$operator.' '.$w.' ';
                             if ($operator=='<' || $operator=='<=') {
@@ -1466,6 +1470,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     }
                 }
                 $val = 'f_'.self::$table_rows[$v['order']]['id'];
+                if (self::$table_rows[$v['order']]['type'] == 'currency') {
+                    if (DB::is_mysql()) {
+                        $val = "CAST($val as INT)";
+                    } elseif (DB::is_postgresql()) {
+                        $val = "CAST(split_part($val, '__', 1) as integer)";
+                    }
+                }
                 $orderby[] = ' '.$val.' '.$v['direction'];
                 $iter++;
             }
