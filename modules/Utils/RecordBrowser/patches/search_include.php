@@ -1,6 +1,11 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+$pdb = new PatchesDB();
+if ($pdb->was_applied(md5('modules/Utils/RecordBrowser/patches/20140827_search_include.php'))) {
+    return;
+}
+
 PatchUtil::db_add_column('recordbrowser_table_properties', 'search_include', 'I1 DEFAULT 0');
 PatchUtil::db_add_column('recordbrowser_table_properties', 'search_priority', 'I1 DEFAULT 0');
 Utils_RecordBrowserCommon::set_search('company',1,2);
