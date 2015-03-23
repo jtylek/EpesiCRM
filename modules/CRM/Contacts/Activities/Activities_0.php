@@ -185,6 +185,7 @@ class CRM_Contacts_Activities extends Module {
 				}
 			} elseif($t['deadline'] == $maxt) {
 				$v = array_shift($tasks);
+                $v = Utils_RecordBrowserCommon::filter_record_by_access('task', $v);
 				if($i>=$limit['offset'] && $v) {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', $v['id']));
 					$gb_row->add_data(	__('Task'), 
@@ -197,7 +198,8 @@ class CRM_Contacts_Activities extends Module {
 				}
 			} else {
 				$v = array_shift($phonecalls);
-				if($i>=$limit['offset'] && $v) {
+                $v = Utils_RecordBrowserCommon::filter_record_by_access('phonecall', $v);
+                if($i>=$limit['offset'] && $v) {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', $v['id']));
 					$gb_row->add_data(	__('Phonecall'), 
 								CRM_PhoneCallCommon::display_subject($v), 

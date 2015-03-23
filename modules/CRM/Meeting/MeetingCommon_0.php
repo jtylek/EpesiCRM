@@ -612,6 +612,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$r = $id;
 			$id = $r['id'];
 		}
+        $r = Utils_RecordBrowserCommon::filter_record_by_access('crm_meeting', $r);
+        if ($r === false) {
+            return null;
+        }
 
 		$next = array('type'=>__('Meeting'));
 

@@ -374,6 +374,10 @@ class CRM_TasksCommon extends ModuleCommon {
 			$r = $id;
 			$id = $r['id'];
 		}
+        $r = Utils_RecordBrowserCommon::filter_record_by_access('task', $r);
+        if (!$r) {
+            return null;
+        }
 
 		$next = array('type'=>__('Task'));
 		
