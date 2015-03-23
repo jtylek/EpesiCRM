@@ -49,7 +49,7 @@ class DBSession {
             default:
                 self::$session_type = 'file';
         }
-        if($session_type=='memcache') {
+        if(self::$session_type=='memcache') {
             self::$memcached_lock_time = ini_get("max_execution_time");
             if(!self::$memcached_lock_time) self::$memcached_lock_time = 60;
             self::$memcached_lock_time += time();
