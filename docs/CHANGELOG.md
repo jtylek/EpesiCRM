@@ -3,6 +3,27 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+CURRENT
+-------
+
+- Fix leightbox prompt id collision
+- Fix timestamp field layout
+- Fix print templates enabling
+- Fix printouts caching by browser
+- Fix JS errors related to form focus
+- Fix autoloader to use absolute path - fixes Roundcube issues
+- Fix calendar event span issues
+- Rename Roundcube's archive folders to not use EPESI word
+- Clear xcache on module update/install and themeup
+- Create function to return default CRM priority and use it for defaults
+- Fix RB patches order for update from older versions
+- Add method to filter blocked fields from record array (Dev)
+- Fix events permission issues in Activities addon and calendar
+- Update TCPDF fonts - fixes Chrome blank printout issue
+- Clear global cache on themeup
+- Fix order by currency field
+- Fix filters for currency field on PostgreSQL
+
 RELEASE 1.6.4-20150316
 -------
 
