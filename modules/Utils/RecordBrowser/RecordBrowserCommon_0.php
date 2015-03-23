@@ -1951,6 +1951,30 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
     }
 
+    public static function get_record_respecting_access($tab, $id, $access_mode = 'view', $htmlspecialchars = true)
+    {
+        $record = self::get_record($tab, $id, $htmlspecialchars);
+        return self::filter_record_by_access($tab, $record, $access_mode);
+    }
+
+    public static function filter_record_by_access($tab, $record, $access_mode = 'view')
+    {
+        if (!$record) {
+            return $record;
+        }
+        $access = self::get_access($tab, $access_mode, $record);
+        if (is_array($access)) {
+            foreach ($access as $field => $has_access) {
+                if (!$has_access) {
+                    $record[$field] = null;
+                }
+            }
+        } else if (!$access) {
+            $record = false;
+        }
+        return $record;
+    }
+
     /**
      * Change record state: active / inactive. Soft delete.
      *
