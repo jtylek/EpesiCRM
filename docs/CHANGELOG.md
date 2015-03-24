@@ -23,6 +23,8 @@ CURRENT
 - Clear global cache on themeup
 - Fix order by currency field
 - Fix filters for currency field on PostgreSQL
+- Update CKEditor to version 4.4.7
+- Fix memcache session locking issues
 
 RELEASE 1.6.4-20150316
 -------
