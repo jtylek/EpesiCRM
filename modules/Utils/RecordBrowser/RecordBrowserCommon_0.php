@@ -1673,7 +1673,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $v = date('Y-m-d', $v);
             }
             if (!isset($r[$k])) $r[$k] = '';
-            if (is_array($r[$k])) $result = in_array($v, $r[$k]);
+            if (is_array($r[$k])) {
+                if ($v) $result = in_array($v, $r[$k]);
+                else $result = empty($r[$k]);
+            }
             else switch ($operator) {
                 case '>': $result = ($r[$k] > $v); break;
                 case '>=': $result = ($r[$k] >= $v); break;

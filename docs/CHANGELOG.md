@@ -25,6 +25,7 @@ CURRENT
 - Fix filters for currency field on PostgreSQL
 - Update CKEditor to version 4.4.7
 - Fix memcache session locking issues
+- Fix RB crits issue with empty multiselect rule
 
 RELEASE 1.6.4-20150316
 -------
