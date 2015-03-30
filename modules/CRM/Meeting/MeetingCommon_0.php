@@ -331,8 +331,13 @@ class CRM_MeetingCommon extends ModuleCommon {
 		return $ret;
 	}
     public static function display_date($record) {
-        $time = strtotime($record['time']);
-        return Base_RegionalSettingsCommon::time2reg($record['date'] . ' ' . date('H:i:s', $time), false);
+        $date = $record['date'];
+        $convert_tz = false;
+        if (isset($record['time']) && $record['time']) {
+            $date .= ' ' . date('H:i:s', strtotime($record['time']));
+            $convert_tz = true;
+        }
+        return Base_RegionalSettingsCommon::time2reg($date, false, true, $convert_tz);
     }
 	public static function get_status_change_leightbox_href($record, $nolink, $desc) {
 	    if($nolink) return false;
