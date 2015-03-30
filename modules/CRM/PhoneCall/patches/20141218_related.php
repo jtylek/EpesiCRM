@@ -35,6 +35,6 @@ $rel = Utils_RecordBrowserCommon::get_records('phonecall',array('!related_to'=>'
 foreach($rel as $r) {
     $rr = array();
     foreach($r['related_to'] as $id) $rr[] = 'contact/'.$id;
-    Utils_RecordBrowserCommon::update_record('phonecall',$r['id'],array('related'=>$rr));
+    Utils_RecordBrowserCommon::update_record('phonecall',$r['id'],array('related'=>$rr), false, null, true);
 }
 Utils_RecordBrowserCommon::delete_record_field('phonecall','Related to');
