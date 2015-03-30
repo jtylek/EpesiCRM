@@ -18,9 +18,10 @@ class EpesiErrorObserver extends ErrorObserver {
 			$backtrace = htmlspecialchars_decode(str_replace(array('<br />','&nbsp;'),array("\n",' '),$backtrace));
 			$x = "who=".Base_AclCommon::get_user()."\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
 			$d = ModuleManager::get_data_dir('Base/Error').md5($x).'.txt';
-			file_put_contents($d,$x);
+			file_put_contents(EPESI_LOCAL_DIR . '/' . $d, $x);
 			$url = get_epesi_url();
-			Base_MailCommon::send($mail,'Epesi Error - '.$url,substr($x,0,strpos($x,"error backtrace"))."\n".$url.'/'.$d,null,null,false,true);
+            $file_url = rtrim($url, '/') . '/' . $d;
+            Base_MailCommon::send($mail,'Epesi Error - '.$url, substr($x, 0, strpos($x, "error backtrace")) . "\n" . $file_url,null,null,false,true);
 		}
 		return true;
 	}
