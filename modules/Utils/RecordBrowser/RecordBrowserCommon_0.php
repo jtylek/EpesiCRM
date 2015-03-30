@@ -2305,7 +2305,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     {
         $record = self::get_record($tab, $record_id);
         if (!$record[':active']) {
-            return '';
+            return array();
         }
         $cols = self::init($tab);
         $access = self::get_access($tab, 'view', $record);
