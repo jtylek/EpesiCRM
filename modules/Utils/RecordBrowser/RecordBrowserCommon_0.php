@@ -1472,7 +1472,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $val = 'f_'.self::$table_rows[$v['order']]['id'];
                 if (self::$table_rows[$v['order']]['type'] == 'currency') {
                     if (DB::is_mysql()) {
-                        $val = "CAST($val as INT)";
+                        $val = "CAST($val as SIGNED)";
                     } elseif (DB::is_postgresql()) {
                         $val = "CAST(split_part($val, '__', 1) as integer)";
                     }
