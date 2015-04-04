@@ -1448,11 +1448,11 @@ class Utils_RecordBrowser extends Module {
 					if ($default_tab===($tab_counter+1) || $tb->get_tab()==($tab_counter+1)) $default_tab = $tab_counter+2;
 				} else
 					$additional_tabs++;
+				$tab_counter++;
 			}
             $cols = $row['param'];
             $last_page = $pos;
             if ($row) $label = $row['field'];
-            $tab_counter++;
         }
 		if ($default_tab!==null) $tb->set_default_tab($default_tab);
         if ($mode!='history') {
@@ -1500,7 +1500,6 @@ class Utils_RecordBrowser extends Module {
 		
         if ($this->switch_to_addon) {
     	    $this->set_module_variable('switch_to_addon',false);
-            if($tab_counter<0) $tab_counter=0;
             $ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
             while ($row = $ret->FetchRow()) {
                 if (ModuleManager::is_installed($row['module'])==-1) continue;
@@ -1509,8 +1508,8 @@ class Utils_RecordBrowser extends Module {
                     if (isset($result['show']) && $result['show']==false) continue;
                     $row['label'] = $result['label'];
                 }
-                if ($row['label']==$this->switch_to_addon) $this->switch_to_addon = $tab_counter;
                 $tab_counter++;
+                if ($row['label']==$this->switch_to_addon) $this->switch_to_addon = $tab_counter;
             }
             $tb->switch_tab($this->switch_to_addon);
             location(array());
