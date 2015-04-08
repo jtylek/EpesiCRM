@@ -2193,7 +2193,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return Module::create_href(self::get_record_href_array($tab,$id,$action)+$more);
     }
-    public static function record_link_open_tag($tab, $id, $nolink=false, $action='view'){
+    public static function record_link_open_tag($tab, $id, $nolink=false, $action='view', $more=array()){
         self::check_table_name($tab);
         $ret = '';
         if (!is_numeric($id)) {
@@ -2204,7 +2204,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             Utils_RecordBrowser::$access_override['tab']==$tab &&
             Utils_RecordBrowser::$access_override['id']==$id) {
             self::$del_or_a = '</a>';
-            if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id, $action).'>';
+            if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id, $action, $more).'>';
             else self::$del_or_a = '';
         } else {
 			$ret = '';
@@ -2224,7 +2224,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $tip = $tip ? Utils_TooltipCommon::open_tag_attrs($tip) : '';
             if (!$nolink) {
                 if($has_access) {
-                    $href = self::create_record_href($tab, $id, $action);
+                    $href = self::create_record_href($tab, $id, $action, $more);
                     $ret = '<a '.$tip.' '.$href.'>'.$ret;
                     self::$del_or_a .= '</a>';
                 } else {
