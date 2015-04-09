@@ -3357,7 +3357,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $records_tmp = Utils_RecordBrowserCommon::get_records(
                             $t,
                             $single_tab?$crits:$crits[$t],
-                            empty($multi_adv_params['format_callback']) ? $col_id : array(),
+                            array(),
                             !empty($multi_adv_params['order']) ? $multi_adv_params['order'] : array());
                     foreach($records_tmp as $key=>$rec) {
                         if(!self::get_access($t,'view',$rec)) continue;
