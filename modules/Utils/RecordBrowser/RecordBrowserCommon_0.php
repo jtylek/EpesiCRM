@@ -2037,7 +2037,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!$perma) {
             $ret = self::set_active($tab, $id, false);
         } elseif (self::check_table_name($tab)) {
-            $values = self::record_processing($tab, self::get_record($tab, $id), 'delete');
+            $record = self::get_record($tab, $id);
+            $values = self::record_processing($tab, $record, 'delete');
             if ($values === false) {
                 $ret = false;
             } else {
@@ -2047,6 +2048,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
                 DB::Execute('DELETE FROM ' . $tab . '_data_1 WHERE id=%d', array($id));
                 $ret = DB::Affected_Rows() > 0;
+                if ($ret) {
+                    self::record_processing($tab, $record, 'deleted');
+                }
             }
         }
         return $ret;
