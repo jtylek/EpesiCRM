@@ -176,6 +176,16 @@ class Apps_Shoutbox extends Module {
     		$theme = $this->init_module('Base/Theme');
 		    $qf->assign_theme('form', $theme);
 
+		    //confirm when sending messages to all
+		   eval_js("jq('#shoutbox_button, #shoutbox_button_big').click(function() {
+      					var submit = true;
+		    			if (jq('#shoutbox_to').val() == 'all' && !confirm('".__('Send message to all?')."')) {
+         					submit = false;
+      					}
+		    
+		    			return submit;		    			
+					});");
+		   
 			//if submited
 			if($qf->validate()) {
 				 //get post group
