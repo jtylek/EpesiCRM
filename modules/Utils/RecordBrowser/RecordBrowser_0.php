@@ -436,22 +436,33 @@ class Utils_RecordBrowser extends Module {
                             }
                         }
                         if($tab!='__RECORDSETS__' && !preg_match('/,/',$tab)) {
-                            $qty = Utils_RecordBrowserCommon::get_records_count($tab,$crits);
-                            if($qty <= Utils_RecordBrowserCommon::$options_limit) {
-                                $ret2 = Utils_RecordBrowserCommon::get_records($tab,$crits,$col);
-                                if (count($col)!=1) {
-                                    foreach ($ret2 as $k=>$v) {
-                                        $txt = array();
-                                        foreach ($col as $kk=>$vv)
-                                            $txt[] = $v[$vv];
-                                        $arr[$k] = implode(' ',$txt);
-                                    }
-                                } else {
-                                    foreach ($ret2 as $k=>$v) {
-                                        $arr[$k] = $v[$col[0]];
-                                    }
-                                }
-                                natcasesort($arr);
+                        	$qty = Utils_RecordBrowserCommon::get_records_count($tab,$crits);
+                        	if($qty <= Utils_RecordBrowserCommon::$options_limit) {
+                          		$tpro = DB::GetRow('SELECT description_callback FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+                            	if ($tpro) {
+                            		$descr = $tpro['description_callback'];
+                            		if($descr) {
+                            			if(preg_match('/::/',$descr)) {
+                            				$descr = explode('::',$descr);
+                            			}
+                            			if(!is_callable($descr))
+                            				$descr = '';
+                            		}
+                            	}
+                             	$ret2 = Utils_RecordBrowserCommon::get_records($tab,$crits);
+                             	foreach ($ret2 as $k=>$v) {
+									if (empty($descr)) {
+	                               		$txt = array();
+	                                	foreach ($col as $kk=>$vv)
+	                                		$txt[] = Utils_RecordBrowserCommon::get_val($tab,$vv,$v,true);
+	                                	$option_label = implode(' ',$txt);
+                                	}
+                                	else {
+                                		$option_label = call_user_func($descr,$v,true);
+                                	}
+                                	$arr[$k] = $option_label;
+                            	}
+                            	natcasesort($arr);
                             } else {
                                 $arr = array();
                                 $autoselect = true;
