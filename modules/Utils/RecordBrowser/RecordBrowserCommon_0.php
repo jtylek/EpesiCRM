@@ -3545,7 +3545,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($record['id']));
     }
 
-    public static function clean_search_index($tab)
+    public static function clear_search_index($tab)
     {
         $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
         if ($tab_id) {
