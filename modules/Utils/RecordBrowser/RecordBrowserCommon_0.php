@@ -2769,7 +2769,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	foreach($words_db as & $w) {
 	    if(mb_strlen($w)>=3) self::$automulti_order_tabs[] = preg_quote($w,'/');
 	    $w = DB::qstr($w);
-	    $w = 'CONCAT("%%",'.$w.',"%%")';
+	    $w = 'CONCAT(\'%%\','.$w.',\'%%\')';
 	}
 	self::$automulti_order_tabs = '/('.implode('|',self::$automulti_order_tabs).')/i';
 
@@ -2799,7 +2799,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
 
             $fields = array_filter(explode('|', $ref[1]));
-            if(!$fields) $fields = DB::GetCol('SELECT field FROM '.$t.'_field WHERE active=1 AND visible=1 AND (type NOT IN ("calculated","page_split","hidden") OR (type="calculated" AND param is not null AND param!=""))');
+            if(!$fields) $fields = DB::GetCol("SELECT field FROM {$t}_field WHERE active=1 AND visible=1 AND (type NOT IN ('calculated','page_split','hidden') OR (type='calculated' AND param is not null AND param!=''))");
             
 	    $words_db_tmp = $words_db;
 	    $words_tmp = $words;
