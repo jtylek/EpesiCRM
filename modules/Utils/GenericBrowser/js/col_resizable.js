@@ -310,22 +310,20 @@
 	 */
 	var onResize = function(){
 		for(t in tables){		
-			var t = tables[t], i, mw=0;				
+			var t = tables[t], i, mw=0;	
 			t.removeClass(SIGNATURE);						//firefox doesn't like layout-fixed in some cases
-			if (t.f && t.w != t.width()) {					//if the the table's width has changed and it is in fixed mode
-				t.w = t.width();							//its new value is kept the active cells area is obtained
-				for(i=0; i<t.ln; i++) mw+= t.c[i].w;		
-				//cell rendering is not as trivial as it might seem, and it is slightly different for
-				//each browser. In the beginning i had a big switch for each browser, but since the code
-				//was extremely ugly now I use a different approach with several re-flows. This works 
-				//pretty well but it's a bit slower. For now, lets keep things simple...   
-				for(i=0; i<t.ln; i++) t.c[i].css("width", M.round(1000*t.c[i].w/mw)/10 + "%").l=true; 
-				//c.l locks the column, telling us that its c.w is outdated									
-			}
+			t.w = t.width();							//its new value is kept the active cells area is obtained
+			for(i=0; i<t.ln; i++) mw+= t.c[i].w;		
+			//cell rendering is not as trivial as it might seem, and it is slightly different for
+			//each browser. In the beginning i had a big switch for each browser, but since the code
+			//was extremely ugly now I use a different approach with several re-flows. This works 
+			//pretty well but it's a bit slower. For now, lets keep things simple...   
+			for(i=0; i<t.ln; i++) t.c[i].css("width", M.round(1000*t.c[i].w/mw)/10 + "%").l=true; 
+			//c.l locks the column, telling us that its c.w is outdated									
 			syncGrips(t.addClass(SIGNATURE));
 		} 
 		
-	};		
+	};	
 
 
 	//bind resize event, to update grips position 
