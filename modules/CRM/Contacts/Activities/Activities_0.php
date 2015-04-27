@@ -165,11 +165,8 @@ class CRM_Contacts_Activities extends Module {
 			$gb_row = $gb->get_new_row();
 			if($ev['start'] == $maxt) {
 				$v = array_shift($events);
+                $v = Utils_RecordBrowserCommon::filter_record_by_access('crm_meeting', $v);
 				if($i>=$limit['offset'] && $v) {
-//					$employees = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=%d', array($v['id']));
-//					$customers = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=%d', array($v['id']));
-					$event = CRM_MeetingCommon::crm_event_get($v['id']);
-
 					if (isset($v['view_action'])) $view_href = $v['view_action'];
 					else $view_href = $this->create_callback_href(array($this, 'view_event'), array($v['id']));
 					$title = '<a '.$view_href.'>'.$v['title'].'</a>';
@@ -178,8 +175,8 @@ class CRM_Contacts_Activities extends Module {
 					$gb_row->add_data(	__('Meeting'),
 								$title, 
 								Base_RegionalSettingsCommon::time2reg($v['start'],$v['duration']==-1?false:2), 
-								CRM_ContactsCommon::display_contact(array('employees'=>$event['employees']), false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
-								CRM_ContactsCommon::display_company_contact(array('customers'=>$event['customers']), false, array('id'=>'customers', 'param'=>';::')), 
+								CRM_ContactsCommon::display_contact(array('employees'=>$v['employees']), false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')),
+								CRM_ContactsCommon::display_company_contact(array('customers'=>$v['customers']), false, array('id'=>'customers', 'param'=>';::')),
 								Utils_AttachmentCommon::count('crm_meeting/'.$v['id'])
 							);
 				}
