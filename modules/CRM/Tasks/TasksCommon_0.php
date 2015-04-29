@@ -470,7 +470,7 @@ class CRM_TasksCommon extends ModuleCommon {
             $key = array_search($default, $rss);
             if ($key !== false) 
                 unset($rss[$key]);
-            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like "%_related"');
+            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like %s', array('%_related'));
             foreach ($tabs as $k => $v) {
                 $tabs[$k] = _V($v) . " ($k)";
             }

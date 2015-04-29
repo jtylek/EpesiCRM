@@ -382,7 +382,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
             $key = array_search($default, $rss);
             if ($key !== false) 
                 unset($rss[$key]);
-            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like "%_related" AND tab not like "rc_%"');
+            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like %s AND tab not like %s', array('%_related', 'rc_%'));
             foreach ($tabs as $k => $v) {
                 $tabs[$k] = _V($v) . " ($k)";
             }
