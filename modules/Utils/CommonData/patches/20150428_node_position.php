@@ -11,6 +11,7 @@ function reset_sub_arrays($name) {
 	$arr = Utils_CommonDataCommon::get_array($name, false, false, true);
 	
 	foreach ($arr as $k=>$v) {
+		if (empty($k)) continue;
 		reset_sub_arrays($name . '/' .$k);
 	}
 }
