@@ -226,8 +226,11 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		
 		$node = DB::GetRow('SELECT parent_id, position FROM utils_commondata_tree WHERE id=%d',array($id));		
 		
+		DB::StartTrans();
+		// move all following nodes back
 		DB::Execute('UPDATE utils_commondata_tree SET position=position-1 WHERE parent_id=%d AND position>%d',array($node['parent_id'], $node['position']));
 		DB::Execute('DELETE FROM utils_commondata_tree WHERE id=%d',array($id));
+		DB::CompleteTrans();
 	}
 
 	/**
