@@ -256,6 +256,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 			$ret = DB::GetAssoc('SELECT akey, value, readonly FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
 		else
 			$ret = DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
+		if ($order_by_position === 'key') ksort($ret);
 		$cache[$name][$order_by_position][$readinfo] = $ret;
 		return $ret;
 	}
@@ -339,7 +340,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	}
 	
 	public static function reset_array_positions($name){
-		$arr = self::get_array($name, true);
+		$arr = self::get_array($name, 'key');
 		
 		DB::StartTrans();
 		$pos = 1;
