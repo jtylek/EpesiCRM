@@ -253,7 +253,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		else
 			$order_by = 'value ASC';
 		if($readinfo)
-			$ret = DB::GetAssoc('SELECT akey, value, readonly FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
+			$ret = DB::GetAssoc('SELECT akey, value, readonly, position, id FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
 		else
 			$ret = DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
 		if ($order_by_position === 'key') ksort($ret);
@@ -355,7 +355,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	}	
 	
 	public static function get_node_position($name){
-		$id = self::get_id($name . '/' . $k);
+		$id = self::get_id($name);
 		
 		return DB::GetOne('SELECT position FROM utils_commondata_tree WHERE id=%d', array($id));
 	}

@@ -110,18 +110,18 @@ class Utils_CommonData extends Module {
 		$ret = Utils_CommonDataCommon::get_translated_array($name,true,true);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_data(Utils_CommonDataCommon::get_node_position($name.'/'.$k),$k,$v['value']); // ****** CommonData value translation
+			$gb_row->add_data($v['position'],$k,$v['value']); // ****** CommonData value translation
 			$gb_row->add_action($this->create_callback_href(array($this,'browse'),array($name.'/'.$k,false)),'View');
 			if(!$v['readonly']) {
 				$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
 				$gb_row->add_action($this->create_confirm_callback_href(__('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
 			}
-			$node_id = Utils_CommonDataCommon::get_id($name.'/'.$k);
+			$node_id = $v['id'];
 			$gb_row->add_action('class="move-handle"','Move', __('Drag to change node order'), 'move-up-down');
 			$gb_row->set_attrs("node=\"$node_id\" class=\"sortable\"");
 		}
 		
-		$gb->set_default_order(array('Position'=>'ASC'));
+		$gb->set_default_order(array(__('Position') => 'ASC'));
 		//$this->display_module($gb);
 		$this->display_module($gb,array(true),'automatic_display');
 
