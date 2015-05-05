@@ -50,14 +50,18 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		if(!$name) return false;
 		$pcs = explode('/',$name);
 		$id = -1;
+		$current_array = '';
 		foreach($pcs as $v) {
 			if($v==='') continue;
 			$id2 = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
+			$current_array .= '/';
 			if($id2===false || $id2===null) {
-				DB::Execute('INSERT INTO utils_commondata_tree(parent_id,akey,readonly) VALUES(%d,%s,%b)',array($id,$v,$readonly));
+				$pos=self::get_array_count($current_array) + 1;
+				DB::Execute('INSERT INTO utils_commondata_tree(parent_id,akey,readonly,position) VALUES(%d,%s,%b,%d)',array($id,$v,$readonly,$pos));
 				$id = DB::Insert_ID('utils_commondata_tree','id');
 			} else
 				$id=$id2;
+			$current_array .= $v;
 		}
 		return $id;
 	}
@@ -128,8 +132,9 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 * @param $array array initialization value
 	 * @param $overwrite bool whether method should overwrite if array already exists, otherwise the data will be appended
      * @param $readonly bool do not allow user to change this array from GUI
+     * @param $default_order_by_key bool order array by key instead of ordering by the submitted order
 	 */
-	public static function new_array($name,$array,$overwrite=false,$readonly=false){
+	public static function new_array($name,$array,$overwrite=false,$readonly=false,$default_order_by_key=false){
 		foreach($array as $k=>$v)
 		    if(strpos($k,'/')!==false)
 		        trigger_error('Invalid common data key: '.$k,E_USER_ERROR);
@@ -150,14 +155,20 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		$qty = count($array);
 		if ($qty!=0) {
 			$qvals = array();
+			$pos=1;
 			foreach($array as $k=>$v) {
 				$qvals[] = $id;
 				$qvals[] = $k;
 				$qvals[] = $v;
 				$qvals[] = $readonly;
+				$qvals[] = $pos;
+				$pos++;
 			}
-			DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value, readonly) VALUES '.implode(',',array_fill(0, $qty, '(%d,%s,%s,%b)')),$qvals);
+			DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value, readonly, position) VALUES '.implode(',',array_fill(0, $qty, '(%d,%s,%s,%b,%d)')),$qvals);
 		}
+		if ($default_order_by_key)
+			self::reset_array_positions($name);
+		
 		return true;
 	}
 
@@ -184,7 +195,8 @@ class Utils_CommonDataCommon extends ModuleCommon {
 				if (!$overwrite) continue;
 				DB::Execute('UPDATE utils_commondata_tree SET value=%s,readonly=%b WHERE akey=%s AND parent_id=%d',array($v,$readonly,$k,$id));
 			} else {
-				DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value, readonly) VALUES (%d,%s,%s,%b)',array($id,$k,$v,$readonly));
+				$pos = self::get_array_count($name) + 1;
+				DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value, readonly, position) VALUES (%d,%s,%s,%b,%d)',array($id,$k,$v,$readonly,$pos));
 			}
 		}
 	}
@@ -211,7 +223,14 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		$ret = DB::GetCol('SELECT id FROM utils_commondata_tree WHERE parent_id=%d',array($id));
 		foreach($ret as $r)
 			self::remove_by_id($r);
+		
+		$node = DB::GetRow('SELECT parent_id, position FROM utils_commondata_tree WHERE id=%d',array($id));		
+		
+		DB::StartTrans();
+		// move all following nodes back
+		DB::Execute('UPDATE utils_commondata_tree SET position=position-1 WHERE parent_id=%d AND position>%d',array($node['parent_id'], $node['position']));
 		DB::Execute('DELETE FROM utils_commondata_tree WHERE id=%d',array($id));
+		DB::CompleteTrans();
 	}
 
 	/**
@@ -221,34 +240,34 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 * @param boolean order by key instead of value
 	 * @return mixed returns an array if such array exists, false otherwise
 	 */
-	public static function get_array($name, $order_by_key=false, $readinfo=false, $silent=false){
+	public static function get_array($name, $order_by_position=false, $readinfo=false, $silent=false){
 		static $cache;
-		if(isset($cache[$name][$order_by_key][$readinfo]))
-			return $cache[$name][$order_by_key][$readinfo];
+		if(isset($cache[$name][$order_by_position][$readinfo]))
+			return $cache[$name][$order_by_position][$readinfo];
 		$id = self::get_id($name);
 		if($id===false)
 			if ($silent) return null;
-			else trigger_error('Invalid CommonData::get_array() request: '.$name,E_USER_ERROR);
-		if($order_by_key)
-			$order_by = 'akey ASC';
+		else trigger_error('Invalid CommonData::get_array() request: '.$name,E_USER_ERROR);
+		if($order_by_position) 
+			$order_by = ($order_by_position === 'key')? 'akey ASC': 'position ASC';
 		else
 			$order_by = 'value ASC';
 		if($readinfo)
-			$ret = DB::GetAssoc('SELECT akey, value, readonly FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
-		else 
+			$ret = DB::GetAssoc('SELECT akey, value, readonly, position, id FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
+		else
 			$ret = DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
-		$cache[$name][$order_by_key][$readinfo] = $ret;
+		if ($order_by_position === 'key') ksort($ret);
+		$cache[$name][$order_by_position][$readinfo] = $ret;
 		return $ret;
 	}
 
-	public static function get_translated_array($name,$order_by_key=false,$readinfo=false,$silent=false) {
-		if ($readinfo) $info = self::get_array($name,$order_by_key,$readinfo,$silent);
-		$arr = self::get_array($name,$order_by_key,false,$silent);
+	public static function get_translated_array($name,$order_by_position=false,$readinfo=false,$silent=false) {
+		if ($readinfo) $info = self::get_array($name,$order_by_position,$readinfo,$silent);
+		$arr = self::get_array($name,$order_by_position,false,$silent);
 		if ($arr===null) return null;
+		
 		$arr = self::translate_array($arr);
-		if ($order_by_key)
-			ksort($arr, SORT_LOCALE_STRING);
-		else
+		if (!$order_by_position)
 			asort($arr, SORT_LOCALE_STRING);
 		if ($readinfo) {
 			foreach ($arr as $k=>$v) {
@@ -304,6 +323,41 @@ class Utils_CommonDataCommon extends ModuleCommon {
 			}
 		}
 		return $output;
+	}
+	
+	public static function change_node_position($id, $new_pos){
+		DB::StartTrans();
+		$node = DB::GetRow('SELECT * FROM utils_commondata_tree WHERE id=%d', array($id));
+		if ($node) {
+			// move all following nodes back
+			DB::Execute('UPDATE utils_commondata_tree SET position=position-1 WHERE parent_id=%d AND position>%d',array($node['parent_id'], $node['position']));
+			// make place for moved node
+			DB::Execute('UPDATE utils_commondata_tree SET position=position+1 WHERE parent_id=%d AND position>=%d',array($node['parent_id'], $new_pos));
+			// set new node position
+			DB::Execute('UPDATE utils_commondata_tree SET position=%d WHERE id=%d',array($new_pos, $id));
+		}
+		DB::CompleteTrans();
+	}
+	
+	public static function reset_array_positions($name){
+		$arr = self::get_array($name, 'key');
+		
+		DB::StartTrans();
+		$pos = 1;
+		foreach ($arr as $k=>$v) {
+			$id = self::get_id($name . '/' . $k);
+			
+			DB::Execute('UPDATE utils_commondata_tree SET position=%d WHERE id=%d',array($pos, $id));
+			
+			$pos++;
+		}
+		DB::CompleteTrans();
+	}	
+	
+	public static function get_node_position($name){
+		$id = self::get_id($name);
+		
+		return DB::GetOne('SELECT position FROM utils_commondata_tree WHERE id=%d', array($id));
 	}
 }
 

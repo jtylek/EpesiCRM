@@ -91,10 +91,17 @@ class Utils_CommonData extends Module {
 	 */
 	public function browse($name='',$root=true){
 		if($this->is_back()) return false;
+		
+		if (isset($_REQUEST['node_position'])) {
+			list($node_id, $position) = $_REQUEST['node_position'];
+
+			Utils_CommonDataCommon::change_node_position($node_id, $position);
+		}
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'browse'.md5($name));
 
 		$gb->set_table_columns(array(
+						array('name'=>__('Position'),'width'=>5, 'order'=>'position'),
 						array('name'=>__('Key'),'width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
 						array('name'=>__('Value'),'width'=>20, 'order'=>'value','search'=>1)
 					));
@@ -103,16 +110,27 @@ class Utils_CommonData extends Module {
 		$ret = Utils_CommonDataCommon::get_translated_array($name,true,true);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_data($k,$v['value']); // ****** CommonData value translation
+			$gb_row->add_data($v['position'],$k,$v['value']); // ****** CommonData value translation
 			$gb_row->add_action($this->create_callback_href(array($this,'browse'),array($name.'/'.$k,false)),'View');
 			if(!$v['readonly']) {
 				$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
 				$gb_row->add_action($this->create_confirm_callback_href(__('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
 			}
+			$node_id = $v['id'];
+			$gb_row->add_action('class="move-handle"','Move', __('Drag to change node order'), 'move-up-down');
+			$gb_row->set_attrs("node=\"$node_id\" class=\"sortable\"");
 		}
+		
+		$gb->set_default_order(array(__('Position') => 'ASC'));
 		//$this->display_module($gb);
 		$this->display_module($gb,array(true),'automatic_display');
 
+		// sorting
+		load_js($this->get_module_dir() . 'sort_nodes.js');
+		$table_md5 = md5($gb->get_path());
+		eval_js("utils_commondata_sort_nodes_init(\"$table_md5\")");
+		
+		Base_ActionBarCommon::add('settings',__('Reset Order By Key'),$this->create_callback_href(array('Utils_CommonDataCommon','reset_array_positions'),$name));
 		Base_ActionBarCommon::add('add',__('Add array'),$this->create_callback_href(array($this,'edit'),$name));
 		if(!$root)
 			Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
