@@ -393,7 +393,9 @@ class Utils_RecordBrowser extends Module {
 					$parts = explode('::', $this->table_rows[$filter]['param']['array_id']);
 					$array_id = array_shift($parts);
 					$arr = Utils_CommonDataCommon::get_translated_array($array_id, $this->table_rows[$filter]['param']['order_by_key']);
+					$made_of_parts = false;
 					while (!empty($parts)) {
+						$made_of_parts = true;
 						array_shift($parts);
 						$next_arr = array();
 						foreach ($arr as $k=>$v) {
@@ -403,7 +405,7 @@ class Utils_RecordBrowser extends Module {
 						}
 						$arr = $next_arr;
 					}
-                    natcasesort($arr);
+                    if ($made_of_parts) natcasesort($arr);
             } else {
                     $param = explode(';',$this->table_rows[$filter]['param']);
                     $x = explode('::',$param[0]);
