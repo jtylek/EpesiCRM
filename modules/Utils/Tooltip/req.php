@@ -17,7 +17,7 @@ require_once('../../../include.php');
 ModuleManager::load_modules();
 
 if (!isset($_SESSION['client']['utils_tooltip']['callbacks'][$_POST['tooltip_id']]))
-	die(serialize($_POST['tooltip_id']).'Invalid tooltip'.print_r($_SESSION['client']['utils_tooltip'],true));
+	die('Invalid tooltip - too many tabs open?');
 
 $callback = $_SESSION['client']['utils_tooltip']['callbacks'][$_POST['tooltip_id']]['callback'];
 $args = $_SESSION['client']['utils_tooltip']['callbacks'][$_POST['tooltip_id']]['args'];

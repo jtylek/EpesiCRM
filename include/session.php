@@ -97,6 +97,8 @@ class DBSession {
             if(!is_numeric(CID))
                 trigger_error('Invalid client id.',E_USER_ERROR);
 
+            if(isset($_SESSION['session_destroyed'][CID])) return '';
+            
             switch(self::$session_type) {
                 case 'file':
                     $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
@@ -133,7 +135,7 @@ class DBSession {
         if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
         $name = self::truncated_session_id($name);
         $ret = 1;
-        if(CID!==false && isset($_SESSION['client'])) {
+        if(CID!==false && isset($_SESSION['client']) && !isset($_SESSION['session_destroyed'][CID])) {
             $data = serialize($_SESSION['client']);
             
             switch(self::$session_type) {
