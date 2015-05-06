@@ -710,6 +710,30 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     /**
+     * @param string $tab Recordset identifier. e.g. contact, company
+     * @param string $old_name Current field name. Not field id. e.g. "First Name"
+     * @param string $new_name New field name.
+     */
+    public static function rename_field($tab, $old_name, $new_name)
+    {
+        $id = Utils_RecordBrowserCommon::get_field_id($old_name);
+        $new_id = Utils_RecordBrowserCommon::get_field_id($new_name);
+        Utils_RecordBrowserCommon::check_table_name($tab);
+
+        DB::StartTrans();
+        if (DB::is_postgresql()) {
+            DB::Execute('ALTER TABLE ' . $tab . '_data_1 RENAME COLUMN f_' . $id . ' TO f_' . $new_id);
+        } else {
+            $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+            $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+            DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, Utils_RecordBrowserCommon::actual_db_type($type, $old_param));
+        }
+        DB::Execute('UPDATE ' . $tab . '_field SET field=%s WHERE field=%s', array($new_name, $old_name));
+        DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
+        DB::CompleteTrans();
+    }
+
+    /**
      * List all installed recordsets.
      * @param string $format Simple formatting of the values
      *
