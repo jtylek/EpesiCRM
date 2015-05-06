@@ -219,7 +219,8 @@ class DBSession {
 
     public static function destroy($name) {
         $name = self::truncated_session_id($name);
-        for($i=0; $i<5; $i++)
+        $cids = DB::GetCol('SELECT DISTINCT client_id FROM history WHERE session_name=%s',array($name));
+        foreach($cids as $i)
             self::destroy_client($name,$i);
         
         switch(self::$session_type) {
