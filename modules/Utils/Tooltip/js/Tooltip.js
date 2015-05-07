@@ -51,11 +51,11 @@ Utils_Tooltip__load_ajax_Tip = function(o,my_event,max_width) {
                     cid: Epesi.client_id
                 },
                 success:function(t) {
+                    o.setAttribute('tip',t);
                     if (t) {
-                        o.setAttribute('tip',t);
                         jq('#tooltip_text').html(t);
                         if (jq("#tooltip_leightbox_mode_content")) jq("#tooltip_leightbox_mode_content").html(t);
-                    }
+                    } else Utils_Tooltip__hideTip();
                 }
             });
             Utils_Tooltip__timeout_obj = false;
