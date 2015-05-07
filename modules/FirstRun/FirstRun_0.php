@@ -151,15 +151,15 @@ class FirstRun extends Module {
 			$pkgs = isset($this->ini[$d[0]['setup_type']]['package'])?$this->ini[$d[0]['setup_type']]['package']:array();
 		
 		$t = microtime(true);
-		error_log(date('Y-m-d H:i:s').': installing "Base" ...'."\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': installing "Base" ...'."\n",'firstrun.log');
 		if(!ModuleManager::install('Base',null,false)) {
 			print('Unable to install Base module pack.');
 			return false;
 		}
-		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
 
 		$t = microtime(true);
-		error_log(date('Y-m-d H:i:s').': creating admin user ...'."\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': creating admin user ...'."\n",'firstrun.log');
 		if(!Base_UserCommon::add_user($d['simple_user']['login'])) {
 		    	print('Unable to create user');
 		    	return false;
@@ -184,10 +184,10 @@ class FirstRun extends Module {
 		Acl::set_user($user_id, true);
 
 		Variable::set('anonymous_setup',false);
-		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
 
 		$t = microtime(true);
-		error_log(date('Y-m-d H:i:s').': setting mail server ...'."\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': setting mail server ...'."\n",'firstrun.log');
 		$method = $d['simple_mail']['mail_method'];
 		Variable::set('mail_method', $method);
 		Variable::set('mail_from_addr', $d['simple_user']['mail']);
@@ -204,37 +204,37 @@ class FirstRun extends Module {
 				Variable::set('mail_password', $d['simple_mail_smtp']['mail_password']);
 			}
 		}
-		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
 
 		$t = microtime(true);
-		error_log(date('Y-m-d H:i:s').': Installing modules ...'."\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': Installing modules ...'."\n",'firstrun.log');
 		foreach($pkgs as $p) {
 		    if(!is_dir('modules/'.$p)) continue;
 			$t2 = microtime(true);
-			error_log(' * '.date('Y-m-d H:i:s').' - '.$p.' (',3,DATA_DIR.'/firstrun.log');
+			epesi_log(' * '.date('Y-m-d H:i:s').' - '.$p.' (','firstrun.log');
 			if(!ModuleManager::install(str_replace('/','_',$p),null,false)) {
 				print('<b>Unable to install '.str_replace('_','/',$p).' module.</b>');
 			}
-			error_log((microtime(true)-$t2)."s)\n",3,DATA_DIR.'/firstrun.log');
+			epesi_log((microtime(true)-$t2)."s)\n",'firstrun.log');
 		}
-		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
 
 
 		$t = microtime(true);
-		error_log(date('Y-m-d H:i:s').': Refreshing cache of modules ...'."\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': Refreshing cache of modules ...'."\n",'firstrun.log');
 		ModuleManager::create_load_priority_array();
 		Base_SetupCommon::refresh_available_modules();
-		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
 
 		$t = microtime(true);
-		error_log(date('Y-m-d H:i:s').': Creating cache of template files ...'."\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': Creating cache of template files ...'."\n",'firstrun.log');
 		Base_ThemeCommon::create_cache();
-		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
 
 		$t = microtime(true);
-		error_log(date('Y-m-d H:i:s').': Updating translation files ...'."\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': Updating translation files ...'."\n",'firstrun.log');
 		Base_LangCommon::update_translations();
-		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
+		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
 
 		$processed = ModuleManager::get_processed_modules();
 

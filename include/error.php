@@ -38,10 +38,12 @@ class ErrorHandler {
     	if (($type & error_reporting()) > 0) {
 				$backtrace = self::debug_backtrace();
 				
+				epesi_log(self::error_code_to_string($type) . ' (' . $type . '): '.$message."\n".'File: '.$errfile.' ('.$errline.")\n\n",'php_errors.log');
+				
 				if ( ! self::notify_observers($type, $message,$errfile,$errline,$errcontext,$backtrace)) {
 					return false;
 				}
-
+				
 				while(@ob_end_clean());
 				echo self::notify_client('Type: ' . self::error_code_to_string($type) . ' (' . $type . ')<br>Message: '.$message.'<br>File: '.$errfile.'<br>Line='.$errline.$backtrace.'<hr>');
 				exit();
@@ -231,6 +233,15 @@ function check_for_fatal()
     $fatal_reporting_level = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR;
     if ( $error["type"] & $error_reporting_level & $fatal_reporting_level )
         ErrorHandler::handle_error( $error["type"], $error["message"], $error["file"], $error["line"], '' );
+}
+
+function epesi_log($message,$file) {
+    if(!file_exists(DATA_DIR.'/logs')) {
+        @mkdir(DATA_DIR.'/logs');
+        file_put_contents(DATA_DIR.'/logs/.htaccess','deny from all');
+        file_put_contents(DATA_DIR.'/logs/index.html','');
+    }
+    error_log($message,3,DATA_DIR.'/logs/'.$file);
 }
 
 if(REPORT_ALL_ERRORS) {
