@@ -83,7 +83,8 @@ var Epesi = {
             jQuery('#' + f).on('change', 'input, textarea, select', function (e) {
                 var el = jQuery(this);
                 el.addClass('changed-input');
-                Epesi.confirmLeave.forms[f][el.attr('name')] = true;
+                var form = f in Epesi.confirmLeave.forms ? Epesi.confirmLeave.forms[f] : Epesi.confirmLeave.forms_freezed[f];
+                form[el.attr('name')] = true;
             });
 			//take care if user refreshing or going to another page
 			jQuery(window).unbind('beforeunload').on('beforeunload', function() {
