@@ -343,7 +343,6 @@ class Utils_RecordBrowser extends Module {
 
 		$empty_defaults = array();
         $filters = array();
-        $text_filters = array();
         foreach ($filters_all as $filter) {
             $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
             $field_id = 'filter__'.$filter_id;
@@ -548,11 +547,11 @@ class Utils_RecordBrowser extends Module {
             } else {
                 if (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
                     if (isset($vals[$field_id.'__currency']) && $vals[$field_id.'__currency'] != "__NULL__")
-                        $this->crits["~$filter"] = "%__" . $vals[$field_id.'__currency'];
+                        $this->crits["~$filter_id"] = "%__" . $vals[$field_id.'__currency'];
                     if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'] !== "")
-                        $this->crits[">=\"$filter"] = floatval($vals[$field_id.'__from']);
+                        $this->crits[">=$filter_id"] = floatval($vals[$field_id.'__from']);
                     if (isset($vals[$field_id.'__to']) && $vals[$field_id.'__to'] !== "")
-                        $this->crits["<=\"$filter"] = floatval($vals[$field_id.'__to']);
+                        $this->crits["<=$filter_id"] = floatval($vals[$field_id.'__to']);
                     continue;
                 }
 				if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
@@ -562,32 +561,18 @@ class Utils_RecordBrowser extends Module {
 						$this->crits['<='.$filter_id] = $vals[$field_id.'__to'].' 23:59:59';
 					continue;
 				}
-                if (!isset($text_filters[$filter_id])) {
-                    if (!isset($vals['filter__'.$filter_id]) || ($this->table_rows[$filter]['type']=='select' && $vals['filter__'.$filter_id]==='')) $vals['filter__'.$filter_id]='__NULL__';
-					if ($vals['filter__'.$filter_id]==='__NULL__') continue;
-					if ($this->table_rows[$filter]['type']=='commondata') {
-						$vals2 = explode('/',$vals['filter__'.$filter_id]);
-						$param = explode('::',$this->table_rows[$filter]['param']['array_id']);
-						array_shift($param);
-						$param[] = $filter_id;
-						foreach ($vals2 as $v)
-							$this->crits[preg_replace('/[^a-z0-9]/','_',strtolower(array_shift($param)))] = $v;
-					} else {
-						$this->crits[$filter_id] = $vals['filter__'.$filter_id];
-                        if ($this->table_rows[$filter]['type']=='checkbox' && $this->crits[$filter_id]=='') $this->crits[$filter_id] = array(null,0);
-					}
+                if (!isset($vals['filter__'.$filter_id]) || ($this->table_rows[$filter]['type']=='select' && $vals['filter__'.$filter_id]==='')) $vals['filter__'.$filter_id]='__NULL__';
+                if ($vals['filter__'.$filter_id]==='__NULL__') continue;
+                if ($this->table_rows[$filter]['type']=='commondata') {
+                    $vals2 = explode('/',$vals['filter__'.$filter_id]);
+                    $param = explode('::',$this->table_rows[$filter]['param']['array_id']);
+                    array_shift($param);
+                    $param[] = $filter_id;
+                    foreach ($vals2 as $v)
+                        $this->crits[preg_replace('/[^a-z0-9]/','_',strtolower(array_shift($param)))] = $v;
                 } else {
-                    if (!isset($vals['filter__'.$filter_id])) $vals['filter__'.$filter_id]='';
-                    if ($vals['filter__'.$filter_id]!=='') {
-                        $args = $this->table_rows[$filter];
-                        $str = explode(';', $args['param']);
-                        $ref = explode('::', $str[0]);
-                        if ($ref[0]!='' && isset($ref[1])) $this->crits['_"'.$args['id'].'['.$args['ref_field'].']'] = DB::Concat(DB::qstr($vals['filter__'.$filter_id]),DB::qstr('%'));;
-                        if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
-							$val = array_pop(explode('/',$vals['filter__'.$filter_id]));
-                            if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_"'.$args['id'].'['.$args['ref_field'].']'] = DB::Concat(DB::qstr($val),DB::qstr('%'));;
-                        }
-                    }
+                    $this->crits[$filter_id] = $vals['filter__'.$filter_id];
+                    if ($this->table_rows[$filter]['type']=='checkbox' && $this->crits[$filter_id]=='') $this->crits[$filter_id] = array(null,0);
                 }
             }
         }
@@ -818,12 +803,9 @@ class Utils_RecordBrowser extends Module {
                 $v = explode(' ', $v);
                 foreach ($v as $w) {
 					if (!$args['commondata']) {
-						$w = DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'));
-						$op = '"';
-					} else {
-						$op = '';
+						$w = "%$w%";
 					}
-                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~'.$op.$k =>$w));
+                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~'.$k =>$w));
 				}
             }
         } else {
@@ -846,13 +828,11 @@ class Utils_RecordBrowser extends Module {
 					if ($args['commondata']) $k = $k.'[]';
 					elseif (isset($args['ref_field']) && $args['ref_field']) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
 					if (!$args['commondata']) {
-						$w = DB::Concat(DB::qstr('%'),DB::qstr($vv),DB::qstr('%'));
-						$op = '"';
+						$w = "%$vv%";
 					} else {
 						$w = $vv;
-						$op = '';
 					}
-                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~'.$op.$k =>$w));
+                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~'.$k =>$w));
                 }
             }
             $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $leftovers);

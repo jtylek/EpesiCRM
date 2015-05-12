@@ -242,14 +242,14 @@ class CRM_ContactsCommon extends ModuleCommon {
         foreach (array('contact'=>'P', 'company'=>'C') as $recordset=>$recordset_indicator) {
             $crits = array();
             foreach ($words as $word) if ($word) {
-                $word = DB::Concat(DB::qstr('%'),DB::qstr($word),DB::qstr('%'));
+                $word = "%$word%";
                 switch ($recordset) {
                     case 'contact':
-                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$word,'|~"first_name'=>$word));
+                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~last_name'=>$word,'|~first_name'=>$word));
                         $order = array('last_name'=>'ASC', 'first_name'=>'ASC');
                         break;
                     case 'company':
-                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~"company_name'=>$word));
+                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~company_name'=>$word));
                         $order = array('company_name'=>'ASC');
                         break;
                 }
@@ -427,12 +427,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         $str = explode(' ', trim($str));
         foreach ($str as $k=>$v)
             if ($v) {
-                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
-//                $recs = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>$v), array(), array('company_name'=>'ASC'));
-//                $comp_ids = array();
-//                foreach ($recs as $w) $comp_ids[$w['id']] = $w['id'];
-//                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v, '|company_name'=>$comp_ids));
-				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v));
+                $v = "%$v%";
+				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~last_name'=>$v,'|~first_name'=>$v));
             }
         $recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
         $ret = array();
@@ -448,14 +444,14 @@ class CRM_ContactsCommon extends ModuleCommon {
         $str = explode(' ', trim($str));
         foreach ($str as $k=>$v)
             if ($v) {
-                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
+                $v = "%$v%";
                 if ($inc_companies) {
-                    $recs = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>$v), array(), array('company_name'=>'ASC'));
+                    $recs = Utils_RecordBrowserCommon::get_records('company', array('~company_name'=>$v), array(), array('company_name'=>'ASC'));
                     $comp_ids = array();
                     foreach ($recs as $w) $comp_ids[$w['id']] = $w['id'];
-                    $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v, '|company_name'=>$comp_ids));
+                    $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~last_name'=>$v,'|~first_name'=>$v, '|company_name'=>$comp_ids));
                 } else {
-                    $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v));
+                    $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~last_name'=>$v,'|~first_name'=>$v));
                 }
             }
         $recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
@@ -469,8 +465,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         $str = explode(' ', trim($str));
         foreach ($str as $k=>$v)
             if ($v) {
-                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
-                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~"company_name'=>$v));
+                $v = "%$v%";
+                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~company_name'=>$v));
             }
         $recs = Utils_RecordBrowserCommon::get_records('company', $crits, array(), array('company_name'=>'ASC'), 10);
         $ret = array();

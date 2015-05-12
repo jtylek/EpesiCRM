@@ -1162,16 +1162,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$el = array_shift($b);
 				$b = array('^'.$key=>$el)+$b;
 			}
-			
+
 			$nb = array();
-			
+
 			foreach ($b as $k=>$v){
 				$nk = $k;
 				while (isset($a[$nk])) $nk = '_'.$nk;
 				$nb[$nk] = $v;
 			}
 			$b = $nb;
-			
+
 			return $a+$b;
 		} else {
 			foreach ($b as $k=>$v){
@@ -1182,8 +1182,66 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
         return $a;
     }
-    public static function build_query( $tab, $crits = null, $admin = false, $order = array()) {
-		if (!is_array($order)) $order = array();
+    public static function merge_crits_new($a = array(), $b = array(), $or=false) {
+        if (!is_object($a)) {
+            $a = Utils_RecordBrowser_Crits::from_array($a);
+        }
+        if (!is_object($b)) {
+            $b = Utils_RecordBrowser_Crits::from_array($b);
+        }
+        if ($a->is_empty()) {
+            return $b;
+        }
+        if ($b->is_empty()) {
+            return $a;
+        }
+        $ret = $or ? $a->_or($b) : $a->_and($b);
+        return $ret;
+    }
+    public static function build_query($tab, $crits = null, $admin = false, $order = array()) {
+        // comparison between old and new
+//        $old_ret = self::build_query_old($tab, $crits, $admin, $order);
+//        $crits_o = $crits;
+        //
+
+        static $cache;
+        if (!is_object($crits)) {
+            $crits = Utils_RecordBrowser_Crits::from_array($crits);
+        }
+        $cache_key = $tab . '__' . md5($crits->to_words()) . '__' . $admin . '__' . serialize($order) . '__' . Base_AclCommon::get_user();
+        if (isset($cache[$cache_key])) {
+            return $cache[$cache_key];
+        }
+
+        $access = $admin ? true : self::get_access($tab, 'browse');
+        if ($access === false) return array();
+        elseif ($access !== true) $crits = self::merge_crits_new($crits, $access);
+
+        $admin_filter = $admin ? self::$admin_filter : 'active=1';
+        $query_builder = new Utils_RecordBrowser_QueryBuilder($tab);
+        $ret = $query_builder->build_query($crits, $order, $admin_filter);
+        $cache[$cache_key] = $ret;
+        return $ret;
+
+        //
+        // comparison between old and new
+        $vals = array_merge($old_ret['vals'], $ret['vals']);
+        $old_where = explode(' WHERE ', $old_ret['sql']);
+        $old_where = $old_where[1];
+        $new_where = explode(' WHERE ', $ret['sql']);
+        $new_tab = $new_where[0];
+        $new_where = $new_where[1];
+        $sql = "SELECT count((COALESCE($old_where, FALSE) != COALESCE($new_where, FALSE)) OR NULL) FROM $new_tab";
+        $errors = DB::GetOne($sql, $vals);
+        if ($errors) {
+//            trigger_error("DIFFERENT RETURN FOR: " . $old_where . "\n\n  VS  \n\n" . $new_where, E_USER_ERROR);
+        }
+
+        return $ret;
+        return $old_ret;
+    }
+    public static function build_query_old( $tab, $crits = null, $admin = false, $order = array()) {
+        if (!is_array($order)) $order = array();
         $cache_key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
         static $cache = array();
         self::init($tab, $admin);
@@ -1207,8 +1265,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             else $order[] = array('column'=>self::$hash[$k], 'order'=>self::$hash[$k], 'direction'=>$v);
             unset($order[$k]);
         }
+
         $or_started = false;
-        $sep = DB::qstr('::');
 		$group_or_start = $group_or = false;
 		$special_chars = str_split('!"(|<>=~]^');
         foreach($crits as $k=>$v){
@@ -1216,7 +1274,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$f = explode('[',$k);
 			$f = str_replace($special_chars,'',$f[0]);
 			while ($f[0]=='_') $f = substr($f, 1);
-            if (!isset(self::$table_rows[$f]) && $f[0]!=':' && $f!=='id' && (!isset(self::$hash[$f]) || !isset(self::$table_rows[self::$hash[$f]]))) continue; //failsafe
+            if (!isset(self::$table_rows[$f]) && $f[0] != ':' && $f !== 'id' && (!isset(self::$hash[$f]) || !isset(self::$table_rows[self::$hash[$f]]))) continue; //failsafe
             $negative = $noquotes = $or_start = $or = false;
             $operator = '=';
             while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
@@ -1237,6 +1295,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $or |= $or_start;
 			if ($group_or && $group_or_start)
 				$having .= ')';
+
 			if ($or_start && $or_started || ($or_started && !$or)) {
 				$having .= ')';
 				$or_started = false;
@@ -1301,7 +1360,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$poss_vals = '';
 					$col2s = array();
 					$col2m = array();
-					
+
 					$conv = '';
 					if ($postgre) $conv = '::varchar';
 					foreach ($col2 as $c) {
@@ -1560,24 +1619,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
             if (!empty($cleancols)) $fields = 'id,active,created_by,created_on,f_'.implode(',f_',$cleancols);
         }
-        if (count($crits)==1 && isset($crits['id']) && empty($order)) {
-            if (empty($crits['id'])) return array();
-            if (!is_array($crits['id'])) $crits['id'] = array($crits['id']);
-            $first = true;
-            $where = '';
-            $vals = array();
-            foreach($crits['id'] as $v) {
-                if ($first) $first = false;
-                else $where .= ', ';
-                $where .= '%d';
-                $vals[] = $v;
-            }
-            $ret = DB::SelectLimit('SELECT '.$fields.' FROM '.$tab.'_data_1 WHERE id IN ('.$where.')', $limit['numrows'], $limit['offset'], $vals);
-        } else {
-            $par = self::build_query($tab, $crits, $admin, $order);
-            if (empty($par)) return array();
-            $ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'].$par['order'], $limit['numrows'], $limit['offset'], $par['vals']);
-        }
+        $par = self::build_query($tab, $crits, $admin, $order);
+        if (empty($par)) return array();
+        $ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'].$par['order'], $limit['numrows'], $limit['offset'], $par['vals']);
         $records = array();
         self::init($tab);
         if (!empty($cols)) {
@@ -2376,10 +2420,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $parts = explode(' ', $text);
             $crits = array();
             foreach ($parts as $k=>$v) {
-                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
+                $v = "%$v%";
                 $chr = '(';
                 foreach ($fields as $f) {
-                    $crits[$chr.str_repeat('_', $k).'"'.$f] = $v;
+                    $crits[$chr.str_repeat('_', $k).$f] = $v;
                     $chr='|';
                 }
             }
@@ -2388,10 +2432,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             else {
                 $crits = array();
                 foreach ($parts as $k=>$v) {
-                    $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
+                    $v = "%$v%";
                     $chr = '(';
                     foreach ($fields as $f) {
-                        $crits[$chr.str_repeat('_', $k).'~"'.$f] = $v;
+                        $crits[$chr.str_repeat('_', $k).'~'.$f] = $v;
                         $chr='|';
                     }
                 }
@@ -2772,8 +2816,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     
     private static $automulti_order_tabs;
     public static function automulti_order_by($a,$b) {
-	    $aa = __($a);
-	    $bb = __($b);
+	    $aa = _V($a);
+	    $bb = _V($b);
 	    $aam = preg_match(self::$automulti_order_tabs,$aa) || preg_match(self::$automulti_order_tabs,$a);
 	    $bbm = preg_match(self::$automulti_order_tabs,$bb) || preg_match(self::$automulti_order_tabs,$b);
 	    if($aam && !$bbm)
@@ -2792,8 +2836,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	self::$automulti_order_tabs = array();
 	foreach($words_db as & $w) {
 	    if(mb_strlen($w)>=3) self::$automulti_order_tabs[] = preg_quote($w,'/');
-	    $w = DB::qstr($w);
-	    $w = 'CONCAT(\'%%\','.$w.',\'%%\')';
+	    $w = "%$w%";
 	}
 	self::$automulti_order_tabs = '/('.implode('|',self::$automulti_order_tabs).')/i';
 
@@ -2809,8 +2852,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	uasort($tabs,array('Utils_RecordBrowserCommon','automulti_order_by'));
 
         $ret = array();
-        $str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
-        
+
         foreach($tabs as $t=>$caption) {
             if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
             
@@ -2834,7 +2876,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		    unset($words_tmp[$pos]);
 		}
 	    }
-	    $str_db = DB::qstr('%%'.implode(' ',$words_tmp).'%%');
+	    $str_db = '%' . implode(' ',$words_tmp) . '%';
 
             if (empty($f_callback) || !is_callable($f_callback))
                  $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
@@ -2843,8 +2885,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $crits2B = array();
             $op = '(';
             foreach ($fields as $f) {
-                $crits2A[$op.'~"'.self::get_field_id($f)] = $str_db;
-                $crits2B[$op.'~"'.self::get_field_id($f)] = $words_db_tmp;
+                $crits2A[$op.'~'.self::get_field_id($f)] = $str_db;
+                $crits2B[$op.'~'.self::get_field_id($f)] = $words_db_tmp;
                 $op = '|';
             }
             $crits3A = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2A);
@@ -4098,6 +4140,40 @@ class Utils_RecordBrowserMobile { // mini class to simulate full RB object, TODO
 		$this->tab = $tab;
 		$this->record = $record;
 	}
+}
+
+function rb_or($crits, $_ = null)
+{
+    $args = func_get_args();
+    if (count($args) > 1) {
+        foreach ($args as $k => $v) {
+            if (is_array($v)) {
+                $args[$k] = new Utils_RecordBrowser_Crits($v, true);
+            }
+        }
+        $crits = $args;
+    } else {
+        $crits = $args[0];
+    }
+    $ret = new Utils_RecordBrowser_Crits($crits, true);
+    return $ret;
+}
+
+function rb_and($crits, $_ = null)
+{
+    $args = func_get_args();
+    if (count($args) > 1) {
+        foreach ($args as $k => $v) {
+            if (is_array($v)) {
+                $args[$k] = new Utils_RecordBrowser_Crits($v);
+            }
+        }
+        $crits = $args;
+    } else {
+        $crits = $args[0];
+    }
+    $ret = new Utils_RecordBrowser_Crits($crits);
+    return $ret;
 }
 
 require_once 'modules/Utils/RecordBrowser/object_wrapper/include.php';
