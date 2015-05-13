@@ -32,9 +32,33 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!isset(self::$display_callback_table[$tab])) {
             $ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=1');
             while ($row = $ret->FetchRow())
-                self::$display_callback_table[$tab][$row['field']] = explode('::',$row['callback']);
+                self::$display_callback_table[$tab][$row['field']] = $row['callback'];
         }
 	}
+	
+    public static function call_display_callback($callback,$record,$links_not_recommended,$field) {
+	if(preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/',$callback,$match) && is_callable(array($match[1],$match[2])))
+	  $ret = call_user_func(array($match[1],$match[2]), $record, $links_not_recommended, $field);
+	elseif(preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/',$callback,$match) && is_callable($match[1]))
+	  $ret = call_user_func($match[1], $record, $links_not_recommended, $field);
+	else {
+	  ob_start();
+	  print eval($callback);
+	  $ret = ob_get_contents();
+	  ob_end_clean();
+	}
+	return $ret;
+    }
+    
+    public static function call_QFfield_callback($callback, &$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table) {
+	if(preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/',$callback,$match) && is_callable(array($match[1],$match[2])))
+	  call_user_func(array($match[1],$match[2]), $form, $field, $label, $mode, $default, $desc, $rb_obj);
+	elseif(preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/',$callback,$match) && is_callable($match[1]))
+	  call_user_func($match[1], $form, $field, $label, $mode, $default, $desc, $rb_obj);
+	else {
+	  eval($callback);
+	}    
+    }
 	
     public static function get_val($tab, $field, $record, $links_not_recommended = false, $args = null) {
         static $recurrence_call_stack = array();
@@ -56,7 +80,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 		self::display_callback_cache($tab);
         if (isset(self::$display_callback_table[$tab][$field])) {
-            $ret = call_user_func(self::$display_callback_table[$tab][$field], $record, $links_not_recommended, self::$table_rows[$field]);
+	    $ret = self::call_display_callback(self::$display_callback_table[$tab][$field],$record,$links_not_recommended,self::$table_rows[$field]);
         } else {
             $ret = $val;
             if ($args['type']=='select' || $args['type']=='multiselect') {
@@ -3168,7 +3192,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             'currency', 'text', 'long text', 'date', 'timestamp', 'time',
             'commondata', 'select', 'multiselect', 'autonumber');
         if (array_search($type, $types) !== false) {
-            return array(__CLASS__, 'QFfield_' . self::get_field_id($type));
+            return __CLASS__. '::QFfield_' . self::get_field_id($type);
         }
         return null;
     }
@@ -3881,7 +3905,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $QFfield_callback_table = array();
         $ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=0');
         while ($row = $ret->FetchRow()) {
-            $QFfield_callback_table[$row['field']] = explode('::',$row['callback']);
+            $QFfield_callback_table[$row['field']] = $row['callback'];
         }
         $defaults = array_merge($defaults,$_SESSION['rb_'.$tab.'_defaults']);
 
@@ -3897,9 +3921,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $val = null;
             $label = _V($args['name']); // TRSL
             if(isset($QFfield_callback_table[$field])) {
-                $ff = $QFfield_callback_table[$field];
-				$mobile_rb = new Utils_RecordBrowserMobile($tab, $rec);
-                call_user_func_array($ff, array(&$qf, $args['id'], $label, $mode, $val, $args, $mobile_rb, null));
+                $mobile_rb = new Utils_RecordBrowserMobile($tab, $rec);
+                self::call_QFfield_callback($QFfield_callback_table[$field], $qf, $args['id'], $label, $mode, $val, $args, $mobile_rb, null);
                 if($mode=='edit')
                     unset($defaults[$args['id']]);
                 continue;

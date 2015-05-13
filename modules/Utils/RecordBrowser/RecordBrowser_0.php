@@ -121,11 +121,11 @@ class Utils_RecordBrowser extends Module {
         $this->jump_to_new_record = $arg;
     }
 
-    public function get_display_method($ar) {
+    public function get_display_callback($ar) {
         return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
     }
     
-    public function get_qffield_method($field) {
+    public function get_QFfield_callback($field) {
         return isset($this->QFfield_callback_table[$field]) ? $this->QFfield_callback_table[$field] : null;
     }
 
@@ -208,8 +208,8 @@ class Utils_RecordBrowser extends Module {
         if($this->tab=='__RECORDSETS__' || preg_match('/,/',$this->tab)) return;
         $ret = DB::Execute('SELECT * FROM '.$this->tab.'_callback');
         while ($row = $ret->FetchRow())
-            if ($row['freezed']==1) $this->display_callback_table[$row['field']] = explode('::',$row['callback']);
-            else $this->QFfield_callback_table[$row['field']] = explode('::',$row['callback']);
+            if ($row['freezed']==1) $this->display_callback_table[$row['field']] = $row['callback'];
+            else $this->QFfield_callback_table[$row['field']] = $row['callback'];
     }
 
     public function check_for_jump() {
@@ -1628,7 +1628,7 @@ class Utils_RecordBrowser extends Module {
             if (!is_callable($ff))
                 continue;
 
-            call_user_func_array($ff, array(&$form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table));
+            Utils_RecordBrowserCommon::call_QFfield_callback($ff,$form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
 
             if ($args['required']) {
                 $el = $form->getElement($args['id']);
@@ -1981,16 +1981,28 @@ class Utils_RecordBrowser extends Module {
                         array('style'=>'background-color: #DFDFFF;', 'value'=>'')
                     );
                 else {
-					if (isset($display_callbacbacks[$field])) {
-						$d_c = '<b>Yes</b>';
-						if (!is_callable(explode('::', $display_callbacbacks[$field]))) $d_c = '<span style="color:red;font-weight:bold;">Invalid!</span>';
-						$d_c = Utils_TooltipCommon::create($d_c, $display_callbacbacks[$field], false);
-					} else $d_c = '';
-					if (isset($QFfield_callbacbacks[$field])) {
-						$QF_c = '<b>Yes</b>';
-						if (!is_callable(explode('::', $QFfield_callbacbacks[$field]))) $QF_c = '<span style="color:red;font-weight:bold;">Invalid!</span>';
-						$QF_c = Utils_TooltipCommon::create($QF_c, $QFfield_callbacbacks[$field], false);
-					} else $QF_c = '';
+                    if (isset($display_callbacbacks[$field])) {
+                        $d_c = '<b>Yes</b>';
+                        $callback = $display_callbacbacks[$field];
+                        if(preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/',$callback,$match)) {
+                            if(!is_callable(array($match[1],$match[2]))) $d_c = '<span style="color:red;font-weight:bold;">Invalid!</span>';
+                        } elseif(preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/',$callback,$match)) {
+                            if(!is_callable($match[1])) $d_c = '<span style="color:red;font-weight:bold;">Invalid!</span>';
+                        } else
+                            $d_c = '<b>PHP</b>';
+                        $d_c = Utils_TooltipCommon::create($d_c, $callback, false);
+                    } else $d_c = '';
+                    if (isset($QFfield_callbacbacks[$field])) {
+                        $callback = $QFfield_callbacbacks[$field];
+                        $QF_c = '<b>Yes</b>';
+                        if(preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/',$callback,$match)) {
+                            if(!is_callable(array($match[1],$match[2]))) $QF_c = '<span style="color:red;font-weight:bold;">Invalid!</span>';
+                        } elseif(preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/',$callback,$match)) {
+                            if(!is_callable($match[1])) $QF_c = '<span style="color:red;font-weight:bold;">Invalid!</span>';
+                        } else
+                            $QF_c = '<b>PHP</b>';
+                        $QF_c = Utils_TooltipCommon::create($QF_c, $callback, false);
+                    } else $QF_c = '';
                     $gb_row->add_data(
                         $field,
                         $args['name'],
@@ -2038,7 +2050,9 @@ class Utils_RecordBrowser extends Module {
             'float'=>__('Float'),
             'text'=>__('Text'),
             'long text'=>__('Long text'),
-			'select'=>__('Select field')
+            'select'=>__('Select field'),
+            'calculated'=>__('Calculated')
+	
         );
         natcasesort($data_type);
 		
@@ -2170,8 +2184,8 @@ class Utils_RecordBrowser extends Module {
         $form->addRule('autonumber_pad_mask', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
 
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings()', 'id'=>'advanced'));
-		$form->addElement('text', 'display_callback', __('Value display function'), array('maxlength'=>255, 'style'=>'width:300px', 'id'=>'display_callback'));
-		$form->addElement('text', 'QFfield_callback', __('Field generator function'), array('maxlength'=>255, 'style'=>'width:300px', 'id'=>'QFfield_callback'));
+		$form->addElement('textarea', 'display_callback', __('Value display function').'<br />&lt;Class name&gt;::&ltmethod name&gt<br />&ltfunction name&gt<br />PHP:<br />- $record (array)<br />- $links_not_recommended (bool)<br />- $field (string)<br />return "value to display";', array('maxlength'=>255, 'style'=>'width:300px', 'id'=>'display_callback'));
+		$form->addElement('textarea', 'QFfield_callback', __('Field generator function').'<br />&lt;Class name&gt;::&ltmethod name&gt<br />&ltfunction name&gt<br />PHP:<br />- $form (QuickForm object)<br />- $field (string)<br />- $label (string)<br />- $mode (string)<br />- $default (mixed)<br />- $desc (array)<br />- $rb_obj (RB object)<br />- $display_callback_table (array)', array('maxlength'=>255, 'style'=>'width:300px', 'id'=>'QFfield_callback'));
 		
         if ($action=='edit') {
 			$form->freeze('field');
@@ -2216,6 +2230,7 @@ class Utils_RecordBrowser extends Module {
                     }
                     break;
 				case 'checkbox': 
+				case 'calculated': 
 							$data['required'] = false;
 							break;
 				case 'text': if ($action=='add') $param = $data['text_length'];

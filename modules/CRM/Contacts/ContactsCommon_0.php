@@ -285,9 +285,9 @@ class CRM_ContactsCommon extends ModuleCommon {
             }
             $form->setDefaults(array($field=>$default));
         } else {
-            $callback = $rb_obj->get_display_method($desc['name']);
-            if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_company_contact');
-            $def = call_user_func($callback, $rb_obj->record, false, $desc);
+            $callback = $rb_obj->get_display_callback($desc['name']);
+            if (!$callback) $callback = 'CRM_ContactsCommon::display_company_contact';
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc);
 //          $def = call_user_func($callback, array($field=>$default), false, $desc);
             $form->addElement('static', $field, $label, $def);
         }
@@ -567,9 +567,9 @@ class CRM_ContactsCommon extends ModuleCommon {
                     self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
                 }
         } else {
-            $callback = $rb_obj->get_display_method($desc['name']);
-            if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_contact');
-            $def = call_user_func($callback, $rb_obj->record, false, $desc);
+            $callback = $rb_obj->get_display_callback($desc['name']);
+            if (!$callback) $callback = array('CRM_ContactsCommon','display_contact');
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc);
 //          $def = call_user_func($callback, array($field=>$default), false, $desc);
             $form->addElement('static', $field, $label, $def);
         }
