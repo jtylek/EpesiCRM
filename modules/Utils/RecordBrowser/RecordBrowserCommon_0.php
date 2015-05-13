@@ -1640,7 +1640,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach($cols as $v){
                 if (isset($row['f_'.$v['id']])) {
                     if ($v['type']=='multiselect') $r[$v['id']] = self::decode_multi($row['f_'.$v['id']]);
-                    elseif ($v['type']!=='long text') $r[$v['id']] = htmlspecialchars($row['f_'.$v['id']]);
+                    elseif ($v['type']=='text') $r[$v['id']] = htmlspecialchars($row['f_'.$v['id']]);
                     else $r[$v['id']] = $row['f_'.$v['id']];
                 } else {
                     if ($v['type']=='multiselect') $r[$v['id']] = array();
@@ -2024,7 +2024,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $record[$args['id']] = $r;
                 } else {
                     $record[$args['id']] = (isset($row['f_'.$args['id']])?$row['f_'.$args['id']]:'');
-                    if ($htmlspecialchars && $args['type']!=='long text') $record[$args['id']] = htmlspecialchars($record[$args['id']]);
+                    if ($htmlspecialchars && $args['type'] == 'text') $record[$args['id']] = htmlspecialchars($record[$args['id']]);
                 }
             }
             return $record;
