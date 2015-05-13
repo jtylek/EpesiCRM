@@ -27,7 +27,6 @@ class Utils_RecordBrowser_QueryBuilder
 
         if (!$having) $having = 'true';
 
-        if ($admin_filter) $admin_filter .= ' AND ';
         $this->final_tab = str_replace('('.$this->tab.'_data_1 AS r'.')', $this->tab.'_data_1 AS r', $this->final_tab);
         $sql = ' ' . $this->final_tab . ' WHERE ' . $admin_filter . "($having)";
 

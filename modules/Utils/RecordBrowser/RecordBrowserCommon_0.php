@@ -1217,7 +1217,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($access === false) return array();
         elseif ($access !== true) $crits = self::merge_crits_new($crits, $access);
 
-        $admin_filter = $admin ? self::$admin_filter : 'active=1';
+        $admin_filter = $admin ? self::$admin_filter : 'active=1 AND ';
         $query_builder = new Utils_RecordBrowser_QueryBuilder($tab);
         $ret = $query_builder->build_query($crits, $order, $admin_filter);
         $cache[$cache_key] = $ret;
