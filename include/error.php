@@ -241,7 +241,7 @@ function epesi_log($message,$file) {
         file_put_contents(DATA_DIR.'/logs/.htaccess','deny from all');
         file_put_contents(DATA_DIR.'/logs/index.html','');
     }
-    error_log($message,3,DATA_DIR.'/logs/'.$file);
+    error_log(date('Y-m-d H:i:s').' '.$message,3,DATA_DIR.'/logs/'.$file);
 }
 
 if(REPORT_ALL_ERRORS) {
