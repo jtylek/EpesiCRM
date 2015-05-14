@@ -121,10 +121,31 @@ class Utils_RecordBrowser extends Module {
         $this->jump_to_new_record = $arg;
     }
 
+    /**
+     * @param string $ar Field name
+     *
+     * @deprecated
+     * @return callable Display callback
+     */
+    public function get_display_method($ar) {
+        return $this->get_display_callback($ar);
+    }
+
     public function get_display_callback($ar) {
         return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
     }
-    
+
+    /**
+     * @param string $field Field name
+     *
+     * @deprecated
+     * @return callable QFfield callback
+     */
+    public function get_qffield_method($field)
+    {
+        return $this->get_QFfield_callback($field);
+    }
+
     public function get_QFfield_callback($field) {
         return isset($this->QFfield_callback_table[$field]) ? $this->QFfield_callback_table[$field] : null;
     }
