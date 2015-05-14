@@ -11,7 +11,6 @@
 
 ob_start();
 define('CID',$_REQUEST['cid']);
-define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
