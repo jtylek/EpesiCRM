@@ -2205,8 +2205,11 @@ class Utils_RecordBrowser extends Module {
         $form->addRule('autonumber_pad_mask', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
 
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings()', 'id'=>'advanced'));
-		$form->addElement('textarea', 'display_callback', __('Value display function').'<br />&lt;Class name&gt;::&ltmethod name&gt<br />&ltfunction name&gt<br />PHP:<br />- $record (array)<br />- $links_not_recommended (bool)<br />- $field (string)<br />return "value to display";', array('maxlength'=>255, 'style'=>'width:300px', 'id'=>'display_callback'));
-		$form->addElement('textarea', 'QFfield_callback', __('Field generator function').'<br />&lt;Class name&gt;::&ltmethod name&gt<br />&ltfunction name&gt<br />PHP:<br />- $form (QuickForm object)<br />- $field (string)<br />- $label (string)<br />- $mode (string)<br />- $default (mixed)<br />- $desc (array)<br />- $rb_obj (RB object)<br />- $display_callback_table (array)', array('maxlength'=>255, 'style'=>'width:300px', 'id'=>'QFfield_callback'));
+        $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
+        $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $record (array)<br />- $links_not_recommended (bool)<br />- $field (array)<br />return "value to display";</li></ul>';
+		$form->addElement('textarea', 'display_callback', __('Value display function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>255, 'style'=>'width:97%', 'id'=>'display_callback'));
+        $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $form (QuickForm object)<br />- $field (string)<br />- $label (string)<br />- $mode (string)<br />- $default (mixed)<br />- $desc (array)<br />- $rb_obj (RB object)<br />- $display_callback_table (array)</li></ul>';
+		$form->addElement('textarea', 'QFfield_callback', __('Field generator function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>255, 'style'=>'width:97%', 'id'=>'QFfield_callback'));
 		
         if ($action=='edit') {
 			$form->freeze('field');
