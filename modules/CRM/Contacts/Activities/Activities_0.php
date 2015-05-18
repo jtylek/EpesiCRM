@@ -165,7 +165,6 @@ class CRM_Contacts_Activities extends Module {
 			$gb_row = $gb->get_new_row();
 			if($ev['start'] == $maxt) {
 				$v = array_shift($events);
-                $v = Utils_RecordBrowserCommon::filter_record_by_access('crm_meeting', $v);
 				if($i>=$limit['offset'] && $v) {
 					if (isset($v['view_action'])) $view_href = $v['view_action'];
 					else $view_href = $this->create_callback_href(array($this, 'view_event'), array($v['id']));
