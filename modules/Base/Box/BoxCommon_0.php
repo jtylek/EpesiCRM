@@ -103,7 +103,7 @@ class Base_BoxCommon extends ModuleCommon {
     private static function _base_box_instance() {
         $x = ModuleManager::get_instance('/Base_Box|0');
         if (!$x)
-            trigger_error('There is no base box module instance', E_USER_ERROR);
+            throw new Exception('There is no base box module instance');
         return $x;
     }
 }

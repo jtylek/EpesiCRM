@@ -725,7 +725,7 @@ class ModuleManager {
 	public static final function & get_instance($path) {
 		$xx = explode('/',$path);
 		$curr = & self::$root;
-		if($curr->get_node_id() != $xx[1]) {
+		if(is_object($curr) && $curr->get_node_id() != $xx[1]) {
 			$x = null;
 			return $x;
 		}
