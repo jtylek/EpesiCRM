@@ -236,12 +236,13 @@ function check_for_fatal()
 }
 
 function epesi_log($message,$file) {
-    if(!file_exists(DATA_DIR.'/logs')) {
-        @mkdir(DATA_DIR.'/logs');
-        file_put_contents(DATA_DIR.'/logs/.htaccess','deny from all');
-        file_put_contents(DATA_DIR.'/logs/index.html','');
+    $logs_dir = EPESI_LOCAL_DIR . '/' . DATA_DIR . '/logs';
+    if(!file_exists($logs_dir)) {
+        @mkdir($logs_dir);
+        file_put_contents($logs_dir . '/.htaccess','deny from all');
+        file_put_contents($logs_dir . '/index.html','');
     }
-    error_log(date('Y-m-d H:i:s').' '.$message,3,DATA_DIR.'/logs/'.$file);
+    error_log(date('Y-m-d H:i:s').' '.$message,3,$logs_dir . '/' . $file);
 }
 
 if(REPORT_ALL_ERRORS) {
