@@ -149,9 +149,9 @@ class Utils_RecordBrowser_QueryBuilder
                         }
                         if (count($value) > 1) {
                             $operator = $negation ? "NOT IN" : "IN";
-                            $sql = "id $operator (" . implode(',', $value) . ")";
+                            $sql = "r.id $operator (" . implode(',', $value) . ")";
                         } else {
-                            $sql = "id $operator %d";
+                            $sql = "r.id $operator %d";
                             $vals[] = reset($value);
                         }
                     }
@@ -188,13 +188,13 @@ class Utils_RecordBrowser_QueryBuilder
                     break;
                 case ':Created_on'  :
                     $vals[] = Base_RegionalSettingsCommon::reg2time($value, false);
-                    $sql = 'created_on ' . $operator . '%T';
+                    $sql = 'r.created_on ' . $operator . '%T';
                     if ($negation) {
                         $sql = "NOT ($sql)";
                     }
                     break;
                 case ':Created_by'  :
-                    $sql = 'created_by = ' . $value;
+                    $sql = 'r.created_by = ' . $value;
                     if ($negation) {
                         $sql = "NOT ($sql)";
                     }
