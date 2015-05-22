@@ -194,7 +194,8 @@ class Utils_RecordBrowser_QueryBuilder
                     }
                     break;
                 case ':Created_by'  :
-                    $sql = 'r.created_by = ' . $value;
+                    $vals[] = $value;
+                    $sql = 'r.created_by = %d';
                     if ($negation) {
                         $sql = "NOT ($sql)";
                     }
