@@ -1207,11 +1207,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $a;
     }
     public static function merge_crits_new($a = array(), $b = array(), $or=false) {
-        if (!is_object($a)) {
+        if (is_array($a)) {
             $a = Utils_RecordBrowser_Crits::from_array($a);
         }
-        if (!is_object($b)) {
+        if (!($a instanceof Utils_RecordBrowser_Crits)) {
+            $a = new Utils_RecordBrowser_Crits($a);
+        }
+        if (is_array($b)) {
             $b = Utils_RecordBrowser_Crits::from_array($b);
+        }
+        if (!($b instanceof Utils_RecordBrowser_Crits)) {
+            $b = new Utils_RecordBrowser_Crits($b);
         }
         if ($a->is_empty()) {
             return $b;
