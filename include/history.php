@@ -87,6 +87,10 @@ class History {
 			Epesi::alert('History expired.');
 			return;
 		}
+        if (!$data) {
+            Epesi::alert('History error.');
+            return;
+        }
 //		$data = DB::BlobDecode($data);
 		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$_SESSION['client']['__module_vars__'] = unserialize($data);
