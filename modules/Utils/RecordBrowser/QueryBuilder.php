@@ -508,8 +508,13 @@ class Utils_RecordBrowser_QueryBuilder
         $field_sql_id = $this->get_field_sql($crit->get_field());
         $operator = $crit->get_operator();
         $raw_sql_val = $crit->get_raw_sql_value();
-//        if ($operator == DB::like()) $field_sql_id .= '::varchar';
-        foreach ($crit->get_value_as_array() as $w) {
+        $value = $crit->get_value();
+        if (is_array($value)) { // for empty array it will give empty result
+            $sql[] = 'false';
+        } else {
+            $value = array($value);
+        }
+        foreach ($value as $w) {
             $args = array($field_sql_id, $operator, $w, $raw_sql_val, $field_def);
             list($sql2, $vals2) = call_user_func_array($callback, $args);
             if ($sql2) {

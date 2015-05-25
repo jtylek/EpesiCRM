@@ -41,15 +41,6 @@ class Utils_RecordBrowser_CritsSingle implements Utils_RecordBrowser_CritsInterf
         return $this->value;
     }
 
-    public function get_value_as_array()
-    {
-        $ret = $this->value;
-        if (!is_array($ret)) {
-            $ret = array($ret);
-        }
-        return $ret;
-    }
-
     /**
      * @return string
      */
