@@ -1741,7 +1741,9 @@ class Utils_RecordBrowser extends Module {
         $r = DB::GetRow('SELECT caption,favorites,recent,full_history,jump_to_id,search_include,search_priority FROM recordbrowser_table_properties WHERE tab=%s',array($this->tab));
         $form->addElement('text', 'caption', __('Caption'));
         $form->addElement('select', 'favorites', __('Favorites'), array(__('No'), __('Yes')));
-        $form->addElement('select', 'recent', __('Recent'), array(__('No'), __('Yes')));
+        $recent_values = array(0 => __('No'));
+        foreach (array(5, 10, 15, 20, 25) as $rv) { $recent_values[$rv] = "$rv " . __('Records') ; }
+        $form->addElement('select', 'recent', __('Recent'), $recent_values);
         $form->addElement('select', 'full_history', __('History'), array(__('No'), __('Yes')));
         $form->addElement('select', 'jump_to_id', __('Jump to ID'), array(__('No'), __('Yes')));
         $form->addElement('select', 'search_include', __('Search'), array(__('Exclude'), __('Include by default'), __('Include optional')));
@@ -1758,7 +1760,7 @@ class Utils_RecordBrowser extends Module {
             $clear_index_href = $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'clear_search_index'), array($this->tab));
             echo "<a $clear_index_href>" . __('Clear search index') . "</a>";
             if ($form->validate()) {
-                DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,favorites=%b,recent=%b,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
+                DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,favorites=%b,recent=%d,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
                             array($form->exportValue('caption'), $form->exportValue('favorites'), $form->exportValue('recent'), $form->exportValue('full_history'), $form->exportValue('jump_to_id'), $form->exportValue('search_include'), $form->exportValue('search_priority'), $this->tab));
             }
         }
