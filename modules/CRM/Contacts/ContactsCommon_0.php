@@ -920,7 +920,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if(MOBILE_DEVICE && IPHONE && preg_match('/^([0-9\t\+-]+)/',$r[$desc['id']],$args))
             return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
         $num = $r[$desc['id']];
-        if($num && strpos($num,'+')===false && substr(preg_replace('/[^0-9]/', '', $num), 0, 2) != '00') {
+        if($num && strpos($num,'+')===false && substr(preg_replace('/[^0-9]/', '', $num), 0, 2) !== '00') {
             if(isset($r['country']) && $r['country']) {
                 $calling_code = Utils_CommonDataCommon::get_value('Calling_Codes/'.$r['country']);
                 if($calling_code)
