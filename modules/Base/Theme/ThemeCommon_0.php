@@ -257,18 +257,6 @@ class Base_ThemeCommon extends ModuleCommon {
 		return $ret;
 	}
 
-	private static function create_images_cache() {
-		$theme_dir = DATA_DIR.'/Base_Theme/templates/';
-		$default = self::get_images($theme_dir.'default');
-		file_put_contents($theme_dir.'default/__cache.images',implode("\n",$default));
-		$def_theme = Variable::get('default_theme');
-		if($def_theme!='default') {
-			$tdir = $theme_dir.$def_theme;
-			$theme = self::get_images($tdir);
-			file_put_contents($tdir.'/__cache.images',implode("\n",$theme));
-		}		
-	}
-
 	/**
 	 * For internal use only.
 	 */
@@ -280,8 +268,6 @@ class Base_ThemeCommon extends ModuleCommon {
 		copy('modules/Base/Theme/css.php',$themes_dir.'default/__css.php');
 		if($def_theme!='default')
 			copy('modules/Base/Theme/css.php',$tdir.'/__css.php');
-		//images
-		self::create_images_cache();
 	}
 
 

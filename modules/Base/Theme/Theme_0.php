@@ -33,35 +33,6 @@ class Base_Theme extends Module {
 			self::$theme = Base_ThemeCommon::get_default_template();
 
 		$this->smarty = Base_ThemeCommon::init_smarty();
-
-		$this->load_image_cache();
-	}
-
-	private function load_image_cache() {
-		if(isset($_SESSION['client']['image_cache'])) return;
-		$_SESSION['client']['image_cache']=true;
-		$imgs = array();
-		if(Variable::get('preload_image_cache_selected') && file_exists($this->get_data_dir().'templates/'.self::$theme.'/__cache.images'))
-			$imgs = explode("\n",file_get_contents($this->get_data_dir().'templates/'.self::$theme.'/__cache.images'));
-		if(Variable::get('preload_image_cache_default') && self::$theme!='default' && file_exists($this->get_data_dir().'templates/'.'default/__cache.images'))
-			$imgs = array_merge($imgs,explode("\n",file_get_contents($this->get_data_dir().'templates/'.'default/__cache.images')));
-		if(!empty($imgs))
-			eval_js("var cache = document.createElement('div');".
-			"cache.style.display='none';".
-			"document.body.appendChild(cache);".
-			"var current_image = null;".
-			"var cache_pause = false;".
-			"var images_list = Array('".implode("','",$imgs)."');".
-			"cache_images = function() {".
-				"if(!cache_pause && (current_image==null || current_image.complete)) {".
-					"current_image = document.createElement('img');".
-					"current_image.src = images_list.shift();".
-					"cache.appendChild(current_image);".
-				"}".
-				"if(images_list.length)".
-					"setTimeout('cache_images()',500);".
-			"};".
-			"cache_images();",false);
 	}
 
 	public function body() {

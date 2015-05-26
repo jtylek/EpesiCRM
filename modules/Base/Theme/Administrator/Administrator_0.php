@@ -31,14 +31,11 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$themes = Base_Theme::list_themes();
 		$form->addElement('header', 'install_module_header', __('Themes Administration'));
 		$form->addElement('select', 'theme', __('Choose template'), $themes);
+		$form->addElement('static', null,'','<br /><br />');
+		$form->addElement('header', 'upload_theme_header',__('Upload template'));
 
-		$form->addElement('checkbox', 'preload_selected', __('Preload selected template images'));
-		$form->addElement('checkbox', 'preload_default', __('Preload default template images'));
-		
 		$form->setDefaults(array(
 			'theme'=>Variable::get('default_theme'),
-			'preload_selected'=>Variable::get('preload_image_cache_selected'),
-			'preload_default'=>Variable::get('preload_image_cache_default')
 			));
 		
 		if($form->validate()) {
@@ -69,8 +66,6 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	
 	public function submit_admin($data) {
 		Variable::set('default_theme',$data['theme']);
-		Variable::set('preload_image_cache_default',isset($data['preload_default']));
-		Variable::set('preload_image_cache_selected',isset($data['preload_selected']));
 		Base_ThemeCommon::create_cache();
 		Base_StatusBarCommon::message('Theme changed - reloading page');
 		eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')');
