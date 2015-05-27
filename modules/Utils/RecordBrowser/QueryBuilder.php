@@ -443,7 +443,7 @@ class Utils_RecordBrowser_QueryBuilder
                     $operand = '%s';
                 }
                 if ($multiselect) {
-                    $value = "%__{$value}__%";
+                    $value = "%\\_\\_{$value}\\_\\_%";
                     $operator = DB::like();
                 }
                 $sql = "($field $operator $operand AND $field IS NOT NULL)";
@@ -491,7 +491,7 @@ class Utils_RecordBrowser_QueryBuilder
         foreach ($final_vals as $val) {
             $sql[] = "$field $operator %s";
             if ($multiselect) {
-                $val = "%__{$val}__%";
+                $val = "%\\_\\_{$val}\\_\\_%";
             }
             $vals[] = $val;
         }

@@ -568,7 +568,7 @@ class Utils_RecordBrowser extends Module {
             } else {
                 if (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
                     if (isset($vals[$field_id.'__currency']) && $vals[$field_id.'__currency'] != "__NULL__")
-                        $this->crits["~$filter_id"] = "%__" . $vals[$field_id.'__currency'];
+                        $this->crits["~$filter_id"] = "%\\_\\_" . $vals[$field_id.'__currency'];
                     if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'] !== "")
                         $this->crits[">=$filter_id"] = floatval($vals[$field_id.'__from']);
                     if (isset($vals[$field_id.'__to']) && $vals[$field_id.'__to'] !== "")
