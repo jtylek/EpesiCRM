@@ -383,19 +383,20 @@ class Utils_RecordBrowser extends Module {
                 $filters[] = $filter_id;
                 continue;
             }
+            $field_label = _V($this->table_rows[$filter]['name']);
             $arr = array();
             $autoselect = false;
             if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
-				$form->addElement('datepicker', $field_id.'__from', _V($filter).' ('.__('From').')', array('label'=>false)); // TRSL
-				$form->addElement('datepicker', $field_id.'__to', _V($filter).' ('.__('To').')', array('label'=>false)); // TRSL
+				$form->addElement('datepicker', $field_id.'__from', $field_label.' ('.__('From').')', array('label'=>false)); // TRSL
+				$form->addElement('datepicker', $field_id.'__to', $field_label.' ('.__('To').')', array('label'=>false)); // TRSL
 				$filters[] = $filter_id.'__from';
 				$filters[] = $filter_id.'__to';
 				continue;
             } elseif ($this->table_rows[$filter]['type']=='checkbox') {
                 $arr = array(''=>__('No'), 1=>__('Yes'));
             } elseif (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
-		    $form->addElement('text', $field_id.'__from', _V($filter).' ('.__('From').')', array('label'=>false)); // TRSL
-		    $form->addElement('text', $field_id.'__to', _V($filter).' ('.__('To').')', array('label'=>false)); // TRSL
+		    $form->addElement('text', $field_id.'__from', $field_label.' ('.__('From').')', array('label'=>false)); // TRSL
+		    $form->addElement('text', $field_id.'__to', $field_label.' ('.__('To').')', array('label'=>false)); // TRSL
 		    $form->addRule($field_id.'__from',__('Only numbers are allowed.'),'numeric');
 		    $form->addRule($field_id.'__to',__('Only numbers are allowed.'),'numeric');
 		    $filters[] = $filter_id.'__from';
@@ -404,7 +405,7 @@ class Utils_RecordBrowser extends Module {
                         $arr = Utils_CurrencyFieldCommon::get_currencies();
                         if (count($arr) > 1) {
                             $arr = array('__NULL__'=>'---')+$arr;
-                            $form->addElement('select', $field_id.'__currency', _V($filter).' ('.__('Currency').')', $arr); // TRSL
+                            $form->addElement('select', $field_id.'__currency', $field_label.' ('.__('Currency').')', $arr); // TRSL
                             $filters[] = $filter_id.'__currency';
                         }
                     }
@@ -503,11 +504,11 @@ class Utils_RecordBrowser extends Module {
             if($autoselect) {
                 $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
                 $arr = array('__NULL__'=>'---')+$arr;
-                $form->addElement('autoselect', $field_id, _V($filter), $arr, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array_merge($param,array($f_callback, $this->table_rows[$filter]['param']))), $f_callback);
+                $form->addElement('autoselect', $field_id, $field_label, $arr, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array_merge($param,array($f_callback, $this->table_rows[$filter]['param']))), $f_callback);
                 $form->setDefaults(array($field_id=>'__NULL__'));
             } else {
                 $arr = array('__NULL__'=>'---')+$arr;
-                $form->addElement('select', $field_id, _V($filter), $arr); // TRSL
+                $form->addElement('select', $field_id, $field_label, $arr); // TRSL
             }
 
             $filters[] = $filter_id;
