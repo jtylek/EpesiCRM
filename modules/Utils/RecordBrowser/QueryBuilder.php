@@ -152,6 +152,9 @@ class Utils_RecordBrowser_QueryBuilder
                             $sql = "r.id $operator (" . implode(',', $value) . ")";
                         } else {
                             $sql = "r.id $operator %d";
+                            if ($negation) {
+                                $sql = "NOT ($sql)";
+                            }
                             $vals[] = reset($value);
                         }
                     }
