@@ -83,7 +83,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
     public static function watchdog_label($rid = null, $events = array(), $details = true) {
-        if (!self::get_access($rid)) {
+        if ($rid !== null && !self::get_access($rid)) {
             return null;
         }
         return Utils_RecordBrowserCommon::watchdog_label(
