@@ -1029,6 +1029,7 @@ class Utils_GenericBrowser extends Module {
 				
 						foreach ($reverse_col as $kk=>$vv)
 							if (isset($vv['width'])) {
+								if (stripos($vv['attrs'], 'colspan')===false) break;
 								$col[$kk]['width'] += $this->columns[$k]['width'];
 								break;
 							}
