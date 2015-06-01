@@ -344,28 +344,34 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
 	} 
 	
-	public static function tray_notification() {
+	public static function tray_notification($time = null) {
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		foreach ($methods as $k=>$v) { 
 			$methods[$k] = explode('::',$v);
 		}
-		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
-		$records = DB::GetAll('SELECT internal_id,category_id,last_seen_event FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, array(Acl::get_user()));
+        $time_sql = $time ? ' AND uwe.event_time > %T' : '';
+		$only_new = " AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id$time_sql)";
+        $args = array(Acl::get_user());
+        if ($time) {
+            $args[] = $time;
+        }
+        $records = DB::GetAll('SELECT internal_id,category_id,last_seen_event FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, $args);
 		$ret = array();
 		$tray = array();
-		foreach ($records as $v) {			
-			$changes = Utils_WatchdogCommon::check_if_notified($v['category_id'], $v['internal_id']);
-			if (!is_array($changes)) $changes = array();
-			$data = call_user_func($methods[$v['category_id']], $v['internal_id'], $changes, false);
-			if ($data==null) continue;
-			$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = '<b>'.__('Watchdog - %s', array($data['category'])).':</b> '.$data['title'];
-			
-			$tray['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = array('title'=>__('Watchdog - %s', array($data['category'])), 'body'=>$data['title']);			
-			
-			if (isset($data['events']) && $data['events']) {
-				$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] .= '<br><font size=-5 color=gray>'.$data['events'].'</font>';
-			}
-		}
+        if ($records) {
+            $last_event_id = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event');
+            foreach ($records as $v) {
+                $changes = Utils_WatchdogCommon::check_if_notified($v['category_id'], $v['internal_id']);
+                if (!is_array($changes)) $changes = array();
+                $data = call_user_func($methods[$v['category_id']], $v['internal_id'], $changes, false);
+                if ($data==null) continue;
+
+                $msg = __("You've got unread notifications");
+                $ret['watchdog_'. $last_event_id] = '<b>'.__('Watchdog - %s', array($msg)).'</b> ';
+                $tray['watchdog_' . $last_event_id] = array('title'=>__('Watchdog'), 'body'=>$msg);
+                break;
+            }
+        }
 		return array('notifications'=>$ret, 'tray'=>$tray);
 	}
 }
