@@ -59,13 +59,17 @@ class Utils_Watchdog extends Module {
 		$gb->set_table_columns($header);
 		$something_to_purge = false;
 		$count = 0;
-		foreach ($records as $w) {
+		foreach ($records as $rec_key => $w) {
 			$k = $w['internal_id'];
 			$v = $w['category_id'];
 			$changes = Utils_WatchdogCommon::check_if_notified($v, $k);
 			if (!is_array($changes)) $changes = array();
 			$data = call_user_func($methods[$v], $k, $changes);
-			if ($data==null) continue;
+			if ($data == null) { // mark events as seen when user can't see them
+                Utils_WatchdogCommon::notified($v, $k);
+                unset($records[$rec_key]);
+                continue;
+            }
 			$gb_row = $gb->get_new_row();
 			if (count($categories)==1) {
 				$gb_row->add_data(
