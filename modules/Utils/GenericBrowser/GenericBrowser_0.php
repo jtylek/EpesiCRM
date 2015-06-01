@@ -1023,7 +1023,19 @@ class Utils_GenericBrowser extends Module {
 				if (array_key_exists('display',$this->columns[$k]) && $this->columns[$k]['display']==false) continue;
 				if (is_array($v) && isset($v['attrs'])) $col[$k]['attrs'] = $v['attrs'];
 				else $col[$k]['attrs'] = '';
-				if ($this->absolute_width) $col[$k]['attrs'] .= ' width="'.$this->columns[$k]['width'].'"';
+				if ($this->absolute_width) {
+					if (is_array($v) && isset($v['dummy'])) {
+						$reverse_col = array_reverse($col, true);
+				
+						foreach ($reverse_col as $kk=>$vv)
+							if (isset($vv['width'])) {
+								if (stripos($vv['attrs'], 'colspan')===false) break;
+								$col[$kk]['width'] += $this->columns[$k]['width'];
+								break;
+							}
+					}
+					else $col[$k]['width'] = $this->columns[$k]['width'];
+				}
 				if (!is_array($v)) $v = array('value'=>$v);
 				$col[$k]['label'] = $v['value'];
 				if (!isset($v['overflow_box']) || $v['overflow_box']) {
@@ -1050,6 +1062,9 @@ class Utils_GenericBrowser extends Module {
 					$col[$k]['attrs'] .= ' nowrap';
 				}
 			}
+			if ($this->absolute_width)
+				foreach ($col as $k=>$v) if (isset($v['width'])) $col[$k]['attrs'] .= ' width="'.$v['width'].'"';
+			
 			ksort($col);
 			$expanded = $this->expandable ? ' expanded' : '';
 			foreach($col as $v)
