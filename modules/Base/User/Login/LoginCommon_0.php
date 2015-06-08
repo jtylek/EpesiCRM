@@ -158,7 +158,8 @@ class Base_User_LoginCommon extends ModuleCommon {
         // Some kind of hack. We are using md5 hash of user login and IP address
         // like address to match host + username. We can because md5 is 32 char.
         // long as from_addr field
-        $param = $login ? md5($login . $_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+        $ip = get_client_ip_address();
+        $param = $login ? md5($login . $ip) : $ip;
         
         // allow to inject time parameter
         if (!$current_time) $current_time = time();
