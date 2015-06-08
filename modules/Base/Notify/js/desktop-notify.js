@@ -72,10 +72,10 @@
 			notification = new win.Notification(title, {
 				/* The notification's icon - For Chrome in Windows, Linux & Chrome OS */
 				icon: isString(options.icon) ? options.icon : options.icon.x32,
-				/* The notification’s subtitle. */
+				/* The notificationï¿½s subtitle. */
 				body: options.body || emptyString,
 				/*
-				The notification’s unique identifier.
+				The notificationï¿½s unique identifier.
 				This prevents duplicate entries from appearing if the user has multiple instances of your website open at once.
 				*/
 				tag: options.tag || emptyString
