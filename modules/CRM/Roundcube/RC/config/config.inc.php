@@ -157,3 +157,14 @@ $config['htmleditor'] = 1;
 $config['preview_pane'] = true;
 $config['reply_mode'] = 1;
 $config['zipdownload_charset'] = 'UTF-8';
+
+$config['smtp_conn_options'] = array(
+  'ssl'         => array(
+     'verify_peer'  => false
+   ),
+ );
+$config['imap_conn_options'] = array(
+  'ssl'         => array(
+     'verify_peer'  => false
+   ),
+ );
