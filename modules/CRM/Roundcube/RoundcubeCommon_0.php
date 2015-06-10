@@ -41,8 +41,10 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $form->registerRule($field,'function','check_account_name','CRM_RoundcubeCommon');
         $form->addRule($field,__('Account Name already in use'),$field,isset($rb->record['id'])?$rb->record['id']:null);
         $form->setDefaults(array($field=>$default));
-        load_js('modules/CRM/Roundcube/utils.js');
-        eval_js('CRM_RC.filled_smtp_message=\''.Epesi::escapeJS(__('SMTP login and password was filled with imap account details. Please change them if needed.'),false,true).'\';CRM_RC.edit_form()');
+        if ($mode == 'add' || $mode == 'edit') {
+            load_js('modules/CRM/Roundcube/utils.js');
+            eval_js('CRM_RC.filled_smtp_message=\''.Epesi::escapeJS(__('SMTP login and password was filled with imap account details. Please change them if needed.'),false,true).'\';CRM_RC.edit_form()');
+        }
         if($mode=='view') $form->freeze(array($field));
     }
 
@@ -75,10 +77,11 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function QFfield_smtp_auth(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        eval_js_once('var smtp_auth_change = function(val){if(val){$("smtp_login").enable();$("smtp_pass").enable();$("smtp_security").enable();}else{$("smtp_login").disable();$("smtp_pass").disable();$("smtp_security").disable();}}');
-        $form->addElement('checkbox', $field, $label,'',array('onChange'=>'smtp_auth_change(this.checked)','id'=>$field));
+        $form->addElement('checkbox', $field, $label,'',array('onchange'=>'CRM_RC.smtp_auth_change(this.checked)','id'=>$field));
         $form->setDefaults(array($field=>$default));
-        eval_js('smtp_auth_change('.($default?1:0).')');
+        if ($mode == 'edit' || $mode == 'add') {
+            eval_js('CRM_RC.smtp_auth_change('.($default?1:0).')');
+        }
         if($mode=='view') $form->freeze(array($field));
     }
 

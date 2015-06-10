@@ -2,59 +2,64 @@ var CRM_RC = {
 msg_num_cache: Array(),
 updating_msg_num: Array(),
 update_msg_num: function(applet_id,accid,cache) {
-	if(!$('mailaccount_'+applet_id+'_'+accid)) return;
+	if(!jq('#mailaccount_'+applet_id+'_'+accid).length) return;
 	if(CRM_RC.updating_msg_num[accid] == true) {
 		setTimeout('CRM_RC.update_msg_num('+applet_id+', '+accid+', 1)',1000);
 		return;
 	}
 	if(cache && typeof CRM_RC.msg_num_cache[accid] != 'undefined') {
-		$('mailaccount_'+applet_id+'_'+accid).innerHTML = CRM_RC.msg_num_cache[accid];
+		jq('#mailaccount_'+applet_id+'_'+accid).html(CRM_RC.msg_num_cache[accid]);
 	} else {
 		CRM_RC.updating_msg_num[accid] = true;
-		new Ajax.Updater('mailaccount_'+applet_id+'_'+accid,'modules/CRM/Roundcube/applet_refresh.php',{
-			method:'post',
-			onComplete:function(r){
-				CRM_RC.msg_num_cache[accid]=r.responseText;
-				CRM_RC.updating_msg_num[accid] = false;
-			},
-			parameters:{acc_id:accid}});
+		jq.post('modules/CRM/Roundcube/applet_refresh.php',{acc_id:accid},
+            function(data) {
+                CRM_RC.msg_num_cache[accid] = data;
+                CRM_RC.updating_msg_num[accid] = false;
+                jq('#mailaccount_'+applet_id+'_'+accid).html(data);
+            });
 	}
 },
 filled_smtp_message:'',
 edit_form: function() {
-	$('account_name').observe('blur',function() {
-		if($('login').value=='')
-			$('login').value = $('account_name').value; 
-		if($('email').value=='')
-			$('email').value = $('account_name').value; 
+	jq('#account_name').on('blur',function() {
+		if(jq('#login').val() == '')
+			jq('login').val(jq('#account_name').val());
+		if(jq('#email').val()=='')
+			jq('#email').val(jq('#account_name').val()); 
 	});
-	$('email').observe('blur',function() {
-		if($('account_name').value=='')
-			$('account_name').value = $('email').value; 
-		if($('login').value=='')
-			$('login').value = $('email').value; 
+	jq('#email').on('blur',function() {
+		if(jq('#account_name').val()=='')
+			jq('#account_name').val(jq('#email').val()); 
+		if(jq('#login').val()=='')
+			jq('#login').val(jq('#email').val()); 
 	});
-	$('login').observe('blur',function() {
-		if($('account_name').value=='')
-			$('account_name').value = $('login').value; 
-		if($('email').value=='')
-			$('email').value = $('login').value; 
+	jq('#login').on('blur',function() {
+		if(jq('#account_name').val()=='')
+			jq('#account_name').val(jq('#login').val()); 
+		if(jq('#email').val()=='')
+			jq('#email').val(jq('#login').val()); 
 	});
-	$('server').observe('blur',function() {
-		if($('smtp_server').value=='')
-			$('smtp_server').value = $('server').value; 
+	jq('#server').on('blur',function() {
+		if(jq('#smtp_server').val()=='')
+			jq('#smtp_server').val(jq('#server').val()); 
 	});
-	$('smtp_server').observe('blur',function() {
-		if($('server').value=='')
-			$('server').value = $('smtp_server').value; 
+	jq('#smtp_server').on('blur',function() {
+		if(jq('#server').val()=='')
+			jq('#server').val(jq('#smtp_server').val()); 
 	});
-	$('smtp_auth').observe('change',function() {
-		if($('smtp_auth').checked && $('smtp_login').value=='' && $('smtp_pass').value=='') {
-			$('smtp_login').value = $('login').value;
-			$('smtp_pass').value = $('password').value;
+	jq('#smtp_auth').on('change',function() {
+		if(jq('#smtp_auth').val() && jq('#smtp_login').val()=='' && jq('#smtp_pass').val()=='') {
+			jq('#smtp_login').val(jq('#login').val());
+			jq('#smtp_pass').val(jq('#password').val());
 			alert(CRM_RC.filled_smtp_message);
 		}
 	});
 },
+    smtp_auth_change: function (val) {
+        var disabled = !val;
+        jq('#smtp_login').prop('disabled', disabled);
+        jq('#smtp_pass').prop('disabled', disabled);
+        jq('#smtp_security').prop('disabled', disabled);
+    }
 };
 
