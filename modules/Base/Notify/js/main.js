@@ -1,6 +1,5 @@
 var Base_Notify = {
 	token: 0,
-	last_refresh: 0,
 	interval: 0,
 	disabled: 0,
 	disabled_message: 'Notifications disabled!',
@@ -23,14 +22,13 @@ var Base_Notify = {
 		
 		check_user = check_user || 0;
 		
-		jq.getJSON('modules/Base/Notify/refresh.php?cid='+Epesi.client_id+'&last_refresh='+this.last_refresh+'&token='+this.token+'&check_user='+check_user, function(json){
+		jq.getJSON('modules/Base/Notify/refresh.php?cid='+Epesi.client_id+'&token='+this.token+'&check_user='+check_user, function(json){
 			if (typeof json === 'undefined' || jq.isEmptyObject(json)) return;
 			if (typeof json.disable !== 'undefined') {
 				Base_Notify.disable();
 				return;	
 			}
 
-			if (typeof json.last_refresh !== 'undefined') Base_Notify.last_refresh = json.last_refresh;			
 			if (typeof json.token !== 'undefined') Base_Notify.token = json.token;
 			
 			if (!Base_Notify.token) return;

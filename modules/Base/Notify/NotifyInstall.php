@@ -20,7 +20,6 @@ class Base_NotifyInstall extends ModuleInstall {
 			user_id I4,
 			token C(255),
 			cache X,
-			session_start T,
 			last_refresh I8');
 		
 		if(!$ret){

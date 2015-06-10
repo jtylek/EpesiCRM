@@ -9,7 +9,6 @@
  * 
  */
 
-$last_refresh = isset($_REQUEST['last_refresh'])? $_REQUEST['last_refresh']: 0;
 $token = isset($_REQUEST['token'])? $_REQUEST['token']: 0;
 $check_user = isset($_REQUEST['check_user'])? $_REQUEST['check_user']: 0;
 
@@ -18,22 +17,19 @@ if (!empty($token) && !$check_user) define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-if ($check_user) {
+if (!empty($token) && $check_user) {
 	if (!Base_NotifyCommon::check_user($token)) {
-		Base_NotifyCommon::delete_session($token);
+		Base_NotifyCommon::clear_session_token();
 		$token = 0;
-	}
-	else {
-		echo json_encode(array('token'=>$token));
-		
+	}	
+	else 
 		exit();
-	}
 }
 
-$new_session = Base_NotifyCommon::init_session($token);
+$new_instance = Base_NotifyCommon::init_session($token);
 
-if ($new_session) {
-	echo json_encode(array('token'=>$token, 'last_refresh'=>Base_NotifyCommon::get_last_refresh()));
+if ($new_instance) {
+	echo json_encode(array('token'=>$token));
 	
 	exit();
 }
@@ -44,6 +40,7 @@ if (Base_NotifyCommon::is_disabled()) {
 	exit();
 }
 
+if (!Base_NotifyCommon::is_refresh_due($token)) exit();
 
 $ret = array();
 $message_count = 0;
@@ -51,7 +48,7 @@ $notified_cache = array();
 	
 $group_similar = Base_NotifyCommon::group_similar();
 $refresh_time = time();
-$notifications = Base_NotifyCommon::get_notifications($token, $last_refresh);
+$notifications = Base_NotifyCommon::get_notifications($token);
 $all_notified = true;
 	
 foreach ($notifications as $module => $module_new_notifications) {
@@ -87,16 +84,11 @@ foreach ($notifications as $module => $module_new_notifications) {
 	$all_notified &= count($module_new_notifications) == count($notified_cache[$module]);
 }
 
-Base_NotifyCommon::set_notified_cache($notified_cache, $token, $refresh_time);
+Base_NotifyCommon::set_notified_cache($notified_cache, $token, $refresh_time, $all_notified);
 	
 if (!isset($title) || !isset($icon))
 	unset($ret['messages']);
 	
-if (!$all_notified)
-	$refresh_time = $last_refresh;
-	
-$ret['last_refresh'] = $refresh_time;
-
 echo json_encode($ret);
 
 exit();
