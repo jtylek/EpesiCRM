@@ -84,7 +84,7 @@ foreach ($notifications as $module => $module_new_notifications) {
 	$all_notified &= count($module_new_notifications) == count($notified_cache[$module]);
 }
 
-Base_NotifyCommon::set_notified_cache($notified_cache, $token, $refresh_time, $all_notified);
+Base_NotifyCommon::set_notified_cache($notified_cache, $token, $all_notified? $refresh_time: Base_NotifyCommon::get_last_refresh($token));
 	
 if (!isset($title) || !isset($icon))
 	unset($ret['messages']);

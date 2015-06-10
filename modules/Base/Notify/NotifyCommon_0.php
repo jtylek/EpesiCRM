@@ -90,7 +90,7 @@ class Base_NotifyCommon extends ModuleCommon {
 		return $user == Acl::get_user();
 	}
 		
-	public static function set_notified_cache($cache, $token, $refresh_time, $all_notified) {
+	public static function set_notified_cache($cache, $token, $refresh_time) {
 		if (empty($cache)) {
 			return DB::Execute('UPDATE base_notify SET last_refresh=%d WHERE token=%s',array($refresh_time, $token));;
 		}
@@ -108,7 +108,7 @@ class Base_NotifyCommon extends ModuleCommon {
 			$ret[$m] = array_unique(array_merge($saved_ids, $new_ids));
 		}
 	
-		return DB::Execute('UPDATE base_notify SET cache=%s, last_refresh=%d WHERE token=%s',array(self::serialize($ret), $all_notified?$refresh_time:self::get_last_refresh($token), $token));
+		return DB::Execute('UPDATE base_notify SET cache=%s, last_refresh=%d WHERE token=%s',array(self::serialize($ret), $refresh_time, $token));
 	}
 	
 	public static function get_notified_cache($token) {
