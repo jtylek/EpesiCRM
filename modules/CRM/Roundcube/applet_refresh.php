@@ -1,40 +1,24 @@
 <?php
-if(!isset($_POST['acc_id']) || !is_numeric($_POST['acc_id']))
-	die('Invalid request');
+if (!isset($_POST['acc_id']) || !is_numeric($_POST['acc_id'])) {
+    die('Invalid request');
+}
 
-define('CID',false);
-define('READ_ONLY_SESSION',true);
+define('CID', false);
+define('READ_ONLY_SESSION', true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
-if(!Acl::is_user()) die('not logged');
-
-@set_time_limit(0);
-
-$rec = Utils_RecordBrowserCommon::get_record('rc_accounts',$_POST['acc_id']);
-if($rec['epesi_user']!==Acl::get_user()) die('invalid account id');
-
-$port = $rec['security']=='ssl'?993:143;
-
-$server_str = '{'.$rec['server'].'/imap/readonly/novalidate-cert'.($rec['security']?'/'.$rec['security']:'').':'.$port.'}';
-$mailbox = @imap_open(imap_utf7_encode($server_str),imap_utf7_encode($rec['login']),imap_utf7_encode($rec['password']),OP_READONLY || OP_SILENT);
-$err = imap_errors();
-if(!$mailbox || $err) die(Utils_TooltipCommon::create(__('Connection error'), $err, false));
-$uns = @imap_search($mailbox,'UNSEEN ALL');
-$unseen = array();
-if($uns) {
-    $l=@imap_fetch_overview($mailbox,implode(',',$uns),0);
-    $err = imap_errors();
-    if(!$l || $err) die('error reading messages overview');
-    foreach($l as $msg) {
-        $from = isset($msg->from) ? $msg->from : '<unknown>';
-        $subject = isset($msg->subject) ? $msg->subject : '<no subject>';
-        $unseen[] = htmlspecialchars(imap_utf8($from)).': <i>'.htmlspecialchars(imap_utf8($subject)).'</i>';
-    }
+if (!Acl::is_user()) {
+    die('not logged');
 }
-print(Utils_TooltipCommon::create(count($unseen),implode('<br />',$unseen)));
 
-$err = imap_errors();
-print_r('<span style="display:none;">'.$err.'</span>');
-
-imap_close($mailbox);
-?>
+try {
+    $unseen_data = CRM_RoundcubeCommon::get_unread_messages($_POST['acc_id']);
+    $unseen = array();
+    foreach ($unseen_data as $u) {
+        $unseen[] = htmlspecialchars($u['from']) . ': <i>' . htmlspecialchars($u['subject']) . '</i>';
+    }
+    $ret = Utils_TooltipCommon::create(count($unseen), implode('<br />', $unseen));
+    print($ret);} catch (Exception $ex) {
+    $message = $ex->getMessage();
+    print($message);
+}

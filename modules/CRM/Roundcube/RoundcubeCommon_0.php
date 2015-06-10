@@ -437,6 +437,103 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         }
         return $values;
     }
+
+    public static function get_accounts($user_id = null)
+    {
+        if ($user_id === null) {
+            $user_id = Acl::get_user();
+        }
+        $crits = array();
+        if ($user_id) {
+            $crits['epesi_user'] = $user_id;
+        }
+        $ret = Utils_RecordBrowserCommon::get_records('rc_accounts', $crits);
+        return $ret;
+    }
+
+    /**
+     * @param int  $account_id
+     * @param bool $only_cached If true then only cached response will be retrieved
+     * @param int  $cache_validity_in_minutes Provide 0 or false to force request
+     *
+     * @return array|null
+     * @throws Exception
+     */
+    public static function get_unread_messages($account_id, $only_cached = false, $cache_validity_in_minutes = 5)
+    {
+        $return = null;
+        $rec = Utils_RecordBrowserCommon::get_record('rc_accounts', $account_id);
+        if ($rec['epesi_user'] !== Acl::get_user()) {
+            throw new Exception('Invalid account id');
+        }
+        $port = $rec['security'] == 'ssl' ? 993 : 143;
+        $server_str = '{' . $rec['server'] . '/imap/readonly/novalidate-cert' . ($rec['security'] ? '/' . $rec['security'] : '') . ':' . $port . '}';
+        $cache_key = md5($server_str . ' # ' . $rec['login'] . ' # ' . $rec['password']);
+        $cache = new FileCache(DATA_DIR . '/cache/roundcube_undread.php');
+        if ($cache_validity_in_minutes) {
+            $unread_messages = $cache->get($cache_key);
+            if ($unread_messages && ($only_cached || $unread_messages['t'] > (time() - $cache_validity_in_minutes*60))) {
+                $return = $unread_messages['val'];
+            }
+        }
+        if ($return === null && $only_cached === false) {
+            @set_time_limit(0);
+            $mailbox = @imap_open(imap_utf7_encode($server_str), imap_utf7_encode($rec['login']), imap_utf7_encode($rec['password']), OP_READONLY || OP_SILENT);
+            $err = imap_errors();
+            $unseen = array();
+            if (!$mailbox || $err) {
+                $err = __('Connection error') . ": " . implode(', ', $err);
+            } else {
+                $uns = @imap_search($mailbox, 'UNSEEN ALL');
+                if ($uns) {
+                    $l = @imap_fetch_overview($mailbox, implode(',', $uns), 0);
+                    $err = imap_errors();
+                    if (!$l || $err) {
+                        $error_info = $err ? ": " . implode(', ', $err) : "";
+                        $err = __('Error reading messages overview') . $error_info;
+                    } else {
+                        foreach ($l as $msg) {
+                            $from = isset($msg->from) ? imap_utf8($msg->from) : '<unknown>';
+                            $subject = isset($msg->subject) ? imap_utf8($msg->subject) : '<no subject>';
+                            $unseen[] = array('from' => $from, 'subject' => $subject, 'id' => $msg->uid, 'date' => $msg->date, 'unix_timestamp' => $msg->udate);
+                        }
+                    }
+                }
+            }
+            if (!is_bool($mailbox)) {
+                imap_close($mailbox);
+            }
+            $errors = imap_errors();
+            if ($err) {
+                throw new Exception($err);
+            } else {
+                $return = $unseen;
+                $cache->set($cache_key, array('val' => $return, 't' => time()));
+            }
+        }
+        return $return;
+    }
+
+    public static function tray_notification($last_refresh)
+    {
+        $notifications = array();
+        foreach (self::get_accounts() as $account) {
+            try {
+                $unread_messages = self::get_unread_messages($account['id'], true);
+            } catch (Exception $ex) {
+                return array();
+            }
+            if (!$unread_messages) {
+                return array();
+            }
+            foreach ($unread_messages as $m) {
+                $notification_title = __('New email') . ' - ' . $account['account_name'];
+                $notification_body = $m['from'] . "\n" . $m['subject'];
+                $notifications["rc_message_{$account['id']}_{$m['id']}"] = array('title' => $notification_title, 'body' => $notification_body);
+            }
+        }
+        return array('tray' => $notifications);
+    }
 }
 
 ?>
