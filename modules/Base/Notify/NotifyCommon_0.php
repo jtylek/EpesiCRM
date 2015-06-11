@@ -62,7 +62,7 @@ class Base_NotifyCommon extends ModuleCommon {
 	
 	public static function set_notified_cache($cache, $token, $refresh_time) {
 		if (empty($cache)) {
-			return DB::Execute('UPDATE base_notify SET last_refresh=%d WHERE token=%s AND (last_refresh<%d OR last_refresh IS NULL)', array($refresh_time, $token, $refresh_time));
+			return DB::Execute('UPDATE base_notify SET last_refresh=%d WHERE token=%s AND (last_refresh<=%d OR last_refresh IS NULL)', array($refresh_time, $token, $refresh_time));
 		}
 		
 		$saved_cache = self::get_notified_cache($token);
@@ -79,7 +79,7 @@ class Base_NotifyCommon extends ModuleCommon {
 			$ret[$m] = array_unique(array_merge($saved_ids, $new_ids));
 		}
 	
-		return DB::Execute('UPDATE base_notify SET cache=%s, last_refresh=%d WHERE token=%s AND (last_refresh<%d OR last_refresh IS NULL)',array(self::serialize($ret), $refresh_time, $token, $refresh_time));
+		return DB::Execute('UPDATE base_notify SET cache=%s, last_refresh=%d WHERE token=%s AND (last_refresh<=%d OR last_refresh IS NULL)',array(self::serialize($ret), $refresh_time, $token, $refresh_time));
 	}
 	
 	public static function get_notified_cache($token) {
