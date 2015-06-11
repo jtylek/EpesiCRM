@@ -55,7 +55,7 @@ foreach ($notifications as $module => $module_new_notifications) {
 			$body = Base_NotifyCommon::strip_html($message['body']);
 			$icon = Base_NotifyCommon::get_icon($module, $message);
 	
-			$ret['messages'][] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon), 'timeout'=>$timeout);
+			$ret['messages'][] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon, 'tag'=>$id), 'timeout'=>$timeout);
 		}
 	}
 }
