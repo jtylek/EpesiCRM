@@ -1,5 +1,4 @@
 var Base_Notify = {
-	token: 0,
 	interval: 0,
 	disabled: 0,
 	disabled_message: 'Notifications disabled!',
@@ -17,22 +16,16 @@ var Base_Notify = {
 		this.interval = setInterval(function () {Base_Notify.refresh();}, t);
 	},
 	
-	refresh: function (check_user) {
+	refresh: function () {
 		if (!this.is_active()) return;
 		
-		check_user = check_user || 0;
-		
-		jq.getJSON('modules/Base/Notify/refresh.php?cid='+Epesi.client_id+'&token='+this.token+'&check_user='+check_user, function(json){
+		jq.getJSON('modules/Base/Notify/refresh.php', function(json){
 			if (typeof json === 'undefined' || jq.isEmptyObject(json)) return;
 			if (typeof json.disable !== 'undefined') {
 				Base_Notify.disable();
 				return;	
 			}
 
-			if (typeof json.token !== 'undefined') Base_Notify.token = json.token;
-			
-			if (!Base_Notify.token) return;
-			
 			if (typeof json.messages === 'undefined') return;
 			
 			jq.each(json.messages, function(i, m) {
@@ -44,7 +37,7 @@ var Base_Notify = {
 		});		
 	},
 	
-	notify: function (title, opts, check) {
+	notify: function (title, opts) {
 		if (!this.is_active(true)) return;
 		
 		if (notify.permissionLevel() === notify.PERMISSION_DEFAULT) {
@@ -83,4 +76,4 @@ var Base_Notify = {
 		this.interval = 0;
 		this.disabled = 1;
 	}
-}
+};

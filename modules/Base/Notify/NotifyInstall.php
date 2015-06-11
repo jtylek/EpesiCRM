@@ -15,10 +15,9 @@ class Base_NotifyInstall extends ModuleInstall {
 		$ret = true;
 		
 		DB::Execute('DROP TABLE IF EXISTS base_notify');
-		
-		$ret &= DB::CreateTable('base_notify','
-			user_id I4,
-			token C(255),
+
+        DB::CreateTable('base_notify','
+			token C(64) NOTNULL PRIMARY KEY,
 			cache X,
 			last_refresh I8');
 		

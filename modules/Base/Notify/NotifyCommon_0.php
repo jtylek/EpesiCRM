@@ -20,47 +20,33 @@ class Base_NotifyCommon extends ModuleCommon {
 
 	//messages to retrive with one refresh
 	const message_refresh_limit = 3; //messages
+
+    private static $initialized = false;
 	
 	public static function init() {
-		load_js('modules/Base/Notify/js/desktop-notify.js');
+        if (Base_AclCommon::is_user() == false || self::$initialized) {
+            return;
+        }
+
+        DB::Execute('DELETE FROM base_notify WHERE last_refresh < %d',array(strtotime('-24 hours')));
+
+        load_js('modules/Base/Notify/js/desktop-notify.js');
 		load_js('modules/Base/Notify/js/main.js');
 
 		$disabled_message = __('Notifications disabled or not supported!').'\n'.__('Check your browser settings and allow notifications to use this feature...');
-		
-		eval_js_once("Base_Notify.init (".(self::refresh_rate*1000).", '$disabled_message');");
-
-		eval_js("Base_Notify.refresh (1);");
+        $disabled_message = json_encode($disabled_message);
+		eval_js_once("Base_Notify.init (".(self::refresh_rate*1000).", $disabled_message);");
+		eval_js_once("Base_Notify.refresh ();");
+        self::$initialized = true;
 	}
-	
-	public static function init_session(&$request_token) {
-		$new_instance = false;
-		
-		if (empty($request_token) && !READ_ONLY_SESSION) {
-			$request_token = self::init_notified_cache();
 
-			$new_instance = true;			
-		}
-		elseif (!self::set_user($request_token)) {
-			$request_token = 0;
-			
-			$new_instance = true;
-		}
-		
-		return $new_instance;
-	}	
-	
 	public static function init_notified_cache() {
-		$user = Acl::get_user();
-	
-		if (empty($user)) return 0;
-		
-		DB::Execute('DELETE FROM base_notify WHERE last_refresh < %d',array(strtotime('-24 hours')));
-		
 		$session_token = self::get_session_token();
+        if (!$session_token) return false;
 
-		$exists = DB::GetOne('SELECT COUNT(*) FROM base_notify WHERE token=%s',array($session_token));
+		$exists = DB::GetOne('SELECT COUNT(*) FROM base_notify WHERE token=%s', array($session_token));
 		if (!$exists) {
-			DB::Execute('INSERT INTO base_notify (user_id, token, cache) VALUES (%d, %s, %s)',array($user, $session_token, self::serialize(array())));
+			DB::Execute('INSERT INTO base_notify (token, cache) VALUES (%s, %s)', array($session_token, self::serialize(array())));
 		}		
 		
 		return $session_token;
@@ -74,25 +60,9 @@ class Base_NotifyCommon extends ModuleCommon {
 		return time() >= Base_NotifyCommon::get_last_refresh($token) + Base_NotifyCommon::refresh_rate;
 	}
 	
-	public static function set_user($token) {
-		$user = DB::GetOne('SELECT user_id FROM base_notify WHERE token=%s',array($token));
-	
-		if (is_null($user)) return false;
-	
-		Acl::set_user($user);
-	
-		return true;
-	}
-	
-	public static function check_user($token) {
-		$user = DB::GetOne('SELECT user_id FROM base_notify WHERE token=%s',array($token));
-	
-		return $user == Acl::get_user();
-	}
-		
 	public static function set_notified_cache($cache, $token, $refresh_time) {
 		if (empty($cache)) {
-			return DB::Execute('UPDATE base_notify SET last_refresh=%d WHERE token=%s',array($refresh_time, $token));;
+			return DB::Execute('UPDATE base_notify SET last_refresh=%d WHERE token=%s AND (last_refresh<%d OR last_refresh IS NULL)', array($refresh_time, $token, $refresh_time));
 		}
 		
 		$saved_cache = self::get_notified_cache($token);
@@ -100,7 +70,8 @@ class Base_NotifyCommon extends ModuleCommon {
 		if (empty($saved_cache)) $saved_cache = array();
 	
 		$modules = array_merge(array_keys($cache), array_keys($saved_cache));
-			
+
+        $ret = array();
 		foreach ($modules as $m) {
 			$saved_ids = isset($saved_cache[$m])? $saved_cache[$m]:array();
 			$new_ids = isset($cache[$m])? $cache[$m]:array();
@@ -108,7 +79,7 @@ class Base_NotifyCommon extends ModuleCommon {
 			$ret[$m] = array_unique(array_merge($saved_ids, $new_ids));
 		}
 	
-		return DB::Execute('UPDATE base_notify SET cache=%s, last_refresh=%d WHERE token=%s',array(self::serialize($ret), $refresh_time, $token));
+		return DB::Execute('UPDATE base_notify SET cache=%s, last_refresh=%d WHERE token=%s AND (last_refresh<%d OR last_refresh IS NULL)',array(self::serialize($ret), $refresh_time, $token, $refresh_time));
 	}
 	
 	public static function get_notified_cache($token) {
@@ -127,14 +98,11 @@ class Base_NotifyCommon extends ModuleCommon {
 	}	
 
 	public static function get_session_token() {
-		if (!isset($_SESSION['base_notify_token']))			
-			$_SESSION['base_notify_token'] = md5(microtime(true));
-		
-		return $_SESSION['base_notify_token'];
-	}
-	
-	public static function clear_session_token() {
-		unset($_SESSION['base_notify_token']);
+        $user_id = Base_AclCommon::get_user();
+        $session_id = session_id();
+        if (!$user_id || !$session_id) return false;
+        $token = md5($user_id . '__' . $session_id);
+		return $token;
 	}
 	
 	public static function get_notifications($token) {
@@ -147,9 +115,14 @@ class Base_NotifyCommon extends ModuleCommon {
         foreach ($notification_modules as $module) {
         	$timeout = self::get_module_setting($module);
         	if ($timeout == -1) continue;
-        	
-        	$notify = call_user_func(array($module, 'tray_notification'), $last_refresh);
-        	
+
+            $callback = array($module. "Common", 'tray_notification');
+            if (is_callable($callback)) {
+                $notify = call_user_func($callback, $last_refresh);
+            } else {
+                $notify = null;
+            }
+
         	if (!isset($notify['tray'])) continue;
         	
         	$new_module_notifications = self::filter_new_notifications($module, $notify['tray'], $token);
