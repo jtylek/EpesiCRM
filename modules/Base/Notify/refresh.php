@@ -50,7 +50,7 @@ foreach ($notifications as $module => $module_new_notifications) {
 		$body = __('%d new notifications', array(count($module_new_notifications)));
 		$icon = Base_NotifyCommon::get_icon($module);
 	
-		$ret['messages'][] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon), 'timeout'=>$timeout);
+		$ret[] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon), 'timeout'=>$timeout);
 	}
 	else {	
 		foreach ($module_new_notifications as $id=>$message) {
@@ -63,7 +63,7 @@ foreach ($notifications as $module => $module_new_notifications) {
 			$body = Base_NotifyCommon::strip_html($message['body']);
 			$icon = Base_NotifyCommon::get_icon($module, $message);
 	
-			$ret['messages'][] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon, 'tag'=>$id), 'timeout'=>$timeout);
+			$ret[] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon, 'tag'=>$id), 'timeout'=>$timeout);
 		}
 	}
 
@@ -71,11 +71,9 @@ foreach ($notifications as $module => $module_new_notifications) {
 }
 
 Base_NotifyCommon::set_notified_cache($notified_cache, $token, $all_notified ? $refresh_time : Base_NotifyCommon::get_last_refresh($token));
-	
-if (!isset($title) || !isset($icon))
-	unset($ret['messages']);
-	
-echo json_encode($ret);
+
+if (count($ret)) {
+    echo json_encode(array('messages' => $ret));
+}
 
 exit();
-?>
