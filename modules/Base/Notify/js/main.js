@@ -6,6 +6,7 @@ var Base_Notify = {
 	init: function(refresh_interval, disabled_message) {
 		this.set_interval(refresh_interval);
 		this.disabled_message = disabled_message;
+		this.refresh();
 	},
 	
 	set_interval: function (t) {
@@ -68,7 +69,7 @@ var Base_Notify = {
 		
 		if (!supported && alert) alert(this.disabled_message);
 		
-		return supported && !this.disabled;
+		return supported;
 	},
 	
 	disable: function () {
