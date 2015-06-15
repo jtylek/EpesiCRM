@@ -265,6 +265,10 @@ class Utils_RecordBrowser_QueryBuilder
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
         }
+        if ($operator == DB::like()) {
+            if (DB::is_postgresql()) $field .= '::varchar';
+            return array("$field $operator %s", array($value));
+        }
         $vals = array();
         if ($value === '' || $value === null || $value === false) {
             $sql = "$field IS NULL";
@@ -280,6 +284,10 @@ class Utils_RecordBrowser_QueryBuilder
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
         }
+        if ($operator == DB::like()) {
+            if (DB::is_postgresql()) $field .= '::varchar';
+            return array("$field $operator %s", array($value));
+        }
         $vals = array();
         if ($value === '' || $value === null || $value === false) {
             $sql = "$field IS NULL";
@@ -294,6 +302,10 @@ class Utils_RecordBrowser_QueryBuilder
     {
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
+        }
+        if ($operator == DB::like()) {
+            if (DB::is_postgresql()) $field .= '::varchar';
+            return array("$field $operator %s", array($value));
         }
         $vals = array();
         if (!$value) {
@@ -333,6 +345,10 @@ class Utils_RecordBrowser_QueryBuilder
     {
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
+        }
+        if ($operator == DB::like()) {
+            if (DB::is_postgresql()) $field .= '::varchar';
+            return array("$field $operator %s", array($value));
         }
         $vals = array();
         if (!$value) {
