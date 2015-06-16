@@ -861,14 +861,16 @@ class Utils_RecordBrowser extends Module {
         }
 
         if (!$pdf) $order = $gb->get_order();
-        $crits = array_merge($crits, $search_res);
-        if ($this->browse_mode == 'favorites')
-            $crits[':Fav'] = true;
-        if ($this->browse_mode == 'watchdog')
-            $crits[':Sub'] = true;
+        $crits = Utils_RecordBrowserCommon::merge_crits($crits, $search_res);
+        if ($this->browse_mode == 'favorites') {
+            $crits = Utils_RecordBrowserCommon::merge_crits($crits, array(':Fav' => true));
+        }
+        if ($this->browse_mode == 'watchdog') {
+            $crits = Utils_RecordBrowserCommon::merge_crits($crits, array(':Sub' => true));
+        }
         if ($this->browse_mode == 'recent') {
-            $crits[':Recent'] = true;
-            $order = array(':Visited_on'=>'DESC');
+            $crits = Utils_RecordBrowserCommon::merge_crits($crits, array(':Recent' => true));
+            $order = array(':Visited_on' => 'DESC');
         }
 
         if ($admin && !$pdf) {
