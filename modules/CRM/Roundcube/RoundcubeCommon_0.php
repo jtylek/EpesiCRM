@@ -469,7 +469,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $port = $rec['security'] == 'ssl' ? 993 : 143;
         $server_str = '{' . $rec['server'] . '/imap/readonly/novalidate-cert' . ($rec['security'] ? '/' . $rec['security'] : '') . ':' . $port . '}';
         $cache_key = md5($server_str . ' # ' . $rec['login'] . ' # ' . $rec['password']);
-        $cache = new FileCache(DATA_DIR . '/cache/roundcube_undread.php');
+        $cache = new FileCache(DATA_DIR . '/cache/roundcube_unread.php');
         if ($cache_validity_in_minutes) {
             $unread_messages = $cache->get($cache_key);
             if ($unread_messages && ($only_cached || $unread_messages['t'] > (time() - $cache_validity_in_minutes*60))) {
@@ -503,7 +503,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
             if (!is_bool($mailbox)) {
                 imap_close($mailbox);
             }
-            $errors = imap_errors();
+            imap_errors(); // called just to clean up errors.
             if ($err) {
                 throw new Exception($err);
             } else {
