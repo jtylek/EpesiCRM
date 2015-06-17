@@ -72,7 +72,7 @@ class CronErrorObserver extends ErrorObserver {
         global $cron_funcs_prior;
         $backtrace = htmlspecialchars_decode(str_replace(array('<br />','&nbsp;'),array("\n",' '),$backtrace));
         $x = $cron_funcs_prior[$this->func_md5].":\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
-        error_log($x."\n",3,DATA_DIR.'/cron.txt');
+        epesi_log($x."\n", 'cron.log');
         
         DB::IgnoreErrors(array('adodb_error',null)); //ignore adodb errors
         $query_args = array(time(),$this->func_md5);
@@ -124,7 +124,7 @@ foreach($cron_last as $func_md5=>$last) {
             print($stripped);
         else
             print($cron_funcs_prior[$func_md5].":<br>".$output."<hr>");
-        error_log($stripped,3,DATA_DIR.'/cron.txt');
+        epesi_log($stripped, 'cron.log');
     }
 
     DB::Execute('UPDATE cron SET last=%d,running=0 WHERE func=%s',array(time(),$func_md5));
