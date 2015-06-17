@@ -1,7 +1,7 @@
 <?php
 if (!isset($_GET['cid']) || !isset($_GET['token']))
-	die('Invalid request: '.print_r($_GET,true));
-	
+	die('Invalid request');
+
 
 define('CID',$_GET['cid']); 
 define('READ_ONLY_SESSION',true);
