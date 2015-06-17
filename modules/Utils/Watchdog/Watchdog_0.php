@@ -40,6 +40,10 @@ class Utils_Watchdog extends Module {
 			print(__('No category selected'));
 			return;
 		}
+        $records_limit = isset($conf['records_limit']) ? $conf['records_limit'] : 15;
+        if ($records_limit == '__all__') {
+            $records_limit = null;
+        }
 		$header = array(
 					array('name'=>__('Cat.'),'width'=>5),
 					array('name'=>__('Title'),'width'=>15)
@@ -91,10 +95,10 @@ class Utils_Watchdog extends Module {
 			}
 			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events'], true);
 			$count++;
-			if ($count==15) break;
+			if ($records_limit && $count >= $records_limit) break;
 		}
 		$records_qty = count($records);
-		if ($records_qty>15 && $count==15)
+		if ($records_limit && $count < $records_qty)
 			print(__('Displaying %s of %s records', array($count, $records_qty)));
 		$this->set_module_variable('display_at_time', time());
 		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Mark all entries as read')).' '.$this->create_confirm_callback_href(__('This will mark all entries in selected categories as read, are you sure you want to continue?'),array($this,'purge_subscriptions_applet'), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
