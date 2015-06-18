@@ -534,6 +534,14 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         }
         return array('tray' => $notifications);
     }
+    
+    public static function cron() {
+        return array('cron_cleanup_session'=>60*24);
+    }
+    
+    public static function cron_cleanup_session() {
+        DB::Execute('DELETE FROM rc_session WHERE changed<%T',array(time()-3600*24));
+    }
 }
 
 ?>
