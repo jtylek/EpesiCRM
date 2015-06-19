@@ -37,8 +37,8 @@ if(headers_sent())
 require_once('mime.php');
 
 $t = time();
-$remote_address = $_SERVER['REMOTE_ADDR'];
-$remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+$remote_address = get_client_ip_address();
+$remote_host = gethostbyaddr($remote_address);
 if($duplicate)
 	DB::Execute('INSERT INTO utils_attachment_download(attach_file_id,created_by,created_on,download_on,description,ip_address,host_name,remote) VALUES (%d,%d,%T,%T,%s,%s,%s,2)',array($file_id,$row['created_by'],$row['created_on'],$t,$row['description'],$remote_address,$remote_host));
 else

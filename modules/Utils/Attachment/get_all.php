@@ -42,8 +42,8 @@ if ($zip->open($zip_filename, ZIPARCHIVE::OVERWRITE )!==TRUE) {
 }
 //add each files of $file_name array to archive
 $t = time();
-$remote_address = $_SERVER['REMOTE_ADDR'];
-$remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+$remote_address = get_client_ip_address();
+$remote_host = gethostbyaddr($remote_address);
 $local = $rec['id'];
 $size = 0;
 foreach($files as $fid=>$original)

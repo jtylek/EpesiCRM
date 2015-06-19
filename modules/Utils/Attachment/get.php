@@ -45,8 +45,8 @@ if($crypted)
     $password = $_SESSION['client']['cp'.$rec['id']];
 
 $t = time();
-$remote_address = $_SERVER['REMOTE_ADDR'];
-$remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+$remote_address = get_client_ip_address();
+$remote_host = gethostbyaddr($remote_address);
 DB::Execute('INSERT INTO utils_attachment_download(attach_file_id,created_by,created_on,download_on,description,ip_address,host_name) VALUES (%d,%d,%T,%T,%s,%s,%s)',array($id,Acl::get_user(),$t,$t,$disposition,$remote_address,$remote_host));
 
 if (isset($_REQUEST['thumbnail'])) {
