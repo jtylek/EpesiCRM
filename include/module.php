@@ -389,14 +389,14 @@ abstract class Module extends ModulePrimitive {
 	 * Create onClick action string destined for js code.
 	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
 	 *
-	 * <xmp>
+	 * <code>
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
-	 * </xmp>
+	 * </code>
 	 *
 	 * @param array $variables variables to pass along with href
 	 * @param string $indicator status bar indicator text
 	 * @param string $mode block, allow, queue click on simutanous click
-	 * @return string href string
+	 * @return string href string {@source}
 	 */
 	public final static function create_href_js(array $variables = array (), $indicator=null, $mode=null) {
 		$ret = http_build_query($variables);
@@ -408,9 +408,9 @@ abstract class Module extends ModulePrimitive {
 	 * Create onClick action string (with href="javascript:void(0);").
 	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
 	 *
-	 * <xmp>
+	 * <code>
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
-	 * </xmp>
+	 * </code>
 	 *
 	 * @param array $variables variables to pass along with href
 	 * @param string $indicator status bar indicator text
@@ -427,9 +427,9 @@ abstract class Module extends ModulePrimitive {
 	 * This function will trigger js confirm dialog before launching processing.
 	 * If cancelled, no processing will be done.
 	 *
-	 * <xmp>
+	 * <code>
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
-	 * </xmp>
+	 * </code>
 	 *
 	 * @param string $confirm question displayed in confirmation box
 	 * @param array $variables variables to pass along with href
