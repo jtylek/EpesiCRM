@@ -63,7 +63,8 @@ class Base_UserCommon extends ModuleCommon {
 			print('Unable to add user to ACL. Deleting user.');
 			DB::Execute('DELETE FROM user_login WHERE login=%s', array($username));
 		}
-		return $acl;*/
+		return $acl;
+*/
 		return true;
 	}
 
@@ -111,6 +112,11 @@ class Base_UserCommon extends ModuleCommon {
 		else
 			return self::get_user_login($uid);
 	}
+
+    public static function get_my_user_label($nolink = false)
+    {
+        return self::get_user_label(Base_AclCommon::get_user(), $nolink);
+    }
 }
 
 ?>
