@@ -919,9 +919,23 @@ class Utils_RecordBrowser extends Module {
                 __('Print all records');
             $print_tooltip = Utils_TooltipCommon::open_tag_attrs($print_tooltip_text, false);
             $this->new_button('print', __('Print'), "$print_href $print_tooltip");
-		}
-
+	}
+         
         $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
+        if(!$records) {
+            $last_offset = $this->get_module_variable('last_offset');
+            while(!$records) {
+                if($last_offset>$limit['offset'] && ($limit['offset']-$limit['numrows'])>=0)
+                    $limit['offset'] -= $limit['numrows'];
+                elseif(($limit['offset']+$limit['numrows'])<$this->amount_of_records)
+                    $limit['offset'] += $limit['numrows'];
+                else break;
+                $gb->set_module_variable('offset',$limit['offset']);
+                $limit = $gb->get_limit($this->amount_of_records);
+                $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
+            }
+        }
+        $this->set_module_variable('last_offset',$limit['offset']);
 
         if (($this->get_access('export') || $this->enable_export) && !$this->disabled['export'])
             $this->new_button('save',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
@@ -3273,6 +3287,10 @@ class Utils_RecordBrowser extends Module {
 				if ($args['ref_table']=='contact') $arr = $arr + array('USER'=>__('User Contact'));
 				if ($args['ref_table']=='company') $arr = $arr + array('USER_COMPANY'=>__('User Company'));
 				if (!$in_depth) continue;
+                                if($args['type']=='multiselect')
+                                    $arr = $arr + array('ACCESS_VIEW'=>_('Allow view any record'),'ACCESS_VIEW_ALL'=>_('Allow view all records'),'ACCESS_EDIT'=>_('Allow edit any record'),'ACCESS_EDIT_ALL'=>_('Allow edit all records'),'ACCESS_PRINT'=>_('Allow print any record'),'ACCESS_PRINT_ALL'=>_('Allow print all records'),'ACCESS_DELETE'=>_('Allow delete any record'),'ACCESS_DELETE_ALL'=>_('Allow delete all records'));
+                                else
+                                    $arr = $arr + array('ACCESS_VIEW'=>_('Allow view record'),'ACCESS_EDIT'=>_('Allow edit record'),'ACCESS_PRINT'=>_('Allow print record'),'ACCESS_DELETE'=>_('Allow delete record'));
 
 				$last_tab = $this->tab;
                 $tabs = explode(',', $args['ref_table']);

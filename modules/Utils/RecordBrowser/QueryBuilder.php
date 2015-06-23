@@ -534,6 +534,9 @@ class Utils_RecordBrowser_QueryBuilder
             $value = array($value);
         }
         foreach ($value as $w) {
+            $vv = explode('::',$w,2);
+            if(isset($vv[1]) && is_callable($vv)) continue;
+            
             $args = array($field_sql_id, $operator, $w, $raw_sql_val, $field_def);
             list($sql2, $vals2) = call_user_func_array($callback, $args);
             if ($sql2) {

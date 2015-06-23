@@ -1302,6 +1302,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$group_or_start = $group_or = false;
 		$special_chars = str_split('!"(|<>=~]^');
         foreach($crits as $k=>$v){
+            $vv = explode('::',$v,2);
+            if(isset($vv[1]) && is_callable($vv)) continue;
+            
             self::init($tab, $admin);
 			$f = explode('[',$k);
 			$f = str_replace($special_chars,'',$f[0]);
@@ -1679,16 +1682,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     else $r[$v['id']] = '';
                 }
             }
-            $records[$row['id']] = $r;
+            if($admin || self::get_access($tab,'view',$r)) $records[$row['id']] = $r;
         }
         return $records;
     }
     public static function check_record_against_crits($tab, $id, $crits, & $problems = array()) {
         if ($crits===true || empty($crits)) return true;
-        static $cache = array();
+        static $cache = array(), $check_access_processing = array();
         if (is_numeric($id)) $r = self::get_record($tab, $id);
         else $r = $id;
         $id = isset($r['id']) ? $r['id'] : '';
+        if(isset($check_access_processing[$tab.'__'.$id]) && !isset($cache[$tab.'__'.$id])) trigger_error('Check access loop',E_USER_ERROR);
+        $check_access_processing[$tab.'__'.$id] = 1;
 //      if (isset($cache[$tab.'__'.$id])) return $cache[$tab.'__'.$id];
 //      $r = self::get_record($tab, $id);
         $or_started = false;
@@ -1773,6 +1778,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $v = date('Y-m-d', $v);
             }
             if (!isset($r[$k])) $r[$k] = '';
+
+            $vv = explode('::',$v,2);
+            if(isset($vv[1]) && is_callable($vv)) {
+                $v = call_user_func_array($vv,array($tab,&$r,$k,$crits));                
+            }
+        
             if (is_array($r[$k])) {
                 if ($v) $result = in_array($v, $r[$k]);
                 else $result = empty($r[$k]);
@@ -1805,6 +1816,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if ($str=='USER') return __('User Contact');
 				if ($str=='USER_COMPANY') return __('User Company');
 			}
+			if(preg_match('/^ACCESS\_([A-Z\_]+)$/',$str,$req)) {
+                            return _V('Allow '.str_replace('_',' ',strtolower($req[1])).' record(s)');
+			}
 		} else {
 			if ($str=='USER_ID') return Acl::get_user();
 			if (class_exists('CRM_ContactsCommon')) {
@@ -1812,9 +1826,70 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if ($str=='USER') return $me['id']?$me['id']:-1;
 				if ($str=='USER_COMPANY') return (isset($me['company_name']) && $me['company_name'])?$me['company_name']:-1;
 			}
+			if(preg_match('/^ACCESS\_([A-Z\_]+)$/',$str,$req)) {
+                            return 'Utils_RecordBrowserCommon::get_recursive_'.strtolower($req[1]).'_access';
+			}
 		}
 		return $str;
 	}
+	public static function get_recursive_access($otab,&$r,$field,$action,$any) {
+            self::init($otab);
+            $args = self::$table_rows[self::$hash[$field]];
+            $param = explode(';',$args['param']);
+            $pp = explode('::',$param[0]);
+            $tab = $pp[0];
+            if($tab=='__COMMON__') return $r[$field];
+            if($tab == '__RECORDSETS__') $single_tab = false;
+            else {
+                $tabs = explode(',',$tab);
+                $single_tab = count($tabs)==1;
+            }
+            $ret = true;
+            if(!is_array($r[$field])) $values = array($r[$field]);
+            else $values = $r[$field];
+            if($single_tab) {
+                foreach($values as $rid) {
+                    $rr = self::get_record($tab,$rid);
+                    $access = self::get_access($tab,$action,$rr);
+                    if($any && $access) return $r[$field];
+                    $ret &= $access;
+                }
+            } else {
+                foreach($values as $rid) {
+                    list($tab,$rid) = explode('/',$rid,2);
+                    $rr = self::get_record($tab,$rid);
+                    $access = self::get_access($tab,$action,$rr);
+                    if($any && $access) return $r[$field];
+                    $ret &= $access;
+                }            
+            }
+            if($ret) return $r[$field];
+            return false;
+	}
+	public static function get_recursive_view_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'view',true);
+	}
+        public static function get_recursive_view_all_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'view',false);
+        }
+        public static function get_recursive_edit_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'edit',true);
+        }
+        public static function get_recursive_edit_all_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'edit',false);
+        }
+        public static function get_recursive_print_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'print',true);
+        }
+        public static function get_recursive_print_all_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'print',false);
+        }        
+        public static function get_recursive_delete_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'delete',true);
+        }
+        public static function get_recursive_delete_all_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'delete',false);
+        }
 	public static function parse_access_crits($str, $manage_permissions=false) {
 		$ret = unserialize($str);
 		foreach ($ret as $k=>$v) {
@@ -1907,7 +1982,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($blocked_fields as $f)
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($id, $f));
 	}
-    public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
+	
+	public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
         if (!$return_crits && self::$admin_access && Base_AclCommon::i_am_admin()) {
             $ret = true;
         } elseif (isset($record[':active']) && !$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {

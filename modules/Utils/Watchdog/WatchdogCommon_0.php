@@ -332,17 +332,40 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$href = ' onclick="utils_watchdog_set_subscribe('.(($last_seen===null)?1:0).',\''.$category_name.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"';
 		if ($last_seen===null) {
 			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','not_watching_small.png');
-			$tooltip = Utils_TooltipCommon::open_tag_attrs(__('Click to watch this record for changes.'));
+			$tooltip = __('Click to watch this record for changes.');
 		} else {
 			if ($last_seen===true) {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png');
-				$tooltip = Utils_TooltipCommon::open_tag_attrs(__('You are watching this record, click to stop watching this record for changes.'));
+				$tooltip = __('You are watching this record, click to stop watching this record for changes.');
 			} else {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
 				$ev = self::display_events($category_id, $last_seen, $id);
-				$tooltip = Utils_TooltipCommon::open_tag_attrs(__('You are watching this record, click to stop watching this record for changes.').($ev?'<br>'.__('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']:''));
+				$tooltip = __('You are watching this record, click to stop watching this record for changes.').($ev?'<br>'.__('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']:'');
 			}
 		}
+		$subscribers = self::get_subscribers($category_name,$id);
+		if($subscribers) {
+                    $tooltip.='<hr />';
+                    $icon_on = ' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png').'"';
+                    $icon_off = ' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png').'"';
+                    foreach($subscribers as $subscriber) {
+                        if(class_exists('CRM_ContactsCommon')) {
+                            $contact = CRM_ContactsCommon::get_user_label($subscriber,true);
+                        } else {
+                            $contact = Base_UserCommon::get_user_login($subscriber);
+                        }
+                        
+                        $notified = self::user_check_if_notified($subscriber,$category_name,$id);
+                        if($notified===true) {
+                            $icon2 = $icon_on;
+                        } else {
+                            $icon2 = $icon_off;
+                        }
+                        $tooltip .= '<img style="margin-right:4px;" '.$icon2.' /><a>'.Utils_RecordBrowserCommon::no_wrap($contact).'</a><br />';
+                     
+                    }
+		}
+		$tooltip = Utils_TooltipCommon::open_tag_attrs($tooltip);
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
 	} 
 	
