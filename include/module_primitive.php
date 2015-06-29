@@ -78,4 +78,9 @@ abstract class ModulePrimitive {
 		return ModuleManager::check_access($this->type,$m);
 	}
 
+	public final static function module_name()
+	{
+		$name = str_replace(array('Common', 'Install'), '', get_called_class());
+		return str_replace('_', '/', $name);
+	}
 }
