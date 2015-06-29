@@ -20,11 +20,11 @@ class Tests_Comment extends Module{
 		$this -> display_module($com);
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Comment/CommentInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Comment/CommentInstall.php');
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Comment/Comment_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Comment/Comment_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Comment/CommentCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Comment/CommentCommon_0.php');
 		
 	}
 }

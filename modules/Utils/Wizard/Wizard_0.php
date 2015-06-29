@@ -68,7 +68,7 @@ class Utils_Wizard extends Module {
 			$args = func_get_args();
 			array_shift($args);
 			array_shift($args);
-			$this->form[$this->counter] =  $this->init_module('Libs/QuickForm',$args,isset($name)?$name:$this->counter);
+			$this->form[$this->counter] =  $this->init_module(Libs_QuickForm::module_name(),$args,isset($name)?$name:$this->counter);
 			if(isset($this->data[$this->counter]) && is_array($this->data[$this->counter]))
 				$this->form[$this->counter]->setDefaults($this->data[$this->counter]);
 		} else $this->form[$this->counter] = false;
@@ -229,7 +229,7 @@ class Utils_Wizard extends Module {
 			} else 
 				print(__('Wizard complete! No more pages to display...'));
 		} else {
-			$t = $this->init_module('Base/Theme');
+			$t = $this->init_module(Base_Theme::module_name());
 			
 			$t->assign('page',$this->displayed);
 			$t->assign('captions',$this->captions);

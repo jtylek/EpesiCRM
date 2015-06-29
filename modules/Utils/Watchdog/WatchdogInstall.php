@@ -84,8 +84,8 @@ class Utils_WatchdogInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Utils/GenericBrowser','version'=>0));
+			array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			array('name'=>Utils_GenericBrowser::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

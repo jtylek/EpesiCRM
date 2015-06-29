@@ -28,10 +28,10 @@ class Applets_WeatherInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Lang','version' => 0),
-			array('name'=>'Base/Theme','version' => 0),
-			array('name'=>'Utils/BBCode','version' => 0),
-			array('name'=>'Base/Dashboard','version' => 0));
+			array('name'=>Base_LangInstall::module_name(),'version' => 0),
+			array('name'=>Base_Theme::module_name(),'version' => 0),
+			array('name'=>Utils_BBCodeInstall::module_name(),'version' => 0),
+			array('name'=>Base_Dashboard::module_name(),'version' => 0));
 	}
 
 	public static function info() {

@@ -16,7 +16,7 @@ class CRM_Contacts_Activities extends Module {
 	private $activities_date = 0;
 
 	public function company_activities($me) {
-		$this->theme = $this->pack_module('Base/Theme');
+		$this->theme = $this->pack_module(Base_Theme::module_name());
 		$this->filters();
 		$this->theme->display();
 		$cont = CRM_ContactsCommon::get_contacts(array('(company_name'=>$me['id'],'|related_companies'=>array($me['id'])), array('id'));
@@ -65,7 +65,7 @@ class CRM_Contacts_Activities extends Module {
 	}
 
 	public function contact_activities($me) {
-		$this->theme = $this->pack_module('Base/Theme');
+		$this->theme = $this->pack_module(Base_Theme::module_name());
 		$this->filters();
 		$this->theme->display();
 		$events = null;
@@ -103,17 +103,17 @@ class CRM_Contacts_Activities extends Module {
 	}
 	
 	public function filters() {	
-		$form = $this->init_module('Libs/QuickForm');
+		$form = $this->init_module(Libs_QuickForm::module_name());
 		$form->addElement('header', 'display', __('Show'));
-		if (ModuleManager::is_installed('CRM/Meeting')!=-1) $form->addElement('checkbox', 'events', __('Meetings'), null, array('onchange'=>$form->get_submit_form_js()));
-		if (ModuleManager::is_installed('CRM/Tasks')!=-1) $form->addElement('checkbox', 'tasks', __('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
-		if (ModuleManager::is_installed('CRM/PhoneCall')!=-1) $form->addElement('checkbox', 'phonecalls', __('Phonecalls'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (ModuleManager::is_installed(CRM_Meeting::module_name())!=-1) $form->addElement('checkbox', 'events', __('Meetings'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (ModuleManager::is_installed(CRM_Tasks::module_name())!=-1) $form->addElement('checkbox', 'tasks', __('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (ModuleManager::is_installed(CRM_PhoneCall::module_name())!=-1) $form->addElement('checkbox', 'phonecalls', __('Phonecalls'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('select', 'activities_date', str_replace(' ','&nbsp;',__('Activities date')), array(0=>__('Future'), 1=>__('Past'), 2=>__('All time')), array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'closed', __('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
 		$old_display = $this->get_module_variable('display_options', array(
-			'events'=>(ModuleManager::is_installed('CRM/Meeting')!=-1), 
-			'tasks'=>(ModuleManager::is_installed('CRM/Tasks')!=-1), 
-			'phonecalls'=>(ModuleManager::is_installed('CRM/PhoneCall')!=-1), 
+			'events'=>(ModuleManager::is_installed(CRM_Meeting::module_name())!=-1),
+			'tasks'=>(ModuleManager::is_installed(CRM_Tasks::module_name())!=-1),
+			'phonecalls'=>(ModuleManager::is_installed(CRM_PhoneCall::module_name())!=-1),
 			'closed'=>1, 
 			'activities_date'=>2
 		));
@@ -128,7 +128,7 @@ class CRM_Contacts_Activities extends Module {
 	}
 	
 	public function display_activities($events, $tasks, $phonecalls){
-		$gb = $this->init_module('Utils/GenericBrowser','activities','activities');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),'activities','activities');
 		$gb->set_table_columns(array(	array('name'=>__('Type'), 'wrapmode'=>'nowrap', 'width'=>8),
 										array('name'=>__('Subject'), 'width'=>20),
 										array('name'=>__('Date/Deadline'), 'wrapmode'=>'nowrap', 'width'=>8),

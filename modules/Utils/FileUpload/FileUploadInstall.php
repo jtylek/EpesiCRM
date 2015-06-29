@@ -27,8 +27,8 @@ class Utils_FileUploadInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Base/Lang','version'=>0));
+			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
+			array('name'=>Base_LangInstall::module_name(),'version'=>0));
 	}
 }
 

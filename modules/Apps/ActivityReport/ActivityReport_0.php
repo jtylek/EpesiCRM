@@ -16,7 +16,7 @@ class Apps_ActivityReport extends Module {
 		foreach ($rb_tabs as $k=>$v)
 			$rb_tabs[$k] = Utils_RecordBrowserCommon::get_caption($k);
 
-		$form = $this->init_module('Libs/QuickForm');
+		$form = $this->init_module(Libs_QuickForm::module_name());
 
 		$users_count = (DB::GetOne('SELECT COUNT(id) FROM user_login') > Base_User_SettingsCommon::get('Utils_RecordBrowser','enable_autocomplete'));
 		if ($users_count) {
@@ -54,7 +54,7 @@ class Apps_ActivityReport extends Module {
 		
 		$form->setDefaults($filters);
 
-		$theme = $this->init_module('Base/Theme');
+		$theme = $this->init_module(Base_Theme::module_name());
 		$form->assign_theme('form',$theme);
 		$theme->display();
 		
@@ -62,7 +62,7 @@ class Apps_ActivityReport extends Module {
 		foreach ($rb_tabs as $k=>$v)
 			if (!isset($filters['recordsets'][$k])) unset($rb_tabs[$k]);
 
-		$gb = $this->init_module('Utils/GenericBrowser',null,'activity_report');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'activity_report');
 		$gb->set_table_columns(array(
 			array('name'=>__('Date'), 'width'=>40),
 			array('name'=>__('User'), 'width'=>40),

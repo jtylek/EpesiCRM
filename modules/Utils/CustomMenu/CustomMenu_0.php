@@ -60,7 +60,7 @@ class Utils_CustomMenu extends Module {
 		$edit = $this->get_module_variable_or_unique_href_variable('edit');
 		if(isset($edit)) return $this->edit($edit);
 		
-		$gb = $this->init_module('Utils/GenericBrowser',null,'custommenu');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'custommenu');
 		$data = $this->get_module_variable('data');
 		$gb->set_table_columns(array(
 			array('name'=>__('Menu entry path'), 'width'=>70),
@@ -89,7 +89,7 @@ class Utils_CustomMenu extends Module {
 			return;
 		}
 		
-		$f = $this->init_module('Libs/QuickForm');
+		$f = $this->init_module(Libs_QuickForm::module_name());
 		
 		if($path)
 			$f->setDefaults(array('path'=>$path));

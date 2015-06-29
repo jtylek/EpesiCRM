@@ -148,7 +148,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mail_threads', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_mail_threads', _M('Mail Thread'));
-        Utils_RecordBrowserCommon::new_addon('rc_mail_threads', 'CRM/Roundcube', 'thread_addon', _M('E-mails'));
+        Utils_RecordBrowserCommon::new_addon('rc_mail_threads', CRM_Roundcube::module_name(), 'thread_addon', _M('E-mails'));
         Utils_RecordBrowserCommon::set_search('rc_mail_threads',2,-1);
 
         $fields = array(
@@ -266,7 +266,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         );
         Utils_RecordBrowserCommon::install_new_recordset('rc_mails', $fields);
         Utils_RecordBrowserCommon::set_caption('rc_mails', _M('Mails'));
-		Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'mails'));
+		Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename(CRM_Roundcube::module_name(), 'mails'));
     	Utils_RecordBrowserCommon::register_processing_callback('rc_mails', array('CRM_RoundcubeCommon', 'submit_mail'));
         Utils_RecordBrowserCommon::set_search('rc_mails',2,-1);
         Utils_RecordBrowserCommon::enable_watchdog('rc_mails', array('CRM_RoundcubeCommon', 'watchdog_label'));
@@ -274,9 +274,9 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         DB::CreateIndex('rc_mails_thread_idx', 'rc_mails_data_1', 'f_thread');
         DB::CreateIndex('rc_mails_msgid_idx', 'rc_mails_data_1', 'f_message_id');
 
-		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_body_addon', _M('Body'));
-        Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon', _M('Attachments'));
-		Utils_RecordBrowserCommon::new_addon('rc_mails', 'CRM/Roundcube', 'mail_headers_addon', _M('Headers'));
+		Utils_RecordBrowserCommon::new_addon('rc_mails', CRM_Roundcube::module_name(), 'mail_body_addon', _M('Body'));
+        Utils_RecordBrowserCommon::new_addon('rc_mails', CRM_Roundcube::module_name(), 'attachments_addon', _M('Attachments'));
+		Utils_RecordBrowserCommon::new_addon('rc_mails', CRM_Roundcube::module_name(), 'mail_headers_addon', _M('Headers'));
 
         @DB::DropTable('rc_mails_attachments');
         DB::CreateTable('rc_mails_attachments','
@@ -292,8 +292,8 @@ class CRM_RoundcubeInstall extends ModuleInstall {
             created_on T DEFTIMESTAMP',
             array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES rc_mails_data_1(ID)'));
 
-        Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'addon', _M('E-mails'));
-        Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'addon', _M('E-mails'));
+        Utils_RecordBrowserCommon::new_addon('contact', CRM_Roundcube::module_name(), 'addon', _M('E-mails'));
+        Utils_RecordBrowserCommon::new_addon('company', CRM_Roundcube::module_name(), 'addon', _M('E-mails'));
 
 		$fields = array(
 			array('name' => _M('Record Type'), 	'type'=>'hidden', 'param'=>Utils_RecordBrowserCommon::actual_db_type('text',64), 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
@@ -306,11 +306,11 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		
 		Utils_RecordBrowserCommon::set_favorites('rc_multiple_emails', true);
 		Utils_RecordBrowserCommon::set_caption('rc_multiple_emails', _M('Mail addresses'));
-		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'icon.png'));
+		Utils_RecordBrowserCommon::set_icon('rc_multiple_emails', Base_ThemeCommon::get_template_filename(CRM_Roundcube::module_name(), 'icon.png'));
         Utils_RecordBrowserCommon::set_search('rc_multiple_emails',2,0);
 
-		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));
-		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Roundcube', 'mail_addresses_addon', _M('E-mail addresses'));
+		Utils_RecordBrowserCommon::new_addon('contact', CRM_Roundcube::module_name(), 'mail_addresses_addon', _M('E-mail addresses'));
+		Utils_RecordBrowserCommon::new_addon('company', CRM_Roundcube::module_name(), 'mail_addresses_addon', _M('E-mail addresses'));
 
         Variable::set('crm_roundcube_global_signature',"Message sent with EPESI - managing business your way!<br /><a href=\"http://epe.si\">http://epe.si</a>");
 
@@ -337,9 +337,9 @@ class CRM_RoundcubeInstall extends ModuleInstall {
     public function uninstall() {
         $this->drop_all_rc_tables();
 
-        Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'attachments_addon');
-        Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Roundcube', 'addon');
-        Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Roundcube', 'addon');
+        Utils_RecordBrowserCommon::delete_addon('rc_mails', CRM_Roundcube::module_name(), 'attachments_addon');
+        Utils_RecordBrowserCommon::delete_addon('contact', CRM_Roundcube::module_name(), 'addon');
+        Utils_RecordBrowserCommon::delete_addon('company', CRM_Roundcube::module_name(), 'addon');
         DB::DropTable('rc_mails_attachments');
         DB::DropTable('rc_mails_attachments_download');
         Utils_RecordBrowserCommon::uninstall_recordset('rc_mails');
@@ -381,9 +381,9 @@ class CRM_RoundcubeInstall extends ModuleInstall {
     }
 
     public function requires($v) {
-        return array(array('name'=>'Utils/RecordBrowser','version'=>0),
-                    array('name'=>'CRM/Contacts','version'=>0),
-                    array('name'=>'Utils/Watchdog','version'=>0)
+        return array(array('name'=>Utils_RecordBrowser::module_name(),'version'=>0),
+                    array('name'=>CRM_Contacts::module_name(),'version'=>0),
+                    array('name'=>Utils_Watchdog::module_name(),'version'=>0)
                     );
     }
 

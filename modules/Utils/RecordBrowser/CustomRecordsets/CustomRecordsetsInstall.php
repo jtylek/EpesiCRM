@@ -39,8 +39,8 @@ class Utils_RecordBrowser_CustomRecordsetsInstall extends ModuleInstall
     public function requires($v)
     {
         return array(
-            array('name' => 'Base/Lang', 'version' => 0),
-            array('name' => 'Utils/RecordBrowser', 'version' => 0));
+            array('name' => Base_LangInstall::module_name(), 'version' => 0),
+            array('name' => Utils_RecordBrowser::module_name(), 'version' => 0));
     }
 
     public static function info()

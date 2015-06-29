@@ -27,12 +27,12 @@ class Base_Box extends Module {
             return;
         }
 
-        $theme = $this->pack_module('Base/Theme');
+        $theme = $this->pack_module(Base_Theme::module_name());
 		$ini = Base_BoxCommon::get_ini_file();
 		
         if (!$ini) {
             print(__('Unable to read Base/Box/default.ini file! Please create one, or change theme.'));
-            $this->pack_module('Base/Theme/Administrator',null,'admin');
+            $this->pack_module(Base_Theme_Administrator::module_name(),null,'admin');
             return;
         }
         $ini_file = parse_ini_file($ini,true);

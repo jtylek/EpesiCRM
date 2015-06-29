@@ -42,7 +42,7 @@ class Tests_RecordBrowserInstall extends ModuleInstall{
 	}
 	
 	public function requires($v) {
-		return array(	array('name'=>'Utils/RecordBrowser','version'=>0));
+		return array(	array('name'=>Utils_RecordBrowser::module_name(),'version'=>0));
 	}
 	
 	function create_sample_tasks(){

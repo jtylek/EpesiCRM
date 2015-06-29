@@ -49,8 +49,8 @@ class Base_AclInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-				array('name'=>'Base/Lang', 'version'=>0),
-				array('name'=>'Base/Theme', 'version'=>0)
+				array('name'=>Base_LangInstall::module_name(), 'version'=>0),
+				array('name'=>Base_Theme::module_name(), 'version'=>0)
 			);
 	}
 

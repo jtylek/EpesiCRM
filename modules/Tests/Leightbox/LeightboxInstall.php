@@ -18,10 +18,10 @@ class Tests_LeightboxInstall extends ModuleInstall{
 		return true;
 	}
 	public function requires($v) {
-		return array(array('name'=>'Utils/CatFile','version'=>0),
-			array('name'=>'Utils/PopupCalendar','version'=>0),
-			array('name'=>'Utils/RecordBrowser/RecordPicker','version'=>0),
-			array('name'=>'Libs/Leightbox','version'=>0));
+		return array(array('name'=>Utils_CatFile::module_name(),'version'=>0),
+			array('name'=>Utils_PopupCalendarInstall::module_name(),'version'=>0),
+			array('name'=>Utils_RecordBrowser_RecordPicker::module_name(),'version'=>0),
+			array('name'=>Libs_LeightboxCommon::module_name(),'version'=>0));
 	}
 } 
 ?>

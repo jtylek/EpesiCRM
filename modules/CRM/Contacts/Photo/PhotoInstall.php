@@ -28,7 +28,7 @@ class CRM_Contacts_PhotoInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Contacts/Activities');
-		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
+		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename(CRM_Contacts::module_name(), 'Contact'));
 		Utils_RecordBrowserCommon::unregister_processing_callback('contact', array('CRM_Contacts_PhotoCommon', 'submit_contact'));
 
         $this->remove_data_dir();
@@ -42,8 +42,8 @@ class CRM_Contacts_PhotoInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'CRM/Contacts', 'version'=>0),
-			array('name'=>'Utils/Image', 'version'=>0)
+			array('name'=>CRM_Contacts::module_name(), 'version'=>0),
+			array('name'=>Utils_ImageInstall::module_name(), 'version'=>0)
 		);
 	}
 	

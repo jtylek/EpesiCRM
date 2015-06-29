@@ -29,7 +29,7 @@ class Libs_CodepressInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Libs/QuickForm','version'=>0));
+			array('name'=>Libs_QuickForm::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

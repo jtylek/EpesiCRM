@@ -61,7 +61,7 @@ class Tests_Callbacks extends Module {
 	}
 	
 	public function form1() {
-		$form = $this->init_module('Libs/QuickForm',null,'f1');
+		$form = $this->init_module(Libs_QuickForm::module_name(),null,'f1');
 		$form->addElement('header',null,'Form 1');
 		$form->addElement('submit',null,'OK');
 	
@@ -77,7 +77,7 @@ class Tests_Callbacks extends Module {
 
 	public function form2() {
 		if($this->is_back()) return false;
-		$form = $this->init_module('Libs/QuickForm',null,'f2');
+		$form = $this->init_module(Libs_QuickForm::module_name(),null,'f2');
 		$form->addElement('header',null,'Form 2');
 		$form->addElement('textarea','text','Form 2');
 		$form->addElement('submit',null,'OK');
@@ -122,11 +122,11 @@ class Tests_Callbacks extends Module {
 	public function src() {
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Callbacks/CallbacksInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Callbacks/CallbacksInstall.php');
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Callbacks/Callbacks_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Callbacks/Callbacks_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Callbacks/CallbacksCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Callbacks/CallbacksCommon_0.php');
 	}
 
 }

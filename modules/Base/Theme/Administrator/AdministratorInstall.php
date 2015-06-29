@@ -28,14 +28,14 @@ class Base_Theme_AdministratorInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Base/Admin','version'=>0),
-			array('name'=>'Utils/FileUpload','version'=>0),
-			array('name'=>'Utils/FileDownload','version'=>0),
-			array('name'=>'Utils/Image','version'=>0),
-			array('name'=>'Libs/QuickForm','version'=>0), 
-			array('name'=>'Base/StatusBar','version'=>0),
-			array('name'=>'Base/Lang','version'=>0));
+			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Base_Admin::module_name(),'version'=>0),
+			array('name'=>Utils_FileUpload::module_name(),'version'=>0),
+			array('name'=>Utils_FileDownload::module_name(),'version'=>0),
+			array('name'=>Utils_ImageInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
+			array('name'=>Base_StatusBar::module_name(),'version'=>0),
+			array('name'=>Base_LangInstall::module_name(),'version'=>0));
 		
 	}
 

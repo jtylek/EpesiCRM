@@ -28,8 +28,8 @@ class Applets_GoogleInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name' => 'Base/Theme', 'version' => 0),
-			array('name' => 'Base/Dashboard', 'version' => 0));
+			array('name' => Base_Theme::module_name(), 'version' => 0),
+			array('name' => Base_Dashboard::module_name(), 'version' => 0));
 	}
 
 	public static function info() {

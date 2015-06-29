@@ -48,9 +48,9 @@ class Tests_Calendar_EventInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-				array('name'=>'Utils/Calendar/Event','version'=>0),
-				array('name'=>'Utils/PopupCalendar','version'=>0),
-				array('name'=>'Libs/QuickForm','version'=>0));
+				array('name'=>Utils_Calendar_Event::module_name(),'version'=>0),
+				array('name'=>Utils_PopupCalendarInstall::module_name(),'version'=>0),
+				array('name'=>Libs_QuickForm::module_name(),'version'=>0));
 	}
 
 	public static function info() {

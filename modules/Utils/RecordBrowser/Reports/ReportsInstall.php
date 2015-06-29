@@ -28,13 +28,13 @@ class Utils_RecordBrowser_ReportsInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Libs/TCPDF','version'=>0),
-			array('name'=>'Utils/TabbedBrowser','version'=>0),
-			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Utils/RecordBrowser','version'=>0),
-			array('name'=>'Utils/GenericBrowser','version'=>0),
-			array('name'=>'Libs/OpenFlashChart','version'=>0));
+			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Libs_TCPDF::module_name(),'version'=>0),
+			array('name'=>Utils_TabbedBrowser::module_name(),'version'=>0),
+			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
+			array('name'=>Utils_RecordBrowser::module_name(),'version'=>0),
+			array('name'=>Utils_GenericBrowser::module_name(),'version'=>0),
+			array('name'=>Libs_OpenFlashChart::module_name(),'version'=>0));
 	}
 
 	public static function info() {

@@ -30,7 +30,9 @@ class CRM_CommonInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array(array('name'=>'Utils/CommonData', 'version'=>0));
+		return array(
+			array('name'=>Utils_CommonData::module_name(), 'version'=>0)
+		);
 	}
 	
 	public static function info() {

@@ -138,7 +138,7 @@ class Utils_GenericBrowser extends Module {
 	private $fixed_columns_selector = '.Utils_GenericBrowser__actions';
 
 	public function construct() {
-		$this->form_s = $this->init_module('Libs/QuickForm');
+		$this->form_s = $this->init_module(Libs_QuickForm::module_name());
 		if (is_numeric($this->get_instance_id()))
 			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',<construct args>, \'instance name here\');',E_USER_ERROR);
 	}
@@ -349,10 +349,10 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function get_limit($max) {
 		$offset = $this->get_module_variable('offset',0);
-		$per_page = $this->get_module_variable('per_page',Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page'));
+		$per_page = $this->get_module_variable('per_page',Base_User_SettingsCommon::get(Utils_GenericBrowser::module_name(),'per_page'));
 		if (!isset(Utils_GenericBrowserCommon::$possible_vals_for_per_page[$per_page])) {
 			$per_page = 5;
-			$this->get_module_variable('per_page',Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page', 5));
+			$this->get_module_variable('per_page',Base_User_SettingsCommon::save(Utils_GenericBrowser::module_name(),'per_page', 5));
 		}
 		$this->rows_qty = $max;
 		if ($offset>=$max) $offset = 0;
@@ -774,7 +774,7 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		$md5_id = md5($this->get_path());
 		$this->set_module_variable('first_display','done');
-		$theme = $this->init_module('Base/Theme');
+		$theme = $this->init_module(Base_Theme::module_name());
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
         $this->expandable = $this->get_module_variable('expandable',$this->expandable);
@@ -785,7 +785,7 @@ class Utils_GenericBrowser extends Module {
                 $this->en_actions = true;
             }
         }
-		if ($this->en_actions) $actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
+		if ($this->en_actions) $actions_position = Base_User_SettingsCommon::get(Utils_GenericBrowser::module_name(),'actions_position');
 
 		$ch_adv_search = $this->get_unique_href_variable('adv_search');
 		if (isset($ch_adv_search)) {
@@ -797,7 +797,7 @@ class Utils_GenericBrowser extends Module {
 		$search = $this->get_module_variable('search');
 
 		$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		$form_p = $this->init_module('Libs/QuickForm');
+		$form_p = $this->init_module(Libs_QuickForm::module_name());
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
 			if(!$this->forced_per_page) {
@@ -867,7 +867,7 @@ class Utils_GenericBrowser extends Module {
 				$values = $form_p->exportValues();
 				if(isset($values['per_page'])) {
 					$this->set_module_variable('per_page',$values['per_page']);
-					Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$values['per_page']);
+					Base_User_SettingsCommon::save(Utils_GenericBrowser::module_name(),'per_page',$values['per_page']);
 				}
 				if(isset($values['page']) && is_numeric($values['page']) && ($values['page']>=1 && $values['page']<=$qty_pages)) {
 					$this->set_module_variable('offset',($values['page']-1)*$this->per_page);
@@ -935,7 +935,7 @@ class Utils_GenericBrowser extends Module {
 		}
 		$i = 0;
 		$is_order = false;
-		$adv_history = Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history');
+		$adv_history = Base_User_SettingsCommon::get(Utils_GenericBrowser::module_name(),'adv_history');
 		foreach($this->columns as $v) {
 			if (array_key_exists('display', $v) && $v['display']==false) {
 				$i++;
@@ -968,10 +968,10 @@ class Utils_GenericBrowser extends Module {
             eval_js_once('gb_expandable["'.$md5_id.'"] = {};');
             eval_js_once('gb_expanded["'.$md5_id.'"] = 0;');
 
-            eval_js_once('gb_expand_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand.gif').'";');
-            eval_js_once('gb_collapse_icon = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse.gif').'";');
-            eval_js_once('gb_expand_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand_gray.gif').'";');
-            eval_js_once('gb_collapse_icon_off = "'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse_gray.gif').'";');
+            eval_js_once('gb_expand_icon = "'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'expand.gif').'";');
+            eval_js_once('gb_collapse_icon = "'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse.gif').'";');
+            eval_js_once('gb_expand_icon_off = "'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'expand_gray.gif').'";');
+            eval_js_once('gb_collapse_icon_off = "'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse_gray.gif').'";');
         }
 
 		foreach($this->rows as $i=>$r) {
@@ -979,8 +979,8 @@ class Utils_GenericBrowser extends Module {
 
             if($this->expandable) {
                 $row_id =  $md5_id.'_'.$i;
-                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_expand(\''.$md5_id.'\',\''.$i.'\')" id="gb_more_'.$row_id.'"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'plus_gray.png'), 1001);
-                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_collapse(\''.$md5_id.'\',\''.$i.'\')" id="gb_less_'.$row_id.'"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'minus_gray.png'), 1001, false, 0);
+                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_expand(\''.$md5_id.'\',\''.$i.'\')" id="gb_more_'.$row_id.'"','Expand', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'plus_gray.png'), 1001);
+                $this->__add_row_action($i,'style="display:none;" href="javascript:void(0)" onClick="gb_collapse(\''.$md5_id.'\',\''.$i.'\')" id="gb_less_'.$row_id.'"','Collapse', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'minus_gray.png'), 1001, false, 0);
                 $this->__add_row_js($i,'gb_expandable_init("'.Epesi::escapeJS($md5_id,true,false).'","'.Epesi::escapeJS($i,true,false).'")');
                 if(!isset($this->row_attrs[$i])) $this->row_attrs[$i]='';
                 $this->row_attrs[$i] .= 'id="gb_row_'.$row_id.'"';
@@ -996,7 +996,7 @@ class Utils_GenericBrowser extends Module {
 					foreach($this->actions[$i] as $icon=>$arr) {
 						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
 					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
-							$actions .= '<img class="action_button" src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser',$icon.($arr['off']?'-off':'').'.png').'" border="0">';
+							$actions .= '<img class="action_button" src="'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(),$icon.($arr['off']?'-off':'').'.png').'" border="0">';
 					    } elseif(file_exists($icon)) {
 							$actions .= '<img class="action_button" src="'.$icon.'" border="0">';
 					    } else {
@@ -1130,7 +1130,7 @@ class Utils_GenericBrowser extends Module {
 		if ($search_on) $theme->assign('adv_search','<a id="switch_search_'.($this->is_adv_search_on()?'simple':'advanced').'" class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
 		else $theme->assign('adv_search','');
 
-		if (Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $is_order){
+		if (Base_User_SettingsCommon::get(Utils_GenericBrowser::module_name(),'adv_history') && $is_order){
 			$theme->assign('reset', '<a '.$this->create_unique_href(array('action'=>'reset_order')).'>'.__('Reset Order').'</a>');
 			$theme->assign('order',$this->get_module_variable('order_history_display'));
 		}
@@ -1158,7 +1158,7 @@ class Utils_GenericBrowser extends Module {
 		if($this->rows_qty!=0)
 			return __('Records %s to %s of %s',array('<b>'.($this->get_module_variable('offset')+1).'</b>','<b>'.(($this->get_module_variable('offset')+$this->get_module_variable('per_page')>$this->rows_qty)?$this->rows_qty:$this->get_module_variable('offset')+$this->get_module_variable('per_page')).'</b>','<b>'.$this->rows_qty.'</b>'));
 		else
-		if ((isset($this->rows_qty) || (!isset($this->rows_qty) && empty($this->rows))) && !Base_User_SettingsCommon::get('Utils/GenericBrowser','display_no_records_message'))
+		if ((isset($this->rows_qty) || (!isset($this->rows_qty) && empty($this->rows))) && !Base_User_SettingsCommon::get(Utils_GenericBrowser::module_name(),'display_no_records_message'))
 			return __('No records found');
 		else
 			return '';

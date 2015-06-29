@@ -150,7 +150,7 @@ class Base_EssClient extends Module {
         }
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-        $f = $this->init_module('Libs/QuickForm');
+        $f = $this->init_module(Libs_QuickForm::module_name());
 
         $admin_email_tooltip = '<img ' .
                 Utils_TooltipCommon::open_tag_attrs(__('This email will be used to send registation link and to contact Administator directly.'), false)
@@ -264,7 +264,7 @@ class Base_EssClient extends Module {
         }
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-        $f = $this->init_module('Libs/QuickForm');
+        $f = $this->init_module(Libs_QuickForm::module_name());
 
         $f->addElement('text', 'license_key', __('License Key'), array('maxlength' => 64, 'size' => 64, 'style' => 'width:395px;'));
         if ($f->validate()) {

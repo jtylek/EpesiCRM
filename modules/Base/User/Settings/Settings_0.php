@@ -52,7 +52,7 @@ class Base_User_Settings extends Module {
             return;
         }
 
-        $f = $this->init_module('Libs/QuickForm',__('Saving settings'),'settings');
+        $f = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'),'settings');
         $f->addElement('header',null,$branch);
         $this->indicator = ': '.$branch;
         $this->settings_fields = array();
@@ -215,7 +215,7 @@ class Base_User_Settings extends Module {
 				}
             $buttons[]= array('link'=>'<a '.$arg['action'].'>'.$caption.'</a>','module'=>$arg['module_names'],'icon'=>$icon);
         }
-        $theme = $this->pack_module('Base/Theme');
+        $theme = $this->pack_module(Base_Theme::module_name());
         $theme->assign('header', __('User Settings'));
         $theme->assign('buttons', $buttons);
         $theme->display();

@@ -41,9 +41,9 @@ class Base_PrintInstall extends ModuleInstall
     public function requires($v)
     {
         return array(
-            array('name' => 'Base/Lang', 'version' => 0),
-            array('name' => 'Base/Theme', 'version' => 0),
-            array('name' => 'Libs/TCPDF', 'version' => 0)
+            array('name' => Base_LangInstall::module_name(), 'version' => 0),
+            array('name' => Base_Theme::module_name(), 'version' => 0),
+            array('name' => Libs_TCPDF::module_name(), 'version' => 0)
         );
     }
 

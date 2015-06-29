@@ -14,7 +14,7 @@ class CRM_Filters extends Module {
 
 	public function body() {
 		if (!Acl::is_user()) return;
-		$th = $this->init_module('Base/Theme');
+		$th = $this->init_module(Base_Theme::module_name());
 
 		eval_js_once('crm_filters_deactivate = function(){leightbox_deactivate(\'crm_filters\');}');
 
@@ -35,7 +35,7 @@ class CRM_Filters extends Module {
 		}
 		$th->assign('filters',$filters);
 
-		$qf = $this->init_module('Libs/QuickForm');
+		$qf = $this->init_module(Libs_QuickForm::module_name());
 		$fcallback = array('CRM_ContactsCommon', 'contact_format_no_company');
 		$recent_crits = array();
 		if (!Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters')) $recent_crits = array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company()));
@@ -99,7 +99,7 @@ class CRM_Filters extends Module {
 
 		Base_ActionBarCommon::add('add',__('Add preset'),$this->create_callback_href(array($this,'edit_group')));
 
-		$gb = $this->init_module('Utils/GenericBrowser',null,'edit');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'edit');
 
 		$gb->set_table_columns(array(
 				array('name'=>__('Name'), 'width'=>20, 'order'=>'g.name'),
@@ -121,7 +121,7 @@ class CRM_Filters extends Module {
 
 		$this->display_module($gb);
 		
-		$qf = $this->init_module('Libs/QuickForm',null,'default_filter');
+		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'default_filter');
 		$qf->addElement('checkbox','show_all_contacts_in_filters',__('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
         $qf->addElement('checkbox','show_only_users_in_filters',__('Show only users in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
 		$qf->setDefaults(array(	'show_all_contacts_in_filters'=>Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters'),
@@ -140,7 +140,7 @@ class CRM_Filters extends Module {
 	public function edit_group($id=null) {
 		if($this->is_back()) return false;
 
-		$form = $this->init_module('Libs/QuickForm', null, 'edit_group');
+		$form = $this->init_module(Libs_QuickForm::module_name(), null, 'edit_group');
 		if(isset($id)) {
 			$name = DB::GetOne('SELECT name FROM crm_filters_group WHERE id=%d',array($id));
 			$description = DB::GetOne('SELECT description FROM crm_filters_group WHERE id=%d',array($id));

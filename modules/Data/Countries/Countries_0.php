@@ -20,7 +20,7 @@ class Data_Countries extends Module {
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-		$this->pack_module('Utils/CommonData','Countries','admin_array');
+		$this->pack_module(Utils_CommonData::module_name(),'Countries','admin_array');
 	}
 }
 

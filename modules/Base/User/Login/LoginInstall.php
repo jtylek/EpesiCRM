@@ -38,12 +38,12 @@ class Base_User_LoginInstall extends ModuleInstall {
 		Variable::set('host_ban_time',300);
         Variable::set('host_ban_nr_of_tries', 3);
         Variable::set('host_ban_by_login', 0);
-		Base_ThemeCommon::install_default_theme('Base/User/Login');
+		Base_ThemeCommon::install_default_theme(Base_User_Login::module_name());
 		return true;
 	}
 
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('Base/User/Login');
+		Base_ThemeCommon::uninstall_default_theme(Base_User_Login::module_name());
 		Variable::delete('host_ban_time');
         Variable::delete('host_ban_nr_of_tries');
         Variable::delete('host_ban_by_login');
@@ -55,12 +55,12 @@ class Base_User_LoginInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Base/User','version'=>0),
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Base/Mail', 'version'=>0));
+			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
+			array('name'=>Base_UserInstall::module_name(),'version'=>0),
+			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Base_Mail::module_name(), 'version'=>0));
 	}
 
 	public static function simple_setup() {

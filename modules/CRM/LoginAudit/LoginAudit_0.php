@@ -35,7 +35,7 @@ class CRM_LoginAudit extends Module {
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
         $user = $this->get_module_variable('filter_user','');
-        $form = $this->init_module('Libs/QuickForm',null,'filter');
+        $form = $this->init_module(Libs_QuickForm::module_name(),null,'filter');
         $form->setDefaults(array('users'=>$user));
 		$count = DB::GetOne('SELECT COUNT(*) FROM user_login');
 		if ($count > Base_User_SettingsCommon::get('Utils_RecordBrowser','enable_autocomplete')) {
@@ -73,7 +73,7 @@ class CRM_LoginAudit extends Module {
         $form->display_as_row();
         $this->set_module_variable('filter_user',$user);
 
-		$gb = $this->init_module('Utils/GenericBrowser',null,'login_audit');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'login_audit');
 
 		$gb->set_table_columns(array(
 						array('name'=>'<b>'.__('Login').'</b> '.__('[uid] -> User Name'),'order'=>'b.user_login_id','width'=>20),
@@ -120,7 +120,7 @@ class CRM_LoginAudit extends Module {
         # Return to main body
         if($this->is_back()) return false;
 
-        $form = $this->init_module('Libs/QuickForm',null,'purge_date');
+        $form = $this->init_module(Libs_QuickForm::module_name(),null,'purge_date');
 
         $form->addElement('header',null,__('Audit Log Maintenance'));
         $form -> addElement('html','<tr><td colspan=2><br />'.__('Purge log with records older than specified number of days:').'</td></tr>');

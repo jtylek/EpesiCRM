@@ -25,7 +25,7 @@ class FirstRun extends Module {
         }
         Base_LangCommon::load();
         
-		$th = $this->init_module('Base/Theme');
+		$th = $this->init_module(Base_Theme::module_name());
 		ob_start();
 		print('<center>');
         $post_install = & $_SESSION['first-run_post-install'];
@@ -40,7 +40,7 @@ class FirstRun extends Module {
 					continue;
 				}
 				$ret = call_user_func($f);
-				$form = $this->init_module('Libs/QuickForm',null,$i);
+				$form = $this->init_module(Libs_QuickForm::module_name(),null,$i);
 				$form->addElement('header',null,__('Post installation of %s', array(str_replace('_','/',$i))));
 				$form->add_array($ret);
 				$form->addElement('submit',null,'OK');
@@ -59,7 +59,7 @@ class FirstRun extends Module {
 		}
         if (empty($post_install) && ModuleManager::is_installed('Base') < 0) {
 
-			$wizard = $this->init_module('Utils/Wizard');
+			$wizard = $this->init_module(Utils_Wizard::module_name());
 			/////////////////////////////////////////////////////////////
 			$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
 			if (count($this->ini)>1) {

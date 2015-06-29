@@ -79,7 +79,7 @@ class Base_BoxCommon extends ModuleCommon {
 	
 	public static function update_version_check_indicator($force=false) {
 		$version_no = __('version %s',array(EPESI_VERSION));
-		if (CHECK_VERSION && ModuleManager::is_installed('Base/EpesiStore')>=0) {
+		if (CHECK_VERSION && ModuleManager::is_installed(Base_EpesiStore::module_name())>=0) {
 			load_js('modules/Base/Box/check_for_new_version.js');
 			if ($force) eval_js('jq("#epesi_new_version").attr("done","0");');
 			eval_js('check_for_new_version();');

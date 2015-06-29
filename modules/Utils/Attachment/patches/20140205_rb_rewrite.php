@@ -68,7 +68,7 @@ if (!$rs_checkpoint->is_done()) {
     Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee');
     Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'),array('edited_on'));
     Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
-    Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename('Utils/Attachment', 'View_entry'));
+    Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename(Utils_Attachment::module_name(), 'View_entry'));
 
     $ret = DB::CreateTable('utils_attachment_local','
 			local C(255) NOTNULL,

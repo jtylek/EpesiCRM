@@ -22,7 +22,7 @@ public function applet($conf, & $opts) {
 		$opts['title'] = $conf['title'];
 
 		// initialize the recordset
-		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'contact','contact');
 		$me = CRM_ContactsCommon::get_my_record();
 
 		// $conds - parameters for the applet

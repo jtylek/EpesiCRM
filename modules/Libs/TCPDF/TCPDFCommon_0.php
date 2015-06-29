@@ -31,7 +31,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
         ini_set('memory_limit', '512M');
         require_once(TCPDF_DIR.'tcpdf.php');
         
-        if ($format===null) $format = Base_User_SettingsCommon::get('Libs/TCPDF','page_format');
+        if ($format===null) $format = Base_User_SettingsCommon::get(Libs_TCPDF::module_name(),'page_format');
 
         $tcpdf = new TCPDF($orientation, $unit, $format, true);
 
@@ -61,7 +61,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
         if ($title!==null) {
             if ($logo_filename===null) $logo_filename = Libs_TCPDFCommon::get_logo_filename();
             if ($logo_filename!==false && !file_exists($logo_filename)) {
-                $logo_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png');
+                $logo_filename = Base_ThemeCommon::get_template_file(Libs_TCPDF::module_name(),'logo-small.png');
             }
             $margins = $tcpdf->getMargins();
             if($logo_filename) {
@@ -83,7 +83,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
         $l['a_meta_language'] = "pl";
 
         $who = null;
-        if (ModuleManager::is_installed('CRM/Contacts') >= 0) {
+        if (ModuleManager::is_installed(CRM_Contacts::module_name()) >= 0) {
             $who = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
         }
         if ($who!==null) $who = $who['last_name'].' '.$who['first_name'];

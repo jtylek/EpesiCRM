@@ -29,9 +29,9 @@ class CRM_WhoIsOnlineInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'CRM/Contacts','version'=>0),
-			array('name'=>'Tools/WhoIsOnline','version'=>0));
+			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>CRM_Contacts::module_name(),'version'=>0),
+			array('name'=>CRM_WhoIsOnline::module_name(),'version'=>0));
 	}
 
 	public static function info() {

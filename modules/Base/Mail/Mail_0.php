@@ -27,7 +27,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 			return;
 		}
 		
-		$form = $this->init_module('Libs/QuickForm');
+		$form = $this->init_module(Libs_QuickForm::module_name());
 		//defaults
 		$defaults = array();
 		$defaults['mail_method'] = Variable::get('mail_method');

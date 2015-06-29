@@ -27,10 +27,10 @@ class Utils_TrayInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/RecordBrowser', 'version'=>0),
-			array('name'=>'Base/Lang', 'version'=>0),
-			array('name'=>'Base/User/Settings','version'=>0),
-			array('name'=>'Base/Theme','version'=>0));
+			array('name'=>Utils_RecordBrowser::module_name(), 'version'=>0),
+			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
+			array('name'=>Base_User_Settings::module_name(),'version'=>0),
+			array('name'=>Base_Theme::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

@@ -37,12 +37,12 @@ class Utils_CurrencyFieldInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Theme', 'version'=>0),
-			array('name'=>'Base/Lang', 'version'=>0),
-			array('name'=>'Base/User/Settings', 'version'=>0),
-			array('name'=>'Utils/Tooltip', 'version'=>0),
-			array('name'=>'Libs/Leightbox', 'version'=>0),
-			array('name'=>'Libs/QuickForm', 'version'=>0)
+			array('name'=>Base_Theme::module_name(), 'version'=>0),
+			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
+			array('name'=>Base_User_Settings::module_name(), 'version'=>0),
+			array('name'=>Utils_TooltipCommon::module_name(), 'version'=>0),
+			array('name'=>Libs_LeightboxCommon::module_name(), 'version'=>0),
+			array('name'=>Libs_QuickForm::module_name(), 'version'=>0)
 		);
 	}	
 }

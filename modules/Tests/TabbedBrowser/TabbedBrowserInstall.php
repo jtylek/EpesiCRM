@@ -19,8 +19,8 @@ class Tests_TabbedBrowserInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array(array('name'=>'Utils/CatFile','version'=>0),
-			array('name'=>'Utils/TabbedBrowser','version'=>0));
+		return array(array('name'=>Utils_CatFile::module_name(),'version'=>0),
+			array('name'=>Utils_TabbedBrowser::module_name(),'version'=>0));
 	}
 }
 

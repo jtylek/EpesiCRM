@@ -43,11 +43,12 @@ class Base_HomePageInstall extends ModuleInstall {
 	}
 
 	public function requires($v) {
-		return array(array('name'=>'Base/Box','version'=>0), 
-			array('name'=>'Base/Lang', 'version'=>0),
-			array('name'=>'Utils/Shortcut', 'version'=>0), 
-			array('name'=>'Base/User', 'version'=>0),
-			array('name'=>'Base/ActionBar', 'version'=>0)
+		return array(
+			array('name'=>Base_Box::module_name(),'version'=>0),
+			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_ShortcutInstall::module_name(), 'version'=>0),
+			array('name'=>Base_UserInstall::module_name(), 'version'=>0),
+			array('name'=>Base_ActionBar::module_name(), 'version'=>0)
 			);
 	}
 	

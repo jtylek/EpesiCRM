@@ -48,7 +48,7 @@ class CRM_Contacts_NotesAggregate extends Module {
 		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
 			$attachment_groups[] = 'contact/'.$contact['id'];
 
-		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
+		$a = $this->init_module(Utils_Attachment::module_name(),array($attachment_groups));
         $a->set_multiple_group_mode();
 		$this->display_module($a);
 	}
@@ -96,7 +96,7 @@ class CRM_Contacts_NotesAggregate extends Module {
 		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
 			$attachment_groups[] = 'company/'.$company['id'];
 
-		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
+		$a = $this->init_module(Utils_Attachment::module_name(),array($attachment_groups));
         $a->set_multiple_group_mode();
 		$this->display_module($a);
 	}
@@ -128,7 +128,7 @@ class CRM_Contacts_NotesAggregate extends Module {
 		if (Base_User_SettingsCommon::get('CRM/Contacts/NotesAggregate', 'show_all_notes'))
 			$attachment_groups[] = 'premium_salesopportunity/'.$salesopportunity['id'];
 		
-		$a = $this->init_module('Utils/Attachment',array($attachment_groups));
+		$a = $this->init_module(Utils_Attachment::module_name(),array($attachment_groups));
         $a->set_multiple_group_mode();
 		$this->display_module($a);
 	}

@@ -76,7 +76,7 @@ class Base_ActionBar extends Module {
 				self::$launchpad = array();
 				foreach ($opts as $k=>$v) {
 					if(Base_ActionBarCommon::$quick_access_shortcuts
-                            && Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_d')) {
+                            && Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_d')) {
 						$ii = array();
 						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
@@ -95,7 +95,7 @@ class Base_ActionBar extends Module {
 						$ii['icon'] = $icon;
 						$launcher[] = $ii;
 					}
-					if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_l')) {
+					if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_l')) {
 						$ii = array();
 						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
@@ -122,7 +122,7 @@ class Base_ActionBar extends Module {
 		}
 
 		//display
-		$th = $this->pack_module('Base/Theme');
+		$th = $this->pack_module(Base_Theme::module_name());
 		$th->assign('icons',$icons);
 		$th->assign('launcher',array_reverse($launcher));
 		$th->display();
@@ -135,7 +135,7 @@ class Base_ActionBar extends Module {
 		usort(self::$launchpad,array($this,'compare_launcher'));
 		if(!empty(self::$launchpad)) {
 			$icon = Base_ThemeCommon::get_template_file($this->get_type(),'launcher.png');
-			$th = $this->pack_module('Base/Theme');
+			$th = $this->pack_module(Base_Theme::module_name());
 			usort(self::$launchpad,array($this,'compare_launcher'));
 			$th->assign('icons',self::$launchpad);
 			eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
@@ -145,7 +145,7 @@ class Base_ActionBar extends Module {
 			$big = count(self::$launchpad)>10;
 			Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,__('Launchpad'),$big);
 			$launcher[] = array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
-			$th = $this->pack_module('Base/Theme');
+			$th = $this->pack_module(Base_Theme::module_name());
 			$th->assign('icons',array());
 			$th->assign('launcher',array_reverse($launcher));
 			$th->display();

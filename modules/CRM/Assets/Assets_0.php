@@ -14,7 +14,7 @@ class CRM_Assets extends Module {
     private $rb;
 
     public function body() {
-        $this->rb = $this->init_module('Utils/RecordBrowser','crm_assets','crm_assets');
+        $this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'crm_assets','crm_assets');
         $this->rb->set_filters_defaults(array('active'=>1));
         $this->rb->set_header_properties(array(
                 'asset_id'=>array('width'=>10),
@@ -27,7 +27,7 @@ class CRM_Assets extends Module {
     }
 
     public function assets_addon($arg) {
-        $rb = $this->init_module('Utils/RecordBrowser','crm_assets','crm_assets_addon');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(),'crm_assets','crm_assets_addon');
         $rb->set_header_properties(array(
                 'asset_id'=>array('width'=>10),
                 'category'=>array('width'=>10),

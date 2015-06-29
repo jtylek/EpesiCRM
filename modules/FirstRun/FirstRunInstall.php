@@ -28,10 +28,10 @@ class FirstRunInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Utils/Wizard','version'=>0),
-			array('name'=>'Base/Acl','version'=>0),
-			array('name'=>'Base/Lang','version'=>0));
+			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Utils_Wizard::module_name(),'version'=>0),
+			array('name'=>Base_Acl::module_name(),'version'=>0),
+			array('name'=>Base_LangInstall::module_name(),'version'=>0));
 	}
 	public static function simple_setup() {
 		return false;

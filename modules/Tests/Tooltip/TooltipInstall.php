@@ -32,8 +32,8 @@ class Tests_TooltipInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/CatFile','version'=>0),
-			array('name'=>'Utils/Tooltip','version'=>0)
+			array('name'=>Utils_CatFile::module_name(),'version'=>0),
+			array('name'=>Utils_TooltipCommon::module_name(),'version'=>0)
 		);
 	}
 	

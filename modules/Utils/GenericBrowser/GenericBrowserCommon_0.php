@@ -115,7 +115,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 		unset($data);
 		$th->assign('data',$out_data);
 
-		Base_ThemeCommon::display_smarty($th,'Utils/GenericBrowser','mobile');
+		Base_ThemeCommon::display_smarty($th,Utils_GenericBrowser::module_name(),'mobile');
 	}
 	
 	public static function hide_overflow_div(){

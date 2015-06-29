@@ -17,7 +17,7 @@ class Applets_Host extends Module {
 	}
 	
 	public function applet() {
-		$f = $this->init_module('Libs/QuickForm');
+		$f = $this->init_module(Libs_QuickForm::module_name());
 		$t = $f->createElement('text','t');
 		$ok = $f->createElement('submit','ok',__('OK'));
 		$f->addGroup(array($t,$ok),'w');

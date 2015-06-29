@@ -16,11 +16,11 @@ class Tests_Tooltip extends Module {
 		print(Utils_TooltipCommon::create('point mouse here', 'tip'));
 		//------------------------------ print out src
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Tooltip/Tooltip_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Tooltip/Tooltip_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Tooltip/TooltipCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Tooltip/TooltipCommon_0.php');
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Tooltip/TooltipInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Tooltip/TooltipInstall.php');
 	}
 }
 ?>

@@ -38,8 +38,8 @@ class Utils_CommentInstall extends ModuleInstall{
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Base/User','version'=>0));
+			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Base_UserInstall::module_name(),'version'=>0));
 	}
 } 
 ?>

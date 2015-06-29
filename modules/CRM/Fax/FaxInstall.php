@@ -33,9 +33,9 @@ class CRM_FaxInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'CRM/Contacts','version'=>0),
-			array('name'=>'Libs/QuickForm','version'=>0));
+			array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			array('name'=>CRM_Contacts::module_name(),'version'=>0),
+			array('name'=>Libs_QuickForm::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

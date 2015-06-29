@@ -112,7 +112,7 @@ class Utils_Attachment extends Module {
         load_js('modules/Utils/Attachment/attachments.js');
         Base_ThemeCommon::load_css('Utils_Attachment','browse');
 
-        $this->rb = $this->init_module('Utils/RecordBrowser','utils_attachment','utils_attachment');
+        $this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'utils_attachment','utils_attachment');
         $defaults = array(
             'permission' => Base_User_SettingsCommon::get('CRM_Common','default_record_permission'),
             'func' => serialize($this->func),
@@ -148,7 +148,7 @@ class Utils_Attachment extends Module {
             if(!is_array($this->group)) $this->group = array($this->group);
 
             if(isset($_SESSION['attachment_copy']) && count($this->group)==1 && $_SESSION['attachment_copy']['group']!=$this->group) {
-                $this->rb->new_button(Base_ThemeCommon::get_template_file('Utils/Attachment', 'link.png'),__('Paste'),
+                $this->rb->new_button(Base_ThemeCommon::get_template_file(Utils_Attachment::module_name(), 'link.png'),__('Paste'),
                     Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste'))
                 );
             }
@@ -208,9 +208,9 @@ class Utils_Attachment extends Module {
 
         $id = $attachment['id'];
 
-        $tb = & $this->init_module('Utils/TabbedBrowser');
+        $tb = & $this->init_module(Utils_TabbedBrowser::module_name());
         $tb->start_tab('File history');
-        $gb = $this->init_module('Utils/GenericBrowser',null,'hua'.$id);
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'hua'.$id);
         $gb->set_inline_display();
         $gb->set_table_columns(array(
             array('name'=>__('Deleted'), 'order'=>'deleted','width'=>10),
@@ -236,7 +236,7 @@ class Utils_Attachment extends Module {
         $this->display_module($gb);
         $tb->end_tab();
         $tb->start_tab('File access history');
-        $gb = $this->init_module('Utils/GenericBrowser',null,'hda'.$id);
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'hda'.$id);
         $gb->set_inline_display();
         $gb->set_table_columns(array(
             array('name'=>__('Create date'), 'order'=>'created_on','width'=>15),

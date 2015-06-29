@@ -19,11 +19,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function new_addon($table) {
-		Utils_RecordBrowserCommon::new_addon($table, 'Utils/Attachment', 'body', 'Notes');
+		Utils_RecordBrowserCommon::new_addon($table, Utils_Attachment::module_name(), 'body', 'Notes');
 	}
 
 	public static function delete_addon($table) {
-		Utils_RecordBrowserCommon::delete_addon($table, 'Utils/Attachment', 'body');
+		Utils_RecordBrowserCommon::delete_addon($table, Utils_Attachment::module_name(), 'body');
 	}
 
 	public static function user_settings() {
@@ -326,7 +326,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $time = Base_RegionalSettingsCommon::time2reg($row['edited_on'], true, false);
         $info = Utils_RecordBrowserCommon::get_record_info('utils_attachment',$row['id']);
         $by = Base_UserCommon::get_user_label($info['edited_by']?$info['edited_by']:$info['created_by'], $nolink);
-        $format = Base_User_SettingsCommon::get('Utils/Attachment', 'edited_on_format');
+        $format = Base_User_SettingsCommon::get(Utils_Attachment::module_name(), 'edited_on_format');
         return str_replace(array('%D', '%T', '%U'), array($date, $time, $by), $format);
     }
     

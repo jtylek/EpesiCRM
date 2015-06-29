@@ -95,7 +95,7 @@ class Base_Admin extends Module {
 		}
 		$sections = $this->sort_sections($sections);
 
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 		$theme->assign('sections', $sections);
 		$theme->display();
 	}
@@ -194,7 +194,7 @@ class Base_Admin extends Module {
 		}
 		$sections = $this->sort_sections($sections);
 
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 
 		$form->assign_theme('form', $theme);
 		

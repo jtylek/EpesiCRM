@@ -37,24 +37,24 @@ class BaseInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-		    array('name'=>'Base/Admin','version'=>0),
-		    array('name'=>'Base/ActionBar','version'=>0),
-		    array('name'=>'Base/Cron','version'=>0),
-		    array('name'=>'Base/Dashboard','version'=>0),
-		    array('name'=>'Base/Help','version'=>0),
-		    array('name'=>'Base/Setup','version'=>0),
-		    array('name'=>'Base/EpesiStore','version'=>0),
-		    array('name'=>'Base/Lang/Administrator','version'=>0),
-		    array('name'=>'Base/Menu/QuickAccess','version'=>0),
-		    array('name'=>'Base/MainModuleIndicator','version'=>0),
-		    array('name'=>'Base/Menu','version'=>0),
-		    array('name'=>'Base/RegionalSettings','version'=>0),
-		    array('name'=>'Base/StatusBar','version'=>0),
-		    array('name'=>'Base/Search','version'=>0),
-            array('name'=>'Base/Print', 'version' => 0),
-		    array('name'=>'Base/HomePage','version'=>0),
-		    array('name'=>'Base/Theme/Administrator','version'=>0),
-		    array('name'=>'Base/User/Administrator','version'=>0));
+		    array('name'=>Base_Admin::module_name(),'version'=>0),
+		    array('name'=>Base_ActionBar::module_name(),'version'=>0),
+		    array('name'=>Base_Cron::module_name(),'version'=>0),
+		    array('name'=>Base_Dashboard::module_name(),'version'=>0),
+		    array('name'=>Base_Help::module_name(),'version'=>0),
+		    array('name'=>Base_Setup::module_name(),'version'=>0),
+		    array('name'=>Base_EpesiStore::module_name(),'version'=>0),
+		    array('name'=>Base_Lang_Administrator::module_name(),'version'=>0),
+		    array('name'=>Base_Menu_QuickAccessInstall::module_name(),'version'=>0),
+		    array('name'=>Base_MainModuleIndicator::module_name(),'version'=>0),
+		    array('name'=>Base_Menu::module_name(),'version'=>0),
+		    array('name'=>Base_RegionalSettingsInstall::module_name(),'version'=>0),
+		    array('name'=>Base_StatusBar::module_name(),'version'=>0),
+		    array('name'=>Base_Search::module_name(),'version'=>0),
+            array('name'=>Base_Print::module_name(), 'version' => 0),
+		    array('name'=>Base_HomePage::module_name(),'version'=>0),
+		    array('name'=>Base_Theme_Administrator::module_name(),'version'=>0),
+		    array('name'=>Base_User_Administrator::module_name(),'version'=>0));
 	}
 }
 

@@ -103,18 +103,18 @@ class Base_DashboardInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/ActionBar','version'=>0),
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Base/HomePage','version'=>0),
-			array('name'=>'Base/User','version'=>0),
-			array('name'=>'Base/User/Settings','version'=>0),
-			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Utils/TabbedBrowser','version'=>0),
-			array('name'=>'Utils/GenericBrowser','version'=>0),
-			array('name'=>'Libs/CKEditor','version'=>0),
-			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Libs/ScriptAculoUs','version'=>0),
-			array('name'=>'Utils/Tooltip','version'=>0));
+			array('name'=>Base_ActionBar::module_name(),'version'=>0),
+			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Base_HomePage::module_name(),'version'=>0),
+			array('name'=>Base_UserInstall::module_name(),'version'=>0),
+			array('name'=>Base_User_Settings::module_name(),'version'=>0),
+			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
+			array('name'=>Utils_TabbedBrowser::module_name(),'version'=>0),
+			array('name'=>Utils_GenericBrowser::module_name(),'version'=>0),
+			array('name'=>Libs_CKEditorCommon::module_name(),'version'=>0),
+			array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			array('name'=>Libs_ScriptAculoUsInstall::module_name(),'version'=>0),
+			array('name'=>Utils_TooltipCommon::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

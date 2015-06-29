@@ -25,7 +25,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 
 	public function open() {
 		$x = ModuleManager::get_instance('/Base_Box|0');
-		$x->push_main('Utils/RecordBrowser/RecordPickerFS','show',array($this->tab,$this->crits,$this->cols,$this->order,$this->filters,$this->get_path()));
+		$x->push_main(Utils_RecordBrowser_RecordPickerFS::module_name(),'show',array($this->tab,$this->crits,$this->cols,$this->order,$this->filters,$this->get_path()));
 		$selected = $this->get_module_variable('selected',array());
 		$this->set_module_variable('old_selected',$selected);
 	}
@@ -42,7 +42,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 	}
 	
 	public function show($tab, $crits=array(), $cols=array(), $order=array(), $filters=array(),$path=null) {
-		$rb = $this->init_module('Utils/RecordBrowser', $tab, $tab.'_picker');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(), $tab, $tab.'_picker');
 //		$rb->adv_search = true;
 		$rb->disable_actions();
 

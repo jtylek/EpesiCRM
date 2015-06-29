@@ -18,7 +18,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             return;
         }
 
-        $form = $this->init_module('Libs/QuickForm',__('Saving settings'));
+        $form = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'));
 
         //pass
         $form->addElement('header', null, __('Change password'));
@@ -101,7 +101,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		if($this->is_back())
 			return false;
 	
-		$form = $this->init_module('Libs/QuickForm',__('Saving settings'));
+		$form = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'));
 		
 		//pass
 		$form->addElement('header', null, __('Change e-mail header'));
@@ -142,13 +142,13 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		Base_ActionBarCommon::add('edit',__('E-mail header'),$this->create_callback_href(array($this,'change_email_header')));
 
-        $gb = $this->init_module('Utils/GenericBrowser',null,'user_list');
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'user_list');
         //$gb->set_module_variable('adv_search',false);
 
         $cols = array();
     	$cols[] = array('name'=>__('ID'), 'order'=>'u.id', 'width'=>6,'search'=>'id');
     	$cols[] = array('name'=>__('Login'), 'order'=>'u.login', 'width'=>20,'search'=>'login');
-        $is_contacts = ModuleManager::is_installed('CRM/Contacts')>=0;
+        $is_contacts = ModuleManager::is_installed(CRM_Contacts::module_name())>=0;
         if($is_contacts)
             $cols[] = array('name'=>__('Contact'), 'width'=>27);
         $cols[] = array('name'=>__('Active'), 'order'=>'u.active', 'width'=>5);
@@ -200,7 +200,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     
     private function banning_form() {
         if (!Base_AdminCommon::get_access($this->get_type(), 'manage_ban')) return;
-        $qf = $this->init_module('Libs/QuickForm', null, 'ban');
+        $qf = $this->init_module(Libs_QuickForm::module_name(), null, 'ban');
         $qf->addElement('select', 'forbid_autologin', __('Forbid Remember Me'), array("0" => __('No'), "1" => __('Yes')), array('onChange' => $qf->get_submit_form_js()));
         $qf->addElement('select', 'bantype', __('Ban by'), array("0" => __('IP Address'), "1" => "User login from specific IP address"), array('onChange' => $qf->get_submit_form_js()));
         $qf->addElement('select', 'bantries', __('Number of failed logins to ban'), array(0 => __('Disable ban'), 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 10 => 10), array('onChange' => $qf->get_submit_form_js()));
@@ -236,7 +236,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			}
 			return false;
 		}
-        $form = $this->init_module('Libs/QuickForm',($edit_id>=0)?__('Applying changes'):__('Creating new user'));
+        $form = $this->init_module(Libs_QuickForm::module_name(),($edit_id>=0)?__('Applying changes'):__('Creating new user'));
         
         //create new user
         $form->addElement('header', null, (($edit_id>=0)?__('Edit user'):__('Create new user')));

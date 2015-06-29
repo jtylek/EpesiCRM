@@ -48,10 +48,10 @@ class Base_NotifyInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-		array('name'=>'Base/Acl','version'=>0),
-		array('name'=>'Base/User','version'=>0),
-		array('name'=>'Base/Theme','version'=>0),
-		array('name'=>'Libs/QuickForm','version'=>0));
+		array('name'=>Base_Acl::module_name(),'version'=>0),
+		array('name'=>Base_UserInstall::module_name(),'version'=>0),
+		array('name'=>Base_Theme::module_name(),'version'=>0),
+		array('name'=>Libs_QuickForm::module_name(),'version'=>0));
 	}
 
 	public static function info() {

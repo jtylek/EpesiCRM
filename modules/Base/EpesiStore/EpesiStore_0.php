@@ -140,7 +140,7 @@ class Base_EpesiStore extends Module {
 
     private function display_modules() {
         /* @var $gb Utils_GenericBrowser */
-        $gb = $this->init_module('Utils/GenericBrowser', null, 'moduleslist');
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'moduleslist');
         // We need total amount of available modules to set GB paging.
         // It's returned with each request for modules list
         // so with first request we use only get_limit to retrieve
@@ -167,7 +167,7 @@ class Base_EpesiStore extends Module {
 		location(array());
 	}
     public function display_registration_form() {
-        $m = $this->init_module('Base/EssClient');
+        $m = $this->init_module(Base_EssClient::module_name());
         $this->display_module($m, array(true), 'admin');
 		return self::$return;
     }
@@ -190,7 +190,7 @@ class Base_EpesiStore extends Module {
         $to_download = $this->_modules_to_download_and_update($module_licenses);
         if ($to_download)
             Base_ActionBarCommon::add('favorites', __('Download newer'), $this->create_callback_href(array($this, 'download_modules'), array($to_download)));
-        $gb = $this->init_module('Utils/GenericBrowser', null, 'mymoduleslist');
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'mymoduleslist');
         $gb = $this->GB_module_licenses($gb, $module_licenses, array($this, 'GB_row_additional_actions_your_modules'));
         $this->display_module($gb);
     }
@@ -241,7 +241,7 @@ class Base_EpesiStore extends Module {
 
     private function display_cart_items($items) {
         Base_ActionBarCommon::add('delete', __('Clear cart'), $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_cart')));
-        $gb = $this->init_module('Utils/GenericBrowser', null, 'cartlist');
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'cartlist');
         $gb = $this->GB_module($gb, $items, array($this, 'GB_row_additional_actions_cart'));
         $this->display_module($gb);
     }
@@ -252,7 +252,7 @@ class Base_EpesiStore extends Module {
             return;
         }
 
-        $f = $this->init_module('Libs/QuickForm');
+        $f = $this->init_module(Libs_QuickForm::module_name());
         $show_cart = true;
         if ($f->validate() && $f->exportValue('submited')) {
             $recent_items = $this->_cart_items_on_server($items);
@@ -349,7 +349,7 @@ class Base_EpesiStore extends Module {
         if (count($items) == 0) {
             print(__('You don\'t have any orders'));
         } else {
-            $gb = $this->init_module('Utils/GenericBrowser', null, 'orderslist');
+            $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'orderslist');
             $this->GB_order($gb, $items);
             $this->display_module($gb);
         }
@@ -414,7 +414,7 @@ class Base_EpesiStore extends Module {
             return;
         }
         Base_ActionBarCommon::add('delete', __('Clear list'), $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
-        $gb = $this->init_module('Utils/GenericBrowser', null, 'downloadslist');
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'downloadslist');
         $gb = $this->GB_module_licenses($gb, $download_items, array($this, 'GB_row_additional_actions_downloads'));
         $this->display_module($gb);
     }
@@ -544,7 +544,7 @@ class Base_EpesiStore extends Module {
 
     public function payments_show_user_settings() {
         $this->back_button();
-        $module_to_show = $this->init_module('Base/User/Settings');
+        $module_to_show = $this->init_module(Base_User_Settings::module_name());
         $this->display_module($module_to_show, array(__('EPESI Store')));
     }
 

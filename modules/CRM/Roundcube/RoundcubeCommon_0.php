@@ -327,15 +327,15 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function new_addon($rs) {
-        Utils_RecordBrowserCommon::new_addon($rs, 'CRM/Roundcube', 'addon', _M('E-mails'));
+        Utils_RecordBrowserCommon::new_addon($rs, CRM_Roundcube::module_name(), 'addon', _M('E-mails'));
     }
 
     public static function delete_addon($rs) {
-        Utils_RecordBrowserCommon::delete_addon($rs, 'CRM/Roundcube', 'addon');
+        Utils_RecordBrowserCommon::delete_addon($rs, CRM_Roundcube::module_name(), 'addon');
     }
 
 	public static function new_mail_addresses_addon($table) {
-		Utils_RecordBrowserCommon::new_addon($table, 'CRM/Roundcube', 'mail_addresses_addon', _M('Mail addresses'));
+		Utils_RecordBrowserCommon::new_addon($table, CRM_Roundcube::module_name(), 'mail_addresses_addon', _M('Mail addresses'));
 	}
 	
 	/**
@@ -398,7 +398,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 	public static function attachment_getters() {
 	        $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
 		if($ret)
-			return array(_M('Mail')=>array('func'=>'mail_file','icon'=>Base_ThemeCommon::get_template_file('CRM/Roundcube', 'icon.png')));
+			return array(_M('Mail')=>array('func'=>'mail_file','icon'=>Base_ThemeCommon::get_template_file(CRM_Roundcube::module_name(), 'icon.png')));
 	}
 
 	public static function mail_file($f,$d,$file_id) {

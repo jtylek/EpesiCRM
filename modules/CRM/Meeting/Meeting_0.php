@@ -14,7 +14,7 @@ class CRM_Meeting extends Module {
 	private $rb = null;
 
 	public function body() {
-		$this->rb = $this->init_module('Utils/RecordBrowser','crm_meeting','crm_meeting');
+		$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'crm_meeting','crm_meeting');
 		$me = CRM_ContactsCommon::get_my_record();
 		CRM_CommonCommon::status_filter($this->rb);
 		$this->rb->set_filters_defaults(array('employees'=>$this->rb->crm_perspective_default(), 'date__to'=>date('Y-m-d')));
@@ -33,7 +33,7 @@ class CRM_Meeting extends Module {
 		}
 		$closed = (isset($conf['closed']) && $conf['closed']);
 		$related = $conf['related'];
-		$rb = $this->init_module('Utils/RecordBrowser','crm_meeting','crm_meeting');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'crm_meeting','crm_meeting');
 		$crits = array();
 		if (!$closed) $crits['!status'] = array(2,3);
 		if ($related==0) $crits['employees'] = array($me['id']);
@@ -74,7 +74,7 @@ class CRM_Meeting extends Module {
 	}
 
     public function addon($r, $rb_parent) {
-        $rb = $this->init_module('Utils/RecordBrowser', 'crm_meeting');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'crm_meeting');
         $params = array(
             array(
                 'related' => $rb_parent->tab . '/' . $r['id'],
@@ -109,7 +109,7 @@ class CRM_Meeting extends Module {
             $this->parent->reset();
             return;
         }
-        $rb = $this->init_module('Utils/RecordBrowser', 'crm_meeting_related', 'crm_meeting_related');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'crm_meeting_related', 'crm_meeting_related');
         $this->display_module($rb);
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
     }

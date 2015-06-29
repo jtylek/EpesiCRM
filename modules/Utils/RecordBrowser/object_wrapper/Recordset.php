@@ -205,7 +205,7 @@ abstract class RBO_Recordset {
      * @return Utils_RecordBrowser
      */
     public function create_rb_module($parent_module, $unique_instance_name = null) {
-        return $parent_module->init_module('Utils/RecordBrowser', $this->tab, $unique_instance_name);
+        return $parent_module->init_module(Utils_RecordBrowser::module_name(), $this->tab, $unique_instance_name);
     }
 
     ///////////// implement Utils_RecordBrowserCommon methods //////////////

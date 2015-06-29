@@ -58,9 +58,9 @@ class CRM_FollowupCommon extends ModuleCommon {
 	
 	public static function drawLeightbox($prefix) {
 		if(MOBILE_DEVICE) return;
-		$meetings = (ModuleManager::is_installed('CRM/Meeting')>=0);
-		$tasks = (ModuleManager::is_installed('CRM/Tasks')>=0);
-		$phonecall = (ModuleManager::is_installed('CRM/PhoneCall')>=0);
+		$meetings = (ModuleManager::is_installed(CRM_Meeting::module_name())>=0);
+		$tasks = (ModuleManager::is_installed(CRM_Tasks::module_name())>=0);
+		$phonecall = (ModuleManager::is_installed(CRM_PhoneCall::module_name())>=0);
 		self::check_location();
 		if (!isset(self::$leightbox_ready[$prefix])) {
 			self::$leightbox_ready[$prefix] = true;

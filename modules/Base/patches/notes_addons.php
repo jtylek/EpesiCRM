@@ -3,22 +3,22 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if (ModuleManager::is_installed('Utils_RecordBrowser')==-1) return;
 
-if (Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon'))
+if (Utils_RecordBrowserCommon::delete_addon('company', CRM_Contacts::module_name(), 'company_attachment_addon'))
 	Utils_AttachmentCommon::new_addon('company');
 	
-if (Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Contacts', 'contact_attachment_addon'))
+if (Utils_RecordBrowserCommon::delete_addon('contact', CRM_Contacts::module_name(), 'contact_attachment_addon'))
 	Utils_AttachmentCommon::new_addon('contact');
 
-if (Utils_RecordBrowserCommon::delete_addon('crm_assets', 'CRM/Assets', 'assets_attachment_addon'))
+if (Utils_RecordBrowserCommon::delete_addon('crm_assets', CRM_Assets::module_name(), 'assets_attachment_addon'))
 	Utils_AttachmentCommon::new_addon('crm_assets');
 
-if (Utils_RecordBrowserCommon::delete_addon('crm_meeting', 'CRM/Meeting', 'meeting_attachment_addon'))
+if (Utils_RecordBrowserCommon::delete_addon('crm_meeting', CRM_Meeting::module_name(), 'meeting_attachment_addon'))
 	Utils_AttachmentCommon::new_addon('crm_meeting');
 
-if (Utils_RecordBrowserCommon::delete_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon'))
+if (Utils_RecordBrowserCommon::delete_addon('phonecall', CRM_PhoneCall::module_name(), 'phonecall_attachment_addon'))
 	Utils_AttachmentCommon::new_addon('phonecall');
 
-if (Utils_RecordBrowserCommon::delete_addon('task', 'CRM/Tasks', 'task_attachment_addon'))
+if (Utils_RecordBrowserCommon::delete_addon('task', CRM_Tasks::module_name(), 'task_attachment_addon'))
 	Utils_AttachmentCommon::new_addon('task');
 
 if (Utils_RecordBrowserCommon::delete_addon('premium_projects', 'Premium/Projects', 'premium_projects_attachment_addon'))

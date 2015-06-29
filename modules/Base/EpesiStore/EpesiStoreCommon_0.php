@@ -407,7 +407,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             $currency = reset($keys);
             $value = $o['price'][$currency]['to_pay'];
             $main_module = Base_BoxCommon::main_module_instance();
-            $store = $main_module->init_module('Base/EpesiStore');
+            $store = $main_module->init_module(Base_EpesiStore::module_name());
             $main_module->display_module($store, array($o['id'], $value, $currency), 'form_payment_frame');
             return true;
         }

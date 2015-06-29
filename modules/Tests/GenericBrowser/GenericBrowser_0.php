@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_GenericBrowser extends Module {
 	
 	public function body() {
- 		$m = $this->init_module('Utils/GenericBrowser',null,'t1');
+ 		$m = $this->init_module(Utils_GenericBrowser::module_name(),null,'t1');
  		$m->set_table_columns(array(
 							  array('name'=>'xxx','width'=>50),
 							  array('name'=>'xyz','width'=>50)));
@@ -27,7 +27,7 @@ class Tests_GenericBrowser extends Module {
  		$m->add_row('xxx','yyyy');
  		$this->display_module($m);
 
- 		$m = $this->init_module('Utils/GenericBrowser',null,'t2');
+ 		$m = $this->init_module(Utils_GenericBrowser::module_name(),null,'t2');
  		$m->set_table_columns(array(array('name'=>'xxx','search'=>1)));
  		$m->add_row('xxx');
  		$m->add_row('sdasf');
@@ -42,11 +42,11 @@ class Tests_GenericBrowser extends Module {
 
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/GenericBrowser/GenericBrowserInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/GenericBrowser/GenericBrowserInstall.php');
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/GenericBrowser/GenericBrowser_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/GenericBrowser/GenericBrowser_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/GenericBrowser/GenericBrowserCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/GenericBrowser/GenericBrowserCommon_0.php');
 	}
 }
 ?>

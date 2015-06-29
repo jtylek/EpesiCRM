@@ -91,4 +91,4 @@ if(!$related_checkpoint->is_done()) {
     $related_checkpoint->done();
 }
 Utils_RecordBrowserCommon::uninstall_recordset('rc_mails_assoc');
-Utils_RecordBrowserCommon::delete_addon('rc_mails', 'CRM/Roundcube', 'assoc_addon');
+Utils_RecordBrowserCommon::delete_addon('rc_mails', CRM_Roundcube::module_name(), 'assoc_addon');

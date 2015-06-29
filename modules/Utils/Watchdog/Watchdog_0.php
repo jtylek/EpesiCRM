@@ -59,7 +59,7 @@ class Utils_Watchdog extends Module {
 		}
 		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
 		$records = DB::GetAll('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new.'AND category_id IN ('.implode(',',$categories).')', array(Acl::get_user()));
-		$gb = $this->init_module('Utils/GenericBrowser','subscriptions','subscriptions');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),'subscriptions','subscriptions');
 		$gb->set_table_columns($header);
 		$something_to_purge = false;
 		$count = 0;
@@ -85,12 +85,12 @@ class Utils_Watchdog extends Module {
 					$data['title']
 				);
 			}
-			$gb_row->add_action(Utils_WatchdogCommon::get_confirm_change_subscr_href($v, $k),'Stop Watching',__('Click to stop watching this record for changes'), Base_ThemeCommon::get_template_file('Utils/Watchdog','watching_small_new_events.png'));
+			$gb_row->add_action(Utils_WatchdogCommon::get_confirm_change_subscr_href($v, $k),'Stop Watching',__('Click to stop watching this record for changes'), Base_ThemeCommon::get_template_file(Utils_Watchdog::module_name(),'watching_small_new_events.png'));
 			$gb_row->add_action($data['view_href'],'View');
 			if ($only_new || Utils_WatchdogCommon::check_if_notified($v, $k)!==true) {
 				$gb_row->set_attrs('name="watchdog_table_row_'.$v.'__'.$k.'"');
 				load_js('modules/Utils/Watchdog/applet_mark_as_read.js');
-                $gb_row->add_action('href="javascript:void(0);" onclick="watchdog_applet_mark_as_read(\''.$v.'__'.$k.'\')"','Mark as Read',__('Mark as read'),Base_ThemeCommon::get_template_file('Utils/Watchdog','mark_as_read.png'));
+                $gb_row->add_action('href="javascript:void(0);" onclick="watchdog_applet_mark_as_read(\''.$v.'__'.$k.'\')"','Mark as Read',__('Mark as read'),Base_ThemeCommon::get_template_file(Utils_Watchdog::module_name(),'mark_as_read.png'));
 				$something_to_purge = true;
 			}
 			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events'], true);

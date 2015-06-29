@@ -16,7 +16,7 @@ class CRM_Tasks extends Module {
 	public function body() {
 		$this->help('Tasks Help','main');
 
-		$this->rb = $this->init_module('Utils/RecordBrowser','task','task');
+		$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'task','task');
 		$me = CRM_ContactsCommon::get_my_record();
 		CRM_CommonCommon::status_filter($this->rb);
 		$this->rb->set_filters_defaults(array('employees'=>$this->rb->crm_perspective_default(), 'status'=>'__NO_CLOSED__'));
@@ -40,7 +40,7 @@ class CRM_Tasks extends Module {
 		$short = ($conf['term']=='s' || $conf['term']=='b');
 		$long = ($conf['term']=='l' || $conf['term']=='b');
 		$related = $conf['related'];
-		$rb = $this->init_module('Utils/RecordBrowser','task','task');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'task','task');
 		$status = array();
         foreach (Utils_CommonDataCommon::get_array('CRM/Status')
                  as $status_id => $label) {
@@ -94,7 +94,7 @@ class CRM_Tasks extends Module {
 	}
 
     public function addon($r, $rb_parent) {
-        $rb = $this->init_module('Utils/RecordBrowser', 'task');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'task');
         $params = array(
             array(
                 'related' => $rb_parent->tab . '/' . $r['id'],
@@ -130,7 +130,7 @@ class CRM_Tasks extends Module {
             $this->parent->reset();
             return;
         }
-        $rb = $this->init_module('Utils/RecordBrowser', 'task_related', 'task_related');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'task_related', 'task_related');
         $this->display_module($rb);
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
     }

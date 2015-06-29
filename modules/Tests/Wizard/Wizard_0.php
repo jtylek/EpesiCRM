@@ -30,7 +30,7 @@ class Tests_Wizard extends Module {
 	
 	public function body() {
 		print "Wizard Test<hr>";
-		$wizard = $this->init_module('Utils/Wizard');
+		$wizard = $this->init_module(Utils_Wizard::module_name());
 		
 		
 		//get form
@@ -64,11 +64,11 @@ class Tests_Wizard extends Module {
 	
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Wizard/WizardInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Wizard/WizardInstall.php');
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Wizard/Wizard_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Wizard/Wizard_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Wizard/WizardCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Wizard/WizardCommon_0.php');
 	}
 	
 }

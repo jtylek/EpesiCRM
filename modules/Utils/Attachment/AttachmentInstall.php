@@ -64,7 +64,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee',array(),array('edited_on'));
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID'),array('edited_on'));
         Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
-        Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename('Utils/Attachment', 'View_entry'));
+        Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename(Utils_Attachment::module_name(), 'View_entry'));
         Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_AttachmentCommon','watchdog_label'));
         Utils_RecordBrowserCommon::set_caption('utils_attachment', _M('Note'));
         Utils_RecordBrowserCommon::set_description_callback('utils_attachment', array('Utils_AttachmentCommon','description_callback'));
@@ -158,20 +158,20 @@ class Utils_AttachmentInstall extends ModuleInstall {
 	}
 
 	public function requires($v) {
-		return array(array('name'=>'Utils/GenericBrowser','version'=>0),
-			     array('name'=>'Utils/FileUpload', 'version'=>0),
-			     array('name'=>'Utils/BBCode', 'version'=>0),
-                 array('name'=>'CRM/Common', 'version'=>0),
-			     array('name'=>'Libs/QuickForm', 'version'=>0),
-			     array('name'=>'Libs/CKEditor', 'version'=>0),
-			     array('name'=>'Libs/Leightbox', 'version'=>0),
-			     array('name'=>'Utils/Tooltip', 'version'=>0),
-			     array('name'=>'Utils/Watchdog', 'version'=>0),
-			     array('name'=>'Base/RegionalSettings', 'version'=>0),
-			     array('name'=>'Base/Lang','version'=>0),
-			     array('name'=>'Base/Box', 'version'=>0),
-			     array('name'=>'Base/Theme', 'version'=>0),
-			     array('name'=>'Base/ActionBar', 'version'=>0));
+		return array(array('name'=>Utils_GenericBrowser::module_name(),'version'=>0),
+			     array('name'=>Utils_FileUpload::module_name(), 'version'=>0),
+			     array('name'=>Utils_BBCodeInstall::module_name(), 'version'=>0),
+                 array('name'=>CRM_CommonInstall::module_name(), 'version'=>0),
+			     array('name'=>Libs_QuickForm::module_name(), 'version'=>0),
+			     array('name'=>Libs_CKEditorCommon::module_name(), 'version'=>0),
+			     array('name'=>Libs_LeightboxCommon::module_name(), 'version'=>0),
+			     array('name'=>Utils_TooltipCommon::module_name(), 'version'=>0),
+			     array('name'=>Utils_Watchdog::module_name(), 'version'=>0),
+			     array('name'=>Base_RegionalSettingsInstall::module_name(), 'version'=>0),
+			     array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			     array('name'=>Base_Box::module_name(), 'version'=>0),
+			     array('name'=>Base_Theme::module_name(), 'version'=>0),
+			     array('name'=>Base_ActionBar::module_name(), 'version'=>0));
 	}
 
 	public static function info() {

@@ -13,8 +13,8 @@ class Applets_QuickSearch extends Module{
 	public function applet($conf, & $opts){
 		$recordset = "quick_search";
 
-		$theme = $this->init_module('Base/Theme');
-		$form = $this->init_module('Libs/QuickForm');
+		$theme = $this->init_module(Base_Theme::module_name());
+		$form = $this->init_module(Libs_QuickForm::module_name());
 		
 		$txtQuery = 'query_text';
 		$txtLabel = 'query_label';
@@ -57,7 +57,7 @@ class Applets_QuickSearch extends Module{
 			return;
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-		$this->rb = $this->init_module('Utils/RecordBrowser','quick_search','quick_searach');
+		$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'quick_search','quick_searach');
 		$this->display_module($this->rb);
 		return true;
     }

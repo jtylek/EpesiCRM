@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_QuickForm extends Module{
 	
 	public function body(){
-		$f = $this->init_module('Libs/QuickForm');
+		$f = $this->init_module(Libs_QuickForm::module_name());
 
 		$f->addElement('automulti','automul','Automulti test', array($this->get_type().'Common', 'automulti_search'), array('ble'), array($this->get_type().'Common', 'automulti_format'));
 		$f->setDefaults(array('automul'=>array(2,3)));
@@ -76,11 +76,11 @@ class Tests_QuickForm extends Module{
 
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/QuickForm/QuickFormInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/QuickForm/QuickFormInstall.php');
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/QuickForm/QuickForm_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/QuickForm/QuickForm_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/QuickForm/QuickFormCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/QuickForm/QuickFormCommon_0.php');
 
 	}
 	

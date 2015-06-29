@@ -59,7 +59,7 @@ class Utils_CalendarBusyReport extends Module {
 			$this->shift_week_day($this->get_unique_href_variable('shift_week_day'));
 
         if(count($this->settings['views'])>1) {
-            $this->tb = $this->init_module('Utils/TabbedBrowser');
+            $this->tb = $this->init_module(Utils_TabbedBrowser::module_name());
 
 		    foreach($this->settings['views'] as $k=>$v) {
 				if(!in_array($v,self::$views))
@@ -304,7 +304,7 @@ class Utils_CalendarBusyReport extends Module {
 	////////////////////////////////////////////////////////////////////
 	// day
 	public function day() {
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 		Base_ThemeCommon::load_css('Utils_CalendarBusyReport', 'common');
 
 		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+24*3600))));
@@ -465,7 +465,7 @@ class Utils_CalendarBusyReport extends Module {
 	}
 
 	public function week() {
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 		Base_ThemeCommon::load_css('Utils_CalendarBusyReport', 'common');
 
 		$theme->assign('next7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+604800))));

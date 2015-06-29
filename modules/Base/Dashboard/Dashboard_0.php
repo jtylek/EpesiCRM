@@ -15,7 +15,7 @@ class Base_Dashboard extends Module {
 	private $set_default_js='';
 
 	public function construct() {
-		$this->tb = $this->init_module('Utils/TabbedBrowser');
+		$this->tb = $this->init_module(Utils_TabbedBrowser::module_name());
         on_init(array('Base_ActionBarCommon', 'show_quick_access_shortcuts'), array(false));
 	}
 
@@ -23,7 +23,7 @@ class Base_Dashboard extends Module {
 		if(!Base_AclCommon::check_permission('Dashboard')) return;
 		$this->help('Dashboard Help','main');
 
-		if(ModuleManager::is_installed('Utils/RecordBrowser')>=0) //speed up links to RB
+		if(ModuleManager::is_installed(Utils_RecordBrowser::module_name())>=0) //speed up links to RB
 			if(Utils_RecordBrowserCommon::check_for_jump()) return;
 
 		$this->dashboard();
@@ -186,7 +186,7 @@ class Base_Dashboard extends Module {
 				$opts['actions'] = array();
 				$opts['id'] = $row['id'];
 
-				$th = $this->init_module('Base/Theme');
+				$th = $this->init_module(Base_Theme::module_name());
 
 				if ($config_mode || !$m) $content = '';
 				else $content = $this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), & $opts, $row['id']),'applet');
@@ -315,7 +315,7 @@ class Base_Dashboard extends Module {
 			return false;
 		}
 
-		$f = $this->init_module('Libs/QuickForm',__('Saving settings'),'settings');
+		$f = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'),'settings');
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
 
 		if($is_conf) {

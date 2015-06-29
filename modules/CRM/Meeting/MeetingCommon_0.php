@@ -374,9 +374,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 			if ($action != 'none') {		
 				$x = ModuleManager::get_instance('/Base_Box|0');
 				$values['follow_up'] = array('meeting',$record['id'],$record['title']);
-				if ($action == 'new_meeting') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $values), array('crm_meeting'));
-				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'follow_up'=>$values['follow_up'])), array('task'));
-				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'],'status'=>0, 'customer'=>!empty($values['customers'])?array_pop($values['customers']):'','follow_up'=>$values['follow_up'])), array('phonecall'));
+				if ($action == 'new_meeting') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $values), array('crm_meeting'));
+				if ($action == 'new_task') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'follow_up'=>$values['follow_up'])), array('task'));
+				if ($action == 'new_phonecall') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'],'status'=>0, 'customer'=>!empty($values['customers'])?array_pop($values['customers']):'','follow_up'=>$values['follow_up'])), array('phonecall'));
 				return false;
 			}
 
@@ -412,14 +412,14 @@ class CRM_MeetingCommon extends ModuleCommon {
 			Utils_MessengerCommon::delete_by_id('CRM_Calendar_Event:'.$values['id']);
 			break;
 		case 'display':
-			$pdf = Utils_RecordBrowser::$rb_obj->pack_module('Libs/TCPDF', 'L');
+			$pdf = Utils_RecordBrowser::$rb_obj->pack_module(Libs_TCPDF::module_name(), 'L');
 			if ($pdf->prepare()) {
 				$pdf->set_title($values['title']);
 				$pdf->set_subject('');
 				$pdf->prepare_header();
 				$pdf->AddPage();
 				$v = CRM_Calendar_EventCommon::get(DB::GetOne('SELECT id FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array('Meetings')).'#'.$values['id']);
-				$ev_mod = Utils_RecordBrowser::$rb_obj->init_module('CRM/Calendar/Event');
+				$ev_mod = Utils_RecordBrowser::$rb_obj->init_module(CRM_Calendar_Event::module_name());
 				$ev_mod->make_event_PDF($pdf,$v,true,'view');
 			}
 			$pdf->add_actionbar_icon('Print');
@@ -438,10 +438,10 @@ class CRM_MeetingCommon extends ModuleCommon {
             }
 			$end = strtotime('+'.$values['duration'].' seconds', $start);
 			$ret['day_details'] = array('start'=>array(
-				'day'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'day', 'default_date'=>strtotime($values['date']))), array()).'>'.date('j', $start_disp).'</a>', 
-				'month'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'month', 'default_date'=>strtotime($values['date']))), array()).'>'.__date('F', $start_disp).'</a>',
-				'year'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'year', 'default_date'=>strtotime($values['date']))), array()).'>'.date('Y', $start_disp).'</a>',
-				'weekday'=>'<a '.Base_BoxCommon::create_href(null, 'CRM/Calendar', 'body', array(array('default_view'=>'week', 'default_date'=>strtotime($values['date']))), array()).'>'.__date('l', $start_disp).'</a>'
+				'day'=>'<a '.Base_BoxCommon::create_href(null, CRM_Calendar::module_name(), 'body', array(array('default_view'=>'day', 'default_date'=>strtotime($values['date']))), array()).'>'.date('j', $start_disp).'</a>',
+				'month'=>'<a '.Base_BoxCommon::create_href(null, CRM_Calendar::module_name(), 'body', array(array('default_view'=>'month', 'default_date'=>strtotime($values['date']))), array()).'>'.__date('F', $start_disp).'</a>',
+				'year'=>'<a '.Base_BoxCommon::create_href(null, CRM_Calendar::module_name(), 'body', array(array('default_view'=>'year', 'default_date'=>strtotime($values['date']))), array()).'>'.date('Y', $start_disp).'</a>',
+				'weekday'=>'<a '.Base_BoxCommon::create_href(null, CRM_Calendar::module_name(), 'body', array(array('default_view'=>'week', 'default_date'=>strtotime($values['date']))), array()).'>'.__date('l', $start_disp).'</a>'
 			));
 			if (!isset($values['timeless']) || !$values['timeless'])
 				$ret['event_info'] = array('start_time'=>Base_RegionalSettingsCommon::time2reg($start,2,false), 'end_time'=>Base_RegionalSettingsCommon::time2reg($end,2,false), 'duration'=>Base_RegionalSettingsCommon::seconds_to_words($values['duration']), 'start_date'=>'-', 'end_date'=>'-');
@@ -453,9 +453,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$values['title'] = __('Follow-up').': '.$values['title'];
 			$values['status'] = 0;
 			$cus = reset($values['customers']);
-			if (ModuleManager::is_installed('CRM/Meeting')>=0) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
-			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'deadline'=>date('Y-m-d', strtotime('+1 day')))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
+			if (ModuleManager::is_installed(CRM_Meeting::module_name())>=0) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
+			if (ModuleManager::is_installed(CRM_Tasks::module_name())>=0) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'deadline'=>date('Y-m-d', strtotime('+1 day')))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+			if (ModuleManager::is_installed(CRM_PhoneCall::module_name())>=0) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('crm_meeting/'.$values['id']);
 			return $ret;
 		case 'edit':
@@ -701,7 +701,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			if ($r['status']<=1) {
 				$r_new = $r;
 				if ($r['status']==0) $r_new['status'] = 1;
-				$next['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM/Meeting', 'close_event.png'), 'href'=>self::get_status_change_leightbox_href($r_new, false, array('id'=>'status'))));
+				$next['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file(CRM_Meeting::module_name(), 'close_event.png'), 'href'=>self::get_status_change_leightbox_href($r_new, false, array('id'=>'status'))));
 			}
 		} else {
 			$next['edit_action'] = false;
@@ -901,11 +901,11 @@ class CRM_MeetingCommon extends ModuleCommon {
     }
 
     public static function new_addon($table) {
-        Utils_RecordBrowserCommon::new_addon($table, 'CRM/Meeting', 'addon', 'Meetings');
+        Utils_RecordBrowserCommon::new_addon($table, CRM_Meeting::module_name(), 'addon', 'Meetings');
     }
 
     public static function delete_addon($table) {
-        Utils_RecordBrowserCommon::delete_addon($table, 'CRM/Meeting', 'addon');
+        Utils_RecordBrowserCommon::delete_addon($table, CRM_Meeting::module_name(), 'addon');
     }
 
     public static function admin_caption() {

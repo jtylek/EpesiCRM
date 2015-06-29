@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die();
 
 class CRM_ContactsInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme('CRM/Contacts');
+		Base_ThemeCommon::install_default_theme(CRM_Contacts::module_name());
 		Utils_RecordBrowserCommon::register_datatype('crm_company', 'CRM_ContactsCommon', 'crm_company_datatype');
 		Utils_RecordBrowserCommon::register_datatype('crm_contact', 'CRM_ContactsCommon', 'crm_contact_datatype');
 		Utils_RecordBrowserCommon::register_datatype('crm_company_contact', 'CRM_ContactsCommon', 'crm_company_contact_datatype');
@@ -86,23 +86,23 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_favorites('company', true);
 		Utils_RecordBrowserCommon::set_recent('company', 15);
 		Utils_RecordBrowserCommon::set_caption('company', _M('Companies'));
-		Utils_RecordBrowserCommon::set_icon('company', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'companies.png'));
+		Utils_RecordBrowserCommon::set_icon('company', Base_ThemeCommon::get_template_filename(CRM_Contacts::module_name(), 'companies.png'));
                 Utils_RecordBrowserCommon::set_description_callback('company', array('CRM_ContactsCommon','company_format_default'));
 		Utils_RecordBrowserCommon::enable_watchdog('company', array('CRM_ContactsCommon','company_watchdog_label'));
         Utils_RecordBrowserCommon::set_clipboard_pattern('company', "%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {phone}<BR>}\n%{fax. {fax}<BR>}\n%{{web_address}<BR>}");
 // ************ contacts settings ************** //
-		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
+		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename(CRM_Contacts::module_name(), 'Contact'));
 		Utils_RecordBrowserCommon::register_processing_callback('contact', array('CRM_ContactsCommon', 'submit_contact'));
 		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
 		Utils_RecordBrowserCommon::set_favorites('contact', true);
 		Utils_RecordBrowserCommon::set_recent('contact', 15);
 		Utils_RecordBrowserCommon::set_caption('contact', _M('Contacts'));
-		Utils_RecordBrowserCommon::set_icon('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'icon.png'));
+		Utils_RecordBrowserCommon::set_icon('contact', Base_ThemeCommon::get_template_filename(CRM_Contacts::module_name(), 'icon.png'));
                 Utils_RecordBrowserCommon::set_description_callback('contact', array('CRM_ContactsCommon','contact_format_default'));
 		Utils_RecordBrowserCommon::enable_watchdog('contact', array('CRM_ContactsCommon','contact_watchdog_label'));
         Utils_RecordBrowserCommon::set_clipboard_pattern('contact', "%{{first_name} {last_name}<BR>}\n%{{title}<BR>}\n%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {work_phone}<BR>}\n%{{email}<BR>}");
 // ************ addons ************** //
-		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', _M('Contacts'));
+		Utils_RecordBrowserCommon::new_addon('company', CRM_Contacts::module_name(), 'company_addon', _M('Contacts'));
 		Utils_AttachmentCommon::new_addon('company');
 		Utils_AttachmentCommon::new_addon('contact');
 // ************ other ************** //
@@ -154,12 +154,12 @@ class CRM_ContactsInstall extends ModuleInstall {
 	public function uninstall() {
 		Base_AclCommon::remove_clearance_callback(array('CRM_ContactsCommon','crm_clearance'));
 
-		Base_ThemeCommon::uninstall_default_theme('CRM/Contacts');
+		Base_ThemeCommon::uninstall_default_theme(CRM_Contacts::module_name());
 		Utils_RecordBrowserCommon::unregister_datatype('crm_company');
 		Utils_RecordBrowserCommon::unregister_datatype('crm_contact');
 		Utils_RecordBrowserCommon::unregister_datatype('crm_company_contact');
 		Utils_RecordBrowserCommon::unregister_datatype('email');
-		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
+		Utils_RecordBrowserCommon::delete_addon('company', CRM_Contacts::module_name(), 'company_addon');
 		Utils_AttachmentCommon::delete_addon('company');
 		Utils_AttachmentCommon::delete_addon('contact');
 		Utils_RecordBrowserCommon::uninstall_recordset('company');
@@ -172,12 +172,12 @@ class CRM_ContactsInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/RecordBrowser', 'version'=>0),
-			array('name'=>'Utils/Attachment', 'version'=>0),
-			array('name'=>'CRM/Common', 'version'=>0),
-			array('name'=>'Base/Lang', 'version'=>0),
-			array('name'=>'Base/Acl', 'version'=>0),
-			array('name'=>'Data/Countries', 'version'=>0)
+			array('name'=>Utils_RecordBrowser::module_name(), 'version'=>0),
+			array('name'=>Utils_Attachment::module_name(), 'version'=>0),
+			array('name'=>CRM_CommonInstall::module_name(), 'version'=>0),
+			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
+			array('name'=>Base_Acl::module_name(), 'version'=>0),
+			array('name'=>Data_Countries::module_name(), 'version'=>0)
 		);
 	}
 

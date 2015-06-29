@@ -28,11 +28,11 @@ class Base_Menu_QuickAccessInstall extends ModuleInstall {
 		return array('1.0.0');
 	}
 	public function requires($v) {
-		return array(array('name'=>'Base/Lang','version'=>0),
-				array('name'=>'Libs/QuickForm','version'=>0), 
-				array('name'=>'Base/Menu','version'=>0),  
-				array('name'=>'Base/Theme','version'=>0),  
-				array('name'=>'Base/Acl','version'=>0));
+		return array(array('name'=>Base_LangInstall::module_name(),'version'=>0),
+				array('name'=>Libs_QuickForm::module_name(),'version'=>0),
+				array('name'=>Base_Menu::module_name(),'version'=>0),
+				array('name'=>Base_Theme::module_name(),'version'=>0),
+				array('name'=>Base_Acl::module_name(),'version'=>0));
 	}
 
 	public static function simple_setup() {

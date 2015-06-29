@@ -75,7 +75,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$custom_event = true;
 			}
 		}
-		$pdf_theme = $this->pack_module('Base/Theme');
+		$pdf_theme = $this->pack_module(Base_Theme::module_name());
 		$pdf_theme->assign('description', array('label'=>__('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
 		if (!$no_details) {
 			$ev['status'] = Utils_CommonDataCommon::get_value('CRM/Status/'.$ev['status'],true);
@@ -205,7 +205,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	public function get_navigation_bar_additions() {
 		$custom_handlers = CRM_CalendarCommon::get_event_handlers();
 		if (empty($custom_handlers)) return '';
-		$form = $this->init_module('Libs/QuickForm');
+		$form = $this->init_module(Libs_QuickForm::module_name());
 
 		$elements_name = array();
 		$default = array();
@@ -252,7 +252,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if ($select_count==1) $label = $custom_handlers[reset($selected)];
 		if ($select_count==0) $label = __('None');
 
-		$theme = $this->init_module('Base/Theme');
+		$theme = $this->init_module(Base_Theme::module_name());
 		$theme->assign('elements_name', $elements_name);
 		$theme->assign('label', $label);
 

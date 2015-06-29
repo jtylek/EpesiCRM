@@ -27,7 +27,7 @@ class Tools_SessionKeeperInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/User/Settings','version'=>0));
+			array('name'=>Base_User_Settings::module_name(),'version'=>0));
 	}
 	
 	public static function info() {
