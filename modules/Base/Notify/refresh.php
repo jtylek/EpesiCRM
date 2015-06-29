@@ -4,73 +4,76 @@
  * @author Georgi Hristov <ghristov@gmx.de>
  * @copyright Copyright &copy; 2014, Xoff Software GmbH
  * @license MIT
- * @version 1.0
+ * @version 2.0
  * @package epesi-notify
  * 
  */
 
-ob_start();
-define('CID',$_REQUEST['cid']);
+define('CID', false);
+define('READ_ONLY_SESSION', true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-if(!Base_AclCommon::is_user())
-exit();
+$token = Base_NotifyCommon::init_notified_cache(); // will check is user logged
 
-$general_setting = Base_NotifyCommon::get_general_setting();
+if ($token === false) {
+    exit();
+}
 
-if ($general_setting == -1) {
+if (Base_NotifyCommon::is_disabled()) {	
 	echo json_encode(array('disable'=>1));
+	
 	exit();
 }
 
-$ret = null;
-$notify_count = 0;
+if (!Base_NotifyCommon::is_refresh_due($token)) exit();
+
+$ret = array();
+$message_count = 0;
+$notified_cache = array();
+	
 $group_similar = Base_NotifyCommon::group_similar();
-$notifications = Base_NotifyCommon::get_notifications();
+$refresh_time = time();
+$notifications = Base_NotifyCommon::get_notifications($token);
+$all_notified = true;
 
-foreach ($notifications as $module => $notify) {
-    if (!isset($notify['tray'])) continue;
+foreach ($notifications as $module => $module_new_notifications) {
 	$timeout = Base_NotifyCommon::get_module_setting($module);
-	if ($timeout == -1) continue;
 
-	$msg_count = 0;
-	$new_messages = Base_NotifyCommon::get_new_messages($module, $notify['tray']);
-	foreach ($new_messages as $id=>$message) {
-		$msg_count++;
-		if (!$group_similar) {
-			$notify_count++;
-			if ($notify_count>Base_NotifyCommon::message_refresh_limit) break;
-		}
+	if ($group_similar && count($module_new_notifications) > 1) {
+		$message_count++;
+		if ($message_count>Base_NotifyCommon::message_refresh_limit) break;
 
-		$_SESSION['Base_Notify']['notified_cache'][$module][$id] = 1;
-		
-		if ($group_similar && count($new_messages) >1) continue;
-
-		$title = EPESI.' '.Base_NotifyCommon::strip_html($message['title']);
-		$body = Base_NotifyCommon::strip_html($message['body']);
-		$icon = Base_NotifyCommon::get_icon($module, $message);
-
+		$notified_cache[$module] = array_keys($module_new_notifications);
+			
+		$title = EPESI.' '.Base_NotifyCommon::get_module_caption($module);
+		$body = __('%d new notifications', array(count($module_new_notifications)));
+		$icon = Base_NotifyCommon::get_icon($module);
+	
 		$ret[] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon), 'timeout'=>$timeout);
 	}
+	else {	
+		foreach ($module_new_notifications as $id=>$message) {
+			$message_count++;
+			if ($message_count>Base_NotifyCommon::message_refresh_limit) break 2;
 
-	if ($notify_count>Base_NotifyCommon::message_refresh_limit) break;
-	if (!$group_similar || $msg_count<=1) continue;
-	$notify_count++;
+			$notified_cache[$module][] = $id;
+			
+			$title = EPESI.' '.Base_NotifyCommon::strip_html($message['title']);
+			$body = Base_NotifyCommon::strip_html($message['body']);
+			$icon = Base_NotifyCommon::get_icon($module, $message);
 	
-	$title = EPESI.' '.Base_NotifyCommon::get_module_caption($module);
-	$body = __('%d new notifications', array($msg_count));
-	$icon = Base_NotifyCommon::get_icon($module);
+			$ret[] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon, 'tag'=>$id), 'timeout'=>$timeout);
+		}
+	}
 
-	$ret[] = array('title'=>$title, 'opts'=>array('body'=>$body, 'icon'=>$icon), 'timeout'=>$timeout);
+	$all_notified &= count($module_new_notifications) == count($notified_cache[$module]);
 }
 
-if (!isset($title) || !isset($icon)) {
-	exit();
-}
+Base_NotifyCommon::set_notified_cache($notified_cache, $token, $all_notified ? $refresh_time : Base_NotifyCommon::get_last_refresh($token));
 
-if (isset($ret))
-echo json_encode($ret);
+if (count($ret)) {
+    echo json_encode(array('messages' => $ret));
+}
 
 exit();
-?>
