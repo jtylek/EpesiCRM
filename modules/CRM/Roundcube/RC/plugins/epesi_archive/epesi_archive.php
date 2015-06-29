@@ -251,14 +251,6 @@ class epesi_archive extends rcube_plugin
         $data = array('message_id'=>$message_id,'references'=>$msg->get_header('REFERENCES'),'contacts'=>$contacts,'date'=>$date,'subject'=>substr($msg->subject,0,256),'body'=>$body,'headers_data'=>implode("\n",$headers),'from'=>$rcmail->storage->decode_header($msg->headers->from),'to'=>$rcmail->storage->decode_header($msg->headers->to),'employee'=>$employee);
         $id = Utils_RecordBrowserCommon::new_record('rc_mails',$data);
         $epesi_mails[] = $id;
-        foreach($contacts as $c) {
-            list($rs,$con_id) = explode(':',$c);
-            if($rs=='P')
-                Utils_WatchdogCommon::new_event('contact',$con_id,'N_New mail');
-            else
-                Utils_WatchdogCommon::new_event('company',$con_id,'N_New mail');
-        }
-        Utils_WatchdogCommon::new_event('contact',$employee,'N_New mail');
         /*DB::Execute('INSERT INTO rc_mails_data_1(created_on,created_by,f_contacts,f_date,f_employee,f_subject,f_body,f_headers_data,f_direction) VALUES(%T,%d,%s,%T,%d,%s,%s,%s,%b)',array(
                     time(),$E_SESSION['user'],$contacts,$date,$employee,substr($msg->subject,0,256),$body,implode("\n",$headers),$sent_mbox));
         $id = DB::Insert_ID('rc_mails_data_1','id');*/

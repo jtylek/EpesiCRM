@@ -154,8 +154,38 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
             $param['message_id'] = ltrim(rtrim($param['message_id'],'>'),'<');
         } else if ($mode == 'added') {
             self::create_thread($param['id']);
+            self::subscribe_users_to_record($param);
+        } else if ($mode == 'edit') {
+            $old_related = Utils_RecordBrowserCommon::get_value('rc_mails', $param['id'], 'related');
+            $old_related = Utils_RecordBrowserCommon::decode_multi($old_related);
+            $new_related = $param['related'];
+            $new_related = Utils_RecordBrowserCommon::decode_multi($new_related);
+            $subscribers = array();
+            foreach ($new_related as $rel) {
+                if (in_array($rel, $old_related)) continue;
+                list($recordset, $record_id) = explode('/', $rel);
+                $subscribers = array_merge($subscribers, Utils_WatchdogCommon::get_subscribers($recordset, $record_id));
+            }
+            foreach (array_unique($subscribers) as $user_id) {
+                Utils_WatchdogCommon::user_subscribe($user_id, 'rc_mails', $param['id']);
+            }
         }
         return $param;
+    }
+
+    public static function subscribe_users_to_record($record)
+    {
+        $employee = $record['employee'];
+        $contacts = $record['contacts'];
+        $subscribers = $employee ? Utils_WatchdogCommon::get_subscribers('contact', $employee) : array();
+        foreach ($contacts as $c) {
+            list($rs, $con_id) = explode(':', $c);
+            $rs_full = ($rs == 'P' ? 'contact' : 'company');
+            $subscribers = array_merge($subscribers, Utils_WatchdogCommon::get_subscribers($rs_full, $con_id));
+        }
+        foreach (array_unique($subscribers) as $user_id) {
+            Utils_WatchdogCommon::user_subscribe($user_id, 'rc_mails', $record['id']);
+        }
     }
 
     public static function QFfield_body(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
@@ -267,7 +297,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
           $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE f_message_id is not null AND %s LIKE '.DB::Concat('\'%%\'','f_message_id','\'%%\'').' AND active=1',array($m['references']));
         if(!$thread)
           $thread = Utils_RecordBrowserCommon::new_record('rc_mail_threads',array('subject'=>$m['subject'],'contacts'=>array_unique(array_merge($m['contacts'],array('P:'.$m['employee']))),'first_date'=>$m['date'],'last_date'=>$m['date']));
-        Utils_RecordBrowserCommon::update_record('rc_mails',$id,array('thread'=>$thread));
+        Utils_RecordBrowserCommon::update_record('rc_mails',$id,array('thread'=>$thread), false, null, true);
         $t = Utils_RecordBrowserCommon::get_record('rc_mail_threads',$thread);
         Utils_RecordBrowserCommon::update_record('rc_mail_threads',$thread,array('contacts'=>array_unique(array_merge($t['contacts'],$m['contacts'],array('P:'.$m['employee']))),'first_date'=>strtotime($m['date'])<strtotime($t['first_date'])?$m['date']:$t['first_date'],'last_date'=>strtotime($m['date'])>strtotime($t['last_date'])?$m['date']:$t['last_date'],'subject'=>(trim($m['references'])=='' ||  mb_strlen($m['subject'])<mb_strlen($t['subject']))?$m['subject']:$t['subject']));
     }
@@ -542,6 +572,18 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     public static function cron_cleanup_session() {
         DB::Execute('DELETE FROM rc_session WHERE changed<%T',array(time()-3600*24));
     }
+
+    public static function watchdog_label($rid = null, $events = array(), $details = true) {
+        return Utils_RecordBrowserCommon::watchdog_label(
+            'rc_mails',
+            __('Mails'),
+            $rid,
+            $events,
+            'subject',
+            $details
+        );
+    }
+
 }
 
 ?>

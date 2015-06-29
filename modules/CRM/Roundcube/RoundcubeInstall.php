@@ -269,6 +269,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_tpl('rc_mails', Base_ThemeCommon::get_template_filename('CRM/Roundcube', 'mails'));
     	Utils_RecordBrowserCommon::register_processing_callback('rc_mails', array('CRM_RoundcubeCommon', 'submit_mail'));
         Utils_RecordBrowserCommon::set_search('rc_mails',2,-1);
+        Utils_RecordBrowserCommon::enable_watchdog('rc_mails', array('CRM_RoundcubeCommon', 'watchdog_label'));
 
         DB::CreateIndex('rc_mails_thread_idx', 'rc_mails_data_1', 'f_thread');
         DB::CreateIndex('rc_mails_msgid_idx', 'rc_mails_data_1', 'f_message_id');
