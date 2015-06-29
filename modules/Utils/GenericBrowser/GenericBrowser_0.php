@@ -10,10 +10,17 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_GenericBrowser_Row_Object {
+	/**
+	 * @var Utils_GenericBrowser
+     */
 	private $GBobj;
 	private $num;
 
-	public function __construct($GBobj, $num){
+	/**
+	 * @param Utils_GenericBrowser $GBobj
+	 * @param $num
+     */
+	public function __construct(Utils_GenericBrowser $GBobj, $num){
 		$this->GBobj = $GBobj;
 		$this->num = $num;
 	}
