@@ -193,15 +193,7 @@ class ModuleManager {
 	 * @return array
 	 */
 	private static final function check_dependencies($module_to_check, $version, & $module_table) {
-		$ret = self::include_install($module_to_check);
-		if (!$ret) return array();
-
-		$func = array (
-			self::$modules_install[$module_to_check],
-			'requires'
-		);
-		if(!is_callable($func)) return array();
-		$req_mod = call_user_func($func,$version);
+		$req_mod = self::get_required_modules($module_to_check);
 
 		$ret = array();
 
@@ -212,6 +204,11 @@ class ModuleManager {
 		}
 
 		return $ret;
+	}
+
+	public static function mock_autoloader($class)
+	{
+		eval ("class $class extends ModulePrimitive {} ");
 	}
 
 	private static function satisfy_dependencies($module_to_install,$version,$check=null) {
@@ -596,6 +593,27 @@ class ModuleManager {
 
 	}
 
+	public static function get_required_modules($name)
+	{
+		static $cache = array();
+		if (isset($cache[$name])) {
+			return $cache[$name];
+		}
+
+		spl_autoload_register(array(get_called_class(), 'mock_autoloader'));
+		$callable = self::include_install($name);
+		if ($callable)
+			$required = call_user_func(array (
+				self::$modules_install[$name],
+				'requires'
+			));
+		else
+			$required = array();
+		spl_autoload_unregister(array(get_called_class(), 'mock_autoloader'));
+		$cache[$name] = $required;
+		return $required;
+	}
+
 	/**
 	 * Uninstalls module.
 	 *
@@ -616,14 +634,7 @@ class ModuleManager {
 			if ($name == $module_to_uninstall)
 				continue;
 
-			$callable = self::include_install($name);
-			if ($callable)
-				$required = call_user_func(array (
-					self::$modules_install[$name],
-					'requires'
-					),$version);
-			else
-				$required = array();
+			$required = self::get_required_modules($name);
 
 			foreach ($required as $req_mod) { //for each dependency of that module
 				$req_mod['name'] = str_replace('/','_',$req_mod['name']);
@@ -993,12 +1004,7 @@ class ModuleManager {
     public static function required_modules($verbose = false) {
         $ret = array();
         foreach (self::$modules as $name => $version) {
-			if (!self::include_install($name)) continue;
-			$required = call_user_func(array (
-				self::$modules_install[$name],
-				'requires'
-				),$version);
-
+			$required = self::get_required_modules($name);
 			foreach ($required as $req_mod) {
                 $req_name = str_replace('/','_',$req_mod['name']);
                 if($verbose) {
