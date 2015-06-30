@@ -37,7 +37,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
         return DB::Insert_ID('utils_filestorage_files','id');
     }
 
-    public static function read_meta($id) {
+    public static function meta($id) {
         static $meta_cache = array();
         if(isset($meta_cache[$id])) return $meta_cache[$id];
         
@@ -50,8 +50,14 @@ class Utils_FileStorageCommon extends ModuleCommon {
     }
     
     public static function read_content($id) {
-        $meta = self::read_meta($id);
+        $meta = self::meta($id);
         return file_get_contents($meta['file']);
+    }
+
+    public static function delete($id) {
+        $meta = self::meta($id);
+        @unlink($meta['file']);
+        DB::Execute('DELETE FROM utils_filestorage_files WHERE id=%d',array($id));
     }
 }
 

@@ -220,7 +220,7 @@ class Utils_Attachment extends Module {
         ));
         $gb->set_default_order(array(__('Date')=>'DESC'));
 
-        $ret = $gb->query_order_limit('SELECT uaf.id,uaf.deleted,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
+        $ret = $gb->query_order_limit('SELECT uaf.id,uaf.deleted,uaf.filestorage_id,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
         while($row = $ret->FetchRow()) {
             $r = $gb->get_new_row();
             if ($row['deleted']) $r->add_action($this->create_confirm_callback_href(__('Are you sure you want to restore attached file?'),array($this,'restore_file'),array($row['id'])),'restore',__('Restore'));
@@ -230,6 +230,7 @@ class Utils_Attachment extends Module {
             $lb['crypted'] = $attachment['crypted'];
             $lb['original'] = $row['original'];
             $lb['id'] = $row['id'];
+            $lb['filestorage_id'] = $row['filestorage_id'];
             $file = '<a '.Utils_AttachmentCommon::get_file_leightbox($lb,$view_link).'>'.$row['original'].'</a>';
             $r->add_data($row['deleted']?__('Yes'):__('No'),Base_RegionalSettingsCommon::time2reg($row['upload_on']),Base_UserCommon::get_user_label($row['upload_by']),$file);
         }

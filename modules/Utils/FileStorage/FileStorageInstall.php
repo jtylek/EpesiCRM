@@ -25,6 +25,7 @@ class Utils_FileStorageInstall extends ModuleInstall {
 			return false;
 		}
 		$this->create_data_dir();
+		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		return $ret;
 	}
 	

@@ -185,11 +185,11 @@ if(!$files_checkpoint->is_done()) {
     } else {
         $files = 0;
     }
-    if($old_checkpoint->has('files_qty')) {
-        $files_qty = $old_checkpoint->get('files_qty');
+    if($files_checkpoint->has('files_qty')) {
+        $files_qty = $files_checkpoint->get('files_qty');
     } else {
         $files_qty = DB::GetOne('SELECT count(*) FROM utils_attachment_file');
-        $old_checkpoint->set('files_qty',$files_qty);
+        $files_checkpoint->set('files_qty',$files_qty);
     }
     
     while($ret = DB::SelectLimit('SELECT f.id,f.attach_id,l.local FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id ORDER BY f.id',1,$files++)) {

@@ -28,7 +28,7 @@ ModuleManager::load_modules();
 if(!Acl::is_user())
 	die('Permission denied');
 
-$file = DB::GetRow('SELECT uaf.attach_id, uaf.original FROM utils_attachment_file uaf WHERE uaf.id=%d',array($id));
+$file = DB::GetRow('SELECT uaf.attach_id, uaf.original, uaf.filestorage_id FROM utils_attachment_file uaf WHERE uaf.id=%d',array($id));
 $rec = Utils_RecordBrowserCommon::get_record('utils_attachment', $file['attach_id']);
 if (!$rec) die('Invalid attachment.');
 $access_fields = Utils_RecordBrowserCommon::get_access('utils_attachment', 'view', $rec);
@@ -37,7 +37,7 @@ if (!isset($access_fields['note']) || !$access_fields['note'])
 
 $original = $file['original'];
 $local = $rec['id'];
-$filename = $local.'/'.$id;
+$fsid = $rec['filestorage_id'];
 $crypted = $rec['crypted'];
 
 //require_once('mime.php');
@@ -50,7 +50,8 @@ $t = time();
 $remote_address = get_client_ip_address();
 $remote_host = gethostbyaddr($remote_address);
 DB::Execute('INSERT INTO utils_attachment_download(attach_file_id,created_by,created_on,download_on,description,ip_address,host_name) VALUES (%d,%d,%T,%T,%s,%s,%s)',array($id,Acl::get_user(),$t,$t,$disposition,$remote_address,$remote_host));
-$f_filename = DATA_DIR.'/Utils_Attachment/'.$filename;
+$meta = Utils_FileStorageCommon::meta($fsid);
+$f_filename = $meta['file'];
 if(!file_exists($f_filename))
 	die('File doesn\'t exists');
 $buffer = file_get_contents($f_filename);

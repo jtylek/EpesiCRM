@@ -86,11 +86,12 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('utils_attachment_file','
 			id I4 AUTO KEY NOTNULL,
 			attach_id I4 NOTNULL,
+			filestorage_id I8 NOTNULL,
 			original C(255) NOTNULL,
 			created_by I4,
 			created_on T DEFTIMESTAMP,
 			deleted I1 NOTNULL DEFAULT 0',
-			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_data_1(id)'));
+			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_data_1(id), FOREIGN KEY (filestorage_id) REFERENCES utils_filestorage_files(id)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_file.<br>');
 			return false;
@@ -160,6 +161,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(array('name'=>Utils_GenericBrowser::module_name(),'version'=>0),
 			     array('name'=>Utils_FileUpload::module_name(), 'version'=>0),
+			     array('name'=>Utils_FileStorage::module_name(), 'version'=>0),
 			     array('name'=>Utils_BBCodeInstall::module_name(), 'version'=>0),
                  array('name'=>CRM_CommonInstall::module_name(), 'version'=>0),
 			     array('name'=>Libs_QuickForm::module_name(), 'version'=>0),

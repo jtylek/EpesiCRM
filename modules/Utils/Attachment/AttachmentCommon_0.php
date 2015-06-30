@@ -55,10 +55,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if(isset($selective) && !empty($selective))
             $ids = array_intersect($ids,$selective);
         foreach($ids as $id) {
-            $mids = DB::GetCol('SELECT id FROM utils_attachment_file WHERE attach_id=%d',array($id));
-            $file_base = self::Instance()->get_data_dir().$id.'/';
-            foreach($mids as $mid) {
-                @unlink($file_base.$mid);
+            $mids = DB::GetAssoc('SELECT id,filestorage_id FROM utils_attachment_file WHERE attach_id=%d',array($id));
+            foreach($mids as $mid=>$fsid) {
+                Utils_FileStorageCommon::delete($fsid);
                 DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($mid));
             }
             DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
@@ -70,15 +69,17 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	public static function call_user_func_on_file($group,$func,$group_starts_with=false, $add_args=array()) {
 	        $where = self::get_where($group,$group_starts_with);
 	        if(!$where) return;
-		$ret = DB::Execute('SELECT f.id, f.original, f.created_on, f.attach_id as aid
+		$ret = DB::Execute('SELECT f.id, f.original, f.created_on, f.attach_id as aid, f.filestorage_id as fsid
 				    FROM utils_attachment_data_1 ual INNER JOIN utils_attachment_file f ON (f.attach_id=ual.id)
 				    WHERE ual.active=1 AND f.deleted=0 AND ual.id IN ('.implode(',',$where).')');
 		while($row = $ret->FetchRow()) {
 			$id = $row['id'];
 			$local = $row['aid'];
-			$file = self::Instance()->get_data_dir().$local.'/'.$id;
-			if(file_exists($file))
-    				call_user_func($func,$id,$file,$row['original'],$add_args,$row['created_on']);
+			$meta = Utils_FileStorageCommon::meta($row['fsid']);
+			try {
+			    $file = $meta['file'];
+    			    call_user_func($func,$id,$file,$row['original'],$add_args,$row['created_on']);
+    			} catch(Exception $e) {}
 		}
 	}
 
@@ -112,13 +113,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	
 	public static function add_file($note, $user, $oryg, $file) {
 		if($oryg===null) $oryg='';
-		$local = self::Instance()->get_data_dir().$note;
-		if(!file_exists($local))
-			mkdir($local,0777,true);
-		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by) VALUES(%d,%s,%d)',array($note,$oryg,$user));
-		$id = DB::Insert_ID('utils_attachment_file','id');
-		$dest_file = $local.'/'.$id;
-		rename($file,$dest_file);
+		$fsid = Utils_FileStorageCommon::write_file($oryg,$file);
+		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,filestorage_id) VALUES(%d,%s,%d,%d)',array($note,$oryg,$user,$fsid));
 	}
 
 	public static function count($group=null,$group_starts_with=false) {
@@ -144,7 +140,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                ' uaf.id as file_id,' .
                ' uaf.created_by as upload_by,' .
                ' uaf.created_on as upload_on,' .
-               ' uaf.original,' .
+               ' uaf.original, uaf.filestorage_id' .
                ' (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads ' .
                'FROM utils_attachment_file uaf INNER JOIN utils_attachment_data_1 note' .
                ' ON uaf.attach_id=note.id ' .
@@ -209,14 +205,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$notes = self::get_files($from_group);
 		$mapping = array();
 		foreach ($notes as $n) {
-			$file = self::Instance()->get_data_dir().$n['note_id'].'/'.$n['file_id'];
-			if(file_exists($file)) {
-				$file2 = $file.'_tmp';
-				copy($file,$file2);
-			} else {
-				$file2 = null;
-			}
-			$mapping[$n['note_id']] = @Utils_AttachmentCommon::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$file2);
+			$meta = Utils_FileStorageCommon::meta($n['filestorage_id']);
+			$mapping[$n['note_id']] = @Utils_AttachmentCommon::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$meta['file']);
 		}
 		return $mapping;
 	}
@@ -337,10 +327,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $icon = '';
         $crypted = Utils_RecordBrowserCommon::get_value('utils_attachment',$row['id'],'crypted');
         if(!$crypted || isset($_SESSION['client']['cp'.$row['id']])) {
-            $files = DB::GetAll('SELECT id, created_by, created_on, original, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($row['id']));
+            $files = DB::GetAll('SELECT id, created_by, created_on, original, filestorage_id, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($row['id']));
             foreach ($files as $f) {
-                $f_filename = DATA_DIR.'/Utils_Attachment/'.$row['id'].'/'.$f['id'];
-                if(file_exists($f_filename)) {
+                try {
+                    $meta = Utils_FileStorageCommon::meta($f['filestorage_id']);
+                    $f_filename = $meta['file'];
                     $filename = $f['original'];
                     $filetooltip = __('Filename: %s',array($filename)).'<br>'.__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
                         __('Last uploaded by %s', array(Base_UserCommon::get_user_label($f['created_by'], true))).'<br/>'.
@@ -352,12 +343,13 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $lb['crypted'] = $crypted;
                     $lb['original'] = $f['original'];
                     $lb['id'] = $f['id'];
+                    $lb['filestorage_id'] = $f['filestorage_id'];
                     $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip).' '.self::get_file_leightbox($lb,$view_link);
                     $link_img = Base_ThemeCommon::get_template_file('Utils_Attachment','z-attach.png');
                     if(Utils_AttachmentCommon::is_image($filename) && $view_link)
                         $inline_img .= '<hr><a href="'.$view_link.'" target="_blank"><img src="'.$view_link.'" style="max-width:700px" /></a><br>';
-                } else {
-                    $filename = __('Missing file: %s',array($f_filename));
+                } catch(Exception $e) {
+                    $filename = __('Missing file: %s',array($f['original']));
                     $link_href = Utils_TooltipCommon::open_tag_attrs($filename);
                     $link_img = Base_ThemeCommon::get_template_file('Utils_Attachment','z-attach-off.png');
                 }
@@ -500,7 +492,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
 
     public static function QFfield_crypted(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
-        if ($mode=='view') {
+        if ($mode=='view' || !function_exists('mcrypt_module_open')) {
             $elem = $form->addElement('checkbox', $field, $label,'', array('id'=>$field));
             $form->setDefaults(array($field=>$default));
             $elem->freeze(1);
@@ -581,16 +573,20 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         DB::Execute('UPDATE utils_attachment_edit_history_data SET old_value=%s WHERE edit_id=%d AND field="note"',array($old_note,$old_id));
                     }
                     //file reencryption
-                    $old_files = DB::GetCol('SELECT uaf.id as id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d',array($values['id']));
-                    foreach($old_files as $old_id) {
-                        $filename = DATA_DIR.'/Utils_Attachment/'.$values['id'].'/'.$old_id;
+                    $old_files = DB::GetAssoc('SELECT uaf.id as id, uaf.filestorage_id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d',array($values['id']));
+                    foreach($old_files as $id=>$fsid) {
+                        try {
+                            $meta = Utils_FileStorageCommon::meta($fsid);
+                        } catch(Exception $e) { continue; }
+                        $filename = $meta['file'];
                         $content = @file_get_contents($filename);
                         if($content===false) continue;
                         if($old_pass!=='') $content = Utils_AttachmentCommon::decrypt($content,$old_pass);
                         if($content===false) continue;
                         if($crypted && $values['crypted']['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$values['crypted']['note_password']);
                         if($content===false) continue;
-                        file_put_contents($filename,$content);
+                        $fsid = Utils_FileStorageCommon::write_content($meta['filename'],$content);
+                        DB::Execute('UPDATE utils_attachment_file SET filestorage_id=%d WHERE id=%d',array($fsid,$id));
                     }
                 }
 
@@ -673,7 +669,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
 
                 $note_id = $values['id'];
-                $files_dir = self::Instance()->get_data_dir().$note_id;
                 
                 if(isset($values['delete_files']))
                     $deleted_files = array_filter(explode(';',$values['delete_files']));
@@ -688,23 +683,16 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     while($local = $locals->FetchRow())
                         DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($note_id,$local['local'],$local['func'],$local['args']));
                     
-                    $clone_files = DB::GetAll('SELECT id,original,created_by,created_on FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($values['clone_id']));
+                    $clone_files = DB::GetAll('SELECT id,original,created_by,created_on,filestorage_id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($values['clone_id']));
                     foreach($clone_files as $file) {
-                        $cf = self::Instance()->get_data_dir().$values['clone_id'].'/'.$file['id'];
-                        if(!file_exists($cf)) continue;
-                        if(!file_exists($files_dir))
-                            mkdir($files_dir,0777,true);
-
-                        DB::Execute('INSERT INTO utils_attachment_file (attach_id,deleted,original,created_by,created_on) VALUES(%d,0,%s,%d,%T)',array($note_id,$file['original'],$file['created_by'],$file['created_on']));
-                        $new_file_id = DB::Insert_ID('utils_attachment_file','id');
-                        if(isset($deleted_files[$file['id']])) $deleted_files[$file['id']] = $new_file_id;
-
-                        $cf2 = $files_dir.'/'.$new_file_id;
-                        copy($cf,$cf2);
+                        $fsid = $file['filestorage_id'];
+                        $content = Utils_FileStorageCommon::read_content($fsid);
                         if(isset($_SESSION['client']['cp'.$values['clone_id']]) && $_SESSION['client']['cp'.$values['clone_id']])
-                            file_put_contents($cf2,Utils_AttachmentCommon::decrypt(file_get_contents($cf2),$_SESSION['client']['cp'.$values['clone_id']]));
+                            $content = Utils_AttachmentCommon::decrypt($content,$_SESSION['client']['cp'.$values['clone_id']]);
                         if($values['crypted'])
-                            file_put_contents($cf2,Utils_AttachmentCommon::encrypt(file_get_contents($cf2),$values['note_password']));
+                            $content = Utils_AttachmentCommon::encrypt($content,$values['note_password']);
+                        $fsid = Utils_FileStorageCommon::write_content($fsid,$content);
+                        DB::Execute('INSERT INTO utils_attachment_file (attach_id,deleted,original,created_by,created_on,filestorage_id) VALUES(%d,0,%s,%d,%T,%d)',array($note_id,$file['original'],$file['created_by'],$file['created_on'],$fsid));
                     }
                 }
 
@@ -812,7 +800,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $links['link'] = '<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['id'].', '.CID.',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>';
         }
         $th->assign('filename',$row['original']);
-        $f_filename = DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id'];
+        $meta = Utils_FileStorageCommon::meta($row['filestorage_id']);
+        $f_filename = $meta['file'];
         if(!file_exists($f_filename)) return 'missing file: '.$f_filename;
         $th->assign('file_size',__('File size: %s',array(filesize_hr($f_filename))));
 
