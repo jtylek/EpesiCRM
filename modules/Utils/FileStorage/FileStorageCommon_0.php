@@ -21,16 +21,18 @@ class Utils_FileStorageCommon extends ModuleCommon {
 
     public static function write_content($filename,$content) {
         $hash = hash('sha512',$content);
-        if(file_exists(self::Instance()->get_data_dir().$hash)) return DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
-        file_put_contents(self::get_storage_file($hash),$content);
+        $path = self::get_storage_file($hash);
+        if(file_exists($path)) return DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
+        file_put_contents($path,$content);
         DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
         return DB::Insert_ID('utils_filestorage_files','id');
     }
 
     public static function write_file($filename,$file) {
         $hash = hash_file('sha512',$file);
-        if(file_exists(self::Instance()->get_data_dir().$hash)) return DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
-        copy($file,self::get_storage_file($hash));
+        $path = self::get_storage_file($hash);
+        if(file_exists($path)) return DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
+        copy($file,$path);
         DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
         return DB::Insert_ID('utils_filestorage_files','id');
     }
@@ -41,7 +43,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
         
         $meta = DB::GetRow('SELECT * FROM utils_filestorage_files WHERE id=%d',array($id));
         if(!$meta) throw new Utils_FileStorage_RecordNotFound();
-        $meta['file'] = self::get_storage_file($meta['hash'])
+        $meta['file'] = self::get_storage_file($meta['hash']);
         if(!file_exists($meta['file'])) throw new Utils_FileStorage_FileNotFound();
         $meta_cache[$id] = $meta;
         return $meta;
