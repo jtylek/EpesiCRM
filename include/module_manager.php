@@ -193,7 +193,7 @@ class ModuleManager {
 	 * @return array
 	 */
 	private static final function check_dependencies($module_to_check, $version, & $module_table) {
-		$req_mod = self::get_required_modules($module_to_check);
+		$req_mod = self::get_required_modules($module_to_check, $version);
 
 		$ret = array();
 
@@ -593,7 +593,7 @@ class ModuleManager {
 
 	}
 
-	public static function get_required_modules($name)
+	public static function get_required_modules($name,$version)
 	{
 		static $cache = array();
 		if (isset($cache[$name])) {
@@ -606,7 +606,7 @@ class ModuleManager {
 			$required = call_user_func(array (
 				self::$modules_install[$name],
 				'requires'
-			));
+			),$version);
 		else
 			$required = array();
 		spl_autoload_unregister(array(get_called_class(), 'mock_autoloader'));
@@ -634,7 +634,7 @@ class ModuleManager {
 			if ($name == $module_to_uninstall)
 				continue;
 
-			$required = self::get_required_modules($name);
+			$required = self::get_required_modules($name,$version);
 
 			foreach ($required as $req_mod) { //for each dependency of that module
 				$req_mod['name'] = str_replace('/','_',$req_mod['name']);
@@ -1004,7 +1004,7 @@ class ModuleManager {
     public static function required_modules($verbose = false) {
         $ret = array();
         foreach (self::$modules as $name => $version) {
-			$required = self::get_required_modules($name);
+			$required = self::get_required_modules($name,$version);
 			foreach ($required as $req_mod) {
                 $req_name = str_replace('/','_',$req_mod['name']);
                 if($verbose) {
