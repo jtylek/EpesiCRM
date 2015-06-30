@@ -21,6 +21,8 @@ class Utils_QueryBuilder extends Module
     private $options = array('allow_empty' => true);
     private $plugins = array('invert' => array('display_rules_button' => true));
 
+    private static $empty_rules = array('condition' => 'AND', 'rules' => array());
+
     public function construct($form = null, $form_element_id = null)
     {
         $this->instance_id = 'builder_' . md5($this->get_path());
@@ -44,7 +46,7 @@ class Utils_QueryBuilder extends Module
             $this->options['plugins'] = $this->plugins;
         }
         $options_json = json_encode($this->options);
-        $rules_json = $this->rules ? json_encode($this->rules) : json_encode(array());
+        $rules_json = $this->rules ? json_encode($this->rules) : json_encode(self::$empty_rules);
         $error_msg = __('Please fix query builder rules');
         $error_msg = json_encode($error_msg);
         eval_js("Utils_QueryBuilder('{$this->form->get_name()}', '{$this->form_element_id}', '{$this->instance_id}', {$options_json}, {$rules_json}, {$error_msg});");
