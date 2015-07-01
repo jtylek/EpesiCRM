@@ -2,13 +2,41 @@
 
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-interface Utils_RecordBrowser_CritsInterface
+abstract class Utils_RecordBrowser_CritsInterface
 {
-    function to_sql($callback);
-    function to_words();
+
+    abstract function normalize();
+    abstract function to_words();
+    abstract function to_sql($callback);
+
+    /**
+     * @return boolean
+     */
+    public function get_negation()
+    {
+        return $this->negation;
+    }
+
+    /**
+     * @param boolean $negation
+     */
+    public function set_negation($negation = true)
+    {
+        $this->negation = $negation;
+    }
+
+    /**
+     * Negate this crit object
+     */
+    public function negate()
+    {
+        $this->set_negation(!$this->get_negation());
+    }
+
+    protected $negation = false;
 }
 
-class Utils_RecordBrowser_CritsSingle implements Utils_RecordBrowser_CritsInterface
+class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
 {
     protected $field;
     protected $value;
@@ -50,19 +78,14 @@ class Utils_RecordBrowser_CritsSingle implements Utils_RecordBrowser_CritsInterf
     }
 
     /**
-     * @return boolean
+     * Normalize to remove negation
      */
-    public function get_negation()
+    public function normalize()
     {
-        return $this->negation;
-    }
-
-    /**
-     * @param boolean $negation
-     */
-    public function set_negation($negation = true)
-    {
-        $this->negation = $negation;
+        if ($this->get_negation()) {
+            $this->set_negation(false);
+            $this->operator = self::opposite_operator($this->operator);
+        }
     }
 
     /**
@@ -83,8 +106,18 @@ class Utils_RecordBrowser_CritsSingle implements Utils_RecordBrowser_CritsInterf
 
     public function to_sql($callback)
     {
+        $this->transform_meta_operators_to_sql();
         $ret = call_user_func($callback, $this);
         return $ret;
+    }
+
+    protected function transform_meta_operators_to_sql()
+    {
+        if ($this->operator == 'LIKE') {
+            $this->operator = DB::like();
+        } else if ($this->operator == 'NOT LIKE') {
+            $this->operator = 'NOT ' . DB::like();
+        }
     }
 
     public function to_words()
@@ -96,16 +129,34 @@ class Utils_RecordBrowser_CritsSingle implements Utils_RecordBrowser_CritsInterf
         }
         return $ret;
     }
+
+    public static function opposite_operator($operator)
+    {
+        switch ($operator) {
+            case '=' : return '!=';
+            case '!=': return '=';
+            case '>=': return '<';
+            case '<' : return '>=';
+            case '<=': return '>';
+            case '>': return '<=';
+            case 'LIKE': return 'NOT LIKE';
+            case 'NOT LIKE': return 'LIKE';
+            case 'IN': return 'NOT IN';
+            case 'NOT IN': return 'IN';
+        }
+    }
 }
 
-class Utils_RecordBrowser_CritsRaw implements Utils_RecordBrowser_CritsInterface
+class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
 {
     protected $sql;
+    protected $negation_sql;
     protected $vals;
 
-    function __construct($sql, $values = array())
+    function __construct($sql, $negation_sql = false, $values = array())
     {
         $this->sql = $sql;
+        $this->negation_sql = $negation_sql;
         if (!is_array($values)) {
             $values = array($values);
         }
@@ -114,18 +165,34 @@ class Utils_RecordBrowser_CritsRaw implements Utils_RecordBrowser_CritsInterface
 
     public function to_sql($callback)
     {
-        return array($this->sql, $this->vals);
+        $sql = $this->get_negation() ? $this->negation_sql : $this->sql;
+        return array($sql, $this->vals);
     }
 
     public function to_words()
     {
+        $sql = $this->get_negation() ? $this->negation_sql : $this->sql;
         $value = implode(', ', $this->vals);
-        $ret = "{$this->sql} ({$value})";
+        $ret = "{$sql} ({$value})";
         return $ret;
+    }
+
+    public function normalize()
+    {
+        if ($this->get_negation()) {
+            if ($this->negation_sql !== false) {
+                $this->set_negation(false);
+                $tmp_sql = $this->negation_sql;
+                $this->negation_sql = $this->sql;
+                $this->sql = $tmp_sql;
+            } else {
+                throw new ErrorException('Cannot normalize RawSQL crits without negation_sql param!');
+            }
+        }
     }
 }
 
-class Utils_RecordBrowser_Crits implements Utils_RecordBrowser_CritsInterface
+class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
 {
     protected $negation = false;
     protected $join_operator = null;
@@ -157,20 +224,18 @@ class Utils_RecordBrowser_Crits implements Utils_RecordBrowser_CritsInterface
         }
     }
 
-    /**
-     * @return boolean
-     */
-    public function get_negation()
+    public function normalize()
     {
-        return $this->negation;
-    }
-
-    /**
-     * @param boolean $negation
-     */
-    public function set_negation($negation = true)
-    {
-        $this->negation = $negation;
+        if ($this->get_negation()) {
+            $this->set_negation(false);
+            $this->join_operator = $this->join_operator == 'OR' ? 'AND' : 'OR';
+            foreach ($this->component_crits as $c) {
+                $c->negate();
+            }
+        }
+        foreach ($this->component_crits as $c) {
+            $c->normalize();
+        }
     }
 
     public function is_empty()
@@ -207,6 +272,22 @@ class Utils_RecordBrowser_Crits implements Utils_RecordBrowser_CritsInterface
     public function _or($crits)
     {
         return $this->__op('OR', $crits);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function get_join_operator()
+    {
+        return $this->join_operator;
+    }
+
+    /**
+     * @return Utils_RecordBrowser_CritsInterface[]
+     */
+    public function get_component_crits()
+    {
+        return $this->component_crits;
     }
 
     public function to_sql($callback)
@@ -282,9 +363,9 @@ class Utils_RecordBrowser_CritsBuilder
                 if ($k[0] == '"') $noquotes = true;
                 if ($k[0] == '<') $operator = '<';
                 if ($k[0] == '>') $operator = '>';
-                if ($k[0] == '~') $operator = DB::like();
+                if ($k[0] == '~') $operator = 'LIKE';
                 // parse >= and <=
-                if ($k[1] == '=' && $operator != DB::like()) {
+                if ($k[1] == '=' && $operator != 'LIKE') {
                     $operator .= '=';
                     $k = substr($k, 2);
                 } else $k = substr($k, 1);
@@ -329,10 +410,10 @@ class Utils_RecordBrowser_CritsBuilder
                 if ($k[0]=='|') $or = true;
                 if ($k[0]=='<') $operator = '<';
                 if ($k[0]=='>') $operator = '>';
-                if ($k[0]=='~') $operator = DB::like();
+                if ($k[0]=='~') $operator = 'LIKE';
                 if ($k[0]=='^') $group_or_start = true;
                 // parse >= and <=
-                if ($k[1]=='=' && $operator!=DB::like()) {
+                if ($k[1]=='=' && $operator != 'LIKE') {
                     $operator .= '=';
                     $k = substr($k, 2);
                 } else $k = substr($k, 1);
