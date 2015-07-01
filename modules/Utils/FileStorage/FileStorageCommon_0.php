@@ -108,6 +108,10 @@ class Utils_FileStorageCommon extends ModuleCommon {
         if(DB::GetOne('SELECT 1 FROM utils_filestorage_link WHERE storage_id=%d',array($id))) return;
         $meta = self::meta($id);
         @unlink($meta['file']);
+        for($i=0; $i<=4; $i++) {
+            $meta['file'] = dirname($meta['file']);
+            if(!@rmdir($meta['file'])) break;
+        }
         DB::Execute('DELETE FROM utils_filestorage_files WHERE id=%d',array($id));
     }
     
