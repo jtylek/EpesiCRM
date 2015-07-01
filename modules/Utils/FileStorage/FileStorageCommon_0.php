@@ -30,7 +30,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
             $id = DB::Insert_ID('utils_filestorage_files','id');
         }
         if(!$id) throw new Utils_FileStorage_WriteError();
-        if($link) self::add_link($id,$link);
+        if($link) self::add_link($link,$id);
         return $id;
     }
     
@@ -45,17 +45,17 @@ class Utils_FileStorageCommon extends ModuleCommon {
             $id = DB::Insert_ID('utils_filestorage_files','id');
         }
         if(!$id) throw new Utils_FileStorage_WriteError();
-        if($link) self::add_link($id,$link);
+        if($link) self::add_link($link,$id);
         return $id;
     }
 
-    public static function meta($id) {
+    public static function meta($id, $use_cache=true) {
         static $meta_cache = array();
         if(!is_numeric($id)) $id = self::get_storage_id_by_link($id);
-        if(isset($meta_cache[$id])) return $meta_cache[$id];
+        if($use_cache && isset($meta_cache[$id])) return $meta_cache[$id];
         
         $meta = DB::GetRow('SELECT * FROM utils_filestorage_files WHERE id=%d',array($id));
-        if(!$meta) throw new Utils_FileStorage_StorageNotFound();
+        if(!$meta) throw new Utils_FileStorage_StorageNotFound($id);
         $meta['file'] = self::get_storage_file_path($meta['hash']);
         if(!file_exists($meta['file'])) throw new Utils_FileStorage_FileNotFound($meta['file']);
         $meta['links'] = DB::GetCol('SELECT link FROM utils_filestorage_link WHERE storage_id=%d',array($id));
@@ -68,37 +68,47 @@ class Utils_FileStorageCommon extends ModuleCommon {
         return file_get_contents($meta['file']);
     }
     
-    public static function add_link($id,$link) {
+    public static function add_link($link,$id) {
         try {
-            $id2 = self::get_storage_id_by_link($link);
+            $id2 = self::get_storage_id_by_link($link,false);
             if($id2!=$id) {
-                throw new Utils_FileStorage_LinkDuplicate();
+                throw new Utils_FileStorage_LinkDuplicate($link);
             }
         } catch(Utils_FileStorage_LinkNotFound $e) {
             DB::Execute('INSERT INTO utils_filestorage_link(storage_id,link) VALUES(%d,%s)',array($id,$link));
         }
     }
 
-    public static function get_storage_id_by_link($link) {
+    public static function update_link($link,$id) {
+        try {
+            self::add_link($link,$id);
+        } catch(Utils_FileStorage_LinkDuplicate $e) {
+            $id2 = self::get_storage_id_by_link($link);
+            DB::Execute('UPDATE utils_filestorage_link SET storage_id=%d WHERE link=%s',array($id,$link));
+            self::delete($id2);
+            self::get_storage_id_by_link($link,false); //update cache
+        }
+    }
+
+    public static function get_storage_id_by_link($link,$use_cache=true) {
         static $cache = array();
-        if(!isset($cache[$link])) {
+        if(!$use_cache || !isset($cache[$link])) {
             $cache[$link] = DB::GetOne('SELECT storage_id FROM utils_filestorage_link WHERE link=%s',array($link));
-            if(!$cache[$link]) throw new Utils_FileStorage_LinkNotFound();
+            if(!$cache[$link]) throw new Utils_FileStorage_LinkNotFound($link);
         }
         return $cache[$link];
     }
 
     public static function delete($id) {
         if(!is_numeric($id)) {
-            $mid = self::get_storage_id_by_link($id);
+            $mid = self::get_storage_id_by_link($id,false);
             DB::Execute('DELETE FROM utils_filestorage_link WHERE link=%s',array($id));
-            if(DB::GetOne('SELECT 1 FROM utils_filestorage_link WHERE storage_id=%d',array($mid))) return;
             $id = $mid;
         }
+        if(DB::GetOne('SELECT 1 FROM utils_filestorage_link WHERE storage_id=%d',array($id))) return;
         $meta = self::meta($id);
         @unlink($meta['file']);
         DB::Execute('DELETE FROM utils_filestorage_files WHERE id=%d',array($id));
-        DB::Execute('DELETE FROM utils_filestorage_link WHERE storage_id=%d',array($id));
     }
     
     public static function get($id) {
@@ -140,8 +150,8 @@ class Utils_FileStorage_Object {
     }
 
     public function add_link($link) {
-        $meta = Utils_FileStorageCommon::meta($this->id);
-        return Utils_FileStorageCommon::add_link($meta['id'],$link);
+        $meta = Utils_FileStorageCommon::meta($this->id,false);
+        return Utils_FileStorageCommon::add_link($link,$meta['id']);
     }
 }
 
