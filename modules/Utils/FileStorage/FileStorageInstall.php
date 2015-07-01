@@ -21,7 +21,15 @@ class Utils_FileStorageInstall extends ModuleInstall {
 			hash C(128) NOTNULL',
 			array('constraints'=>', UNIQUE(hash)'));
 		if(!$ret){
-			print('Unable to create table utils_filestorage_utils_filestorage.<br>');
+			print('Unable to create table utils_filestorage_files.<br>');
+			return false;
+		}
+		$ret &= DB::CreateTable('utils_filestorage_link','
+			storage_id I8 NOTNULL,
+			link C(128) KEY',
+			array('constraints'=>', FOREIGN KEY (storage_id) REFERENCES utils_filestorage_files(id)'));
+		if(!$ret){
+			print('Unable to create table utils_filestorage_link.<br>');
 			return false;
 		}
 		$this->create_data_dir();
@@ -31,6 +39,7 @@ class Utils_FileStorageInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		$ret = true;
+		$ret &= DB::DropTable('utils_filestorage_link');
 		$ret &= DB::DropTable('utils_filestorage_files');
 		return $ret;
 	}
