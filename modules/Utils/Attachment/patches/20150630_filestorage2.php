@@ -26,7 +26,7 @@ if(!$files_checkpoint->is_done()) {
         Patch::set_message('Processing file: '.$files.'/'.$files_qty);
         $files_checkpoint->require_time(2);
 
-        $fsid = Utils_FileStorageCommon::write_file($row['original'],DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id']);
+        $fsid = Utils_FileStorageCommon::write_file($row['original'],DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id'],'attachment_file/'.$row['id']);
         unlink(DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id']);
         DB::Execute('UPDATE utils_attachment_file SET filestorage_id=%d WHERE id=%d',array($fsid,$row['id']));
 

@@ -55,9 +55,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if(isset($selective) && !empty($selective))
             $ids = array_intersect($ids,$selective);
         foreach($ids as $id) {
-            $mids = DB::GetAssoc('SELECT id,filestorage_id FROM utils_attachment_file WHERE attach_id=%d',array($id));
-            foreach($mids as $mid=>$fsid) {
-                Utils_FileStorageCommon::delete($fsid);
+            $mids = DB::GetCol('SELECT id FROM utils_attachment_file WHERE attach_id=%d',array($id));
+            foreach($mids as $mid) {
+                Utils_FileStorageCommon::delete('attachment_file/'.$mid);
                 DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($mid));
             }
             DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
@@ -115,6 +115,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if($oryg===null) $oryg='';
 		$fsid = Utils_FileStorageCommon::write_file($oryg,$file);
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,filestorage_id) VALUES(%d,%s,%d,%d)',array($note,$oryg,$user,$fsid));
+		Utils_FileStorageCommon::add_link($fsid,'attachment_file/'.DB::Insert_ID('utils_attachment_file','id'));
 	}
 
 	public static function count($group=null,$group_starts_with=false) {
@@ -585,7 +586,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         if($content===false) continue;
                         if($crypted && $values['crypted']['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$values['crypted']['note_password']);
                         if($content===false) continue;
-                        $fsid = Utils_FileStorageCommon::write_content($meta['filename'],$content);
+                        Utils_FileStorageCommon::delete('attachment_file/'.$id);
+                        $fsid = Utils_FileStorageCommon::write_content($meta['filename'],$content,'attachment_file/'.$id);
                         DB::Execute('UPDATE utils_attachment_file SET filestorage_id=%d WHERE id=%d',array($fsid,$id));
                     }
                 }
@@ -693,6 +695,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                             $content = Utils_AttachmentCommon::encrypt($content,$values['note_password']);
                         $fsid = Utils_FileStorageCommon::write_content($fsid,$content);
                         DB::Execute('INSERT INTO utils_attachment_file (attach_id,deleted,original,created_by,created_on,filestorage_id) VALUES(%d,0,%s,%d,%T,%d)',array($note_id,$file['original'],$file['created_by'],$file['created_on'],$fsid));
+                        Utils_FileStorageCommon::add_link($fsid,'attachment_file/'.DB::Insert_ID('utils_attachment_file','id'));
                     }
                 }
 
