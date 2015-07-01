@@ -18,7 +18,8 @@ if ($user_id == false) {
 
 $pass = generate_password();
 
-if(!DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array(md5($pass), $user_id))) {
+$pass_hash = function_exists('password_hash')?password_hash($pass,PASSWORD_DEFAULT):md5($pass);
+if(!DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array($pass_hash, $user_id))) {
 	die(__('Unable to update password. Please contact system administrator.'));
 }
 

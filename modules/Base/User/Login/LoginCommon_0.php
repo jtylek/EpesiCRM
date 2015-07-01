@@ -21,13 +21,13 @@ class Base_User_LoginCommon extends ModuleCommon {
 	 * @param string
 	 * @return bool
 	 */
-	public static function check_login($username, $pass, $md5=true) {
-		if ($md5) $pass = md5($pass);
-		$ret = DB::Execute('SELECT null FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND p.password=%s AND u.active=1', array($username, $pass));
-		if(!$ret->EOF) //user exists, login ok
-			return true;
-		else
-			return false;
+	public static function check_login($username, $pass, $crypt=true) {
+		$hash = DB::GetOne('SELECT p.password FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($username));
+		if(!$hash) return false;
+		if(!$crypt) return $hash==$pass;
+		if(strlen($hash)==32) //md5
+		    return md5($pass)==$hash;
+		return password_verify($pass,$hash);
 	}
 	
 	public static function submit_login($x) {
@@ -115,7 +115,8 @@ class Base_User_LoginCommon extends ModuleCommon {
 			print(__('Account creation failed.').'<br>'.__('Unable to get id of added user.').'<br>');
 			return false;
 		}
-		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, md5($pass), $mail));
+		$pass_hash = function_exists('password_hash')?password_hash($pass,PASSWORD_DEFAULT):md5($pass);
+		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, $pass_hash, $mail));
 		
 		if($send_mail) {
 			if(!self::send_mail_with_password($username, $pass, $mail)) {
@@ -138,7 +139,8 @@ class Base_User_LoginCommon extends ModuleCommon {
 		if(DB::Execute('UPDATE user_password SET mail=%s WHERE user_login_id=%d', array($mail, $id)) === false)
 			return false;
 		
-		if($pass!='' && DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array(md5($pass), $id))===false)
+		$pass_hash = function_exists('password_hash')?password_hash($pass,PASSWORD_DEFAULT):md5($pass);
+		if($pass!='' && DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array($pass_hash, $id))===false)
 			return false;
 		
 		return true;

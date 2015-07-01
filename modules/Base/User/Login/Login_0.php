@@ -192,7 +192,7 @@ class Base_User_Login extends Module {
 			print('No such user!');
 			return false;
 		}
-		$hash = md5($user_id.''.time());
+		$hash = md5($user_id.''.openssl_random_pseudo_bytes(100));
 		DB::Execute('INSERT INTO user_reset_pass(user_login_id,hash_id,created_on) VALUES (%d,%s,%T)',array($user_id, $hash,time()));
 		
 		$subject = __('Password recovery');
