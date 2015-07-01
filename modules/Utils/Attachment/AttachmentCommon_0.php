@@ -115,7 +115,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if($oryg===null) $oryg='';
 		$fsid = Utils_FileStorageCommon::write_file($oryg,$file);
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,filestorage_id) VALUES(%d,%s,%d,%d)',array($note,$oryg,$user,$fsid));
-		Utils_FileStorageCommon::add_link($fsid,'attachment_file/'.DB::Insert_ID('utils_attachment_file','id'));
+		Utils_FileStorageCommon::add_link('attachment_file/'.DB::Insert_ID('utils_attachment_file','id'),$fsid);
 	}
 
 	public static function count($group=null,$group_starts_with=false) {
@@ -586,9 +586,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         if($content===false) continue;
                         if($crypted && $values['crypted']['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$values['crypted']['note_password']);
                         if($content===false) continue;
-                        Utils_FileStorageCommon::delete('attachment_file/'.$id);
-                        $fsid = Utils_FileStorageCommon::write_content($meta['filename'],$content,'attachment_file/'.$id);
+                        $fsid = Utils_FileStorageCommon::write_content($meta['filename'],$content);
                         DB::Execute('UPDATE utils_attachment_file SET filestorage_id=%d WHERE id=%d',array($fsid,$id));
+                        Utils_FileStorageCommon::update_link('attachment_file/'.$id, $fsid);
                     }
                 }
 
@@ -695,7 +695,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                             $content = Utils_AttachmentCommon::encrypt($content,$values['note_password']);
                         $fsid = Utils_FileStorageCommon::write_content($fsid,$content);
                         DB::Execute('INSERT INTO utils_attachment_file (attach_id,deleted,original,created_by,created_on,filestorage_id) VALUES(%d,0,%s,%d,%T,%d)',array($note_id,$file['original'],$file['created_by'],$file['created_on'],$fsid));
-                        Utils_FileStorageCommon::add_link($fsid,'attachment_file/'.DB::Insert_ID('utils_attachment_file','id'));
+                        Utils_FileStorageCommon::add_link('attachment_file/'.DB::Insert_ID('utils_attachment_file','id'),$fsid);
                     }
                 }
 
