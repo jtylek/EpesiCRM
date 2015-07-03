@@ -62,8 +62,7 @@ class Utils_GenericBrowser_Row_Object {
 	 *
 	 * @param array array with row data
 	 */
-	public function add_data_array($arg){
-		if (!is_array($arg)) trigger_error('Invalid argument for add_data_array.',E_USER_ERROR);
+	public function add_data_array(array $arg){
 		$this->GBobj->__add_row_data($this->num,$arg);
 	}
 
@@ -195,12 +194,7 @@ class Utils_GenericBrowser extends Module {
 	 *
 	 * @param array $arg columns definiton
 	 */
-	public function set_table_columns($arg){
-		if (!is_array($arg)) {
-			print('Invalid argument for table_columns, aborting.<br>');
-			return;
-		}
-
+	public function set_table_columns(array $arg){
 		foreach($arg as $v) {
 			if (!is_array($v))
 				$this->columns[] = array('name' => $v);
@@ -224,7 +218,10 @@ class Utils_GenericBrowser extends Module {
 	public function set_default_order(array $arg,$reset=false){
 		if (($this->isset_module_variable('first_display') && !$reset) || empty($arg)) return;
 		$order=array();
-		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
+		if(!$this->columns)
+			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
 		foreach($arg as $k=>$v){
             if ($k[0] == ':') {
                 $order[] = array('column' => $k, 'direction' => $v, 'order' => $k);
@@ -275,12 +272,13 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function __add_row_data($num,$arg) {
-		if (!is_array($arg))
-			trigger_error('Invalid argument 2 for add_row_array, aborting.<br>',E_USER_ERROR);
-		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+	public function __add_row_data($num,array $arg) {
+		if(!$this->columns)
+			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
 		if (count($arg) != count($this->columns))
 			trigger_error('Invalid size of array for argument 2 while adding data, was '.count($arg).', should be '.count($this->columns).'. Aborting.<br>Given '.print_r($arg, true).' to table '.print_r($this->columns, true),E_USER_ERROR);
+
 		$this->rows[$num] = $arg;
 	}
 
@@ -357,10 +355,7 @@ class Utils_GenericBrowser extends Module {
 	 *
 	 * @param $arg array array with row data
 	 */
-	public function add_row_array($arg) {
-		if (!is_array($arg))
-			trigger_error('Invalid argument for add_row_array, aborting.<br>',E_USER_ERROR);
-
+	public function add_row_array(array $arg) {
 		if(!$this->columns)
 			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 
@@ -478,7 +473,10 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function change_order($ch_order){
 		$order = $this->get_module_variable('order', array());
-		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
+		if(!$this->columns)
+			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
 		$ord = null;
 		foreach($this->columns as $val)
 			if ($val['name'] == $ch_order) {
@@ -540,7 +538,9 @@ class Utils_GenericBrowser extends Module {
 			$where = array();
 		}
 		
-		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+		if(!$this->columns)
+			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
 		if(!$this->is_adv_search_on()) {
 			if(isset($search['__keyword__'])) {
 				if(!$array) {
@@ -614,7 +614,8 @@ class Utils_GenericBrowser extends Module {
 		$quickjump_to = $this->get_module_variable('quickjump_to');
 		$this->set_module_variable('quickjump_to',$quickjump_to);
 
-		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+		if(!$this->columns)
+			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 
  		if (isset($quickjump) && $quickjump_to!='') {
 			foreach($this->columns as $k=>$v){
@@ -730,7 +731,9 @@ class Utils_GenericBrowser extends Module {
 	 * @param bool enabling paging, true by default
 	 */
 	public function automatic_display($paging=true){
-		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+		if(!$this->columns)
+			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
 		$rows = array();
 		$js = array();
 		$actions = array();
@@ -788,6 +791,7 @@ class Utils_GenericBrowser extends Module {
 	public function force_per_page($i) {
 		if(!is_numeric($i))
 			trigger_error('Invalid argument passed to force_per_page method.',E_USER_ERROR);
+
 		$this->set_module_variable('per_page',$i);
 		$this->forced_per_page = true;
 	}
@@ -800,7 +804,9 @@ class Utils_GenericBrowser extends Module {
 	 * @param bool enabling paging, true by default
 	 */
 	public function body($template=null,$paging=true){
-		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+		if(!$this->columns)
+			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
 		$md5_id = md5($this->get_path());
 		$this->set_module_variable('first_display','done');
 		$theme = $this->init_module(Base_Theme::module_name());
