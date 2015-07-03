@@ -149,7 +149,8 @@ class Utils_GenericBrowser extends Module {
 		if (is_numeric($this->get_instance_id()))
 			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',<construct args>, \'instance name here\');',E_USER_ERROR);
 	}
-	
+
+	//region Settings
 	public function no_action($num) {
 		$this->no_actions[$num] = true;
 	}
@@ -190,7 +191,7 @@ class Utils_GenericBrowser extends Module {
 	 * quickjump - sql column by which quickjump should be navigated
 	 * wrapmode - what wrap method should be used (nowrap, wrap, cut)
 	 *
-	 * @param array columns definiton
+	 * @param array $arg columns definiton
 	 */
 	public function set_table_columns($arg){
 		if (!is_array($arg)) {
@@ -241,6 +242,19 @@ class Utils_GenericBrowser extends Module {
 		$this->set_module_variable('default_order',$order);
 	}
 
+	public function set_expandable($b) {
+		if (Base_User_SettingsCommon::get($this->get_type(), 'disable_expandable'))
+			return;
+		$this->set_module_variable('expandable',$this->expandable = ($b ? true : false));
+	}
+
+	public function set_per_page($pp) {
+		if (!isset(Utils_GenericBrowserCommon::$possible_vals_for_per_page[$pp])) $pp = 5;
+		$this->set_module_variable('per_page',$this->per_page = $pp);
+	}
+	//endregion
+
+	//region Add data
 	/**
 	 * Creates new row object.
 	 * You can then use methods add_data, add_data_array or add_action
@@ -252,6 +266,8 @@ class Utils_GenericBrowser extends Module {
 		$this->cur_row++;
 		return new Utils_GenericBrowser_Row_Object($this,$this->cur_row);
 	}
+
+	//region Internal
 
 	/**
 	 * For internal use only.
@@ -295,6 +311,8 @@ class Utils_GenericBrowser extends Module {
 		$this->rows_jses[$num] .= rtrim($js,';').';';
 	}
 
+	//endregion
+
 	/**
 	 * Adds new row with data to Generic Browser.
 	 *
@@ -311,7 +329,7 @@ class Utils_GenericBrowser extends Module {
 	 *
 	 * It's not recommended to use this function in conjunction with add_new_row().
 	 *
-	 * @param mixed list of arguments
+	 * @param mixed $args list of arguments
 	 */
 	public function add_row($args) {
 		$args = func_get_args();
@@ -334,7 +352,7 @@ class Utils_GenericBrowser extends Module {
 	 *
 	 * It's not recommended to use this function in conjunction with add_new_row().
 	 *
-	 * @param array array with row data
+	 * @param $arg array array with row data
 	 */
 	public function add_row_array($arg) {
 		if (!is_array($arg))
@@ -346,6 +364,8 @@ class Utils_GenericBrowser extends Module {
 		$this->cur_row++;
 		if ($this->per_page && $this->cur_row>=$this->per_page) trigger_error('Added more rows than expected, aborting.',E_USER_ERROR);
 	}
+
+	//endregion
 
 	/**
 	 * Returns values needed for proper selection of elements.
@@ -386,17 +406,6 @@ class Utils_GenericBrowser extends Module {
 		$this->offset = $offset;
 		return array(	'numrows'=>$per_page,
 						'offset'=>$offset);
-	}
-
-    public function set_expandable($b) {
-        if (Base_User_SettingsCommon::get($this->get_type(), 'disable_expandable'))
-            return;
-        $this->set_module_variable('expandable',$this->expandable = ($b ? true : false));
-    }
-
-	public function set_per_page($pp) {
-		if (!isset(Utils_GenericBrowserCommon::$possible_vals_for_per_page[$pp])) $pp = 5;
-		$this->set_module_variable('per_page',$this->per_page = $pp);
 	}
 
 	/**
@@ -771,6 +780,8 @@ class Utils_GenericBrowser extends Module {
 		$this->set_module_variable('per_page',$i);
 		$this->forced_per_page = true;
 	}
+
+	//region Display
 	/**
 	 * Displays the table.
 	 *
@@ -1170,7 +1181,8 @@ class Utils_GenericBrowser extends Module {
 		else
 			return '';
 	}
-
+	//endregion
+	//region Pagination
 	private function gb_first() {
 		if($this->get_module_variable('offset')>0)
 			return '<a '.$this->create_unique_href(array('first'=>1)).'>'.__('First').'</a>';
@@ -1198,6 +1210,7 @@ class Utils_GenericBrowser extends Module {
 	public function set_postfix($arg) {
 		$this->table_postfix = $arg;
 	}
+	//endregion
 
 }
 
