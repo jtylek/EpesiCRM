@@ -198,11 +198,14 @@ class Utils_GenericBrowser extends Module {
 			print('Invalid argument for table_columns, aborting.<br>');
 			return;
 		}
-		if (!is_array($arg[0])) {
-			$this->columns = array();
-			foreach($arg as $v)
-				$this->columns[] = array('name'=>$v);
-		} else $this->columns = $arg;
+
+		foreach($arg as $v) {
+			if (!is_array($v))
+				$this->columns[] = array('name' => $v);
+			else
+				$this->columns[] = $v;
+		}
+
 		$this->columns_qty = count($arg);
 	}
 
