@@ -17,7 +17,6 @@ class Utils_GenericBrowser extends Module {
 	private $actions = array();
 	private $row_attrs = array();
 	private $en_actions = false;
-	private $cur_row = -1;
 	private $per_page;
 	private $forced_per_page = false;
 	private $offset;
@@ -150,8 +149,7 @@ class Utils_GenericBrowser extends Module {
 	 * @return object Generic Browser row object
 	 */
 	public function get_new_row() {
-		$this->cur_row++;
-		return new Utils_GenericBrowser_RowObject($this,$this->cur_row);
+		return new Utils_GenericBrowser_RowObject($this,count($this->rows));
 	}
 
 	//region Internal
@@ -250,9 +248,8 @@ class Utils_GenericBrowser extends Module {
 			trigger_error('Invalid size of array for argument 2 while adding data, was '.count($arg).', should be '.count($this->columns).'. Aborting.<br>',E_USER_ERROR);
 
 		$this->rows[] = $arg;
-		$this->cur_row++;
 
-		if ($this->per_page && $this->cur_row>=$this->per_page)
+		if ($this->per_page && count($this->rows) >= $this->per_page)
 			trigger_error('Added more rows than expected, aborting.',E_USER_ERROR);
 
 	}
