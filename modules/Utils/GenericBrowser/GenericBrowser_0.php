@@ -121,8 +121,10 @@ class Utils_GenericBrowser_Row_Object {
 
 
 class Utils_GenericBrowser extends Module {
-	private $columns;
-	private $columns_qty;
+	/**
+	 * @var Utils_GenericBrowser_Column[]
+     */
+	private $columns = array();
 	private $rows = array();
 	private $rows_jses = array();
 	private $rows_qty;
@@ -205,8 +207,6 @@ class Utils_GenericBrowser extends Module {
 			else
 				$this->columns[] = $v;
 		}
-
-		$this->columns_qty = count($arg);
 	}
 
 	/**
@@ -279,8 +279,8 @@ class Utils_GenericBrowser extends Module {
 		if (!is_array($arg))
 			trigger_error('Invalid argument 2 for add_row_array, aborting.<br>',E_USER_ERROR);
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
-		if (count($arg)!=$this->columns_qty)
-			trigger_error('Invalid size of array for argument 2 while adding data, was '.count($arg).', should be '.$this->columns_qty.'. Aborting.<br>Given '.print_r($arg, true).' to table '.print_r($this->columns, true),E_USER_ERROR);
+		if (count($arg) != count($this->columns))
+			trigger_error('Invalid size of array for argument 2 while adding data, was '.count($arg).', should be '.count($this->columns).'. Aborting.<br>Given '.print_r($arg, true).' to table '.print_r($this->columns, true),E_USER_ERROR);
 		$this->rows[$num] = $arg;
 	}
 
@@ -360,12 +360,19 @@ class Utils_GenericBrowser extends Module {
 	public function add_row_array($arg) {
 		if (!is_array($arg))
 			trigger_error('Invalid argument for add_row_array, aborting.<br>',E_USER_ERROR);
-		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
-		if (count($arg)!=$this->columns_qty)
-			trigger_error('Invalid size of array for argument 2 while adding data, was '.count($arg).', should be '.$this->columns_qty.'. Aborting.<br>',E_USER_ERROR);
+
+		if(!$this->columns)
+			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
+		if (count($arg) != count($this->columns))
+			trigger_error('Invalid size of array for argument 2 while adding data, was '.count($arg).', should be '.count($this->columns).'. Aborting.<br>',E_USER_ERROR);
+
 		$this->rows[] = $arg;
 		$this->cur_row++;
-		if ($this->per_page && $this->cur_row>=$this->per_page) trigger_error('Added more rows than expected, aborting.',E_USER_ERROR);
+
+		if ($this->per_page && $this->cur_row>=$this->per_page)
+			trigger_error('Added more rows than expected, aborting.',E_USER_ERROR);
+
 	}
 
 	//endregion
@@ -730,6 +737,7 @@ class Utils_GenericBrowser extends Module {
 		$row_attrs = array();
 		foreach($this->columns as $k=>$v)
 			if (isset($v['search'])) $this->columns[$k]['search'] = $k;
+
 		foreach($this->rows as $k=>$v){
 			if ($this->check_if_row_fits_array($v,$this->is_adv_search_on())) {
 				$rows[] = $v;
