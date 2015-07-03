@@ -733,7 +733,7 @@ class Base_EpesiStore extends Module {
                         continue;
                     $v[] = $x;
                 }
-                /* @var $row Utils_GenericBrowser_Row_Object */
+                /* @var $row Utils_GenericBrowser_RowObject */
                 $row = $gb->get_new_row();
                 $row->add_data_array($v);
                 if ($row_additional_actions_callback != null && is_callable($row_additional_actions_callback))
