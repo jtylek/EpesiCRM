@@ -10,7 +10,7 @@
 body {
 	padding: 0;
 	margin: 0;
-    font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
+	font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans, sans-serif;
 	font-size: 11px;
 	background-color: #F0F0F0;
 	position: relative; /* needed by prototype 1.7 for clone position */
@@ -43,7 +43,7 @@ a:hover {
 }
 
 input, textarea, select {
-    font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
+	font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans, sans-serif;
 	font-size: 11px;
 	border: 1px solid #B3B3B3;
 }
