@@ -21,10 +21,9 @@ class Base_User_LoginCommon extends ModuleCommon {
 	 * @param string
 	 * @return bool
 	 */
-	public static function check_login($username, $pass, $crypt=true) {
+	public static function check_login($username, $pass) {
 		$hash = DB::GetOne('SELECT p.password FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($username));
 		if(!$hash) return false;
-		if(!$crypt) return $hash==$pass;
 		if(strlen($hash)==32) //md5
 		    return md5($pass)==$hash;
 		return password_verify($pass,$hash);
