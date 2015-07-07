@@ -528,7 +528,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             if($a['crypted']['note_password']!=$a['crypted']['note_password2'])
                 return array('crypted'=>__('Password mismatch'));
         }
-        return true;
+        return array();
     }
 
     private static $mark_as_read = array();

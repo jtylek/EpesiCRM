@@ -786,7 +786,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function check_new_company_name($data){
         if (isset($data['create_company_name'])) $data['create_company_name'] = trim($data['create_company_name']);
         if (isset($data['create_company']) && $data['create_company'] && (!isset($data['create_company_name']) || !$data['create_company_name'])) return array('create_company_name'=>__('Field requried'));
-        return true;
+        return array();
     }
 	public static function QFfield_username(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
 		$label = __('User Login');
@@ -812,11 +812,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function check_pass($data) {
         if (isset($data['login']) && !$data['login']) {
-            return true;
+            return array();
         }
         $pass = & $data['set_password'];
         $repass = & $data['confirm_password'];
-		if ($pass == $repass) return true;
+		if ($pass == $repass) return array();
 		return array('set_password'=>__('Passwords don\'t match'));
 	}
     public static function QFfield_access(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
@@ -881,17 +881,17 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	public static function check_new_username($arg) {
 		if (!isset($arg['login'])) $arg['login'] = Utils_RecordBrowser::$last_record['login'];
-		if (!$arg['login']) return true;
+		if (!$arg['login']) return array();
 		$ret = array();
 		if (strlen($arg['username'])<3 || strlen($arg['username'])>32) $ret['username'] = __('A username must be between 3 and 32 chars');
 		if (isset($arg['login']) && $arg['login']!='new') {
-			if ($arg['username'] == Base_UserCommon::get_user_login($arg['login'])) return empty($ret)?true:$ret;
+			if ($arg['username'] == Base_UserCommon::get_user_login($arg['login'])) return $ret;
 		} else {
 			if (!$arg['email']) $ret['email'] = __('E-mail is required when creating new user');
 		}
 		if (Base_UserCommon::get_user_id($arg['username'])) $ret['username'] = __('Username already taken');
 		if (!$arg['username']) $ret['username'] = __('Field required');
-		return empty($ret)?true:$ret;
+		return $ret;
 	}
 
 	public static function create_map_href($r) {
@@ -1284,11 +1284,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 
 	public static function check_email_unique($data) {
-		if (!isset($data[self::$field])) return true;
+		if (!isset($data[self::$field])) return array();
 		$email = $data[self::$field];
-		if (!$email) return true;
+		if (!$email) return array();
 		$rec = self::get_record_by_email($email, self::$rset, self::$rid);
-		if ($rec == false) return true;
+		if ($rec == false) return array();
 		return array(self::$field=>__( 'E-mail address duplicate found: %s', array(Utils_RecordBrowserCommon::create_default_linked_label($rec[0], $rec[1]))));
 	}
 	

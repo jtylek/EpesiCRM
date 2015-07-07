@@ -172,7 +172,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (!isset($v['other_customer_name']) || !$v['other_customer_name'])
 				$ret['other_customer_name'] = __('Field required');
 		}
-		return empty($ret)?true:$ret;
+		return $ret;
 	}
 	public static function QFfield_phone(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {

@@ -372,7 +372,7 @@ class CRM_Fax extends Module {
 		    (!isset($arg['dest_company']) || empty($arg['dest_company'])) && 
 		    (!isset($arg['dest_other']) || trim($arg['dest_other'])==''))
 			return array('dest_contact'=>'Please select at least one fax number');
-		return true;
+		return array();
 	}
 	
 	public function go_back($file) {

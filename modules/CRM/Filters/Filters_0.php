@@ -190,7 +190,7 @@ class CRM_Filters extends Module {
 		if (count($c) > 5)
 			return array('contacts'=>__('Too many records selected'));
 		else
-			return true;
+			return array();
 	}
 
 	public static function edit_group_sel($r) {

@@ -144,7 +144,7 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
                 $ret['menu'] = __('Menu label cannot contain %s', array(Utils_RecordBrowser_CustomRecordsetsCommon::$sep));
             }
         }
-        return empty($ret) ? true : $ret;
+        return $ret;
     }
 }
 

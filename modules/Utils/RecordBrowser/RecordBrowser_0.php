@@ -1621,7 +1621,7 @@ class Utils_RecordBrowser extends Module {
 		    	$ret[$f[0]] = __('Invalid value');
 		    }
     		if($problems) continue;
-    		return true;
+    		return array();
     	}
 		return $ret;
     }
@@ -2454,7 +2454,7 @@ class Utils_RecordBrowser extends Module {
 				}
 			}
 		}
-		return empty($ret)?true:$ret;
+		return $ret;
 	}
 	
 	public function detranslate_field_names($rset, & $fs) {
