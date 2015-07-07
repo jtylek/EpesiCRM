@@ -51,8 +51,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $ret;
     }
 
-    public static function call_QFfield_callback($callback, &$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table)
+    public static function call_QFfield_callback($callback, &$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table = null)
     {
+        if ($display_callback_table === null) {
+            $display_callback_table = self::display_callback_cache($rb_obj->tab);
+        }
         if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable(array($match[1], $match[2]))) {
             call_user_func(array($match[1], $match[2]), $form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table);
         } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable($match[1])) {
