@@ -62,8 +62,10 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 					array('constraints'=>', UNIQUE(word)'));
 		DB::CreateTable('recordbrowser_words_map', 'word_id I, tab_id I2, record_id I, field_id I2, position I',
 					array('constraints'=>', FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties(id) ON DELETE CASCADE ON UPDATE CASCADE'));
-		DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','tab_id,record_id');
-        Base_PrintCommon::register_printer(new Utils_RecordBrowser_RecordPrinter());
+		DB::CreateIndex('rb_words_map__word_idx','recordbrowser_words_map','word_id');
+		DB::CreateIndex('rb_words_map__tab_idx','recordbrowser_words_map','tab_id');
+		DB::CreateIndex('rb_words_map__record_tab_idx','recordbrowser_words_map','record_id,tab_id');
+		Base_PrintCommon::register_printer(new Utils_RecordBrowser_RecordPrinter());
 		return true;
 	}
 	
