@@ -148,7 +148,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $cols = array();
     	$cols[] = array('name'=>__('ID'), 'order'=>'u.id', 'width'=>6,'search'=>'id');
     	$cols[] = array('name'=>__('Login'), 'order'=>'u.login', 'width'=>20,'search'=>'login');
-        $is_contacts = ModuleManager::is_installed(CRM_Contacts::module_name())>=0;
+        $is_contacts = CRM_ContactsInstall::is_installed();
         if($is_contacts)
             $cols[] = array('name'=>__('Contact'), 'width'=>27);
         $cols[] = array('name'=>__('Active'), 'order'=>'u.active', 'width'=>5);

@@ -105,15 +105,15 @@ class CRM_Contacts_Activities extends Module {
 	public function filters() {	
 		$form = $this->init_module(Libs_QuickForm::module_name());
 		$form->addElement('header', 'display', __('Show'));
-		if (ModuleManager::is_installed(CRM_Meeting::module_name())!=-1) $form->addElement('checkbox', 'events', __('Meetings'), null, array('onchange'=>$form->get_submit_form_js()));
-		if (ModuleManager::is_installed(CRM_Tasks::module_name())!=-1) $form->addElement('checkbox', 'tasks', __('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
-		if (ModuleManager::is_installed(CRM_PhoneCall::module_name())!=-1) $form->addElement('checkbox', 'phonecalls', __('Phonecalls'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (CRM_MeetingInstall::is_installed()) $form->addElement('checkbox', 'events', __('Meetings'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (CRM_TasksInstall::is_installed()) $form->addElement('checkbox', 'tasks', __('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (CRM_PhoneCallInstall::is_installed()) $form->addElement('checkbox', 'phonecalls', __('Phonecalls'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('select', 'activities_date', str_replace(' ','&nbsp;',__('Activities date')), array(0=>__('Future'), 1=>__('Past'), 2=>__('All time')), array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'closed', __('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
 		$old_display = $this->get_module_variable('display_options', array(
-			'events'=>(ModuleManager::is_installed(CRM_Meeting::module_name())!=-1),
-			'tasks'=>(ModuleManager::is_installed(CRM_Tasks::module_name())!=-1),
-			'phonecalls'=>(ModuleManager::is_installed(CRM_PhoneCall::module_name())!=-1),
+			'events'=>CRM_MeetingInstall::is_installed(),
+			'tasks'=>CRM_TasksInstall::is_installed(),
+			'phonecalls'=>CRM_PhoneCallInstall::is_installed(),
 			'closed'=>1, 
 			'activities_date'=>2
 		));

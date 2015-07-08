@@ -32,7 +32,7 @@ class Base_BoxCommon extends ModuleCommon {
 		$containers = parse_ini_file($ini,true);
 		return $containers['main']['module'];
 	}
-	
+
 	public static function create_href_array($parent_module,$module,$function=null,array $arguments=null, array $constructor_args=null) {
 		if(!isset($_SESSION['client']['base_box_hrefs']))
 			$_SESSION['client']['base_box_hrefs'] = array();
@@ -79,7 +79,7 @@ class Base_BoxCommon extends ModuleCommon {
 	
 	public static function update_version_check_indicator($force=false) {
 		$version_no = __('version %s',array(EPESI_VERSION));
-		if (CHECK_VERSION && ModuleManager::is_installed(Base_EpesiStore::module_name())>=0) {
+		if (CHECK_VERSION && Base_EpesiStoreInstall::is_installed()) {
 			load_js('modules/Base/Box/check_for_new_version.js');
 			if ($force) eval_js('jq("#epesi_new_version").attr("done","0");');
 			eval_js('check_for_new_version();');

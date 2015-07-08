@@ -23,7 +23,7 @@ class Base_Dashboard extends Module {
 		if(!Base_AclCommon::check_permission('Dashboard')) return;
 		$this->help('Dashboard Help','main');
 
-		if(ModuleManager::is_installed(Utils_RecordBrowser::module_name())>=0) //speed up links to RB
+		if(Utils_RecordBrowserInstall::is_installed()) //speed up links to RB
 			if(Utils_RecordBrowserCommon::check_for_jump()) return;
 
 		$this->dashboard();
