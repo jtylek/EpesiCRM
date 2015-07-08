@@ -39,6 +39,7 @@ class ModuleManager {
 		$file = self::get_module_file_name($module_class_name);
 		$full_path = EPESI_LOCAL_DIR . '/modules/' . $path . '/' . $file . 'Install.php';
 		if (!file_exists($full_path)) {
+            self::create_module_mock($module_class_name . 'Install');
 			self::check_is_module_available($module_class_name);
 			return false;
 		}
@@ -206,7 +207,7 @@ class ModuleManager {
 		return $ret;
 	}
 
-	public static function mock_autoloader($class)
+	public static function create_module_mock($class)
 	{
 		eval ("class $class extends ModulePrimitive {} ");
 	}
@@ -600,16 +601,15 @@ class ModuleManager {
 			return $cache[$name];
 		}
 
-		spl_autoload_register(array(get_called_class(), 'mock_autoloader'));
 		$callable = self::include_install($name);
-		if ($callable)
+		if ($callable) {
 			$required = call_user_func(array (
 				self::$modules_install[$name],
 				'requires'
 			),$version);
-		else
-			$required = array();
-		spl_autoload_unregister(array(get_called_class(), 'mock_autoloader'));
+        } else {
+            $required = array();
+        }
 		$cache[$name] = $required;
 		return $required;
 	}

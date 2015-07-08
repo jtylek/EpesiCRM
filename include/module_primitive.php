@@ -78,6 +78,12 @@ abstract class ModulePrimitive {
 		return ModuleManager::check_access($this->type,$m);
 	}
 
+    public final static function is_installed()
+    {
+        $module_name = static::module_name();
+        return ModuleManager::is_installed($module_name) >= 0;
+    }
+
 	public final static function module_name()
 	{
         $class_name = get_called_class();
