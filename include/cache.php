@@ -29,6 +29,11 @@ class FileCache
             if (!$data) {
                 @unlink($this->file);
             }
+        } else {
+            $cache_dir = dirname($this->file);
+            if (!file_exists($cache_dir)) {
+                mkdir($cache_dir, 0777, true);
+            }
         }
         $this->data = is_array($data) ? $data : array();
     }
@@ -96,4 +101,4 @@ class Cache
 
 }
 
-Cache::init(new FileCache(DATA_DIR . '/cache/common_cache.php'));
+Cache::init(new FileCache(EPESI_LOCAL_DIR . '/' . DATA_DIR . '/cache/common_cache.php'));
