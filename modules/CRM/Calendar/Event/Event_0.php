@@ -231,13 +231,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			'$("calendar_event_handlers_trigger").innerHTML=calendar_event_handlers_message_confirm;'.
 		'}');
 
-		$selected = $this->get_module_variable('events_handlers', $default);
+		$selected = Base_User_SettingsCommon::get('CRM_Calendar_Event', 'event_handlers');
+        if ($selected === null) $selected = $default;
 		if ($form->validate()) {
 			$vals = $form->exportValues();
 			$selected = array();
 			foreach ($elements_name as $k=>$e)
 				if (isset($vals[$e]) && $vals[$e]) $selected[] = $k;
-			$this->set_module_variable('events_handlers', $selected);
+            Base_User_SettingsCommon::save('CRM_Calendar_Event', 'event_handlers', $selected);
 		}
 		CRM_Calendar_EventCommon::$events_handlers = $selected;
 
