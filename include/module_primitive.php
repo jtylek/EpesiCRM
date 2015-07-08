@@ -80,7 +80,15 @@ abstract class ModulePrimitive {
 
 	public final static function module_name()
 	{
-		$name = str_replace(array('Common', 'Install'), '', get_called_class());
-		return str_replace('_', '/', $name);
+        $class_name = get_called_class();
+        if (substr($class_name, -6) == 'Common') {
+            $class_name = substr($class_name, 0, -6);
+        }
+
+        if (substr($class_name, -7) == 'Install') {
+            $class_name = substr($class_name, 0, -7);
+        }
+
+		return str_replace('_', '/', $class_name);
 	}
 }
