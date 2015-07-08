@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AdminInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme(Base_Admin::module_name());
+		Base_ThemeCommon::install_default_theme(Base_AdminInstall::module_name());
 		DB::CreateTable('base_admin_access',
 			'id I4 AUTO KEY,'.
 			'module C(128),'.
@@ -27,7 +27,7 @@ class Base_AdminInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		DB::DropTable('base_admin_access');
-		Base_ThemeCommon::uninstall_default_theme(Base_Admin::module_name());
+		Base_ThemeCommon::uninstall_default_theme(Base_AdminInstall::module_name());
 		return true;
 	}
 	
@@ -41,9 +41,9 @@ class Base_AdminInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Base_Acl::module_name(), 'version'=>0));
+			array('name'=>Base_AclInstall::module_name(), 'version'=>0));
 	}
 }
 

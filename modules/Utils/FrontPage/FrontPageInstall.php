@@ -25,7 +25,7 @@ class Utils_FrontPageInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>Base_Theme::module_name(),'version'=>0)
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0)
 		);
 	}
 }

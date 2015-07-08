@@ -114,6 +114,9 @@ class ModulesAutoloader {
         if ($this->module_common($class_name))
             return true;
 
+        if ($this->module_install($class_name))
+            return true;
+
         if ($this->module_main($class_name))
             return true;
 
@@ -145,7 +148,16 @@ class ModulesAutoloader {
             // it should exists such file in module but it doesn't
             return true;
         }
-        return false;
+    }
+
+    private function module_install($class_name)
+    {
+        if (substr($class_name, -7) != 'Install') {
+            return false;
+        }
+
+        $module_name = substr($class_name, 0, -7);
+        return ModuleManager::include_install($module_name);
     }
 
     private function module_main($class_name) {

@@ -40,7 +40,7 @@ class Utils_RecordBrowser_CustomRecordsetsInstall extends ModuleInstall
     {
         return array(
             array('name' => Base_LangInstall::module_name(), 'version' => 0),
-            array('name' => Utils_RecordBrowser::module_name(), 'version' => 0));
+            array('name' => Utils_RecordBrowserInstall::module_name(), 'version' => 0));
     }
 
     public static function info()

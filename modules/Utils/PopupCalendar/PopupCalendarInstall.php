@@ -23,12 +23,12 @@ class Utils_PopupCalendarInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>Base_Theme::module_name(), 'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(), 'version'=>0),
 			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
-			array('name'=>Base_User_Settings::module_name(), 'version'=>0),
-			array('name'=>Utils_TooltipCommon::module_name(), 'version'=>0),
-			array('name'=>Libs_LeightboxCommon::module_name(), 'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(), 'version'=>0)
+			array('name'=>Base_User_SettingsInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_TooltipInstall::module_name(), 'version'=>0),
+			array('name'=>Libs_LeightboxInstall::module_name(), 'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(), 'version'=>0)
 		);
 	}	
 	

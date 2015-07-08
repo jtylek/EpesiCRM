@@ -41,7 +41,7 @@ class Tools_WhoIsOnlineInstall extends ModuleInstall {
 		return array(
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
 			array('name'=>Base_UserInstall::module_name(),'version'=>0),
-			array('name'=>Base_User_Settings::module_name(),'version'=>0));
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

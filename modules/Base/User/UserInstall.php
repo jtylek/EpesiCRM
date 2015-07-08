@@ -33,7 +33,7 @@ class Base_UserInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>Base_Acl::module_name(),'version'=>0)
+			array('name'=>Base_AclInstall::module_name(),'version'=>0)
 		);
 	}
 

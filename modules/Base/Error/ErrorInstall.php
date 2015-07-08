@@ -38,10 +38,10 @@ class Base_ErrorInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>Base_Mail::module_name(), 'version'=>0),
+			array('name'=>Base_MailInstall::module_name(), 'version'=>0),
 			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(), 'version'=>0),
-			array('name'=>Base_Acl::module_name(), 'version'=>0));
+			array('name'=>Libs_QuickFormInstall::module_name(), 'version'=>0),
+			array('name'=>Base_AclInstall::module_name(), 'version'=>0));
 	}
 	
 	public function simple_setup() {

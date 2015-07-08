@@ -15,12 +15,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_MenuInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme(Base_Menu::module_name());
+		Base_ThemeCommon::install_default_theme(Base_MenuInstall::module_name());
 		return true;
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme(Base_Menu::module_name());
+		Base_ThemeCommon::uninstall_default_theme(Base_MenuInstall::module_name());
 		return true;
 	}
 	
@@ -31,8 +31,8 @@ class Base_MenuInstall extends ModuleInstall {
 		return array(
 //			array('name'=>Base_Menu_QuickAccessInstall::getName(),'version'=>0),
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Base_Theme::module_name(),'version'=>0),
-			array('name'=>Utils_Menu::module_name(),'version'=>0)
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Utils_MenuInstall::module_name(),'version'=>0)
 		);
 	}
 

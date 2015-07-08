@@ -18,11 +18,11 @@ class Tests_QuickFormInstall extends ModuleInstall{
 		return true;
 	}
 	public function requires($v) {
-		return array(array('name'=>Utils_CatFile::module_name(),'version'=>0),
+		return array(array('name'=>Utils_CatFileInstall::module_name(),'version'=>0),
 			array('name'=>Utils_PopupCalendarInstall::module_name(),'version'=>0),
 			array('name'=>Utils_ChainedSelectInstall::module_name(),'version'=>0),
-			array('name'=>Data_Countries::module_name(),'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(),'version'=>0));
+			array('name'=>Data_CountriesInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0));
 	}
 } 
 ?>

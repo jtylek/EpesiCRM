@@ -21,7 +21,7 @@ class Base_ActionBarInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme(Base_ActionBar::module_name());
+		Base_ThemeCommon::uninstall_default_theme(Base_ActionBarInstall::module_name());
 		return true;
 	}
 	
@@ -36,11 +36,11 @@ class Base_ActionBarInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Libs_LeightboxCommon::module_name(),'version'=>0),
+			array('name'=>Libs_LeightboxInstall::module_name(),'version'=>0),
 			array('name'=>Base_Menu_QuickAccessInstall::module_name(),'version'=>0),
-			array('name'=>Base_User_Settings::module_name(),'version'=>0),
-			array('name'=>Utils_TooltipCommon::module_name(),'version'=>0),
-			array('name'=>Base_User_Settings::module_name(),'version'=>0));
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0),
+			array('name'=>Utils_TooltipInstall::module_name(),'version'=>0),
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0));
 	}
 	
 }

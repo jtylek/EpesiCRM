@@ -29,10 +29,10 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Base_Theme::module_name(),'version'=>0),
-			array('name'=>Data_Countries::module_name(),'version'=>0),
-			array('name'=>Base_Lang_Administrator::module_name(),'version'=>0),
-			array('name'=>Base_User_Settings::module_name(),'version'=>0));
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Data_CountriesInstall::module_name(),'version'=>0),
+			array('name'=>Base_Lang_AdministratorInstall::module_name(),'version'=>0),
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0));
 	}
 
 	public static function info() {

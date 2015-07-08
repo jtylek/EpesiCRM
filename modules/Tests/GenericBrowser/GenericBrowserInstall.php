@@ -19,8 +19,8 @@ class Tests_GenericBrowserInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array(array('name'=>Utils_CatFile::module_name(),'version'=>0),
-			array('name'=>Utils_GenericBrowser::module_name(),'version'=>0));
+		return array(array('name'=>Utils_CatFileInstall::module_name(),'version'=>0),
+			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0));
 	}
 }
 

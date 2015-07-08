@@ -15,14 +15,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_SearchInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme(Base_Search::module_name());
+		Base_ThemeCommon::install_default_theme(Base_SearchInstall::module_name());
 		Base_AclCommon::add_permission(_M('Search'),array('ACCESS:employee'));
 		return true;
 	}
 	
 	public function uninstall() {
 		Base_AclCommon::delete_permission('Search');
-		Base_ThemeCommon::uninstall_default_theme(Base_Search::module_name());
+		Base_ThemeCommon::uninstall_default_theme(Base_SearchInstall::module_name());
 		return true;
 	}
 	
@@ -31,9 +31,9 @@ class Base_SearchInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Base_Box::module_name(),'version'=>0));
+			array('name'=>Base_BoxInstall::module_name(),'version'=>0));
 	}
 
 	public static function simple_setup() {

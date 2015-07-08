@@ -26,7 +26,7 @@ class Tests_OpenFlashChartInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>Libs_OpenFlashChart::module_name(),'version'=>0));
+			array('name'=>Libs_OpenFlashChartInstall::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

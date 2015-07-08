@@ -103,18 +103,18 @@ class Base_DashboardInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>Base_ActionBar::module_name(),'version'=>0),
-			array('name'=>Base_Theme::module_name(),'version'=>0),
-			array('name'=>Base_HomePage::module_name(),'version'=>0),
+			array('name'=>Base_ActionBarInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Base_HomePageInstall::module_name(),'version'=>0),
 			array('name'=>Base_UserInstall::module_name(),'version'=>0),
-			array('name'=>Base_User_Settings::module_name(),'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
-			array('name'=>Utils_TabbedBrowser::module_name(),'version'=>0),
-			array('name'=>Utils_GenericBrowser::module_name(),'version'=>0),
-			array('name'=>Libs_CKEditorCommon::module_name(),'version'=>0),
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
+			array('name'=>Utils_TabbedBrowserInstall::module_name(),'version'=>0),
+			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0),
+			array('name'=>Libs_CKEditorInstall::module_name(),'version'=>0),
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
 			array('name'=>Libs_ScriptAculoUsInstall::module_name(),'version'=>0),
-			array('name'=>Utils_TooltipCommon::module_name(),'version'=>0));
+			array('name'=>Utils_TooltipInstall::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

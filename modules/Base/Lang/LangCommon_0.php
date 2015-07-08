@@ -412,7 +412,7 @@ class Base_LangCommon extends ModuleCommon {
 		if(defined('FORCE_LANG_CODE')) return FORCE_LANG_CODE;
 		if(!isset(self::$lang_code)) {
 			if (!Acl::is_user() ||
-				ModuleManager::is_installed(Base_User_Settings::module_name())==-1 ||
+				ModuleManager::is_installed(Base_User_SettingsInstall::module_name())==-1 ||
 				!Variable::get('allow_lang_change', false))
 					return Variable::get('default_lang');
 			if(class_exists('Base_User_SettingsCommon'))
@@ -475,6 +475,7 @@ class Base_LangCommon extends ModuleCommon {
 	}
 
 	public static function refresh_cache() {
+        if (!file_exists(DATA_DIR.'/Base_Lang/base')) return;
 		$ls_langs = scandir(DATA_DIR.'/Base_Lang/base');
 		$langs = array();
 		foreach ($ls_langs as $entry)

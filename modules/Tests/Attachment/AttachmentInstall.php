@@ -19,8 +19,8 @@ class Tests_AttachmentInstall extends ModuleInstall{
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>Utils_CatFile::module_name(),'version'=>0),
-			array('name'=>Utils_Attachment::module_name(),'version'=>0));
+			array('name'=>Utils_CatFileInstall::module_name(),'version'=>0),
+			array('name'=>Utils_AttachmentInstall::module_name(),'version'=>0));
 	}
     public static function simple_setup() {
         return false;

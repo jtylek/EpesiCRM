@@ -26,8 +26,8 @@ class Utils_LeightboxPromptInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>Libs_LeightboxCommon::module_name(),'version'=>0),
-			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Libs_LeightboxInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
 			array('name'=>Base_LangInstall::module_name(),'version'=>0)
 		);
 	}

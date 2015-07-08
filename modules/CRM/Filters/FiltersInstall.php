@@ -51,13 +51,13 @@ class CRM_FiltersInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>Base_ActionBar::module_name(),'version'=>0),
-			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Base_ActionBarInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Base_User_Settings::module_name(),'version'=>0),
-			array('name'=>Utils_GenericBrowser::module_name(),'version'=>0),
-			array('name'=>CRM_Contacts::module_name(),'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(),'version'=>0));
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0),
+			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0),
+			array('name'=>CRM_ContactsInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0));
 	}
 
 	public static function info() {

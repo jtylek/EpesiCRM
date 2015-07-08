@@ -20,7 +20,7 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 		Variable::set('show_module_indicator','1');
 		Variable::set('logo_file','');
         Variable::set('login_logo_file','');
-		Base_ThemeCommon::install_default_theme(Base_MainModuleIndicator::module_name());
+		Base_ThemeCommon::install_default_theme(Base_MainModuleIndicatorInstall::module_name());
 		$this->create_data_dir();
 		return true;
 	}
@@ -31,7 +31,7 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 		Variable::delete('base_page_title');
 		Variable::delete('show_caption_in_title');
 		Variable::delete('show_module_indicator');
-		Base_ThemeCommon::uninstall_default_theme(Base_MainModuleIndicator::module_name());
+		Base_ThemeCommon::uninstall_default_theme(Base_MainModuleIndicatorInstall::module_name());
 		return true;
 	}
 	
@@ -40,11 +40,11 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>Base_Box::module_name(), 'version'=>0),
-			array('name'=>Base_Admin::module_name(), 'version'=>0),
+			array('name'=>Base_BoxInstall::module_name(), 'version'=>0),
+			array('name'=>Base_AdminInstall::module_name(), 'version'=>0),
 			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(), 'version'=>0),
-			array('name'=>Base_Theme::module_name(), 'version'=>0));
+			array('name'=>Libs_QuickFormInstall::module_name(), 'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(), 'version'=>0));
 	}
 
 	public static function simple_setup() {

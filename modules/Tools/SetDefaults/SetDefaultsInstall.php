@@ -14,16 +14,16 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 	public function install() {
 		
 		// Setting default AB icons and launchpad
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), '465e51c2b6eba36161f0115442e7406c_d', 's:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), '465e51c2b6eba36161f0115442e7406c_l', 's:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), '4fe4700ae455ac705d9d5efa1292298b_d', 's:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), '4fe4700ae455ac705d9d5efa1292298b_l', 's:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), '5ee46bef4c047bd8816ac3810270cc73_d', 's:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), '5ee46bef4c047bd8816ac3810270cc73_l', 's:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), '7b3558122283d2a14051c96a7da1fb1b_d', 's:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), '7b3558122283d2a14051c96a7da1fb1b_l', 's:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), 'b34db58caa3e6a8b933deca655640047_d', 's:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array(Base_Menu_QuickAccessCommon::module_name(), 'b34db58caa3e6a8b933deca655640047_l', 's:1:"1";'));
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), '465e51c2b6eba36161f0115442e7406c_d', '1');
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), '465e51c2b6eba36161f0115442e7406c_l', '1');
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), '4fe4700ae455ac705d9d5efa1292298b_d', '1');
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), '4fe4700ae455ac705d9d5efa1292298b_l', '1');
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), '5ee46bef4c047bd8816ac3810270cc73_d', '1');
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), '5ee46bef4c047bd8816ac3810270cc73_l', '1');
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), '7b3558122283d2a14051c96a7da1fb1b_d', '1');
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), '7b3558122283d2a14051c96a7da1fb1b_l', '1');
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), 'b34db58caa3e6a8b933deca655640047_d', '1');
+        Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), 'b34db58caa3e6a8b933deca655640047_l', '1');
 
 		// default applets
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(1,'Applets_Clock',2,0,1,1));
@@ -33,7 +33,6 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(5,'CRM_Calendar',1,2,0,1));
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(6,'Apps_Shoutbox',0,1,0,1));
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(7,'Utils_Watchdog',0,0,6,1));
-		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(8,'Premium_SalesOpportunity',1,3,8,1));
 
 
 		//default note
@@ -42,17 +41,12 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(4,'title',__('Welcome')));
 
 		// default favorites and subscriptions
-		// use serialize('1') instead of 's:1:"1";'
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','company_auto_fav','s:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','company_auto_subs','s:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','contact_auto_fav',serialize('1')));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','contact_auto_subs','s:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','phonecall_auto_subs','s:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','premium_projects_auto_fav','s:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','premium_projects_auto_subs','s:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','premium_tickets_auto_subs','s:1:"1";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','task_auto_subs','s:1:"1";'));
-
+        Base_User_SettingsCommon::save_admin('Utils_RecordBrowser', 'company_auto_fav', '1');
+        Base_User_SettingsCommon::save_admin('Utils_RecordBrowser', 'company_auto_subs', '1');
+        Base_User_SettingsCommon::save_admin('Utils_RecordBrowser', 'contact_auto_fav', '1');
+        Base_User_SettingsCommon::save_admin('Utils_RecordBrowser', 'contact_auto_subs', '1');
+        Base_User_SettingsCommon::save_admin('Utils_RecordBrowser', 'phonecall_auto_subs', '1');
+        Base_User_SettingsCommon::save_admin('Utils_RecordBrowser', 'task_auto_subs', '1');
 
 		return true;
 	}
@@ -67,12 +61,12 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>Base_Theme::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Utils_Wizard::module_name(),'version'=>0),
-			array('name'=>CRM_Calendar::module_name(),'version'=>0),
-			array('name'=>CRM_Contacts::module_name(),'version'=>0),
-			array('name'=>CRM_PhoneCall::module_name(),'version'=>0),
+			array('name'=>Utils_WizardInstall::module_name(),'version'=>0),
+			array('name'=>CRM_CalendarInstall::module_name(),'version'=>0),
+			array('name'=>CRM_ContactsInstall::module_name(),'version'=>0),
+			array('name'=>CRM_PhoneCallInstall::module_name(),'version'=>0),
 			);
 	}
 }

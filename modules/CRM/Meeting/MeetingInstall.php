@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_MeetingInstall extends ModuleInstall {
 
     public function install() {
-        Base_ThemeCommon::install_default_theme(CRM_Meeting::module_name());
+        Base_ThemeCommon::install_default_theme(CRM_MeetingInstall::module_name());
         //addons table
         $fields = array(
             array(
@@ -212,15 +212,15 @@ class CRM_MeetingInstall extends ModuleInstall {
             ),
         );
         Utils_RecordBrowserCommon::install_new_recordset('crm_meeting', $fields);
-        Utils_RecordBrowserCommon::set_tpl('crm_meeting', Base_ThemeCommon::get_template_filename(CRM_Meeting::module_name(), 'default'));
+        Utils_RecordBrowserCommon::set_tpl('crm_meeting', Base_ThemeCommon::get_template_filename(CRM_MeetingInstall::module_name(), 'default'));
         Utils_RecordBrowserCommon::register_processing_callback('crm_meeting', array('CRM_MeetingCommon', 'submit_meeting'));
-        Utils_RecordBrowserCommon::set_icon('crm_meeting', Base_ThemeCommon::get_template_filename(CRM_Meeting::module_name(), 'icon.png'));
+        Utils_RecordBrowserCommon::set_icon('crm_meeting', Base_ThemeCommon::get_template_filename(CRM_MeetingInstall::module_name(), 'icon.png'));
         Utils_RecordBrowserCommon::set_recent('crm_meeting', 10);
         Utils_RecordBrowserCommon::set_caption('crm_meeting', _M('Meetings'));
         Utils_RecordBrowserCommon::enable_watchdog('crm_meeting', array('CRM_MeetingCommon', 'watchdog_label'));
         // ************ addons ************** //
         Utils_AttachmentCommon::new_addon('crm_meeting');
-        Utils_RecordBrowserCommon::new_addon('crm_meeting', CRM_Meeting::module_name(), 'messanger_addon', _M('Alerts'));
+        Utils_RecordBrowserCommon::new_addon('crm_meeting', CRM_MeetingInstall::module_name(), 'messanger_addon', _M('Alerts'));
         // ************ other ************** //
         CRM_CalendarCommon::new_event_handler(_M('Meetings'), array('CRM_MeetingCommon', 'crm_calendar_handler'));
         CRM_RoundcubeCommon::new_addon('crm_meeting');
@@ -238,10 +238,10 @@ class CRM_MeetingInstall extends ModuleInstall {
 
     public function uninstall() {
         Utils_AttachmentCommon::delete_addon('crm_meeting');
-        Utils_RecordBrowserCommon::delete_addon('crm_meeting', CRM_Meeting::module_name(), 'messanger_addon');
+        Utils_RecordBrowserCommon::delete_addon('crm_meeting', CRM_MeetingInstall::module_name(), 'messanger_addon');
         CRM_RoundcubeCommon::delete_addon('crm_meeting');
         CRM_CalendarCommon::delete_event_handler('Meetings');
-        Base_ThemeCommon::uninstall_default_theme(CRM_Meeting::module_name());
+        Base_ThemeCommon::uninstall_default_theme(CRM_MeetingInstall::module_name());
         Utils_RecordBrowserCommon::uninstall_recordset('crm_meeting');
         Utils_RecordBrowserCommon::unregister_processing_callback('crm_meeting', array('CRM_MeetingCommon', 'submit_meeting'));
         return true;
@@ -253,20 +253,20 @@ class CRM_MeetingInstall extends ModuleInstall {
 
     public function requires($v) {
         return array(
-            array('name' => Utils_RecordBrowser::module_name(), 'version' => 0),
-            array('name' => Utils_Attachment::module_name(), 'version' => 0),
+            array('name' => Utils_RecordBrowserInstall::module_name(), 'version' => 0),
+            array('name' => Utils_AttachmentInstall::module_name(), 'version' => 0),
             array('name' => CRM_CommonInstall::module_name(), 'version' => 0),
-            array('name' => CRM_Contacts::module_name(), 'version' => 0),
-            array('name' => CRM_Roundcube::module_name(), 'version' => 0),
-            array('name' => CRM_Calendar::module_name(), 'version' => 0),
+            array('name' => CRM_ContactsInstall::module_name(), 'version' => 0),
+            array('name' => CRM_RoundcubeInstall::module_name(), 'version' => 0),
+            array('name' => CRM_CalendarInstall::module_name(), 'version' => 0),
             array('name' => CRM_FollowupInstall::module_name(), 'version' => 0),
             array('name' => Base_LangInstall::module_name(), 'version' => 0),
-            array('name' => Base_Acl::module_name(), 'version' => 0),
+            array('name' => Base_AclInstall::module_name(), 'version' => 0),
             array('name' => Utils_ChainedSelectInstall::module_name(), 'version' => 0),
-            array('name' => Data_Countries::module_name(), 'version' => 0),
-            array('name' => CRM_Filters::module_name(), 'version' => 0),
-            array('name' => Libs_QuickForm::module_name(), 'version' => 0),
-            array('name' => Base_Theme::module_name(), 'version' => 0)
+            array('name' => Data_CountriesInstall::module_name(), 'version' => 0),
+            array('name' => CRM_FiltersInstall::module_name(), 'version' => 0),
+            array('name' => Libs_QuickFormInstall::module_name(), 'version' => 0),
+            array('name' => Base_ThemeInstall::module_name(), 'version' => 0)
         );
     }
 

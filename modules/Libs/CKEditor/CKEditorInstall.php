@@ -31,7 +31,7 @@ class Libs_CKEditorInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(),'version'=>0));
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0));
 	}
     public static function simple_setup() {
         return false;

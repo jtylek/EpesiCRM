@@ -39,10 +39,10 @@ class Utils_CommonDataInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Base_Theme::module_name(),'version'=>0),
-			array('name'=>Base_ActionBar::module_name(),'version'=>0),
-			array('name'=>Base_Admin::module_name(),'version'=>0),
-			array('name'=>Utils_GenericBrowser::module_name(),'version'=>0));
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Base_ActionBarInstall::module_name(),'version'=>0),
+			array('name'=>Base_AdminInstall::module_name(),'version'=>0),
+			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0));
 	}
     public static function simple_setup() {
 		return __('EPESI Core');

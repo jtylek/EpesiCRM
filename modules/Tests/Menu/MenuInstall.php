@@ -19,8 +19,8 @@ class Tests_MenuInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>Utils_CatFile::module_name(),'version'=>0),
-			array('name'=>Utils_Menu::module_name(),'version'=>0)
+			array('name'=>Utils_CatFileInstall::module_name(),'version'=>0),
+			array('name'=>Utils_MenuInstall::module_name(),'version'=>0)
 		);
 	}
 }

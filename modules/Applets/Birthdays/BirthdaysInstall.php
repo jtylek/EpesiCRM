@@ -28,8 +28,8 @@ class Applets_BirthdaysInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>CRM_Calendar::module_name(),'version'=>0),
-			array('name'=>Base_LangInstall::module_name(),'version'=>0));
+			array('name'=>CRM_CalendarInstall::module_name(),'version'=>0),
+			array('name'=>Base_LangInstallInstall::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

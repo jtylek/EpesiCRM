@@ -37,13 +37,13 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>Base_Admin::module_name(),'version'=>0),
-			array('name'=>Base_Acl::module_name(),'version'=>0),
-			array('name'=>Base_Theme::module_name(),'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
+			array('name'=>Base_AdminInstall::module_name(),'version'=>0),
+			array('name'=>Base_AclInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
 			array('name'=>Base_UserInstall::module_name(),'version'=>0),
-			array('name'=>Utils_GenericBrowser::module_name(),'version'=>0),
-			array('name'=>Base_User_Settings::module_name(),'version'=>0), // TODO: not required directly but needed to make this module fully operational. Should we delete the requirement?
+			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0),
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0), // TODO: not required directly but needed to make this module fully operational. Should we delete the requirement?
 			array('name'=>Base_LangInstall::module_name(),'version'=>0));
 	}
 

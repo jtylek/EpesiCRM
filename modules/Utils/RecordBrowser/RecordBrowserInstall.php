@@ -16,7 +16,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	public function install() {
 		$this->create_data_dir();
 		
-		Base_ThemeCommon::install_default_theme(Utils_RecordBrowser::module_name());
+		Base_ThemeCommon::install_default_theme(Utils_RecordBrowserInstall::module_name());
 		DB::CreateTable('recordbrowser_table_properties',
 						'id I2 AUTO KEY,'.
 						'tab C(64),'.
@@ -76,23 +76,23 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		DB::DropTable('recordbrowser_table_properties');
 		DB::DropTable('recordbrowser_datatype');
         Base_PrintCommon::unregister_printer('Utils_RecordBrowser_RecordPrinter');
-		Base_ThemeCommon::uninstall_default_theme(Utils_RecordBrowser::module_name());
+		Base_ThemeCommon::uninstall_default_theme(Utils_RecordBrowserInstall::module_name());
 		return true;
 	}
 	
 	public function requires($v) {
 		return array(
-			array('name'=>Utils_CommonData::module_name(), 'version'=>0),
-			array('name'=>Utils_CurrencyField::module_name(), 'version'=>0),
+			array('name'=>Utils_CommonDataInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_CurrencyFieldInstall::module_name(), 'version'=>0),
 			array('name'=>Utils_ShortcutInstall::module_name(), 'version'=>0),
 			array('name'=>Utils_BBCodeInstall::module_name(), 'version'=>0),
-			array('name'=>Utils_TooltipCommon::module_name(), 'version'=>0),
-			array('name'=>Utils_RecordBrowser_RecordPickerFS::module_name(), 'version'=>0),
-			array('name'=>Utils_RecordBrowser_RecordPicker::module_name(), 'version'=>0),
-			array('name'=>Utils_GenericBrowser::module_name(), 'version'=>0),
-			array('name'=>Utils_TabbedBrowser::module_name(), 'version'=>0),
-			array('name'=>Utils_Watchdog::module_name(), 'version'=>0),
-			array('name'=>Base_User_Login::module_name(), 'version'=>0),
+			array('name'=>Utils_TooltipInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_RecordBrowser_RecordPickerFSInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_RecordBrowser_RecordPickerInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_GenericBrowserInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_TabbedBrowserInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_WatchdogInstall::module_name(), 'version'=>0),
+			array('name'=>Base_User_LoginInstall::module_name(), 'version'=>0),
 			array('name'=>Base_UserInstall::module_name(), 'version'=>0)
 		);
 	}

@@ -35,7 +35,7 @@ class Base_User_SettingsInstall extends ModuleInstall {
 			print('Unable to create table base_user_settings_defaults.<br>');
 			return false;
 		}
-		Base_ThemeCommon::install_default_theme(Base_User_Settings::module_name());
+		Base_ThemeCommon::install_default_theme(Base_User_SettingsInstall::module_name());
 		Base_AclCommon::add_permission(_M('Advanced User Settings'),array('ACCESS:employee'));
 
 		return $ret;
@@ -46,7 +46,7 @@ class Base_User_SettingsInstall extends ModuleInstall {
 		global $database;
 		$ret = true;
 		$ret &= DB::DropTable('base_user_settings');
-		Base_ThemeCommon::uninstall_default_theme(Base_User_Settings::module_name());
+		Base_ThemeCommon::uninstall_default_theme(Base_User_SettingsInstall::module_name());
 		return $ret;
 	}
 
@@ -57,9 +57,9 @@ class Base_User_SettingsInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
 			array('name'=>Base_UserInstall::module_name(),'version'=>0),
-			array('name'=>Base_User_Login::module_name(),'version'=>0));
+			array('name'=>Base_User_LoginInstall::module_name(),'version'=>0));
 	}
 
 	public static function simple_setup() {

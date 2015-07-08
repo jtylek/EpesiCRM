@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_TasksInstall extends ModuleInstall {
 
 	public function install() {
-		Base_ThemeCommon::install_default_theme(CRM_Tasks::module_name());
+		Base_ThemeCommon::install_default_theme(CRM_TasksInstall::module_name());
         //addons table
         $fields = array(
             array(
@@ -73,14 +73,14 @@ class CRM_TasksInstall extends ModuleInstall {
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
 		Utils_RecordBrowserCommon::register_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));
-		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename(CRM_Tasks::module_name(), 'icon.png'));
+		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename(CRM_TasksInstall::module_name(), 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('task', 5);
 		Utils_RecordBrowserCommon::set_caption('task', _M('Tasks'));
 		Utils_RecordBrowserCommon::enable_watchdog('task', array('CRM_TasksCommon','watchdog_label'));
         Utils_RecordBrowserCommon::set_search('task',2,0);
 // ************ addons ************** //
 		Utils_AttachmentCommon::new_addon('task');
-		Utils_RecordBrowserCommon::new_addon('task', CRM_Tasks::module_name(), 'messanger_addon', _M('Alerts'));
+		Utils_RecordBrowserCommon::new_addon('task', CRM_TasksInstall::module_name(), 'messanger_addon', _M('Alerts'));
 // ************ other ************** //
 		CRM_CalendarCommon::new_event_handler(_M('Tasks'), array('CRM_TasksCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('task', 'CRM_TasksCommon', 'task_bbcode');
@@ -102,7 +102,7 @@ class CRM_TasksInstall extends ModuleInstall {
 		CRM_CalendarCommon::delete_event_handler('Tasks');
         CRM_RoundcubeCommon::delete_addon('task');
 		Utils_AttachmentCommon::delete_addon('task');
-		Base_ThemeCommon::uninstall_default_theme(CRM_Tasks::module_name());
+		Base_ThemeCommon::uninstall_default_theme(CRM_TasksInstall::module_name());
 		Utils_RecordBrowserCommon::unregister_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::uninstall_recordset('task');
 		return true;
@@ -114,19 +114,19 @@ class CRM_TasksInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>Utils_RecordBrowser::module_name(), 'version'=>0),
-			array('name'=>Utils_Attachment::module_name(), 'version'=>0),
+			array('name'=>Utils_RecordBrowserInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_AttachmentInstall::module_name(), 'version'=>0),
 			array('name'=>CRM_CommonInstall::module_name(), 'version'=>0),
-			array('name'=>CRM_Roundcube::module_name(), 'version'=>0),
-			array('name'=>CRM_Contacts::module_name(), 'version'=>0),
-			array('name'=>CRM_Calendar::module_name(), 'version'=>0),
+			array('name'=>CRM_RoundcubeInstall::module_name(), 'version'=>0),
+			array('name'=>CRM_ContactsInstall::module_name(), 'version'=>0),
+			array('name'=>CRM_CalendarInstall::module_name(), 'version'=>0),
 			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
-			array('name'=>Base_Acl::module_name(), 'version'=>0),
+			array('name'=>Base_AclInstall::module_name(), 'version'=>0),
 			array('name'=>Utils_ChainedSelectInstall::module_name(), 'version'=>0),
-			array('name'=>Data_Countries::module_name(), 'version'=>0),
-			array('name'=>CRM_Filters::module_name(),'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(),'version'=>0),
-			array('name'=>Base_Theme::module_name(),'version'=>0));
+			array('name'=>Data_CountriesInstall::module_name(), 'version'=>0),
+			array('name'=>CRM_FiltersInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0));
 	}
 
 	public static function info() {

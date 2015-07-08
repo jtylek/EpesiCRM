@@ -29,8 +29,8 @@ class Utils_CalendarBusyReportInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Base','version'=>0),
-			array('name'=>Utils_CalendarBusyReport_Event::module_name(),'version'=>0),
-			array('name'=>Libs_QuickForm::module_name(),'version'=>0));
+			array('name'=>Utils_CalendarBusyReport_EventInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

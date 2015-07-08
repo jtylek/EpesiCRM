@@ -31,9 +31,9 @@ class Base_CronInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Base_Admin::module_name(),'version'=>0),
+			array('name'=>Base_AdminInstall::module_name(),'version'=>0),
 			array('name'=>Base_RegionalSettingsInstall::module_name(),'version'=>0),
-			array('name'=>Utils_GenericBrowser::module_name(),'version'=>0));
+			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

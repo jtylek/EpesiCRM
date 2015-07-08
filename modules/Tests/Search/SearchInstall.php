@@ -19,7 +19,7 @@ class Tests_SearchInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>Base_Search::module_name(),'version'=>0));
+			array('name'=>Base_SearchInstall::module_name(),'version'=>0));
 	}
 }
 

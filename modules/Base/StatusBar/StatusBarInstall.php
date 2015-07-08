@@ -13,12 +13,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_StatusBarInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme(Base_StatusBar::module_name());
+		Base_ThemeCommon::install_default_theme(Base_StatusBarInstall::module_name());
 		return true;
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme(Base_StatusBar::module_name());
+		Base_ThemeCommon::uninstall_default_theme(Base_StatusBarInstall::module_name());
 		return true;
 	}
 	
