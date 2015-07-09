@@ -141,22 +141,27 @@ class Utils_RecordBrowser_QueryBuilder
             switch ($field) {
                 case ':id' :
                 case 'id' :
-                    if (empty($value)) {
-                        $sql = 'false';
+                    if (!is_array($value)) {
+                        $sql = "r.id $operator %d";
+                        $vals[] = $value;
                     } else {
-                        if (!is_array($value)) {
-                            $value = array($value);
+                        if ($operator != '=' && $operator != '==') {
+                            throw new Exception("Cannot use array values for id field operator '$operator'");
                         }
-                        if (count($value) > 1) {
-                            $operator = $negation ? "NOT IN" : "IN";
-                            $sql = "r.id $operator (" . implode(',', $value) . ")";
-                        } else {
-                            $sql = "r.id $operator %d";
-                            if ($negation) {
-                                $sql = "NOT ($sql)";
+                        $clean_vals = array();
+                        foreach ($value as $v) {
+                            if (is_numeric($v)) {
+                                $clean_vals[] = $v;
                             }
-                            $vals[] = reset($value);
                         }
+                        if (empty($clean_vals)) {
+                            $sql = 'false';
+                        } else {
+                            $sql = "r.id IN (" . implode(',', $clean_vals) . ")";
+                        }
+                    }
+                    if ($negation) {
+                        $sql = "NOT ($sql)";
                     }
                     break;
                 case ':Fav' :
@@ -408,7 +413,7 @@ class Utils_RecordBrowser_QueryBuilder
         return array($sql, $vals);
     }
 
-    protected function hf_multiselect($field, $operator, $value, $raw_sql_val, $field_def)
+    protected function hf_select($field, $operator, $value, $raw_sql_val, $field_def)
     {
         $commondata = isset($field_def['commondata']) && $field_def['commondata'];
         if ($commondata) {
@@ -440,7 +445,7 @@ class Utils_RecordBrowser_QueryBuilder
                     $sql = "false";
                 } else {
                     $crit = new Utils_RecordBrowser_CritsSingle($field_def['id'], '=', $subresult);
-                    $ret = $this->hf_multiple($crit, array($this, 'hf_multiselect'), $field_def);
+                    $ret = $this->hf_multiple($crit, array($this, 'hf_select'), $field_def);
                     return $ret;
                 }
             }
@@ -577,7 +582,7 @@ class Utils_RecordBrowser_QueryBuilder
 
             case 'select':
             case 'multiselect':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_multiselect'), $field_def);
+                $ret = $this->hf_multiple($crit, array($this, 'hf_select'), $field_def);
                 break;
 
             case 'commondata':
