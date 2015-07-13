@@ -281,7 +281,7 @@ class Utils_RecordBrowser extends Module {
             }
         }
 
-        $this->crits = $this->crits+$crits;
+        $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $crits);
 
         $theme = $this->init_module(Base_Theme::module_name());
         $theme->assign('filters', $filters);
@@ -532,6 +532,7 @@ class Utils_RecordBrowser extends Module {
         }
 
         $this->crits = array();
+        $filter_crits = array();
 
         $form->setDefaults($def_filt);
 
@@ -545,7 +546,7 @@ class Utils_RecordBrowser extends Module {
         while ($row = $ret->FetchRow()) {
             $m = $this->init_module($row['module']);
             $next_dont_hide = false; // FIXME deprecated, to be removed
-            $this->display_module($m, array(& $form, & $external_filters, & $vals, & $this->crits, & $next_dont_hide, $this), $row['func']);
+            $this->display_module($m, array(& $form, & $external_filters, & $vals, & $filter_crits, & $next_dont_hide, $this), $row['func']);
         }
 
         foreach ($filters_all as $filter) {
@@ -561,7 +562,7 @@ class Utils_RecordBrowser extends Module {
 				}
                 if (isset($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]])) {
                     foreach($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]] as $k=>$v)
-                        $this->crits[$k] = $v;
+                        $filter_crits[$k] = $v;
                 } elseif (isset($this->custom_filters[$filter_id]['trans_callback'])) {
                     $new_crits = call_user_func($this->custom_filters[$filter_id]['trans_callback'], $vals['filter__'.$filter_id], $filter_id);
                     $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
@@ -569,18 +570,18 @@ class Utils_RecordBrowser extends Module {
             } else {
                 if (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
                     if (isset($vals[$field_id.'__currency']) && $vals[$field_id.'__currency'] != "__NULL__")
-                        $this->crits["~$filter_id"] = "%\\_\\_" . $vals[$field_id.'__currency'];
+                        $filter_crits["~$filter_id"] = "%\\_\\_" . $vals[$field_id.'__currency'];
                     if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'] !== "")
-                        $this->crits[">=$filter_id"] = floatval($vals[$field_id.'__from']);
+                        $filter_crits[">=$filter_id"] = floatval($vals[$field_id.'__from']);
                     if (isset($vals[$field_id.'__to']) && $vals[$field_id.'__to'] !== "")
-                        $this->crits["<=$filter_id"] = floatval($vals[$field_id.'__to']);
+                        $filter_crits["<=$filter_id"] = floatval($vals[$field_id.'__to']);
                     continue;
                 }
 				if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
 					if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'])
-						$this->crits['>='.$filter_id] = $vals[$field_id.'__from'].' 00:00:00';
+                        $filter_crits['>='.$filter_id] = $vals[$field_id.'__from'].' 00:00:00';
 					if (isset($vals[$field_id.'__to']) && $vals[$field_id.'__to'])
-						$this->crits['<='.$filter_id] = $vals[$field_id.'__to'].' 23:59:59';
+                        $filter_crits['<='.$filter_id] = $vals[$field_id.'__to'].' 23:59:59';
 					continue;
 				}
                 if (!isset($vals['filter__'.$filter_id]) || ($this->table_rows[$filter]['type']=='select' && $vals['filter__'.$filter_id]==='')) $vals['filter__'.$filter_id]='__NULL__';
@@ -591,17 +592,16 @@ class Utils_RecordBrowser extends Module {
                     array_shift($param);
                     $param[] = $filter_id;
                     foreach ($vals2 as $v)
-                        $this->crits[preg_replace('/[^a-z0-9]/','_',strtolower(array_shift($param)))] = $v;
+                        $filter_crits[preg_replace('/[^a-z0-9]/','_',strtolower(array_shift($param)))] = $v;
                 } else {
-                    $this->crits[$filter_id] = $vals['filter__'.$filter_id];
-                    if ($this->table_rows[$filter]['type']=='checkbox' && $this->crits[$filter_id]=='') $this->crits[$filter_id] = array(null,0);
+                    $filter_crits[$filter_id] = $vals['filter__'.$filter_id];
                 }
             }
         }
-		foreach ($this->crits as $k=>$c) if ($c===$this->crm_perspective_default()) {
-			$this->crits[$k] = explode(',',trim(CRM_FiltersCommon::get(),'()'));
-			if (isset($this->crits[$k][0]) && $this->crits[$k][0]=='') unset($this->crits[$k]);
-		}
+        $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $filter_crits);
+        $perspective = trim(CRM_FiltersCommon::get(), '()');
+        $perspective = empty($perspective) ? null : explode(',', $perspective);
+        $this->crits->replace_value($this->crm_perspective_default(), $perspective, true);
 
         $this->set_module_variable('crits', $this->crits);
 
@@ -2684,12 +2684,7 @@ class Utils_RecordBrowser extends Module {
         Base_ThemeCommon::load_css($this->get_type(),'Browsing_records');
         $theme->assign('filters', $this->show_filters($filters, $element));
         $theme->assign('disabled', '');
-        foreach ($crits as $k=>$v) {
-            if (!is_array($v)) $v = array($v);
-            if (isset($this->crits[$k]) && !empty($v)) {
-                foreach ($v as $w) if (!in_array($w, $this->crits[$k])) $this->crits[$k][] = $w;
-            } else $this->crits[$k] = $v;
-        }
+        $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $crits);
         $theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
         if ($this->amount_of_records>=10000) {
             $theme->assign('select_all', array('js'=>'', 'label'=>__('Select all')));
@@ -2717,12 +2712,7 @@ class Utils_RecordBrowser extends Module {
         $selected = Module::static_get_module_variable($path,'selected',array());
         $theme->assign('filters', $this->show_filters($filters));
         $theme->assign('disabled', '');
-        foreach ($crits as $k=>$v) {
-            if (!is_array($v)) $v = array($v);
-            if (isset($this->crits[$k]) && !empty($v)) {
-                foreach ($v as $w) if (!in_array($w, $this->crits[$k])) $this->crits[$k][] = $w;
-            } else $this->crits[$k] = $v;
-        }
+        $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $crits);
         $theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
         if ($this->amount_of_records>=10000) {
             $theme->assign('disabled', '_disabled');
