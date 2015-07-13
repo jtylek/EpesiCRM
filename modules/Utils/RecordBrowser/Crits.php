@@ -8,6 +8,7 @@ abstract class Utils_RecordBrowser_CritsInterface
     abstract function normalize();
     abstract function to_words();
     abstract function to_sql($callback);
+    abstract function replace_value($search, $replace, $deactivate = false);
 
     /**
      * @return boolean
@@ -33,7 +34,24 @@ abstract class Utils_RecordBrowser_CritsInterface
         $this->set_negation(!$this->get_negation());
     }
 
+    /**
+     * @param bool $active
+     */
+    public function set_active($active = true)
+    {
+        $this->active = ($active == true);
+    }
+
+    /**
+     * @return bool
+     */
+    public function is_active()
+    {
+        return $this->active;
+    }
+
     protected $negation = false;
+    protected $active = true;
 }
 
 class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
@@ -106,6 +124,9 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
 
     public function to_sql($callback)
     {
+        if ($this->is_active() == false) {
+            return array('', array());
+        }
         $this->transform_meta_operators_to_sql();
         $ret = call_user_func($callback, $this);
         return $ret;
@@ -122,12 +143,42 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
 
     public function to_words()
     {
+        if ($this->is_active() == false) {
+            return '';
+        }
         $value = is_array($this->value) ? implode(', ', $this->value) : $this->value;
         $ret = "{$this->field} {$this->operator} {$value}";
         if ($this->negation) {
             $ret = __('Not') . "($ret)";
         }
         return $ret;
+    }
+
+    public function replace_value($search, $replace, $deactivate = false)
+    {
+        $deactivate = $deactivate && ($replace === null);
+        if (is_array($this->value)) {
+            $found = false;
+            foreach ($this->value as $k => $v) {
+                if ($v === $search) {
+                    $found = true;
+                    unset($this->value[$k]);
+                }
+            }
+            if ($found) {
+                if ($deactivate) {
+                    $this->set_active(false);
+                } else {
+                    $this->value = array_merge($this->value, $replace);
+                }
+            }
+        } elseif ($this->value === $search) {
+            if ($deactivate) {
+                $this->set_active(false);
+            } else {
+                $this->value = $replace;
+            }
+        }
     }
 
     public static function opposite_operator($operator)
@@ -165,12 +216,18 @@ class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
 
     public function to_sql($callback)
     {
+        if ($this->is_active() == false) {
+            return array('', array());
+        }
         $sql = $this->get_negation() ? $this->negation_sql : $this->sql;
         return array($sql, $this->vals);
     }
 
     public function to_words()
     {
+        if ($this->is_active() == false) {
+            return '';
+        }
         $sql = $this->get_negation() ? $this->negation_sql : $this->sql;
         $value = implode(', ', $this->vals);
         $ret = "{$sql} ({$value})";
@@ -190,6 +247,20 @@ class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
             }
         }
     }
+
+    public function replace_value($search, $replace, $deactivate = false)
+    {
+        if (is_array($this->vals)) {
+            foreach ($this->vals as $k => $v) {
+                if ($v === $search) {
+                    $this->vals[$k] = $replace;
+                }
+            }
+        } elseif ($this->vals === $search) {
+            $this->vals = $replace;
+        }
+    }
+
 }
 
 class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
@@ -292,6 +363,9 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
 
     public function to_sql($callback)
     {
+        if ($this->is_active() == false) {
+            return array('', array());
+        }
         $vals = array();
         $sql = array();
         foreach ($this->component_crits as $c) {
@@ -311,6 +385,9 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
 
     public function to_words()
     {
+        if ($this->is_active() == false) {
+            return '';
+        }
         $parts = array();
         foreach ($this->component_crits as $c) {
             $s = $c->to_words();
@@ -318,10 +395,20 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
                 $parts[] = $s;
             }
         }
+        if (!$parts) {
+            return '';
+        }
         $glue = ' ' . _V($this->join_operator) . ' ';
         $neg = $this->negation ? ' ' . __('Not') : '';
         $str = $neg . " (" . implode($glue, $parts) . ") ";
         return $str;
+    }
+
+    public function replace_value($search, $replace, $deactivate = false)
+    {
+        foreach ($this->component_crits as $c) {
+            $c->replace_value($search, $replace, $deactivate);
+        }
     }
 
     /**
