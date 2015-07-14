@@ -10,24 +10,28 @@ class Utils_RecordBrowser_QueryBuilder
 
     protected $applied_joins = array();
     protected $final_tab;
+    protected $tab_alias;
 
-    function __construct($tab)
+    function __construct($tab, $tab_alias = 'rest')
     {
         $this->tab = $tab;
         $this->fields = Utils_RecordBrowserCommon::init($tab);
         $this->fields_by_id = Utils_RecordBrowserCommon::$hash;
+        $this->tab_alias = $tab_alias;
     }
 
     public function build_query($crits, $order = array(), $admin_filter = '')
     {
-        $this->final_tab = $this->tab.'_data_1 AS r';
+        $tab_with_as = $this->tab.'_data_1 AS ' . $this->tab_alias;
+        $this->final_tab = $tab_with_as;
 
+        $this->replace_values($crits);
         $callback = array($this, 'build_single_crit_query');
         list($having, $vals) = $crits->to_sql($callback);
 
         if (!$having) $having = 'true';
 
-        $this->final_tab = str_replace('('.$this->tab.'_data_1 AS r'.')', $this->tab.'_data_1 AS r', $this->final_tab);
+        $this->final_tab = str_replace('('. $tab_with_as .')', $tab_with_as, $this->final_tab);
         $sql = ' ' . $this->final_tab . ' WHERE ' . $admin_filter . "($having)";
 
         $order_sql = $this->build_order_part($order);
@@ -67,13 +71,13 @@ class Utils_RecordBrowser_QueryBuilder
                         $orderby[] = ' id ' . $v['direction'];
                         break;
                     case ':Fav' :
-                        $orderby[] = ' (SELECT COUNT(*) FROM '.$this->tab.'_favorite WHERE '.$this->tab.'_id=r.id AND user_id='.$user_id.') '.$v['direction'];
+                        $orderby[] = ' (SELECT COUNT(*) FROM '.$this->tab.'_favorite WHERE '.$this->tab.'_id='.$this->tab_alias.'.id AND user_id='.$user_id.') '.$v['direction'];
                         break;
                     case ':Visited_on'  :
-                        $orderby[] = ' (SELECT MAX(visited_on) FROM '.$this->tab.'_recent WHERE '.$this->tab.'_id=r.id AND user_id='.$user_id.') '.$v['direction'];
+                        $orderby[] = ' (SELECT MAX(visited_on) FROM '.$this->tab.'_recent WHERE '.$this->tab.'_id='.$this->tab_alias.'.id AND user_id='.$user_id.') '.$v['direction'];
                         break;
                     case ':Edited_on'   :
-                        $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id=r.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
+                        $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) ELSE created_on END) '.$v['direction'];
                         break;
                     default     :
                         $orderby[] = ' '.substr($v['order'], 1).' ' . $v['direction'];
@@ -87,7 +91,7 @@ class Utils_RecordBrowser_QueryBuilder
                     $cols2 = explode('|', $cols2);
                     $cols2 = $cols2[0];
                     $field_id = Utils_RecordBrowserCommon::get_field_id($cols2);
-                    $val = '(SELECT rdt.f_'.$field_id.' FROM '.$this->tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.'.$field_sql_id.' WHERE r.id=rd.id)';
+                    $val = '(SELECT rdt.f_'.$field_id.' FROM '.$this->tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.'.$field_sql_id.' WHERE '.$this->tab_alias.'.id=rd.id)';
                     $orderby[] = ' '.$val.' '.$v['direction'];
                 } else {
                     if ($field_def['type'] == 'currency') {
@@ -142,7 +146,7 @@ class Utils_RecordBrowser_QueryBuilder
                 case ':id' :
                 case 'id' :
                     if (!is_array($value)) {
-                        $sql = "r.id $operator %d";
+                        $sql = $this->tab_alias.".id $operator %d";
                         $vals[] = $value;
                     } else {
                         if ($operator != '=' && $operator != '==') {
@@ -157,7 +161,7 @@ class Utils_RecordBrowser_QueryBuilder
                         if (empty($clean_vals)) {
                             $sql = 'false';
                         } else {
-                            $sql = "r.id IN (" . implode(',', $clean_vals) . ")";
+                            $sql = $this->tab_alias.".id IN (" . implode(',', $clean_vals) . ")";
                         }
                     }
                     if ($negation) {
@@ -168,50 +172,50 @@ class Utils_RecordBrowser_QueryBuilder
                     $fav = ($value == true);
                     if ($negation) $fav = !$fav;
                     if (!isset($this->applied_joins[$field])) {
-                        $this->final_tab = '(' . $this->final_tab . ') LEFT JOIN ' . $this->tab . '_favorite AS fav ON fav.' . $this->tab . '_id=r.id AND fav.user_id='. Acl::get_user();
+                        $this->final_tab = '(' . $this->final_tab . ') LEFT JOIN ' . $this->tab . '_favorite AS '.$this->tab_alias.'_fav ON '.$this->tab_alias.'_fav.' . $this->tab . '_id='.$this->tab_alias.'.id AND '.$this->tab_alias.'_fav.user_id='. Acl::get_user();
                         $this->applied_joins[$field] = true;
                     }
                     $rule = $fav ? 'IS NOT NULL' : 'IS NULL';
-                    $sql= "fav.fav_id $rule";
+                    $sql= $this->tab_alias."_fav.fav_id $rule";
                     break;
                 case ':Sub' :
                     $sub = ($value == true);
                     if ($negation) $sub = !$sub;
                     if (!isset($this->applied_joins[$field])) {
-                        $this->final_tab = '(' . $this->final_tab . ') LEFT JOIN utils_watchdog_subscription AS sub ON sub.internal_id=r.id AND sub.category_id=' . Utils_WatchdogCommon::get_category_id($this->tab) . ' AND sub.user_id=' . Acl::get_user();
+                        $this->final_tab = '(' . $this->final_tab . ') LEFT JOIN utils_watchdog_subscription AS '.$this->tab_alias.'_sub ON '.$this->tab_alias.'_sub.internal_id='.$this->tab_alias.'.id AND '.$this->tab_alias.'_sub.category_id=' . Utils_WatchdogCommon::get_category_id($this->tab) . ' AND '.$this->tab_alias.'_sub.user_id=' . Acl::get_user();
                         $this->applied_joins[$field] = true;
                     }
                     $rule = $sub ? 'IS NOT NULL' : 'IS NULL';
-                    $sql = "sub.internal_id $rule";
+                    $sql = $this->tab_alias."_sub.internal_id $rule";
                     break;
                 case ':Recent'  :
                     $rec = ($value == true);
                     if ($negation) $rec = !$rec;
                     if (!isset($this->applied_joins[$field])) {
-                        $this->final_tab = '(' . $this->final_tab . ') LEFT JOIN ' . $this->tab . '_recent AS rec ON rec.' . $this->tab . '_id=r.id AND rec.user_id=' . Acl::get_user();
+                        $this->final_tab = '(' . $this->final_tab . ') LEFT JOIN ' . $this->tab . '_recent AS '.$this->tab_alias.'_rec ON '.$this->tab_alias.'_rec.' . $this->tab . '_id='.$this->tab_alias.'.id AND '.$this->tab_alias.'_rec.user_id=' . Acl::get_user();
                         $this->applied_joins[$field] = true;
                     }
                     $rule = $rec ? 'IS NOT NULL' : 'IS NULL';
-                    $sql = "rec.user_id $rule";
+                    $sql = $this->tab_alias."_rec.user_id $rule";
                     break;
                 case ':Created_on'  :
                     $vals[] = Base_RegionalSettingsCommon::reg2time($value, false);
-                    $sql = 'r.created_on ' . $operator . '%T';
+                    $sql = $this->tab_alias.'.created_on ' . $operator . '%T';
                     if ($negation) {
                         $sql = "NOT ($sql)";
                     }
                     break;
                 case ':Created_by'  :
                     $vals[] = $value;
-                    $sql = 'r.created_by = %d';
+                    $sql = $this->tab_alias.'.created_by = %d';
                     if ($negation) {
                         $sql = "NOT ($sql)";
                     }
                     break;
                 case ':Edited_on'   :
                     $inj = $operator . '%T';
-                    $sql = '(((SELECT MAX(edited_on) FROM ' . $this->tab . '_edit_history WHERE ' . $this->tab . '_id=r.id) ' . $inj . ') OR ' .
-                               '((SELECT MAX(edited_on) FROM ' . $this->tab . '_edit_history WHERE ' . $this->tab . '_id=r.id) IS NULL AND created_on ' . $inj . '))';
+                    $sql = '(((SELECT MAX(edited_on) FROM ' . $this->tab . '_edit_history WHERE ' . $this->tab . '_id='.$this->tab_alias.'.id) ' . $inj . ') OR ' .
+                               '((SELECT MAX(edited_on) FROM ' . $this->tab . '_edit_history WHERE ' . $this->tab . '_id='.$this->tab_alias.'.id) IS NULL AND created_on ' . $inj . '))';
                     $timestamp = Base_RegionalSettingsCommon::reg2time($value, false);
                     if ($negation) {
                         $sql = "NOT (COALESCE($sql, FALSE))";
@@ -247,7 +251,7 @@ class Utils_RecordBrowser_QueryBuilder
 
     protected function get_field_sql($field_name, $cast = null)
     {
-        return "r.f_{$field_name}";
+        return $this->tab_alias.".f_{$field_name}";
     }
 
     protected function hf_text($field, $operator, $value, $raw_sql_val)
@@ -430,7 +434,7 @@ class Utils_RecordBrowser_QueryBuilder
 
         if ($sub_field && $single_tab && $tab2) {
             $col2 = explode('|', $sub_field);
-            $CB = new Utils_RecordBrowser_QueryBuilder($tab2);
+            $CB = new Utils_RecordBrowser_QueryBuilder($tab2, $this->tab_alias . '_' . $tab2);
             $crits = new Utils_RecordBrowser_Crits();
             foreach ($col2 as $col) {
                 $col = Utils_RecordBrowserCommon::get_field_id(trim($col));
