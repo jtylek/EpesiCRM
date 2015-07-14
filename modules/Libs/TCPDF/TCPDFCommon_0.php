@@ -83,7 +83,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
         $l['a_meta_language'] = "pl";
 
         $who = null;
-        if (ModuleManager::is_installed(CRM_Contacts::module_name()) >= 0) {
+        if (CRM_ContactsInstall::is_installed()) {
             $who = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
         }
         if ($who!==null) $who = $who['last_name'].' '.$who['first_name'];
