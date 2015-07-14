@@ -25,7 +25,6 @@ class Utils_RecordBrowser_QueryBuilder
         $tab_with_as = $this->tab.'_data_1 AS ' . $this->tab_alias;
         $this->final_tab = $tab_with_as;
 
-        $this->replace_values($crits);
         $callback = array($this, 'build_single_crit_query');
         list($having, $vals) = $crits->to_sql($callback);
 
