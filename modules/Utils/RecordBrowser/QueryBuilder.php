@@ -92,9 +92,9 @@ class Utils_RecordBrowser_QueryBuilder
                 } else {
                     if ($field_def['type'] == 'currency') {
                         if (DB::is_mysql()) {
-                            $val = "CAST($val as DECIMAL(64,5))";
+                            $field_sql_id = "CAST($field_sql_id as DECIMAL(64,5))";
                         } elseif (DB::is_postgresql()) {
-                            $val = "CAST(split_part($val, '__', 1) as DECIMAL)";
+                            $field_sql_id = "CAST(split_part($field_sql_id, '__', 1) as DECIMAL)";
                         }
                     }
                     $orderby[] = ' '.$field_sql_id.' '.$v['direction'];
