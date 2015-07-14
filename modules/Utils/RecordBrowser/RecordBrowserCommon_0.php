@@ -1195,7 +1195,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $ret = $or ? $a->_or($b) : $a->_and($b);
         return $ret;
     }
-    public static function build_query($tab, $crits = null, $admin = false, $order = array()) {
+    public static function build_query($tab, $crits = null, $admin = false, $order = array(), $tab_alias = 'r') {
         static $cache;
         if (!is_object($crits)) {
             $crits = Utils_RecordBrowser_Crits::from_array($crits);
@@ -1209,7 +1209,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($access === false) return array();
         elseif ($access !== true) $crits = self::merge_crits($crits, $access);
 
-        $tab_alias = 'r';
         $admin_filter = $admin ? self::$admin_filter : $tab_alias . '.active=1 AND ';
         $query_builder = new Utils_RecordBrowser_QueryBuilder($tab, $tab_alias);
         $ret = $query_builder->build_query($crits, $order, $admin_filter);
@@ -1254,15 +1253,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (!isset($limit['numrows'])) $limit['numrows'] = -1;
         }
         if (!$order) $order = array();
-        $fields = '*';
+        $tab_alias = 'r';
+        $fields = "$tab_alias.*";
         self::init($tab);
         if (!empty($cols)) {
-            $cleancols = array();
+            $cleancols = array('id', 'active', 'created_by', 'created_on');
             foreach ($cols as $v) {
                 $val = (isset(self::$table_rows[$v])?self::$table_rows[$v]['id']:$v); // FIX it
-                if ($val!='id') $cleancols[] = $val;
+                if ($val!='id') $cleancols[] = "f_$val";
             }
-            if (!empty($cleancols)) $fields = 'id,active,created_by,created_on,f_'.implode(',f_',$cleancols);
+            foreach ($cleancols as $k => $col_id) {
+                $cleancols[$k] = "$tab_alias.$col_id";
+            }
+            $fields = implode(',', $cleancols);
         }
         $par = self::build_query($tab, $crits, $admin, $order);
         if (empty($par)) return array();
@@ -1278,6 +1281,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         } else
             $cols = self::$table_rows;
         while ($row = $ret->FetchRow()) {
+            if (isset($records[$row['id']])) {
+                continue;
+            }
             $r = array( 'id'=>$row['id'],
                         ':active'=>$row['active'],
                         'created_by'=>$row['created_by'],
