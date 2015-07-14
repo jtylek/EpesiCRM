@@ -843,7 +843,7 @@ class Utils_RecordBrowser extends Module {
                         continue;
                     }
                     if ($k[0]=='"') {
-                        $search_res['~_'.$k] = $vv;
+                        $search_res = rb_or($search_res, array('~_'.$k => $vv));
                         continue;
                     }
 					$args = $this->table_rows[$hash[trim($k, '(|')]];
@@ -854,10 +854,12 @@ class Utils_RecordBrowser extends Module {
 					} else {
 						$w = $vv;
 					}
-                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~'.$k =>$w));
+                    $search_res = rb_or($search_res, array('~'.$k =>$w));
                 }
             }
-            $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $leftovers);
+            if ($leftovers) {
+                $search_res = rb_or($search_res, $leftovers);
+            }
         }
 
         if (!$pdf) $order = $gb->get_order();
