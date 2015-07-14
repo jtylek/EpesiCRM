@@ -32,11 +32,12 @@ class Utils_RecordBrowser_QueryBuilder
         if (!$having) $having = 'true';
 
         $this->final_tab = str_replace('('. $tab_with_as .')', $tab_with_as, $this->final_tab);
-        $sql = ' ' . $this->final_tab . ' WHERE ' . $admin_filter . "($having)";
+        $where = $admin_filter . "($having)";
+        $sql = ' ' . $this->final_tab . ' WHERE ' . $where;
 
         $order_sql = $this->build_order_part($order);
 
-        return array('sql' => $sql, 'vals' => $vals, 'order' => $order_sql);
+        return array('sql' => $sql, 'vals' => $vals, 'order' => $order_sql, 'tab' => $this->final_tab, 'where' => $where);
     }
 
     protected function build_order_part($order)
@@ -434,24 +435,22 @@ class Utils_RecordBrowser_QueryBuilder
 
         if ($sub_field && $single_tab && $tab2) {
             $col2 = explode('|', $sub_field);
-            $CB = new Utils_RecordBrowser_QueryBuilder($tab2, $this->tab_alias . '_' . $tab2);
+            $nested_tab_alias = $this->tab_alias . '_' . $tab2;
+            $CB = new Utils_RecordBrowser_QueryBuilder($tab2, $nested_tab_alias);
             $crits = new Utils_RecordBrowser_Crits();
             foreach ($col2 as $col) {
                 $col = Utils_RecordBrowserCommon::get_field_id(trim($col));
                 if ($col) {
-                    $crits->_or(new Utils_RecordBrowser_CritsSingle($col, DB::like(), $value, false, $raw_sql_val));
+                    $crits->_or(new Utils_RecordBrowser_CritsSingle($col, $operator, $value, false, $raw_sql_val));
                 }
             }
             if (!$crits->is_empty()) {
                 $subquery = $CB->build_query($crits);
-                $subresult = DB::GetCol("SELECT id FROM{$subquery['sql']}", $subquery['vals']);
-                if (!count($subresult)) {
-                    $sql = "false";
-                } else {
-                    $crit = new Utils_RecordBrowser_CritsSingle($field_def['id'], '=', $subresult);
-                    $ret = $this->hf_multiple($crit, array($this, 'hf_select'), $field_def);
-                    return $ret;
-                }
+                $on_rule = $multiselect
+                    ? "$field LIKE CONCAT('%\\_\\_', $nested_tab_alias.id, '\\_\\_%')"
+                    : "$field = $nested_tab_alias.id";
+                $this->final_tab .= ' LEFT JOIN (' . $subquery['tab'] . ") ON $on_rule";
+                return array($subquery['where'], $subquery['vals']);
             }
         } else {
             if ($raw_sql_val) {
