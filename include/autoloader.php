@@ -168,3 +168,5 @@ class ModulesAutoloader {
     }
 
 }
+
+ModulesAutoloader::enable();

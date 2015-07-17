@@ -803,8 +803,6 @@ class ModuleManager {
 	 * Do not use directly.
 	 */
 	public static final function load_modules() {
-		ModulesAutoloader::enable();
-
 		self::$modules = array();
 		$installed_modules = ModuleManager::get_load_priority_array(true);
 
