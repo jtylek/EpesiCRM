@@ -87,6 +87,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 			$cur[1] = str_pad($cur[1], $this->dec_digits, '0');
 			$cur[1] = substr($cur[1], 0, $this->dec_digits);
 			$ret = $cur[0] + (($cur[0]<0?-1:1)*$cur[1]/pow(10,$this->dec_digits));
+			if (strpos(trim($cur[0]), '-') === 0 && $ret > 0) $ret = -$ret;
 		}
 		$ret .= '__'.$currency;
 		if($assoc) {
