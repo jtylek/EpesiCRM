@@ -746,7 +746,7 @@ class Utils_RecordBrowser extends Module {
             if (!$pdf && !$this->disabled['search']) $each[] = 'search';
             foreach ($each as $e) {
                 if ($args['type']=='text' || $args['type']=='currency' || $args['type'] == 'autonumber' || ($args['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$args['param'])!==0)) $arr[$e] = $args['id'];
-				
+                if ($args['type'] == 'long text' && $gb->is_adv_search_on()) $arr[$e] = $args['id'];
                 if (isset($args['ref_field']) && $args['ref_field']) $arr[$e] = $args['id'];
                 if ($args['commondata'] && (!is_array($args['param']) || strpos($args['param']['array_id'],':')===false)) {
                     $arr[$e] = $args['id'];
