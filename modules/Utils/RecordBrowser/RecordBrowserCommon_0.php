@@ -539,7 +539,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CreateTable($tab.'_access',
 					'id I AUTO KEY,'.
 					'action C(16),'.
-					'crits C(255)',
+					'crits X',
 					array('constraints'=>''));
 		DB::CreateTable($tab.'_access_fields',
 					'rule_id I,'.
