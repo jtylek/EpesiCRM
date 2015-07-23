@@ -53,13 +53,16 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		$modules_menu = array();
 
 		$menus = Base_MenuCommon::get_menus();
-		ksort($menus);
+		//ksort($menus);
 		foreach($menus as $name=>$ret) {
 			if ($name=='Base_Admin') continue;
 			if ($name==Base_Menu_QuickAccessCommon::module_name()) continue;
 			Base_MenuCommon::add_default_menu($ret, $name);
 			$modules_menu = array_merge($modules_menu,self::check_for_links('',$ret,$name));
 		}
+		usort($modules_menu,function($a, $b) {
+		    return strcmp($a['label'],$b['label']);
+		});
 		self::$options = & $modules_menu;
 		return self::$options;
 	}
