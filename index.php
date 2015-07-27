@@ -95,14 +95,17 @@ Please choose <?php print(EPESI);?> version:<ul>
 		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
         <meta name="robots" content="NOINDEX, NOARCHIVE">
 <?php
-	ini_set('include_path','libs/minify'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.'libs'.PATH_SEPARATOR.ini_get('include_path'));
-	require_once('Minify/Build.php');
-	$jses = array('libs/jquery-1.7.2.min.js','libs/jquery-ui-1.10.1.custom.min.js','libs/prototype.js','libs/HistoryKeeper.js','include/epesi.js');
-	$jsses_build = new Minify_Build($jses);
-	$jsses_src = $jsses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($jses))));
-?>
-		<script type="text/javascript" src="<?php print($jsses_src)?>"></script>
-<?php
+		ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
+		require_once('Minify/Build.php');
+		$jses = array('libs/jquery-1.7.2.min.js', 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/prototype.js', 'libs/HistoryKeeper.js', 'include/epesi.js');
+	if(!DEBUG_JS) {
+		$jsses_build = new Minify_Build($jses);
+		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
+		echo("<script type='text/javascript' src='$jsses_src'></script>");
+	} else {
+		foreach($jses as $js)
+			print("<script type='text/javascript' src='$js'></script>");
+	}
 	$csses = array('libs/jquery-ui-1.10.1.custom.min.css');
 	$csses_build = new Minify_Build($csses);
 	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
