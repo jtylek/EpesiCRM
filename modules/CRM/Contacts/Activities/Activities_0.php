@@ -38,11 +38,11 @@ class CRM_Contacts_Activities extends Module {
 		// TODO: check if statsu<2 if fine for closed
 		if ($this->display['events'] && ($ids || $cus_ids)) {
 			if ($this->activities_date==0)
-				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s'),date('Y-m-d H:i:s',time()+365*24*3600),'('.implode(',',$ids).')', $cus_ids);
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s'),date('Y-m-d H:i:s',time()+10*365*24*3600),'('.implode(',',$ids).')', $cus_ids);
 			elseif ($this->activities_date==1)
 				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s'),'('.implode(',',$ids).')', $cus_ids);
 			else
-				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s',time()+365*24*3600),'('.implode(',',$ids).')', $cus_ids);
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s',time()+10*365*24*3600),'('.implode(',',$ids).')', $cus_ids);
 		}
 		//$events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE cce.deleted=0 AND '.$date_filter.(!$this->display['closed']?' cce.status<2 AND':'').' (EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND (false'.$db_string.')) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND (false'.$db_string.'))) ORDER BY starts DESC', array_merge($ids, $ids));
 		$crits = array('(employees'=>$ids, '|customers'=>$cus_ids, '|related'=>$rel_ids);
@@ -77,11 +77,11 @@ class CRM_Contacts_Activities extends Module {
 		if ($this->display['events']) {
 			//$events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE cce.deleted=0 AND'.$date_filter.(!$this->display['closed']?' cce.status<2 AND':'').' (EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND contact=%d) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND contact=%d)) ORDER BY starts DESC', array($me['id'], $me['id']));
 			if ($this->activities_date==0)
-				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s'),date('Y-m-d H:i:s',time()+365*24*3600),'('.$me['id'].')',array('P:'.$me['id']));
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s'),date('Y-m-d H:i:s',time()+10*365*24*3600),'('.$me['id'].')',array('P:'.$me['id']));
 			elseif ($this->activities_date==1)
 				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s'),'('.$me['id'].')',array('P:'.$me['id']));
 			else
-				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s',time()+365*24*3600),'('.$me['id'].')',array('P:'.$me['id']));
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s',time()+10*365*24*3600),'('.$me['id'].')',array('P:'.$me['id']));
 		}
 		$crits = array('(employees'=>$me['id'], '|customers'=>'P:'.$me['id']);
 		if ($this->activities_date==0) {
