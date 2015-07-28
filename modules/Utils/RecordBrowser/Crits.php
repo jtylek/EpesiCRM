@@ -482,6 +482,7 @@ class Utils_RecordBrowser_CritsBuilder
         $or_started = $group_or = false;
         $group_or_cnt = null;
         foreach($crits as $k=>$v){
+            if ($k == '') continue;
 
             // initiate key modifiers for each crit
             $negative = $noquotes = $or_start = $or = $group_or_start = false;
