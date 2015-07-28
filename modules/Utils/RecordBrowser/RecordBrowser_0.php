@@ -1545,7 +1545,6 @@ class Utils_RecordBrowser extends Module {
                 if ($row['label']==$this->switch_to_addon) $this->switch_to_addon = $tab_counter;
             }
             $tb->switch_tab($this->switch_to_addon);
-            location(array());
         }
         if ($additional_tabs!=0 && ($mode=='add' || $mode=='edit' || $mode=='history'))
             print("</form>\n");
