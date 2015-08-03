@@ -75,11 +75,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		while($row = $ret->FetchRow()) {
 			$id = $row['id'];
 			$local = $row['aid'];
-			$meta = Utils_FileStorageCommon::meta($row['fsid']);
 			try {
-			    $file = $meta['file'];
-    			    call_user_func($func,$id,$file,$row['original'],$add_args,$row['created_on']);
-    			} catch(Exception $e) {}
+				$meta = Utils_FileStorageCommon::meta($row['fsid']);
+				$file = $meta['file'];
+				call_user_func($func,$id,$file,$row['original'],$add_args,$row['created_on']);
+			} catch(Exception $e) {}
 		}
 	}
 

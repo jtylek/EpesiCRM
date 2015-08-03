@@ -29,7 +29,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
             DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
             $id = DB::Insert_ID('utils_filestorage_files','id');
         }
-        if(!$id) throw new Utils_FileStorage_WriteError();
+        if(!$id) throw new Utils_FileStorage_WriteError('Exception - write error.');
         if($link) self::add_link($link,$id);
         return $id;
     }
@@ -55,9 +55,9 @@ class Utils_FileStorageCommon extends ModuleCommon {
         if($use_cache && isset($meta_cache[$id])) return $meta_cache[$id];
         
         $meta = DB::GetRow('SELECT * FROM utils_filestorage_files WHERE id=%d',array($id));
-        if(!$meta) throw new Utils_FileStorage_StorageNotFound($id);
+        if(!$meta) throw new Utils_FileStorage_StorageNotFound('Exception - DB storage object not found: '.$id);
         $meta['file'] = self::get_storage_file_path($meta['hash']);
-        if(!file_exists($meta['file'])) throw new Utils_FileStorage_FileNotFound($meta['file']);
+        if(!file_exists($meta['file'])) throw new Utils_FileStorage_FileNotFound('Exception - file not found: '.$meta['file']);
         $meta['links'] = DB::GetCol('SELECT link FROM utils_filestorage_link WHERE storage_id=%d',array($id));
         $meta_cache[$id] = $meta;
         return $meta;

@@ -113,7 +113,7 @@ foreach($cron_last as $func_md5=>$last) {
     try {
         $output[0] = call_user_func(explode('::',$cron_funcs_prior[$func_md5]));
     } catch(Exception $e) {
-        $output[0] = $e->getMessage();
+        $output[0] = 'Cron Exception: '.$e->getMessage();
     }
     $output[1] = ob_get_clean();
     $output = array_filter($output);
