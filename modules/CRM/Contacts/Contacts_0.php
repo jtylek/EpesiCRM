@@ -40,7 +40,6 @@ class CRM_Contacts extends Module {
 	}
 
 	public function body($mode='contact') {
-//        $this->pack_module('Premium/ListManager#CritsManager', null, null, array('first_name' => 'Adam', 'company_name' => 1));
 		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
 		$mode = $this->get_module_variable('mode',$mode);
 		if ($mode=='my_contact') {
