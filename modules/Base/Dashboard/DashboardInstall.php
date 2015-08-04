@@ -79,14 +79,16 @@ class Base_DashboardInstall extends ModuleInstall {
 		Base_ThemeCommon::install_default_theme($this->get_type());
 
 		Base_AclCommon::add_permission(_M('Dashboard'),array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Dashboard - manage applets'),array('ACCESS:employee'));
 		Base_HomePageCommon::set_home_page(_M('Dashboard'),array('ACCESS:employee'));
 		Base_HomePageCommon::set_home_page(_M('My Contact'),array()); // Not exactly the place to add that, but we need to ensure proper order of home pages
 
 		return $ret;
 	}
-	
+
 	public function uninstall() {
 		Base_AclCommon::delete_permission('Dashboard');
+		Base_AclCommon::delete_permission('Dashboard - manage applets');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		$ret = true;
 		$ret &= DB::DropTable('base_dashboard_settings');
@@ -96,11 +98,11 @@ class Base_DashboardInstall extends ModuleInstall {
 		$ret &= DB::DropTable('base_dashboard_users');
 		return $ret;
 	}
-	
+
 	public function version() {
 		return array("1.0");
 	}
-	
+
 	public function requires($v) {
 		return array(
 			array('name'=>Base_ActionBarInstall::module_name(),'version'=>0),

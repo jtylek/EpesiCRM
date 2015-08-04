@@ -25,7 +25,8 @@ if(!Base_AclCommon::is_user()) {
 }
 
 $default = isset($_POST['default_dash']) && $_POST['default_dash'];
-if($default && !Base_AdminCommon::get_access('Base_Dashboard')) {
+if(($default && !Base_AdminCommon::get_access('Base_Dashboard'))
+	|| (!$default && !Base_DashboardCommon::has_permission_to_manage_applets())) {
 	Epesi::alert('Permission denied');
 	Epesi::send_output();
 	exit();

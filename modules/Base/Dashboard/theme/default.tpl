@@ -19,7 +19,7 @@
 	                	</td>
                 	{/if}
                 	{* 18px/icon + 2px base *}
-                    <td class="header title {$handle_class} {$color}">{$caption}</td>
+                    <td class="header title {$handle_class} {if $fixed}fixed {/if}{$color}">{$caption}</td>
 					{assign var=actions_width value=8}
 					{if isset($href)}
 						{assign var=actions_width value=$actions_width+18}
