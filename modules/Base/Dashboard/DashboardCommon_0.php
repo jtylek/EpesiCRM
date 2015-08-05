@@ -141,7 +141,6 @@ class Base_DashboardCommon extends ModuleCommon {
 
 	public static function has_permission_to_manage_applets()
 	{
-		return false;
 		return Base_AclCommon::check_permission('Dashboard - manage applets');
 	}
 
