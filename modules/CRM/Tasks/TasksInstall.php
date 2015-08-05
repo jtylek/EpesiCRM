@@ -50,14 +50,7 @@ class CRM_TasksInstall extends ModuleInstall {
 			array('name' => _M('Priority'), 			'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>array('order_by_key'=>true,'CRM/Priority'), 'extra'=>false, 'filter'=>true),
 			array('name' => _M('Permission'), 		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
 			array('name' => _M('Longterm'),			'type'=>'checkbox', 'extra'=>false, 'filter'=>true, 'visible'=>true),
-			array('name' => _M('Deadline'),			'type'=>'date', 'extra'=>false, 'visible'=>true,'display_callback'=>array('CRM_TasksCommon','display_deadline')),
-            array(
-                'name'     => _M('Deadline Time'),
-                'type'     => 'time',
-                'required' => false,
-                'extra'    => false,
-                'visible'  => true,
-            ),
+			array('name' => _M('Deadline'),			'type'=>'timestamp', 'extra'=>false, 'visible'=>true,'display_callback'=>array('CRM_TasksCommon','display_deadline')),
             array(
                 'name'     => _M('Related'),
                 'type'     => 'multiselect',

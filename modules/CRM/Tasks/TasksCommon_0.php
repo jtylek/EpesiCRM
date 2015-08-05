@@ -124,10 +124,10 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 	public static function display_deadline($record, $nolink, $desc) {
 	        if(!$record['deadline']) return '';
-	        $deadline = strtotime($record['deadline'].' '.date('H:i:s',strtotime($record['deadline_time'])));
-	        $ret = Base_RegionalSettingsCommon::time2reg($record['deadline'],false);
+	        $deadline = strtotime($record['deadline']);
+	        $ret = Base_RegionalSettingsCommon::time2reg($record['deadline']);
 	        if($deadline<time()) $ret = '<span style="color:red;font-weight:bold;">'.$ret.'</span>';
-		return Utils_TooltipCommon::create($ret,Base_RegionalSettingsCommon::time2reg($deadline));
+		return $ret;
 	}
     public static function display_title($record, $nolink) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('task', 'Title', $record, $nolink);
@@ -206,7 +206,7 @@ class CRM_TasksCommon extends ModuleCommon {
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('task/'.$values['id']);
 			return $ret;
 		case 'adding':
-			$values['deadline_time'] = strtotime(date('Y-m-d').' 23:59:59');
+			$values['deadline'] = strtotime(date('Y-m-d').' 23:59:59');
 			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
 			break;
 		case 'add':
@@ -335,9 +335,9 @@ class CRM_TasksCommon extends ModuleCommon {
 		return true;
 	}
 	public static function crm_event_update($id, $start, $duration, $timeless) {
-		if (!$timeless) return false;
+		if ($timeless) return false;
 		if (!Utils_RecordBrowserCommon::get_access('task','edit', self::get_task($id))) return false;
-		$values = array('deadline'=>date('Y-m-d', $start));
+		$values = array('deadline'=>date('Y-m-d H:i:s', $start));
 		Utils_RecordBrowserCommon::update_record('task', $id, $values);
 		return true;
 	}
@@ -381,13 +381,12 @@ class CRM_TasksCommon extends ModuleCommon {
 
 		$next = array('type'=>__('Task'));
 		
-		$day = $r['deadline'];
-		$iday = strtotime($day);
+		$deadline = $r['deadline'];
+		$iday = strtotime($deadline);
 		$next['id'] = $r['id'];
 
-		$base_unix_time = strtotime(date('1970-01-01 00:00:00'));
 		$next['start'] = $iday;
-		$next['timeless'] = $day;
+//		$next['timeless'] = $day;
 
 		$next['duration'] = -1;
 		$next['title'] = (string)$r['title'];
