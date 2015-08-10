@@ -20,8 +20,10 @@ class Utils_RecordBrowser_QueryBuilder
         $this->tab_alias = $tab_alias;
     }
 
-    public function build_query($crits, $order = array(), $admin_filter = '')
+    public function build_query(Utils_RecordBrowser_Crits $crits, $order = array(), $admin_filter = '')
     {
+        $crits->replace_special_values();
+
         $tab_with_as = $this->tab.'_data_1 AS ' . $this->tab_alias;
         $this->final_tab = $tab_with_as;
 
@@ -206,8 +208,15 @@ class Utils_RecordBrowser_QueryBuilder
                     }
                     break;
                 case ':Created_by'  :
-                    $vals[] = $value;
-                    $sql = $this->tab_alias.'.created_by = %d';
+                    if (!is_array($value)) {
+                        $value = array($value);
+                    }
+                    $sql = array();
+                    foreach ($value as $v) {
+                        $vals[] = $v;
+                        $sql[] = $this->tab_alias.'.created_by = %d';
+                    }
+                    $sql = implode(' OR ', $sql);
                     if ($negation) {
                         $sql = "NOT ($sql)";
                     }
