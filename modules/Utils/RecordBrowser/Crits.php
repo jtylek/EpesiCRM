@@ -4,11 +4,50 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 abstract class Utils_RecordBrowser_CritsInterface
 {
+    protected static $replace_callbacks = array();
 
     abstract function normalize();
     abstract function to_words();
     abstract function to_sql($callback);
     abstract function replace_value($search, $replace, $deactivate = false);
+
+    public static function register_special_value_callback($callback)
+    {
+        self::$replace_callbacks[] = $callback;
+    }
+
+    public function replace_special_values()
+    {
+        $user = Base_AclCommon::get_user();
+        $replace_values = self::get_replace_values($user);
+        /** @var Utils_RecordBrowser_ReplaceValue $rv */
+        foreach ($replace_values as $rv) {
+            $this->replace_value($rv->get_value(), $rv->get_replace(), $rv->get_deactivate());
+        }
+    }
+
+    protected static function get_replace_values($user)
+    {
+        static $replace_values_cache = array();
+        if (!isset($replace_values_cache[$user])) {
+            $replace_values_cache[$user] = array();
+            foreach (self::$replace_callbacks as $callback) {
+                $ret = call_user_func($callback);
+                if (!is_array($ret)) {
+                    $ret = array($ret);
+                }
+                /** @var Utils_RecordBrowser_ReplaceValue $rv */
+                foreach ($ret as $rv) {
+                    if (!isset($replace_values_cache[$user][$rv->get_value()])
+                        || $replace_values_cache[$user][$rv->get_value()]->get_priority() < $rv->get_priority()
+                    ) {
+                        $replace_values_cache[$user][$rv->get_value()] = $rv;
+                    }
+                }
+            }
+        }
+        return $replace_values_cache[$user];
+    }
 
     /**
      * @return boolean
@@ -52,6 +91,63 @@ abstract class Utils_RecordBrowser_CritsInterface
 
     protected $negation = false;
     protected $active = true;
+}
+
+class Utils_RecordBrowser_ReplaceValue
+{
+    protected $value;
+    protected $replace;
+    protected $deactivate;
+    protected $priority;
+
+    /**
+     * Utils_RecordBrowser_ReplaceValue constructor.
+     *
+     * @param      $value
+     * @param      $replace
+     * @param bool $deactivate
+     * @param int  $priority
+     */
+    public function __construct($value, $replace, $deactivate = false, $priority = 1)
+    {
+        $this->value = $value;
+        $this->replace = $replace;
+        $this->deactivate = $deactivate;
+        $this->priority = $priority;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function get_value()
+    {
+        return $this->value;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function get_replace()
+    {
+        return $this->replace;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function get_deactivate()
+    {
+        return $this->deactivate;
+    }
+
+    /**
+     * @return int
+     */
+    public function get_priority()
+    {
+        return $this->priority;
+    }
+
 }
 
 class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
@@ -167,7 +263,9 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
             }
             if ($found) {
                 if ($deactivate) {
-                    $this->set_active(false);
+                    if (empty($this->value)) {
+                        $this->set_active(false);
+                    }
                 } else {
                     $this->value = array_merge($this->value, $replace);
                 }
@@ -250,14 +348,23 @@ class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
 
     public function replace_value($search, $replace, $deactivate = false)
     {
+        $deactivate = $deactivate && ($replace === null);
         if (is_array($this->vals)) {
             foreach ($this->vals as $k => $v) {
                 if ($v === $search) {
-                    $this->vals[$k] = $replace;
+                    if ($deactivate) {
+                        $this->set_active(false);
+                    } else {
+                        $this->vals[$k] = $replace;
+                    }
                 }
             }
         } elseif ($this->vals === $search) {
-            $this->vals = $replace;
+            if ($deactivate) {
+                $this->set_active(false);
+            } else {
+                $this->vals = $replace;
+            }
         }
     }
 
