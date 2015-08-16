@@ -1,0 +1,88 @@
+{% macro menu_links(links) %}
+    {% for link in links %}
+        {% if link.type == 'split' %}
+            <li class="divider"></li>
+        {% elseif link.type == 'submenu' %}
+            <li class="dropdown-submenu">
+                {% if link.icon is not null %}
+                    <a tabindex="-1" href="#submenu-{{ loop.index }}"><i class="fa fa-{{ link.icon }}"></i>&nbsp;{{ link.label }}</a>
+                {% else %}
+                    <a tabindex="-1" href="#submenu-{{ loop.index }}">{{ link.label }}</a>
+                {% endif %}
+
+                <ul id="submenu-{{ loop.index }}" class="dropdown-menu">
+                    {{ _self.menu_links(link.items) }}
+                </ul>
+            </li>
+        {% elseif link.type == 'item' %}
+            {% if link.icon is not null %}
+                <li><a href="{{ link.url }}"><i class="fa fa-{{ link.icon }}"></i>&nbsp;{{ link.label }}</a></li>
+            {% else %}
+                <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+            {% endif %}
+        {% endif %}
+
+    {% endfor %}
+{% endmacro %}
+
+{% import _self as macros %}
+
+
+<li class="dropdown">
+    <a id="dLabel" role="button" data-toggle="dropdown" data-target="#">
+        {{ name }}&nbsp;<span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
+        {{ macros.menu_links(menu) }}
+    </ul>
+</li>
+
+<style>
+    .dropdown-submenu {
+        position: relative;
+    }
+
+    .dropdown-submenu>.dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -6px;
+        margin-left: -1px;
+        -webkit-border-radius: 0 6px 6px 6px;
+        -moz-border-radius: 0 6px 6px;
+        border-radius: 0 6px 6px 6px;
+    }
+
+    .dropdown-submenu:hover>.dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-submenu>a:after {
+        display: block;
+        content: " ";
+        float: right;
+        width: 0;
+        height: 0;
+        border-color: transparent;
+        border-style: solid;
+        border-width: 5px 0 5px 5px;
+        border-left-color: #ccc;
+        margin-top: 5px;
+        margin-right: -10px;
+    }
+
+    .dropdown-submenu:hover>a:after {
+        border-left-color: #fff;
+    }
+
+    .dropdown-submenu.pull-left {
+        float: none;
+    }
+
+    .dropdown-submenu.pull-left>.dropdown-menu {
+        left: -100%;
+        margin-left: 10px;
+        -webkit-border-radius: 6px 0 6px 6px;
+        -moz-border-radius: 6px 0 6px 6px;
+        border-radius: 6px 0 6px 6px;
+    }
+</style>

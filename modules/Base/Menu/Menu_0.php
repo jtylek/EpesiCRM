@@ -50,65 +50,6 @@ class Base_Menu extends Module {
 	private static $tmp_menu;
 	private $duplicate = false;
 
-	private function build_menu(& $menu, & $m, $prefix='') {
-		foreach($m as $k=>$arr) {
-			if($k=='__split__')
-				$menu->add_split();
-			else {
-				$icon = null;
-				if(array_key_exists('__icon_small__',$arr)) {
-					$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon_small__']);
-					unset($arr['__icon_small__']);
-					unset($arr['__icon__']);
-				} else if(array_key_exists('__icon__',$arr)) {
-					$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon__']);
-					unset($arr['__icon__']);
-				} else {
-					if(isset($arr['parent_module']) && is_string($arr['parent_module']))
-						$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], 'icon-small.png');
-				}
-				if (!$icon) {
-					if(array_key_exists('__submenu__', $arr))
-						$icon = Base_ThemeCommon::get_template_file('Base_Menu', 'folder.png');
-					else
-						$icon = Base_ThemeCommon::get_template_file('Base_Menu', 'element.png');
-				}
-				unset($arr['parent_module']);
-
-				if(array_key_exists('__description__',$arr)) {
-					$description = "'".$arr['__description__']."'";
-					unset($arr['__description__']);
-				} else
-					$description = 'null';
-
-				if(array_key_exists('__url__',$arr)) {
-					$url = $arr['__url__'];
-					unset($arr['__url__']);
-					if(array_key_exists('__target__',$arr)) {
-						$target = $arr['__target__'];
-						unset($arr['__target__']);
-					} else
-						$target = '_blank';
-				} else
-					$url = null;
-
-				$label = _V($k); // ****** Menu - translate labels
-				if(array_key_exists('__submenu__', $arr)) {
-					unset($arr['__submenu__']);
-					$menu->begin_submenu($label,$icon,$prefix.$k);
-					$this->build_menu($menu, $arr, $prefix.$k.'_');
-					$menu->end_submenu();
-				} else {
-					if($url)
-						$menu->add_link($label, $url,$icon, $target, $prefix.$k);
-					else {
-						$menu->add_link($label, 'javascript:'.Base_MenuCommon::create_href_js($this,$arr) ,$icon, '', $prefix.$k);
-					}
-				}
-			}
-		}
-	}
-
 	private static function add_menu(& $menu,$addon){
 		if(!is_array($addon)) return;
 		foreach($addon as $k=>$v){
@@ -151,42 +92,29 @@ class Base_Menu extends Module {
 		foreach($menu as &$m) {
 			if(is_array($m) && array_key_exists('__submenu__',$m))
 				self::sort_menus($m);
-			else
-				unset($m['__weight__']);
 		}
 		unset($menu['__weight__']);
 	}
 
-	public function body() {
+	public function body()
+	{
 		// preparing modules menu and tools menu
 		$modules_menu = array();
 		$menus = Base_MenuCommon::get_menus();
-		foreach($menus as $name=>$module_menu) {
-				Base_MenuCommon::add_default_menu($module_menu, $name);
-				self::add_menu($modules_menu,$module_menu);
+		foreach ($menus as $name => $module_menu) {
+			Base_MenuCommon::add_default_menu($module_menu, $name);
+			self::add_menu($modules_menu, $module_menu);
 		}
 		if (!empty($modules_menu)) $modules_menu['__submenu__'] = 1;
 
 		self::sort_menus($modules_menu);
 
-		// Home menu
-		$home_menu = array();
-		$home_menu['Menu'] = $modules_menu;
+		Base_MenuCommon::generate_urls($this, $modules_menu);
 
-		// putting all menus into menu array
-		$menu = $home_menu;
-
-		// preparing menu string
-		$menu_mod = $this->init_module("Utils/Menu", "horizontal");
-		$this->build_menu($menu_mod,$menu);
-
-		$theme = $this->init_module(Base_Theme::module_name());
-
-		$menu_mod->set_inline_display();
-		$theme->assign('menu', $this->get_html_of_module($menu_mod));
-
-		$theme->display();
-
+		return $this->render('default.twig', array(
+			'menu' => Base_MenuCommon::build_menu($modules_menu),
+			'name' => __('Menu')
+		));
 	}
 	
 	public function quick_access_menu() {

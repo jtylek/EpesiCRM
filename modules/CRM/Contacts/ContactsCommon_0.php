@@ -114,23 +114,23 @@ class CRM_ContactsCommon extends ModuleCommon {
                 else
                         $br_company = Utils_RecordBrowserCommon::get_access('company','browse');
 		if ($br_contact===true || (is_array($br_contact) && !isset($br_contact['login'])))
-			$opts[_M('Contacts')] = array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
+			$opts[_M('Contacts')] = array('mode'=>'contact','__icon__'=>'users');
 		if ($br_company===true || (is_array($br_company) && !isset($br_company['id'])))
-			$opts[_M('Companies')] = array('mode'=>'company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
+			$opts[_M('Companies')] = array('mode'=>'company','__icon__'=>'building');
 		if (!empty($opts)) {
 			$opts['__submenu__'] = 1;
 			$ret[_M('CRM')] = $opts;
  		}
 		
-        $ret[_M('My settings')]=array('__submenu__'=>1);
+        $ret[_M('My settings')]=array('__submenu__'=>1,'__icon__'=>'cogs');
 
         $me = self::get_my_record();
         if($me['id']!=-1) {
-            $ret['My settings'][_M('My Contact')]=array('mode'=>'my_contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
+            $ret['My settings'][_M('My Contact')]=array('mode'=>'my_contact','__icon__'=>'user');
         }
 		$me = CRM_ContactsCommon::get_main_company();
         if(!empty($me) && Utils_RecordBrowserCommon::get_access('company', 'view', self::get_company($me))) {
-			$ret['My settings'][_M('My Company')]=array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
+			$ret['My settings'][_M('My Company')]=array('mode'=>'main_company','__icon__'=>'building');
         }
         if(count($ret['My settings'])==1)
             unset($ret['My settings']);

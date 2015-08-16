@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ShoutboxCommon extends ModuleCommon {
 	public static function menu() {
 	    if(Base_AclCommon::check_permission('Shoutbox'))
-    		return array(_M('Shoutbox')=>array());
+    		return array(_M('Shoutbox')=>array('__icon__'=>'comment'));
     	return array();
 	}
 
