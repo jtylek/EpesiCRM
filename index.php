@@ -114,6 +114,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
 ?>
 		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
+		<link type="text/css" href="libs/font-awesome/css/font-awesome.css" rel="stylesheet"/>
 
 		<style type="text/css">
 			<?php if (DIRECTION_RTL) print('body { direction: rtl; }'); ?>
