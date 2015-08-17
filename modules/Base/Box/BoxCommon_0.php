@@ -20,8 +20,9 @@ class Base_BoxCommon extends ModuleCommon {
 		if (Base_BoxCommon::$ini_file)
 			$ini = Base_BoxCommon::$ini_file;
 		else
-			$ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini');
-		return $ini;
+			$ini = __DIR__.'/default.ini';
+
+		return file_exists($ini) ?$ini:null;
 	}
 	public static function get_main_module_name() {
 		$ini = self::get_ini_file();
