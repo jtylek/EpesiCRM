@@ -112,7 +112,8 @@ class Utils_TabbedBrowser extends Module {
 	}
 	
 	private function display_contents($val, $i, $selected) {
-		$body = '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($selected?'':'style="display:none"').'>';
+        $id = escapeJS($this->get_path(), true, false) . '_d' . $i;
+        $body = '';
 		if (isset($val['func'])){
 			ob_start();
 			if (!is_array($val['args'])) $val['args'] = array($val['args']);
@@ -122,8 +123,11 @@ class Utils_TabbedBrowser extends Module {
 		} else {
 			$body .= $val['body'];
 		}
-		$body .= '</div>';
-		return $body;
+        $options = array();
+        $options['id'] = $id;
+        $options['current'] = $selected;
+        $options['body'] = $body;
+        return $this->twig_render('body.twig',$options);
 	}
 	
 	public function tab_icon($caption, $icon=false) {
