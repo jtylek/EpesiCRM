@@ -762,6 +762,24 @@ abstract class Module extends ModulePrimitive {
 		return false;
 	}
 	//endregion
+	//region Form
+
+	/**
+	 * Function generates form name (based on module path, and counter), and attach Epesi.submit_form handler to form with that name
+	 * @return string
+     */
+	public function reserve_form_name()
+	{
+		//FIXME: Find better way to generate unique form name than counting (counting way may fail if preceding form will be in "if")
+		static $counter = 0;
+		$path = $this->get_path();
+		$processing = __('Processing...');
+		$form_name = 'form_' . md5($path . $counter);
+		eval_js("jQuery(\"form[name='$form_name']\").submit(function(){Epesi.submit_form('$form_name','$path','$processing'); return false;});");
+		$counter++;
+		return $form_name;
+	}
+	//endregion
 	//endregion
 
 	//region Display

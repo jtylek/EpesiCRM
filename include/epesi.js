@@ -201,6 +201,13 @@ var Epesi = {
 		} else if(mode=='queue')
 			setTimeout('Epesi.href("'+url+'", "'+indicator+'", "'+mode+'")',500);
 	},
+	submit_form: function(formName, modulePath, indicator) {
+		action = jQuery.param({'__action_module__': encodeURIComponent(modulePath)});
+		Epesi.confirmLeave.freeze(formName);
+		jQuery('form[name="' + formName + '"] input[name="submited"]').val(1);
+		_chj(jQuery('form[name="'+formName+'"]').serialize() +'&' + action, indicator, '');
+		jQuery('form[name="' + formName + '"] input[name="submited"]').val(0);
+	},
 	text: function(txt,idt,type) {
 		var t=$(idt);
 		if(!t) return;
