@@ -99,7 +99,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 		require_once('Minify/Build.php');
 		$jquery = DEBUG_JS ? 'libs/jquery-1.11.3.js' : 'libs/jquery-1.11.3.min.js';
 		$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-1.2.1.js' : 'libs/jquery-migrate-1.2.1.min.js';
-		$jses = array($jquery, $jquery_migrate, 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/prototype.js', 'libs/HistoryKeeper.js', 'include/epesi.js');
+		$jses = array('libs/prototype.js', $jquery, $jquery_migrate, 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/HistoryKeeper.js', 'include/epesi.js');
 	if(!DEBUG_JS) {
 		$jsses_build = new Minify_Build($jses);
 		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));

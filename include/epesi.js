@@ -4,6 +4,7 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
  */
+jQuery.noConflict();
 
 function focus_by_id(idd) {
 	xx = document.getElementById(idd);
