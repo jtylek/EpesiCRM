@@ -44,7 +44,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $ret = call_user_func($match[1], $record, $links_not_recommended, $field);
         } else {
             ob_start();
-            print eval($callback);
+            $ret = eval($callback);
+            if($ret===false) trigger_error($callback,E_USER_ERROR);
+            else print($ret);
             $ret = ob_get_contents();
             ob_end_clean();
         }
