@@ -192,7 +192,7 @@ class Base_Menu extends Module {
 	public function quick_access_menu() {
 		$this->set_inline_display(true);
 		// preparing quick access menu
-		if (array_key_exists(Base_Menu_QuickAccessCommon::module_name(),ModuleManager::$modules)){
+		if (ModuleManager::is_installed(Base_Menu_QuickAccessCommon::module_name())>=0){
 			$qaccess_menu = Base_Menu_QuickAccessCommon::quick_access_menu();
 			if(is_array($qaccess_menu)) {
 				Base_MenuCommon::add_default_menu($qaccess_menu, Base_Menu_QuickAccessCommon::module_name());
