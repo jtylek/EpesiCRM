@@ -33,3 +33,4 @@ require_once('include/variables.php');
 require_once('include/history.php');
 require_once('include/patches.php');
 require_once('include/simple_login.php');
+require_once('vendor/autoload.php');
