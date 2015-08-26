@@ -42,6 +42,16 @@ abstract class ModulePrimitive {
 	public final function get_module_dir() {
 		return 'modules/'.str_replace('_','/',$this->type).'/';
 	}
+
+	/**
+	 * Returns path to the module template directory
+	 *
+	 * @return string path to the module template directory
+     */
+	public final function get_module_template_dir()
+	{
+		return $this->get_module_dir() . 'theme/';
+	}
 	
 	/**
 	 * Creates default data directory for module. Typical usage: in module installation
