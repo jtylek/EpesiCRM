@@ -63,6 +63,14 @@ class Libs_QuickForm extends Module {
 	public function accept(&$r) {
 		$this->qf->accept($r);
 	}
+
+	public function display($args = array())
+	{
+		if (is_object($this->qf))
+			return call_user_func_array(array(& $this->qf, 'display'), $args);
+		else
+			trigger_error("QuickFrom object doesn't exists", E_USER_ERROR);
+	}
 	
 	public function & __call($func_name, array $args=array()) {
 		if ($func_name=='addElement' && isset($args[0])) {

@@ -954,6 +954,35 @@ abstract class Module extends ModulePrimitive {
 		$this->displayed = isset($_REQUEST['__location'])?$_REQUEST['__location']:null;;
 	}
 
+	//region Twig
+	/**
+	 * Wrapper for Twig display method
+	 *
+	 * @param $template
+	 * @param $options
+     */
+	public function display($template, $options)
+	{
+		/** @var Twig_Environment $twig */
+		$twig = $this->get('twig');
+		$twig->display($this->get_module_template_dir().$template, $options);
+	}
+
+	/**
+	 * Wrapper for Twig render method
+	 *
+	 * @param $template
+	 * @param $options
+	 * @return string
+     */
+	public function render($template, $options)
+	{
+		/** @var Twig_Environment $twig */
+		$twig = $this->get('twig');
+		return $twig->render($this->get_module_template_dir().$template, $options);
+	}
+	//endregion
+
 	//endregion
 	//region Settings
 
