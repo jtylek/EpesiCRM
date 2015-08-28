@@ -141,7 +141,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                ' uaf.id as file_id,' .
                ' uaf.created_by as upload_by,' .
                ' uaf.created_on as upload_on,' .
-               ' uaf.original, uaf.filestorage_id' .
+               ' uaf.original, uaf.filestorage_id,' .
                ' (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads ' .
                'FROM utils_attachment_file uaf INNER JOIN utils_attachment_data_1 note' .
                ' ON uaf.attach_id=note.id ' .
