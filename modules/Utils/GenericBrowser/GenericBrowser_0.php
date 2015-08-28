@@ -249,7 +249,7 @@ class Utils_GenericBrowser extends Module {
 
 		$this->rows[] = $arg;
 
-		if ($this->per_page && count($this->rows) >= $this->per_page)
+		if ($this->per_page && count($this->rows) > $this->per_page)
 			trigger_error('Added more rows than expected, aborting.',E_USER_ERROR);
 
 	}
