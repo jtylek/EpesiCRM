@@ -81,6 +81,7 @@
 /* COLORS */
 
 .event_blue    #event_time a,
+.event_black    #event_time a,
 .event_red     #event_time a,
 .event_yellow  #event_time a,
 .event_green   #event_time a,
@@ -106,6 +107,24 @@
 .event_blue #event_time a:hover {
     color: #336699;
     /*background-image: url('images/header-blue-light-hover.png');*/
+}
+
+/* black */
+
+.event_black {
+	border: 1px solid black;
+	background-color: #dddddd;
+	/*background-image: url('images/header-black-light.png');*/
+}
+
+.event_black #event_grab,
+.event_black #event_info {
+    background-color: black;
+}
+
+.event_black #event_time a:hover {
+    color: black;
+    /*background-image: url('images/header-black-light-hover.png');*/
 }
 
 /* red */
