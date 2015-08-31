@@ -587,6 +587,20 @@ abstract class Module extends ModulePrimitive {
 	}
 	//endregion
 	//region Callback hrefs
+	public function get_ajax_callback_key($func, $args)
+	{
+		if(!is_callable($func))
+			throw new Exception('Invalid callback');
+		$key = md5(serialize($func).serialize($args));
+		$_SESSION['ajax_callbacks'][$key] = array('callback'=>$func, 'args'=>$args);
+		return $key;
+	}
+
+	public function create_ajax_callback_url($func, array $args = null)
+	{
+		return 'ajax.php?'.http_build_query(array('key' => $this->get_ajax_callback_key($func, $args), 'cid'=>CID));
+	}
+
 	private final function create_callback_name($func, $args) {
 		if(is_string($func))
 			return md5(serialize(array($func,$args)));
