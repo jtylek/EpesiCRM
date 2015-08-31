@@ -127,6 +127,24 @@
     /*background-image: url('images/header-black-light-hover.png');*/
 }
 
+/* orange */
+
+.event_orange {
+	border: 1px solid orange;
+	background-color: #bbbbbb;
+	/*background-image: url('images/header-orange-light.png');*/
+}
+
+.event_orange #event_grab,
+.event_orange #event_info {
+    background-color: orange;
+}
+
+.event_orange #event_time a:hover {
+    color: orange;
+    /*background-image: url('images/header-orange-light-hover.png');*/
+}
+
 /* red */
 
 .event_red {
