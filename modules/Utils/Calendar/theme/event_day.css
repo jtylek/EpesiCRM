@@ -129,18 +129,18 @@
 /* orange */
 
 .event_orange {
-	border: 1px solid orange;
-	background-color: #bbbbbb;
+	border: 1px solid #AA8500;
+	background-color: orange;
 /*	background-image: url('images/header-orange-light.png');*/
 }
 
 .event_orange #event_grab,
 .event_orange #event_info {
-    background-color: orange;
+    background-color: #AA8500;
 }
 
 .event_orange #event_title a:hover {
-    color: orange;
+    color: #AA8500;
 /*    background-image: url('images/header-orange-light-hover.png');*/
 }
 
