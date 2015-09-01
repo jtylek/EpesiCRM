@@ -11,6 +11,7 @@ class Utils_RecordBrowser_QueryBuilder
     protected $applied_joins = array();
     protected $final_tab;
     protected $tab_alias;
+    protected $joint_tables_cnt = array();
 
     function __construct($tab, $tab_alias = 'rest')
     {
@@ -443,7 +444,9 @@ class Utils_RecordBrowser_QueryBuilder
 
         if ($sub_field && $single_tab && $tab2) {
             $col2 = explode('|', $sub_field);
-            $nested_tab_alias = $this->tab_alias . '_' . $tab2;
+            $tab_alias_id = $this->joint_tables_cnt[$tab2];
+            $tab_alias_id += 1;
+            $nested_tab_alias = $this->tab_alias . '_' . $tab2 . '_' . $tab_alias_id;
             $CB = new Utils_RecordBrowser_QueryBuilder($tab2, $nested_tab_alias);
             $crits = new Utils_RecordBrowser_Crits();
             foreach ($col2 as $col) {
