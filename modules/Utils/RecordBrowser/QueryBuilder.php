@@ -444,7 +444,7 @@ class Utils_RecordBrowser_QueryBuilder
 
         if ($sub_field && $single_tab && $tab2) {
             $col2 = explode('|', $sub_field);
-            $tab_alias_id = $this->joint_tables_cnt[$tab2];
+            $tab_alias_id = & $this->joint_tables_cnt[$tab2];
             $tab_alias_id += 1;
             $nested_tab_alias = $this->tab_alias . '_' . $tab2 . '_' . $tab_alias_id;
             $CB = new Utils_RecordBrowser_QueryBuilder($tab2, $nested_tab_alias);
