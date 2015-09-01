@@ -33,12 +33,15 @@ class Base_BoxCommon extends ModuleCommon {
 		return $containers['main']['module'];
 	}
 
+	/*
+	 * TODO: $parent_module seems to be unused - remove it
+	 */
 	public static function create_href_array($parent_module,$module,$function=null,array $arguments=null, array $constructor_args=null) {
 		if(!isset($_SESSION['client']['base_box_hrefs']))
 			$_SESSION['client']['base_box_hrefs'] = array();
 		$hs = & $_SESSION['client']['base_box_hrefs'];
 
-		$r=array('m'=>$module, 'p'=>(!$parent_module)?'':$parent_module->get_path());
+		$r=array('m'=>$module);
 		if(isset($arguments))
 			$r['a']=$arguments;
 		if(isset($constructor_args))
