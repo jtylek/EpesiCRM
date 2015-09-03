@@ -545,8 +545,7 @@ class Utils_RecordBrowser extends Module {
         $ret = DB::Execute('SELECT * FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($this->tab));
         while ($row = $ret->FetchRow()) {
             $m = $this->init_module($row['module']);
-            $next_dont_hide = false; // FIXME deprecated, to be removed
-            $this->display_module($m, array(& $form, & $external_filters, & $vals, & $filter_crits, & $next_dont_hide, $this), $row['func']);
+            $this->display_module($m, array(& $form, & $external_filters, & $vals, & $filter_crits, $this), $row['func']);
         }
 
         foreach ($filters_all as $filter) {
