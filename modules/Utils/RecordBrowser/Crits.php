@@ -423,7 +423,8 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
         if (!$parts) {
             return '';
         }
-        $glue = ' ' . _V($this->join_operator) . ' ';
+        $join_operator = strtolower($this->join_operator);
+        $glue = ' ' . _V($join_operator) . ' ';
         $neg = $this->negation ? ' ' . __('Not') : '';
         $str = $neg . " (" . implode($glue, $parts) . ") ";
         return $str;
