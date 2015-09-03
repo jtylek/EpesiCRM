@@ -16,13 +16,15 @@ abstract class Utils_RecordBrowser_CritsInterface
         self::$replace_callbacks[] = $callback;
     }
 
-    public function replace_special_values()
+    public function replace_special_values($human_readable = false)
     {
         $user = Base_AclCommon::get_user();
         $replace_values = self::get_replace_values($user);
         /** @var Utils_RecordBrowser_ReplaceValue $rv */
         foreach ($replace_values as $rv) {
-            $this->replace_value($rv->get_value(), $rv->get_replace(), $rv->get_deactivate());
+            $replacement = $human_readable ? $rv->get_human_readable() : $rv->get_replace();
+            $deactivate = $human_readable ? false : $rv->get_deactivate();
+            $this->replace_value($rv->get_value(), $replacement, $deactivate);
         }
     }
 
@@ -91,63 +93,6 @@ abstract class Utils_RecordBrowser_CritsInterface
 
     protected $negation = false;
     protected $active = true;
-}
-
-class Utils_RecordBrowser_ReplaceValue
-{
-    protected $value;
-    protected $replace;
-    protected $deactivate;
-    protected $priority;
-
-    /**
-     * Utils_RecordBrowser_ReplaceValue constructor.
-     *
-     * @param      $value
-     * @param      $replace
-     * @param bool $deactivate
-     * @param int  $priority
-     */
-    public function __construct($value, $replace, $deactivate = false, $priority = 1)
-    {
-        $this->value = $value;
-        $this->replace = $replace;
-        $this->deactivate = $deactivate;
-        $this->priority = $priority;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function get_value()
-    {
-        return $this->value;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function get_replace()
-    {
-        return $this->replace;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function get_deactivate()
-    {
-        return $this->deactivate;
-    }
-
-    /**
-     * @return int
-     */
-    public function get_priority()
-    {
-        return $this->priority;
-    }
-
 }
 
 class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface

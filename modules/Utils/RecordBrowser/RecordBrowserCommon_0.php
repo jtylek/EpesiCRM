@@ -1424,32 +1424,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	}
         return $cache[$tab.'__'.$id] = true;
     }
-	public static function decode_access($str, $manage_permissions=false) {
-		if (is_numeric($str)) return $str;
-		// FIXME should be moved to CRM_Contacts, but only after editor is ready and there's synatx to retrieve all needed info
-		if ($manage_permissions) {
-			if ($str=='USER_ID') return __('User Login');
-			if (class_exists('CRM_ContactsCommon')) { 
-				$me = CRM_ContactsCommon::get_my_record();
-				if ($str=='USER') return __('User Contact');
-				if ($str=='USER_COMPANY') return __('User Company');
-			}
-			if(preg_match('/^ACCESS\_([A-Z\_]+)$/',$str,$req)) {
-                            return _V('Allow '.str_replace('_',' ',strtolower($req[1])).' record(s)');
-			}
-		} else {
-			if ($str=='USER_ID') return Acl::get_user();
-			if (class_exists('CRM_ContactsCommon')) {
-				$me = CRM_ContactsCommon::get_my_record();
-				if ($str=='USER') return $me['id']?$me['id']:-1;
-				if ($str=='USER_COMPANY') return (isset($me['company_name']) && $me['company_name'])?$me['company_name']:-1;
-			}
-			if(preg_match('/^ACCESS\_([A-Z\_]+)$/',$str,$req)) {
-                            return 'Utils_RecordBrowserCommon::get_recursive_'.strtolower($req[1]).'_access';
-			}
-		}
-		return $str;
-	}
+    public static function crits_special_values()
+    {
+        $ret = array();
+        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER_ID', __('User Login'), Base_AclCommon::get_user());
+        foreach (array('VIEW', 'VIEW_ALL', 'EDIT', 'EDIT_ALL', 'PRINT', 'PRINT_ALL', 'DELETE', 'DELETE_ALL') as $a) {
+            $description = 'Allow ' . str_replace('_', ' ', strtolower($a)) . ' record(s)';
+            $ret[] = new Utils_RecordBrowser_ReplaceValue("ACCESS_$a", _V($description), 'Utils_RecordBrowserCommon::get_recursive_'.strtolower($a).'_access');
+        }
+        return $ret;
+    }
 	public static function get_recursive_access($otab,&$r,$field,$action,$any) {
             self::init($otab);
             $args = self::$table_rows[self::$hash[$field]];
@@ -1508,17 +1492,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         public static function get_recursive_delete_all_access($tab,&$r,$field) {
             return self::get_recursive_access($tab,$r,$field,'delete',false);
         }
-	public static function parse_access_crits($str, $manage_permissions=false) {
+	public static function parse_access_crits($str) {
 		$ret = unserialize($str);
-		foreach ($ret as $k=>$v) {
-			if (!is_array($v)) {
-				$ret[$k] = self::decode_access($v, $manage_permissions);
-			} else {
-				foreach ($v as $kw=>$w) {
-					$ret[$k][$kw] = self::decode_access($w, $manage_permissions);
-				}
-			}
-		}
+//        if (is_array($ret)) {
+//            $ret = Utils_RecordBrowser_Crits::from_array($ret);
+//        }
 		return $ret;
 	}
 	public static function add_default_access($tab) {
@@ -1619,7 +1597,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$fields = array();
 				while ($row = $r->FetchRow()) {
 					$fields[$row['id']] = array();
-					$new = self::parse_access_crits($row['crits']);
+					$new = unserialize($row['crits']);
 					$crits_raw[$row['action']][$row['id']] = $new;
 					$crits[$row['action']] = self::merge_crits($crits[$row['action']], $new, true);
 				}
@@ -3905,6 +3883,8 @@ function rb_and($crits, $_ = null)
 }
 
 require_once 'modules/Utils/RecordBrowser/object_wrapper/include.php';
+
+Utils_RecordBrowser_Crits::register_special_value_callback(array('Utils_RecordBrowserCommon', 'crits_special_values'));
 
 if(!READ_ONLY_SESSION) {
     if(!isset($_SESSION['rb_indexer_token']))
