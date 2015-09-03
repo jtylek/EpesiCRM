@@ -28,8 +28,7 @@ class Utils_RecordBrowser_QueryBuilder
         $tab_with_as = $this->tab.'_data_1 AS ' . $this->tab_alias;
         $this->final_tab = $tab_with_as;
 
-        $callback = array($this, 'build_single_crit_query');
-        list($having, $vals) = $crits->to_sql($callback);
+        list($having, $vals) = $this->to_sql($crits);
 
         if (!$having) $having = 'true';
 
@@ -40,6 +39,46 @@ class Utils_RecordBrowser_QueryBuilder
         $order_sql = $this->build_order_part($order);
 
         return array('sql' => $sql, 'vals' => $vals, 'order' => $order_sql, 'tab' => $this->final_tab, 'where' => $where);
+    }
+
+    public function to_sql(Utils_RecordBrowser_CritsInterface $crits)
+    {
+        if ($crits->is_active() == false) {
+            return array('', array());
+        }
+        if ($crits instanceof Utils_RecordBrowser_CritsSingle) {
+            return $this->build_single_crit_query($crits);
+        } elseif ($crits instanceof Utils_RecordBrowser_Crits) {
+            $vals = array();
+            $sql = array();
+            foreach ($crits->get_component_crits() as $c) {
+                list($s, $v) = $this->to_sql($c);
+                if ($s) {
+                    $vals = array_merge($vals, $v);
+                    $sql[] = "($s)";
+                }
+            }
+            $glue = ' ' . $crits->get_join_operator() . ' ';
+            $sql_str = implode($glue, $sql);
+            if ($crits->get_negation() && $sql_str) {
+                $sql_str = "NOT ($sql_str)";
+            }
+            return array($sql_str, $vals);
+        } elseif ($crits instanceof Utils_RecordBrowser_CritsRawSQL) {
+            $sql = $crits->get_negation() ? $crits->get_negation_sql() : $crits->get_sql();
+            return array($sql, $crits->get_vals());
+        }
+        return array('', array());
+    }
+
+    public static function transform_meta_operators_to_sql($operator)
+    {
+        if ($operator == 'LIKE') {
+            $operator = DB::like();
+        } else if ($operator == 'NOT LIKE') {
+            $operator = 'NOT ' . DB::like();
+        }
+        return $operator;
     }
 
     protected function build_order_part($order)
@@ -137,7 +176,7 @@ class Utils_RecordBrowser_QueryBuilder
     protected function handle_special_field_crit(Utils_RecordBrowser_CritsSingle $crit)
     {
         $field = $crit->get_field();
-        $operator = $crit->get_operator();
+        $operator = self::transform_meta_operators_to_sql($crit->get_operator());
         $value = $crit->get_value();
         $negation = $crit->get_negation();
 
@@ -544,7 +583,7 @@ class Utils_RecordBrowser_QueryBuilder
         $vals = array();
 
         $field_sql_id = $this->get_field_sql($crit->get_field());
-        $operator = $crit->get_operator();
+        $operator = self::transform_meta_operators_to_sql($crit->get_operator());
         $raw_sql_val = $crit->get_raw_sql_value();
         $value = $crit->get_value();
         if (is_array($value)) { // for empty array it will give empty result

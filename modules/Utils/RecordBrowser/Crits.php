@@ -8,7 +8,6 @@ abstract class Utils_RecordBrowser_CritsInterface
 
     abstract function normalize();
     abstract function to_words();
-    abstract function to_sql($callback);
     abstract function replace_value($search, $replace, $deactivate = false);
 
     public static function register_special_value_callback($callback)
@@ -163,25 +162,6 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
         $this->raw_sql_value = $raw_sql_value;
     }
 
-    public function to_sql($callback)
-    {
-        if ($this->is_active() == false) {
-            return array('', array());
-        }
-        $this->transform_meta_operators_to_sql();
-        $ret = call_user_func($callback, $this);
-        return $ret;
-    }
-
-    protected function transform_meta_operators_to_sql()
-    {
-        if ($this->operator == 'LIKE') {
-            $this->operator = DB::like();
-        } else if ($this->operator == 'NOT LIKE') {
-            $this->operator = 'NOT ' . DB::like();
-        }
-    }
-
     public function to_words()
     {
         if ($this->is_active() == false) {
@@ -257,15 +237,6 @@ class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
         $this->vals = $values;
     }
 
-    public function to_sql($callback)
-    {
-        if ($this->is_active() == false) {
-            return array('', array());
-        }
-        $sql = $this->get_negation() ? $this->negation_sql : $this->sql;
-        return array($sql, $this->vals);
-    }
-
     public function to_words()
     {
         if ($this->is_active() == false) {
@@ -275,6 +246,30 @@ class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
         $value = implode(', ', $this->vals);
         $ret = "{$sql} ({$value})";
         return $ret;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function get_sql()
+    {
+        return $this->sql;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function get_negation_sql()
+    {
+        return $this->negation_sql;
+    }
+
+    /**
+     * @return array
+     */
+    public function get_vals()
+    {
+        return $this->vals;
     }
 
     public function normalize()
@@ -411,28 +406,6 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
     public function get_component_crits()
     {
         return $this->component_crits;
-    }
-
-    public function to_sql($callback)
-    {
-        if ($this->is_active() == false) {
-            return array('', array());
-        }
-        $vals = array();
-        $sql = array();
-        foreach ($this->component_crits as $c) {
-            list($s, $v) = $c->to_sql($callback);
-            if ($s) {
-                $vals = array_merge($vals, $v);
-                $sql[] = "($s)";
-            }
-        }
-        $glue = ' ' . $this->join_operator . ' ';
-        $sql_str = implode($glue, $sql);
-        if ($this->negation && $sql_str) {
-            $sql_str = "NOT ($sql_str)";
-        }
-        return array($sql_str, $vals);
     }
 
     public function to_words()
