@@ -10,14 +10,15 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_RecordPickerFS extends Module {
-	private $tab,$crits,$cols,$order,$filters;
+	private $tab,$crits,$cols,$order,$filters,$filters_defaults;
 	
-	public function construct($tab=null, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
+	public function construct($tab=null, $crits=array(), $cols=array(), $order=array(), $filters=array(), $filters_def=array()) {
 		$this->tab = $tab;
 		$this->crits = $crits;
 		$this->cols = $cols;
 		$this->order = $order;
 		$this->filters = $filters;
+		$this->filters_defaults = $filters_def;
 	}
 
 	public function body() {
@@ -25,7 +26,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 
 	public function open() {
 		$x = ModuleManager::get_instance('/Base_Box|0');
-		$x->push_main(Utils_RecordBrowser_RecordPickerFS::module_name(),'show',array($this->tab,$this->crits,$this->cols,$this->order,$this->filters,$this->get_path()));
+		$x->push_main(Utils_RecordBrowser_RecordPickerFS::module_name(),'show',array($this->tab,$this->crits,$this->cols,$this->order,$this->filters,$this->filters_defaults,$this->get_path()));
 		$selected = $this->get_module_variable('selected',array());
 		$this->set_module_variable('old_selected',$selected);
 	}
@@ -41,8 +42,9 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 		$x->pop_main();
 	}
 	
-	public function show($tab, $crits=array(), $cols=array(), $order=array(), $filters=array(),$path=null) {
+	public function show($tab, $crits=array(), $cols=array(), $order=array(), $filters=array(),$filters_defaults=array(),$path=null) {
 		$rb = $this->init_module(Utils_RecordBrowser::module_name(), $tab, $tab.'_picker');
+		if($filters_defaults) $rb->set_module_variable('def_filter',$filters_defaults);
 //		$rb->adv_search = true;
 		$rb->disable_actions();
 
