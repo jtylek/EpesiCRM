@@ -3043,7 +3043,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($k != 0)
                 $param[$k] = preg_replace('/[^a-z0-9]/', '_', strtolower($v));
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $desc['param']['array_id']);
-        $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => true, 'id' => $field, 'order_by_key' => $desc['param']['order_by_key']));
+        $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => true, 'order_by_key' => $desc['param']['order_by_key']), array('id' => $field));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));
     }
