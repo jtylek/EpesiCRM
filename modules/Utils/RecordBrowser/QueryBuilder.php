@@ -489,7 +489,7 @@ class Utils_RecordBrowser_QueryBuilder
             $CB = new Utils_RecordBrowser_QueryBuilder($tab2, $nested_tab_alias);
             $crits = new Utils_RecordBrowser_Crits();
             foreach ($col2 as $col) {
-                $col = Utils_RecordBrowserCommon::get_field_id(trim($col));
+                $col = $col[0] == ':' ? $col : Utils_RecordBrowserCommon::get_field_id(trim($col));
                 if ($col) {
                     $crits->_or(new Utils_RecordBrowser_CritsSingle($col, $operator, $value, false, $raw_sql_val));
                 }
