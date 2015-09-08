@@ -78,53 +78,11 @@ class Utils_QueryBuilder extends Module
     public function set_rules($rules)
     {
         $this->rules = $rules;
-        return;
-        // example
-        $rules_json = '{
-  "condition": "AND",
-  "rules": [
-    {
-      "id": "price",
-      "field": "price",
-      "type": "double",
-      "input": "text",
-      "operator": "less",
-      "value": "10.25"
-    },
-    {
-      "condition": "OR",
-      "rules": [
-        {
-          "id": "category",
-          "field": "category",
-          "type": "integer",
-          "input": "select",
-          "operator": "equal",
-          "value": "2"
-        },
-        {
-          "id": "category",
-          "field": "category",
-          "type": "integer",
-          "input": "select",
-          "operator": "equal",
-          "value": "1"
-        }
-      ]
-    }
-  ]
-}';
-        $this->rules = json_decode($rules_json);
     }
 
     public function set_filters($filters)
     {
         $this->filters = $filters;
-        return;
-        // example
-        $filters_json = '[{"id":"name","label":"Name","type":"string"},{"id":"category","label":"Category","type":"integer","input":"select","values":{"1":"Books","2":"Movies","3":"Music","4":"Tools","5":"Goodies","6":"Clothes"},"operators":["equal","not_equal","in","not_in","is_null","is_not_null"]},{"id":"in_stock","label":"In stock","type":"integer","input":"radio","values":{"0":"No","1":"Yes"},"operators":["equal"]},{"id":"price","label":"Price","type":"double","validation":{"min":0,"step":0.01}},{"id":"id","label":"Identifier","type":"string","placeholder":"____-____-____","operators":["equal","not_equal"],"validation":{"format":{}}}]';
-        //
-        $this->filters = json_decode($filters_json);
     }
 
     public function set_option($option_name, $value)
