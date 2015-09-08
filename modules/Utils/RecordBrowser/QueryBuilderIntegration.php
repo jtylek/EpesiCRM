@@ -212,19 +212,32 @@ class Utils_RecordBrowser_QueryBuilderIntegration
 
     public static function map_crits_operator_to_query_builder($operator)
     {
-        switch ($operator) {
-            case '': return '';
-            case '=' : return 'equal';
-            case '!=': return 'not_equal';
-            case '>=': return 'greater_or_equal';
-            case '<' : return 'less';
-            case '<=': return 'less_or_equal';
-            case '>' : return 'greater';
-            case 'LIKE': return 'like';
-            case 'NOT LIKE': return 'not_like';
-            case 'IN': return 'in';
-            case 'NOT IN': return 'not_in';
+        if (isset(self::$operator_map[$operator])) {
+            return self::$operator_map[$operator];
         }
-        throw new Exception("Unsupportede operator: $operator");
+        throw new Exception("Unsupported operator: $operator");
     }
+
+    public static function map_query_builder_operator_to_crits($operator)
+    {
+        $flipped = array_flip(self::$operator_map);
+        if (isset($flipped[$operator])) {
+            return $flipped[$operator];
+        }
+        throw new Exception("Unsupported operator: $operator");
+    }
+
+    protected static $operator_map = array(
+        '' => '',
+        '=' => 'equal',
+        '!=' => 'not_equal',
+        '>=' => 'greater_or_equal',
+        '<' => 'less',
+        '<=' => 'less_or_equal',
+        '>' => 'greater',
+        'LIKE' => 'like',
+        'NOT LIKE' => 'not_like',
+        'IN' => 'in',
+        'NOT IN' => 'not_in'
+    );
 }
