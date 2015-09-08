@@ -1202,7 +1202,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!is_object($crits)) {
             $crits = Utils_RecordBrowser_Crits::from_array($crits);
         }
-        $cache_key = $tab . '__' . md5($crits->to_words()) . '__' . $admin . '__' . serialize($order) . '__' . Base_AclCommon::get_user();
+        $cache_key = $tab . '__' . md5(serialize($crits)) . '__' . $admin . '__' . md5(serialize($order)) . '__' . Base_AclCommon::get_user();
         if (isset($cache[$cache_key])) {
             return $cache[$cache_key];
         }
@@ -2730,134 +2730,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	
 	public static $date_values = array('-1 year'=>'1 year back','-6 months'=>'6 months back','-3 months'=>'3 months back','-2 months'=>'2 months back','-1 month'=>'1 month back','-2 weeks'=>'2 weeks back','-1 week'=>'1 week back','-6 days'=>'6 days back','-5 days'=>'5 days back','-4 days'=>'4 days back','-3 days'=>'3 days back','-2 days'=>'2 days back','-1 days'=>'1 days back','today'=>'current day','+1 days'=>'1 days forward','+2 days'=>'2 days forward','+3 days'=>'3 days forward','+4 days'=>'4 days forward','+5 days'=>'5 days forward','+6 days'=>'6 days forward','+1 week'=>'1 week forward','+2 weeks'=>'2 weeks forward','+1 month'=>'1 month forward','+2 months'=>'2 months forward','+3 months'=>'3 months forward','+6 months'=>'6 months forward','+1 year'=>'1 year forward');
 	public static function crits_to_words($tab, $crits, $inline_joints=true) {
-		$ret = array();
-		$or_started = false;
-        foreach($crits as $k=>$v){
-            self::init($tab, false);
-			$next = '';
-            $negative = $noquotes = $or_start = $or = false;
-            $operator = '=';
-            while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
-				if ($k[0]=='!') $negative = true;
-				if ($k[0]=='"') $noquotes = true;
-				if ($k[0]=='(') $or_start = true;
-				if ($k[0]=='|') $or = true;
-				if ($k[0]=='<') $operator = '<';
-				if ($k[0]=='>') $operator = '>';
-				if ($k[0]=='~') $operator = DB::like();
-				if ($k[1]=='=' && $operator!=DB::like()) {
-					$operator .= '=';
-					$k = substr($k, 2);
-				} else $k = substr($k, 1);
-				if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word. Crits:'.print_r($crits,true), E_USER_ERROR);
-			}
-			$or |= $or_start;
-
-			if (!isset($r[$k]) && $k[strlen($k)-1]==']') {
-				list($ref, $sub_field) = explode('[', trim($k, ']'));
-				$args = self::$table_rows[self::$hash[$ref]];
-				$commondata = $args['commondata'];
-				if (!$commondata) {
-					if (!isset($args['ref_table'])) trigger_error('Invalid crits, field '.$ref.' is not a reference; crits: '.print_r($crits,true),E_USER_ERROR);
-					$is_multiselect = ($args['type']=='multiselect');
-					$tab2 = $tab;
-					$col2 = $k;
-					$tab = $args['ref_table'];
-					$k = $sub_field;
-					
-					$f_dis = self::$table_rows[self::$hash[$ref]]['name'];
-					self::init($tab);
-					$next .= '<b>'._V($f_dis).'</b> '.' is set to record with ';
-				}
-			}
-
-            if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[$k]) && (!isset(self::$hash[$k]) || !isset(self::$table_rows[self::$hash[$k]]))) continue; //failsafe
-
-			if (!empty($ret)) {
-				if ($or_start) $joint = 'and';
-				elseif ($or) $joint = 'or';
-				else $joint = 'and';
-				if ($inline_joints) $next .= _V($joint).' ';
-				else $ret[] = $joint;
-			}
-
-            if ($k[0]==':') {
-                switch ($k) {
-                    case ':Fav' :   		$next .= (!$v || ($negative && $v))?__('is not on %sfavorites%s', array('<b>','</b>')):__('is on %sfavorites%s', array('<b>','</b>'));
-											$ret[] = $next;
-											continue 2;
-                    case ':Recent'  :   	$next .= (!$v || ($negative && $v))?__('wasn\'t %srecently%s viewed', array('<b>','</b>')):__('was %srecently%s viewed', array('<b>','</b>'));
-											$ret[] = $next;
-											continue 2;
-                    case ':Sub'  :          $next .= (!$v || ($negative && $v))?__('is not %swatched%s', array('<b>','</b>')):__('is %swatched%s', array('<b>','</b>'));
-                                            $ret[] = $next;
-                                            continue 2;
-                    case ':Created_on'  :	$next .= '<b>'.__('Created on').'</b> ';
-											break;
-                    case ':Created_by'  :	$next .= '<b>'.__('Created by').'</b> ';
-											break;
-                    case ':Edited_on'   :	$next .= '<b>'.__('Edited on').'</b> ';
-											break;
-				}
-			} else {
-				if ($k=='id') $next .= '<b>'.__('ID').'</b> ';
-				else $next .= '<b>'._V(self::$table_rows[self::$hash[$k]]['name']).'</b> ';
-			}
-			$operand = '';
-			if (!isset($tab2)) {
-				if ($negative) $operand .= '<i>'.__('is not').'</i> ';
-				else $operand .= __('is').' ';
-			}
-			if ($v==='') {
-				$next .= $operand.__('empty');
-			} else {
-				switch ($operator) {
-					case '<':	$operand .= __('smaller than'); break;
-					case '<=':	$operand .= __('smaller or equal to'); break;
-					case '>':	$operand .= __('greater than'); break;
-					case '>=':	$operand .= __('greater or equal to'); break;
-					case DB::like(): 
-								$operand = $negative?__('does not contain'):__('contains'); 
-								$v = str_replace(array('||', "'%'"), '', $v); // FIXME doesn't differentiate between "begins with", "contains" or "ends with"
-								break;
-					default:	$operand .= __('equal to');
-				}
-				$operand = $operand.' ';
-				$next .= $operand;
-				
-				switch ($k) {
-					case 'id':			if (!is_array($v)) $v = array($v); break;
-                    case ':Created_by': $v = array(is_numeric($v)?Base_UserCommon::get_user_login($v):$v); break;
-					case ':Created_on': 
-                    case ':Edited_on':  if (isset(self::$date_values[$v])) $v = array(self::$date_values[$v]);
-										else $v = array(Base_RegionalSettingsCommon::time2reg($v)); break;
-					default: 			if (!is_array($v) && isset(self::$date_values[$v])) {
-											$v = array(self::$date_values[$v]);
-											break;
-										}
-										if (!is_array($v)) $v = array($v);
-										$args = self::$table_rows[self::$hash[$k]];
-										if($args['type']=='checkbox' && count($v)==2 && !$v[0] && !$v[1]) unset($v[1]);
-										foreach ($v as $kk=>$vv) {
-											if (!is_numeric($vv) && !$args['commondata'] && isset($args['ref_table'])) {
-												continue;
-											}
-											$v[$kk] = self::get_val($tab, $k, array($k=>$vv), true);
-										}	
-				}
-				foreach ($v as $kk=>$vv)
-					$v[$kk] = '<b>'.$vv.'</b>';
-				$next .= implode(' or ', $v);
-			}
-
-			$ret[] = $next;
-			if (isset($tab2)) {
-				$tab = $tab2;
-				unset($tab2);
-			}
-		}
-//		$ret[] = print_r($crits,true);
-		return $ret;
+        if (!is_object($crits)) {
+            $crits = Utils_RecordBrowser_Crits::from_array($crits);
+        }
+        $crits->replace_special_values(true);
+        $c2w = new Utils_RecordBrowser_CritsToWords($tab);
+        return $c2w->to_words($crits);
 	}
 
     public static function get_printer($tab)

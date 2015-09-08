@@ -2945,16 +2945,8 @@ class Utils_RecordBrowser extends Module {
 			if (!isset($clearance[$row['id']])) $clearance[$row['id']] = array();
 			if (!isset($fields[$row['id']])) $fields[$row['id']] = array();
 			$action = $actions[$row['action']];
-			$crits = Utils_RecordBrowserCommon::parse_access_crits($row['crits'], true);
-			$crits = Utils_RecordBrowserCommon::crits_to_words($this->tab, $crits, false);
-			$crits_text = '';
-			foreach ($crits as $c) {
-				switch ($c) {
-					case 'and': $crits_text .= '<span class="joint">'.__('and').'</span><br>'; break;
-					case 'or': $crits_text .= '<span class="joint">'.__('or').'</span> '; break;
-					default: $crits_text .= $c.' ';
-				}
-			}
+			$crits = Utils_RecordBrowserCommon::parse_access_crits($row['crits']);
+            $crits_text = Utils_RecordBrowserCommon::crits_to_words($this->tab, $crits);
 			foreach ($fields[$row['id']] as $k=>$v)
 				if (isset($all_fields[$v]))
 					$fields[$row['id']][$k] = $all_fields[$v];

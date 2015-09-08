@@ -7,7 +7,6 @@ abstract class Utils_RecordBrowser_CritsInterface
     protected static $replace_callbacks = array();
 
     abstract function normalize();
-    abstract function to_words();
     abstract function replace_value($search, $replace, $deactivate = false);
 
     public static function register_special_value_callback($callback)
@@ -162,19 +161,6 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
         $this->raw_sql_value = $raw_sql_value;
     }
 
-    public function to_words()
-    {
-        if ($this->is_active() == false) {
-            return '';
-        }
-        $value = is_array($this->value) ? implode(', ', $this->value) : $this->value;
-        $ret = "{$this->field} {$this->operator} {$value}";
-        if ($this->negation) {
-            $ret = __('Not') . "($ret)";
-        }
-        return $ret;
-    }
-
     public function replace_value($search, $replace, $deactivate = false)
     {
         $deactivate = $deactivate && ($replace === null);
@@ -235,17 +221,6 @@ class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
             $values = array($values);
         }
         $this->vals = $values;
-    }
-
-    public function to_words()
-    {
-        if ($this->is_active() == false) {
-            return '';
-        }
-        $sql = $this->get_negation() ? $this->negation_sql : $this->sql;
-        $value = implode(', ', $this->vals);
-        $ret = "{$sql} ({$value})";
-        return $ret;
     }
 
     /**
@@ -406,28 +381,6 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
     public function get_component_crits()
     {
         return $this->component_crits;
-    }
-
-    public function to_words()
-    {
-        if ($this->is_active() == false) {
-            return '';
-        }
-        $parts = array();
-        foreach ($this->component_crits as $c) {
-            $s = $c->to_words();
-            if ($s) {
-                $parts[] = $s;
-            }
-        }
-        if (!$parts) {
-            return '';
-        }
-        $join_operator = strtolower($this->join_operator);
-        $glue = ' ' . _V($join_operator) . ' ';
-        $neg = $this->negation ? ' ' . __('Not') : '';
-        $str = $neg . " (" . implode($glue, $parts) . ") ";
-        return $str;
     }
 
     public function replace_value($search, $replace, $deactivate = false)
