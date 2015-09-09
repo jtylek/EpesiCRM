@@ -525,7 +525,8 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
                         foreach ($l as $msg) {
                             $from = isset($msg->from) ? imap_utf8($msg->from) : '<unknown>';
                             $subject = isset($msg->subject) ? imap_utf8($msg->subject) : '<no subject>';
-                            $unseen[] = array('from' => $from, 'subject' => $subject, 'id' => $msg->uid, 'date' => $msg->date, 'unix_timestamp' => $msg->udate);
+                            $date = isset($msg->date) ? $msg->date : '';
+                            $unseen[] = array('from' => $from, 'subject' => $subject, 'id' => $msg->uid, 'date' => $date, 'unix_timestamp' => $msg->udate);
                         }
                     }
                 }
