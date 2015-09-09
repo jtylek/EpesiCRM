@@ -23,7 +23,7 @@ class Utils_RecordBrowser_QueryBuilder
 
     public function build_query(Utils_RecordBrowser_Crits $crits, $order = array(), $admin_filter = '')
     {
-        $crits->replace_special_values();
+        $crits = $crits->replace_special_values();
 
         $tab_with_as = $this->tab.'_data_1 AS ' . $this->tab_alias;
         $this->final_tab = $tab_with_as;

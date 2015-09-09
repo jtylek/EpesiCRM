@@ -16,14 +16,16 @@ abstract class Utils_RecordBrowser_CritsInterface
 
     public function replace_special_values($human_readable = false)
     {
+        $new = clone $this;
         $user = Base_AclCommon::get_user();
         $replace_values = self::get_replace_values($user);
         /** @var Utils_RecordBrowser_ReplaceValue $rv */
         foreach ($replace_values as $rv) {
             $replacement = $human_readable ? $rv->get_human_readable() : $rv->get_replace();
             $deactivate = $human_readable ? false : $rv->get_deactivate();
-            $this->replace_value($rv->get_value(), $replacement, $deactivate);
+            $new->replace_value($rv->get_value(), $replacement, $deactivate);
         }
+        return $new;
     }
 
     protected static function get_replace_values($user)

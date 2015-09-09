@@ -2733,7 +2733,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!is_object($crits)) {
             $crits = Utils_RecordBrowser_Crits::from_array($crits);
         }
-        $crits->replace_special_values(true);
+        $crits = $crits->replace_special_values(true);
         $c2w = new Utils_RecordBrowser_CritsToWords($tab);
         return $c2w->to_words($crits);
 	}
