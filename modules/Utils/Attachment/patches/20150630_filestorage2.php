@@ -22,6 +22,12 @@ if(!$files_checkpoint->is_done()) {
     while($ret = DB::SelectLimit('SELECT f.id,f.attach_id as aid,f.original FROM utils_attachment_file f ORDER BY f.id',1,$files++)) {
         $row = $ret->FetchRow();
         if(!$row) break;
+        
+        if(!file_exists(DATA_DIR.'/Utils_Attachment/'.$row['aid'].'/'.$row['id'])) {
+            DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',$row['id']);
+            DB::Execute('DELETE FROM utils_attachment_file WHERE id=%d',$row['id']);
+            continue;
+        }
 
         Patch::set_message('Processing file: '.$files.'/'.$files_qty);
         $files_checkpoint->require_time(2);
