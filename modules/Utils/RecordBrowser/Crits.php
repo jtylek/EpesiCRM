@@ -190,6 +190,20 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
         }
     }
 
+    public function __clone()
+    {
+        if (is_object($this->value)) {
+            $this->value = clone $this->value;
+        } elseif (is_array($this->value)) {
+            foreach ($this->value as $k => $v) {
+                if (is_object($v)) {
+                    $this->value[$k] = clone $v;
+                }
+            }
+        }
+    }
+
+
     public static function opposite_operator($operator)
     {
         switch ($operator) {
@@ -334,6 +348,13 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
     public function is_empty()
     {
         return count($this->component_crits) == 0;
+    }
+
+    public function __clone()
+    {
+        foreach ($this->component_crits as $k => $v) {
+            $this->component_crits[$k] = clone $v;
+        }
     }
 
     protected function __op($operator, $crits)
