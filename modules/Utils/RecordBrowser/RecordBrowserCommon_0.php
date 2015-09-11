@@ -1305,6 +1305,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $records;
     }
     public static function check_record_against_crits($tab, $id, $crits, & $problems = array()) {
+        if (is_numeric($id)) $r = self::get_record($tab, $id);
+        else $r = $id;
+        if (!is_object($crits)) {
+            $crits = Utils_RecordBrowser_Crits::from_array($crits);
+        }
+        $crits = $crits->replace_special_values(true);
+        $c2w = new Utils_RecordBrowser_CritsValidator($tab);
+        $success = $c2w->validate($crits, $r);
+        $problems = $c2w->get_issues();
+        return $success;
+
+
         if ($crits===true || empty($crits)) return true;
         static $cache = array(), $check_access_processing = array();
         if (is_numeric($id)) $r = self::get_record($tab, $id);
