@@ -161,7 +161,7 @@ class Utils_RecordBrowser_QueryBuilder
             return $special_ret;
         }
 
-        list($field, $sub_field) = $this->parse_subfield_from_field($crit->get_field());
+        list($field, $sub_field) = Utils_RecordBrowser_CritsSingle::parse_subfield($crit->get_field());
 
         $field_def = $this->get_field_definition($field);
         if (!$field_def) {
@@ -288,14 +288,6 @@ class Utils_RecordBrowser_QueryBuilder
             $field_def = $this->fields[$field_label];
         }
         return $field_def;
-    }
-
-    protected function parse_subfield_from_field($field)
-    {
-        $field = explode('[', $field);
-        $sub_field = isset($field[1]) ? trim($field[1], ']') : false;
-        $field = $field[0];
-        return array($field, $sub_field);
     }
 
     protected function get_field_sql($field_name, $cast = null)
@@ -475,7 +467,7 @@ class Utils_RecordBrowser_QueryBuilder
 
         $sql = '';
         $vals = array();
-        list($field, $sub_field) = $this->parse_subfield_from_field($field);
+        list($field, $sub_field) = Utils_RecordBrowser_CritsSingle::parse_subfield($field);
         $multiselect = ($field_def['type'] == 'multiselect');
         $tab2 = isset($field_def['ref_table']) ? $field_def['ref_table'] : false;
 
@@ -532,7 +524,7 @@ class Utils_RecordBrowser_QueryBuilder
 
     protected function hf_commondata($field, $operator, $value, $raw_sql_val, $field_def)
     {
-        list($field, $sub_field) = $this->parse_subfield_from_field($field);
+        list($field, $sub_field) = Utils_RecordBrowser_CritsSingle::parse_subfield($field);
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
         }

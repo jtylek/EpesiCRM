@@ -90,7 +90,7 @@ class Utils_RecordBrowser_CritsToWords
     {
         $value = $crits->get_value();
         $operator = $crits->get_operator();
-        list($field, $subfield) = $this->parse_subfield_from_field($crits->get_field());
+        list($field, $subfield) = Utils_RecordBrowser_CritsSingle::parse_subfield($crits->get_field());
         $negation = $crits->get_negation();
         $field_definition = $this->get_field_definition($field);
         $subquery_generated = false;
@@ -192,14 +192,6 @@ class Utils_RecordBrowser_CritsToWords
             $field_def = $this->fields[$field_label];
         }
         return $field_def;
-    }
-
-    protected function parse_subfield_from_field($field)
-    {
-        $field = explode('[', $field);
-        $sub_field = isset($field[1]) ? trim($field[1], ']') : false;
-        $field = $field[0];
-        return array($field, $sub_field);
     }
 
 }

@@ -112,6 +112,14 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
         $this->raw_sql_value = $raw_sql_value;
     }
 
+    public static function parse_subfield($field)
+    {
+        $field = explode('[', $field);
+        $sub_field = isset($field[1]) ? trim($field[1], ']') : false;
+        $field = $field[0];
+        return array($field, $sub_field);
+    }
+
     /**
      * @return string
      */
