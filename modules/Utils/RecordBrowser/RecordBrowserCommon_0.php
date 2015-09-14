@@ -178,7 +178,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     }
                 }*/
             } elseif ($args['type']=='autonumber') {
-                if(!$links_not_recommended && isset($record['id']) && $record['id']) $ret = self::record_link_open_tag($tab, $record['id']).$val.self::record_link_close_tag();
+                if(!$links_not_recommended && isset($record['id']) && $record['id']) $ret = self::record_link_open_tag_r($tab, $record).$val.self::record_link_close_tag();
             } elseif ($args['type']=='currency') {
                 $val = Utils_CurrencyFieldCommon::get_values($val);
                 $ret = Utils_CurrencyFieldCommon::format($val[0], $val[1]);
@@ -888,15 +888,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('UPDATE '.$tab.'_field SET filter=0 WHERE field=%s', array($col_name));
     }
     public static function register_processing_callback($tab, $callback) {
-        $tables_db = DB::MetaTables();
-        if(!in_array('recordbrowser_processing_methods',$tables_db)) return; // Delete this on major patch
         if (is_array($callback)) $callback = implode('::',$callback);
         if(!DB::GetOne('SELECT 1 FROM recordbrowser_processing_methods WHERE tab=%s AND func=%s', array($tab, $callback)))
             DB::Execute('INSERT INTO recordbrowser_processing_methods (tab, func) VALUES (%s, %s)', array($tab, $callback));
     }
     public static function unregister_processing_callback($tab, $callback) {
-        $tables_db = DB::MetaTables();
-        if(!in_array('recordbrowser_processing_methods',$tables_db)) return; // Delete this on major patch
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('DELETE FROM recordbrowser_processing_methods WHERE tab=%s AND func=%s', array($tab, $callback));
     }
@@ -991,8 +987,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function record_processing($tab, $base, $mode, $clone=null) {
         self::check_table_name($tab);
-        $tables_db = DB::MetaTables();
-        if(!in_array('recordbrowser_processing_methods',$tables_db)) return $base;
 		static $cache = array();
 		if (!isset($cache[$tab])) {
 			$ret = DB::Execute('SELECT * FROM recordbrowser_processing_methods WHERE tab=%s', array($tab));
@@ -1310,10 +1304,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!is_object($crits)) {
             $crits = Utils_RecordBrowser_Crits::from_array($crits);
         }
-        $crits = $crits->replace_special_values(true);
-        $c2w = new Utils_RecordBrowser_CritsValidator($tab);
-        $success = $c2w->validate($crits, $r);
-        $problems = $c2w->get_issues();
+        $crits_validator = new Utils_RecordBrowser_CritsValidator($tab);
+        $success = $crits_validator->validate($crits, $r);
+        $problems = $crits_validator->get_issues();
         return $success;
 
 
@@ -1504,12 +1497,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         public static function get_recursive_delete_all_access($tab,&$r,$field) {
             return self::get_recursive_access($tab,$r,$field,'delete',false);
         }
-	public static function parse_access_crits($str) {
+	public static function parse_access_crits($str, $human_readable = false) {
 		$ret = unserialize($str);
-//        if (is_array($ret)) {
-//            $ret = Utils_RecordBrowser_Crits::from_array($ret);
-//        }
-		return $ret;
+        if (is_array($ret)) {
+            $ret = Utils_RecordBrowser_Crits::from_array($ret);
+        }
+		return $ret->replace_special_values($human_readable);
 	}
 	public static function add_default_access($tab) {
 		Utils_RecordBrowserCommon::add_access($tab, 'view', 'ACCESS:employee');
@@ -1609,7 +1602,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$fields = array();
 				while ($row = $r->FetchRow()) {
 					$fields[$row['id']] = array();
-					$new = unserialize($row['crits']);
+					$new = self::parse_access_crits($row['crits']);
 					$crits_raw[$row['action']][$row['id']] = $new;
 					$crits[$row['action']] = self::merge_crits($crits[$row['action']], $new, true);
 				}
@@ -1984,6 +1977,50 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return Module::create_href(self::get_record_href_array($tab,$id,$action)+$more);
     }
+    public static function record_link_open_tag_r($tab, $record, $nolink=false, $action='view', $more=array())
+    {
+        self::check_table_name($tab);
+        $ret = '';
+        if (isset($record['id']) && !is_numeric($record['id'])) {
+            return self::$del_or_a = '';
+        }
+        if (class_exists('Utils_RecordBrowser') &&
+            isset(Utils_RecordBrowser::$access_override) &&
+            Utils_RecordBrowser::$access_override['tab']==$tab &&
+            Utils_RecordBrowser::$access_override['id']==$record['id']) {
+            self::$del_or_a = '</a>';
+            if (!$nolink) $ret = '<a '.self::create_record_href($tab, $record['id'], $action, $more).'>';
+            else self::$del_or_a = '';
+        } else {
+            $ret = '';
+            $tip = '';
+            self::$del_or_a = '';
+            $has_access = self::get_access($tab, 'view', $record);
+            $is_active = $record[':active'];
+
+            if (!$is_active) {
+                $tip = __('This record was deleted from the system, please edit current record or contact system administrator');
+                $ret = '<del>';
+                self::$del_or_a = '</del>';
+            }
+            if (!$has_access) {
+                $tip = ($tip?'<br>':'').__('You don\'t have permission to view this record.');
+            }
+            $tip = $tip ? Utils_TooltipCommon::open_tag_attrs($tip) : '';
+            if (!$nolink) {
+                if($has_access) {
+                    $href = self::create_record_href($tab, $record['id'], $action, $more);
+                    $ret = '<a '.$tip.' '.$href.'>'.$ret;
+                    self::$del_or_a .= '</a>';
+                } else {
+                    $ret = '<span '.$tip.'>'.$ret;
+                    self::$del_or_a .= '</span>';
+                }
+            }
+        }
+        return $ret;
+    }
+
     public static function record_link_open_tag($tab, $id, $nolink=false, $action='view', $more=array()){
         self::check_table_name($tab);
         $ret = '';
@@ -1998,31 +2035,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id, $action, $more).'>';
             else self::$del_or_a = '';
         } else {
-			$ret = '';
-			$tip = '';
-			self::$del_or_a = '';
-            $has_access = self::get_access($tab, 'view', self::get_record($tab, $id));
-            $is_active = DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id));
-
-			if (!$is_active) {
-				$tip = __('This record was deleted from the system, please edit current record or contact system administrator');
-				$ret = '<del>';
-				self::$del_or_a = '</del>';                    
-			}
-            if (!$has_access) {
-                $tip = ($tip?'<br>':'').__('You don\'t have permission to view this record.');
-            }
-            $tip = $tip ? Utils_TooltipCommon::open_tag_attrs($tip) : '';
-            if (!$nolink) {
-                if($has_access) {
-                    $href = self::create_record_href($tab, $id, $action, $more);
-                    $ret = '<a '.$tip.' '.$href.'>'.$ret;
-                    self::$del_or_a .= '</a>';
-                } else {
-                    $ret = '<span '.$tip.'>'.$ret;
-                    self::$del_or_a .= '</span>';
-                }
-            }
+            $record = self::get_record($tab, $id);
+            $ret = self::record_link_open_tag_r($tab, $record, $nolink, $action, $more);
         }
         return $ret;
     }
@@ -2048,7 +2062,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 }
             }
         }
-        return self::record_link_open_tag($tab, $id, $nolink) . 
+        return self::record_link_open_tag_r($tab, $record, $nolink) .
                 implode(' ', $vals ) . self::record_link_close_tag();
     }
     public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true, $detailed_tooltip = true){
@@ -2076,7 +2090,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             else
                 $label = ($table_name?$cap.': ':'').self::get_val($tab,$field,$rec,$nolink);
         }
-        $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
+        $ret = self::record_link_open_tag_r($tab, $rec, $nolink).$label.self::record_link_close_tag();
         if ($nolink == false && $detailed_tooltip) {
             $ret = self::create_default_record_tooltip_ajax($ret, $tab, $id);
         }
@@ -2116,11 +2130,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function create_linked_label_r($tab, $cols, $r, $nolink=false){
         if (!is_array($cols))
             $cols = array($cols);
-        $open_tag = $close_tag = '';
-        if (isset($r['id']) && is_numeric(($r['id']))) {
-            $open_tag = self::record_link_open_tag($tab, $r['id'], $nolink);
-            $close_tag = self::record_link_close_tag();
-        }
+        $open_tag = self::record_link_open_tag_r($tab, $r, $nolink);
+        $close_tag = self::record_link_close_tag();
         self::init($tab);
         $vals = array();
         foreach ($cols as $col) {
@@ -2170,7 +2181,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return Utils_BBCodeCommon::create_bbcode(null, $rec['id'], $text);
         }
         if ($rec) {
-            return Utils_RecordBrowserCommon::record_link_open_tag($tab, $rec['id']).$text.Utils_RecordBrowserCommon::record_link_close_tag();
+            return Utils_RecordBrowserCommon::record_link_open_tag_r($tab, $rec).$text.Utils_RecordBrowserCommon::record_link_close_tag();
         }
         return Utils_BBCodeCommon::create_bbcode(null, $param, $text, __('Record not found'));
     }
@@ -2281,7 +2292,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($r===null) return null;
 			if (!self::get_access($tab, 'view', $r)) return null;
             if (is_array($label)) {
-                $label = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid)
+                $label = Utils_RecordBrowserCommon::record_link_open_tag_r($tab, $r)
                          . call_user_func($label, $r, true)
                          . Utils_RecordBrowserCommon::record_link_close_tag();
                 $label = self::create_default_record_tooltip_ajax($label, $tab, $rid);

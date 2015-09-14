@@ -2945,7 +2945,7 @@ class Utils_RecordBrowser extends Module {
 			if (!isset($clearance[$row['id']])) $clearance[$row['id']] = array();
 			if (!isset($fields[$row['id']])) $fields[$row['id']] = array();
 			$action = $actions[$row['action']];
-			$crits = Utils_RecordBrowserCommon::parse_access_crits($row['crits']);
+			$crits = Utils_RecordBrowserCommon::parse_access_crits($row['crits'], true);
             $crits_text = Utils_RecordBrowserCommon::crits_to_words($this->tab, $crits);
 			foreach ($fields[$row['id']] as $k=>$v)
 				if (isset($all_fields[$v]))

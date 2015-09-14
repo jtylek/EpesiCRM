@@ -357,7 +357,7 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
 
     public function is_empty()
     {
-        return count($this->component_crits) == 0;
+        return empty($this->component_crits);
     }
 
     public function __clone()
