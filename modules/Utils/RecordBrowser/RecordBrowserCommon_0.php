@@ -1981,7 +1981,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     {
         self::check_table_name($tab);
         $ret = '';
-        if (isset($record['id']) && !is_numeric($record['id'])) {
+        if (!isset($record['id']) || !is_numeric($record['id'])) {
             return self::$del_or_a = '';
         }
         if (class_exists('Utils_RecordBrowser') &&
@@ -1996,7 +1996,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $tip = '';
             self::$del_or_a = '';
             $has_access = self::get_access($tab, 'view', $record);
-            $is_active = $record[':active'];
+            $is_active = isset($record[':active']) ? $record[':active'] : true;
 
             if (!$is_active) {
                 $tip = __('This record was deleted from the system, please edit current record or contact system administrator');
