@@ -7,6 +7,7 @@ function Utils_QueryBuilder(form_name, form_element_id, builder_id, options_json
     var form_element_selector = '#' + form_element_id;
     var builder_selector = '#' + builder_id;
     var events_str = "afterAddGroup.queryBuilder afterDeleteGroup.queryBuilder afterAddRule.queryBuilder afterDeleteRule.queryBuilder afterUpdateRuleValue.queryBuilder afterUpdateRuleFilter.queryBuilder afterUpdateRuleOperator.queryBuilder afterUpdateGroupCondition.queryBuilder afterReset.queryBuilder";
+    if (jq(builder_selector).length == 0) return;
     jq(builder_selector).queryBuilder(options_json).on(events_str, function (event, rule, error, value) {
         jq(form_element_selector).val(JSON.stringify(jq(builder_selector).queryBuilder("getRules")));
     });

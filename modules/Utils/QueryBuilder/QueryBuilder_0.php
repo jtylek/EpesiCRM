@@ -15,6 +15,7 @@ class Utils_QueryBuilder extends Module
     private $form_element_id;
 
     private $form;
+    private $form_initialized = false;
 
     private $filters;
     private $rules;
@@ -28,19 +29,36 @@ class Utils_QueryBuilder extends Module
         $this->instance_id = 'builder_' . md5($this->get_path());
         $this->form_element_id = $form_element_id ? $form_element_id : $this->instance_id . '_form';
 
-        $this->form = $form ? $form : $this->init_module('Libs/QuickForm');
-        $this->form->addElement('hidden', $this->form_element_id, '', array('id' => $this->form_element_id));
+        $this->form = $form;
     }
 
     public function body()
     {
-        $this->load_libs();
+        $this->generate_query_builder();
 
         $theme = $this->pack_module('Base/Theme');
         $theme->assign('builder_id', $this->instance_id);
         $theme->assign('width', '80%');
         $theme->assign('form', $this->get_html_of_module($this->form));
         $theme->display();
+    }
+
+    public function add_to_form($form, $form_element_id, $form_element_label, $editor_element_name = null)
+    {
+        $this->form = $form;
+        $this->form_element_id = $form_element_id;
+
+        $this->form->addElement('static', $editor_element_name, $form_element_label, "<div id=\"{$this->instance_id}\"></div>");
+
+        $this->generate_query_builder();
+    }
+
+    protected function generate_query_builder()
+    {
+        $this->load_libs();
+
+        $this->init_form();
+
         $this->options['filters'] = $this->filters;
         if ($this->plugins) {
             $this->options['plugins'] = $this->plugins;
@@ -54,8 +72,8 @@ class Utils_QueryBuilder extends Module
 
     public function validate()
     {
-        if ($this->form->validate()) {
-            return $this->form->exportValue($this->form_element_id);
+        if ($this->get_form()->validate()) {
+            return $this->get_form()->exportValue($this->form_element_id);
         }
         return false;
     }
@@ -63,6 +81,17 @@ class Utils_QueryBuilder extends Module
     public function add_save_button()
     {
         $this->form->addElement('submit', 'submit', __('Save'));
+    }
+
+    public function init_form()
+    {
+        if (!$this->form_initialized) {
+            $this->form_initialized = true;
+            if (!$this->form) {
+                $this->form = $this->init_module('Libs/QuickForm');
+            }
+            $this->form->addElement('hidden', $this->form_element_id, '', array('id' => $this->form_element_id));
+        }
     }
 
     public function get_form()
