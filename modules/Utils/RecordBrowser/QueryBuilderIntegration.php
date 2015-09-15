@@ -210,6 +210,35 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         }
     }
 
+    public function json_to_crits($json)
+    {
+        $array = json_decode($json, true);
+        return $this->array_to_crits($array);
+    }
+
+    public function array_to_crits($arr)
+    {
+        $ret = null;
+        if (isset($arr['condition']) && isset($arr['rules'])) {
+            $rules = array();
+            foreach ($arr['rules'] as $rule) {
+                $crit = $this->array_to_crits($rule);
+                if ($crit) {
+                    $rules[] = $crit;
+                }
+            }
+            if (!empty($rules)) {
+                $ret = $arr['condition'] == 'AND' ? rb_and($rules) : rb_or($rules);
+            }
+        } elseif (isset($arr['field']) && isset($arr['operator']) && isset($arr['value'])) {
+            $field = $arr['field'];
+            $operator = self::map_query_builder_operator_to_crits($arr['operator']);
+            $value = $arr['value'];
+            $ret = new Utils_RecordBrowser_CritsSingle($field, $operator, $value);
+        }
+        return $ret;
+    }
+
     public static function map_crits_operator_to_query_builder($operator)
     {
         if (isset(self::$operator_map[$operator])) {
