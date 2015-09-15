@@ -3028,11 +3028,6 @@ class Utils_RecordBrowser extends Module {
 		
 		$fields_permissions = $all_fields;
 
-		foreach ($all_fields as $k=>$v) {
-			if ($this->table_rows[$v]['type']=='calculated' || $this->table_rows[$v]['type']=='hidden') unset($all_fields[$k]);
-			else $this->manage_permissions_set_field_values($k);
-		}
-
 		$all_fields = array(
 			':Created_by'=>__('Created by'),
 			':Created_on'=>__('Created on'),
@@ -3051,26 +3046,7 @@ class Utils_RecordBrowser extends Module {
 		
 		for ($i=0; $i<$counts['clearance']; $i++)
 			$form->addElement('select', 'clearance_'.$i, __('Clearance'), $all_clearances);
-		$current_or = array();
-		$current_and = 0;
-		
-		foreach ($all_fields as $k=>$v) {
-			if (isset($this->table_rows[$v])) {
-				$v = $this->table_rows[$v]['name'];
-			}
-			$all_fields[$k] = _V($v);
-		}
-		
-		for ($i=0; $i<$counts['ands']; $i++) {
-			$current_or[$i] = 0;
-			for ($j=0; $j<$counts['ors']; $j++) {
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_field', __('Crits'), array(''=>'---')+$all_fields, array('onchange'=>'utils_recordbrowser__update_field_values('.$i.', '.$j.');', 'id'=>'crits_'.$i.'_'.$j.'_field'));
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_op', __('Operator'), array(''=>'---')+$operators);
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_value', __('Value'), array(), array('id'=>'crits_'.$i.'_'.$j.'_value', 'onchange'=>'utils_recordbrowser__update_field_sub_values('.$i.', '.$j.');'));
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_sub_value', __('Subrecord Value'), array(), array('id'=>'crits_'.$i.'_'.$j.'_sub_value', 'style'=>'display:none;'));
-				$js .= 'utils_recordbrowser__update_field_values('.$i.', '.$j.');';
-			}
-		}
+
 		$defaults = array();
 		foreach ($fields_permissions as $k=>$v) {
 			$defaults['field_'.$k] = 1;
@@ -3089,51 +3065,15 @@ class Utils_RecordBrowser extends Module {
  		));
 		$current_clearance = 0;
 		$sub_values = array();
+        $crits = array();
 		if ($id!==null && $this->tab!='__RECORDSETS__' && !preg_match('/,/',$this->tab)) {
 			$row = DB::GetRow('SELECT * FROM '.$this->tab.'_access AS acs WHERE id=%d', array($id));
 			
 			$defaults['action'] = $row['action'];
 			$crits = unserialize($row['crits']);
-			$i = 0;
-			$j = 0;
-			$or = false;
-			$first = true;
-			foreach ($crits as $k=>$v) {
-				$operator = '=';
-				while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
-					if ($k[0]=='!') $operator = '!';
-					if ($k[0]=='(' && $or) $or = false;
-					if ($k[0]=='|') $or = true;
-					if ($k[0]=='<') $operator = '<';
-					if ($k[0]=='>') $operator = '>';
-					if ($k[0]=='~') $operator = DB::like();
-					if ($k[1]=='=' && $operator!=DB::like()) {
-						$operator .= '=';
-						$k = substr($k, 2);
-					} else $k = substr($k, 1);
-				}
-				if (!$first) {
-					if ($or) $j++;
-					else {
-						$current_or[$i] += $j;
-						$j = 0;
-						$i++;
-					}
-				} else {
-					$first = false;
-				}
-				$sub_value = null;
-				if (!isset($r[$k]) && $k[strlen($k)-1]==']') {
-					$sub_value = $v;
-					list($k, $v) = explode('[', trim($k, ']'));
-				}
-				$defaults['crits_'.$i.'_'.$j.'_field'] = $k;
-				$defaults['crits_'.$i.'_'.$j.'_op'] = $operator;
-				$js .= '$("crits_'.$i.'_'.$j.'_value").value = "'.$v.'";';
-				if ($sub_value!==null) $sub_values['crits_'.$i.'_'.$j.'_sub_value'] = $sub_value;
-			}
-			$current_or[$i] += $j;
-			$current_and += $i;
+            if (is_array($crits)) {
+                $crits = Utils_RecordBrowser_Crits::from_array($crits);
+            }
 			
 			$i = 0;
 			$tmp = DB::GetAll('SELECT * FROM '.$this->tab.'_access_clearance AS acs WHERE rule_id=%d', array($id));
@@ -3148,13 +3088,11 @@ class Utils_RecordBrowser extends Module {
 				unset($defaults['field_'.$t['block_field']]);
 			}
 		}
-		for ($i=0; $i<$counts['ands']; $i++)
-			for ($j=0; $j<$counts['ors']; $j++)
-				$js .= 'utils_recordbrowser__update_field_sub_values('.$i.', '.$j.');';
-		foreach ($sub_values as $k=>$v)
-			$js .= '$("'.$k.'").value = "'.$v.'";';
+        $qbi = new Utils_RecordBrowser_QueryBuilderIntegration($this->tab);
+        $qb = $qbi->get_builder_module($this, $crits);
+        $qb->add_to_form($form, 'qb_crits', __('Crits'), 'qb_crits_editor');
 
-		$form->setDefaults($defaults);
+        $form->setDefaults($defaults);
 		
 		if ($form->validate()) {
 			$vals = $form->exportValues();
@@ -3163,26 +3101,8 @@ class Utils_RecordBrowser extends Module {
 			$clearance = array();
 			for ($i=0; $i<$counts['clearance']; $i++)
 				if ($vals['clearance_'.$i]) $clearance[] = $vals['clearance_'.$i];
-			
-			$crits = array();
-			for ($i=0; $i<$counts['ands']; $i++) {
-				$or = '(';
-				for ($j=0; $j<$counts['ors']; $j++) {
-					if ($vals['crits_'.$i.'_'.$j.'_field'] && $vals['crits_'.$i.'_'.$j.'_op']) {
-						if (!isset($operators[$vals['crits_'.$i.'_'.$j.'_op']])) trigger_error('Fatal error',E_USER_ERROR);
-						if (!isset($all_fields[$vals['crits_'.$i.'_'.$j.'_field']])) trigger_error('Fatal error',E_USER_ERROR);
-						$op = $vals['crits_'.$i.'_'.$j.'_op'];
-						if ($op=='=') $op = '';
-						if (isset($vals['crits_'.$i.'_'.$j.'_sub_value'])) {
-							$vals['crits_'.$i.'_'.$j.'_field'] = $vals['crits_'.$i.'_'.$j.'_field'].'['.$vals['crits_'.$i.'_'.$j.'_value'].']';
-							$vals['crits_'.$i.'_'.$j.'_value'] = $vals['crits_'.$i.'_'.$j.'_sub_value'];
-						}
-						$next = array($or.$op.$vals['crits_'.$i.'_'.$j.'_field'] => $vals['crits_'.$i.'_'.$j.'_value']);
-						$crits = Utils_RecordBrowserCommon::merge_crits($crits, $next);
-					}
-					$or = '|';
-				}
-			}
+
+            $crits = $qbi->json_to_crits($vals['qb_crits']);
 
 			$blocked_fields = array();
 			foreach ($fields_permissions as $k=>$v) {
@@ -3200,9 +3120,6 @@ class Utils_RecordBrowser extends Module {
 		eval_js($js);
 
 		eval_js('utils_recordbrowser__init_clearance('.$current_clearance.', '.$counts['clearance'].')');
-		eval_js('utils_recordbrowser__init_crits_and('.$current_and.', '.$counts['ands'].')');
-		for ($i=0; $i<$counts['ands']; $i++)
-				eval_js('utils_recordbrowser__init_crits_or('.$i.', '.$current_or[$i].', '.$counts['ors'].')');
 		eval_js('utils_recordbrowser__crits_initialized = true;');
 		
 		$form->assign_theme('form', $theme);
