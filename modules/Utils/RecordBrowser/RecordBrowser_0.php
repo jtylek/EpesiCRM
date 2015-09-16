@@ -1355,10 +1355,12 @@ class Utils_RecordBrowser extends Module {
                 if ($this->get_access('add',$this->record)) {
                     Base_ActionBarCommon::add('clone',__('Clone'), $this->create_confirm_callback_href(__('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
                 }
-                /** @var Base_Print_Printer $printer */
-                $printer = Utils_RecordBrowserCommon::get_printer($this->tab);
-                if ($printer) {
-                    Base_ActionBarCommon::add('print', __('Print'), $printer->get_href(array('tab' => $this->tab, 'record_id' => $this->record['id'])));
+                if($this->get_access('print',$this->record)) {
+                    /** @var Base_Print_Printer $printer */
+                    $printer = Utils_RecordBrowserCommon::get_printer($this->tab);
+                    if ($printer) {
+                        Base_ActionBarCommon::add('print', __('Print'), $printer->get_href(array('tab' => $this->tab, 'record_id' => $this->record['id'])));
+                    }
                 }
                 if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back'])))
                     Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());

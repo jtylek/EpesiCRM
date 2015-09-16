@@ -24,11 +24,11 @@ class Utils_RecordBrowser_CritsValidator
         }
         $success = true;
 
-        if ($record instanceof Utils_RecordBrowser_CritsSingle) {
+        if ($crits instanceof Utils_RecordBrowser_CritsSingle) {
             $success = $this->validate_single($crits, $record);
-        } elseif ($record instanceof Utils_RecordBrowser_Crits) {
+        } elseif ($crits instanceof Utils_RecordBrowser_Crits) {
             $success = $this->validate_compound($crits, $record);
-        } elseif ($record instanceof Utils_RecordBrowser_CritsRawSQL) {
+        } elseif ($crits instanceof Utils_RecordBrowser_CritsRawSQL) {
             $success = $this->validate_sql($crits, $record);
         }
         return $success;
@@ -103,7 +103,7 @@ class Utils_RecordBrowser_CritsValidator
             case '>=': $result = ($record[$k] >= $v); break;
             case '<': $result = ($record[$k] < $v); break;
             case '<=': $result = ($record[$k] <= $v); break;
-            case '==': $result = ($record[$k] == $v);
+            case '=': $result = ($record[$k] == $v);
         }
         if ($crits->get_negation()) $result = !$result;
         if (!$result) $this->issues[] = $k;

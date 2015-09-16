@@ -124,7 +124,8 @@ class Utils_RecordBrowser_CritsToWords
                         $value[$k] = Base_UserCommon::get_user_login($v);
                     }
                 } elseif ($field_definition) {
-                    if (is_numeric($v) || $field_definition['commondata'] || !isset($field_definition['ref_table'])) {
+                    $vv = explode('::',$v,2);
+                    if (!(isset($vv[1]) && is_callable($vv)) && (is_numeric($v) || $field_definition['commondata'] || !isset($field_definition['ref_table']))) {
                         $new_val = Utils_RecordBrowserCommon::get_val($this->tab, $field, array($field => $v), true);
                         if ($new_val) {
                             $value[$k] = $new_val;
