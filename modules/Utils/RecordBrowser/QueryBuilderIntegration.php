@@ -25,13 +25,59 @@ class Utils_RecordBrowser_QueryBuilderIntegration
 
     public function get_filters()
     {
-        $ret = array();
+        $ret = $this->get_default_record_filters();
         foreach ($this->fields as $f) {
             $def = self::map_rb_field_to_query_builder_filters($this->tab, $f);
             if ($def) {
                 $ret = array_merge($ret, $def);
             }
         }
+        return $ret;
+    }
+
+    public function get_default_record_filters()
+    {
+        $ret = array();
+        $empty = array(''=>'['.__('Empty').']');
+        if ($this->tab == 'contact') {
+            $ret[] = array(
+                'id' => 'id',
+                'label' => __('ID'),
+                'type' => 'boolean',
+                'input' => 'select',
+                'values' => array('USER'=>__('User Contact'))
+            );
+        }
+        if ($this->tab == 'company') {
+            $ret[] = array(
+                'id' => 'id',
+                'label' => __('ID'),
+                'type' => 'boolean',
+                'input' => 'select',
+                'values' => array('USER_COMPANY'=>__('User Company'))
+            );
+        }
+        $ret[] = array(
+            'id' => ':Created_by',
+            'label' => __('Created by'),
+            'type' => 'boolean',
+            'input' => 'select',
+            'values' => array('USER_ID' => __('User Login'))
+        );
+        $ret[] = array(
+            'id' => ':Created_on',
+            'label' => __('Created on'),
+            'type' => 'date',
+            'input' => 'select',
+            'values' => Utils_RecordBrowserCommon::$date_values
+        );
+        $ret[] = array(
+            'id' => ':Edited_on',
+            'label' => __('Edited on'),
+            'type' => 'date',
+            'input' => 'select',
+            'values' => Utils_RecordBrowserCommon::$date_values
+        );
         return $ret;
     }
 
@@ -94,7 +140,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 }
                 break;
             case 'commondata':
-                $type = 'string';
+                $type = 'boolean';
                 $input = 'select';
                 $array_id = is_array($f['param']) ? $f['param']['array_id'] : $f['ref_table'];
                 $values = array('' => '['.__('Empty').']');
