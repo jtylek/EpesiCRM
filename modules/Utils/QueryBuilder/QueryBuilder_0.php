@@ -14,6 +14,8 @@ class Utils_QueryBuilder extends Module
     private $instance_id;
     private $form_element_id;
 
+    private $editor_element_name;
+
     private $form;
     private $form_initialized = false;
 
@@ -43,12 +45,13 @@ class Utils_QueryBuilder extends Module
         $theme->display();
     }
 
-    public function add_to_form($form, $form_element_id, $form_element_label, $editor_element_name = null)
+    public function add_to_form($form, $form_element_id, $editor_element_label, $editor_element_name)
     {
         $this->form = $form;
         $this->form_element_id = $form_element_id;
+        $this->editor_element_name = $editor_element_name;
 
-        $this->form->addElement('static', $editor_element_name, $form_element_label, "<div id=\"{$this->instance_id}\"></div>");
+        $this->form->addElement('static', $editor_element_name, $editor_element_label, "<div id=\"{$this->instance_id}\"></div>");
 
         $this->generate_query_builder();
     }
@@ -91,7 +94,21 @@ class Utils_QueryBuilder extends Module
                 $this->form = $this->init_module('Libs/QuickForm');
             }
             $this->form->addElement('hidden', $this->form_element_id, '', array('id' => $this->form_element_id));
+            $last_valid_el_id = $this->form_element_id . '_last_valid';
+            $this->form->addElement('hidden', $last_valid_el_id, '', array('id' => $last_valid_el_id));
+            $this->form->addFormRule(array($this, 'check_for_error'));
         }
+    }
+
+    public function check_for_error($form_values)
+    {
+        if (isset($form_values[$this->form_element_id])
+            && $form_values[$this->form_element_id] == '{}'
+        ) {
+            $error_element = $this->editor_element_name ?: $this->form_element_id;
+            return array($error_element => __('Please fix query builder rules'));
+        }
+        return array();
     }
 
     public function get_form()
