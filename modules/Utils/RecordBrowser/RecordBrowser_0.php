@@ -3004,23 +3004,12 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		foreach ($this->table_rows as $k=>$v)
 			$all_fields[$v['id']] = $k;
-		$js = '';
-		$operators = array(
-			'='=>__('equal'), 
-			'!'=>__('not equal'), 
-			'>'=>'>',
-			'>='=>'>=',
-			'<'=>'<',
-			'<='=>'<='
-		);
 
 		$form = $this->init_module('Libs_QuickForm');
 		$theme = $this->init_module('Base_Theme');
 		
 		$counts = array(
 			'clearance'=>5,
-			'ands'=>5,
-			'ors'=>10
 		);
 		
 		$actions = $this->get_permission_actions();
@@ -3028,22 +3017,6 @@ class Utils_RecordBrowser extends Module {
 		
 		$fields_permissions = $all_fields;
 
-		$all_fields = array(
-			':Created_by'=>__('Created by'),
-			':Created_on'=>__('Created on'),
-			':Edited_on'=>__('Edited on')
-		) + $all_fields;
-		if ($this->tab=='contact' || $this->tab=='company')
-			$all_fields = array('id'=>__('ID')) + $all_fields;
-		
-		$this->manage_permissions_set_field_values(':Created_by', array('USER_ID'=>__('User Login')));
-		$this->manage_permissions_set_field_values(':Created_on', Utils_RecordBrowserCommon::$date_values);
-		$this->manage_permissions_set_field_values(':Edited_on', Utils_RecordBrowserCommon::$date_values);
-		if ($this->tab=='contact')
-			$this->manage_permissions_set_field_values('id', array('USER'=>__('User Contact')));
-		if ($this->tab=='company')
-			$this->manage_permissions_set_field_values('id', array('USER_COMPANY'=>__('User Company')));
-		
 		for ($i=0; $i<$counts['clearance']; $i++)
 			$form->addElement('select', 'clearance_'.$i, __('Clearance'), $all_clearances);
 
@@ -3064,7 +3037,6 @@ class Utils_RecordBrowser extends Module {
 			'add_and' => __('Add criteria (and)')
  		));
 		$current_clearance = 0;
-		$sub_values = array();
         $crits = array();
 		if ($id!==null && $this->tab!='__RECORDSETS__' && !preg_match('/,/',$this->tab)) {
 			$row = DB::GetRow('SELECT * FROM '.$this->tab.'_access AS acs WHERE id=%d', array($id));
@@ -3117,8 +3089,6 @@ class Utils_RecordBrowser extends Module {
 			return false;
 		}
 		
-		eval_js($js);
-
 		eval_js('utils_recordbrowser__init_clearance('.$current_clearance.', '.$counts['clearance'].')');
 		eval_js('utils_recordbrowser__crits_initialized = true;');
 		
