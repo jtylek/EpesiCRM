@@ -46,6 +46,8 @@ class Utils_RecordBrowser_CritsValidator
     {
         $id = isset($record['id']) ? $record['id'] : '';
         list($field, $subfield) = Utils_RecordBrowser_CritsSingle::parse_subfield($crits->get_field());
+        $field = ltrim(Utils_RecordBrowserCommon::get_field_id($field), '_');
+        $subfield = ltrim(Utils_RecordBrowserCommon::get_field_id($subfield), '_');
         $r_val = isset($record[$field]) ? $record[$field] : '';
         $v = $crits->get_value();
         $field_definition = $this->get_field_definition($field);
