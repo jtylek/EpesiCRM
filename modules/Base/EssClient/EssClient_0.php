@@ -239,7 +239,12 @@ class Base_EssClient extends Module {
                 print('<span style="color:gray;font-size:10px;">' . __('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
 				$defaults = Base_EssClientCommon::get_possible_admin();
 				$mc = CRM_ContactsCommon::get_main_company();
-                if ($mc) $defaults = array_merge(CRM_ContactsCommon::get_company($mc), $defaults);
+                if ($mc > 0) {
+                    $company = CRM_ContactsCommon::get_company($mc);
+                    if ($company) {
+                        $defaults = array_merge($company, $defaults);
+                    }
+                }
                 $f->setDefaults($defaults);
             }
         }
