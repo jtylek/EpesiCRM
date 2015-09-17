@@ -37,6 +37,7 @@
 				{$labels.crits}
 			</td>
 			<td class="epesi_data static_field" style="padding: 1em;">
+				{$form_data.qb_crits_editor.error}
 				{$form_data.qb_crits_editor.html}
 			</td>
 		</tr>
