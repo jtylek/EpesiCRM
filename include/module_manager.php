@@ -968,7 +968,7 @@ class ModuleManager {
 			ob_start();
 			foreach($modules_with_method as $name) {
 				$common_class = $name . 'Common';
-				if (class_exists($common_class)) {
+				if (class_exists($common_class) && is_callable(array($common_class, $method))) {
 					$ret[$name] = call_user_func_array(array($common_class, $method), $args);
 				}
 			}
