@@ -43,41 +43,36 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	public static function get_default($module,$name){
 		$module = str_replace('/','_',$module);
 		static $variables;
-		if (isset($variables[$module])) {
-			if(isset($variables[$module][$name]))
-				return $variables[$module][$name];
-			return null;
+		if ($variables === null) {
+			$variables = isset($_SESSION['default_user_settings']) ? $_SESSION['default_user_settings'] : null;
 		}
-		if(class_exists($module.'Common') && method_exists($module.'Common', 'user_settings')) {
-			$menu = call_user_func(array($module.'Common','user_settings'), true);
-			if(is_array($menu))
-				foreach($menu as $v) {
-					if(!is_array($v)) continue;
-					foreach($v as $v2) {
-						if(!isset($v2['type'])) {
-							return null;
-							trigger_error('Type not defined in array: '.print_r($v2,true),E_USER_ERROR);
+		if (!isset($variables[$module])) {
+			if (class_exists($module . 'Common') && method_exists($module . 'Common', 'user_settings')) {
+				$settings = call_user_func(array($module . 'Common', 'user_settings'), true);
+				if (is_array($settings)) {
+					foreach ($settings as $v) {
+						if (!is_array($v)) {
+							continue;
 						}
-						if ($v2['type']=='group') {
-							foreach($v2['elems'] as $e)
-								if ($e['type']!='static' && $e['type']!='header') {
-									$variables[$module][$e['name']] = $e['default'];
-									if($e['name']===$name)
-										$ret=$e['default'];
+						foreach ($v as $v2) {
+							if ($v2['type'] == 'group') {
+								foreach ($v2['elems'] as $e) {
+									if ($e['type'] != 'static' && $e['type'] != 'header') {
+										$variables[$module][$e['name']] = $e['default'];
+									}
 								}
-						} elseif ($v2['type']!='static' && $v2['type']!='header') {
-							$variables[$module][$v2['name']] = $v2['default'];
-							if($v2['name']===$name)
-								$ret=$v2['default'];
+							} elseif ($v2['type'] != 'static' && $v2['type'] != 'header') {
+								$variables[$module][$v2['name']] = $v2['default'];
+							}
 						}
 					}
 				}
-			if(isset($ret)) return $ret;
-			return null;
-		} else {
-			return null;
-			trigger_error('There is no common class for module: '.$module,E_USER_ERROR);
+			}
+			$_SESSION['default_user_settings'] = $variables;
 		}
+		if(isset($variables[$module][$name]))
+			return $variables[$module][$name];
+		return null;
 	}
 
 	/**
