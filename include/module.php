@@ -85,7 +85,7 @@ abstract class Module extends ModulePrimitive {
 			$module_type = $this->get_type() . $module_type;
 		}
 		$module_type = str_replace('/','_',$module_type);
-		$m = & ModuleManager::new_instance($module_type,$this,$name,($clear_vars || $this->clear_child_vars));
+		$m = ModuleManager::new_instance($module_type,$this,$name,($clear_vars || $this->clear_child_vars));
 
 		if($args===null) $args = array();
 		elseif(!is_array($args)) $args = array($args);
@@ -359,7 +359,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param object $m module object
 	 * @return bool false if module is invalid, true otherwise
 	 */
-	public final function share_module_variable($name, & $m, $name2=null) {
+	public final function share_module_variable($name, $m, $name2=null) {
 		if(!is_a($m, 'Module'))
 			return false;
 
@@ -378,7 +378,7 @@ abstract class Module extends ModulePrimitive {
      * @param string $name2
 	 * @return bool false if module is invalid, true otherwise
 	 */
-	public function share_unique_href_variable($name, & $m, $name2=null) {
+	public function share_unique_href_variable($name, $m, $name2=null) {
 		if(!is_a($m, 'Module'))
 			return false;
 
@@ -812,7 +812,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $function_name function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else string
 	 */
-	public final function get_html_of_module(& $m, $args=null, $function_name = null) {
+	public final function get_html_of_module($m, $args=null, $function_name = null) {
 		$this_path = $this->get_path();
 
 		if(!$m) trigger_error('Arument 0 for display_module is null.',E_USER_ERROR);
