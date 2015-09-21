@@ -217,6 +217,9 @@ class Epesi {
 		ob_end_clean();
 	}
 
+	/**
+	 * @param $m Module
+     */
 	private static function go(& $m) {
 		//define key so it's first in array
 		$path = $m->get_path();
