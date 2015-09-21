@@ -74,11 +74,11 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return $cache[$category_name] = $ret;
 	}
 	public static function category_exists($category_name) {
-		static $cache = array();
-		if (isset($cache[$category_name])) return $cache[$category_name];
-		$ret = DB::GetOne('SELECT id FROM utils_watchdog_category WHERE name=%s', array(md5($category_name)));
-		$ret = ($ret!==false && $ret!==null);
-		return $cache[$category_name] = $ret;
+		static $cache = null;
+		if (!$cache) {
+			$cache = DB::GetAssoc('SELECT name, id FROM utils_watchdog_category');
+		}
+		return isset($cache[md5($category_name)]);
 	}
 	private static function check_if_user_subscribes($user, $category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
