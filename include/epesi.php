@@ -72,6 +72,10 @@ class Epesi {
 		return $jjj;
 	}
 
+	public final static function get_content() {
+		return self::$txts;
+	}
+
 	public final static function get_output() {
 		$ret = '';
 		$out_css = self::get_csses();
