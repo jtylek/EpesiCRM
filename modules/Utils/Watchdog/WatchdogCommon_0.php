@@ -344,26 +344,28 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			}
 		}
 		$subscribers = self::get_subscribers($category_name,$id);
-		if($subscribers) {
-                    $tooltip.='<hr />';
-                    $icon_on = ' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png').'"';
-                    $icon_off = ' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png').'"';
-                    foreach($subscribers as $subscriber) {
-                        if(class_exists('CRM_ContactsCommon')) {
-                            $contact = CRM_ContactsCommon::get_user_label($subscriber,true);
-                        } else {
-                            $contact = Base_UserCommon::get_user_login($subscriber);
-                        }
-                        
-                        $notified = self::user_check_if_notified($subscriber,$category_name,$id);
-                        if($notified===true) {
-                            $icon2 = $icon_on;
-                        } else {
-                            $icon2 = $icon_off;
-                        }
-                        $tooltip .= '<img style="margin-right:4px;" '.$icon2.' /><a>'.Utils_RecordBrowserCommon::no_wrap($contact).'</a><br />';
-                     
-                    }
+		$my_user = Base_AclCommon::get_user();
+		if ($subscribers) {
+			$icon_on = ' src="' . Base_ThemeCommon::get_template_file('Utils_Watchdog', 'watching_small.png') . '"';
+			$icon_off = ' src="' . Base_ThemeCommon::get_template_file('Utils_Watchdog', 'watching_small_new_events.png') . '"';
+			$other_subscribers = array();
+			foreach ($subscribers as $subscriber) {
+				if ($subscriber == $my_user) {
+					continue;
+				}
+				if (class_exists('CRM_ContactsCommon')) {
+					$contact = CRM_ContactsCommon::get_user_label($subscriber, true);
+				} else {
+					$contact = Base_UserCommon::get_user_login($subscriber);
+				}
+
+				$notified = self::user_check_if_notified($subscriber, $category_name, $id);
+				$icon2 = $notified === true ? $icon_on : $icon_off;
+				$other_subscribers[] = '<img style="margin-right:4px;" ' . $icon2 . ' /><a>' . Utils_RecordBrowserCommon::no_wrap($contact) . '</a>';
+			}
+			if ($other_subscribers) {
+				$tooltip .= '<hr />' . implode('<br>', $other_subscribers);
+			}
 		}
 		$tooltip = Utils_TooltipCommon::open_tag_attrs($tooltip);
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
