@@ -49,17 +49,17 @@ class Utils_RecordBrowser_CritsValidator
         $field = ltrim(Utils_RecordBrowserCommon::get_field_id($field), '_');
         $subfield = ltrim(Utils_RecordBrowserCommon::get_field_id($subfield), '_');
         $r_val = isset($record[$field]) ? $record[$field] : '';
-        $v = $crits->get_value();
+        $crit_value = $crits->get_value();
         $field_definition = $this->get_field_definition($field);
         if ($subfield && $field_definition) {
             $sub_tab = isset($field_definition['ref_table']) ? $field_definition['ref_table'] : false;
             if ($sub_tab) {
                 if (is_array($r_val)) {
                     foreach ($r_val as $k => $v) {
-                        $r_val[$k] = Utils_RecordBrowserCommon::get_value($this->tab, $v, $subfield);
+                        $r_val[$k] = Utils_RecordBrowserCommon::get_value($sub_tab, $v, $subfield);
                     }
                 } else {
-                    if ($r_val) $r_val = Utils_RecordBrowserCommon::get_value($this->tab, $r_val, $subfield);
+                    if ($r_val) $r_val = Utils_RecordBrowserCommon::get_value($sub_tab, $r_val, $subfield);
                     else $r_val = '';
                     if (substr($r_val, 0, 2)=='__') $r_val = Utils_RecordBrowserCommon::decode_multi($r_val); // FIXME need better check
                 }
@@ -84,28 +84,28 @@ class Utils_RecordBrowser_CritsValidator
                 $transform_date = 'date';
             }
         }
-        if ($transform_date == 'timestamp' && $v) {
-            $v = Base_RegionalSettingsCommon::reg2time($v, false);
-            $v = date('Y-m-d H:i:s', $v);
-        } else if ($transform_date == 'date' && $v) {
-            $v = Base_RegionalSettingsCommon::reg2time($v, false);
-            $v = date('Y-m-d', $v);
+        if ($transform_date == 'timestamp' && $crit_value) {
+            $crit_value = Base_RegionalSettingsCommon::reg2time($crit_value, false);
+            $crit_value = date('Y-m-d H:i:s', $crit_value);
+        } else if ($transform_date == 'date' && $crit_value) {
+            $crit_value = Base_RegionalSettingsCommon::reg2time($crit_value, false);
+            $crit_value = date('Y-m-d', $crit_value);
         }
 
-        $vv = explode('::',$v,2);
+        $vv = explode('::',$crit_value,2);
         if (isset($vv[1]) && is_callable($vv)) {
-            $v = call_user_func_array($vv, array($this->tab, &$record, $k, $crits));
+            $crit_value = call_user_func_array($vv, array($this->tab, &$record, $k, $crits));
         }
         if (is_array($record[$k])) {
-            if ($v) $result = in_array($v, $record[$k]);
+            if ($crit_value) $result = in_array($crit_value, $record[$k]);
             else $result = empty($record[$k]);
         }
         else switch ($crits->get_operator()) {
-            case '>': $result = ($record[$k] > $v); break;
-            case '>=': $result = ($record[$k] >= $v); break;
-            case '<': $result = ($record[$k] < $v); break;
-            case '<=': $result = ($record[$k] <= $v); break;
-            case '=': $result = ($record[$k] == $v);
+            case '>': $result = ($record[$k] > $crit_value); break;
+            case '>=': $result = ($record[$k] >= $crit_value); break;
+            case '<': $result = ($record[$k] < $crit_value); break;
+            case '<=': $result = ($record[$k] <= $crit_value); break;
+            case '=': $result = ($record[$k] == $crit_value);
         }
         if ($crits->get_negation()) $result = !$result;
         if (!$result) $this->issues[] = $k;
