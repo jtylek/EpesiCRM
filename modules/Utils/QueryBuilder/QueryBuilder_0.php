@@ -18,6 +18,8 @@ class Utils_QueryBuilder extends Module
 
     private $form;
     private $form_initialized = false;
+    private $add_save_button;
+    private $width = '100%';
 
     private $filters;
     private $rules;
@@ -40,9 +42,14 @@ class Utils_QueryBuilder extends Module
 
         $theme = $this->pack_module('Base/Theme');
         $theme->assign('builder_id', $this->instance_id);
-        $theme->assign('width', '80%');
+        $theme->assign('width', $this->width);
         $theme->assign('form', $this->get_html_of_module($this->form));
         $theme->display();
+    }
+
+    public function set_width($width)
+    {
+        $this->width = $width;
     }
 
     public function add_to_form($form, $form_element_id, $editor_element_label, $editor_element_name)
@@ -81,9 +88,10 @@ class Utils_QueryBuilder extends Module
         return false;
     }
 
-    public function add_save_button()
+    public function add_save_button($label = null)
     {
-        $this->form->addElement('submit', 'submit', __('Save'));
+        if ($label === null) $label = __('Save');
+        $this->add_save_button = $label;
     }
 
     public function init_form()
@@ -97,6 +105,9 @@ class Utils_QueryBuilder extends Module
             $last_valid_el_id = $this->form_element_id . '_last_valid';
             $this->form->addElement('hidden', $last_valid_el_id, '', array('id' => $last_valid_el_id));
             $this->form->addFormRule(array($this, 'check_for_error'));
+            if ($this->add_save_button) {
+                $this->form->addElement('submit', 'submit', $this->add_save_button);
+            }
         }
     }
 
