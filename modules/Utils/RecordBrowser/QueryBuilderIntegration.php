@@ -117,7 +117,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                     $tabs = explode(',', $tabs);
                     $single_tab = count($tabs) == 1;
                 }
-                $type = $single_tab ? 'integer' : 'string';
+                $type = 'boolean';
                 $input = 'select';
                 $values = self::permissions_get_field_values($tab, $f);
                 if ($in_depth && $single_tab) {
@@ -233,11 +233,12 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             $ret['rules'] = $rules;
             return $ret;
         } elseif ($crits instanceof Utils_RecordBrowser_CritsSingle) {
+            list($operator, $value) = self::map_crits_operator_to_query_builder($crits->get_operator(), $crits->get_value());
             $ret = array(
                 'id' => $crits->get_field(),
                 'field' => $crits->get_field(),
-                'operator' => self::map_crits_operator_to_query_builder($crits->get_operator()),
-                'value' => $crits->get_value()
+                'operator' => $operator,
+                'value' => $value
             );
             return $ret;
         } elseif ($crits instanceof Utils_RecordBrowser_CritsRawSQL) {
@@ -267,32 +268,50 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             if (!empty($rules)) {
                 $ret = $arr['condition'] == 'AND' ? rb_and($rules) : rb_or($rules);
             }
-        } elseif (isset($arr['field']) && isset($arr['operator']) && isset($arr['value'])) {
-//            $fields = explode('__sub__', $arr['field']);
-//            $field = isset($fields[1]) ? "$fields[0][$fields[1]]" : $fields[0];
+        } elseif (isset($arr['field']) && isset($arr['operator']) && array_key_exists('value', $arr)) {
             $field = $arr['field'];
-            $operator = self::map_query_builder_operator_to_crits($arr['operator']);
-            $value = $arr['value'];
+            list($operator, $value) = self::map_query_builder_operator_to_crits($arr['operator'], $arr['value']);
             $ret = new Utils_RecordBrowser_CritsSingle($field, $operator, $value);
         }
         return $ret;
     }
 
-    public static function map_crits_operator_to_query_builder($operator)
+    public static function map_crits_operator_to_query_builder($operator, $value)
     {
-        if (isset(self::$operator_map[$operator])) {
-            return self::$operator_map[$operator];
+        if ($operator == '=' && $value == '') {
+            $operator = 'is_null';
+        } else {
+            if ($operator == '!=' && $value == '') {
+                $operator = 'is_not_null';
+            } else {
+                if (isset(self::$operator_map[$operator])) {
+                    return self::$operator_map[$operator];
+                } else {
+                    throw new Exception("Unsupported operator: $operator");
+                }
+            }
         }
-        throw new Exception("Unsupported operator: $operator");
+        return array($operator, $value);
     }
 
-    public static function map_query_builder_operator_to_crits($operator)
+    public static function map_query_builder_operator_to_crits($operator, $value)
     {
-        $flipped = array_flip(self::$operator_map);
-        if (isset($flipped[$operator])) {
-            return $flipped[$operator];
+        static $flipped;
+        if (!$flipped) $flipped = array_flip(self::$operator_map);
+        if ($operator == 'is_null') {
+            $operator = '=';
+            $value = null;
+        } elseif ($operator == 'is_not_null') {
+            $operator = '!=';
+            $value = null;
+        } else {
+            if (isset($flipped[$operator])) {
+                $operator = $flipped[$operator];
+            } else {
+                throw new Exception("Unsupported operator: $operator");
+            }
         }
-        throw new Exception("Unsupported operator: $operator");
+        return array($operator, $value);
     }
 
     protected static $operator_map = array(
