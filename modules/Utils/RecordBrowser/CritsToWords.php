@@ -108,10 +108,10 @@ class Utils_RecordBrowser_CritsToWords
 
         if (!is_array($value)) $value = array($value);
         foreach ($value as $k => $v) {
-            if ($v === '') {
-                $value[$k] = __('empty');
-            } elseif (is_bool($v)) {
+            if (is_bool($v)) {
                 $value[$k] = $v ? __('true') : __('false');
+            } elseif ($v == '') {
+                $value[$k] = __('empty');
             } else {
                 if ($field == ':Created_on' || $field == ':Edited_on') {
                     if (isset(Utils_RecordBrowserCommon::$date_values[$v])) {
