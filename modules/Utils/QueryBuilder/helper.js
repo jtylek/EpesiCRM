@@ -3,7 +3,6 @@
  */
 
 function Utils_QueryBuilder(form_name, form_element_id, builder_id, options_json, rules_json, error_msg) {
-    var form_selector = 'form[name="' + form_name +'"]';
     var form_element_selector = '#' + form_element_id;
     var form_element_selector_last = '#' + form_element_id + '_last_valid';
     var builder_selector = '#' + builder_id;

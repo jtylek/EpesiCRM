@@ -16,6 +16,23 @@ class Utils_RecordBrowser_QueryBuilderIntegration
     {
         /** @var Utils_QueryBuilder $qb */
         $qb = $module->init_module('Utils/QueryBuilder');
+        $operators = array(
+            array('type' => 'equal', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('string', 'number', 'datetime', 'boolean')),
+            array('type' => 'not_equal', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('string', 'number', 'datetime', 'boolean')),
+            array('type' => 'less', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('number', 'datetime')),
+            array('type' => 'less_or_equal', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('number', 'datetime')),
+            array('type' => 'greater', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('number', 'datetime')),
+            array('type' => 'greater_or_equal', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('number', 'datetime')),
+            array('type' => 'begins_with', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('string')),
+            array('type' => 'not_begins_with', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('string')),
+            array('type' => 'contains', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('string')),
+            array('type' => 'not_contains', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('string')),
+            array('type' => 'ends_with', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('string')),
+            array('type' => 'not_ends_with', 'nb_inputs' => 1, 'multiple' => false, 'apply_to' => array('string')),
+            array('type' => 'is_null', 'nb_inputs' => 0, 'multiple' => false, 'apply_to' => array('string', 'number', 'datetime', 'boolean')),
+            array('type' => 'is_not_null', 'nb_inputs' => 0, 'multiple' => false, 'apply_to' => array('string', 'number', 'datetime', 'boolean')),
+        );
+        $qb->set_option('operators', $operators);
         $filters = $this->get_filters();
         $qb->set_filters($filters);
         $rules = $this->get_rules($crits);
@@ -104,8 +121,6 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 $type = 'string';
                 break;
             case 'multiselect':
-                $opts['multiple'] = true;
-                $opts['rows'] = '10';
             case 'select':
                 $param = explode(';', $f['param']);
                 $ref = explode('::', $param[0]);
@@ -278,17 +293,28 @@ class Utils_RecordBrowser_QueryBuilderIntegration
 
     public static function map_crits_operator_to_query_builder($operator, $value)
     {
-        if ($operator == '=' && $value == '') {
-            $operator = 'is_null';
+        if (($operator == '=' || $operator == '!=' ) && $value == '' && !is_numeric($value)) {
+            $operator = $operator == '=' ? 'is_null' : 'is_not_null';
+        } elseif ($operator == 'LIKE' || $operator == 'NOT LIKE') {
+            if (preg_match('/^%.*%$/', $value)) {
+                $operator = 'contains';
+                $value = trim($value, '%');
+            } elseif (preg_match('/^.*%$/', $value)) {
+                $operator = 'begins_with';
+                $value = rtrim($value, '%');
+            } elseif (preg_match('/^%.*/', $value)) {
+                $operator = 'ends_with';
+                $value = ltrim($value, '%');
+            }
+            $value = self::unescape_like_value($value);
+            if ($operator == 'NOT LIKE') {
+                $operator = "not_$operator";
+            }
         } else {
-            if ($operator == '!=' && $value == '') {
-                $operator = 'is_not_null';
+            if (isset(self::$operator_map[$operator])) {
+                $operator = self::$operator_map[$operator];
             } else {
-                if (isset(self::$operator_map[$operator])) {
-                    return self::$operator_map[$operator];
-                } else {
-                    throw new Exception("Unsupported operator: $operator");
-                }
+                throw new Exception("Unsupported operator: $operator");
             }
         }
         return array($operator, $value);
@@ -304,6 +330,30 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         } elseif ($operator == 'is_not_null') {
             $operator = '!=';
             $value = null;
+        } elseif ($operator == 'begins_with') {
+            $operator = 'LIKE';
+            $value = self::escape_like_value($value);
+            $value = "$value%";
+        } elseif ($operator == 'not_begins_with') {
+            $operator = 'NOT LIKE';
+            $value = self::escape_like_value($value);
+            $value = "$value%";
+        } elseif ($operator == 'ends_with') {
+            $operator = 'LIKE';
+            $value = self::escape_like_value($value);
+            $value = "%$value";
+        } elseif ($operator == 'not_ends_with') {
+            $operator = 'NOT LIKE';
+            $value = self::escape_like_value($value);
+            $value = "%$value";
+        } elseif ($operator == 'contains') {
+            $operator = 'LIKE';
+            $value = self::escape_like_value($value);
+            $value = "%$value%";
+        } elseif ($operator == 'not_contains') {
+            $operator = 'NOT LIKE';
+            $value = self::escape_like_value($value);
+            $value = "%$value%";
         } else {
             if (isset($flipped[$operator])) {
                 $operator = $flipped[$operator];
@@ -312,6 +362,18 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             }
         }
         return array($operator, $value);
+    }
+
+    public static function escape_like_value($value)
+    {
+        $value = str_replace(array('_', '%'), array('\\_', '\\%'), $value);
+        return $value;
+    }
+
+    public static function unescape_like_value($value)
+    {
+        $value = str_replace(array('\\_', '\\%'), array('_', '%'), $value);
+        return $value;
     }
 
     protected static $operator_map = array(
