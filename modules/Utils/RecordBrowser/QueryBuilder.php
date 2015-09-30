@@ -578,6 +578,11 @@ class Utils_RecordBrowser_QueryBuilder
         $operator = self::transform_meta_operators_to_sql($crit->get_operator());
         $raw_sql_val = $crit->get_raw_sql_value();
         $value = $crit->get_value();
+        $negation = $crit->get_negation();
+        if ($operator == '!=') {
+            $operator = '=';
+            $negation = !$negation;
+        }
         if (is_array($value)) { // for empty array it will give empty result
             $sql[] = 'false';
         } else {
@@ -595,7 +600,7 @@ class Utils_RecordBrowser_QueryBuilder
             }
         }
         $sql_str = implode(' OR ', $sql);
-        if ($sql_str && $crit->get_negation()) {
+        if ($sql_str && $negation) {
             $sql_str = "NOT ($sql_str)";
         }
         return array($sql_str, $vals);
