@@ -105,11 +105,21 @@ class Utils_RecordBrowser_CritsValidator
             case '>=': $result = ($record[$k] >= $crit_value); break;
             case '<': $result = ($record[$k] < $crit_value); break;
             case '<=': $result = ($record[$k] <= $crit_value); break;
-            case '=': $result = ($record[$k] == $crit_value);
+            case '!=': $result = ($record[$k] != $crit_value); break;
+            case '=': $result = ($record[$k] == $crit_value); break;
+            case 'LIKE': $result = self::check_like_match($record[$k], $crit_value); break;
+            case 'NOT LIKE': $result = !self::check_like_match($record[$k], $crit_value); break;
         }
         if ($crits->get_negation()) $result = !$result;
         if (!$result) $this->issues[] = $k;
         return $result;
+    }
+
+    public static function check_like_match($value, $pattern, $ignore_case = true)
+    {
+        $pattern = str_replace(array('_', '%'), array('.', '.*'), $pattern);
+        $pattern = "/^$pattern\$/" . ($ignore_case ? "i" : "");
+        return preg_match($pattern, $value) > 0;
     }
 
     protected function validate_compound(Utils_RecordBrowser_Crits $crits, $record)
