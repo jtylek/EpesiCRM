@@ -100,7 +100,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
 
     public function get_rules($crits)
     {
-        if (is_array($crits)) {
+        if (!is_object($crits)) {
             $crits = \Utils_RecordBrowser_Crits::from_array($crits);
         }
         /** @var Utils_RecordBrowser_Crits $crits */

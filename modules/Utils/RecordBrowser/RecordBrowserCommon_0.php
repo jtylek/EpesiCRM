@@ -1379,7 +1379,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 	public static function parse_access_crits($str, $human_readable = false) {
 		$ret = unserialize($str);
-        if (is_array($ret)) {
+        if (!is_object($ret)) {
             $ret = Utils_RecordBrowser_Crits::from_array($ret);
         }
 		return $ret->replace_special_values($human_readable);
