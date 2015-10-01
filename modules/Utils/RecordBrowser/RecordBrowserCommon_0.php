@@ -1201,8 +1201,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return $cache[$cache_key];
         }
 
-        $access = $admin ? true : self::get_access($tab, 'browse');
-        if ($access === false) return array();
+        $access = $admin ? true : self::get_access($tab, 'browse', null, true);
+        if ($access == false) return array();
         elseif ($access !== true) $crits = self::merge_crits($crits, $access);
 
         $admin_filter = $admin ? self::$admin_filter : $tab_alias . '.active=1 AND ';
