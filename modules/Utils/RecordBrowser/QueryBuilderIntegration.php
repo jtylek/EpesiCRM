@@ -134,7 +134,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 }
                 $type = 'boolean';
                 $input = 'select';
-                $values = self::permissions_get_field_values($tab, $f);
+                $values = self::permissions_get_field_values($tab, $f, $in_depth);
                 if ($in_depth && $single_tab) {
                     $one_tab = reset($tabs);
                     if (Utils_RecordBrowserCommon::check_table_name($one_tab, false, false)) {
@@ -194,7 +194,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         return null;
     }
 
-    private static function permissions_get_field_values($tab, $args) {
+    private static function permissions_get_field_values($tab, $args, $first_level = true) {
         $arr = array(''=>'['.__('Empty').']');
         $field = $args['id'];
         switch (true) {
@@ -224,6 +224,12 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             case ($args['type']=='select' || $args['type']=='multiselect') && isset($args['ref_table']):
                 if ($args['ref_table']=='contact') $arr = $arr + array('USER'=>__('User Contact'));
                 if ($args['ref_table']=='company') $arr = $arr + array('USER_COMPANY'=>__('User Company'));
+                if ($first_level) {
+                    if($args['type']=='multiselect')
+                        $arr = $arr + array('ACCESS_VIEW'=>_('Allow view any record'),'ACCESS_VIEW_ALL'=>_('Allow view all records'),'ACCESS_EDIT'=>_('Allow edit any record'),'ACCESS_EDIT_ALL'=>_('Allow edit all records'),'ACCESS_PRINT'=>_('Allow print any record'),'ACCESS_PRINT_ALL'=>_('Allow print all records'),'ACCESS_DELETE'=>_('Allow delete any record'),'ACCESS_DELETE_ALL'=>_('Allow delete all records'));
+                    else
+                        $arr = $arr + array('ACCESS_VIEW'=>_('Allow view record'),'ACCESS_EDIT'=>_('Allow edit record'),'ACCESS_PRINT'=>_('Allow print record'),'ACCESS_DELETE'=>_('Allow delete record'));
+                }
                 break;
         }
         return $arr;
