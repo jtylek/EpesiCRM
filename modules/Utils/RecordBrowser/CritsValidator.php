@@ -149,6 +149,16 @@ class Utils_RecordBrowser_CritsValidator
         return $success;
     }
 
+    protected function validate_sql(Utils_RecordBrowser_CritsRawSQL $crits, $record)
+    {
+        $sql = $crits->get_negation() ? $crits->get_negation_sql() : $crits->get_sql();
+        if ($sql) {
+            $sql = "AND $sql";
+        }
+        $ret = DB::GetOne("SELECT 1 FROM {$this->tab}_data_1 WHERE id=%d $sql", array($record['id']));
+        return $ret ? true : false;
+    }
+
     protected function get_field_definition($field_id_or_label)
     {
         $field_def = null;
