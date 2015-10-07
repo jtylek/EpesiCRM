@@ -1485,6 +1485,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$fields[$row['id']] = array();
 					$new = self::parse_access_crits($row['crits']);
 					$crits_raw[$row['action']][$row['id']] = $new;
+                    // if new or existing crit is empty, then we have access to all records
+                    if ($new->is_empty()) {
+                        $crits[$row['action']] = $new;
+                    }
+                    if ($crits[$row['action']] instanceof Utils_RecordBrowser_Crits
+                        && $crits[$row['action']]->is_empty()) {
+                        continue;
+                    }
 					$crits[$row['action']] = self::merge_crits($crits[$row['action']], $new, true);
 				}
 				$r = DB::Execute('SELECT * FROM '.$tab.'_access_fields');
