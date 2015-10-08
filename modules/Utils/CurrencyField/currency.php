@@ -111,6 +111,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	function _findValue(& $value) {
 		$val = parent::_findValue($value);
 		if($val===null) return null;
+		if(strpos($val,'__')!==false) return $val;
 		$name = $this->getName();
 		$curr_field = '__'.str_replace(array('[',']'),'',$name).'__currency';
 		if(!isset($value[$curr_field])) return null;
