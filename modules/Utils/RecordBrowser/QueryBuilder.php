@@ -119,7 +119,7 @@ class Utils_RecordBrowser_QueryBuilder
                         $orderby[] = ' (SELECT MAX(visited_on) FROM '.$this->tab.'_recent WHERE '.$this->tab.'_id='.$this->tab_alias.'.id AND user_id='.$user_id.') '.$v['direction'];
                         break;
                     case ':Edited_on'   :
-                        $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) ELSE created_on END) '.$v['direction'];
+                        $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) ELSE ' . $this->tab_alias . '.created_on END) '.$v['direction'];
                         break;
                     default     :
                         $orderby[] = ' '.substr($v['order'], 1).' ' . $v['direction'];
