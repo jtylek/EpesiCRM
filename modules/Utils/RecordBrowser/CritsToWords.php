@@ -110,7 +110,7 @@ class Utils_RecordBrowser_CritsToWords
         foreach ($value as $k => $v) {
             if (is_bool($v)) {
                 $value[$k] = $v ? __('true') : __('false');
-            } elseif ($v == '') {
+            } elseif ($v === '' || $v === null) {
                 $value[$k] = __('empty');
             } else {
                 if ($field == ':Created_on' || $field == ':Edited_on') {
