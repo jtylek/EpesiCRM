@@ -108,6 +108,13 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 		// TODO: float or string? If float is to be accepted, then conversion is neccessary
 	} // end func setValue
 
-
+	function _findValue(& $value) {
+		$val = parent::_findValue($value);
+		if($val===null) return null;
+		$name = $this->getName();
+		$curr_field = '__'.str_replace(array('[',']'),'',$name).'__currency';
+		if(!isset($value[$curr_field])) return null;
+		return $val.'__'.$value[$curr_field];
+	}
 } //end class HTML_QuickForm_currency
 ?>
