@@ -304,7 +304,7 @@ class Utils_RecordBrowser_QueryBuilder
         if (!$value) {
             $sql = "$field IS NULL OR $field=''";
         } else {
-            $sql = "$field $operator %s";
+            $sql = "$field $operator %s AND $field IS NOT NULL";
             $vals[] = $value;
         }
         return array($sql, $vals);
@@ -323,7 +323,7 @@ class Utils_RecordBrowser_QueryBuilder
         if ($value === '' || $value === null || $value === false) {
             $sql = "$field IS NULL";
         } else {
-            $sql = "$field $operator %d";
+            $sql = "$field $operator %d AND $field IS NOT NULL";
             $vals[] = $value;
         }
         return array($sql, $vals);
@@ -342,7 +342,7 @@ class Utils_RecordBrowser_QueryBuilder
         if ($value === '' || $value === null || $value === false) {
             $sql = "$field IS NULL";
         } else {
-            $sql = "$field $operator %f";
+            $sql = "$field $operator %f AND $field IS NOT NULL";
             $vals[] = $value;
         }
         return array($sql, $vals);
