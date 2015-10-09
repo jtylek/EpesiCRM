@@ -94,21 +94,22 @@ class Utils_RecordBrowser_CritsValidator
 
         $vv = explode('::',$crit_value,2);
         if (isset($vv[1]) && is_callable($vv)) {
-            $crit_value = call_user_func_array($vv, array($this->tab, &$record, $k, $crits));
-        }
-        if (is_array($record[$k])) {
-            if ($crit_value) $result = in_array($crit_value, $record[$k]);
-            else $result = empty($record[$k]);
-        }
-        else switch ($crits->get_operator()) {
-            case '>': $result = ($record[$k] > $crit_value); break;
-            case '>=': $result = ($record[$k] >= $crit_value); break;
-            case '<': $result = ($record[$k] < $crit_value); break;
-            case '<=': $result = ($record[$k] <= $crit_value); break;
-            case '!=': $result = ($record[$k] != $crit_value); break;
-            case '=': $result = ($record[$k] == $crit_value); break;
-            case 'LIKE': $result = self::check_like_match($record[$k], $crit_value); break;
-            case 'NOT LIKE': $result = !self::check_like_match($record[$k], $crit_value); break;
+            $result = call_user_func_array($vv, array($this->tab, &$record, $k, $crits));
+        } else {
+            if (is_array($record[$k])) {
+                if ($crit_value) $result = in_array($crit_value, $record[$k]);
+                else $result = empty($record[$k]);
+            }
+            else switch ($crits->get_operator()) {
+                case '>': $result = ($record[$k] > $crit_value); break;
+                case '>=': $result = ($record[$k] >= $crit_value); break;
+                case '<': $result = ($record[$k] < $crit_value); break;
+                case '<=': $result = ($record[$k] <= $crit_value); break;
+                case '!=': $result = ($record[$k] != $crit_value); break;
+                case '=': $result = ($record[$k] == $crit_value); break;
+                case 'LIKE': $result = self::check_like_match($record[$k], $crit_value); break;
+                case 'NOT LIKE': $result = !self::check_like_match($record[$k], $crit_value); break;
+            }
         }
         if ($crits->get_negation()) $result = !$result;
         if (!$result) $this->issues[] = $k;

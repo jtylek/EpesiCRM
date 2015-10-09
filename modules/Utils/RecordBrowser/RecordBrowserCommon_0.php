@@ -1333,26 +1333,30 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $single_tab = count($tabs)==1;
             }
             $ret = true;
+            $field_is_empty = true;
             if(!is_array($r[$field])) $values = array($r[$field]);
             else $values = $r[$field];
             if($single_tab) {
                 foreach($values as $rid) {
+                    if (!$rid) continue;
                     $rr = self::get_record($tab,$rid);
                     $access = self::get_access($tab,$action,$rr);
+                    $field_is_empty = false;
                     if($any && $access) return $r[$field];
                     $ret &= $access;
                 }
             } else {
                 foreach($values as $rid) {
+                    if (!$rid) continue;
                     list($tab,$rid) = explode('/',$rid,2);
                     $rr = self::get_record($tab,$rid);
                     $access = self::get_access($tab,$action,$rr);
+                    $field_is_empty = false;
                     if($any && $access) return $r[$field];
                     $ret &= $access;
                 }            
             }
-            if($ret) return $r[$field];
-            return false;
+            return $field_is_empty ? false : ($ret ? true : false);
 	}
 	public static function get_recursive_view_access($tab,&$r,$field) {
             return self::get_recursive_access($tab,$r,$field,'view',true);
