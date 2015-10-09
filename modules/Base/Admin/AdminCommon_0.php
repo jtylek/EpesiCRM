@@ -94,3 +94,4 @@ if(!interface_exists('Base_AdminInterface', false)) {
 	}
 }
 
+?>
