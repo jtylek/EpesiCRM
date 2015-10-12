@@ -505,7 +505,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 		$fields_sql = '';
         foreach ($fields as $v)
-            $fields_sql .= Utils_RecordBrowserCommon::new_record_field($tab, $v, false);
+            $fields_sql .= Utils_RecordBrowserCommon::new_record_field($tab, $v, false, false);
         DB::CreateTable($tab.'_data_1',
                     'id I AUTO KEY,'.
                     'created_on T NOT NULL,'.
@@ -624,7 +624,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     private static $datatypes = null;
-    public static function new_record_field($tab, $definition, $alter=true){
+    public static function new_record_field($tab, $definition, $alter=true, $set_empty_position_before_first_page_split=true){
         if (self::$datatypes===null) {
             self::$datatypes = array();
             $ret = DB::Execute('SELECT * FROM recordbrowser_datatype');
@@ -686,7 +686,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::StartTrans();
         if (is_string($definition['position'])) $definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($definition['position']))+1;
         if ($definition['position']===null || $definition['position']===false) {
-            $first_page_split = DB::GetOne('SELECT MIN(position) FROM '.$tab.'_field WHERE type="page_split" AND extra=1');
+            $first_page_split = $set_empty_position_before_first_page_split?DB::GetOne('SELECT MIN(position) FROM '.$tab.'_field WHERE type="page_split"'):0;
             $definition['position'] = $first_page_split?$first_page_split:DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
         }
         DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($definition['position']));
