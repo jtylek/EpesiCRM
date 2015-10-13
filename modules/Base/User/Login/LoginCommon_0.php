@@ -187,7 +187,8 @@ class Base_User_LoginCommon extends ModuleCommon {
             // we have to option to ban - by ip or by login. In both cases
             // from_addr column is used to store ip or login name
             $ban_by_login = Variable::get('host_ban_by_login', false);
-            $param = $ban_by_login ? md5($login . $_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+			$ip = get_client_ip_address();
+            $param = $ban_by_login ? md5($login . $ip) : $ip;
             $current_time = time();
             DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d', array($current_time - $ban_seconds));
             DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)', array($current_time, $param));
