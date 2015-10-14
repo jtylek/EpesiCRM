@@ -481,7 +481,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         return $ret;
     }
 
-    public static function get_emails($rs,$rec) {
+    public static function get_email_addresses($rs,$rec) {
         if(is_numeric($rec)) $rec = Utils_RecordBrowserCommon::get_record($rs,$rec);
 
         $emails = array();
@@ -491,6 +491,27 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         foreach($multiple as $multi) if($multi['email']) $emails[] = $multi['email'];
 
         return array_unique($emails);
+    }
+
+    public static function reload_mails($rs,$id,$email_addresses = null) {
+        $prefix = ($rs=='contact'?'P':'C').':';
+
+        if(!$email_addresses) $email_addresses = self::get_email_addresses($rs,$id);
+
+        foreach($email_addresses as $email) {
+            $cc = Utils_RecordBrowserCommon::get_records('rc_mails',array('(~from'=>'%'.$email.'%','|~to'=>'%'.$email.'%'));
+
+            foreach($cc as $mail) {
+                if(($rs=='contact' && $mail['employee']==$id) || in_array($prefix.$id,$mail['contacts'])) continue;
+                if(!preg_match('/(^|[\s,\<\;])'.preg_quote($email,'/').'($|[\s,\>\&])/i',$mail['from'].','.$mail['to'])) {
+                    continue;
+                }
+
+                $mail['contacts'][] = $prefix.$id;
+                Utils_RecordBrowserCommon::update_record('rc_mails',$mail['id'],array('contacts'=>$mail['contacts']));
+                CRM_RoundcubeCommon::create_thread($mail['id']);
+            }
+        }
     }
 
     /**

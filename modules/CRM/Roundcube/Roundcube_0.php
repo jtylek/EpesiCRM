@@ -116,31 +116,12 @@ class CRM_Roundcube extends Module {
  		                    array('name'=>'Size')),$data,false,null,array('Filename'=>'ASC')),'simple_table');
     }
 
-    public function reload_mails($rs,$id,$emails) {
-        $prefix = ($rs=='contact'?'P':'C').':';
-
-        foreach($emails as $email) {
-            $cc = Utils_RecordBrowserCommon::get_records('rc_mails',array('(~from'=>'%'.$email.'%','|~to'=>'%'.$email.'%'));
-
-            foreach($cc as $mail) {
-                if(($rs=='contact' && $mail['employee']==$id) || in_array($prefix.$id,$mail['contacts'])) continue;
-                if(!preg_match('/(^|[\s,\<\;])'.preg_quote($email,'/').'($|[\s,\>\&])/i',$mail['from'].','.$mail['to'])) {
-                    continue;
-                }
-
-                $mail['contacts'][] = $prefix.$id;
-                Utils_RecordBrowserCommon::update_record('rc_mails',$mail['id'],array('contacts'=>$mail['contacts']));
-                CRM_RoundcubeCommon::create_thread($mail['id']);
-            }
-        }
-    }
-
     public function addon($arg, $rb) {
         $rs = $rb->tab;
         $id = $arg['id'];
         if($rs=='contact' || $rs=='company') {
-            $emails = CRM_RoundcubeCommon::get_emails($rs,$arg);
-            Base_ActionBarCommon::add('reload', __('Reload mails'), $this->create_callback_href(array($this, 'reload_mails'), array($rs, $id, $emails)));
+            $emails = CRM_RoundcubeCommon::get_email_addresses($rs,$arg);
+            if($emails) Base_ActionBarCommon::add('reload', __('Reload mails'), $this->create_callback_href(array('CRM_RoundcubeCommon', 'reload_mails'), array($rs, $id, $emails)));
         }
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
             $ok = true;
