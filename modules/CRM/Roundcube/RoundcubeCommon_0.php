@@ -481,6 +481,18 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         return $ret;
     }
 
+    public static function get_emails($rs,$rec) {
+        if(is_numeric($rec)) $rec = Utils_RecordBrowserCommon::get_record($rs,$rec);
+
+        $emails = array();
+        if(isset($rec['email']) && $rec['email']) $emails[] = $rec['email'];
+
+        $multiple = Utils_RecordBrowserCommon::get_records('rc_multiple_emails',array('record_type'=>$rs,'record_id'=>$rec['id']));
+        foreach($multiple as $multi) if($multi['email']) $emails[] = $multi['email'];
+
+        return array_unique($emails);
+    }
+
     /**
      * @param int  $account_id
      * @param bool $only_cached If true then only cached response will be retrieved
