@@ -180,6 +180,9 @@ class Utils_RecordBrowser_CritsToWords
             $value_str = "($value_str)";
         }
         $ret = "{$field} {$operand} {$value_str}";
+        if (!$this->html_decoration) {
+            $ret = html_entity_decode($ret);
+        }
         return array('str' => $ret, 'multiple' => false);
     }
 
