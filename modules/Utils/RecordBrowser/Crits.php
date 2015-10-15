@@ -8,6 +8,7 @@ abstract class Utils_RecordBrowser_CritsInterface
 
     abstract function normalize();
     abstract function replace_value($search, $replace, $deactivate = false);
+    abstract function find($key);
 
     public static function register_special_value_callback($callback)
     {
@@ -153,6 +154,14 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
             $this->set_negation(false);
             $this->operator = self::opposite_operator($this->operator);
         }
+    }
+
+    public function find($key)
+    {
+        if ($this->field == $key) {
+            return $this;
+        }
+        return null;
     }
 
     /**
@@ -307,6 +316,11 @@ class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
         }
     }
 
+    public function find($key)
+    {
+        return null;
+    }
+
 }
 
 class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
@@ -353,6 +367,20 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
         foreach ($this->component_crits as $c) {
             $c->normalize();
         }
+    }
+
+    public function find($key)
+    {
+        $ret = array();
+        foreach ($this->get_component_crits() as $cc) {
+            $crit = $cc->find($key);
+            if (is_array($crit)) {
+                $ret = array_merge($ret, $crit);
+            } elseif (!is_null($crit)) {
+                $ret[] = $crit;
+            }
+        }
+        return $ret ? $ret : null;
     }
 
     public function is_empty()
