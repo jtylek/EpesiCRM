@@ -161,7 +161,21 @@ class Base_User_LoginCommon extends ModuleCommon {
         // long as from_addr field
         $ip = get_client_ip_address();
         $param = $login ? md5($login . $ip) : $ip;
-        
+
+		// Hidden feature to allow login only from desired IP
+		// TODO: add GUI
+		// Example:
+		// $allowed_ip = array('user_1' => array('1.2.3.4', '5.6.7.8'), 'user_2' => array('2.3.4.5', '3.4.5.6'));
+		// Variable::set('allowed_ip_login', $allowed_ip);
+		$allowed_ip = Variable::get('allowed_ip_login', false);
+		if ($allowed_ip) {
+			// use '' key to match all users
+			if (isset($allowed_ip[''])) $login = '';
+			if (isset($allowed_ip[$login])) {
+				if (!in_array($ip, $allowed_ip[$login])) return true; // is banned
+			}
+		}
+
         // allow to inject time parameter
         if (!$current_time) $current_time = time();
 		if($tries > 0 && $time_seconds > 0) {
