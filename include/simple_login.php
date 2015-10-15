@@ -11,7 +11,7 @@ class SimpleLogin {
             $anonymous = true;
         }
 
-        if (Base_User_LoginCommon::is_banned()) {
+        if (!Base_AclCommon::is_user() && Base_User_LoginCommon::is_banned()) {
             return self::t('You have exceeded the number of allowed login attempts.');
         }
 
