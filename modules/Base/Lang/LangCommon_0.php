@@ -411,7 +411,7 @@ class Base_LangCommon extends ModuleCommon {
 	public static function get_lang_code() {
 		if(defined('FORCE_LANG_CODE')) return FORCE_LANG_CODE;
 		if(!isset(self::$lang_code)) {
-			if (!Acl::is_user() ||
+			if (!Base_AclCommon::is_user() ||
 				Base_User_SettingsInstall::is_installed() == false ||
 				!Variable::get('allow_lang_change', false))
 					return Variable::get('default_lang');
