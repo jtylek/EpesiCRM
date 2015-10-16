@@ -18,7 +18,6 @@ class Utils_QueryBuilder extends Module
 
     private $form;
     private $form_initialized = false;
-    private $add_save_button;
     private $width = '100%';
 
     private $filters;
@@ -88,10 +87,33 @@ class Utils_QueryBuilder extends Module
         return false;
     }
 
-    public function add_save_button($label = null)
+    public function closed()
     {
-        if ($label === null) $label = __('Save');
-        $this->add_save_button = $label;
+        return $this->is_back() || $this->get_form()->validate();
+    }
+
+    /**
+     * Init standalone form and add Save/Cancel buttons
+     * @param mixed $save_label true for default label, false to disable, string to enable with custom label.
+     * @param mixed $cancel_label true for default label, false to disable, string to enable with custom label.
+     * @param string $cancel_action custom action on cancel button. By default $this->create_back_href() - works with $this->closed()
+     */
+    public function add_buttons($save_label = true, $cancel_label = true, $cancel_action = null)
+    {
+        $this->init_form();
+        $buttons = array();
+        if ($cancel_label) {
+            if ($cancel_label === true) $cancel_label = __('Cancel');
+            if ($cancel_action === null) $cancel_action = $this->create_back_href();
+            $buttons[] = $this->get_form()->createElement('button', 'cancel', $cancel_label, $cancel_action);
+        }
+        if ($save_label) {
+            if ($save_label === true) $save_label = __('Save');
+            $buttons[] = $this->get_form()->createElement('submit', 'submit', $save_label);
+        }
+        if ($buttons) {
+            $this->get_form()->addGroup($buttons);
+        }
     }
 
     public function init_form()
@@ -105,9 +127,6 @@ class Utils_QueryBuilder extends Module
             $last_valid_el_id = $this->form_element_id . '_last_valid';
             $this->form->addElement('hidden', $last_valid_el_id, '', array('id' => $last_valid_el_id));
             $this->form->addFormRule(array($this, 'check_for_error'));
-            if ($this->add_save_button) {
-                $this->form->addElement('submit', 'submit', $this->add_save_button);
-            }
         }
     }
 
