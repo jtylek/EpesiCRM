@@ -84,7 +84,7 @@ ChainedSelect.prototype = {
                  //   if(val != undefined)
                         obj.style.display = "block";
                 }
-				opts.length=0;
+				while(opts.length > 0) obj.remove(0);
 				if(new_opts.length==0) {
 					obj.fire('e_cs:clear');
                     obj.disabled = true;
