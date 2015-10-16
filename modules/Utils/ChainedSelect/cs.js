@@ -103,6 +103,7 @@ ChainedSelect.prototype = {
 						obj.value = def_val;
 					else
 						obj.value = '';
+					jq(obj).change();
 					setTimeout(obj.fire.bind(obj,'e_cs:load'),1);
 				}
 			}
