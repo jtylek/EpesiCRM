@@ -24,7 +24,7 @@ class Base_UserCommon extends ModuleCommon {
 		if (!$active) {
 			$c_admin = DB::GetOne('SELECT admin FROM user_login WHERE id=%d', array($uid));
 			if ($c_admin==2) {
-				$admins = DB::GetOne('SELECT COUNT(id) FROM user_login WHERE admin=2');
+				$admins = DB::GetOne('SELECT COUNT(id) FROM user_login WHERE admin=2 AND active=1');
 				if ($admins<=1) {
 					Base_StatusBarCommon::message('Unable to deactivate the only Super Administrator user', 'warning');
 					return true;
