@@ -141,7 +141,9 @@ class Apps_ActivityReport extends Module {
 				switch ($row['action']) {
 					case 'edit': 	$details = DB::GetAssoc('SELECT field, old_value FROM '.$row['tab'].'_edit_history_data WHERE edit_id=%d', array($row['id']));
 									if (isset($details['id'])) {
-										$action = $details['id']=='DELETED'?__('Deleted'):__('Restored');
+										$action = $details['id'];
+										if ($action == 'DELETED') $action = __('Deleted');
+										if ($action == 'RESTORED') $action = __('Restored');
 									} else {
 										$action = __('Edited');
 										$action = '<a '.Utils_TooltipCommon::tooltip_leightbox_mode().' '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details_label'), array($row['tab'], $row['r_id'], $row['id']), 500).'>'.$action.'</a>';
@@ -164,6 +166,7 @@ class Apps_ActivityReport extends Module {
 									$r_id = $id[1];
 									break;
 				}
+				if (!isset($r_id) || !$r_id) continue;
 				if (!Utils_RecordBrowserCommon::get_access($row['tab'], 'view', Utils_RecordBrowserCommon::get_record($row['tab'], $r_id))) {
 					$link = __('Access restricted');
 					$action = strip_tags($action);
