@@ -1196,6 +1196,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         static $cache;
         if (!is_object($crits)) {
             $crits = Utils_RecordBrowser_Crits::from_array($crits);
+        } else {
+            $crits = clone $crits;
         }
         $cache_key = $tab . '__' . md5(serialize($crits)) . '__' . $admin . '__' . md5(serialize($order)) . '__' . Base_AclCommon::get_user();
         if (isset($cache[$cache_key])) {
@@ -1204,7 +1206,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         $access = $admin ? true : self::get_access($tab, 'browse', null, true);
         if ($access == false) return array();
-        elseif ($access !== true) $crits = self::merge_crits($crits, $access);
+        elseif ($access !== true) {
+            $access = clone $access;
+            $crits = self::merge_crits($crits, $access);
+        }
 
         $admin_filter = $admin ? self::$admin_filter : $tab_alias . '.active=1 AND ';
         $query_builder = new Utils_RecordBrowser_QueryBuilder($tab, $tab_alias);
