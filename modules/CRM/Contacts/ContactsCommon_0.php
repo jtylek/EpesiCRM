@@ -466,7 +466,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         foreach ($str as $k=>$v)
             if ($v) {
                 $v = "%$v%";
-                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~company_name'=>$v));
+                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~company_name'=>$v,'|~tax_id'=>$v));
             }
         $recs = Utils_RecordBrowserCommon::get_records('company', $crits, array(), array('company_name'=>'ASC'), 10);
         $ret = array();
