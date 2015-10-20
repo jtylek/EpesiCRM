@@ -1055,7 +1055,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                     $old_admin = Base_AclCommon::get_admin_level($values['login']);
                     if($old_admin!=$values['admin']) {
                         $admin_arr = array(0=>'No', 1=>'Administrator', 2=>'Super Administrator');
-					    if(Base_UserCommon::change_admin($values['login'], $values['admin'])!==true)
+					    if(Base_UserCommon::change_admin($values['login'], $values['admin'])!==true && isset($values['id']) && $values['id'])
                             Utils_RecordBrowserCommon::new_record_history('contact',$values['id'],'Admin set from "'.$admin_arr[$old_admin].'" to "'.$admin_arr[$values['admin']]);
                     }
 				}
