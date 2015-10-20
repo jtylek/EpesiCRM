@@ -6,8 +6,33 @@ abstract class Utils_RecordBrowser_CritsInterface
 {
     protected static $replace_callbacks = array();
 
+    /**
+     * Make sure that all crits do not use negation. Reverse operators and logic
+     * operators according to De Morgan's laws
+     *
+     * @return mixed
+     */
     abstract function normalize();
+
+    /**
+     * Replace crits value to other value or disable crits that uses this value.
+     *
+     * Object will be changed! Clone it before use if you'd like to hold
+     * original one.
+     *
+     * @param mixed $search
+     * @param mixed $replace
+     * @param bool  $deactivate pass true and null as replace to disable crit
+     */
     abstract function replace_value($search, $replace, $deactivate = false);
+
+    /**
+     * Method to lookup in crits for certain fields crits or crits objects
+     *
+     * @param string|object $key key to find or crits object
+     *
+     * @return array Crits objects in array that matches $key
+     */
     abstract function find($key);
 
     public static function register_special_value_callback($callback)
@@ -15,6 +40,15 @@ abstract class Utils_RecordBrowser_CritsInterface
         self::$replace_callbacks[] = $callback;
     }
 
+    /**
+     * Replace all registered special values.
+     *
+     * Object will be cloned. Current object will not be changed.
+     *
+     * @param bool $human_readable Use special value or it's human readable form
+     *
+     * @return Utils_RecordBrowser_CritsInterface New object with replaced values
+     */
     public function replace_special_values($human_readable = false)
     {
         $new = clone $this;
