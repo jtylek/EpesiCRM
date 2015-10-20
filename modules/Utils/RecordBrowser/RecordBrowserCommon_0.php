@@ -2622,7 +2622,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									$ret .= ' '.__('of').' '.$cap;
 								}
 								if (isset($args[1])) {
-									$val = implode('<br />&nbsp;&nbsp;&nbsp;',self::crits_to_words($args[0], $args[1]));
+									$val = self::crits_to_words($args[0], $args[1]);
 									if ($val) $ret .= ' '.__('for which').'<br />&nbsp;&nbsp;&nbsp;'.$val;
 								}
 								return $ret;
@@ -2636,7 +2636,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									$ret .= ' '.$cap;
 								}
 								if (isset($args[1])) {
-									$val = implode('<br>&nbsp;&nbsp;&nbsp;',self::crits_to_words($args[0], $args[1]));
+									$val = self::crits_to_words($args[0], $args[1]);
 									if ($val) $ret .= ' '.__('for which').'<br />&nbsp;&nbsp;&nbsp;'.$val;
 								}
 								return $ret;
@@ -2645,12 +2645,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	
 	public static $date_values = array('-1 year'=>'1 year back','-6 months'=>'6 months back','-3 months'=>'3 months back','-2 months'=>'2 months back','-1 month'=>'1 month back','-2 weeks'=>'2 weeks back','-1 week'=>'1 week back','-6 days'=>'6 days back','-5 days'=>'5 days back','-4 days'=>'4 days back','-3 days'=>'3 days back','-2 days'=>'2 days back','-1 days'=>'1 days back','today'=>'current day','+1 days'=>'1 days forward','+2 days'=>'2 days forward','+3 days'=>'3 days forward','+4 days'=>'4 days forward','+5 days'=>'5 days forward','+6 days'=>'6 days forward','+1 week'=>'1 week forward','+2 weeks'=>'2 weeks forward','+1 month'=>'1 month forward','+2 months'=>'2 months forward','+3 months'=>'3 months forward','+6 months'=>'6 months forward','+1 year'=>'1 year forward');
-	public static function crits_to_words($tab, $crits, $inline_joints=true) {
+	public static function crits_to_words($tab, $crits, $html_decoration=true) {
         if (!is_object($crits)) {
             $crits = Utils_RecordBrowser_Crits::from_array($crits);
         }
         $crits = $crits->replace_special_values(true);
         $c2w = new Utils_RecordBrowser_CritsToWords($tab);
+        $c2w->enable_html_decoration($html_decoration);
         return $c2w->to_words($crits);
 	}
 

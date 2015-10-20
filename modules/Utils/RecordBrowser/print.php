@@ -59,9 +59,7 @@ if (is_array($limit)) {
 
 $tcpdf = Libs_TCPDFCommon::new_pdf();
 
-$filters = implode(' ',Utils_RecordBrowserCommon::crits_to_words($tab, $crits));
-$filters = strip_tags($filters);
-$filters = str_replace('&nbsp;', ' ', $filters);
+$filters = Utils_RecordBrowserCommon::crits_to_words($tab, $crits, false);
 $filters = str_replace(' and ', "\n", $filters);
 $filters = str_replace(' is equal to', ':', $filters);
 
