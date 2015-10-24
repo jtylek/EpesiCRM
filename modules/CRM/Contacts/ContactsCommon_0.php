@@ -1064,6 +1064,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 			unset($values['username']);
 			unset($values['set_password']);
 			unset($values['confirm_password']);
+			break;
+			case 'delete':
+			    if (isset($values['login']) && $values['login']) {
+			        $ret = Base_UserCommon::change_active_state($values['login'], false);
+			        if (!$ret) $values = false;
+		        }
+		        break;
         }
         return $values;
     }
