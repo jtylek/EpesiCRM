@@ -360,10 +360,10 @@ class Utils_RecordBrowser_QueryBuilder
         if ($operator == '!=') {
             $sql = $value ?
                     "$field IS NULL OR $field!=%b" :
-                    "$field IS NOT NULL OR $field!=%b";
+                    "$field IS NOT NULL AND $field!=%b";
         } else {
             $sql = $value ?
-                    "$field IS NOT NULL OR $field=%b" :
+                    "$field IS NOT NULL AND $field=%b" :
                     "$field IS NULL OR $field=%b";
         }
         return array($sql, array($value ? true : false));
