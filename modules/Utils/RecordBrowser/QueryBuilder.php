@@ -357,19 +357,16 @@ class Utils_RecordBrowser_QueryBuilder
             if (DB::is_postgresql()) $field .= '::varchar';
             return array("$field $operator %s", array($value));
         }
-        $vals = array();
-        if (!$value) {
-            if ($operator == '=') {
-                $sql = "$field IS NULL OR $field=%b";
-            } else {
-                $sql = "$field IS NOT NULL OR $field!=%b";
-            }
-            $vals[] = false;
+        if ($operator == '!=') {
+            $sql = $value ?
+                    "$field IS NULL OR $field!=%b" :
+                    "$field IS NOT NULL OR $field!=%b";
         } else {
-            $sql = "$field $operator %b";
-            $vals[] = $value;
+            $sql = $value ?
+                    "$field IS NOT NULL OR $field=%b" :
+                    "$field IS NULL OR $field=%b";
         }
-        return array($sql, $vals);
+        return array($sql, array($value ? true : false));
     }
 
     protected function hf_date($field, $operator, $value, $raw_sql_val)
