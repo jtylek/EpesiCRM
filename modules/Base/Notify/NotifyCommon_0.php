@@ -99,13 +99,19 @@ class Base_NotifyCommon extends ModuleCommon {
 
 	public static function get_session_token() {
         $user_id = Base_AclCommon::get_user();
+        if (!$user_id) return false;
+		if(Base_User_SettingsCommon::get('Base_Notify', 'one_cache')) {
+            $token = DB::GetOne('SELECT token FROM base_notify WHERE token LIKE "UID:%d;%%"',array(Base_AclCommon::get_user()));
+            if($token) return $token;
+            return 'UID:' . Base_AclCommon::get_user() . ';' . md5(get_epesi_url().'#'.generate_password(32));
+        }
         $session_id = session_id();
-        if (!$user_id || !$session_id) return false;
-        $token = md5($user_id . '__' . $session_id);
+        if (!$session_id) return false;
+        $token = 'MD:'.md5($user_id . '__' . $session_id);
 		return $token;
 	}
 	
-	public static function get_notifications($token) {
+	public static function get_notifications($token,$tray=true) {
 		$ret = array();
 
         $last_refresh = max(self::get_last_refresh($token), time() - self::reset_time * 3600);
@@ -123,9 +129,9 @@ class Base_NotifyCommon extends ModuleCommon {
                 $notify = null;
             }
 
-        	if (!isset($notify['tray'])) continue;
+        	if (!isset($notify[$tray?'tray':'notifications'])) continue;
         	
-        	$new_module_notifications = self::filter_new_notifications($module, $notify['tray'], $token);
+        	$new_module_notifications = self::filter_new_notifications($module, $notify[$tray?'tray':'notifications'], $token);
         	
         	if (empty($new_module_notifications)) continue;
         	
@@ -179,10 +185,12 @@ class Base_NotifyCommon extends ModuleCommon {
 
 		$ret = array(
 				array('name'=>null,'label'=>__('General'),'type'=>'header'),
+				array('name'=>'one_cache','label'=>__('Show each notification'),'type'=>'select', 'values'=>array(0=>__('multiple times every login and on each device'), 1=>__('only once and only on one device')), 'default'=>1),
+				array('name'=>null,'label'=>__('Browser Notification').' - '.__('General'),'type'=>'header'),
 				array('name'=>'general_timeout', 'reload'=>1, 'label'=>__('Close Message Timeout'),'type'=>'select','values'=>Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', true),'default'=>0),
 				array('name'=>'general_group','label'=>__('Group Similar Notifications'),'type'=>'checkbox','default'=>1),
 	
-				array('name'=>null,'label'=>__('Module Specific Timeout'),'type'=>'header')
+				array('name'=>null,'label'=>__('Browser Notification').' - '.__('Module Specific Timeout'),'type'=>'header')
 		);
 	
 		$modules = ModuleManager::check_common_methods('tray_notification');
@@ -192,7 +200,10 @@ class Base_NotifyCommon extends ModuleCommon {
 	
 			$ret = array_merge($ret, array(array('name'=>$module.'_timeout','label'=>$label,'type'=>'select','values'=>array(-2=>_M('Use general setting')) + Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', true),'default'=>-2)));
 		}
-	
+
+		$ret[] = array('name'=>null,'label'=>__('Telegram Notification'),'type'=>'header');
+        $ret[] = array('name'=>'telegram_url', 'label'=>'<a href="modules/Base/Notify/telegram.php" target="_blank">'.__('Connect to your telegram account').'</a>','type'=>'static','values'=>'');
+
 		return array(__('Notify')=>$ret);
 	}		
 
@@ -233,6 +244,50 @@ class Base_NotifyCommon extends ModuleCommon {
 		$uncompressed = function_exists('gzuncompress')? gzuncompress($decoded): $decoded;
 		return @unserialize($uncompressed);
 	}
+
+    public static function cron() {
+        return array('telegram'=>5);
+    }
+
+    public static function telegram() {
+        $tokens = DB::GetCol('SELECT token FROM base_notify WHERE token LIKE "UID:%%"');
+        $ret = array();
+        foreach($tokens as $token) {
+            if (!Base_NotifyCommon::is_refresh_due($token)) continue;
+
+            if(!preg_match('/^UID:([0-9]+);/',$token,$matches)) continue;
+            Base_AclCommon::set_user($matches[1]);
+
+            $msgs = array();
+            $notified_cache = array();
+
+            $refresh_time = time();
+            $notifications = Base_NotifyCommon::get_notifications($token);
+
+            foreach ($notifications as $module => $module_new_notifications) {
+                foreach ($module_new_notifications as $id=>$message) {
+                    $notified_cache[$module][] = $id;
+
+                    $title = EPESI.' '.Base_NotifyCommon::strip_html($message['title']);
+                    $body = Base_NotifyCommon::strip_html($message['body']);
+                    //$icon = Base_NotifyCommon::get_icon($module, $message);
+
+                    $msgs[] = array('title'=>$title, 'body'=>$body);
+                }
+            }
+
+            Base_NotifyCommon::set_notified_cache($notified_cache, $token, $refresh_time);
+            $ret[md5($token)] = $msgs;
+        }
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,"https://telegram.epesicrm.com/");
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($ret));
+        curl_exec ($ch);
+        curl_close ($ch);
+    }
 }
 
 on_init(array('Base_NotifyCommon', 'init'));
