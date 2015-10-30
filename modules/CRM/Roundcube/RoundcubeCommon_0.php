@@ -578,7 +578,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         return $return;
     }
 
-    public static function tray_notification($last_refresh)
+    public static function notification()
     {
         $notifications = array();
         foreach (self::get_accounts() as $account) {

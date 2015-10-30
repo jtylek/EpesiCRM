@@ -116,15 +116,15 @@ class Base_NotifyCommon extends ModuleCommon {
 
         $last_refresh = max(self::get_last_refresh($token), time() - self::reset_time * 3600);
 
-        $notification_modules = ModuleManager::check_common_methods('tray_notification');
+        $notification_modules = ModuleManager::check_common_methods('notification');
         
         foreach ($notification_modules as $module) {
         	$timeout = self::get_module_setting($module);
         	if ($timeout == -1) continue;
 
-            $callback = array($module. "Common", 'tray_notification');
+            $callback = array($module. "Common", 'notification');
             if (is_callable($callback)) {
-                $notify = call_user_func($callback, $last_refresh);
+                $notify = call_user_func($callback);
             } else {
                 $notify = null;
             }
@@ -193,7 +193,7 @@ class Base_NotifyCommon extends ModuleCommon {
 				array('name'=>null,'label'=>__('Browser Notification').' - '.__('Module Specific Timeout'),'type'=>'header')
 		);
 	
-		$modules = ModuleManager::check_common_methods('tray_notification');
+		$modules = ModuleManager::check_common_methods('notification');
 	
 		foreach ($modules as $module) {
 			$label = self::get_module_caption($module);

@@ -371,7 +371,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
 	} 
 	
-	public static function tray_notification($time = null) {
+	public static function notification() {
 		/*$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		foreach ($methods as $k=>$v) { 
 			$methods[$k] = explode('::',$v);
