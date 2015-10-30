@@ -3,13 +3,15 @@ Utils_CommonData.prototype = {
 	obj:null,
 	path:null,
 	add_empty:null,
+	order:'',
 	def_val:'',
-	initialize: function(id,val,cd,ae) {
+	initialize: function(id,val,cd,ae,order) {
 		this.obj = $(id);
 		if(this.obj==null) return;
 		this.path = cd.evalJSON();
 		this.add_empty = ae;
 		this.def_val = val;
+		this.order = order;
 		var obj = this.obj;
 		var prev_obj = eval('obj.form.'+this.path[this.path.length-1]);
 		Event.observe(prev_obj,'change',this.request.bindAsEventListener(this));
@@ -46,7 +48,8 @@ Utils_CommonData.prototype = {
 		new Ajax.Request('modules/Utils/CommonData/update.php',{
 				method:'post',
 				parameters:{
-					value: curr_root
+					value: curr_root,
+					order: this.order
 				},
 				onSuccess: this.on_request.bind(this)
 			});

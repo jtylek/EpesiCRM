@@ -64,7 +64,7 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 					 )) . ' />';
 				return $html;
 			}
-			eval_js('new Utils_CommonData(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS($val,false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\', '.($this->_add_empty_fields?1:0).')');
+			eval_js('new Utils_CommonData(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS($val,false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\', '.($this->_add_empty_fields?1:0).', \'' . $this->_order_by_key . '\')');
 		}
 	        return parent::toHtml();
 	}

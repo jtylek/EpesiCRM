@@ -15,7 +15,9 @@ define('SET_SESSION',0);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-$ret = Utils_CommonDataCommon::get_translated_array($_POST['value']);
+$order = isset($_POST['order']) ? $_POST['order'] : false;
+
+$ret = Utils_CommonDataCommon::get_translated_array($_POST['value'], $order);
 if(!$ret) $ret = array();
 print(json_encode($ret));
 exit();
