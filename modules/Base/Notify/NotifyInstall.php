@@ -19,7 +19,8 @@ class Base_NotifyInstall extends ModuleInstall {
         DB::CreateTable('base_notify','
 			token C(64) NOTNULL PRIMARY KEY,
 			cache X,
-			last_refresh I8');
+			last_refresh I8,
+			telegram I1 DEFAULT 0');
 		
 		if(!$ret){
 			print('Unable to create table base_notify.<br>');

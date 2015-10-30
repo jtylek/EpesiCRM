@@ -14,6 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_NotifyCommon extends ModuleCommon {
 	//interval to poll for new notifications
 	const refresh_rate = 30; //seconds
+	const refresh_rate_telegram = 300; //seconds
 
 	//interval at which to look back in time
 	const reset_time = 24; //hours
@@ -59,7 +60,11 @@ class Base_NotifyCommon extends ModuleCommon {
 	public static function is_refresh_due($token) {
 		return time() >= Base_NotifyCommon::get_last_refresh($token) + Base_NotifyCommon::refresh_rate;
 	}
-	
+
+	public static function is_refresh_due_telegram($token) {
+		return time() >= Base_NotifyCommon::get_last_refresh($token) + Base_NotifyCommon::refresh_rate_telegram;
+	}
+
 	public static function set_notified_cache($cache, $token, $refresh_time) {
 		if (empty($cache)) {
 			return DB::Execute('UPDATE base_notify SET last_refresh=%d WHERE token=%s AND (last_refresh<=%d OR last_refresh IS NULL)', array($refresh_time, $token, $refresh_time));
@@ -83,18 +88,18 @@ class Base_NotifyCommon extends ModuleCommon {
 	}
 	
 	public static function get_notified_cache($token) {
-		static $cache;
+		static $cache = array();
 	
-		if (!isset($cache)) {
+		if (!isset($cache[$token])) {
 			$notified = DB::GetOne('SELECT cache FROM base_notify WHERE token=%s',array($token));
 	
 			if (!isset($notified)) {
 				$notified = self::serialize(array());
 			}
-			$cache = self::unserialize($notified);
+			$cache[$token] = self::unserialize($notified);
 		}
 	
-		return $cache;
+		return $cache[$token];
 	}	
 
 	public static function get_session_token() {
@@ -113,8 +118,6 @@ class Base_NotifyCommon extends ModuleCommon {
 	
 	public static function get_notifications($token,$tray=true) {
 		$ret = array();
-
-        $last_refresh = max(self::get_last_refresh($token), time() - self::reset_time * 3600);
 
         $notification_modules = ModuleManager::check_common_methods('notification');
         
@@ -202,7 +205,12 @@ class Base_NotifyCommon extends ModuleCommon {
 		}
 
 		$ret[] = array('name'=>null,'label'=>__('Telegram Notification'),'type'=>'header');
-        $ret[] = array('name'=>'telegram_url', 'label'=>'<a href="modules/Base/Notify/telegram.php" target="_blank">'.__('Connect to your telegram account').'</a>','type'=>'static','values'=>'');
+		$telegram = DB::GetOne('SELECT 1 FROM base_notify WHERE token LIKE "UID:%d;%%" AND telegram=1',array(Base_AclCommon::get_user()));
+		if($telegram && $_GET['telegram']) {
+			$telegram = 0;
+			DB::Execute('UPDATE base_notify SET telegram=0 WHERE token LIKE "UID:%d;%%"',array(Base_AclCommon::get_user()));
+		}
+		$ret[] = array('name'=>'telegram_url', 'label'=>'<a class="button" href="modules/Base/Notify/telegram.php" target="_blank">'.($telegram?__('Connect to another telegram account'):__('Connect to your telegram account')).'</a>','type'=>'static','values'=>($telegram?'<a class="button" '.Module::create_href(array('telegram'=>1)).'>'.__('Disconnect telegram').'</a>':''));
 
 		return array(__('Notify')=>$ret);
 	}		
@@ -246,14 +254,15 @@ class Base_NotifyCommon extends ModuleCommon {
 	}
 
     public static function cron() {
-        return array('telegram'=>5);
+        return array('telegram'=>(self::refresh_rate_telegram/60));
     }
 
     public static function telegram() {
-        $tokens = DB::GetCol('SELECT token FROM base_notify WHERE token LIKE "UID:%%"');
+        $tokens = DB::GetCol('SELECT token FROM base_notify WHERE token LIKE "UID:%%" AND telegram=1');
         $ret = array();
+		$map = array();
         foreach($tokens as $token) {
-            if (!Base_NotifyCommon::is_refresh_due($token)) continue;
+            if (!Base_NotifyCommon::is_refresh_due_telegram($token)) continue;
 
             if(!preg_match('/^UID:([0-9]+);/',$token,$matches)) continue;
             Base_AclCommon::set_user($matches[1]);
@@ -278,6 +287,7 @@ class Base_NotifyCommon extends ModuleCommon {
 
             Base_NotifyCommon::set_notified_cache($notified_cache, $token, $refresh_time);
             $ret[md5($token)] = $msgs;
+			$map[md5($token)] = $token;
         }
 
         $ch = curl_init();
@@ -285,8 +295,13 @@ class Base_NotifyCommon extends ModuleCommon {
         curl_setopt($ch, CURLOPT_URL,"https://telegram.epesicrm.com/");
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($ret));
-        curl_exec ($ch);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $status = curl_exec ($ch);
         curl_close ($ch);
+		$status = @json_decode($status);
+		if($status && is_array($status)) {
+			foreach($status as $remove) if(isset($map[$remove])) DB::Execute('UPDATE base_notify SET telegram=0 WHERE token=%s',array($map[$remove]));
+		}
     }
 }
 

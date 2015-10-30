@@ -21,6 +21,7 @@ if(!$token) {
 	$token = 'UID:' . Base_AclCommon::get_user() . ';' . md5(get_epesi_url().'#'.microtime(true).'#'.mt_rand(0,1000000));
 	DB::Execute('INSERT INTO base_notify (token, cache) VALUES (%s, %s)', array($token, Base_NotifyCommon::serialize(array())));
 }
+DB::Execute('UPDATE base_notify SET telegram=1 WHERE token=%s',array($token));
 
 $domain_name = Base_UserCommon::get_my_user_login();
 if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) {
