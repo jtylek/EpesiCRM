@@ -1962,7 +1962,7 @@ class Utils_RecordBrowser extends Module {
 					$reg = explode(';', $args['param']);
 					$rege = explode('::', $reg[0]);
 					if ($rege[0]=='__COMMON__') {
-						$args['param'] = array('array_id'=>$rege[1], 'order_by_key'=>(isset($rege[2]) && $rege[2]=='key'));
+						$args['param'] = Utils_RecordBrowserCommon::decode_commondata_param((isset($rege[2]) ? $rege[2] : '') . '__' . $rege[1]);
 						$args['type'] = 'multiselect';
 					} elseif ($rege[0]=='__RECORDSETS__') {
 						$param = __('Source').': Record Sets'.'<br/>';
@@ -1984,7 +1984,7 @@ class Utils_RecordBrowser extends Module {
 					if ($args['type']=='commondata') $args['type'] = 'select';
 					$param = __('Source').': CommonData'.'<br/>';
 					$param .= __('Table').': '.$args['param']['array_id'].'<br/>';
-					$param .= __('Order by').': '.($args['param']['order_by_key']?__('Key'):__('Value'));
+					$param .= __('Order by').': '._V(ucfirst($args['param']['order_by_key']));
 					$args['param'] = $param;
 					break;
                 case 'time':
@@ -2139,8 +2139,9 @@ class Utils_RecordBrowser extends Module {
 					$tab = $refe[0];
 					if ($tab=='__COMMON__') {
 						$row['data_source'] = 'commondata';
-						$order = isset($refe[2])?$refe[2]:'value';
-						$row['order_by'] = ($order=='key'?'key':'value');
+						$order = isset($refe[2]) ? $refe[2] : 'value';
+                        if (strlen($order) <= 1) $order = $order ? 'key' : 'value';
+						$row['order_by'] = $order;
 						$row['commondata_table'] = $refe[1];
 					} else {
 						$row['label_field'] = '';
@@ -2155,7 +2156,7 @@ class Utils_RecordBrowser extends Module {
 					$row['select_type'] = 'select';
 					$row['data_source'] = 'commondata';
 					$param = Utils_RecordBrowserCommon::decode_commondata_param($row['param']);
-					$form->setDefaults(array('order_by'=>$param['order_by_key']?'key':'value', 'commondata_table'=>$param['array_id']));
+					$form->setDefaults(array('order_by'=>$param['order_by_key'], 'commondata_table'=>$param['array_id']));
 					break;
                 case 'autonumber':
                     $row['select_data_type'] = 'autonumber';
@@ -2202,7 +2203,7 @@ class Utils_RecordBrowser extends Module {
 
 		$form->addElement('select', 'data_source', __('Source of Data'), array('rset'=>__('Recordset'), 'commondata'=>__('CommonData')), array('id'=>'data_source', 'onchange'=>'RB_hide_form_fields()'));
 		$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Single value selection'), 'multiselect'=>__('Multiple values selection')), array('id'=>'select_type'));
-		$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value')), array('id'=>'order_by'));
+		$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value'), 'position' => __('Position')), array('id'=>'order_by'));
 		$form->addElement('text', 'commondata_table', __('CommonData table'), array('id'=>'commondata_table'));
 
 		$tables = Utils_RecordBrowserCommon::list_installed_recordsets();
@@ -2293,7 +2294,7 @@ class Utils_RecordBrowser extends Module {
 				case 'select':
 							if ($data['data_source']=='commondata') {
 								if ($data['select_type']=='select') {
-									$param = Utils_RecordBrowserCommon::encode_commondata_param(array('order_by_key'=>$data['order_by']=='key', 'array_id'=>$data['commondata_table']));
+									$param = Utils_RecordBrowserCommon::encode_commondata_param(array('order_by_key'=>$data['order_by'], 'array_id'=>$data['commondata_table']));
 									$data['select_data_type'] = 'commondata';
 								} else {
 									$param = '__COMMON__::'.$data['commondata_table'].'::'.$data['order_by'];

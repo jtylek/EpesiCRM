@@ -228,16 +228,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function decode_commondata_param($param) {
         $param = explode('__',$param);
-        if (isset($param[1]))
-            $param = array('order_by_key'=>$param[0], 'array_id'=>$param[1]);
-        else
-            $param = array('order_by_key'=>false, 'array_id'=>$param[0]);
+        if (isset($param[1])) {
+            $order = $param[0];
+            // legacy check
+            if (strlen($order) <= 1) {
+                $order = $order ? 'value' : 'key';
+            }
+            $param = array('order_by_key'=>$order, 'array_id'=>$param[1]);
+        } else {
+            $param = array('order_by_key'=>'value', 'array_id'=>$param[0]);
+        }
         return $param;
     }
     public static function encode_commondata_param($param) {
-        if (!is_array($param)) return '0__'.$param;
+        if (!is_array($param)) return 'value__'.$param;
         if (isset($param[0])) {
-            array_unshift($param, 0);
+            array_unshift($param, 'value');
         } else {
             $param = array($param['order_by_key'], $param['array_id']);
         }
