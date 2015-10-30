@@ -2730,7 +2730,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
 
-        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $field);
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
         $form->addElement('text', $field, $label, array('id' => $field));
         $form->addRule($field, __('Only integer numbers are allowed.'), 'regex', '/^\-?[0-9]*$/');
         if ($mode !== 'add')
@@ -2741,7 +2741,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
 
-        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $field);
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
         $form->addElement('text', $field, $label, array('id' => $field));
         $form->addRule($field, __('Only numbers are allowed.'), 'numeric');
         if ($mode !== 'add')
