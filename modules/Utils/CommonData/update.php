@@ -15,6 +15,9 @@ define('SET_SESSION',0);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
+if(!Base_AclCommon::is_user())
+	die('alert(\'Invalid request\')');
+
 $order = isset($_POST['order']) ? $_POST['order'] : false;
 
 $ret = Utils_CommonDataCommon::get_translated_array($_POST['value'], $order);
