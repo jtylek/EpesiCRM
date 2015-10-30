@@ -206,7 +206,7 @@ class Base_NotifyCommon extends ModuleCommon {
 
 		$ret[] = array('name'=>null,'label'=>__('Telegram Notification'),'type'=>'header');
 		$telegram = DB::GetOne('SELECT 1 FROM base_notify WHERE token LIKE "UID:%d;%%" AND telegram=1',array(Base_AclCommon::get_user()));
-		if($telegram && $_GET['telegram']) {
+		if($telegram && isset($_GET['telegram'])) {
 			$telegram = 0;
 			DB::Execute('UPDATE base_notify SET telegram=0 WHERE token LIKE "UID:%d;%%"',array(Base_AclCommon::get_user()));
 		}
