@@ -287,8 +287,9 @@ class Base_NotifyCommon extends ModuleCommon {
             }
 
             Base_NotifyCommon::set_notified_cache($notified_cache, $token, $refresh_time);
-            $ret[md5($token)] = $msgs;
-			$map[md5($token)] = $token;
+			$remote_token = md5(Base_AclCommon::get_user().'#'.Base_UserCommon::get_my_user_login().'#'.$token);
+            $ret[$remote_token] = $msgs;
+			$map[$remote_token] = $token;
         }
 
         $ch = curl_init();

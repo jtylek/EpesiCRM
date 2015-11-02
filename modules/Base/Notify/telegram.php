@@ -29,4 +29,4 @@ if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) {
 
 $domain_name = preg_replace('/[^a-z0-9\-\_]/i','-',$domain_name);
 
-header('Location: https://telegram.me/EpesiBot?'.http_build_query(array('start'=>md5($token).'-'.substr($domain_name,0,31))));
+header('Location: https://telegram.me/EpesiBot?'.http_build_query(array('start'=>md5(Base_AclCommon::get_user().'#'.Base_UserCommon::get_my_user_login().'#'.$token).'-'.substr($domain_name,0,31))));
