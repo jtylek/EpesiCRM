@@ -16,10 +16,10 @@ ModuleManager::load_modules();
 
 if(!Acl::is_user()) exit();
 
-$token = DB::GetOne('SELECT token FROM base_notify WHERE token LIKE "UID:%d;%%"',array(Base_AclCommon::get_user()));
+$token = DB::GetOne('SELECT token FROM base_notify WHERE single_cache_uid=%d',array(Base_AclCommon::get_user()));
 if(!$token) {
-	$token = 'UID:' . Base_AclCommon::get_user() . ';' . md5(get_epesi_url().'#'.microtime(true).'#'.mt_rand(0,1000000));
-	DB::Execute('INSERT INTO base_notify (token, cache) VALUES (%s, %s)', array($token, Base_NotifyCommon::serialize(array())));
+	$token = md5(get_epesi_url().'#'.microtime(true).'#'.mt_rand(0,1000000));
+	DB::Execute('INSERT INTO base_notify (token, cache,single_cache_uid) VALUES (%s, %s, %d)', array($token, Base_NotifyCommon::serialize(array()),Base_AclCommon::get_user()));
 }
 DB::Execute('UPDATE base_notify SET telegram=1 WHERE token=%s',array($token));
 

@@ -29,7 +29,7 @@ class Base_NotifyCommon extends ModuleCommon {
             return;
         }
 
-        DB::Execute('DELETE FROM base_notify WHERE last_refresh < %d AND token LIKE "MD:%%"',array(strtotime('-24 hours')));
+        DB::Execute('DELETE FROM base_notify WHERE single_cache_uid is null AND last_refresh < %d',array(strtotime('-24 hours')));
 
         load_js('modules/Base/Notify/js/desktop-notify.js');
 		load_js('modules/Base/Notify/js/main.js');
@@ -105,14 +105,14 @@ class Base_NotifyCommon extends ModuleCommon {
 	public static function get_session_token() {
         $user_id = Base_AclCommon::get_user();
         if (!$user_id) return false;
-		if(Base_User_SettingsCommon::get('Base_Notify', 'one_cache')) {
-            $token = DB::GetOne('SELECT token FROM base_notify WHERE token LIKE "UID:%d;%%"',array(Base_AclCommon::get_user()));
+		$one_cache = Base_User_SettingsCommon::get('Base_Notify', 'one_cache');
+		if($one_cache) {
+            $token = DB::GetOne('SELECT token FROM base_notify WHERE single_cache_uid=%d',array(Base_AclCommon::get_user()));
             if($token) return $token;
-            return 'UID:' . Base_AclCommon::get_user() . ';' . md5(get_epesi_url().'#'.generate_password(32));
         }
         $session_id = session_id();
         if (!$session_id) return false;
-        $token = 'MD:'.md5($user_id . '__' . $session_id);
+        $token = md5($user_id . '__' . $session_id);
 		return $token;
 	}
 	
@@ -205,10 +205,10 @@ class Base_NotifyCommon extends ModuleCommon {
 		}
 
 		$ret[] = array('name'=>null,'label'=>__('Telegram Notification'),'type'=>'header');
-		$telegram = DB::GetOne('SELECT 1 FROM base_notify WHERE token LIKE "UID:%d;%%" AND telegram=1',array(Base_AclCommon::get_user()));
+		$telegram = DB::GetOne('SELECT 1 FROM base_notify WHERE single_cache_uid=%d AND telegram=1',array(Base_AclCommon::get_user()));
 		if($telegram && isset($_GET['telegram'])) {
 			$telegram = 0;
-			DB::Execute('UPDATE base_notify SET telegram=0 WHERE token LIKE "UID:%d;%%"',array(Base_AclCommon::get_user()));
+			DB::Execute('UPDATE base_notify SET telegram=0 WHERE single_cache_uid=%d',array(Base_AclCommon::get_user()));
 		}
 		$ret[] = array('name'=>'telegram_url', 'label'=>'<a class="button" href="modules/Base/Notify/telegram.php" target="_blank">'.($telegram?__('Connect to another telegram account'):__('Connect to your telegram account')).'</a>','type'=>'static','values'=>($telegram?'<a class="button" '.Module::create_href(array('telegram'=>1)).'>'.__('Disconnect telegram').'</a>':''));
 
@@ -258,14 +258,13 @@ class Base_NotifyCommon extends ModuleCommon {
     }
 
     public static function telegram() {
-        $tokens = DB::GetCol('SELECT token FROM base_notify WHERE telegram=1 AND token LIKE "UID:%%"');
+        $tokens = DB::GetAssoc('SELECT token,single_cache_uid FROM base_notify WHERE telegram=1 AND single_cache_uid is not null');
         $ret = array();
 		$map = array();
-        foreach($tokens as $token) {
+        foreach($tokens as $token=>$uid) {
             if (!Base_NotifyCommon::is_refresh_due_telegram($token)) continue;
 
-            if(!preg_match('/^UID:([0-9]+);/',$token,$matches)) continue;
-            Base_AclCommon::set_user($matches[1]);
+            Base_AclCommon::set_user($uid);
 
             $msgs = array();
             $notified_cache = array();
