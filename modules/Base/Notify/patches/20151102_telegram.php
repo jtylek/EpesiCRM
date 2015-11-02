@@ -9,5 +9,5 @@ DB::CreateTable('base_notify','
 			cache X,
 			last_refresh I8,
 			single_cache_uid I,
-			telegram I1 DEFAULT 0',array('constraints' => ', FOREIGN KEY (singe_cache_uid) REFERENCES user_login(id)'));
+			telegram I1 DEFAULT 0',array('constraints' => ', FOREIGN KEY (single_cache_uid) REFERENCES user_login(id)'));
 
