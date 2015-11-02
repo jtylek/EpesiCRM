@@ -16,11 +16,8 @@ ModuleManager::load_modules();
 
 if(!Acl::is_user()) exit();
 
-$token = DB::GetOne('SELECT token FROM base_notify WHERE single_cache_uid=%d',array(Base_AclCommon::get_user()));
-if(!$token) {
-	$token = md5(get_epesi_url().'#'.microtime(true).'#'.mt_rand(0,1000000));
-	DB::Execute('INSERT INTO base_notify (token, cache,single_cache_uid) VALUES (%s, %s, %d)', array($token, Base_NotifyCommon::serialize(array()),Base_AclCommon::get_user()));
-}
+$token = Base_NotifyCommon::get_session_token(true);
+if(!$token) exit();
 DB::Execute('UPDATE base_notify SET telegram=1 WHERE token=%s',array($token));
 
 $domain_name = Base_UserCommon::get_my_user_login();

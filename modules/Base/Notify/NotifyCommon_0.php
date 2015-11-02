@@ -40,18 +40,6 @@ class Base_NotifyCommon extends ModuleCommon {
 
         self::$initialized = true;
 	}
-
-	public static function init_notified_cache() {
-		$session_token = self::get_session_token();
-        if (!$session_token) return false;
-
-		$exists = DB::GetOne('SELECT COUNT(*) FROM base_notify WHERE token=%s', array($session_token));
-		if (!$exists) {
-			DB::Execute('INSERT INTO base_notify (token, cache) VALUES (%s, %s)', array($session_token, self::serialize(array())));
-		}		
-		
-		return $session_token;
-	}
 	
 	public static function is_disabled() {
 		return self::get_general_setting() == -1;
@@ -102,17 +90,31 @@ class Base_NotifyCommon extends ModuleCommon {
 		return $cache[$token];
 	}	
 
-	public static function get_session_token() {
+	public static function get_session_token($one_cache=null) {
         $user_id = Base_AclCommon::get_user();
         if (!$user_id) return false;
-		$one_cache = Base_User_SettingsCommon::get('Base_Notify', 'one_cache');
+
+		if($one_cache===null) $one_cache = Base_User_SettingsCommon::get('Base_Notify', 'one_cache');
 		if($one_cache) {
             $token = DB::GetOne('SELECT token FROM base_notify WHERE single_cache_uid=%d',array(Base_AclCommon::get_user()));
             if($token) return $token;
         }
-        $session_id = session_id();
+
+		$session_id = session_id();
         if (!$session_id) return false;
         $token = md5($user_id . '__' . $session_id);
+
+		if($one_cache) {
+			$exists = DB::GetOne('SELECT 1 FROM base_notify WHERE token=%s', array($token));
+			if($exists) DB::Execute('UPDATE base_notify SET single_cache_uid=%d WHERE token=%s',array(Base_AclCommon::get_user(),$token));
+			else DB::Execute('INSERT INTO base_notify (token, cache,single_cache_uid) VALUES (%s, %s, %d)', array($token, self::serialize(array()),Base_AclCommon::get_user()));
+		} else {
+			$exists = DB::GetOne('SELECT 1 FROM base_notify WHERE token=%s', array($token));
+			if (!$exists) {
+				DB::Execute('DELETE FROM base_notify WHERE single_cache_uid=%d AND telegram=0',array(Base_AclCommon::get_user()));
+				DB::Execute('INSERT INTO base_notify (token, cache) VALUES (%s, %s)', array($token, self::serialize(array())));
+			}
+		}
 		return $token;
 	}
 	

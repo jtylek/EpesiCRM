@@ -14,7 +14,7 @@ define('READ_ONLY_SESSION', true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-$token = Base_NotifyCommon::init_notified_cache(); // will check is user logged
+$token = Base_NotifyCommon::get_session_token(); // will check is user logged
 
 if ($token === false) {
     exit();
