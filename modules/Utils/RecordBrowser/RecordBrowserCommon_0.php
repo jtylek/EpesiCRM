@@ -232,7 +232,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $order = $param[0];
             // legacy check
             if (strlen($order) <= 1) {
-                $order = $order ? 'value' : 'key';
+                $order = $order ? 'key' : 'value';
             }
             $param = array('order_by_key'=>$order, 'array_id'=>$param[1]);
         } else {
