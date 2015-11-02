@@ -1,4 +1,4 @@
-<?php
+s<?php
 /**
  * 
  * @author Georgi Hristov <ghristov@gmx.de>
@@ -29,7 +29,7 @@ class Base_NotifyCommon extends ModuleCommon {
             return;
         }
 
-        DB::Execute('DELETE FROM base_notify WHERE last_refresh < %d',array(strtotime('-24 hours')));
+        DB::Execute('DELETE FROM base_notify WHERE last_refresh < %d AND token LIKE "MD:%%"',array(strtotime('-24 hours')));
 
         load_js('modules/Base/Notify/js/desktop-notify.js');
 		load_js('modules/Base/Notify/js/main.js');
@@ -258,7 +258,7 @@ class Base_NotifyCommon extends ModuleCommon {
     }
 
     public static function telegram() {
-        $tokens = DB::GetCol('SELECT token FROM base_notify WHERE token LIKE "UID:%%" AND telegram=1');
+        $tokens = DB::GetCol('SELECT token FROM base_notify WHERE telegram=1 AND token LIKE "UID:%%"');
         $ret = array();
 		$map = array();
         foreach($tokens as $token) {
