@@ -414,7 +414,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $row['param'] = self::decode_commondata_param($row['param']);
 				$commondata = true;
 			}
-            self::$table_rows[$row['field']] =
+            $next_field =
                 array(  'name'=>str_replace('%','%%',$row['caption']?$row['caption']:$row['field']),
                         'id'=>self::get_field_id($row['field']),
                         'pkey'=>$row['id'],
@@ -431,24 +431,37 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'style'=>$row['style'],
                         'param'=>$row['param']);
 			if (isset(self::$display_callback_table[$tab][$row['field']]))
-				self::$table_rows[$row['field']]['display_callback'] = self::$display_callback_table[$tab][$row['field']];
+				$next_field['display_callback'] = self::$display_callback_table[$tab][$row['field']];
 			if (($row['type']=='select' || $row['type']=='multiselect') && $row['param']) {
 				$pos = strpos($row['param'], ':');
-				self::$table_rows[$row['field']]['ref_table'] = substr($row['param'], 0, $pos);
-				if (self::$table_rows[$row['field']]['ref_table']=='__COMMON__') {
-					self::$table_rows[$row['field']]['ref_field'] = '__COMMON__';
+				$next_field['ref_table'] = substr($row['param'], 0, $pos);
+				if ($next_field['ref_table']=='__COMMON__') {
+					$next_field['ref_field'] = '__COMMON__';
                     $exploded = explode('::', $row['param']);
-					self::$table_rows[$row['field']]['ref_table'] = $exploded[1];
+                    $next_field['commondata_array'] = $next_field['ref_table'] = $exploded[1];
+                    $next_field['commondata_order'] = isset($exploded[2]) ? $exploded[2] : 'value';
 					$commondata = true;
 				} else {
 				    $end = strpos($row['param'], ';', $pos+2);
 				    if ($end==0) $end = strlen($row['param']);
-				    self::$table_rows[$row['field']]['ref_field'] = substr($row['param'], $pos+2, $end-$pos-2);
+				    $next_field['ref_field'] = substr($row['param'], $pos+2, $end-$pos-2);
 				}
 			}
-			self::$table_rows[$row['field']]['commondata'] = $commondata;
-
-            self::$hash[self::$table_rows[$row['field']]['id']] = $row['field'];
+			$next_field['commondata'] = $commondata;
+            if ($commondata) {
+                if (!isset($next_field['commondata_order'])) {
+                    if (isset($next_field['param']['order_by_key'])) {
+                        $next_field['commondata_order'] = $next_field['param']['order_by_key'];
+                    } else {
+                        $next_field['commondata_order'] = 'value';
+                    }
+                }
+                if (!isset($next_field['commondata_array'])) {
+                    $next_field['commondata_array'] = $next_field['param']['array_id'];
+                }
+            }
+            self::$table_rows[$row['field']] = $next_field;
+            self::$hash[$next_field['id']] = $row['field'];
         }
         if (!empty(self::$cols_order[$tab])) {
             $rows = array();
