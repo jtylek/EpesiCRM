@@ -126,7 +126,7 @@ class Utils_RecordBrowser_QueryBuilder
                 }
             } else {
                 $field_def = $this->get_field_definition($v['order']);
-                $field_sql_id = 'f_' . $field_def['id'];
+                $field_sql_id = $this->tab_alias . '.f_' . $field_def['id'];
                 if (isset($field_def['ref_table']) && $field_def['ref_table'] != '__COMMON__') {
                     $tab2 = $field_def['ref_table'];
                     $cols2 = $field_def['ref_field'];
@@ -135,6 +135,20 @@ class Utils_RecordBrowser_QueryBuilder
                     $field_id = Utils_RecordBrowserCommon::get_field_id($cols2);
                     $val = '(SELECT rdt.f_'.$field_id.' FROM '.$this->tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.'.$field_sql_id.' WHERE '.$this->tab_alias.'.id=rd.id)';
                     $orderby[] = ' '.$val.' '.$v['direction'];
+                } elseif ($field_def['commondata']) {
+                    $sort = $field_def['commondata_order'];
+                    $sorted = false;
+                    if ($sort == 'position' || $sort == 'value') {
+                        $sort_field = $sort == 'position' ? 'position' : 'value';
+                        $parent_id = Utils_CommonDataCommon::get_id($field_def['commondata_array']);
+                        if ($parent_id) {
+                            $orderby[] = " (SELECT $sort_field FROM utils_commondata_tree AS uct WHERE uct.parent_id=$parent_id AND uct.akey=$field_sql_id) " . $v['direction'];
+                            $sorted = true;
+                        }
+                    }
+                    if ($sorted == false) { // key or if position or value failed
+                        $orderby[] = ' '.$field_sql_id.' '.$v['direction'];
+                    }
                 } else {
                     if ($field_def['type'] == 'currency') {
                         if (DB::is_mysql()) {
