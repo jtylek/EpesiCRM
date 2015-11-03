@@ -1,7 +1,7 @@
 <a href="epe.si">EPESI</a>
 =
 
-<b>EPESI BIM</b> (Business Information Manager) is a fully functional web CRM/ERP application to store, organize, access and share business records. It allows you managing your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
+<b>EPESI BIM</b> (Business Information Manager) is a fully functional web CRM/ERP application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
 
 <b>Setting up EPESI Web Application Server</b>
 - More information on how to get started can be found here: http://epe.si/download/
