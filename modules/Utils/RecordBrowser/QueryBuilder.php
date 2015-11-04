@@ -133,7 +133,7 @@ class Utils_RecordBrowser_QueryBuilder
                     $cols2 = explode('|', $cols2);
                     $cols2 = $cols2[0];
                     $field_id = Utils_RecordBrowserCommon::get_field_id($cols2);
-                    $val = '(SELECT rdt.f_'.$field_id.' FROM '.$this->tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.'.$field_def['id'].' WHERE '.$this->tab_alias.'.id=rd.id)';
+                    $val = '(SELECT rdt.f_'.$field_id.' FROM '.$this->tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.$field_def['id'].' WHERE '.$this->tab_alias.'.id=rd.id)';
                     $orderby[] = ' '.$val.' '.$v['direction'];
                 } elseif ($field_def['commondata']) {
                     $sort = $field_def['commondata_order'];
