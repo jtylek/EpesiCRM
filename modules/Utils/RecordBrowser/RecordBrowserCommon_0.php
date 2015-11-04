@@ -705,7 +705,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::StartTrans();
         if (is_string($definition['position'])) $definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($definition['position']))+1;
         if ($definition['position']===null || $definition['position']===false) {
-            $first_page_split = $set_empty_position_before_first_page_split?DB::GetOne('SELECT MIN(position) FROM '.$tab.'_field WHERE type="page_split" AND field!="General"'):0;
+            $first_page_split = $set_empty_position_before_first_page_split?DB::GetOne('SELECT MIN(position) FROM '.$tab.'_field WHERE type=%s AND field!=%s', array('page_split', 'General')):0;
             $definition['position'] = $first_page_split?$first_page_split:DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
         }
         DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($definition['position']));
