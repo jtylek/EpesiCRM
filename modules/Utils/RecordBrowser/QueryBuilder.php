@@ -154,7 +154,7 @@ class Utils_RecordBrowser_QueryBuilder
                         if (DB::is_mysql()) {
                             $field_sql_id = "CAST($field_sql_id as DECIMAL(64,5))";
                         } elseif (DB::is_postgresql()) {
-                            $field_sql_id = "CAST(split_part($field_sql_id, '__', 1) as DECIMAL)";
+                            $field_sql_id = "CAST(COALESCE(NULLIF(split_part($field_sql_id, '__', 1),''),'0') as DECIMAL)";
                         }
                     }
                     $orderby[] = ' '.$field_sql_id.' '.$v['direction'];
