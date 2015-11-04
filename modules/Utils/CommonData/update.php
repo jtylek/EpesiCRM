@@ -11,7 +11,7 @@ if(!isset($_POST['value']))
 	die('alert(\'Invalid request\')');
 	
 define('JS_OUTPUT',1);
-define('SET_SESSION',0);
+define('CID',false);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
