@@ -72,6 +72,7 @@ Utils_CommonData.prototype = {
 //			alert('fire='+this.obj.name+' valyx='+opts[0].value);
 //			this.obj.fire('e_u_cd:load');
 			setTimeout(this.obj.fire.bind(this.obj,'e_u_cd:load'),1);
+			jq(this.obj).change();
 		}
 	}
 };
