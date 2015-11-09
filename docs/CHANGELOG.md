@@ -3,6 +3,50 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+CURRENT
+-------
+
+- Fix error reporting issue - use absolute path to error file
+- Fix tooltip issues
+- Add confirmation before sending shoutbox message to all (georgehristov)
+- Fix multiple memcache sessions on one server
+- Fix records permission check for select fields
+- Remove watchdog notifications for forbidden notes
+- Add record processing for permanent record delete
+- Send watchdog notifications with cron
+- Fix select filter values formatting (georgehristov)
+- SQL fixes for PostgreSQL
+- Commondata arbitrary sort order (georgehristov)
+- Add epesi_log method and log errors to file (Dev)
+- New crits and query building mechanism (Dev)
+- Option to set custom QFfield callback code from GUI
+- Fix recent settings in RecordBrowser
+- Improve phone prefix check
+- Fix filter labels to get custom caption properly
+- Remove preload images cache
+- Fix performance issues in watchdog desktop notifications
+- Rewrite desktop notifications module (georgehristov)
+- Add mail indicator desktop notifications
+- Allow set number of watchdog notification per applet
+- Show record subscribers on watchdog eye icon
+- Enable watchdog for email records
+- Add filestorage module
+- Save filters for calendar
+- Enable advanced search for long text fields
+- Add option to decide who can manage applets on dashboard
+- Update JQuery to 1.11
+- Phonecalls - pass related record to notes
+- Improve RecordBrowser and Watchdog performance
+- Query Building with JQuery QueryBuilder
+- RB - add new fields before first page split
+- Fix selected currency reset on form validation
+- Fix reload mails action in Roundcube
+- Fix email archive - do not attach to disabled addresses
+- Add option to search companies by tax id field
+- Deactivate user when contact is deleted
+- Add Telegram integration to pass notifications to users - http://telegram.org
+- Other fixes and improvements
+
 RELEASE 1.6.5-20150324
 -------
 
