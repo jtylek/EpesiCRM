@@ -122,11 +122,23 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function display_employees($record, $nolink, $desc) {
 		return CRM_ContactsCommon::display_contacts_with_notification('task', $record, $nolink, $desc);
 	}
-	public static function display_deadline($record, $nolink, $desc) {
-	        if(!$record['deadline']) return '';
-	        $deadline = strtotime($record['deadline']);
-	        $ret = Base_RegionalSettingsCommon::time2reg($record['deadline']);
-	        if($deadline<time()) $ret = '<span style="color:red;font-weight:bold;">'.$ret.'</span>';
+
+	public static function display_deadline($record, $nolink, $desc)
+	{
+		if (!$record['deadline']) {
+			return '';
+		}
+		$deadline = strtotime($record['deadline']);
+		$timeless = isset($record['timeless']) ? $record['timeless'] : false;
+		$show_time = !$timeless;
+		$time2reg = $show_time;
+		$ret = Base_RegionalSettingsCommon::time2reg($deadline, $show_time, true, $time2reg);
+		$past_deadline = $timeless
+				? (Base_RegionalSettingsCommon::time2reg(null, false, true, true, false) > date('Y-m-d', $deadline))
+				: (time() > $deadline);
+		if ($past_deadline) {
+			$ret = '<span style="color:red;font-weight:bold;">' . $ret . '</span>';
+		}
 		return $ret;
 	}
     public static function display_title($record, $nolink) {
@@ -206,12 +218,26 @@ class CRM_TasksCommon extends ModuleCommon {
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('task/'.$values['id']);
 			return $ret;
 		case 'adding':
-			$values['deadline'] = strtotime(date('Y-m-d').' 23:59:59');
+			if (!isset($values['deadline'])) {
+				$values['deadline'] = strtotime(date('Y-m-d').' 23:59:59');
+			}
 			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
 			break;
-		case 'add':
+		case 'editing':
+			if (isset($values['timeless']) && $values['timeless']) {
+				// if it is timeless event then adjust time to show it properly
+				// in GUI - timestamp field translates time.
+				$values['deadline'] = Base_RegionalSettingsCommon::reg2time($values['deadline']);
+			}
 			break;
+		case 'add':
 		case 'edit':
+			if (isset($values['timeless']) && $values['timeless']) {
+				// if we set timeless event then, set certain time to database
+				$values['deadline'] = Base_RegionalSettingsCommon::time2reg($values['deadline'], false, true, true, false) . ' 12:00:00';
+			}
+			break;
+		case 'edited':
 			$old_values = Utils_RecordBrowserCommon::get_record('task',$values['id']);
 			$old_related = array_merge($old_values['employees'],$old_values['customers']);
 		case 'added':
@@ -324,7 +350,8 @@ class CRM_TasksCommon extends ModuleCommon {
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>$me['id'], 'priority'=>CRM_CommonCommon::get_default_priority(), 'permission'=>0, 'status'=>0);
-		$defaults['deadline'] = date('Y-m-d', $timestamp);
+		$defaults['timeless'] = ($timeless != false);
+		$defaults['deadline'] = $timestamp;
 		if($object) $defaults['employees'] = $object;
 		$x->push_main('Utils_RecordBrowser','view_entry',array('add', null, $defaults), 'task');
 	}
@@ -335,9 +362,9 @@ class CRM_TasksCommon extends ModuleCommon {
 		return true;
 	}
 	public static function crm_event_update($id, $start, $duration, $timeless) {
-		if ($timeless) return false;
 		if (!Utils_RecordBrowserCommon::get_access('task','edit', self::get_task($id))) return false;
-		$values = array('deadline'=>date('Y-m-d H:i:s', $start));
+		$deadline = $timeless ? date('Y-m-d 12:00:00', $start) : date('Y-m-d H:i:s', $start);
+		$values = array('deadline' => $deadline, 'timeless'=> ($timeless == true));
 		Utils_RecordBrowserCommon::update_record('task', $id, $values);
 		return true;
 	}
@@ -386,7 +413,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$next['id'] = $r['id'];
 
 		$next['start'] = $iday;
-//		$next['timeless'] = $day;
+		$next['timeless'] = $r['timeless'] ? date('Y-m-d', $iday) : false;
 
 		$next['duration'] = -1;
 		$next['title'] = (string)$r['title'];
@@ -460,6 +487,16 @@ class CRM_TasksCommon extends ModuleCommon {
 									Utils_TooltipCommon::format_info_tooltip($inf2).'<hr>'.
 									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
 		return $next;
+	}
+
+    public static function QFfield_timeless(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+		Utils_RecordBrowserCommon::QFfield_checkbox($form, $field, $label, $mode, $default, $desc, $rb_obj);
+		$js = "jq('#$field').unbind('change').change(function() {
+		 var visible = !jq(this).is(':checked');
+		 jq('[name=\"deadline\\[__date\\]\\[H\\]\"]').parent().toggle(visible);
+		});";
+		eval_js($js);
+		eval_js('jq(\'[name="deadline\[__date\]\[H\]"]\').parent().toggle('.($default ? 'false' : 'true') .');');
 	}
 
     public static function QFfield_recordset(&$form, $field, $label, $mode, $default) {
