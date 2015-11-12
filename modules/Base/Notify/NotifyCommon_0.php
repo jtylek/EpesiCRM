@@ -292,6 +292,8 @@ class Base_NotifyCommon extends ModuleCommon {
 			$map[$remote_token] = $token;
         }
 
+		if(!$ret) return;
+
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,"https://telegram.epesicrm.com/");
