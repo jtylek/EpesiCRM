@@ -267,10 +267,10 @@ class Base_NotifyCommon extends ModuleCommon {
 		$refresh_time = time();
 		$notified_cache = array();
         foreach($tokens as $token=>$uid) {
-            Base_AclCommon::set_user($uid);
-
 			$msgs = array();
 			if (Base_NotifyCommon::is_refresh_due_telegram($token)) {
+				Base_AclCommon::set_user($uid);
+
 				$notified_cache[$token] = array();
 				$notifications = Base_NotifyCommon::get_notifications($token);
 
@@ -286,7 +286,7 @@ class Base_NotifyCommon extends ModuleCommon {
 					}
 				}
 			}
-			$remote_token = md5(Base_AclCommon::get_user().'#'.Base_UserCommon::get_user_login(Base_Acl::get_user()).'#'.$token);
+			$remote_token = md5($uid.'#'.Base_UserCommon::get_user_login($uid).'#'.$token);
             $ret[$remote_token] = $msgs?$msgs:'0';
 			$map[$remote_token] = $token;
         }
