@@ -261,38 +261,35 @@ class Base_NotifyCommon extends ModuleCommon {
 
     public static function telegram() {
         $tokens = DB::GetAssoc('SELECT token,single_cache_uid FROM base_notify WHERE telegram=1 AND single_cache_uid is not null');
+		if(!$tokens) return;
         $ret = array();
 		$map = array();
+		$refresh_time = time();
+		$notified_cache = array();
         foreach($tokens as $token=>$uid) {
-            if (!Base_NotifyCommon::is_refresh_due_telegram($token)) continue;
-
             Base_AclCommon::set_user($uid);
 
-            $msgs = array();
-            $notified_cache = array();
+			$msgs = array();
+			if (Base_NotifyCommon::is_refresh_due_telegram($token)) {
+				$notified_cache[$token] = array();
+				$notifications = Base_NotifyCommon::get_notifications($token);
 
-            $refresh_time = time();
-            $notifications = Base_NotifyCommon::get_notifications($token);
+				foreach ($notifications as $module => $module_new_notifications) {
+					foreach ($module_new_notifications as $id => $message) {
+						$notified_cache[$token][$module][] = $id;
 
-            foreach ($notifications as $module => $module_new_notifications) {
-                foreach ($module_new_notifications as $id=>$message) {
-                    $notified_cache[$module][] = $id;
+						$title = EPESI . ' ' . Base_NotifyCommon::strip_html($message['title']);
+						$body = Base_NotifyCommon::strip_html($message['body']);
+						//$icon = Base_NotifyCommon::get_icon($module, $message);
 
-                    $title = EPESI.' '.Base_NotifyCommon::strip_html($message['title']);
-                    $body = Base_NotifyCommon::strip_html($message['body']);
-                    //$icon = Base_NotifyCommon::get_icon($module, $message);
-
-                    $msgs[] = array('title'=>$title, 'body'=>$body);
-                }
-            }
-
-            Base_NotifyCommon::set_notified_cache($notified_cache, $token, $refresh_time);
+						$msgs[] = array('title' => $title, 'body' => $body);
+					}
+				}
+			}
 			$remote_token = md5(Base_AclCommon::get_user().'#'.Base_UserCommon::get_my_user_login().'#'.$token);
             $ret[$remote_token] = $msgs?$msgs:'0';
 			$map[$remote_token] = $token;
         }
-
-		if(!$ret) return;
 
         $ch = curl_init();
 
@@ -304,7 +301,11 @@ class Base_NotifyCommon extends ModuleCommon {
         curl_close ($ch);
 		$status = @json_decode($status);
 		if($status && is_array($status)) {
-			foreach($status as $remove) if(isset($map[$remove])) DB::Execute('UPDATE base_notify SET telegram=0 WHERE token=%s',array($map[$remove]));
+			foreach($status as $remove) if(isset($map[$remove])) {
+				DB::Execute('UPDATE base_notify SET telegram=0 WHERE token=%s',array($map[$remove]));
+				unset($notified_cache[$map[$remove]]);
+			}
+			foreach($notified_cache as $token=>$nc) Base_NotifyCommon::set_notified_cache($nc, $token, $refresh_time);
 		}
     }
 }
