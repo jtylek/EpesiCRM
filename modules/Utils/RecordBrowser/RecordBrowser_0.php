@@ -598,9 +598,6 @@ class Utils_RecordBrowser extends Module {
             }
         }
         $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $filter_crits);
-        $perspective = trim(CRM_FiltersCommon::get(), '()');
-        $perspective = empty($perspective) ? null : explode(',', $perspective);
-        $this->crits->replace_value($this->crm_perspective_default(), $perspective, true);
 
         $this->set_module_variable('crits', $this->crits);
 
