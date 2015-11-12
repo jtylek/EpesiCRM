@@ -300,7 +300,7 @@ class Base_NotifyCommon extends ModuleCommon {
         $status = curl_exec ($ch);
         curl_close ($ch);
 		$status = @json_decode($status);
-		if($status && is_array($status)) {
+		if(is_array($status)) {
 			foreach($status as $remove) if(isset($map[$remove])) {
 				DB::Execute('UPDATE base_notify SET telegram=0 WHERE token=%s',array($map[$remove]));
 				unset($notified_cache[$map[$remove]]);
