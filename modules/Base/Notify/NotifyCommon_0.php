@@ -286,7 +286,7 @@ class Base_NotifyCommon extends ModuleCommon {
 					}
 				}
 			}
-			$remote_token = md5(Base_AclCommon::get_user().'#'.Base_UserCommon::get_my_user_login().'#'.$token);
+			$remote_token = md5(Base_AclCommon::get_user().'#'.Base_UserCommon::get_user_login(Base_Acl::get_user()).'#'.$token);
             $ret[$remote_token] = $msgs?$msgs:'0';
 			$map[$remote_token] = $token;
         }
