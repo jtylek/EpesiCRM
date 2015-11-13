@@ -2517,7 +2517,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	    $words_tmp = $words;
 	    foreach($words_tmp as $pos => $word) {
 		$expr = '/'.preg_quote($word,'/').'/i';
-		if(preg_match($expr,$caption) || preg_match($expr,__($caption))) {
+		if(preg_match($expr,$caption) || preg_match($expr,_V($caption))) {
 		    unset($words_db_tmp[$pos]);
 		    unset($words_tmp[$pos]);
 		}
