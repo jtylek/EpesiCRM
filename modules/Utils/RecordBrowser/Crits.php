@@ -408,7 +408,7 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
         $ret = array();
         foreach ($this->get_component_crits() as $cc) {
             if (is_object($key)) {
-                if ($cc === $key) {
+                if ($cc == $key) {
                     $ret[] = $cc;
                 } elseif ($cc instanceof Utils_RecordBrowser_Crits) {
                     $crit = $cc->find($key);
