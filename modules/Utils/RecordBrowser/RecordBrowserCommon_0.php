@@ -1052,6 +1052,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d H:i:s'), $user, 1);
         foreach(self::$table_rows as $field => $args) {
+            if ($args['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$args['param'])===0) continue; // FIXME move DB definiton to *_field table
             if (!isset($values[$args['id']]) || $values[$args['id']]==='') continue;
 			if (!is_array($values[$args['id']])) $values[$args['id']] = trim($values[$args['id']]);
             if ($args['type']=='long text')
