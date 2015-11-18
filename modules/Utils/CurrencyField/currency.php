@@ -69,11 +69,9 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 	function exportValue(&$submitValues, $assoc = false) {
 		$val = parent::exportValue($submitValues, $assoc);
-		$currency_field_name = '__'.str_replace(array('[',']'),'',$this->getName()).'__currency';
-		if(isset($submitValues[$currency_field_name]))
-    		$currency = $submitValues[$currency_field_name];
-        else
-            return null;
+		if ($val === null) {
+			return null;
+		}
 		if ($assoc) {
 			if (!isset($val[$this->getName()])) {
 				$key = explode('[', $this->getName());
@@ -81,6 +79,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 				$val = $val[$key[0]][$key[1]];
 			} else $val = $val[$this->getName()];
 		}
+		list($val, $currency) = explode('__', $val);
 		$cur = explode(Utils_CurrencyFieldCommon::get_decimal_point(), $val);
 		if (!isset($cur[1])) $ret = $cur[0]; else {
 			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($currency));
