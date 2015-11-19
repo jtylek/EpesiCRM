@@ -792,10 +792,13 @@ class Utils_RecordBrowser extends Module {
                     continue;
                 }
 				if(!in_array($k,$query_cols)) continue;
-				if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name'];
-				elseif (isset($hash[$k])) $key = $hash[$k];
-				else $key = $k;
-   				$clean_order[_V($key)] = $v; // TRSL
+				if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) {
+                    $key = $this->more_table_properties[$k]['name'];
+                } else {
+                    $key = isset($hash[$k]) ? $hash[$k] : $k;
+                    $key = _V($this->table_rows[$key]['name']);
+                }
+   				$clean_order[$key] = $v;
 			}
 
 			if ($this->browse_mode != 'recent')
