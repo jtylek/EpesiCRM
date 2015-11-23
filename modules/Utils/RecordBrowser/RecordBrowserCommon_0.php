@@ -38,6 +38,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function call_display_callback($callback, $record, $links_not_recommended, $field)
     {
+        if (is_array($callback)) $callback = implode('::', $callback);
         if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable(array($match[1], $match[2]))) {
             $ret = call_user_func(array($match[1], $match[2]), $record, $links_not_recommended, $field);
         } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable($match[1])) {
@@ -58,6 +59,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($display_callback_table === null) {
             $display_callback_table = self::display_callback_cache($rb_obj->tab);
         }
+        if (is_array($callback)) $callback = implode('::', $callback);
         if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable(array($match[1], $match[2]))) {
             call_user_func(array($match[1], $match[2]), $form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table);
         } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable($match[1])) {
