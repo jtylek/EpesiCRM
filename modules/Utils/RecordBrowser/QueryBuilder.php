@@ -569,7 +569,7 @@ class Utils_RecordBrowser_QueryBuilder
         $sql = array();
         $vals = array();
         foreach ($final_vals as $val) {
-            $sql[] = "$field $operator %s";
+            $sql[] = "($field $operator %s AND $field IS NOT NULL)";
             if ($multiselect) {
                 $val = "%\\_\\_{$val}\\_\\_%";
             }
