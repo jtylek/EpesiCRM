@@ -1099,6 +1099,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('INSERT INTO ' . $tab . '_edit_history(edited_on, edited_by, ' . $tab . '_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
         $edit_id = DB::Insert_ID($tab . '_edit_history', 'id');
         DB::Execute('INSERT INTO ' . $tab . '_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', $old_value));
+        return $edit_id;
     }
 
     public static function update_record($tab,$id,$values,$all_fields = false, $date = null, $dont_notify = false) {
@@ -1712,11 +1713,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($values === false) {
             return false;
         }
-        Utils_WatchdogCommon::new_event($tab, $id, $state ? 'R' : 'D');
         @DB::Execute('UPDATE ' . $tab . '_data_1 SET active=%d,indexed=0 WHERE id=%d', array($state ? 1 : 0, $id));
         $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
         DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%d AND record_id=%d',array($tab_id,$id));
-        self::new_record_history($tab,$id,$state ? 'RESTORED' : 'DELETED');
+        $edit_id = self::new_record_history($tab,$id,$state ? 'RESTORED' : 'DELETED');
+        Utils_WatchdogCommon::new_event($tab, $id, ($state ? 'R' : 'D').'_'.$edit_id);
         self::record_processing($tab, $record, $state ? 'restored' : 'deleted');
         return true;
     }
@@ -2180,6 +2181,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$access = self::get_access($tab,'view',$r);
         $modifications_to_show = 0;
 		foreach ($edit_details as $k=>$v) {
+            if($k=='id') {
+                $modifications_to_show += 1;
+                if (!$details) continue; // do not generate content when we dont want them
+                $event_display['what'] = _V($v);
+                continue;
+            }
 			$k = self::get_field_id($k); // failsafe
 			if (!isset(self::$hash[$k])) continue;
 			if (!$access[$k]) continue;
@@ -2236,14 +2243,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $param = explode('_', $v);
                 switch ($param[0]) {
                     case 'C':   $what = 'Created';
+                                $event_display = array(
+                                    'who'=> Base_UserCommon::get_user_label($r['created_by'], true),
+                                    'when'=>Base_RegionalSettingsCommon::time2reg($r['created_on']),
+                                    'what'=>_V($what)
+                                );
+                                break;
                     case 'D':   if (!isset($what)) $what = 'Deleted';
                     case 'R':   if (!isset($what)) $what = 'Restored';
-								$event_display = array(
-									'who'=> Base_UserCommon::get_user_label($r['created_by'], true),
-									'when'=>Base_RegionalSettingsCommon::time2reg($r['created_on']),
-									'what'=>_V($what)
-									);
-                                break;
+                                if(!isset($param[1])) {
+                                    $event_display = array(
+                                        'who' => Base_UserCommon::get_user_label($r['created_by'], true),
+                                        'when' => Base_RegionalSettingsCommon::time2reg($r['created_on']),
+                                        'what' => _V($what)
+                                    );
+                                    break;
+                                }
                     case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r['id'], $param[1] ,$details);
 				                if (isset($event_display['what']) && !empty($event_display['what'])) $header = true;
                                 break;
