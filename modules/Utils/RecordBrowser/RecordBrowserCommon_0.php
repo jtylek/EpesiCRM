@@ -2253,8 +2253,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     case 'R':   if (!isset($what)) $what = 'Restored';
                                 if(!isset($param[1])) {
                                     $event_display = array(
-                                        'who' => Base_UserCommon::get_user_label($r['created_by'], true),
-                                        'when' => Base_RegionalSettingsCommon::time2reg($r['created_on']),
+                                        'who' => '',
+                                        'when' => '',
                                         'what' => _V($what)
                                     );
                                     break;
