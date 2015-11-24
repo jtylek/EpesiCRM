@@ -823,6 +823,7 @@ class Utils_RecordBrowser extends Module {
                 if (is_array($v)) $v = $v[0];
                 $v = explode(' ', $v);
                 foreach ($v as $w) {
+                    if ($w === '') continue;
 					if (!$args['commondata']) {
 						$w = "%$w%";
 					}
@@ -836,6 +837,7 @@ class Utils_RecordBrowser extends Module {
             $val2 = explode(' ', $val[0]);
             $leftovers = array();
             foreach ($val2 as $vv) {
+                if ($vv === '') continue;
                 foreach ($search as $k=>$v) {
                     if ($v!=$val) {
                         $leftovers[$k] = $v;
