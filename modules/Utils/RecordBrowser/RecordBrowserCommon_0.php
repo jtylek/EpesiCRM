@@ -536,6 +536,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$fields_sql,
                     array('constraints'=>''));
         DB::CreateIndex($tab.'_idxed',$tab.'_data_1','indexed,active');
+        DB::CreateIndex($tab.'_act',$tab.'_data_1','active');
 
         DB::CreateTable($tab.'_edit_history',
                     'id I AUTO KEY,'.
