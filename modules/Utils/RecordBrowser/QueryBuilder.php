@@ -486,8 +486,12 @@ class Utils_RecordBrowser_QueryBuilder
 
         if ($sub_field && $single_tab && $tab2) {
             $col2 = explode('|', $sub_field);
-            $tab_alias_id = & $this->joint_tables_cnt[$tab2];
-            $tab_alias_id += 1;
+            $tab_alias_id = &$this->joint_tables_cnt[$tab2][$field . ($multiselect ? '1' : '0')];
+            $make_new_join = false;
+            if ($tab_alias_id == 0) {
+                $make_new_join = true;
+                $tab_alias_id = count($this->joint_tables_cnt[$tab2]);
+            }
             $nested_tab_alias = $this->tab_alias . '_' . $tab2 . '_' . $tab_alias_id;
             $CB = new Utils_RecordBrowser_QueryBuilder($tab2, $nested_tab_alias);
             $crits = new Utils_RecordBrowser_Crits();
@@ -499,10 +503,12 @@ class Utils_RecordBrowser_QueryBuilder
             }
             if (!$crits->is_empty()) {
                 $subquery = $CB->build_query($crits);
-                $on_rule = $multiselect
-                    ? "$field LIKE CONCAT('%\\_\\_', $nested_tab_alias.id, '\\_\\_%')"
-                    : "$field = $nested_tab_alias.id";
-                $this->final_tab .= ' LEFT JOIN (' . $subquery['tab'] . ") ON $on_rule";
+                if ($make_new_join) {
+                    $on_rule = $multiselect
+                        ? "$field LIKE CONCAT('%\\_\\_', $nested_tab_alias.id, '\\_\\_%')"
+                        : "$field = $nested_tab_alias.id";
+                    $this->final_tab .= ' LEFT JOIN (' . $subquery['tab'] . ") ON $on_rule";
+                }
                 return array($subquery['where'], $subquery['vals']);
             }
         } else {
