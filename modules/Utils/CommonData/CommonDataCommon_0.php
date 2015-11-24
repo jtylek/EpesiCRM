@@ -267,7 +267,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		if ($arr===null) return null;
 		
 		$arr = self::translate_array($arr);
-		if ($order_by_position == 'value' || $order_by_position == false)
+		if ($order_by_position === 'value' || $order_by_position == false)
 			asort($arr, SORT_LOCALE_STRING);
 		if ($readinfo) {
 			foreach ($arr as $k=>$v) {
