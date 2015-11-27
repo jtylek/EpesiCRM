@@ -45,57 +45,7 @@ class Utils_Attachment extends Module {
     {
         $this->force_multiple = $arg;
     }
-	
-	public function admin() {
-		if ($this->is_back()) {
-			$this->parent->reset();
-		}
-		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-		$google_login = Variable::get('utils_attachments_google_user', false);
-		$google_pass = Variable::get('utils_attachments_google_pass', false);
-
-		$form = $this->init_module('Libs_QuickForm');
-		$theme = $this->init_module('Base_Theme');
-
-		$form->addElement('header', 'header', __('Google Username and Password'));
-
-		$form->addElement('text', 'google_user', __('Username'));
-		$form->addElement('password', 'google_pass', __('Password'));
-
-		$form->setDefaults(array('google_user'=>$google_login));
-		$form->setDefaults(array('google_pass'=>$google_pass));
-
-		if ($form->validate()) {
-			$vals = $form->exportValues();
-
-			$ok = true;
-			if ($vals['google_user']) {
-				$g_auth = Utils_AttachmentCommon::get_google_auth($vals['google_user'], $vals['google_pass']);
-				if (!$g_auth) $ok = false;
-			}
-
-			if ($ok) {
-				Variable::set('utils_attachments_google_user', $vals['google_user']);
-				Variable::set('utils_attachments_google_pass', $vals['google_pass']);
-
-				Base_StatusBarCommon::message(__('Settings saved'));
-			} else {
-				Base_StatusBarCommon::message(__('Unable to authenticate'), 'error');
-			}
-			location(array());
-			return;
-		}
-
-		$form->assign_theme('form', $theme);
-
-		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-		
-		Base_ThemeCommon::load_css('Utils_RecordBrowser','View_entry');
-		$theme->display('admin');
-	}
-	
 	public function body($arg=null, $rb=null, $uid=null) {
 		if(isset($arg) && isset($rb)) {
 			$this->group = $rb->tab.'/'.$arg['id'];

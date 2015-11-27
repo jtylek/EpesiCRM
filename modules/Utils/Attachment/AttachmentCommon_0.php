@@ -14,9 +14,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
-	public static function admin_caption() {
-		return array('label'=>__('Google Docs integration'), 'section'=>__('Server Configuration'));
-	}
 
 	public static function new_addon($table) {
 		Utils_RecordBrowserCommon::new_addon($table, Utils_Attachment::module_name(), 'body', 'Notes');
@@ -229,38 +226,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 		return get_epesi_url().'/modules/Utils/Attachment/get_remote.php?'.http_build_query(array('id'=>$id,'token'=>$token));
 	}
-	
-	public static function get_google_auth($user=null, $pass=null, $service="writely") {
-		if ($user===null) {
-			$user = Variable::get('utils_attachments_google_user', false);
-			$pass = Variable::get('utils_attachments_google_pass', false);
-			if (!$user) return false;
-		}
-		$company = CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company());
 
-		$clientlogin_url = "https://www.google.com/accounts/ClientLogin";
-		$clientlogin_post = array(
-			"accountType" => "HOSTED_OR_GOOGLE",
-			"Email" => $user,
-			"Passwd" => $pass,
-			"service" => $service,
-			"source" => $company['company_name'].'-EPESI-'.'1.0'
-		);
-
-		$curl = curl_init($clientlogin_url);
-		curl_setopt($curl, CURLOPT_POST, true);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $clientlogin_post);
-		curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		$response = curl_exec($curl);
-		curl_close($curl);
-
-		preg_match("/Auth=([a-z0-9_-]+)/i", $response, $matches);
-		$g_auth = @$matches[1];
-		return $g_auth;
-	}
-	
 	public static function get_temp_dir() {
 	        $targetDir = DATA_DIR.'/Utils_Attachment/temp/'.Acl::get_user();
                 if(!file_exists($targetDir))
@@ -768,30 +734,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $links = array();
 
         $lid = 'get_file_'.md5(serialize($row));
-        if(isset($_GET['save_google_docs']) && $_GET['save_google_docs']==$lid) {
-            self::save_google_docs($row['id']);
-        }
-        if(isset($_GET['discard_google_docs']) && $_GET['discard_google_docs']==$lid) {
-            self::discard_google_docs($row['id']);
-        }
 
         $close_leightbox_js = 'leightbox_deactivate(\''.$lid.'\');';
-        if (Variable::get('utils_attachments_google_user',false) && preg_match('/\.(xlsx?|docx?|txt|odt|ods|csv)$/i',$row['original'])) {
-            $label = __('Open with Google Docs');
-            $label = explode(' ', $label);
-            $mid = floor(count($label) / 2);
-            $label = implode('&nbsp;', array_slice($label, 0, $mid)).' '.implode('&nbsp;', array_slice($label, $mid));
-            $script = 'get_google_docs';
-            $onclick = '$(\'attachment_save_options_'.$row['id'].'\').style.display=\'\';$(\'attachment_download_options_'.$row['id'].'\').hide();';
-            $th->assign('save_options_id','attachment_save_options_'.$row['id']);
-            $links['save'] = '<a href="javascript:void(0);" onclick="'.$close_leightbox_js.Module::create_href_js(array('save_google_docs'=>$lid)).'">'.__('Save Changes').'</a><br>';
-            $links['discard'] ='<a href="javascript:void(0);" onclick="'.$close_leightbox_js.Module::create_href_js(array('discard_google_docs'=>$lid)).'">'.__('Discard Changes').'</a><br>';
-        } else {
-            $label = __('View');
-            $th->assign('save_options_id','');
-            $script = 'get';
-            $onclick = $close_leightbox_js;
-        }
+        $label = __('View');
+        $th->assign('save_options_id','');
+        $script = 'get';
+        $onclick = $close_leightbox_js;
         $th->assign('download_options_id','attachment_download_options_'.$row['id']);
 
         $view_link = 'modules/Utils/Attachment/'.$script.'.php?'.http_build_query(array('id'=>$row['id'],'cid'=>CID,'view'=>1));
@@ -842,99 +790,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return Libs_LeightboxCommon::get_open_href($lid);
     }
 
-    public static function save_google_docs($note_id) {
-        $edit_url = DB::GetOne('SELECT doc_id FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
-        if (!$edit_url) {
-            Base_StatusBarCommon::message(__('Document not found'), 'warning');
-            return false;
-        }
-        if(!preg_match('/(spreadsheet|document)%3A(.+)$/i',$edit_url,$matches)) {
-            Base_StatusBarCommon::message(__('Document not found'), 'warning');
-            return false;
-        }
-        $edit_url = $matches[2];
-        $doc = $matches[1]=='document';
-        if ($doc)
-            $export_url = 'https://docs.google.com/feeds/download/documents/Export?id='.$edit_url.'&exportFormat=doc';
-        else
-            $export_url = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key='.$edit_url.'&exportFormat=xls';
-
-        DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
-        $g_auth = Utils_AttachmentCommon::get_google_auth(null, null, $doc?'writely':'wise');
-        $curl = curl_init();
-
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-        $headers = array(
-            "Authorization: GoogleLogin auth=" . $g_auth,
-            "If-Match: *",
-            "GData-Version: 3.0",
-        );
-        curl_setopt($curl, CURLOPT_URL, $export_url);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_POST, false);
-        $response = curl_exec_follow($curl);
-
-        $row = DB::GetRow('SELECT f.*,l.f_crypted as crypted FROM utils_attachment_file f INNER JOIN utils_attachment_data_1 l ON l.id=f.attach_id WHERE f.id=%d',array($note_id));
-
-        $local = DATA_DIR.'/Utils_Attachment/temp/'.Acl::get_user().'/gdocs';
-        @mkdir($local,0777,true);
-        $dest_file = $local.'/'.$row['id'];
-
-        if($row['crypted']) {
-            $password = $_SESSION['client']['cp'.$row['attach_id']];
-            $response = Utils_AttachmentCommon::encrypt($response,$password);
-        }
-        file_put_contents($dest_file, $response);
-        if($doc) {
-            $ext = 'docx';
-        } else $ext = 'xlsx';
-
-        $row['original'] = substr($row['original'],0,strrpos($row['original'],'.')).'.'.$ext;
-
-        Utils_AttachmentCommon::add_file($row['attach_id'], Acl::get_user(), $row['original'], $dest_file);
-        DB::Execute('UPDATE utils_attachment_file SET deleted=1 WHERE id=%d',array($row['id']));
-
-        $headers = array(
-            "Authorization: GoogleLogin auth=" . $g_auth,
-            "If-Match: *",
-            "GData-Version: 3.0",
-        );
-        curl_setopt($curl, CURLOPT_URL, $edit_url);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_POST, false);
-        $response = curl_exec($curl);
-
-        Base_StatusBarCommon::message(__('Changes saved'));
-    }
-
-    public static function discard_google_docs($note_id) {
-        $edit_url = DB::GetOne('SELECT doc_id FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
-        DB::Execute('DELETE FROM utils_attachment_googledocs WHERE note_id = %d', array($note_id));
-        $g_auth = Utils_AttachmentCommon::get_google_auth();
-        $curl = curl_init();
-
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-        $headers = array(
-            "Authorization: GoogleLogin auth=" . $g_auth,
-            "If-Match: *",
-            "GData-Version: 3.0",
-        );
-        curl_setopt($curl, CURLOPT_URL, $edit_url);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_POST, false);
-        $response = curl_exec($curl);
-        Base_StatusBarCommon::message(__('Changes discarded'));
-    }
-    
     //got from: http://www.kavoir.com/2010/02/php-get-the-file-uploading-limit-max-file-size-allowed-to-upload.html
     private static function max_upload_size() {
         $normalize = function($size) {
