@@ -2,13 +2,27 @@
 /**
  * EPESI Core updater.
  *
- * @author    Adam Bukowski <abukowski@telaxus.com>
+ * @author    Adam Bukowski <abukowski@telaxus.com> and Pawel Bukowski <pbukowski@telaxus.com>
  * @version   2.0
  * @copyright Copyright &copy; 2014, Telaxus LLC
  * @license   MIT
  * @package   epesi-base
  */
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
+
+$PUBLIC_KEY = <<<KEY
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvWFAZMVAGr3fPNK0v9Vt
+IErRSpl4I3wIWTr1kybpY8/+j9IX/t9qLvOPY4OVrkzURmKvS+VbSU8MSYZz9QIL
+TJUmNYkkyqJieSpQCq/7x5J2it+i1TeGKk8m3sOpL17+NUa/1e8a4W6FmLl9hwLd
+8TQnlVQJIva3JXA46S1E3BNPbaWdQrwABs5xGUterE890+rW63/pgD1pT1qEbmif
+oiTuG+dyhCo+REcjo8YWIpi+8BNJoo3Nn7Xxi71yA2Ps8DElIjjNRa/ca5A6SE61
+euoJaHtTSc7OsuDug2Rv0aQkvR7OmFyfIJAdAasZHWePWeuezlKJAAcvNFdjZ0Zw
+KwIDAQAB
+-----END PUBLIC KEY-----
+KEY;
+
+
 
 class EpesiUpdatePackage
 {
@@ -123,9 +137,11 @@ class EpesiUpdatePackage
     private static function download_package($current_version,$offset) {
         static $versions = null;
         if(!isset($versions)) {
-            if(!self::download('http://www.epesi.org/installer/config.ini','versions.php')) return false;
-            if(!include_once('versions.php')) return false;
-            unlink('versions.php');
+            if(!self::download('http://ess.epe.si/update.json','update.json')) return false;
+            $versions = @json_decode(file_get_contents('update.json'));
+            @unlink('update.json');
+            if(!$versions || !isset($versions->files) || !$versions->files || !is_array($versions->files)) return false;
+            $versions = $versions->files;
         }
         if(!is_array($versions) || !isset($versions[$current_version])) return false;
 
@@ -135,12 +151,18 @@ class EpesiUpdatePackage
         if(!isset($values[$keys[$current_version]+$offset])) return false; //no update available, already latest version
 
         $update = $values[$keys[$current_version]+$offset];
-        if(!isset($update['file']) || !isset($update['md5'])) return false;
+        if(!isset($update['file']) || !isset($update['checksum']) || !isset($update['sign'])) return false;
         $tmpfname = 'epesi-'.$original_keys[$keys[$current_version]+$offset].'.ei.zip';
         if(!file_exists($tmpfname) && !self::download($update['file'],$tmpfname)) return false;
 
-        if ($update['md5']!=md5_file($tmpfname)) {
+        if ($update['checksum']!=sha1_file($tmpfname)) {
             unlink($tmpfname);
+            return false;
+        }
+
+        $verify_status = openssl_verify(file_get_contents($tmpfname), base64_decode($update['signature']), $PUBLIC_KEY, OPENSSL_ALGO_SHA256);
+        if ($verify_status !== 1) {
+            if($this->CLI) print("Signature error: $tmpfname\n");
             return false;
         }
         return $tmpfname;
@@ -162,7 +184,6 @@ class EpesiUpdatePackage
 
         curl_close($ch);
         if($errno!='') return false;
-        if ($response_code == '404') return false;
         file_put_contents($filename,$output);
         return true;
     }
