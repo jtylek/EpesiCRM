@@ -143,7 +143,7 @@ class EpesiUpdatePackage
             if(!$versions_tmp || !isset($versions_tmp->files)) return false;
             $versions_tmp = (array)$versions_tmp->files;
             $versions = array();
-            foreach($versions_tmp as $v) $versions[$v['version']] = (array)$v;
+            foreach($versions_tmp as $v) $versions[$v->version] = (array)$v;
         }
         if(!is_array($versions) || !isset($versions[$current_version])) return false;
 
@@ -151,7 +151,7 @@ class EpesiUpdatePackage
         $keys = array_flip($original_keys);
         $values = array_values($versions);
         if(!isset($values[$keys[$current_version]+$offset])) return false; //no update available, already latest version
-
+        
         $update = $values[$keys[$current_version]+$offset];
         if(!isset($update['file']) || !isset($update['checksum']) || !isset($update['signature'])) return false;
         $tmpfname = 'epesi-'.$original_keys[$keys[$current_version]+$offset].'.ei.zip';
