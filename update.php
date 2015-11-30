@@ -99,7 +99,7 @@ class EpesiUpdatePackage
         for ($i = 0; $i < $this->zip->numFiles; $i++) {
             $stat = $this->zip->statIndex($i);
             $f = './' . $stat['name'];
-            if (file_exists($f)) {
+            if (file_exists($f) && !is_dir($f)) {
                 unlink($f);
             }
         }
@@ -138,10 +138,12 @@ class EpesiUpdatePackage
         static $versions = null;
         if(!isset($versions)) {
             if(!self::download('http://ess.epe.si/update.json','update.json')) return false;
-            $versions = @json_decode(file_get_contents('update.json'));
+            $versions_tmp = @json_decode(file_get_contents('update.json'));
             @unlink('update.json');
-            if(!$versions || !isset($versions->files) || !$versions->files || !is_array($versions->files)) return false;
-            $versions = $versions->files;
+            if(!$versions_tmp || !isset($versions_tmp->files)) return false;
+            $versions_tmp = (array)$versions_tmp->files;
+            $versions = array();
+            foreach($versions_tmp as $v) $versions[$v['version']] = (array)$v;
         }
         if(!is_array($versions) || !isset($versions[$current_version])) return false;
 
@@ -151,7 +153,7 @@ class EpesiUpdatePackage
         if(!isset($values[$keys[$current_version]+$offset])) return false; //no update available, already latest version
 
         $update = $values[$keys[$current_version]+$offset];
-        if(!isset($update['file']) || !isset($update['checksum']) || !isset($update['sign'])) return false;
+        if(!isset($update['file']) || !isset($update['checksum']) || !isset($update['signature'])) return false;
         $tmpfname = 'epesi-'.$original_keys[$keys[$current_version]+$offset].'.ei.zip';
         if(!file_exists($tmpfname) && !self::download($update['file'],$tmpfname)) return false;
 
@@ -160,6 +162,7 @@ class EpesiUpdatePackage
             return false;
         }
 
+        global $PUBLIC_KEY;
         $verify_status = openssl_verify(file_get_contents($tmpfname), base64_decode($update['signature']), $PUBLIC_KEY, OPENSSL_ALGO_SHA256);
         if ($verify_status !== 1) {
             if($this->CLI) print("Signature error: $tmpfname\n");
