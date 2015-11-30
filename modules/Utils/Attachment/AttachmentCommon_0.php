@@ -364,6 +364,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
         foreach ($locals as $local) {
             $param = explode('/', $local);
             if (count($param) == 2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
+                if(!Utils_RecordBrowserCommon::check_table_name($param[0], false, false)) {
+                    DB::Execute('DELETE FROM utils_attachment_local WHERE local=%s',array($local));
+                    continue;
+                }
                 $ret[] = Utils_RecordBrowserCommon::create_default_linked_label($param[0],$param[1],$nolink);
             }
         }
