@@ -45,6 +45,9 @@ CURRENT
 - Add option to search companies by tax id field
 - Deactivate user when contact is deleted
 - Add Telegram integration to pass notifications to users - http://telegram.org
+- Remove not working google docs integration
+- Update Roundcube to version 1.1.3
+- Translations update
 - Other fixes and improvements
 
 RELEASE 1.6.5-20150324
