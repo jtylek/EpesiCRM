@@ -40,7 +40,7 @@ class CRM_Calendar extends Module {
 	}
 
 	public function body($args = array()) {
-		$ev_mod = $this->init_module('CRM/Calendar/Event');
+		$ev_mod = $this->init_module(CRM_Calendar_Event::module_name());
 		$ev_mod->help('Calendar Help','main');
 
 		if(isset($_REQUEST['search_date']) && is_numeric($_REQUEST['search_date']) && isset($_REQUEST['ev_id']) && is_numeric($_REQUEST['ev_id'])) {
@@ -94,8 +94,8 @@ class CRM_Calendar extends Module {
 			$args['default_view'] = $_REQUEST['switch_to_tab'];
 		}
 
-		$theme = $this->init_module('Base/Theme');
-		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',$args,array($this, 'get_new_event_href_js')));
+		$theme = $this->init_module(Base_Theme::module_name());
+		$c = $this->init_module(Utils_Calendar::module_name(),array(CRM_Calendar_Event::module_name(),$args,array($this, 'get_new_event_href_js')));
 		$view_type = $c->get_current_view();
 		CRM_CalendarCommon::$mode = $view_type;
 		$theme->assign('calendar',$this->get_html_of_module($c));
@@ -109,7 +109,7 @@ class CRM_Calendar extends Module {
 				case 'Agenda': $view = __('Agenda'); break;
 			}
 			if (isset($view)) {
-				$pdf = $this->pack_module('Libs/TCPDF', null, null, 'L');
+				$pdf = $this->pack_module(Libs_TCPDF::module_name(), null, null, 'L');
 				if ($pdf->prepare()) {
 					set_time_limit(0);
 					$start = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['start']));
@@ -155,7 +155,7 @@ class CRM_Calendar extends Module {
 	public function applet($conf, & $opts) {
 		$opts['go'] = true;
 
-		$gb = $this->init_module('Utils/GenericBrowser', null, 'agendaX');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'agendaX');
 		$columns = array(
 			array('name'=>__('Start'), 'order'=>'e.starts', 'width'=>25, 'wrapmode'=>'nowrap'),
 			array('name'=>__('Title'), 'order'=>'e.title','width'=>50),

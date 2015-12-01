@@ -80,6 +80,7 @@
 /* COLORS */
 
 .event_blue    #event_title a,
+.event_black    #event_title a,
 .event_red     #event_title a,
 .event_yellow  #event_title a,
 .event_green   #event_title a,
@@ -105,6 +106,42 @@
 .event_blue #event_title a:hover {
     color: #336699;
 /*    background-image: url('images/header-blue-light-hover.png');*/
+}
+
+/* black */
+
+.event_black {
+	border: 1px solid black;
+	background-color: #bbbbbb;
+/*	background-image: url('images/header-black-light.png');*/
+}
+
+.event_black #event_grab,
+.event_black #event_info {
+    background-color: black;
+}
+
+.event_black #event_title a:hover {
+    color: black;
+/*    background-image: url('images/header-black-light-hover.png');*/
+}
+
+/* orange */
+
+.event_orange {
+	border: 1px solid #AA8500;
+	background-color: orange;
+/*	background-image: url('images/header-orange-light.png');*/
+}
+
+.event_orange #event_grab,
+.event_orange #event_info {
+    background-color: #AA8500;
+}
+
+.event_orange #event_title a:hover {
+    color: #AA8500;
+/*    background-image: url('images/header-orange-light-hover.png');*/
 }
 
 /* red */

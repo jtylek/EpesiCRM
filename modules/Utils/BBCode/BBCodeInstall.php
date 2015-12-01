@@ -40,8 +40,8 @@ class Utils_BBCodeInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/RegionalSettings', 'version'=>0),
-			array('name'=>'Base/Lang', 'version'=>0)
+			array('name'=>Base_RegionalSettingsInstall::module_name(), 'version'=>0),
+			array('name'=>Base_LangInstall::module_name(), 'version'=>0)
 		);
 	}
 	public function version() {

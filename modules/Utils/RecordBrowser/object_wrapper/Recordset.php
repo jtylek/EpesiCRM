@@ -138,7 +138,7 @@ abstract class RBO_Recordset {
      * @return mixed
      */
     public static final function __QFfield_magic_callback(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
-        list($recordset_class, $method) = $rb_obj->get_qffield_method($desc['name']);
+        $recordset_class =  get_called_class();
         $args = func_get_args();
         $callback_name = 'QFfield_' . $field;
         if (self::_callback_recordset($recordset_class, $callback_name, $args, $return_value)) {
@@ -160,7 +160,7 @@ abstract class RBO_Recordset {
      * @return mixed
      */
     public static final function __display_magic_callback($record, $nolink, $desc) {
-        list($recordset_class, $method) = $desc['display_callback'];
+        $recordset_class =  get_called_class();
         $args = func_get_args();
         $callback_name = 'display_' . $desc['id'];
 
@@ -179,7 +179,7 @@ abstract class RBO_Recordset {
         $recordset = self::recordset_instance($recordset_class);
         // check for qffield callback in Recordset class
         if (method_exists($recordset, $callback_name)) {
-            $method = new ReflectionMethod($recordset_class, $callback_name);
+            $method = new ReflectionMethod($recordset_class, $callback_name); //TODO: czemu nie call_user_func_array?
             $return_value = $method->invokeArgs($recordset, $args);
             return true;
         }
@@ -191,7 +191,7 @@ abstract class RBO_Recordset {
         $record_class = $recordset->class_name();
         if (method_exists($record_class, $callback_name)) {
             $record = new $record_class($recordset, $record);
-            $method = new ReflectionMethod($record_class, $callback_name);
+            $method = new ReflectionMethod($record_class, $callback_name); //TODO: czemu nie call_user_func_array?
             $return_value = $method->invokeArgs($record, $args);
             return true;
         }
@@ -205,7 +205,7 @@ abstract class RBO_Recordset {
      * @return Utils_RecordBrowser
      */
     public function create_rb_module($parent_module, $unique_instance_name = null) {
-        return $parent_module->init_module('Utils/RecordBrowser', $this->tab, $unique_instance_name);
+        return $parent_module->init_module(Utils_RecordBrowser::module_name(), $this->tab, $unique_instance_name);
     }
 
     ///////////// implement Utils_RecordBrowserCommon methods //////////////

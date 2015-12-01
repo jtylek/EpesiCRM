@@ -22,7 +22,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		
-		$tb = $this->init_module('Utils/TabbedBrowser');
+		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
 		$tb->set_tab('Translations', array($this, 'translations'));
 		$tb->set_tab('Settings', array($this, 'settings'));
 		$this->display_module($tb);
@@ -30,10 +30,9 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	}
 
 	public function settings() {
-		$form = $this->init_module('Libs/QuickForm',null,'language_setup');
+		$form = $this->init_module(Libs_QuickForm::module_name(),null,'language_setup');
 
-		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
-		$langs = array_combine($ls_langs,$ls_langs);
+		$langs = Base_LangCommon::get_installed_langs();
 		$form->addElement('select','lang_code',__('Default language'), $langs, array('onchange'=>$form->get_submit_form_js()));
 		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
 			$form->freeze('lang_code');
@@ -56,8 +55,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		load_js('modules/Base/Lang/Administrator/js/main.js');
 		eval_js('translate_init();');
 
-		$lp = $this->init_module('Utils/LeightboxPrompt');
-		$form = $this->init_module('Libs/QuickForm',null,'translations_sending');
+		$lp = $this->init_module(Utils_LeightboxPrompt::module_name());
+		$form = $this->init_module(Libs_QuickForm::module_name(),null,'translations_sending');
 		$desc = '<div id="trans_sett_info" style="line-height:17px;">';
 		$desc .= __('You have now option to contribute with your translations to help us deliver EPESI in various languages. You can opt in to send your translations to EPESI central database, allowing to deliver EPESI in your language to other users.').'<br>';
 		$desc .= __('Please note that the translations you submit aren\'t subject to copyright. EPESI Team will distribute the translations free of charge to the end users.').'<br>';
@@ -112,7 +111,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
 			Base_ActionBarCommon::add('refresh',__('Refresh languages'),$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
 
-		$form2 = $this->init_module('Libs/QuickForm',null,'translaction_filter');
+		$form2 = $this->init_module(Libs_QuickForm::module_name(),null,'translaction_filter');
 		$form2->addElement('select','lang_filter',__('Filter'),array(__('Show all'), __('Show with custom translation'), __('Show with translation'), __('Show without translation')), array('onchange'=>$form2->get_submit_form_js()));
 		
 		if($form2->validate()) {
@@ -134,7 +133,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		}
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate')) {
 			$langs = Base_LangCommon::get_installed_langs();
-			$form = $this->init_module('Libs/QuickForm',null,'language_selected');
+			$form = $this->init_module(Libs_QuickForm::module_name(),null,'language_selected');
 			$form->addElement('select','lang_code',__('Currently Translating'), $langs, array('onchange'=>$form->get_submit_form_js()));
             $currently_translating = $_SESSION['client']['base_lang_administrator']['currently_translating'];
 			$form->setDefaults(array('lang_code'=>$currently_translating));
@@ -181,7 +180,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			$data[] = array($org,$t);
 		}
 		
-		$gb = $this->init_module('Utils/GenericBrowser',null,'lang_translations');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'lang_translations');
 		$gb->set_custom_label($trans_filter);
 		$gb->set_table_columns(array(
 				array('name'=>__('Original'), 'order_preg'=>'/^<[^>]+>([^<]*)<[^>]+>$/i','search'=>'original'),
@@ -214,7 +213,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$forum_link = "<a target=\"_blank\" href=\"$url\">$url</a>";
 		$info_msg = __('If you wish to add other language or dialect of existing language, then please contact us via forum: %s', array($forum_link));
 		print "<div class=\"important_notice\">$info_msg</div>";
-		$form = $this->init_module('Libs/QuickForm',__('Creating new langpack...'),'new_langpack');
+		$form = $this->init_module(Libs_QuickForm::module_name(),__('Creating new langpack...'),'new_langpack');
 		$form -> addElement('header',null,__('Create new langpack'));
 		$form -> addElement('select','code',__('Language'),Base_Lang_AdministratorCommon::available_new_languages());
 		$form->registerRule('check_if_langpack_exists', 'callback', 'check_if_langpack_exists', $this);

@@ -5,18 +5,18 @@
 <div>
 
 {if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search) || isset($expand_collapse)}
-<table class="letters-search nonselectable" border="0" cellpadding="0" cellspacing="0" style="table-layout:auto;">
+<table class="letters-search nonselectable" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
 			<!-- Custom label -->
 			{if (isset($custom_label) && $custom_label)}
-				<td class="letter_search_icon" {$custom_label_args} style="width:1px;">
+				<td class="letter_search_icon" {$custom_label_args}>
 				<nobr>{$custom_label}</nobr>
 				</td>
 			{/if}
 			<!-- QuickJump -->
 			{if isset($letter_links)}
-				<td class="letters" style="width:1px;">
+				<td class="letters">
 					<div class="abc" onclick="quick_jump_letters('{$id}');">ABC</div>
 					<div id="quick_jump_letters_{$id}" class="quick_jump_letters" 
 						{if $quickjump_to==''} 
@@ -51,7 +51,7 @@
 			</td>
 			<!-- Advanced / Simple Search -->
 			{if isset($form_data_search)}
-				<td style="width:470px;">
+				<td style="width:470px; float:right">
 					{$form_data_search.javascript}
 
 					<form {$form_data_search.attributes}>

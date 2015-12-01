@@ -32,13 +32,16 @@ class Base_BoxCommon extends ModuleCommon {
 		$containers = parse_ini_file($ini,true);
 		return $containers['main']['module'];
 	}
-	
+
+	/*
+	 * TODO: $parent_module seems to be unused - remove it
+	 */
 	public static function create_href_array($parent_module,$module,$function=null,array $arguments=null, array $constructor_args=null) {
 		if(!isset($_SESSION['client']['base_box_hrefs']))
 			$_SESSION['client']['base_box_hrefs'] = array();
 		$hs = & $_SESSION['client']['base_box_hrefs'];
 
-		$r=array('m'=>$module, 'p'=>(!$parent_module)?'':$parent_module->get_path());
+		$r=array('m'=>$module);
 		if(isset($arguments))
 			$r['a']=$arguments;
 		if(isset($constructor_args))
@@ -79,7 +82,7 @@ class Base_BoxCommon extends ModuleCommon {
 	
 	public static function update_version_check_indicator($force=false) {
 		$version_no = __('version %s',array(EPESI_VERSION));
-		if (CHECK_VERSION && ModuleManager::is_installed('Base/EpesiStore')>=0) {
+		if (CHECK_VERSION && Base_EpesiStoreInstall::is_installed()) {
 			load_js('modules/Base/Box/check_for_new_version.js');
 			if ($force) eval_js('jq("#epesi_new_version").attr("done","0");');
 			eval_js('check_for_new_version();');
@@ -103,7 +106,7 @@ class Base_BoxCommon extends ModuleCommon {
     private static function _base_box_instance() {
         $x = ModuleManager::get_instance('/Base_Box|0');
         if (!$x)
-            trigger_error('There is no base box module instance', E_USER_ERROR);
+            throw new Exception('There is no base box module instance');
         return $x;
     }
 }

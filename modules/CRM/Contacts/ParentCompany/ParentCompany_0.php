@@ -17,7 +17,7 @@ class CRM_Contacts_ParentCompany extends Module {
 	}
 
 	public function parent_company_addon($arg) {
-		$rb = $this->init_module('Utils/RecordBrowser','company','parent_company_addon');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'company','parent_company_addon');
 		$rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 									'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
 									'permission'=>Base_User_SettingsCommon::get('CRM_Common','default_record_permission'),

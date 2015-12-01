@@ -27,7 +27,7 @@ class Base_AdminCommon extends ModuleCommon {
 	}
 
 	public static function home_page() {
-		return array(_M('Administration')=>array('Base/Admin'));
+		return array(_M('Administration')=>array(Base_Admin::module_name()));
 	}
 	
 	public static function menu() {
@@ -94,3 +94,4 @@ if(!interface_exists('Base_AdminInterface', false)) {
 	}
 }
 
+?>

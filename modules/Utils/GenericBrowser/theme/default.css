@@ -396,6 +396,13 @@ table.Utils_GenericBrowser > tbody > td img {
 .letters-search .letters {
     text-align: left;
     padding: 0px 7px 0 0px;
+    display: block;
+}
+
+.letters-search > tbody > tr > td {
+    display: inline-block;
+    float: left;
+    margin-top: 5px;
 }
 
 .letters-search .reset {
@@ -403,9 +410,12 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 .letter_search_icon {
-    width: 105px;
     padding: 0px 7px 0 0px;
     color: white;
+}
+
+.letter_search_icon form {
+    display: inline-block;
 }
 
 .letters-search .letters .all {

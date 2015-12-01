@@ -68,7 +68,7 @@ if (!$rs_checkpoint->is_done()) {
     Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee');
     Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|employees'=>'USER', '|customer'=>'USER'),array('edited_on'));
     Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
-    Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename('Utils/Attachment', 'View_entry'));
+    Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename(Utils_Attachment::module_name(), 'View_entry'));
 
     $ret = DB::CreateTable('utils_attachment_local','
 			local C(255) NOTNULL,
@@ -185,11 +185,11 @@ if(!$files_checkpoint->is_done()) {
     } else {
         $files = 0;
     }
-    if($old_checkpoint->has('files_qty')) {
-        $files_qty = $old_checkpoint->get('files_qty');
+    if($files_checkpoint->has('files_qty')) {
+        $files_qty = $files_checkpoint->get('files_qty');
     } else {
         $files_qty = DB::GetOne('SELECT count(*) FROM utils_attachment_file');
-        $old_checkpoint->set('files_qty',$files_qty);
+        $files_checkpoint->set('files_qty',$files_qty);
     }
     
     while($ret = DB::SelectLimit('SELECT f.id,f.attach_id,l.local FROM utils_attachment_file f INNER JOIN utils_attachment_link l ON l.id=f.attach_id ORDER BY f.id',1,$files++)) {

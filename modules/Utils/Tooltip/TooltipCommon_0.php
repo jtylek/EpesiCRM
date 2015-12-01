@@ -19,7 +19,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 	private static $help_tooltips;
 	private static function show_help() {
 		if(!isset(self::$help_tooltips))
-			self::$help_tooltips = Base_User_SettingsCommon::get('Utils/Tooltip','help_tooltips');
+			self::$help_tooltips = Base_User_SettingsCommon::get(Utils_TooltipCommon::module_name(),'help_tooltips');
 	}
 	
 	public static function init_tooltip_div(){
@@ -115,6 +115,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 	* @param array keys are captions, values are values
 	*/
 	public static function format_info_tooltip( $arg) {
+		if(!is_array($arg) || empty($arg)) return '';
 		$table='<TABLE WIDTH="280" cellpadding="2">';
 		foreach ($arg as $k=>$v){
 			$table.='<TR><TD WIDTH="90"><STRONG>';
@@ -131,7 +132,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if (!isset($_REQUEST['__location'])) $loc = true;
 		else $loc = $_REQUEST['__location'];
 		if ($init!==$loc) {
-			Base_ThemeCommon::load_css('Utils/Tooltip','leightbox_mode');
+			Base_ThemeCommon::load_css(Utils_TooltipCommon::module_name(),'leightbox_mode');
 			Libs_LeightboxCommon::display('tooltip_leightbox_mode', '<center><span id="tooltip_leightbox_mode_content" /></center>');
 			$init = $loc;
 		}

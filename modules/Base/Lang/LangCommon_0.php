@@ -396,11 +396,23 @@ class Base_LangCommon extends ModuleCommon {
 	private static $lang_code;
 	private static $loaded = false;
 
+    public static function detect_and_load_language()
+    {
+        $browser_lang = isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
+            ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : null;
+        if ($browser_lang) {
+            $browser_lang = substr($browser_lang, 0, 2); // get first two characters
+            if (in_array($browser_lang, self::get_installed_langs())) {
+                Base_LangCommon::load($browser_lang);
+            }
+        }
+    }
+
 	public static function get_lang_code() {
 		if(defined('FORCE_LANG_CODE')) return FORCE_LANG_CODE;
 		if(!isset(self::$lang_code)) {
-			if (!Acl::is_user() ||
-				ModuleManager::is_installed('Base/User/Settings')==-1 ||
+			if (!Base_AclCommon::is_user() ||
+				Base_User_SettingsInstall::is_installed() == false ||
 				!Variable::get('allow_lang_change', false))
 					return Variable::get('default_lang');
 			if(class_exists('Base_User_SettingsCommon'))
@@ -463,6 +475,7 @@ class Base_LangCommon extends ModuleCommon {
 	}
 
 	public static function refresh_cache() {
+        if (!file_exists(DATA_DIR.'/Base_Lang/base')) return;
 		$ls_langs = scandir(DATA_DIR.'/Base_Lang/base');
 		$langs = array();
 		foreach ($ls_langs as $entry)

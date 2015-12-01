@@ -21,13 +21,12 @@ class Base_User_LoginCommon extends ModuleCommon {
 	 * @param string
 	 * @return bool
 	 */
-	public static function check_login($username, $pass, $md5=true) {
-		if ($md5) $pass = md5($pass);
-		$ret = DB::Execute('SELECT null FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND p.password=%s AND u.active=1', array($username, $pass));
-		if(!$ret->EOF) //user exists, login ok
-			return true;
-		else
-			return false;
+	public static function check_login($username, $pass) {
+		$hash = DB::GetOne('SELECT p.password FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($username));
+		if(!$hash) return false;
+		if(strlen($hash)==32) //md5
+		    return md5($pass)==$hash;
+		return password_verify($pass,$hash);
 	}
 	
 	public static function submit_login($x) {
@@ -115,7 +114,8 @@ class Base_User_LoginCommon extends ModuleCommon {
 			print(__('Account creation failed.').'<br>'.__('Unable to get id of added user.').'<br>');
 			return false;
 		}
-		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, md5($pass), $mail));
+		$pass_hash = function_exists('password_hash')?password_hash($pass,PASSWORD_DEFAULT):md5($pass);
+		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, $pass_hash, $mail));
 		
 		if($send_mail) {
 			if(!self::send_mail_with_password($username, $pass, $mail)) {
@@ -138,7 +138,8 @@ class Base_User_LoginCommon extends ModuleCommon {
 		if(DB::Execute('UPDATE user_password SET mail=%s WHERE user_login_id=%d', array($mail, $id)) === false)
 			return false;
 		
-		if($pass!='' && DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array(md5($pass), $id))===false)
+		$pass_hash = function_exists('password_hash')?password_hash($pass,PASSWORD_DEFAULT):md5($pass);
+		if($pass!='' && DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array($pass_hash, $id))===false)
 			return false;
 		
 		return true;
@@ -158,8 +159,23 @@ class Base_User_LoginCommon extends ModuleCommon {
         // Some kind of hack. We are using md5 hash of user login and IP address
         // like address to match host + username. We can because md5 is 32 char.
         // long as from_addr field
-        $param = $login ? md5($login . $_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
-        
+        $ip = get_client_ip_address();
+        $param = $login ? md5($login . $ip) : $ip;
+
+		// Hidden feature to allow login only from desired IP
+		// TODO: add GUI
+		// Example:
+		// $allowed_ip = array('user_1' => array('1.2.3.4', '5.6.7.8'), 'user_2' => array('2.3.4.5', '3.4.5.6'));
+		// Variable::set('allowed_ip_login', $allowed_ip);
+		$allowed_ip = Variable::get('allowed_ip_login', false);
+		if ($allowed_ip) {
+			// use '' key to match all users
+			if (isset($allowed_ip[''])) $login = '';
+			if (isset($allowed_ip[$login])) {
+				if (!in_array($ip, $allowed_ip[$login])) return true; // is banned
+			}
+		}
+
         // allow to inject time parameter
         if (!$current_time) $current_time = time();
 		if($tries > 0 && $time_seconds > 0) {
@@ -185,7 +201,8 @@ class Base_User_LoginCommon extends ModuleCommon {
             // we have to option to ban - by ip or by login. In both cases
             // from_addr column is used to store ip or login name
             $ban_by_login = Variable::get('host_ban_by_login', false);
-            $param = $ban_by_login ? md5($login . $_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+			$ip = get_client_ip_address();
+            $param = $ban_by_login ? md5($login . $ip) : $ip;
             $current_time = time();
             DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d', array($current_time - $ban_seconds));
             DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)', array($current_time, $param));

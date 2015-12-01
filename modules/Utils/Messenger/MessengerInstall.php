@@ -60,13 +60,13 @@ class Utils_MessengerInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Base/Mail','version'=>0),
-			array('name'=>'Base/RegionalSettings','version'=>0),
-			array('name'=>'Base/ActionBar','version'=>0),
-			array('name'=>'Base/User/Settings','version'=>0),
-			array('name'=>'Utils/GenericBrowser','version'=>0),
-			array('name'=>'Utils/PopupCalendar','version'=>0));
+			array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			array('name'=>Base_MailInstall::module_name(),'version'=>0),
+			array('name'=>Base_RegionalSettingsInstall::module_name(),'version'=>0),
+			array('name'=>Base_ActionBarInstall::module_name(),'version'=>0),
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0),
+			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0),
+			array('name'=>Utils_PopupCalendarInstall::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

@@ -69,11 +69,9 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 	function exportValue(&$submitValues, $assoc = false) {
 		$val = parent::exportValue($submitValues, $assoc);
-		$currency_field_name = '__'.str_replace(array('[',']'),'',$this->getName()).'__currency';
-		if(isset($submitValues[$currency_field_name]))
-    		$currency = $submitValues[$currency_field_name];
-        else
-            return null;
+		if ($val === null) {
+			return null;
+		}
 		if ($assoc) {
 			if (!isset($val[$this->getName()])) {
 				$key = explode('[', $this->getName());
@@ -81,12 +79,14 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 				$val = $val[$key[0]][$key[1]];
 			} else $val = $val[$this->getName()];
 		}
+		list($val, $currency) = explode('__', $val);
 		$cur = explode(Utils_CurrencyFieldCommon::get_decimal_point(), $val);
 		if (!isset($cur[1])) $ret = $cur[0]; else {
 			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($currency));
 			$cur[1] = str_pad($cur[1], $this->dec_digits, '0');
 			$cur[1] = substr($cur[1], 0, $this->dec_digits);
 			$ret = $cur[0] + (($cur[0]<0?-1:1)*$cur[1]/pow(10,$this->dec_digits));
+			if (strpos(trim($cur[0]), '-') === 0 && $ret > 0) $ret = -$ret;
 		}
 		$ret .= '__'.$currency;
 		if($assoc) {
@@ -107,6 +107,14 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 		// TODO: float or string? If float is to be accepted, then conversion is neccessary
 	} // end func setValue
 
-
+	function _findValue(& $value) {
+		$val = parent::_findValue($value);
+		if($val===null) return null;
+		if(strpos($val,'__')!==false) return $val;
+		$name = $this->getName();
+		$curr_field = '__'.str_replace(array('[',']'),'',$name).'__currency';
+		if(!isset($value[$curr_field])) return null;
+		return $val.'__'.$value[$curr_field];
+	}
 } //end class HTML_QuickForm_currency
 ?>

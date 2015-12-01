@@ -28,11 +28,11 @@ class Tests_Image extends Module {
 
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Image/ImageInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Image/ImageInstall.php');
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Image/Image_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Image/Image_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Image/ImageCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Image/ImageCommon_0.php');
 	}
 }
 ?>

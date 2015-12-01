@@ -40,7 +40,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::add_access('phonecall_related', 'edit', 'SUPERADMIN');
         Utils_RecordBrowserCommon::add_access('phonecall_related', 'delete', 'SUPERADMIN');
 // ************ phone calls ************** //
-		Base_ThemeCommon::install_default_theme('CRM/PhoneCall');
+		Base_ThemeCommon::install_default_theme(CRM_PhoneCallInstall::module_name());
 		$fields = array(
 			array('name' => _M('Subject'), 			'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_subject')),
 
@@ -77,9 +77,9 @@ class CRM_PhoneCallInstall extends ModuleInstall {
             ),
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('phonecall', $fields);
-		Utils_RecordBrowserCommon::set_tpl('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'default'));
+		Utils_RecordBrowserCommon::set_tpl('phonecall', Base_ThemeCommon::get_template_filename(CRM_PhoneCallInstall::module_name(), 'default'));
 		Utils_RecordBrowserCommon::register_processing_callback('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
-		Utils_RecordBrowserCommon::set_icon('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'icon.png'));
+		Utils_RecordBrowserCommon::set_icon('phonecall', Base_ThemeCommon::get_template_filename(CRM_PhoneCallInstall::module_name(), 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('phonecall', 5);
 		Utils_RecordBrowserCommon::set_caption('phonecall', _M('Phonecalls'));
 		Utils_RecordBrowserCommon::enable_watchdog('phonecall', array('CRM_PhoneCallCommon','watchdog_label'));
@@ -87,7 +87,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 
 // ************ addons ************** //
 		Utils_AttachmentCommon::new_addon('phonecall');
-		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'messanger_addon', _M('Alerts'));
+		Utils_RecordBrowserCommon::new_addon('phonecall', CRM_PhoneCallInstall::module_name(), 'messanger_addon', _M('Alerts'));
         CRM_RoundcubeCommon::new_addon('phonecall');
 // ************ other ************** //
 		CRM_CalendarCommon::new_event_handler(_M('Phonecalls'), array('CRM_PhoneCallCommon', 'crm_calendar_handler'));
@@ -108,7 +108,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	public function uninstall() {
 		CRM_CalendarCommon::delete_event_handler('Phonecalls');
         CRM_RoundcubeCommon::delete_addon('phonecall');
-		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
+		Base_ThemeCommon::uninstall_default_theme(CRM_PhoneCallInstall::module_name());
 		Utils_AttachmentCommon::delete_addon('phonecall');
 		Utils_AttachmentCommon::persistent_mass_delete('phonecall/');
 		Utils_RecordBrowserCommon::unregister_processing_callback('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
@@ -118,16 +118,16 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/RecordBrowser', 'version'=>0),
-			array('name'=>'Utils/Attachment', 'version'=>0),
-			array('name'=>'CRM/Contacts', 'version'=>0),
-			array('name'=>'CRM/Roundcube', 'version'=>0),
-			array('name'=>'CRM/Common', 'version'=>0),
-			array('name'=>'CRM/Calendar', 'version'=>0),
-			array('name'=>'Base/Lang', 'version'=>0),
-			array('name'=>'Base/Acl', 'version'=>0),
-			array('name'=>'Utils/ChainedSelect', 'version'=>0),
-			array('name'=>'Data/Countries', 'version'=>0)
+			array('name'=>Utils_RecordBrowserInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_AttachmentInstall::module_name(), 'version'=>0),
+			array('name'=>CRM_ContactsInstall::module_name(), 'version'=>0),
+			array('name'=>CRM_RoundcubeInstall::module_name(), 'version'=>0),
+			array('name'=>CRM_CommonInstall::module_name(), 'version'=>0),
+			array('name'=>CRM_CalendarInstall::module_name(), 'version'=>0),
+			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
+			array('name'=>Base_AclInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_ChainedSelectInstall::module_name(), 'version'=>0),
+			array('name'=>Data_CountriesInstall::module_name(), 'version'=>0)
 		);
 	}
 

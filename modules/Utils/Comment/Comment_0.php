@@ -42,8 +42,8 @@ class Utils_Comment extends Module{
 			return;
 		}
 		
-		$form = $this->init_module('Libs/QuickForm',__('Posting reply'));
-		$theme = $this->init_module('Base/Theme');
+		$form = $this->init_module(Libs_QuickForm::module_name(),__('Posting reply'));
+		$theme = $this->init_module(Base_Theme::module_name());
 
 		if ($this->tree_structure) {
 			$answer = $this->get_module_variable('answer',-1);
@@ -204,8 +204,8 @@ class Utils_Comment extends Module{
 			location(array());
 		}
 
-		$form = $this->init_module('Libs/QuickForm',__('Posting reply'));
-		$theme = $this->init_module('Base/Theme');
+		$form = $this->init_module(Libs_QuickForm::module_name(),__('Posting reply'));
+		$theme = $this->init_module(Base_Theme::module_name());
 
 		if ($this->tree_structure) {
 			$answer = $this->get_module_variable_or_unique_href_variable('answer',-1);

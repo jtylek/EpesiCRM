@@ -22,8 +22,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 
 	public static function home_page() {
-        return array(_M('My Contact') => array('CRM/Contacts', 'body', array('my_contact')),
-            _M('Main Company') => array('CRM/Contacts', 'body', array('main_company')));
+        return array(_M('My Contact') => array(CRM_Contacts::module_name(), 'body', array('my_contact')),
+            _M('Main Company') => array(CRM_Contacts::module_name(), 'body', array('main_company')));
     }
 
     public static function crm_clearance($all = false) {
@@ -206,8 +206,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $def;
     }
     public static function autoselect_company_contact_format($arg, $nolink=false) {
-        $icon = array('C' => Base_ThemeCommon::get_template_file('CRM/Contacts', 'company.png'),
-            'P' => Base_ThemeCommon::get_template_file('CRM/Contacts', 'person.png'));
+        $icon = array('C' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
+            'P' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
 
         $x = explode(':', $arg);
         if(count($x)==2) {
@@ -242,14 +242,14 @@ class CRM_ContactsCommon extends ModuleCommon {
         foreach (array('contact'=>'P', 'company'=>'C') as $recordset=>$recordset_indicator) {
             $crits = array();
             foreach ($words as $word) if ($word) {
-                $word = DB::Concat(DB::qstr('%'),DB::qstr($word),DB::qstr('%'));
+                $word = "%$word%";
                 switch ($recordset) {
                     case 'contact':
-                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$word,'|~"first_name'=>$word));
+                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~last_name'=>$word,'|~first_name'=>$word));
                         $order = array('last_name'=>'ASC', 'first_name'=>'ASC');
                         break;
                     case 'company':
-                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~"company_name'=>$word));
+                        $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~company_name'=>$word));
                         $order = array('company_name'=>'ASC');
                         break;
                 }
@@ -285,9 +285,9 @@ class CRM_ContactsCommon extends ModuleCommon {
             }
             $form->setDefaults(array($field=>$default));
         } else {
-            $callback = $rb_obj->get_display_method($desc['name']);
-            if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_company_contact');
-            $def = call_user_func($callback, $rb_obj->record, false, $desc);
+            $callback = $rb_obj->get_display_callback($desc['name']);
+            if (!$callback) $callback = 'CRM_ContactsCommon::display_company_contact';
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc);
 //          $def = call_user_func($callback, array($field=>$default), false, $desc);
             $form->addElement('static', $field, $label, $def);
         }
@@ -427,12 +427,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         $str = explode(' ', trim($str));
         foreach ($str as $k=>$v)
             if ($v) {
-                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
-//                $recs = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>$v), array(), array('company_name'=>'ASC'));
-//                $comp_ids = array();
-//                foreach ($recs as $w) $comp_ids[$w['id']] = $w['id'];
-//                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v, '|company_name'=>$comp_ids));
-				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v));
+                $v = "%$v%";
+				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~last_name'=>$v,'|~first_name'=>$v));
             }
         $recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
         $ret = array();
@@ -448,14 +444,14 @@ class CRM_ContactsCommon extends ModuleCommon {
         $str = explode(' ', trim($str));
         foreach ($str as $k=>$v)
             if ($v) {
-                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
+                $v = "%$v%";
                 if ($inc_companies) {
-                    $recs = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>$v), array(), array('company_name'=>'ASC'));
+                    $recs = Utils_RecordBrowserCommon::get_records('company', array('~company_name'=>$v), array(), array('company_name'=>'ASC'));
                     $comp_ids = array();
                     foreach ($recs as $w) $comp_ids[$w['id']] = $w['id'];
-                    $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v, '|company_name'=>$comp_ids));
+                    $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~last_name'=>$v,'|~first_name'=>$v, '|company_name'=>$comp_ids));
                 } else {
-                    $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v));
+                    $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~last_name'=>$v,'|~first_name'=>$v));
                 }
             }
         $recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
@@ -469,8 +465,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         $str = explode(' ', trim($str));
         foreach ($str as $k=>$v)
             if ($v) {
-                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
-                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~"company_name'=>$v));
+                $v = "%$v%";
+                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~company_name'=>$v,'|~tax_id'=>$v));
             }
         $recs = Utils_RecordBrowserCommon::get_records('company', $crits, array(), array('company_name'=>'ASC'), 10);
         $ret = array();
@@ -571,9 +567,9 @@ class CRM_ContactsCommon extends ModuleCommon {
                     self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
                 }
         } else {
-            $callback = $rb_obj->get_display_method($desc['name']);
-            if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_contact');
-            $def = call_user_func($callback, $rb_obj->record, false, $desc);
+            $callback = $rb_obj->get_display_callback($desc['name']);
+            if (!$callback) $callback = array('CRM_ContactsCommon','display_contact');
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc);
 //          $def = call_user_func($callback, array($field=>$default), false, $desc);
             $form->addElement('static', $field, $label, $def);
         }
@@ -724,14 +720,10 @@ class CRM_ContactsCommon extends ModuleCommon {
         }
     }
     public static function QFfield_tax_id(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        Utils_RecordBrowserCommon::QFfield_text($form, $field, $label, $mode, $default, $desc, $rb_obj);
         if ($mode=='add' || $mode=='edit') {
-            $form->addElement('text', $field, $label, array('id'=>$field));
             self::$rid = isset($rb_obj->record['id'])?$rb_obj->record['id']:null;
             $form->addFormRule(array('CRM_ContactsCommon','check_tax_id_unique'));
-            if ($mode=='edit') $form->setDefaults(array($field=>$default));
-        } else {
-            $form->addElement('static', $field, $label);
-            $form->setDefaults(array($field=>$default));
         }
     }
     public static function check_tax_id_unique($data) {
@@ -790,7 +782,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function check_new_company_name($data){
         if (isset($data['create_company_name'])) $data['create_company_name'] = trim($data['create_company_name']);
         if (isset($data['create_company']) && $data['create_company'] && (!isset($data['create_company_name']) || !$data['create_company_name'])) return array('create_company_name'=>__('Field requried'));
-        return true;
+        return array();
     }
 	public static function QFfield_username(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
 		$label = __('User Login');
@@ -816,11 +808,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function check_pass($data) {
         if (isset($data['login']) && !$data['login']) {
-            return true;
+            return array();
         }
         $pass = & $data['set_password'];
         $repass = & $data['confirm_password'];
-		if ($pass == $repass) return true;
+		if ($pass == $repass) return array();
 		return array('set_password'=>__('Passwords don\'t match'));
 	}
     public static function QFfield_access(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
@@ -885,17 +877,17 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	public static function check_new_username($arg) {
 		if (!isset($arg['login'])) $arg['login'] = Utils_RecordBrowser::$last_record['login'];
-		if (!$arg['login']) return true;
+		if (!$arg['login']) return array();
 		$ret = array();
 		if (strlen($arg['username'])<3 || strlen($arg['username'])>32) $ret['username'] = __('A username must be between 3 and 32 chars');
 		if (isset($arg['login']) && $arg['login']!='new') {
-			if ($arg['username'] == Base_UserCommon::get_user_login($arg['login'])) return empty($ret)?true:$ret;
+			if ($arg['username'] == Base_UserCommon::get_user_login($arg['login'])) return $ret;
 		} else {
 			if (!$arg['email']) $ret['email'] = __('E-mail is required when creating new user');
 		}
 		if (Base_UserCommon::get_user_id($arg['username'])) $ret['username'] = __('Username already taken');
 		if (!$arg['username']) $ret['username'] = __('Field required');
-		return empty($ret)?true:$ret;
+		return $ret;
 	}
 
 	public static function create_map_href($r) {
@@ -924,7 +916,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if(MOBILE_DEVICE && IPHONE && preg_match('/^([0-9\t\+-]+)/',$r[$desc['id']],$args))
             return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
         $num = $r[$desc['id']];
-        if($num && strpos($num,'+')===false) {
+        if($num && strpos($num,'+')===false && substr(preg_replace('/[^0-9]/', '', $num), 0, 2) !== '00') {
             if(isset($r['country']) && $r['country']) {
                 $calling_code = Utils_CommonDataCommon::get_value('Calling_Codes/'.$r['country']);
                 if($calling_code)
@@ -980,9 +972,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$emp = array($me['id']);
 				$cus = array('C:'.$values['id']);
 				$ret = array();
-				if (ModuleManager::is_installed('CRM/Meeting')!==-1 && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
-				if (ModuleManager::is_installed('CRM/Tasks')!==-1 && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-				if (ModuleManager::is_installed('CRM/PhoneCall')!==-1 && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'C:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
+				if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
+				if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+				if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'C:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 				$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('company/'.$values['id']);
 				return $ret;
 			case 'adding':
@@ -1014,9 +1006,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$ret['new']['crm_filter'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Set CRM Filter')).' '.Module::create_href(array('set_crm_filter'=>1)).'>F</a>';
 			if (isset($_REQUEST['set_crm_filter']))
 				CRM_FiltersCommon::set_profile('c'.$values['id']);
-			if (ModuleManager::is_installed('CRM/Meeting')!==-1 && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
-			if (ModuleManager::is_installed('CRM/Tasks')!==-1 && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-			if (ModuleManager::is_installed('CRM/PhoneCall')!==-1 && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
+			if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
+			if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+			if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('contact/'.$values['id']);
             return $ret;
         case 'adding':
@@ -1063,7 +1055,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                     $old_admin = Base_AclCommon::get_admin_level($values['login']);
                     if($old_admin!=$values['admin']) {
                         $admin_arr = array(0=>'No', 1=>'Administrator', 2=>'Super Administrator');
-					    if(Base_UserCommon::change_admin($values['login'], $values['admin'])!==true)
+					    if(Base_UserCommon::change_admin($values['login'], $values['admin'])!==true && isset($values['id']) && $values['id'])
                             Utils_RecordBrowserCommon::new_record_history('contact',$values['id'],'Admin set from "'.$admin_arr[$old_admin].'" to "'.$admin_arr[$values['admin']]);
                     }
 				}
@@ -1072,6 +1064,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 			unset($values['username']);
 			unset($values['set_password']);
 			unset($values['confirm_password']);
+			break;
+			case 'delete':
+			    if (isset($values['login']) && $values['login']) {
+			        $ret = Base_UserCommon::change_active_state($values['login'], false);
+			        if (!$ret) $values = false;
+		        }
+		        break;
         }
         return $values;
     }
@@ -1160,14 +1159,14 @@ class CRM_ContactsCommon extends ModuleCommon {
          * must check if it was submitted. If yes - do action. If it wasn't
          * we should come back to initial state - do not print LB.
          */
-        if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) ) {
+        if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable(CRM_Contacts::module_name(), 'UCD', 0)) ) {
             if(isset($values['company_name']) && $values['company_name']) Base_ActionBarCommon::add('edit', __('Copy company data'), Module::create_href(array('UCD'=>true)));
         }
-        if(isset($_REQUEST['UCD']) || Module::static_get_module_variable('CRM/Contacts', 'UCD', 0)) {
-            $ucd = Module::static_get_module_variable('CRM/Contacts', 'UCD', 0);
+        if(isset($_REQUEST['UCD']) || Module::static_get_module_variable(CRM_Contacts::module_name(), 'UCD', 0)) {
+            $ucd = Module::static_get_module_variable(CRM_Contacts::module_name(), 'UCD', 0);
             $ucd ++;
-            if($ucd > 1) Module::static_unset_module_variable('CRM/Contacts', 'UCD');
-            else Module::static_set_module_variable('CRM/Contacts', 'UCD', $ucd);
+            if($ucd > 1) Module::static_unset_module_variable(CRM_Contacts::module_name(), 'UCD');
+            else Module::static_set_module_variable(CRM_Contacts::module_name(), 'UCD', $ucd);
 
             $lid = 'UCDprompt';
 
@@ -1220,7 +1219,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                     Utils_RecordBrowserCommon::update_record('contact', $values['id'], $new_data);
                 }
 
-                Module::static_unset_module_variable('CRM/Contacts', 'UCD');
+                Module::static_unset_module_variable(CRM_Contacts::module_name(), 'UCD');
                 location(array());
             }
 
@@ -1288,11 +1287,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 
 	public static function check_email_unique($data) {
-		if (!isset($data[self::$field])) return true;
+		if (!isset($data[self::$field])) return array();
 		$email = $data[self::$field];
-		if (!$email) return true;
+		if (!$email) return array();
 		$rec = self::get_record_by_email($email, self::$rset, self::$rid);
-		if ($rec == false) return true;
+		if ($rec == false) return array();
 		return array(self::$field=>__( 'E-mail address duplicate found: %s', array(Utils_RecordBrowserCommon::create_default_linked_label($rec[0], $rec[1]))));
 	}
 	
@@ -1356,6 +1355,17 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $def;
 	}
 
+    public static function crits_special_values()
+    {
+        $ret = array();
+        $me = self::get_my_record();
+        $my_contact_id = $me['id'] ? $me['id'] : -1;
+        $my_company_id = (isset($me['company_name']) && $me['company_name']) ? $me['company_name'] : -1;
+        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER', __('User Contact'), $my_contact_id);
+        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER_COMPANY', __('User Company'), $my_company_id);
+        return $ret;
+    }
+
     //////////////////////////
     // mobile devices
     public static function mobile_menu() {
@@ -1384,5 +1394,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         Utils_RecordBrowserCommon::mobile_rb('company',array(),$sort,$info,$defaults);
     }
 }
+
+Utils_RecordBrowser_Crits::register_special_value_callback(array('CRM_ContactsCommon', 'crits_special_values'));
 
 ?>

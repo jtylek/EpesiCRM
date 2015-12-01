@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_TabbedBrowser extends Module {
 	
 	public function body() {
-		$tb = $this->init_module('Utils/TabbedBrowser');
+		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
 		$tb->set_tab('Manage Users', array($this,'xxx'),'users');
 		$tb->set_tab('Manage Companies', array($this,'xxx'),'companies');
 		$tb->set_tab('Manage Sales Categories', array($this,'xxx'),'categories',true);
@@ -25,11 +25,11 @@ class Tests_TabbedBrowser extends Module {
 
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/TabbedBrowser/TabbedBrowserInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/TabbedBrowser/TabbedBrowserInstall.php');
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/TabbedBrowser/TabbedBrowser_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/TabbedBrowser/TabbedBrowser_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/TabbedBrowser/TabbedBrowserCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/TabbedBrowser/TabbedBrowserCommon_0.php');
 	}
 	
 	public function xxx($q) {

@@ -32,9 +32,42 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!isset(self::$display_callback_table[$tab])) {
             $ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=1');
             while ($row = $ret->FetchRow())
-                self::$display_callback_table[$tab][$row['field']] = explode('::',$row['callback']);
+                self::$display_callback_table[$tab][$row['field']] = $row['callback'];
         }
 	}
+
+    public static function call_display_callback($callback, $record, $links_not_recommended, $field)
+    {
+        if (is_array($callback)) $callback = implode('::', $callback);
+        if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable(array($match[1], $match[2]))) {
+            $ret = call_user_func(array($match[1], $match[2]), $record, $links_not_recommended, $field);
+        } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable($match[1])) {
+            $ret = call_user_func($match[1], $record, $links_not_recommended, $field);
+        } else {
+            ob_start();
+            $ret = eval($callback);
+            if($ret===false) trigger_error($callback,E_USER_ERROR);
+            else print($ret);
+            $ret = ob_get_contents();
+            ob_end_clean();
+        }
+        return $ret;
+    }
+
+    public static function call_QFfield_callback($callback, &$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table = null)
+    {
+        if ($display_callback_table === null) {
+            $display_callback_table = self::display_callback_cache($rb_obj->tab);
+        }
+        if (is_array($callback)) $callback = implode('::', $callback);
+        if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable(array($match[1], $match[2]))) {
+            call_user_func(array($match[1], $match[2]), $form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table);
+        } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable($match[1])) {
+            call_user_func($match[1], $form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table);
+        } else {
+            eval($callback);
+        }
+    }
 	
     public static function get_val($tab, $field, $record, $links_not_recommended = false, $args = null) {
         static $recurrence_call_stack = array();
@@ -56,7 +89,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 		self::display_callback_cache($tab);
         if (isset(self::$display_callback_table[$tab][$field])) {
-            $ret = call_user_func(self::$display_callback_table[$tab][$field], $record, $links_not_recommended, self::$table_rows[$field]);
+	    $ret = self::call_display_callback(self::$display_callback_table[$tab][$field],$record,$links_not_recommended,self::$table_rows[$field]);
         } else {
             $ret = $val;
             if ($args['type']=='select' || $args['type']=='multiselect') {
@@ -147,7 +180,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     }
                 }*/
             } elseif ($args['type']=='autonumber') {
-                if(!$links_not_recommended && isset($record['id']) && $record['id']) $ret = self::record_link_open_tag($tab, $record['id']).$val.self::record_link_close_tag();
+                if(!$links_not_recommended && isset($record['id']) && $record['id']) $ret = self::record_link_open_tag_r($tab, $record).$val.self::record_link_close_tag();
             } elseif ($args['type']=='currency') {
                 $val = Utils_CurrencyFieldCommon::get_values($val);
                 $ret = Utils_CurrencyFieldCommon::format($val[0], $val[1]);
@@ -197,16 +230,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function decode_commondata_param($param) {
         $param = explode('__',$param);
-        if (isset($param[1]))
-            $param = array('order_by_key'=>$param[0], 'array_id'=>$param[1]);
-        else
-            $param = array('order_by_key'=>false, 'array_id'=>$param[0]);
+        if (isset($param[1])) {
+            $order = $param[0];
+            // legacy check
+            if (strlen($order) <= 1) {
+                $order = $order ? 'key' : 'value';
+            }
+            $param = array('order_by_key'=>$order, 'array_id'=>$param[1]);
+        } else {
+            $param = array('order_by_key'=>'value', 'array_id'=>$param[0]);
+        }
         return $param;
     }
     public static function encode_commondata_param($param) {
-        if (!is_array($param)) return '0__'.$param;
+        if (!is_array($param)) return 'value__'.$param;
         if (isset($param[0])) {
-            array_unshift($param, 0);
+            array_unshift($param, 'value');
         } else {
             $param = array($param['order_by_key'], $param['array_id']);
         }
@@ -377,7 +416,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $row['param'] = self::decode_commondata_param($row['param']);
 				$commondata = true;
 			}
-            self::$table_rows[$row['field']] =
+            $next_field =
                 array(  'name'=>str_replace('%','%%',$row['caption']?$row['caption']:$row['field']),
                         'id'=>self::get_field_id($row['field']),
                         'pkey'=>$row['id'],
@@ -394,24 +433,37 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'style'=>$row['style'],
                         'param'=>$row['param']);
 			if (isset(self::$display_callback_table[$tab][$row['field']]))
-				self::$table_rows[$row['field']]['display_callback'] = self::$display_callback_table[$tab][$row['field']];
+				$next_field['display_callback'] = self::$display_callback_table[$tab][$row['field']];
 			if (($row['type']=='select' || $row['type']=='multiselect') && $row['param']) {
 				$pos = strpos($row['param'], ':');
-				self::$table_rows[$row['field']]['ref_table'] = substr($row['param'], 0, $pos);
-				if (self::$table_rows[$row['field']]['ref_table']=='__COMMON__') {
-					self::$table_rows[$row['field']]['ref_field'] = '__COMMON__';
+				$next_field['ref_table'] = substr($row['param'], 0, $pos);
+				if ($next_field['ref_table']=='__COMMON__') {
+					$next_field['ref_field'] = '__COMMON__';
                     $exploded = explode('::', $row['param']);
-					self::$table_rows[$row['field']]['ref_table'] = $exploded[1];
+                    $next_field['commondata_array'] = $next_field['ref_table'] = $exploded[1];
+                    $next_field['commondata_order'] = isset($exploded[2]) ? $exploded[2] : 'value';
 					$commondata = true;
 				} else {
 				    $end = strpos($row['param'], ';', $pos+2);
 				    if ($end==0) $end = strlen($row['param']);
-				    self::$table_rows[$row['field']]['ref_field'] = substr($row['param'], $pos+2, $end-$pos-2);
+				    $next_field['ref_field'] = substr($row['param'], $pos+2, $end-$pos-2);
 				}
 			}
-			self::$table_rows[$row['field']]['commondata'] = $commondata;
-
-            self::$hash[self::$table_rows[$row['field']]['id']] = $row['field'];
+			$next_field['commondata'] = $commondata;
+            if ($commondata) {
+                if (!isset($next_field['commondata_order'])) {
+                    if (isset($next_field['param']['order_by_key'])) {
+                        $next_field['commondata_order'] = $next_field['param']['order_by_key'];
+                    } else {
+                        $next_field['commondata_order'] = 'value';
+                    }
+                }
+                if (!isset($next_field['commondata_array'])) {
+                    $next_field['commondata_array'] = $next_field['param']['array_id'];
+                }
+            }
+            self::$table_rows[$row['field']] = $next_field;
+            self::$hash[$next_field['id']] = $row['field'];
         }
         if (!empty(self::$cols_order[$tab])) {
             $rows = array();
@@ -474,7 +526,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 		$fields_sql = '';
         foreach ($fields as $v)
-            $fields_sql .= Utils_RecordBrowserCommon::new_record_field($tab, $v, false);
+            $fields_sql .= Utils_RecordBrowserCommon::new_record_field($tab, $v, false, false);
         DB::CreateTable($tab.'_data_1',
                     'id I AUTO KEY,'.
                     'created_on T NOT NULL,'.
@@ -484,6 +536,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$fields_sql,
                     array('constraints'=>''));
         DB::CreateIndex($tab.'_idxed',$tab.'_data_1','indexed,active');
+        DB::CreateIndex($tab.'_act',$tab.'_data_1','active');
 
         DB::CreateTable($tab.'_edit_history',
                     'id I AUTO KEY,'.
@@ -510,7 +563,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CreateTable($tab.'_access',
 					'id I AUTO KEY,'.
 					'action C(16),'.
-					'crits C(255)',
+					'crits X',
 					array('constraints'=>''));
 		DB::CreateTable($tab.'_access_fields',
 					'rule_id I,'.
@@ -593,7 +646,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     private static $datatypes = null;
-    public static function new_record_field($tab, $definition, $alter=true){
+    public static function new_record_field($tab, $definition, $alter=true, $set_empty_position_before_first_page_split=true){
         if (self::$datatypes===null) {
             self::$datatypes = array();
             $ret = DB::Execute('SELECT * FROM recordbrowser_datatype');
@@ -655,7 +708,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::StartTrans();
         if (is_string($definition['position'])) $definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($definition['position']))+1;
         if ($definition['position']===null || $definition['position']===false) {
-            $definition['position'] = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
+            $first_page_split = $set_empty_position_before_first_page_split?DB::GetOne('SELECT MIN(position) FROM '.$tab.'_field WHERE type=%s AND field!=%s', array('page_split', 'General')):0;
+            $definition['position'] = $first_page_split?$first_page_split:DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
         }
         DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($definition['position']));
         DB::CompleteTrans();
@@ -706,6 +760,30 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             // set new field position
             DB::Execute('UPDATE '.$tab.'_field SET position=%d WHERE field=%s',array($new_pos, $field));
         }
+        DB::CompleteTrans();
+    }
+
+    /**
+     * @param string $tab Recordset identifier. e.g. contact, company
+     * @param string $old_name Current field name. Not field id. e.g. "First Name"
+     * @param string $new_name New field name.
+     */
+    public static function rename_field($tab, $old_name, $new_name)
+    {
+        $id = Utils_RecordBrowserCommon::get_field_id($old_name);
+        $new_id = Utils_RecordBrowserCommon::get_field_id($new_name);
+        Utils_RecordBrowserCommon::check_table_name($tab);
+
+        DB::StartTrans();
+        if (DB::is_postgresql()) {
+            DB::Execute('ALTER TABLE ' . $tab . '_data_1 RENAME COLUMN f_' . $id . ' TO f_' . $new_id);
+        } else {
+            $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+            $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+            DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, Utils_RecordBrowserCommon::actual_db_type($type, $old_param));
+        }
+        DB::Execute('UPDATE ' . $tab . '_field SET field=%s WHERE field=%s', array($new_name, $old_name));
+        DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         DB::CompleteTrans();
     }
 
@@ -833,15 +911,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('UPDATE '.$tab.'_field SET filter=0 WHERE field=%s', array($col_name));
     }
     public static function register_processing_callback($tab, $callback) {
-        $tables_db = DB::MetaTables();
-        if(!in_array('recordbrowser_processing_methods',$tables_db)) return; // Delete this on major patch
         if (is_array($callback)) $callback = implode('::',$callback);
         if(!DB::GetOne('SELECT 1 FROM recordbrowser_processing_methods WHERE tab=%s AND func=%s', array($tab, $callback)))
             DB::Execute('INSERT INTO recordbrowser_processing_methods (tab, func) VALUES (%s, %s)', array($tab, $callback));
     }
     public static function unregister_processing_callback($tab, $callback) {
-        $tables_db = DB::MetaTables();
-        if(!in_array('recordbrowser_processing_methods',$tables_db)) return; // Delete this on major patch
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('DELETE FROM recordbrowser_processing_methods WHERE tab=%s AND func=%s', array($tab, $callback));
     }
@@ -936,8 +1010,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function record_processing($tab, $base, $mode, $clone=null) {
         self::check_table_name($tab);
-        $tables_db = DB::MetaTables();
-        if(!in_array('recordbrowser_processing_methods',$tables_db)) return $base;
 		static $cache = array();
 		if (!isset($cache[$tab])) {
 			$ret = DB::Execute('SELECT * FROM recordbrowser_processing_methods WHERE tab=%s', array($tab));
@@ -983,6 +1055,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d H:i:s'), $user, 1);
         foreach(self::$table_rows as $field => $args) {
+            if ($args['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$args['param'])===0) continue; // FIXME move DB definiton to *_field table
             if (!isset($values[$args['id']]) || $values[$args['id']]==='') continue;
 			if (!is_array($values[$args['id']])) $values[$args['id']] = trim($values[$args['id']]);
             if ($args['type']=='long text')
@@ -1027,6 +1100,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('INSERT INTO ' . $tab . '_edit_history(edited_on, edited_by, ' . $tab . '_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
         $edit_id = DB::Insert_ID($tab . '_edit_history', 'id');
         DB::Execute('INSERT INTO ' . $tab . '_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', $old_value));
+        return $edit_id;
     }
 
     public static function update_record($tab,$id,$values,$all_fields = false, $date = null, $dont_notify = false) {
@@ -1121,372 +1195,50 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						date('Y-m-d H:i:s')));
     }
     public static function merge_crits($a = array(), $b = array(), $or=false) {
-		if ($or) {
-			if ($a===null) return $b;
-			if ($b===null) return $a;
-			if (empty($a) || empty($b)) return array();
-			reset($a);
-			$key = key($a);
-			if ($key[0]!='^') {
-				$el = array_shift($a);
-				$a = array('^'.$key=>$el)+$a;
-			}
-
-			reset($b);
-			$key = key($b);
-			if ($key[0]!='^') {
-				$el = array_shift($b);
-				$b = array('^'.$key=>$el)+$b;
-			}
-			
-			$nb = array();
-			
-			foreach ($b as $k=>$v){
-				$nk = $k;
-				while (isset($a[$nk])) $nk = '_'.$nk;
-				$nb[$nk] = $v;
-			}
-			$b = $nb;
-			
-			return $a+$b;
-		} else {
-			foreach ($b as $k=>$v){
-				$nk = $k;
-				while (isset($a[$nk])) $nk = '_'.$nk;
-				$a[$nk] = $v;
-			}
-		}
-        return $a;
+        if (is_array($a)) {
+            $a = Utils_RecordBrowser_Crits::from_array($a);
+        }
+        if (!($a instanceof Utils_RecordBrowser_Crits)) {
+            $a = new Utils_RecordBrowser_Crits($a);
+        }
+        if (is_array($b)) {
+            $b = Utils_RecordBrowser_Crits::from_array($b);
+        }
+        if (!($b instanceof Utils_RecordBrowser_Crits)) {
+            $b = new Utils_RecordBrowser_Crits($b);
+        }
+        if ($a->is_empty()) {
+            return clone $b;
+        }
+        if ($b->is_empty()) {
+            return clone $a;
+        }
+        $a = clone $a;
+        $b = clone $b;
+        $ret = $or ? $a->_or($b) : $a->_and($b);
+        return $ret;
     }
-    public static function build_query( $tab, $crits = null, $admin = false, $order = array()) {
-		if (!is_array($order)) $order = array();
-        $cache_key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
-        static $cache = array();
-        self::init($tab, $admin);
-		if (isset($cache[$cache_key])) return $cache[$cache_key];
-        if (!$tab) return false;
-		$postgre = DB::is_postgresql();
-        $having = '';
-        $fields = '';
-        $final_tab = $tab.'_data_1 AS r';
-        $vals = array();
-        if (!$crits) $crits = array();
-		$access = $admin ? true : self::get_access($tab, 'browse');
-		if ($access===false) return array();
-		elseif ($access!==true && is_array($access))
-			$crits = self::merge_crits($crits, $access);
-        $iter = 0;
-        self::init($tab, $admin);
-        foreach($order as $k=>$v) {
-            if (!is_string($k)) break;
-            if ($k[0]==':') $order[] = array('column'=>$k, 'order'=>$k, 'direction'=>$v);
-            else $order[] = array('column'=>self::$hash[$k], 'order'=>self::$hash[$k], 'direction'=>$v);
-            unset($order[$k]);
+    public static function build_query($tab, $crits = null, $admin = false, $order = array(), $tab_alias = 'r') {
+        static $cache;
+        if (!is_object($crits)) {
+            $crits = Utils_RecordBrowser_Crits::from_array($crits);
         }
-        $or_started = false;
-        $sep = DB::qstr('::');
-		$group_or_start = $group_or = false;
-		$special_chars = str_split('!"(|<>=~]^');
-        foreach($crits as $k=>$v){
-            self::init($tab, $admin);
-			$f = explode('[',$k);
-			$f = str_replace($special_chars,'',$f[0]);
-			while ($f[0]=='_') $f = substr($f, 1);
-            if (!isset(self::$table_rows[$f]) && $f[0]!=':' && $f!=='id' && (!isset(self::$hash[$f]) || !isset(self::$table_rows[self::$hash[$f]]))) continue; //failsafe
-            $negative = $noquotes = $or_start = $or = false;
-            $operator = '=';
-            while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
-                if ($k[0]=='!') $negative = true;
-                if ($k[0]=='"') $noquotes = true;
-                if ($k[0]=='(') $or_start = true;
-                if ($k[0]=='|') $or = true;
-                if ($k[0]=='<') $operator = '<';
-                if ($k[0]=='>') $operator = '>';
-                if ($k[0]=='~') $operator = DB::like();
-                if ($k[0]=='^') $group_or_start = true;
-                if ($k[1]=='=' && $operator!=DB::like()) {
-                    $operator .= '=';
-                    $k = substr($k, 2);
-                } else $k = substr($k, 1);
-                if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word. Crits:'.print_r($crits,true), E_USER_ERROR);
-            }
-            $or |= $or_start;
-			if ($group_or && $group_or_start)
-				$having .= ')';
-			if ($or_start && $or_started || ($or_started && !$or)) {
-				$having .= ')';
-				$or_started = false;
-			}
-            if ($or) {
-				if ($having!='') {
-					if ($group_or && $group_or_start || $or_started) $having .= ' OR ';
-					else $having .= ' AND ';
-				}
-				if ($group_or_start) $having .= '(';
-				if (!$or_started) $having .= '(';
-                $or_started = true;
-            } else {
-				if ($having!='' && $group_or && $group_or_start) $having .= ' OR ';
-				if ($having!='' && (!$group_or || !$group_or_start)) $having .= ' AND ';
-				if ($group_or_start) $having .= '(';
-            }
-			if ($group_or_start) {
-				if (!$group_or) $having .= '(';
-				$group_or = true;
-				$group_or_start = false;
-			}
-			if ($k[strlen($k)-1]==']') {
-				list($ref, $sub_field) = explode('[', trim($k, ']'));
-				$args = self::$table_rows[self::$hash[$ref]];
-				$commondata = $args['commondata'];
-				if (is_array($args['param'])) {
-					if (isset($args['param']['array_id']))
-						$args['ref_table'] = $args['param']['array_id'];
-					else
-						$args['ref_table'] = $args['param'][1];
-				}
-				if (!isset($args['ref_table'])) trigger_error('Invalid crits, field '.$ref.' is not a reference; crits: '.print_r($crits,true),E_USER_ERROR);
-				$is_multiselect = ($args['type']=='multiselect');
-				$tab2 = $args['ref_table'];
-				$col2 = $sub_field;
-				if ($commondata) {
-					$ret = Utils_CommonDataCommon::get_translated_array($tab2);
-					$allowed_cd = array();
-					if (!is_array($v)) $v = array($v);
-					foreach ($ret as $kkk=>$vvv)
-						foreach ($v as $w) if ($w!='') {
-							if ($operator==DB::like())
-								$w = '/'.preg_quote($w, '/').'/i';
-							else
-								$w = '/^'.preg_quote($w, '/').'$/i';
-							if (preg_match($w,$vvv)!==0) {
-								$allowed_cd[] = $kkk;
-								break;
-							}
-						}
-					if (empty($allowed_cd)) {
-						$having .= $negative?'true':'false';
-						continue;
-					}
-				} else {
-					self::init($tab2);
-					$det = explode('/', $col2);
-					$col2 = explode('|', $det[0]);
-					//self::init($tab);
-					if (!is_array($v)) $v = array($v);
-					$poss_vals = '';
-					$col2s = array();
-					$col2m = array();
-					
-					$conv = '';
-					if ($postgre) $conv = '::varchar';
-					foreach ($col2 as $c) {
-						if (self::$table_rows[self::$hash[$c]]['type']=='multiselect')
-							$col2m[] = $c.$conv;
-						else
-							$col2s[] = $c.$conv;
-					}
-
-					foreach ($v as $w) {
-						if ($w==='') {
-							$poss_vals .= 'OR f_'.implode(' IS NULL OR f_', $col2);
-							break;
-						} else {
-							if (!$noquotes) $w = DB::qstr($w);
-							if (!empty($col2s)) $poss_vals .= ' OR f_'.implode(' '.DB::like().' '.$w.' OR f_', $col2s).' '.DB::like().' '.$w;
-							if (!empty($col2m)) {
-								$w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'),$w,DB::qstr('\_\_'),DB::qstr('%'));
-								$poss_vals .= ' OR f_'.implode(' '.DB::like().' '.$w.' OR f_', $col2m).' '.DB::like().' '.$w;
-							}
-						}
-					}
-					$allowed_cd = DB::GetAssoc('SELECT id, id FROM '.$tab2.'_data_1 WHERE false '.$poss_vals);
-
-					if (empty($allowed_cd)) {
-						$having .= $negative?'true':'false';
-						continue;
-					}
-				}
-				if ($operator==DB::like())
-					$operator = '=';
-				$v = $allowed_cd;
-				$k = $ref;
-			}
-			self::init($tab);
-            if ($k[0]==':') {
-                switch ($k) {
-                    case ':Fav' :   $final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_favorite AS fav ON fav.'.$tab.'_id=r.id';
-                                    $having .= ' (fav.user_id='.Acl::get_user().' AND fav.user_id IS NOT NULL)';
-                                    break;
-                    case ':Sub' :   $final_tab = '('.$final_tab.') LEFT JOIN utils_watchdog_subscription AS sub ON sub.internal_id=r.id AND sub.category_id='.Utils_WatchdogCommon::get_category_id($tab);
-                                    $having .= ' (sub.user_id='.Acl::get_user().' AND sub.user_id IS NOT NULL)';
-                                    break;
-                    case ':Recent'  :   $final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_recent AS rec ON rec.'.$tab.'_id=r.id';
-                                        $having .= ' (rec.user_id='.Acl::get_user().' AND rec.user_id IS NOT NULL)';
-                                        break;
-                    case ':Created_on'  :
-                        $inj = $operator.'%T';
-                        $timestamp = Base_RegionalSettingsCommon::reg2time($v, false);
-                        $vals[] = $timestamp;
-                        $having .= ' created_on '.$inj;
-                        break;
-                    case ':Created_by'  :
-                            $having .= ' created_by = '.$v;
-                            break;
-                    case ':Edited_on'   :
-                        $inj = $operator.'%T';
-                        $having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
-                                     '((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
-                        $timestamp = Base_RegionalSettingsCommon::reg2time($v, false);
-                        $vals[] = $timestamp;
-                        $vals[] = $timestamp;
-                        break;
-                    default:
-                        trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
-                }
-            } else {
-                if ($k == 'id') {
-                    if (!is_array($v)) $v = array($v);
-                    $having .= '('.($negative?'true':'false');
-                    foreach($v as $w) {
-                        if (!$noquotes) $w = DB::qstr($w);
-                        $having .= ' '.($negative?'AND':'OR').($negative?' NOT':'').' id '.$operator.' '.$w;
-                    }
-                    $having .= ')';
-                } else {
-					// Postgres compatibility fix
-                    if (!is_array($v)) $v = array($v);
-                    if ($negative) $having .= 'NOT ';
-                    $having .= '(false';
-                    foreach($v as $w) {
-                        if (isset(self::$hash[$k])) {
-                            $f = self::$hash[$k];
-                            $key = $k;
-                        } elseif (isset(self::$table_rows[$k])) {
-                            $f = $k;
-                            $key = self::$table_rows[$k]['id'];
-                        } else trigger_error('In table "'.$tab.'" - unknow column "'.$k.'" in criteria "'.print_r($crits,true).'". Available columns are: "'.print_r(self::$table_rows,true).'"', E_USER_ERROR);
-
-						if ($w && self::$table_rows[self::$hash[$key]]['type']=='timestamp' && $operator != DB::like()) {
-                            $w = Base_RegionalSettingsCommon::reg2time($w, false);
-                            $w = date('Y-m-d H:i:s', $w);
-                        } elseif ($w && self::$table_rows[self::$hash[$key]]['type']=='date' && $operator != DB::like()) {
-                            $w = Base_RegionalSettingsCommon::reg2time($w, false);
-                            $w = date('Y-m-d', $w);
-                        }
-
-						if ($postgre && $operator==DB::like()) $key .= '::varchar';
-                        if (self::$table_rows[$f]['type']=='checkbox' && !$w) {
-                            if($operator=='=')
-                                $having .= ' OR r.f_'.$key.' IS NULL OR r.f_'.$key.'=0';
-                            else
-                                $having .= ' OR (r.f_'.$key.' IS NOT NULL AND r.f_'.$key.'!=0)';
-                        } elseif (self::$table_rows[$f]['type']!='text' && self::$table_rows[$f]['type']!='long text' && ($w==='' || $w===null || $w===false)) {
-                            if($operator=='=')
-                                $having .= ' OR r.f_'.$key.' IS NULL';
-                            else
-                                $having .= ' OR r.f_'.$key.' IS NOT NULL';
-                        } elseif ($w==='') {
-                            $having .= ' OR r.f_'.$k.' IS NULL OR r.f_'.$k.'=\'\'';
-                        } else {
-                            if (self::$table_rows[$f]['type']=='multiselect') {
-                                $operator = DB::like();
-                                $param = explode('::',self::$table_rows[$f]['param']);
-                                $w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.'\_\_'),DB::qstr('%'));
-                            }
-                            elseif (!$noquotes) $w = DB::qstr($w);
-
-                            if (false || $postgre && ($operator=='<' || $operator=='<=' || $operator=='>' || $operator=='>=')) {
-                                $field_full_name = 'r.f_' . $key;
-								switch (self::$table_rows[$f]['type']) {
-									case 'timestamp': $cast_type = 'timestamp'; break;
-									case 'date': $cast_type = 'date'; break;
-                                    case 'currency': $field_full_name = "split_part($field_full_name, '__', 1)";
-                                                     $cast_type = 'integer';
-                                                     break;
-									default: $cast_type = 'integer';
-								}
-								$c_field = 'CAST('.$field_full_name.' AS '.$cast_type.')';
-							} else $c_field = 'r.f_'.$key;
-                            $having .= ' OR ('.$c_field.' '.$operator.' '.$w.' ';
-                            if ($operator=='<' || $operator=='<=') {
-								$having .= 'OR r.f_'.$key.' IS NULL)';
-							} else {
-								$having .= 'AND r.f_'.$key.' IS NOT NULL)';
-							}
-                        }
-                    }
-                    $having .= ')';
-                }
-            }
+        $cache_key = $tab . '__' . md5(serialize($crits)) . '__' . $admin . '__' . md5(serialize($order)) . '__' . Base_AclCommon::get_user();
+        if (isset($cache[$cache_key])) {
+            return $cache[$cache_key];
         }
-        if ($or_started) $having .= ')';
-		if ($group_or) $having  .= '))';
-        $orderby = array();
-        self::init($tab);
-        foreach($order as $v){
-            if ($v['order'][0]!=':' && !isset(self::$table_rows[$v['order']])) continue; //failsafe
-            if ($v['order'][0]==':') {
-				if (!is_numeric(Acl::get_user())) trigger_error('Invalid user id.');
-                switch ($v['order']) {
-                    case ':id':
-                        $orderby[] = ' id ' . $v['direction'];
-                    case ':Fav' :
-                        $orderby[] = ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id='.Acl::get_user().') '.$v['direction'];
-                        break;
-                    case ':Visited_on'  :
-                        $orderby[] = ' (SELECT MAX(visited_on) FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id='.Acl::get_user().') '.$v['direction'];
-                        break;
-                    case ':Edited_on'   :
-                        $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
-                        break;
-                    default     :
-                        $orderby[] = ' '.substr($v['order'],1).' ' . $v['direction'];
-                        //trigger_error('Unknow paramter given to get_records order: '.$v, E_USER_ERROR);
-                }
-            } else {
-                self::init($tab);
-                if (is_array(self::$table_rows[$v['order']]['param']))
-                    $param = explode(';', self::$table_rows[$v['order']]['param']['array_id']);
-                else
-                    $param = explode(';', self::$table_rows[$v['order']]['param']);
-                $param = explode('::',$param[0]);
-                if (isset($param[1]) && $param[1]!='') {
-                    if (self::$table_rows[$v['order']]['type']!='commondata') {
-                        if (!isset($param[1])) $cols = $param[0];
-                        else if ($param[0]!='__COMMON__') {
-                            $tab2 = $param[0];
-                            $cols2 = $param[1];
-                            $cols2 = explode('|', $cols2);
-                            $cols2 = $cols2[0];
-                            $cols2 = explode('/', $cols2);
-                            if (isset($cols2[1])) $data_col = self::$table_rows[$cols2[1]]['id']; else $data_col = self::$table_rows[$v['order']]['id'];
-                            $cols2 = $cols2[0];
-                            $val = '(SELECT rdt.f_'.self::get_field_id($cols2).' FROM '.$tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.$data_col.' WHERE r.id=rd.id)';
-                            $orderby[] = ' '.$val.' '.$v['direction'];
-                            $iter++;
-                            continue;
-                        }
-                    }
-                }
-                $val = 'f_'.self::$table_rows[$v['order']]['id'];
-                if (self::$table_rows[$v['order']]['type'] == 'currency') {
-                    if (DB::is_mysql()) {
-                        $val = "CAST($val as INT)";
-                    } elseif (DB::is_postgresql()) {
-                        $val = "CAST(split_part($val, '__', 1) as integer)";
-                    }
-                }
-                $orderby[] = ' '.$val.' '.$v['direction'];
-                $iter++;
-            }
+
+        $access = $admin ? true : self::get_access($tab, 'browse', null, true);
+        if ($access == false) return array();
+        elseif ($access !== true) {
+            $crits = self::merge_crits($crits, $access);
         }
-        if (!empty($orderby)) $orderby = ' ORDER BY'.implode(', ',$orderby);
-        else $orderby = '';
-		if (!$having) $having = 'true';
-        $final_tab = str_replace('('.$tab.'_data_1 AS r'.')',$tab.'_data_1 AS r',$final_tab);
-        $ret = array('sql'=>' '.$final_tab.' WHERE '.($admin?self::$admin_filter:'active=1 AND ').$having,'order'=>$orderby,'vals'=>$vals);
-        return $cache[$cache_key] = $ret;
+
+        $admin_filter = $admin ? self::$admin_filter : $tab_alias . '.active=1 AND ';
+        $query_builder = new Utils_RecordBrowser_QueryBuilder($tab, $tab_alias);
+        $ret = $query_builder->build_query($crits, $order, $admin_filter);
+        $cache[$cache_key] = $ret;
+        return $ret;
     }
     public static function get_records_count( $tab, $crits = null, $admin = false) {
         $par = self::build_query($tab, $crits, $admin, array());
@@ -1526,34 +1278,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (!isset($limit['numrows'])) $limit['numrows'] = -1;
         }
         if (!$order) $order = array();
-        $fields = '*';
+        $tab_alias = 'r';
+        $fields = "$tab_alias.*";
         self::init($tab);
         if (!empty($cols)) {
-            $cleancols = array();
+            $cleancols = array('id', 'active', 'created_by', 'created_on');
             foreach ($cols as $v) {
                 $val = (isset(self::$table_rows[$v])?self::$table_rows[$v]['id']:$v); // FIX it
-                if ($val!='id') $cleancols[] = $val;
+                if ($val!='id') $cleancols[] = "f_$val";
             }
-            if (!empty($cleancols)) $fields = 'id,active,created_by,created_on,f_'.implode(',f_',$cleancols);
-        }
-        if (count($crits)==1 && isset($crits['id']) && empty($order)) {
-            if (empty($crits['id'])) return array();
-            if (!is_array($crits['id'])) $crits['id'] = array($crits['id']);
-            $first = true;
-            $where = '';
-            $vals = array();
-            foreach($crits['id'] as $v) {
-                if ($first) $first = false;
-                else $where .= ', ';
-                $where .= '%d';
-                $vals[] = $v;
+            foreach ($cleancols as $k => $col_id) {
+                $cleancols[$k] = "$tab_alias.$col_id";
             }
-            $ret = DB::SelectLimit('SELECT '.$fields.' FROM '.$tab.'_data_1 WHERE id IN ('.$where.')', $limit['numrows'], $limit['offset'], $vals);
-        } else {
-            $par = self::build_query($tab, $crits, $admin, $order);
-            if (empty($par)) return array();
-            $ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'].$par['order'], $limit['numrows'], $limit['offset'], $par['vals']);
+            $fields = implode(',', $cleancols);
         }
+        $par = self::build_query($tab, $crits, $admin, $order);
+        if (empty($par)) return array();
+        $ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'].$par['order'], $limit['numrows'], $limit['offset'], $par['vals']);
         $records = array();
         self::init($tab);
         if (!empty($cols)) {
@@ -1565,6 +1306,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         } else
             $cols = self::$table_rows;
         while ($row = $ret->FetchRow()) {
+            if (isset($records[$row['id']])) {
+                continue;
+            }
             $r = array( 'id'=>$row['id'],
                         ':active'=>$row['active'],
                         'created_by'=>$row['created_by'],
@@ -1572,161 +1316,106 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach($cols as $v){
                 if (isset($row['f_'.$v['id']])) {
                     if ($v['type']=='multiselect') $r[$v['id']] = self::decode_multi($row['f_'.$v['id']]);
-                    elseif ($v['type']!=='long text') $r[$v['id']] = htmlspecialchars($row['f_'.$v['id']]);
+                    elseif ($v['type']=='text') $r[$v['id']] = htmlspecialchars($row['f_'.$v['id']]);
                     else $r[$v['id']] = $row['f_'.$v['id']];
                 } else {
                     if ($v['type']=='multiselect') $r[$v['id']] = array();
                     else $r[$v['id']] = '';
                 }
             }
-            $records[$row['id']] = $r;
+            if($admin || self::get_access($tab,'view',$r)) $records[$row['id']] = $r;
         }
         return $records;
     }
     public static function check_record_against_crits($tab, $id, $crits, & $problems = array()) {
-        if ($crits===true || empty($crits)) return true;
-        static $cache = array();
         if (is_numeric($id)) $r = self::get_record($tab, $id);
         else $r = $id;
-        $id = isset($r['id']) ? $r['id'] : '';
-//      if (isset($cache[$tab.'__'.$id])) return $cache[$tab.'__'.$id];
-//      $r = self::get_record($tab, $id);
-        $or_started = false;
-        $or_result = false;
-	self::init($tab);
-        foreach ($crits as $k=>$v) {
-            $negative = $noquotes = $or_start = $or = false;
-            $operator = '==';
-            while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z')) {
-                if ($k[0]=='!') $negative = true;
-                if ($k[0]=='"') $noquotes = true;
-                if ($k[0]=='(') $or_start = true;
-                if ($k[0]=='|') $or = true;
-                if ($k[0]=='<') $operator = '<';
-                if ($k[0]=='>') $operator = '>';
-                if ($k[1]=='=' && $operator!='==') {
-                    $operator .= '=';
-                    $k = substr($k, 2);
-                } else $k = substr($k, 1);
-                if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word.', E_USER_ERROR);
-            }
-            $or |= $or_start;
-            if ($or) {
-                if ($or_start && $or_started) {
-                    if (!$or_result) {
-						$problems = $problems + $or_fields;
-						return $cache[$tab.'__'.$id] = false;
-            	    }
-                    $or_result = false;
-                }
-                if (!$or_started) {
-            	    $or_result = false;
-            	    $or_fields = array();
-            	}
-                $or_started = true;
-                $or_fields[] = $k;
-            } else {
-                if ($or_started && !$or_result) {
-					$problems = $problems + $or_fields;
-            	    return $cache[$tab.'__'.$id] = false;
-            	}
-                $or_started = false;
-            }
-			if (!isset($r[$k]) && $k[strlen($k)-1]==']') {
-				list($field, $sub_field) = explode('[', trim($k, ']'));
-				self::init($tab);
-				$sub_tab = self::$table_rows[self::$hash[$field]]['ref_table'];
-				if (!isset($r[$field])) $r[$field] = 0;
-				if (is_array($r[$field])) {
-					$r[$k] = array();
-					foreach ($r[$field] as $f_v)
-						$r[$k][] = self::get_value($sub_tab, $f_v, $sub_field);
-				} else {
-					if ($r[$field]) $r[$k] = self::get_value($sub_tab, $r[$field], $sub_field);
-					else $r[$k] = '';
-					if (substr($r[$k], 0, 2)=='__') $r[$k] = self::decode_multi($r[$k]); // FIXME need better check
-				}
-			}
-            $result = false;
-            $k = strtolower($k);
-            self::init($tab);
-            $transform_date = false;
-            if ($k == 'created_on') {
-                $transform_date = 'timestamp';
-            } else if ($k == 'edited_on') {
-                $details = self::get_record_info($tab, $id);
-                $r[$k] = $details['edited_on'];
-                $transform_date = 'timestamp';
-            } else if (isset(self::$hash[$k]) && isset(self::$table_rows[self::$hash[$k]])) {
-                $type = self::$table_rows[self::$hash[$k]]['type'];
-                if ($type == 'timestamp') {
-                    $transform_date = 'timestamp';
-                } elseif ($type == 'date') {
-                    $transform_date = 'date';
-                }
-            }
-            if ($transform_date == 'timestamp' && $v) {
-                $v = Base_RegionalSettingsCommon::reg2time($v, false);
-                $v = date('Y-m-d H:i:s', $v);
-            } else if ($transform_date == 'date' && $v) {
-                $v = Base_RegionalSettingsCommon::reg2time($v, false);
-                $v = date('Y-m-d', $v);
-            }
-            if (!isset($r[$k])) $r[$k] = '';
-            if (is_array($r[$k])) {
-                if ($v) $result = in_array($v, $r[$k]);
-                else $result = empty($r[$k]);
-            }
-            else switch ($operator) {
-                case '>': $result = ($r[$k] > $v); break;
-                case '>=': $result = ($r[$k] >= $v); break;
-                case '<': $result = ($r[$k] < $v); break;
-                case '<=': $result = ($r[$k] <= $v); break;
-                case '==': $result = ($r[$k] == $v);
-            }
-            if ($negative) $result = !$result;
-            if ($or_started) $or_result |= $result;
-            else if (!$result) $problems[] = $k;
+        if (!is_object($crits)) {
+            $crits = Utils_RecordBrowser_Crits::from_array($crits);
         }
-        if (!empty($problems)) return $cache[$tab.'__'.$id] = false;
-        if ($or_started && !$or_result) {
-    	    $problems = $problems + $or_fields;
-    	    return $cache[$tab.'__'.$id] = false;
-    	}
-        return $cache[$tab.'__'.$id] = true;
+        $crits_validator = new Utils_RecordBrowser_CritsValidator($tab);
+        $success = $crits_validator->validate($crits, $r);
+        $problems = $crits_validator->get_issues();
+        return $success;
     }
-	public static function decode_access($str, $manage_permissions=false) {
-		if (is_numeric($str)) return $str;
-		// FIXME should be moved to CRM_Contacts, but only after editor is ready and there's synatx to retrieve all needed info
-		if ($manage_permissions) {
-			if ($str=='USER_ID') return __('User Login');
-			if (class_exists('CRM_ContactsCommon')) { 
-				$me = CRM_ContactsCommon::get_my_record();
-				if ($str=='USER') return __('User Contact');
-				if ($str=='USER_COMPANY') return __('User Company');
-			}
-		} else {
-			if ($str=='USER_ID') return Acl::get_user();
-			if (class_exists('CRM_ContactsCommon')) {
-				$me = CRM_ContactsCommon::get_my_record();
-				if ($str=='USER') return $me['id']?$me['id']:-1;
-				if ($str=='USER_COMPANY') return (isset($me['company_name']) && $me['company_name'])?$me['company_name']:-1;
-			}
-		}
-		return $str;
+    public static function crits_special_values()
+    {
+        $ret = array();
+        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER_ID', __('User Login'), Base_AclCommon::get_user());
+        foreach (array('VIEW', 'VIEW_ALL', 'EDIT', 'EDIT_ALL', 'PRINT', 'PRINT_ALL', 'DELETE', 'DELETE_ALL') as $a) {
+            $description = 'Allow ' . str_replace('_', ' ', strtolower($a)) . ' record(s)';
+            $ret[] = new Utils_RecordBrowser_ReplaceValue("ACCESS_$a", _V($description), 'Utils_RecordBrowserCommon::get_recursive_'.strtolower($a).'_access');
+        }
+        return $ret;
+    }
+	public static function get_recursive_access($otab,&$r,$field,$action,$any) {
+            self::init($otab);
+            $args = self::$table_rows[self::$hash[$field]];
+            $param = explode(';',$args['param']);
+            $pp = explode('::',$param[0]);
+            $tab = $pp[0];
+            if($tab=='__COMMON__') return $r[$field];
+            if($tab == '__RECORDSETS__') $single_tab = false;
+            else {
+                $tabs = explode(',',$tab);
+                $single_tab = count($tabs)==1;
+            }
+            $ret = true;
+            $field_is_empty = true;
+            if(!is_array($r[$field])) $values = array($r[$field]);
+            else $values = $r[$field];
+            if($single_tab) {
+                foreach($values as $rid) {
+                    if (!$rid) continue;
+                    $rr = self::get_record($tab,$rid);
+                    $access = self::get_access($tab,$action,$rr);
+                    $field_is_empty = false;
+                    if($any && $access) return $r[$field];
+                    $ret &= $access;
+                }
+            } else {
+                foreach($values as $rid) {
+                    if (!$rid) continue;
+                    list($tab,$rid) = explode('/',$rid,2);
+                    $rr = self::get_record($tab,$rid);
+                    $access = self::get_access($tab,$action,$rr);
+                    $field_is_empty = false;
+                    if($any && $access) return $r[$field];
+                    $ret &= $access;
+                }            
+            }
+            return $field_is_empty ? false : ($ret ? true : false);
 	}
-	public static function parse_access_crits($str, $manage_permissions=false) {
+	public static function get_recursive_view_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'view',true);
+	}
+        public static function get_recursive_view_all_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'view',false);
+        }
+        public static function get_recursive_edit_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'edit',true);
+        }
+        public static function get_recursive_edit_all_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'edit',false);
+        }
+        public static function get_recursive_print_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'print',true);
+        }
+        public static function get_recursive_print_all_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'print',false);
+        }        
+        public static function get_recursive_delete_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'delete',true);
+        }
+        public static function get_recursive_delete_all_access($tab,&$r,$field) {
+            return self::get_recursive_access($tab,$r,$field,'delete',false);
+        }
+	public static function parse_access_crits($str, $human_readable = false) {
 		$ret = unserialize($str);
-		foreach ($ret as $k=>$v) {
-			if (!is_array($v)) {
-				$ret[$k] = self::decode_access($v, $manage_permissions);
-			} else {
-				foreach ($v as $kw=>$w) {
-					$ret[$k][$kw] = self::decode_access($w, $manage_permissions);
-				}
-			}
-		}
-		return $ret;
+        if (!is_object($ret)) {
+            $ret = Utils_RecordBrowser_Crits::from_array($ret);
+        }
+		return $ret->replace_special_values($human_readable);
 	}
 	public static function add_default_access($tab) {
 		Utils_RecordBrowserCommon::add_access($tab, 'view', 'ACCESS:employee');
@@ -1807,7 +1496,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($blocked_fields as $f)
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($id, $f));
 	}
-    public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
+	
+	public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
         if (!$return_crits && self::$admin_access && Base_AclCommon::i_am_admin()) {
             $ret = true;
         } elseif (isset($record[':active']) && !$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
@@ -1827,6 +1517,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$fields[$row['id']] = array();
 					$new = self::parse_access_crits($row['crits']);
 					$crits_raw[$row['action']][$row['id']] = $new;
+                    // if new or existing crit is empty, then we have access to all records
+                    if ($new->is_empty()) {
+                        $crits[$row['action']] = $new;
+                    }
+                    if ($crits[$row['action']] instanceof Utils_RecordBrowser_Crits
+                        && $crits[$row['action']]->is_empty()) {
+                        continue;
+                    }
 					$crits[$row['action']] = self::merge_crits($crits[$row['action']], $new, true);
 				}
 				$r = DB::Execute('SELECT * FROM '.$tab.'_access_fields');
@@ -1842,11 +1540,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$fields = $cache[$cache_key]['fields'];
 			}
 			if ($return_crits) {
+                if ($action == 'browse') {
+                    $action = 'view';
+                }
 			    if($return_in_array) return $crits_raw[$action];
 			    return $crits[$action];
 			}
 			if ($action=='browse') {
-				return $crits['view']!==null?(empty($crits['view'])?true:$crits['view']):false;
+				return $crits['view']!==null ? true : false;
 			}
 			$ret = false;
 			$blocked_fields = array();
@@ -1956,7 +1657,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $record[$args['id']] = $r;
                 } else {
                     $record[$args['id']] = (isset($row['f_'.$args['id']])?$row['f_'.$args['id']]:'');
-                    if ($htmlspecialchars && $args['type']!=='long text') $record[$args['id']] = htmlspecialchars($record[$args['id']]);
+                    if ($htmlspecialchars && $args['type'] == 'text') $record[$args['id']] = htmlspecialchars($record[$args['id']]);
                 }
             }
             return $record;
@@ -2013,11 +1714,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($values === false) {
             return false;
         }
-        Utils_WatchdogCommon::new_event($tab, $id, $state ? 'R' : 'D');
         @DB::Execute('UPDATE ' . $tab . '_data_1 SET active=%d,indexed=0 WHERE id=%d', array($state ? 1 : 0, $id));
         $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
         DB::Execute('DELETE FROM recordbrowser_words_map WHERE tab_id=%d AND record_id=%d',array($tab_id,$id));
-        self::new_record_history($tab,$id,$state ? 'RESTORED' : 'DELETED');
+        $edit_id = self::new_record_history($tab,$id,$state ? 'RESTORED' : 'DELETED');
+        Utils_WatchdogCommon::new_event($tab, $id, ($state ? 'R' : 'D').'_'.$edit_id);
         self::record_processing($tab, $record, $state ? 'restored' : 'deleted');
         return true;
     }
@@ -2037,7 +1738,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!$perma) {
             $ret = self::set_active($tab, $id, false);
         } elseif (self::check_table_name($tab)) {
-            $values = self::record_processing($tab, self::get_record($tab, $id), 'delete');
+            $record = self::get_record($tab, $id);
+            $values = self::record_processing($tab, $record, 'delete');
             if ($values === false) {
                 $ret = false;
             } else {
@@ -2047,6 +1749,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
                 DB::Execute('DELETE FROM ' . $tab . '_data_1 WHERE id=%d', array($id));
                 $ret = DB::Affected_Rows() > 0;
+                if ($ret) {
+                    self::record_processing($tab, $record, 'deleted');
+                }
             }
         }
         return $ret;
@@ -2123,7 +1828,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $x = ModuleManager::get_instance('/Base_Box|0');
         if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
         if (class_exists('Utils_RecordBrowser') && Utils_RecordBrowser::$clone_result!==null) {
-            if (is_numeric(Utils_RecordBrowser::$clone_result)) $x->push_main('Utils/RecordBrowser','view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
+            if (is_numeric(Utils_RecordBrowser::$clone_result)) $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
             Utils_RecordBrowser::$clone_result = null;
         }
  		$def_key = $def;
@@ -2141,7 +1846,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 unset($_REQUEST['__add_record_to_RB_table']);
                 unset($_REQUEST['__add_record_id']);
                 unset($_REQUEST['__add_record_def']);
-                $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $def), array($tab));
+                $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $def), array($tab));
                 return array();
         }
         return array('__add_record_to_RB_table'=>$tab, '__add_record_id'=>$id, '__add_record_def'=>$def_md5);
@@ -2181,7 +1886,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             unset($_REQUEST['__jump_to_RB_action']);
             $x = ModuleManager::get_instance('/Base_Box|0');
             if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            $x->push_main('Utils/RecordBrowser','view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
+            $x->push_main(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
             return array();
         }
         return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id, '__jump_to_RB_action'=>$action);
@@ -2193,7 +1898,51 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return Module::create_href(self::get_record_href_array($tab,$id,$action)+$more);
     }
-    public static function record_link_open_tag($tab, $id, $nolink=false, $action='view'){
+    public static function record_link_open_tag_r($tab, $record, $nolink=false, $action='view', $more=array())
+    {
+        self::check_table_name($tab);
+        $ret = '';
+        if (!isset($record['id']) || !is_numeric($record['id'])) {
+            return self::$del_or_a = '';
+        }
+        if (class_exists('Utils_RecordBrowser') &&
+            isset(Utils_RecordBrowser::$access_override) &&
+            Utils_RecordBrowser::$access_override['tab']==$tab &&
+            Utils_RecordBrowser::$access_override['id']==$record['id']) {
+            self::$del_or_a = '</a>';
+            if (!$nolink) $ret = '<a '.self::create_record_href($tab, $record['id'], $action, $more).'>';
+            else self::$del_or_a = '';
+        } else {
+            $ret = '';
+            $tip = '';
+            self::$del_or_a = '';
+            $has_access = self::get_access($tab, 'view', $record);
+            $is_active = isset($record[':active']) ? $record[':active'] : true;
+
+            if (!$is_active) {
+                $tip = __('This record was deleted from the system, please edit current record or contact system administrator');
+                $ret = '<del>';
+                self::$del_or_a = '</del>';
+            }
+            if (!$has_access) {
+                $tip = ($tip?'<br>':'').__('You don\'t have permission to view this record.');
+            }
+            $tip = $tip ? Utils_TooltipCommon::open_tag_attrs($tip) : '';
+            if (!$nolink) {
+                if($has_access) {
+                    $href = self::create_record_href($tab, $record['id'], $action, $more);
+                    $ret = '<a '.$tip.' '.$href.'>'.$ret;
+                    self::$del_or_a .= '</a>';
+                } else {
+                    $ret = '<span '.$tip.'>'.$ret;
+                    self::$del_or_a .= '</span>';
+                }
+            }
+        }
+        return $ret;
+    }
+
+    public static function record_link_open_tag($tab, $id, $nolink=false, $action='view', $more=array()){
         self::check_table_name($tab);
         $ret = '';
         if (!is_numeric($id)) {
@@ -2204,34 +1953,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             Utils_RecordBrowser::$access_override['tab']==$tab &&
             Utils_RecordBrowser::$access_override['id']==$id) {
             self::$del_or_a = '</a>';
-            if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id, $action).'>';
+            if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id, $action, $more).'>';
             else self::$del_or_a = '';
         } else {
-			$ret = '';
-			$tip = '';
-			self::$del_or_a = '';
-            $has_access = self::get_access($tab, 'view', self::get_record($tab, $id));
-            $is_active = DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id));
-
-			if (!$is_active) {
-				$tip = __('This record was deleted from the system, please edit current record or contact system administrator');
-				$ret = '<del>';
-				self::$del_or_a = '</del>';                    
-			}
-            if (!$has_access) {
-                $tip = ($tip?'<br>':'').__('You don\'t have permission to view this record.');
-            }
-            $tip = $tip ? Utils_TooltipCommon::open_tag_attrs($tip) : '';
-            if (!$nolink) {
-                if($has_access) {
-                    $href = self::create_record_href($tab, $id, $action);
-                    $ret = '<a '.$tip.' '.$href.'>'.$ret;
-                    self::$del_or_a .= '</a>';
-                } else {
-                    $ret = '<span '.$tip.'>'.$ret;
-                    self::$del_or_a .= '</span>';
-                }
-            }
+            $record = self::get_record($tab, $id);
+            $ret = self::record_link_open_tag_r($tab, $record, $nolink, $action, $more);
         }
         return $ret;
     }
@@ -2257,7 +1983,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 }
             }
         }
-        return self::record_link_open_tag($tab, $id, $nolink) . 
+        return self::record_link_open_tag_r($tab, $record, $nolink) .
                 implode(' ', $vals ) . self::record_link_close_tag();
     }
     public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true, $detailed_tooltip = true){
@@ -2285,7 +2011,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             else
                 $label = ($table_name?$cap.': ':'').self::get_val($tab,$field,$rec,$nolink);
         }
-        $ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
+        $ret = self::record_link_open_tag_r($tab, $rec, $nolink).$label.self::record_link_close_tag();
         if ($nolink == false && $detailed_tooltip) {
             $ret = self::create_default_record_tooltip_ajax($ret, $tab, $id);
         }
@@ -2305,7 +2031,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     {
         $record = self::get_record($tab, $record_id);
         if (!$record[':active']) {
-            return '';
+            return array();
         }
         $cols = self::init($tab);
         $access = self::get_access($tab, 'view', $record);
@@ -2325,11 +2051,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function create_linked_label_r($tab, $cols, $r, $nolink=false){
         if (!is_array($cols))
             $cols = array($cols);
-        $open_tag = $close_tag = '';
-        if (isset($r['id']) && is_numeric(($r['id']))) {
-            $open_tag = self::record_link_open_tag($tab, $r['id'], $nolink);
-            $close_tag = self::record_link_close_tag();
-        }
+        $open_tag = self::record_link_open_tag_r($tab, $r, $nolink);
+        $close_tag = self::record_link_close_tag();
         self::init($tab);
         $vals = array();
         foreach ($cols as $col) {
@@ -2348,10 +2071,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $parts = explode(' ', $text);
             $crits = array();
             foreach ($parts as $k=>$v) {
-                $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
+                $v = "%$v%";
                 $chr = '(';
                 foreach ($fields as $f) {
-                    $crits[$chr.str_repeat('_', $k).'"'.$f] = $v;
+                    $crits[$chr.str_repeat('_', $k).$f] = $v;
                     $chr='|';
                 }
             }
@@ -2360,10 +2083,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             else {
                 $crits = array();
                 foreach ($parts as $k=>$v) {
-                    $v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
+                    $v = "%$v%";
                     $chr = '(';
                     foreach ($fields as $f) {
-                        $crits[$chr.str_repeat('_', $k).'~"'.$f] = $v;
+                        $crits[$chr.str_repeat('_', $k).'~'.$f] = $v;
                         $chr='|';
                     }
                 }
@@ -2379,7 +2102,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return Utils_BBCodeCommon::create_bbcode(null, $rec['id'], $text);
         }
         if ($rec) {
-            return Utils_RecordBrowserCommon::record_link_open_tag($tab, $rec['id']).$text.Utils_RecordBrowserCommon::record_link_close_tag();
+            return Utils_RecordBrowserCommon::record_link_open_tag_r($tab, $rec).$text.Utils_RecordBrowserCommon::record_link_close_tag();
         }
         return Utils_BBCodeCommon::create_bbcode(null, $param, $text, __('Record not found'));
     }
@@ -2459,6 +2182,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$access = self::get_access($tab,'view',$r);
         $modifications_to_show = 0;
 		foreach ($edit_details as $k=>$v) {
+            if($k=='id') {
+                $modifications_to_show += 1;
+                if (!$details) continue; // do not generate content when we dont want them
+                $event_display['what'] = _V($v);
+                continue;
+            }
 			$k = self::get_field_id($k); // failsafe
 			if (!isset(self::$hash[$k])) continue;
 			if (!$access[$k]) continue;
@@ -2490,7 +2219,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($r===null) return null;
 			if (!self::get_access($tab, 'view', $r)) return null;
             if (is_array($label)) {
-                $label = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid)
+                $label = Utils_RecordBrowserCommon::record_link_open_tag_r($tab, $r)
                          . call_user_func($label, $r, true)
                          . Utils_RecordBrowserCommon::record_link_close_tag();
                 $label = self::create_default_record_tooltip_ajax($label, $tab, $rid);
@@ -2515,14 +2244,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $param = explode('_', $v);
                 switch ($param[0]) {
                     case 'C':   $what = 'Created';
+                                $event_display = array(
+                                    'who'=> Base_UserCommon::get_user_label($r['created_by'], true),
+                                    'when'=>Base_RegionalSettingsCommon::time2reg($r['created_on']),
+                                    'what'=>_V($what)
+                                );
+                                break;
                     case 'D':   if (!isset($what)) $what = 'Deleted';
                     case 'R':   if (!isset($what)) $what = 'Restored';
-								$event_display = array(
-									'who'=> Base_UserCommon::get_user_label($r['created_by'], true),
-									'when'=>Base_RegionalSettingsCommon::time2reg($r['created_on']),
-									'what'=>_V($what)
-									);
-                                break;
+                                if(!isset($param[1])) {
+                                    $event_display = array(
+                                        'who' => '',
+                                        'when' => '',
+                                        'what' => _V($what)
+                                    );
+                                    break;
+                                }
                     case 'E':   $event_display = self::get_edit_details_modify_record($tab, $r['id'], $param[1] ,$details);
 				                if (isset($event_display['what']) && !empty($event_display['what'])) $header = true;
                                 break;
@@ -2626,7 +2363,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             unset($_REQUEST['__jump_to_RB_action']);
             $x = ModuleManager::get_instance('/Base_Box|0');
             if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            $x->push_main('Utils/RecordBrowser','view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
+            $x->push_main(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
             return true;
         }
         return false;
@@ -2744,8 +2481,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     
     private static $automulti_order_tabs;
     public static function automulti_order_by($a,$b) {
-	    $aa = __($a);
-	    $bb = __($b);
+	    $aa = _V($a);
+	    $bb = _V($b);
 	    $aam = preg_match(self::$automulti_order_tabs,$aa) || preg_match(self::$automulti_order_tabs,$a);
 	    $bbm = preg_match(self::$automulti_order_tabs,$bb) || preg_match(self::$automulti_order_tabs,$b);
 	    if($aam && !$bbm)
@@ -2764,8 +2501,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	self::$automulti_order_tabs = array();
 	foreach($words_db as & $w) {
 	    if(mb_strlen($w)>=3) self::$automulti_order_tabs[] = preg_quote($w,'/');
-	    $w = DB::qstr($w);
-	    $w = 'CONCAT("%%",'.$w.',"%%")';
+	    $w = "%$w%";
 	}
 	self::$automulti_order_tabs = '/('.implode('|',self::$automulti_order_tabs).')/i';
 
@@ -2781,8 +2517,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	uasort($tabs,array('Utils_RecordBrowserCommon','automulti_order_by'));
 
         $ret = array();
-        $str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
-        
+
         foreach($tabs as $t=>$caption) {
             if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
             
@@ -2795,18 +2530,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
 
             $fields = array_filter(explode('|', $ref[1]));
-            if(!$fields) $fields = DB::GetCol('SELECT field FROM '.$t.'_field WHERE active=1 AND visible=1 AND (type NOT IN ("calculated","page_split","hidden") OR (type="calculated" AND param is not null AND param!=""))');
+            if(!$fields) $fields = DB::GetCol("SELECT field FROM {$t}_field WHERE active=1 AND visible=1 AND (type NOT IN ('calculated','page_split','hidden') OR (type='calculated' AND param is not null AND param!=''))");
             
 	    $words_db_tmp = $words_db;
 	    $words_tmp = $words;
 	    foreach($words_tmp as $pos => $word) {
 		$expr = '/'.preg_quote($word,'/').'/i';
-		if(preg_match($expr,$caption) || preg_match($expr,__($caption))) {
+		if(preg_match($expr,$caption) || preg_match($expr,_V($caption))) {
 		    unset($words_db_tmp[$pos]);
 		    unset($words_tmp[$pos]);
 		}
 	    }
-	    $str_db = DB::qstr('%%'.implode(' ',$words_tmp).'%%');
+	    $str_db = '%' . implode(' ',$words_tmp) . '%';
 
             if (empty($f_callback) || !is_callable($f_callback))
                  $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
@@ -2815,8 +2550,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $crits2B = array();
             $op = '(';
             foreach ($fields as $f) {
-                $crits2A[$op.'~"'.self::get_field_id($f)] = $str_db;
-                $crits2B[$op.'~"'.self::get_field_id($f)] = $words_db_tmp;
+                $crits2A[$op.'~'.self::get_field_id($f)] = $str_db;
+                $crits2B[$op.'~'.self::get_field_id($f)] = $words_db_tmp;
                 $op = '|';
             }
             $crits3A = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2A);
@@ -2929,7 +2664,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									$ret .= ' '.__('of').' '.$cap;
 								}
 								if (isset($args[1])) {
-									$val = implode('<br />&nbsp;&nbsp;&nbsp;',self::crits_to_words($args[0], $args[1]));
+									$val = self::crits_to_words($args[0], $args[1]);
 									if ($val) $ret .= ' '.__('for which').'<br />&nbsp;&nbsp;&nbsp;'.$val;
 								}
 								return $ret;
@@ -2943,7 +2678,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									$ret .= ' '.$cap;
 								}
 								if (isset($args[1])) {
-									$val = implode('<br>&nbsp;&nbsp;&nbsp;',self::crits_to_words($args[0], $args[1]));
+									$val = self::crits_to_words($args[0], $args[1]);
 									if ($val) $ret .= ' '.__('for which').'<br />&nbsp;&nbsp;&nbsp;'.$val;
 								}
 								return $ret;
@@ -2952,135 +2687,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	
 	public static $date_values = array('-1 year'=>'1 year back','-6 months'=>'6 months back','-3 months'=>'3 months back','-2 months'=>'2 months back','-1 month'=>'1 month back','-2 weeks'=>'2 weeks back','-1 week'=>'1 week back','-6 days'=>'6 days back','-5 days'=>'5 days back','-4 days'=>'4 days back','-3 days'=>'3 days back','-2 days'=>'2 days back','-1 days'=>'1 days back','today'=>'current day','+1 days'=>'1 days forward','+2 days'=>'2 days forward','+3 days'=>'3 days forward','+4 days'=>'4 days forward','+5 days'=>'5 days forward','+6 days'=>'6 days forward','+1 week'=>'1 week forward','+2 weeks'=>'2 weeks forward','+1 month'=>'1 month forward','+2 months'=>'2 months forward','+3 months'=>'3 months forward','+6 months'=>'6 months forward','+1 year'=>'1 year forward');
-	public static function crits_to_words($tab, $crits, $inline_joints=true) {
-		$ret = array();
-		$or_started = false;
-        foreach($crits as $k=>$v){
-            self::init($tab, false);
-			$next = '';
-            $negative = $noquotes = $or_start = $or = false;
-            $operator = '=';
-            while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
-				if ($k[0]=='!') $negative = true;
-				if ($k[0]=='"') $noquotes = true;
-				if ($k[0]=='(') $or_start = true;
-				if ($k[0]=='|') $or = true;
-				if ($k[0]=='<') $operator = '<';
-				if ($k[0]=='>') $operator = '>';
-				if ($k[0]=='~') $operator = DB::like();
-				if ($k[1]=='=' && $operator!=DB::like()) {
-					$operator .= '=';
-					$k = substr($k, 2);
-				} else $k = substr($k, 1);
-				if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word. Crits:'.print_r($crits,true), E_USER_ERROR);
-			}
-			$or |= $or_start;
-
-			if (!isset($r[$k]) && $k[strlen($k)-1]==']') {
-				list($ref, $sub_field) = explode('[', trim($k, ']'));
-				$args = self::$table_rows[self::$hash[$ref]];
-				$commondata = $args['commondata'];
-				if (!$commondata) {
-					if (!isset($args['ref_table'])) trigger_error('Invalid crits, field '.$ref.' is not a reference; crits: '.print_r($crits,true),E_USER_ERROR);
-					$is_multiselect = ($args['type']=='multiselect');
-					$tab2 = $tab;
-					$col2 = $k;
-					$tab = $args['ref_table'];
-					$k = $sub_field;
-					
-					$f_dis = self::$table_rows[self::$hash[$ref]]['name'];
-					self::init($tab);
-					$next .= '<b>'._V($f_dis).'</b> '.' is set to record with ';
-				}
-			}
-
-            if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[$k]) && (!isset(self::$hash[$k]) || !isset(self::$table_rows[self::$hash[$k]]))) continue; //failsafe
-
-			if (!empty($ret)) {
-				if ($or_start) $joint = 'and';
-				elseif ($or) $joint = 'or';
-				else $joint = 'and';
-				if ($inline_joints) $next .= _V($joint).' ';
-				else $ret[] = $joint;
-			}
-
-            if ($k[0]==':') {
-                switch ($k) {
-                    case ':Fav' :   		$next .= (!$v || ($negative && $v))?__('is not on %sfavorites%s', array('<b>','</b>')):__('is on %sfavorites%s', array('<b>','</b>'));
-											$ret[] = $next;
-											continue 2;
-                    case ':Recent'  :   	$next .= (!$v || ($negative && $v))?__('wasn\'t %srecently%s viewed', array('<b>','</b>')):__('was %srecently%s viewed', array('<b>','</b>'));
-											$ret[] = $next;
-											continue 2;
-                    case ':Sub'  :          $next .= (!$v || ($negative && $v))?__('is not %swatched%s', array('<b>','</b>')):__('is %swatched%s', array('<b>','</b>'));
-                                            $ret[] = $next;
-                                            continue 2;
-                    case ':Created_on'  :	$next .= '<b>'.__('Created on').'</b> ';
-											break;
-                    case ':Created_by'  :	$next .= '<b>'.__('Created by').'</b> ';
-											break;
-                    case ':Edited_on'   :	$next .= '<b>'.__('Edited on').'</b> ';
-											break;
-				}
-			} else {
-				if ($k=='id') $next .= '<b>'.__('ID').'</b> ';
-				else $next .= '<b>'._V(self::$table_rows[self::$hash[$k]]['name']).'</b> ';
-			}
-			$operand = '';
-			if (!isset($tab2)) {
-				if ($negative) $operand .= '<i>'.__('is not').'</i> ';
-				else $operand .= __('is').' ';
-			}
-			if ($v==='') {
-				$next .= $operand.__('empty');
-			} else {
-				switch ($operator) {
-					case '<':	$operand .= __('smaller than'); break;
-					case '<=':	$operand .= __('smaller or equal to'); break;
-					case '>':	$operand .= __('greater than'); break;
-					case '>=':	$operand .= __('greater or equal to'); break;
-					case DB::like(): 
-								$operand = $negative?__('does not contain'):__('contains'); 
-								$v = str_replace(array('||', "'%'"), '', $v); // FIXME doesn't differentiate between "begins with", "contains" or "ends with"
-								break;
-					default:	$operand .= __('equal to');
-				}
-				$operand = $operand.' ';
-				$next .= $operand;
-				
-				switch ($k) {
-					case 'id':			if (!is_array($v)) $v = array($v); break;
-                    case ':Created_by': $v = array(is_numeric($v)?Base_UserCommon::get_user_login($v):$v); break;
-					case ':Created_on': 
-                    case ':Edited_on':  if (isset(self::$date_values[$v])) $v = array(self::$date_values[$v]);
-										else $v = array(Base_RegionalSettingsCommon::time2reg($v)); break;
-					default: 			if (!is_array($v) && isset(self::$date_values[$v])) {
-											$v = array(self::$date_values[$v]);
-											break;
-										}
-										if (!is_array($v)) $v = array($v);
-										$args = self::$table_rows[self::$hash[$k]];
-										if($args['type']=='checkbox' && count($v)==2 && !$v[0] && !$v[1]) unset($v[1]);
-										foreach ($v as $kk=>$vv) {
-											if (!is_numeric($vv) && !$args['commondata'] && isset($args['ref_table'])) {
-												continue;
-											}
-											$v[$kk] = self::get_val($tab, $k, array($k=>$vv), true);
-										}	
-				}
-				foreach ($v as $kk=>$vv)
-					$v[$kk] = '<b>'.$vv.'</b>';
-				$next .= implode(' or ', $v);
-			}
-
-			$ret[] = $next;
-			if (isset($tab2)) {
-				$tab = $tab2;
-				unset($tab2);
-			}
-		}
-//		$ret[] = print_r($crits,true);
-		return $ret;
+	public static function crits_to_words($tab, $crits, $html_decoration=true) {
+        if (!is_object($crits)) {
+            $crits = Utils_RecordBrowser_Crits::from_array($crits);
+        }
+        $crits = $crits->replace_special_values(true);
+        $c2w = new Utils_RecordBrowser_CritsToWords($tab);
+        $c2w->enable_html_decoration($html_decoration);
+        return $c2w->to_words($crits);
 	}
 
     public static function get_printer($tab)
@@ -3098,7 +2712,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             'currency', 'text', 'long text', 'date', 'timestamp', 'time',
             'commondata', 'select', 'multiselect', 'autonumber');
         if (array_search($type, $types) !== false) {
-            return array(__CLASS__, 'QFfield_' . self::get_field_id($type));
+            return __CLASS__. '::QFfield_' . self::get_field_id($type);
         }
         return null;
     }
@@ -3153,7 +2767,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
 
-        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $field);
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
         $form->addElement('text', $field, $label, array('id' => $field));
         $form->addRule($field, __('Only integer numbers are allowed.'), 'regex', '/^\-?[0-9]*$/');
         if ($mode !== 'add')
@@ -3164,7 +2778,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
 
-        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $field);
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
         $form->addElement('text', $field, $label, array('id' => $field));
         $form->addRule($field, __('Only numbers are allowed.'), 'numeric');
         if ($mode !== 'add')
@@ -3266,7 +2880,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($k != 0)
                 $param[$k] = preg_replace('/[^a-z0-9]/', '_', strtolower($v));
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $desc['param']['array_id']);
-        $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => true, 'id' => $field, 'order_by_key' => $desc['param']['order_by_key']));
+        $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => true, 'order_by_key' => $desc['param']['order_by_key']), array('id' => $field));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));
     }
@@ -3357,7 +2971,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $records_tmp = Utils_RecordBrowserCommon::get_records(
                             $t,
                             $single_tab?$crits:$crits[$t],
-                            empty($multi_adv_params['format_callback']) ? $col_id : array(),
+                            array(),
                             !empty($multi_adv_params['order']) ? $multi_adv_params['order'] : array());
                     foreach($records_tmp as $key=>$rec) {
                         if(!self::get_access($t,'view',$rec)) continue;
@@ -3459,7 +3073,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($desc['type'] == 'multiselect') {
                 $el = $form->addElement('automulti', $field, $label, array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $f_callback, $desc['param']), $f_callback);
                 if($single_tab) {
-                    ${'rp_' . $field} = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker', array());
+                    ${'rp_' . $field} = $rb_obj->init_module(Utils_RecordBrowser_RecordPicker::module_name(), array());
                     $filters_defaults = isset($multi_adv_params['filters_defaults']) ? $multi_adv_params['filters_defaults'] : array();
                     $rb_obj->display_module(${'rp_' . $field}, array($tab, $field, $multi_adv_params['format_callback'], $crits, array(), array(), array(), $filters_defaults));
                     $el->set_search_button('<a ' . ${'rp_' . $field}->create_open_href() . ' ' . Utils_TooltipCommon::open_tag_attrs(__('Advanced Selection')) . ' href="javascript:void(0);"><img border="0" src="' . Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'icon_zoom.png') . '"></a>');
@@ -3541,7 +3155,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=1 WHERE id=%d',array($record['id']));
     }
 
-    public static function clean_search_index($tab)
+    public static function clear_search_index($tab)
     {
         $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
         if ($tab_id) {
@@ -3811,7 +3425,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $QFfield_callback_table = array();
         $ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=0');
         while ($row = $ret->FetchRow()) {
-            $QFfield_callback_table[$row['field']] = explode('::',$row['callback']);
+            $QFfield_callback_table[$row['field']] = $row['callback'];
         }
         $defaults = array_merge($defaults,$_SESSION['rb_'.$tab.'_defaults']);
 
@@ -3827,9 +3441,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $val = null;
             $label = _V($args['name']); // TRSL
             if(isset($QFfield_callback_table[$field])) {
-                $ff = $QFfield_callback_table[$field];
-				$mobile_rb = new Utils_RecordBrowserMobile($tab, $rec);
-                call_user_func_array($ff, array(&$qf, $args['id'], $label, $mode, $val, $args, $mobile_rb, null));
+                $mobile_rb = new Utils_RecordBrowserMobile($tab, $rec);
+                self::call_QFfield_callback($QFfield_callback_table[$field], $qf, $args['id'], $label, $mode, $val, $args, $mobile_rb, null);
                 if($mode=='edit')
                     unset($defaults[$args['id']]);
                 continue;
@@ -4072,7 +3685,43 @@ class Utils_RecordBrowserMobile { // mini class to simulate full RB object, TODO
 	}
 }
 
+function rb_or($crits, $_ = null)
+{
+    $args = func_get_args();
+    if (count($args) > 1) {
+        foreach ($args as $k => $v) {
+            if (is_array($v)) {
+                $args[$k] = new Utils_RecordBrowser_Crits($v, true);
+            }
+        }
+        $crits = $args;
+    } else {
+        $crits = $args[0];
+    }
+    $ret = new Utils_RecordBrowser_Crits($crits, true);
+    return $ret;
+}
+
+function rb_and($crits, $_ = null)
+{
+    $args = func_get_args();
+    if (count($args) > 1) {
+        foreach ($args as $k => $v) {
+            if (is_array($v)) {
+                $args[$k] = new Utils_RecordBrowser_Crits($v);
+            }
+        }
+        $crits = $args;
+    } else {
+        $crits = $args[0];
+    }
+    $ret = new Utils_RecordBrowser_Crits($crits);
+    return $ret;
+}
+
 require_once 'modules/Utils/RecordBrowser/object_wrapper/include.php';
+
+Utils_RecordBrowser_Crits::register_special_value_callback(array('Utils_RecordBrowserCommon', 'crits_special_values'));
 
 if(!READ_ONLY_SESSION) {
     if(!isset($_SESSION['rb_indexer_token']))

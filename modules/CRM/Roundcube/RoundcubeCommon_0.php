@@ -41,8 +41,10 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         $form->registerRule($field,'function','check_account_name','CRM_RoundcubeCommon');
         $form->addRule($field,__('Account Name already in use'),$field,isset($rb->record['id'])?$rb->record['id']:null);
         $form->setDefaults(array($field=>$default));
-        load_js('modules/CRM/Roundcube/utils.js');
-        eval_js('CRM_RC.filled_smtp_message=\''.Epesi::escapeJS(__('SMTP login and password was filled with imap account details. Please change them if needed.'),false,true).'\';CRM_RC.edit_form()');
+        if ($mode == 'add' || $mode == 'edit') {
+            load_js('modules/CRM/Roundcube/utils.js');
+            eval_js('CRM_RC.filled_smtp_message=\''.Epesi::escapeJS(__('SMTP login and password was filled with imap account details. Please change them if needed.'),false,true).'\';CRM_RC.edit_form()');
+        }
         if($mode=='view') $form->freeze(array($field));
     }
 
@@ -75,10 +77,11 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function QFfield_smtp_auth(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        eval_js_once('var smtp_auth_change = function(val){if(val){$("smtp_login").enable();$("smtp_pass").enable();$("smtp_security").enable();}else{$("smtp_login").disable();$("smtp_pass").disable();$("smtp_security").disable();}}');
-        $form->addElement('checkbox', $field, $label,'',array('onChange'=>'smtp_auth_change(this.checked)','id'=>$field));
+        $form->addElement('checkbox', $field, $label,'',array('onchange'=>'CRM_RC.smtp_auth_change(this.checked)','id'=>$field));
         $form->setDefaults(array($field=>$default));
-        eval_js('smtp_auth_change('.($default?1:0).')');
+        if ($mode == 'edit' || $mode == 'add') {
+            eval_js('CRM_RC.smtp_auth_change('.($default?1:0).')');
+        }
         if($mode=='view') $form->freeze(array($field));
     }
 
@@ -151,8 +154,38 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
             $param['message_id'] = ltrim(rtrim($param['message_id'],'>'),'<');
         } else if ($mode == 'added') {
             self::create_thread($param['id']);
+            self::subscribe_users_to_record($param);
+        } else if ($mode == 'edit') {
+            $old_related = Utils_RecordBrowserCommon::get_value('rc_mails', $param['id'], 'related');
+            $old_related = Utils_RecordBrowserCommon::decode_multi($old_related);
+            $new_related = $param['related'];
+            $new_related = Utils_RecordBrowserCommon::decode_multi($new_related);
+            $subscribers = array();
+            foreach ($new_related as $rel) {
+                if (in_array($rel, $old_related)) continue;
+                list($recordset, $record_id) = explode('/', $rel);
+                $subscribers = array_merge($subscribers, Utils_WatchdogCommon::get_subscribers($recordset, $record_id));
+            }
+            foreach (array_unique($subscribers) as $user_id) {
+                Utils_WatchdogCommon::user_subscribe($user_id, 'rc_mails', $param['id']);
+            }
         }
         return $param;
+    }
+
+    public static function subscribe_users_to_record($record)
+    {
+        $employee = $record['employee'];
+        $contacts = $record['contacts'];
+        $subscribers = $employee ? Utils_WatchdogCommon::get_subscribers('contact', $employee) : array();
+        foreach ($contacts as $c) {
+            list($rs, $con_id) = explode(':', $c);
+            $rs_full = ($rs == 'P' ? 'contact' : 'company');
+            $subscribers = array_merge($subscribers, Utils_WatchdogCommon::get_subscribers($rs_full, $con_id));
+        }
+        foreach (array_unique($subscribers) as $user_id) {
+            Utils_WatchdogCommon::user_subscribe($user_id, 'rc_mails', $record['id']);
+        }
     }
 
     public static function QFfield_body(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
@@ -264,7 +297,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
           $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE f_message_id is not null AND %s LIKE '.DB::Concat('\'%%\'','f_message_id','\'%%\'').' AND active=1',array($m['references']));
         if(!$thread)
           $thread = Utils_RecordBrowserCommon::new_record('rc_mail_threads',array('subject'=>$m['subject'],'contacts'=>array_unique(array_merge($m['contacts'],array('P:'.$m['employee']))),'first_date'=>$m['date'],'last_date'=>$m['date']));
-        Utils_RecordBrowserCommon::update_record('rc_mails',$id,array('thread'=>$thread));
+        Utils_RecordBrowserCommon::update_record('rc_mails',$id,array('thread'=>$thread), false, null, true);
         $t = Utils_RecordBrowserCommon::get_record('rc_mail_threads',$thread);
         Utils_RecordBrowserCommon::update_record('rc_mail_threads',$thread,array('contacts'=>array_unique(array_merge($t['contacts'],$m['contacts'],array('P:'.$m['employee']))),'first_date'=>strtotime($m['date'])<strtotime($t['first_date'])?$m['date']:$t['first_date'],'last_date'=>strtotime($m['date'])>strtotime($t['last_date'])?$m['date']:$t['last_date'],'subject'=>(trim($m['references'])=='' ||  mb_strlen($m['subject'])<mb_strlen($t['subject']))?$m['subject']:$t['subject']));
     }
@@ -294,15 +327,15 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function new_addon($rs) {
-        Utils_RecordBrowserCommon::new_addon($rs, 'CRM/Roundcube', 'addon', _M('E-mails'));
+        Utils_RecordBrowserCommon::new_addon($rs, CRM_Roundcube::module_name(), 'addon', _M('E-mails'));
     }
 
     public static function delete_addon($rs) {
-        Utils_RecordBrowserCommon::delete_addon($rs, 'CRM/Roundcube', 'addon');
+        Utils_RecordBrowserCommon::delete_addon($rs, CRM_Roundcube::module_name(), 'addon');
     }
 
 	public static function new_mail_addresses_addon($table) {
-		Utils_RecordBrowserCommon::new_addon($table, 'CRM/Roundcube', 'mail_addresses_addon', _M('Mail addresses'));
+		Utils_RecordBrowserCommon::new_addon($table, CRM_Roundcube::module_name(), 'mail_addresses_addon', _M('Mail addresses'));
 	}
 	
 	/**
@@ -365,7 +398,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 	public static function attachment_getters() {
 	        $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
 		if($ret)
-			return array(_M('Mail')=>array('func'=>'mail_file','icon'=>Base_ThemeCommon::get_template_file('CRM/Roundcube', 'icon.png')));
+			return array(_M('Mail')=>array('func'=>'mail_file','icon'=>Base_ThemeCommon::get_template_file(CRM_Roundcube::module_name(), 'icon.png')));
 	}
 
 	public static function mail_file($f,$d,$file_id) {
@@ -382,7 +415,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
             $key = array_search($default, $rss);
             if ($key !== false) 
                 unset($rss[$key]);
-            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like "%_related" AND tab not like "rc_%"');
+            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like %s AND tab not like %s', array('%_related', 'rc_%'));
             foreach ($tabs as $k => $v) {
                 $tabs[$k] = _V($v) . " ($k)";
             }
@@ -434,6 +467,157 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         }
         return $values;
     }
+
+    public static function get_accounts($user_id = null)
+    {
+        if ($user_id === null) {
+            $user_id = Acl::get_user();
+        }
+        $crits = array();
+        if ($user_id) {
+            $crits['epesi_user'] = $user_id;
+        }
+        $ret = Utils_RecordBrowserCommon::get_records('rc_accounts', $crits);
+        return $ret;
+    }
+
+    public static function get_email_addresses($rs,$rec) {
+        if(is_numeric($rec)) $rec = Utils_RecordBrowserCommon::get_record($rs,$rec);
+
+        $emails = array();
+        if(isset($rec['email']) && $rec['email']) $emails[] = $rec['email'];
+
+        $multiple = Utils_RecordBrowserCommon::get_records('rc_multiple_emails',array('record_type'=>$rs,'record_id'=>$rec['id']));
+        foreach($multiple as $multi) if($multi['email']) $emails[] = $multi['email'];
+
+        return array_unique($emails);
+    }
+
+    public static function reload_mails($rs,$id,$email_addresses = null) {
+        $prefix = ($rs=='contact'?'P':'C').':';
+
+        if(!$email_addresses) $email_addresses = self::get_email_addresses($rs,$id);
+
+        foreach($email_addresses as $email) {
+            $cc = Utils_RecordBrowserCommon::get_records('rc_mails',array('(~from'=>'%'.$email.'%','|~to'=>'%'.$email.'%'));
+
+            foreach($cc as $mail) {
+                if(($rs=='contact' && $mail['employee']==$id) || in_array($prefix.$id,$mail['contacts'])) continue;
+                if(!preg_match('/(^|[\s,\<\;])'.preg_quote($email,'/').'($|[\s,\>\&])/i',$mail['from'].','.$mail['to'])) {
+                    continue;
+                }
+
+                $mail['contacts'][] = $prefix.$id;
+                Utils_RecordBrowserCommon::update_record('rc_mails',$mail['id'],array('contacts'=>$mail['contacts']));
+                CRM_RoundcubeCommon::create_thread($mail['id']);
+            }
+        }
+    }
+
+    /**
+     * @param int  $account_id
+     * @param bool $only_cached If true then only cached response will be retrieved
+     * @param int  $cache_validity_in_minutes Provide 0 or false to force request
+     *
+     * @return array|null
+     * @throws Exception
+     */
+    public static function get_unread_messages($account_id, $only_cached = false, $cache_validity_in_minutes = 5)
+    {
+        $return = null;
+        $rec = Utils_RecordBrowserCommon::get_record('rc_accounts', $account_id);
+        if ($rec['epesi_user'] !== Acl::get_user()) {
+            throw new Exception('Invalid account id');
+        }
+        $port = $rec['security'] == 'ssl' ? 993 : 143;
+        $server_str = '{' . $rec['server'] . '/imap/readonly/novalidate-cert' . ($rec['security'] ? '/' . $rec['security'] : '') . ':' . $port . '}';
+        $cache_key = md5($server_str . ' # ' . $rec['login'] . ' # ' . $rec['password']);
+        $cache = new FileCache(DATA_DIR . '/cache/roundcube_unread.php');
+        if ($cache_validity_in_minutes) {
+            $unread_messages = $cache->get($cache_key);
+            if ($unread_messages && ($only_cached || $unread_messages['t'] > (time() - $cache_validity_in_minutes*60))) {
+                $return = $unread_messages['val'];
+            }
+        }
+        if ($return === null && $only_cached === false) {
+            @set_time_limit(0);
+            $mailbox = @imap_open(imap_utf7_encode($server_str), imap_utf7_encode($rec['login']), imap_utf7_encode($rec['password']), OP_READONLY || OP_SILENT);
+            $err = imap_errors();
+            $unseen = array();
+            if (!$mailbox || $err) {
+                $err = __('Connection error') . ": " . implode(', ', $err);
+            } else {
+                $uns = @imap_search($mailbox, 'UNSEEN ALL');
+                if ($uns) {
+                    $l = @imap_fetch_overview($mailbox, implode(',', $uns), 0);
+                    $err = imap_errors();
+                    if (!$l || $err) {
+                        $error_info = $err ? ": " . implode(', ', $err) : "";
+                        $err = __('Error reading messages overview') . $error_info;
+                    } else {
+                        foreach ($l as $msg) {
+                            $from = isset($msg->from) ? imap_utf8($msg->from) : '<unknown>';
+                            $subject = isset($msg->subject) ? imap_utf8($msg->subject) : '<no subject>';
+                            $date = isset($msg->date) ? $msg->date : '';
+                            $unseen[] = array('from' => $from, 'subject' => $subject, 'id' => $msg->uid, 'date' => $date, 'unix_timestamp' => $msg->udate);
+                        }
+                    }
+                }
+            }
+            if (!is_bool($mailbox)) {
+                imap_close($mailbox);
+            }
+            imap_errors(); // called just to clean up errors.
+            if ($err) {
+                throw new Exception($err);
+            } else {
+                $return = $unseen;
+                $cache->set($cache_key, array('val' => $return, 't' => time()));
+            }
+        }
+        return $return;
+    }
+
+    public static function notification()
+    {
+        $notifications = array();
+        foreach (self::get_accounts() as $account) {
+            try {
+                $unread_messages = self::get_unread_messages($account['id'], true);
+            } catch (Exception $ex) {
+                return array();
+            }
+            if (!$unread_messages) {
+                return array();
+            }
+            foreach ($unread_messages as $m) {
+                $notification_title = __('New email') . ' - ' . $account['account_name'];
+                $notification_body = $m['from'] . "\n" . $m['subject'];
+                $notifications["rc_message_{$account['id']}_{$m['id']}"] = array('title' => $notification_title, 'body' => $notification_body);
+            }
+        }
+        return array('tray' => $notifications);
+    }
+    
+    public static function cron() {
+        return array('cron_cleanup_session'=>60*24);
+    }
+    
+    public static function cron_cleanup_session() {
+        DB::Execute('DELETE FROM rc_session WHERE changed<%T',array(time()-3600*24));
+    }
+
+    public static function watchdog_label($rid = null, $events = array(), $details = true) {
+        return Utils_RecordBrowserCommon::watchdog_label(
+            'rc_mails',
+            __('Mails'),
+            $rid,
+            $events,
+            'subject',
+            $details
+        );
+    }
+
 }
 
 ?>

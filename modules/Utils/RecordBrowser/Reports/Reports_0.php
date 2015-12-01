@@ -42,7 +42,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $show_empty_rows = true;
 	
 	public function construct() {
-		$this->gb = $this->init_module('Utils/GenericBrowser',null,'report_page');
+		$this->gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'report_page');
 	}
 	
 	public function join_row($m,$a) {
@@ -188,8 +188,8 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function display_date_picker($datepicker_defaults = array(), $form=null, $show_dates=true) {
-		if ($form===null) $form = $this->init_module('Libs/QuickForm');
-		$theme = $this->init_module('Base/Theme');
+		if ($form===null) $form = $this->init_module(Libs_QuickForm::module_name());
+		$theme = $this->init_module(Base_Theme::module_name());
 		$minyear = date('Y',strtotime('-5 years'));
 		$maxyear = date('Y',strtotime('+5 years'));
 		if ($show_dates) {
@@ -306,7 +306,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function display_pdf_header() {
-		$theme = $this->init_module('Base/Theme');
+		$theme = $this->init_module(Base_Theme::module_name());
 		$grow = array();
 		foreach ($this->gb_captions as $k=>$v)
 			$grow[] = array('value'=>$v['name'], 'style'=>array('header'=>1));
@@ -324,7 +324,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		if(!isset($first_row)) $first_row = true;
 		$table = '';
 		foreach ($grow as $row) {
-			$theme = $this->init_module('Base/Theme');
+			$theme = $this->init_module(Base_Theme::module_name());
 			$theme->assign('row',$row);
 			$theme->assign('params',array('widths'=>$this->widths,'height'=>$this->height));
 			ob_start();
@@ -628,8 +628,8 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function draw_chart($r,$ref_rec,$gb_captions) {
-			$f = $this->init_module('Libs/OpenFlashChart');
-			$f2 = $this->init_module('Libs/OpenFlashChart');
+			$f = $this->init_module(Libs_OpenFlashChart::module_name());
+			$f2 = $this->init_module(Libs_OpenFlashChart::module_name());
 			$results = call_user_func($this->display_cell_callback, $r);
 
 			$title = new OFC_Elements_Title( $ref_rec );
@@ -728,10 +728,10 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function draw_summary_chart($gb_captions) {
-			$f = $this->init_module('Libs/OpenFlashChart'); //row summary numeric
-			$f2 = $this->init_module('Libs/OpenFlashChart'); //row summary currency
-			$fc = $this->init_module('Libs/OpenFlashChart'); //columns summary numeric
-			$fc2 = $this->init_module('Libs/OpenFlashChart'); //columns summary currency
+			$f = $this->init_module(Libs_OpenFlashChart::module_name()); //row summary numeric
+			$f2 = $this->init_module(Libs_OpenFlashChart::module_name()); //row summary currency
+			$fc = $this->init_module(Libs_OpenFlashChart::module_name()); //columns summary numeric
+			$fc2 = $this->init_module(Libs_OpenFlashChart::module_name()); //columns summary currency
 
 			$title = new OFC_Elements_Title( "Summary by row" );
 			$f->set_title( $title );
@@ -943,7 +943,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function draw_category_chart($ref_rec,$gb_captions) {
-			$f = $this->init_module('Libs/OpenFlashChart');
+			$f = $this->init_module(Libs_OpenFlashChart::module_name());
 
 			$title = new OFC_Elements_Title( $ref_rec );
 			$f->set_title( $title );
@@ -1007,7 +1007,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		array_shift($gb_captions);
 		if (!empty($this->categories)) array_shift($gb_captions);
 
-		$tb = $this->init_module('Utils/TabbedBrowser');
+		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
 		foreach($this->ref_records as $k=>$r) {
 			$title = strip_tags(call_user_func($this->ref_record_display_callback, $r,true));
 			$tb->set_tab($title, array($this,'draw_chart'),array($r,$title,$gb_captions));
@@ -1073,7 +1073,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		unset($_REQUEST['rb_reports_enable_pdf']);
 		$this->charts = $charts;
 		if ($this->pdf) {
-			$this->pdf_ob = $this->init_module('Libs/TCPDF', 'L');
+			$this->pdf_ob = $this->init_module(Libs_TCPDF::module_name(), 'L');
 			$this->pdf_ob->set_title($this->pdf_title);
 			$this->pdf_ob->set_subject($this->pdf_subject);
 			$this->pdf_ob->prepare_header();

@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Codepress extends Module {
 
 	public function body() {
-		$qf = $this->init_module('Libs/QuickForm');
+		$qf = $this->init_module(Libs_QuickForm::module_name());
 		$x = $qf->addElement('codepress','cd','CD');
 		$x->setRows(15);
 		$x->setCols(100);

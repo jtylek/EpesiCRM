@@ -39,6 +39,7 @@ class ModuleManager {
 		$file = self::get_module_file_name($module_class_name);
 		$full_path = EPESI_LOCAL_DIR . '/modules/' . $path . '/' . $file . 'Install.php';
 		if (!file_exists($full_path)) {
+            self::create_module_mock($module_class_name . 'Install');
 			self::check_is_module_available($module_class_name);
 			return false;
 		}
@@ -193,15 +194,7 @@ class ModuleManager {
 	 * @return array
 	 */
 	private static final function check_dependencies($module_to_check, $version, & $module_table) {
-		$ret = self::include_install($module_to_check);
-		if (!$ret) return array();
-
-		$func = array (
-			self::$modules_install[$module_to_check],
-			'requires'
-		);
-		if(!is_callable($func)) return array();
-		$req_mod = call_user_func($func,$version);
+		$req_mod = self::get_required_modules($module_to_check, $version);
 
 		$ret = array();
 
@@ -212,6 +205,11 @@ class ModuleManager {
 		}
 
 		return $ret;
+	}
+
+	public static function create_module_mock($class)
+	{
+		eval ("class $class extends ModulePrimitive {} ");
 	}
 
 	private static function satisfy_dependencies($module_to_install,$version,$check=null) {
@@ -596,6 +594,26 @@ class ModuleManager {
 
 	}
 
+	public static function get_required_modules($name,$version)
+	{
+		static $cache = array();
+		if (isset($cache[$name])) {
+			return $cache[$name];
+		}
+
+		$callable = self::include_install($name);
+		if ($callable) {
+			$required = call_user_func(array (
+				self::$modules_install[$name],
+				'requires'
+			),$version);
+        } else {
+            $required = array();
+        }
+		$cache[$name] = $required;
+		return $required;
+	}
+
 	/**
 	 * Uninstalls module.
 	 *
@@ -616,14 +634,7 @@ class ModuleManager {
 			if ($name == $module_to_uninstall)
 				continue;
 
-			$callable = self::include_install($name);
-			if ($callable)
-				$required = call_user_func(array (
-					self::$modules_install[$name],
-					'requires'
-					),$version);
-			else
-				$required = array();
+			$required = self::get_required_modules($name,$version);
 
 			foreach ($required as $req_mod) { //for each dependency of that module
 				$req_mod['name'] = str_replace('/','_',$req_mod['name']);
@@ -725,7 +736,7 @@ class ModuleManager {
 	public static final function & get_instance($path) {
 		$xx = explode('/',$path);
 		$curr = & self::$root;
-		if($curr->get_node_id() != $xx[1]) {
+		if(is_object($curr) && $curr->get_node_id() != $xx[1]) {
 			$x = null;
 			return $x;
 		}
@@ -792,8 +803,6 @@ class ModuleManager {
 	 * Do not use directly.
 	 */
 	public static final function load_modules() {
-		ModulesAutoloader::enable();
-
 		self::$modules = array();
 		$installed_modules = ModuleManager::get_load_priority_array(true);
 
@@ -959,7 +968,7 @@ class ModuleManager {
 			ob_start();
 			foreach($modules_with_method as $name) {
 				$common_class = $name . 'Common';
-				if (class_exists($common_class)) {
+				if (class_exists($common_class) && is_callable(array($common_class, $method))) {
 					$ret[$name] = call_user_func_array(array($common_class, $method), $args);
 				}
 			}
@@ -993,12 +1002,7 @@ class ModuleManager {
     public static function required_modules($verbose = false) {
         $ret = array();
         foreach (self::$modules as $name => $version) {
-			if (!self::include_install($name)) continue;
-			$required = call_user_func(array (
-				self::$modules_install[$name],
-				'requires'
-				),$version);
-
+			$required = self::get_required_modules($name,$version);
 			foreach ($required as $req_mod) {
                 $req_name = str_replace('/','_',$req_mod['name']);
                 if($verbose) {

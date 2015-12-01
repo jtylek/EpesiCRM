@@ -58,7 +58,7 @@ class Applets_MonthView extends Module {
 		if ($this->date==null) $this->date = date('Y-m-15');
 		$this->set_module_variable('date', $this->date);
 		$this->date = strtotime($this->date);
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>date('Y-m-15',$this->date+30*24*60*60))));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));

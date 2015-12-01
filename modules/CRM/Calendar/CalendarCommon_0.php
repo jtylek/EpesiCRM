@@ -114,7 +114,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 			print('<a '.(IPHONE?'class="button red" ':'').mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(0)).'>'.__('Show current week').'</a>');
 		else
 			print('<a '.(IPHONE?'class="button green" ':'').mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(7 * 24 * 60 * 60)).'>'.__('Show next week').'</a>');
-		Utils_CalendarCommon::mobile_agenda('CRM/Calendar/Event',array('custom_agenda_cols'=>array(__('Description'),__('Assigned to'),__('Related with'))),$time_shift,array('CRM_CalendarCommon','mobile_view_event'));
+		Utils_CalendarCommon::mobile_agenda(CRM_Calendar_Event::module_name(),array('custom_agenda_cols'=>array(__('Description'),__('Assigned to'),__('Related with'))),$time_shift,array('CRM_CalendarCommon','mobile_view_event'));
 	}
 	
 	public static function mobile_view_event($id) {

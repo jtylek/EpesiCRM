@@ -34,7 +34,7 @@ class Base_HomePage extends Module {
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		Base_ActionBarCommon::add('add', __('Add Home Page'), $this->create_callback_href(array($this, 'edit_home_page')));
 
-		$gb = $this->init_module('Utils/GenericBrowser', null, 'home_page_admin');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'home_page_admin');
 		$gb->set_table_columns(array(
 			array('name'=>'Home Page'),
 			array('name'=>'Clearance')

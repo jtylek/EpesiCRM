@@ -45,57 +45,7 @@ class Utils_Attachment extends Module {
     {
         $this->force_multiple = $arg;
     }
-	
-	public function admin() {
-		if ($this->is_back()) {
-			$this->parent->reset();
-		}
-		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-		$google_login = Variable::get('utils_attachments_google_user', false);
-		$google_pass = Variable::get('utils_attachments_google_pass', false);
-
-		$form = $this->init_module('Libs_QuickForm');
-		$theme = $this->init_module('Base_Theme');
-
-		$form->addElement('header', 'header', __('Google Username and Password'));
-
-		$form->addElement('text', 'google_user', __('Username'));
-		$form->addElement('password', 'google_pass', __('Password'));
-
-		$form->setDefaults(array('google_user'=>$google_login));
-		$form->setDefaults(array('google_pass'=>$google_pass));
-
-		if ($form->validate()) {
-			$vals = $form->exportValues();
-
-			$ok = true;
-			if ($vals['google_user']) {
-				$g_auth = Utils_AttachmentCommon::get_google_auth($vals['google_user'], $vals['google_pass']);
-				if (!$g_auth) $ok = false;
-			}
-
-			if ($ok) {
-				Variable::set('utils_attachments_google_user', $vals['google_user']);
-				Variable::set('utils_attachments_google_pass', $vals['google_pass']);
-
-				Base_StatusBarCommon::message(__('Settings saved'));
-			} else {
-				Base_StatusBarCommon::message(__('Unable to authenticate'), 'error');
-			}
-			location(array());
-			return;
-		}
-
-		$form->assign_theme('form', $theme);
-
-		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-		
-		Base_ThemeCommon::load_css('Utils_RecordBrowser','View_entry');
-		$theme->display('admin');
-	}
-	
 	public function body($arg=null, $rb=null, $uid=null) {
 		if(isset($arg) && isset($rb)) {
 			$this->group = $rb->tab.'/'.$arg['id'];
@@ -112,7 +62,7 @@ class Utils_Attachment extends Module {
         load_js('modules/Utils/Attachment/attachments.js');
         Base_ThemeCommon::load_css('Utils_Attachment','browse');
 
-        $this->rb = $this->init_module('Utils/RecordBrowser','utils_attachment','utils_attachment');
+        $this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'utils_attachment','utils_attachment');
         $defaults = array(
             'permission' => Base_User_SettingsCommon::get('CRM_Common','default_record_permission'),
             'func' => serialize($this->func),
@@ -148,7 +98,7 @@ class Utils_Attachment extends Module {
             if(!is_array($this->group)) $this->group = array($this->group);
 
             if(isset($_SESSION['attachment_copy']) && count($this->group)==1 && $_SESSION['attachment_copy']['group']!=$this->group) {
-                $this->rb->new_button(Base_ThemeCommon::get_template_file('Utils/Attachment', 'link.png'),__('Paste'),
+                $this->rb->new_button(Base_ThemeCommon::get_template_file(Utils_Attachment::module_name(), 'link.png'),__('Paste'),
                     Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste'))
                 );
             }
@@ -208,9 +158,9 @@ class Utils_Attachment extends Module {
 
         $id = $attachment['id'];
 
-        $tb = & $this->init_module('Utils/TabbedBrowser');
+        $tb = & $this->init_module(Utils_TabbedBrowser::module_name());
         $tb->start_tab('File history');
-        $gb = $this->init_module('Utils/GenericBrowser',null,'hua'.$id);
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'hua'.$id);
         $gb->set_inline_display();
         $gb->set_table_columns(array(
             array('name'=>__('Deleted'), 'order'=>'deleted','width'=>10),
@@ -220,7 +170,7 @@ class Utils_Attachment extends Module {
         ));
         $gb->set_default_order(array(__('Date')=>'DESC'));
 
-        $ret = $gb->query_order_limit('SELECT uaf.id,uaf.deleted,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
+        $ret = $gb->query_order_limit('SELECT uaf.id,uaf.deleted,uaf.filestorage_id,uaf.created_on as upload_on,uaf.created_by as upload_by,uaf.original FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
         while($row = $ret->FetchRow()) {
             $r = $gb->get_new_row();
             if ($row['deleted']) $r->add_action($this->create_confirm_callback_href(__('Are you sure you want to restore attached file?'),array($this,'restore_file'),array($row['id'])),'restore',__('Restore'));
@@ -230,13 +180,14 @@ class Utils_Attachment extends Module {
             $lb['crypted'] = $attachment['crypted'];
             $lb['original'] = $row['original'];
             $lb['id'] = $row['id'];
+            $lb['filestorage_id'] = $row['filestorage_id'];
             $file = '<a '.Utils_AttachmentCommon::get_file_leightbox($lb,$view_link).'>'.$row['original'].'</a>';
             $r->add_data($row['deleted']?__('Yes'):__('No'),Base_RegionalSettingsCommon::time2reg($row['upload_on']),Base_UserCommon::get_user_label($row['upload_by']),$file);
         }
         $this->display_module($gb);
         $tb->end_tab();
         $tb->start_tab('File access history');
-        $gb = $this->init_module('Utils/GenericBrowser',null,'hda'.$id);
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'hda'.$id);
         $gb->set_inline_display();
         $gb->set_table_columns(array(
             array('name'=>__('Create date'), 'order'=>'created_on','width'=>15),

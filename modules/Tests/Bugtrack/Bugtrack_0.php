@@ -15,7 +15,7 @@ class Tests_Bugtrack extends Module {
 	private $rb;
 
 	public function body() {
-		$this->rb = $this->init_module('Utils/RecordBrowser','bugtrack','bugtrack');
+		$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'bugtrack','bugtrack');
 		$this->display_module($this->rb);
 	}
 
@@ -24,7 +24,7 @@ class Tests_Bugtrack extends Module {
 	}
 
 public function company_bugtrack_addon($arg){
-		$rb = $this->init_module('Utils/RecordBrowser','bugtrack');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'bugtrack');
 		$proj = array(array('company_name'=>$arg['id']), array('company_name'=>false), array('Fav'=>'DESC'));
 		$this->display_module($rb,$proj,'show_data');
 	}

@@ -51,7 +51,7 @@ class Utils_Messenger extends Module {
 		if($this->is_back())
 			$this->pop_box0();
 
-		$f = $this->init_module('Libs/QuickForm');
+		$f = $this->init_module(Libs_QuickForm::module_name());
 		
 		if($row) {
 			$a = Base_RegionalSettingsCommon::time2reg($row['alert_on'],true,true,true,false);
@@ -115,7 +115,7 @@ class Utils_Messenger extends Module {
 	}
 
 	public function body() {
-		$gb = $this->init_module('Utils/GenericBrowser',null,'messages');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'messages');
 		$gb->set_table_columns(array(
 			array('name'=>__('Alert on'), 'width'=>20),
 			array('name'=>__('Message'), 'width'=>50),
@@ -157,7 +157,7 @@ class Utils_Messenger extends Module {
 	}
 
 	public function browse() {
-		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'agenda');
 		$columns = array(
 			array('name'=>__('Done'), 'order'=>'done', 'width'=>5),
 			array('name'=>__('Start'), 'order'=>'alert_on', 'width'=>15),
@@ -186,7 +186,7 @@ class Utils_Messenger extends Module {
 	/////////////////////////////////////////////////////////////
 	public function applet() {
 
-		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'agenda');
 		$columns = array(
 			array('name'=>__('Done'), 'order'=>'done', 'width'=>5),
 			array('name'=>__('Start'), 'order'=>'alert_on', 'width'=>15),

@@ -40,7 +40,7 @@ class Utils_TabbedBrowser extends Module {
 	
 	public function body($template=null) {
 		if (empty($this->tabs)) return;
-		$theme = $this->init_module('Base/Theme');
+		$theme = $this->init_module(Base_Theme::module_name());
 		
 		load_js($this->get_module_dir().'tb_.js');
 				

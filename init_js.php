@@ -26,9 +26,13 @@ if (isset($_SERVER['SCRIPT_FILENAME']) && $_SERVER['SCRIPT_FILENAME'] == __FILE_
 
 $client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
 $client_id_next = $client_id+1;
-if($client_id_next==5) $client_id_next=0;
 $_SESSION['num_of_clients'] = $client_id_next;
+
+//DBSession::destroy_client(session_id(),$client_id);
+if($client_id-5>=0) {
+    DBSession::destroy_client(session_id(),$client_id-5);
+    $_SESSION['session_destroyed'][$client_id-5] = 1;
+}
 session_commit();
-DBSession::destroy_client(session_id(),$client_id);
 
 ?>Epesi.init(<?php print($client_id); ?>,'<?php print(rtrim(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])),'/').'/process.php'); ?>','<?php print(http_build_query($_GET));?>');

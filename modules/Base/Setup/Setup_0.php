@@ -39,7 +39,7 @@ class Base_Setup extends Module {
 					continue;
 				}
 				$ret = call_user_func($f);
-				$form = $this->init_module('Libs/QuickForm',null,$i);
+				$form = $this->init_module(Libs_QuickForm::module_name(),null,$i);
 				$form->addElement('header',null,'Post installation of '.str_replace('_','/',$i));
 				$form->add_array($ret);
 				$form->addElement('submit',null,'OK');
@@ -89,7 +89,7 @@ class Base_Setup extends Module {
 
 	public function advanced_setup($store=false) {
 		//create default module form
-		$form = $this->init_module('Libs/QuickForm','Processing modules','setup');
+		$form = $this->init_module(Libs_QuickForm::module_name(),'Processing modules','setup');
 		
 		//install module header
 		$form -> addElement('header','mod_header','<b>' . __('Please select modules to be installed/uninstalled.') . '<br>' . __('For module details please click on "i" icon.'));
@@ -169,7 +169,7 @@ class Base_Setup extends Module {
 			array_push($def, array('installed['.$entry.']'=>$installed));
 		}
 
-		$tree = $this->init_module('Utils/Tree');
+		$tree = $this->init_module(Utils_Tree::module_name());
 		$tree->set_structure($structure);
 		$tree->set_inline_display();
 		//$form->addElement('html', '<tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
@@ -365,7 +365,7 @@ class Base_Setup extends Module {
 		
 		uasort($sorted, array($this, 'simple_setup_sort'));
 		
-		$t = $this->init_module('Base/Theme');
+		$t = $this->init_module(Base_Theme::module_name());
 		$t->assign('packages', $sorted);
 		$t->assign('filters', $filters);
 		$t->assign('version_label', __('Ver. '));

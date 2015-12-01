@@ -21,8 +21,7 @@ class PatchUtil
 {
     static function log($message)
     {
-        $logfile = DATA_DIR . '/patches_log.txt';
-        file_put_contents($logfile, $message, FILE_APPEND);
+        epesi_log($message,'patches.log');
     }
 
     /**

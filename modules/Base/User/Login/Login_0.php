@@ -17,7 +17,7 @@ class Base_User_Login extends Module {
 	public $theme;
 
 	public function construct() {
-		$this->theme = $this->pack_module('Base/Theme');
+		$this->theme = $this->pack_module(Base_Theme::module_name());
 	}
 
 	private function autologin() {
@@ -70,7 +70,7 @@ class Base_User_Login extends Module {
 		if($this->autologin()) return;
 
 		//else just login form
-		$form = $this->init_module('Libs/QuickForm',__('Logging in'));
+		$form = $this->init_module(Libs_QuickForm::module_name(),__('Logging in'));
 		$form->addElement('header', 'login_header', __('Login'));
 		
 		if(DEMO_MODE) {
@@ -118,7 +118,7 @@ class Base_User_Login extends Module {
 			$form->assign_theme('form', $this->theme);
 			$this->theme->assign('mode', 'login');
 
-            $logo = $this->init_module('Base/MainModuleIndicator');
+            $logo = $this->init_module(Base_MainModuleIndicator::module_name());
             $logo->set_inline_display();
             $this->theme->assign('logo', $this->get_html_of_module($logo,null,'login_logo'));
 
@@ -138,7 +138,7 @@ class Base_User_Login extends Module {
 	}
 
 	public function recover_pass() {
-		$form = $this->init_module('Libs/QuickForm',__('Processing request'));
+		$form = $this->init_module(Libs_QuickForm::module_name(),__('Processing request'));
 
 		$form->addElement('header', null, __('Recover password'));
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');
@@ -192,7 +192,7 @@ class Base_User_Login extends Module {
 			print('No such user!');
 			return false;
 		}
-		$hash = md5($user_id.''.time());
+		$hash = md5($user_id.''.openssl_random_pseudo_bytes(100));
 		DB::Execute('INSERT INTO user_reset_pass(user_login_id,hash_id,created_on) VALUES (%d,%s,%T)',array($user_id, $hash,time()));
 		
 		$subject = __('Password recovery');

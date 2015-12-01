@@ -89,15 +89,15 @@ class Applets_QuickSearchInstall extends ModuleInstall{
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/RecordBrowser', 'version'=>0),
-			array('name'=>'Base/Acl','version'=>0),
-			array('name'=>'Base/User','version'=>0),
-			array('name'=>'Utils/BBCode', 'version'=>0), 
-			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Base/Error','version'=>0),
-			array('name'=>'Base/Dashboard','version'=>0));
+			array('name'=>Utils_RecordBrowserInstall::module_name(), 'version'=>0),
+			array('name'=>Base_AclInstall::module_name(),'version'=>0),
+			array('name'=>Base_UserInstall::module_name(),'version'=>0),
+			array('name'=>Utils_BBCodeInstall::module_name(), 'version'=>0),
+			array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Base_ErrorInstall::module_name(),'version'=>0),
+			array('name'=>Base_DashboardInstall::module_name(),'version'=>0));
 	}
 
 	public static function info() {

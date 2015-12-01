@@ -78,6 +78,6 @@ if(!$finalize_checkpoint->is_done()) {
     } else {
         DB::Execute('ALTER TABLE recordbrowser_words_map ADD FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id)');
     }
-    DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','word_id,tab_id');
+    DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','record_id,tab_id');
     $finalize_checkpoint->done();
 }

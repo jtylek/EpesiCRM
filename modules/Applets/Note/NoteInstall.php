@@ -27,8 +27,9 @@ class Applets_NoteInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array(array('name'=>'Base/Dashboard','version'=>0),
-			array('name'=>'Base/Theme','version'=>0));
+		return array(
+			array('name'=>Base_DashboardInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

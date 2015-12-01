@@ -53,13 +53,16 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		$modules_menu = array();
 
 		$menus = Base_MenuCommon::get_menus();
-		ksort($menus);
+		//ksort($menus);
 		foreach($menus as $name=>$ret) {
 			if ($name=='Base_Admin') continue;
-			if ($name=='Base_Menu_QuickAccess') continue;
+			if ($name==Base_Menu_QuickAccessCommon::module_name()) continue;
 			Base_MenuCommon::add_default_menu($ret, $name);
 			$modules_menu = array_merge($modules_menu,self::check_for_links('',$ret,$name));
 		}
+		usort($modules_menu,function($a, $b) {
+		    return strcmp($a['label'],$b['label']);
+		});
 		self::$options = & $modules_menu;
 		return self::$options;
 	}
@@ -85,7 +88,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		self::get_options();
 		$qa_menu = array('__submenu__'=>1);
 		foreach (self::$options as $v)
-			if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_m'))
+			if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_m'))
 				$qa_menu[$v['label']] = $v['link'];
 
 		if ($qa_menu == array('__submenu__'=>1)) return array();

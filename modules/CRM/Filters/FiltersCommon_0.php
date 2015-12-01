@@ -80,6 +80,16 @@ class CRM_FiltersCommon extends ModuleCommon {
 		$_SESSION['client']['filter_'.Acl::get_user()]['desc'] = $desc;
 		location(array());
 	}
+
+	public static function crits_special_values()
+	{
+		$perspective = trim(CRM_FiltersCommon::get(), '()');
+		$perspective = empty($perspective) ? null : explode(',', $perspective);
+
+		return new Utils_RecordBrowser_ReplaceValue('__PERSPECTIVE__', __('Perspective'), $perspective, true);
+	}
 }
+
+Utils_RecordBrowser_Crits::register_special_value_callback(array('CRM_FiltersCommon', 'crits_special_values'));
 
 ?>

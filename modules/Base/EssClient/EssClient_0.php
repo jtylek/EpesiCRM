@@ -150,7 +150,7 @@ class Base_EssClient extends Module {
         }
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-        $f = $this->init_module('Libs/QuickForm');
+        $f = $this->init_module(Libs_QuickForm::module_name());
 
         $admin_email_tooltip = '<img ' .
                 Utils_TooltipCommon::open_tag_attrs(__('This email will be used to send registation link and to contact Administator directly.'), false)
@@ -239,7 +239,12 @@ class Base_EssClient extends Module {
                 print('<span style="color:gray;font-size:10px;">' . __('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
 				$defaults = Base_EssClientCommon::get_possible_admin();
 				$mc = CRM_ContactsCommon::get_main_company();
-                if ($mc) $defaults = array_merge(CRM_ContactsCommon::get_company($mc), $defaults);
+                if ($mc > 0) {
+                    $company = CRM_ContactsCommon::get_company($mc);
+                    if ($company) {
+                        $defaults = array_merge($company, $defaults);
+                    }
+                }
                 $f->setDefaults($defaults);
             }
         }
@@ -264,7 +269,7 @@ class Base_EssClient extends Module {
         }
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-        $f = $this->init_module('Libs/QuickForm');
+        $f = $this->init_module(Libs_QuickForm::module_name());
 
         $f->addElement('text', 'license_key', __('License Key'), array('maxlength' => 64, 'size' => 64, 'style' => 'width:395px;'));
         if ($f->validate()) {

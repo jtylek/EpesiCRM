@@ -22,11 +22,11 @@ class Base_Mail_ContactUsInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Libs/QuickForm','version'=>0), 
-			array('name'=>'Base/Mail', 'version'=>0), 
-			array('name'=>'Base/Lang', 'version'=>0),
-			array('name'=>'Base/StatusBar', 'version'=>0),
-			array('name'=>'Base/User/Login', 'version'=>0));
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
+			array('name'=>Base_MailInstall::module_name(), 'version'=>0),
+			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
+			array('name'=>Base_StatusBarInstall::module_name(), 'version'=>0),
+			array('name'=>Base_User_LoginInstall::module_name(), 'version'=>0));
 	}
 
 	public static function simple_setup() {

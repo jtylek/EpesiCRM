@@ -109,8 +109,13 @@ class ClientRequester implements IClient {
                 return $this->return_response_value_handling_user_messages($serialize_response, $response);
             } catch (SecureConnectionException $e) {
                 if (!Base_EssClientCommon::is_no_ssl_allowed()) {
-                    $disable_link_href = Base_BoxCommon::main_module_instance()->create_callback_href(array('Base_BoxCommon', 'push_module'), array('Base_EssClient', 'no_ssl_settings'));
-                    $disable_msg = "<br/>Or disable secure connection here: <a $disable_link_href>SSL settings</a>";
+                    try {
+                        $main = Base_BoxCommon::main_module_instance();
+                        $disable_link_href = $main->create_callback_href(array('Base_BoxCommon', 'push_module'), array('Base_EssClient', 'no_ssl_settings'));
+                        $disable_msg = "<br/>Or disable secure connection here: <a $disable_link_href>SSL settings</a>";
+                    } catch(Exception $e) {
+                        $disable_msg = "<br/>Or disable secure connection";
+                    }
                     Base_EssClientCommon::add_client_message_error($e->getMessage() . $disable_msg);
                 } else {
                     $this->disable_secure_connection();

@@ -342,7 +342,9 @@ function get_client_ip_address()
     } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
         $remote_address = $_SERVER['HTTP_CLIENT_IP'];
     }
-    return $remote_address;
+	// x-forwarded for can be a list of ip addresses
+	$remote_address = explode(',', $remote_address);
+    return trim($remote_address[0]);
 }
 
 function filesize_hr($size) {

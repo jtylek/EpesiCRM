@@ -28,8 +28,8 @@ class Applets_HostInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Base/Dashboard','version'=>0));
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
+			array('name'=>Base_DashboardInstall::module_name(),'version'=>0));
 	}
 	
 	public static function info() {

@@ -196,12 +196,12 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
      * @param array $messages Array of arrays in order info, warning, error
      */
     public static function add_client_messages($messages) {
-        $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
+        $msgs = Module::static_get_module_variable(Base_EssClient::module_name(), 'messages', array(array(), array(), array()));
         foreach ($msgs as $k => &$v) {
             $v = array_merge($v, $messages[$k]);
             $v = array_unique($v);
         }
-        Module::static_set_module_variable('Base/EssClient', 'messages', $msgs);
+        Module::static_set_module_variable(Base_EssClient::module_name(), 'messages', $msgs);
     }
 
     public static function client_messages_frame() {
@@ -227,7 +227,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     private static function format_client_messages($cleanup = true) {
-        $msgs = Module::static_get_module_variable('Base/EssClient', 'messages', array(array(), array(), array()));
+        $msgs = Module::static_get_module_variable(Base_EssClient::module_name(), 'messages', array(array(), array(), array()));
 
         $red = '#FFCCCC';
         $orange = '#FFDD99';
@@ -237,7 +237,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
                 . self::format_messages_frame($green, __('Information messages') . ':', $msgs[0]);
 
         if ($cleanup) {
-            Module::static_unset_module_variable('Base/EssClient', 'messages');
+            Module::static_unset_module_variable(Base_EssClient::module_name(), 'messages');
         }
         return $ret;
     }

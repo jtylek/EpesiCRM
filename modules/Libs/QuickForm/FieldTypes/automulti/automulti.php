@@ -86,7 +86,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     	$result = call_user_func_array($callback, $suggestbox_args);
     	$ret = '<ul>';
     	if (empty($result))
-			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records founds').'</span></li>';
+			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records found').'</span></li>';
     	foreach ($result as $k=>$v) {
     		if ($format) $disp = call_user_func($format, $k, $args);
 			else $disp = $v;

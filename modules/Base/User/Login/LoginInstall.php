@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_LoginInstall extends ModuleInstall {
 	public function install() {
-		$ret = DB::CreateTable('user_password',"user_login_id I KEY, password C(32) NOTNULL, mail C(255) NOTNULL",array('constraints' => ', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
+		$ret = DB::CreateTable('user_password',"user_login_id I KEY, password C(256) NOTNULL, mail C(255) NOTNULL",array('constraints' => ', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
 		if($ret===false) {
 			print('Invalid SQL query - user_password table install');
 			return false;
@@ -38,12 +38,12 @@ class Base_User_LoginInstall extends ModuleInstall {
 		Variable::set('host_ban_time',300);
         Variable::set('host_ban_nr_of_tries', 3);
         Variable::set('host_ban_by_login', 0);
-		Base_ThemeCommon::install_default_theme('Base/User/Login');
+		Base_ThemeCommon::install_default_theme(Base_User_LoginInstall::module_name());
 		return true;
 	}
 
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('Base/User/Login');
+		Base_ThemeCommon::uninstall_default_theme(Base_User_LoginInstall::module_name());
 		Variable::delete('host_ban_time');
         Variable::delete('host_ban_nr_of_tries');
         Variable::delete('host_ban_by_login');
@@ -55,12 +55,12 @@ class Base_User_LoginInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Base/User','version'=>0),
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Base/Mail', 'version'=>0));
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
+			array('name'=>Base_UserInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Base_MailInstall::module_name(), 'version'=>0));
 	}
 
 	public static function simple_setup() {

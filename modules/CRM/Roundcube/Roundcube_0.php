@@ -56,19 +56,19 @@ class CRM_Roundcube extends Module {
 
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		
-        $tb = $this->init_module('Utils/TabbedBrowser');
+        $tb = $this->init_module(Utils_TabbedBrowser::module_name());
         $tb->set_tab(__('Global Signature'),array($this,'admin_signature'));
         $tb->set_tab(__('Related'),array($this,'admin_related'));
         $this->display_module($tb);
     }
     
     public function admin_related() {
-        $rb = $this->init_module('Utils/RecordBrowser', 'rc_related', 'rc_related');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'rc_related', 'rc_related');
         $this->display_module($rb);
     }
     
     public function admin_signature() {
-		$f = $this->init_module('Libs/QuickForm');
+		$f = $this->init_module(Libs_QuickForm::module_name());
 		
 		$f->addElement('header',null,__('Outgoing mail global signature'));
 		
@@ -105,7 +105,7 @@ class CRM_Roundcube extends Module {
     }
 
     public function attachments_addon($arg,$rb) {
- 		$m = $this->init_module('Utils/GenericBrowser',null,'attachments');
+ 		$m = $this->init_module(Utils_GenericBrowser::module_name(),null,'attachments');
         $attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($arg['id']));
         $data = array();
         foreach($attachments as $k=>&$n) {
@@ -116,31 +116,12 @@ class CRM_Roundcube extends Module {
  		                    array('name'=>'Size')),$data,false,null,array('Filename'=>'ASC')),'simple_table');
     }
 
-    public function reload_mails($id) {
-        $contact = CRM_ContactsCommon::get_contact($id);
-        $emails = array($contact['email']);
-
-        $multiple = Utils_RecordBrowserCommon::get_records('rc_multiple_emails',array('record_type'=>'contact','record_id'=>$id));
-        foreach($multiple as $multi) $emails[] = $multi['email'];
-        $emails = array_unique($emails);
-
-        foreach($emails as $email) {
-            $cc = Utils_RecordBrowserCommon::get_records('rc_mails',array('(~from'=>'%'.$email.'%','|~to'=>'%'.$email.'%'));
-
-            foreach($cc as $mail) {
-                if($mail['employee']==$id || in_array('P:'.$id,$mail['contacts'])) continue;
-                $mail['contacts'][] = 'P:'.$id;
-                Utils_RecordBrowserCommon::update_record('rc_mails',$mail['id'],array('contacts'=>$mail['contacts']));
-                CRM_RoundcubeCommon::create_thread($mail['id']);
-            }
-        }
-    }
-
     public function addon($arg, $rb) {
         $rs = $rb->tab;
         $id = $arg['id'];
-        if($rs=='contact' && Base_AclCommon::i_am_admin()) {
-            Base_ActionBarCommon::add('reload',__('Reload mails'),$this->create_callback_href(array($this,'reload_mails'),$arg['id']));
+        if($rs=='contact' || $rs=='company') {
+            $emails = CRM_RoundcubeCommon::get_email_addresses($rs,$arg);
+            if($emails) Base_ActionBarCommon::add('reload', __('Reload mails'), $this->create_callback_href(array('CRM_RoundcubeCommon', 'reload_mails'), array($rs, $id, $emails)));
         }
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
             $ok = true;
@@ -171,14 +152,14 @@ class CRM_Roundcube extends Module {
     	    }
         }
 
-        $tb = $this->init_module('Utils/TabbedBrowser');
+        $tb = $this->init_module(Utils_TabbedBrowser::module_name());
         $tb->set_tab(__('Threaded'),array($this,'addon_threaded'),array($rs,$id));
         $tb->set_tab(__('Flat'),array($this,'addon_flat'),array($rs,$id));
         $this->display_module($tb);
     }
 
     public function addon_threaded($rs,$id) {
-        $rb = $this->init_module('Utils/RecordBrowser','rc_mail_threads','rc_mails_threaded');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(),'rc_mail_threads','rc_mails_threaded');
         $rb->set_header_properties(array(
                         'date'=>array('width'=>10),
                         'contacts'=>array('name'=>__('Involved contacts'), 'width'=>20),
@@ -201,7 +182,7 @@ class CRM_Roundcube extends Module {
         	//$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
         	$this->display_module($rb, array(array('(contacts'=>array('P:'.$id),'|id'=>$assoc_threads_ids), array(), array('last_date'=>'DESC')), 'show_data');
         } elseif($rs=='company') {
-            $form = $this->init_module('Libs/QuickForm');
+            $form = $this->init_module(Libs_QuickForm::module_name());
             $form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
             if ($form->validate()) {
                 $show_related = $form->exportValue('include_related');
@@ -230,7 +211,7 @@ class CRM_Roundcube extends Module {
     }
 
     public function addon_flat($rs,$id) {
-        $rb = $this->init_module('Utils/RecordBrowser','rc_mails','rc_mails_flat');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(),'rc_mails','rc_mails_flat');
         $rb->set_header_properties(array(
             'date'=>array('width'=>10),
             'employee'=>array('name'=>__('Archived by'),'width'=>20),
@@ -243,7 +224,7 @@ class CRM_Roundcube extends Module {
         if($rs=='contact') {
             $this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('P:'.$id),'|related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
         } elseif($rs=='company') {
-            $form = $this->init_module('Libs/QuickForm');
+            $form = $this->init_module(Libs_QuickForm::module_name());
             $form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
             if ($form->validate()) {
                 $show_related = $form->exportValue('include_related');
@@ -269,7 +250,7 @@ class CRM_Roundcube extends Module {
     }
 
     public function thread_addon($arg,$rb) {
-        $rb = $this->init_module('Utils/RecordBrowser','rc_mails','rc_mails_flat_thread');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(),'rc_mails','rc_mails_flat_thread');
         $rb->set_header_properties(array(
             'date'=>array('width'=>10),
             'employee'=>array('name'=>__('Archived by'),'width'=>20),
@@ -297,8 +278,8 @@ class CRM_Roundcube extends Module {
 
     public function actions_for_mails($r, $gb_row) {
         $gb_row->add_action($this->create_callback_href(array($this,'copy'),array($r['id'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
-        $gb_row->add_action('style="display:none;" href="javascript:void(0)" class="expand"','Expand', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'expand.gif'), 5);
-        $gb_row->add_action('style="display:none;" href="javascript:void(0)" class="collapse"','Collapse', null, Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'collapse.gif'), 5);
+        $gb_row->add_action('style="display:none;" href="javascript:void(0)" class="expand"','Expand', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'expand.gif'), 5);
+        $gb_row->add_action('style="display:none;" href="javascript:void(0)" class="collapse"','Collapse', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse.gif'), 5);
     }
 
     public function copy($id) {
@@ -349,7 +330,7 @@ class CRM_Roundcube extends Module {
 	public function mail_addresses_addon($arg,$rb) {
 		$type = $rb->tab;
 		$loc = Base_RegionalSettingsCommon::get_default_location();
-		$rb = $this->init_module('Utils/RecordBrowser','rc_multiple_emails');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'rc_multiple_emails');
 		$order = array(array('record_type'=>$type,'record_id'=>$arg['id']), array('record_type'=>false,'record_id'=>false), array());
 		$rb->set_defaults(array('record_type'=>$type,'record_id'=>$arg['id']));
         $rb->enable_quick_new_records();
@@ -369,13 +350,13 @@ class CRM_Roundcube extends Module {
             Base_ActionBarCommon::add('back',__('Back'),$this->create_main_href('Base_User_Settings'));
         }
 
-        $this->rb = $this->init_module('Utils/RecordBrowser','rc_accounts','rc_accounts');
+        $this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'rc_accounts','rc_accounts');
         $this->rb->set_defaults(array('epesi_user'=>Acl::get_user()));
         $order = array(array('login'=>'DESC'), array('epesi_user'=>Acl::get_user()),array('epesi_user'=>false));
         $this->display_module($this->rb,$order);
 
         // other settings
-        $qf = $this->init_module('Libs/QuickForm');
+        $qf = $this->init_module(Libs_QuickForm::module_name());
         $qf->addElement('advcheckbox', 'standard_mailto', __("Use standard mailto links"), null, array('onchange' => $qf->get_submit_form_js()));
         $use_standard_mailto = CRM_RoundcubeCommon::use_standard_mailto();
         $qf->setDefaults(array('standard_mailto' => $use_standard_mailto));

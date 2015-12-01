@@ -45,10 +45,10 @@ class Base_SetupInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array (
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Libs/Leightbox','version'=>0),
-			array('name'=>'Utils/Tree','version'=>0)
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
+			array('name'=>Libs_LeightboxInstall::module_name(),'version'=>0),
+			array('name'=>Utils_TreeInstall::module_name(),'version'=>0)
 		);
 	}
 

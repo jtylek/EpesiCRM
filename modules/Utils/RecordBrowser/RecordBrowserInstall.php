@@ -16,7 +16,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	public function install() {
 		$this->create_data_dir();
 		
-		Base_ThemeCommon::install_default_theme('Utils/RecordBrowser');
+		Base_ThemeCommon::install_default_theme(Utils_RecordBrowserInstall::module_name());
 		DB::CreateTable('recordbrowser_table_properties',
 						'id I2 AUTO KEY,'.
 						'tab C(64),'.
@@ -62,8 +62,10 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 					array('constraints'=>', UNIQUE(word)'));
 		DB::CreateTable('recordbrowser_words_map', 'word_id I, tab_id I2, record_id I, field_id I2, position I',
 					array('constraints'=>', FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties(id) ON DELETE CASCADE ON UPDATE CASCADE'));
-		DB::CreateIndex('recordbrowser_words_map__idx','recordbrowser_words_map','tab_id,record_id');
-        Base_PrintCommon::register_printer(new Utils_RecordBrowser_RecordPrinter());
+		DB::CreateIndex('rb_words_map__word_idx','recordbrowser_words_map','word_id');
+		DB::CreateIndex('rb_words_map__tab_idx','recordbrowser_words_map','tab_id');
+		DB::CreateIndex('rb_words_map__record_tab_idx','recordbrowser_words_map','record_id,tab_id');
+		Base_PrintCommon::register_printer(new Utils_RecordBrowser_RecordPrinter());
 		return true;
 	}
 	
@@ -74,24 +76,25 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		DB::DropTable('recordbrowser_table_properties');
 		DB::DropTable('recordbrowser_datatype');
         Base_PrintCommon::unregister_printer('Utils_RecordBrowser_RecordPrinter');
-		Base_ThemeCommon::uninstall_default_theme('Utils/RecordBrowser');
+		Base_ThemeCommon::uninstall_default_theme(Utils_RecordBrowserInstall::module_name());
 		return true;
 	}
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/CommonData', 'version'=>0), 
-			array('name'=>'Utils/CurrencyField', 'version'=>0), 
-			array('name'=>'Utils/Shortcut', 'version'=>0), 
-			array('name'=>'Utils/BBCode', 'version'=>0), 
-			array('name'=>'Utils/Tooltip', 'version'=>0), 
-			array('name'=>'Utils/RecordBrowser/RecordPickerFS', 'version'=>0),
-			array('name'=>'Utils/RecordBrowser/RecordPicker', 'version'=>0),
-			array('name'=>'Utils/GenericBrowser', 'version'=>0), 
-			array('name'=>'Utils/TabbedBrowser', 'version'=>0), 
-			array('name'=>'Utils/Watchdog', 'version'=>0), 
-			array('name'=>'Base/User/Login', 'version'=>0), 
-			array('name'=>'Base/User', 'version'=>0)
+			array('name'=>Utils_CommonDataInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_CurrencyFieldInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_ShortcutInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_BBCodeInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_TooltipInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_RecordBrowser_RecordPickerFSInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_RecordBrowser_RecordPickerInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_GenericBrowserInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_TabbedBrowserInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_WatchdogInstall::module_name(), 'version'=>0),
+			array('name'=>Base_User_LoginInstall::module_name(), 'version'=>0),
+			array('name'=>Base_UserInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_QueryBuilderInstall::module_name(), 'version'=>0)
 		);
 	}
 	

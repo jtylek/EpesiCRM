@@ -20,7 +20,7 @@ class Base_Print extends Module
         }
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-        $form = $this->init_module('Libs/QuickForm');
+        $form = $this->init_module(Libs_QuickForm::module_name());
         foreach (Base_PrintCommon::get_registered_printers_translated()
                  as $class_name => $printer_name) {
             $printer = Base_PrintCommon::printer_instance($class_name);

@@ -15,7 +15,7 @@ class Base_Dashboard extends Module {
 	private $set_default_js='';
 
 	public function construct() {
-		$this->tb = $this->init_module('Utils/TabbedBrowser');
+		$this->tb = $this->init_module(Utils_TabbedBrowser::module_name());
         on_init(array('Base_ActionBarCommon', 'show_quick_access_shortcuts'), array(false));
 	}
 
@@ -23,7 +23,7 @@ class Base_Dashboard extends Module {
 		if(!Base_AclCommon::check_permission('Dashboard')) return;
 		$this->help('Dashboard Help','main');
 
-		if(ModuleManager::is_installed('Utils/RecordBrowser')>=0) //speed up links to RB
+		if(Utils_RecordBrowserInstall::is_installed()) //speed up links to RB
 			if(Utils_RecordBrowserCommon::check_for_jump()) return;
 
 		$this->dashboard();
@@ -34,13 +34,15 @@ class Base_Dashboard extends Module {
 		load_js($this->get_module_dir().'ab.js');
 		$default_dash = $this->get_module_variable('default');
 		$config_mode = $this->get_module_variable('config_mode', false);
-		if ($config_mode) {
-			Base_ActionBarCommon::add('back',__('Done'),$this->create_callback_href(array($this,'switch_config_mode')));
-		} else {
-			Base_ActionBarCommon::add('settings',__('Config'),$this->create_callback_href(array($this,'switch_config_mode')));
+		if ($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()) {
+			if ($config_mode) {
+				Base_ActionBarCommon::add('back',__('Done'),$this->create_callback_href(array($this,'switch_config_mode')));
+			} else {
+				Base_ActionBarCommon::add('settings',__('Config'),$this->create_callback_href(array($this,'switch_config_mode')));
+			}
 		}
 
-		if($default_dash)
+		if($default_dash || !Base_DashboardCommon::has_permission_to_manage_applets())
 			$tabs = DB::GetAll('SELECT * FROM base_dashboard_default_tabs ORDER BY pos');
 		else {
 			$tabs = DB::GetAll('SELECT * FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Base_AclCommon::get_user()));
@@ -141,7 +143,7 @@ class Base_Dashboard extends Module {
 			print('</td></tr></table>');
 			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
 		}
-		eval_js('dashboard_activate('.json_encode($init_tabs_js).','.($default_dash?1:0).')');
+		eval_js('dashboard_activate('.json_encode($init_tabs_js).','.($default_dash?1:0).','.($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()?1:0).')');
 	}
 	
 	public function switch_config_mode() {
@@ -155,7 +157,7 @@ class Base_Dashboard extends Module {
 		$colors = Base_DashboardCommon::get_available_colors();
 		$applets = array(0=>array(),1=>array(),2=>array());
 		$config_mode = $this->get_module_variable('config_mode', false);
-		if($default_dash)
+		if($default_dash || !Base_DashboardCommon::has_permission_to_manage_applets())
 			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_default_applets WHERE tab=%d ORDER BY col,pos',array($tab_id));
 		else
 			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d ORDER BY pos',array(Base_AclCommon::get_user(),$tab_id));
@@ -186,7 +188,7 @@ class Base_Dashboard extends Module {
 				$opts['actions'] = array();
 				$opts['id'] = $row['id'];
 
-				$th = $this->init_module('Base/Theme');
+				$th = $this->init_module(Base_Theme::module_name());
 
 				if ($config_mode || !$m) $content = '';
 				else $content = $this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), & $opts, $row['id']),'applet');
@@ -194,6 +196,7 @@ class Base_Dashboard extends Module {
 						$content.
 						'</div>');
 				$th->assign('handle_class','handle');
+				$th->assign('fixed', !($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()));
 
 				if($opts['toggle'] && !$config_mode)
 					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs(__('Toggle')).'>=</a>');
@@ -206,10 +209,12 @@ class Base_Dashboard extends Module {
 				if($opts['href'])
 					$th->assign('href','<a class="href" '.Utils_TooltipCommon::open_tag_attrs(__('Fullscreen')).' '.$opts['href'].'>G</a>');
 
-				$th->assign('remove',Base_DashboardCommon::get_remove_applet_button($row['id'], $default_dash));
-				
-				if (!$config_mode)
-					$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs(__('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
+				if ($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()) {
+					$th->assign('remove',Base_DashboardCommon::get_remove_applet_button($row['id'], $default_dash));
+					if (!$config_mode) {
+						$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs(__('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
+					}
+				}
 
 				$th->assign('caption',$opts['title']);
 				$th->assign('color',$colors[$row['color']]['class']);
@@ -229,6 +234,8 @@ class Base_Dashboard extends Module {
 
 	public function delete_tab($id) {
 		$default_dash = $this->get_module_variable('default');
+
+		if (!$default_dash && !Base_DashboardCommon::has_permission_to_manage_applets()) return;
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
 		$table_settings = 'base_dashboard_'.($default_dash?'default_':'').'settings';
@@ -244,6 +251,8 @@ class Base_Dashboard extends Module {
 
 	public function move_tab($id,$old_pos,$dir) {
 		$default_dash = $this->get_module_variable('default');
+
+		if (!$default_dash && !Base_DashboardCommon::has_permission_to_manage_applets()) return;
 		$table = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		DB::StartTrans();
 		$new_pos = DB::GetOne('SELECT '.($dir>0?'MIN':'MAX').'(pos) FROM '.$table.' WHERE pos'.($dir>0?'>':'<').'%d '.($default_dash?'':'AND user_login_id=%s'),array($old_pos, Base_AclCommon::get_user()));
@@ -254,9 +263,13 @@ class Base_Dashboard extends Module {
 	}
 
 	public function add_applet($mod,$tab_id) {
+		$default_dash = $this->get_module_variable('default');
+
+		if (!$default_dash && !Base_DashboardCommon::has_permission_to_manage_applets()) return;
+
 		$pos = 0;
 		DB::StartTrans();
-		if($this->get_module_variable('default')) {
+		if($default_dash) {
 			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_default_applets WHERE tab=%d GROUP BY col ORDER BY col',array($tab_id));
 			for($col=0; $col<3 && isset($cols[$col]); $col++);
 			if($col==3) $col=0;
@@ -278,7 +291,11 @@ class Base_Dashboard extends Module {
 	}
 
 	public function delete_applet($id) {
-		if($this->get_module_variable('default')) {
+		$default_dash = $this->get_module_variable('default');
+
+		if (!$default_dash && !Base_DashboardCommon::has_permission_to_manage_applets()) return;
+
+		if($default_dash) {
 			DB::Execute('DELETE FROM base_dashboard_default_settings WHERE applet_id=%d',array($id));
 			DB::Execute('DELETE FROM base_dashboard_default_applets WHERE id=%d',array($id));
 		} else {
@@ -302,6 +319,10 @@ class Base_Dashboard extends Module {
 	}
 
 	public function configure_applet($id,$mod,& $ok=null) {
+		$default_dash = $this->get_module_variable('default');
+
+		if (!$default_dash && !Base_DashboardCommon::has_permission_to_manage_applets()) return;
+
 		if($this->is_back()) {
 			$ok=false;
 			return false;
@@ -315,7 +336,7 @@ class Base_Dashboard extends Module {
 			return false;
 		}
 
-		$f = $this->init_module('Libs/QuickForm',__('Saving settings'),'settings');
+		$f = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'),'settings');
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
 
 		if($is_conf) {
@@ -336,7 +357,6 @@ class Base_Dashboard extends Module {
 			$color[$k] = '&bull; '.$color[$k]['label'];
 		$f->addElement('select', '__color', __('Color'), $color, array('style'=>'width: 100%;'));
 
-		$default_dash = $this->get_module_variable('default');
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
 		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs.($default_dash?'':' WHERE user_login_id='.Base_AclCommon::get_user()));

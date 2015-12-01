@@ -26,7 +26,7 @@ class Utils_ImageCommon extends ModuleCommon {
 		ini_set("gd.jpeg_ignore_warning", 1);
 		
 		if(!is_file($img)) {
-			$img = Base_ThemeCommon::get_template_file('Utils/Image','error_image_not_found.gif');
+			$img = Base_ThemeCommon::get_template_file(Utils_ImageInstall::module_name(),'error_image_not_found.gif');
 		} 
 		
 		list($width,$height,$type,$attr) = getimagesize($img);
@@ -57,7 +57,7 @@ class Utils_ImageCommon extends ModuleCommon {
 	
 		// check if thumbnail in desired scale already exists
 		//  1) it does
-		$thumb_real = ModuleManager::get_data_dir('Utils/Image').$thumb;
+		$thumb_real = ModuleManager::get_data_dir(Utils_ImageInstall::module_name()).$thumb;
 		if( is_file($thumb_real) && filemtime($img)<filemtime($thumb_real) && filectime($img)<filectime($thumb_real)) {
 			//print ModuleManager::get_data_dir('Utils/Image').$thumb." exists<br>";
 			list($thumb_width, $thumb_height, $type, $attr) = getimagesize($thumb_real);
@@ -137,7 +137,7 @@ class Utils_ImageCommon extends ModuleCommon {
 		load_js("modules/Utils/Image/js/image.js");
 		eval_js('utils_image_load_thumb(\''.$x['thumb'].'\', \''.$md.'\')');
 
-		return '<img class="loader_'.$md.'" src="'.Base_ThemeCommon::get_template_file('Utils/Image','loader.gif').'">';
+		return '<img class="loader_'.$md.'" src="'.Base_ThemeCommon::get_template_file(Utils_ImageInstall::module_name(),'loader.gif').'">';
 	}
 	
 	/**

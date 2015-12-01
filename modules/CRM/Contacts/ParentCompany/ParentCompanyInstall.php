@@ -31,7 +31,8 @@ class CRM_Contacts_ParentCompanyInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'CRM/Contacts','version'=>0));
+			array('name'=>CRM_ContactsInstall::module_name(),'version'=>0)
+		);
 	}
 	
 	public static function info() {

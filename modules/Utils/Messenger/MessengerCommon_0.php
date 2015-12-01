@@ -57,7 +57,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 			DB::Execute('INSERT INTO utils_messenger_users(message_id,user_login_id) VALUES (%d,%d)',array($id,$users));
 	}
 
-	public static function tray_notification() {
+	public static function notification() {
 		$arr = DB::GetAll('SELECT m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T',array(Acl::get_user(),time()));
 		$ret = array();
 		$tray = array();

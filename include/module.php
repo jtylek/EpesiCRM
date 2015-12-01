@@ -32,6 +32,7 @@ abstract class Module extends ModulePrimitive {
 	private $clear_child_vars = false;
 	public $display_func = false;
 
+	//region Construct
 	/**
 	 * Constructor. Should not be called directly using new Module('name').
 	 * Use $this->pack_module or $this->init_module (inside other module).
@@ -68,6 +69,56 @@ abstract class Module extends ModulePrimitive {
 		}
 	}
 
+	/**
+	 * Creates module instance which name is given as first parameter.
+	 *
+	 * Created module instance will be a child to the module which called this function.
+	 *
+	 * @param string $module_type module name
+	 * @param mixed $args arguments for module constructor
+	 * @param string $name unique name for the instance, will be assigned automatically by default
+	 * @param boolean $clear_vars clean module variables
+	 * @return mixed if access denied returns null, else child module object
+	 */
+	public final function init_module($module_type, $args = null, $name=null,$clear_vars=false) {
+		if (strpos($module_type, '#') === 0) {
+			$module_type = $this->get_type() . $module_type;
+		}
+		$module_type = str_replace('/','_',$module_type);
+		$m = & ModuleManager::new_instance($module_type,$this,$name,($clear_vars || $this->clear_child_vars));
+
+		if($args===null) $args = array();
+		elseif(!is_array($args)) $args = array($args);
+
+		if(method_exists($m,'construct')) {
+			ob_start();
+			call_user_func_array(array($m,'construct'),$args);
+			ob_end_clean();
+		}
+
+		return $m;
+	}
+
+	/**
+	 * Creates instance of module given as first parameter as a child of the module that has called this function.
+	 * Also, this function will call newly created module's method, which name is passed as second parameter.
+	 * You can pass additional arguments as next parameters.
+	 *
+	 * @param string $module_type child module name
+	 * @param mixed $display_args function_name arguments
+	 * @param string $function_name function to call
+	 * @param mixed $construct_args module's construct arguments
+	 * @param string $name module name
+	 * @return mixed if access denied returns null, otherwise returns child module object
+	 */
+	public final function pack_module($module_type, $display_args=null, $function_name = null, $construct_args=null, $name=null) {
+		$m = $this->init_module($module_type,$construct_args,$name);
+		$this->display_module($m, $display_args, $function_name);
+		return $m;
+	}
+
+	//endregion
+	//region Children
 	private final function register_child($ch) {
 		$type = $ch->type_with_submodule;
 		$instance = $ch->get_instance_id();
@@ -112,45 +163,19 @@ abstract class Module extends ModulePrimitive {
 	}
 
 	/**
-	 * Returns unique path of parent module.
-	 * Path contains modules hierarchy information (parent of parent etc.) for the current module.
-	 * Each module in the path is described as name and instance id.
+	 * Makes child module to not loose its module variables
 	 *
-	 * @return string
+	 * @param string $module_type module
 	 */
-	public final function get_parent_path() {
-		if($this->parent)
-			return $this->parent->get_path();
-		return false;
+	public final function freeze_module($module_type,$name=null) {
+		if($this->clear_child_vars) return;
+		$module_type = str_replace('/','_',$module_type);
+		if(!isset($name)) $name = $this->get_new_child_instance_id($module_type);
+		$this->frozen_modules[$module_type.'|'.$name] = 1;
 	}
 
-	/**
-	 * Get node identifier.
-	 *
-	 * @return string
-	 */
-	public final function get_node_id()
-	{
-		return $this->type_with_submodule . '|' . $this->instance;
-	}
-
-	/**
-	 * Returns unique path of calling module.
-	 *
-	 * Path contains modules hierarchy information (parent of parent etc.) for current module.
-	 * Each module in the path is described as name and instance id.
-	 *
-	 * Example:
-	 * Module named Base/Box, instance 1, without parents:
-	 * get_path returns '/Base_Box|1'
-	 *
-	 * @return string unique module name
-	 */
-	public final function get_path() {
-		if(!isset($this->path))
-			$this->path = $this->get_parent_path().'/'.$this->get_node_id();
-		return $this->path;
-	}
+	//endregion
+	//region Module Variables
 
 	/**
 	 * Sets variable that will be available only for module instance that called this function.
@@ -364,6 +389,8 @@ abstract class Module extends ModulePrimitive {
 		return true;
 	}
 
+	//endregion
+	//region Reload
 	/**
 	 * Mark module to force its reload or prevent being reloaded.
 	 * If this method is not called, module is reloaded by default,
@@ -384,19 +411,22 @@ abstract class Module extends ModulePrimitive {
 	 public final function get_reload() {
 	 	return $this->reload;
 	 }
+	//endregion
+	//region Hrefs
+	//region Variable hrefs
 
 	/**
 	 * Create onClick action string destined for js code.
 	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
 	 *
-	 * <xmp>
+	 * <code>
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
-	 * </xmp>
+	 * </code>
 	 *
 	 * @param array $variables variables to pass along with href
 	 * @param string $indicator status bar indicator text
 	 * @param string $mode block, allow, queue click on simutanous click
-	 * @return string href string
+	 * @return string href string {@source}
 	 */
 	public final static function create_href_js(array $variables = array (), $indicator=null, $mode=null) {
 		$ret = http_build_query($variables);
@@ -408,9 +438,9 @@ abstract class Module extends ModulePrimitive {
 	 * Create onClick action string (with href="javascript:void(0);").
 	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
 	 *
-	 * <xmp>
+	 * <code>
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
-	 * </xmp>
+	 * </code>
 	 *
 	 * @param array $variables variables to pass along with href
 	 * @param string $indicator status bar indicator text
@@ -427,9 +457,9 @@ abstract class Module extends ModulePrimitive {
 	 * This function will trigger js confirm dialog before launching processing.
 	 * If cancelled, no processing will be done.
 	 *
-	 * <xmp>
+	 * <code>
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
-	 * </xmp>
+	 * </code>
 	 *
 	 * @param string $confirm question displayed in confirmation box
 	 * @param array $variables variables to pass along with href
@@ -523,7 +553,8 @@ abstract class Module extends ModulePrimitive {
 		$rkey = $this->create_unique_key($key);
 		return isset($_REQUEST[$rkey]);
 	}
-	
+	//endregion
+	//region Callback hrefs
 	private final function create_callback_name($func, $args) {
 		if(is_string($func))
 			return md5(serialize(array($func,$args)));
@@ -682,6 +713,8 @@ abstract class Module extends ModulePrimitive {
 		$this->set_callback($name,$func,$args);
 		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator,$mode);
 	}
+	//endregion
+	//region Back hrefs
 
 	/**
 	 * Creates link that will lead back to previous page content.
@@ -728,36 +761,10 @@ abstract class Module extends ModulePrimitive {
 		}
 		return false;
 	}
+	//endregion
+	//endregion
 
-	/**
-	 * Creates module instance which name is given as first parameter.
-	 *
-	 * Created module instance will be a child to the module which called this function.
-	 *
-	 * @param string $module_type module name
-	 * @param mixed $args arguments for module constructor
-	 * @param string $name unique name for the instance, will be assigned automatically by default
-     * @param boolean $clear_vars clean module variables
-	 * @return mixed if access denied returns null, else child module object
-	 */
-	public final function init_module($module_type, $args = null, $name=null,$clear_vars=false) {
-		if (strpos($module_type, '#') === 0) {
-			$module_type = $this->get_type() . $module_type;
-		}
-		$module_type = str_replace('/','_',$module_type);
-		$m = & ModuleManager::new_instance($module_type,$this,$name,($clear_vars || $this->clear_child_vars));
-
-		if($args===null) $args = array();
-		elseif(!is_array($args)) $args = array($args);
-
-		if(method_exists($m,'construct')) {
-			ob_start();
-			call_user_func_array(array($m,'construct'),$args);
-			ob_end_clean();
-		}
-
-		return $m;
-	}
+	//region Display
 
 	/**
 	 * Call method of the module passed as first parameter,
@@ -897,6 +904,9 @@ abstract class Module extends ModulePrimitive {
 		$this->displayed = isset($_REQUEST['__location'])?$_REQUEST['__location']:null;;
 	}
 
+	//endregion
+	//region Settings
+
 	/**
 	 * Returns whether this module instance has fast processing turned on.
 	 *
@@ -929,24 +939,8 @@ abstract class Module extends ModulePrimitive {
 		$this->inline_display = true;
 	}
 
-	/**
-	 * Creates instance of module given as first parameter as a child of the module that has called this function.
-	 * Also, this function will call newly created module's method, which name is passed as second parameter.
-	 * You can pass additional arguments as next parameters.
-	 *
-	 * @param string $module_type child module name
-     * @param mixed $display_args function_name arguments
-	 * @param string $function_name function to call
-     * @param mixed $construct_args module's construct arguments
-     * @param string $name module name
-	 * @return mixed if access denied returns null, otherwise returns child module object
-	 */
-	public final function pack_module($module_type, $display_args=null, $function_name = null, $construct_args=null, $name=null) {
-		$m = $this->init_module($module_type,$construct_args,$name);
-		$this->display_module($m, $display_args, $function_name);
-		return $m;
-	}
-
+	//endregion
+	//region JS
 	/**
 	 * Appends js code to list of jses to evaluate.
 	 *
@@ -963,6 +957,48 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function get_jses() {
 		return $this->jses;
+	}
+	//endregion
+	//region Names and IDs
+	/**
+	 * Returns unique path of parent module.
+	 * Path contains modules hierarchy information (parent of parent etc.) for the current module.
+	 * Each module in the path is described as name and instance id.
+	 *
+	 * @return string
+	 */
+	public final function get_parent_path() {
+		if($this->parent)
+			return $this->parent->get_path();
+		return false;
+	}
+
+	/**
+	 * Get node identifier.
+	 *
+	 * @return string
+	 */
+	public final function get_node_id()
+	{
+		return $this->type_with_submodule . '|' . $this->instance;
+	}
+
+	/**
+	 * Returns unique path of calling module.
+	 *
+	 * Path contains modules hierarchy information (parent of parent etc.) for current module.
+	 * Each module in the path is described as name and instance id.
+	 *
+	 * Example:
+	 * Module named Base/Box, instance 1, without parents:
+	 * get_path returns '/Base_Box|1'
+	 *
+	 * @return string unique module name
+	 */
+	public final function get_path() {
+		if(!isset($this->path))
+			$this->path = $this->get_parent_path().'/'.$this->get_node_id();
+		return $this->path;
 	}
 
 	/**
@@ -997,17 +1033,8 @@ abstract class Module extends ModulePrimitive {
 		return $this->get_path() . '_' . $name;
 	}
 
-	/**
-	 * Makes child module to not loose its module variables
-	 *
-	 * @param string $module_type module
-	 */
-	public final function freeze_module($module_type,$name=null) {
-		if($this->clear_child_vars) return;
-		$module_type = str_replace('/','_',$module_type);
-		if(!isset($name)) $name = $this->get_new_child_instance_id($module_type);
-		$this->frozen_modules[$module_type.'|'.$name] = 1;
-	}
+	//endregion
+	//region Register Methods
 	
 	/////////////////////////
 	// registered methods
@@ -1024,4 +1051,5 @@ abstract class Module extends ModulePrimitive {
 			$ret = false;
 		return $ret;
 	}
+	//endregion
 }

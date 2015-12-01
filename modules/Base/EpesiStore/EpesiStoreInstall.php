@@ -43,11 +43,11 @@ class Base_EpesiStoreInstall extends ModuleInstall {
 
     public function requires($v) {
         return array(
-            array('name' => 'Base/Admin', 'version' => 0),
-            array('name' => 'Base/Lang', 'version' => 0),
-            array('name' => 'Base/Menu', 'version' => 0),
-            array('name' => 'Libs/QuickForm', 'version' => 0),
-            array('name' => 'Base/EssClient', 'version' => 0));
+            array('name' => Base_AdminInstall::module_name(), 'version' => 0),
+            array('name' => Base_LangInstall::module_name(), 'version' => 0),
+            array('name' => Base_MenuInstall::module_name(), 'version' => 0),
+            array('name' => Libs_QuickFormInstall::module_name(), 'version' => 0),
+            array('name' => Base_EssClientInstall::module_name(), 'version' => 0));
     }
 
     public static function info() {

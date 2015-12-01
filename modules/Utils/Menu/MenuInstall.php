@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_MenuInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme('Utils/Menu');
+		Base_ThemeCommon::install_default_theme(Utils_MenuInstall::module_name());
 		return true;
 	}
 	

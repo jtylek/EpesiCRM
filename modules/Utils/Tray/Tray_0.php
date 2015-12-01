@@ -46,7 +46,7 @@
  * Sample:
  * 
  * public function body($mode) {
- *		$this->rb = $this->init_module('Utils/RecordBrowser', 'sample_tab', 'sample_tab');
+ *		$this->rb = $this->init_module(Utils_RecordBrowser::getName(), 'sample_tab', 'sample_tab');
  *		
  *		self::project_filter($this->rb); //defining custom filter for 'project' field
  *		self::status_filter($this->rb);  //defining custom filter for 'status' field
@@ -182,7 +182,7 @@ class Utils_Tray extends Module {
 
 		load_js($this->get_module_dir().'tray.js');
 
-		$theme = $this->init_module('Base/Theme');
+		$theme = $this->init_module(Base_Theme::module_name());
 		$icon = Base_ThemeCommon::get_template_file($this->get_type(),'pile2.png');
 
 		$theme->assign('main_page', !$applet);
@@ -227,7 +227,7 @@ class Utils_Tray extends Module {
 				$tray_slot_select_options[$slot_id] = _V($slot_def['__name__']);
 			}
 
-			$form = $this->init_module('Libs/QuickForm');
+			$form = $this->init_module(Libs_QuickForm::module_name());
 			$form->addElement('select', 'tray_slot_select', __('Tray'), $tray_slot_select_options, array('style'=>'width: 130px','onchange'=>$form->get_submit_form_js()));
 			if ($form->validate()) {
 				$tray_slot = $form->exportValue('tray_slot_select');

@@ -16,7 +16,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_MainModuleIndicator extends Module {
 
 	public function body() {
-		$t = $this->pack_module('Base/Theme');
+		$t = $this->pack_module(Base_Theme::module_name());
 
 		//caption
 		$box_module = ModuleManager::get_instance('/Base_Box|0');
@@ -51,7 +51,7 @@ class Base_MainModuleIndicator extends Module {
 		if($this->is_back())
 		    $this->parent->reset();
 		    
-		$form = $this->init_module('Libs/QuickForm');
+		$form = $this->init_module(Libs_QuickForm::module_name());
 
 		$form->addElement('header', 'settings', __('Title'));
 		$form->setDefaults(array(
@@ -69,7 +69,7 @@ class Base_MainModuleIndicator extends Module {
         } else
             $this->display_module($form);
 
-        $form = $this->init_module('Utils/FileUpload',array(false));
+        $form = $this->init_module(Utils_FileUpload::module_name(),array(false));
 		$form->addElement('header', 'upload', __('Small Logo'));
 		$form->addElement('static','logo_size','',__('Logo image should be 193px by 83px in JPG/JPEG, GIF, PNG or BMP format'));
         $logo = Variable::get('logo_file');
@@ -81,7 +81,7 @@ class Base_MainModuleIndicator extends Module {
 
 		$this->display_module($form, array( array($this,'submit_logo') ));
 
-        $form = $this->init_module('Utils/FileUpload',array(false));
+        $form = $this->init_module(Utils_FileUpload::module_name(),array(false));
         $form->addElement('header', 'upload', __('Login Logo'));
         $form->addElement('static','logo_size','',__('Logo image should be 550px by 200px in JPG/JPEG, GIF, PNG or BMP format'));
         $logo = Variable::get('login_logo_file');
@@ -133,7 +133,7 @@ class Base_MainModuleIndicator extends Module {
     }
 
     public function logo() {
-	    $t = $this->pack_module('Base/Theme');
+	    $t = $this->pack_module(Base_Theme::module_name());
 	    $l = Variable::get('logo_file');
         if($l && file_exists($l)) $l.='?'.filemtime($l);
 	    $t->assign('logo',$l);
@@ -141,7 +141,7 @@ class Base_MainModuleIndicator extends Module {
 	}
 
     public function login_logo() {
-        $t = $this->pack_module('Base/Theme');
+        $t = $this->pack_module(Base_Theme::module_name());
         $l = Variable::get('login_logo_file');
         if($l && file_exists($l)) $l.='?'.filemtime($l);
         $t->assign('logo',$l);

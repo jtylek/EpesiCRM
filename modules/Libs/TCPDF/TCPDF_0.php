@@ -121,7 +121,7 @@ class Libs_TCPDF extends Module {
 			$this->parent->reset();
 			return;
 		}
-		$form = $this->init_module('Utils/FileUpload',array(false));
+		$form = $this->init_module(Utils_FileUpload::module_name(),array(false));
 		$form->addElement('header', 'upload', __('Upload company logo',array(),false));
 		$form->add_upload_element();
 		$form->addElement('button',null,__('Upload'),$form->get_submit_form_href());

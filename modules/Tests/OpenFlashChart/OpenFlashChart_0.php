@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_OpenFlashChart extends Module {
 
 	public function body() {
-		$f = $this->init_module('Libs/OpenFlashChart');
+		$f = $this->init_module(Libs_OpenFlashChart::module_name());
 
 		$title = new OFC_Elements_Title( date("D M d Y") );
 		$f->set_title( $title );
@@ -24,7 +24,7 @@ class Tests_OpenFlashChart extends Module {
 
 		$this->display_module($f);
 
-		$f2 = $this->init_module('Libs/OpenFlashChart');
+		$f2 = $this->init_module(Libs_OpenFlashChart::module_name());
 
 		$title = new OFC_Elements_Title( date("D M d Y") );
 		$f2->set_title( $title );
@@ -48,11 +48,11 @@ class Tests_OpenFlashChart extends Module {
 
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/OpenFlashChart/OpenFlashChartInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/OpenFlashChart/OpenFlashChartInstall.php');
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/OpenFlashChart/OpenFlashChart_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/OpenFlashChart/OpenFlashChart_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/OpenFlashChart/OpenFlashChartCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/OpenFlashChart/OpenFlashChartCommon_0.php');
 	
 	}
 

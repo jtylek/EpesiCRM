@@ -23,7 +23,7 @@ class Utils_ShortcutInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/User/Settings', 'version'=>0)
+			array('name'=>Base_User_SettingsInstall::module_name(), 'version'=>0)
 		    );
 	}
 }

@@ -122,12 +122,24 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function display_employees($record, $nolink, $desc) {
 		return CRM_ContactsCommon::display_contacts_with_notification('task', $record, $nolink, $desc);
 	}
-	public static function display_deadline($record, $nolink, $desc) {
-	        if(!$record['deadline']) return '';
-	        $deadline = strtotime($record['deadline'].' '.date('H:i:s',strtotime($record['deadline_time'])));
-	        $ret = Base_RegionalSettingsCommon::time2reg($record['deadline'],false);
-	        if($deadline<time()) $ret = '<span style="color:red;font-weight:bold;">'.$ret.'</span>';
-		return Utils_TooltipCommon::create($ret,Base_RegionalSettingsCommon::time2reg($deadline));
+
+	public static function display_deadline($record, $nolink, $desc)
+	{
+		if (!$record['deadline']) {
+			return '';
+		}
+		$deadline = strtotime($record['deadline']);
+		$timeless = isset($record['timeless']) ? $record['timeless'] : false;
+		$show_time = !$timeless;
+		$time2reg = $show_time;
+		$ret = Base_RegionalSettingsCommon::time2reg($deadline, $show_time, true, $time2reg);
+		$past_deadline = $timeless
+				? (Base_RegionalSettingsCommon::time2reg(null, false, true, true, false) > date('Y-m-d', $deadline))
+				: (time() > $deadline);
+		if ($past_deadline) {
+			$ret = '<span style="color:red;font-weight:bold;">' . $ret . '</span>';
+		}
+		return $ret;
 	}
     public static function display_title($record, $nolink) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('task', 'Title', $record, $nolink);
@@ -170,9 +182,9 @@ class CRM_TasksCommon extends ModuleCommon {
 			if ($action != 'none') {		
 				$x = ModuleManager::get_instance('/Base_Box|0');
 				$values['follow_up'] = array('task',$record['id'],$record['title']);
-				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $values), array('task'));
-				if ($action == 'new_meeting') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'status'=>0,'employees'=>$values['employees'], 'customers'=>$values['customers'],'follow_up'=>$values['follow_up'])), array('crm_meeting'));
-				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'],'status'=>0, 'customer'=>!empty($values['customers'])?array_pop($values['customers']):'','follow_up'=>$values['follow_up'])), array('phonecall'));
+				if ($action == 'new_task') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $values), array('task'));
+				if ($action == 'new_meeting') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'status'=>0,'employees'=>$values['employees'], 'customers'=>$values['customers'],'follow_up'=>$values['follow_up'])), array('crm_meeting'));
+				if ($action == 'new_phonecall') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'],'status'=>0, 'customer'=>!empty($values['customers'])?array_pop($values['customers']):'','follow_up'=>$values['follow_up'])), array('phonecall'));
 				return false;
 			}
 
@@ -200,18 +212,32 @@ class CRM_TasksCommon extends ModuleCommon {
 			$values['deadline'] = date('Y-m-d', strtotime('+1 day'));
 			$ret = array();
 			$cus = reset($values['customers']);
-			if (ModuleManager::is_installed('CRM/Meeting')>=0) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
+			if (CRM_MeetingInstall::is_installed()) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
 			$ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'" /></a>';
-			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
+			if (CRM_PhoneCallInstall::is_installed()) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('task/'.$values['id']);
 			return $ret;
 		case 'adding':
-			$values['deadline_time'] = strtotime(date('Y-m-d').' 23:59:59');
+			if (!isset($values['deadline'])) {
+				$values['deadline'] = strtotime(date('Y-m-d').' 23:59:59');
+			}
 			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
 			break;
-		case 'add':
+		case 'editing':
+			if (isset($values['timeless']) && $values['timeless']) {
+				// if it is timeless event then adjust time to show it properly
+				// in GUI - timestamp field translates time.
+				$values['deadline'] = Base_RegionalSettingsCommon::reg2time($values['deadline']);
+			}
 			break;
+		case 'add':
 		case 'edit':
+			if (isset($values['timeless']) && $values['timeless']) {
+				// if we set timeless event then, set certain time to database
+				$values['deadline'] = Base_RegionalSettingsCommon::time2reg($values['deadline'], false, true, true, false) . ' 12:00:00';
+			}
+			break;
+		case 'edited':
 			$old_values = Utils_RecordBrowserCommon::get_record('task',$values['id']);
 			$old_related = array_merge($old_values['employees'],$old_values['customers']);
 		case 'added':
@@ -324,7 +350,8 @@ class CRM_TasksCommon extends ModuleCommon {
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>$me['id'], 'priority'=>CRM_CommonCommon::get_default_priority(), 'permission'=>0, 'status'=>0);
-		$defaults['deadline'] = date('Y-m-d', $timestamp);
+		$defaults['timeless'] = ($timeless != false);
+		$defaults['deadline'] = $timestamp;
 		if($object) $defaults['employees'] = $object;
 		$x->push_main('Utils_RecordBrowser','view_entry',array('add', null, $defaults), 'task');
 	}
@@ -335,9 +362,9 @@ class CRM_TasksCommon extends ModuleCommon {
 		return true;
 	}
 	public static function crm_event_update($id, $start, $duration, $timeless) {
-		if (!$timeless) return false;
 		if (!Utils_RecordBrowserCommon::get_access('task','edit', self::get_task($id))) return false;
-		$values = array('deadline'=>date('Y-m-d', $start));
+		$deadline = $timeless ? date('Y-m-d 12:00:00', $start) : date('Y-m-d H:i:s', $start);
+		$values = array('deadline' => $deadline, 'timeless'=> ($timeless == true));
 		Utils_RecordBrowserCommon::update_record('task', $id, $values);
 		return true;
 	}
@@ -381,13 +408,12 @@ class CRM_TasksCommon extends ModuleCommon {
 
 		$next = array('type'=>__('Task'));
 		
-		$day = $r['deadline'];
-		$iday = strtotime($day);
+		$deadline = $r['deadline'];
+		$iday = strtotime($deadline);
 		$next['id'] = $r['id'];
 
-		$base_unix_time = strtotime(date('1970-01-01 00:00:00'));
 		$next['start'] = $iday;
-		$next['timeless'] = $day;
+		$next['timeless'] = $r['timeless'] ? date('Y-m-d', $iday) : false;
 
 		$next['duration'] = -1;
 		$next['title'] = (string)$r['title'];
@@ -463,6 +489,16 @@ class CRM_TasksCommon extends ModuleCommon {
 		return $next;
 	}
 
+    public static function QFfield_timeless(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+		Utils_RecordBrowserCommon::QFfield_checkbox($form, $field, $label, $mode, $default, $desc, $rb_obj);
+		$js = "jq('#$field').unbind('change').change(function() {
+		 var visible = !jq(this).is(':checked');
+		 jq('[name=\"deadline\\[__date\\]\\[H\\]\"]').parent().toggle(visible);
+		});";
+		eval_js($js);
+		eval_js('jq(\'[name="deadline\[__date\]\[H\]"]\').parent().toggle('.($default ? 'false' : 'true') .');');
+	}
+
     public static function QFfield_recordset(&$form, $field, $label, $mode, $default) {
         if ($mode == 'add' || $mode == 'edit') {
             $rss = DB::GetCol('SELECT f_recordset FROM task_related_data_1 WHERE active=1');
@@ -470,7 +506,7 @@ class CRM_TasksCommon extends ModuleCommon {
             $key = array_search($default, $rss);
             if ($key !== false) 
                 unset($rss[$key]);
-            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like "%_related"');
+            $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like %s', array('%_related'));
             foreach ($tabs as $k => $v) {
                 $tabs[$k] = _V($v) . " ($k)";
             }
@@ -524,11 +560,11 @@ class CRM_TasksCommon extends ModuleCommon {
     }
 
     public static function new_addon($table) {
-        Utils_RecordBrowserCommon::new_addon($table, 'CRM/Tasks', 'addon', 'Tasks');
+        Utils_RecordBrowserCommon::new_addon($table, CRM_Tasks::module_name(), 'addon', 'Tasks');
     }
 
     public static function delete_addon($table) {
-        Utils_RecordBrowserCommon::delete_addon($table, 'CRM/Tasks', 'addon');
+        Utils_RecordBrowserCommon::delete_addon($table, CRM_Tasks::module_name(), 'addon');
     }
 
     public static function admin_caption() {

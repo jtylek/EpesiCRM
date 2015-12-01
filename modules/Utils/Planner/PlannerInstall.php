@@ -27,11 +27,11 @@ class Utils_PlannerInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Utils/Tooltip','version'=>0), 
-			array('name'=>'Base/RegionalSettings','version'=>0),
-			array('name'=>'Base/User/Settings','version'=>0),
-			array('name'=>'Base/Theme','version'=>0));
+			array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			array('name'=>Utils_TooltipInstall::module_name(),'version'=>0),
+			array('name'=>Base_RegionalSettingsInstall::module_name(),'version'=>0),
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0));
 	}
 }
 

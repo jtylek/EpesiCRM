@@ -27,15 +27,15 @@ class Base_User_AdministratorInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Libs/QuickForm','version'=>0), 
-			array('name'=>'Base/Admin','version'=>0), 
-			array('name'=>'Base/Theme','version'=>0), 
-			array('name'=>'Base/Acl','version'=>0), 
-			array('name'=>'Utils/GenericBrowser','version'=>0), 
-			array('name'=>'Base/User','version'=>0), 
-			array('name'=>'Base/ActionBar','version'=>0), 
-			array('name'=>'Base/User/Login','version'=>0), 
-			array('name'=>'Base/Lang','version'=>0));
+			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
+			array('name'=>Base_AdminInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Base_AclInstall::module_name(),'version'=>0),
+			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0),
+			array('name'=>Base_UserInstall::module_name(),'version'=>0),
+			array('name'=>Base_ActionBarInstall::module_name(),'version'=>0),
+			array('name'=>Base_User_LoginInstall::module_name(),'version'=>0),
+			array('name'=>Base_LangInstall::module_name(),'version'=>0));
 	}
 
 	public static function simple_setup() {

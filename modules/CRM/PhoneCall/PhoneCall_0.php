@@ -18,7 +18,7 @@ class CRM_PhoneCall extends Module {
 	public function body() {
 		$this->help('Phone Call Help','main');
 
-		$this->rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
+		$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'phonecall','phonecall');
 		$me = CRM_ContactsCommon::get_my_record();
 		CRM_CommonCommon::status_filter($this->rb);
 		$this->rb->set_filters_defaults(array('employees'=>$this->rb->crm_perspective_default(), 'status'=>'__NO_CLOSED__'));
@@ -33,7 +33,7 @@ class CRM_PhoneCall extends Module {
 
 	public function applet($conf, & $opts) {
 		$opts['go'] = true;
-		$rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'phonecall','phonecall');
 		$me = CRM_ContactsCommon::get_my_record();
 		if ($me['id']==-1) {
 			CRM_ContactsCommon::no_contact_message();
@@ -78,7 +78,7 @@ class CRM_PhoneCall extends Module {
 	}
 
     public function addon($r, $rb_parent) {
-        $rb = $this->init_module('Utils/RecordBrowser', 'phonecall');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'phonecall');
         $params = array(
             array(
                 'related' => $rb_parent->tab . '/' . $r['id'],
@@ -113,7 +113,7 @@ class CRM_PhoneCall extends Module {
             $this->parent->reset();
             return;
         }
-        $rb = $this->init_module('Utils/RecordBrowser', 'phonecall_related', 'phonecall_related');
+        $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'phonecall_related', 'phonecall_related');
         $this->display_module($rb);
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
     }

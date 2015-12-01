@@ -130,7 +130,7 @@ $config['smtp_pass'] = $account['f_smtp_auth']?$account['f_smtp_password']:'';
 $config['support_url'] = 'http://epe.si';
 
 // Name your service. This is displayed on the login screen and in the window title
-$config['product_name'] = 'Epesi Mail';
+$config['product_name'] = EPESI . ' Mail';
 
 // this key is used to encrypt the users imap password which is stored
 // in the session record (and the client cookie if remember password is enabled).
@@ -157,3 +157,14 @@ $config['htmleditor'] = 1;
 $config['preview_pane'] = true;
 $config['reply_mode'] = 1;
 $config['zipdownload_charset'] = 'UTF-8';
+
+$config['smtp_conn_options'] = array(
+  'ssl'         => array(
+     'verify_peer'  => false
+   ),
+ );
+$config['imap_conn_options'] = array(
+  'ssl'         => array(
+     'verify_peer'  => false
+   ),
+ );

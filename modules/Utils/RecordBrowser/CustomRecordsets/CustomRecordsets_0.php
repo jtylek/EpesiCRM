@@ -18,7 +18,7 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
         if (isset($_REQUEST['tab']))
             $this->set_module_variable('tab', $_REQUEST['tab']);
         $tab = $this->get_module_variable('tab');
-        $this->rb = $this->init_module('Utils/RecordBrowser', $tab, 'custom_rset_' . $tab);
+        $this->rb = $this->init_module(Utils_RecordBrowser::module_name(), $tab, 'custom_rset_' . $tab);
         $this->display_module($this->rb);
     }
 
@@ -33,7 +33,7 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
             return;
         }
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-        $gb = $this->init_module('Utils/GenericBrowser', null, 'rb_custom');
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'rb_custom');
         $gb->set_table_columns(array(
             array('name' => __('Table')),
             array('name' => __('Caption')),
@@ -59,7 +59,7 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
             return false;
         }
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-        $this->pack_module('Utils/RecordBrowser', $recordset, 'record_management');
+        $this->pack_module(Utils_RecordBrowser::module_name(), $recordset, 'record_management');
         return true;
     }
 
@@ -72,7 +72,7 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
     public function edit_rset($id = null)
     {
         if ($this->is_back()) return false;
-        $form = $this->init_module('Libs/QuickForm');
+        $form = $this->init_module(Libs_QuickForm::module_name());
 
         $menu_deep = 3;
 
@@ -144,7 +144,7 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
                 $ret['menu'] = __('Menu label cannot contain %s', array(Utils_RecordBrowser_CustomRecordsetsCommon::$sep));
             }
         }
-        return empty($ret) ? true : $ret;
+        return $ret;
     }
 }
 

@@ -33,11 +33,11 @@ class CRM_Contacts_ActivitiesInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/RecordBrowser', 'version'=>0),
-			array('name'=>'Utils/Attachment', 'version'=>0),
-			array('name'=>'Base/Lang', 'version'=>0),
-			array('name'=>'Base/Acl', 'version'=>0),
-			array('name'=>'Data/Countries', 'version'=>0)
+			array('name'=>Utils_RecordBrowserInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_AttachmentInstall::module_name(), 'version'=>0),
+			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
+			array('name'=>Base_AclInstall::module_name(), 'version'=>0),
+			array('name'=>Data_CountriesInstall::module_name(), 'version'=>0)
 		);
 	}
 	

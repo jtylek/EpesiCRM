@@ -680,9 +680,9 @@ class Data_CountriesInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Admin','version'=>0),
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Utils/CommonData','version'=>0));
+			array('name'=>Base_AdminInstall::module_name(),'version'=>0),
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Utils_CommonDataInstall::module_name(),'version'=>0));
 	}
 
 	public function simple_setup() {

@@ -75,7 +75,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$custom_event = true;
 			}
 		}
-		$pdf_theme = $this->pack_module('Base/Theme');
+		$pdf_theme = $this->pack_module(Base_Theme::module_name());
 		$pdf_theme->assign('description', array('label'=>__('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
 		if (!$no_details) {
 			$ev['status'] = Utils_CommonDataCommon::get_value('CRM/Status/'.$ev['status'],true);
@@ -205,7 +205,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	public function get_navigation_bar_additions() {
 		$custom_handlers = CRM_CalendarCommon::get_event_handlers();
 		if (empty($custom_handlers)) return '';
-		$form = $this->init_module('Libs/QuickForm');
+		$form = $this->init_module(Libs_QuickForm::module_name());
 
 		$elements_name = array();
 		$default = array();
@@ -231,13 +231,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			'$("calendar_event_handlers_trigger").innerHTML=calendar_event_handlers_message_confirm;'.
 		'}');
 
-		$selected = $this->get_module_variable('events_handlers', $default);
+		$selected = Base_User_SettingsCommon::get('CRM_Calendar_Event', 'event_handlers');
+        if ($selected === null) $selected = $default;
 		if ($form->validate()) {
 			$vals = $form->exportValues();
 			$selected = array();
 			foreach ($elements_name as $k=>$e)
 				if (isset($vals[$e]) && $vals[$e]) $selected[] = $k;
-			$this->set_module_variable('events_handlers', $selected);
+            Base_User_SettingsCommon::save('CRM_Calendar_Event', 'event_handlers', $selected);
 		}
 		CRM_Calendar_EventCommon::$events_handlers = $selected;
 
@@ -252,7 +253,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if ($select_count==1) $label = $custom_handlers[reset($selected)];
 		if ($select_count==0) $label = __('None');
 
-		$theme = $this->init_module('Base/Theme');
+		$theme = $this->init_module(Base_Theme::module_name());
 		$theme->assign('elements_name', $elements_name);
 		$theme->assign('label', $label);
 

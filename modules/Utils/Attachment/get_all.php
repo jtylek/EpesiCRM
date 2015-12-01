@@ -31,7 +31,7 @@ $password = '';
 $crypted = $rec['crypted'];
 if($crypted)
     $password = $_SESSION['client']['cp'.$rec['id']];
-$files = DB::GetAssoc('SELECT id, original FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($id));
+$files = DB::GetAssoc('SELECT id, original, filestorage_id FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($id));
 
 $zip_filename = tempnam("tmp", "zip");
 
@@ -42,15 +42,16 @@ if ($zip->open($zip_filename, ZIPARCHIVE::OVERWRITE )!==TRUE) {
 }
 //add each files of $file_name array to archive
 $t = time();
-$remote_address = $_SERVER['REMOTE_ADDR'];
-$remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+$remote_address = get_client_ip_address();
+$remote_host = gethostbyaddr($remote_address);
 $local = $rec['id'];
 $size = 0;
-foreach($files as $fid=>$original)
+foreach($files as $fid=>$row)
 {
-    $filename = $local.'/'.$fid;
-    $f_filename = DATA_DIR.'/Utils_Attachment/'.$filename;
-    if(!file_exists($f_filename)) continue;
+    try {
+        $meta = Utils_FileStorageCommon::meta($row['filestorage_id']);
+    } catch(Exception $e) { continue; }
+    $f_filename = $meta['file'];
     $size += filesize($f_filename);
     @ini_set('memory_limit',ceil($size*2/1024/1024+64).'M');
     $buffer = file_get_contents($f_filename);
@@ -59,7 +60,7 @@ foreach($files as $fid=>$original)
         if($buffer===false) continue;
     }
     DB::Execute('INSERT INTO utils_attachment_download(attach_file_id,created_by,created_on,download_on,description,ip_address,host_name) VALUES (%d,%d,%T,%T,%s,%s,%s)',array($fid,Acl::get_user(),$t,$t,'zip',$remote_address,$remote_host));
-    $zip->addFromString($original,$buffer);
+    $zip->addFromString($row['original'],$buffer);
 }
 $zip->close();
 

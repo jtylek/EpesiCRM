@@ -4,6 +4,7 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
  */
+jQuery.noConflict();
 
 function focus_by_id(idd) {
 	xx = document.getElementById(idd);
@@ -38,6 +39,9 @@ var Epesi = {
 		check: function() {
 			//remove non-existent forms from the array
 			jQuery.each(this.forms, function(f) {
+				if (!jQuery('#'+f).length) Epesi.confirmLeave.deactivate(f);
+			});
+			jQuery.each(this.forms_freezed, function(f) {
 				if (!jQuery('#'+f).length) Epesi.confirmLeave.deactivate(f);
 			});
 			//check if there is any not freezed form with changed values to confirm leave
@@ -81,9 +85,11 @@ var Epesi = {
             }
             // on change add changed-input class
             jQuery('#' + f).on('change', 'input, textarea, select', function (e) {
+				if (e.originalEvent === undefined) return;
                 var el = jQuery(this);
                 el.addClass('changed-input');
-                Epesi.confirmLeave.forms[f][el.attr('name')] = true;
+                var form = f in Epesi.confirmLeave.forms ? Epesi.confirmLeave.forms[f] : Epesi.confirmLeave.forms_freezed[f];
+                form[el.attr('name')] = true;
             });
 			//take care if user refreshing or going to another page
 			jQuery(window).unbind('beforeunload').on('beforeunload', function() {

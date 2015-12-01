@@ -18,8 +18,8 @@ class Tests_LangInstall extends ModuleInstall{
 		return true;
 	}
 	public function requires($v) {
-		return array(	array('name'=>'Utils/CatFile','version'=>0),
-						array('name'=>'Base/Lang','version'=>0));
+		return array(	array('name'=>Utils_CatFileInstall::module_name(),'version'=>0),
+						array('name'=>Base_LangInstall::module_name(),'version'=>0));
 	}
 } 
 ?>

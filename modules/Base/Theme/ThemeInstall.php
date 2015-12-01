@@ -23,16 +23,12 @@ class Base_ThemeInstall extends ModuleInstall {
 		mkdir(DATA_DIR.'/Base_Theme/config');
 		$this->install_default_theme_common_files('modules/Base/Theme/','images');
 		Variable::set('default_theme','default');
-		Variable::set('preload_image_cache_default',true);
-		Variable::set('preload_image_cache_selected',true);
 		return true;
 	}
 	
 	public function uninstall() {
 		recursive_rmdir(DATA_DIR.'/Base_Theme/templates/default/images');
 		Variable::delete('default_theme');
-		Variable::delete('preload_image_cache_default');
-		Variable::delete('preload_image_cache_selected');
 		return true;
 	}
 	

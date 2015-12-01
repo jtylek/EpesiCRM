@@ -27,17 +27,17 @@ class Apps_Shoutbox extends Module {
 			return;
 		}
 		
-		$tb = $this->init_module('Utils/TabbedBrowser');
+		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
 		$tb->set_tab(__('Chat'), array($this,'chat'),true,null);
 		$tb->set_tab(__('History'), array($this,'history'),null);
 		$this->display_module($tb);
     }
 	
 	public function history($uid=null) {	
-		$th = $this->init_module('Base/Theme');
+		$th = $this->init_module(Base_Theme::module_name());
 		$th->assign('header', __('Shoutbox History'));
 
-		$qf = $this->init_module('Libs/QuickForm');
+		$qf = $this->init_module(Libs_QuickForm::module_name());
 
   	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
        	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name'),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) WHERE l.active=1 ORDER BY name');
@@ -77,7 +77,7 @@ class Apps_Shoutbox extends Module {
 			}
 		}
 
-		$gb = $this->init_module('Utils/GenericBrowser',null,'shoutbox_history');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'shoutbox_history');
 
 		$gb->set_table_columns(array(
 						array('name'=>__('From'),'width'=>10),
@@ -131,7 +131,7 @@ class Apps_Shoutbox extends Module {
 		eval_js('shoutbox_uid="'.$to.'"');
 		if(Base_AclCommon::is_user()) {
 			//initialize HTML_QuickForm
-			$qf = $this->init_module('Libs/QuickForm');
+			$qf = $this->init_module(Libs_QuickForm::module_name());
 
 /*            $myid = Base_AclCommon::get_user();
         	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im')) {
@@ -173,9 +173,19 @@ class Apps_Shoutbox extends Module {
 			//add it
 			$qf->setRequiredNote(null);
 			$qf->setDefaults(array('shoutbox_to'=>$to));
-    		$theme = $this->init_module('Base/Theme');
+    		$theme = $this->init_module(Base_Theme::module_name());
 		    $qf->assign_theme('form', $theme);
 
+		    //confirm when sending messages to all
+		   eval_js("jq('#shoutbox_button, #shoutbox_button_big').click(function() {
+      					var submit = true;
+		    			if (jq('#shoutbox_to').val() == 'all' && !confirm('".__('Send message to all?')."')) {
+         					submit = false;
+      					}
+		    
+		    			return submit;		    			
+					});");
+		   
 			//if submited
 			if($qf->validate()) {
 				 //get post group

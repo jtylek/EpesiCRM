@@ -20,11 +20,11 @@ class Tests_Lang extends Module{
 		print(__('Hello world!'));
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Lang/LangInstall.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Lang/LangInstall.php');
 		print('<hr><b>Main</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Lang/Lang_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Lang/Lang_0.php');
 		print('<hr><b>Common</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Lang/LangCommon_0.php');
+		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Lang/LangCommon_0.php');
 	}
 }
 

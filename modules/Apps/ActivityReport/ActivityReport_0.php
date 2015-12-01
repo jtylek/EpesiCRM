@@ -16,7 +16,7 @@ class Apps_ActivityReport extends Module {
 		foreach ($rb_tabs as $k=>$v)
 			$rb_tabs[$k] = Utils_RecordBrowserCommon::get_caption($k);
 
-		$form = $this->init_module('Libs/QuickForm');
+		$form = $this->init_module(Libs_QuickForm::module_name());
 
 		$users_count = (DB::GetOne('SELECT COUNT(id) FROM user_login') > Base_User_SettingsCommon::get('Utils_RecordBrowser','enable_autocomplete'));
 		if ($users_count) {
@@ -54,7 +54,7 @@ class Apps_ActivityReport extends Module {
 		
 		$form->setDefaults($filters);
 
-		$theme = $this->init_module('Base/Theme');
+		$theme = $this->init_module(Base_Theme::module_name());
 		$form->assign_theme('form',$theme);
 		$theme->display();
 		
@@ -62,7 +62,7 @@ class Apps_ActivityReport extends Module {
 		foreach ($rb_tabs as $k=>$v)
 			if (!isset($filters['recordsets'][$k])) unset($rb_tabs[$k]);
 
-		$gb = $this->init_module('Utils/GenericBrowser',null,'activity_report');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'activity_report');
 		$gb->set_table_columns(array(
 			array('name'=>__('Date'), 'width'=>40),
 			array('name'=>__('User'), 'width'=>40),
@@ -141,7 +141,9 @@ class Apps_ActivityReport extends Module {
 				switch ($row['action']) {
 					case 'edit': 	$details = DB::GetAssoc('SELECT field, old_value FROM '.$row['tab'].'_edit_history_data WHERE edit_id=%d', array($row['id']));
 									if (isset($details['id'])) {
-										$action = $details['id']=='DELETED'?__('Deleted'):__('Restored');
+										$action = $details['id'];
+										if ($action == 'DELETED') $action = __('Deleted');
+										if ($action == 'RESTORED') $action = __('Restored');
 									} else {
 										$action = __('Edited');
 										$action = '<a '.Utils_TooltipCommon::tooltip_leightbox_mode().' '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details_label'), array($row['tab'], $row['r_id'], $row['id']), 500).'>'.$action.'</a>';
@@ -164,6 +166,7 @@ class Apps_ActivityReport extends Module {
 									$r_id = $id[1];
 									break;
 				}
+				if (!isset($r_id) || !$r_id) continue;
 				if (!Utils_RecordBrowserCommon::get_access($row['tab'], 'view', Utils_RecordBrowserCommon::get_record($row['tab'], $r_id))) {
 					$link = __('Access restricted');
 					$action = strip_tags($action);

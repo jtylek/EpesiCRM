@@ -27,12 +27,12 @@ class Base_Box extends Module {
             return;
         }
 
-        $theme = $this->pack_module('Base/Theme');
+        $theme = $this->pack_module(Base_Theme::module_name());
 		$ini = Base_BoxCommon::get_ini_file();
 		
         if (!$ini) {
             print(__('Unable to read Base/Box/default.ini file! Please create one, or change theme.'));
-            $this->pack_module('Base/Theme/Administrator',null,'admin');
+            $this->pack_module(Base_Theme_Administrator::module_name(),null,'admin');
             return;
         }
         $ini_file = parse_ini_file($ini,true);
@@ -89,7 +89,6 @@ class Base_Box extends Module {
             if(!isset($_SESSION['client']['base_box_hrefs']))
                 $_SESSION['client']['base_box_hrefs'] = array();
             $hs = & $_SESSION['client']['base_box_hrefs'];
-            $hs_gc = & $this->get_module_variable('__hrefs_gc__',0);
             if(isset($hs[$_REQUEST['box_main_href']])) {
                 $rh = $hs[$_REQUEST['box_main_href']];
                 $href = $rh['m'];
@@ -111,15 +110,7 @@ class Base_Box extends Module {
                 $pop_main = true;
             }
             unset($_REQUEST['box_main_href']);
-            $hs_gc++;
-            if($hs_gc>4) {
-                foreach($hs as $k=>$v) {
-                    if(!$v['p'] || !ModuleManager::get_instance($v['p'])) {
-                        unset($hs[$k]);
-                    }
-                }
-                $hs_gc=0;
-            }
+            $hs = array();
         }
         array_push($mains,$containers['main']);
         $main_length = count($mains);

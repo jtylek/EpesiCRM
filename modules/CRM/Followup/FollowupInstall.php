@@ -13,12 +13,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_FollowupInstall extends ModuleInstall {
 
 	public function install() {
-		Base_ThemeCommon::install_default_theme('CRM/Followup');
+		Base_ThemeCommon::install_default_theme(CRM_FollowupInstall::module_name());
 		return true;
 	}
 
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('CRM/Followup');
+		Base_ThemeCommon::uninstall_default_theme(CRM_FollowupInstall::module_name());
 		return true;
 	}
 
@@ -28,10 +28,10 @@ class CRM_FollowupInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Base/User/Settings','version'=>0),
-			array('name'=>'CRM/Contacts','version'=>0));
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0),
+			array('name'=>CRM_ContactsInstall::module_name(),'version'=>0));
 	}
 
 	public static function info() {

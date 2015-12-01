@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Fax extends Module {
 
 	public function body() {
-		$qf = $this->init_module('Libs/QuickForm',null,'provider');
+		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'provider');
 		
 		list($providers,$providers_arr) = self::get_providers();
 
@@ -37,7 +37,7 @@ class CRM_Fax extends Module {
 		}
 		
 		set_time_limit(0);
-		$tb = $this->init_module('Utils/TabbedBrowser');
+		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
 		if(isset($providers_arr[$provider]['get_received_count_func']) && isset($providers_arr[$provider]['get_received_func']))
 			$tb->set_tab('Received', array($this,'received_tab'),array(array($provider.'Common',$providers_arr[$provider]['get_received_count_func']),array($provider.'Common',$providers_arr[$provider]['get_received_func'])));
 		if(isset($providers_arr[$provider]['get_queue_count_func']) && isset($providers_arr[$provider]['get_queue_func']) && isset($providers_arr[$provider]['queue_statuses']))
@@ -56,8 +56,8 @@ class CRM_Fax extends Module {
 		$end = & $this->get_module_variable('end',date('Y-m-d',$t));
 		$offset = & $this->get_module_variable('rec_offset',0);
 		
-		$form = $this->init_module('Libs/QuickForm');
-		$theme =  $this->pack_module('Base/Theme',null,null,null,'rec');
+		$form = $this->init_module(Libs_QuickForm::module_name());
+		$theme =  $this->pack_module(Base_Theme::module_name(),null,null,null,'rec');
 		
 		$form->addElement('datepicker', 'start', __('From'));
 		$form->addElement('datepicker', 'end', __('To'));
@@ -76,7 +76,7 @@ class CRM_Fax extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		$m = $this->init_module('Utils/GenericBrowser',null,'rec');
+		$m = $this->init_module(Utils_GenericBrowser::module_name(),null,'rec');
  		$m->set_table_columns(array(
 							  array('name'=>'From','width'=>30,'order'=>'fromNumber'),
 							  array('name'=>'To','width'=>30,'order'=>'toNumber'),
@@ -132,8 +132,8 @@ class CRM_Fax extends Module {
 		$status = & $this->get_module_variable('sent_status',current(array_keys($statuses)));
 		$offset = & $this->get_module_variable('sent_offset',0);
 		
-		$form = $this->init_module('Libs/QuickForm');
-		$theme =  $this->pack_module('Base/Theme');
+		$form = $this->init_module(Libs_QuickForm::module_name());
+		$theme =  $this->pack_module(Base_Theme::module_name());
 		
 		$form->addElement('select','status',__('Status'),$statuses);
 		
@@ -157,7 +157,7 @@ class CRM_Fax extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		$m = $this->init_module('Utils/GenericBrowser',null,'sent');
+		$m = $this->init_module(Utils_GenericBrowser::module_name(),null,'sent');
  		$m->set_table_columns(array(
 							  array('name'=>'To','width'=>30,'order'=>'toNumber'),
 							  array('name'=>'Status','width'=>10),
@@ -205,8 +205,8 @@ class CRM_Fax extends Module {
 		$status = & $this->get_module_variable('queue_status',current(array_keys($statuses)));
 		$offset = & $this->get_module_variable('queue_offset',0);
 		
-		$form = $this->init_module('Libs/QuickForm');
-		$theme =  $this->pack_module('Base/Theme');
+		$form = $this->init_module(Libs_QuickForm::module_name());
+		$theme =  $this->pack_module(Base_Theme::module_name());
 		
 		$form->addElement('select','status',__('Status'),$statuses);
 		
@@ -223,7 +223,7 @@ class CRM_Fax extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		$m = $this->init_module('Utils/GenericBrowser',null,'queue');
+		$m = $this->init_module(Utils_GenericBrowser::module_name(),null,'queue');
  		$m->set_table_columns(array(
 							  array('name'=>'To','width'=>30,'order'=>'toNumber'),
 							  array('name'=>'Status','width'=>10),
@@ -269,7 +269,7 @@ class CRM_Fax extends Module {
 	public function send_file_tab() {
 		if($this->is_back()) return false;
 	
-		$form = $this->init_module('Utils/FileUpload',array(false));
+		$form = $this->init_module(Utils_FileUpload::module_name(),array(false));
 		$form->addElement('header', 'upload', __('Select file'));
 
 		$form->add_upload_element();
@@ -305,7 +305,7 @@ class CRM_Fax extends Module {
 		if($this->is_back()) {
 		        return $this->go_back($file);
 		}
-		$qf = $this->init_module('Libs/QuickForm',null,'send_fax');
+		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'send_fax');
 		
 		list($providers,$providers_arr) = self::get_providers($file);
 		if(empty($providers)) {
@@ -321,7 +321,7 @@ class CRM_Fax extends Module {
 		$fav_contact2 = array();
 		foreach($fav_contact as $v)
 			$fav_contact2[$v['id']] = CRM_ContactsCommon::contact_format_default($v,true);
-		$rb_contact = $this->init_module('Utils/RecordBrowser/RecordPicker');
+		$rb_contact = $this->init_module(Utils_RecordBrowser_RecordPicker::module_name());
 		$this->display_module($rb_contact, array('contact' ,'dest_contact',array('CRM_FaxCommon','rpicker_contact_format'),array('!fax'=>''),array('fax'=>true)));
 		$qf->addElement('multiselect','dest_contact','',$fav_contact2);
 		$qf->addElement('static',null,$rb_contact->create_open_link('Add contact'));
@@ -331,7 +331,7 @@ class CRM_Fax extends Module {
 		$fav_company2 = array();
 		foreach($fav_company as $v)
 			$fav_company2[$v['id']] = $v['company_name'];
-		$rb_company = $this->init_module('Utils/RecordBrowser/RecordPicker');
+		$rb_company = $this->init_module(Utils_RecordBrowser_RecordPicker::module_name());
 		$this->display_module($rb_company, array('company' ,'dest_company',array('CRM_FaxCommon','rpicker_company_format'),array('!fax'=>''),array('fax'=>true)));
 		$qf->addElement('multiselect','dest_company','',$fav_company2);
 		$qf->addElement('static',null,$rb_company->create_open_link('Add company'));
@@ -372,7 +372,7 @@ class CRM_Fax extends Module {
 		    (!isset($arg['dest_company']) || empty($arg['dest_company'])) && 
 		    (!isset($arg['dest_other']) || trim($arg['dest_other'])==''))
 			return array('dest_contact'=>'Please select at least one fax number');
-		return true;
+		return array();
 	}
 	
 	public function go_back($file) {

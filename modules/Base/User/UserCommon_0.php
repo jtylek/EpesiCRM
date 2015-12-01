@@ -24,10 +24,10 @@ class Base_UserCommon extends ModuleCommon {
 		if (!$active) {
 			$c_admin = DB::GetOne('SELECT admin FROM user_login WHERE id=%d', array($uid));
 			if ($c_admin==2) {
-				$admins = DB::GetOne('SELECT COUNT(id) FROM user_login WHERE admin=2');
+				$admins = DB::GetOne('SELECT COUNT(id) FROM user_login WHERE admin=2 AND active=1');
 				if ($admins<=1) {
 					Base_StatusBarCommon::message('Unable to deactivate the only Super Administrator user', 'warning');
-					return true;
+					return false;
 				}
 			}
 		}
@@ -63,7 +63,8 @@ class Base_UserCommon extends ModuleCommon {
 			print('Unable to add user to ACL. Deleting user.');
 			DB::Execute('DELETE FROM user_login WHERE login=%s', array($username));
 		}
-		return $acl;*/
+		return $acl;
+*/
 		return true;
 	}
 
@@ -111,6 +112,11 @@ class Base_UserCommon extends ModuleCommon {
 		else
 			return self::get_user_login($uid);
 	}
+
+    public static function get_my_user_label($nolink = false)
+    {
+        return self::get_user_label(Base_AclCommon::get_user(), $nolink);
+    }
 }
 
 ?>

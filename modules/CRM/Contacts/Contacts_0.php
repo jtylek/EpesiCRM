@@ -18,7 +18,7 @@ class CRM_Contacts extends Module {
 	public function applet($conf, & $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		$opts['go'] = 1;
 		$mode = 'contact';
-		$rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),$mode,$mode);
 		$conds = array(
 									array(	array('field'=>'last_name', 'width'=>10),
 											array('field'=>'first_name', 'width'=>10),
@@ -43,20 +43,20 @@ class CRM_Contacts extends Module {
 		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
 		$mode = $this->get_module_variable('mode',$mode);
 		if ($mode=='my_contact') {
-			$this->rb = $this->init_module('Utils/RecordBrowser','contact','contact');
+			$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'contact','contact');
 			$me = CRM_ContactsCommon::get_my_record();
 			$this->display_module($this->rb, array('view', $me['id'], array(), array('back'=>false)), 'view_entry');
 			return;
 		}
 		if ($mode=='main_company') {
-			$this->rb = $this->init_module('Utils/RecordBrowser','company','company');
+			$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'company','company');
 			$me = CRM_ContactsCommon::get_main_company();
 			$this->display_module($this->rb, array('view', $me, array(), array('back'=>false)), 'view_entry');
 			return;
 		}
 		if ($mode!='contact' && $mode!='company') trigger_error('Unknown mode.');
 
-		$this->rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
+		$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),$mode,$mode);
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
 										'permission'=>Base_User_SettingsCommon::get('CRM_Common','default_record_permission')));
@@ -85,7 +85,7 @@ class CRM_Contacts extends Module {
 		if (!Base_AclCommon::i_am_admin()) return false;
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
-		$this->rb = $this->init_module('Utils/RecordBrowser','contact','contact');
+		$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'contact','contact');
 		$logins = DB::GetAll('SELECT * FROM user_login');
 		$active_logins = array();
 		$inactive_logins = array();
@@ -168,7 +168,7 @@ class CRM_Contacts extends Module {
 	}
 	
 	public function company_addon($arg){
-		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'contact','contact_addon');
 		$rb->set_additional_actions_method(array($this, 'contacts_actions'));
 		if(Utils_RecordBrowserCommon::get_access('contact','add'))
 			Base_ActionBarCommon::add('add',__('Add contact'), $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
@@ -193,9 +193,9 @@ class CRM_Contacts extends Module {
 		$cus = array();
 		if ($is_employee) $emp[] = $r['id'];
 		else $cus[] = 'P:'.$r['id'];
-		if (ModuleManager::is_installed('CRM/Meeting')!==-1 && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), __('New Meeting'), null, Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png'));
-		if (ModuleManager::is_installed('CRM/Tasks')!==-1 && Utils_RecordBrowserCommon::get_access('task','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), __('New Task'), null, Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png'));
-		if (ModuleManager::is_installed('CRM/PhoneCall')!==-1 && Utils_RecordBrowserCommon::get_access('phonecall','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$r['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')), __('New Phonecall'), null, Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png'));
+		if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), __('New Meeting'), null, Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png'));
+		if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), __('New Task'), null, Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png'));
+		if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$r['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')), __('New Phonecall'), null, Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png'));
 		$gb_row->add_action(Utils_RecordBrowser::$rb_obj->add_note_button_href('contact/'.$r['id']), __('New Note'), null, Base_ThemeCommon::get_template_file('Utils_Attachment','icon_small.png'));
 	}
 
@@ -204,22 +204,22 @@ class CRM_Contacts extends Module {
 		$emp = array($me['id']);
 		$cus = array();
 		$cus[] = 'C:'.$r['id'];
-		if (ModuleManager::is_installed('CRM/Meeting')!==-1 && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), __('New Meeting'), null, Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png'));
-		if (ModuleManager::is_installed('CRM/Tasks')!==-1 && Utils_RecordBrowserCommon::get_access('task','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), __('New Task'), null, Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png'));
-		if (ModuleManager::is_installed('CRM/PhoneCall')!==-1 && Utils_RecordBrowserCommon::get_access('phonecall','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'C:'.$r['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')), __('New Phonecall'), null, Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png'));
+		if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), __('New Meeting'), null, Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png'));
+		if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)), __('New Task'), null, Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png'));
+		if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $gb_row->add_action(Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'C:'.$r['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')), __('New Phonecall'), null, Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png'));
 		$gb_row->add_action(Utils_RecordBrowser::$rb_obj->add_note_button_href('company/'.$r['id']), __('New Note'), null, Base_ThemeCommon::get_template_file('Utils_Attachment','icon_small.png'));
 	}
 
 	public function company_addon_new_contact($id){
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM/Contacts','new_contact',$id,array());
+		$x->push_main(CRM_Contacts::module_name(),'new_contact',$id,array());
 		return false;
 	}
 
     public function update_contacts_address_prompt($company, $lid) {
         $html = '<br/>'.__('This action will update all contacts within this company with values copied from company record.').'<br/><br/>'.__('Please check which data would you like to copy to company contacts:');
-        $form = $this->init_module('Libs/QuickForm');
+        $form = $this->init_module(Libs_QuickForm::module_name());
 
         $data = array( /* Source ID, Target ID, Text, Checked state */
             array('sid'=>'address_1', 'tid'=>'address_1', 'text'=>__('Address 1'), 'checked'=>true),
@@ -270,7 +270,7 @@ class CRM_Contacts extends Module {
 
 	public function new_contact($company){
 		CRM_ContactsCommon::$paste_or_new = $company;
-		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'contact','contact');
 		$this->rb = $rb;
 		$this->display_module($rb, array('add', null, array('company_name'=>$company,
 												'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),

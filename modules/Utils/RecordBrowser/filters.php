@@ -24,6 +24,6 @@ $value = json_decode($_POST['value']);
 if (!is_numeric($value) || !is_string($tab)) 
 	die('Invalid request');
 
-Base_User_SettingsCommon::save('Utils/RecordBrowser',$tab.'_show_filters', $value);
+Base_User_SettingsCommon::save(Utils_RecordBrowser::module_name(),$tab.'_show_filters', $value);
 
 ?>

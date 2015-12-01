@@ -14,7 +14,7 @@ class CRM_Contacts_Photo extends Module {
     private $submitted = false;
 
     public function body($record) {
-        $form = $this->init_module('Utils/FileUpload',array(false));
+        $form = $this->init_module(Utils_FileUpload::module_name(),array(false));
         $form->addElement('header', 'upload', __('Upload new photo').': '.$record['last_name'].' '.$record['first_name']);
 
         $form->set_upload_button_caption(__('Save'));

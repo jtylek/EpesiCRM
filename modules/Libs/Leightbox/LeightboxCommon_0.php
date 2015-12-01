@@ -14,7 +14,7 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		if(MOBILE_DEVICE) return '';
 		static $init = true;
 		if ($init) {
-			Base_ThemeCommon::load_css('Libs/Leightbox','default',false);
+			Base_ThemeCommon::load_css(Libs_LeightboxCommon::module_name(),'default',false);
 			load_js('modules/Libs/Leightbox/leightbox.js');
 			$init = false;
 		}

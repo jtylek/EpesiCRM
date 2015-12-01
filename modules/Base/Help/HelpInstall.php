@@ -16,12 +16,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_HelpInstall extends ModuleInstall {
 
 	public function install() {
-		Base_ThemeCommon::install_default_theme('Base/Help');
+		Base_ThemeCommon::install_default_theme(Base_HelpInstall::module_name());
 		return true;
 	}
 
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('Base/Help');
+		Base_ThemeCommon::uninstall_default_theme(Base_HelpInstall::module_name());
 		return true;
 	}
 
@@ -31,12 +31,12 @@ class Base_HelpInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array (
-			array('name'=>'Base/Lang', 'version'=>0),
-			array('name'=>'Base/Setup', 'version'=>0),
-			array('name'=>'Utils/Tooltip', 'version'=>0),
-			array('name'=>'Base/Acl', 'version'=>0),
-			array('name'=>'Base/Box', 'version'=>0),
-			array('name'=>'Base/Theme/Administrator', 'version'=>0)
+			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
+			array('name'=>Base_SetupInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_TooltipInstall::module_name(), 'version'=>0),
+			array('name'=>Base_AclInstall::module_name(), 'version'=>0),
+			array('name'=>Base_BoxInstall::module_name(), 'version'=>0),
+			array('name'=>Base_Theme_AdministratorInstall::module_name(), 'version'=>0)
 		);
 	}
 

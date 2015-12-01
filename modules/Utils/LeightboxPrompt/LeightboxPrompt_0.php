@@ -65,7 +65,7 @@ class Utils_LeightboxPrompt extends Module {
             foreach ($this->options as $k=>$v) {
                 $next_button = array('icon'=>$v['icon'], 'label'=>$v['label']);
                 if ($v['form']!==null) $form = $v['form'];
-                else $form = $this->options[$k]['form'] = $this->init_module('Libs/QuickForm');
+                else $form = $this->options[$k]['form'] = $this->init_module(Libs_QuickForm::module_name());
                 if (!empty($params)) {
                     foreach ($params as $w)
                         $form->addElement('hidden', $this->group.'_'.$w, 'none', array('id'=>$this->group.'_'.$w));
@@ -74,7 +74,7 @@ class Utils_LeightboxPrompt extends Module {
                     $v['form']->addElement('button', 'cancel', __('Cancel'), array('id'=>$this->group.'_lp_cancel', 'onclick'=>count($this->options)==1?'f'.$this->group.'_prompt_deactivate();':'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
                     $v['form']->addElement('submit', 'submit', __('OK'), array('id'=>$this->group.'_lp_submit', 'onclick'=>'f'.$this->group.'_prompt_deactivate();'));
                     ob_start();
-                    $th = $this->init_module('Base/Theme');
+                    $th = $this->init_module(Base_Theme::module_name());
                     $v['form']->assign_theme('form', $th);
                     $th->assign('id', $this->get_instance_id());
                     $th->display('form');
@@ -96,7 +96,7 @@ class Utils_LeightboxPrompt extends Module {
                 $buttons[] = $next_button;
             }
 
-            $theme = $this->init_module('Base/Theme');
+            $theme = $this->init_module(Base_Theme::module_name());
 
             $theme->assign('open_buttons_section','<div id="'.$this->group.'_buttons_section">');
             $theme->assign('buttons',$buttons);

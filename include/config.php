@@ -33,9 +33,9 @@ if(!defined('MINIFY_SOURCES')) define('MINIFY_SOURCES',0);
 
 if(!defined('SESSION_TYPE')) define('SESSION_TYPE','file'); //file,memcache or sql
 if(!defined('MEMCACHE_SESSION_SERVER')) define('MEMCACHE_SESSION_SERVER','');
-if(!defined('MEMCACHE_SESSION_TOKEN')) define('MEMCACHE_SESSION_TOKEN','epesi_');
+if(!defined('MEMCACHE_SESSION_TOKEN')) define('MEMCACHE_SESSION_TOKEN','epesi_'.md5(DATABASE_NAME.'#'.DATABASE_HOST.'#'.DATABASE_DRIVER).'_');
 if(!defined('FILE_SESSION_DIR')) define('FILE_SESSION_DIR',session_save_path());
-if(!defined('FILE_SESSION_TOKEN')) define('FILE_SESSION_TOKEN','epesi_');
+if(!defined('FILE_SESSION_TOKEN')) define('FILE_SESSION_TOKEN','epesi_'.md5(DATABASE_NAME.'#'.DATABASE_HOST.'#'.DATABASE_DRIVER).'_');
 
 if(!defined('SUGGEST_DONATION')) define('SUGGEST_DONATION',1);
 if(!defined('CHECK_VERSION')) define('CHECK_VERSION',1);

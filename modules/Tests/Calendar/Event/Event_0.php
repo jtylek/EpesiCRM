@@ -27,7 +27,7 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 	public function add($def_date,$timeless=false) {
 		if($this->is_back()) $this->back_to_calendar();
 
-		$qf = $this->init_module('Libs/QuickForm',null,'addf');
+		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'addf');
 		$qf->addElement('datepicker','start','Start Date');
 		$qf->addElement('datepicker','end','End Date');
 //		$qf->addElement('checkbox','timeless','Timeless'); //always

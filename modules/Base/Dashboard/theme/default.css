@@ -22,6 +22,10 @@
 	cursor: move;
 }
 
+#dashboard .handle.fixed {
+	cursor: default;
+}
+
 #dashboard .handle .toggle,
 #dashboard .handle .remove,
 #dashboard .handle .href,

@@ -64,7 +64,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee',array(),array('edited_on'));
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID'),array('edited_on'));
         Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
-        Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename('Utils/Attachment', 'View_entry'));
+        Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename(Utils_AttachmentInstall::module_name(), 'View_entry'));
         Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_AttachmentCommon','watchdog_label'));
         Utils_RecordBrowserCommon::set_caption('utils_attachment', _M('Note'));
         Utils_RecordBrowserCommon::set_description_callback('utils_attachment', array('Utils_AttachmentCommon','description_callback'));
@@ -86,11 +86,12 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('utils_attachment_file','
 			id I4 AUTO KEY NOTNULL,
 			attach_id I4 NOTNULL,
+			filestorage_id I8 NOTNULL,
 			original C(255) NOTNULL,
 			created_by I4,
 			created_on T DEFTIMESTAMP,
 			deleted I1 NOTNULL DEFAULT 0',
-			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_data_1(id)'));
+			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_data_1(id), FOREIGN KEY (filestorage_id) REFERENCES utils_filestorage_files(id)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_file.<br>');
 			return false;
@@ -124,27 +125,14 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		
-		DB::CreateTable('utils_attachment_googledocs','
-			id I4 AUTO KEY NOTNULL,
-			note_id I4 NOTNULL,
-			view_link C(255),
-			doc_id C(128)',
-			array('constraints'=>''));
-		
 		Base_AclCommon::add_permission(_M('Attachments - view full download history'), array('ACCESS:employee'));
-
-		Variable::set('utils_attachments_google_user', '');
-		Variable::set('utils_attachments_google_pass', '');
 		return $ret;
 	}
 
 	public function uninstall() {
 		Base_AclCommon::delete_permission('Attachments - view full download history');
 		$ret = true;
-		Variable::delete('utils_attachments_google_user');
-		Variable::delete('utils_attachments_google_pass');
 
-		DB::DropTable('utils_attachment_googledocs');
 		$ret &= DB::DropTable('utils_attachment_download');
 		$ret &= DB::DropTable('utils_attachment_file');
 		$ret &= DB::DropTable('utils_attachment_local');
@@ -158,20 +146,21 @@ class Utils_AttachmentInstall extends ModuleInstall {
 	}
 
 	public function requires($v) {
-		return array(array('name'=>'Utils/GenericBrowser','version'=>0),
-			     array('name'=>'Utils/FileUpload', 'version'=>0),
-			     array('name'=>'Utils/BBCode', 'version'=>0),
-                 array('name'=>'CRM/Common', 'version'=>0),
-			     array('name'=>'Libs/QuickForm', 'version'=>0),
-			     array('name'=>'Libs/CKEditor', 'version'=>0),
-			     array('name'=>'Libs/Leightbox', 'version'=>0),
-			     array('name'=>'Utils/Tooltip', 'version'=>0),
-			     array('name'=>'Utils/Watchdog', 'version'=>0),
-			     array('name'=>'Base/RegionalSettings', 'version'=>0),
-			     array('name'=>'Base/Lang','version'=>0),
-			     array('name'=>'Base/Box', 'version'=>0),
-			     array('name'=>'Base/Theme', 'version'=>0),
-			     array('name'=>'Base/ActionBar', 'version'=>0));
+		return array(array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0),
+			     array('name'=>Utils_FileUploadInstall::module_name(), 'version'=>0),
+			     array('name'=>Utils_FileStorageInstall::module_name(), 'version'=>0),
+			     array('name'=>Utils_BBCodeInstall::module_name(), 'version'=>0),
+                 array('name'=>CRM_CommonInstall::module_name(), 'version'=>0),
+			     array('name'=>Libs_QuickFormInstall::module_name(), 'version'=>0),
+			     array('name'=>Libs_CKEditorInstall::module_name(), 'version'=>0),
+			     array('name'=>Libs_LeightboxInstall::module_name(), 'version'=>0),
+			     array('name'=>Utils_TooltipInstall::module_name(), 'version'=>0),
+			     array('name'=>Utils_WatchdogInstall::module_name(), 'version'=>0),
+			     array('name'=>Base_RegionalSettingsInstall::module_name(), 'version'=>0),
+			     array('name'=>Base_LangInstall::module_name(),'version'=>0),
+			     array('name'=>Base_BoxInstall::module_name(), 'version'=>0),
+			     array('name'=>Base_ThemeInstall::module_name(), 'version'=>0),
+			     array('name'=>Base_ActionBarInstall::module_name(), 'version'=>0));
 	}
 
 	public static function info() {

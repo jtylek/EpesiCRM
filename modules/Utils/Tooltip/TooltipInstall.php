@@ -11,12 +11,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_TooltipInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme('Utils/Tooltip');
+		Base_ThemeCommon::install_default_theme(Utils_TooltipInstall::module_name());
 		return true;
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('Utils/Tooltip');
+		Base_ThemeCommon::uninstall_default_theme(Utils_TooltipInstall::module_name());
 		return true;
 	}
 	
@@ -25,8 +25,8 @@ class Utils_TooltipInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Theme', 'version'=>0),
-			array('name'=>'Base/User/Settings', 'version'=>0)
+			array('name'=>Base_ThemeInstall::module_name(), 'version'=>0),
+			array('name'=>Base_User_SettingsInstall::module_name(), 'version'=>0)
 		    );
 	}
 }

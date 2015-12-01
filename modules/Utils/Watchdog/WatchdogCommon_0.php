@@ -30,6 +30,8 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function applet_settings() {
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		$ret = array();
+        $ret[] = array('label'=>__('Records limit'),'name'=>'records_limit','type'=>'select', 'values' => array(/*'__all__' => __('All'), */'10' => '10', '15' => '15', '20' => '20', '30' => '30'), 'default' => '15');
+
 		if (!empty($methods)) {
 			$ret[] = array('label'=>__('Categories'),'name'=>'categories_header','type'=>'header');
 			foreach ($methods as $k=>$v) { 
@@ -41,6 +43,19 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
+
+    public static function cron()
+    {
+        return array('cron_send_notifications' => 1);
+    }
+
+    public static function cron_send_notifications()
+    {
+        while(false != ($event_id = self::pop_queued_notification_for_cron())) {
+            self::send_email_notifications($event_id);
+        }
+    }
+
 	public static function get_subscribers($category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
 		if ($id!==null) $ret = DB::GetAssoc('SELECT user_id,user_id FROM utils_watchdog_subscription WHERE category_id=%d AND internal_id=%s', array($category_id, $id));
@@ -59,11 +74,11 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return $cache[$category_name] = $ret;
 	}
 	public static function category_exists($category_name) {
-		static $cache = array();
-		if (isset($cache[$category_name])) return $cache[$category_name];
-		$ret = DB::GetOne('SELECT id FROM utils_watchdog_category WHERE name=%s', array(md5($category_name)));
-		$ret = ($ret!==false && $ret!==null);
-		return $cache[$category_name] = $ret;
+		static $cache = null;
+		if (!$cache) {
+			$cache = DB::GetAssoc('SELECT name, id FROM utils_watchdog_category');
+		}
+		return isset($cache[md5($category_name)]);
 	}
 	private static function check_if_user_subscribes($user, $category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
@@ -108,19 +123,30 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if (!$category_id) return;
 		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message, event_time) VALUES (%d,%d,%s,%T)',array($category_id,$id,$message,time()));
 		$event_id = DB::Insert_ID('utils_watchdog_event', 'id');
-		Utils_WatchdogCommon::notified($category_name,$id);
 		$count = DB::GetOne('SELECT COUNT(*) FROM utils_watchdog_event WHERE category_id=%d AND internal_id=%d', array($category_id,$id));
 		if ($count==1) {
 			$subscribers = self::get_subscribers($category_id);
 			foreach ($subscribers as $s)
 				self::user_subscribe($s, $category_name, $id);
 		}
-        $subscribers = self::get_subscribers($category_name, $id);
+        Utils_WatchdogCommon::notified($category_name,$id);
 
-		$c_user = Acl::get_user();
+        self::queue_notification_for_cron($event_id);
+    }
+
+    public static function send_email_notifications($event_id)
+    {
+        $event = DB::GetRow('SELECT * FROM utils_watchdog_event WHERE id=%d', array($event_id));
+        if (!$event) return;
+
+        $category_id = $event['category_id'];
+        $id = $event['internal_id'];
+        $message = $event['message'];
+        $subscribers = self::get_subscribers($category_id, $id);
+
+        $c_user = Acl::get_user();
         self::email_mode(true);
-		foreach ($subscribers as $user_id) {
-            if ($user_id==$c_user) continue;
+        foreach ($subscribers as $user_id) {
             $wants_email = Base_User_SettingsCommon::get('Utils_Watchdog', 'email', $user_id);
             if (!$wants_email) continue;
             Acl::set_user($user_id);
@@ -134,9 +160,23 @@ class Utils_WatchdogCommon extends ModuleCommon {
             $title = __('%s notification - %s - %s', array(EPESI, $email_data['category'], strip_tags($email_data['title'])));
             Base_MailCommon::send($email, $title, $email_data['events'], null, null, true);
         }
-		Acl::set_user($c_user);
+        Acl::set_user($c_user);
         Base_LangCommon::load();
         self::email_mode(false);
+    }
+
+    public static function queue_notification_for_cron($event_id)
+    {
+        DB::Execute('INSERT INTO utils_watchdog_notification_queue VALUES (%d)', array($event_id));
+    }
+
+    public static function pop_queued_notification_for_cron()
+    {
+        DB::StartTrans();
+        $event_id = DB::GetOne('SELECT event_id FROM utils_watchdog_notification_queue');
+        DB::Execute('DELETE FROM utils_watchdog_notification_queue WHERE event_id=%d', array($event_id));
+        DB::CompleteTrans();
+        return $event_id;
     }
 	// *************************** Subscription manipulation *******************
 	public static function user_purge_notifications($user_id, $category_name, $time=null) {
@@ -292,41 +332,92 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$href = ' onclick="utils_watchdog_set_subscribe('.(($last_seen===null)?1:0).',\''.$category_name.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"';
 		if ($last_seen===null) {
 			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','not_watching_small.png');
-			$tooltip = Utils_TooltipCommon::open_tag_attrs(__('Click to watch this record for changes.'));
+			$tooltip = __('Click to watch this record for changes.');
 		} else {
 			if ($last_seen===true) {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png');
-				$tooltip = Utils_TooltipCommon::open_tag_attrs(__('You are watching this record, click to stop watching this record for changes.'));
+				$tooltip = __('You are watching this record, click to stop watching this record for changes.');
 			} else {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
 				$ev = self::display_events($category_id, $last_seen, $id);
-				$tooltip = Utils_TooltipCommon::open_tag_attrs(__('You are watching this record, click to stop watching this record for changes.').($ev?'<br>'.__('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']:''));
+				$tooltip = __('You are watching this record, click to stop watching this record for changes.').($ev?'<br>'.__('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']:'');
 			}
 		}
+		$subscribers = self::get_subscribers($category_name,$id);
+		$my_user = Base_AclCommon::get_user();
+		if ($subscribers) {
+			$icon_on = ' src="' . Base_ThemeCommon::get_template_file('Utils_Watchdog', 'watching_small.png') . '"';
+			$icon_off = ' src="' . Base_ThemeCommon::get_template_file('Utils_Watchdog', 'watching_small_new_events.png') . '"';
+			$other_subscribers = array();
+			foreach ($subscribers as $subscriber) {
+				if ($subscriber == $my_user) {
+					continue;
+				}
+				if (class_exists('CRM_ContactsCommon')) {
+					$contact = CRM_ContactsCommon::get_user_label($subscriber, true);
+				} else {
+					$contact = Base_UserCommon::get_user_login($subscriber);
+				}
+
+				$notified = self::user_check_if_notified($subscriber, $category_name, $id);
+				$icon2 = $notified === true ? $icon_on : $icon_off;
+				$other_subscribers[] = '<img style="margin-right:4px;" ' . $icon2 . ' /><a>' . Utils_RecordBrowserCommon::no_wrap($contact) . '</a>';
+			}
+			if ($other_subscribers) {
+				$tooltip .= '<hr />' . implode('<br>', $other_subscribers);
+			}
+		}
+		$tooltip = Utils_TooltipCommon::open_tag_attrs($tooltip);
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
 	} 
 	
-	public static function tray_notification() {
-		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
+	public static function notification() {
+		/*$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		foreach ($methods as $k=>$v) { 
 			$methods[$k] = explode('::',$v);
 		}
-		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
-		$records = DB::GetAll('SELECT internal_id,category_id,last_seen_event FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, array(Acl::get_user()));
+        $time_sql = $time ? ' AND uwe.event_time > %T' : '';
+		$only_new = " AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id$time_sql)";
+        $args = array(Acl::get_user());
+        if ($time) {
+            $args[] = $time;
+        }
+        $records = DB::GetAll('SELECT internal_id,category_id,last_seen_event FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, $args);
 		$ret = array();
 		$tray = array();
-		foreach ($records as $v) {			
-			$changes = Utils_WatchdogCommon::check_if_notified($v['category_id'], $v['internal_id']);
+        if ($records) {
+            $last_event_id = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event');
+            foreach ($records as $v) {
+                $changes = Utils_WatchdogCommon::check_if_notified($v['category_id'], $v['internal_id']);
+                if (!is_array($changes)) $changes = array();
+                $data = call_user_func($methods[$v['category_id']], $v['internal_id'], $changes, false);
+                if ($data==null) continue;
+
+                $msg = __("You've got unread notifications");
+                $ret['watchdog_'. $last_event_id] = '<b>'.__('Watchdog - %s', array($msg)).'</b> ';
+                $tray['watchdog_' . $last_event_id] = array('title'=>__('Watchdog'), 'body'=>$msg);
+                break;
+            }
+        }*/
+
+		$ret = array();
+		$tray = array();
+		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
+		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
+		$records = DB::GetAll('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, array(Acl::get_user()));
+		foreach ($records as $rec_key => $w) {
+			$k = $w['internal_id'];
+			$v = $w['category_id'];
+			$changes = Utils_WatchdogCommon::check_if_notified($v, $k);
 			if (!is_array($changes)) $changes = array();
-			$data = call_user_func($methods[$v['category_id']], $v['internal_id'], $changes, false);
-			if ($data==null) continue;
-			$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = '<b>'.__('Watchdog - %s', array($data['category'])).':</b> '.$data['title'];
-			
-			$tray['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = array('title'=>__('Watchdog - %s', array($data['category'])), 'body'=>$data['title']);			
-			
-			if (isset($data['events']) && $data['events']) {
-				$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] .= '<br><font size=-5 color=gray>'.$data['events'].'</font>';
+			$data = call_user_func($methods[$v], $k, $changes);
+			if ($data == null) { // mark events as seen when user can't see them
+				Utils_WatchdogCommon::notified($v, $k);
+				unset($records[$rec_key]);
+				continue;
 			}
+			$ret['watchdog_'.$v.'_'.$k] = '<b>'.__('Watchdog - %s: %s', array($data['category'],$data['title'])).'</b>'.(isset($data['events'])?'<br />'.$data['events']:'');
+			$tray['watchdog_'.$v.'_'.$k] = array('title'=>__('Watchdog - %s', array($data['category'])), 'body'=>$data['title']);
 		}
 		return array('notifications'=>$ret, 'tray'=>$tray);
 	}

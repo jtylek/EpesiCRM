@@ -23,7 +23,7 @@ class Utils_Planner extends Module {
 	public function construct() {
 		$_SESSION['client']['utils_planner'] = array();
 		$_SESSION['client']['utils_planner']['resources'] = array();
-		$this->form = $this->init_module('Libs/QuickForm');
+		$this->form = $this->init_module(Libs_QuickForm::module_name());
 		$this->form->addElement('hidden', 'grid_selected_frames', '', array('id'=>'grid_selected_frames'));
 	}
 	
@@ -150,7 +150,7 @@ class Utils_Planner extends Module {
 		load_js('modules/Utils/Planner/planner.js');
 		eval_js('disableSelection($("Utils_Planner__grid"))');
 		eval_js('Event.observe(window,"mouseup",time_grid_mouse_up)');
-		$theme = $this->init_module('Base/Theme');
+		$theme = $this->init_module(Base_Theme::module_name());
 
 		/* HEADERS */
 		$fdow = Utils_PopupCalendarCommon::get_first_day_of_week();

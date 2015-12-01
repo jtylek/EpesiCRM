@@ -78,4 +78,23 @@ abstract class ModulePrimitive {
 		return ModuleManager::check_access($this->type,$m);
 	}
 
+    public final static function is_installed()
+    {
+        $module_name = static::module_name();
+        return ModuleManager::is_installed($module_name) >= 0;
+    }
+
+	public final static function module_name()
+	{
+        $class_name = get_called_class();
+        if (substr($class_name, -6) == 'Common') {
+            $class_name = substr($class_name, 0, -6);
+        }
+
+        if (substr($class_name, -7) == 'Install') {
+            $class_name = substr($class_name, 0, -7);
+        }
+
+		return str_replace('_', '/', $class_name);
+	}
 }

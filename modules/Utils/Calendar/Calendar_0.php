@@ -59,7 +59,7 @@ class Utils_Calendar extends Module {
 
 
 		if(count($this->settings['views'])>1) {
-			$this->tb = $this->init_module('Utils/TabbedBrowser');
+			$this->tb = $this->init_module(Utils_TabbedBrowser::module_name());
 
 			foreach($this->settings['views'] as $k=>$v) {
 				if(!in_array($v,self::$views))
@@ -349,14 +349,14 @@ class Utils_Calendar extends Module {
 	//////////////////////////////////////////////
 	// agenda
 	public function agenda() {
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		/////////////// controls ////////////////////////
 		$start = & $this->get_module_variable('agenda_start',date('Y-m-d',$this->date));
 		$end = & $this->get_module_variable('agenda_end',date('Y-m-d',$this->date + (7 * 24 * 60 * 60)));
 
-		$form = $this->init_module('Libs/QuickForm',null,'agenda_frm');
+		$form = $this->init_module(Libs_QuickForm::module_name(),null,'agenda_frm');
 
 		$form->addElement('datepicker', 'start', __('From'));
 		$form->addElement('datepicker', 'end', __('To'));
@@ -380,7 +380,7 @@ class Utils_Calendar extends Module {
 		$theme->assign('navigation_bar_additions', $navigation_bar_additions);
 
 		//////////////// data ////////////////////////
-		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
+		$gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'agenda');
 		$columns = array(
 			array('name'=>__('Start'), 'order'=>'start', 'width'=>10),
 			array('name'=>__('Duration'), 'order'=>'end', 'width'=>5),
@@ -438,7 +438,7 @@ class Utils_Calendar extends Module {
 	////////////////////////////////////////////////////////////////////
 	// day
 	public function day() {
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('trash_label', __('Drag and drop to delete'));
@@ -555,12 +555,10 @@ class Utils_Calendar extends Module {
 					$dur = 1;
 					$diff = 0;
 				} else {
-					$dur = 0;
 					$day_start = explode(':',$this->settings['start_day']);
 					$day_start = ($day_start[0]*60+$day_start[1])*60;
 					$diff = ($day_start - ($ev['start'] - $today_t))/(strtotime($this->settings['interval'])-strtotime('0:00'));
-					$dur += ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00')));
-					if(floor($diff)!=ceil($diff)) $dur++;
+					$dur = ceil(($ev['duration']+$ev['start']%(strtotime($this->settings['interval'])-strtotime('0:00')))/(strtotime($this->settings['interval'])-strtotime('0:00')));
 					$diff = floor($diff);
 				}
 				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.$dur.', '.$diff.');';
@@ -603,7 +601,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function week() {
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('trash_label', __('Drag and drop to delete'));
@@ -760,10 +758,13 @@ class Utils_Calendar extends Module {
 //				print($ev['title'].' '.$ev['start'].'<hr>');
 				$day_start = explode(':',$this->settings['start_day']);
 				$day_start = ($day_start[0]*60+$day_start[1])*60;
-				if (!isset($ev['start'])) $diff = 1;
-				else $diff = ($day_start - ($ev['start'] - $today_t))/(strtotime($this->settings['interval'])-strtotime('0:00'));
-				$dur = ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00')));
-				if(floor($diff)!=ceil($diff)) $dur++;
+				if(isset($ev['timeless']) && $ev['timeless']) {
+					$diff = 0;
+					$dur = 1;
+				} else {
+					$diff = ($day_start - ($ev['start'] - $today_t))/(strtotime($this->settings['interval'])-strtotime('0:00'));
+					$dur = ceil(($ev['duration']+$ev['start']%(strtotime($this->settings['interval'])-strtotime('0:00')))/(strtotime($this->settings['interval'])-strtotime('0:00')));
+				}
 				$diff = floor($diff);
 				$this->print_event($ev);
 //				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).')');
@@ -822,7 +823,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function month() {
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('trash_label', __('Drag and drop to delete'));
@@ -913,7 +914,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function year() {
-		$theme = $this->pack_module('Base/Theme');
+		$theme = $this->pack_module(Base_Theme::module_name());
 		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
