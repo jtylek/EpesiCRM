@@ -3,7 +3,7 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
-CURRENT
+RELEASE 1.7.0-20151201
 -------
 
 - Fix error reporting issue - use absolute path to error file
