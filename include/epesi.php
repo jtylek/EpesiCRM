@@ -418,7 +418,7 @@ class Epesi {
 					if($queries[$kkk]['args']==$q['args']) {
 						$style .= ';text-decoration:underline';
 					}
-				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.htmlspecialchars(var_export($q['args'],true)).' <i><b>'.number_format($q['time'],4).'</b></i><br>'.'</span>';
+				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.htmlspecialchars(var_export($q['args'],true)).' <i><b>'.number_format($q['time'],4).'</b></i>' . (isset($q['caller'])?', '.$q['caller']:'') . '<br>'.'</span>';
 				$sum+=$q['time'];
 				$qty++;
 			}
