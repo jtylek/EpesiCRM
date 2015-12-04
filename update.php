@@ -279,6 +279,7 @@ class EpesiUpdate
     {
         $this->CLI = (php_sapi_name() == 'cli');
         if ($this->CLI) {
+            global $argv;
             // allow to define DATA directory for CLI in argument
             if (isset($argv)) {
                 define('EPESI_DIR','/');
