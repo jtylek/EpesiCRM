@@ -732,3 +732,28 @@ function curl_exec_follow($ch, $maxredirect = null) {
 	} 
 	return curl_exec($ch); 
 }
+
+function get_function_caller($describe=true) {
+	$trace = debug_backtrace(true, 3);
+
+	if (!isset($trace[2])) return $describe? '': array();
+
+	$caller = $trace[2];
+
+	$ret = $caller;
+	if ($describe) {
+		$ret = '';
+		if (isset($caller['class']))
+			$ret .= $caller['class']. '::';
+
+		if (isset($caller['function']))
+			$ret .= $caller['function'];
+
+		if (isset($caller['file']) && isset($caller['line']))
+			$ret .= ", File '{$caller['file']}: {$caller['line']}";
+
+		if (!empty($ret)) $ret = 'Called by ' . $ret;
+	}
+
+	return $ret;
+}
