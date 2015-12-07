@@ -89,7 +89,11 @@ class EpesiPackageDownloader
             throw new ErrorException("Signature incorrect");
         }
         if ($verify_status === -1) {
-            throw new ErrorException("Signature verify error");
+            $error_string = openssl_error_string();
+            if (!$error_string) {
+                $error_string = 'no error string reported';
+            }
+            throw new ErrorException("Signature verify error: " . $error_string);
         }
         return $package_file;
     }
