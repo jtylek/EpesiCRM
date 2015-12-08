@@ -817,7 +817,7 @@ class Utils_RecordBrowser extends Module {
 				if ($args['commondata']) $k = $k.'[]';
 				elseif (isset($args['ref_field']) && $args['ref_field']) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
                 if ($k[0]=='"') {
-                    $search_res['~_'.$k] = $v;
+                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~' . $k => $v));
                     continue;
                 }
                 if (is_array($v)) $v = $v[0];
