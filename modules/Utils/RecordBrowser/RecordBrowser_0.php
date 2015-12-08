@@ -838,13 +838,14 @@ class Utils_RecordBrowser extends Module {
             $leftovers = array();
             foreach ($val2 as $vv) {
                 if ($vv === '') continue;
+                $search_part = new Utils_RecordBrowser_Crits();
                 foreach ($search as $k=>$v) {
                     if ($v!=$val) {
                         $leftovers[$k] = $v;
                         continue;
                     }
                     if ($k[0]=='"') {
-                        $search_res = rb_or($search_res, array('~_'.$k => $vv));
+                        $search_part = Utils_RecordBrowserCommon::merge_crits($search_part, array('~'.$k => $vv), true);
                         continue;
                     }
 					$args = $this->table_rows[$hash[trim($k, '(|')]];
@@ -855,11 +856,12 @@ class Utils_RecordBrowser extends Module {
 					} else {
 						$w = $vv;
 					}
-                    $search_res = rb_or($search_res, array('~'.$k =>$w));
+                    $search_part = Utils_RecordBrowserCommon::merge_crits($search_part, array('~'.$k =>$w), true);
                 }
+                $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $search_part);
             }
             if ($leftovers) {
-                $search_res = rb_or($search_res, $leftovers);
+                $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $leftovers);
             }
         }
 
