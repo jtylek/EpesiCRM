@@ -222,7 +222,7 @@ class CRM_Calendar extends Module {
 			$gb_row->add_data(
 				array(
 					'value'=>$date, 
-					'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']
+					'order_value'=> (isset($row['timeless']) && $row['timeless']) ? strtotime($row['timeless']) : $row['start']
 				),
 				array(
 					'value'=>$view_action.$title.'</a>'
