@@ -312,7 +312,7 @@ class CRM_Roundcube extends Module {
             $cell_id = 'mailaccount_'.$opts['id'].'_'.$row['id'];
 
             //interval execution
-            eval_js_once('setInterval(\'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' , 0)\',300000)');
+            eval_js_once('setInterval(\'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' , 0)\',200000)');
 
             //and now
             $update_applet .= 'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' ,1);';

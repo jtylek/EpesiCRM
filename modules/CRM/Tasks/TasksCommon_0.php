@@ -413,7 +413,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$next['id'] = $r['id'];
 
 		$next['start'] = $iday;
-		$next['timeless'] = $r['timeless'] ? date('Y-m-d', $iday) : false;
+		$next['timeless'] = $r['timeless'] ? date('Y-m-d', $iday) : null;
 
 		$next['duration'] = -1;
 		$next['title'] = (string)$r['title'];

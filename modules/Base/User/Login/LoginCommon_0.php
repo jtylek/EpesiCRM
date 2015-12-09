@@ -238,7 +238,8 @@ class Base_User_LoginCommon extends ModuleCommon {
 		$user = Base_UserCommon::get_my_user_login();
 		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
 		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
-		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)',array($uid,$autologin_id,$_SERVER['REMOTE_ADDR'],time()));
+		$ip = get_client_ip_address();
+		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)', array($uid, $autologin_id, $ip, time()));
 	}
 
     public static function is_autologin_forbidden()
@@ -267,7 +268,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 	public static function mobile_login() {
 		$t = Variable::get('host_ban_time');
 		if($t>0) {
-			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
+			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,get_client_ip_address()));
 			if($fails>=3) {
 				print(__('You have exceeded the number of allowed login attempts.').'<br>');
 				print('<a href="'.get_epesi_url().'">'.__('Host banned. Click here to refresh.').'</a>');

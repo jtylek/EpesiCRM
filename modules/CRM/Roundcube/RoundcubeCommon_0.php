@@ -522,7 +522,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
      * @return array|null
      * @throws Exception
      */
-    public static function get_unread_messages($account_id, $only_cached = false, $cache_validity_in_minutes = 5)
+    public static function get_unread_messages($account_id, $only_cached = false, $cache_validity_in_minutes = 3)
     {
         $return = null;
         $rec = Utils_RecordBrowserCommon::get_record('rc_accounts', $account_id);

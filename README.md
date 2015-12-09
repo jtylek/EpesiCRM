@@ -12,7 +12,7 @@
 
 <i>Video tutorial on how to install epesi using Softaculous autoinstaller via cPanel -  https://www.youtube.com/watch?v=FR4mQsHUNCY</i>
 
-<b>DYI - Do It Yourself manual methods:</b>
+<b>DIY - Do It Yourself manual methods:</b>
 For experienced users and server administrators:
 It requires properly configured HTTP server with PHP and MySQL/PostgreSQL - so called LAMP stack.
 - LAMP Stack https://en.wikipedia.org/wiki/LAMP_(software_bundle)
