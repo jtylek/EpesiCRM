@@ -17,7 +17,7 @@ class CRM_LoginAudit extends Module {
 		
 		$ret = DB::SelectLimit($query, 1, 1);
 		if($row = $ret->FetchRow()) {
-			$ok1 = $row['ip_address'] == $_SERVER['REMOTE_ADDR']; 
+			$ok1 = $row['ip_address'] == get_client_ip_address();
 			$ok2 = DB::GetOne('SELECT 1 FROM base_login_audit b WHERE (SELECT MIN(b2.start_time) FROM base_login_audit b2 WHERE b2.ip_address=%s)<b.start_time AND (SELECT MAX(b3.start_time) FROM base_login_audit b3 WHERE b3.ip_address=%s)>b.start_time AND b.ip_address!=%s',array($row['ip_address'],$row['ip_address'],$row['ip_address']));
 			$ok = $ok1 || $ok2;
 			print(($ok?'<div style="padding:7px;">':'<div style="padding:7px;background-color: red; color:white; font-weight:bold;">').__('On: %s',array($row['start_time'])).'<br />'.__('Host name: %s',array($row['host_name'])).'<br />'.__('IP address: %s',array( $row['ip_address'])).'</div>');
