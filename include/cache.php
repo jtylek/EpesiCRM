@@ -23,9 +23,9 @@ class FileCache
     {
         $data = false;
         if (file_exists($this->file)) {
-            global $global_cache;
-            @include $this->file;
-            $data = isset($global_cache) ? $global_cache : false;
+            $content = file_get_contents($this->file);
+            $content = substr($content, 8);
+            $data = @unserialize($content);
             if (!$data) {
                 @unlink($this->file);
             }
@@ -40,9 +40,9 @@ class FileCache
 
     protected function save()
     {
-        $data_str = var_export($this->data, true);
-        $data = '<?php $global_cache = ' . $data_str . ';';
-        file_put_contents($this->file, $data);
+        $data = "<?php //";
+        $data .= serialize($this->data);
+        file_put_contents($this->file, $data, LOCK_EX);
     }
 
     public function get($name, $default = null)
