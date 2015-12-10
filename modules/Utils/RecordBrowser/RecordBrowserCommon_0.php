@@ -36,13 +36,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 	}
 
-    public static function call_display_callback($callback, $record, $links_not_recommended, $field)
+    public static function call_display_callback($callback, $record, $links_not_recommended, $field, $tab)
     {
         if (is_array($callback)) $callback = implode('::', $callback);
         if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable(array($match[1], $match[2]))) {
-            $ret = call_user_func(array($match[1], $match[2]), $record, $links_not_recommended, $field);
+            $ret = call_user_func(array($match[1], $match[2]), $record, $links_not_recommended, $field, $tab);
         } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable($match[1])) {
-            $ret = call_user_func($match[1], $record, $links_not_recommended, $field);
+            $ret = call_user_func($match[1], $record, $links_not_recommended, $field, $tab);
         } else {
             ob_start();
             $ret = eval($callback);
@@ -89,7 +89,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 		self::display_callback_cache($tab);
         if (isset(self::$display_callback_table[$tab][$field])) {
-	    $ret = self::call_display_callback(self::$display_callback_table[$tab][$field],$record,$links_not_recommended,self::$table_rows[$field]);
+	    $ret = self::call_display_callback(self::$display_callback_table[$tab][$field],$record,$links_not_recommended,self::$table_rows[$field],$tab);
         } else {
             $ret = $val;
             if ($args['type']=='select' || $args['type']=='multiselect') {

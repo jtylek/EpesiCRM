@@ -287,7 +287,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         } else {
             $callback = $rb_obj->get_display_callback($desc['name']);
             if (!$callback) $callback = 'CRM_ContactsCommon::display_company_contact';
-            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc);
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc, $rb_obj->tab);
 //          $def = call_user_func($callback, array($field=>$default), false, $desc);
             $form->addElement('static', $field, $label, $def);
         }
@@ -569,7 +569,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         } else {
             $callback = $rb_obj->get_display_callback($desc['name']);
             if (!$callback) $callback = array('CRM_ContactsCommon','display_contact');
-            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc);
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc,$rb_obj->tab);
 //          $def = call_user_func($callback, array($field=>$default), false, $desc);
             $form->addElement('static', $field, $label, $def);
         }
