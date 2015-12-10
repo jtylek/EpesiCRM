@@ -29,14 +29,20 @@ class EpesiPackageDownloader
         return $instance;
     }
 
-    protected function get_versions()
+    public function get_update_json()
+    {
+        $ret = self::download('http://ess.epe.si/update.json');
+        $update_json = @json_decode($ret, true);
+        if ($update_json === null) {
+            throw new ErrorException('Cannot decode update.json file: ' . $ret);
+        }
+        return $update_json;
+    }
+
+    public function get_versions()
     {
         if (!$this->versions) {
-            $ret = self::download('https://ess.epe.si/update.json');
-            $update_json = @json_decode($ret, true);
-            if ($update_json === null) {
-                throw new ErrorException('Cannot decode update.json file: ' . $ret);
-            }
+            $update_json = $this->get_update_json();
             if (!isset($update_json['files'])) {
                 throw new ErrorException('No files defined in update.json');
             }
@@ -45,15 +51,24 @@ class EpesiPackageDownloader
         return $this->versions;
     }
 
-    public function get_package_info($current_version, $offset)
+    public function get_latest_package_info()
+    {
+        $versions = $this->get_versions();
+        $latest = end($versions);
+        return $latest;
+    }
+
+    public function get_package_info($current_revision, $offset)
     {
         $versions = $this->get_versions();
         $found = false;
+        $skip_update = ($offset != 0);
         foreach ($versions as $v) {
-            if ($found == false && $v['version'] == $current_version) {
+            if ($found == false && $v['revision'] == $current_revision) {
                 $found = true;
             }
             if ($found) {
+                if ($skip_update && isset($v['skip']) && $v['skip']) continue;
                 if ($offset == 0) {
                     return $v;
                 }
@@ -63,9 +78,9 @@ class EpesiPackageDownloader
         return false;
     }
 
-    public function download_package($current_version, $offset)
+    public function download_package($current_revision, $offset)
     {
-        $package_info = $this->get_package_info($current_version, $offset);
+        $package_info = $this->get_package_info($current_revision, $offset);
         if (!$package_info) {
             return false;
         }
@@ -74,7 +89,8 @@ class EpesiPackageDownloader
                 throw new ErrorException("Missing '$key' in package info");
             }
         }
-        $package_file = 'epesi-' . $package_info['version'] . '.ei.zip';
+        $filename = EPESI == 'EPESI' ? 'epesi' : 'update';
+        $package_file = "$filename-$package_info[version]-$package_info[revision].ei.zip";
         $file_exists = file_exists($package_file);
         if (!$file_exists) {
             self::download($package_info['file'], $package_file);
@@ -95,8 +111,25 @@ class EpesiPackageDownloader
             }
             throw new ErrorException("Signature verify error: " . $error_string);
         }
-        return $package_file;
+        return new EpesiUpdatePackage($package_file);
     }
+
+    public function get_update_package_info($current_revision)
+    {
+        $package_info = $this->get_package_info($current_revision, 1);
+        return $package_info;
+    }
+
+    public function get_update_package($current_revision)
+    {
+        return $this->download_package($current_revision, 1);
+    }
+
+    public function get_current_package($current_revision)
+    {
+        return $this->download_package($current_revision, 0);
+    }
+
 
     public static function get_public_key()
     {
@@ -238,24 +271,6 @@ class EpesiUpdatePackage
         }
     }
 
-    public static function get_update_package($current_version)
-    {
-        $package_file = EpesiPackageDownloader::instance()->download_package($current_version, 1);
-        if ($package_file) {
-            $package_file = new self($package_file);
-        }
-        return $package_file;
-    }
-
-    public static function get_current_package($current_version)
-    {
-        $package_file = EpesiPackageDownloader::instance()->download_package($current_version, 0);
-        if ($package_file) {
-            $package_file = new self($package_file);
-        }
-        return $package_file;
-    }
-
 }
 
 class EpesiUpdate
@@ -300,6 +315,7 @@ class EpesiUpdate
 
         $this->system_version = Variable::get('version');
         $this->current_version = EPESI_VERSION;
+        $this->current_revision = EPESI_REVISION;
     }
 
     protected function quit($msg)
@@ -325,7 +341,7 @@ class EpesiUpdate
 
     public function version_up_to_date()
     {
-        $msg = __('Your EPESI does not require update');
+        $msg = __('Your %s does not require update', array(EPESI));
         if ($this->CLI) {
             print ($msg . "\n");
             print (__('Update procedure forced') . "\n");
@@ -350,33 +366,51 @@ class EpesiUpdate
         return "<p>$form</p>";
     }
 
+    protected function msg($msg)
+    {
+        if ($this->CLI) {
+            print ($msg . "\n");
+        }
+    }
+
     protected function handle_update_package()
     {
-        $package = EpesiUpdatePackage::get_update_package($this->system_version);
-        if ($package) {
+        $update_package_info = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+        if ($update_package_info) {
+            $latest_package_info = EpesiPackageDownloader::instance()->get_latest_package_info();
+            $latest_version = $update_package_info['revision'] == $latest_package_info['revision'];
+            $this->msg("There is update package...");
             $action = ($this->CLI || (isset($_GET['package']) && $_GET['package']));
             if ($action) {
-                if ($this->CLI) print("There is update package...\n");
-                $problems = $package->files_not_writable();
+                $this->msg("Downloading update package: $update_package_info[version]-$update_package_info[revision]...");
+                $update_package = EpesiPackageDownloader::instance()->get_update_package($this->current_revision);
+                $problems = $update_package->files_not_writable();
+                $problem_msg = __('Files not writable (please fix permissions)');
                 if (empty($problems)) {
-                    $current_package = EpesiUpdatePackage::get_current_package($this->system_version);
+                    $this->msg("Downloading current release package...");
+                    $current_package = EpesiPackageDownloader::instance()->get_current_package($this->current_revision);
                     if (!$current_package) {
                         throw new ErrorException('Cannot download current package');
                     }
-                    if ($this->CLI) print("Looking for changes or permissions problems...\n");
-                    $problems = $current_package->files_modified();
-                    if (empty($problems)) $problems = $current_package->files_not_writable();
+                    $this->msg("Looking for changes or permissions problems...");
+                    $problems = $current_package->files_not_writable();
+                    if (empty($problems)) {
+                        $problems = $current_package->files_modified();
+                        $problem_msg = __('Files with custom modifications');
+                    }
                     
                     if (empty($problems)) {
                         $this->turn_on_maintenance_mode();
-                        if ($this->CLI) print("Wipe current files...\n");
+                        $this->msg("Wipe current files...");
                         $current_package->wipe();
-                        if ($this->CLI) print("Extract new files...\n");
-                        if ($package->extract()) {
-                            if ($this->CLI) print("Delete package files...\n");
+                        $this->msg("Extract new files...");
+                        if ($update_package->extract()) {
+                            $this->msg("Delete package files...");
                             $current_package->delete();
-                            $package->delete();
-                            if ($this->CLI) print("Patches redirect...\n");
+                            if ($latest_version) {
+                                $update_package->delete();
+                            }
+                            $this->msg("Patches redirect...");
                             $this->redirect(array());
                         } else {
                             $current_package->extract();
@@ -385,23 +419,26 @@ class EpesiUpdate
                     }
                 }
                 if ($problems) {
-                    $msg = '<p><strong>' . __('Files with bad permissions or modified:') . '</strong></p>'."\n";
+                    $msg = '<p><strong>' . $problem_msg . ':</strong></p>'."\n";
                     foreach ($problems as $file) {
                         $msg .= "$file</br>\n";
                     }
                     $this->quit($msg);
                 }
             } else {
-                $header = __('Easy update package found!');
-                $current_ver = __('Your current EPESI version') . ': <strong>' . $this->current_version . '</strong>';
-                $text_p = __('Package') . ': <strong>' . $package->get_file() . '</strong>';
-                $warning_message = __('All core files will be overwritten!') . '<br/><br/>'
-                                   . __('If you have changed any of those files, then all custom modifications will be lost.');
+                $header = __('Update package available to download!');
+                $version_with_revision = "$this->current_version-$this->current_revision";
+                $update_info = "$update_package_info[version]-$update_package_info[revision]";
+                $current_ver = __('Your current %s version', array(EPESI)) . ': <strong>' . $version_with_revision . '</strong>';
+                $text_p = __('Update Package') . ': <strong>' . $update_info . '</strong>';
+                $warning_message = __('All core files will be replaced!') . '<br/><br/>'
+                                   . __('If you have changed any of those files, then update will not be performed.') . '<br/>'
+                                   . __('All core files must match those from the release package.');
                 $info_message = __('Custom modules and your data will be preserved.');
                 $msg = "<p><strong>$header</strong></p><p>$current_ver</p><p>$text_p</p>";
                 $msg .= "<p style=\"color: red; font-weight: bold\">$warning_message</p>";
                 $msg .= "<p style=\"font-weight: bold\">$info_message</p>";
-                $msg .= '<p><a class="button" href="?package=extract">' . __('Extract!') . '</a></p>';
+                $msg .= '<p><a class="button" href="?package=get">' . __('Download!') . '</a></p>';
                 $this->quit($msg);
             }
         }
@@ -419,8 +456,8 @@ class EpesiUpdate
             $this->perform_update_patches(false);
             $this->perform_update_end();
 
-            $package = EpesiUpdatePackage::get_update_package(EPESI_VERSION);
-            if ($package) $this->redirect(array());
+            $update_package = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+            if ($update_package) $this->redirect(array());
 
             $this->quit(__('Done'));
         }
@@ -437,8 +474,8 @@ class EpesiUpdate
             }
         } elseif ($up == 'end') {
             $this->perform_update_end();
-            $package = EpesiUpdatePackage::get_update_package(EPESI_VERSION);
-            $redirect = $package ? array() : get_epesi_url();
+            $update_package = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+            $redirect = $update_package ? array() : get_epesi_url();
             $this->redirect($redirect);
         } else {
             $this->update_body();
@@ -466,7 +503,7 @@ class EpesiUpdate
 
     protected function update_msg()
     {
-        $msg = __('Update EPESI from version %s to %s.', array($this->system_version, $this->current_version));
+        $msg = __('Update %s from version %s to %s.', array(EPESI, $this->system_version, $this->current_version));
         return "<p>$msg</p>";
     }
 
@@ -495,7 +532,7 @@ class EpesiUpdate
     {
         if (MaintenanceMode::is_on()) return;
 
-        $msg = __('EPESI is currently updating. Please wait or contact your system administrator.');
+        $msg = __('%s is currently updating. Please wait or contact your system administrator.', array(EPESI));
         if ($this->CLI) {
             MaintenanceMode::turn_on($msg);
         } else {
@@ -505,7 +542,7 @@ class EpesiUpdate
 
     protected function perform_update_start()
     {
-        if ($this->CLI) print("Update from ".$this->system_version." to ".$this->current_version."...\n");
+        $this->msg("Update from ".$this->system_version." to ".$this->current_version."...");
         $this->turn_on_maintenance_mode();
         //restore innodb tables in case of db reimport
         $mysql = stripos(DATABASE_DRIVER, 'mysql') !== false;
@@ -577,7 +614,7 @@ class EpesiUpdate
         Variable::set('version', EPESI_VERSION);
         MaintenanceMode::turn_off();
 
-        if ($this->CLI) print("Updated to ".$this->current_version."\n");
+        $this->msg("Updated to ".$this->current_version);
     }
 
     protected function body($html)
@@ -612,7 +649,7 @@ class EpesiUpdate
         </center>
         <br>
         <center>
-            <span class="footer">Copyright &copy; 2014 &bull; <a
+            <span class="footer">Copyright &copy; 2015 &bull; <a
                     href="http://www.telaxus.com">Telaxus LLC</a></span>
             <br>
 
@@ -628,6 +665,7 @@ class EpesiUpdate
     protected $CLI;
     protected $system_version;
     protected $current_version;
+    protected $current_revision;
 }
 
 $x = new EpesiUpdate();
