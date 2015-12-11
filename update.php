@@ -377,6 +377,9 @@ class EpesiUpdate
     {
         $update_package_info = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
         if ($update_package_info) {
+            if (!$this->CLI && (TRIAL_MODE || DEMO_MODE)) {
+                $this->quit(__('There is an update, but you don\'t have permissions to perform it. Please contact system administrator.'));
+            }
             $latest_package_info = EpesiPackageDownloader::instance()->get_latest_package_info();
             $latest_version = $update_package_info['revision'] == $latest_package_info['revision'];
             $this->msg("There is update package...");
