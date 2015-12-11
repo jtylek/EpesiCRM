@@ -52,7 +52,7 @@ class ErrorHandler {
 		return true;
 	}
 
-    public static function handle_exception(Exception $exception)
+    public static function handle_exception($exception)
     {
         $backtrace = self::debug_backtrace($exception->getTrace());
         while (@ob_end_clean());
@@ -215,7 +215,7 @@ function handle_epesi_error($type, $message, $errfile, $errline, $errcontext)
     return true;
 }
 
-function handle_epesi_exception(Exception $exception)
+function handle_epesi_exception($exception)
 {
     if (class_exists('ErrorHandler')) {
         ErrorHandler::handle_exception($exception);
