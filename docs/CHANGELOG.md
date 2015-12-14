@@ -24,7 +24,8 @@ CURRENT
 - Fix Currency field issues with empty value
 - New - pass RB table name as param to display callbacks (Dev)
 - Adapt some code to PHP 7
-- Add activity report for each user as
+- Add activity report for each user as addon
+- Fix rb search indexes patch - add checkpoints
 
 RELEASE 1.7.0-20151201
 -------
