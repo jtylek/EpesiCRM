@@ -3,6 +3,29 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+CURRENT
+-------
+
+- Fix agenda sort order
+- Fix RB browse search logic - search for all words in record
+- Fix sales opportunity and related notes integration
+- Fix quick search - save categories selection
+- SQL_TIMES - show caller in debug (georgehristov)
+- Fix update.php argv handling
+- Fix donate links, credits page, year in scripts
+- Remove unused modules and code
+- Add japanese, chinese and korean font support to PDF printing
+- Fix code in RB search to use merge_crits
+- Change mail applet refresh rate
+- Fix client IP address recognition in autologin feature
+- Update autologin feature - clean unused tokens, rolling token
+- Fix file cache implementation
+- Improve update.php script to skip some versions
+- Fix Currency field issues with empty value
+- New - pass RB table name as param to display callbacks (Dev)
+- Adapt some code to PHP 7
+- Add activity report for each user as
+
 RELEASE 1.7.0-20151201
 -------
 
