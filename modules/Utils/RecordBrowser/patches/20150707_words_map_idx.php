@@ -8,7 +8,6 @@ if (!$checkpoint->is_done()) {
         @DB::Execute('TRUNCATE recordbrowser_words_map');
         $tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
         foreach($tabs as $tab) DB::Execute('UPDATE ' . $tab . '_data_1 SET indexed=0');
-        return false;
 
     }
     $checkpoint->done();
