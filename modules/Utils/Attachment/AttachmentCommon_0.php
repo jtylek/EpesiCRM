@@ -594,6 +594,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $values['note'] = Utils_AttachmentCommon::decrypt($values['note'],$old_password);
                     $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password']);
                 }
+                unset($values['edited_on']);
                 break;
             case 'view':
                 $ret = self::get_access($values['id']);
