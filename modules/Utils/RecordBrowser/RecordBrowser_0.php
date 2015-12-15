@@ -2854,7 +2854,7 @@ class Utils_RecordBrowser extends Module {
             $arr = array();
             foreach($cols as $k=>$w) {
                 if (!isset($callbacks[$k])) $s = $this->get_val($field_hash[$w], $v, false, $this->table_rows[$field_hash[$w]]);
-                else $s = call_user_func($callbacks[$k], $v);
+                else $s = call_user_func($callbacks[$k], $v, false, $this->table_rows[$field_hash[$w]],$this->tab);
                 $arr[] = $s;
             }
             $gb_row->add_data_array($arr);
