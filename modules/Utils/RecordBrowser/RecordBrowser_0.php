@@ -1482,9 +1482,6 @@ class Utils_RecordBrowser extends Module {
             if ($valid_page && $pos - $last_page>1 && !isset($this->hide_tab[$label])) {
                 $translated_label = _V($label);
                 $tb->set_tab($translated_label, array($this, 'view_entry_details'), array($last_page, $pos + 1, $data, null, false, $cols, _V($label)), $js); // TRSL
-                if (is_string($this->switch_to_addon) && $this->switch_to_addon == $translated_label) {
-                    $this->switch_to_addon = $tab_counter;
-                }
 				if ($hide_page) {
 					eval_js('$("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
 					if ($default_tab === $tab_counter) $default_tab = $tab_counter + 1;
@@ -1521,7 +1518,6 @@ class Utils_RecordBrowser extends Module {
                 $addons_mod[$mod_id] = $this->init_module($row['module']);
                 if (!method_exists($addons_mod[$mod_id],$row['func'])) $tb->set_tab($row['label'],array($this, 'broken_addon'), array(), $js);
                 else $tb->set_tab($row['label'],array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
-                if (is_string($this->switch_to_addon) && $this->switch_to_addon == $row['label']) $this->switch_to_addon = $tab_counter;
                 $tab_counter++;
             }
         }

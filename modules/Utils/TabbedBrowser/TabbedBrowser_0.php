@@ -27,6 +27,9 @@ class Utils_TabbedBrowser extends Module {
 			$this->page = $this->get_module_variable('page', 0);
 			$this->unset_module_variable('force');
 		}
+		if (is_numeric($this->page)) {
+			$this->page = (int)$this->page;
+		}
 	
 		$lpage = $this->get_module_variable('last_page', -1);
 	}
@@ -45,7 +48,7 @@ class Utils_TabbedBrowser extends Module {
 		load_js($this->get_module_dir().'tb_.js');
 				
 		$i = 0;
-		if($this->page>=count($this->tabs)) $this->page=0;
+		if(is_numeric($this->page) && $this->page >= count($this->tabs)) $this->page=0;
 		$this->max = count($this->tabs);
 		$body = '';
 		$submenus = array();
@@ -76,27 +79,29 @@ class Utils_TabbedBrowser extends Module {
 		$final_captions = array();
 
 		foreach($this->tabs as $caption=>$val) {
+			$selected = $this->page === $i || (is_string($this->page) && $this->page == $caption);
 			$final_captions[$caption] = $this->get_link($i, $val, $caption);
-			if($this->page==$i || $val['js'])
-				$body .= $this->display_contents($val, $i);
+			if ($selected || $val['js'])
+				$body .= $this->display_contents($val, $i, $selected);
 			$i++;
 		}
 		
 		$captions_subs = array();
 		foreach ($submenus as $group=>$captions) {
-			$selected = ' class="tabbed_browser_unselected"';
+			$selected_c = ' class="tabbed_browser_unselected"';
 			$subs = array();
 			foreach ($captions as $caption=>$val) {
-				if($this->page==$i) {
-					$selected = ' class="tabbed_browser_selected"';
+				$selected = $this->page === $i || (is_string($this->page) && $this->page == $caption);
+				if($selected) {
+					$selected_c = ' class="tabbed_browser_selected"';
 					$group = $group.': '.$caption;
 				}
-				if($this->page==$i || $val['js'])
-					$body .= $this->display_contents($val, $i);
+				if($selected || $val['js'])
+					$body .= $this->display_contents($val, $i, $selected);
 				$subs[] = $this->get_link($i, $val, $caption, $group);
 				$i++;
 			}
-			$final_captions[$group] = '<span id="tabbed_browser_submenu_'.$group.'"'.$selected.'>'.$group.'&nbsp;'.'<img src="'.Base_ThemeCommon::get_template_file('Utils_TabbedBrowser','submenu.png').'">'.'</span>';
+			$final_captions[$group] = '<span id="tabbed_browser_submenu_'.$group.'"'.$selected_c.'>'.$group.'&nbsp;'.'<img src="'.Base_ThemeCommon::get_template_file('Utils_TabbedBrowser','submenu.png').'">'.'</span>';
 			$captions_subs[$group] = $subs;
 		}
 		$this->tag = md5($body.$this->page); 
@@ -107,8 +112,8 @@ class Utils_TabbedBrowser extends Module {
 		$theme->display($template);
 	}
 	
-	private function display_contents($val, $i) {
-		$body = '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($this->page==$i?'':'style="display:none"').'>';
+	private function display_contents($val, $i, $selected) {
+		$body = '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($selected?'':'style="display:none"').'>';
 		if (isset($val['func'])){
 			ob_start();
 			if (!is_array($val['args'])) $val['args'] = array($val['args']);
@@ -139,7 +144,7 @@ class Utils_TabbedBrowser extends Module {
 		if ($parent===null) $parent = '';
 		else $parent = ' parent_menu="'.$parent.'"';
 		$path = escapeJS($this->get_path());
-		if($this->page==$i) $selected = ' class="tabbed_browser_selected"';
+		if($this->page === $i || (is_string($this->page) && $this->page == $caption)) $selected = ' class="tabbed_browser_selected"';
 			else $selected = ' class="tabbed_browser_unselected"';
 		$icon = '<img class="tab_icon" id="'.$this->get_tab_id($caption).'_icon" src="" style="display:none;">';
 		if (isset($val['href']) && $val['href'])
