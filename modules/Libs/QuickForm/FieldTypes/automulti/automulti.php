@@ -338,7 +338,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
                 $value = $this->_findValue($caller->_submitValues);
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?
-                if (null === $value) {
+                if (null === $value && ((is_callable(array($caller,'isSubmitted')) && !$caller->isSubmitted()) || $this->isFrozen())) {
                     $value = $this->_findValue($caller->_defaultValues);
                 }
             }
