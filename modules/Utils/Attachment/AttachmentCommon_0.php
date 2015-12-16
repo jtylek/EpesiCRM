@@ -84,14 +84,20 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if ($rid !== null && !self::get_access($rid)) {
             return null;
         }
-        return Utils_RecordBrowserCommon::watchdog_label(
+        $ret = Utils_RecordBrowserCommon::watchdog_label(
             'utils_attachment',
             __('Note'),
             $rid,
             $events,
-            array('Utils_AttachmentCommon','note_title_with_attached_to'),
+            null,
             $details
         );
+        if ($rid) {
+            $r = Utils_RecordBrowserCommon::get_record('utils_attachment', $rid);
+            $of = Utils_RecordBrowserCommon::get_val('utils_attachment', 'attached_to', $r);
+            $ret['title'] .= " [ $of ]";
+        }
+        return $ret;
     }
 
 	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$sticky=false,$note_title='',$crypted=false) {
@@ -368,7 +374,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     DB::Execute('DELETE FROM utils_attachment_local WHERE local=%s',array($local));
                     continue;
                 }
-                $ret[] = Utils_RecordBrowserCommon::create_default_linked_label($param[0],$param[1],$nolink);
+                $label = Utils_RecordBrowserCommon::create_default_linked_label($param[0],$param[1],true);
+                $link =
+                    Utils_RecordBrowserCommon::record_link_open_tag($param[0], $param[1], $nolink, 'view', array('switch_to_addon' => __('Notes')))
+                    . $label . Utils_RecordBrowserCommon::record_link_close_tag();
+                $link = Utils_RecordBrowserCommon::create_default_record_tooltip_ajax($link, $param[0], $param[1]);
+                $ret[] = $link;
             }
         }
         return implode(', ',$ret);
@@ -383,13 +394,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
         }
         if(!$ret) $ret = $row['id'];
         return __('Note').': '.$ret;
-    }
-
-    public static function note_title_with_attached_to($row, $nolink = false) {
-        $note = self::description_callback($row, $nolink);
-        $of = Utils_RecordBrowserCommon::get_val('utils_attachment', 'attached_to', $row, $nolink);
-        $of = " [ $of ]";
-        return $note . $of;
     }
 
     public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
