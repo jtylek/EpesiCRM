@@ -44,7 +44,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 	
 	public function show($tab, $crits=array(), $cols=array(), $order=array(), $filters=array(),$filters_defaults=array(),$path=null) {
 		$rb = $this->init_module(Utils_RecordBrowser::module_name(), $tab, $tab.'_picker');
-		if($filters_defaults) $rb->set_module_variable('def_filter',$filters_defaults);
+		if($filters_defaults) $rb->set_filters_defaults($filters_defaults);
 //		$rb->adv_search = true;
 		$rb->disable_actions();
 
