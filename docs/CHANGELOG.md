@@ -26,6 +26,11 @@ CURRENT
 - Adapt some code to PHP 7
 - Add activity report for each user as addon
 - Fix rb search indexes patch - add checkpoints
+- Fix attachments - do not store edited_on changes in history entries
+- Fix timeless task switch for am/pm clock
+- Fix and improve switch_to_addon in RB and TabbedBrowser
+- Improve notes watchdog notification message - link to parent record
+- Fix automulti field freeze
 
 RELEASE 1.7.0-20151201
 -------
