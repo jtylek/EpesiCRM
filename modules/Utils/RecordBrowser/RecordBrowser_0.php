@@ -623,9 +623,13 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('show_filters', array('attrs'=>'onclick="rb_show_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="show_filter_b_'.$f_id.'"','label'=>__('Show filters')));
         $theme->assign('hide_filters', array('attrs'=>'onclick="rb_hide_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="hide_filter_b_'.$f_id.'"','label'=>__('Hide filters')));
         $theme->assign('id', $f_id);
-        if (!$this->isset_module_variable('filters_defaults'))
-            $this->set_module_variable('filters_defaults', $this->crits);
-        elseif ($this->crits!==$this->get_module_variable('filters_defaults')) $theme->assign('dont_hide', true);
+        if (!$use_saving_filters) {
+            if (!$this->isset_module_variable('filters_defaults')) {
+                $this->set_module_variable('filters_defaults', $this->crits);
+            } elseif ($this->crits != $this->get_module_variable('filters_defaults')) {
+                $theme->assign('dont_hide', true);
+            }
+        }
         if ($dont_hide) $theme->assign('dont_hide', true);
         return $this->get_html_of_module($theme, 'Filter', 'display');
     }
