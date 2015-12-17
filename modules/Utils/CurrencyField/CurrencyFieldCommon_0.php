@@ -184,7 +184,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
                 }
                 $int = str_replace($th_point, '', $int);
             }
-            if (preg_match('/^\d+$/', $int)) {
+            if (preg_match('/^\-?\d+$/', $int)) {
                 return array($int . '.' . $fraction, $cur_id);
             }
         }
