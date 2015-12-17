@@ -1988,7 +1988,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	
     	self::init($tab);
     	$ret = array();
-    	foreach (self::$hash as $field=>$desc) {
+    	foreach (self::$hash as $field=>$name) {
     		if (!isset($record[$field])) continue;
     		
     		$ret[$field] = self::get_val($tab, $field, $record, $nolink);
