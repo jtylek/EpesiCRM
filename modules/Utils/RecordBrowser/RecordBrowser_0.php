@@ -893,9 +893,9 @@ class Utils_RecordBrowser extends Module {
             switch($admin_filter) {
                 case 0: Utils_RecordBrowserCommon::$admin_filter = '';
                     break;
-                case 1: Utils_RecordBrowserCommon::$admin_filter = 'active=1 AND ';
+                case 1: Utils_RecordBrowserCommon::$admin_filter = '<tab>.active=1 AND ';
                     break;
-                case 2: Utils_RecordBrowserCommon::$admin_filter = 'active=0 AND ';
+                case 2: Utils_RecordBrowserCommon::$admin_filter = '<tab>.active=0 AND ';
                     break;
             }
             $form->display_as_row();

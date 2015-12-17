@@ -1234,8 +1234,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $crits = self::merge_crits($crits, $access);
         }
 
-        $admin_filter = $admin ? self::$admin_filter : $tab_alias . '.active=1 AND ';
-        $query_builder = new Utils_RecordBrowser_QueryBuilder($tab, $tab_alias);
+        if ($admin) {
+            $admin_filter = str_replace('<tab>', $tab_alias, self::$admin_filter);
+        } else {
+            $admin_filter = $tab_alias . '.active=1 AND ';
+        }
+        $query_builder = new Utils_RecordBrowser_QueryBuilder($tab, $tab_alias, $admin);
         $ret = $query_builder->build_query($crits, $order, $admin_filter);
         $cache[$cache_key] = $ret;
         return $ret;
@@ -3191,7 +3195,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if(file_exists($lock) && filemtime($lock)>time()-1200) continue;
     
             $table_rows = self::init($tab);
-            self::$admin_filter = ' indexed=0 AND active=1 AND ';
+            self::$admin_filter = ' <tab>.indexed=0 AND <tab>.active=1 AND ';
             $ret = self::get_records($tab,array(),array(),array(),$limit,true);
             self::$admin_filter = '';
             
