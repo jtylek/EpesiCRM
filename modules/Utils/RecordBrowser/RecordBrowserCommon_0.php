@@ -1964,27 +1964,36 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function record_link_close_tag(){
         return self::$del_or_a;
     }
-    public static function create_linked_label($tab, $cols, $id, $nolink=false){
-        if (!is_numeric($id)) return '';
-        if (!is_array($cols))
-            $cols = explode('|', $cols);
-        self::init($tab);
-        $vals = array();
-        foreach ($cols as $k=>$col) {
-            if (isset(self::$table_rows[$col])) $cols[$k] = self::$table_rows[$col]['id'];
-            elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
-		}
-        $record = self::get_record($tab, $id);
-        foreach ($cols as $col) {
-            if (isset($record[$col])) {
-                $val = self::get_val($tab, $col, $record, true);
-                if ($val) {
-                    $vals[] = $val;;
-                }
-            }
-        }
-        return self::record_link_open_tag_r($tab, $record, $nolink) .
-                implode(' ', $vals ) . self::record_link_close_tag();
+	public static function create_linked_label($tab, $cols, $id, $nolink=false){
+    	if (!is_numeric($id)) return '';
+    	if (!is_array($cols))
+    		$cols = explode('|', $cols);
+    	
+    	$record = self::get_record($tab, $id);    	
+    	$record_vals = self::get_record_vals($tab, $record, true);
+    	if (empty($record_vals)) return '';
+    	
+    	$vals = array();
+    	foreach ($cols as $k=>$col) {
+    		$field = self::get_field_id($col);
+    		if (!empty($record_vals[$field])) $vals[] = $record_vals[$field];
+    		elseif (!isset($record_vals[$field])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
+    	}
+    	return self::record_link_open_tag_r($tab, $record, $nolink) .
+    			implode(' ', $vals ) . self::record_link_close_tag();
+    }
+    public static function get_record_vals($tab, $record, $nolink=false){
+    	if (is_numeric($record)) $record = self::get_record($tab, $record);
+    	if (!is_array($record)) return array();
+    	
+    	self::init($tab);
+    	$ret = array();
+    	foreach (self::$hash as $field=>$desc) {
+    		if (!isset($record[$field])) continue;
+    		
+    		$ret[$field] = self::get_val($tab, $field, $record, $nolink);
+    	}
+    	return $ret;
     }
     public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true, $detailed_tooltip = true){
         if (!is_numeric($id)) return '';
