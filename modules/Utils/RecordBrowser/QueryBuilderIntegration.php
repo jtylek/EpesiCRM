@@ -226,9 +226,9 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 if ($args['ref_table']=='company') $arr = $arr + array('USER_COMPANY'=>__('User Company'));
                 if ($first_level) {
                     if($args['type']=='multiselect')
-                        $arr = $arr + array('ACCESS_VIEW'=>_('Allow view any record'),'ACCESS_VIEW_ALL'=>_('Allow view all records'),'ACCESS_EDIT'=>_('Allow edit any record'),'ACCESS_EDIT_ALL'=>_('Allow edit all records'),'ACCESS_PRINT'=>_('Allow print any record'),'ACCESS_PRINT_ALL'=>_('Allow print all records'),'ACCESS_DELETE'=>_('Allow delete any record'),'ACCESS_DELETE_ALL'=>_('Allow delete all records'));
+                        $arr = $arr + array('ACCESS_VIEW'=>__('Allow view any record'),'ACCESS_VIEW_ALL'=>__('Allow view all records'),'ACCESS_EDIT'=>__('Allow edit any record'),'ACCESS_EDIT_ALL'=>__('Allow edit all records'),'ACCESS_PRINT'=>__('Allow print any record'),'ACCESS_PRINT_ALL'=>__('Allow print all records'),'ACCESS_DELETE'=>__('Allow delete any record'),'ACCESS_DELETE_ALL'=>__('Allow delete all records'));
                     else
-                        $arr = $arr + array('ACCESS_VIEW'=>_('Allow view record'),'ACCESS_EDIT'=>_('Allow edit record'),'ACCESS_PRINT'=>_('Allow print record'),'ACCESS_DELETE'=>_('Allow delete record'));
+                        $arr = $arr + array('ACCESS_VIEW'=>__('Allow view record'),'ACCESS_EDIT'=>__('Allow edit record'),'ACCESS_PRINT'=>__('Allow print record'),'ACCESS_DELETE'=>__('Allow delete record'));
                 }
                 break;
         }
