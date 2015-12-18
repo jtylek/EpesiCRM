@@ -302,6 +302,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         if (($operator == '=' || $operator == '!=' ) && $value == '' && !is_numeric($value)) {
             $operator = $operator == '=' ? 'is_null' : 'is_not_null';
         } elseif ($operator == 'LIKE' || $operator == 'NOT LIKE') {
+            $not = $operator == 'NOT LIKE';
             if (preg_match('/^%.*%$/', $value)) {
                 $operator = 'contains';
                 $value = trim($value, '%');
@@ -313,7 +314,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 $value = ltrim($value, '%');
             }
             $value = self::unescape_like_value($value);
-            if ($operator == 'NOT LIKE') {
+            if ($not) {
                 $operator = "not_$operator";
             }
         } else {
