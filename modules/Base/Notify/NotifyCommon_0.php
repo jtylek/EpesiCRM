@@ -212,8 +212,8 @@ class Base_NotifyCommon extends ModuleCommon {
 		}
 		$ret[] = array('name'=>'telegram_url', 'label'=>'<a class="button" href="modules/Base/Notify/telegram.php" target="_blank">'.($telegram?__('Connect to another telegram account'):__('Connect to your telegram account')).'</a>','type'=>'static','values'=>($telegram?'<a class="button" '.Module::create_href(array('telegram'=>1)).'>'.__('Disconnect telegram').'</a>':''));
 
-		return array(__('Notify')=>$ret);
-	}		
+		return array(__('Notifications')=>$ret);
+	}
 
 	public static function group_similar() {
 		return Base_User_SettingsCommon::get('Base_Notify', 'general_group')==1;
