@@ -1962,27 +1962,49 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function record_link_close_tag(){
         return self::$del_or_a;
     }
-    public static function create_linked_label($tab, $cols, $id, $nolink=false){
-        if (!is_numeric($id)) return '';
-        if (!is_array($cols))
-            $cols = explode('|', $cols);
-        self::init($tab);
-        $vals = array();
-        foreach ($cols as $k=>$col) {
-            if (isset(self::$table_rows[$col])) $cols[$k] = self::$table_rows[$col]['id'];
-            elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
-		}
-        $record = self::get_record($tab, $id);
-        foreach ($cols as $col) {
-            if (isset($record[$col])) {
-                $val = self::get_val($tab, $col, $record, true);
-                if ($val) {
-                    $vals[] = $val;;
-                }
-            }
-        }
-        return self::record_link_open_tag_r($tab, $record, $nolink) .
-                implode(' ', $vals ) . self::record_link_close_tag();
+	public static function create_linked_label($tab, $cols, $id, $nolink=false){
+    	if (!is_numeric($id)) return '';
+    	if (!is_array($cols))
+    		$cols = explode('|', $cols);
+    	
+    	$record = self::get_record($tab, $id);
+    	$fields = array_map(array('Utils_RecordBrowserCommon', 'get_field_id'), $cols);
+    	$record_vals = self::get_record_vals($tab, $record, true, $fields, false);
+    	if (empty($record_vals)) return '';
+    	
+    	$vals = array();
+    	foreach ($fields as $field) {
+    		if (empty($record_vals[$field])) continue;
+    		$vals[] = $record_vals[$field];
+    	}
+    	return self::record_link_open_tag_r($tab, $record, $nolink) .
+    			implode(' ', $vals ) . self::record_link_close_tag();
+    }
+    public static function get_record_vals($tab, $record, $nolink=false, $fields = array(), $silent = true){
+    	if (is_numeric($record)) $record = self::get_record($tab, $record);
+    	if (!is_array($record)) return array();
+    	
+    	self::init($tab);
+    	if (empty($fields)) {
+    		$fields = array_keys(self::$hash);
+    	}
+    	else {
+    		$available_fields = array_intersect(array_keys(self::$hash), $fields);
+    		
+    		if (!$silent && count($available_fields) != count($fields)) {
+    			trigger_error('Unknown field names: ' . implode(', ', array_diff($fields, $available_fields)), E_USER_ERROR);
+    		}
+    		
+    		$fields = $available_fields;
+    	}
+
+    	$ret = array();
+    	foreach ($fields as $field) {
+    		if (!isset($record[$field])) continue;
+    		
+    		$ret[$field] = self::get_val($tab, $field, $record, $nolink);
+    	}
+    	return $ret;
     }
     public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true, $detailed_tooltip = true){
         if (!is_numeric($id)) return '';
