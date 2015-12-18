@@ -184,17 +184,15 @@ class Base_NotifyCommon extends ModuleCommon {
 		return $cache[$module];
 	}	
 
-	public static function user_settings($settings_edit = false){
-		if ($settings_edit)
-			Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file('Base_Notify', 'icon.png'),__('Browser Settings'), 'onClick="Base_Notify.notify (\'Notification\', {body: \'enabled\', icon: \''.self::get_icon('Base_Notify').'\'}, true);"', __('Click to set browser settings for tray notifications'));
-
+	public static function user_settings() {
 		$ret = array(
 				array('name'=>null,'label'=>__('General'),'type'=>'header'),
 				array('name'=>'one_cache','label'=>__('Show each notification'),'type'=>'select', 'values'=>array(0=>__('multiple times every login and on each device'), 1=>__('only once and only on one device')), 'default'=>1),
 				array('name'=>null,'label'=>__('Browser Notification').' - '.__('General'),'type'=>'header'),
 				array('name'=>'general_timeout', 'reload'=>1, 'label'=>__('Close Message Timeout'),'type'=>'select','values'=>Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', true),'default'=>0),
 				array('name'=>'general_group','label'=>__('Group Similar Notifications'),'type'=>'checkbox','default'=>1),
-	
+				array('name'=>'browser_settings', 'label'=>'','type'=>'static','values'=>'<a class="button" onClick="Base_Notify.notify (\'Notification\', {body: \'enabled\', icon: \''.self::get_icon('Base_Notify').'\'}, true);">'.(__('Browser Settings')).'</a>'),
+
 				array('name'=>null,'label'=>__('Browser Notification').' - '.__('Module Specific Timeout'),'type'=>'header')
 		);
 	
