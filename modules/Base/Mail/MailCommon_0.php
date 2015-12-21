@@ -89,7 +89,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 			if($security && preg_match('/^(ssl|tls)\_ssc$/',$security,$matches)) {
 				$security = $matches[1];
 				$mailer->SMTPOptions = array(
-						$security=>array(
+						'ssl'=>array(
 							'verify_peer' => false,
 							'verify_peer_name' => false,
 							'allow_self_signed' => true
