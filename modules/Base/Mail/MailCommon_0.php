@@ -13,6 +13,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+require_once ('modules/Base/Mail/class.smtp.php');
+require_once ('modules/Base/Mail/class.pop3.php');
 require_once ('modules/Base/Mail/class.phpmailer.php');
 
 class Base_MailCommon extends Base_AdminModuleCommon {
@@ -83,7 +85,18 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 			$mailer->Username = Variable::get('mail_user');
 			$mailer->Password = Variable::get('mail_password');
 			$mailer->SMTPAuth = Variable::get('mail_auth');
-            $mailer->SMTPSecure = Variable::get('mail_security', false);
+			$security = Variable::get('mail_security', false);
+			if($security && preg_match('/^(ssl|tls)\_ssc$/',$security,$matches)) {
+				$security = $matches[1];
+				$mailer->SMTPOptions = array(
+						$security=>array(
+							'verify_peer' => false,
+							'verify_peer_name' => false,
+							'allow_self_signed' => true
+						)
+				);
+			}
+            $mailer->SMTPSecure = $security;
 		} elseif (HOSTING_MODE) {
 			if (!$critical) return false;
 		}
