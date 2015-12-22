@@ -338,7 +338,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function company_format_default($record,$nolink=false) {
         if (is_numeric($record)) $record = self::get_company($record);
-        if (!$record) return null;
+        if (!$record || $record=='__NULL__') return null;
         $ret = '';
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('company', $record['id']);
@@ -380,7 +380,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function contact_format_default($record, $nolink=false){
         if (is_numeric($record)) $record = self::get_contact($record);
-        if (!$record) return null;
+        if (!$record || $record=='__NULL__') return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
