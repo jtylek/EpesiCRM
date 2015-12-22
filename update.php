@@ -282,11 +282,13 @@ class EpesiUpdatePackage
         if (empty($files)) {
             return '';
         }
-        require_once 'include/backups.php';
-        $backup_file = "modified_since_{$this->file}";
-        for ($i = 1; file_exists($backup_file); $i++) {
-            $backup_file = "modified_since_{$this->file}_$i.zip";
-        }
+
+        $release_package = substr($this->file, 0, -4);
+        do {
+            $random_string = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 12);
+            $backup_file = "modified_since_{$release_package}_{$random_string}.bkp.zip";
+        } while (file_exists($backup_file));
+
         $b = new Backup($backup_file);
         $b->create($files, "Modified files backup");
         return $backup_file;
@@ -336,7 +338,8 @@ class EpesiUpdate
         }
 
         define('CID', false);
-        require_once('include.php');
+        require_once 'include.php';
+        require_once 'include/backups.php';
         ModuleManager::load_modules();
         Base_LangCommon::load();
 
@@ -373,8 +376,37 @@ class EpesiUpdate
             print ($msg . "\n");
             print (__('Update procedure forced') . "\n");
         } else {
+            $msg .= $this->saved_backups_list();
             $this->quit($msg);
         }
+    }
+
+    public function saved_backups_list()
+    {
+        $files = array();
+        foreach (glob('*.bkp.zip') as $f) $files[$f] = new Backup($f);
+
+        if (isset($_GET['delete']) && isset($files[$_GET['delete']]) && file_exists($_GET['delete'])) {
+            unlink($_GET['delete']);
+            unset($files[$_GET['delete']]);
+            $this->redirect(array());
+        }
+
+        uasort($files, function(Backup $a, Backup $b) { return $a->get_date() > $b->get_date();});
+        $backups = '';
+        foreach ($files as $file => $backup) {
+            $download_url = urlencode($file);
+            $download = "<a target=\"_blank\" href=\"$download_url\">[" . __('Download') . "]</a>";
+            $delete_href = '?' . http_build_query(array('delete' => $file));
+            $delete = "<a href=\"$delete_href\">[" . __('Delete') . "]</a>";
+            $description = date("Y-m-d H:i:s", $backup->get_date()) . " - $file $download $delete";
+            $backups .= "$description<br>";
+        }
+        $ret = '';
+        if ($backups) {
+            $ret = "<h3>" . __('Backups') . "</h3><p>$backups</p>";
+        }
+        return $ret;
     }
 
     protected function require_admin_login()
@@ -455,15 +487,15 @@ class EpesiUpdate
                         // do nothing
                     } elseif ($action == 'backup') {
                         $backup_file = $current_package->create_backup_of_modified_files();
-                        $create_backup_msg = '<p><strong>' . __('Backup has been made') . '</strong></p>' . "\n";
-                        $create_backup_msg .= '<br>' . '<p>' . __('Your backup is in the file: %s', array($backup_file)) . "</p>\n";
-                        $create_backup_msg .= '<br>' . '<p><a class="button" href="?action=update">' . __('Update!') . '</a></p>';
-                        $this->quit($create_backup_msg);
+                        $backup_msg = '<p><strong>' . __('Backup has been made') . '</strong></p>' . "\n";
+                        $backup_msg .= '<br>' . '<p>' . __('Your backup is in the file: %s', array($backup_file)) . "</p>\n";
+                        $backup_msg .= '<br>' . '<p><a class="button" href="?action=update">' . __('Update!') . '</a></p>';
+                        $this->quit($backup_msg);
                     } else {
                         $problems = $current_package->files_modified();
                         if ($problems) {
                             $create_backup_msg = '<p><strong>' . __('Files with custom modifications') . ':</strong></p>' . "\n" . implode("<br>\n", $problems);
-                            $create_backup_msg .= '<br>' . '<p><a class="button" href="?action=backup">' . __('Make Backup!') . '</a></p>';
+                            $create_backup_msg .= '<br>' . '<p><a class="button" href="?action=backup">' . __('Backup modified files!') . '</a></p>';
                             $this->quit($create_backup_msg);
                         }
                     }
