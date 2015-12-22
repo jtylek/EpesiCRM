@@ -13,23 +13,31 @@ if (!$checkpoint->is_done()) {
     $checkpoint->done();
 }
 
+$indexes = Patch::checkpoint('indexes');
+if (!$indexes->is_done()) {
+    $idxs = DB::MetaIndexes('recordbrowser_words_map');
+    $indexes->set('data',$idxs);
+    $indexes->done();
+}
+$idxs = $indexes->get('data',array());
+
 $checkpoint = Patch::checkpoint('word_index');
-if (!$checkpoint->is_done()) {
+if (!$checkpoint->is_done() && !isset($idxs['rb_words_map__word_idx'])) {
     DB::CreateIndex('rb_words_map__word_idx', 'recordbrowser_words_map', 'word_id');
     $checkpoint->done();
 }
 $checkpoint = Patch::checkpoint('tab_index');
-if (!$checkpoint->is_done()) {
+if (!$checkpoint->is_done() && !isset($idxs['rb_words_map__tab_idx'])) {
     DB::CreateIndex('rb_words_map__tab_idx','recordbrowser_words_map','tab_id');
     $checkpoint->done();
 }
 $checkpoint = Patch::checkpoint('record_tab_index');
-if (!$checkpoint->is_done()) {
+if (!$checkpoint->is_done() && !isset($idxs['rb_words_map__record_tab_idx'])) {
     DB::CreateIndex('rb_words_map__record_tab_idx','recordbrowser_words_map','record_id,tab_id');
     $checkpoint->done();
 }
 $checkpoint = Patch::checkpoint('drop_index');
-if (!$checkpoint->is_done()) {
+if (!$checkpoint->is_done() && isset($idxs['recordbrowser_words_map__idx'])) {
     DB::DropIndex('recordbrowser_words_map__idx','recordbrowser_words_map');
     $checkpoint->done();
 }
