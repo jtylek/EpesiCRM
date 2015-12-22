@@ -31,7 +31,7 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 		);
 	}
 
-	public static function user_settings($retrieve_defaults) {
+	public static function user_settings($retrieve_defaults = false) {
 		if(!Variable::get('allow_lang_change')) return null;
 		if(DEMO_MODE && Base_UserCommon::get_my_user_login()=='admin') {
 			$langs = array('en'=>'en');
