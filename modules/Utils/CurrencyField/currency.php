@@ -12,11 +12,12 @@ require_once("HTML/QuickForm/input.php");
 class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	private $currency = 1;
 
-	function HTML_QuickForm_currency($elementName=null, $elementLabel=null, $attributes=null) {
+	function HTML_QuickForm_currency($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
 		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('text');
 		$this->currency = Base_User_SettingsCommon::get('Utils_CurrencyField', 'default_currency');
+		$this->filterCurrencies = is_array($filterCurrencies)?$filterCurrencies:array();
 	} //end constructor
 
 	function getFrozenHtml() {
@@ -48,7 +49,10 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 			$str .= $this->_getTabs() .
 					'<div style="margin-right:5px; width:40px; position:absolute;top:0px;right:0px;"><select style="width:40px;" name="__'.str_replace(array('[',']'),'',$name).'__currency" id="__'.$id.'__currency">';
 
-			$curs = DB::GetAll('SELECT id, symbol, active FROM utils_currency ORDER BY code');
+			if(is_array($this->filterCurrencies) && $this->filterCurrencies)
+				$curs = DB::GetAll('SELECT id, symbol, active FROM utils_currency WHERE id IN ('.implode(',',array_map('intval',$this->filterCurrencies)).') ORDER BY code');
+			else
+				$curs = DB::GetAll('SELECT id, symbol, active FROM utils_currency ORDER BY code');
 			foreach ($curs as $v) {
 				if ($v['id']!=$this->currency && !$v['active']) continue;
 				$str .= '<option value="'.$v['id'].'"';

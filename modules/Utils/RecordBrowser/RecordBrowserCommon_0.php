@@ -2810,7 +2810,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return;
 
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
-        $form->addElement('currency', $field, $label, array('id' => $field));
+        $form->addElement('currency', $field, $label, (isset($desc['param']) && is_array($desc['param']))?$desc['param']:array(), array('id' => $field));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));
         // set element value to persist currency over soft submit
