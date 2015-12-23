@@ -524,8 +524,7 @@ class EpesiUpdate
                 $current_ver = __('Your current %s version', array(EPESI)) . ': <strong>' . $version_with_revision . '</strong>';
                 $text_p = __('Update Package') . ': <strong>' . $update_info . '</strong>';
                 $warning_message = __('All core files will be replaced!') . '<br/><br/>'
-                                   . __('If you have changed any of those files, then update will not be performed.') . '<br/>'
-                                   . __('All core files must match those from the release package.');
+                                   . __('If you have changed any of those files, then we will backup them first.');
                 $info_message = __('Custom modules and your data will be preserved.');
                 $msg = "<p><strong>$header</strong></p><p>$current_ver</p><p>$text_p</p>";
                 $msg .= "<p style=\"color: red; font-weight: bold\">$warning_message</p>";
