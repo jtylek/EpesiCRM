@@ -293,7 +293,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return str_replace(array('%D', '%T', '%U'), array($date, $time, $by), $format);
     }
     
-    public static function display_note($row, $nolink = false, $a=null,$view=false) {
+    public static function display_note($row, $nolink = false, $a=null,$tab,$view=false) {
         $inline_img = '';
         $link_href = '';
         $link_img = '';
@@ -458,7 +458,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $form->setDefaults(array($field=>$default));
         } else {
             $form->addElement('static', $field, $label);
-            $form->setDefaults(array($field=>self::display_note($rb_obj->record,false,null,true)));
+            $form->setDefaults(array($field=>self::display_note($rb_obj->record,false,null,$rb_obj->tab,true)));
             if(class_exists('ZipArchive')) {
                 $files = DB::GetOne('SELECT 1 FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($rb_obj->record['id']));
                 if($files) Base_ActionBarCommon::add('download','Download all attachments','href="'.self::Instance()->get_module_dir().'get_all.php?id='.$rb_obj->record['id'].'&cid='.CID.'" target="_blank"');
