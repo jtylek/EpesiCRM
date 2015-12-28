@@ -1224,7 +1224,7 @@ class Utils_RecordBrowser extends Module {
 			self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
 		} else {
 			self::$last_record = $this->record = $id;
-			$id = intVal($this->record['id']);
+			$id = isset($this->record['id'])? intVal($this->record['id']): null;
 		}
 		if ($id===0) $id = null;
         if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
