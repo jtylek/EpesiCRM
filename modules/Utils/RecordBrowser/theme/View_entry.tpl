@@ -65,15 +65,8 @@
 
 {/if}
 
-	<div class="layer" style="padding: 9px; width: 98%;">
-		<div class="css3_content_shadow">
+<div class="row">
 
-<div class="Utils_RecordBrowser__container">
-
-{* Outside table *}
-<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-	<tbody>
-		<tr>
 			{assign var=x value=1}
 			{assign var=y value=1}
 			{foreach key=k item=f from=$fields name=fields}
@@ -83,7 +76,7 @@
 					{/if}
 
 					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;">
+					<div class="col-xs-12 col-md-6">
 						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 					{/if}
 						{$f.full_field}
@@ -97,15 +90,14 @@
 						{assign var=y value=1}
 						{assign var=x value=$x+1}
 						</table>
-					</td>
+					</div>
 					{else}
 						{assign var=y value=$y+1}
 					{/if}
 				{/if}
 			{/foreach}
-		</tr>
 		{if !empty($multiselects)}
-			<tr>
+			<div class="col-xs-12">
 				{assign var=x value=1}
 				{assign var=y value=1}
 				{foreach key=k item=f from=$multiselects name=fields}
@@ -129,17 +121,16 @@
 						{assign var=y value=$y+1}
 					{/if}
 				{/foreach}
-			</tr>
+			</div>
 		{/if}
-		<tr>
-			<td colspan="{$cols}">
-			<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+
+<div class="col-xs-12">
+	<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 				{foreach key=k item=f from=$longfields name=fields}
 					{$f.full_field}
 				{/foreach}
-			</table>
-			</td>
-		</tr>
+			</table></div>
+
 	</tbody>
 </table>
 
@@ -150,6 +141,3 @@
 {/if}
 
 </div>
-
- 		</div>
-	</div>
