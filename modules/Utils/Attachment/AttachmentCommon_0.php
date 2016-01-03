@@ -92,7 +92,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             null,
             $details
         );
-        if ($rid) {
+        if ($rid && $ret) {
             $r = Utils_RecordBrowserCommon::get_record('utils_attachment', $rid);
             $of = Utils_RecordBrowserCommon::get_val('utils_attachment', 'attached_to', $r);
             $ret['title'] .= " [ $of ]";
