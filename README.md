@@ -22,7 +22,7 @@ Download it from:
 - Use Easy Install Script: http://sourceforge.net/projects/epesi/files/easy%20installer/
 - Github: https://github.com/Telaxus/epesi
 
-<i>Copyright © 2006-2015 Telaxus LLC</i>
+<i>Copyright © 2006-2016 Telaxus LLC</i>
 
 Enjoy,  
 <b>EPESI Team</b>

@@ -743,7 +743,7 @@ class EpesiUpdate
         </center>
         <br>
         <center>
-            <span class="footer">Copyright &copy; 2015 &bull; <a
+            <span class="footer">Copyright &copy; 2016 &bull; <a
                     href="http://www.telaxus.com">Telaxus LLC</a></span>
             <br>
 
