@@ -292,8 +292,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $format = Base_User_SettingsCommon::get(Utils_Attachment::module_name(), 'edited_on_format');
         return str_replace(array('%D', '%T', '%U'), array($date, $time, $by), $format);
     }
-    
-    public static function display_note($row, $nolink = false, $a=null,$tab,$view=false) {
+
+    public static function display_note($row, $nolink = false, $desc = null,$tab = null, $view = false) {
         $inline_img = '';
         $link_href = '';
         $link_img = '';
