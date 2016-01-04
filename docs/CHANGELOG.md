@@ -20,7 +20,7 @@ CURRENT
 - Fix client IP address recognition in autologin feature
 - Update autologin feature - clean unused tokens, rolling token
 - Fix file cache implementation
-- Improve update.php script to skip some versions
+- Improve update.php script to skip some versions and create backups
 - Fix Currency field issues with empty value
 - New - pass RB table name as param to display callbacks (Dev)
 - Adapt some code to PHP 7
@@ -31,6 +31,23 @@ CURRENT
 - Fix and improve switch_to_addon in RB and TabbedBrowser
 - Improve notes watchdog notification message - link to parent record
 - Fix automulti field freeze
+- Enable custom label for attachment addon (Dev)
+- Fix Query Builder integration - translation methods
+- Fix user param for user settings save method
+- Fix hide/show filters behavior
+- Fix access restrictions in RB queries using nested queries
+- Fix cache key for building queries - include tab alias
+- Add method to RB - get_record_vals (Dev) (georgehristov)
+- Fix crits to words - better translations and support all operators
+- Fix currency value parser - parse negative values
+- Update PHPMailer to 5.2
+- Allow to use self signed certificates for mail server settings
+- Fix frozen autoselect field value
+- Fix words map patch - check if indexes exist, truncate large index
+- Remove update EPESI from /admin
+- Add currency filter to currencies field (Dev)
+- Fix collation for all tables in mysql database
+- Update translations
 
 RELEASE 1.7.0-20151201
 -------
