@@ -1213,6 +1213,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $ret;
     }
     public static function build_query($tab, $crits = null, $admin = false, $order = array(), $tab_alias = 'r') {
+        static $stack = array();
         static $cache;
         if (!is_object($crits)) {
             $crits = Utils_RecordBrowser_Crits::from_array($crits);
@@ -1222,7 +1223,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return $cache[$cache_key];
         }
 
-        $access = $admin ? true : self::get_access($tab, 'browse', null, true);
+        $access = ($admin || in_array($tab, $stack)) ? true : self::get_access($tab, 'browse', null, true);
         if ($access == false) return array();
         elseif ($access !== true) {
             $crits = self::merge_crits($crits, $access);
@@ -1233,9 +1234,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         } else {
             $admin_filter = $tab_alias . '.active=1 AND ';
         }
+        array_push($stack, $tab);
         $query_builder = new Utils_RecordBrowser_QueryBuilder($tab, $tab_alias, $admin);
         $ret = $query_builder->build_query($crits, $order, $admin_filter);
         $cache[$cache_key] = $ret;
+        array_pop($stack);
         return $ret;
     }
     public static function get_records_count( $tab, $crits = null, $admin = false) {
