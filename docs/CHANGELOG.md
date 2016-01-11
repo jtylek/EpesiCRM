@@ -47,6 +47,8 @@ CURRENT
 - Remove update EPESI from /admin
 - Add currency filter to currencies field (Dev)
 - Fix collation for all tables in mysql database
+- Fix RB subqueries performance issues
+- Fix column width persistence in addons
 - Update translations
 
 RELEASE 1.7.0-20151201
