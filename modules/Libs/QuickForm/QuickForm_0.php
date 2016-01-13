@@ -113,7 +113,7 @@ class Libs_QuickForm extends Module {
 			$chj .= "$('".addslashes($f)."').serialize()";
 			if ($submited) $post .= "$('".addslashes($f)."').submited.value=0;";
 		}
-		$s = $pre."_chj(".$chj.$fast.",'".Epesi::escapeJS($indicator)."','".($queue?'queue':'')."');".$post;
+		$s = $pre . Module::create_href_js_raw($chj.$fast, $indicator, $queue?'queue':'') . $post;
 		return $s;
 	}
 
