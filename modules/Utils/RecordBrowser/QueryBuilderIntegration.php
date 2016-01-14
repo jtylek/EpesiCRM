@@ -115,7 +115,17 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         $values = null;
         $input = null;
         $opts = array();
-        $filters[] = &$opts;
+        $opts['id'] = $prefix . $f['id'] . $sufix;
+        $opts['field'] = $opts['id'];
+        $opts['label'] = $label_prefix . _V($f['name']);
+
+        if ($tab == 'contact' && $f['id'] == 'login' ||
+            $tab == 'rc_accounts' && $f['id'] == 'epesi_user'
+        ) {
+            $type = 'boolean'; // just for valid operators
+            $input = 'select';
+            $values = array(''=>'['.__('Empty').']', 'USER_ID'=>__('User Login'));
+        } else
         switch ($f['type']) {
             case 'text':
                 $type = 'string';
@@ -166,22 +176,32 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             case 'integer':     $type = 'integer'; break;
             case 'float':       $type = 'double'; break;
             case 'timestamp':
+                $type = 'datetime';
             case 'date':
-                $type = 'string';
-                $input = 'select';
-                $values = self::permissions_get_field_values($tab, $f);
+                if (!$type) $type = 'date';
+                // absolute value filter
+                $opts['plugin'] = 'datepicker';
+                $opts['plugin_config'] = array('dateFormat' => 'yy-mm-dd');
+                // relative value filter
+                $filt2 = $opts;
+                $filt2['id'] .= '_relative';
+                $filt2['label'] .= ' (' . __('relative') . ')';
+                $filt2['type'] = 'date';
+                $filt2['input'] = 'select';
+                $filt2['values'] = self::permissions_get_field_values($tab, $f);
+                $filters[] = $filt2;
                 break;
-            case 'time': $f = DB::dict()->ActualType('T'); break;
+            case 'time':
+                $type = 'time';
+                break;
             case 'long text':   $type = 'string'; $input = 'textarea'; break;
             case 'hidden': break;
             case 'calculated': break;
             case 'checkbox':    $type = 'boolean'; break;
-            case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
+            case 'currency': $type = 'double'; break;
             case 'autonumber': break;
         }
         if ($type) {
-            $opts['id'] = $prefix . $f['id'] . $sufix;
-            $opts['label'] = $label_prefix . _V($f['name']);
             $opts['type'] = $type;
             if ($values) {
                 $opts['values'] = $values;
@@ -189,6 +209,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             if ($input) {
                 $opts['input'] = $input;
             }
+            $filters[] = $opts;
             return $filters;
         }
         return null;
