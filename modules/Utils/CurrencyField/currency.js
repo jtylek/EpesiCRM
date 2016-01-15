@@ -1,15 +1,55 @@
 var Utils_CurrencyField = {
 format:null,
 re:null,
-validate: function(ev,f) {
+currencies:null,
+format_amount:function(val,currency){
+	var currency = Utils_CurrencyField.currencies[currency];
+	var prec = Math.pow(10, currency['dec_digits']);
+	var all=Math.round(val*prec);
+	if(isNaN(all)) return '';
+	var all=all.toString(10);
+	var first=all.substr(0,all.length-currency['dec_digits']);
+	var second=all.substr(all.length-currency['dec_digits']);
+	if(first=='') first = '0';
+	return first+currency['decp']+second;
+},
+format_currency:function(val,currency) {
+	var currency = Utils_CurrencyField.currencies[currency];
+	var prec = Math.pow(10, currency['dec_digits']);
+	var all=Math.round(val*prec);
+	if(isNaN(all)) return '';
+	var all=all.toString(10);
+	var first=all.substr(0,all.length-currency['dec_digits']);
+	var second=all.substr(all.length-currency['dec_digits']);
+	var thsd = first==''?0:parseInt(first);
+	var first_clean = '';
+	do {
+		var rest = thsd-parseInt(thsd/1000)*1000;
+		thsd = parseInt(thsd/1000);
+		if (first_clean!=='') first_clean = currency['thop']+first_clean;
+		while ((rest.length<3 || rest===0) && thsd>0)rest="0"+rest;
+		first_clean = rest+first_clean;
+	} while (thsd>0);
+	return currency['symbol_before']+' '+first_clean+currency['decp']+second+' '+currency['symbol_after'];
+},
+round:function(val,currency) {
+	if(val=='') return '';
+	var currency = Utils_CurrencyField.currencies[currency];
+	var prec = Math.pow(10, currency['dec_digits']);
+	var all=Math.round(val*prec);
+	if(isNaN(all)) return '';
+	return all/prec;
+},
+validate: function(ev) {
 	var elem = Event.element(ev);
+	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
 	var val = elem.value;
 	var key = ev.which;
 	if(!(key>=32 && key<=126)) return;
 	var Ecar = jq(elem).caret().end;
 	var Scar = jq(elem).caret().start;
 	val = val.substring(0,Scar)+String.fromCharCode(key)+val.substring(Ecar);
-	this.init_re(f);
+	this.init_re(currency.regex);
 	if(!this.re.test(val))
 		Event.stop(ev);
 	if(!this.re.test(elem.value)) {
@@ -18,7 +58,8 @@ validate: function(ev,f) {
 },
 validate_blur: function(ev,f) {
 	var elem = Event.element(ev);
-	this.init_re(f);
+	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
+	this.init_re(currency.regex);
 	if(!this.re.test(elem.value)) {
 		elem.value='';
 	}

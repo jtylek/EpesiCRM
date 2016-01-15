@@ -11,15 +11,13 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CurrencyFieldCommon extends ModuleCommon {
 	public static function format($val, $currency=null) {
-        static $params_cache = array();
 		if (!isset($currency) || !$currency) {
 			$val = self::get_values($val);
 			$currency = $val[1];
+			if(!$currency) return '';
 			$val = $val[0];
 		}
-        if (!isset($params_cache[$currency]))
-            $params_cache[$currency] = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($currency));
-		$params = $params_cache[$currency];
+		$params = self::$cache[$currency];
 		$dec_delimiter = $params['decimal_sign'];
 		$thou_delimiter = $params['thousand_sign'];
 		$dec_digits = $params['decimals'];
@@ -61,29 +59,21 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	public static function user_settings() {
 		$currency_options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
 		$def = self::get_default_currency();
-		$decimal_point_options = DB::GetAssoc('SELECT MIN(id), decimal_sign FROM utils_currency WHERE active=1 GROUP BY decimal_sign');
-		$decimal_point_options_def = 1;
-		foreach($decimal_point_options as $id=>$dec_sign)
-		    if($dec_sign==$def['decimal_sign']) {
-		        $decimal_point_options_def = $id;
-		        break;
-		    }
 		return array(__('Regional Settings')=>array(
 				array('name'=>'currency_header', 'label'=>__('Currency'), 'type'=>'header'),
 				array('name'=>'default_currency','label'=>__('Default currency'),'type'=>'select','values'=>$currency_options,'default'=>$def['id']),
-				array('name'=>'decimal_point','label'=>__('Currency decimal point'),'type'=>'select','values'=>$decimal_point_options,'default'=>$decimal_point_options_def)
 					));
 	}
 	
-	public static function get_decimal_point($c = null) {
-	    if ($c!==null) return DB::GetOne('SELECT decimal_sign FROM utils_currency WHERE id=%d', array($c));
-		static $cache = null;
-		if ($cache==null) $cache = DB::GetOne('SELECT decimal_sign FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField','decimal_point')));
-		return $cache;
+	public static function get_decimal_point($arg = null) {
+		if($arg===null) $arg = Base_User_SettingsCommon::get('Utils_CurrencyField','default_currency');
+		if (!isset(self::$cache[$arg])) return null;
+		return self::$cache[$arg]['decimal_sign'];
 	}
 	
-	public static function get_thousand_point($c) {
-		return DB::GetOne('SELECT thousand_sign FROM utils_currency WHERE id=%d', array($c));
+	public static function get_thousand_point($arg) {
+		if (!isset(self::$cache[$arg])) return null;
+		return self::$cache[$arg]['thousand_sign'];
 	}
 	
 	public static function get_id_by_code($code) {
@@ -94,18 +84,14 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $cache[$code];
 	}
 	
-	public static function get_code($id) {
-		static $cache;
-		if(!isset($cache)) $cache = array();
-		if(!isset($cache[$id]))
-			$cache[$id] = DB::GetOne('SELECT code FROM utils_currency WHERE id=%d', array($id));
-		return $cache[$id];
+	public static function get_code($arg) {
+		if (!isset(self::$cache[$arg])) return null;
+		return self::$cache[$arg]['code'];
 	}
 	
 	public static function get_precission($arg) {
-		static $cache = array();
-		if (!isset($cache[$arg])) $cache[$arg] = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($arg));
-		return $cache[$arg];
+		if (!isset(self::$cache[$arg])) return null;
+		return self::$cache[$arg]['decimals'];
 	}
 	
 	public static function get_currencies() {
@@ -131,14 +117,12 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 	
 	public static function get_symbol($arg) {
-		static $cache = array();
-		if (!isset($cache[$arg])) $cache[$arg] = DB::GetOne('SELECT symbol FROM utils_currency WHERE id=%d', array($arg));
-		return $cache[$arg];
+		if (!isset(self::$cache[$arg])) return null;
+		return self::$cache[$arg]['symbol'];
 	}
 	public static function get_symbol_position($arg) {
-		static $cache = array();
-		if (!isset($cache[$arg])) $cache[$arg] = DB::GetOne('SELECT pos_before FROM utils_currency WHERE id=%d', array($arg));
-		return $cache[$arg];
+		if (!isset(self::$cache[$arg])) return null;
+		return self::$cache[$arg]['pos_before'];
 	}
 
     /**
@@ -191,8 +175,23 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
         return null;
     }
 
+    private static $cache;
+    public static function load() {
+        self::$cache = DB::GetAssoc('SELECT id,pos_before,symbol,decimals,code,thousand_sign,decimal_sign FROM utils_currency');
+        load_js('modules/Utils/CurrencyField/currency.js');
+        $currencies = Utils_CurrencyFieldCommon::get_all_currencies();
+        $js = 'Utils_CurrencyField.currencies=new Array();';
+        foreach ($currencies as $k => $v) {
+            $symbol = Utils_CurrencyFieldCommon::get_symbol($k);
+            $position = Utils_CurrencyFieldCommon::get_symbol_position($k);
+            $curr_format = '-?([0-9]*)\\'.Utils_CurrencyFieldCommon::get_decimal_point($k).'?[0-9]{0,'.Utils_CurrencyFieldCommon::get_precission($k).'}';
+            $js .= 'Utils_CurrencyField.currencies[' . $k . ']={' . '"decp":"' . Utils_CurrencyFieldCommon::get_decimal_point($k) . '",' . '"thop":"' . Utils_CurrencyFieldCommon::get_thousand_point($k) . '",' . '"symbol_before":"' . ($position ? $symbol : '') . '",' . '"symbol_after":"' . (!$position ? $symbol : '') . '",' . '"dec_digits":' . Utils_CurrencyFieldCommon::get_precission($k) . ',' . 
+                '"regex":'.json_encode($curr_format).'};';
+        }
+        eval_js_once($js);
+    }
 }
 
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
-
+on_init(array('Utils_CurrencyFieldCommon','load'));
 ?>
