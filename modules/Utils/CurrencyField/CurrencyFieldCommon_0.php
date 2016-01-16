@@ -19,6 +19,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		}
 		$params = self::$cache[$currency];
 		$dec_delimiter = $params['decimal_sign'];
+		if(!$dec_delimiter) trigger_error(print_r(self::$cache,true));
 		$thou_delimiter = $params['thousand_sign'];
 		$dec_digits = $params['decimals'];
 		$currency = $params['symbol'];
@@ -176,8 +177,10 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
     }
 
     private static $cache;
-    public static function load() {
+    public static function load_cache() {
         self::$cache = DB::GetAssoc('SELECT id,pos_before,symbol,decimals,code,thousand_sign,decimal_sign FROM utils_currency');
+    }
+    public static function load_js() {
         load_js('modules/Utils/CurrencyField/currency.js');
         $currencies = Utils_CurrencyFieldCommon::get_all_currencies();
         $js = 'Utils_CurrencyField.currencies=new Array();';
@@ -193,5 +196,6 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 }
 
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
-on_init(array('Utils_CurrencyFieldCommon','load'));
+on_init(array('Utils_CurrencyFieldCommon','load_js'));
+Utils_CurrencyFieldCommon::load_cache();
 ?>
