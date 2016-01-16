@@ -222,13 +222,14 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
     * Unlike checkbox, this has to append a hidden input in both
     * checked and non-checked states
     */
-    function getFrozenHtml()
+function getFrozenHtml()
     {
         if ($this->getChecked()) {
             return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_on.png').'" alt="'.__('Yes').'" />' .
-                   $this->_getPersistantData();
+	        		$this->_getPersistantData();
         } else {
-            return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_off.png').'" alt="'.__('No').'" />';
+            return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_off.png').'" alt="'.__('No').'" />' .
+		            $this->_getPersistantData();
         }
     }
 
