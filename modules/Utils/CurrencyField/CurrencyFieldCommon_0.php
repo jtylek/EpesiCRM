@@ -67,12 +67,14 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 	
 	public static function get_decimal_point($arg = null) {
+        self::load_cache();
 		if($arg===null) $arg = Base_User_SettingsCommon::get('Utils_CurrencyField','default_currency');
 		if (!isset(self::$cache[$arg])) return null;
 		return self::$cache[$arg]['decimal_sign'];
 	}
 	
 	public static function get_thousand_point($arg) {
+        self::load_cache();
 		if (!isset(self::$cache[$arg])) return null;
 		return self::$cache[$arg]['thousand_sign'];
 	}
@@ -86,11 +88,13 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 	
 	public static function get_code($arg) {
+        self::load_cache();
 		if (!isset(self::$cache[$arg])) return null;
 		return self::$cache[$arg]['code'];
 	}
 	
 	public static function get_precission($arg) {
+        self::load_cache();
 		if (!isset(self::$cache[$arg])) return null;
 		return self::$cache[$arg]['decimals'];
 	}
@@ -118,10 +122,12 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 	
 	public static function get_symbol($arg) {
+        self::load_cache();
 		if (!isset(self::$cache[$arg])) return null;
 		return self::$cache[$arg]['symbol'];
 	}
 	public static function get_symbol_position($arg) {
+        self::load_cache();
 		if (!isset(self::$cache[$arg])) return null;
 		return self::$cache[$arg]['pos_before'];
 	}
@@ -178,9 +184,11 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 
     private static $cache;
     public static function load_cache() {
-        self::$cache = DB::GetAssoc('SELECT id,pos_before,symbol,decimals,code,thousand_sign,decimal_sign FROM utils_currency');
+        if(!isset(self::$cache))
+            self::$cache = DB::GetAssoc('SELECT id,pos_before,symbol,decimals,code,thousand_sign,decimal_sign FROM utils_currency');
     }
     public static function load_js() {
+        self::load_cache();
         load_js('modules/Utils/CurrencyField/currency.js');
         $currencies = Utils_CurrencyFieldCommon::get_all_currencies();
         $js = 'Utils_CurrencyField.currencies=new Array();';
@@ -197,5 +205,4 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
 on_init(array('Utils_CurrencyFieldCommon','load_js'));
-Utils_CurrencyFieldCommon::load_cache();
 ?>
