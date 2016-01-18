@@ -49,6 +49,13 @@ CURRENT
 - Fix collation for all tables in mysql database
 - Fix RB subqueries performance issues
 - Fix column width persistence in addons
+- Fix confirmLeave feature for with recordpicker opened
+- Fix cloned values in processing callback
+- Fix recordpicker's record label
+- Improve query builder date filters
+- Fix filtering by user id in recordbrowser permissions
+- Fix decimal point issues in currency field
+- New feature - code to auto hide some fields depending on the other value
 - Update translations
 
 RELEASE 1.7.0-20151201
