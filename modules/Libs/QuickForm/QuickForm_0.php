@@ -341,5 +341,25 @@ class Libs_QuickForm extends Module {
 		}
 		else eval_js('if (Epesi.hasOwnProperty(\'confirmLeave\')) Epesi.confirmLeave.deactivate(\''.addslashes($this->get_name()).'\');');
 	}
+	
+	/**
+	 * @param string $field
+	 * @param mixed $default
+	 * @param array $hide_mapping array(array('values'=>array(), 'fields'=>array()), array('mode'=>[show/hide] 'values'=>array(), 'fields'=>array()))
+	 */
+	public function autohide_fields($field, $default, $hide_mapping) { //$hide_mapping =
+		$field_obj = $this->getElement($field);
+		$field_type = $field_obj->getType();
+	
+		$allowed_types = array('static', 'hidden', 'select', 'checkbox', 'commondata', 'text');
+		if (!in_array($field_type, $allowed_types)) return;
+	
+		if ($field_type == 'static') {
+			$field .= '__autohide';
+			$this->addElement('hidden', $field , $default, 'id="' . $field . '"');
+		}
+	
+		Libs_QuickFormCommon::autohide_fields($field, $field_type, $hide_mapping);
+	}
 }
 ?>
