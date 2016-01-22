@@ -287,7 +287,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         } else {
             $callback = $rb_obj->get_display_callback($desc['name']);
             if (!$callback) $callback = 'CRM_ContactsCommon::display_company_contact';
-            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc);
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc, $rb_obj->tab);
 //          $def = call_user_func($callback, array($field=>$default), false, $desc);
             $form->addElement('static', $field, $label, $def);
         }
@@ -338,7 +338,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function company_format_default($record,$nolink=false) {
         if (is_numeric($record)) $record = self::get_company($record);
-        if (!$record) return null;
+        if (!$record || $record=='__NULL__') return null;
         $ret = '';
         if (!$nolink) {
             $ret .= Utils_RecordBrowserCommon::record_link_open_tag('company', $record['id']);
@@ -380,7 +380,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function contact_format_default($record, $nolink=false){
         if (is_numeric($record)) $record = self::get_contact($record);
-        if (!$record) return null;
+        if (!$record || $record=='__NULL__') return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
@@ -466,7 +466,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         foreach ($str as $k=>$v)
             if ($v) {
                 $v = "%$v%";
-                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~company_name'=>$v));
+                $crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~company_name'=>$v,'|~tax_id'=>$v));
             }
         $recs = Utils_RecordBrowserCommon::get_records('company', $crits, array(), array('company_name'=>'ASC'), 10);
         $ret = array();
@@ -569,7 +569,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         } else {
             $callback = $rb_obj->get_display_callback($desc['name']);
             if (!$callback) $callback = array('CRM_ContactsCommon','display_contact');
-            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc);
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb_obj->record, false, $desc,$rb_obj->tab);
 //          $def = call_user_func($callback, array($field=>$default), false, $desc);
             $form->addElement('static', $field, $label, $def);
         }
@@ -1055,7 +1055,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                     $old_admin = Base_AclCommon::get_admin_level($values['login']);
                     if($old_admin!=$values['admin']) {
                         $admin_arr = array(0=>'No', 1=>'Administrator', 2=>'Super Administrator');
-					    if(Base_UserCommon::change_admin($values['login'], $values['admin'])!==true)
+					    if(Base_UserCommon::change_admin($values['login'], $values['admin'])!==true && isset($values['id']) && $values['id'])
                             Utils_RecordBrowserCommon::new_record_history('contact',$values['id'],'Admin set from "'.$admin_arr[$old_admin].'" to "'.$admin_arr[$values['admin']]);
                     }
 				}
@@ -1064,6 +1064,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 			unset($values['username']);
 			unset($values['set_password']);
 			unset($values['confirm_password']);
+			break;
+			case 'delete':
+			    if (isset($values['login']) && $values['login']) {
+			        $ret = Base_UserCommon::change_active_state($values['login'], false);
+			        if (!$ret) $values = false;
+		        }
+		        break;
         }
         return $values;
     }
@@ -1353,7 +1360,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = array();
         $me = self::get_my_record();
         $my_contact_id = $me['id'] ? $me['id'] : -1;
-        $my_company_id = isset($me['company_name']) ? $me['company_name'] : -1;
+        $my_company_id = (isset($me['company_name']) && $me['company_name']) ? $me['company_name'] : -1;
         $ret[] = new Utils_RecordBrowser_ReplaceValue('USER', __('User Contact'), $my_contact_id);
         $ret[] = new Utils_RecordBrowser_ReplaceValue('USER_COMPANY', __('User Company'), $my_company_id);
         return $ret;

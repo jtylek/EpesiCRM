@@ -2,13 +2,196 @@
 /**
  * EPESI Core updater.
  *
- * @author    Adam Bukowski <abukowski@telaxus.com>
+ * @author    Adam Bukowski <abukowski@telaxus.com> and Pawel Bukowski <pbukowski@telaxus.com>
  * @version   2.0
  * @copyright Copyright &copy; 2014, Telaxus LLC
  * @license   MIT
  * @package   epesi-base
  */
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
+
+
+class EpesiPackageDownloader
+{
+    private $versions;
+
+    private function __construct()
+    {
+        self::check_system_requirements();
+    }
+
+    public static function instance()
+    {
+        static $instance;
+        if ($instance === null) {
+            $instance = new self();
+        }
+        return $instance;
+    }
+
+    public function get_update_json()
+    {
+        $ret = self::download('http://ess.epe.si/update.json');
+        $update_json = @json_decode($ret, true);
+        if ($update_json === null) {
+            throw new ErrorException('Cannot decode update.json file: ' . $ret);
+        }
+        return $update_json;
+    }
+
+    public function get_versions()
+    {
+        if (!$this->versions) {
+            $update_json = $this->get_update_json();
+            if (!isset($update_json['files'])) {
+                throw new ErrorException('No files defined in update.json');
+            }
+            $this->versions = $update_json['files'];
+        }
+        return $this->versions;
+    }
+
+    public function get_latest_package_info()
+    {
+        $versions = $this->get_versions();
+        $latest = end($versions);
+        return $latest;
+    }
+
+    public function get_package_info($current_revision, $offset)
+    {
+        $versions = $this->get_versions();
+        $found = false;
+        $skip_update = ($offset != 0);
+        foreach ($versions as $v) {
+            if ($found == false && $v['revision'] == $current_revision) {
+                $found = true;
+                if ($offset == 0) {
+                    return $v;
+                }
+                $offset -= 1;
+                continue;
+            }
+            if ($found) {
+                if ($skip_update && isset($v['skip']) && $v['skip']) continue;
+                if ($offset == 0) {
+                    return $v;
+                }
+                $offset -= 1;
+            }
+        }
+        return false;
+    }
+
+    public function download_package($current_revision, $offset)
+    {
+        $package_info = $this->get_package_info($current_revision, $offset);
+        if (!$package_info) {
+            return false;
+        }
+        foreach (array('file', 'checksum', 'signature') as $key) {
+            if (!isset($package_info[$key])) {
+                throw new ErrorException("Missing '$key' in package info");
+            }
+        }
+        $filename = EPESI == 'EPESI' ? 'epesi' : 'update';
+        $package_file = "$filename-$package_info[version]-$package_info[revision].ei.zip";
+        $file_exists = file_exists($package_file);
+        if (!$file_exists) {
+            self::download($package_info['file'], $package_file);
+        }
+        $package_checksum = sha1_file($package_file);
+        if ($package_info['checksum'] != $package_checksum) {
+            throw new ErrorException("Checksum mismatch. Downloaded=$package_checksum, should be=$package_info[checksum]");
+        }
+
+        $verify_status = openssl_verify(file_get_contents($package_file), base64_decode($package_info['signature']), self::get_public_key(), OPENSSL_ALGO_SHA256);
+        if ($verify_status === 0) {
+            throw new ErrorException("Signature incorrect");
+        }
+        if ($verify_status === -1) {
+            $error_string = openssl_error_string();
+            if (!$error_string) {
+                $error_string = 'no error string reported';
+            }
+            throw new ErrorException("Signature verify error: " . $error_string);
+        }
+        return new EpesiUpdatePackage($package_file);
+    }
+
+    public function get_update_package_info($current_revision)
+    {
+        $package_info = $this->get_package_info($current_revision, 1);
+        return $package_info;
+    }
+
+    public function get_update_package($current_revision)
+    {
+        return $this->download_package($current_revision, 1);
+    }
+
+    public function get_current_package($current_revision)
+    {
+        return $this->download_package($current_revision, 0);
+    }
+
+
+    public static function get_public_key()
+    {
+        $PUBLIC_KEY = <<<KEY
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvWFAZMVAGr3fPNK0v9Vt
+IErRSpl4I3wIWTr1kybpY8/+j9IX/t9qLvOPY4OVrkzURmKvS+VbSU8MSYZz9QIL
+TJUmNYkkyqJieSpQCq/7x5J2it+i1TeGKk8m3sOpL17+NUa/1e8a4W6FmLl9hwLd
+8TQnlVQJIva3JXA46S1E3BNPbaWdQrwABs5xGUterE890+rW63/pgD1pT1qEbmif
+oiTuG+dyhCo+REcjo8YWIpi+8BNJoo3Nn7Xxi71yA2Ps8DElIjjNRa/ca5A6SE61
+euoJaHtTSc7OsuDug2Rv0aQkvR7OmFyfIJAdAasZHWePWeuezlKJAAcvNFdjZ0Zw
+KwIDAQAB
+-----END PUBLIC KEY-----
+KEY;
+        return $PUBLIC_KEY;
+    }
+
+    public static function download($fileurl, $file = null) {
+        $ch = curl_init($fileurl);
+
+        curl_setopt($ch, CURLOPT_VERBOSE, 0);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        if ($file) {
+            $f = fopen($file, 'w');
+            if ($f === false) {
+                throw new ErrorException("Cannot write into file: $file");
+            }
+            curl_setopt($ch, CURLOPT_FILE, $f);
+        } else {
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        }
+
+        $output = curl_exec($ch);
+        $error_message = curl_error($ch);
+
+        curl_close($ch);
+        if ($file) {
+            fclose($f);
+        }
+        if ($error_message != '') throw new ErrorException($error_message);
+        return $output;
+    }
+
+    public static function check_system_requirements()
+    {
+        if (!class_exists('ZipArchive')) {
+            throw new ErrorException('Missing zip extension');
+        }
+        if (!function_exists('curl_init')) {
+            throw new ErrorException('Missing cURL extension');
+        }
+    }
+
+}
 
 class EpesiUpdatePackage
 {
@@ -21,13 +204,18 @@ class EpesiUpdatePackage
         $this->zip = new ZipArchive();
         $status = $this->zip->open($file);
         if ($status !== true) {
-            throw new ErrorException(__('Zip open error: %s', array($status)));
+            throw new ErrorException(__('Zip %s open error: %s', array($this->file,$status)));
         }
     }
 
     public function __destruct()
     {
         $this->zip->close();
+    }
+
+    public function delete()
+    {
+        @unlink($this->file);
     }
 
     public function get_file()
@@ -55,46 +243,77 @@ class EpesiUpdatePackage
         return $problems;
     }
 
+    public function files_modified()
+    {
+        $problems = array();
+        for ($i = 0; $i < $this->zip->numFiles; $i++) {
+            $stat = $this->zip->statIndex($i);
+            $f = './' . $stat['name'];
+            if (file_exists($f)) {
+                $system_file_checksum = sprintf("%u", hexdec(hash_file('crc32b', $f)));
+                $archive_file_checksum = sprintf("%u", $stat['crc']);
+                if ($system_file_checksum != $archive_file_checksum) {
+                    $problems[] = $f;
+                }
+            }
+        }
+        return $problems;
+    }
+
     public function extract()
     {
         $success = $this->zip->extractTo('./');
         return $success;
     }
 
-    public static function system_requirements()
-    {
-        return class_exists('ZipArchive');
+    public function wipe() {
+        for ($i = 0; $i < $this->zip->numFiles; $i++) {
+            $stat = $this->zip->statIndex($i);
+            $f = './' . $stat['name'];
+            if (file_exists($f) && !is_dir($f)) {
+                unlink($f);
+            }
+        }
     }
 
-    public static function package()
+    public function create_backup_of_modified_files()
     {
-        if (!self::system_requirements()) {
-            return false;
+        $files = $this->files_modified();
+        if (empty($files)) {
+            return '';
         }
 
-        $possible_files = glob('epesi-*.ei.zip');
-        if (is_array($possible_files) && count($possible_files)) {
-            rsort($possible_files);
-            return new self($possible_files[0]);
-        }
-        return false;
+        $release_package = substr($this->file, 0, -4);
+        do {
+            $random_string = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 12);
+            $backup_file = "modified_since_{$release_package}_{$random_string}.bkp.zip";
+        } while (file_exists($backup_file));
+
+        $b = new Backup($backup_file);
+        $b->create($files, "Modified files backup");
+        return $backup_file;
     }
+
 }
 
 class EpesiUpdate
 {
     public function run()
     {
-        $this->load_epesi();
-        if ($this->check_user()) {
-            if (!epesi_requires_update()) {
-                if ($this->handle_update_package() == false) {
-                    $this->version_up_to_date();
+        try {
+            $this->load_epesi();
+            if ($this->check_user()) {
+                if (!epesi_requires_update()) {
+                    if ($this->handle_update_package() == false) {
+                        $this->version_up_to_date();
+                    }
                 }
+                $this->update_process();
+            } else {
+                $this->require_admin_login();
             }
-            $this->update_process();
-        } else {
-            $this->require_admin_login();
+        } catch (Exception $ex) {
+            $this->quit('Exception occured: ' . $ex->getMessage());
         }
     }
 
@@ -102,28 +321,37 @@ class EpesiUpdate
     {
         $this->CLI = (php_sapi_name() == 'cli');
         if ($this->CLI) {
+            global $argv;
             // allow to define DATA directory for CLI in argument
-            if(isset($argv)) {
+            if (isset($argv)) {
                 define('EPESI_DIR','/');
-                if (isset($argv[1])) {
-                    define('DATA_DIR', $argv[1]);
+                foreach (array_slice($argv, 1) as $x) {
+                    if ($x == '-f') {
+                        $this->cli_force_update = true;
+                    } elseif ($x == '-b') {
+                        $this->cli_create_backup = true;
+                    } else {
+                        define('DATA_DIR', $x);
+                    }
                 }
             }
         }
 
         define('CID', false);
-        require_once('include.php');
+        require_once 'include.php';
+        require_once 'include/backups.php';
         ModuleManager::load_modules();
         Base_LangCommon::load();
 
         $this->system_version = Variable::get('version');
         $this->current_version = EPESI_VERSION;
+        $this->current_revision = EPESI_REVISION;
     }
 
     protected function quit($msg)
     {
         if ($this->CLI) {
-            die($msg . "\n");
+            die(strip_tags($msg) . "\n");
         } else {
             $this->body($msg);
             die();
@@ -143,13 +371,42 @@ class EpesiUpdate
 
     public function version_up_to_date()
     {
-        $msg = __('Your EPESI does not require update');
+        $msg = __('Your %s does not require update', array(EPESI));
         if ($this->CLI) {
             print ($msg . "\n");
             print (__('Update procedure forced') . "\n");
         } else {
+            $msg .= $this->saved_backups_list();
             $this->quit($msg);
         }
+    }
+
+    public function saved_backups_list()
+    {
+        $files = array();
+        foreach (glob('*.bkp.zip') as $f) $files[$f] = new Backup($f);
+
+        if (isset($_GET['delete']) && isset($files[$_GET['delete']]) && file_exists($_GET['delete'])) {
+            unlink($_GET['delete']);
+            unset($files[$_GET['delete']]);
+            $this->redirect(array());
+        }
+
+        uasort($files, function(Backup $a, Backup $b) { return $a->get_date() > $b->get_date();});
+        $backups = '';
+        foreach ($files as $file => $backup) {
+            $download_url = urlencode($file);
+            $download = "<a target=\"_blank\" href=\"$download_url\">[" . __('Download') . "]</a>";
+            $delete_href = '?' . http_build_query(array('delete' => $file));
+            $delete = "<a href=\"$delete_href\">[" . __('Delete') . "]</a>";
+            $description = date("Y-m-d H:i:s", $backup->get_date()) . " - $file $download $delete";
+            $backups .= "$description<br>";
+        }
+        $ret = '';
+        if ($backups) {
+            $ret = "<h3>" . __('Backups') . "</h3><p>$backups</p>";
+        }
+        return $ret;
     }
 
     protected function require_admin_login()
@@ -168,41 +425,111 @@ class EpesiUpdate
         return "<p>$form</p>";
     }
 
-    protected function handle_update_package()
+    protected function cli_msg($msg)
     {
         if ($this->CLI) {
-            return false;
+            print ($msg . "\n");
         }
-        $package = EpesiUpdatePackage::package();
-        if ($package) {
-            $action = & $_GET['package'];
+    }
+
+    protected function handle_update_package()
+    {
+        $update_package_info = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+        if ($update_package_info) {
+            if (!$this->CLI && (TRIAL_MODE || DEMO_MODE)) {
+                $this->quit(__('There is an update, but you don\'t have permissions to perform it. Please contact system administrator.'));
+            }
+            $latest_package_info = EpesiPackageDownloader::instance()->get_latest_package_info();
+            $latest_version = $update_package_info['revision'] == $latest_package_info['revision'];
+            $this->cli_msg("There is update package...");
+            $action = false;
+            if ($this->CLI) $action = 'get';
+            if (isset($_GET['action'])) $action = $_GET['action'];
             if ($action) {
-                $files_not_writable = $package->files_not_writable();
-                if (empty($files_not_writable)) {
-                    $this->turn_on_maintenance_mode();
-                    if ($package->extract()) {
-                        $this->redirect(array());
-                    } else {
-                        $this->quit(__('Extract error occured'));
+                $this->cli_msg("Downloading update package: $update_package_info[version]-$update_package_info[revision]...");
+                $update_package = EpesiPackageDownloader::instance()->get_update_package($this->current_revision);
+
+                $problems = $update_package->files_not_writable();
+                if ($problems) {
+                    $this->quit('<p><strong>' . __('Files not writable (please fix permissions)') . ':</strong></p>'."\n" . implode("<br>\n", $problems));
+                }
+
+                $this->cli_msg("Downloading current release package...");
+                $current_package = EpesiPackageDownloader::instance()->get_current_package($this->current_revision);
+                if (!$current_package) {
+                    throw new ErrorException('Cannot download current package');
+                }
+
+                $this->cli_msg("Looking for changes or permissions problems...");
+                $problems = $current_package->files_not_writable();
+                if ($problems) {
+                    $this->quit('<p><strong>' . __('Files not writable (please fix permissions)') . ':</strong></p>'."\n" . implode("<br>\n", $problems));
+                }
+
+                if ($this->CLI) {
+                    $problems = $current_package->files_modified();
+                    if ($problems) {
+                        $this->cli_msg("Modified files:\n" . implode("\n", $problems));
+                        if ($this->cli_create_backup) {
+                            $this->cli_msg('Creating backup of modified files');
+                            $backup_file = $current_package->create_backup_of_modified_files();
+                            $this->cli_msg("Backup saved to: $backup_file");
+                        }
+                        if ($this->cli_force_update) {
+                            $this->cli_msg('Update forced!');
+                        } else {
+                            $this->quit('Use -f switch to force update, -b to create backup of modified files. Both -f -b to backup and update');
+                        }
                     }
+
                 } else {
-                    $msg = '<p><strong>' . __('Files with bad permissions:') . '</strong></p>';
-                    foreach ($files_not_writable as $file) {
-                        $msg .= "$file</br>";
+                    if ($action == 'update') {
+                        // do nothing
+                    } elseif ($action == 'backup') {
+                        $backup_file = $current_package->create_backup_of_modified_files();
+                        $backup_msg = '<p><strong>' . __('Backup has been made') . '</strong></p>' . "\n";
+                        $backup_msg .= '<br>' . '<p>' . __('Your backup is in the file: %s', array($backup_file)) . "</p>\n";
+                        $backup_msg .= '<br>' . '<p><a class="button" href="?action=update">' . __('Update!') . '</a></p>';
+                        $this->quit($backup_msg);
+                    } else {
+                        $problems = $current_package->files_modified();
+                        if ($problems) {
+                            $create_backup_msg = '<p><strong>' . __('Files with custom modifications') . ':</strong></p>' . "\n" . implode("<br>\n", $problems);
+                            $create_backup_msg .= '<br>' . '<p><a class="button" href="?action=backup">' . __('Backup modified files!') . '</a></p>';
+                            $this->quit($create_backup_msg);
+                        }
                     }
-                    $this->quit($msg);
+                }
+
+                $this->turn_on_maintenance_mode();
+                $this->cli_msg("Wipe current files...");
+                $current_package->wipe();
+                $this->cli_msg("Extract new files...");
+                if ($update_package->extract()) {
+                    $this->cli_msg("Delete package files...");
+                    $current_package->delete();
+                    if ($latest_version) {
+                        $update_package->delete();
+                    }
+                    $this->cli_msg("Patches redirect...");
+                    $this->redirect(array());
+                } else {
+                    $current_package->extract();
+                    $this->quit(__('Extract error occured'));
                 }
             } else {
-                $header = __('Easy update package found!');
-                $current_ver = __('Your current EPESI version') . ': <strong>' . $this->current_version . '</strong>';
-                $text_p = __('Package') . ': <strong>' . $package->get_file() . '</strong>';
-                $warning_message = __('All core files will be overwritten!') . '<br/><br/>'
-                                   . __('If you have changed any of those files, then all custom modifications will be lost.');
+                $header = __('Update package available to download!');
+                $version_with_revision = "$this->current_version-$this->current_revision";
+                $update_info = "$update_package_info[version]-$update_package_info[revision]";
+                $current_ver = __('Your current %s version', array(EPESI)) . ': <strong>' . $version_with_revision . '</strong>';
+                $text_p = __('Update Package') . ': <strong>' . $update_info . '</strong>';
+                $warning_message = __('All core files will be replaced!') . '<br/><br/>'
+                                   . __('If you have changed any of those files, then we will backup them first.');
                 $info_message = __('Custom modules and your data will be preserved.');
                 $msg = "<p><strong>$header</strong></p><p>$current_ver</p><p>$text_p</p>";
                 $msg .= "<p style=\"color: red; font-weight: bold\">$warning_message</p>";
                 $msg .= "<p style=\"font-weight: bold\">$info_message</p>";
-                $msg .= '<p><a class="button" href="?package=extract">' . __('Extract!') . '</a></p>';
+                $msg .= '<p><a class="button" href="?action=get">' . __('Download!') . '</a></p>';
                 $this->quit($msg);
             }
         }
@@ -219,6 +546,10 @@ class EpesiUpdate
             $this->perform_update_start();
             $this->perform_update_patches(false);
             $this->perform_update_end();
+
+            $update_package = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+            if ($update_package) $this->redirect(array());
+
             $this->quit(__('Done'));
         }
 
@@ -234,7 +565,9 @@ class EpesiUpdate
             }
         } elseif ($up == 'end') {
             $this->perform_update_end();
-            $this->redirect(get_epesi_url());
+            $update_package = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+            $redirect = $update_package ? array() : get_epesi_url();
+            $this->redirect($redirect);
         } else {
             $this->update_body();
         }
@@ -242,6 +575,14 @@ class EpesiUpdate
 
     protected function redirect($url_or_get)
     {
+        if ($this->CLI) {
+            global $argv;
+            print("Redirect...\n");
+            $args = array_slice($argv, 1);
+            array_unshift($args, __FILE__);
+            system((defined('PHP_BINARY')?PHP_BINARY:'php').' '.implode(' ', $args));
+            exit();
+        }
         if (is_string($url_or_get)) {
             $location = $url_or_get;
         } else {
@@ -256,7 +597,7 @@ class EpesiUpdate
 
     protected function update_msg()
     {
-        $msg = __('Update EPESI from version %s to %s.', array($this->system_version, $this->current_version));
+        $msg = __('Update %s from version %s to %s.', array(EPESI, $this->system_version, $this->current_version));
         return "<p>$msg</p>";
     }
 
@@ -285,7 +626,7 @@ class EpesiUpdate
     {
         if (MaintenanceMode::is_on()) return;
 
-        $msg = __('EPESI is currently updating. Please wait or contact your system administrator.');
+        $msg = __('%s is currently updating. Please wait or contact your system administrator.', array(EPESI));
         if ($this->CLI) {
             MaintenanceMode::turn_on($msg);
         } else {
@@ -295,9 +636,11 @@ class EpesiUpdate
 
     protected function perform_update_start()
     {
+        $this->cli_msg("Update from " . $this->system_version . " to " . $this->current_version . "...");
         $this->turn_on_maintenance_mode();
         //restore innodb tables in case of db reimport
-        if (DB::is_mysql()) {
+        $mysql = stripos(DATABASE_DRIVER, 'mysql') !== false;
+        if ($mysql) {
             $tbls = DB::MetaTables('TABLE', true);
             foreach ($tbls as $t) {
                 $tbl = DB::GetRow('SHOW CREATE TABLE ' . $t);
@@ -364,6 +707,8 @@ class EpesiUpdate
 
         Variable::set('version', EPESI_VERSION);
         MaintenanceMode::turn_off();
+
+        $this->cli_msg("Updated to " . $this->current_version);
     }
 
     protected function body($html)
@@ -398,7 +743,7 @@ class EpesiUpdate
         </center>
         <br>
         <center>
-            <span class="footer">Copyright &copy; 2014 &bull; <a
+            <span class="footer">Copyright &copy; 2016 &bull; <a
                     href="http://www.telaxus.com">Telaxus LLC</a></span>
             <br>
 
@@ -412,8 +757,12 @@ class EpesiUpdate
     }
 
     protected $CLI;
+    protected $cli_force_update = false;
+    protected $cli_create_backup = false;
+
     protected $system_version;
     protected $current_version;
+    protected $current_revision;
 }
 
 $x = new EpesiUpdate();

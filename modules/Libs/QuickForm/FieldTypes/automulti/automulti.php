@@ -86,7 +86,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     	$result = call_user_func_array($callback, $suggestbox_args);
     	$ret = '<ul>';
     	if (empty($result))
-			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records founds').'</span></li>';
+			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records found').'</span></li>';
     	foreach ($result as $k=>$v) {
     		if ($format) $disp = call_user_func($format, $k, $args);
 			else $disp = $v;
@@ -302,9 +302,14 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
      */
     function getFrozenHtml()
     {
-    	$html = '';
-    	// TODO: :)
-        return $html;
+        $el = array();
+        if ($this->_format_callback) {
+            foreach ($this->_values as $value) {
+                // code copied from the above - seems that the last param is wrong
+                $el[]= call_user_func($this->_format_callback, $value, $this->_options_callback_args);
+            }
+        }
+        return implode('<br>', $el);
     }
 
    /**
@@ -318,8 +323,10 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
             $value = $this->getValue();
         }
         if (is_array($value)) $cleanValue = $value;
-		else $cleanValue = explode('__SEP__',$value);
-        array_shift($cleanValue);
+		else {
+            $cleanValue = explode('__SEP__',$value);
+            array_shift($cleanValue);
+        }
 		return $this->_prepareValue($cleanValue, $assoc);
     }
 
@@ -331,7 +338,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
                 $value = $this->_findValue($caller->_submitValues);
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?
-                if (null === $value && (!$caller->isSubmitted())) {
+                if (null === $value && ((is_callable(array($caller,'isSubmitted')) && !$caller->isSubmitted()) || $this->isFrozen())) {
                     $value = $this->_findValue($caller->_defaultValues);
                 }
             }

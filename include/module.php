@@ -31,6 +31,7 @@ abstract class Module extends ModulePrimitive {
 	private $displayed = false;
 	private $clear_child_vars = false;
 	public $display_func = false;
+	public static $disable_confirm_leave = false;
 
 	//region Construct
 	/**
@@ -429,9 +430,28 @@ abstract class Module extends ModulePrimitive {
 	 * @return string href string {@source}
 	 */
 	public final static function create_href_js(array $variables = array (), $indicator=null, $mode=null) {
-		$ret = http_build_query($variables);
+		$ret = "'" . http_build_query($variables) . "'";
+		return self::create_href_js_raw($ret, $indicator, $mode);
+	}
+
+	/**
+	 * Create onClick action string destined for js code.
+	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
+	 *
+	 * <code>
+	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
+	 * </code>
+	 *
+	 * @param string $data raw data string passed to Epesi.href first argument
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
+	 * @return string href string {@source}
+	 */
+	public final static function create_href_js_raw($data, $indicator=null, $mode=null)
+	{
 		if(!isset($indicator)) $indicator='';
-		return '_chj(\''.$ret.'\', \''.addslashes($indicator).'\', \''.$mode.'\');';
+		$disableConfirmLeave = self::$disable_confirm_leave ? ', true' : '';
+		return '_chj('.$data.', \''.addslashes($indicator).'\', \''.$mode.'\'' . $disableConfirmLeave . ');';
 	}
 
 	/**

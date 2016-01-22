@@ -3,7 +3,7 @@
 /*
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube PHP suite                          |
- | Copyright (C) 2005-2013, The Roundcube Dev Team                       |
+ | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -26,7 +26,7 @@
  */
 
 $config = array(
-    'error_reporting'         => E_ALL & ~E_NOTICE & ~E_STRICT,
+    'error_reporting'         => E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED,
     // Some users are not using Installer, so we'll check some
     // critical PHP settings here. Only these, which doesn't provide
     // an error/warning in the logs later. See (#1486307).
@@ -54,11 +54,11 @@ foreach ($config as $optname => $optval) {
 }
 
 // framework constants
-define('RCUBE_VERSION', '1.0.3');
+define('RCUBE_VERSION', '1.1.3');
 define('RCUBE_CHARSET', 'UTF-8');
 
 if (!defined('RCUBE_LIB_DIR')) {
-    define('RCUBE_LIB_DIR', dirname(__FILE__).DIRECTORY_SEPARATOR);
+    define('RCUBE_LIB_DIR', __DIR__ . '/');
 }
 
 if (!defined('RCUBE_INSTALL_PATH')) {
@@ -78,9 +78,11 @@ if (!defined('RCUBE_LOCALIZATION_DIR')) {
 }
 
 // set internal encoding for mbstring extension
-if (extension_loaded('mbstring')) {
+if (function_exists('mb_internal_encoding')) {
     mb_internal_encoding(RCUBE_CHARSET);
-    @mb_regex_encoding(RCUBE_CHARSET);
+}
+if (function_exists('mb_regex_encoding')) {
+    mb_regex_encoding(RCUBE_CHARSET);
 }
 
 // make sure the Roundcube lib directory is in the include_path
@@ -97,24 +99,34 @@ if (!preg_match($regexp, $path)) {
 spl_autoload_register('rcube_autoload');
 
 // set PEAR error handling (will also load the PEAR main class)
-PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'rcube_pear_error');
+@PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'rcube_pear_error');
 
 
 
 /**
- * Similar function as in_array() but case-insensitive
+ * Similar function as in_array() but case-insensitive with multibyte support.
  *
- * @param string $needle    Needle value
- * @param array  $heystack  Array to search in
+ * @param string $needle   Needle value
+ * @param array  $heystack Array to search in
  *
  * @return boolean True if found, False if not
  */
 function in_array_nocase($needle, $haystack)
 {
-    $needle = mb_strtolower($needle);
-    foreach ((array)$haystack as $value) {
-        if ($needle === mb_strtolower($value)) {
-            return true;
+    // use much faster method for ascii
+    if (is_ascii($needle)) {
+        foreach ((array) $haystack as $value) {
+            if (strcasecmp($value, $needle) === 0) {
+                return true;
+            }
+        }
+    }
+    else {
+        $needle = mb_strtolower($needle);
+        foreach ((array) $haystack as $value) {
+            if ($needle === mb_strtolower($value)) {
+                return true;
+            }
         }
     }
 
@@ -408,7 +420,7 @@ if (!extension_loaded('mbstring'))
 
 if (!function_exists('idn_to_utf8'))
 {
-    function idn_to_utf8($domain, $flags=null)
+    function idn_to_utf8($domain)
     {
         static $idn, $loaded;
 
@@ -430,7 +442,7 @@ if (!function_exists('idn_to_utf8'))
 
 if (!function_exists('idn_to_ascii'))
 {
-    function idn_to_ascii($domain, $flags=null)
+    function idn_to_ascii($domain)
     {
         static $idn, $loaded;
 
@@ -464,16 +476,14 @@ function rcube_autoload($classname)
             '/Net_(.+)/',
             '/Auth_(.+)/',
             '/^html_.+/',
-            '/^rcube(.*)/',
-            '/^utf8$/',
+            '/^rcube(.*)/'
         ),
         array(
             'Mail/\\1',
             'Net/\\1',
             'Auth/\\1',
             'Roundcube/html',
-            'Roundcube/rcube\\1',
-            'utf8.class',
+            'Roundcube/rcube\\1'
         ),
         $classname
     );
@@ -492,8 +502,11 @@ function rcube_autoload($classname)
  */
 function rcube_pear_error($err)
 {
-    error_log(sprintf("%s (%s): %s",
-        $err->getMessage(),
-        $err->getCode(),
-        $err->getUserinfo()), 0);
+    $msg = sprintf("ERROR: %s (%s)", $err->getMessage(), $err->getCode());
+
+    if ($info = $err->getUserinfo()) {
+        $msg .= ': ' . $info;
+    }
+
+    error_log($msg, 0);
 }

@@ -103,23 +103,24 @@ class CRM_Contacts_NotesAggregate extends Module {
 
 	public function salesopportunity_addon($salesopportunity) {
 		$attachment_groups = array();
-		
+
+        $related_crits = array('related' => 'premium_salesopportunity/' . $salesopportunity['id']);
 		if (ModuleManager::is_installed('CRM_Meeting')>=0) {
-            $records = Utils_RecordBrowserCommon::get_records('crm_meeting', array('opportunity' => $salesopportunity['id']), array());
+            $records = Utils_RecordBrowserCommon::get_records('crm_meeting', $related_crits, array());
             foreach ($records as $rec) {
                 $attachment_groups[] = 'crm_meeting/' . $rec['id'];
             }
 		}
 		
 		if (ModuleManager::is_installed('CRM_Tasks')>=0) {
-            $records = Utils_RecordBrowserCommon::get_records('task', array('opportunity' => $salesopportunity['id']), array());
+            $records = Utils_RecordBrowserCommon::get_records('task', $related_crits, array());
             foreach ($records as $rec) {
                 $attachment_groups[] = 'task/' . $rec['id'];
             }
 		}
 		
 		if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
-            $records = Utils_RecordBrowserCommon::get_records('phonecall', array('opportunity' => $salesopportunity['id']), array());
+            $records = Utils_RecordBrowserCommon::get_records('phonecall', $related_crits, array());
             foreach ($records as $rec) {
                 $attachment_groups[] = 'phonecall/' . $rec['id'];
             }

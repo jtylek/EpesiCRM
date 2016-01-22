@@ -108,10 +108,10 @@ class Utils_RecordBrowser_CritsToWords
 
         if (!is_array($value)) $value = array($value);
         foreach ($value as $k => $v) {
-            if ($v === '') {
-                $value[$k] = __('empty');
-            } elseif (is_bool($v)) {
+            if (is_bool($v)) {
                 $value[$k] = $v ? __('true') : __('false');
+            } elseif ($v === '' || $v === null) {
+                $value[$k] = __('empty');
             } else {
                 if ($field == ':Created_on' || $field == ':Edited_on') {
                     if (isset(Utils_RecordBrowserCommon::$date_values[$v])) {
@@ -160,18 +160,18 @@ class Utils_RecordBrowser_CritsToWords
             $field = "<strong>$field</strong>";
         }
 
-        $operand = ($negation ? __('is not') : __('is') ) . ' ';
         if ($subquery_generated) {
             $operand = __('is set to record where');
         } else {
             switch ($operator) {
-                case '<' : $operand .= __('smaller than'); break;
-                case '<=' : $operand .= __('smaller or equal to'); break;
-                case '>' : $operand .= __('greater than'); break;
-                case '>=' : $operand .= __('greater or equal to'); break;
-                case 'LIKE' : $operand .= __('like'); break;
+                case '<' : $operand = $negation ? __('is not smaller than') : __('is smaller than'); break;
+                case '<=' : $operand = $negation ? __('is not smaller or equal to') : __('is smaller or equal to'); break;
+                case '>' : $operand = $negation ? __('is not greater than') : __('is greater than'); break;
+                case '>=' : $operand = $negation ? __('is not greater than') : __('is greater or equal to'); break;
+                case 'LIKE' : $operand = $negation ? __('is not like') : __('is like'); break;
+                case 'NOT LIKE' : $operand = $negation ? __('is like') : __('is not like'); break;
                 default:
-                    $operand .= __('equal to');
+                    $operand = $negation ? __('is not equal to') : __('is equal to');
             }
         }
 
@@ -180,6 +180,9 @@ class Utils_RecordBrowser_CritsToWords
             $value_str = "($value_str)";
         }
         $ret = "{$field} {$operand} {$value_str}";
+        if (!$this->html_decoration) {
+            $ret = html_entity_decode($ret);
+        }
         return array('str' => $ret, 'multiple' => false);
     }
 

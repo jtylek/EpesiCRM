@@ -481,6 +481,39 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         return $ret;
     }
 
+    public static function get_email_addresses($rs,$rec) {
+        if(is_numeric($rec)) $rec = Utils_RecordBrowserCommon::get_record($rs,$rec);
+
+        $emails = array();
+        if(isset($rec['email']) && $rec['email']) $emails[] = $rec['email'];
+
+        $multiple = Utils_RecordBrowserCommon::get_records('rc_multiple_emails',array('record_type'=>$rs,'record_id'=>$rec['id']));
+        foreach($multiple as $multi) if($multi['email']) $emails[] = $multi['email'];
+
+        return array_unique($emails);
+    }
+
+    public static function reload_mails($rs,$id,$email_addresses = null) {
+        $prefix = ($rs=='contact'?'P':'C').':';
+
+        if(!$email_addresses) $email_addresses = self::get_email_addresses($rs,$id);
+
+        foreach($email_addresses as $email) {
+            $cc = Utils_RecordBrowserCommon::get_records('rc_mails',array('(~from'=>'%'.$email.'%','|~to'=>'%'.$email.'%'));
+
+            foreach($cc as $mail) {
+                if(($rs=='contact' && $mail['employee']==$id) || in_array($prefix.$id,$mail['contacts'])) continue;
+                if(!preg_match('/(^|[\s,\<\;])'.preg_quote($email,'/').'($|[\s,\>\&])/i',$mail['from'].','.$mail['to'])) {
+                    continue;
+                }
+
+                $mail['contacts'][] = $prefix.$id;
+                Utils_RecordBrowserCommon::update_record('rc_mails',$mail['id'],array('contacts'=>$mail['contacts']));
+                CRM_RoundcubeCommon::create_thread($mail['id']);
+            }
+        }
+    }
+
     /**
      * @param int  $account_id
      * @param bool $only_cached If true then only cached response will be retrieved
@@ -489,7 +522,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
      * @return array|null
      * @throws Exception
      */
-    public static function get_unread_messages($account_id, $only_cached = false, $cache_validity_in_minutes = 5)
+    public static function get_unread_messages($account_id, $only_cached = false, $cache_validity_in_minutes = 3)
     {
         $return = null;
         $rec = Utils_RecordBrowserCommon::get_record('rc_accounts', $account_id);
@@ -545,7 +578,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         return $return;
     }
 
-    public static function tray_notification($last_refresh)
+    public static function notification()
     {
         $notifications = array();
         foreach (self::get_accounts() as $account) {

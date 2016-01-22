@@ -21,16 +21,49 @@ define('TCPDF_DIR', 'modules/Libs/TCPDF/tcpdf5.9/');
 class Libs_TCPDFCommon extends ModuleCommon {
     public static $default_font = 'dejavusanscondensed';//'Helvetica';
 
-    public static function user_settings(){
-        return array(__('Printing settings')=>array(
-            array('name'=>'page_format','label'=>__('Page format'),'type'=>'select','values'=>array('A4'=>__('A4'),'LETTER'=>__('LETTER'),'LEGAL'=>__('LEGAL')),'default'=>'LETTER')
-            ));
+    public static function user_settings()
+    {
+        $font_select = array(
+            '' => __('System Default'),
+            'cid0jp' => __('Japanese'),
+            'cid0kr' => __('Korean'),
+            'cid0cs' => __('Chinese Simplified'),
+            'cid0ct' => __('Chinese Traditional')
+        );
+        $path = TCPDF_DIR . 'fonts/';
+        foreach ($font_select as $file => $font) {
+            if ($file && !file_exists($path . $file . '.php')) {
+                unset($font_select[$file]);
+            }
+        }
+        return array(__('Printing settings') => array(
+            array('name'    => 'page_format',
+                  'label'   => __('Page format'),
+                  'type'    => 'select',
+                  'values'  => array('A4' => __('A4'), 'LETTER' => __('LETTER'), 'LEGAL' => __('LEGAL')),
+                  'default' => 'LETTER'),
+            array('name'    => 'font',
+                  'label'   => __('Font'),
+                  'type'    => 'select',
+                  'values'  => $font_select,
+                  'default' => '')
+        ));
+    }
+
+    public static function get_pdf_font()
+    {
+        $font = Base_User_SettingsCommon::get('Libs/TCPDF', 'font');
+        if ($font && file_exists(TCPDF_DIR . "fonts/$font.php")) {
+            return $font;
+        }
+        return 'dejavusanscondensed';
     }
 
     public static function new_pdf($orientation='P',$unit='mm',$format=null) {
         ini_set('memory_limit', '512M');
         require_once(TCPDF_DIR.'tcpdf.php');
-        
+
+        self::$default_font = self::get_pdf_font();
         if ($format===null) $format = Base_User_SettingsCommon::get(Libs_TCPDF::module_name(),'page_format');
 
         $tcpdf = new TCPDF($orientation, $unit, $format, true);

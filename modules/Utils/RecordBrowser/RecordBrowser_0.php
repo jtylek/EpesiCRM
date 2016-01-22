@@ -36,7 +36,7 @@ class Utils_RecordBrowser extends Module {
     private $more_table_properties = array();
     private $fullscreen_table = false;
     private $amount_of_records = 0;
-    private $switch_to_addon = 0;
+    private $switch_to_addon = null;
     private $additional_caption = '';
     private $enable_export = false;
 	private $search_calculated_callback = false;
@@ -598,9 +598,6 @@ class Utils_RecordBrowser extends Module {
             }
         }
         $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $filter_crits);
-        $perspective = trim(CRM_FiltersCommon::get(), '()');
-        $perspective = empty($perspective) ? null : explode(',', $perspective);
-        $this->crits->replace_value($this->crm_perspective_default(), $perspective, true);
 
         $this->set_module_variable('crits', $this->crits);
 
@@ -626,9 +623,13 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('show_filters', array('attrs'=>'onclick="rb_show_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="show_filter_b_'.$f_id.'"','label'=>__('Show filters')));
         $theme->assign('hide_filters', array('attrs'=>'onclick="rb_hide_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="hide_filter_b_'.$f_id.'"','label'=>__('Hide filters')));
         $theme->assign('id', $f_id);
-        if (!$this->isset_module_variable('filters_defaults'))
-            $this->set_module_variable('filters_defaults', $this->crits);
-        elseif ($this->crits!==$this->get_module_variable('filters_defaults')) $theme->assign('dont_hide', true);
+        if (!$use_saving_filters) {
+            if (!$this->isset_module_variable('filters_defaults')) {
+                $this->set_module_variable('filters_defaults', $this->crits);
+            } elseif ($this->crits != $this->get_module_variable('filters_defaults')) {
+                $theme->assign('dont_hide', true);
+            }
+        }
         if ($dont_hide) $theme->assign('dont_hide', true);
         return $this->get_html_of_module($theme, 'Filter', 'display');
     }
@@ -795,10 +796,13 @@ class Utils_RecordBrowser extends Module {
                     continue;
                 }
 				if(!in_array($k,$query_cols)) continue;
-				if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name'];
-				elseif (isset($hash[$k])) $key = $hash[$k];
-				else $key = $k;
-   				$clean_order[_V($key)] = $v; // TRSL
+				if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) {
+                    $key = $this->more_table_properties[$k]['name'];
+                } else {
+                    $key = isset($hash[$k]) ? $hash[$k] : $k;
+                    $key = _V($this->table_rows[$key]['name']);
+                }
+   				$clean_order[$key] = $v;
 			}
 
 			if ($this->browse_mode != 'recent')
@@ -817,12 +821,13 @@ class Utils_RecordBrowser extends Module {
 				if ($args['commondata']) $k = $k.'[]';
 				elseif (isset($args['ref_field']) && $args['ref_field']) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
                 if ($k[0]=='"') {
-                    $search_res['~_'.$k] = $v;
+                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~' . $k => $v));
                     continue;
                 }
                 if (is_array($v)) $v = $v[0];
                 $v = explode(' ', $v);
                 foreach ($v as $w) {
+                    if ($w === '') continue;
 					if (!$args['commondata']) {
 						$w = "%$w%";
 					}
@@ -836,13 +841,15 @@ class Utils_RecordBrowser extends Module {
             $val2 = explode(' ', $val[0]);
             $leftovers = array();
             foreach ($val2 as $vv) {
+                if ($vv === '') continue;
+                $search_part = new Utils_RecordBrowser_Crits();
                 foreach ($search as $k=>$v) {
                     if ($v!=$val) {
                         $leftovers[$k] = $v;
                         continue;
                     }
                     if ($k[0]=='"') {
-                        $search_res = rb_or($search_res, array('~_'.$k => $vv));
+                        $search_part = Utils_RecordBrowserCommon::merge_crits($search_part, array('~'.$k => $vv), true);
                         continue;
                     }
 					$args = $this->table_rows[$hash[trim($k, '(|')]];
@@ -853,11 +860,12 @@ class Utils_RecordBrowser extends Module {
 					} else {
 						$w = $vv;
 					}
-                    $search_res = rb_or($search_res, array('~'.$k =>$w));
+                    $search_part = Utils_RecordBrowserCommon::merge_crits($search_part, array('~'.$k =>$w), true);
                 }
+                $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $search_part);
             }
             if ($leftovers) {
-                $search_res = rb_or($search_res, $leftovers);
+                $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $leftovers);
             }
         }
 
@@ -885,9 +893,9 @@ class Utils_RecordBrowser extends Module {
             switch($admin_filter) {
                 case 0: Utils_RecordBrowserCommon::$admin_filter = '';
                     break;
-                case 1: Utils_RecordBrowserCommon::$admin_filter = 'active=1 AND ';
+                case 1: Utils_RecordBrowserCommon::$admin_filter = '<tab>.active=1 AND ';
                     break;
-                case 2: Utils_RecordBrowserCommon::$admin_filter = 'active=0 AND ';
+                case 2: Utils_RecordBrowserCommon::$admin_filter = '<tab>.active=0 AND ';
                     break;
             }
             $form->display_as_row();
@@ -1003,7 +1011,8 @@ class Utils_RecordBrowser extends Module {
             if ($special) {
                 $element = $this->get_module_variable('element');
                 $format = $this->get_module_variable('format_func');
-                $row_data = array('<input type="checkbox" id="leightbox_rpicker_'.$element.'_'.$row['id'].'" formated_name="'.(is_callable($format)?strip_tags(call_user_func($format, $row, true)):'').'" />');
+                $formated_name = is_callable($format) ? strip_tags(call_user_func($format, $row, true)) : Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $row['id'], true);
+                $row_data = array('<input type="checkbox" id="leightbox_rpicker_' . $element . '_' . $row['id'] . '" formated_name="' . $formated_name . '" />');
                 $rpicker_ind[] = $row['id'];
             }
             $r_access = $this->get_access('view', $row);
@@ -1216,7 +1225,7 @@ class Utils_RecordBrowser extends Module {
 			self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
 		} else {
 			self::$last_record = $this->record = $id;
-			$id = intVal($this->record['id']);
+			$id = isset($this->record['id'])? intVal($this->record['id']): null;
 		}
 		if ($id===0) $id = null;
         if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
@@ -1457,9 +1466,9 @@ class Utils_RecordBrowser extends Module {
         $row = true;
         if ($mode=='view')
             print("</form>\n");
-        $tab_counter=-1;
+        $tab_counter = 0;
 		$additional_tabs = 0;
-		$default_tab = null;
+		$default_tab = 0;
         while ($row) {
             $row = $ret->FetchRow();
             if ($row) $pos = $row['position'];
@@ -1476,12 +1485,14 @@ class Utils_RecordBrowser extends Module {
                 }
             }
             if ($valid_page && $pos - $last_page>1 && !isset($this->hide_tab[$label])) {
-				$tb->set_tab(_V($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols, _V($label)), $js); // TRSL
+                $translated_label = _V($label);
+                $tb->set_tab($translated_label, array($this, 'view_entry_details'), array($last_page, $pos + 1, $data, null, false, $cols, _V($label)), $js); // TRSL
 				if ($hide_page) {
 					eval_js('$("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
-					if ($default_tab===($tab_counter+1) || $tb->get_tab()==($tab_counter+1)) $default_tab = $tab_counter+2;
+					if ($default_tab === $tab_counter) $default_tab = $tab_counter + 1;
 				} else
 					$additional_tabs++;
+
 				$tab_counter++;
 			}
             $cols = $row['param'];
@@ -1512,6 +1523,7 @@ class Utils_RecordBrowser extends Module {
                 $addons_mod[$mod_id] = $this->init_module($row['module']);
                 if (!method_exists($addons_mod[$mod_id],$row['func'])) $tb->set_tab($row['label'],array($this, 'broken_addon'), array(), $js);
                 else $tb->set_tab($row['label'],array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
+                $tab_counter++;
             }
         }
         if ($additional_tabs==0 && ($mode=='add' || $mode=='edit' || $mode=='history'))
@@ -1534,17 +1546,6 @@ class Utils_RecordBrowser extends Module {
 		
         if ($this->switch_to_addon) {
     	    $this->set_module_variable('switch_to_addon',false);
-            $ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
-            while ($row = $ret->FetchRow()) {
-                if (ModuleManager::is_installed($row['module'])==-1) continue;
-                if (is_callable(explode('::',$row['label']))) {
-                    $result = call_user_func(explode('::',$row['label']), $this->record,$this);
-                    if (isset($result['show']) && $result['show']==false) continue;
-                    $row['label'] = $result['label'];
-                }
-                $tab_counter++;
-                if ($row['label']==$this->switch_to_addon) $this->switch_to_addon = $tab_counter;
-            }
             $tb->switch_tab($this->switch_to_addon);
         }
         if ($additional_tabs!=0 && ($mode=='add' || $mode=='edit' || $mode=='history'))
@@ -1962,7 +1963,7 @@ class Utils_RecordBrowser extends Module {
 					$reg = explode(';', $args['param']);
 					$rege = explode('::', $reg[0]);
 					if ($rege[0]=='__COMMON__') {
-						$args['param'] = array('array_id'=>$rege[1], 'order_by_key'=>(isset($rege[2]) && $rege[2]=='key'));
+						$args['param'] = Utils_RecordBrowserCommon::decode_commondata_param((isset($rege[2]) ? $rege[2] : '') . '__' . $rege[1]);
 						$args['type'] = 'multiselect';
 					} elseif ($rege[0]=='__RECORDSETS__') {
 						$param = __('Source').': Record Sets'.'<br/>';
@@ -1984,7 +1985,7 @@ class Utils_RecordBrowser extends Module {
 					if ($args['type']=='commondata') $args['type'] = 'select';
 					$param = __('Source').': CommonData'.'<br/>';
 					$param .= __('Table').': '.$args['param']['array_id'].'<br/>';
-					$param .= __('Order by').': '.($args['param']['order_by_key']?__('Key'):__('Value'));
+					$param .= __('Order by').': '._V(ucfirst($args['param']['order_by_key']));
 					$args['param'] = $param;
 					break;
                 case 'time':
@@ -2139,8 +2140,9 @@ class Utils_RecordBrowser extends Module {
 					$tab = $refe[0];
 					if ($tab=='__COMMON__') {
 						$row['data_source'] = 'commondata';
-						$order = isset($refe[2])?$refe[2]:'value';
-						$row['order_by'] = ($order=='key'?'key':'value');
+						$order = isset($refe[2]) ? $refe[2] : 'value';
+                        if (strlen($order) <= 1) $order = $order ? 'key' : 'value';
+						$row['order_by'] = $order;
 						$row['commondata_table'] = $refe[1];
 					} else {
 						$row['label_field'] = '';
@@ -2155,7 +2157,7 @@ class Utils_RecordBrowser extends Module {
 					$row['select_type'] = 'select';
 					$row['data_source'] = 'commondata';
 					$param = Utils_RecordBrowserCommon::decode_commondata_param($row['param']);
-					$form->setDefaults(array('order_by'=>$param['order_by_key']?'key':'value', 'commondata_table'=>$param['array_id']));
+					$form->setDefaults(array('order_by'=>$param['order_by_key'], 'commondata_table'=>$param['array_id']));
 					break;
                 case 'autonumber':
                     $row['select_data_type'] = 'autonumber';
@@ -2202,7 +2204,7 @@ class Utils_RecordBrowser extends Module {
 
 		$form->addElement('select', 'data_source', __('Source of Data'), array('rset'=>__('Recordset'), 'commondata'=>__('CommonData')), array('id'=>'data_source', 'onchange'=>'RB_hide_form_fields()'));
 		$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Single value selection'), 'multiselect'=>__('Multiple values selection')), array('id'=>'select_type'));
-		$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value')), array('id'=>'order_by'));
+		$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value'), 'position' => __('Position')), array('id'=>'order_by'));
 		$form->addElement('text', 'commondata_table', __('CommonData table'), array('id'=>'commondata_table'));
 
 		$tables = Utils_RecordBrowserCommon::list_installed_recordsets();
@@ -2293,7 +2295,7 @@ class Utils_RecordBrowser extends Module {
 				case 'select':
 							if ($data['data_source']=='commondata') {
 								if ($data['select_type']=='select') {
-									$param = Utils_RecordBrowserCommon::encode_commondata_param(array('order_by_key'=>$data['order_by']=='key', 'array_id'=>$data['commondata_table']));
+									$param = Utils_RecordBrowserCommon::encode_commondata_param(array('order_by_key'=>$data['order_by'], 'array_id'=>$data['commondata_table']));
 									$data['select_data_type'] = 'commondata';
 								} else {
 									$param = '__COMMON__::'.$data['commondata_table'].'::'.$data['order_by'];
@@ -2853,7 +2855,7 @@ class Utils_RecordBrowser extends Module {
             $arr = array();
             foreach($cols as $k=>$w) {
                 if (!isset($callbacks[$k])) $s = $this->get_val($field_hash[$w], $v, false, $this->table_rows[$field_hash[$w]]);
-                else $s = call_user_func($callbacks[$k], $v);
+                else $s = call_user_func($callbacks[$k], $v, false, $this->table_rows[$field_hash[$w]],$this->tab);
                 $arr[] = $s;
             }
             $gb_row->add_data_array($arr);
@@ -3004,23 +3006,12 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		foreach ($this->table_rows as $k=>$v)
 			$all_fields[$v['id']] = $k;
-		$js = '';
-		$operators = array(
-			'='=>__('equal'), 
-			'!'=>__('not equal'), 
-			'>'=>'>',
-			'>='=>'>=',
-			'<'=>'<',
-			'<='=>'<='
-		);
 
 		$form = $this->init_module('Libs_QuickForm');
 		$theme = $this->init_module('Base_Theme');
 		
 		$counts = array(
 			'clearance'=>5,
-			'ands'=>5,
-			'ors'=>10
 		);
 		
 		$actions = $this->get_permission_actions();
@@ -3028,49 +3019,9 @@ class Utils_RecordBrowser extends Module {
 		
 		$fields_permissions = $all_fields;
 
-		foreach ($all_fields as $k=>$v) {
-			if ($this->table_rows[$v]['type']=='calculated' || $this->table_rows[$v]['type']=='hidden') unset($all_fields[$k]);
-			else $this->manage_permissions_set_field_values($k);
-		}
-
-		$all_fields = array(
-			':Created_by'=>__('Created by'),
-			':Created_on'=>__('Created on'),
-			':Edited_on'=>__('Edited on')
-		) + $all_fields;
-		if ($this->tab=='contact' || $this->tab=='company')
-			$all_fields = array('id'=>__('ID')) + $all_fields;
-		
-		$this->manage_permissions_set_field_values(':Created_by', array('USER_ID'=>__('User Login')));
-		$this->manage_permissions_set_field_values(':Created_on', Utils_RecordBrowserCommon::$date_values);
-		$this->manage_permissions_set_field_values(':Edited_on', Utils_RecordBrowserCommon::$date_values);
-		if ($this->tab=='contact')
-			$this->manage_permissions_set_field_values('id', array('USER'=>__('User Contact')));
-		if ($this->tab=='company')
-			$this->manage_permissions_set_field_values('id', array('USER_COMPANY'=>__('User Company')));
-		
 		for ($i=0; $i<$counts['clearance']; $i++)
 			$form->addElement('select', 'clearance_'.$i, __('Clearance'), $all_clearances);
-		$current_or = array();
-		$current_and = 0;
-		
-		foreach ($all_fields as $k=>$v) {
-			if (isset($this->table_rows[$v])) {
-				$v = $this->table_rows[$v]['name'];
-			}
-			$all_fields[$k] = _V($v);
-		}
-		
-		for ($i=0; $i<$counts['ands']; $i++) {
-			$current_or[$i] = 0;
-			for ($j=0; $j<$counts['ors']; $j++) {
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_field', __('Crits'), array(''=>'---')+$all_fields, array('onchange'=>'utils_recordbrowser__update_field_values('.$i.', '.$j.');', 'id'=>'crits_'.$i.'_'.$j.'_field'));
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_op', __('Operator'), array(''=>'---')+$operators);
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_value', __('Value'), array(), array('id'=>'crits_'.$i.'_'.$j.'_value', 'onchange'=>'utils_recordbrowser__update_field_sub_values('.$i.', '.$j.');'));
-				$form->addElement('select', 'crits_'.$i.'_'.$j.'_sub_value', __('Subrecord Value'), array(), array('id'=>'crits_'.$i.'_'.$j.'_sub_value', 'style'=>'display:none;'));
-				$js .= 'utils_recordbrowser__update_field_values('.$i.', '.$j.');';
-			}
-		}
+
 		$defaults = array();
 		foreach ($fields_permissions as $k=>$v) {
 			$defaults['field_'.$k] = 1;
@@ -3088,52 +3039,15 @@ class Utils_RecordBrowser extends Module {
 			'add_and' => __('Add criteria (and)')
  		));
 		$current_clearance = 0;
-		$sub_values = array();
+        $crits = array();
 		if ($id!==null && $this->tab!='__RECORDSETS__' && !preg_match('/,/',$this->tab)) {
 			$row = DB::GetRow('SELECT * FROM '.$this->tab.'_access AS acs WHERE id=%d', array($id));
 			
 			$defaults['action'] = $row['action'];
 			$crits = unserialize($row['crits']);
-			$i = 0;
-			$j = 0;
-			$or = false;
-			$first = true;
-			foreach ($crits as $k=>$v) {
-				$operator = '=';
-				while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
-					if ($k[0]=='!') $operator = '!';
-					if ($k[0]=='(' && $or) $or = false;
-					if ($k[0]=='|') $or = true;
-					if ($k[0]=='<') $operator = '<';
-					if ($k[0]=='>') $operator = '>';
-					if ($k[0]=='~') $operator = DB::like();
-					if ($k[1]=='=' && $operator!=DB::like()) {
-						$operator .= '=';
-						$k = substr($k, 2);
-					} else $k = substr($k, 1);
-				}
-				if (!$first) {
-					if ($or) $j++;
-					else {
-						$current_or[$i] += $j;
-						$j = 0;
-						$i++;
-					}
-				} else {
-					$first = false;
-				}
-				$sub_value = null;
-				if (!isset($r[$k]) && $k[strlen($k)-1]==']') {
-					$sub_value = $v;
-					list($k, $v) = explode('[', trim($k, ']'));
-				}
-				$defaults['crits_'.$i.'_'.$j.'_field'] = $k;
-				$defaults['crits_'.$i.'_'.$j.'_op'] = $operator;
-				$js .= '$("crits_'.$i.'_'.$j.'_value").value = "'.$v.'";';
-				if ($sub_value!==null) $sub_values['crits_'.$i.'_'.$j.'_sub_value'] = $sub_value;
-			}
-			$current_or[$i] += $j;
-			$current_and += $i;
+            if (is_array($crits)) {
+                $crits = Utils_RecordBrowser_Crits::from_array($crits);
+            }
 			
 			$i = 0;
 			$tmp = DB::GetAll('SELECT * FROM '.$this->tab.'_access_clearance AS acs WHERE rule_id=%d', array($id));
@@ -3148,13 +3062,11 @@ class Utils_RecordBrowser extends Module {
 				unset($defaults['field_'.$t['block_field']]);
 			}
 		}
-		for ($i=0; $i<$counts['ands']; $i++)
-			for ($j=0; $j<$counts['ors']; $j++)
-				$js .= 'utils_recordbrowser__update_field_sub_values('.$i.', '.$j.');';
-		foreach ($sub_values as $k=>$v)
-			$js .= '$("'.$k.'").value = "'.$v.'";';
+        $qbi = new Utils_RecordBrowser_QueryBuilderIntegration($this->tab);
+        $qb = $qbi->get_builder_module($this, $crits);
+        $qb->add_to_form($form, 'qb_crits', __('Crits'), 'qb_crits_editor');
 
-		$form->setDefaults($defaults);
+        $form->setDefaults($defaults);
 		
 		if ($form->validate()) {
 			$vals = $form->exportValues();
@@ -3163,26 +3075,8 @@ class Utils_RecordBrowser extends Module {
 			$clearance = array();
 			for ($i=0; $i<$counts['clearance']; $i++)
 				if ($vals['clearance_'.$i]) $clearance[] = $vals['clearance_'.$i];
-			
-			$crits = array();
-			for ($i=0; $i<$counts['ands']; $i++) {
-				$or = '(';
-				for ($j=0; $j<$counts['ors']; $j++) {
-					if ($vals['crits_'.$i.'_'.$j.'_field'] && $vals['crits_'.$i.'_'.$j.'_op']) {
-						if (!isset($operators[$vals['crits_'.$i.'_'.$j.'_op']])) trigger_error('Fatal error',E_USER_ERROR);
-						if (!isset($all_fields[$vals['crits_'.$i.'_'.$j.'_field']])) trigger_error('Fatal error',E_USER_ERROR);
-						$op = $vals['crits_'.$i.'_'.$j.'_op'];
-						if ($op=='=') $op = '';
-						if (isset($vals['crits_'.$i.'_'.$j.'_sub_value'])) {
-							$vals['crits_'.$i.'_'.$j.'_field'] = $vals['crits_'.$i.'_'.$j.'_field'].'['.$vals['crits_'.$i.'_'.$j.'_value'].']';
-							$vals['crits_'.$i.'_'.$j.'_value'] = $vals['crits_'.$i.'_'.$j.'_sub_value'];
-						}
-						$next = array($or.$op.$vals['crits_'.$i.'_'.$j.'_field'] => $vals['crits_'.$i.'_'.$j.'_value']);
-						$crits = Utils_RecordBrowserCommon::merge_crits($crits, $next);
-					}
-					$or = '|';
-				}
-			}
+
+            $crits = $qbi->json_to_crits($vals['qb_crits']);
 
 			$blocked_fields = array();
 			foreach ($fields_permissions as $k=>$v) {
@@ -3197,12 +3091,7 @@ class Utils_RecordBrowser extends Module {
 			return false;
 		}
 		
-		eval_js($js);
-
 		eval_js('utils_recordbrowser__init_clearance('.$current_clearance.', '.$counts['clearance'].')');
-		eval_js('utils_recordbrowser__init_crits_and('.$current_and.', '.$counts['ands'].')');
-		for ($i=0; $i<$counts['ands']; $i++)
-				eval_js('utils_recordbrowser__init_crits_or('.$i.', '.$current_or[$i].', '.$counts['ors'].')');
 		eval_js('utils_recordbrowser__crits_initialized = true;');
 		
 		$form->assign_theme('form', $theme);
@@ -3225,89 +3114,6 @@ class Utils_RecordBrowser extends Module {
 			'export'=>__('Export'),
 			'selection'=>__('Selection')
 		);
-	}
-	
-	private function manage_permissions_set_field_values($field, $arr=null) {
-		if ($arr===null) {
-			$arr = $this->permissions_get_field_values($field, true);
-		}
-		foreach ($arr as $k=>$v)
-			$arr[$k] = '"'.$k.'":"'.$v.'"';
-		eval_js('utils_recordbrowser__field_values["'.$field.'"] = {'.implode(',',$arr).'};');
-	}
-	
-	private function permissions_get_field_values($field, $in_depth=true) {
-		static $all_fields = array();
-		if (!isset($all_fields[$this->tab]))
-			foreach ($this->table_rows as $k=>$v)
-				$all_fields[$this->tab][$v['id']] = $k;
-		$args = $this->table_rows[$all_fields[$this->tab][$field]];
-		$arr = array(''=>'['.__('Empty').']');
-		switch (true) {
-			case $args['type']=='text' && $args['filter']:
-				$arr_add = @DB::GetAssoc('SELECT f_'.$args['id'].', f_'.$args['id'].' FROM '.$this->tab.'_data_1 GROUP BY f_'.$args['id'].' ORDER BY count(*) DESC LIMIT 20');
-				if($arr_add) $arr += $arr_add;
-				break;
-			case $args['commondata']:
-				$array_id = is_array($args['param']) ? $args['param']['array_id'] : $args['ref_table'];
-				if (strpos($array_id, '::')===false) 
-					$arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, is_array($args['param'])?$args['param']['order_by_key']:false);
-				break;
-			case $this->tab=='contact' && $field=='login' ||
-				 $this->tab=='rc_accounts' && $field=='epesi_user': // just a quickfix, better solution will be needed
-				$arr = $arr + array('USER_ID'=>__('User Login'));
-				break;
-			case $args['type']=='date' || $args['type']=='timestamp':
-				$arr = $arr + Utils_RecordBrowserCommon::$date_values;
-				break;
-			case ($args['type']=='multiselect' || $args['type']=='select') && (!isset($args['ref_table']) || !$args['ref_table']):
-				$arr = $arr + array('USER'=>__('User Contact'));
-				$arr = $arr + array('USER_COMPANY'=>__('User Company'));
-				break;
-			case $args['type']=='checkbox':
-				$arr = array('1'=>__('Yes'),'0'=>__('No'));
-				break;
-			case ($args['type']=='select' || $args['type']=='multiselect') && isset($args['ref_table']):
-				if ($args['ref_table']=='contact') $arr = $arr + array('USER'=>__('User Contact'));
-				if ($args['ref_table']=='company') $arr = $arr + array('USER_COMPANY'=>__('User Company'));
-				if (!$in_depth) continue;
-                                if($args['type']=='multiselect')
-                                    $arr = $arr + array('ACCESS_VIEW'=>_('Allow view any record'),'ACCESS_VIEW_ALL'=>_('Allow view all records'),'ACCESS_EDIT'=>_('Allow edit any record'),'ACCESS_EDIT_ALL'=>_('Allow edit all records'),'ACCESS_PRINT'=>_('Allow print any record'),'ACCESS_PRINT_ALL'=>_('Allow print all records'),'ACCESS_DELETE'=>_('Allow delete any record'),'ACCESS_DELETE_ALL'=>_('Allow delete all records'));
-                                else
-                                    $arr = $arr + array('ACCESS_VIEW'=>_('Allow view record'),'ACCESS_EDIT'=>_('Allow edit record'),'ACCESS_PRINT'=>_('Allow print record'),'ACCESS_DELETE'=>_('Allow delete record'));
-
-				$last_tab = $this->tab;
-                $tabs = explode(',', $args['ref_table']);
-                if (count($tabs) != 1) break;
-                $one_tab = reset($tabs);
-                if ($one_tab != '__RECORDSETS__'
-                        && Utils_RecordBrowserCommon::check_table_name($one_tab, false, false)) {
-                    $this->tab = $one_tab;
-                    $this->init();
-                    if (!isset($all_fields[$this->tab]))
-                        foreach ($this->table_rows as $k=>$v)
-                            $all_fields[$this->tab][$v['id']] = $k;
-
-
-                    foreach ($all_fields[$this->tab] as $k=>$v) {
-                        if ($this->table_rows[$v]['type']=='calculated' || $this->table_rows[$v]['type']=='hidden') unset($all_fields[$this->tab][$k]);
-                        else {
-                            $arr2 = $this->permissions_get_field_values($k, false, $this->tab);
-                            foreach ($arr2 as $k2=>$v2)
-                                $arr2[$k2] = '"'.$k2.'":"'.$v2.'"';
-                            eval_js('utils_recordbrowser__field_sub_values["'.$field.'__'.$k.'"] = {'.implode(',',$arr2).'};');
-                        }
-                    }
-                    foreach ($all_fields[$this->tab] as $k=>$v) {
-                        $arr[$k] = __(' records with %s set to ', array(_V($v)));
-                    }
-                }
-
-				$this->tab = $last_tab;
-				$this->init();
-				break;
-		}
-		return $arr;
 	}
 }
 ?>

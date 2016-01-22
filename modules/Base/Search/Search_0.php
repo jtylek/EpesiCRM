@@ -42,9 +42,11 @@ class Base_Search extends Module {
 		            $checked = isset($cat_name['checked']) && $cat_name['checked'];
 		            $cat_name = $cat_name['caption'];
 		        }
-		        $search_categories_checkboxes[] = $form->createElement('checkbox', $mod.'#'.$cat_id,  '', $cat_name);
-		        if(isset($categories_tmp[$mod.'#'.$cat_id]) || $checked)
-		            $defaults['search_categories'][$mod.'#'.$cat_id]=1;
+		        $search_categories_checkboxes[] = $form->createElement('advcheckbox', $mod.'#'.$cat_id,  '', $cat_name);
+				if (isset($categories_tmp[$mod . '#' . $cat_id])) {
+					$checked = $categories_tmp[$mod . '#' . $cat_id];
+				}
+				$defaults['search_categories'][$mod . '#' . $cat_id] = $checked;
 		    }
 		}
 		$form->addGroup($search_categories_checkboxes,'search_categories','','</li><li>');
@@ -71,12 +73,14 @@ class Base_Search extends Module {
 			if($keyword) {
 				$categories_tmp = $form->exportValue('search_categories');
 				$categories = array();
-				if($categories_tmp) foreach($categories_tmp as $cat=>$val) {
-					list($mod,$cat_id) = explode('#',$cat,2);
-					if(!isset($categories[$mod])) $categories[$mod] = array();
-					$categories[$mod][]=$cat_id;
+				if ($categories_tmp) {
+					foreach ($categories_tmp as $cat => $val) {
+						if (!$val) continue;
+						list($mod,$cat_id) = explode('#',$cat,2);
+						if(!isset($categories[$mod])) $categories[$mod] = array();
+						$categories[$mod][]=$cat_id;
+					}
 				}
-				unset($categories_tmp);
 				$links = array();
 				$this->set_module_variable('quick_search',$keyword);
 				$count = 0;

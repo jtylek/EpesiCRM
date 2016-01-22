@@ -11,14 +11,16 @@ class Utils_RecordBrowser_QueryBuilder
     protected $applied_joins = array();
     protected $final_tab;
     protected $tab_alias;
-    protected $joint_tables_cnt = array();
+    protected $subqueries_tab_ids = array();
+    protected $admin_mode = false;
 
-    function __construct($tab, $tab_alias = 'rest')
+    function __construct($tab, $tab_alias = 'rest', $admin_mode = false)
     {
         $this->tab = $tab;
         $this->fields = Utils_RecordBrowserCommon::init($tab);
         $this->fields_by_id = Utils_RecordBrowserCommon::$hash;
         $this->tab_alias = $tab_alias;
+        $this->admin_mode = $admin_mode;
     }
 
     public function build_query(Utils_RecordBrowser_Crits $crits, $order = array(), $admin_filter = '')
@@ -119,28 +121,42 @@ class Utils_RecordBrowser_QueryBuilder
                         $orderby[] = ' (SELECT MAX(visited_on) FROM '.$this->tab.'_recent WHERE '.$this->tab.'_id='.$this->tab_alias.'.id AND user_id='.$user_id.') '.$v['direction'];
                         break;
                     case ':Edited_on'   :
-                        $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) ELSE created_on END) '.$v['direction'];
+                        $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) ELSE ' . $this->tab_alias . '.created_on END) '.$v['direction'];
                         break;
                     default     :
                         $orderby[] = ' '.substr($v['order'], 1).' ' . $v['direction'];
                 }
             } else {
                 $field_def = $this->get_field_definition($v['order']);
-                $field_sql_id = 'f_' . $field_def['id'];
+                $field_sql_id = $this->tab_alias . '.f_' . $field_def['id'];
                 if (isset($field_def['ref_table']) && $field_def['ref_table'] != '__COMMON__') {
                     $tab2 = $field_def['ref_table'];
                     $cols2 = $field_def['ref_field'];
                     $cols2 = explode('|', $cols2);
                     $cols2 = $cols2[0];
                     $field_id = Utils_RecordBrowserCommon::get_field_id($cols2);
-                    $val = '(SELECT rdt.f_'.$field_id.' FROM '.$this->tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.'.$field_sql_id.' WHERE '.$this->tab_alias.'.id=rd.id)';
+                    $val = '(SELECT rdt.f_'.$field_id.' FROM '.$this->tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.$field_def['id'].' WHERE '.$this->tab_alias.'.id=rd.id)';
                     $orderby[] = ' '.$val.' '.$v['direction'];
+                } elseif ($field_def['commondata']) {
+                    $sort = $field_def['commondata_order'];
+                    $sorted = false;
+                    if ($sort == 'position' || $sort == 'value') {
+                        $sort_field = $sort == 'position' ? 'position' : 'value';
+                        $parent_id = Utils_CommonDataCommon::get_id($field_def['commondata_array']);
+                        if ($parent_id) {
+                            $orderby[] = " (SELECT $sort_field FROM utils_commondata_tree AS uct WHERE uct.parent_id=$parent_id AND uct.akey=$field_sql_id) " . $v['direction'];
+                            $sorted = true;
+                        }
+                    }
+                    if ($sorted == false) { // key or if position or value failed
+                        $orderby[] = ' '.$field_sql_id.' '.$v['direction'];
+                    }
                 } else {
                     if ($field_def['type'] == 'currency') {
                         if (DB::is_mysql()) {
                             $field_sql_id = "CAST($field_sql_id as DECIMAL(64,5))";
                         } elseif (DB::is_postgresql()) {
-                            $field_sql_id = "CAST(split_part($field_sql_id, '__', 1) as DECIMAL)";
+                            $field_sql_id = "CAST(COALESCE(NULLIF(split_part($field_sql_id, '__', 1),''),'0') as DECIMAL)";
                         }
                     }
                     $orderby[] = ' '.$field_sql_id.' '.$v['direction'];
@@ -304,7 +320,7 @@ class Utils_RecordBrowser_QueryBuilder
         if (!$value) {
             $sql = "$field IS NULL OR $field=''";
         } else {
-            $sql = "$field $operator %s";
+            $sql = "$field $operator %s AND $field IS NOT NULL";
             $vals[] = $value;
         }
         return array($sql, $vals);
@@ -323,7 +339,7 @@ class Utils_RecordBrowser_QueryBuilder
         if ($value === '' || $value === null || $value === false) {
             $sql = "$field IS NULL";
         } else {
-            $sql = "$field $operator %d";
+            $sql = "$field $operator %d AND $field IS NOT NULL";
             $vals[] = $value;
         }
         return array($sql, $vals);
@@ -342,7 +358,7 @@ class Utils_RecordBrowser_QueryBuilder
         if ($value === '' || $value === null || $value === false) {
             $sql = "$field IS NULL";
         } else {
-            $sql = "$field $operator %f";
+            $sql = "$field $operator %f AND $field IS NOT NULL";
             $vals[] = $value;
         }
         return array($sql, $vals);
@@ -357,19 +373,16 @@ class Utils_RecordBrowser_QueryBuilder
             if (DB::is_postgresql()) $field .= '::varchar';
             return array("$field $operator %s", array($value));
         }
-        $vals = array();
-        if (!$value) {
-            if ($operator == '=') {
-                $sql = "$field IS NULL OR $field=%b";
-            } else {
-                $sql = "$field IS NOT NULL OR $field!=%b";
-            }
-            $vals[] = false;
+        if ($operator == '!=') {
+            $sql = $value ?
+                    "$field IS NULL OR $field!=%b" :
+                    "$field IS NOT NULL AND $field!=%b";
         } else {
-            $sql = "$field $operator %b";
-            $vals[] = $value;
+            $sql = $value ?
+                    "$field IS NOT NULL AND $field=%b" :
+                    "$field IS NULL OR $field=%b";
         }
-        return array($sql, $vals);
+        return array($sql, array($value ? true : false));
     }
 
     protected function hf_date($field, $operator, $value, $raw_sql_val)
@@ -475,10 +488,9 @@ class Utils_RecordBrowser_QueryBuilder
 
         if ($sub_field && $single_tab && $tab2) {
             $col2 = explode('|', $sub_field);
-            $tab_alias_id = & $this->joint_tables_cnt[$tab2];
-            $tab_alias_id += 1;
+            if (!isset($this->subqueries_tab_ids[$tab2])) $this->subqueries_tab_ids[$tab2] = 0;
+            $tab_alias_id = $this->subqueries_tab_ids[$tab2]++;
             $nested_tab_alias = $this->tab_alias . '_' . $tab2 . '_' . $tab_alias_id;
-            $CB = new Utils_RecordBrowser_QueryBuilder($tab2, $nested_tab_alias);
             $crits = new Utils_RecordBrowser_Crits();
             foreach ($col2 as $col) {
                 $col = $col[0] == ':' ? $col : Utils_RecordBrowserCommon::get_field_id(trim($col));
@@ -487,12 +499,12 @@ class Utils_RecordBrowser_QueryBuilder
                 }
             }
             if (!$crits->is_empty()) {
-                $subquery = $CB->build_query($crits);
+                $subquery = Utils_RecordBrowserCommon::build_query($tab2, $crits, $this->admin_mode, array(), $nested_tab_alias);
                 $on_rule = $multiselect
                     ? "$field LIKE CONCAT('%\\_\\_', $nested_tab_alias.id, '\\_\\_%')"
                     : "$field = $nested_tab_alias.id";
-                $this->final_tab .= ' LEFT JOIN (' . $subquery['tab'] . ") ON $on_rule";
-                return array($subquery['where'], $subquery['vals']);
+                $sql = "EXISTS (SELECT 1 FROM $subquery[sql] AND $on_rule)";
+                $vals = $subquery['vals'];
             }
         } else {
             if ($raw_sql_val) {
@@ -558,7 +570,7 @@ class Utils_RecordBrowser_QueryBuilder
         $sql = array();
         $vals = array();
         foreach ($final_vals as $val) {
-            $sql[] = "$field $operator %s";
+            $sql[] = "($field $operator %s AND $field IS NOT NULL)";
             if ($multiselect) {
                 $val = "%\\_\\_{$val}\\_\\_%";
             }
@@ -578,6 +590,11 @@ class Utils_RecordBrowser_QueryBuilder
         $operator = self::transform_meta_operators_to_sql($crit->get_operator());
         $raw_sql_val = $crit->get_raw_sql_value();
         $value = $crit->get_value();
+        $negation = $crit->get_negation();
+        if ($operator == '!=') {
+            $operator = '=';
+            $negation = !$negation;
+        }
         if (is_array($value)) { // for empty array it will give empty result
             $sql[] = 'false';
         } else {
@@ -585,7 +602,10 @@ class Utils_RecordBrowser_QueryBuilder
         }
         foreach ($value as $w) {
             $vv = explode('::',$w,2);
-            if(isset($vv[1]) && is_callable($vv)) continue;
+            if(isset($vv[1]) && is_callable($vv)) {
+                $sql[] = 'true';
+                continue;
+            }
             
             $args = array($field_sql_id, $operator, $w, $raw_sql_val, $field_def);
             list($sql2, $vals2) = call_user_func_array($callback, $args);
@@ -595,7 +615,7 @@ class Utils_RecordBrowser_QueryBuilder
             }
         }
         $sql_str = implode(' OR ', $sql);
-        if ($sql_str && $crit->get_negation()) {
+        if ($sql_str && $negation) {
             $sql_str = "NOT ($sql_str)";
         }
         return array($sql_str, $vals);

@@ -49,17 +49,17 @@ class Utils_RecordBrowser_CritsValidator
         $field = ltrim(Utils_RecordBrowserCommon::get_field_id($field), '_');
         $subfield = ltrim(Utils_RecordBrowserCommon::get_field_id($subfield), '_');
         $r_val = isset($record[$field]) ? $record[$field] : '';
-        $v = $crits->get_value();
+        $crit_value = $crits->get_value();
         $field_definition = $this->get_field_definition($field);
         if ($subfield && $field_definition) {
             $sub_tab = isset($field_definition['ref_table']) ? $field_definition['ref_table'] : false;
             if ($sub_tab) {
                 if (is_array($r_val)) {
                     foreach ($r_val as $k => $v) {
-                        $r_val[$k] = Utils_RecordBrowserCommon::get_value($this->tab, $v, $subfield);
+                        $r_val[$k] = Utils_RecordBrowserCommon::get_value($sub_tab, $v, $subfield);
                     }
                 } else {
-                    if ($r_val) $r_val = Utils_RecordBrowserCommon::get_value($this->tab, $r_val, $subfield);
+                    if ($r_val) $r_val = Utils_RecordBrowserCommon::get_value($sub_tab, $r_val, $subfield);
                     else $r_val = '';
                     if (substr($r_val, 0, 2)=='__') $r_val = Utils_RecordBrowserCommon::decode_multi($r_val); // FIXME need better check
                 }
@@ -84,32 +84,44 @@ class Utils_RecordBrowser_CritsValidator
                 $transform_date = 'date';
             }
         }
-        if ($transform_date == 'timestamp' && $v) {
-            $v = Base_RegionalSettingsCommon::reg2time($v, false);
-            $v = date('Y-m-d H:i:s', $v);
-        } else if ($transform_date == 'date' && $v) {
-            $v = Base_RegionalSettingsCommon::reg2time($v, false);
-            $v = date('Y-m-d', $v);
+        if ($transform_date == 'timestamp' && $crit_value) {
+            $crit_value = Base_RegionalSettingsCommon::reg2time($crit_value, false);
+            $crit_value = date('Y-m-d H:i:s', $crit_value);
+        } else if ($transform_date == 'date' && $crit_value) {
+            $crit_value = Base_RegionalSettingsCommon::reg2time($crit_value, false);
+            $crit_value = date('Y-m-d', $crit_value);
         }
 
-        $vv = explode('::',$v,2);
+        $vv = explode('::',$crit_value,2);
         if (isset($vv[1]) && is_callable($vv)) {
-            $v = call_user_func_array($vv, array($this->tab, &$record, $k, $crits));
-        }
-        if (is_array($record[$k])) {
-            if ($v) $result = in_array($v, $record[$k]);
-            else $result = empty($record[$k]);
-        }
-        else switch ($crits->get_operator()) {
-            case '>': $result = ($record[$k] > $v); break;
-            case '>=': $result = ($record[$k] >= $v); break;
-            case '<': $result = ($record[$k] < $v); break;
-            case '<=': $result = ($record[$k] <= $v); break;
-            case '=': $result = ($record[$k] == $v);
+            $result = call_user_func_array($vv, array($this->tab, &$record, $k, $crits));
+        } else {
+            if (is_array($record[$k])) {
+                if ($crit_value) $result = in_array($crit_value, $record[$k]);
+                else $result = empty($record[$k]);
+                if ($crits->get_operator() == '!=') $result = !$result;
+            }
+            else switch ($crits->get_operator()) {
+                case '>': $result = ($record[$k] > $crit_value); break;
+                case '>=': $result = ($record[$k] >= $crit_value); break;
+                case '<': $result = ($record[$k] < $crit_value); break;
+                case '<=': $result = ($record[$k] <= $crit_value); break;
+                case '!=': $result = ($record[$k] != $crit_value); break;
+                case '=': $result = ($record[$k] == $crit_value); break;
+                case 'LIKE': $result = self::check_like_match($record[$k], $crit_value); break;
+                case 'NOT LIKE': $result = !self::check_like_match($record[$k], $crit_value); break;
+            }
         }
         if ($crits->get_negation()) $result = !$result;
         if (!$result) $this->issues[] = $k;
         return $result;
+    }
+
+    public static function check_like_match($value, $pattern, $ignore_case = true)
+    {
+        $pattern = str_replace(array('_', '%'), array('.', '.*'), $pattern);
+        $pattern = "/^$pattern\$/" . ($ignore_case ? "i" : "");
+        return preg_match($pattern, $value) > 0;
     }
 
     protected function validate_compound(Utils_RecordBrowser_Crits $crits, $record)
@@ -137,6 +149,16 @@ class Utils_RecordBrowser_CritsValidator
             $success = !$success;
         }
         return $success;
+    }
+
+    protected function validate_sql(Utils_RecordBrowser_CritsRawSQL $crits, $record)
+    {
+        $sql = $crits->get_negation() ? $crits->get_negation_sql() : $crits->get_sql();
+        if ($sql) {
+            $sql = "AND $sql";
+        }
+        $ret = DB::GetOne("SELECT 1 FROM {$this->tab}_data_1 WHERE id=%d $sql", array($record['id']));
+        return $ret ? true : false;
     }
 
     protected function get_field_definition($field_id_or_label)

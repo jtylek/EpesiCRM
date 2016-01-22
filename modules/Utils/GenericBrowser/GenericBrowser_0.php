@@ -743,6 +743,7 @@ class Utils_GenericBrowser extends Module {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
 					$this->form_s->addElement('text','search',__('Keyword'), array('id'=>'gb_search_field', 'placeholder'=>__('search keyword...'), 'x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$this->form_s->get_submit_form_js()));
+					eval_js('jq("#gb_search_field").focus()');
 					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:''));
 					$search_on=true;
 					break;

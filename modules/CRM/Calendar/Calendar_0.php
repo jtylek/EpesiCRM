@@ -54,12 +54,15 @@ class CRM_Calendar extends Module {
 		$this->lp = $this->init_module('Utils_LeightboxPrompt');
 		$count = 0;
 		foreach ($handlers as $v) {
-			$v['handler_callback'] = explode('::', $v['handler_callback']);
-			$new_events = call_user_func($v['handler_callback'], 'new_event_types');
-			if ($new_events!==null) foreach($new_events as $k=>$w) {
-				if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
-				$this->lp->add_option('new_event__'.$v['id'].'__'.$k, $w['label'], $w['icon'], null);
-				$count++;
+			$callback = explode('::', $v['handler_callback']);
+			if (!is_callable($callback)) continue;
+			$new_events = call_user_func($callback, 'new_event_types');
+			if ($new_events!==null) {
+				foreach($new_events as $k=>$w) {
+					if (!is_array($w)) $w = array('label'=>$w, 'icon'=>null);
+					$this->lp->add_option('new_event__'.$v['id'].'__'.$k, $w['label'], $w['icon'], null);
+					$count++;
+				}
 			}
 		}
 		if ($count<2) {
@@ -222,7 +225,7 @@ class CRM_Calendar extends Module {
 			$gb_row->add_data(
 				array(
 					'value'=>$date, 
-					'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']
+					'order_value'=> (isset($row['timeless']) && $row['timeless']) ? strtotime($row['timeless']) : $row['start']
 				),
 				array(
 					'value'=>$view_action.$title.'</a>'

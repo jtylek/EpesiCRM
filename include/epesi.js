@@ -41,6 +41,9 @@ var Epesi = {
 			jQuery.each(this.forms, function(f) {
 				if (!jQuery('#'+f).length) Epesi.confirmLeave.deactivate(f);
 			});
+			jQuery.each(this.forms_freezed, function(f) {
+				if (!jQuery('#'+f).length) Epesi.confirmLeave.deactivate(f);
+			});
 			//check if there is any not freezed form with changed values to confirm leave
             var requires_confirmation = false;
             if (Object.keys(this.forms).length) {
@@ -82,6 +85,7 @@ var Epesi = {
             }
             // on change add changed-input class
             jQuery('#' + f).on('change', 'input, textarea, select', function (e) {
+				if (e.originalEvent === undefined) return;
                 var el = jQuery(this);
                 el.addClass('changed-input');
                 var form = f in Epesi.confirmLeave.forms ? Epesi.confirmLeave.forms[f] : Epesi.confirmLeave.forms_freezed[f];
@@ -192,8 +196,8 @@ var Epesi = {
 			}
 		});
 	},
-	href: function(url,indicator,mode) {
-		if (!Epesi.confirmLeave.check()) return;
+	href: function(url,indicator,mode,disableConfirmLeave) {
+		if (typeof disableConfirmLeave == 'undefined' && !Epesi.confirmLeave.check()) return;
 		if(Epesi.procOn==0 || mode=='allow'){
 			if(indicator=='') indicator=Epesi.default_indicator;
 			Epesi.updateIndicatorText(indicator);

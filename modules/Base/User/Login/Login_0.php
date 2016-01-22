@@ -40,7 +40,7 @@ class Base_User_Login extends Module {
 		$this->theme->assign('is_logged_in', Acl::is_user());
 		$this->theme->assign('is_demo', DEMO_MODE);
 		if (SUGGEST_DONATION) {
-			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/cost" target="_blank">'.__('donation').'</a>')).'<br>'.__('Your funding will help to ensure continued development of this project.'));
+			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/donate/" target="_blank">'.__('donation').'</a>')).'<br>'.__('Your funding will help to ensure continued development of this project.'));
 		}
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {

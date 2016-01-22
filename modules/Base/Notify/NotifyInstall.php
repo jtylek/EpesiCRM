@@ -17,9 +17,11 @@ class Base_NotifyInstall extends ModuleInstall {
 		DB::Execute('DROP TABLE IF EXISTS base_notify');
 
         DB::CreateTable('base_notify','
-			token C(64) NOTNULL PRIMARY KEY,
+			token C(32) NOTNULL PRIMARY KEY,
 			cache X,
-			last_refresh I8');
+			last_refresh I8,
+			single_cache_uid I,
+			telegram I1 DEFAULT 0',array('constraints' => ', FOREIGN KEY (single_cache_uid) REFERENCES user_login(id)'));
 		
 		if(!$ret){
 			print('Unable to create table base_notify.<br>');

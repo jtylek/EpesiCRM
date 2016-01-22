@@ -32,8 +32,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	public function settings() {
 		$form = $this->init_module(Libs_QuickForm::module_name(),null,'language_setup');
 
-		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
-		$langs = array_combine($ls_langs,$ls_langs);
+		$langs = Base_LangCommon::get_installed_langs();
 		$form->addElement('select','lang_code',__('Default language'), $langs, array('onchange'=>$form->get_submit_form_js()));
 		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
 			$form->freeze('lang_code');

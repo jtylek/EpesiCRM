@@ -116,31 +116,12 @@ class CRM_Roundcube extends Module {
  		                    array('name'=>'Size')),$data,false,null,array('Filename'=>'ASC')),'simple_table');
     }
 
-    public function reload_mails($id) {
-        $contact = CRM_ContactsCommon::get_contact($id);
-        $emails = array($contact['email']);
-
-        $multiple = Utils_RecordBrowserCommon::get_records('rc_multiple_emails',array('record_type'=>'contact','record_id'=>$id));
-        foreach($multiple as $multi) $emails[] = $multi['email'];
-        $emails = array_unique($emails);
-
-        foreach($emails as $email) {
-            $cc = Utils_RecordBrowserCommon::get_records('rc_mails',array('(~from'=>'%'.$email.'%','|~to'=>'%'.$email.'%'));
-
-            foreach($cc as $mail) {
-                if($mail['employee']==$id || in_array('P:'.$id,$mail['contacts'])) continue;
-                $mail['contacts'][] = 'P:'.$id;
-                Utils_RecordBrowserCommon::update_record('rc_mails',$mail['id'],array('contacts'=>$mail['contacts']));
-                CRM_RoundcubeCommon::create_thread($mail['id']);
-            }
-        }
-    }
-
     public function addon($arg, $rb) {
         $rs = $rb->tab;
         $id = $arg['id'];
-        if($rs=='contact' && Base_AclCommon::i_am_admin()) {
-            Base_ActionBarCommon::add('reload',__('Reload mails'),$this->create_callback_href(array($this,'reload_mails'),$arg['id']));
+        if($rs=='contact' || $rs=='company') {
+            $emails = CRM_RoundcubeCommon::get_email_addresses($rs,$arg);
+            if($emails) Base_ActionBarCommon::add('reload', __('Reload mails'), $this->create_callback_href(array('CRM_RoundcubeCommon', 'reload_mails'), array($rs, $id, $emails)));
         }
         if(isset($_SESSION['rc_mails_cp']) && is_array($_SESSION['rc_mails_cp']) && !empty($_SESSION['rc_mails_cp'])) {
             $ok = true;
@@ -331,7 +312,7 @@ class CRM_Roundcube extends Module {
             $cell_id = 'mailaccount_'.$opts['id'].'_'.$row['id'];
 
             //interval execution
-            eval_js_once('setInterval(\'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' , 0)\',300000)');
+            eval_js_once('setInterval(\'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' , 0)\',200000)');
 
             //and now
             $update_applet .= 'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' ,1);';

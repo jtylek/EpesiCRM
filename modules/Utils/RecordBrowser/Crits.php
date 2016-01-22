@@ -6,14 +6,49 @@ abstract class Utils_RecordBrowser_CritsInterface
 {
     protected static $replace_callbacks = array();
 
+    /**
+     * Make sure that all crits do not use negation. Reverse operators and logic
+     * operators according to De Morgan's laws
+     *
+     * @return mixed
+     */
     abstract function normalize();
+
+    /**
+     * Replace crits value to other value or disable crits that uses this value.
+     *
+     * Object will be changed! Clone it before use if you'd like to hold
+     * original one.
+     *
+     * @param mixed $search
+     * @param mixed $replace
+     * @param bool  $deactivate pass true and null as replace to disable crit
+     */
     abstract function replace_value($search, $replace, $deactivate = false);
+
+    /**
+     * Method to lookup in crits for certain fields crits or crits objects
+     *
+     * @param string|object $key key to find or crits object
+     *
+     * @return array Crits objects in array that matches $key
+     */
+    abstract function find($key);
 
     public static function register_special_value_callback($callback)
     {
         self::$replace_callbacks[] = $callback;
     }
 
+    /**
+     * Replace all registered special values.
+     *
+     * Object will be cloned. Current object will not be changed.
+     *
+     * @param bool $human_readable Use special value or it's human readable form
+     *
+     * @return Utils_RecordBrowser_CritsInterface New object with replaced values
+     */
     public function replace_special_values($human_readable = false)
     {
         $new = clone $this;
@@ -153,6 +188,14 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
             $this->set_negation(false);
             $this->operator = self::opposite_operator($this->operator);
         }
+    }
+
+    public function find($key)
+    {
+        if ($this->field == $key) {
+            return $this;
+        }
+        return null;
     }
 
     /**
@@ -307,6 +350,11 @@ class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
         }
     }
 
+    public function find($key)
+    {
+        return null;
+    }
+
 }
 
 class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
@@ -353,6 +401,31 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
         foreach ($this->component_crits as $c) {
             $c->normalize();
         }
+    }
+
+    public function find($key)
+    {
+        $ret = array();
+        foreach ($this->get_component_crits() as $cc) {
+            if (is_object($key)) {
+                if ($cc == $key) {
+                    $ret[] = $cc;
+                } elseif ($cc instanceof Utils_RecordBrowser_Crits) {
+                    $crit = $cc->find($key);
+                    if (is_array($crit)) {
+                        $ret = array_merge($ret, $crit);
+                    }
+                }
+            } else {
+                $crit = $cc->find($key);
+                if (is_array($crit)) {
+                    $ret = array_merge($ret, $crit);
+                } elseif (!is_null($crit)) {
+                    $ret[] = $crit;
+                }
+            }
+        }
+        return $ret ? $ret : null;
     }
 
     public function is_empty()

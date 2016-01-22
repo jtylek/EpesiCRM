@@ -161,7 +161,21 @@ class Base_User_LoginCommon extends ModuleCommon {
         // long as from_addr field
         $ip = get_client_ip_address();
         $param = $login ? md5($login . $ip) : $ip;
-        
+
+		// Hidden feature to allow login only from desired IP
+		// TODO: add GUI
+		// Example:
+		// $allowed_ip = array('user_1' => array('1.2.3.4', '5.6.7.8'), 'user_2' => array('2.3.4.5', '3.4.5.6'));
+		// Variable::set('allowed_ip_login', $allowed_ip);
+		$allowed_ip = Variable::get('allowed_ip_login', false);
+		if ($allowed_ip) {
+			// use '' key to match all users
+			if (isset($allowed_ip[''])) $login = '';
+			if (isset($allowed_ip[$login])) {
+				if (!in_array($ip, $allowed_ip[$login])) return true; // is banned
+			}
+		}
+
         // allow to inject time parameter
         if (!$current_time) $current_time = time();
 		if($tries > 0 && $time_seconds > 0) {
@@ -187,7 +201,8 @@ class Base_User_LoginCommon extends ModuleCommon {
             // we have to option to ban - by ip or by login. In both cases
             // from_addr column is used to store ip or login name
             $ban_by_login = Variable::get('host_ban_by_login', false);
-            $param = $ban_by_login ? md5($login . $_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+			$ip = get_client_ip_address();
+            $param = $ban_by_login ? md5($login . $ip) : $ip;
             $current_time = time();
             DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d', array($current_time - $ban_seconds));
             DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)', array($current_time, $param));
@@ -217,13 +232,24 @@ class Base_User_LoginCommon extends ModuleCommon {
 		Acl::set_user(null, true);
 		return false;
 	}
+
+	public static function clean_old_autologins()
+	{
+		DB::Execute('DELETE FROM user_autologin WHERE last_log<%T', array(strtotime('-30 days')));
+	}
 	
-	public static function new_autologin_id() {
+	public static function new_autologin_id($old_autologin_id = null)
+	{
 		$uid = Acl::get_user();
 		$user = Base_UserCommon::get_my_user_login();
 		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
 		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
-		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)',array($uid,$autologin_id,$_SERVER['REMOTE_ADDR'],time()));
+		$ip = get_client_ip_address();
+		if ($old_autologin_id) {
+			DB::Execute('DELETE FROM user_autologin WHERE user_login_id=%d AND autologin_id=%s', array($uid, $old_autologin_id));
+		}
+		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)', array($uid, $autologin_id, $ip, time()));
+		self::clean_old_autologins();
 	}
 
     public static function is_autologin_forbidden()
@@ -240,9 +266,8 @@ class Base_User_LoginCommon extends ModuleCommon {
 				$ret = DB::GetOne('SELECT 1 FROM user_login u JOIN user_autologin p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1 AND p.autologin_id=%s', array($user,$autologin_id));
 				if($ret) {
 					Base_User_LoginCommon::set_logged($user);
-                        		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
-                        		DB::Execute('UPDATE user_autologin SET last_log=%T WHERE user_login_id=%d AND autologin_id=%s',array(time(),Acl::get_user(),$autologin_id));
-                        		return true;
+					self::new_autologin_id($autologin_id);
+					return true;
 				}
 			}
 		}
@@ -252,7 +277,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 	public static function mobile_login() {
 		$t = Variable::get('host_ban_time');
 		if($t>0) {
-			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
+			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,get_client_ip_address()));
 			if($fails>=3) {
 				print(__('You have exceeded the number of allowed login attempts.').'<br>');
 				print('<a href="'.get_epesi_url().'">'.__('Host banned. Click here to refresh.').'</a>');

@@ -61,7 +61,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 			$form->addRule('mail_host', __('Field required'),'required');
             
             $form->addElement('select', 'mail_security', __('Security'),
-                    array('' => __('None'), 'ssl' => 'SSL', 'tls' => 'TLS'));
+                    array('' => __('None'), 'ssl' => 'SSL', 'ssl_ssc'=>'SSL (self signed certificate)', 'tls' => 'TLS', 'tls_ssc' => 'TLS (self signed certificate)'));
 			
 			$form->addElement('checkbox','mail_auth', __('SMTP authorization'),'','onChange="'.$form->get_submit_form_js(false).'"');
 			

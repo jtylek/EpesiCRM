@@ -7,24 +7,16 @@
 			{$form_data.recordsets.label}
 		</td>
 		<td class="epesi_label" style="width:150px;">
-			{$form_data.user.label}
+			{$form_data.start_date.label}
 		</td>
 		<td class="epesi_data" colspan="3" style="width:250px;">
-			{$form_data.user.html}
+			{$form_data.start_date.html}
 		</td>
 	</tr>
 	<tr>
 		<td class="epesi_data multiselect" rowspan="5">
 			{$form_data.recordsets.html}
 		</td>
-		<td class="epesi_label">
-			{$form_data.start_date.label}
-		</td>
-		<td class="epesi_data" colspan="3">
-			{$form_data.start_date.html}
-		</td>
-	</tr>
-	<tr>
 		<td class="epesi_label">
 			{$form_data.end_date.label}
 		</td>
@@ -60,6 +52,23 @@
 			{$form_data.file.html}
 		</td>
 	</tr>
+	{if $form_data.user}
+		<tr>
+			<td class="epesi_label">
+				{$form_data.user.label}
+			</td>
+			<td class="epesi_data" colspan="3">
+				{$form_data.user.html}
+			</td>
+		</tr>
+	{/if}
+	{if $form_data.submit}
+		<tr>
+			<td class="child_button" style="text-align:center" colspan="4">
+				{$form_data.submit.html}
+			</td>
+		</tr>
+	{/if}
 </table>
 </div>
 <br>
