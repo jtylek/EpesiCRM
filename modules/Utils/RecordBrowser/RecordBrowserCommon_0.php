@@ -2071,6 +2071,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $data = self::get_record_tooltip_data($tab, $record_id);
         return Utils_TooltipCommon::format_info_tooltip($data);
     }
+    public static function display_linked_field_label($record, $nolink=false, $desc=null, $tab = ''){
+    	return Utils_RecordBrowserCommon::create_linked_label_r($tab, $desc['id'], $record, $nolink);
+    }
     public static function create_linked_label_r($tab, $cols, $r, $nolink=false){
         if (!is_array($cols))
             $cols = array($cols);
