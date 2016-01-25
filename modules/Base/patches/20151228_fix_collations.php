@@ -1,7 +1,7 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-if(!is_mysql()) return;
+if (!DB::is_mysql()) return;
 
 DB::Execute('SET FOREIGN_KEY_CHECKS=0');
 
