@@ -948,6 +948,13 @@ function rcmail_washtml_callback($tagname, $attrib, $content, $washtml)
         break;
 
     case 'style':
+        // Crazy big styles may freeze the browser (#1490539)
+        // remove content with more than 5k lines
+        if (substr_count($content, "\n") > 5000) {
+            $out = '';
+            break;
+        }
+
         // decode all escaped entities and reduce to ascii strings
         $stripped = preg_replace('/[^a-zA-Z\(:;]/', '', rcube_utils::xss_entity_decode($content));
 
@@ -1210,15 +1217,6 @@ function rcmail_message_body($attrib)
 
                 // fetch part body
                 $body = $MESSAGE->get_part_body($part->mime_id, true);
-
-                // extract headers from message/rfc822 parts
-                if ($part->mimetype == 'message/rfc822') {
-                    $msgpart = rcube_mime::parse_message($body);
-                    if (!empty($msgpart->headers)) {
-                        $part = $msgpart;
-                        $out .= html::div('message-partheaders', rcmail_message_headers(sizeof($header_attrib) ? $header_attrib : null, $part->headers));
-                    }
-                }
 
                 // message is cached but not exists (#1485443), or other error
                 if ($body === false) {

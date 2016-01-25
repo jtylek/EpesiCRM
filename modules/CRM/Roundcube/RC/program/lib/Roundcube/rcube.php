@@ -524,8 +524,13 @@ class rcube
         // use database for storing session data
         $this->session = new rcube_session($this->get_dbh(), $this->config);
 
+        $path = $_SERVER['SCRIPT_NAME'];
+        if (strpos($path, '://')) {
+            $path = parse_url($path, PHP_URL_PATH); // #1490582
+        }
+
         $this->session->register_gc_handler(array($this, 'gc'));
-        $this->session->set_secret($this->config->get('des_key') . dirname($_SERVER['SCRIPT_NAME']));
+        $this->session->set_secret($this->config->get('des_key') . dirname($path));
         $this->session->set_ip_check($this->config->get('ip_check'));
 
         if ($this->config->get('session_auth_name')) {
@@ -1027,15 +1032,14 @@ class rcube
      */
     public function get_request_token()
     {
-        $sess_id = $_COOKIE[ini_get('session.name')];
-        if (!$sess_id) {
-            $sess_id = session_id();
+        if (empty($_SESSION['request_token'])) {
+            $plugin = $this->plugins->exec_hook('request_token', array(
+                'value' => rcube_utils::random_bytes(32)));
+
+            $_SESSION['request_token'] = $plugin['value'];
         }
 
-        $plugin = $this->plugins->exec_hook('request_token', array(
-            'value' => md5('RT' . $this->get_user_id() . $this->config->get('des_key') . $sess_id)));
-
-        return $plugin['value'];
+        return $_SESSION['request_token'];
     }
 
 
