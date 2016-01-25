@@ -1,6 +1,26 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-Utils_RecordBrowserCommon::set_display_callback('contact', 'First Name', 'Utils_RecordBrowserCommon::display_linked_field_label');
-Utils_RecordBrowserCommon::set_display_callback('contact', 'Last Name', 'Utils_RecordBrowserCommon::display_linked_field_label');
-Utils_RecordBrowserCommon::set_display_callback('company', 'Company Name', 'Utils_RecordBrowserCommon::display_linked_field_label');
+$callback = 'Utils_RecordBrowserCommon::display_linked_field_label';
+
+Utils_RecordBrowserCommon::display_callback_cache('contact');
+$cache = & Utils_RecordBrowserCommon::$display_callback_table;
+
+$field = 'First Name';
+if ($cache[$field] == 'CRM_ContactsCommon::display_fname') {
+    Utils_RecordBrowserCommon::set_display_callback('contact', $field, $callback);
+    $cache[$field] = $callback;
+}
+$field = 'Last Name';
+if ($cache[$field] == 'CRM_ContactsCommon::display_lname') {
+    Utils_RecordBrowserCommon::set_display_callback('contact', $field, $callback);
+    $cache[$field] = $callback;
+}
+
+Utils_RecordBrowserCommon::display_callback_cache('company');
+$cache = & Utils_RecordBrowserCommon::$display_callback_table;
+$field = 'Company Name';
+if ($cache[$field] == 'CRM_ContactsCommon::display_cname') {
+    Utils_RecordBrowserCommon::set_display_callback('contact', $field, $callback);
+    $cache[$field] = $callback;
+}
