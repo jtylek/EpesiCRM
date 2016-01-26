@@ -25,9 +25,11 @@ if (!$tables->is_done()) {
         }
         foreach ($tabs as $t => $done) {
             if ($done) continue;
-            Patch::require_time('5');
-            DB::Execute('ALTER TABLE `' . $t . '` CHARACTER SET utf8 COLLATE ' . $collation);
-            DB::Execute('ALTER TABLE `' . $t . '` CONVERT TO CHARACTER SET utf8 COLLATE ' . $collation);
+            if (substr($t, 0, 3) != 'rc_') {
+                Patch::require_time('5');
+                DB::Execute('ALTER TABLE `' . $t . '` CHARACTER SET utf8 COLLATE ' . $collation);
+                DB::Execute('ALTER TABLE `' . $t . '` CONVERT TO CHARACTER SET utf8 COLLATE ' . $collation);
+            }
             $tabs[$t] = true;
             $tables->set('tabs', $tabs);
         }
