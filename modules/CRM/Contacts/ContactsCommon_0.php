@@ -698,8 +698,8 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->setDefaults(array($field=>$def));*/
             if (isset($display_callbacks[$desc['name']])) $callback = $display_callbacks[$desc['name']];
             else $callback = array('CRM_ContactsCommon', 'display_company');
-//            trigger_error(print_r($rb->record,true),E_USER_ERROR);
-            $form->addElement('static', $field, $label, call_user_func($callback, array('company'=>$default), false, array('id'=>'company')));
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb->record, false, $desc, $rb->tab);
+            $form->addElement('static', $field, $label, $def);
         }
     }
 	
