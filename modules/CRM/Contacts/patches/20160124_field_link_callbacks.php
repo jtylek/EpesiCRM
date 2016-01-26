@@ -21,6 +21,6 @@ Utils_RecordBrowserCommon::display_callback_cache('company');
 $cache = & Utils_RecordBrowserCommon::$display_callback_table['company'];
 $field = 'Company Name';
 if ($cache[$field] == 'CRM_ContactsCommon::display_cname') {
-    Utils_RecordBrowserCommon::set_display_callback('contact', $field, $callback);
+    Utils_RecordBrowserCommon::set_display_callback('company', $field, $callback);
     $cache[$field] = $callback;
 }
