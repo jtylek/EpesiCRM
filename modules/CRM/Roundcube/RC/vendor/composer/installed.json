@@ -1,17 +1,17 @@
 [
     {
         "name": "roundcube/plugin-installer",
-        "version": "0.1.6",
-        "version_normalized": "0.1.6.0",
+        "version": "0.1.7",
+        "version_normalized": "0.1.7.0",
         "source": {
             "type": "git",
             "url": "https://github.com/roundcube/plugin-installer.git",
-            "reference": "0.1.6"
+            "reference": "0.1.7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/roundcube/plugin-installer/zipball/0.1.6",
-            "reference": "0.1.6",
+            "url": "https://api.github.com/repos/roundcube/plugin-installer/zipball/0.1.7",
+            "reference": "0.1.7",
             "shasum": ""
         },
         "require": {
@@ -20,7 +20,7 @@
         "require-dev": {
             "composer/composer": "*"
         },
-        "time": "2014-09-15 19:56:29",
+        "time": "2015-08-27 16:08:26",
         "bin": [
             "src/bin/rcubeinitdb.sh"
         ],
@@ -240,29 +240,29 @@
     },
     {
         "name": "pear-pear.php.net/PEAR",
-        "version": "1.9.5",
-        "version_normalized": "1.9.5.0",
+        "version": "1.10.1",
+        "version_normalized": "1.10.1.0",
         "dist": {
             "type": "file",
-            "url": "http://pear.php.net/get/PEAR-1.9.5.tgz",
+            "url": "http://pear.php.net/get/PEAR-1.10.1.tgz",
             "reference": null,
             "shasum": null
         },
         "require": {
             "ext-pcre": "*",
             "ext-xml": "*",
-            "pear-pear.php.net/archive_tar": ">=1.3.11.0",
-            "pear-pear.php.net/console_getopt": ">=1.2.0.0",
-            "pear-pear.php.net/structures_graph": ">=1.0.2.0",
-            "pear-pear.php.net/xml_util": ">=1.2.0.0",
-            "php": ">=4.4.0.0,!=5.0.0.0,!=5.1.0.0,!=5.1.1.0,!=5.1.2.0,!=5.1.3.0,!=5.1.4.0,!=5.1.5.0"
+            "pear-pear.php.net/archive_tar": ">=1.4.0.0",
+            "pear-pear.php.net/console_getopt": ">=1.4.1.0",
+            "pear-pear.php.net/structures_graph": ">=1.1.0.0",
+            "pear-pear.php.net/xml_util": ">=1.3.0.0",
+            "php": ">=5.4.0.0"
         },
         "conflict": {
             "pear-pear.php.net/pear_frontend_gtk": "<0.4.0.0",
             "pear-pear.php.net/pear_frontend_web": "<=0.4.0.0"
         },
         "replace": {
-            "pear-pear/pear": "== 1.9.5.0"
+            "pear-pear/pear": "== 1.10.1.0"
         },
         "type": "pear-library",
         "installation-source": "dist",
@@ -345,20 +345,20 @@
     },
     {
         "name": "pear-pear.php.net/Net_SMTP",
-        "version": "1.6.3",
-        "version_normalized": "1.6.3.0",
+        "version": "1.7.1",
+        "version_normalized": "1.7.1.0",
         "dist": {
             "type": "file",
-            "url": "http://pear.php.net/get/Net_SMTP-1.6.3.tgz",
+            "url": "http://pear.php.net/get/Net_SMTP-1.7.1.tgz",
             "reference": null,
             "shasum": null
         },
         "require": {
             "pear-pear.php.net/net_socket": ">=1.0.7.0",
-            "php": ">=4.0.5.0"
+            "php": ">=5.4.0.0"
         },
         "replace": {
-            "pear-pear/net_smtp": "== 1.6.3.0"
+            "pear-pear/net_smtp": "== 1.7.1.0"
         },
         "type": "pear-library",
         "installation-source": "dist",
@@ -414,13 +414,13 @@
         "source": {
             "type": "git",
             "url": "https://git.kolab.org/diffusion/PNL/php-net_ldap.git",
-            "reference": "feb73bc6df2bddeb1ae63e13a198ac62cd90be28"
+            "reference": "284258cc1438126b75ec5e4acd5788a983ecb95d"
         },
         "require": {
             "pear-pear/net_ldap2": ">=2.0.12",
             "php": ">=5.3.3"
         },
-        "time": "2015-08-24 11:10:29",
+        "time": "2015-10-22 09:21:06",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -489,17 +489,17 @@
     },
     {
         "name": "patchwork/utf8",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "1.2.x-dev",
+        "version_normalized": "1.2.9999999.9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/tchwork/utf8.git",
-            "reference": "927caedc65ec4f139e9d43fd2589a19a336babc3"
+            "reference": "f986d18f4e37ab70b792e977c7d85970cf84f164"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/tchwork/utf8/zipball/927caedc65ec4f139e9d43fd2589a19a336babc3",
-            "reference": "927caedc65ec4f139e9d43fd2589a19a336babc3",
+            "url": "https://api.github.com/repos/tchwork/utf8/zipball/f986d18f4e37ab70b792e977c7d85970cf84f164",
+            "reference": "f986d18f4e37ab70b792e977c7d85970cf84f164",
             "shasum": ""
         },
         "require": {
@@ -512,7 +512,7 @@
             "ext-mbstring": "Use Mbstring for best performance",
             "ext-wfio": "Use WFIO for UTF-8 filesystem access on Windows"
         },
-        "time": "2015-06-25 17:53:48",
+        "time": "2015-12-15 15:33:41",
         "type": "library",
         "extra": {
             "branch-alias": {

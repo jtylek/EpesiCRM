@@ -23,7 +23,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		ModuleManager::include_common('CRM_Contacts',0);
 // ************ companies ************** //
 		$fields = array(
-			array('name' => _M('Company Name'),	'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_cname')),
+			array('name' => _M('Company Name'),	'type'=>'text', 'required'=>true, 'param'=>'128', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_RecordBrowserCommon', 'display_linked_field_label'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_cname')),
 			array('name' => _M('Short Name'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name' => _M('Phone'), 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name' => _M('Fax'), 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
@@ -42,8 +42,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::install_new_recordset('company', $fields);
 // ************ contacts ************** //
 		$fields = array(
-			array('name' => _M('Last Name'), 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_lname')),
-			array('name' => _M('First Name'), 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_fname')),
+			array('name' => _M('Last Name'), 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_RecordBrowserCommon', 'display_linked_field_label')),
+			array('name' => _M('First Name'), 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_RecordBrowserCommon', 'display_linked_field_label')),
 			array('name' => _M('Company Name'), 'type'=>'crm_company', 'param'=>array('field_type'=>'select'), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true),
 			array('name' => _M('Related Companies'), 	'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>true, 'visible'=>false, 'filter'=>true),
 			array('name' => _M('Group'), 		'type'=>'multiselect', 'required'=>false, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Contacts_Groups'), 'extra'=>true, 'filter'=>true),

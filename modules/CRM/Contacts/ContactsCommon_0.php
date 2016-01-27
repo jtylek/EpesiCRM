@@ -698,8 +698,8 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->setDefaults(array($field=>$def));*/
             if (isset($display_callbacks[$desc['name']])) $callback = $display_callbacks[$desc['name']];
             else $callback = array('CRM_ContactsCommon', 'display_company');
-//            trigger_error(print_r($rb->record,true),E_USER_ERROR);
-            $form->addElement('static', $field, $label, call_user_func($callback, array('company'=>$default), false, array('id'=>'company')));
+            $def = Utils_RecordBrowserCommon::call_display_callback($callback, $rb->record, false, $desc, $rb->tab);
+            $form->addElement('static', $field, $label, $def);
         }
     }
 	
@@ -924,16 +924,6 @@ class CRM_ContactsCommon extends ModuleCommon {
             }
         }
         return CRM_CommonCommon::get_dial_code($num);
-    }
-
-    public static function display_fname($v, $nolink) {
-        return Utils_RecordBrowserCommon::create_linked_label_r('contact', 'First Name', $v, $nolink);
-    }
-    public static function display_lname($v, $nolink) {
-        return Utils_RecordBrowserCommon::create_linked_label_r('contact', 'Last Name', $v, $nolink);
-    }
-    public static function display_cname($v, $nolink) {
-        return Utils_RecordBrowserCommon::create_linked_label_r('company', 'Company Name', $v, $nolink);
     }
     public static function display_webaddress($record, $nolink, $desc) {
         $v = $record[$desc['id']];

@@ -2071,6 +2071,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $data = self::get_record_tooltip_data($tab, $record_id);
         return Utils_TooltipCommon::format_info_tooltip($data);
     }
+    public static function display_linked_field_label($record, $nolink=false, $desc=null, $tab = ''){
+    	return Utils_RecordBrowserCommon::create_linked_label_r($tab, $desc['id'], $record, $nolink);
+    }
     public static function create_linked_label_r($tab, $cols, $r, $nolink=false){
         if (!is_array($cols))
             $cols = array($cols);
@@ -2386,7 +2389,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             unset($_REQUEST['__jump_to_RB_action']);
             $x = ModuleManager::get_instance('/Base_Box|0');
             if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            $x->push_main(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab), $tab);
+            $x->push_main(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
             return true;
         }
         return false;

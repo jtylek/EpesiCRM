@@ -91,6 +91,7 @@ CREATE TABLE "rc_cache" (
     user_id integer NOT NULL
         REFERENCES rc_users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     cache_key varchar(128) DEFAULT '' NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
     expires timestamp with time zone DEFAULT NULL,
     data text NOT NULL
 );
@@ -159,4 +160,4 @@ CREATE TABLE rc_system (
     name varchar(64) NOT NULL PRIMARY KEY,
     value text
 );
-INSERT INTO rc_system (name, value) VALUES ('roundcube-version', '2014042900');
+INSERT INTO rc_system (name, value) VALUES ('roundcube-version', '2015030800');

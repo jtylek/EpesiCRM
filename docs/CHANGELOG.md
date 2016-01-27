@@ -56,6 +56,12 @@ CURRENT
 - Fix filtering by user id in recordbrowser permissions
 - Fix decimal point issues in currency field
 - New feature - code to auto hide some fields depending on the other value
+- Fix RB crits for negation in multiselects
+- Add generic method to created linked field value (georgehristov)
+- Fix birthdays applet
+- Update Roundcube to 1.1.4
+- Fix RB navigation issues
+- Fix column widths saving in GB (georgehristov)
 - Update translations
 
 RELEASE 1.7.0-20151201
