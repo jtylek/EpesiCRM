@@ -3,7 +3,7 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
-CURRENT
+RELEASE 1.7.1-20160127
 -------
 
 - Fix agenda sort order
@@ -46,7 +46,6 @@ CURRENT
 - Fix words map patch - check if indexes exist, truncate large index
 - Remove update EPESI from /admin
 - Add currency filter to currencies field (Dev)
-- Fix collation for all tables in mysql database
 - Fix RB subqueries performance issues
 - Fix column width persistence in addons
 - Fix confirmLeave feature for with recordpicker opened
@@ -55,7 +54,7 @@ CURRENT
 - Improve query builder date filters
 - Fix filtering by user id in recordbrowser permissions
 - Fix decimal point issues in currency field
-- New feature - code to auto hide some fields depending on the other value
+- New feature - code to auto hide some fields depending on the other value (georgehristov)
 - Fix RB crits for negation in multiselects
 - Add generic method to created linked field value (georgehristov)
 - Fix birthdays applet
