@@ -13,6 +13,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 	private $element;
 
 	public function body($tab, $element, $format=array(), $crits=array(), $cols=array(), $order=array(), $filters=array(), $filters_defaults=array(), $custom_filters=array()) {
+		Module::$disable_confirm_leave = true;
 		$rb = $this->init_module(Utils_RecordBrowser::module_name(), $tab, $tab.'_picker');
 		$rb->adv_search = true;
 		$rb->set_filters_defaults($filters_defaults);
@@ -27,6 +28,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 			$this->get_html_of_module($rb, array($element, $format, $crits, $cols, $order, $filters), 'recordpicker'),
 			__('Select'),
 			true);
+		Module::$disable_confirm_leave = false;
 	}
 
 	public function create_open_link($label) {

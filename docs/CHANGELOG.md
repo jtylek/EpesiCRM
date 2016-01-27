@@ -3,6 +3,67 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+CURRENT
+-------
+
+- Fix agenda sort order
+- Fix RB browse search logic - search for all words in record
+- Fix sales opportunity and related notes integration
+- Fix quick search - save categories selection
+- SQL_TIMES - show caller in debug (georgehristov)
+- Fix update.php argv handling
+- Fix donate links, credits page, year in scripts
+- Remove unused modules and code
+- Add japanese, chinese and korean font support to PDF printing
+- Fix code in RB search to use merge_crits
+- Change mail applet refresh rate
+- Fix client IP address recognition in autologin feature
+- Update autologin feature - clean unused tokens, rolling token
+- Fix file cache implementation
+- Improve update.php script to skip some versions and create backups
+- Fix Currency field issues with empty value
+- New - pass RB table name as param to display callbacks (Dev)
+- Adapt some code to PHP 7
+- Add activity report for each user as addon
+- Fix rb search indexes patch - add checkpoints
+- Fix attachments - do not store edited_on changes in history entries
+- Fix timeless task switch for am/pm clock
+- Fix and improve switch_to_addon in RB and TabbedBrowser
+- Improve notes watchdog notification message - link to parent record
+- Fix automulti field freeze
+- Enable custom label for attachment addon (Dev)
+- Fix Query Builder integration - translation methods
+- Fix user param for user settings save method
+- Fix hide/show filters behavior
+- Fix access restrictions in RB queries using nested queries
+- Fix cache key for building queries - include tab alias
+- Add method to RB - get_record_vals (Dev) (georgehristov)
+- Fix crits to words - better translations and support all operators
+- Fix currency value parser - parse negative values
+- Update PHPMailer to 5.2
+- Allow to use self signed certificates for mail server settings
+- Fix frozen autoselect field value
+- Fix words map patch - check if indexes exist, truncate large index
+- Remove update EPESI from /admin
+- Add currency filter to currencies field (Dev)
+- Fix collation for all tables in mysql database
+- Fix RB subqueries performance issues
+- Fix column width persistence in addons
+- Fix confirmLeave feature for with recordpicker opened
+- Fix cloned values in processing callback
+- Fix recordpicker's record label
+- Improve query builder date filters
+- Fix filtering by user id in recordbrowser permissions
+- Fix decimal point issues in currency field
+- New feature - code to auto hide some fields depending on the other value
+- Fix RB crits for negation in multiselects
+- Add generic method to created linked field value (georgehristov)
+- Fix birthdays applet
+- Update Roundcube to 1.1.4
+- Fix RB navigation issues
+- Fix column widths saving in GB (georgehristov)
+- Update translations
+
 RELEASE 1.7.0-20151201
 -------
 

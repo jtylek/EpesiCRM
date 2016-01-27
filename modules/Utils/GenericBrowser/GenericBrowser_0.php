@@ -30,6 +30,7 @@ class Utils_GenericBrowser extends Module {
 	public $form_s = null;
 	private $resizable_columns = true;
 	private $fixed_columns_selector = '.Utils_GenericBrowser__actions';
+	private $columns_width_id = null;
 
 	public function construct() {
 		$this->form_s = $this->init_module(Libs_QuickForm::module_name());
@@ -81,12 +82,16 @@ class Utils_GenericBrowser extends Module {
 	 * @param array $arg columns definiton
 	 */
 	public function set_table_columns(array $arg){
+		$col_names = array();
 		foreach($arg as $v) {
 			if (!is_array($v))
-				$this->columns[] = array('name' => $v);
-			else
-				$this->columns[] = $v;
+				$v = array('name' => $v);
+			
+			$this->columns[] = $v;
+			
+			$col_names[] = isset($v['name'])? $v['name']: null;
 		}
+		$this->columns_width_id = md5(serialize($col_names));
 	}
 
 	/**
@@ -1019,6 +1024,7 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('row_attrs', $this->row_attrs);
 
         $theme->assign('table_id','table_'.$md5_id);
+        $theme->assign('cols_width_id',$this->columns_width_id);
         if($expand_action_only) {
             eval_js('gb_expandable_hide_actions("'.$md5_id.'")');
         }

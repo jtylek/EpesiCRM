@@ -1,6 +1,31 @@
 CHANGELOG Roundcube Webmail
 ===========================
 
+RELEASE 1.1.4
+-------------
+- Add workaround for https://bugs.php.net/bug.php?id=70757 (#1490582)
+- Fix duplicate messages in list and wrong count after delete (#1490572)
+- Fix so Installer requires PHP5
+- Make brute force attacks harder by re-generating security token on every failed login (#1490549)
+- Slow down brute-force attacks by waiting for a second after failed login (#1490549)
+- Fix .htaccess rewrite rules to not block .well-known URIs (#1490615)
+- Fix mail view scaling on iOS (#1490551)
+- Fix so database_attachments::cleanup() does not remove attachments from other sessions (#1490542)
+- Fix responses list update issue after response name change (#1490555)
+- Fix bug where message preview was unintentionally reset on check-recent action (#1490563)
+- Fix bug where HTML messages with invalid/excessive css styles couldn't be displayed (#1490539)
+- Fix redundant blank lines when using HTML and top posting (#1490576)
+- Fix redundant blank lines on start of text after html to text conversion (#1490577)
+- Fix HTML sanitizer to skip <!-- node type X --> in output (#1490583)
+- Fix invalid LDAP query in ACL user autocompletion (#1490591)
+- Fix regression in displaying contents of message/rfc822 parts (#1490606)
+- Fix handling of message/rfc822 attachments on replies and forwards (#1490607)
+- Fix PDF support detection in Firefox > 19 (#1490610)
+- Fix path traversal vulnerability (CWE-22) in setting a skin (#1490620)
+- Fix so drag-n-drop of text (e.g. recipient addresses) on compose page actually works (#1490619)
+
+RELEASE 1.1.3
+-------------
 - Fix closing of nested menus (#1490443)
 - Fix so E_DEPRECATED errors from PEAR libs are ignored by error_reporting change (#1490281)
 - Fix compatibility with PHP 5.3 in rcube_ldap class (#1490424)

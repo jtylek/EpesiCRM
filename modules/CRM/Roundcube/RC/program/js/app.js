@@ -2488,22 +2488,23 @@ function rcube_webmail()
   // removes messages that doesn't exists from list selection array
   this.update_selection = function()
   {
-    var selected = this.message_list.selection,
-      rows = this.message_list.rows,
+    var list = this.message_list,
+      selected = list.selection,
+      rows = list.rows,
       i, selection = [];
 
     for (i in selected)
       if (rows[selected[i]])
         selection.push(selected[i]);
 
-    this.message_list.selection = selection;
+    list.selection = selection;
 
     // reset preview frame, if currently previewed message is not selected (has been removed)
     try {
       var win = this.get_frame_window(this.env.contentframe),
         id = win.rcmail.env.uid;
 
-      if (id && $.inArray(id, selection) < 0)
+      if (id && !list.in_selection(id))
         this.show_contentframe(false);
     }
     catch (e) {};
@@ -7795,7 +7796,7 @@ function rcube_webmail()
   // html5 file-drop API
   this.document_drag_hover = function(e, over)
   {
-    e.preventDefault();
+    // don't e.preventDefault() here to not block text dragging on the page (#1490619)
     $(this.gui_objects.filedrop)[(over?'addClass':'removeClass')]('active');
   };
 
@@ -8154,14 +8155,10 @@ function rcube_webmail()
     if (!this.env.browser_capabilities)
       this.env.browser_capabilities = {};
 
-    if (this.env.browser_capabilities.pdf === undefined)
-      this.env.browser_capabilities.pdf = this.pdf_support_check();
-
-    if (this.env.browser_capabilities.flash === undefined)
-      this.env.browser_capabilities.flash = this.flash_support_check();
-
-    if (this.env.browser_capabilities.tif === undefined)
-      this.tif_support_check();
+    $.each(['pdf', 'flash', 'tif'], function() {
+      if (ref.env.browser_capabilities[this] === undefined)
+        ref.env.browser_capabilities[this] = ref[this + '_support_check']();
+    });
   };
 
   // Returns browser capabilities string
@@ -8180,11 +8177,14 @@ function rcube_webmail()
 
   this.tif_support_check = function()
   {
-    var img = new Image();
+    window.setTimeout(function() {
+      var img = new Image();
+      img.onload = function() { ref.env.browser_capabilities.tif = 1; };
+      img.onerror = function() { ref.env.browser_capabilities.tif = 0; };
+      img.src = ref.assets_path('program/resources/blank.tif');
+    }, 10);
 
-    img.onload = function() { ref.env.browser_capabilities.tif = 1; };
-    img.onerror = function() { ref.env.browser_capabilities.tif = 0; };
-    img.src = this.assets_path('program/resources/blank.tif');
+    return 0;
   };
 
   this.pdf_support_check = function()
@@ -8219,6 +8219,14 @@ function rcube_webmail()
       else if (plugin.name && regex.test(plugin.name))
         return 1;
     }
+
+    window.setTimeout(function() {
+      $('<object>').css({position: 'absolute', left: '-10000px'})
+        .attr({data: ref.assets_path('program/resources/dummy.pdf'), width: 1, height: 1, type: 'application/pdf'})
+        .load(function() { ref.env.browser_capabilities.pdf = 1; })
+        .error(function() { ref.env.browser_capabilities.pdf = 0; })
+        .appendTo($('body'));
+      }, 10);
 
     return 0;
   };

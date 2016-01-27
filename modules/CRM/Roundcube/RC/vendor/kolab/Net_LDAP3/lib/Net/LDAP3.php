@@ -199,12 +199,14 @@ class Net_LDAP3
         foreach ($attributes as $attr_name => $attr_value) {
             if (empty($attr_value)) {
                 unset($attributes[$attr_name]);
+            } else if (is_array($attr_value)) {
+                $attributes[$attr_name] = array_values($attr_value);
             }
         }
 
         $this->_debug("C: Add $entry_dn: " . json_encode($attributes));
 
-        if (($add_result = @ldap_add($this->conn, $entry_dn, $attributes)) == false) {
+        if (!ldap_add($this->conn, $entry_dn, $attributes)) {
             $this->_debug("S: " . ldap_error($this->conn));
             $this->_warning("LDAP: Adding entry $entry_dn failed. " . ldap_error($this->conn));
 

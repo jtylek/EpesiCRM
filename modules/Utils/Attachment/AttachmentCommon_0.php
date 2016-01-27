@@ -15,8 +15,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
 
-	public static function new_addon($table) {
-		Utils_RecordBrowserCommon::new_addon($table, Utils_Attachment::module_name(), 'body', 'Notes');
+	public static function new_addon($table, $caption = 'Notes') {
+		Utils_RecordBrowserCommon::new_addon($table, Utils_Attachment::module_name(), 'body', $caption);
 	}
 
 	public static function delete_addon($table) {
@@ -84,14 +84,20 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if ($rid !== null && !self::get_access($rid)) {
             return null;
         }
-        return Utils_RecordBrowserCommon::watchdog_label(
+        $ret = Utils_RecordBrowserCommon::watchdog_label(
             'utils_attachment',
             __('Note'),
             $rid,
             $events,
-            array('Utils_AttachmentCommon','note_title_with_attached_to'),
+            null,
             $details
         );
+        if ($rid && $ret) {
+            $r = Utils_RecordBrowserCommon::get_record('utils_attachment', $rid);
+            $of = Utils_RecordBrowserCommon::get_val('utils_attachment', 'attached_to', $r);
+            $ret['title'] .= " [ $of ]";
+        }
+        return $ret;
     }
 
 	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$sticky=false,$note_title='',$crypted=false) {
@@ -286,8 +292,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $format = Base_User_SettingsCommon::get(Utils_Attachment::module_name(), 'edited_on_format');
         return str_replace(array('%D', '%T', '%U'), array($date, $time, $by), $format);
     }
-    
-    public static function display_note($row, $nolink = false, $a=null,$view=false) {
+
+    public static function display_note($row, $nolink = false, $desc = null,$tab = null, $view = false) {
         $inline_img = '';
         $link_href = '';
         $link_img = '';
@@ -368,7 +374,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     DB::Execute('DELETE FROM utils_attachment_local WHERE local=%s',array($local));
                     continue;
                 }
-                $ret[] = Utils_RecordBrowserCommon::create_default_linked_label($param[0],$param[1],$nolink);
+                $label = Utils_RecordBrowserCommon::create_default_linked_label($param[0],$param[1],true);
+                $link =
+                    Utils_RecordBrowserCommon::record_link_open_tag($param[0], $param[1], $nolink, 'view', array('switch_to_addon' => __('Notes')))
+                    . $label . Utils_RecordBrowserCommon::record_link_close_tag();
+                $link = Utils_RecordBrowserCommon::create_default_record_tooltip_ajax($link, $param[0], $param[1]);
+                $ret[] = $link;
             }
         }
         return implode(', ',$ret);
@@ -383,13 +394,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
         }
         if(!$ret) $ret = $row['id'];
         return __('Note').': '.$ret;
-    }
-
-    public static function note_title_with_attached_to($row, $nolink = false) {
-        $note = self::description_callback($row, $nolink);
-        $of = Utils_RecordBrowserCommon::get_val('utils_attachment', 'attached_to', $row, $nolink);
-        $of = " [ $of ]";
-        return $note . $of;
     }
 
     public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
@@ -454,7 +458,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $form->setDefaults(array($field=>$default));
         } else {
             $form->addElement('static', $field, $label);
-            $form->setDefaults(array($field=>self::display_note($rb_obj->record,false,null,true)));
+            $form->setDefaults(array($field=>self::display_note($rb_obj->record,false,null,$rb_obj->tab,true)));
             if(class_exists('ZipArchive')) {
                 $files = DB::GetOne('SELECT 1 FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($rb_obj->record['id']));
                 if($files) Base_ActionBarCommon::add('download','Download all attachments','href="'.self::Instance()->get_module_dir().'get_all.php?id='.$rb_obj->record['id'].'&cid='.CID.'" target="_blank"');
@@ -594,6 +598,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $values['note'] = Utils_AttachmentCommon::decrypt($values['note'],$old_password);
                     $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password']);
                 }
+                unset($values['edited_on']);
                 break;
             case 'view':
                 $ret = self::get_access($values['id']);

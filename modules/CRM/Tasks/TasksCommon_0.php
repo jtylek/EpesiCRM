@@ -493,10 +493,10 @@ class CRM_TasksCommon extends ModuleCommon {
 		Utils_RecordBrowserCommon::QFfield_checkbox($form, $field, $label, $mode, $default, $desc, $rb_obj);
 		$js = "jq('#$field').unbind('change').change(function() {
 		 var visible = !jq(this).is(':checked');
-		 jq('[name=\"deadline\\[__date\\]\\[H\\]\"]').parent().toggle(visible);
+		 jq('[name=\"deadline\\[__date\\]\\[i\\]\"]').parent().toggle(visible);
 		});";
 		eval_js($js);
-		eval_js('jq(\'[name="deadline\[__date\]\[H\]"]\').parent().toggle('.($default ? 'false' : 'true') .');');
+		eval_js('jq(\'[name="deadline\[__date\]\[i\]"]\').parent().toggle('.($default ? 'false' : 'true') .');');
 	}
 
     public static function QFfield_recordset(&$form, $field, $label, $mode, $default) {

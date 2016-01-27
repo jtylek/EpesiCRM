@@ -31,6 +31,7 @@ abstract class Module extends ModulePrimitive {
 	private $displayed = false;
 	private $clear_child_vars = false;
 	public $display_func = false;
+	public static $disable_confirm_leave = false;
 
 	//region Construct
 	/**
@@ -85,7 +86,7 @@ abstract class Module extends ModulePrimitive {
 			$module_type = $this->get_type() . $module_type;
 		}
 		$module_type = str_replace('/','_',$module_type);
-		$m = & ModuleManager::new_instance($module_type,$this,$name,($clear_vars || $this->clear_child_vars));
+		$m = ModuleManager::new_instance($module_type,$this,$name,($clear_vars || $this->clear_child_vars));
 
 		if($args===null) $args = array();
 		elseif(!is_array($args)) $args = array($args);
@@ -359,7 +360,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param object $m module object
 	 * @return bool false if module is invalid, true otherwise
 	 */
-	public final function share_module_variable($name, & $m, $name2=null) {
+	public final function share_module_variable($name, $m, $name2=null) {
 		if(!is_a($m, 'Module'))
 			return false;
 
@@ -378,7 +379,7 @@ abstract class Module extends ModulePrimitive {
      * @param string $name2
 	 * @return bool false if module is invalid, true otherwise
 	 */
-	public function share_unique_href_variable($name, & $m, $name2=null) {
+	public function share_unique_href_variable($name, $m, $name2=null) {
 		if(!is_a($m, 'Module'))
 			return false;
 
@@ -429,9 +430,28 @@ abstract class Module extends ModulePrimitive {
 	 * @return string href string {@source}
 	 */
 	public final static function create_href_js(array $variables = array (), $indicator=null, $mode=null) {
-		$ret = http_build_query($variables);
+		$ret = "'" . http_build_query($variables) . "'";
+		return self::create_href_js_raw($ret, $indicator, $mode);
+	}
+
+	/**
+	 * Create onClick action string destined for js code.
+	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
+	 *
+	 * <code>
+	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
+	 * </code>
+	 *
+	 * @param string $data raw data string passed to Epesi.href first argument
+	 * @param string $indicator status bar indicator text
+	 * @param string $mode block, allow, queue click on simutanous click
+	 * @return string href string {@source}
+	 */
+	public final static function create_href_js_raw($data, $indicator=null, $mode=null)
+	{
 		if(!isset($indicator)) $indicator='';
-		return '_chj(\''.$ret.'\', \''.addslashes($indicator).'\', \''.$mode.'\');';
+		$disableConfirmLeave = self::$disable_confirm_leave ? ', true' : '';
+		return '_chj('.$data.', \''.addslashes($indicator).'\', \''.$mode.'\'' . $disableConfirmLeave . ');';
 	}
 
 	/**
@@ -762,6 +782,24 @@ abstract class Module extends ModulePrimitive {
 		return false;
 	}
 	//endregion
+	//region Form
+
+	/**
+	 * Function generates form name (based on module path, and counter), and attach Epesi.submit_form handler to form with that name
+	 * @return string
+     */
+	public function reserve_form_name()
+	{
+		//FIXME: Find better way to generate unique form name than counting (counting way may fail if preceding form will be in "if")
+		static $counter = 0;
+		$path = $this->get_path();
+		$processing = __('Processing...');
+		$form_name = 'form_' . md5($path . $counter);
+		eval_js("jQuery(\"form[name='$form_name']\").submit(function(){Epesi.submit_form('$form_name','$path','$processing'); return false;});");
+		$counter++;
+		return $form_name;
+	}
+	//endregion
 	//endregion
 
 	//region Display
@@ -794,7 +832,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $function_name function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else string
 	 */
-	public final function get_html_of_module(& $m, $args=null, $function_name = null) {
+	public final function get_html_of_module($m, $args=null, $function_name = null) {
 		$this_path = $this->get_path();
 
 		if(!$m) trigger_error('Arument 0 for display_module is null.',E_USER_ERROR);

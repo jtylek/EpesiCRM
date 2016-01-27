@@ -42,6 +42,7 @@ class History {
 	}
 	
 	public static function set() {
+		if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return;
 		if(self::$action)
 			return;
 

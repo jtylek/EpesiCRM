@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>, Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
  * @license MIT
  * @version 1.0
@@ -14,6 +14,7 @@ class Apps_ActivityReportInstall extends ModuleInstall {
 	public function install() {
 		Base_AclCommon::add_permission(_M('View Activity Report'),array('ACCESS:employee','ACCESS:manager'));
 		Base_ThemeCommon::install_default_theme($this->get_type());
+		Utils_RecordBrowserCommon::new_addon('contact', 'Apps/ActivityReport', 'contact_addon', array('Apps_ActivityReportCommon', 'contact_addon_label'));
 		return true;
 	}
 	
@@ -41,6 +42,7 @@ class Apps_ActivityReportInstall extends ModuleInstall {
 			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
 			array('name'=>Base_UserInstall::module_name(),'version'=>0),
 			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
+			array('name'=>CRM_ContactsInstall::module_name(),'version'=>0),
 			array('name'=>Utils_RecordBrowserInstall::module_name(),'version'=>0));
 	}	
 }

@@ -72,6 +72,10 @@ class Epesi {
 		return $jjj;
 	}
 
+	public final static function get_content() {
+		return self::$txts;
+	}
+
 	public final static function get_output() {
 		$ret = '';
 		$out_css = self::get_csses();
@@ -217,6 +221,9 @@ class Epesi {
 		ob_end_clean();
 	}
 
+	/**
+	 * @param $m Module
+     */
 	private static function go(& $m) {
 		//define key so it's first in array
 		$path = $m->get_path();
@@ -418,7 +425,7 @@ class Epesi {
 					if($queries[$kkk]['args']==$q['args']) {
 						$style .= ';text-decoration:underline';
 					}
-				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.htmlspecialchars(var_export($q['args'],true)).' <i><b>'.number_format($q['time'],4).'</b></i><br>'.'</span>';
+				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.htmlspecialchars(var_export($q['args'],true)).' <i><b>'.number_format($q['time'],4).'</b></i>' . (isset($q['caller'])?', '.$q['caller']:'') . '<br>'.'</span>';
 				$sum+=$q['time'];
 				$qty++;
 			}

@@ -10,6 +10,8 @@
  */
 header("Content-type: text/javascript");
 
+if(!isset($_POST['id'])) die();
+
 define('JS_OUTPUT',1);
 define('CID',false); //don't load user session
 define('READ_ONLY_SESSION',true);

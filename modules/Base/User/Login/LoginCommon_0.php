@@ -232,14 +232,24 @@ class Base_User_LoginCommon extends ModuleCommon {
 		Acl::set_user(null, true);
 		return false;
 	}
+
+	public static function clean_old_autologins()
+	{
+		DB::Execute('DELETE FROM user_autologin WHERE last_log<%T', array(strtotime('-30 days')));
+	}
 	
-	public static function new_autologin_id() {
+	public static function new_autologin_id($old_autologin_id = null)
+	{
 		$uid = Acl::get_user();
 		$user = Base_UserCommon::get_my_user_login();
 		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
 		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
 		$ip = get_client_ip_address();
+		if ($old_autologin_id) {
+			DB::Execute('DELETE FROM user_autologin WHERE user_login_id=%d AND autologin_id=%s', array($uid, $old_autologin_id));
+		}
 		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)', array($uid, $autologin_id, $ip, time()));
+		self::clean_old_autologins();
 	}
 
     public static function is_autologin_forbidden()
@@ -256,9 +266,8 @@ class Base_User_LoginCommon extends ModuleCommon {
 				$ret = DB::GetOne('SELECT 1 FROM user_login u JOIN user_autologin p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1 AND p.autologin_id=%s', array($user,$autologin_id));
 				if($ret) {
 					Base_User_LoginCommon::set_logged($user);
-                        		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
-                        		DB::Execute('UPDATE user_autologin SET last_log=%T WHERE user_login_id=%d AND autologin_id=%s',array(time(),Acl::get_user(),$autologin_id));
-                        		return true;
+					self::new_autologin_id($autologin_id);
+					return true;
 				}
 			}
 		}

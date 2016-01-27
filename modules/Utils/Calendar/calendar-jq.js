@@ -295,7 +295,7 @@ add_event_tag:function(dest,ev) {
 		}
 		err_evs.push(ev.attr('id'));
 		Utils_Calendar.too_many_events[dest.attr("id")] = err_evs;
-		ev.style.display='none';
+		ev.hide();
 	} else {
 	        var too_many_events = Utils_Calendar.too_many_events[dest.attr("id")];
 		if(too_many_events != undefined) {

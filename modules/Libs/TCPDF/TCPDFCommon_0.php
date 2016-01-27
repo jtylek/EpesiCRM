@@ -25,7 +25,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
     {
         $font_select = array(
             '' => __('System Default'),
-            'cid0jp' => __('Japaneese'),
+            'cid0jp' => __('Japanese'),
             'cid0kr' => __('Korean'),
             'cid0cs' => __('Chinese Simplified'),
             'cid0ct' => __('Chinese Traditional')

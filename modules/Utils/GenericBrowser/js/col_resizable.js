@@ -25,7 +25,7 @@
 	var	count = 0;				//internal count to create unique IDs when needed.	
 	
 	//common strings for packing
-	var ID = "id";	
+	var ID = "cols_width_id";	
 	var PX = "px";
 	var SIGNATURE ="JColResizer";
     var FLEX = "JCLRFlex";

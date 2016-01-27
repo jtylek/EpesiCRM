@@ -718,7 +718,7 @@ class ModuleManager {
 	 * @param module name
 	 * @return Module Return newly created subclass of module object
 	 */
-	public static final function & new_instance($mod,$parent,$name,$clear_vars=false) {
+	public static final function new_instance($mod,$parent,$name,$clear_vars=false) {
 		$class = str_replace('#', '_', $mod);
 		if (!in_array('Module', class_parents($class))) {
 			trigger_error("Class $mod is not a subclass of Module", E_USER_ERROR);
@@ -733,7 +733,7 @@ class ModuleManager {
 	 * @param string module name
 	 * @return bool null if module instance was not found, requested module object otherwise
 	 */
-	public static final function & get_instance($path) {
+	public static final function get_instance($path) {
 		$xx = explode('/',$path);
 		$curr = & self::$root;
 		if(is_object($curr) && $curr->get_node_id() != $xx[1]) {
@@ -920,13 +920,13 @@ class ModuleManager {
 	 *
 	 * Do not use directly.
 	 */
-	public static function & create_root() {
+	public static function create_root() {
 		ob_start();
 		try {
 			$default_module = Variable::get('default_module');
-			self::$root = & ModuleManager :: new_instance($default_module,null,'0');
+			self::$root = ModuleManager :: new_instance($default_module,null,'0');
 		} catch (Exception $e) {
-			self::$root = & ModuleManager :: new_instance(FIRST_RUN,null,'0');
+			self::$root = ModuleManager :: new_instance(FIRST_RUN,null,'0');
 		}
 		$ret = trim(ob_get_contents());
 		if(strlen($ret)>0 || self::$root==null) trigger_error($ret,E_USER_ERROR);

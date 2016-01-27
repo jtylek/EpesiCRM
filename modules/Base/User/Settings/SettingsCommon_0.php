@@ -151,24 +151,21 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 * @return bool true on success, false otherwise
 	 */
 	public static function save($module,$name,$value,$user=null){
-		if (!Acl::is_user()) return false;
-		//if ($value === null) $value = 0;
+		if ($user === null) $user = Acl::get_user();
+		if ($user === null) return false;
 		$module = str_replace('/','_',$module);
 		$def = self::get_admin($module,$name);
-//		if (!isset($def)) return false;
-		if (!Acl::is_user()) return null;
-		if ($user===null) $user = Acl::get_user();
 		if ($value==$def) {
-			DB::Execute('DELETE FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Acl::get_user(),$module,$name));
+			DB::Execute('DELETE FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array($user,$module,$name));
 			if(isset(self::$user_variables[$user])) unset(self::$user_variables[$user][$module][$name]);
 		} else {
 			if(isset(self::$user_variables[$user])) self::$user_variables[$user][$module][$name]=$value;
 			$value = serialize($value);
-			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Acl::get_user(),$module,$name));
+			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array($user,$module,$name));
 			if ($val === false || $val===null)
-				DB::Execute('INSERT INTO base_user_settings VALUES (%d,%s,%s,%s)',array(Acl::get_user(),$module,$name,$value));
+				DB::Execute('INSERT INTO base_user_settings VALUES (%d,%s,%s,%s)',array($user,$module,$name,$value));
 			else
-				DB::Execute('UPDATE base_user_settings SET value=%s WHERE user_login_id=%d AND module=%s AND variable=%s',array($value,Acl::get_user(),$module,$name));
+				DB::Execute('UPDATE base_user_settings SET value=%s WHERE user_login_id=%d AND module=%s AND variable=%s',array($value,$user,$module,$name));
 		}
 		return true;
 	}

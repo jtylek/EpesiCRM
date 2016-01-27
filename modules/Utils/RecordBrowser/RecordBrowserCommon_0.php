@@ -36,13 +36,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 	}
 
-    public static function call_display_callback($callback, $record, $links_not_recommended, $field)
+    public static function call_display_callback($callback, $record, $links_not_recommended, $field, $tab)
     {
         if (is_array($callback)) $callback = implode('::', $callback);
         if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable(array($match[1], $match[2]))) {
-            $ret = call_user_func(array($match[1], $match[2]), $record, $links_not_recommended, $field);
+            $ret = call_user_func(array($match[1], $match[2]), $record, $links_not_recommended, $field, $tab);
         } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable($match[1])) {
-            $ret = call_user_func($match[1], $record, $links_not_recommended, $field);
+            $ret = call_user_func($match[1], $record, $links_not_recommended, $field, $tab);
         } else {
             ob_start();
             $ret = eval($callback);
@@ -89,7 +89,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 		self::display_callback_cache($tab);
         if (isset(self::$display_callback_table[$tab][$field])) {
-	    $ret = self::call_display_callback(self::$display_callback_table[$tab][$field],$record,$links_not_recommended,self::$table_rows[$field]);
+	    $ret = self::call_display_callback(self::$display_callback_table[$tab][$field],$record,$links_not_recommended,self::$table_rows[$field],$tab);
         } else {
             $ret = $val;
             if ($args['type']=='select' || $args['type']=='multiselect') {
@@ -294,8 +294,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $settings[1][] = array('name'=>$row['tab'].'_auto_fav','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);
             if (Utils_WatchdogCommon::category_exists($row['tab'])) {
                 $settings[2][] = array('name'=>$row['tab'].'_auto_subs','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);
-/*				if (Base_AclCommon::check_permission('Watchdog - subscribe to categories'))
-					$settings[3][] = array('name'=>$row['tab'].'_subs_category','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);*/
             }
 			$settings[0][] = array('name'=>$row['tab'].'_show_filters','label'=>'','type'=>'hidden','default'=>0);
         }
@@ -311,13 +309,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_settings = array_merge($final_settings,$settings[0]);
         $final_settings[] = array('name'=>'header_auto_fav','label'=>__('Automatically add to favorites records created by me'),'type'=>'header');
         $final_settings = array_merge($final_settings,$settings[1]);
-        $subscribe_settings[] = array('name'=>'header_auto_subscriptions','label'=>__('Automatically watch records created by me'),'type'=>'header');
-        $subscribe_settings = array_merge($subscribe_settings,$settings[2]);
-/*		if (Base_AclCommon::check_permission('Watchdog - subscribe to categories')) {
-			$subscribe_settings[] = array('name'=>'header_category_subscriptions','label'=>__('Auto-subscribe to all new records'),'type'=>'header');
-			$subscribe_settings = array_merge($subscribe_settings,$settings[3]);
-		}*/
-        return array(__('Browsing records')=>$final_settings, __('Watchdog')=>$subscribe_settings);
+        $final_settings[] = array('name'=>'header_auto_subscriptions','label'=>__('Automatically watch records created by me'),'type'=>'header');
+        $final_settings = array_merge($final_settings,$settings[2]);
+        return array(__('Browsing records')=>$final_settings);
     }
     public static function check_table_name($tab, $flush=false, $failure_on_missing=true){
         static $tables = null;
@@ -1023,8 +1017,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$current = $base;
 		if ($mode=='display') $result = array();
 		else $result = $base;
+		if ($mode=='cloned') $current = array('original'=>$clone, 'clone'=>$current);
 		foreach ($cache[$tab] as $callback) {
-			if ($mode=='cloned') $current = array('original'=>$clone, 'clone'=>$current);
 			$return = call_user_func($callback, $current, $mode);
 			if ($return===false) return false;
 			if ($return) {
@@ -1219,25 +1213,32 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $ret;
     }
     public static function build_query($tab, $crits = null, $admin = false, $order = array(), $tab_alias = 'r') {
+        static $stack = array();
         static $cache;
         if (!is_object($crits)) {
             $crits = Utils_RecordBrowser_Crits::from_array($crits);
         }
-        $cache_key = $tab . '__' . md5(serialize($crits)) . '__' . $admin . '__' . md5(serialize($order)) . '__' . Base_AclCommon::get_user();
+        $cache_key = $tab . '__' . $tab_alias . '__' . md5(serialize($crits)) . '__' . $admin . '__' . md5(serialize($order)) . '__' . Base_AclCommon::get_user();
         if (isset($cache[$cache_key])) {
             return $cache[$cache_key];
         }
 
-        $access = $admin ? true : self::get_access($tab, 'browse', null, true);
+        $access = ($admin || in_array($tab, $stack)) ? true : self::get_access($tab, 'browse', null, true);
         if ($access == false) return array();
         elseif ($access !== true) {
             $crits = self::merge_crits($crits, $access);
         }
 
-        $admin_filter = $admin ? self::$admin_filter : $tab_alias . '.active=1 AND ';
-        $query_builder = new Utils_RecordBrowser_QueryBuilder($tab, $tab_alias);
+        if ($admin) {
+            $admin_filter = str_replace('<tab>', $tab_alias, self::$admin_filter);
+        } else {
+            $admin_filter = $tab_alias . '.active=1 AND ';
+        }
+        array_push($stack, $tab);
+        $query_builder = new Utils_RecordBrowser_QueryBuilder($tab, $tab_alias, $admin);
         $ret = $query_builder->build_query($crits, $order, $admin_filter);
         $cache[$cache_key] = $ret;
+        array_pop($stack);
         return $ret;
     }
     public static function get_records_count( $tab, $crits = null, $admin = false) {
@@ -1964,27 +1965,49 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function record_link_close_tag(){
         return self::$del_or_a;
     }
-    public static function create_linked_label($tab, $cols, $id, $nolink=false){
-        if (!is_numeric($id)) return '';
-        if (!is_array($cols))
-            $cols = explode('|', $cols);
-        self::init($tab);
-        $vals = array();
-        foreach ($cols as $k=>$col) {
-            if (isset(self::$table_rows[$col])) $cols[$k] = self::$table_rows[$col]['id'];
-            elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
-		}
-        $record = self::get_record($tab, $id);
-        foreach ($cols as $col) {
-            if (isset($record[$col])) {
-                $val = self::get_val($tab, $col, $record, true);
-                if ($val) {
-                    $vals[] = $val;;
-                }
-            }
-        }
-        return self::record_link_open_tag_r($tab, $record, $nolink) .
-                implode(' ', $vals ) . self::record_link_close_tag();
+	public static function create_linked_label($tab, $cols, $id, $nolink=false){
+    	if (!is_numeric($id)) return '';
+    	if (!is_array($cols))
+    		$cols = explode('|', $cols);
+    	
+    	$record = self::get_record($tab, $id);
+    	$fields = array_map(array('Utils_RecordBrowserCommon', 'get_field_id'), $cols);
+    	$record_vals = self::get_record_vals($tab, $record, true, $fields, false);
+    	if (empty($record_vals)) return '';
+    	
+    	$vals = array();
+    	foreach ($fields as $field) {
+    		if (empty($record_vals[$field])) continue;
+    		$vals[] = $record_vals[$field];
+    	}
+    	return self::record_link_open_tag_r($tab, $record, $nolink) .
+    			implode(' ', $vals ) . self::record_link_close_tag();
+    }
+    public static function get_record_vals($tab, $record, $nolink=false, $fields = array(), $silent = true){
+    	if (is_numeric($record)) $record = self::get_record($tab, $record);
+    	if (!is_array($record)) return array();
+    	
+    	self::init($tab);
+    	if (empty($fields)) {
+    		$fields = array_keys(self::$hash);
+    	}
+    	else {
+    		$available_fields = array_intersect(array_keys(self::$hash), $fields);
+    		
+    		if (!$silent && count($available_fields) != count($fields)) {
+    			trigger_error('Unknown field names: ' . implode(', ', array_diff($fields, $available_fields)), E_USER_ERROR);
+    		}
+    		
+    		$fields = $available_fields;
+    	}
+
+    	$ret = array();
+    	foreach ($fields as $field) {
+    		if (!isset($record[$field])) continue;
+    		
+    		$ret[$field] = self::get_val($tab, $field, $record, $nolink);
+    	}
+    	return $ret;
     }
     public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true, $detailed_tooltip = true){
         if (!is_numeric($id)) return '';
@@ -2047,6 +2070,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     {
         $data = self::get_record_tooltip_data($tab, $record_id);
         return Utils_TooltipCommon::format_info_tooltip($data);
+    }
+    public static function display_linked_field_label($record, $nolink=false, $desc=null, $tab = ''){
+    	return Utils_RecordBrowserCommon::create_linked_label_r($tab, $desc['id'], $record, $nolink);
     }
     public static function create_linked_label_r($tab, $cols, $r, $nolink=false){
         if (!is_array($cols))
@@ -2790,7 +2816,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return;
 
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
-        $form->addElement('currency', $field, $label, array('id' => $field));
+        $form->addElement('currency', $field, $label, (isset($desc['param']) && is_array($desc['param']))?$desc['param']:array(), array('id' => $field));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));
         // set element value to persist currency over soft submit
@@ -3191,7 +3217,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if(file_exists($lock) && filemtime($lock)>time()-1200) continue;
     
             $table_rows = self::init($tab);
-            self::$admin_filter = ' indexed=0 AND active=1 AND ';
+            self::$admin_filter = ' <tab>.indexed=0 AND <tab>.active=1 AND ';
             $ret = self::get_records($tab,array(),array(),array(),$limit,true);
             self::$admin_filter = '';
             

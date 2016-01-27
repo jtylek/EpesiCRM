@@ -160,18 +160,18 @@ class Utils_RecordBrowser_CritsToWords
             $field = "<strong>$field</strong>";
         }
 
-        $operand = ($negation ? __('is not') : __('is') ) . ' ';
         if ($subquery_generated) {
             $operand = __('is set to record where');
         } else {
             switch ($operator) {
-                case '<' : $operand .= __('smaller than'); break;
-                case '<=' : $operand .= __('smaller or equal to'); break;
-                case '>' : $operand .= __('greater than'); break;
-                case '>=' : $operand .= __('greater or equal to'); break;
-                case 'LIKE' : $operand .= __('like'); break;
+                case '<' : $operand = $negation ? __('is not smaller than') : __('is smaller than'); break;
+                case '<=' : $operand = $negation ? __('is not smaller or equal to') : __('is smaller or equal to'); break;
+                case '>' : $operand = $negation ? __('is not greater than') : __('is greater than'); break;
+                case '>=' : $operand = $negation ? __('is not greater than') : __('is greater or equal to'); break;
+                case 'LIKE' : $operand = $negation ? __('is not like') : __('is like'); break;
+                case 'NOT LIKE' : $operand = $negation ? __('is like') : __('is not like'); break;
                 default:
-                    $operand .= __('equal to');
+                    $operand = $negation ? __('is not equal to') : __('is equal to');
             }
         }
 

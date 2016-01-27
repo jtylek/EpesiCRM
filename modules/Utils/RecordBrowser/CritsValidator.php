@@ -99,6 +99,7 @@ class Utils_RecordBrowser_CritsValidator
             if (is_array($record[$k])) {
                 if ($crit_value) $result = in_array($crit_value, $record[$k]);
                 else $result = empty($record[$k]);
+                if ($crits->get_operator() == '!=') $result = !$result;
             }
             else switch ($crits->get_operator()) {
                 case '>': $result = ($record[$k] > $crit_value); break;

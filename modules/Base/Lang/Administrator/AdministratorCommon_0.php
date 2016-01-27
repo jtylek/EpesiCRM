@@ -31,14 +31,16 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 		);
 	}
 
-	public static function user_settings($just_retrieve = false){
+	public static function user_settings($retrieve_defaults = false) {
 		if(!Variable::get('allow_lang_change')) return null;
 		if(DEMO_MODE && Base_UserCommon::get_my_user_login()=='admin') {
 			$langs = array('en'=>'en');
 		} else {
 			$langs = Base_LangCommon::get_installed_langs();
 		}
-		if ($just_retrieve) {
+		// we can't use translations during defaults retrieve, because
+		// we still don't know default language
+		if ($retrieve_defaults) {
 			$group = $label1 = $label2 = '';
 		} else {
 			$group = __('Regional Settings');

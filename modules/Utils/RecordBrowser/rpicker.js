@@ -5,7 +5,7 @@ rpicker_init = function(element, id){
 		list = $(element);
 	var k = 0;
 	checkbox.checked = false;
-	while (k!=list.length) {
+	if(list) while (k!=list.length) {
 		if (list.options[k].value == id) {
 			checkbox.checked = true;
 			break;
