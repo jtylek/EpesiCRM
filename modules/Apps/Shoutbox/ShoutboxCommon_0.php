@@ -15,7 +15,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
     		return array(_M('Shoutbox')=>array());
     	return array();
 	}
-	
+
 	public static function applet_caption() {
 	    if(Base_AclCommon::check_permission('Shoutbox'))
     		return __('Shoutbox');
@@ -27,7 +27,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
     		return __('Mini shoutbox'); //here can be associative array
         return '';
 	}
-	
+
 	public static function user_search($search=null) {
         $myid = Base_AclCommon::get_user();
       	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im')) {
@@ -40,7 +40,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
     	if(ModuleManager::is_installed('Tools_WhoIsOnline')>=0) {
     	    $online = Tools_WhoIsOnlineCommon::get_ids();
     	    foreach($online as $id) {
-    	        if(isset($emps[$id])) 
+    	        if(isset($emps[$id]))
     	            $emps[$id] = '* '.$emps[$id] ;
     	    }
     	}
@@ -69,10 +69,13 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 
 	public static function user_settings(){
 		return array(__('Misc')=>array(
-			array('name'=>'enable_im','label'=>__('Allow IM with me'),'type'=>'bool','default'=>1)
+			array('name'=>'enable_im','label'=>__('Allow IM with me'),'type'=>'bool','default'=>1)),
+			__('Notifications')=>array(
+				array('name'=>null,'label'=>__('Shoutbox'),'type'=>'header'),
+				array('name'=>'telegram_shoutbox','label'=>__('Notify about shoutbox messages'),'type'=>'select', 'values'=>array(0=>__('no'),1=>__('only personal messages'), 2=>__('personal and public messages')), 'default'=>2),
 			));
 	}
-	
+
 	public static function create_write_to_link ($uid) {
 		$ret = Base_UserCommon::get_user_label($uid, true);
 		if (Acl::get_user() != $uid) $ret = "<a href=\"javascript:void(0);\" onclick=\"autoselect_add_value('shoutbox_to', ".$uid.", '".Epesi::escapeJS($ret)."');autoselect_stop_searching('shoutbox_to');$('shoutbox_to').onchange();\">".$ret.'</a>';
