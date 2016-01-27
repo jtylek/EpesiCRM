@@ -52,8 +52,14 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	}
 
 	public static function notification() {
+		$settings = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','notifications');
+		if(!$settings) return array();
+
 		$time = time()-24*3600;
-		$arr = DB::GetAll('SELECT ul.login, ul.id as user_id, asm.id, asm.message, asm.posted_on, asm.to_user_login_id FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND (asm.to_user_login_id=%d OR asm.to_user_login_id is null) ORDER BY asm.posted_on DESC LIMIT 10',array($time, Base_AclCommon::get_user(), Base_AclCommon::get_user()));
+		if($settings==2)
+			$arr = DB::GetAll('SELECT ul.login, ul.id as user_id, asm.id, asm.message, asm.posted_on, asm.to_user_login_id FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND (asm.to_user_login_id=%d OR asm.to_user_login_id is null) ORDER BY asm.posted_on DESC LIMIT 10',array($time, Base_AclCommon::get_user(), Base_AclCommon::get_user()));
+		else
+			$arr = DB::GetAll('SELECT ul.login, ul.id as user_id, asm.id, asm.message, asm.posted_on, asm.to_user_login_id FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND asm.to_user_login_id=%d ORDER BY asm.posted_on DESC LIMIT 10',array($time, Base_AclCommon::get_user(), Base_AclCommon::get_user()));
 		if(empty($arr)) return array();
 		//print it out
 		$ret = array();
@@ -72,7 +78,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 			array('name'=>'enable_im','label'=>__('Allow IM with me'),'type'=>'bool','default'=>1)),
 			__('Notifications')=>array(
 				array('name'=>null,'label'=>__('Shoutbox'),'type'=>'header'),
-				array('name'=>'telegram_shoutbox','label'=>__('Notify about shoutbox messages'),'type'=>'select', 'values'=>array(0=>__('no'),1=>__('only personal messages'), 2=>__('personal and public messages')), 'default'=>2),
+				array('name'=>'notifications','label'=>__('Notify about shoutbox messages'),'type'=>'select', 'values'=>array(0=>__('no'),1=>__('only personal messages'), 2=>__('personal and public messages')), 'default'=>2),
 			));
 	}
 
