@@ -1965,7 +1965,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function record_link_close_tag(){
         return self::$del_or_a;
     }
-	public static function create_linked_label($tab, $cols, $id, $nolink=false){
+	public static function create_linked_label($tab, $cols, $id, $nolink=false, $tooltip=false){
     	if (!is_numeric($id)) return '';
     	if (!is_array($cols))
     		$cols = explode('|', $cols);
@@ -1980,8 +1980,64 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		if (empty($record_vals[$field])) continue;
     		$vals[] = $record_vals[$field];
     	}
+    	$text = self::create_record_tooltip(implode(' ', $vals), $tab, $id, $tooltip);
+    	
     	return self::record_link_open_tag_r($tab, $record, $nolink) .
-    			implode(' ', $vals ) . self::record_link_close_tag();
+    			$text . self::record_link_close_tag();
+    }
+    public static function create_linked_text($text, $tab, $id, $nolink=false, $tooltip=true){
+    	if (!is_numeric($id)) return '';
+    	 
+    	$ret = self::record_link_open_tag($tab, $id);
+    	$ret .= self::create_record_tooltip($text, $tab, $id, $tooltip);
+    	$ret .= self::record_link_close_tag();
+    	 
+    	return $ret;
+    }
+    public static function create_record_tooltip($text, $tab, $id, $tooltip=true){
+    	if (!$tooltip || Utils_TooltipCommon::is_tooltip_code_in_str($text))
+    		return $text;
+    	 
+    	if (!is_array($tooltip))
+    		return self::create_default_record_tooltip_ajax($text, $tab, $id);
+    
+    	//args name => expected index (in case of numeric indexed array)
+    	$tooltip_create_args = array('tip'=>0, 'args'=>1, 'help'=>1, 'max_width'=>2);
+    	 
+    	foreach ($tooltip_create_args as $name=>&$key) {
+    		switch (true) {
+    			case isset($tooltip[$name]):
+    				$key = $tooltip[$name];
+    				break;
+    			case isset($tooltip[$key]):
+    				$key = $tooltip[$key];
+    				break;
+    			default:
+    				$key = null;
+    				break;
+    		}
+    	}
+    	 
+    	if (is_callable($tooltip_create_args['tip'])) {
+    		unset($tooltip_create_args['help']);
+    		 
+    		if (!is_array($tooltip_create_args['args']))
+    			$tooltip_create_args['args'] = array($tooltip_create_args['args']);
+    		 
+    		$tooltip_create_callback = array('Utils_TooltipCommon', 'ajax_create');
+    	}
+    	else {
+    		unset($tooltip_create_args['args']);
+    		$tooltip_create_callback = array('Utils_TooltipCommon', 'create');
+    	}
+    	 
+    	array_unshift($tooltip_create_args, $text);
+    	 
+    	//remove null values from end of the create_tooltip_args to ensure default argument values are set in the callback
+    	while (is_null(end($tooltip_create_args)))
+    		array_pop($tooltip_create_args);
+    	 
+    	return call_user_func_array($tooltip_create_callback, $tooltip_create_args);
     }
     public static function get_record_vals($tab, $record, $nolink=false, $fields = array(), $silent = true){
     	if (is_numeric($record)) $record = self::get_record($tab, $record);
@@ -2074,7 +2130,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function display_linked_field_label($record, $nolink=false, $desc=null, $tab = ''){
     	return Utils_RecordBrowserCommon::create_linked_label_r($tab, $desc['id'], $record, $nolink);
     }
-    public static function create_linked_label_r($tab, $cols, $r, $nolink=false){
+    public static function create_linked_label_r($tab, $cols, $r, $nolink=false, $tooltip=false){
         if (!is_array($cols))
             $cols = array($cols);
         $open_tag = self::record_link_open_tag_r($tab, $r, $nolink);
@@ -2088,9 +2144,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 trigger_error('Unknown column name: ' . $col, E_USER_ERROR);
             if ($r[$col])
                 $vals[] = $r[$col];
-        }
-
-        return $open_tag . implode(' ', $vals) . $close_tag;
+        }        
+        $text = self::create_record_tooltip(implode(' ', $vals), $tab, $r['id'], $tooltip);
+        
+        return $open_tag . $text . $close_tag;
     }
     public static function record_bbcode($tab, $fields, $text, $param, $opt) {
         if (!is_numeric($param)) {
