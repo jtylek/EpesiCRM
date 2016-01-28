@@ -1985,14 +1985,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	return self::record_link_open_tag_r($tab, $record, $nolink) .
     			$text . self::record_link_close_tag();
     }
-    public static function create_linked_text($text, $tab, $id, $nolink=false, $tooltip=true){
+ 	public static function create_linked_text($text, $tab, $id, $nolink=false, $tooltip=true){
     	if (!is_numeric($id)) return '';
-    	 
-    	$ret = self::record_link_open_tag($tab, $id);
-    	$ret .= self::create_record_tooltip($text, $tab, $id, $tooltip);
-    	$ret .= self::record_link_close_tag();
-    	 
-    	return $ret;
+    	
+    	$open_tag = self::record_link_open_tag($tab, $id, $nolink);
+    	$close_tag = self::record_link_close_tag();
+    	
+    	return $open_tag . self::create_record_tooltip($text, $tab, $id, $tooltip) . $close_tag;
     }
     public static function create_record_tooltip($text, $tab, $id, $tooltip=true){
     	if (!$tooltip || Utils_TooltipCommon::is_tooltip_code_in_str($text))
