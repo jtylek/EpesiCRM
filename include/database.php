@@ -51,6 +51,7 @@ class DB {
 			// For PostgreSQL
 			@$new->Execute('SET bytea_output = "escape";');
 		}
+		$new->SetFetchMode(ADODB_FETCH_ASSOC);
 		return $new;
 	}
 
