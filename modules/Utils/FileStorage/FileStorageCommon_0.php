@@ -124,6 +124,7 @@ class Utils_FileStorage_StorageNotFound extends Exception {}
 class Utils_FileStorage_LinkNotFound extends Exception {}
 class Utils_FileStorage_LinkDuplicate extends Exception {}
 class Utils_FileStorage_FileNotFound extends Exception {}
+class Utils_FileStorage_WriteError extends Exception {}
 
 class Utils_FileStorage_Object {
     private $id;
