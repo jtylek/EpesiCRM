@@ -137,9 +137,7 @@ function smarty_function_html_table($params, &$smarty)
 
     $output .= "<tbody>\n";
     for ($r=0; $r<$rows; $r++) {
-        $output .= "<tr" . smarty_function_html_table_cycle('tr', $tr_attr, $r);
-        if (isset($params['row_attrs'][$r])) $output .= ' ' . $params['row_attrs'][$r];
-		$output .= ">\n";
+        $output .= "<tr" . smarty_function_html_table_cycle('tr', $tr_attr, $r) . ">\n";
         $rx =  ($vdir == 'down') ? $r*$cols_count : ($rows-1-$r)*$cols_count;
 
         for ($c=0; $c<$cols_count; $c++) {
