@@ -27,6 +27,21 @@ class ModuleManager {
 	private static $processed_modules = array('install'=>array(),'downgrade'=>array(),'upgrade'=>array(),'uninstall'=>array());
 
 	/**
+	 * Returns DI container
+	 * @todo Move services definitions to separate providers
+	 * @return \Pimple\Container
+     */
+	public static function get_container()
+	{
+		static $container;
+		if (!$container) {
+			$container = new Pimple\Container();
+			//Definitions goes here
+		}
+		return $container;
+	}
+
+	/**
 	 * Includes file with module installation class.
 	 *
 	 * Do not use directly.
@@ -723,7 +738,7 @@ class ModuleManager {
 		if (!in_array('Module', class_parents($class))) {
 			trigger_error("Class $mod is not a subclass of Module", E_USER_ERROR);
 		}
-		$m = new $class($mod,$parent,$name,$clear_vars);
+		$m = new $class($mod,$parent,$name,$clear_vars, self::get_container());
 		return $m;
 	}
 

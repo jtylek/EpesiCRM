@@ -30,8 +30,19 @@ abstract class Module extends ModulePrimitive {
 	private $inline_display = false;
 	private $displayed = false;
 	private $clear_child_vars = false;
+	private $container;
 	public $display_func = false;
 	public static $disable_confirm_leave = false;
+
+	/**
+	 * Return service with given name from DI container
+	 * @param $name
+	 * @return mixed
+     */
+	public function get($name)
+	{
+		return $this->container[$name];
+	}
 
 	//region Construct
 	/**
@@ -42,10 +53,11 @@ abstract class Module extends ModulePrimitive {
 	 * @param Module|null $parent Parent module
 	 * @param mixed $name Unique instance name. If null, then it will be generated
 	 * @param bool $clear_vars Clear module variables
-	 *
-	 * @throws Exception Exception is thrown, when instance id cannot be generated.
+	 * @param \Pimple\Container $container
+	 * @throws Exception
 	 */
-	public final function __construct($type,$parent,$name,$clear_vars) {
+	public final function __construct($type,$parent,$name,$clear_vars, Pimple\Container $container) {
+		$this->container = $container;
 		$submodule_delimiter = strpos($type, '#');
 		$this->type_with_submodule = $main_module = $type;
 		if ($submodule_delimiter !== false) {
