@@ -52,7 +52,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	}
 
 	public static function notification() {
-		$settings = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','notifications');
+		$settings = Base_User_SettingsCommon::get('Apps_Shoutbox','notifications');
 		if(!$settings) return array();
 
 		$time = time()-24*3600;
