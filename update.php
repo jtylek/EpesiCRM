@@ -371,11 +371,15 @@ class EpesiUpdate
 
     public function version_up_to_date()
     {
+        $net_blocked = $this->net_update_blocked();
+        $net_blocked_msg = __('Network update has been blocked.');
         $msg = __('Your %s does not require update', array(EPESI));
         if ($this->CLI) {
+            if ($net_blocked) print ($net_blocked_msg . "\n");
             print ($msg . "\n");
             print (__('Update procedure forced') . "\n");
         } else {
+            if ($net_blocked) $msg .= '<br><br>' . $net_blocked_msg;
             $msg .= $this->saved_backups_list();
             $this->quit($msg);
         }
@@ -432,9 +436,22 @@ class EpesiUpdate
         }
     }
 
+    protected function net_update_blocked()
+    {
+        return file_exists('.git') || file_exists('.noupdate');
+    }
+
+    protected function get_update_package()
+    {
+        if ($this->net_update_blocked()) {
+            return false;
+        }
+        return EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+    }
+
     protected function handle_update_package()
     {
-        $update_package_info = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+        $update_package_info = $this->get_update_package();
         if ($update_package_info) {
             if (!$this->CLI && (TRIAL_MODE || DEMO_MODE)) {
                 $this->quit(__('There is an update, but you don\'t have permissions to perform it. Please contact system administrator.'));
@@ -547,7 +564,7 @@ class EpesiUpdate
             $this->perform_update_patches(false);
             $this->perform_update_end();
 
-            $update_package = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+            $update_package = $this->get_update_package();
             if ($update_package) $this->redirect(array());
 
             $this->quit(__('Done'));
@@ -565,7 +582,7 @@ class EpesiUpdate
             }
         } elseif ($up == 'end') {
             $this->perform_update_end();
-            $update_package = EpesiPackageDownloader::instance()->get_update_package_info($this->current_revision);
+            $update_package = $this->get_update_package();
             $redirect = $update_package ? array() : get_epesi_url();
             $this->redirect($redirect);
         } else {
