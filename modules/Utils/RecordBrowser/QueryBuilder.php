@@ -129,7 +129,7 @@ class Utils_RecordBrowser_QueryBuilder
             } else {
                 $field_def = $this->get_field_definition($v['order']);
                 $field_sql_id = $this->tab_alias . '.f_' . $field_def['id'];
-                if (isset($field_def['ref_table']) && $field_def['ref_table'] != '__COMMON__') {
+                if (isset($field_def['ref_table']) && !$field_def['commondata']) {
                     $tab2 = $field_def['ref_table'];
                     $cols2 = $field_def['ref_field'];
                     $cols2 = explode('|', $cols2);
@@ -389,6 +389,10 @@ class Utils_RecordBrowser_QueryBuilder
     {
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
+        }
+        if ($operator == DB::like()) {
+            if (DB::is_postgresql()) $field .= '::varchar';
+            return array("$field $operator %s", array($value));
         }
         $vals = array();
         if (!$value) {

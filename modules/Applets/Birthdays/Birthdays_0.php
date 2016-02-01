@@ -42,18 +42,16 @@ class Applets_Birthdays extends Module {
 							array('field'=>'birth_date', 'width'=>15)
 						);
 		// 2nd - criteria (filter)
-		// TO DO - filter date - today through today+2 weeks
-		$op1 = '>=';
-		$op2 = '<';
 		if ($conf['no_of_days'] < 0) {
-			$op1 = '<';
-			$op2 = '>=';
 			$title = __('Birthdays from the last %d days.', array(-$conf['no_of_days']));
 			$sort_order = 'DESC';
 		}
-		$today = Base_RegionalSettingsCommon::time2reg(null, false, true, true, false);
-		$to_date = Base_RegionalSettingsCommon::time2reg(strtotime("+$conf[no_of_days] days"), false, true, true, false);
-		$crits = array("{$op1}birth_date" => $today, "{$op2}birth_date" => $to_date);
+		$dates = array();
+		$now = strtotime(Base_RegionalSettingsCommon::time2reg(null, false, true, true, false));
+		foreach (range(0, $conf['no_of_days']) as $day) {
+			$dates[] = date('%%-%m-%d', strtotime("+$day days", $now));
+		}
+		$crits = array("~birth_date" => $dates);
 		if ( (isset($conf['cont_type'])) && ($conf['cont_type']=='f') ) {
 			$crits[':Fav'] = true;
 		}
