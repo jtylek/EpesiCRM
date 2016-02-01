@@ -390,6 +390,10 @@ class Utils_RecordBrowser_QueryBuilder
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
         }
+        if ($operator == DB::like()) {
+            if (DB::is_postgresql()) $field .= '::varchar';
+            return array("$field $operator %s", array($value));
+        }
         $vals = array();
         if (!$value) {
             $sql = "$field IS NULL";
