@@ -30,7 +30,7 @@ class EnableModuleCommand extends Command
     }
     protected function execute(InputInterface $input, OutputInterface $output) {
         $module_name = $input->getArgument('name');
-        $module = DB::GetRow("SELECT * FROM modules WHERE name = '$module_name'");
+        $module = DB::GetRow("SELECT * FROM modules WHERE name = %s",$module_name);
 
         if(!$module)
             throw new \Exception('Module not found');
