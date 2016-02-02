@@ -15,7 +15,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
     		return array(_M('Shoutbox')=>array());
     	return array();
 	}
-	
+
 	public static function applet_caption() {
 	    if(Base_AclCommon::check_permission('Shoutbox'))
     		return __('Shoutbox');
@@ -27,7 +27,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
     		return __('Mini shoutbox'); //here can be associative array
         return '';
 	}
-	
+
 	public static function user_search($search=null) {
         $myid = Base_AclCommon::get_user();
       	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im')) {
@@ -40,7 +40,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
     	if(ModuleManager::is_installed('Tools_WhoIsOnline')>=0) {
     	    $online = Tools_WhoIsOnlineCommon::get_ids();
     	    foreach($online as $id) {
-    	        if(isset($emps[$id])) 
+    	        if(isset($emps[$id]))
     	            $emps[$id] = '* '.$emps[$id] ;
     	    }
     	}
@@ -52,8 +52,14 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	}
 
 	public static function notification() {
+		$settings = Base_User_SettingsCommon::get('Apps_Shoutbox','notifications');
+		if(!$settings) return array();
+
 		$time = time()-24*3600;
-		$arr = DB::GetAll('SELECT ul.login, ul.id as user_id, asm.id, asm.message, asm.posted_on, asm.to_user_login_id FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND (asm.to_user_login_id=%d OR asm.to_user_login_id is null) ORDER BY asm.posted_on DESC LIMIT 10',array($time, Base_AclCommon::get_user(), Base_AclCommon::get_user()));
+		if($settings==2)
+			$arr = DB::GetAll('SELECT ul.login, ul.id as user_id, asm.id, asm.message, asm.posted_on, asm.to_user_login_id FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND (asm.to_user_login_id=%d OR asm.to_user_login_id is null) ORDER BY asm.posted_on DESC LIMIT 10',array($time, Base_AclCommon::get_user(), Base_AclCommon::get_user()));
+		else
+			$arr = DB::GetAll('SELECT ul.login, ul.id as user_id, asm.id, asm.message, asm.posted_on, asm.to_user_login_id FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d AND asm.to_user_login_id=%d ORDER BY asm.posted_on DESC LIMIT 10',array($time, Base_AclCommon::get_user(), Base_AclCommon::get_user()));
 		if(empty($arr)) return array();
 		//print it out
 		$ret = array();
@@ -69,10 +75,13 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 
 	public static function user_settings(){
 		return array(__('Misc')=>array(
-			array('name'=>'enable_im','label'=>__('Allow IM with me'),'type'=>'bool','default'=>1)
+			array('name'=>'enable_im','label'=>__('Allow IM with me'),'type'=>'bool','default'=>1)),
+			__('Notifications')=>array(
+				array('name'=>null,'label'=>__('Shoutbox'),'type'=>'header'),
+				array('name'=>'notifications','label'=>__('Notify about shoutbox messages'),'type'=>'select', 'values'=>array(0=>__('no'),1=>__('only personal messages'), 2=>__('personal and public messages')), 'default'=>2),
 			));
 	}
-	
+
 	public static function create_write_to_link ($uid) {
 		$ret = Base_UserCommon::get_user_label($uid, true);
 		if (Acl::get_user() != $uid) $ret = "<a href=\"javascript:void(0);\" onclick=\"autoselect_add_value('shoutbox_to', ".$uid.", '".Epesi::escapeJS($ret)."');autoselect_stop_searching('shoutbox_to');$('shoutbox_to').onchange();\">".$ret.'</a>';
