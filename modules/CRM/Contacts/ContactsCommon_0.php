@@ -304,7 +304,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             if ($w=='') break;
             if ($first) $first = false;
             else $def .= '<br>';
-            $def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, self::get_contact($w), $nolink));
+            $def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, self::get_contact($w), $nolink, array(array('CRM_ContactsCommon', 'contact_get_tooltip'), array(self::get_contact($w)))));
         }
         if (!$def)  $def = '---';
         return $def;
@@ -339,15 +339,9 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function company_format_default($record,$nolink=false) {
         if (is_numeric($record)) $record = self::get_company($record);
         if (!$record || $record=='__NULL__') return null;
-        $ret = '';
-        if (!$nolink) {
-            $ret .= Utils_RecordBrowserCommon::record_link_open_tag('company', $record['id']);
-            $ret .= Utils_TooltipCommon::ajax_create($record['company_name'],array('CRM_ContactsCommon','company_get_tooltip'), array($record));
-            $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
-        } else {
-            $ret .= $record['company_name'];
-        }
-        return $ret;
+        
+        return Utils_RecordBrowserCommon::create_linked_text($record['company_name'], 'company', $record['id'], $nolink, 
+        					array(array('CRM_ContactsCommon','company_get_tooltip'), array($record)));
     }
     public static function contact_get_tooltip($record) {
 		if (!$record[':active']) return '';
@@ -384,13 +378,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
-        if (!$nolink) {
-            $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-            $ret .= Utils_TooltipCommon::ajax_create($label,array('CRM_ContactsCommon','contact_get_tooltip'), array($record));
-            $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
-        } else {
-            $ret .= $label;
-        }
+        $ret .= Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink, 
+        					array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
+        
         if (isset($record['company_name']) && $record['company_name'] && is_numeric($record['company_name'])) {
             $first_comp = $record['company_name'];
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
@@ -406,14 +396,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
-        if (!$nolink) {
-            $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-            $ret .= Utils_TooltipCommon::ajax_create($label,array('CRM_ContactsCommon','contact_get_tooltip'), array($record));
-            $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
-        } else {
-            $ret .= $label;
-        }
-        return $ret;
+		
+        return Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink,
+				array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
     }
     public static function contacts_chainedselect_crits($default, $desc, $format_func, $ref_field){
         Utils_ChainedSelectCommon::create($desc['id'],array($ref_field),'modules/CRM/Contacts/update_contact.php', array('format'=>implode('::', $format_func), 'required'=>$desc['required']), $default);
@@ -588,7 +573,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             if ($w=='') break;
             if ($first) $first = false;
             else $def .= '<br>';
-            $def .= Utils_RecordBrowserCommon::no_wrap(Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $w, $nolink));
+			$def .= Utils_RecordBrowserCommon::no_wrap(Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $w, $nolink, array(array('CRM_ContactsCommon', 'company_get_tooltip'), array(self::get_company($w)))));
         }
         if (!$def) return '---';
         return $def;
