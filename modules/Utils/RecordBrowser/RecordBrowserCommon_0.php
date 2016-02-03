@@ -1411,8 +1411,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         public static function get_recursive_delete_all_access($tab,&$r,$field) {
             return self::get_recursive_access($tab,$r,$field,'delete',false);
         }
+
+    public static function serialize_crits($crits)
+    {
+        $serialized = serialize($crits);
+        if (DB::is_postgresql()) {
+            $serialized = bin2hex($serialized);
+        }
+        return $serialized;
+    }
+    public static function unserialize_crits($str)
+    {
+        $ret = unserialize($str);
+        if ($ret === false && DB::is_postgresql()) {
+            $ret = unserialize(hex2bin($str));
+        }
+        return $ret;
+    }
 	public static function parse_access_crits($str, $human_readable = false) {
-		$ret = unserialize($str);
+		$ret = self::unserialize_crits($str);
         if (!is_object($ret)) {
             $ret = Utils_RecordBrowser_Crits::from_array($ret);
         }
@@ -1488,7 +1505,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($rule_id, $f));
 	}
 	public static function update_access($tab, $id, $action, $clearance, $crits=array(), $blocked_fields=array()) {
-		DB::Execute('UPDATE '.$tab.'_access SET crits=%s, action=%s WHERE id=%d', array(serialize($crits), $action, $id));
+        $serialized = self::serialize_crits($crits);
+        DB::Execute('UPDATE ' . $tab . '_access SET crits=%s, action=%s WHERE id=%d', array($serialized, $action, $id));
 		if (!is_array($clearance)) $clearance = array($clearance);
 		DB::Execute('DELETE FROM '.$tab.'_access_clearance WHERE rule_id=%d', array($id));
 		DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE rule_id=%d', array($id));
