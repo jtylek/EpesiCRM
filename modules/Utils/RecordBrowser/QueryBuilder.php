@@ -490,7 +490,45 @@ class Utils_RecordBrowser_QueryBuilder
 
         $single_tab = !($tab2 == '__RECORDSETS__' || count(explode(',', $tab2)) > 1);
 
-        if ($sub_field && $single_tab && $tab2) {
+        $vv = explode('::', $value, 2);
+        if(isset($vv[1]) && is_callable($vv)) {
+            $handled_with_php = array('true', array());
+            if (!$single_tab) return $handled_with_php;
+            $callbacks = array(
+                'view' => 'Utils_RecordBrowserCommon::get_recursive_view',
+                'edit' => 'Utils_RecordBrowserCommon::get_recursive_edit',
+                'print' => 'Utils_RecordBrowserCommon::get_recursive_print',
+                'delete' => 'Utils_RecordBrowserCommon::get_recursive_delete',
+            );
+            $action = null;
+            $all = false;
+            foreach ($callbacks as $act => $c) {
+                if (strpos($value, $c) !== false) {
+                    $action = $act;
+                    if (strpos($value, 'all') !== false) $all = true;
+                    break;
+                }
+            }
+            if (!$action) return $handled_with_php;
+            if (!isset($this->subqueries_tab_ids[$tab2])) $this->subqueries_tab_ids[$tab2] = 0;
+            $tab_alias_id = $this->subqueries_tab_ids[$tab2]++;
+            $nested_tab_alias = $this->tab_alias . '_' . $tab2 . '_' . $tab_alias_id;
+
+            $access_crits = Utils_RecordBrowserCommon::get_access($tab2, $action, null, true);
+            $subquery = Utils_RecordBrowserCommon::build_query($tab2, $access_crits, $this->admin_mode, array(), $nested_tab_alias);
+            $on_rule = $multiselect
+                ? "$field LIKE CONCAT('%\\_\\_', $nested_tab_alias.id, '\\_\\_%')"
+                : "$field = $nested_tab_alias.id";
+            if ($multiselect && $all) {
+                $count_ms_values = DB::is_postgresql() ?
+                    "array_length(regexp_split_to_array($field, '__'),1)-2" :
+                    "ROUND ((LENGTH($field) - LENGTH(REPLACE($field,'__',''))) / 2)-1" ;
+                $sql = "($count_ms_values) = (SELECT count(*) FROM $subquery[sql] AND $on_rule)";
+            } else {
+                $sql = "EXISTS (SELECT 1 FROM $subquery[sql] AND $on_rule)";
+            }
+            $vals = $subquery['vals'];
+        } else if ($sub_field && $single_tab && $tab2) {
             $col2 = explode('|', $sub_field);
             if (!isset($this->subqueries_tab_ids[$tab2])) $this->subqueries_tab_ids[$tab2] = 0;
             $tab_alias_id = $this->subqueries_tab_ids[$tab2]++;
@@ -605,12 +643,6 @@ class Utils_RecordBrowser_QueryBuilder
             $value = array($value);
         }
         foreach ($value as $w) {
-            $vv = explode('::',$w,2);
-            if(isset($vv[1]) && is_callable($vv)) {
-                $sql[] = 'true';
-                continue;
-            }
-            
             $args = array($field_sql_id, $operator, $w, $raw_sql_val, $field_def);
             list($sql2, $vals2) = call_user_func_array($callback, $args);
             if ($sql2) {
