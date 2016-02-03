@@ -3044,7 +3044,7 @@ class Utils_RecordBrowser extends Module {
 			$row = DB::GetRow('SELECT * FROM '.$this->tab.'_access AS acs WHERE id=%d', array($id));
 			
 			$defaults['action'] = $row['action'];
-			$crits = unserialize($row['crits']);
+			$crits = Utils_RecordBrowserCommon::unserialize_crits($row['crits']);
             if (is_array($crits)) {
                 $crits = Utils_RecordBrowser_Crits::from_array($crits);
             }
