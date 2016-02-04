@@ -1482,7 +1482,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!self::check_table_name($tab, false, false)) return;
         if (!is_array($clearance)) $clearance = array($clearance);
         $clearance_c = count($clearance);
-        $ids = DB::GetCol('SELECT id FROM ' . $tab . '_access WHERE crits=%s AND action=%s', array(serialize($crits), $action));
+        $serialized = self::serialize_crits($crits);
+        $ids = DB::GetCol('SELECT id FROM ' . $tab . '_access WHERE crits=%s AND action=%s', array($serialized, $action));
         $ret = 0;
         foreach ($ids as $rule_id) {
             $existing_clearance = DB::GetCol('SELECT clearance FROM ' . $tab . '_access_clearance WHERE rule_id=%d', array($rule_id));
@@ -1496,7 +1497,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 	public static function add_access($tab, $action, $clearance, $crits=array(), $blocked_fields=array()) {
 		if (!self::check_table_name($tab, false, false)) return;
-		DB::Execute('INSERT INTO '.$tab.'_access (crits, action) VALUES (%s, %s)', array(serialize($crits), $action));
+        $serialized = self::serialize_crits($crits);
+		DB::Execute('INSERT INTO '.$tab.'_access (crits, action) VALUES (%s, %s)', array($serialized, $action));
         $rule_id = DB::Insert_ID($tab.'_access','id');
 		if (!is_array($clearance)) $clearance = array($clearance);
 		foreach ($clearance as $c)
