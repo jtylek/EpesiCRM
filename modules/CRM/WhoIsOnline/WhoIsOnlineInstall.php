@@ -31,7 +31,7 @@ class CRM_WhoIsOnlineInstall extends ModuleInstall {
 		return array(
 			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
 			array('name'=>CRM_ContactsInstall::module_name(),'version'=>0),
-			array('name'=>CRM_WhoIsOnlineInstall::module_name(),'version'=>0));
+			array('name'=>Tools_WhoIsOnlineInstall::module_name(),'version'=>0));
 	}
 
 	public static function info() {
