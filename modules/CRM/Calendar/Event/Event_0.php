@@ -177,22 +177,28 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if (!isset($ev['timeless'])) {
 			$pdf_theme->assign('start_time', array(	'label'=>__('Start Time'),
 													'value'=>Base_RegionalSettingsCommon::time2reg($ev['start'],true,false)));
-			if (!isset($ev['end'])) trigger_error(print_r($ev,true));
-			$pdf_theme->assign('end_time', array(	'label'=>__('End Time'),
-													'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],true,false)));
-			$hours = floor(($ev['end']-$ev['start'])/3600);
-			$format = __('%d hours', array($hours));
-			$minutes = ($ev['end']-$ev['start'])%3600;
-			if ($minutes!=0) {
-				if ($hours==0) $format = '';
-				else $format .= ', ';
-				$format .= __('%d minutes', array($minutes/60));
+			$duration = '---';
+			if (isset($ev['end'])) {
+				$pdf_theme->assign('end_time', array('label' => __('End Time'),
+													 'value' => Base_RegionalSettingsCommon::time2reg($ev['end'], true, false)));
+				$hours = floor(($ev['end'] - $ev['start']) / 3600);
+				$duration = __('%d hours', array($hours));
+				$minutes = ($ev['end'] - $ev['start']) % 3600;
+				if ($minutes != 0) {
+					if ($hours == 0) {
+						$duration = '';
+					} else {
+						$duration .= ', ';
+					}
+					$duration .= __('%d minutes', array($minutes / 60));
+				}
+				if (date('Y-m-d', $ev['start']) != date('Y-m-d', $ev['end'])) {
+					$pdf_theme->assign('end_date', array('label' => __('End Date'),
+														 'value' => Base_RegionalSettingsCommon::time2reg($ev['end'], false)));
+				}
 			}
-			$pdf_theme->assign('duration', array(	'label'=>__('Duration'),
-													'value'=>$format));
-			if (date('Y-m-d',$ev['start'])!=date('Y-m-d',$ev['end']))
-				$pdf_theme->assign('end_date', array(	'label'=>__('End Date'),
-														'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],false)));
+			$pdf_theme->assign('duration', array('label' => __('Duration'),
+												 'value' => $duration));
 		} else $pdf_theme->assign('timeless', array(	'label'=>__('Timeless'),
 														'value'=>__('Yes')));
 		$pdf_theme->assign('type',$type);
