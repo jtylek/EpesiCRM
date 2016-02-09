@@ -21,3 +21,6 @@ modules/*
 .idea
 
 Thumbs.db
+
+# Composer packages directory
+vendor

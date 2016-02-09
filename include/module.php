@@ -30,8 +30,19 @@ abstract class Module extends ModulePrimitive {
 	private $inline_display = false;
 	private $displayed = false;
 	private $clear_child_vars = false;
+	private $container;
 	public $display_func = false;
 	public static $disable_confirm_leave = false;
+
+	/**
+	 * Return service with given name from DI container
+	 * @param $name
+	 * @return mixed
+     */
+	public function get($name)
+	{
+		return $this->container[$name];
+	}
 
 	//region Construct
 	/**
@@ -42,10 +53,11 @@ abstract class Module extends ModulePrimitive {
 	 * @param Module|null $parent Parent module
 	 * @param mixed $name Unique instance name. If null, then it will be generated
 	 * @param bool $clear_vars Clear module variables
-	 *
-	 * @throws Exception Exception is thrown, when instance id cannot be generated.
+	 * @param \Pimple\Container $container
+	 * @throws Exception
 	 */
-	public final function __construct($type,$parent,$name,$clear_vars) {
+	public final function __construct($type,$parent,$name,$clear_vars, Pimple\Container $container) {
+		$this->container = $container;
 		$submodule_delimiter = strpos($type, '#');
 		$this->type_with_submodule = $main_module = $type;
 		if ($submodule_delimiter !== false) {
@@ -575,6 +587,20 @@ abstract class Module extends ModulePrimitive {
 	}
 	//endregion
 	//region Callback hrefs
+	public function get_ajax_callback_key($func, $args)
+	{
+		if(!is_callable($func))
+			throw new Exception('Invalid callback');
+		$key = md5(serialize($func).serialize($args));
+		$_SESSION['ajax_callbacks'][$key] = array('callback'=>$func, 'args'=>$args);
+		return $key;
+	}
+
+	public function create_ajax_callback_url($func, array $args = null)
+	{
+		return 'ajax.php?'.http_build_query(array('key' => $this->get_ajax_callback_key($func, $args), 'cid'=>CID));
+	}
+
 	private final function create_callback_name($func, $args) {
 		if(is_string($func))
 			return md5(serialize(array($func,$args)));
@@ -941,6 +967,35 @@ abstract class Module extends ModulePrimitive {
 	public final function mark_displayed() {
 		$this->displayed = isset($_REQUEST['__location'])?$_REQUEST['__location']:null;;
 	}
+
+	//region Twig
+	/**
+	 * Wrapper for Twig display method
+	 *
+	 * @param $template
+	 * @param $options
+     */
+	public function display($template, $options)
+	{
+		/** @var Twig_Environment $twig */
+		$twig = $this->get('twig');
+		$twig->display($this->get_module_template_dir().$template, $options);
+	}
+
+	/**
+	 * Wrapper for Twig render method
+	 *
+	 * @param $template
+	 * @param $options
+	 * @return string
+     */
+	public function render($template, $options)
+	{
+		/** @var Twig_Environment $twig */
+		$twig = $this->get('twig');
+		return $twig->render($this->get_module_template_dir().$template, $options);
+	}
+	//endregion
 
 	//endregion
 	//region Settings
