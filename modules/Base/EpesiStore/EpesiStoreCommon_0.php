@@ -28,7 +28,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             return;
         if (!Base_EssClientCommon::has_license_key())
             return;
-        return array(_M('Support') => array('__submenu__' => 1, _M('EPESI Store') => array('__function__' => 'manage')));
+        return array(_M('Support') => array('__submenu__' => 1, _M('%s Store', array(EPESI)) => array('__function__' => 'manage')));
     }
 
     public static function admin_access() {
@@ -128,7 +128,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             }
             $values[] = $x;
         }
-        return array(__('EPESI Store') =>
+        return array(__('%s Store', array(EPESI)) =>
             array_merge(
                     array(array('name' => 'payments_header', 'label' => '', 'type' => 'header', 'default' => __('Payment credentials')))
                     , $values));
