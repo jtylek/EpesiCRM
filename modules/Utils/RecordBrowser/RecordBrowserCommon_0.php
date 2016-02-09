@@ -2322,16 +2322,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $r = self::get_record($tab, $rid);
             if ($r===null) return null;
 			if (!self::get_access($tab, 'view', $r)) return null;
-            if (is_array($label)) {
-                $label = Utils_RecordBrowserCommon::record_link_open_tag_r($tab, $r)
-                         . call_user_func($label, $r, true)
-                         . Utils_RecordBrowserCommon::record_link_close_tag();
-                $label = self::create_default_record_tooltip_ajax($label, $tab, $rid);
+            if (is_array($label) && is_callable($label)) {
+            	$label = self::create_linked_text(call_user_func($label, $r, true), $tab, $rid);
             } elseif ($label) {
-                $label = Utils_RecordBrowserCommon::create_linked_label_r($tab, $label, $r);
-                $label = self::create_default_record_tooltip_ajax($label, $tab, $rid);
+                $label = self::create_linked_label_r($tab, $label, $r, false, true);
             } else {
-                $label = Utils_RecordBrowserCommon::create_default_linked_label($tab, $rid, false, false);
+                $label = self::create_default_linked_label($tab, $rid, false, false);
             }
 
             $ret['title'] = $label;
