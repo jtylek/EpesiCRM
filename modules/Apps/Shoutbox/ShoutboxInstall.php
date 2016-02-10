@@ -18,7 +18,8 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 			base_user_login_id I4 NOTNULL,
 			to_user_login_id I4,
 			message X,
-			posted_on T DEFTIMESTAMP',
+			posted_on T DEFTIMESTAMP,
+			deleted I1',
 			array('constraints'=>', FOREIGN KEY (base_user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table apps_shoutbox_messages.<br>');
@@ -26,6 +27,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
 		Base_AclCommon::add_permission(_M('Shoutbox'),array('ACCESS:employee'));
+		Base_AclCommon::add_permission(_M('Shoutbox Admin'), array('SUPERADMIN'));
 		return $ret;
 	}
 
@@ -33,6 +35,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::DropTable('apps_shoutbox_messages');
 		Base_AclCommon::delete_permission('Shoutbox');
+		Base_AclCommon::delete_permission('Shoutbox Admin');
 		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}

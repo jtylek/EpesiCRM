@@ -87,5 +87,26 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 		if (Acl::get_user() != $uid) $ret = "<a href=\"javascript:void(0);\" onclick=\"autoselect_add_value('shoutbox_to', ".$uid.", '".Epesi::escapeJS($ret)."');autoselect_stop_searching('shoutbox_to');$('shoutbox_to').onchange();\">".$ret.'</a>';
 		return $ret;
 	}
+
+	public static function can_delete_msg($message)
+	{
+		if (Base_AclCommon::check_permission('Shoutbox Admin')) return true;
+		if (strtotime($message['posted_on']) > (time() - 10*60) && $message['base_user_login_id'] == Base_AclCommon::get_user())
+			return true;
+		return false;
+	}
+
+	public static function format_message($message, $strongify = false, $view_deleted = false)
+	{
+		$msg_str = Utils_BBCodeCommon::parse($message['message']);
+		if ($strongify) {
+			$msg_str = "<strong>$msg_str</strong>";
+		}
+		if ($message['deleted']) {
+			$msg_str = $view_deleted ? " $msg_str" : "";
+			$msg_str = "<span style=\"color: #aaaaaa\">[ " . __('Deleted') . " ]$msg_str</span>";
+		}
+		return $msg_str;
+	}
 }
 ?>
