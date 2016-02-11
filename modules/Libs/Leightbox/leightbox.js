@@ -68,7 +68,10 @@ leightbox.prototype = {
 
     initialize: function(ctrl) {
         this.content = ctrl.getAttribute("rel");
-        Event.observe(ctrl, 'click', this.activate.bindAsEventListener(this), false);
+	var exec = this.activate.bindAsEventListener(this);
+        Event.observe(ctrl, 'click', exec, false);
+	jq(ctrl).on('touchstart',function(){jq(this).attr('last_touch_start',(new Date()).getTime());}).on('touchend',function(){ var a = (new Date()).getTime()-jq(this).attr('last_touch_start'); if(a>200 && a<1000) exec() });
+
         ctrl.onclick = function(){return false;};
     },
 

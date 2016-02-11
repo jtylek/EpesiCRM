@@ -161,6 +161,8 @@ add_event:function(dest_id,ev_id,draggable,duration,max_cut) {
 		Utils_Calendar.flush_reload_event_tag();*/
 	}
 
+	jQuery(ev).find('img').on('touchstart',function(){jq(this).attr('last_touch_start',(new Date()).getTime());}).on('touchend',function(){ var a = (new Date()).getTime()-jq(this).attr('last_touch_start'); if(a>200 && a<1000) jq(this).click(); });
+
 	if(draggable) {
 	        jQuery(ev).draggable({
 	                handle:'.handle',

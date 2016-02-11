@@ -36,11 +36,13 @@
 {/if}
 	<span id="Utils_Calendar__event" class="event_{$color}" >
 	    <div class="row">
+	        <span id="event_info"{if $draggable} class="{$handle_class}"{/if}>
 {if !IPHONE}	    
-	        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info.png" onClick="event_menu('{$event_id}')" width="11" height="11" border="0"></span>
+		<img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info.png" onClick="event_menu('{$event_id}')" width="11" height="11" border="0">
 {else}
-	        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info_iphone.png" onClick="event_menu('{$event_id}')" width="26" height="26" border="0"></span>
+	        <img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info_iphone.png" onClick="event_menu('{$event_id}')" width="26" height="26" border="0" style="cursor: pointer;">
 {/if}
+		</span>
 	        <div id="event_time">{if isset($view_href)}<a {$view_href}>{$start_time}</a>{else}{$start_time}{/if}</div>
 	    </div>
 	     <div class="row {if $draggable}{$handle_class}{/if}">

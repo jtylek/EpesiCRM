@@ -126,7 +126,7 @@
 
 /* hour */
 
-#Utils_Calendar__day td.hour span a {
+#Utils_Calendar__day td.hour a {
 	color: #FFFFFF;
 }
 

@@ -239,7 +239,7 @@
 
 /* hour */
 
-#Utils_Calendar__week td.hour span a {
+#Utils_Calendar__week td.hour a {
 	color: #FFFFFF;
 }
 
