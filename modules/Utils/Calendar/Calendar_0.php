@@ -7,7 +7,7 @@
  * @package epesi-Utils
  * @subpackage calendar
  */
- 
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Calendar extends Module {
 	private static $views = array('Agenda','Day','Week','Month','Year');
@@ -308,7 +308,7 @@ class Utils_Calendar extends Module {
 		call_user_func_array(array($this->event_module.'Common','update'),array(&$ev_id,$time,$ev['duration'],isset($ev['custom_row_key'])?$ev['custom_row_key']:null));
 		location();
 	}
-	
+
 	public function sort_events($a, $b) {
 		if(!isset($a['timeless']) || !$a['timeless'])
 			$a_start = strtotime(Base_RegionalSettingsCommon::time2reg($a['start'],true,true,true,false));
