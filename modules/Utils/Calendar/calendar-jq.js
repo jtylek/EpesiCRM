@@ -87,15 +87,15 @@
       offsetLeft: 0,
       offsetTop: 0
     }, (options || {}));
-    
+
     var offsets = $(element).offset();
-    
+
     $(this).offset({top: (offsets.top + options.offsetTop),
       left: (offsets.left + options.offsetLeft)});
-    
+
     if (options.cloneWidth) $(this).width($(element).width());
     if (options.cloneHeight) $(this).height($(element).height());
-    
+
     return this;
   }
 })(jQuery);
@@ -131,7 +131,7 @@ add_events:function(css) {
 	if (!loaded) {
 		setTimeout(function() { jQuery.proxy(Utils_Calendar.add_events,Utils_Calendar)(css) }, 100);
 	} else {
-		Utils_Calendar.add_events_f();	
+		Utils_Calendar.add_events_f();
 	}
 },
 add_event:function(dest_id,ev_id,draggable,duration,max_cut) {
@@ -164,7 +164,11 @@ add_event:function(dest_id,ev_id,draggable,duration,max_cut) {
 	if(draggable) {
 	        jQuery(ev).draggable({
 	                handle:'.handle',
-	                revert: 'invalid',
+	                revert: function(event, ui) {
+						var droppable_id = jq(event).attr('id');
+						if(!droppable_id || droppable_id==jq(this).attr('last_cell')) return true;
+			            return false;
+			        },
 //	                zIndex: 1000
                         stack:'.utils_calendar_event',
                     start: Utils_Calendar.start_drag
@@ -183,7 +187,7 @@ remove_event_tag:function(prev_node,ev) {
 			prev_ch = children_events;
 			var idx = jQuery.inArray(ev.attr('id'),prev_ch);
 			if(idx>=0) prev_ch.splice(idx,1);
-			
+
 		        Utils_Calendar.children_events[cell.attr('id')] = prev_ch;
 			if(prev_ch.length>0) {
 				reload = jQuery.merge(reload,prev_ch);
@@ -197,7 +201,7 @@ remove_event_tag:function(prev_node,ev) {
 		} else
 			duration = 0;
 	} while(duration>0);
-        
+
 	Utils_Calendar.reload_event_tag(reload);
 },
 init_reload_event_tag:function() {
@@ -316,7 +320,7 @@ add_event_tag:function(dest,ev) {
 		ev.show();
 	}
 	ev.attr('last_cell',dest.attr('id'));
-	
+
 	Utils_Calendar.reload_event_tag(reload);
 },
 ids:null,
@@ -345,7 +349,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 			f = new_ev.replace('__TIME__',id);
 			f = f.replace('__TIMELESS__','0');
 		}
-		
+
 		Event.observe(cell_id,'dblclick',function(e){eval(f)});
 		Event.observe(cell_id,'touchend',function(e){
 		    var now = new Date().getTime();
@@ -404,7 +408,11 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 
 							element.draggable({
 								handle: '.handle',
-								revert: 'invalid',
+								revert: function(event, ui) {
+									var droppable_id = jq(event).attr('id');
+									if(!droppable_id || droppable_id==jq(this).attr('last_cell')) return true;
+						            return false;
+						        },
 //								zIndex: 1000
                                 stack: '.utils_calendar_event',
                                 start: Utils_Calendar.start_drag
