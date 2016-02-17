@@ -9,6 +9,7 @@ require_once('include/data_dir.php');
 require_once('include/config.php');
 require_once('include/database.php');
 require_once('include/session.php'); // load to get class in runtime
+require_once('include/variables.php');
 global $E_SESSION,$E_SESSION_ID;
 $E_SESSION_ID = $_COOKIE[session_name()];
 if(!$E_SESSION_ID)
@@ -127,7 +128,7 @@ $config['smtp_pass'] = $account['f_smtp_auth']?$account['f_smtp_password']:'';
 
 // provide an URL where a user can get support for this Roundcube installation
 // PLEASE DO NOT LINK TO THE ROUNDCUBE.NET WEBSITE HERE!
-$config['support_url'] = 'http://epe.si';
+$config['support_url'] =  (EPESI == 'EPESI') ? 'http://epe.si/support/' : Variable::get('whitelabel_url',false);
 
 // Name your service. This is displayed on the login screen and in the window title
 $config['product_name'] = EPESI . ' Mail';
