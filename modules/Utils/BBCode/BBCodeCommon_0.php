@@ -66,6 +66,12 @@ class Utils_BBCodeCommon extends ModuleCommon {
 		if (isset(self::$bbcodes[$tag])) {
 			self::$last_tag = $tag;
 			$ret = call_user_func(self::$bbcodes[$tag], $text, $param, self::$optimize_only);
+		} else if ($tag == 'rb') {
+			self::$last_tag = $tag;
+			$arr = explode('/', $param);
+			if (count($arr) == 2) {
+				$ret = Utils_RecordBrowserCommon::record_bbcode($arr[0], null, $text, $arr[1], self::$optimize_only, 'rb');
+			}
 		}
 		if ($ret) return $ret;
 		return $match[0];

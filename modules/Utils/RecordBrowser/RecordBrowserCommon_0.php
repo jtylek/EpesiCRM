@@ -2170,8 +2170,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         
         return $open_tag . $text . $close_tag;
     }
-    public static function record_bbcode($tab, $fields, $text, $param, $opt) {
-        if (!is_numeric($param)) {
+    public static function record_bbcode($tab, $fields, $text, $record_id, $opt, $tag = null) {
+        if (!is_numeric($record_id)) {
             $parts = explode(' ', $text);
             $crits = array();
             foreach ($parts as $k=>$v) {
@@ -2199,16 +2199,35 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 else $rec = null;
             }
         } else {
-            $rec = Utils_RecordBrowserCommon::get_record($tab, $param);
+            $rec = Utils_RecordBrowserCommon::get_record($tab, $record_id);
         }
         if ($opt) {
             if (!$rec) return null;
-            return Utils_BBCodeCommon::create_bbcode(null, $rec['id'], $text);
+            $tag_param = $rec['id'];
+            if ($tag == 'rb') $tag_param = "$tab/$tag_param";
+            return Utils_BBCodeCommon::create_bbcode(null, $tag_param, $text);
         }
         if ($rec) {
+            $access = self::get_access($tab, 'view', $rec);
+            if (!$access) {
+                $text = "[" . __('Link to record') . ']';
+            }
+            if (!$text) {
+                if ($fields) {
+                    return self::create_linked_label_r($tab, $fields, $rec);
+                }
+                return self::create_default_linked_label($tab, $rec['id']);
+            }
             return Utils_RecordBrowserCommon::record_link_open_tag_r($tab, $rec).$text.Utils_RecordBrowserCommon::record_link_close_tag();
         }
-        return Utils_BBCodeCommon::create_bbcode(null, $param, $text, __('Record not found'));
+        $msg = __('Record not found');
+        if ($tag == 'rb') {
+            if (!self::check_table_name($tab, false, false)) {
+                $msg = __('Recordset not found');
+            }
+            return Utils_BBCodeCommon::create_bbcode($tag, "$tab/$record_id", $text, $msg);
+        }
+        return Utils_BBCodeCommon::create_bbcode($tag, $record_id, $text, $msg);
     }
     public static function applet_settings($some_more = array()) {
         $some_more = array_merge($some_more,array(
