@@ -373,6 +373,7 @@ class Utils_Calendar extends Module {
 		}
 		$form->assign_theme('form', $theme, new HTML_QuickForm_Renderer_TCMSArraySmarty());
 
+		$navigation_bar_additions = '';
 		if (is_callable(array($this->event_module, 'get_navigation_bar_additions'))) {
 			$event_module_instance = $this->init_module($this->event_module);
 			$navigation_bar_additions = call_user_func(array($event_module_instance,'get_navigation_bar_additions'), '', '');
