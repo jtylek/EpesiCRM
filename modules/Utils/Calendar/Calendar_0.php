@@ -7,7 +7,7 @@
  * @package epesi-Utils
  * @subpackage calendar
  */
- 
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Calendar extends Module {
 	private static $views = array('Agenda','Day','Week','Month','Year');
@@ -308,7 +308,7 @@ class Utils_Calendar extends Module {
 		call_user_func_array(array($this->event_module.'Common','update'),array(&$ev_id,$time,$ev['duration'],isset($ev['custom_row_key'])?$ev['custom_row_key']:null));
 		location();
 	}
-	
+
 	public function sort_events($a, $b) {
 		if(!isset($a['timeless']) || !$a['timeless'])
 			$a_start = strtotime(Base_RegionalSettingsCommon::time2reg($a['start'],true,true,true,false));
@@ -373,6 +373,7 @@ class Utils_Calendar extends Module {
 		}
 		$form->assign_theme('form', $theme, new HTML_QuickForm_Renderer_TCMSArraySmarty());
 
+		$navigation_bar_additions = '';
 		if (is_callable(array($this->event_module, 'get_navigation_bar_additions'))) {
 			$event_module_instance = $this->init_module($this->event_module);
 			$navigation_bar_additions = call_user_func(array($event_module_instance,'get_navigation_bar_additions'), '', '');

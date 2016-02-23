@@ -127,7 +127,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	
 	public static function new_mailer() {
 		$mailer = new PHPMailer();
-		$mailer->SetLanguage(Base_LangCommon::get_lang_code(), 'modules/Base/Mail/language/');
+		$mailer->SetLanguage(Base_LangCommon::get_lang_code(), EPESI_LOCAL_DIR . '/modules/Base/Mail/language/');
 		return $mailer;
 	}
 	

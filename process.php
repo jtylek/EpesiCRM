@@ -24,14 +24,14 @@ if (epesi_requires_update()) {
     die ('window.location = "index.php";');
 }
 if(!isset($_SESSION['num_of_clients'])) {
-	Epesi::alert('Session expired, restarting Epesi');
+	Epesi::alert('Session expired, restarting '.EPESI);
 	Epesi::redirect();
 	Epesi::send_output();
 	define('SESSION_EXPIRED',1);
 	//session_commit();
 	//DBSession::destroy(session_id());
 } elseif((!isset($_POST['history']) || !is_numeric($_POST['history']) || $_POST['history']>0) && !isset($_SESSION['client']['__history_id__'])) {
-	Epesi::alert('Too many Epesi tabs open - session expired, restarting Epesi');
+	Epesi::alert('Too many tabs open - session expired, restarting '.EPESI);
 	Epesi::redirect();
 	Epesi::send_output();
 	define('SESSION_EXPIRED',1);
