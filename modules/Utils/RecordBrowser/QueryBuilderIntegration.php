@@ -83,15 +83,33 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         );
         $ret[] = array(
             'id' => ':Created_on',
+            'field' => ':Created_on',
             'label' => __('Created on'),
-            'type' => 'date',
+            'type' => 'datetime',
+            'plugin' => 'datepicker',
+            'plugin_config' => array('dateFormat' => 'yy-mm-dd'),
+        );
+        $ret[] = array(
+            'id' => ':Created_on_relative',
+            'field' => ':Created_on',
+            'label' => __('Created on') . ' (' . __('relative') . ')',
+            'type' => 'datetime',
             'input' => 'select',
             'values' => Utils_RecordBrowserCommon::$date_values
         );
         $ret[] = array(
             'id' => ':Edited_on',
+            'field' => ':Edited_on',
             'label' => __('Edited on'),
-            'type' => 'date',
+            'type' => 'datetime',
+            'plugin' => 'datepicker',
+            'plugin_config' => array('dateFormat' => 'yy-mm-dd'),
+        );
+        $ret[] = array(
+            'id' => ':Edited_on_relative',
+            'field' => ':Edited_on',
+            'label' => __('Edited on') . ' (' . __('relative') . ')',
+            'type' => 'datetime',
             'input' => 'select',
             'values' => Utils_RecordBrowserCommon::$date_values
         );
