@@ -74,7 +74,7 @@ class Utils_RecordBrowser_CritsValidator
             $transform_date = 'timestamp';
         } elseif ($k == 'edited_on') {
             $details = Utils_RecordBrowserCommon::get_record_info($this->tab, $id);
-            $record[$k] = $details['edited_on'];
+            $record[$k] = $details['edited_on'] ? $details['edited_on'] : $details['created_on'];
             $transform_date = 'timestamp';
         } elseif ($field_definition) {
             $type = $field_definition['type'];
