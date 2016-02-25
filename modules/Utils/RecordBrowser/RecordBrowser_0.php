@@ -1280,11 +1280,11 @@ class Utils_RecordBrowser extends Module {
 
 //        if ($mode!='add' && !$this->record[':active'] && !Base_AclCommon::i_am_admin()) return $this->back();
 
-        $tb = $this->init_module(Utils_TabbedBrowser::module_name(), null, 'recordbrowser_addons');
+        $tb = $this->init_module(Utils_TabbedBrowser::module_name(), null, 'recordbrowser_addons/'.$this->tab.'/'.$id);
 		if ($mode=='history') $tb->set_inline_display();
         self::$tab_param = $tb->get_path();
 
-        $form = $this->init_module(Libs_QuickForm::module_name(),null, $mode);
+        $form = $this->init_module(Libs_QuickForm::module_name(),null, $mode.'/'.$this->tab.'/'.$id);
         if(Base_User_SettingsCommon::get($this->get_type(), 'confirm_leave') && ($mode == 'add' || $mode == 'edit'))
         	$form->set_confirm_leave_page();
         
