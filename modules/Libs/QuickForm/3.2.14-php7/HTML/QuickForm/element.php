@@ -366,6 +366,30 @@ class HTML_QuickForm_element extends HTML_Common
         }
     } //end func _findValue
 
+    /**
+     * Tries to remove the element value from the values array
+     *
+     * @since     2.7
+     * @access    private
+     * @return    mixed
+     */
+    function _removeValue(&$values)
+    {
+        if (empty($values)) {
+            return null;
+        }
+        $elementName = $this->getName();
+        if (isset($values[$elementName])) {
+            unset($values[$elementName]);
+        } elseif (strpos($elementName, '[')) {
+            $myVar = "['" . str_replace(
+                    array('\\', '\'', ']', '['), array('\\\\', '\\\'', '', "']['"),
+                    $elementName
+                ) . "']";
+            eval("if(isset(\$values$myVar)) unset(\$values$myVar);");
+        }
+    } //end func _findValue
+
     // }}}
     // {{{ onQuickFormEvent()
 
