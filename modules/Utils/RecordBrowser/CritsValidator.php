@@ -55,8 +55,13 @@ class Utils_RecordBrowser_CritsValidator
             $sub_tab = isset($field_definition['ref_table']) ? $field_definition['ref_table'] : false;
             if ($sub_tab) {
                 if (is_array($r_val)) {
-                    foreach ($r_val as $k => $v) {
-                        $r_val[$k] = Utils_RecordBrowserCommon::get_value($sub_tab, $v, $subfield);
+                    $orig_values = $r_val;
+                    $r_val = array();
+                    foreach ($orig_values as $k => $v) {
+                        $nested_val = Utils_RecordBrowserCommon::get_value($sub_tab, $v, $subfield);
+                        if (substr($nested_val, 0, 2)=='__') $nested_val = Utils_RecordBrowserCommon::decode_multi($nested_val); // FIXME need better check
+                        if (is_array($nested_val)) $r_val = array_merge($r_val, $nested_val);
+                        else $r_val[] = $nested_val;
                     }
                 } else {
                     if ($r_val) $r_val = Utils_RecordBrowserCommon::get_value($sub_tab, $r_val, $subfield);
