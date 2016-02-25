@@ -20,7 +20,7 @@ $fields = array(
     ),
 );
 Utils_RecordBrowserCommon::install_new_recordset('task_related', $fields);
-Utils_RecordBrowserCommon::set_caption('task_related', _M('Meeting Related Recordsets'));
+Utils_RecordBrowserCommon::set_caption('task_related', _M('Tasks Related Recordsets'));
 Utils_RecordBrowserCommon::register_processing_callback('task_related', array('CRM_TasksCommon', 'processing_related'));
 Utils_RecordBrowserCommon::add_access('task_related', 'view', 'ACCESS:employee');
 Utils_RecordBrowserCommon::add_access('task_related', 'add', 'ADMIN');
