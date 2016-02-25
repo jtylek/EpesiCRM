@@ -145,12 +145,12 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      */
     function getFrozenHtml()
     {
-        if ($this->getChecked()) {
-            return '<tt>(x)</tt>' .
-                   $this->_getPersistantData();
-        } else {
-            return '<tt>( )</tt>';
-        }
+      if ($this->getChecked()) {
+          return '<div class="radio_on"></div>' .
+                 $this->_getPersistantData();
+      } else {
+          return '<div class="radio_off"></div>';
+      }
     } //end func getFrozenHtml
 
     // }}}
@@ -205,7 +205,10 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
                 // default values are overriden by submitted
                 $value = $this->_findValue($caller->_constantValues);
                 if (null === $value) {
-                    $value = $this->_findValue($caller->_submitValues);
+                    if($this->_flagFrozen)
+                        $this->_removeValue($caller->_submitValues);
+                    else
+                        $value = $this->_findValue($caller->_submitValues);
                     if (null === $value) {
                         $value = $this->_findValue($caller->_defaultValues);
                     }

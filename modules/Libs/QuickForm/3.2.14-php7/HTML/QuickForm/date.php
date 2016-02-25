@@ -423,7 +423,9 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
                             $options = array($this->_options['emptyOptionValue'] => $this->_options['emptyOptionText']) + $options;
                         }
                     }
-                    $this->_elements[] =new HTML_QuickForm_select($sign, null, $options, $this->getAttributes());
+                    //todo: WTF? commit: 545b79130cffae60bf82071a223758ee139c8399
+                    $this->updateAttributes(array('style'=>'width:auto;'));
+                    $this->_elements[] = new HTML_QuickForm_select($sign, null, $options, $this->getAttributes());
                 }
             }
         }

@@ -224,8 +224,13 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
     */
     function getFrozenHtml()
     {
-        return ($this->getChecked()? '<tt>[x]</tt>': '<tt>[ ]</tt>') .
-               $this->_getPersistantData();
+        if ($this->getChecked()) {
+            return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_on.png').'" alt="'.__('Yes').'" />' .
+                $this->_getPersistantData();
+        } else {
+            return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_off.png').'" alt="'.__('No').'" />' .
+              $this->_getPersistantData();
+        }
     }
 
     // }}}
@@ -249,7 +254,10 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
                 // default values are overriden by submitted
                 $value = $this->_findValue($caller->_constantValues);
                 if (null === $value) {
-                    $value = $this->_findValue($caller->_submitValues);
+                    if($this->_flagFrozen)
+                        $this->_removeValue($caller->_submitValues);
+                    else
+                        $value = $this->_findValue($caller->_submitValues);
                     if (null === $value) {
                         $value = $this->_findValue($caller->_defaultValues);
                     }

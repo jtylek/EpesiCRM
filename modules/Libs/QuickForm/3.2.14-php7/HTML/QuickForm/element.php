@@ -75,7 +75,15 @@ class HTML_QuickForm_element extends HTML_Common
      * @access    private
      */
     var $_persistantFreeze = false;
-    
+
+    /**
+      * Used by freeze to remove submit values.
+      * @var       object
+      * @since     epesi
+      * @access    private
+      */
+    var $_caller = null;
+
     // }}}
     // {{{ constructor
     
@@ -205,6 +213,10 @@ class HTML_QuickForm_element extends HTML_Common
     function freeze()
     {
         $this->_flagFrozen = true;
+        if($this->_caller!==null) {
+            $this->_removeValue($this->_caller->_submitValues);
+            $this->onQuickFormEvent('updateValue',null,$this->_caller);
+        }
     } //end func freeze
 
     // }}}
@@ -369,10 +381,12 @@ class HTML_QuickForm_element extends HTML_Common
      */
     function onQuickFormEvent($event, $arg, &$caller)
     {
+        $this->_caller = $caller;
         switch ($event) {
             case 'createElement':
                 $className = get_class($this);
-                $this->$className($arg[0], $arg[1], $arg[2], $arg[3], $arg[4]);
+                call_user_func_array(array($this, $className), $arg);
+//                $this->$className($arg[0], $arg[1], $arg[2], $arg[3], $arg[4]);
                 break;
             case 'addElement':
                 $this->onQuickFormEvent('createElement', $arg, $caller);
@@ -383,7 +397,10 @@ class HTML_QuickForm_element extends HTML_Common
                 // default values are overriden by submitted
                 $value = $this->_findValue($caller->_constantValues);
                 if (null === $value) {
-                    $value = $this->_findValue($caller->_submitValues);
+                    if($this->_flagFrozen)
+                        $this->_removeValue($caller->_submitValues);
+                    else
+                        $value = $this->_findValue($caller->_submitValues);
                     if (null === $value) {
                         $value = $this->_findValue($caller->_defaultValues);
                     }
@@ -432,8 +449,9 @@ class HTML_QuickForm_element extends HTML_Common
         static $idx = 1;
 
         if (!$this->getAttribute('id')) {
-            $this->updateAttributes(array('id' => 'qf_' . substr(md5(microtime() . $idx++), 0, 6)));
+            $this->updateAttributes(array('id' => 'qf_'.$idx));// . substr(md5($idx++), 0, 6)));
         }
+        $idx++;
     } // end func _generateId
 
     // }}}

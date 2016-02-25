@@ -145,12 +145,12 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      */
     function getFrozenHtml()
     {
-        if ($this->getChecked()) {
-            return '<tt>[x]</tt>' .
-                   $this->_getPersistantData();
-        } else {
-            return '<tt>[ ]</tt>';
-        }
+      if ($this->getChecked()) {
+          return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_on.png').'" alt="'.__('Yes').'" />' .
+                 $this->_getPersistantData();
+      } else {
+          return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_off.png').'" alt="'.__('No').'" />';
+      }
     } //end func getFrozenHtml
 
     // }}}
@@ -239,7 +239,11 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
                     // if no boxes were checked, then there is no value in the array
                     // yet we don't want to display default value in this case
                     if ($caller->isSubmitted()) {
-                        $value = $this->_findValue($caller->_submitValues);
+                        if($this->_flagFrozen) {
+                            $this->_removeValue($caller->_submitValues);
+                            $value = $this->_findValue($caller->_defaultValues);
+                        } else
+                            $value = $this->_findValue($caller->_submitValues);
                     } else {
                         $value = $this->_findValue($caller->_defaultValues);
                     }
