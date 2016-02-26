@@ -294,15 +294,26 @@ class Utils_RecordBrowser_QueryBuilder
                     }
                     break;
                 case ':Edited_on'   :
-                    $inj = $operator . '%T';
+                    if ($value === null) {
+                        if ($operator == '=') {
+                            $inj = 'IS NULL';
+                        } elseif ($operator == '!=') {
+                            $inj = 'IS NOT NULL';
+                        } else {
+                            throw new Exception('Cannot compare timestamp field null with operator: ' . $operator);
+                        }
+                    } else {
+                        $inj = $operator . '%T';
+                        $timestamp = Base_RegionalSettingsCommon::reg2time($value, false);
+                        $vals[] = $timestamp;
+                        $vals[] = $timestamp;
+                    }
+
                     $sql = '(((SELECT MAX(edited_on) FROM ' . $this->tab . '_edit_history WHERE ' . $this->tab . '_id='.$this->tab_alias.'.id) ' . $inj . ') OR ' .
-                               '((SELECT MAX(edited_on) FROM ' . $this->tab . '_edit_history WHERE ' . $this->tab . '_id='.$this->tab_alias.'.id) IS NULL AND created_on ' . $inj . '))';
-                    $timestamp = Base_RegionalSettingsCommon::reg2time($value, false);
+                               '((SELECT MAX(edited_on) FROM ' . $this->tab . '_edit_history WHERE ' . $this->tab . '_id='.$this->tab_alias.'.id) IS NULL AND '.$this->tab_alias.'.created_on ' . $inj . '))';
                     if ($negation) {
                         $sql = "NOT (COALESCE($sql, FALSE))";
                     }
-                    $vals[] = $timestamp;
-                    $vals[] = $timestamp;
                     break;
             }
             return array($sql, $vals);
