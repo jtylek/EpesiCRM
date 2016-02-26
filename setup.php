@@ -289,28 +289,28 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 				}
 			break;
             case 'mysqli':
-                if (!function_exists('mysql_connect')) {
+                if (!class_exists('mysqli')) {
                     echo(__('Please enable mysql extension in php.ini.'));
                 } else {
 					if ($port) {
 						$host .= ':' . $port;
 					}
-                    $link = @mysql_connect($host, $user, $pass);
-                    if (!$link) {
-                        echo(__('Could not connect') . ': ' . mysql_error());
+                    $link = new mysqli($host, $user, $pass);
+                    if ($link->connect_errno) {
+                        echo(__('Could not connect') . "(Errno: {$link->connect_errno}): " . $link->connect_error);
                     } else {
                         if ($new_db == 1) {
                             $sql = 'CREATE DATABASE `' . $dbname . '` CHARACTER SET utf8 COLLATE utf8_unicode_ci';
-                            if (mysql_query($sql, $link)) {
+                            if ($link->query($sql)) {
                                 write_config($host, $user, $pass, $dbname, $engine, $other);
                             } else {
-                                echo __('Error creating database: ') . mysql_error() . "\n";
+                                echo __('Error creating database: ') . $link->error . "\n";
                             }
-                            mysql_close($link);
+                            $link->close();
                         } else {
-                            $result = mysql_select_db($dbname, $link);
+                            $result = $link->select_db($dbname);
                             if (!$result) {
-                                echo __('Database does not exist') . ': ' . mysql_error() . "\n";
+                                echo __('Database does not exist') . ': ' . $link->error . "\n";
                                 echo '<br />' . __('Please create the database first or select option')
                                 . ':<br /><b>' . __('Create new database') . '</b>';
                             } else {
