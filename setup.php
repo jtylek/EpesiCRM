@@ -24,7 +24,7 @@ Example installation_config.php file:
 <?php
 $CONFIG = array('user' => 'db_username', 'password' => 'db_password', 'db' => 'database_name', 'host' => 'db_server_host',
     'newdb' => 0,  // or 1 to create new database
-    'engine' => 'mysqlt',  // or 'postgres' for PostgreSQL
+    'engine' => 'mysqli',  // or 'postgres' for PostgreSQL
     'direction' => 0  // Left to Right, or 1 for Right to Left
 );
 ?>
@@ -204,7 +204,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form -> addElement('text', 'host', __('Database server address'));
 	$form -> addRule('host', __('Field required'), 'required');
 	$form -> addElement('text', 'port', __('Custom database port'));
-	$form -> addElement('select', 'engine', __('Database engine'), array('postgres'=>'PostgreSQL', 'mysqlt'=>'MySQL'));
+	$form -> addElement('select', 'engine', __('Database engine'), array('postgres'=>'PostgreSQL', 'mysqli'=>'MySQL'));
 	$form -> addRule('engine', __('Field required'), 'required');
 	$form -> addElement('text', 'user', __('Database server user'));
 	$form -> addRule('user', __('Field required'), 'required');
@@ -222,7 +222,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
             array(0 => __('Left to Right'), 1 => __('Right to Left')));
 
 	$form -> addElement('submit', 'submit', __('Next'));
-	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
+	$form -> setDefaults(array('engine'=>'mysqli','db'=>'epesi','host'=>'localhost'));
 	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.__('denotes required field').'</span>');
 
     if (file_exists($fast_install_filename)) {
@@ -288,29 +288,29 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 					}
 				}
 			break;
-            case 'mysqlt':
-                if (!function_exists('mysql_connect')) {
+            case 'mysqli':
+                if (!class_exists('mysqli')) {
                     echo(__('Please enable mysql extension in php.ini.'));
                 } else {
 					if ($port) {
 						$host .= ':' . $port;
 					}
-                    $link = @mysql_connect($host, $user, $pass);
-                    if (!$link) {
-                        echo(__('Could not connect') . ': ' . mysql_error());
+                    $link = new mysqli($host, $user, $pass);
+                    if ($link->connect_errno) {
+                        echo(__('Could not connect') . "(Errno: {$link->connect_errno}): " . $link->connect_error);
                     } else {
                         if ($new_db == 1) {
                             $sql = 'CREATE DATABASE `' . $dbname . '` CHARACTER SET utf8 COLLATE utf8_unicode_ci';
-                            if (mysql_query($sql, $link)) {
+                            if ($link->query($sql)) {
                                 write_config($host, $user, $pass, $dbname, $engine, $other);
                             } else {
-                                echo __('Error creating database: ') . mysql_error() . "\n";
+                                echo __('Error creating database: ') . $link->error . "\n";
                             }
-                            mysql_close($link);
+                            $link->close();
                         } else {
-                            $result = mysql_select_db($dbname, $link);
+                            $result = $link->select_db($dbname);
                             if (!$result) {
-                                echo __('Database does not exist') . ': ' . mysql_error() . "\n";
+                                echo __('Database does not exist') . ': ' . $link->error . "\n";
                                 echo '<br />' . __('Please create the database first or select option')
                                 . ':<br /><b>' . __('Create new database') . '</b>';
                             } else {
