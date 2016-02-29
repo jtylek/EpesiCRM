@@ -344,7 +344,9 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         $vals = array();
-        if (!$value) {
+        if ($operator == DB::like() && ($value == '%' || $value == '%%')) {
+            $sql = 'true';
+        } elseif (!$value) {
             $sql = "$field IS NULL OR $field=''";
         } else {
             $sql = "$field $operator %s AND $field IS NOT NULL";
