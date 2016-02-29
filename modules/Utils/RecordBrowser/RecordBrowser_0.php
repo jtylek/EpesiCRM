@@ -2790,6 +2790,7 @@ class Utils_RecordBrowser extends Module {
             $this->show_add_in_table = true;
             $this->set_module_variable('force_add_in_table_after_submit', false);
         }
+        Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){if (jq("#add_in_table_row").is(":visible")) jq("input[name=submit_qanr]").click();}');
 		return $href;
     }
 	
