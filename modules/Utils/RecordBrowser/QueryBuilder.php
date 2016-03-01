@@ -11,7 +11,6 @@ class Utils_RecordBrowser_QueryBuilder
     protected $applied_joins = array();
     protected $final_tab;
     protected $tab_alias;
-    protected $subqueries_tab_ids = array();
     protected $admin_mode = false;
 
     function __construct($tab, $tab_alias = 'rest', $admin_mode = false)
@@ -520,6 +519,7 @@ class Utils_RecordBrowser_QueryBuilder
         $single_tab = !($tab2 == '__RECORDSETS__' || count(explode(',', $tab2)) > 1);
 
         $vv = explode('::', $value, 2);
+        $ids = null;
         if(isset($vv[1]) && is_callable($vv)) {
             $handled_with_php = array('true', array());
             if (!$single_tab) return $handled_with_php;
@@ -539,29 +539,12 @@ class Utils_RecordBrowser_QueryBuilder
                 }
             }
             if (!$action) return $handled_with_php;
-            if (!isset($this->subqueries_tab_ids[$tab2])) $this->subqueries_tab_ids[$tab2] = 0;
-            $tab_alias_id = $this->subqueries_tab_ids[$tab2]++;
-            $nested_tab_alias = $this->tab_alias . '_' . $tab2 . '_' . $tab_alias_id;
 
             $access_crits = Utils_RecordBrowserCommon::get_access($tab2, $action, null, true);
-            $subquery = Utils_RecordBrowserCommon::build_query($tab2, $access_crits, $this->admin_mode, array(), $nested_tab_alias);
-            $on_rule = $multiselect
-                ? "$field LIKE CONCAT('%\\_\\_', $nested_tab_alias.id, '\\_\\_%')"
-                : "$field = $nested_tab_alias.id";
-            if ($multiselect && $all) {
-                $count_ms_values = DB::is_postgresql() ?
-                    "array_length(regexp_split_to_array($field, '__'),1)-2" :
-                    "ROUND ((LENGTH($field) - LENGTH(REPLACE($field,'__',''))) / 2)-1" ;
-                $sql = "($count_ms_values) = (SELECT count(*) FROM $subquery[sql] AND $on_rule)";
-            } else {
-                $sql = "EXISTS (SELECT 1 FROM $subquery[sql] AND $on_rule)";
-            }
-            $vals = $subquery['vals'];
+            $subquery = Utils_RecordBrowserCommon::build_query($tab2, $access_crits, $this->admin_mode);
+            $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
         } else if ($sub_field && $single_tab && $tab2) {
             $col2 = explode('|', $sub_field);
-            if (!isset($this->subqueries_tab_ids[$tab2])) $this->subqueries_tab_ids[$tab2] = 0;
-            $tab_alias_id = $this->subqueries_tab_ids[$tab2]++;
-            $nested_tab_alias = $this->tab_alias . '_' . $tab2 . '_' . $tab_alias_id;
             $crits = new Utils_RecordBrowser_Crits();
             foreach ($col2 as $col) {
                 $col = $col[0] == ':' ? $col : Utils_RecordBrowserCommon::get_field_id(trim($col));
@@ -570,12 +553,8 @@ class Utils_RecordBrowser_QueryBuilder
                 }
             }
             if (!$crits->is_empty()) {
-                $subquery = Utils_RecordBrowserCommon::build_query($tab2, $crits, $this->admin_mode, array(), $nested_tab_alias);
-                $on_rule = $multiselect
-                    ? "$field LIKE CONCAT('%\\_\\_', $nested_tab_alias.id, '\\_\\_%')"
-                    : "$field = $nested_tab_alias.id";
-                $sql = "EXISTS (SELECT 1 FROM $subquery[sql] AND $on_rule)";
-                $vals = $subquery['vals'];
+                $subquery = Utils_RecordBrowserCommon::build_query($tab2, $crits, $this->admin_mode);
+                $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
             }
         } else {
             if ($raw_sql_val) {
@@ -601,6 +580,19 @@ class Utils_RecordBrowser_QueryBuilder
                 $sql = "($field $operator $operand AND $field IS NOT NULL)";
                 $vals[] = $value;
             }
+        }
+        if ($ids) {
+            if ($multiselect) {
+                $q = array();
+                foreach ($ids as $id) {
+                    $q[] = "$field LIKE '%\\_\\_$id\\_\\_%'";
+                }
+                $q = implode(' OR ', $q);
+            } else {
+                $q = implode(',', $ids);
+                $q = "$field IN ($q)";
+            }
+            $sql = "($field IS NOT NULL AND ($q))";
         }
         return array($sql, $vals);
     }
