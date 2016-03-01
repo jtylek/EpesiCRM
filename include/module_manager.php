@@ -754,19 +754,19 @@ class ModuleManager {
 	 */
 	public static final function get_instance($path) {
 		$xx = explode('/',$path);
-		$curr = & self::$root;
+		$curr = self::$root;
 		if(is_object($curr) && $curr->get_node_id() != $xx[1]) {
 			$x = null;
 			return $x;
 		}
 		$xx_count = count($xx);
 		if($xx_count>2) {
-			$curr = & $curr->get_child($xx[2]);
+			$curr = $curr->get_child($xx[2]);
 			if(!$curr) return $curr;
 			$xx_count--;
 			for($i=2; $i<$xx_count; $i++) {
 				if($curr->get_node_id() == $xx[$i]) {
-					$curr = & $curr->get_child($xx[$i+1]);
+					$curr = $curr->get_child($xx[$i+1]);
 				} else {
 					$x = null;
 					return $x;

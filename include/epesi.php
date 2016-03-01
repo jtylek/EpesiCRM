@@ -224,7 +224,7 @@ class Epesi {
 	/**
 	 * @param $m Module
      */
-	private static function go(& $m) {
+	private static function go($m) {
 		//define key so it's first in array
 		$path = $m->get_path();
 
@@ -235,7 +235,7 @@ class Epesi {
 		}
 
 		self::$content[$path]['span'] = 'main_content';
-		self::$content[$path]['module'] = & $m;
+		self::$content[$path]['module'] = $m;
 		if(MODULE_TIMES)
 		    $time = microtime(true);
 		//go
@@ -287,7 +287,7 @@ class Epesi {
 			call_user_func_array($k['func'],$k['args']);
 		}
 
-		$root = & ModuleManager::create_root();
+		$root = ModuleManager::create_root();
 		self::go($root);
 
 		//go somewhere else?

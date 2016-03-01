@@ -79,7 +79,7 @@ class DB {
         $ret = stripos(DATABASE_DRIVER, 'mysql') !== false;
         return $ret;
     }
-
+    
  	/**
 	 * Statistics only. Get number of queries till now.
 	 * @return integer
@@ -363,7 +363,14 @@ public static function &Execute( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
-$ret = call_user_func_array(array(self::$ado,"Execute"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"Execute"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"Execute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
@@ -458,7 +465,14 @@ public static function &SelectLimit( $sql , $nrows = -1 , $offset = -1 , $inputa
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[3]);
-$ret = call_user_func_array(array(self::$ado,"SelectLimit"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"SelectLimit"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"SelectLimit", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
@@ -476,7 +490,14 @@ public static function &GetAll( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
-$ret = call_user_func_array(array(self::$ado,"GetAll"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"GetAll"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetAll", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
@@ -487,7 +508,14 @@ public static function &GetAssoc( $sql , $inputarr = false , $force_array = fals
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
-$ret = call_user_func_array(array(self::$ado,"GetAssoc"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"GetAssoc"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetAssoc", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
@@ -498,7 +526,14 @@ public static function &CacheGetAssoc( $secs2cache , $sql = false , $inputarr = 
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
-$ret = call_user_func_array(array(self::$ado,"CacheGetAssoc"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CacheGetAssoc"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetAssoc", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -508,7 +543,14 @@ public static function &GetOne( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
-$ret = call_user_func_array(array(self::$ado,"GetOne"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"GetOne"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetOne", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
@@ -519,7 +561,14 @@ public static function &CacheGetOne( $secs2cache , $sql = false , $inputarr = fa
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
-$ret = call_user_func_array(array(self::$ado,"CacheGetOne"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CacheGetOne"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetOne", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -529,7 +578,14 @@ public static function &GetCol( $sql , $inputarr = false , $trim = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
-$ret = call_user_func_array(array(self::$ado,"GetCol"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"GetCol"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetCol", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
@@ -540,7 +596,14 @@ public static function &CacheGetCol( $secs , $sql = false , $inputarr = false , 
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
-$ret = call_user_func_array(array(self::$ado,"CacheGetCol"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CacheGetCol"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetCol", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -564,7 +627,14 @@ public static function &GetArray( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
-$ret = call_user_func_array(array(self::$ado,"GetArray"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"GetArray"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetArray", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
@@ -575,7 +645,14 @@ public static function &CacheGetAll( $secs2cache , $sql = false , $inputarr = fa
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
-$ret = call_user_func_array(array(self::$ado,"CacheGetAll"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CacheGetAll"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetAll", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -585,7 +662,14 @@ public static function &CacheGetArray( $secs2cache , $sql = false , $inputarr = 
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
-$ret = call_user_func_array(array(self::$ado,"CacheGetArray"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CacheGetArray"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetArray", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -595,7 +679,14 @@ public static function &GetRow( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
-$ret = call_user_func_array(array(self::$ado,"GetRow"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"GetRow"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetRow", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
@@ -606,7 +697,14 @@ public static function &CacheGetRow( $secs2cache , $sql = false , $inputarr = fa
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
-$ret = call_user_func_array(array(self::$ado,"CacheGetRow"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CacheGetRow"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetRow", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -614,7 +712,14 @@ return $ret;
 /** * Insert or replace a single record. Note: this is not the same as MySQL's replace. * ADOdb's Replace() uses update-insert semantics, not insert-delete-duplicates of MySQL. * Also note that no table locking is done currently, so it is possible that the * record be inserted twice by two programs... * * $this->Replace('products', array('prodname' =>"'Nails'","price" => 3.99), 'prodname'); * * $table table name * $fieldArray associative array of data (you must quote strings yourself). * $keyCol the primary key field name or if compound key, array of field names * autoQuote set to true to use a hueristic to quote strings. Works with nulls and numbers * but does not work with dates nor SQL functions. * has_autoinc the primary key is an auto-inc field, so skip in insert. * * Currently blob replace not supported * * returns 0 = fail, 1 = update, 2 = insert */
 public static function &Replace( $table , $fieldArray , $keyCol , $autoQuote = false , $has_autoinc = false ) {
 $args = func_get_args();
-$ret = call_user_func_array(array(self::$ado,"Replace"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"Replace"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 return $ret;
 }
 
@@ -623,7 +728,14 @@ public static function &CacheSelectLimit( $secs2cache , $sql , $nrows = -1 , $of
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[4]);
-$ret = call_user_func_array(array(self::$ado,"CacheSelectLimit"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CacheSelectLimit"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheSelectLimit", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -633,7 +745,14 @@ public static function &CacheFlush( $sql = false , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
-$ret = call_user_func_array(array(self::$ado,"CacheFlush"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CacheFlush"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheFlush", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -643,7 +762,14 @@ public static function &xCacheFlush( $sql = false , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
-$ret = call_user_func_array(array(self::$ado,"xCacheFlush"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"xCacheFlush"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"xCacheFlush", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -653,7 +779,14 @@ public static function &CacheExecute( $secs2cache , $sql = false , $inputarr = f
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
-$ret = call_user_func_array(array(self::$ado,"CacheExecute"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CacheExecute"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheExecute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -661,7 +794,14 @@ return $ret;
 
 public static function &AutoExecute( $table , $fields_values , $mode = 'INSERT' , $where = false , $forceUpdate = true , $magicq = false ) {
 $args = func_get_args();
-$ret = call_user_func_array(array(self::$ado,"AutoExecute"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"AutoExecute"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 return $ret;
 }
 
@@ -943,7 +1083,14 @@ public static function &PageExecute( $sql , $nrows , $page , $inputarr = false ,
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[3]);
-$ret = call_user_func_array(array(self::$ado,"PageExecute"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"PageExecute"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 self::$queries_qty++;
 if(SQL_TIMES)self::$queries[] = array("func"=>"PageExecute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
@@ -954,7 +1101,14 @@ public static function &CachePageExecute( $secs2cache , $sql , $nrows , $page , 
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[4]);
-$ret = call_user_func_array(array(self::$ado,"CachePageExecute"), $args);
+for($timeout_count=2;$timeout_count>=0;$timeout_count--) {
+    try {
+        $ret = call_user_func_array(array(self::$ado,"CachePageExecute"), $args);
+        break;
+    } catch(DBRetryQueryException $ex) {
+        if($timeout_count==0) throw new Exception('DB gone away');
+    }
+}
 if(SQL_TIMES)self::$queries[] = array("func"=>"CachePageExecute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
@@ -974,3 +1128,23 @@ return $ret;
 if (version_compare(PHP_VERSION, "5.3") == -1)
     @set_magic_quotes_runtime(false); // DEPRECATED since php 5.3
 DB::connect();
+
+class DBRetryQueryException extends Exception {}
+
+class DBErrorObserver extends ErrorObserver {
+    public function update_observer($type, $message,$errfile,$errline,$errcontext, $backtrace) {
+        if(DB::is_mysql() && preg_match('/mysql.+\[2006\:/',$message) || preg_match('/server closed the connection/',$message)) {
+            try {
+                DB::$ado = DB::Connect();
+                throw new DBRetryQueryException();
+                return false;
+            } catch(Exeption $e) {
+                return true;
+            }
+        }
+        return true;
+    }
+}
+
+$err = new DBErrorObserver();
+ErrorHandler::add_observer($err);
