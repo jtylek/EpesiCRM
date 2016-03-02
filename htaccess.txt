@@ -2,8 +2,14 @@ Options -Indexes
 #SecFilterEngine Off
 
 #if your server is running php as apache module:
+<IfModule mod_php5.c>
 php_value memory_limit "64M"
 php_flag magic_quotes_gpc off
+</IfModule>
+<IfModule mod_php7.c>
+php_value memory_limit "64M"
+php_flag magic_quotes_gpc off
+</IfModule>
 
 #if your server is running php as cgi/fastcgi you should set following directive instead of above php_value/flag
 #SetEnv PHPRC /your/epesi/root/directory/php.ini
