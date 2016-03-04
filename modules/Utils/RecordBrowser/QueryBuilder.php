@@ -134,7 +134,17 @@ class Utils_RecordBrowser_QueryBuilder
                     $cols2 = explode('|', $cols2);
                     $cols2 = $cols2[0];
                     $field_id = Utils_RecordBrowserCommon::get_field_id($cols2);
-                    $val = '(SELECT rdt.f_'.$field_id.' FROM '.$this->tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.$field_def['id'].' WHERE '.$this->tab_alias.'.id=rd.id)';
+                    $proper_sorting = false;
+                    $fields = Utils_RecordBrowserCommon::init($tab2);
+                    if ($fields) {
+                        $n_field = $fields[$cols2];
+                        $proper_sorting = $n_field['type'] != 'calculated' || $n_field['param'] != '';
+                    }
+                    if ($proper_sorting) {
+                        $val = '(SELECT rdt.f_'.$field_id.' FROM '.$tab2.'_data_1 AS rdt WHERE rdt.id='.$field_sql_id.')';
+                    } else {
+                        $val = $field_sql_id;
+                    }
                     $orderby[] = ' '.$val.' '.$v['direction'];
                 } elseif ($field_def['commondata']) {
                     $sort = $field_def['commondata_order'];
@@ -643,6 +653,25 @@ class Utils_RecordBrowser_QueryBuilder
         return array($sql_str, $vals);
     }
 
+    protected function hf_calculated($field, $operator, $value, $raw_sql_val, $field_def)
+    {
+        $param = isset($field_def['param']) ? $field_def['param'] : '';
+        if (!$param) {
+            return array('false', array());
+        }
+        if ($raw_sql_val) {
+            return array("$field $operator $value", array());
+        }
+        $vals = array();
+        if (DB::is_postgresql()) $field .= '::varchar';
+        if (!$value) {
+            $sql = "$field IS NULL OR $field=''";
+        } else {
+            $sql = "$field $operator %s AND $field IS NOT NULL";
+            $vals[] = $value;
+        }
+        return array($sql, $vals);
+    }
 
     protected function hf_multiple(Utils_RecordBrowser_CritsSingle $crit, $callback, $field_def = null)
     {
@@ -725,6 +754,10 @@ class Utils_RecordBrowser_QueryBuilder
 
             case 'time':
                 $ret = $this->hf_multiple($crit, array($this, 'hf_time'));
+                break;
+
+            case 'calculated':
+                $ret = $this->hf_multiple($crit, array($this, 'hf_calculated'), $field_def);
                 break;
 
             default:

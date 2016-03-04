@@ -722,7 +722,14 @@ class Utils_RecordBrowser extends Module {
             if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
             $query_cols[] = $args['id'];
             $arr = array('name'=>$args['name']);
-            if (!$pdf && !isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
+            if (!$pdf
+                && !isset($this->force_order)
+                && $this->browse_mode!='recent'
+                && $args['type']!=='multiselect'
+                && ($args['type']!=='calculated' || $args['param']!='')
+                && $args['type']!=='hidden'
+                && (!isset($args['ref_table']) || $args['ref_table'] != '__RECORDSETS__' && !preg_match('/,/',$this->tab))
+            ) $arr['order'] = $field;
             if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp' || $args['type']=='time') && !$this->add_in_table) || $args['type']=='commondata') {
                 $arr['wrapmode'] = 'nowrap';
                 $arr['width'] = 50;
@@ -1280,11 +1287,11 @@ class Utils_RecordBrowser extends Module {
 
 //        if ($mode!='add' && !$this->record[':active'] && !Base_AclCommon::i_am_admin()) return $this->back();
 
-        $tb = $this->init_module(Utils_TabbedBrowser::module_name(), null, 'recordbrowser_addons');
+        $tb = $this->init_module(Utils_TabbedBrowser::module_name(), null, 'recordbrowser_addons/'.$this->tab.'/'.$id);
 		if ($mode=='history') $tb->set_inline_display();
         self::$tab_param = $tb->get_path();
 
-        $form = $this->init_module(Libs_QuickForm::module_name(),null, $mode);
+        $form = $this->init_module(Libs_QuickForm::module_name(),null, $mode.'/'.$this->tab.'/'.$id);
         if(Base_User_SettingsCommon::get($this->get_type(), 'confirm_leave') && ($mode == 'add' || $mode == 'edit'))
         	$form->set_confirm_leave_page();
         
@@ -2230,9 +2237,9 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings()', 'id'=>'advanced'));
         $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
         $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $record (array)<br />- $links_not_recommended (bool)<br />- $field (array)<br />return "value to display";</li></ul>';
-		$form->addElement('textarea', 'display_callback', __('Value display function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>255, 'style'=>'width:97%', 'id'=>'display_callback'));
+		$form->addElement('textarea', 'display_callback', __('Value display function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'display_callback'));
         $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $form (QuickForm object)<br />- $field (string)<br />- $label (string)<br />- $mode (string)<br />- $default (mixed)<br />- $desc (array)<br />- $rb_obj (RB object)<br />- $display_callback_table (array)</li></ul>';
-		$form->addElement('textarea', 'QFfield_callback', __('Field generator function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>255, 'style'=>'width:97%', 'id'=>'QFfield_callback'));
+		$form->addElement('textarea', 'QFfield_callback', __('Field generator function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'QFfield_callback'));
 		
         if ($action=='edit') {
 			$form->freeze('field');

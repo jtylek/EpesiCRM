@@ -48,7 +48,7 @@ class Utils_TabbedBrowser extends Module {
 		load_js($this->get_module_dir().'tb_.js');
 				
 		$i = 0;
-		if(is_numeric($this->page) && $this->page >= count($this->tabs)) $this->page=0;
+		$this->check_valid_page();
 		$this->max = count($this->tabs);
 		$body = '';
 		$submenus = array();
@@ -194,6 +194,7 @@ class Utils_TabbedBrowser extends Module {
 	}
 	
 	public function get_tab() {
+		$this->check_valid_page();
 		return $this->page;
 	}
 	
@@ -226,6 +227,13 @@ class Utils_TabbedBrowser extends Module {
 		$this->tabs[$this->caption]['body'] = ob_get_contents();
 		ob_end_clean();		
 		$this->tabs[$this->caption]['js'] = true;
+	}
+
+	private function check_valid_page()
+	{
+		if (is_numeric($this->page) && $this->page >= count($this->tabs)) {
+			$this->page = count($this->tabs) - 1;
+		}
 	}
 
 }
