@@ -722,7 +722,14 @@ class Utils_RecordBrowser extends Module {
             if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
             $query_cols[] = $args['id'];
             $arr = array('name'=>$args['name']);
-            if (!$pdf && !isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
+            if (!$pdf
+                && !isset($this->force_order)
+                && $this->browse_mode!='recent'
+                && $args['type']!=='multiselect'
+                && ($args['type']!=='calculated' || $args['param']!='')
+                && $args['type']!=='hidden'
+                && (!isset($args['ref_table']) || $args['ref_table'] != '__RECORDSETS__' && !preg_match('/,/',$this->tab))
+            ) $arr['order'] = $field;
             if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp' || $args['type']=='time') && !$this->add_in_table) || $args['type']=='commondata') {
                 $arr['wrapmode'] = 'nowrap';
                 $arr['width'] = 50;
