@@ -1518,6 +1518,7 @@ class HTML_QuickForm extends HTML_Common
         $registry =& HTML_QuickForm_RuleRegistry::singleton();
 
         foreach ($this->_rules as $target => $rules) {
+            if($this->isElementFrozen($target)) continue;
             $submitValue = $this->getSubmitValue($target);
 
             foreach ($rules as $rule) {
