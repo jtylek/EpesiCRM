@@ -975,7 +975,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param $template
 	 * @param $options
      */
-	public function display($template, $options)
+	public function twig_display($template, $options)
 	{
 		/** @var Twig_Environment $twig */
 		$twig = $this->get('twig');
@@ -989,7 +989,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param $options
 	 * @return string
      */
-	public function render($template, $options)
+	public function twig_render($template, $options)
 	{
 		/** @var Twig_Environment $twig */
 		$twig = $this->get('twig');
