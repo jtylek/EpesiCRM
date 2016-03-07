@@ -28,32 +28,58 @@ if (php_sapi_name() == 'cli') {
 }
 require_once('include.php');
 
-set_time_limit(0);
-ini_set('memory_limit', '512M');
 ModuleManager::load_modules();
 Base_AclCommon::set_sa_user();
 
-$up = epesi_requires_update();
-if($up===null) {
-    die('error: database');
-} elseif($up===true) {
-    die('error: version');
+function test_database() {
+    $up = epesi_requires_update();
+    if($up===null) {
+        die('error: database');
+    } elseif($up===true) {
+        die('error: version');
+    }
 }
 
-DBSession::open('','');
-DBSession::read('monitoring');
+
+function test_session() {
+    $tag = microtime(1);
+    $session_id = session_id();
+    DBSession::open('','');
+    DBSession::read($session_id);
+    $_SESSION['monitoring'] = $tag;
+    $_SESSION['client']['monitoring'] = $tag;
+    DBSession::write($session_id,'');
+    $_SESSION = array();
+    DBSession::read($session_id);
+    if(!isset($_SESSION['monitoring']) || !isset($_SESSION['client']['monitoring']) || $_SESSION['monitoring'] != $tag || $_SESSION['client']['monitoring'] != $tag) {
+        die('error: session');
+    }
+}
+
+function test_data_directory() {
+    $tag = (string)microtime(1);
+    if(!is_writable(DATA_DIR)) {
+        die('error: data directory now writable');
+    }
+    $test_file = DATA_DIR.'/monitoring_test_file.txt';
+    file_put_contents($test_file, $tag);
+    if(file_get_contents($test_file) != $tag) {
+        die('error: data directory write/read error');
+    }
+    unlink($test_file);
+}
+
 $t = microtime(1);
-$_SESSION['monitoring'] = $t;
-$_SESSION['client']['monitoring'] = $t;
-DBSession::write('monitoring','');
-$_SESSION = array();
-DBSession::read('monitoring');
-if(!isset($_SESSION['monitoring']) || !isset($_SESSION['client']['monitoring']) || $_SESSION['monitoring'] != $t || $_SESSION['client']['monitoring'] != $t) {
-    die('error: session');
+if(isset($_GET['type'])) {
+    if(in_array($_GET['type'],array('database','session','data_directory'))) {
+        call_user_func('test_'.$_GET['type']);
+    } else {
+        die('Invalid test type: '.$_GET['type']);
+    }
+} else {
+    test_database();
+    test_session();
+    test_data_directory();
 }
 
-if(!is_writable(DATA_DIR)) {
-    die('error: data directory now writable');
-}
-
-die('ok');
+die(round((microtime(1)-$t)*1000));
