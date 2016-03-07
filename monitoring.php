@@ -1,6 +1,8 @@
 <?php
 /**
- * This file provides cron functionality... Add it to your cron.
+ * This file provides monitoring functionality...
+ * Returns time of execution in ms
+ * Available arguments: number (if defined and true script will return 999999 on any error), type (session, database, data_directory - run only one test)
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @license MIT
@@ -34,8 +36,10 @@ Base_AclCommon::set_sa_user();
 function test_database() {
     $up = epesi_requires_update();
     if($up===null) {
+        if(isset($_GET['number']) && $_GET['number']) die('999999');
         die('error: database');
     } elseif($up===true) {
+        if(isset($_GET['number']) && $_GET['number']) die('999999');
         die('error: version');
     }
 }
@@ -52,6 +56,7 @@ function test_session() {
     $_SESSION = array();
     DBSession::read($session_id);
     if(!isset($_SESSION['monitoring']) || !isset($_SESSION['client']['monitoring']) || $_SESSION['monitoring'] != $tag || $_SESSION['client']['monitoring'] != $tag) {
+        if(isset($_GET['number']) && $_GET['number']) die('999999');
         die('error: session');
     }
 }
@@ -59,11 +64,13 @@ function test_session() {
 function test_data_directory() {
     $tag = (string)microtime(1);
     if(!is_writable(DATA_DIR)) {
+        if(isset($_GET['number']) && $_GET['number']) die('999999');
         die('error: data directory now writable');
     }
     $test_file = DATA_DIR.'/monitoring_test_file.txt';
     file_put_contents($test_file, $tag);
     if(file_get_contents($test_file) != $tag) {
+        if(isset($_GET['number']) && $_GET['number']) die('999999');
         die('error: data directory write/read error');
     }
     unlink($test_file);
