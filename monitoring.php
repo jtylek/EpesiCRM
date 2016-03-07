@@ -63,7 +63,7 @@ function test_database() {
 
 function test_session() {
     $tag = microtime(1);
-    $session_id = session_id();
+    $session_id = 'monitoring_'.md5(DATABASE_NAME.'#'.DATABASE_HOST.'#'.DATABASE_DRIVER);
     DBSession::open('','');
     DBSession::read($session_id);
     $_SESSION['monitoring'] = $tag;
@@ -72,9 +72,11 @@ function test_session() {
     $_SESSION = array();
     DBSession::read($session_id);
     if(!isset($_SESSION['monitoring']) || !isset($_SESSION['client']['monitoring']) || $_SESSION['monitoring'] != $tag || $_SESSION['client']['monitoring'] != $tag) {
+        DBSession::write($session_id,'');
         if(isset($_GET['number']) && $_GET['number']) die('999999');
         die('error: session');
     }
+    DBSession::write($session_id,'');
 }
 
 function test_data_directory() {
