@@ -41,7 +41,7 @@ class DB {
 			self::$ado = NewADOConnection(DATABASE_DRIVER);
 			self::$ado->autoRollback = true; // default is false 
 			if(!@self::$ado->Connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
-					die("Connect to database failed");
+				throw new Exception("Connect to database failed");
 			$new = self::$ado;
 		}
         if (self::is_mysql()) {
