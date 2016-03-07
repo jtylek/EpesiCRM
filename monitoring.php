@@ -28,10 +28,26 @@ if (php_sapi_name() == 'cli') {
     if(CRON_TOKEN!=$_GET['token'])
         die('Invalid token in URL - please go to Administrator Panel->Cron and copy valid cron URL.');
 }
-require_once('include.php');
+try {
+    require_once('include.php');
 
-ModuleManager::load_modules();
-Base_AclCommon::set_sa_user();
+    ModuleManager::load_modules();
+    Base_AclCommon::set_sa_user();
+} catch(Exception $e) {
+    if(isset($_GET['number']) && $_GET['number']) die('999999');
+    die('error: init');
+}
+
+class MonitoringErrorObserver extends ErrorObserver {
+    public function update_observer($type, $message,$errfile,$errline,$errcontext, $backtrace) {
+        if(isset($_GET['number']) && $_GET['number']) die('999999');
+        die('error: '.$type.'# '.$message);
+    }
+}
+
+$err = new MonitoringErrorObserver();
+ErrorHandler::add_observer($err);
+
 
 function test_database() {
     $up = epesi_requires_update();
@@ -68,8 +84,8 @@ function test_data_directory() {
         die('error: data directory now writable');
     }
     $test_file = DATA_DIR.'/monitoring_test_file.txt';
-    file_put_contents($test_file, $tag);
-    if(file_get_contents($test_file) != $tag) {
+    @file_put_contents($test_file, $tag);
+    if(@file_get_contents($test_file) != $tag) {
         if(isset($_GET['number']) && $_GET['number']) die('999999');
         die('error: data directory write/read error');
     }
