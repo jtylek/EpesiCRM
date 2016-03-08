@@ -3,6 +3,24 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+CURRENT
+-------
+
+- Add missing Exception class
+- Fix RB search and sort for calculated and select fields
+- Fix crits - allow to query by date field with LIKE operator
+- Fix birthday applet
+- Allow to block network update with .noupdate file or when .git exists
+- Fix RB permission rules save on PostgreSQL
+- Fix permission editor issue after editing rule
+- Fix WhoIsOnline module installation
+- Fix tasks printout from calendar
+- Whitelabel integration fixes
+- Fix Roundcube memcache
+- Fix calendar event drags - revert to original position on invalid drop
+- Fix sending email with bug report - use files absolute path
+- Fix tabbed browser - pick last tab if trying to select page out of range
+
 RELEASE 1.7.1-20160127
 -------
 
