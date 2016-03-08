@@ -989,20 +989,23 @@ DB::connect();
 
 class DBRetryQueryException extends Exception {}
 
-class DBErrorObserver extends ErrorObserver {
-    public function update_observer($type, $message,$errfile,$errline,$errcontext, $backtrace) {
-        if(DB::is_mysql() && preg_match('/mysql.+\[2006\:/',$message) || preg_match('/server closed the connection/',$message)) {
-            try {
-                DB::$ado = DB::Connect();
-                throw new DBRetryQueryException();
-                return false;
-            } catch(Exeption $e) {
-                return true;
-            }
-        }
-        return true;
-    }
+if (class_exists('ErrorHandler', false)) {
+	class DBErrorObserver extends ErrorObserver
+	{
+		public function update_observer($type, $message, $errfile, $errline, $errcontext, $backtrace)
+		{
+			if (DB::is_mysql() && preg_match('/mysql.+\[2006\:/', $message) || preg_match('/server closed the connection/', $message)) {
+				try {
+					DB::$ado = DB::Connect();
+					throw new DBRetryQueryException();
+					return false;
+				} catch (Exeption $e) {
+					return true;
+				}
+			}
+			return true;
+		}
+	}
+	$err = new DBErrorObserver();
+	ErrorHandler::add_observer($err);
 }
-
-$err = new DBErrorObserver();
-ErrorHandler::add_observer($err);
