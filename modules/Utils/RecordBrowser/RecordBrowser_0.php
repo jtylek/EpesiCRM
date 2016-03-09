@@ -43,6 +43,7 @@ class Utils_RecordBrowser extends Module {
 	private $fields_in_tabs = array();
 	private $hide_tab = array();
     private $jump_to_new_record = false;
+    private $expandable_rows = true;
     public $action = 'Browsing'; // _M('Browsing');
     public $custom_defaults = array();
     public static $tab_param = '';
@@ -173,6 +174,11 @@ class Utils_RecordBrowser extends Module {
 
     public function get_val($field, $record, $links_not_recommended = false, $args = null) {
         return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $links_not_recommended, $args);
+    }
+
+    public function set_expandable_rows($bool)
+    {
+        $this->expandable_rows = $bool;
     }
 
     public function disable_search(){$this->disabled['search'] = true;}
@@ -674,7 +680,7 @@ class Utils_RecordBrowser extends Module {
         if ($this->data_gb!==null) $gb = $this->data_gb;
         else $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab);
 
-        if(!$pdf) $gb->set_expandable(true);
+        if(!$pdf) $gb->set_expandable($this->expandable_rows);
         
         if($pdf) $gb->set_resizable_columns(false);
         else $gb->set_fixed_columns_class($this->fixed_columns_class);
