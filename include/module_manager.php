@@ -825,6 +825,22 @@ class ModuleManager {
 		self::$modules = array();
 		$installed_modules = ModuleManager::get_load_priority_array(true);
 
+		$composer_autoloads = Cache::get('composer_autoloads');
+		if ($composer_autoloads === null) {
+			$composer_autoloads = array();
+			foreach ($installed_modules as $row) {
+				$module = $row['name'];
+				$filename = EPESI_LOCAL_DIR . '/modules/' . self::get_module_dir_path($module) . '/vendor/autoload.php';
+				if (file_exists($filename)) {
+					$composer_autoloads[] = $filename;
+				}
+			}
+			Cache::set('composer_autoloads', array_unique($composer_autoloads));
+		}
+		foreach ($composer_autoloads as $autoload_file) {
+			require_once $autoload_file;
+		}
+
 		$cached = false;
 		if(FORCE_CACHE_COMMON_FILES) {
 			$cache_file = DATA_DIR.'/cache/common.php';
