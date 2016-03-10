@@ -11,7 +11,6 @@ class ModuleLoader {
     private $lpa;
     private $lpa_count;
     private $lpa_index = 0;
-    private $loaded_modules = array();
     private $initialized = false;
 
     private function init() {
@@ -19,11 +18,15 @@ class ModuleLoader {
             $this->initialized = true;
             $this->lpa = ModuleManager::get_load_priority_array();
             $this->lpa_count = count($this->lpa);
-            ModulesAutoloader::enable();
         }
     }
 
     function load($modules) {
+        if ($modules == self::all_modules) {
+            ModuleManager::load_modules();
+            $this->initialized = true;
+            return;
+        }
         $this->init();
         
         if (!is_array($modules))
@@ -39,7 +42,7 @@ class ModuleLoader {
                 $version = $row['version'];
                 ModuleManager :: include_common($module, $version);
                 ModuleManager :: register($module, $version, ModuleManager::$modules);
-                if ($m != self::all_modules && $module == $m)
+                if ($module == $m)
                     break;
             }
         }
