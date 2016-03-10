@@ -1,6 +1,11 @@
 <table id="Browsing_records" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
+			{if $select_form != ""}
+			<td width="200px">
+				{$select_form}
+			</td>
+			{/if}
 			<td>
 				<div id="Utils_RecordBrowser__Filter">
 					<div class="buttons" style="float:left;">

@@ -71,6 +71,7 @@ class Utils_RecordBrowser extends Module {
     public $tab;
     public $grid = null;
     private $fixed_columns_class = array('Utils_RecordBrowser__favs', 'Utils_RecordBrowser__watchdog');
+    private $include_tab_in_id = false;
 
 	public function new_button($type, $label, $href) {
 		if ($this->fullscreen_table)
@@ -1019,8 +1020,9 @@ class Utils_RecordBrowser extends Module {
                 $element = $this->get_module_variable('element');
                 $format = $this->get_module_variable('format_func');
                 $formated_name = is_callable($format) ? strip_tags(call_user_func($format, $row, true)) : Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $row['id'], true);
-                $row_data = array('<input type="checkbox" id="leightbox_rpicker_' . $element . '_' . $row['id'] . '" formated_name="' . $formated_name . '" />');
-                $rpicker_ind[] = $row['id'];
+                $row_id = $this->include_tab_in_id? $this->tab . '/' . $row['id']: $row['id'];
+                $row_data = array('<input type="checkbox" id="leightbox_rpicker_' . $element . '_' . $row_id . '" formated_name="' . $formated_name . '" />');
+                $rpicker_ind[] = $row_id;
             }
             $r_access = $this->get_access('view', $row);
             foreach($query_cols as $k=>$argsid) {
@@ -2687,7 +2689,7 @@ class Utils_RecordBrowser extends Module {
     public function caption(){
         return $this->caption . ': ' . _V($this->action);
     }
-    public function recordpicker($element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
+    public function recordpicker($element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array(), $select_form = '') {
         $this->init();
         $this->set_module_variable('element',$element);
         $this->set_module_variable('format_func',$format);
@@ -2695,7 +2697,9 @@ class Utils_RecordBrowser extends Module {
         Base_ThemeCommon::load_css($this->get_type(),'Browsing_records');
         $theme->assign('filters', $this->show_filters($filters, $element));
         $theme->assign('disabled', '');
+        $theme->assign('select_form', $select_form);
         $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $crits);
+        $this->include_tab_in_id = $select_form? true: false;
         $theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
         if ($this->amount_of_records>=10000) {
             $theme->assign('select_all', array('js'=>'', 'label'=>__('Select all')));
@@ -2710,7 +2714,7 @@ class Utils_RecordBrowser extends Module {
 
         $rpicker_ind = $this->get_module_variable('rpicker_ind');
         foreach($rpicker_ind as $v) {
-            eval_js('rpicker_init(\''.$element.'\','.$v.')');
+            eval_js('rpicker_init(\''.$element.'\',\''.$v.'\')');
         }
         $theme->display('Record_picker');
     }
