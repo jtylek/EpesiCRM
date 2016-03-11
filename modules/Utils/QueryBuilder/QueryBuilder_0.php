@@ -57,7 +57,9 @@ class Utils_QueryBuilder extends Module
         $this->form_element_id = $form_element_id;
         $this->editor_element_name = $editor_element_name;
 
-        $this->form->addElement('static', $editor_element_name, $editor_element_label, "<div id=\"{$this->instance_id}\"></div>");
+        $str = "<div id=\"{$this->instance_id}\"></div>";
+        $this->form->addElement('static', $editor_element_name, $editor_element_label, $str);
+        $this->form->setDefaults(array($editor_element_name => $str));
 
         $this->generate_query_builder();
     }
