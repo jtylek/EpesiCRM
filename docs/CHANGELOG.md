@@ -6,20 +6,22 @@ EPESI CHANGELOG
 CURRENT
 -------
 
-- Add missing Exception class
+- Fix birthday applet
 - Fix RB search and sort for calculated and select fields
 - Fix crits - allow to query by date field with LIKE operator
-- Fix birthday applet
+- Fix calendar event drags - revert to original position on invalid drop
+- Fix tasks printout from calendar
 - Allow to block network update with .noupdate file or when .git exists
 - Fix RB permission rules save on PostgreSQL
 - Fix permission editor issue after editing rule
 - Fix WhoIsOnline module installation
-- Fix tasks printout from calendar
 - Whitelabel integration fixes
 - Fix Roundcube memcache
-- Fix calendar event drags - revert to original position on invalid drop
 - Fix sending email with bug report - use files absolute path
 - Fix tabbed browser - pick last tab if trying to select page out of range
+- Fix Query Builder integration with QuickForm
+- Allow to disable expandable rows per RB instance
+- Add missing Exception class
 
 RELEASE 1.7.1-20160127
 -------
