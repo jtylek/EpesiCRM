@@ -14,6 +14,27 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 
 	public function body($tab, $element, $format=array(), $crits=array(), $cols=array(), $order=array(), $filters=array(), $filters_defaults=array(), $custom_filters=array()) {
 		Module::$disable_confirm_leave = true;
+
+		$select_form = '';
+		if (is_array($tab)) {
+			$tabs = array_intersect_key(Utils_RecordBrowserCommon::list_installed_recordsets(), array_flip($tab));
+			
+			$form = $this->init_module(Libs_QuickForm::module_name());			
+			$form->addElement('select', 'tab', __('Recordset'), $tabs, array('id'=>'tab', 'onchange'=>$form->get_submit_form_js(), 'style'=>'width:200px'));
+			
+			if ($form->exportValue('submited')) {
+				$this->set_module_variable('tab', $form->exportValue('tab'));
+			}
+			
+			$tab = $this->get_module_variable('tab', reset($tab));
+
+			$form->setDefaults(array('tab'=>$tab));
+			
+			ob_start();
+			$form->display_as_row();			
+			$select_form = ob_get_clean();
+		}
+		
 		$rb = $this->init_module(Utils_RecordBrowser::module_name(), $tab, $tab.'_picker');
 		$rb->adv_search = true;
 		$rb->set_filters_defaults($filters_defaults);
@@ -25,7 +46,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 
 		Libs_LeightboxCommon::display(
 			'rpicker_leightbox_'.$element,
-			$this->get_html_of_module($rb, array($element, $format, $crits, $cols, $order, $filters), 'recordpicker'),
+			$this->get_html_of_module($rb, array($element, $format, $crits, $cols, $order, $filters, $select_form), 'recordpicker'),
 			__('Select'),
 			true);
 		Module::$disable_confirm_leave = false;
