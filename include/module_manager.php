@@ -830,15 +830,17 @@ class ModuleManager {
 			$composer_autoloads = array();
 			foreach ($installed_modules as $row) {
 				$module = $row['name'];
-				$filename = EPESI_LOCAL_DIR . '/modules/' . self::get_module_dir_path($module) . '/vendor/autoload.php';
-				if (file_exists($filename)) {
+				$filename = '/modules/' . self::get_module_dir_path($module) . '/vendor/autoload.php';
+				if (file_exists(EPESI_LOCAL_DIR . $filename)) {
 					$composer_autoloads[] = $filename;
 				}
 			}
 			Cache::set('composer_autoloads', array_unique($composer_autoloads));
 		}
 		foreach ($composer_autoloads as $autoload_file) {
-			require_once $autoload_file;
+			if (file_exists(EPESI_LOCAL_DIR . $autoload_file)) {
+				require_once EPESI_LOCAL_DIR . $autoload_file;
+			}
 		}
 
 		$cached = false;
