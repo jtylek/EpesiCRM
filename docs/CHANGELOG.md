@@ -3,7 +3,7 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
-CURRENT
+RELEASE 1.7.2-20160314
 -------
 
 - Fix birthday applet
