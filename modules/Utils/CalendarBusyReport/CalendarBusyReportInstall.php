@@ -41,7 +41,7 @@ class Utils_CalendarBusyReportInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return true;
+		return false;
 	}
 	
 }
