@@ -53,7 +53,7 @@ class Utils_RecordBrowser_CustomRecordsetsInstall extends ModuleInstall
 
     public static function simple_setup()
     {
-        return array('package' => __('Custom Recordsets Creator'), 'version' => self::version);
+        return array('package' => __('EPESI Core'));
     }
 
 }

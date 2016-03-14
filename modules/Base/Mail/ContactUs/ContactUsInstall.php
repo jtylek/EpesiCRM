@@ -13,24 +13,28 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Mail_ContactUsInstall extends ModuleInstall {
 	public function install() {
+		Base_ThemeCommon::install_default_theme(self::module_name());
 	    return true;
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme(self::module_name());
 	    return true;
 	}
 
 	public function requires($v) {
 		return array(
-			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
-			array('name'=>Base_MailInstall::module_name(), 'version'=>0),
-			array('name'=>Base_LangInstall::module_name(), 'version'=>0),
-			array('name'=>Base_StatusBarInstall::module_name(), 'version'=>0),
-			array('name'=>Base_User_LoginInstall::module_name(), 'version'=>0));
+			array('name'=>Base_ThemeInstall::module_name(),'version'=>0),
+			array('name'=>Base_MenuInstall::module_name(),'version'=>0),
+		);
 	}
 
 	public static function simple_setup() {
 		return __('EPESI Core');
+	}
+
+	public function version() {
+		return array('1.0');
 	}
 }
 

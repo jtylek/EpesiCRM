@@ -42,7 +42,7 @@ class Utils_TrayInstall extends ModuleInstall {
 	}
 	
 	public function simple_setup() {
-		return __('EPESI Core');
+		return false;
 	}
 	
 }
