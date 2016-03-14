@@ -11,6 +11,7 @@ CURRENT
 - Fix crits - allow to query by date field with LIKE operator
 - Fix calendar event drags - revert to original position on invalid drop
 - Fix tasks printout from calendar
+- Remove unsupported CRM/Assets module
 - Allow to block network update with .noupdate file or when .git exists
 - Fix RB permission rules save on PostgreSQL
 - Fix permission editor issue after editing rule
@@ -22,6 +23,7 @@ CURRENT
 - Fix Query Builder integration with QuickForm
 - Allow to disable expandable rows per RB instance
 - Add missing Exception class
+- Reorganize installation files and modules installed by default
 
 RELEASE 1.7.1-20160127
 -------
