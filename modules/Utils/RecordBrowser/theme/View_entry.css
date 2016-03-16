@@ -80,6 +80,7 @@
 	-webkit-box-shadow: inset 1px 1px 1px #777;
 	-moz-box-shadow: inset 1px 1px 1px #777;
 	box-shadow: inset 1px 1px 1px #777;
+	position: relative;
 }
 .epesi_rtl .Utils_RecordBrowser__View_entry .data {
 	-webkit-border-radius: 4px 0 0 4px;
@@ -93,6 +94,22 @@
 
 .Utils_RecordBrowser__View_entry .number {
     text-align: right;
+}
+
+.Utils_RecordBrowser__View_entry .help {
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	right: 2px;
+	top: 3px;
+}
+
+.Utils_RecordBrowser__View_entry .help + div {
+	margin-right: 14px;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .help  + div {
+	margin-right: 22px;
 }
 
 .Utils_RecordBrowser__View_entry table.view .data {

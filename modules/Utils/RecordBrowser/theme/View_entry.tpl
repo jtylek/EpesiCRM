@@ -89,8 +89,12 @@
 							<tr>
 								<td class="label">{$f.label}{if $f.required}*{/if}</td>
 								<td class="data {$f.style}" id="_{$f.element}__data">
-									<div style="position:relative;">
-										{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
+									{if $f.error}{$f.error}{/if}
+									{if $f.help}
+										<div class="help"><img src="{$f.help.icon}" alt="help" {$f.help.text}></div>
+									{/if}
+									<div>
+										{$f.html}{if $action == 'view'}&nbsp;{/if}
 									</div>
 								</td>
 							</tr>

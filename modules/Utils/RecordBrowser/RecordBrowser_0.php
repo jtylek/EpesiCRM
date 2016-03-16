@@ -1588,6 +1588,9 @@ class Utils_RecordBrowser extends Module {
             {
 				if ($tab_label) $this->fields_in_tabs[$tab_label][] = $args['id'];
                 if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
+                    $help = isset($args['help']) && $args['help'] ?
+                        array('icon' => Base_ThemeCommon::get_icon('info'), 'text' => Utils_TooltipCommon::open_tag_attrs(_V($args['help']), false))
+                        : false;
                     $arr = array(   'label'=>$data[$args['id']]['label'],
                                     'element'=>$args['id'],
                                     'advanced'=>isset($this->advanced[$args['id']])?$this->advanced[$args['id']]:'',
@@ -1595,7 +1598,8 @@ class Utils_RecordBrowser extends Module {
                                     'style'=>$args['style'].($data[$args['id']]['frozen']?' frozen':''),
                                     'error'=>isset($data[$args['id']]['error'])?$data[$args['id']]['error']:null,
                                     'required'=>isset($args['required'])?$args['required']:null,
-                                    'type'=>$args['type']);
+                                    'type'=>$args['type'],
+                                    'help' => $help);
                     if ($args['type']<>'long text') $fields[$args['id']] = $arr; else $longfields[$args['id']] = $arr;
             }
         }
