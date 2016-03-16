@@ -55,6 +55,7 @@
 		</tr>
 	</table>
 
+	{if $custom_getters}
 	<table id="Utils_Attachment__download" cellspacing="0" cellpadding="0">
 		<tr>
 		{assign var=x value=0}
@@ -77,6 +78,7 @@
 	{/foreach}
 		</tr>
 	</table>
+	{/if}
 </div>
 
 {if isset($save_options_id)}

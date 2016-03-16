@@ -302,6 +302,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if(!$crypted || isset($_SESSION['client']['cp'.$row['id']])) {
             $files = DB::GetAll('SELECT id, created_by, created_on, original, filestorage_id, (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads FROM utils_attachment_file uaf WHERE uaf.attach_id=%d AND uaf.deleted=0', array($row['id']));
             foreach ($files as $f) {
+                if ($nolink) {
+                    $icon .= '<br>' . $f['original'];
+                    continue;
+                }
                 try {
                     $meta = Utils_FileStorageCommon::meta($f['filestorage_id']);
                     $f_filename = $meta['file'];
