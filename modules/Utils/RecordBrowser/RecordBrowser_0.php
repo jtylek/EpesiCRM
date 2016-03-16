@@ -1938,6 +1938,7 @@ class Utils_RecordBrowser extends Module {
         $gb->set_table_columns(array(
             array('name'=>__('Field'), 'width'=>20),
             array('name'=>__('Caption'), 'width'=>20),
+            array('name'=>__('Help Message'), 'width'=>12),
             array('name'=>__('Type'), 'width'=>10),
             array('name'=>__('Table view'), 'width'=>5),
             array('name'=>__('Tooltip'), 'width'=>5),
@@ -2032,6 +2033,7 @@ class Utils_RecordBrowser extends Module {
                     $gb_row->add_data(
                         array('style'=>'background-color: #DFDFFF;', 'value'=>$field),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>$args['name']),
+                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>__('Page Split')),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
                         array('style'=>'background-color: #DFDFFF;', 'value'=>''),
@@ -2068,6 +2070,7 @@ class Utils_RecordBrowser extends Module {
                     $gb_row->add_data(
                         $field,
                         $args['name'],
+                        $args['help'],
                         isset($types[$args['type']])?$types[$args['type']]:$args['type'],
                         $args['visible']?'<b>'.__('Yes').'</b>':__('No'),
                         $args['tooltip']?'<b>'.__('Yes').'</b>':__('No'),
@@ -2140,7 +2143,7 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('text', 'caption', __('Caption'), array('maxlength'=>255, 'placeholder' => __('Leave empty to use default label')));
 
         if ($action=='edit') {
-            $row = DB::GetRow('SELECT field, caption, type, visible, required, param, filter, export, tooltip, extra, position FROM '.$this->tab.'_field WHERE field=%s',array($field));
+            $row = DB::GetRow('SELECT field, caption, type, visible, required, param, filter, export, tooltip, extra, position, help FROM '.$this->tab.'_field WHERE field=%s',array($field));
 			switch ($row['type']) {
 				case 'select':
 					$row['select_data_type'] = 'select';
@@ -2245,6 +2248,9 @@ class Utils_RecordBrowser extends Module {
         $form->addRule('autonumber_pad_length', __('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
         $form->addElement('text', 'autonumber_pad_mask', __('Pad character'), array('id' => 'autonumber_pad_mask'));
         $form->addRule('autonumber_pad_mask', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
+
+        $ck = $form->addElement('ckeditor', 'help', __('Help Message'));
+        $ck->setFCKProps(null, null, false);
 
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings()', 'id'=>'advanced'));
         $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
@@ -2393,7 +2399,7 @@ class Utils_RecordBrowser extends Module {
             if(!isset($data['tooltip']) || $data['tooltip'] == '') $data['tooltip'] = 0;
 
             foreach($data as $key=>$val)
-                if (is_string($val)) $data[$key] = htmlspecialchars($val);
+                if (is_string($val) && $key != 'help') $data[$key] = htmlspecialchars($val);
 
 /*            DB::StartTrans();
             if ($id!=$new_id) {
@@ -2405,8 +2411,8 @@ class Utils_RecordBrowser extends Module {
                     DB::RenameColumn($this->tab.'_data_1', 'f_'.$id, 'f_'.$new_id, Utils_RecordBrowserCommon::actual_db_type($type, $old_param));
                 }
             }*/
-            DB::Execute('UPDATE '.$this->tab.'_field SET caption=%s, param=%s, type=%s, field=%s, visible=%d, required=%d, filter=%d, export=%d, tooltip=%d WHERE field=%s',
-                        array($data['caption'], $param, $data['select_data_type'], $data['field'], $data['visible'], $data['required'], $data['filter'], $data['export'], $data['tooltip'], $field));
+            DB::Execute('UPDATE '.$this->tab.'_field SET caption=%s, param=%s, type=%s, field=%s, visible=%d, required=%d, filter=%d, export=%d, tooltip=%d, help=%s WHERE field=%s',
+                        array($data['caption'], $param, $data['select_data_type'], $data['field'], $data['visible'], $data['required'], $data['filter'], $data['export'], $data['tooltip'], $data['help'], $field));
 /*            DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
                         array($new_id, $id));
             DB::CompleteTrans();*/

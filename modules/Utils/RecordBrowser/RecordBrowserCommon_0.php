@@ -425,7 +425,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'processing_order' => $row['processing_order'],
                         'filter'=>$row['filter'],
                         'style'=>$row['style'],
-                        'param'=>$row['param']);
+                        'param'=>$row['param'],
+                        'help' =>$row['help']);
 			if (isset(self::$display_callback_table[$tab][$row['field']]))
 				$next_field['display_callback'] = self::$display_callback_table[$tab][$row['field']];
 			if (($row['type']=='select' || $row['type']=='multiselect') && $row['param']) {
@@ -507,7 +508,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'processing_order I2 NOTNULL,'.
                     'filter I1 DEFAULT 0,'.
                     'param C(255),'.
-                    'style C(64)',
+                    'style C(64),'.
+                    'help X',
                     array('constraints'=>''));
         DB::CreateTable($tab.'_callback',
                     'field C(32),'.
