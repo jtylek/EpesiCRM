@@ -87,7 +87,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             'label' => __('Created on'),
             'type' => 'datetime',
             'plugin' => 'datepicker',
-            'plugin_config' => array('dateFormat' => 'yy-mm-dd'),
+            'plugin_config' => array('dateFormat' => 'yy-mm-dd', 'constrainInput' => false),
         );
         $ret[] = array(
             'id' => ':Created_on_relative',
@@ -103,7 +103,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             'label' => __('Edited on'),
             'type' => 'datetime',
             'plugin' => 'datepicker',
-            'plugin_config' => array('dateFormat' => 'yy-mm-dd'),
+            'plugin_config' => array('dateFormat' => 'yy-mm-dd', 'constrainInput' => false),
         );
         $ret[] = array(
             'id' => ':Edited_on_relative',
@@ -199,7 +199,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 if (!$type) $type = 'date';
                 // absolute value filter
                 $opts['plugin'] = 'datepicker';
-                $opts['plugin_config'] = array('dateFormat' => 'yy-mm-dd');
+                $opts['plugin_config'] = array('dateFormat' => 'yy-mm-dd', 'constrainInput' => false);
                 // relative value filter
                 $filt2 = $opts;
                 $filt2['id'] .= '_relative';
