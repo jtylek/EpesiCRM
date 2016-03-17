@@ -1072,7 +1072,6 @@ class ModuleManager {
 
 	public static function check_is_module_available($module)
 	{
-        return; // temporary disable this feature, because of issues
 		if (!self::module_dir_exists($module)) {
 			self::set_module_state($module, self::MODULE_NOT_FOUND);
 			self::unregister($module, self::$modules);

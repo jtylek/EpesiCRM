@@ -28,6 +28,8 @@ if (php_sapi_name() == 'cli') {
 }
 require_once('include.php');
 
+if (file_exists(DATA_DIR . '/maintenance_mode.php')) die();
+
 $lock = DATA_DIR.'/cron.lock';
 if(file_exists($lock) && filemtime($lock)>time()-6*3600) die();
 register_shutdown_function(create_function('','@unlink("'.$lock.'");'));
