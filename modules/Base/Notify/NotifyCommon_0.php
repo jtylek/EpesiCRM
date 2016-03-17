@@ -163,25 +163,13 @@ class Base_NotifyCommon extends ModuleCommon {
 	}
 
 	public static function get_general_setting() {
-		static $cache;
-		
-		if (!isset($cache)) $cache = Base_User_SettingsCommon::get('Base_Notify', 'general_timeout');
-		
-		return $cache;
+		return Base_User_SettingsCommon::get('Base_Notify', 'general_timeout');
 	}
 
 	public static function get_module_setting($module) {
-		static $cache;		
-		
 		$module = rtrim($module);
-		
-		if (!isset($cache[$module])) {
-			$module_setting = Base_User_SettingsCommon::get('Base_Notify', $module.'_timeout');
-
-			$cache[$module] = ($module_setting == -2) ? self::get_general_setting(): $module_setting;
-		}
-		
-		return $cache[$module];
+		$module_setting = Base_User_SettingsCommon::get('Base_Notify', $module.'_timeout');
+		return ($module_setting == -2) ? self::get_general_setting(): $module_setting;
 	}	
 
 	public static function user_settings() {
