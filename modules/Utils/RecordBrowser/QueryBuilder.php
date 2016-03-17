@@ -164,7 +164,19 @@ class Utils_RecordBrowser_QueryBuilder
                 } elseif ($field_def['type'] == 'calculated') {
                     if (!$field_def['param']) continue;
 
-                    $orderby[] = ' ' . $field_sql_id . ' ' . $v['direction'];
+                    $param = explode('::', $field_def['param']);
+                    if (isset($param[1]) && $param[1] != '') {
+                        $tab2 = $param[0];
+                        $cols = explode('|', $param[1]);
+                        $first_col = $cols[0];
+                        $first_col = explode('/', $first_col);
+                        $data_col = isset($first_col[1]) ? Utils_RecordBrowserCommon::get_field_id($first_col[1]) : $field_def['id'];
+                        $field_id = Utils_RecordBrowserCommon::get_field_id($first_col[0]);
+                        $val = '(SELECT rdt.f_'.$field_id.' FROM '.$this->tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.$data_col.' WHERE '.$this->tab_alias.'.id=rd.id)';
+                    } else {
+                        $val = $field_sql_id;
+                    }
+                    $orderby[] = ' ' . $val . ' ' . $v['direction'];
                 } else {
                     if ($field_def['type'] == 'currency') {
                         if (DB::is_mysql()) {
