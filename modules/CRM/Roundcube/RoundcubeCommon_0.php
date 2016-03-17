@@ -526,7 +526,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     {
         $return = null;
         $rec = Utils_RecordBrowserCommon::get_record('rc_accounts', $account_id);
-        if ($rec['epesi_user'] !== Acl::get_user()) {
+        if ($rec['epesi_user'] != Acl::get_user()) {
             throw new Exception('Invalid account id');
         }
         $port = $rec['security'] == 'ssl' ? 993 : 143;
