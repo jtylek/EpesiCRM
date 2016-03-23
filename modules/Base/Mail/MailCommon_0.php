@@ -61,7 +61,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	 * @param string sender's name
 	 * @return true on success, false otherwise
 	 */
-	public static function send($to,$subject,$body,$from_addr=null, $from_name=null, $html=false, $critical=false, $inline_images = array()) {
+	public static function send($to,$subject,$body,$from_addr=null, $from_name=null, $html=false, $critical=false, $inline_images = array(), $attachments = array()) {
 		$mailer = self::new_mailer();
 		$mail_use_replyto = Variable::get('mail_use_replyto');
 		if(!isset($from_name)) $from_name = Variable::get('mail_from_name');
@@ -116,6 +116,10 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 		
 		foreach($inline_images as $cid=>$a) {
 			$mailer->AddEmbeddedImage($a, $cid, basename($a),'base64','image/'.(preg_match('/\.je?pg$/i',$a)?'jpeg':(preg_match('/\.png$/i',$a)?'png':'gif')));
+		}
+
+		foreach ($attachments as $file => $filename) {
+			$mailer->AddAttachment($file, $filename);
 		}
 		
 		$mailer->CharSet = "utf-8";
