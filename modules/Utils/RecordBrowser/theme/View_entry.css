@@ -140,7 +140,7 @@
 
 .Utils_RecordBrowser__View_entry table.edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
-.Utils_RecordBrowser__View_entry .data input,
+.Utils_RecordBrowser__View_entry .data input:not([type=button]),
 .Utils_RecordBrowser__View_entry .data select,
 .Utils_RecordBrowser__View_entry .data textarea {
 	width: 99%;

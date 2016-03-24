@@ -124,51 +124,10 @@
                     {* title *}
                     <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
-                            <tr>
-                                <td class="group_bottom label title" align="left">{$form_data.title.label}{if $form_data.title.required}*{/if}</td>
-                                <td class="group_bottom data title" align="left" id="_title__data">
-									<div style="position:relative;">
-										<span class="error">{$form_data.title.error}</span>
-										{$form_data.title.html}
-									</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label" align="left">{$form_data.permission.label}{if $form_data.permission.required}*{/if}</td>
-                                <td class="data permission" align="left" id="_permission__data">
-									<div style="position:relative;">
-										<span class="error">{$form_data.permission.error}</span>
-										{if $action=='view'}
-											<div class="icon permission_{$raw_data.permission}"></div>
-										{/if}
-										{$form_data.permission.html}
-									</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label" align="left">{$form_data.priority.label}{if $form_data.priority.required}*{/if}</td>
-                                <td class="data priority" align="left" id="_priority__data">
-									<div style="position:relative;">
-										<span class="error">{$form_data.priority.error}</span>
-										{if $action=='view'}
-											<div class="icon priority_{$raw_data.priority}"></div>
-										{/if}
-										{$form_data.priority.html}
-									</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label" align="left">{$form_data.status.label}{if $form_data.status.required}*{/if}</td>
-                                <td class="data status" align="left" id="_status__data">
-									<div style="position:relative;">
-										<span class="error">{$form_data.status.error}</span>
-										{if $action=='view'}
-											<div class="icon status_{$raw_data.status}"></div>
-										{/if}
-										{$form_data.status.html}
-									</div>
-                                </td>
-                            </tr>
+							{$fields.title.full_field}
+							{$fields.permission.full_field}
+							{$fields.priority.full_field}
+							{$fields.status.full_field}
                         </tbody>
                     </table>
                 </td>
@@ -297,15 +256,7 @@
 							$k!='permission' &&
                             $f.type != 'multiselect'
                     )}
-					<tr>
-						<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
-						<td class="data" align="left" colspan="2"  id="_{$f.element}__data">
-							<div style="position:relative;">
-								<span class="error">{$f.error}</span>
-								{$f.html}
-							</div>
-						</td>
-					</tr>
+						{$f.full_field}
 					{/if}
 				{/foreach}
                         </tbody>
@@ -321,14 +272,7 @@
 						<td class="column" style="width: {$cols_percent}%;">
 							<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 						{/if}
-								<tr>
-									<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
-									<td class="data {$f.style}" id="_{$f.element}__data">
-										<div style="position:relative;">
-											{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
-										</div>
-									</td>
-								</tr>
+						{$f.full_field}
 						{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 							{if $x>$mss_no_empty}
 								<tr style="display:none;">
@@ -350,14 +294,7 @@
 				<td colspan="2">
 				<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 					{foreach key=k item=f from=$longfields name=fields}
-						<tr>
-							<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
-							<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">
-								<div style="position:relative;">
-									{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
-								</div>
-							</td>
-						</tr>
+						{$f.full_field}
 					{/foreach}
 				</table>
 				</td>

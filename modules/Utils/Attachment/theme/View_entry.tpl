@@ -76,38 +76,17 @@
                 <tr>
                     <td>
                         <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-                        <tr>
-                        <td class="label">{$fields.title.label}{if $fields.title.required}*{/if}</td>
-                        <td class="data {$fields.title.style}" id="_{$fields.title.element}__data">
-                            <div style="position:relative;">
-                                {if $fields.title.error}{$fields.title.error}{/if}{$fields.title.html}{if $action == 'view'}&nbsp;{/if}
-                            </div>
-                        </td>
-                        </tr>
+                            {$fields.title.full_field}
                         </table>
                     </td>
                     <td>
                         <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-                        <tr>
-                        <td class="label">{$fields.edited_on.label}{if $fields.edited_on.required}*{/if}</td>
-                        <td class="data {$fields.edited_on.style}" id="_{$fields.edited_on.element}__data">
-                            <div style="position:relative;">
-                                {if $fields.edited_on.error}{$fields.edited_on.error}{/if}{$fields.edited_on.html}{if $action == 'view'}&nbsp;{/if}
-                            </div>
-                        </td>
-                        </tr>
+                            {$fields.edited_on.full_field}
                         </table>
                     </td>
                     <td>
                         <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-                        <tr>
-                        <td class="label">{$fields.permission.label}{if $fields.permission.required}*{/if}</td>
-                        <td class="data {$fields.permission.style}" id="_{$fields.permission.element}__data">
-                            <div style="position:relative;">
-                                {if $fields.permission.error}{$fields.permission.error}{/if}{$fields.permission.html}{if $action == 'view'}&nbsp;{/if}
-                            </div>
-                        </td>
-                        </tr>
+                            {$fields.permission.full_field}
                         </table>
                     </td>
                 </tr>
@@ -116,8 +95,12 @@
                         <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
                         <tr>
                         <td class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
-                            <div style="position:relative;">
-                                {if $longfields.note.error}{$longfields.note.error}{/if}{$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
+                            {if $longfields.note.error}{$longfields.note.error}{/if}
+                            {if $longfields.note.help}
+                                <div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
+                            {/if}
+                            <div>
+                                {$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
                             </div>
                         </td>
                         </tr>
@@ -127,26 +110,12 @@
                 <tr>
                     <td>
                         <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-                        <tr>
-                        <td class="label">{$fields.sticky.label}{if $fields.sticky.required}*{/if}</td>
-                        <td class="data {$fields.sticky.style}" id="_{$fields.sticky.element}__data">
-                            <div style="position:relative;">
-                                {if $fields.sticky.error}{$fields.sticky.error}{/if}{$fields.sticky.html}{if $action == 'view'}&nbsp;{/if}
-                            </div>
-                        </td>
-                        </tr>
+                            {$fields.sticky.full_field}
                         </table>
                     </td>
                     <td colspan="2">
                         <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-                        <tr>
-                        <td class="label">{$fields.crypted.label}{if $fields.crypted.required}*{/if}</td>
-                        <td class="data {$fields.crypted.style}" id="_{$fields.crypted.element}__data">
-                            <div style="position:relative;">
-                                {if $fields.crypted.error}{$fields.crypted.error}{/if}{$fields.crypted.html}{if $action == 'view'}&nbsp;{/if}
-                            </div>
-                        </td>
-                        </tr>
+                            {$fields.crypted.full_field}
                         </table>
                     </td>
                 </tr>
@@ -185,14 +154,7 @@
                                 <td class="column" style="width: {$cols_percent}%;">
                                 <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
                             {/if}
-                            <tr>
-                                <td class="label">{$f.label}{if $f.required}*{/if}</td>
-                                <td class="data {$f.style}" id="_{$f.element}__data">
-                                    <div style="position:relative;">
-                                        {if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
-                                    </div>
-                                </td>
-                            </tr>
+                            {$f.full_field}
                             {if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
                                 {if $x>$no_empty}
                                     <tr style="display:none;">
@@ -220,14 +182,7 @@
                                 <td class="column" style="width: {$cols_percent}%;">
                                 <table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
                             {/if}
-                            <tr>
-                                <td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
-                                <td class="data {$f.style}" id="_{$f.element}__data">
-                                    <div style="position:relative;">
-                                        {if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
-                                    </div>
-                                </td>
-                            </tr>
+                            {$f.full_field}
                             {if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
                                 {if $x>$mss_no_empty}
                                     <tr style="display:none;">
@@ -250,14 +205,7 @@
                         <table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
                             {foreach key=k item=f from=$longfields name=fields}
                                 {if $k!='note'}
-                                <tr>
-                                    <td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">
-                                        <div style="position:relative;">
-                                            {if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}
-                                        </div>
-                                    </td>
-                                    <td class="data long_label" style="vertical-align: top;"></td>
-                                </tr>
+                                    {$f.full_field}
                                 {/if}
                             {/foreach}
                         </table>

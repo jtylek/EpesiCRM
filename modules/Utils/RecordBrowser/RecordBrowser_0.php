@@ -1582,6 +1582,8 @@ class Utils_RecordBrowser extends Module {
         if ($theme==null) $theme = $this->init_module(Base_Theme::module_name());
         $fields = array();
         $longfields = array();
+        /** @var Base_Theme $ftheme */
+        $ftheme = $this->init_module(Base_Theme::module_name());
         foreach($this->table_rows as $field => $args) {
             if (!isset($data[$args['id']]) || $data[$args['id']]['type']=='hidden') continue;
             if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to))
@@ -1600,6 +1602,8 @@ class Utils_RecordBrowser extends Module {
                                     'required'=>isset($args['required'])?$args['required']:null,
                                     'type'=>$args['type'],
                                     'help' => $help);
+                $ftheme->assign('f', $arr);
+                $arr['full_field'] = $ftheme->get_html('single_field');
                     if ($args['type']<>'long text') $fields[$args['id']] = $arr; else $longfields[$args['id']] = $arr;
             }
         }
