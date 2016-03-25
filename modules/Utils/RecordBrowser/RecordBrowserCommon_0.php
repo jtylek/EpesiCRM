@@ -236,20 +236,37 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (strlen($order) <= 1) {
                 $order = $order ? 'key' : 'value';
             }
-            $param = array('order_by_key'=>$order, 'array_id'=>$param[1]);
+            $param = array('order'=>$order, 'array_id'=>$param[1]);
         } else {
-            $param = array('order_by_key'=>'value', 'array_id'=>$param[0]);
+            $param = array('order'=>'value', 'array_id'=>$param[0]);
         }
         return $param;
     }
-    public static function encode_commondata_param($param) {
+	public static function encode_commondata_param($param) {
         if (!is_array($param)) return 'value__'.$param;
-        if (isset($param[0])) {
-            array_unshift($param, 'value');
-        } else {
-            $param = array($param['order_by_key'], $param['array_id']);
+        if (isset($param[0]) && isset($param[1])) {
+        	$param['array_id'] = implode('::', array($param[0], $param[1]));
+        	unset($param[0]);
+        	unset($param[1]);
         }
-        return implode('__', $param);
+        if (isset($param[0])) {
+            $param['array_id'] = $param[0];
+        }
+        
+        $allowed_order = array('key', 'value', 'position');
+        	
+        //legacy check
+        if (isset($param['order_by_key'])) {
+        	if (in_array($param['order_by_key'], $allowed_order, true))
+        		$param['order'] = $param['order_by_key'];
+        	else 
+        		$param['order'] = $param['order_by_key']? 'key': 'value';
+        }
+        	
+        if (!isset($param['order']) || !in_array($param['order'], $allowed_order))
+        	$param['order'] = 'value';
+        	
+        return implode('__', array($param['order'], $param['array_id']));
     }
     public static function decode_autonumber_param($param, &$prefix, &$pad_length, &$pad_mask) {
         $parsed = explode('__', $param, 4);
@@ -447,8 +464,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$next_field['commondata'] = $commondata;
             if ($commondata) {
                 if (!isset($next_field['commondata_order'])) {
-                    if (isset($next_field['param']['order_by_key'])) {
-                        $next_field['commondata_order'] = $next_field['param']['order_by_key'];
+                    if (isset($next_field['param']['order'])) {
+                        $next_field['commondata_order'] = $next_field['param']['order'];
                     } else {
                         $next_field['commondata_order'] = 'value';
                     }
@@ -714,13 +731,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $param = $definition['param'];
         if (is_array($param)) {
             if ($definition['type']=='commondata') {
-                if (isset($param['order_by_key'])) {
-                    $obk = $param['order_by_key'];
-                    unset($param['order_by_key']);
-                    $param = array('array_id'=>implode('::',$param));
-                    $param['order_by_key'] = $obk;
-                    $param = self::encode_commondata_param($param);
-                } else $param = implode('::',$param);
+                $param = self::encode_commondata_param($param);
             } else {
                 $tmp = array();
                 foreach ($param as $k=>$v) $tmp[] = $k.'::'.$v;
@@ -3012,7 +3023,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($k != 0)
                 $param[$k] = preg_replace('/[^a-z0-9]/', '_', strtolower($v));
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $desc['param']['array_id']);
-        $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => true, 'order_by_key' => $desc['param']['order_by_key']), array('id' => $field));
+        $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => true, 'order' => $desc['param']['order']), array('id' => $field));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));
     }
@@ -3631,7 +3642,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $param = explode('::', $args['param']['array_id']);
                     foreach ($param as $k => $v) if ($k != 0) $param[$k] = self::get_field_id($v);
                     if (count($param) == 1) {
-                        $qf->addElement($args['type'], $args['id'], $label, $param, array('empty_option' => true, 'id' => $args['id'], 'order_by_key' => $args['param']['order_by_key']));
+                        $qf->addElement($args['type'], $args['id'], $label, $param, array('empty_option' => true, 'id' => $args['id'], 'order' => $args['param']['order']));
                         if ($val !== null)
                             $qf->setDefaults(array($args['id'] => $val));
                     }
