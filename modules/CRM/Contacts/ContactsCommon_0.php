@@ -32,7 +32,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record(); 
 		//$mc = CRM_ContactsCommon::get_main_company();
 		if ($all || $me['id']!=-1) {
-			$access_vals = Utils_CommonDataCommon::get_array('Contacts/Access', true);
+			$access_vals = Utils_CommonDataCommon::get_array('Contacts/Access', 'key');
 			if ($all) $access = array_keys($access_vals);
 			else $access = $me['access'];
 			foreach ($access as $g) {
