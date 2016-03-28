@@ -24,7 +24,7 @@
 				<td style=" empty-cells: hide; width: 7px;"></td>
 				<td class="home-bar" {$home.href}>
 					<div id="home-bar1">
-						<div class="home-bar-icon"></div>
+						<i class="fa fa-home fa-2x" style="color: white; margin-left: 10px"></i>
 						<div class="home-bar-text">
 							{$home.label}
 						</div>
