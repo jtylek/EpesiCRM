@@ -48,7 +48,7 @@ class Base_User_Login extends Module {
 				eval_js('document.location=\'index.php\';',false);
 			} else {
 				$this->theme->assign('logged_as', '<div class="logged_as">'.__('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
-				$this->theme->assign('logout', '<div class="logout_css3_box"><a class="logout_icon" '.$this->create_unique_href(array('logout'=>1)).'>'.__('Logout').'<div class="logout_icon_img"></div></a></div>');
+				$this->theme->assign('logout', '<div class="logout_css3_box"><a class="logout_icon" '.$this->create_unique_href(array('logout'=>1)).'>'.__('Logout').'<i class="fa fa-sign-out fa-lg" style="margin-left: 35px"></i></a></div>');
 				$this->theme->display();
 			}
 			return;
