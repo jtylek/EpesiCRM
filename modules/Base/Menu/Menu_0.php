@@ -56,7 +56,9 @@ class Base_Menu extends Module {
 				$menu->add_split();
 			else {
 				$icon = null;
-				if(array_key_exists('__icon_small__',$arr)) {
+				if(array_key_exists('fa-icon',$arr)) {
+					$icon = $arr['fa-icon'];
+				} else if(array_key_exists('__icon_small__',$arr)) {
 					$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon_small__']);
 					unset($arr['__icon_small__']);
 					unset($arr['__icon__']);

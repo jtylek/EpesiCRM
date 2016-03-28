@@ -123,7 +123,7 @@ CustomMenubar = function(id, _layout) {
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
 			menu_string[this.id] += '<tr><td class=item>';
 			if(icon) {
-				menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
+				menu_string[this.id] += '<div class=link_icon_box><i class="fa fa-'+icon+' fa-fw fa-lg" style="color: white; margin-left: 2px"></i></div>';
 			}
 			menu_string[this.id] += '<a href="'+address+'"';
 			if (target)
@@ -141,7 +141,7 @@ CustomMenubar = function(id, _layout) {
 
 				menu_string[this.id] += '<td class=item>';
 				if(icon) {
-					menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
+					menu_string[this.id] += '<div class=link_icon_box><i class="fa fa-'+icon+' fa-fw fa-lg" style="color: white; margin-left: 2px"></i></div>';
 				}
 				if( this.depth == 0) {
 					menu_string[this.id] += '<a href="'+address+'" class=root_item_link_none helpID="'+id+'" onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
