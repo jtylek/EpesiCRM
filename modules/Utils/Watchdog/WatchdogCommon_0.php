@@ -332,14 +332,14 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$tag_id = 'watchdog_sub_button_'.$category_name.'_'.$id;
 		$href = ' onclick="utils_watchdog_set_subscribe('.(($last_seen===null)?1:0).',\''.$category_name.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"';
 		if ($last_seen===null) {
-			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','not_watching_small.png');
+			$icon = 'eye-slash';
 			$tooltip = __('Click to watch this record for changes.');
 		} else {
 			if ($last_seen===true) {
-				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png');
+				$icon = 'eye';
 				$tooltip = __('You are watching this record, click to stop watching this record for changes.');
 			} else {
-				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
+				$icon = 'eye-slash';
 				$ev = self::display_events($category_id, $last_seen, $id);
 				$tooltip = __('You are watching this record, click to stop watching this record for changes.').($ev?'<br>'.__('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']:'');
 			}
@@ -347,8 +347,8 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$subscribers = self::get_subscribers($category_name,$id);
 		$my_user = Base_AclCommon::get_user();
 		if ($subscribers) {
-			$icon_on = ' src="' . Base_ThemeCommon::get_template_file('Utils_Watchdog', 'watching_small.png') . '"';
-			$icon_off = ' src="' . Base_ThemeCommon::get_template_file('Utils_Watchdog', 'watching_small_new_events.png') . '"';
+			$icon_on = 'eye';
+			$icon_off = 'eye-slash';
 			$other_subscribers = array();
 			foreach ($subscribers as $subscriber) {
 				if ($subscriber == $my_user) {
@@ -362,14 +362,14 @@ class Utils_WatchdogCommon extends ModuleCommon {
 
 				$notified = self::user_check_if_notified($subscriber, $category_name, $id);
 				$icon2 = $notified === true ? $icon_on : $icon_off;
-				$other_subscribers[] = '<img style="margin-right:4px;" ' . $icon2 . ' /><a>' . Utils_RecordBrowserCommon::no_wrap($contact) . '</a>';
+				$other_subscribers[] = '<i class="fa fa-lw fa-lg fa-'.$icon2.'"></i><a>' . Utils_RecordBrowserCommon::no_wrap($contact) . '</a>';
 			}
 			if ($other_subscribers) {
 				$tooltip .= '<hr />' . implode('<br>', $other_subscribers);
 			}
 		}
 		$tooltip = Utils_TooltipCommon::open_tag_attrs($tooltip);
-		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
+		return '<a '.$href.' '.$tooltip.'><i class="fa fa-lw fa-lg fa-'.$icon.'"></i></a>';
 	} 
 	
 	public static function notification() {
