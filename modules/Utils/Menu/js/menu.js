@@ -158,7 +158,7 @@ CustomMenubar = function(id, _layout) {
 			menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
 		}
 		if(layout[this.id] == 'horizontal' && this.depth == 0) {
-			menu_string[this.id] += '<a class=root_item_link_down><div class=root_item_link_down_arrow_box helpID="'+id+'"><div class=root_item_link_down_arrow_icon></div><div class=root_item_link_down_arrow>' + title + '</div></div></a>';
+			menu_string[this.id] += '<a class=root_item_link_down><div class=root_item_link_down_arrow_box helpID="'+id+'"><i class="fa fa-caret-down fa-2x" style="float: left; margin-left: 10px; color: white;"></i> <div class=root_item_link_down_arrow>' + title + '</div></div></a>';
 		} else {
 			menu_string[this.id] += '<a class=root_item_link_right><div class=root_item_link_right_arrow helpID="'+id+'">' + title + '</div></a>';
 		}
