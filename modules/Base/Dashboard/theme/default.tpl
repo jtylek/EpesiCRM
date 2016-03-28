@@ -36,22 +36,23 @@
                     <td class="header controls {$color}" nowrap="1" width="{$actions_width}px">
 						{if isset($href)}
 							{$__link.href.open}
-							<img src="{$theme_dir}/Base/Dashboard/resize.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/resize-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/resize.png';" width="14" height="14" alt="R" border="0">
+							{*<img src="{$theme_dir}/Base/Dashboard/resize.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/resize-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/resize.png';" width="14" height="14" alt="R" border="0">*}
+							<i class="fa fa-arrows-alt fa-lg" style="vertical-align: 20%"></i>
 							{$__link.href.close}
 						{/if}
 						{if isset($toggle)}
 							{$__link.toggle.open}
-							<img src="{$theme_dir}/Base/Dashboard/roll-up.png" onMouseOver="var x='{$theme_dir}/Base/Dashboard/roll-';if(this.src.indexOf('roll-down')>=0)this.src=x+'down-hover.png';else this.src=x+'up-hover.png';" onMouseOut="var x='{$theme_dir}/Base/Dashboard/roll-';if(this.src.indexOf('roll-down')>=0)this.src=x+'down.png';else this.src=x+'up.png';" onClick="var x='{$theme_dir}/Base/Dashboard/roll-';if(this.src.indexOf('roll-down')>=0)this.src=x+'up-hover.png';else this.src=x+'down-hover.png';" width="14" height="14" alt="=" border="0">
+							<i class="fa fa-caret-up fa-lg" style="vertical-align: 20%" onclick="jq(this).toggleClass('fa-caret-down'); jq(this).toggleClass('fa-caret-up');"></i>
 							{$__link.toggle.close}
 						{/if}
 						{if isset($configure)}
 							{$__link.configure.open}
-							<img src="{$theme_dir}/Base/Dashboard/configure.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/configure-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/configure.png';" width="14" height="14" alt="c" border="0">
+							<i class="fa fa-cogs fa-lg" style="vertical-align: 20%"></i>
 							{$__link.configure.close}
 						{/if}
 						{if isset($remove)}
 							{$__link.remove.open}
-							<img src="{$theme_dir}/Base/Dashboard/close.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/close-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/close.png';" width="14" height="14" alt="x" border="0">
+							<i class="fa fa-times fa-lg" style="vertical-align: 20%"></i>
 							{$__link.remove.close}
 						{/if}
 						&nbsp;
