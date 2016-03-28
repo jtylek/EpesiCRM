@@ -31,6 +31,24 @@ class Utils_GenericBrowser extends Module {
 	private $resizable_columns = true;
 	private $fixed_columns_selector = '.Utils_GenericBrowser__actions';
 	private $columns_width_id = null;
+	private $font_awesome_translate = array(
+		'view' => 'folder-open',
+		'delete' => 'trash',
+		'edit' => 'pencil',
+		'info' => 'info',
+		'restore' => 'backward',
+		'append data' => 'paperclip',
+		'active-on' => 'circle',
+		'active-off' => 'circle-o',
+		'history' => 'history',
+		'history_inactive' => 'history',
+		'print' => 'print',
+		'move-down' => 'arrow-down',
+		'move-up' => 'arrow-up',
+		'move-up-down' => 'arrows-v'
+	);
+
+
 
 	public function construct() {
 		$this->form_s = $this->init_module(Libs_QuickForm::module_name());
@@ -921,7 +939,9 @@ class Utils_GenericBrowser extends Module {
 					foreach($this->actions[$i] as $icon=>$arr) {
 						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
 					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
-							$actions .= '<img class="action_button" src="'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(),$icon.($arr['off']?'-off':'').'.png').'" border="0">';
+//							$actions .= '<img class="action_button" src="'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(),$icon.($arr['off']?'-off':'').'.png').'" border="0">';
+							$ico = $this->font_awesome_translate[$icon];
+							$actions .= "<i class='fa fa-$ico fa-lg fa-fw'></i>";
 					    } elseif(file_exists($icon)) {
 							$actions .= '<img class="action_button" src="'.$icon.'" border="0">';
 					    } else {
