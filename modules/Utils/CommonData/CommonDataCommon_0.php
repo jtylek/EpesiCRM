@@ -242,6 +242,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 */
 	public static function get_array($name, $order='value', $readinfo=false, $silent=false){
 		static $cache;
+		$order = self::order_legacy_check($order);
 		if(isset($cache[$name][$order][$readinfo]))
 			return $cache[$name][$order][$readinfo];
 		$id = self::get_id($name);
@@ -269,6 +270,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	}
 
 	public static function get_translated_array($name,$order='value',$readinfo=false,$silent=false) {
+		$order = self::order_legacy_check($order);
 		if ($readinfo) $info = self::get_array($name,$order,$readinfo,$silent);
 		$arr = self::get_array($name,$order,false,$silent);
 		if ($arr===null) return null;
@@ -284,6 +286,14 @@ class Utils_CommonDataCommon extends ModuleCommon {
 			}
 		}
 		return $arr;
+	}	
+
+	public static function order_legacy_check($order) {
+		//legacy check for $order_by_position
+		if (is_bool($order) || strlen($order) <= 1) {
+			$order = $order ? 'position' : 'value';
+		}
+		return $order;
 	}
 
 	public static function translate_array(& $arr) {
