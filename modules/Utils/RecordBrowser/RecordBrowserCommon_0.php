@@ -228,7 +228,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $ret[$w] = $w;
         return $ret;
     }
-    public static function decode_commondata_param($param) {
+	public static function decode_commondata_param($param) {
         $param = explode('__',$param);
         if (isset($param[1])) {
             $order = $param[0];
@@ -236,11 +236,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (strlen($order) <= 1) {
                 $order = $order ? 'key' : 'value';
             }
-            $param = array('order'=>$order, 'array_id'=>$param[1]);
+            $array_id = $param[1];
         } else {
-            $param = array('order'=>'value', 'array_id'=>$param[0]);
+        	$array_id = $param[0];
+        	$order = 'value';
         }
-        return $param;
+        return array('order'=>$order, 'order_by_key'=>$order, 'array_id'=>$array_id);
     }
 	public static function encode_commondata_param($param) {
         if (!is_array($param)) return 'value__'.$param;
