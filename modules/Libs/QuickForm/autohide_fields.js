@@ -6,6 +6,8 @@ Libs_QuickForm__autohide = function(e) {
 		'hide' : 'show',
 		'show' : 'hide'
 	};
+	
+	set_fields = {};
 	jq.each(hide_groups, function(i, group) {
 		var f = jq(group.fields).closest('tr');
 		var autohide_values = group.values;
@@ -18,7 +20,12 @@ Libs_QuickForm__autohide = function(e) {
 
 		if (autohide_values.indexOf(val) > -1) {
 			f[group.mode]();
-		} else
-			f[reverse_mode[group.mode]]();
+		} else {
+			//apply reverse mode only to fields not specifically set
+			not_set_fields = jq(group.fields).not(set_fields[group.mode]).get();
+			jq(not_set_fields).closest('tr')[reverse_mode[group.mode]]();
+		}
+		
+		set_fields[group.mode] = group.fields;
 	});
 }
