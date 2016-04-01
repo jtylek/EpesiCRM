@@ -250,11 +250,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		DB::CompleteTrans();
 	}
 
-    public static function encrypt($input,$password) {
+    public static function encrypt($input,$password, $hint = '') {
         $iv = '';
         $input .= md5($input);
         $encrypted = base64_encode(self::crypt($input,$password,self::ENCRYPT,$iv));
-        return $encrypted."\n".base64_encode($iv);
+        return $encrypted."\n".base64_encode($iv) . "\n" . $hint;
     }
 
     public static function decrypt($input,$password) {
@@ -347,7 +347,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
             }
             if($text===false) {
-                $text = '<div id="note_value_'.$row['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').':').'\',\''.Epesi::escapeJS(__('OK')).'\','.$row['id'].')" style="color:red">'.__('Note encrypted').'</a></div>';
+                $hint = self::get_password_hint($row['note']);
+                $hint = $hint ? ' (' . __('Hint: %s', array($hint)) . ')' : '';
+                $text = '<div id="note_value_'.$row['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').$hint.':').'\',\''.Epesi::escapeJS(__('OK')).'\','.$row['id'].')" style="color:red">'.__('Note encrypted').'</a></div>';
                 $icon = '';
                 $files = array();
             } else {
@@ -411,7 +413,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
                 return $x->pop_main();*/
                 $form->addElement('static', $field, $label);
-                $txt = '<div id="note_value_'.$rb_obj->record['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').':').'\',\''.Epesi::escapeJS(__('OK')).'\','.$rb_obj->record['id'].',1)" style="color:red">'.__('Note encrypted').'</a></div>';
+                // change here
+                $hint = isset($rb_obj->record['note']) ? self::get_password_hint($rb_obj->record['note']) : '';
+                $hint = $hint ? ' (' . __('Hint: %s', array($hint)) . ')' : '';
+                $txt = '<div id="note_value_'.$rb_obj->record['id'].'"><a href="javascript:void(0);" onclick="utils_attachment_password(\''.Epesi::escapeJS(__('Password').$hint.':').'\',\''.Epesi::escapeJS(__('OK')).'\','.$rb_obj->record['id'].',1)" style="color:red">'.__('Note encrypted').'</a></div>';
                 $form->setDefaults(array($field=>$txt));
                 return;
             } else {
@@ -478,18 +483,21 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $elem->freeze(1);
         } else {
             $elems = array();
-            $elems[] = $form->createElement('checkbox', $field, '','', array('id'=>$field,'onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=!this.checked;','style'=>'margin-right:40px;'));
+            $elems[] = $form->createElement('checkbox', $field, '','', array('id'=>$field,'onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=this.form.elements["note_password_hint"].disabled=!this.checked;','style'=>'margin-right:40px;'));
             $elems[] = $form->createElement('static','note_password_label','',__('Password').':');
             $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password','style'=>'width:200px;margin-right:20px;'));
             $elems[] = $form->createElement('static','note_password2_label','',__('Confirm Password').':');
-            $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2','style'=>'width:200px'));
+            $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2','style'=>'width:200px;margin-right:20px;'));
+            $elems[] = $form->createElement('static','note_password_hint_label','',__('Password Hint').':');
+            $elems[] = $form->createElement('text','note_password_hint',__('Password Hint'), array('id'=>'note_password_hint','style'=>'width:200px'));
             $form->addGroup($elems,$field,__('Encryption'));
 
             if($default) {
-                $form->setDefaults(array('crypted'=>array('crypted'=>$default,'note_password'=>'*@#old@#*','note_password2'=>'*@#old@#*')));
+                $hint = isset($rb_obj->record['note']) ? self::get_password_hint($rb_obj->record['note']) : '';
+                $form->setDefaults(array('crypted'=>array('crypted'=>$default,'note_password'=>'*@#old@#*','note_password2'=>'*@#old@#*', 'note_password_hint'=>$hint)));
             }
             $crypted = $form->exportValue($field);
-            if(!$crypted) eval_js('$("note_password").disabled=1;$("note_password2").disabled=1;');
+            if(!$crypted) eval_js('$("note_password").disabled=1;$("note_password2").disabled=1;$("note_password_hint").disabled=1;');
 
             $form->addFormRule(array('Utils_AttachmentCommon','crypted_rules'));
         }
@@ -548,7 +556,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     foreach($old_notes as $old_id=>$old_note) {
                         if($old_pass!=='') $old_note = Utils_AttachmentCommon::decrypt($old_note,$old_pass);
                         if($old_note===false) continue;
-                        if($crypted && $values['crypted']['note_password']) $old_note = Utils_AttachmentCommon::encrypt($old_note,$values['crypted']['note_password']);
+                        if($crypted && $values['crypted']['note_password']) $old_note = Utils_AttachmentCommon::encrypt($old_note,$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
                         if($old_note===false) continue;
                         DB::Execute('UPDATE utils_attachment_edit_history_data SET old_value=%s WHERE edit_id=%d AND field="note"',array($old_note,$old_id));
                     }
@@ -563,7 +571,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         if($content===false) continue;
                         if($old_pass!=='') $content = Utils_AttachmentCommon::decrypt($content,$old_pass);
                         if($content===false) continue;
-                        if($crypted && $values['crypted']['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$values['crypted']['note_password']);
+                        if($crypted && $values['crypted']['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
                         if($content===false) continue;
                         $fsid = Utils_FileStorageCommon::write_content($meta['filename'],$content);
                         DB::Execute('UPDATE utils_attachment_file SET filestorage_id=%d WHERE id=%d',array($fsid,$id));
@@ -573,8 +581,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
                 if($crypted) {
                     if(is_array($values['crypted']) && isset($values['crypted']['note_password'])) {
-                        $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$values['crypted']['note_password']);
+                        $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
                         $values['note_password']=$values['crypted']['note_password'];
+                        $values['note_password_hint'] = $values['crypted']['note_password_hint'];
                     }
                     $values['crypted'] = 1;
                 } else {
@@ -594,14 +603,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'edit_changes':
                 if(isset($values['note']) && isset($values['crypted']) && $new_values['crypted']!=$values['crypted']) {
                     if($new_values['crypted'] && isset($new_values['note_password'])) {
-                        $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password']);
+                        $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password'], $new_values['note_password_hint']);
                     } elseif(!$new_values['crypted'] && isset($_SESSION['client']['cp'.$new_values['id']])) {
                         $values['note'] = Utils_AttachmentCommon::decrypt($values['note'],$_SESSION['client']['cp'.$new_values['id']]);
                         unset($_SESSION['client']['cp'.$new_values['id']]);
                     }
                 } elseif(isset($new_values['note_password']) && isset($old_password) && $new_values['note_password']!=$old_password) {
                     $values['note'] = Utils_AttachmentCommon::decrypt($values['note'],$old_password);
-                    $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password']);
+                    $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password'],$new_values['note_password_hint']);
                 }
                 unset($values['edited_on']);
                 break;
@@ -672,7 +681,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         if(isset($_SESSION['client']['cp'.$values['clone_id']]) && $_SESSION['client']['cp'.$values['clone_id']])
                             $content = Utils_AttachmentCommon::decrypt($content,$_SESSION['client']['cp'.$values['clone_id']]);
                         if($values['crypted'])
-                            $content = Utils_AttachmentCommon::encrypt($content,$values['note_password']);
+                            $content = Utils_AttachmentCommon::encrypt($content,$values['note_password'],$new_values['note_password_hint']);
                         $fsid = Utils_FileStorageCommon::write_content($fsid,$content);
                         DB::Execute('INSERT INTO utils_attachment_file (attach_id,deleted,original,created_by,created_on,filestorage_id) VALUES(%d,0,%s,%d,%T,%d)',array($note_id,$file['original'],$file['created_by'],$file['created_on'],$fsid));
                         Utils_FileStorageCommon::add_link('attachment_file/'.DB::Insert_ID('utils_attachment_file','id'),$fsid);
@@ -693,7 +702,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     foreach ($clipboard_files as $cf_id) {
                         $cf = DB::GetOne('SELECT filename FROM utils_attachment_clipboard WHERE id=%d', array($cf_id));
                         if($values['crypted'])
-                            file_put_contents($cf,Utils_AttachmentCommon::encrypt(file_get_contents($cf),$values['note_password']));
+                            file_put_contents($cf,Utils_AttachmentCommon::encrypt(file_get_contents($cf),$values['note_password'],$values['note_password_hint']));
                         Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), __('clipboard').'.png', $cf);
                     }
                 }
@@ -704,7 +713,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $file_path = $f['path'];
                     $file_name = $f['name'];
                     if($values['crypted'])
-                        file_put_contents($file_path,Utils_AttachmentCommon::encrypt(file_get_contents($file_path),$values['note_password']));
+                        file_put_contents($file_path,Utils_AttachmentCommon::encrypt(file_get_contents($file_path),$values['note_password'], $values['note_password_hint']));
                     Utils_AttachmentCommon::add_file($note_id, Acl::get_user(), $file_name, $file_path);
                 }
 
@@ -841,6 +850,21 @@ class Utils_AttachmentCommon extends ModuleCommon {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Retrieve password hint from encrypted text
+     *
+     * @param string $note Encrypted note
+     *
+     * @return string hint
+     */
+    public static function get_password_hint($note) {
+        $exp = explode("\n", $note);
+        if (isset($exp[2]) && $exp[2]) {
+            return $exp[2];
+        }
+        return '';
     }
 }
 
