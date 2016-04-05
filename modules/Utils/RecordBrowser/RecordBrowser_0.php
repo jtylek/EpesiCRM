@@ -207,9 +207,10 @@ class Utils_RecordBrowser extends Module {
         return Utils_RecordBrowserCommon::get_access($this->tab, $action, $param);
     }
 
-    public function construct($tab = null) {
+ 	public function construct($tab = null, $special = false) {
 		Utils_RecordBrowserCommon::$options_limit = Base_User_SettingsCommon::get('Utils_RecordBrowser','enable_autocomplete');
-        self::$rb_obj = $this;
+        if (!$special)
+			self::$rb_obj = $this;
         $this->tab = & $this->get_module_variable('tab', $tab);
         if ($this->tab!==null) Utils_RecordBrowserCommon::check_table_name($this->tab);
 		load_js('modules/Utils/RecordBrowser/main.js');
