@@ -17,4 +17,4 @@ if(@file_get_contents(DATA_DIR.'/Utils_RecordBrowser/last')<time()-120) {
     Utils_RecordBrowserCommon::indexer(3,$total);
     if($total==0) file_put_contents(DATA_DIR.'/Utils_RecordBrowser/last',time(),LOCK_EX);
 }
-?>setTimeout('rb_indexer("<?php print($_GET['token']); ?>")',<?php print($total==0?180000:1000);?>);
+?>setTimeout('rb_indexer("<?php print($_GET['token']); ?>")',<?php print($total==0?180000:10000);?>);
