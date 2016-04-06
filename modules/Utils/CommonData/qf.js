@@ -63,7 +63,7 @@ Utils_CommonData.prototype = {
 			this.obj.fire('e_u_cd:clear');
 		} else {
 			if(this.add_empty==1) opts[0] = new Option('---','');
-			$H(new_opts).each(function(x) {opts[opts.length] = new Option(x[1],x[0]);});
+			jq.each(new_opts, function(index, value) {opts[opts.length] = new Option(value,index);});
 			if(this.def_val!='') {
 				this.obj.value = this.def_val;
 				this.def_val='';
