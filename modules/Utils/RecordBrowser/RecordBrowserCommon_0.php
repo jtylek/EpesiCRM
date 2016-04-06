@@ -231,43 +231,29 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function decode_commondata_param($param) {
         $param = explode('__',$param);
         if (isset($param[1])) {
-            $order = $param[0];
-            // legacy check
-            if (strlen($order) <= 1) {
-                $order = $order ? 'key' : 'value';
-            }
+            $order = Utils_CommonDataCommon::validate_order($param[0]);
             $array_id = $param[1];
         } else {
-        	$array_id = $param[0];
         	$order = 'value';
+        	$array_id = $param[0];        	
         }
         return array('order'=>$order, 'order_by_key'=>$order, 'array_id'=>$array_id);
     }
-	public static function encode_commondata_param($param) {
-        if (!is_array($param)) return 'value__'.$param;
-        if (isset($param[0]) && isset($param[1])) {
-        	$param['array_id'] = implode('::', array($param[0], $param[1]));
-        	unset($param[0]);
-        	unset($param[1]);
-        }
-        if (isset($param[0])) {
-            $param['array_id'] = $param[0];
+    public static function encode_commondata_param($param) {
+    	if (!is_array($param)) 
+    		$param = array($param);
+               
+    	$order = 'value';
+        if (isset($param['order']) || isset($param['order_by_key'])) {
+        	$order = Utils_CommonDataCommon::validate_order(isset($param['order'])? $param['order']: $param['order_by_key']);
+        	
+        	unset($param['order']);
+        	unset($param['order_by_key']);
         }
         
-        $allowed_order = array('key', 'value', 'position');
-        	
-        //legacy check
-        if (isset($param['order_by_key'])) {
-        	if (in_array($param['order_by_key'], $allowed_order, true))
-        		$param['order'] = $param['order_by_key'];
-        	else 
-        		$param['order'] = $param['order_by_key']? 'key': 'value';
-        }
-        	
-        if (!isset($param['order']) || !in_array($param['order'], $allowed_order))
-        	$param['order'] = 'value';
-        	
-        return implode('__', array($param['order'], $param['array_id']));
+        $array_id = implode('::', $param);
+         
+        return implode('__', array($order, $array_id));
     }
     public static function decode_autonumber_param($param, &$prefix, &$pad_length, &$pad_mask) {
         $parsed = explode('__', $param, 4);

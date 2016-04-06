@@ -31,11 +31,12 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 
 		if (isset($options['empty_option']))
 			$this->_add_empty_fields = $options['empty_option'];
-		//legacy check
-		if (isset($options['order_by_key']))
-			$this->_order = Utils_CommonDataCommon::order_legacy_check($options['order_by_key']);
+		
 		if (isset($options['order']))
-			$this->_order = $options['order'];
+			$this->_order = Utils_CommonDataCommon::validate_order($options['order']);		
+		elseif (isset($options['order_by_key'])) //legacy check
+			$this->_order = Utils_CommonDataCommon::validate_order($options['order_by_key']);
+		
 		if(count($this->_cd)==1) {
 			$root_data = Utils_CommonDataCommon::get_translated_array($this->_cd[0],$this->_order);
 			if($this->_add_empty_fields)
