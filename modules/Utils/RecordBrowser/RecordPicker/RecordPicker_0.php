@@ -35,7 +35,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 			$select_form = ob_get_clean();
 		}
 		
-		$rb = $this->init_module(Utils_RecordBrowser::module_name(), $tab, $tab.'_picker');
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(), array($tab, true), $tab.'_picker');
 		$rb->adv_search = true;
 		$rb->set_filters_defaults($filters_defaults);
 		$rb->disable_actions();
