@@ -24,7 +24,7 @@ Example installation_config.php file:
 <?php
 $CONFIG = array('user' => 'db_username', 'password' => 'db_password', 'db' => 'database_name', 'host' => 'db_server_host',
     'newdb' => 0,  // or 1 to create new database
-    'engine' => 'mysqlt',  // or 'postgres' for PostgreSQL
+    'engine' => 'mysqli',  // or 'postgres' for PostgreSQL
     'direction' => 0  // Left to Right, or 1 for Right to Left
 );
 ?>
@@ -204,7 +204,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form -> addElement('text', 'host', __('Database server address'));
 	$form -> addRule('host', __('Field required'), 'required');
 	$form -> addElement('text', 'port', __('Custom database port'));
-	$form -> addElement('select', 'engine', __('Database engine'), array('postgres'=>'PostgreSQL', 'mysqlt'=>'MySQL'));
+	$form -> addElement('select', 'engine', __('Database engine'), array('postgres'=>'PostgreSQL', 'mysqli'=>'MySQL'));
 	$form -> addRule('engine', __('Field required'), 'required');
 	$form -> addElement('text', 'user', __('Database server user'));
 	$form -> addRule('user', __('Field required'), 'required');
@@ -222,7 +222,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
             array(0 => __('Left to Right'), 1 => __('Right to Left')));
 
 	$form -> addElement('submit', 'submit', __('Next'));
-	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
+	$form -> setDefaults(array('engine'=>'mysqli','db'=>'epesi','host'=>'localhost'));
 	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.__('denotes required field').'</span>');
 
     if (file_exists($fast_install_filename)) {
@@ -288,7 +288,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 					}
 				}
 			break;
-            case 'mysqlt':
+            case 'mysqli':
                 if (!function_exists('mysql_connect')) {
                     echo(__('Please enable mysql extension in php.ini.'));
                 } else {
