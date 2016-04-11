@@ -97,6 +97,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 				);
 			}
             $mailer->SMTPSecure = $security;
+            $mailer->SMTPAutoTLS = false;
 		} elseif (HOSTING_MODE) {
 			if (!$critical) return false;
 		}
