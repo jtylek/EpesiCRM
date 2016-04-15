@@ -289,28 +289,28 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 				}
 			break;
             case 'mysqli':
-                if (!function_exists('mysql_connect')) {
-                    echo(__('Please enable mysql extension in php.ini.'));
+                if (!function_exists('mysqli_connect')) {
+                    echo(__('Please enable mysqli extension in php.ini.'));
                 } else {
 					if ($port) {
 						$host .= ':' . $port;
 					}
-                    $link = @mysql_connect($host, $user, $pass);
+                    $link = @mysqli_connect($host, $user, $pass);
                     if (!$link) {
-                        echo(__('Could not connect') . ': ' . mysql_error());
+                        echo(__('Could not connect') . ': ' . mysqli_connect_error($link));
                     } else {
                         if ($new_db == 1) {
                             $sql = 'CREATE DATABASE `' . $dbname . '` CHARACTER SET utf8 COLLATE utf8_unicode_ci';
-                            if (mysql_query($sql, $link)) {
+                            if (mysqli_query($link, $sql)) {
                                 write_config($host, $user, $pass, $dbname, $engine, $other);
                             } else {
-                                echo __('Error creating database: ') . mysql_error() . "\n";
+                                echo __('Error creating database: ') . mysqli_error($link) . "\n";
                             }
-                            mysql_close($link);
+                            mysqli_close($link);
                         } else {
-                            $result = mysql_select_db($dbname, $link);
+                            $result = mysqli_select_db($link,$dbname);
                             if (!$result) {
-                                echo __('Database does not exist') . ': ' . mysql_error() . "\n";
+                                echo __('Database does not exist') . ': ' . mysqli_error($link) . "\n";
                                 echo '<br />' . __('Please create the database first or select option')
                                 . ':<br /><b>' . __('Create new database') . '</b>';
                             } else {
