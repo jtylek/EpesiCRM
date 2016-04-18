@@ -421,14 +421,14 @@ class Utils_RecordBrowser extends Module {
             } else if ($this->table_rows[$filter]['type'] == 'commondata') {
 					$parts = explode('::', $this->table_rows[$filter]['param']['array_id']);
 					$array_id = array_shift($parts);
-					$arr = Utils_CommonDataCommon::get_translated_array($array_id, $this->table_rows[$filter]['param']['order_by_key']);
+					$arr = Utils_CommonDataCommon::get_translated_array($array_id, $this->table_rows[$filter]['param']['order']);
 					$made_of_parts = false;
 					while (!empty($parts)) {
 						$made_of_parts = true;
 						array_shift($parts);
 						$next_arr = array();
 						foreach ($arr as $k=>$v) {
-							$next = Utils_CommonDataCommon::get_translated_array($array_id.'/'.$k, $this->table_rows[$filter]['param']['order_by_key']);
+							$next = Utils_CommonDataCommon::get_translated_array($array_id.'/'.$k, $this->table_rows[$filter]['param']['order']);
 							foreach ($next as $k2=>$v2)
 								$next_arr[$k.'/'.$k2] = $v.' / '.$v2;
 						}
@@ -2010,7 +2010,7 @@ class Utils_RecordBrowser extends Module {
 					if ($args['type']=='commondata') $args['type'] = 'select';
 					$param = __('Source').': CommonData'.'<br/>';
 					$param .= __('Table').': '.$args['param']['array_id'].'<br/>';
-					$param .= __('Order by').': '._V(ucfirst($args['param']['order_by_key']));
+					$param .= __('Order by').': '._V(ucfirst($args['param']['order']));
 					$args['param'] = $param;
 					break;
                 case 'time':
@@ -2184,7 +2184,7 @@ class Utils_RecordBrowser extends Module {
 					$row['select_type'] = 'select';
 					$row['data_source'] = 'commondata';
 					$param = Utils_RecordBrowserCommon::decode_commondata_param($row['param']);
-					$form->setDefaults(array('order_by'=>$param['order_by_key'], 'commondata_table'=>$param['array_id']));
+					$form->setDefaults(array('order_by'=>$param['order'], 'commondata_table'=>$param['array_id']));
 					break;
                 case 'autonumber':
                     $row['select_data_type'] = 'autonumber';
@@ -2325,7 +2325,7 @@ class Utils_RecordBrowser extends Module {
 				case 'select':
 							if ($data['data_source']=='commondata') {
 								if ($data['select_type']=='select') {
-									$param = Utils_RecordBrowserCommon::encode_commondata_param(array('order_by_key'=>$data['order_by'], 'array_id'=>$data['commondata_table']));
+									$param = Utils_RecordBrowserCommon::encode_commondata_param(array('order'=>$data['order_by'], 'array_id'=>$data['commondata_table']));
 									$data['select_data_type'] = 'commondata';
 								} else {
 									$param = '__COMMON__::'.$data['commondata_table'].'::'.$data['order_by'];

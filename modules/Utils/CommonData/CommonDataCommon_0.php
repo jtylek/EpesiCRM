@@ -11,6 +11,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CommonDataCommon extends ModuleCommon {
 
+	public static $allowed_order = array('key', 'value', 'position');
+	
 	/**
 	 * For internal use only.
 	 */
@@ -240,34 +242,43 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 * @param boolean order by key instead of value
 	 * @return mixed returns an array if such array exists, false otherwise
 	 */
-	public static function get_array($name, $order_by_position=false, $readinfo=false, $silent=false){
+	public static function get_array($name, $order='value', $readinfo=false, $silent=false){
 		static $cache;
-		if(isset($cache[$name][$order_by_position][$readinfo]))
-			return $cache[$name][$order_by_position][$readinfo];
+		$order = self::validate_order($order);
+		if(isset($cache[$name][$order][$readinfo]))
+			return $cache[$name][$order][$readinfo];
 		$id = self::get_id($name);
 		if($id===false)
 			if ($silent) return null;
 		else trigger_error('Invalid CommonData::get_array() request: '.$name,E_USER_ERROR);
-		if($order_by_position) 
-			$order_by = ($order_by_position === 'key')? 'akey ASC': 'position ASC';
-		else
-			$order_by = 'value ASC';
+		switch ($order) {
+			case 'key':
+				$order_by = 'akey ASC';
+				break;			
+			case 'position':
+				$order_by = 'position ASC';
+				break;			
+			default:
+				$order_by = 'value ASC';
+			break;
+		}
 		if($readinfo)
 			$ret = DB::GetAssoc('SELECT akey, value, readonly, position, id FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
 		else
 			$ret = DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
-		if ($order_by_position === 'key') ksort($ret);
-		$cache[$name][$order_by_position][$readinfo] = $ret;
+		if ($order === 'key') ksort($ret);
+		$cache[$name][$order][$readinfo] = $ret;
 		return $ret;
 	}
 
-	public static function get_translated_array($name,$order_by_position=false,$readinfo=false,$silent=false) {
-		if ($readinfo) $info = self::get_array($name,$order_by_position,$readinfo,$silent);
-		$arr = self::get_array($name,$order_by_position,false,$silent);
+	public static function get_translated_array($name,$order='value',$readinfo=false,$silent=false) {
+		$order = self::validate_order($order);
+		if ($readinfo) $info = self::get_array($name,$order,$readinfo,$silent);
+		$arr = self::get_array($name,$order,false,$silent);
 		if ($arr===null) return null;
 		
 		$arr = self::translate_array($arr);
-		if ($order_by_position === 'value' || $order_by_position == false)
+		if ($order === 'value' || $order == false)
 			asort($arr, SORT_LOCALE_STRING);
 		if ($readinfo) {
 			foreach ($arr as $k=>$v) {
@@ -277,6 +288,19 @@ class Utils_CommonDataCommon extends ModuleCommon {
 			}
 		}
 		return $arr;
+	}	
+	
+	/**
+	 * Validates values for commondata array order including legacy check for order_by_key.
+	 *
+	 * @param mixed order value to be validated
+	 * @return string returns valid order value as defined in Utils_CommonDataCommon::$allowed_order array
+	 */	
+	public static function validate_order($order) {
+		if (!in_array($order, self::$allowed_order, true))
+			$order = $order? 'key': 'value';
+	
+		return $order;
 	}
 
 	public static function translate_array(& $arr) {
@@ -311,13 +335,13 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		return true;
 	}
 	
-	public static function get_translated_tree($col, $order_by_key=false, $deep=0) {
-		$data = Utils_CommonDataCommon::get_translated_array($col, $order_by_key, false, true);
+	public static function get_translated_tree($col, $order='value', $deep=0) {
+		$data = Utils_CommonDataCommon::get_translated_array($col, $order, false, true);
 		if (!$data) return array();
 		$output = array();
 		foreach ($data as $k=>$v) {
 			$output[$k] = $v;
-			$sub = self::get_translated_tree($col.'/'.$k, $order_by_key, $deep+1);
+			$sub = self::get_translated_tree($col.'/'.$k, $order, $deep+1);
 			if ($sub) foreach ($sub as $k2=>$v2) {
 				$output[$k.'/'.$k2] = '* '.$v2;
 			}

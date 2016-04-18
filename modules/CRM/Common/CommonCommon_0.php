@@ -22,7 +22,7 @@ class CRM_CommonCommon extends ModuleCommon {
 					array('name'=>'method','label'=>__('Dialing Method'), 'type'=>'select', 'values'=>$methods, 'default'=>'none'),
 				),
 				__('Misc')=>array(
-					array('name'=>'default_record_permission','label'=>__('Default Records Permission'),'type'=>'select','default'=>0,'values'=>Utils_CommonDataCommon::get_translated_array('CRM/Access', false))
+					array('name'=>'default_record_permission','label'=>__('Default Records Permission'),'type'=>'select','default'=>0,'values'=>Utils_CommonDataCommon::get_translated_array('CRM/Access', 'key'))
 				)
 			);
 		}
@@ -45,7 +45,7 @@ class CRM_CommonCommon extends ModuleCommon {
 	}
 
 	public static function status_filter($rb) {
-		$sts = Utils_CommonDataCommon::get_translated_array('CRM/Status',true);
+		$sts = Utils_CommonDataCommon::get_translated_array('CRM/Status','position');
 		$trans = array('__NULL__'=>array(), '__NO_CLOSED__'=>array('!status'=>array(3,4)));
 		foreach ($sts as $k=>$v)
 			$trans[$k] = array('status'=>$k);

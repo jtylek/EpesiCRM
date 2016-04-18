@@ -188,7 +188,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 $array_id = is_array($f['param']) ? $f['param']['array_id'] : $f['ref_table'];
                 $values = array('' => '['.__('Empty').']');
                 if (strpos($array_id, '::') === false) {
-                    $values = $values + Utils_CommonDataCommon::get_translated_array($array_id, is_array($f['param']) ? $f['param']['order_by_key'] : false);
+                    $values = $values + Utils_CommonDataCommon::get_translated_array($array_id, is_array($f['param']) ? $f['param']['order'] : false);
                 }
                 break;
             case 'integer':     $type = 'integer'; break;
@@ -244,7 +244,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             case $args['commondata']:
                 $array_id = is_array($args['param']) ? $args['param']['array_id'] : $args['ref_table'];
                 if (strpos($array_id, '::')===false)
-                    $arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, is_array($args['param'])?$args['param']['order_by_key']:false);
+                    $arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, is_array($args['param'])?$args['param']['order']:false);
                 break;
             case $tab=='contact' && $field=='login' ||
                  $tab=='rc_accounts' && $field=='epesi_user': // just a quickfix, better solution will be needed

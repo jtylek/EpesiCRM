@@ -107,7 +107,7 @@ class Utils_CommonData extends Module {
 					));
 
 		print('<h2>'.$name.'</h2><br>');
-		$ret = Utils_CommonDataCommon::get_translated_array($name,true,true);
+		$ret = Utils_CommonDataCommon::get_translated_array($name,'position',true);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data($v['position'],$k,$v['value']); // ****** CommonData value translation

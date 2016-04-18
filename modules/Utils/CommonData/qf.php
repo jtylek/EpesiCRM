@@ -14,7 +14,7 @@ require_once('HTML/QuickForm/select.php');
 class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 	var $_cd = null;
 	var $_add_empty_fields = false;
-	var $_order_by_key = false;
+	var $_order = 'value';
 
 	function HTML_QuickForm_commondata($elementName=null, $elementLabel=null, $commondata=null, $options=null, $attributes=null) {
 		$this->HTML_QuickForm_select($elementName, $elementLabel, array(), $attributes);
@@ -31,10 +31,14 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 
 		if (isset($options['empty_option']))
 			$this->_add_empty_fields = $options['empty_option'];
-		if (isset($options['order_by_key']))
-			$this->_order_by_key = $options['order_by_key'];
+		
+		if (isset($options['order']))
+			$this->_order = Utils_CommonDataCommon::validate_order($options['order']);		
+		elseif (isset($options['order_by_key'])) //legacy check
+			$this->_order = Utils_CommonDataCommon::validate_order($options['order_by_key']);
+		
 		if(count($this->_cd)==1) {
-			$root_data = Utils_CommonDataCommon::get_translated_array($this->_cd[0],$this->_order_by_key);
+			$root_data = Utils_CommonDataCommon::get_translated_array($this->_cd[0],$this->_order);
 			if($this->_add_empty_fields)
 				$root_data = array(''=>'---')+$root_data;
 			$this->loadArray($root_data);
@@ -64,7 +68,7 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 					 )) . ' />';
 				return $html;
 			}
-			eval_js('new Utils_CommonData(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS($val,false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\', '.($this->_add_empty_fields?1:0).', \'' . $this->_order_by_key . '\')');
+			eval_js('new Utils_CommonData(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS($val,false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\', '.($this->_add_empty_fields?1:0).', \'' . $this->_order . '\')');
 		}
 	        return parent::toHtml();
 	}

@@ -189,7 +189,7 @@ class Base_NotifyCommon extends ModuleCommon {
 				array('name'=>null,'label'=>__('General'),'type'=>'header'),
 				array('name'=>'one_cache','label'=>__('Show each notification'),'type'=>'select', 'values'=>array(0=>__('multiple times every login and on each device'), 1=>__('only once and only on one device')), 'default'=>1),
 				array('name'=>null,'label'=>__('Browser Notification').' - '.__('General'),'type'=>'header'),
-				array('name'=>'general_timeout', 'reload'=>1, 'label'=>__('Close Message Timeout'),'type'=>'select','values'=>Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', true),'default'=>0),
+				array('name'=>'general_timeout', 'reload'=>1, 'label'=>__('Close Message Timeout'),'type'=>'select','values'=>Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', 'position'),'default'=>0),
 				array('name'=>'general_group','label'=>__('Group Similar Notifications'),'type'=>'checkbox','default'=>1),
 				array('name'=>'browser_settings', 'label'=>'','type'=>'static','values'=>'<a class="button" onClick="Base_Notify.notify (\'Notification\', {body: \'enabled\', icon: \''.self::get_icon('Base_Notify').'\'}, true);">'.(__('Browser Settings')).'</a>'),
 
@@ -201,7 +201,7 @@ class Base_NotifyCommon extends ModuleCommon {
 		foreach ($modules as $module) {
 			$label = self::get_module_caption($module);
 	
-			$ret = array_merge($ret, array(array('name'=>$module.'_timeout','label'=>$label,'type'=>'select','values'=>array(-2=>_M('Use general setting')) + Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', true),'default'=>-2)));
+			$ret = array_merge($ret, array(array('name'=>$module.'_timeout','label'=>$label,'type'=>'select','values'=>array(-2=>_M('Use general setting')) + Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', 'position'),'default'=>-2)));
 		}
 
 		$ret[] = array('name'=>null,'label'=>__('Telegram Notification'),'type'=>'header');
