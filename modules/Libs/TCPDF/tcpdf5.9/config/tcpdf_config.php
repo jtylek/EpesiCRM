@@ -91,12 +91,12 @@ if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
 	/**
 	 * cache directory for temporary files (full path)
 	 */
-	define ('K_PATH_CACHE', 'data/Libs_TCPDF/');
+	define ('K_PATH_CACHE', DATA_DIR . '/Libs_TCPDF/');
 
 	/**
 	 * cache directory for temporary files (url path)
 	 */
-	define ('K_PATH_URL_CACHE', 'data/Libs_TCPDF/');
+	define ('K_PATH_URL_CACHE', DATA_DIR . '/Libs_TCPDF/');
 
 	/**
 	 *images directory

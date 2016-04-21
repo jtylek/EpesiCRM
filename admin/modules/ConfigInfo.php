@@ -38,8 +38,8 @@ class ConfigInfo extends AdminModule {
         $color = $data_dir_ok ? 'green' : 'red';
         $this->printTD("Data directory is writeable", $data_writable, $color, $data_dir_ok);
 
-        $version_ok = version_compare(phpversion(), '5.1.0') >= 0;
-        $text = $version_ok ? 'OK' : '<strong>WARNING!</strong> You are running an old version of PHP, minimum version 5.1 required.';
+        $version_ok = version_compare(phpversion(), '5.4.0') >= 0;
+        $text = $version_ok ? 'OK' : '<strong>WARNING!</strong> You are running an old version of PHP, minimum version 5.4 required.';
         $color = $version_ok ? 'green' : 'red';
         $this->printTD('PHP version: ' . phpversion(), $text, $color, $version_ok);
 

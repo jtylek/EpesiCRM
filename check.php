@@ -96,7 +96,7 @@ if ($config) {
 // ********************* SYSTEM ***********************
 $system_tests = array();
 $php_version = phpversion();
-$desired_version = '5.3';
+$desired_version = '5.4';
 $php_version_ok = version_compare($php_version, $desired_version, '>=');
 $status = $php_version_ok ? $php_version : $php_version . ' - EPESI requires at least ' . $desired_version;
 $system_tests[] = array('label' => 'PHP version', 'status' => $status, 'severity' => $php_version_ok ? 0 : 2);

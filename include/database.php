@@ -468,6 +468,8 @@ return $ret;
 /** * Will select, getting rows from $offset (1-based), for $nrows. * This simulates the MySQL "select * from table limit $offset,$nrows" , and * the PostgreSQL "select * from table limit $nrows offset $offset". Note that * MySQL and PostgreSQL parameter ordering is the opposite of the other. * eg. * SelectLimit('select * from table',3); will return rows 1 to 3 (1-based) * SelectLimit('select * from table',3,2); will return rows 3 to 5 (1-based) * * Uses SELECT TOP for Microsoft databases (when $this->hasTop is set) * BUG: Currently SelectLimit fails with $sql with LIMIT or TOP clause already set * * @param sql * @param [offset] is the row to start calculations from (1-based) * @param [nrows] is the number of rows to get * @param [inputarr] array of bind variables * @param [secs2cache] is a private parameter only used by jlim * @return the recordset ($rs->databaseType == 'array') */
 public static function &SelectLimit( $sql , $nrows = -1 , $offset = -1 , $inputarr = false , $secs2cache = 0 ) {
 $args = func_get_args();
+if (!isset($args[1])) $args[1] = $nrows;
+if (!isset($args[2])) $args[2] = $offset;
 if(SQL_TIMES) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[3]);
 $ret = self::call_with_retry("SelectLimit",$args);
@@ -633,6 +635,8 @@ return $ret;
 /** * Will select, getting rows from $offset (1-based), for $nrows. * This simulates the MySQL "select * from table limit $offset,$nrows" , and * the PostgreSQL "select * from table limit $nrows offset $offset". Note that * MySQL and PostgreSQL parameter ordering is the opposite of the other. * eg. * CacheSelectLimit(15,'select * from table',3); will return rows 1 to 3 (1-based) * CacheSelectLimit(15,'select * from table',3,2); will return rows 3 to 5 (1-based) * * BUG: Currently CacheSelectLimit fails with $sql with LIMIT or TOP clause already set * * @param [secs2cache] seconds to cache data, set to 0 to force query. This is optional * @param sql * @param [offset] is the row to start calculations from (1-based) * @param [nrows] is the number of rows to get * @param [inputarr] array of bind variables * @return the recordset ($rs->databaseType == 'array') */
 public static function &CacheSelectLimit( $secs2cache , $sql , $nrows = -1 , $offset = -1 , $inputarr = false ) {
 $args = func_get_args();
+if(!isset($args[2])) $args[2] = $nrows;
+if(!isset($args[3])) $args[3] = $offset;
 if(SQL_TIMES) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[4]);
 $ret = self::call_with_retry("CacheSelectLimit",$args);

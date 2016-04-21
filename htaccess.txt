@@ -10,9 +10,6 @@ php_flag magic_quotes_gpc off
 php_value memory_limit "64M"
 </IfModule>
 
-#if your server is running php as cgi/fastcgi you should set following directive instead of above php_value/flag
-#SetEnv PHPRC /your/epesi/root/directory/php.ini
-
 <IfModule mod_alias.c>
 RedirectMatch 404 /\\.svn(/|$)
 RedirectMatch 404 /\\.git(/|$)

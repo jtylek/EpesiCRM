@@ -70,16 +70,14 @@ class Utils_RecordBrowser_CritsValidator
                 }
             }
         }
-        $k = strtolower($field);
-        $record[$k] = $r_val;
 
         $result = false;
         $transform_date = false;
-        if ($k == 'created_on') {
+        if ($field == 'created_on') {
             $transform_date = 'timestamp';
-        } elseif ($k == 'edited_on') {
+        } elseif ($field == 'edited_on') {
             $details = Utils_RecordBrowserCommon::get_record_info($this->tab, $id);
-            $record[$k] = $details['edited_on'] ? $details['edited_on'] : $details['created_on'];
+            $r_val = $details['edited_on'] ? $details['edited_on'] : $details['created_on'];
             $transform_date = 'timestamp';
         } elseif ($field_definition) {
             $type = $field_definition['type'];
@@ -99,26 +97,26 @@ class Utils_RecordBrowser_CritsValidator
 
         $vv = explode('::',$crit_value,2);
         if (isset($vv[1]) && is_callable($vv)) {
-            $result = call_user_func_array($vv, array($this->tab, &$record, $k, $crits));
+            $result = call_user_func_array($vv, array($this->tab, &$record, $field, $crits));
         } else {
-            if (is_array($record[$k])) {
-                if ($crit_value) $result = in_array($crit_value, $record[$k]);
-                else $result = empty($record[$k]);
+            if (is_array($r_val)) {
+                if ($crit_value) $result = in_array($crit_value, $r_val);
+                else $result = empty($r_val);
                 if ($crits->get_operator() == '!=') $result = !$result;
             }
             else switch ($crits->get_operator()) {
-                case '>': $result = ($record[$k] > $crit_value); break;
-                case '>=': $result = ($record[$k] >= $crit_value); break;
-                case '<': $result = ($record[$k] < $crit_value); break;
-                case '<=': $result = ($record[$k] <= $crit_value); break;
-                case '!=': $result = ($record[$k] != $crit_value); break;
-                case '=': $result = ($record[$k] == $crit_value); break;
-                case 'LIKE': $result = self::check_like_match($record[$k], $crit_value); break;
-                case 'NOT LIKE': $result = !self::check_like_match($record[$k], $crit_value); break;
+                case '>': $result = ($r_val > $crit_value); break;
+                case '>=': $result = ($r_val >= $crit_value); break;
+                case '<': $result = ($r_val < $crit_value); break;
+                case '<=': $result = ($r_val <= $crit_value); break;
+                case '!=': $result = ($r_val != $crit_value); break;
+                case '=': $result = ($r_val == $crit_value); break;
+                case 'LIKE': $result = self::check_like_match($r_val, $crit_value); break;
+                case 'NOT LIKE': $result = !self::check_like_match($r_val, $crit_value); break;
             }
         }
         if ($crits->get_negation()) $result = !$result;
-        if (!$result) $this->issues[] = $k;
+        if (!$result) $this->issues[] = $field;
         return $result;
     }
 
