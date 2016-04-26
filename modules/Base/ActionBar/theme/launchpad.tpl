@@ -7,8 +7,8 @@
 	{assign var=x value=$x+1}
 		<td>
 	    {$i.open}
-		<div class="epesi_big_button">
-            <img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32">
+		<div class="btn btn-default btn-lg">
+            <div class="div_icon"><img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32"></div>
             <span>{$i.label}</span>
         </div>
 	    {$i.close}
