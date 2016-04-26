@@ -82,11 +82,11 @@
 							<td class="label" nowrap>
 								{$form_data.create_company.label}
 							</td>
-							<td class="create-company" style="width:20px">
-								{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
-							</td>
-							<td class="data">
-								<div style="position:relative;">
+							<td>
+								<div class="create-company" style="width:24px; display:inline-block; float: left">
+									{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
+								</div>
+								<div style="display:inline-block;width: calc(100% - 24px)" class="data">
 									{if isset($form_data.create_company_name.error)}<span class="error">{$form_data.create_company_name.error}</span>{/if}{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
 								</div>
 							</td>
