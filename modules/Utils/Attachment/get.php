@@ -99,12 +99,10 @@ if (isset($_REQUEST['thumbnail'])) {
 if($crypted) {
     $buffer = Utils_AttachmentCommon::decrypt($buffer,$password);
     if($buffer===false) die('Invalid attachment or password');
+	$mime = get_mime_type(null, $original, $buffer);
+} else {
+	$mime = get_mime_type($f_filename, $original);
 }
-
-//mime
-file_put_contents($f_filename.'raw',$buffer);
-$mime = get_mime_type($f_filename.'raw',$original);
-unlink($f_filename.'raw');
 
 $expires = 24*60*60;
 header('Pragma: public');
