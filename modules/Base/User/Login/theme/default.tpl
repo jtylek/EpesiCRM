@@ -1,7 +1,10 @@
 
 {if $is_logged_in}
-	{$logged_as}
-	<button class="btn btn-default" {$logout_href}>{$logout_label} <i class="glyphicon glyphicon-log-out"></i> </button>
+	<div>
+		{$logged_as}
+		<button class="btn btn-default pull-right" {$logout_href}>{$logout_label} <i class="glyphicon glyphicon-log-out"></i> </button>
+	</div>
+
 {else}
 	{$form_data.javascript}
 
