@@ -71,11 +71,9 @@
                     <div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
                 </div>
                 <div class="panel-body">
-                    <div class="shadow_css3_login-search-td_border">
-                        <div class="login">{$login}</div>
+                        <div class="login clearfix">{$login}</div>
                         <div class="search" id="search_box">{$search}</div>
                         <div class="filter" id="filter_box">{$filter}</div>
-                    </div>
                 </div>
             </div>
         </div>
