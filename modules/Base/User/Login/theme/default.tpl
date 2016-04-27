@@ -1,7 +1,7 @@
 
 {if $is_logged_in}
 	{$logged_as}
-	{$logout}
+	<button class="btn btn-default" {$logout_href}>{$logout_label} <i class="glyphicon glyphicon-log-out"></i> </button>
 {else}
 	{$form_data.javascript}
 
