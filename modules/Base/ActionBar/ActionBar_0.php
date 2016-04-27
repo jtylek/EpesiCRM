@@ -149,8 +149,6 @@ class Base_ActionBar extends Module {
 			$th->assign('icons',array());
 			$th->assign('launcher',array_reverse($launcher));
 			$th->display();
-			eval_js('$("launchpad_button_section").style.display="";');
-			eval_js('$("launchpad_button_section_spacing").style.display="";');
 		}
 	}
 
