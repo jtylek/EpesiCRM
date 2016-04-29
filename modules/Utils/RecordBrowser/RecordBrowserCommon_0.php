@@ -626,6 +626,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('DELETE FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($tab));
         DB::Execute('DELETE FROM recordbrowser_clipboard_pattern WHERE tab=%s', array($tab));
         DB::Execute('DELETE FROM recordbrowser_addon WHERE tab=%s', array($tab));
+        DB::Execute('DELETE FROM recordbrowser_access_methods WHERE tab=%s', array($tab));
         return true;
     }
 
@@ -1528,6 +1529,72 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($blocked_fields as $f)
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($id, $f));
 	}
+
+    public static function register_custom_access_callback($tab, $callback, $priority = 10)
+    {
+        if (!is_callable($callback)) {
+            return false;
+        }
+        if (is_array($callback)) {
+            $callback = implode('::', $callback);
+        }
+        $existing = self::get_custom_access_callbacks($tab);
+        if (in_array($callback, $existing)) {
+            return false;
+        }
+        DB::Execute('INSERT INTO recordbrowser_access_methods (tab, func, priority) VALUES (%s, %s, %d)', array($tab, $callback, $priority));
+        self::get_custom_access_callbacks(null, true);
+        return true;
+    }
+
+    public static function unregister_custom_access_callback($tab, $callback)
+    {
+        if (is_array($callback)) {
+            $callback = implode('::', $callback);
+        }
+        DB::Execute('DELETE FROM recordbrowser_access_methods WHERE tab=%s AND func=%s', array($tab, $callback));
+    }
+
+    public static function get_custom_access_callbacks($tab = null, $force_reload = false)
+    {
+        static $custom_access_callbacks;
+        if ($force_reload || $custom_access_callbacks === null) {
+            $custom_access_callbacks = array();
+            $db = DB::GetAll('SELECT * FROM recordbrowser_access_methods ORDER BY priority DESC');
+            foreach ($db as $row) {
+                if (!isset($custom_access_callbacks[$row['tab']])) {
+                    $custom_access_callbacks[$row['tab']] = array();
+                }
+                $custom_access_callbacks[$row['tab']][] = $row['func'];
+            }
+        }
+        if ($tab === null) {
+            return $custom_access_callbacks;
+        }
+        $ret = isset($custom_access_callbacks[$tab]) ? $custom_access_callbacks[$tab] : array();
+        return $ret;
+    }
+
+    public static function call_custom_access_callbacks($tab, $action, $record = null)
+    {
+        $callbacks = self::get_custom_access_callbacks($tab);
+        $crits = null;
+        foreach ($callbacks as $callback) {
+            $ret = call_user_func($callback, $action, $record, $tab);
+            if ($ret === true) {
+                return true;
+            } elseif ($ret === false) {
+                return false;
+            } elseif ($ret !== null) {
+                if ($crits === null) {
+                    $crits = $ret;
+                } else {
+                    $crits = self::merge_crits($crits, $ret);
+                }
+            }
+        }
+        return $crits;
+    }
 	
 	public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
         if (!$return_crits && self::$admin_access && Base_AclCommon::i_am_admin()) {
@@ -1537,6 +1604,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		} else {
 			static $cache = array();
             $cache_key = "{$tab}__USER_" . Base_AclCommon::get_user();
+            $callback_ret = self::call_custom_access_callbacks($tab, $action, $record);
 			if (!isset($cache[$cache_key])) {
 				self::check_table_name($tab);
 				$user_clearance = Base_AclCommon::get_clearance();
@@ -1571,6 +1639,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$crits_raw = $cache[$cache_key]['crits_raw'];
 				$fields = $cache[$cache_key]['fields'];
 			}
+            if ($callback_ret instanceof Utils_RecordBrowser_CritsInterface) {
+                $action2 = $action == 'browse' ? 'view' : $action;
+                $crits_raw[$action2][] = $callback_ret;
+                $crits[$action2] = self::merge_crits($crits[$action2], $callback_ret);
+            }
 			if ($return_crits) {
                 if ($action == 'browse') {
                     $action = 'view';
@@ -1581,6 +1654,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($action=='browse') {
 				return $crits['view']!==null ? true : false;
 			}
+            if (is_bool($callback_ret)) return $callback_ret;
 			$ret = false;
 			$blocked_fields = array();
 			if ($action!='browse' && $action!='clone') {
