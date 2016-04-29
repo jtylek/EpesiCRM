@@ -866,6 +866,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
         }
         return '';
     }
+
+    public static function rb_access($action, $record, $tab)
+    {
+        if ($action == 'view') {
+            $access = self::get_access($record['id']);
+            if ($access == false) return false;
+        }
+    }
 }
 
 ?>
