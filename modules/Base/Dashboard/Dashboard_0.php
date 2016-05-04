@@ -164,9 +164,9 @@ class Base_Dashboard extends Module {
 		while($row = $ret->FetchRow())
 			$applets[$row['col']][] = $row;
 
-		print('<div id="dashboard" style="width: 100%;">');
+		print('<div id="dashboard" class="row">');
 		for($j=0; $j<3; $j++) {
-			print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" style="width:33%;min-height:200px;padding-bottom:10px;vertical-align:top;display:inline-block">');
+			print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" class="col-md-4" style="min-height: 200px;">');
 
 			foreach($applets[$j] as $row) {
 				if (!is_callable(array($row['module_name'].'Common', 'applet_caption'))) continue;
