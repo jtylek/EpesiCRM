@@ -47,7 +47,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 
     public static function cron()
     {
-        return array('cron_send_notifications' => 1);
+        return array('cron_send_notifications' => 1, 'cron_cleanup' => 7*24*60);
     }
 
     public static function cron_send_notifications()
@@ -56,6 +56,11 @@ class Utils_WatchdogCommon extends ModuleCommon {
             self::send_email_notifications($event_id);
         }
     }
+
+	public static function cron_cleanup()
+	{
+		Utils_Watchdog_Cleaner::instance()->cron();
+	}
 
 	public static function get_subscribers($category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
