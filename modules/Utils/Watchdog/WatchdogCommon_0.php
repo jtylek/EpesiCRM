@@ -131,6 +131,12 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				self::user_subscribe($s, $category_name, $id);
 		}
         Utils_WatchdogCommon::notified($category_name,$id);
+		$subscribers = self::get_subscribers($category_name, $id);
+		foreach ($subscribers as $user) {
+			if (!self::has_access_to_record($user, $category_name, $id)) {
+				self::user_notified($user, $category_name, $id);
+			}
+		}
 
         self::queue_notification_for_cron($event_id);
     }
