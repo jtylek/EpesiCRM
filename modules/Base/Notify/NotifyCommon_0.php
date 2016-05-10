@@ -1,12 +1,12 @@
 s<?php
 /**
- * 
+ *
  * @author Georgi Hristov <ghristov@gmx.de>
  * @copyright Copyright &copy; 2014, Xoff Software GmbH
  * @license MIT
  * @version 2.0
  * @package epesi-notify
- * 
+ *
  */
 
 defined("_VALID_ACCESS") || die('Direct access forbidden');
@@ -23,7 +23,7 @@ class Base_NotifyCommon extends ModuleCommon {
 	const message_refresh_limit = 3; //messages
 
     private static $initialized = false;
-	
+
 	public static function init() {
         if (Base_AclCommon::is_user() == false || self::$initialized) {
             return;
@@ -40,11 +40,11 @@ class Base_NotifyCommon extends ModuleCommon {
 
         self::$initialized = true;
 	}
-	
+
 	public static function is_disabled() {
 		return self::get_general_setting() == -1;
 	}
-	
+
 	public static function is_refresh_due($token) {
 		return time() >= Base_NotifyCommon::get_last_refresh($token) + Base_NotifyCommon::refresh_rate;
 	}
@@ -57,38 +57,38 @@ class Base_NotifyCommon extends ModuleCommon {
 		if (empty($cache)) {
 			return DB::Execute('UPDATE base_notify SET last_refresh=%d WHERE token=%s AND (last_refresh<=%d OR last_refresh IS NULL)', array($refresh_time, $token, $refresh_time));
 		}
-		
+
 		$saved_cache = self::get_notified_cache($token);
-	
+
 		if (empty($saved_cache)) $saved_cache = array();
-	
+
 		$modules = array_merge(array_keys($cache), array_keys($saved_cache));
 
         $ret = array();
 		foreach ($modules as $m) {
 			$saved_ids = isset($saved_cache[$m])? $saved_cache[$m]:array();
 			$new_ids = isset($cache[$m])? $cache[$m]:array();
-	
+
 			$ret[$m] = array_unique(array_merge($saved_ids, $new_ids));
 		}
-	
+
 		return DB::Execute('UPDATE base_notify SET cache=%s, last_refresh=%d WHERE token=%s AND (last_refresh<=%d OR last_refresh IS NULL)',array(self::serialize($ret), $refresh_time, $token, $refresh_time));
 	}
-	
+
 	public static function get_notified_cache($token) {
 		static $cache = array();
-	
+
 		if (!isset($cache[$token])) {
 			$notified = DB::GetOne('SELECT cache FROM base_notify WHERE token=%s',array($token));
-	
+
 			if (!isset($notified)) {
 				$notified = self::serialize(array());
 			}
 			$cache[$token] = self::unserialize($notified);
 		}
-	
+
 		return $cache[$token];
-	}	
+	}
 
 	public static function get_session_token($one_cache=null) {
         $user_id = Base_AclCommon::get_user();
@@ -117,12 +117,12 @@ class Base_NotifyCommon extends ModuleCommon {
 		}
 		return $token;
 	}
-	
+
 	public static function get_notifications($token,$tray=true) {
 		$ret = array();
 
         $notification_modules = ModuleManager::check_common_methods('notification');
-        
+
         foreach ($notification_modules as $module) {
         	$timeout = self::get_module_setting($module);
         	if ($timeout == -1) continue;
@@ -135,30 +135,30 @@ class Base_NotifyCommon extends ModuleCommon {
             }
 
         	if (!isset($notify[$tray?'tray':'notifications'])) continue;
-        	
+
         	$new_module_notifications = self::filter_new_notifications($module, $notify[$tray?'tray':'notifications'], $token);
-        	
+
         	if (empty($new_module_notifications)) continue;
-        	
+
         	$ret[$module] = $new_module_notifications;
         }
-              		
+
 		return $ret;
-	}	
+	}
 
 	public static function filter_new_notifications($module, $all_messages, $token) {
 		$notified_cache = self::get_notified_cache($token);
 
 		if (empty($notified_cache[$module])) return $all_messages;
-	
+
 		$notified_messages = array_fill_keys($notified_cache[$module], 1);
-	
+
 		return array_diff_key($all_messages, $notified_messages);
-	}	
-	
+	}
+
 	public static function get_last_refresh($token) {
 		$ret = DB::GetOne('SELECT last_refresh FROM base_notify WHERE token=%s',array($token));
-	
+
 		return is_numeric($ret)? $ret: 0;
 	}
 
@@ -170,7 +170,7 @@ class Base_NotifyCommon extends ModuleCommon {
 		$module = rtrim($module);
 		$module_setting = Base_User_SettingsCommon::get('Base_Notify', $module.'_timeout');
 		return ($module_setting == -2) ? self::get_general_setting(): $module_setting;
-	}	
+	}
 
 	public static function user_settings() {
 		$ret = array(
@@ -183,12 +183,12 @@ class Base_NotifyCommon extends ModuleCommon {
 
 				array('name'=>null,'label'=>__('Browser Notification').' - '.__('Module Specific Timeout'),'type'=>'header')
 		);
-	
+
 		$modules = ModuleManager::check_common_methods('notification');
-	
+
 		foreach ($modules as $module) {
 			$label = self::get_module_caption($module);
-	
+
 			$ret = array_merge($ret, array(array('name'=>$module.'_timeout','label'=>$label,'type'=>'select','values'=>array(-2=>_M('Use general setting')) + Utils_CommonDataCommon::get_translated_array('Base_Notify/Timeout', true),'default'=>-2)));
 		}
 
@@ -205,7 +205,7 @@ class Base_NotifyCommon extends ModuleCommon {
 
 	public static function group_similar() {
 		return Base_User_SettingsCommon::get('Base_Notify', 'general_group')==1;
-	}	
+	}
 
 	public static function get_module_caption($module) {
 		$module = rtrim($module, 'Common');
@@ -216,28 +216,28 @@ class Base_NotifyCommon extends ModuleCommon {
 			$caption = call_user_func($module.'Common::applet_caption');
 		}
 		else $caption = $module;
-	
+
 		return $caption;
-	}	
+	}
 
 	public static function get_icon($module, $message = null) {
 		$icon = Base_ThemeCommon::get_template_file($module, isset($message['icon']) ? $message['icon']:'icon.png');
 		return isset($icon)? $icon: Base_ThemeCommon::get_template_file('Base_Notify', 'icon.png');
 	}
-	
+
 	public static function strip_html ($text) {
 		return str_replace('&nbsp;',' ',htmlspecialchars_decode(strip_tags(preg_replace('/\<[Bb][Rr]\/?\>/',"\n",$text))));
 	}
-	
+
 	public static function serialize($txt) {
 		$serialized = serialize($txt);
 		$compressed = function_exists('gzcompress')? gzcompress($serialized): $serialized;
 		return base64_encode($compressed);
 	}
-	
+
 	public static function unserialize($txt) {
 		$decoded = base64_decode($txt);
-		$uncompressed = function_exists('gzuncompress')? gzuncompress($decoded): $decoded;
+		$uncompressed = function_exists('gzuncompress')? @gzuncompress($decoded): $decoded;
 		return @unserialize($uncompressed);
 	}
 
