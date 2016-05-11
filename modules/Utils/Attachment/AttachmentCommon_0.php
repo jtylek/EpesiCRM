@@ -869,7 +869,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
     public static function rb_access($action, $record, $tab)
     {
-        if ($action == 'view') {
+        if ($action == 'view' && isset($record['id']) && $record['id'] > 0) {
             $access = self::get_access($record['id']);
             if ($access == false) return false;
         }
