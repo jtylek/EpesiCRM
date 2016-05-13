@@ -1099,9 +1099,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     public static function update_record($tab,$id,$values,$all_fields = false, $date = null, $dont_notify = false) {
+        DB::StartTrans();
         self::init($tab);
         $record = self::get_record($tab, $id, false);
-        if (!is_array($record)) return false;
+        if (!is_array($record)) {
+            DB::CompleteTrans();
+            return false;
+        }
 
 		$process_method_args = $values;
 		$process_method_args['id'] = $id;
@@ -1160,6 +1164,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
             Utils_WatchdogCommon::new_event($tab,$id,'E_'.$edit_id);
         }
+        return DB::CompleteTrans();
     }
     public static function add_recent_entry($tab, $user_id ,$id){
         self::check_table_name($tab);
