@@ -540,11 +540,9 @@ class Utils_RecordBrowser_QueryBuilder
                 'delete' => 'Utils_RecordBrowserCommon::get_recursive_delete',
             );
             $action = null;
-            $all = false;
             foreach ($callbacks as $act => $c) {
                 if (strpos($value, $c) !== false) {
                     $action = $act;
-                    if (strpos($value, 'all') !== false) $all = true;
                     break;
                 }
             }
