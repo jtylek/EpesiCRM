@@ -528,6 +528,10 @@ class Utils_RecordBrowser_QueryBuilder
 
         $single_tab = !($tab2 == '__RECORDSETS__' || count(explode(',', $tab2)) > 1);
 
+        if ($operator == DB::like()) {
+            $sub_field = $field_def['ref_field'];
+        }
+
         $vv = explode('::', $value, 2);
         $ids = null;
         if(isset($vv[1]) && is_callable($vv)) {
