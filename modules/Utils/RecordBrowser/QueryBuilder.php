@@ -679,14 +679,19 @@ class Utils_RecordBrowser_QueryBuilder
         $vals = array();
 
         $field_sql_id = $this->get_field_sql($crit->get_field());
-        $operator = self::transform_meta_operators_to_sql($crit->get_operator());
+        $operator = $crit->get_operator();
         $raw_sql_val = $crit->get_raw_sql_value();
         $value = $crit->get_value();
         $negation = $crit->get_negation();
+        if ($operator == 'NOT LIKE') {
+            $operator = 'LIKE';
+            $negation = !$negation;
+        }
         if ($operator == '!=') {
             $operator = '=';
             $negation = !$negation;
         }
+        $operator = self::transform_meta_operators_to_sql($operator);
         if (is_array($value)) { // for empty array it will give empty result
             $sql[] = 'false';
         } else {
