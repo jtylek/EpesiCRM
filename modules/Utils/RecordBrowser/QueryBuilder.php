@@ -554,7 +554,11 @@ class Utils_RecordBrowser_QueryBuilder
 
             $access_crits = Utils_RecordBrowserCommon::get_access($tab2, $action, null, true);
             $subquery = Utils_RecordBrowserCommon::build_query($tab2, $access_crits, $this->admin_mode);
-            $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
+            if ($subquery) {
+                $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
+            } else {
+                $sql = 'false';
+            }
         } else if ($sub_field && $single_tab && $tab2) {
             $col2 = explode('|', $sub_field);
             $crits = new Utils_RecordBrowser_Crits();
@@ -566,7 +570,11 @@ class Utils_RecordBrowser_QueryBuilder
             }
             if (!$crits->is_empty()) {
                 $subquery = Utils_RecordBrowserCommon::build_query($tab2, $crits, $this->admin_mode);
-                $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
+                if ($subquery) {
+                    $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
+                } else {
+                    $sql = 'false';
+                }
             }
         } else {
             if ($raw_sql_val) {
