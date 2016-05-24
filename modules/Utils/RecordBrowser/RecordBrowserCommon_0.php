@@ -1350,8 +1350,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $crits = Utils_RecordBrowser_Crits::from_array($crits);
         }
         $crits_validator = new Utils_RecordBrowser_CritsValidator($tab);
-        $success = $crits_validator->validate($crits, $r);
-        $problems = $crits_validator->get_issues();
+        $crits->normalize();
+        list($success, $issues) = $crits_validator->validate($crits, $r);
+        if (!$success) {
+            $problems = $issues;
+        }
         return $success;
     }
     public static function crits_special_values()

@@ -1640,16 +1640,26 @@ class Utils_RecordBrowser extends Module {
 		    foreach (Utils_RecordBrowser::$last_record as $k=>$v) if (!isset($data[$k])) $data[$k] = $v;
 //		$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
 		$crits2 = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true, true);
+        $required_crits = array();
 		foreach($crits2 as $crits) {
 		    $problems = array();
-    		Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
-    		foreach ($problems as $f) {
-	    		$f = explode('[', $f);
-		    	$ret[$f[0]] = __('Invalid value');
-		    }
+    		$ret = Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
+            if (!$ret) {
+                foreach ($problems as $c) {
+                    if ($c instanceof Utils_RecordBrowser_CritsSingle) {
+                        list($f, $subf) = Utils_RecordBrowser_CritsSingle::parse_subfield($c->get_field());
+                        $ret[$f] = __('Invalid value');
+                    }
+                }
+                $required_crits[] = Utils_RecordBrowserCommon::crits_to_words($this->tab, $crits);
+            }
     		if($problems) continue;
     		return array();
     	}
+        /** @var Base_Theme $th */
+        $th = $this->init_module(Base_Theme::module_name());
+        $th->assign('crits', $required_crits);
+        $th->display('required_crits_to_add');
 		return $ret;
     }
     private static function sort_by_processing_order($f1, $f2)

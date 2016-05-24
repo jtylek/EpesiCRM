@@ -8,8 +8,6 @@ class Utils_RecordBrowser_CritsValidator
     protected $fields;
     protected $fields_by_id;
 
-    protected $issues = array();
-
     function __construct($tab)
     {
         $this->tab = $tab;
@@ -19,27 +17,19 @@ class Utils_RecordBrowser_CritsValidator
 
     public function validate(Utils_RecordBrowser_CritsInterface $crits, $record)
     {
+        $result = array(true, array());
         if (!$crits->is_active()) {
-            return true;
+            return $result;
         }
-        $success = true;
 
         if ($crits instanceof Utils_RecordBrowser_CritsSingle) {
-            $success = $this->validate_single($crits, $record);
+            $result = $this->validate_single($crits, $record);
         } elseif ($crits instanceof Utils_RecordBrowser_Crits) {
-            $success = $this->validate_compound($crits, $record);
+            $result = $this->validate_compound($crits, $record);
         } elseif ($crits instanceof Utils_RecordBrowser_CritsRawSQL) {
-            $success = $this->validate_sql($crits, $record);
+            $result = $this->validate_sql($crits, $record);
         }
-        return $success;
-    }
-
-    /**
-     * @return array
-     */
-    public function get_issues()
-    {
-        return $this->issues;
+        return $result;
     }
 
     protected function validate_single(Utils_RecordBrowser_CritsSingle $crits, $record)
@@ -116,8 +106,9 @@ class Utils_RecordBrowser_CritsValidator
             }
         }
         if ($crits->get_negation()) $result = !$result;
-        if (!$result) $this->issues[] = $field;
-        return $result;
+        $issues = array();
+        if (!$result) $issues[] = $crits;
+        return array($result, $issues);
     }
 
     public static function check_like_match($value, $pattern, $ignore_case = true)
@@ -134,8 +125,10 @@ class Utils_RecordBrowser_CritsValidator
         }
         $or = $crits->get_join_operator() == 'OR';
         $success = $or ? false : true;
+        $all_issues = array();
         foreach ($crits->get_component_crits() as $c) {
-            $satisfied = $this->validate($c, $record);
+            list($satisfied, $issues) = $this->validate($c, $record);
+            $all_issues = array_merge($all_issues, $issues);
             if ($or) {
                 if ($satisfied) {
                     $success = true;
@@ -151,7 +144,10 @@ class Utils_RecordBrowser_CritsValidator
         if ($crits->get_negation()) {
             $success = !$success;
         }
-        return $success;
+        if ($success) {
+            $all_issues = array();
+        }
+        return array($success, $all_issues);
     }
 
     protected function validate_sql(Utils_RecordBrowser_CritsRawSQL $crits, $record)
@@ -161,7 +157,8 @@ class Utils_RecordBrowser_CritsValidator
             $sql = "AND $sql";
         }
         $ret = DB::GetOne("SELECT 1 FROM {$this->tab}_data_1 WHERE id=%d $sql", array($record['id']));
-        return $ret ? true : false;
+        $result = $ret ? true : false;
+        return array($result, !$result ? array($crits) : array());
     }
 
     protected function get_field_definition($field_id_or_label)
