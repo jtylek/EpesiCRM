@@ -121,7 +121,7 @@ class Utils_RecordBrowser_CritsValidator
     protected function validate_compound(Utils_RecordBrowser_Crits $crits, $record)
     {
         if ($crits->is_empty()) {
-            return true;
+            return array(true, array());
         }
         $or = $crits->get_join_operator() == 'OR';
         $success = $or ? false : true;
