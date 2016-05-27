@@ -115,6 +115,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 ?>
 		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
 		<link type="text/css" href="libs/font-awesome/css/font-awesome.css" rel="stylesheet"/>
+			<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600&amp;subset=latin-ext,latin" rel="stylesheet" type="text/css">
 			<script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
 		<style type="text/css">
