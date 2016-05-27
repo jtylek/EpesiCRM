@@ -111,7 +111,7 @@ class Base_Menu extends Module {
 
 		Base_MenuCommon::generate_urls($this, $modules_menu);
 
-		return $this->render('default.twig', array(
+		return $this->twig_display('default.twig', array(
 			'menu' => Base_MenuCommon::build_menu($modules_menu),
 			'name' => __('Menu')
 		));
