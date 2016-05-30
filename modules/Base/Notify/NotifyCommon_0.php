@@ -201,7 +201,7 @@ class Base_NotifyCommon extends ModuleCommon {
 		$ret[] = array('name'=>'telegram_url', 'label'=>'<a class="button" href="modules/Base/Notify/telegram.php" target="_blank">'.($telegram?__('Connect to another telegram account'):__('Connect to your telegram account')).'</a>','type'=>'static','values'=>($telegram?'<a class="button" '.Module::create_href(array('telegram'=>1)).'>'.__('Disconnect telegram').'</a>':''));
 
 		return array(__('Notifications')=>$ret);
-	}	
+	}
 
 	public static function user_settings_icon() {
 		return Base_ThemeCommon::get_template_file(self::module_name(),'icon.png');
@@ -241,7 +241,7 @@ class Base_NotifyCommon extends ModuleCommon {
 	
 	public static function unserialize($txt) {
 		$decoded = base64_decode($txt);
-		$uncompressed = function_exists('gzuncompress')? gzuncompress($decoded): $decoded;
+		$uncompressed = function_exists('gzuncompress')? @gzuncompress($decoded): $decoded;
 		return @unserialize($uncompressed);
 	}
 
