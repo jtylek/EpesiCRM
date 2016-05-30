@@ -2577,39 +2577,42 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
             $fields = array_filter(explode('|', $ref[1]));
             if(!$fields) $fields = DB::GetCol("SELECT field FROM {$t}_field WHERE active=1 AND visible=1 AND (type NOT IN ('calculated','page_split','hidden') OR (type='calculated' AND param is not null AND param!=''))");
-            
-	    $words_db_tmp = $words_db;
-	    $words_tmp = $words;
-	    foreach($words_tmp as $pos => $word) {
-		$expr = '/'.preg_quote($word,'/').'/i';
-		if(preg_match($expr,$caption) || preg_match($expr,_V($caption))) {
-		    unset($words_db_tmp[$pos]);
-		    unset($words_tmp[$pos]);
-		}
-	    }
-	    $str_db = '%' . implode(' ',$words_tmp) . '%';
+
+            $words_db_tmp = $words_db;
+            $words_tmp = $words;
+            if (!$single_tab) {
+                foreach ($words_tmp as $pos => $word) {
+                    $expr = '/' . preg_quote($word, '/') . '/i';
+                    if (preg_match($expr, $caption) || preg_match($expr, _V($caption))) {
+                        unset($words_db_tmp[$pos]);
+                        unset($words_tmp[$pos]);
+                    }
+                }
+            }
+            $str_db = '%' . implode(' ', $words_tmp) . '%';
 
             if (empty($f_callback) || !is_callable($f_callback))
                  $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
 
             $crits2A = array();
             $crits2B = array();
-            $op = '(';
+            $order = array();
             foreach ($fields as $f) {
-                $crits2A[$op.'~'.self::get_field_id($f)] = $str_db;
-                $crits2B[$op.'~'.self::get_field_id($f)] = $words_db_tmp;
-                $op = '|';
+                $field_id = self::get_field_id($f);
+                $crits2A = self::merge_crits($crits2A, array('~' . $field_id => $str_db), true);
+                $crits2B = self::merge_crits($crits2B, array('~' . $field_id => $words_db_tmp), true);
+                $order[$field_id] = 'ASC';
             }
             $crits3A = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2A);
             $crits3B = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2B);
-            $records = self::get_records($t, $crits3A, array(), array(), 10);
+            $records = self::get_records($t, $crits3A, array(), $order, 10);
         
             foreach ($records as $r) {
                 if(!self::get_access($t,'view',$r)) continue;
                 $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3A, $f_callback, $params));
             }
 
-            $records = self::get_records($t, $crits3B, array(), array(), 10);
+            $records = self::get_records($t, $crits3B, array(), $order, 10);
 
             foreach ($records as $r) {
 		if(isset($ret[($single_tab?'':$t.'/').$r['id']]) ||
