@@ -515,7 +515,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                     }
                 }
 
-                $contacts = self::get_contacts($base_crits, array(), array(), $limit);
+                $contacts = self::get_contacts($base_crits, array(), array('last_name'=>'ASC'), $limit);
                 if (!is_array($default)) {
                     if ($default!='') $default = array($default); else $default=array();
                 }
