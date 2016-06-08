@@ -52,6 +52,7 @@ if(!defined('FIRST_RUN')) define('FIRST_RUN','FirstRun');
 if(!defined('HOSTING_MODE')) define('HOSTING_MODE',0);
 if(!defined('TRIAL_MODE')) define('TRIAL_MODE',0);
 if(!defined('DEMO_MODE')) define('DEMO_MODE',0);
+if(!defined('ALLOW_PHP_EMBEDDING')) define('ALLOW_PHP_EMBEDDING',0);
 
 if(!defined('STARTING_MESSAGE')) define('STARTING_MESSAGE','Starting epesi ...');
 if(!defined('EPESI')) define('EPESI','EPESI');

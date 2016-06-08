@@ -2240,7 +2240,7 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('text', 'autonumber_pad_mask', __('Pad character'), array('id' => 'autonumber_pad_mask'));
         $form->addRule('autonumber_pad_mask', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
 
-		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings()', 'id'=>'advanced'));
+		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings(true)', 'id'=>'advanced'));
         $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
         $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $record (array)<br />- $links_not_recommended (bool)<br />- $field (array)<br />return "value to display";</li></ul>';
 		$form->addElement('textarea', 'display_callback', __('Value display function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'display_callback'));
@@ -2420,7 +2420,7 @@ class Utils_RecordBrowser extends Module {
 
 		eval_js('RB_hide_form_fields();');
 		eval_js('RB_advanced_confirmation = "'.Epesi::escapeJS(__('Changing these settings may often cause system unstability. Are you sure you want to see advanced settings?')).'";');
-		eval_js('RB_advanced_settings();');
+		eval_js('RB_advanced_settings(false);');
 
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
@@ -2471,6 +2471,26 @@ class Utils_RecordBrowser extends Module {
 				}
 			}
 		}
+
+        $show_php_embedding = false;
+        foreach (array('QFfield_callback', 'display_callback') as $ff) {
+            if (isset($data[$ff]) && $data[$ff]) {
+                $callback_func = Utils_RecordBrowserCommon::callback_check_function($data[$ff], true);
+                if ($callback_func) {
+                    if (!is_callable($callback_func)) {
+                        $ret[$ff] = __('Invalid callback');
+                    }
+                } elseif (!defined('ALLOW_PHP_EMBEDDING') || !ALLOW_PHP_EMBEDDING) {
+                    $ret[$ff] = __('Using PHP code is blocked');
+                    $show_php_embedding = true;
+                }
+            }
+        }
+        if ($show_php_embedding) {
+            print(__('Using PHP code in application is currently disabled. Please edit file %s and add following line:', array(DATA_DIR . '/config.php'))) . '<br>';
+            print("<pre>define('ALLOW_PHP_EMBEDDING', 1);</pre>");
+        }
+            
 		return $ret;
 	}
 	
