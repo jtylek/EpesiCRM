@@ -1,5 +1,5 @@
 # Installation data dir
-data
+data*
 
 # htaccess file
 .htaccess

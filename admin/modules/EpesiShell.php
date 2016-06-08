@@ -2,9 +2,6 @@
 
 class EpesiShell extends AdminModule {
 
-    /* Uncomment (remove two leading slashes) following line to enable this tool. */
-    //private $enabled = true;
-
     public function menu_entry() {
         return __('Run PHP command');
     }
@@ -16,8 +13,8 @@ class EpesiShell extends AdminModule {
     public function body() {
         ob_start();
         print('<div class="title">'. __('EPESI Shell'). '</div>');
-        if (!isset($this->enabled)) {
-            print(__('This tool is currently disabled. Please edit file admin/modules/EpesiShell.php and follow instructions there.'));
+        if (!defined('ALLOW_PHP_EMBEDDING') || !ALLOW_PHP_EMBEDDING) {
+            print(__('This tool is currently disabled. Please edit file %s and add following line %s', array(DATA_DIR . '/config.php', "define('ALLOW_PHP_EMBEDDING', 1);")));
             print('<br/>');
             print(__("This tool allows you to execute any PHP code as it would be executed in EPESI application. It's intended mainly for developers. Don't leave it enabled on non-development installation."));
         } else {

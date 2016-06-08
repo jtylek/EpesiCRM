@@ -36,13 +36,26 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 	}
 
-    public static function call_display_callback($callback, $record, $links_not_recommended, $field, $tab)
+    public static function callback_check_function($callback, $only_check_syntax = false)
     {
         if (is_array($callback)) $callback = implode('::', $callback);
-        if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable(array($match[1], $match[2]))) {
-            $ret = call_user_func(array($match[1], $match[2]), $record, $links_not_recommended, $field, $tab);
-        } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable($match[1])) {
-            $ret = call_user_func($match[1], $record, $links_not_recommended, $field, $tab);
+        $func = null;
+        if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match)) {
+            $func = array($match[1], $match[2]);
+        } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match)) {
+            $func = $match[1];
+        }
+        if (is_callable($func, $only_check_syntax)) {
+            return $func;
+        }
+        return false;
+    }
+
+    public static function call_display_callback($callback, $record, $links_not_recommended, $field, $tab)
+    {
+        $callback_func = self::callback_check_function($callback);
+        if ($callback_func) {
+            $ret = call_user_func($callback_func, $record, $links_not_recommended, $field, $tab);
         } else {
             ob_start();
             $ret = eval($callback);
@@ -59,11 +72,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($display_callback_table === null) {
             $display_callback_table = self::display_callback_cache($rb_obj->tab);
         }
-        if (is_array($callback)) $callback = implode('::', $callback);
-        if (preg_match('/^([\\\\a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*)::([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable(array($match[1], $match[2]))) {
-            call_user_func(array($match[1], $match[2]), $form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table);
-        } elseif (preg_match('/^([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$/', $callback, $match) && is_callable($match[1])) {
-            call_user_func($match[1], $form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table);
+        $callback_func = self::callback_check_function($callback);
+        if ($callback_func) {
+            call_user_func($callback_func, $form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table);
         } else {
             eval($callback);
         }
