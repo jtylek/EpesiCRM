@@ -174,27 +174,31 @@ class CRM_ContactsCommon extends ModuleCommon {
         $field['param'] = $param;
         return $field;
     }
-    public static function crm_company_contact_datatype($field = array()) {
-        if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company_contact');
+	public static function crm_company_contact_datatype($field = array()) {
         if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_company_contact');
         $field['type'] = $field['param']['field_type'];
-        $param = '';
-        if ($field['type']=='select') {
-            $field['type'] = 'text';
-            $param = 64;
-        }
-        $field['param'] = $param;
+
+        $crits_callback = isset($field['param']['crits'])? $field['param']['crits']: array('', '');
+        $crits_callback = is_array($crits_callback)? implode('::', $crits_callback): $crits_callback;
+        
+        $format_callback = isset($field['param']['format'])? $field['param']['format']: array('CRM_ContactsCommon', 'crm_company_contact_select_list_options');
+        $format_callback = is_array($options_callback)? implode('::', $options_callback): $options_callback;
+        
+        $field['param'] = "company,contact::;$crits_callback;$format_callback";
         return $field;
     }
-
+    public static function crm_company_contact_select_list_options($record) {
+    	return array('format_callback'=>array('CRM_ContactsCommon', 'autoselect_company_contact_format'));
+    }
     public static function employee_crits() {
         $my_company = CRM_ContactsCommon::get_main_company();
         return array('(company_name' => $my_company, '|related_companies' => array($my_company));
     }
-
     public static function display_company_contact($record, $nolink, $desc) {
         $v = $record[$desc['id']];
-		if (!is_array($v) && isset($v[1]) && $v[1]!=':') return $v;
+		$verify_value_backward_compatible = !is_array($v) && isset($v[1]) && $v[1]==':';
+        $verify_value = strpos($v, '/')!==false;        
+		if (!$verify_value && !$verify_value_backward_compatible) return $v;
         $def = '';
         if (!is_array($v)) $v = array($v);
 		if (count($v)>100) return count($v).' '.__('values');
@@ -205,35 +209,42 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!$def)  $def = '---';
         return $def;
     }
-    public static function autoselect_company_contact_format($arg, $nolink=false) {
-        $icon = array('C' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
-            'P' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
+    public static function autoselect_company_contact_format($arg, $def = false) {
+    	//backward compatibility
+    	$nolink = ($def === false)? false: true;
 
-        $x = explode(':', $arg);
-        if(count($x)==2) {
-            list($rset, $id) = $x;
-        } else {
-            $id = $x[0];
-            $rset = 'P';
-        }
-        if (!$id) return '---';
-        if ($rset=='P') {
-			$val = self::contact_format_default($id, $nolink);
-			$rlabel = __('P');
-        } else {
-			$val = self::company_format_default($id, $nolink);
-			$rlabel = __('C');
-		}
-        $indicator_text = ($rset == 'P' ? __('Person') : __('Company'));
-        $rindicator = isset($icon[$rset]) ?
-                '<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$rset].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
-        $val = $rindicator.$val;
-        if ($nolink)
-            return strip_tags($val);
-        return $val;
+    	return self::company_contact_format_default($arg, $nolink);
     }
-    public static function company_contact_format_default($arg,$nolink=false) {
-        return self::autoselect_company_contact_format($arg, $nolink);
+	public static function company_contact_format_default($arg,$nolink=false) {
+    	$rset_map = array('C'=>'company', 'P'=>'contact');
+    	$icon = array('company' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
+    			'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
+
+    	//backward compatibility
+    	if (stripos($arg, ':')!== false || is_numeric($arg)) {
+	    	$x = explode(':', $arg);
+	    	if(count($x)==2) {
+	    		list($rset, $id) = $x;
+	    	} else {
+	    		$id = $x[0];
+	    		$rset = 'P';
+	    	}
+	    	$tab = $rset_map[$rset];
+    	}
+    	else list($tab, $id) = explode('/', $arg);
+    	
+    	if (!$id) return '---';
+    	
+    	$val = Utils_RecordBrowserCommon::create_default_linked_label($tab, $id, $nolink, false);
+    	$rlabel = array_search($tab, $rset_map);
+    	
+    	$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
+    	$rindicator = isset($icon[$tab]) ?
+    	'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
+    	$val = $rindicator.$val;
+    	if ($nolink)
+    		return strip_tags($val);
+    	return $val;
     }
     public static function auto_company_contact_suggestbox($str, $fcallback) {
         $words = explode(' ', trim($str));
