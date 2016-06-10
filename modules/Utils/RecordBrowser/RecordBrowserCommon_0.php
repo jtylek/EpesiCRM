@@ -1296,6 +1296,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             'prev'=>isset($ret[0])?$ret[0]:null);
         }
     }
+
+    /**
+     * @param string $tab Recordset identifier
+     * @param array|Utils_RecordBrowser_Crits $crits
+     * @param array $cols not used anymore
+     * @param array $order
+     * @param int|array $limit nr of rows or array('offset'=>X, 'numrows'=>Y); 
+     * @param bool  $admin
+     *
+     * @return array|bool
+     */
     public static function get_records( $tab, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
         if (!$tab) return false;
         if (is_numeric($limit)) {
@@ -1308,30 +1319,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $tab_alias = 'r';
         $fields = "$tab_alias.*";
         self::init($tab);
-        if (!empty($cols)) {
-            $cleancols = array('id', 'active', 'created_by', 'created_on');
-            foreach ($cols as $v) {
-                $val = (isset(self::$table_rows[$v])?self::$table_rows[$v]['id']:$v); // FIX it
-                if ($val!='id') $cleancols[] = "f_$val";
-            }
-            foreach ($cleancols as $k => $col_id) {
-                $cleancols[$k] = "$tab_alias.$col_id";
-            }
-            $fields = implode(',', $cleancols);
-        }
         $par = self::build_query($tab, $crits, $admin, $order);
         if (empty($par)) return array();
         $ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'].$par['order'], $limit['numrows'], $limit['offset'], $par['vals']);
         $records = array();
         self::init($tab);
-        if (!empty($cols)) {
-            foreach($cols as $k=>$v) {
-                if (isset(self::$hash[$v])) $cols[$k] = self::$table_rows[self::$hash[$v]];
-                elseif (isset(self::$table_rows[$v])) $cols[$k] = self::$table_rows[$v];
-                else unset($cols[$k]);
-            }
-        } else
-            $cols = self::$table_rows;
         while ($row = $ret->FetchRow()) {
             if (isset($records[$row['id']])) {
                 continue;
@@ -1340,7 +1332,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         ':active'=>$row['active'],
                         'created_by'=>$row['created_by'],
                         'created_on'=>$row['created_on']);
-            foreach($cols as $v){
+            foreach(self::$table_rows as $v){
                 if (isset($row['f_'.$v['id']])) {
                     if ($v['type']=='multiselect') $r[$v['id']] = self::decode_multi($row['f_'.$v['id']]);
                     elseif ($v['type']=='text') $r[$v['id']] = htmlspecialchars($row['f_'.$v['id']]);
