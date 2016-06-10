@@ -3185,7 +3185,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($rec_count <= Utils_RecordBrowserCommon::$options_limit) {
                 $records = array();
                 foreach($tabs as $t) {
-                    if(!empty($crits) && !$single_tab && !isset($crits[$t])) continue;
+                    if(!empty($crits) && !$single_tab && !isset($crits[$t])) {
+                    	unset($tabs[$i]);
+                    	continue;
+                    }
 
                     $access = self::get_access($t, 'selection',null,true);
                     if ($access===false) continue;
@@ -3263,7 +3266,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //                natcasesort($comp);
             foreach ($records as $k => $v) {
                 if (!empty($multi_adv_params['format_callback']))
-                    $n = call_user_func($multi_adv_params['format_callback'], $v);
+                    $n = call_user_func($multi_adv_params['format_callback'], $k);
                 else {
                     if($single_tab && is_numeric($k)) {
                         $t = $tab;
@@ -3301,7 +3304,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $el = $form->addElement('automulti', $field, $label, array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $f_callback, $desc['param']), $f_callback);
                 ${'rp_' . $field} = $rb_obj->init_module(Utils_RecordBrowser_RecordPicker::module_name(), array());
                 $filters_defaults = isset($multi_adv_params['filters_defaults']) ? $multi_adv_params['filters_defaults'] : array();
-                $rb_obj->display_module(${'rp_' . $field}, array($single_tab? $tab: $tabs, $field, $multi_adv_params['format_callback'], $crits, array(), array(), array(), $filters_defaults));
+                $rb_obj->display_module(${'rp_' . $field}, array($single_tab? $tab: $tabs, $field, $multi_adv_params['format_callback'], $crits_callback?:$crits, array(), array(), array(), $filters_defaults));
                 $el->set_search_button('<a ' . ${'rp_' . $field}->create_open_href() . ' ' . Utils_TooltipCommon::open_tag_attrs(__('Advanced Selection')) . ' href="javascript:void(0);"><img border="0" src="' . Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'icon_zoom.png') . '"></a>');
             } else {
                 $form->addElement('autoselect', $field, $label, $comp, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $f_callback, $desc['param'])), $f_callback);
