@@ -132,18 +132,20 @@ class Utils_RecordBrowser_QueryBuilder
                     $tab2 = $field_def['ref_table'];
                     $cols2 = $field_def['ref_field'];
                     $cols2 = explode('|', $cols2);
-                    $cols2 = $cols2[0];
-                    $field_id = Utils_RecordBrowserCommon::get_field_id($cols2);
-                    $proper_sorting = false;
+                    $val = $field_sql_id;
                     $fields = Utils_RecordBrowserCommon::init($tab2);
+                    // search for better sorting than id
                     if ($fields) {
-                        $n_field = $fields[$cols2];
-                        $proper_sorting = $n_field['type'] != 'calculated' || $n_field['param'] != '';
-                    }
-                    if ($proper_sorting) {
-                        $val = '(SELECT rdt.f_'.$field_id.' FROM '.$tab2.'_data_1 AS rdt WHERE rdt.id='.$field_sql_id.')';
-                    } else {
-                        $val = $field_sql_id;
+                        foreach ($cols2 as $referenced_col) {
+                            if (isset($fields[$referenced_col])) {
+                                $n_field = $fields[$referenced_col];
+                                if ($n_field['type'] != 'calculated' || $n_field['param'] != '') {
+                                    $field_id = Utils_RecordBrowserCommon::get_field_id($referenced_col);
+                                    $val = '(SELECT rdt.f_'.$field_id.' FROM '.$tab2.'_data_1 AS rdt WHERE rdt.id='.$field_sql_id.')';
+                                    break;
+                                }
+                            }
+                        }
                     }
                     $orderby[] = ' '.$val.' '.$v['direction'];
                 } elseif ($field_def['commondata']) {
@@ -528,7 +530,7 @@ class Utils_RecordBrowser_QueryBuilder
 
         $single_tab = !($tab2 == '__RECORDSETS__' || count(explode(',', $tab2)) > 1);
 
-        if ($operator == DB::like()) {
+        if ($operator == DB::like() && isset($field_def['ref_field'])) {
             $sub_field = $field_def['ref_field'];
         }
 
@@ -559,7 +561,7 @@ class Utils_RecordBrowser_QueryBuilder
             } else {
                 $sql = 'false';
             }
-        } else if ($sub_field && $single_tab && $tab2) {
+        } else if ($sub_field && $single_tab && $tab2 && $tab2 != $this->tab) {
             $col2 = explode('|', $sub_field);
             $crits = new Utils_RecordBrowser_Crits();
             foreach ($col2 as $col) {

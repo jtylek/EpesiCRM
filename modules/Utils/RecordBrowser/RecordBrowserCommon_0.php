@@ -2773,10 +2773,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $crits3A = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2A);
             $crits3B = self::merge_crits($single_tab?$crits:(isset($crits[$t])?$crits[$t]:array()),$crits2B);
             $records = self::get_records($t, $crits3A, array(), $order, 10);
-        
+
+            $rs_caption = $single_tab ? '' : "[" . _V($caption) . "] ";
             foreach ($records as $r) {
                 if(!self::get_access($t,'view',$r)) continue;
-                $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3A, $f_callback, $params));
+                $ret[($single_tab?'':$t.'/').$r['id']] = $rs_caption . call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3A, $f_callback, $params));
             }
 
             $records = self::get_records($t, $crits3B, array(), $order, 10);
@@ -2784,7 +2785,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach ($records as $r) {
 		if(isset($ret[($single_tab?'':$t.'/').$r['id']]) ||
             	    !self::get_access($t,'view',$r)) continue;
-                $ret[($single_tab?'':$t.'/').$r['id']] = call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3B, $f_callback, $params));
+                $ret[($single_tab?'':$t.'/').$r['id']] = $rs_caption . call_user_func($f_callback, $t.'/'.$r['id'], array($tab, $crits3B, $f_callback, $params));
             }
             
             if(count($ret)>=10) break;
