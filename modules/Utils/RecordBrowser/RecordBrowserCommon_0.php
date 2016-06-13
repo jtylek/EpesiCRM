@@ -3108,7 +3108,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $record = $rb_obj->record;
         $comp = array();
         $param = explode(';', $desc['param']);
-        $crits_callback = isset($param[1]) ? $param[1] : null;
+        $crits_callback = isset($param[1]) && $param[1] != '::' ? $param[1] : null;
         $multi_adv_params_callback = isset($param[2]) ? explode('::', $param[2]) : null;
         $multi_adv_params = array();
         if (is_callable($multi_adv_params_callback))

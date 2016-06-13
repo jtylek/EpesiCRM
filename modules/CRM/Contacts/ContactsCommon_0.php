@@ -196,9 +196,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function display_company_contact($record, $nolink, $desc) {
         $v = $record[$desc['id']];
-		$verify_value_backward_compatible = !is_array($v) && isset($v[1]) && $v[1]==':';
-        $verify_value = strpos($v, '/')!==false;        
-		if (!$verify_value && !$verify_value_backward_compatible) return $v;
+        if (!is_array($v) && !preg_match('#([a-zA-Z]+/[1-9][0-9]*)|((C|P):[1-9][0-9]*)#', $v)) return $v;
         $def = '';
         if (!is_array($v)) $v = array($v);
 		if (count($v)>100) return count($v).' '.__('values');
