@@ -182,7 +182,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $crits_callback = is_array($crits_callback)? implode('::', $crits_callback): $crits_callback;
         
         $format_callback = isset($field['param']['format'])? $field['param']['format']: array('CRM_ContactsCommon', 'crm_company_contact_select_list_options');
-        $format_callback = is_array($options_callback)? implode('::', $options_callback): $options_callback;
+        $format_callback = is_array($format_callback)? implode('::', $format_callback): $format_callback;
         
         $field['param'] = "company,contact::;$crits_callback;$format_callback";
         return $field;
