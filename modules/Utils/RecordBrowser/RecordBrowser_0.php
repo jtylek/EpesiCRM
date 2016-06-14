@@ -1528,6 +1528,8 @@ class Utils_RecordBrowser extends Module {
                     if ($result['show']==false) continue;
                     if (!isset($result['label'])) $result['label']='';
                     $row['label'] = $result['label'];
+                    if (!isset($result['icon'])) $result['icon']='';
+                    $row['icon'] = $result['icon'];
                 } else {
 					if ($mode=='add' || $mode=='edit') continue;
 					$labels = explode('#',$row['label']);
@@ -1538,7 +1540,10 @@ class Utils_RecordBrowser extends Module {
 				if (method_exists($row['module'].'Common',$row['func'].'_access') && !call_user_func(array($row['module'].'Common',$row['func'].'_access'), $this->record, $this)) continue;
                 $addons_mod[$mod_id] = $this->init_module($row['module']);
                 if (!method_exists($addons_mod[$mod_id],$row['func'])) $tb->set_tab($row['label'],array($this, 'broken_addon'), array(), $js);
-                else $tb->set_tab($row['label'],array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
+                else {
+                	$tb->set_tab($row['label'],array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
+                	if (isset($row['icon']) && $row['icon']) $tb->tab_icon($row['label'], $row['icon']);
+                }                
                 $tab_counter++;
             }
         }
