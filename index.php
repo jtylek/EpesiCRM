@@ -163,7 +163,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 	<body <?php if (DIRECTION_RTL) print('class="epesi_rtl"'); ?> >
 
 		<div id="body_content">
-			<div id="main_content" style="display:none;"></div>
+			<div class="container-fluid" id="main_content" style="display:none;"></div>
 			<div id="debug_content" style="padding-top:97px;display:none;">
 				<div class="button" onclick="$('error_box').innerHTML='';$('debug_content').style.display='none';">Hide</div>
 				<div id="debug"></div>
