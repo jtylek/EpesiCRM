@@ -180,10 +180,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 
         $crits_callback = isset($field['param']['crits'])? $field['param']['crits']: array('', '');
         $crits_callback = is_array($crits_callback)? implode('::', $crits_callback): $crits_callback;
-        
+
         $format_callback = isset($field['param']['format'])? $field['param']['format']: array('CRM_ContactsCommon', 'crm_company_contact_select_list_options');
         $format_callback = is_array($format_callback)? implode('::', $format_callback): $format_callback;
-        
+
         $field['param'] = "company,contact::;$crits_callback;$format_callback";
         return $field;
     }
@@ -230,12 +230,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 	    	$tab = $rset_map[$rset];
     	}
     	else list($tab, $id) = explode('/', $arg);
-    	
+
     	if (!$id) return '---';
-    	
+
     	$val = Utils_RecordBrowserCommon::create_default_linked_label($tab, $id, $nolink, false);
     	$rlabel = array_search($tab, $rset_map);
-    	
+
     	$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
     	$rindicator = isset($icon[$tab]) ?
     	'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";

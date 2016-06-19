@@ -7,12 +7,8 @@
 						{foreach item=i from=$icons}
 						{$i.open}
 							<div class="btn btn-default" helpID="{$i.helpID}">
-								{if $i.icon_url}
-									<img src="{$i.icon_url}" alt="" align="middle" border="0" width="32" height="32">
-								{else}
-									<div class="div_icon icon_{$i.icon}" style="margin-top: 3px;"></div>
-								{/if}
-								<span>{$i.label}</span>
+                                <i class="fa fa-{$i.icon} fa-3x"></i>
+                                <span>{$i.label}</span>
 							</div>
 						{$i.close}
 						{/foreach}

@@ -123,7 +123,7 @@ CustomMenubar = function(id, _layout) {
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
 			menu_string[this.id] += '<tr><td class=item>';
 			if(icon) {
-				menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
+				menu_string[this.id] += '<div class=link_icon_box><i class="fa fa-'+icon+' fa-fw fa-lg" style="color: white; margin-left: 2px"></i></div>';
 			}
 			menu_string[this.id] += '<a href="'+address+'"';
 			if (target)
@@ -141,7 +141,7 @@ CustomMenubar = function(id, _layout) {
 
 				menu_string[this.id] += '<td class=item>';
 				if(icon) {
-					menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
+					menu_string[this.id] += '<div class=link_icon_box><i class="fa fa-'+icon+' fa-fw fa-lg" style="color: white; margin-left: 2px"></i></div>';
 				}
 				if( this.depth == 0) {
 					menu_string[this.id] += '<a href="'+address+'" class=root_item_link_none helpID="'+id+'" onclick="selected_menu_item(\''+this.id+'\', this)">' + title + '</a>';
@@ -158,7 +158,7 @@ CustomMenubar = function(id, _layout) {
 			menu_string[this.id] += '<div class=link_icon_box><img class=link_icon src="'+icon+'"></div>';
 		}
 		if(layout[this.id] == 'horizontal' && this.depth == 0) {
-			menu_string[this.id] += '<a class=root_item_link_down><div class=root_item_link_down_arrow_box helpID="'+id+'"><div class=root_item_link_down_arrow_icon></div><div class=root_item_link_down_arrow>' + title + '</div></div></a>';
+			menu_string[this.id] += '<a class=root_item_link_down><div class=root_item_link_down_arrow_box helpID="'+id+'"><i class="fa fa-caret-down fa-2x" style="float: left; margin-left: 10px; color: white;"></i> <div class=root_item_link_down_arrow>' + title + '</div></div></a>';
 		} else {
 			menu_string[this.id] += '<a class=root_item_link_right><div class=root_item_link_right_arrow helpID="'+id+'">' + title + '</div></a>';
 		}
