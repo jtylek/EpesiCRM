@@ -30,7 +30,7 @@
                     </button>
                 </div>
                 <div class="panel-body">
-                    <div class="shadow_css3_logo_border">{$logo}</div>
+                    {$logo}
                 </div>
             </div>
         </div>
