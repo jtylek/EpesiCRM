@@ -22,7 +22,7 @@
         <div class="col-md-2">
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
-                    <button class="btn btn-default pull-left">{$menu}</button>
+                    <div class="pull-left">{$menu}</div>
                     <button class="btn btn-default pull-right" {$home.href}>
                         <div id="home-bar1">
                                 {$home.label}

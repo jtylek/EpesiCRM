@@ -28,14 +28,14 @@
 {% import _self as macros %}
 
 
-<li class="dropdown">
-    <a id="dLabel" role="button" data-toggle="dropdown" data-target="#">
+<div class="dropdown">
+    <a id="dLabel" role="button" data-toggle="dropdown" data-target="#" class="btn btn-primary">
         {{ name }}&nbsp;<span class="caret"></span>
     </a>
     <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
         {{ macros.menu_links(menu) }}
     </ul>
-</li>
+</div>
 
 <style>
     .dropdown-submenu {
