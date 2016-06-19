@@ -92,7 +92,10 @@ ChainedSelect.prototype = {
                     obj.disabled = false;
 					if(Object.isArray(new_opts)) {
 						for(y=0; y<new_opts.length; y++) {
-							opts[opts.length] = new Option(new_opts[y],y);
+							if(typeof new_opts[y].key != "undefined" && typeof new_opts[y].caption != "undefined")
+								opts[opts.length] = new Option(new_opts[y].caption,new_opts[y].key);
+							else
+								opts[opts.length] = new Option(new_opts[y],y);
 						}
 					} else {
 						for(y in new_opts) {

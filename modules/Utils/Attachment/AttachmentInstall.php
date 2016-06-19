@@ -64,6 +64,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'add', 'ACCESS:employee',array(),array('edited_on'));
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'edit', 'ACCESS:employee', array('(permission'=>0, '|:Created_by'=>'USER_ID'),array('edited_on'));
         Utils_RecordBrowserCommon::register_processing_callback('utils_attachment',array('Utils_AttachmentCommon','submit_attachment'));
+		Utils_RecordBrowserCommon::register_custom_access_callback('utils_attachment', array('Utils_AttachmentCommon', 'rb_access'));
         Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename(Utils_AttachmentInstall::module_name(), 'View_entry'));
         Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_AttachmentCommon','watchdog_label'));
         Utils_RecordBrowserCommon::set_caption('utils_attachment', _M('Note'));

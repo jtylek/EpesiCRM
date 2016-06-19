@@ -3,6 +3,36 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+CURRENT
+-------
+
+- Allow to add help text to each field in RB
+- Allow to sort by calculated field when references sort column
+- Disable modules when files are not available
+- Improve commondata ordering (georgehristov)
+- Add note password hint
+- RB js indexer - change run interval
+- Fix RB record picker code issues (georgehristov)
+- PHPMailer - do not use auto tls
+- Replace deprecated mysql driver with mysqli
+- Rewrite edit_history.js to jquery (georgehristov)
+- Fix autosuggestbox - github issue #82
+- Fix attachments get unlink error
+- Fix crits validation in PHP
+- Fix watchdog's subscriber list - do not show contacts without access 
+- Cleanup watchdog notifications 
+- Add custom access callbacks to RB (Dev)
+- Fix notes access check in search results with rb custom access callback
+- Fix uncompress errors from database
+- Fix not like rule handling made from js query builder
+- Allow to search with nested selects using like operator
+- Fix rb search and permission issues
+- Fix new record rules check and show better message about issues
+- Fix automulti suggestbox - better search for records
+- Fix CSV export memory limit issues
+- Disallow php code as callbacks by default
+- Fix chained select contacts sort
+
 RELEASE 1.7.2-20160314
 -------
 

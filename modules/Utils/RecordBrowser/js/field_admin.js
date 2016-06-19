@@ -24,10 +24,10 @@ RB_hide_form_fields = function () {
 }
 
 var RB_advanced_confirmation = '';
-RB_advanced_settings = function () {
+RB_advanced_settings = function (changed) {
 	var a = $('advanced').checked;
 	if (a) {
-		if (!confirm(RB_advanced_confirmation)) {
+		if (changed && !confirm(RB_advanced_confirmation)) {
 			$('advanced').checked = false;
 			return;
 		}

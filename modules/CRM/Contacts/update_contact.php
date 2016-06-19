@@ -33,15 +33,15 @@ if (!is_array($_POST['defaults'])) {
 } 
 $ext_rec = array_flip($_POST['defaults']);
 foreach($contacts as $k=>$v){
-	$res[$v['id']] = call_user_func($callback, $v, true);
+	$res[] = array('key'=>$v['id'],'caption'=>call_user_func($callback, $v, true));
 	if (isset($_POST['defaults'])) unset($ext_rec[$v['id']]); 
 }
 foreach($ext_rec as $k=>$v) {
 	$c = CRM_ContactsCommon::get_contact($k);
-	$res[$k] = call_user_func($callback, $c, true);
+	$res[] = array('key'=>$k,'caption'=>call_user_func($callback, $c, true));
 }
 
 if (!isset($params['required']) || !$params['required'])
-	$res = array(''=>'---')+$res;
+	$res = array(array('key'=>'','caption'=>'---'))+$res;
 print(json_encode($res));
 ?>

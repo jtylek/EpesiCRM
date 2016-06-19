@@ -31,6 +31,8 @@ class Variable {
 
 
 	public static function set($name, $value) {
+		$max_len = 128;
+		if (strlen($name) > $max_len) throw new Exception("Variable name too long. Max length is $max_len.");
 		self::load();
 		$value = serialize($value);
 		if(!array_key_exists($name,self::$variables)) {

@@ -1026,8 +1026,8 @@ class Utils_RecordBrowser extends Module {
             if ($special) {
                 $element = $this->get_module_variable('element');
                 $format = $this->get_module_variable('format_func');
-                $formated_name = is_callable($format) ? strip_tags(call_user_func($format, $row, true)) : Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $row['id'], true);
                 $row_id = $this->include_tab_in_id? $this->tab . '/' . $row['id']: $row['id'];
+                $formated_name = is_callable($format) ? strip_tags(call_user_func($format, $row_id, true)) : Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $row['id'], true);
                 $row_data = array('<input type="checkbox" id="leightbox_rpicker_' . $element . '_' . $row_id . '" formated_name="' . $formated_name . '" />');
                 $rpicker_ind[] = $row_id;
             }
@@ -1528,6 +1528,8 @@ class Utils_RecordBrowser extends Module {
                     if ($result['show']==false) continue;
                     if (!isset($result['label'])) $result['label']='';
                     $row['label'] = $result['label'];
+                    if (!isset($result['icon'])) $result['icon']='';
+                    $row['icon'] = $result['icon'];
                 } else {
 					if ($mode=='add' || $mode=='edit') continue;
 					$labels = explode('#',$row['label']);
@@ -1538,7 +1540,10 @@ class Utils_RecordBrowser extends Module {
 				if (method_exists($row['module'].'Common',$row['func'].'_access') && !call_user_func(array($row['module'].'Common',$row['func'].'_access'), $this->record, $this)) continue;
                 $addons_mod[$mod_id] = $this->init_module($row['module']);
                 if (!method_exists($addons_mod[$mod_id],$row['func'])) $tb->set_tab($row['label'],array($this, 'broken_addon'), array(), $js);
-                else $tb->set_tab($row['label'],array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
+                else {
+                	$tb->set_tab($row['label'],array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
+                	if (isset($row['icon']) && $row['icon']) $tb->tab_icon($row['label'], $row['icon']);
+                }                
                 $tab_counter++;
             }
         }
@@ -1640,16 +1645,26 @@ class Utils_RecordBrowser extends Module {
 		    foreach (Utils_RecordBrowser::$last_record as $k=>$v) if (!isset($data[$k])) $data[$k] = $v;
 //		$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
 		$crits2 = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true, true);
+        $required_crits = array();
 		foreach($crits2 as $crits) {
 		    $problems = array();
-    		Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
-    		foreach ($problems as $f) {
-	    		$f = explode('[', $f);
-		    	$ret[$f[0]] = __('Invalid value');
-		    }
+    		$ret = Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
+            if (!$ret) {
+                foreach ($problems as $c) {
+                    if ($c instanceof Utils_RecordBrowser_CritsSingle) {
+                        list($f, $subf) = Utils_RecordBrowser_CritsSingle::parse_subfield($c->get_field());
+                        $ret[$f] = __('Invalid value');
+                    }
+                }
+                $required_crits[] = Utils_RecordBrowserCommon::crits_to_words($this->tab, $crits);
+            }
     		if($problems) continue;
     		return array();
     	}
+        /** @var Base_Theme $th */
+        $th = $this->init_module(Base_Theme::module_name());
+        $th->assign('crits', $required_crits);
+        $th->display('required_crits_to_add');
 		return $ret;
     }
     private static function sort_by_processing_order($f1, $f2)
@@ -2257,7 +2272,7 @@ class Utils_RecordBrowser extends Module {
         $ck = $form->addElement('ckeditor', 'help', __('Help Message'));
         $ck->setFCKProps(null, null, false);
 
-		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings()', 'id'=>'advanced'));
+		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings(true)', 'id'=>'advanced'));
         $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
         $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $record (array)<br />- $links_not_recommended (bool)<br />- $field (array)<br />return "value to display";</li></ul>';
 		$form->addElement('textarea', 'display_callback', __('Value display function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'display_callback'));
@@ -2404,7 +2419,7 @@ class Utils_RecordBrowser extends Module {
             if(!isset($data['tooltip']) || $data['tooltip'] == '') $data['tooltip'] = 0;
 
             foreach($data as $key=>$val)
-                if (is_string($val) && $key != 'help') $data[$key] = htmlspecialchars($val);
+                if (is_string($val) && $key != 'help' && $key != 'QFfield_callback' && $key != 'display_callback') $data[$key] = htmlspecialchars($val);
 
 /*            DB::StartTrans();
             if ($id!=$new_id) {
@@ -2437,7 +2452,7 @@ class Utils_RecordBrowser extends Module {
 
 		eval_js('RB_hide_form_fields();');
 		eval_js('RB_advanced_confirmation = "'.Epesi::escapeJS(__('Changing these settings may often cause system unstability. Are you sure you want to see advanced settings?')).'";');
-		eval_js('RB_advanced_settings();');
+		eval_js('RB_advanced_settings(false);');
 
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
@@ -2488,6 +2503,26 @@ class Utils_RecordBrowser extends Module {
 				}
 			}
 		}
+
+        $show_php_embedding = false;
+        foreach (array('QFfield_callback', 'display_callback') as $ff) {
+            if (isset($data[$ff]) && $data[$ff]) {
+                $callback_func = Utils_RecordBrowserCommon::callback_check_function($data[$ff], true);
+                if ($callback_func) {
+                    if (!is_callable($callback_func)) {
+                        $ret[$ff] = __('Invalid callback');
+                    }
+                } elseif (!defined('ALLOW_PHP_EMBEDDING') || !ALLOW_PHP_EMBEDDING) {
+                    $ret[$ff] = __('Using PHP code is blocked');
+                    $show_php_embedding = true;
+                }
+            }
+        }
+        if ($show_php_embedding) {
+            print(__('Using PHP code in application is currently disabled. Please edit file %s and add following line:', array(DATA_DIR . '/config.php'))) . '<br>';
+            print("<pre>define('ALLOW_PHP_EMBEDDING', 1);</pre>");
+        }
+            
 		return $ret;
 	}
 	

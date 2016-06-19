@@ -132,18 +132,20 @@ class Utils_RecordBrowser_QueryBuilder
                     $tab2 = $field_def['ref_table'];
                     $cols2 = $field_def['ref_field'];
                     $cols2 = explode('|', $cols2);
-                    $cols2 = $cols2[0];
-                    $field_id = Utils_RecordBrowserCommon::get_field_id($cols2);
-                    $proper_sorting = false;
+                    $val = $field_sql_id;
                     $fields = Utils_RecordBrowserCommon::init($tab2);
+                    // search for better sorting than id
                     if ($fields) {
-                        $n_field = $fields[$cols2];
-                        $proper_sorting = $n_field['type'] != 'calculated' || $n_field['param'] != '';
-                    }
-                    if ($proper_sorting) {
-                        $val = '(SELECT rdt.f_'.$field_id.' FROM '.$tab2.'_data_1 AS rdt WHERE rdt.id='.$field_sql_id.')';
-                    } else {
-                        $val = $field_sql_id;
+                        foreach ($cols2 as $referenced_col) {
+                            if (isset($fields[$referenced_col])) {
+                                $n_field = $fields[$referenced_col];
+                                if ($n_field['type'] != 'calculated' || $n_field['param'] != '') {
+                                    $field_id = Utils_RecordBrowserCommon::get_field_id($referenced_col);
+                                    $val = '(SELECT rdt.f_'.$field_id.' FROM '.$tab2.'_data_1 AS rdt WHERE rdt.id='.$field_sql_id.')';
+                                    break;
+                                }
+                            }
+                        }
                     }
                     $orderby[] = ' '.$val.' '.$v['direction'];
                 } elseif ($field_def['commondata']) {
@@ -528,6 +530,10 @@ class Utils_RecordBrowser_QueryBuilder
 
         $single_tab = !($tab2 == '__RECORDSETS__' || count(explode(',', $tab2)) > 1);
 
+        if ($operator == DB::like() && isset($field_def['ref_field'])) {
+            $sub_field = $field_def['ref_field'];
+        }
+
         $vv = explode('::', $value, 2);
         $ids = null;
         if(isset($vv[1]) && is_callable($vv)) {
@@ -540,11 +546,9 @@ class Utils_RecordBrowser_QueryBuilder
                 'delete' => 'Utils_RecordBrowserCommon::get_recursive_delete',
             );
             $action = null;
-            $all = false;
             foreach ($callbacks as $act => $c) {
                 if (strpos($value, $c) !== false) {
                     $action = $act;
-                    if (strpos($value, 'all') !== false) $all = true;
                     break;
                 }
             }
@@ -552,8 +556,12 @@ class Utils_RecordBrowser_QueryBuilder
 
             $access_crits = Utils_RecordBrowserCommon::get_access($tab2, $action, null, true);
             $subquery = Utils_RecordBrowserCommon::build_query($tab2, $access_crits, $this->admin_mode);
-            $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
-        } else if ($sub_field && $single_tab && $tab2) {
+            if ($subquery) {
+                $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
+            } else {
+                $sql = 'false';
+            }
+        } else if ($sub_field && $single_tab && $tab2 && $tab2 != $this->tab) {
             $col2 = explode('|', $sub_field);
             $crits = new Utils_RecordBrowser_Crits();
             foreach ($col2 as $col) {
@@ -564,7 +572,11 @@ class Utils_RecordBrowser_QueryBuilder
             }
             if (!$crits->is_empty()) {
                 $subquery = Utils_RecordBrowserCommon::build_query($tab2, $crits, $this->admin_mode);
-                $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
+                if ($subquery) {
+                    $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
+                } else {
+                    $sql = 'false';
+                }
             }
         } else {
             if ($raw_sql_val) {
@@ -679,14 +691,19 @@ class Utils_RecordBrowser_QueryBuilder
         $vals = array();
 
         $field_sql_id = $this->get_field_sql($crit->get_field());
-        $operator = self::transform_meta_operators_to_sql($crit->get_operator());
+        $operator = $crit->get_operator();
         $raw_sql_val = $crit->get_raw_sql_value();
         $value = $crit->get_value();
         $negation = $crit->get_negation();
+        if ($operator == 'NOT LIKE') {
+            $operator = 'LIKE';
+            $negation = !$negation;
+        }
         if ($operator == '!=') {
             $operator = '=';
             $negation = !$negation;
         }
+        $operator = self::transform_meta_operators_to_sql($operator);
         if (is_array($value)) { // for empty array it will give empty result
             $sql[] = 'false';
         } else {

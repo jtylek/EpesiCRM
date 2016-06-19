@@ -610,7 +610,7 @@ function install_base() {
 
 	DB::CreateIndex('history__session_name__client_id__idx', 'history', 'session_name, client_id');
 
-	$ret = DB::CreateTable('variables',"name C(32) KEY,value X");
+	$ret = DB::CreateTable('variables',"name C(128) KEY,value X");
 	if($ret===false)
 		die('Invalid SQL query - Database module (variables table)');
 

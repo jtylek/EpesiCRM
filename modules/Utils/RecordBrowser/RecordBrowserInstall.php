@@ -27,7 +27,6 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'full_history I1 DEFAULT 1,'.
 						'caption C(32) DEFAULT \'\','.
 						'icon C(255) DEFAULT \'\','.
-						'access_callback C(128) DEFAULT \'\','.
 						'description_callback C(128) DEFAULT \'\','.
                         'jump_to_id I1 DEFAULT 1,'.
                         'search_include I1 DEFAULT 0,'.
@@ -56,6 +55,11 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 					'tab C(64),'.
 					'func C(255)',
 					array('constraints'=>', PRIMARY KEY(tab, func)'));
+		DB::CreateTable('recordbrowser_access_methods',
+						'tab C(64),'.
+						'func C(255),'.
+						'priority I DEFAULT 10',
+						array('constraints'=>', PRIMARY KEY(tab, func)'));
 		DB::CreateTable('recordbrowser_clipboard_pattern', 'tab C(64) KEY, pattern X, enabled I4');
 
 		DB::CreateTable('recordbrowser_words_index', 'id I AUTO KEY,word C(3)',
@@ -75,6 +79,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		DB::DropTable('recordbrowser_addon');
 		DB::DropTable('recordbrowser_table_properties');
 		DB::DropTable('recordbrowser_datatype');
+		DB::DropTable('recordbrowser_access_methods');
         Base_PrintCommon::unregister_printer('Utils_RecordBrowser_RecordPrinter');
 		Base_ThemeCommon::uninstall_default_theme(Utils_RecordBrowserInstall::module_name());
 		return true;

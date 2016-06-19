@@ -47,7 +47,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 
     public static function cron()
     {
-        return array('cron_send_notifications' => 1);
+        return array('cron_send_notifications' => 1, 'cron_cleanup' => 7*24*60);
     }
 
     public static function cron_send_notifications()
@@ -56,6 +56,11 @@ class Utils_WatchdogCommon extends ModuleCommon {
             self::send_email_notifications($event_id);
         }
     }
+
+	public static function cron_cleanup()
+	{
+		Utils_Watchdog_Cleaner::instance()->cron();
+	}
 
 	public static function get_subscribers($category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
@@ -131,6 +136,12 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				self::user_subscribe($s, $category_name, $id);
 		}
         Utils_WatchdogCommon::notified($category_name,$id);
+		$subscribers = self::get_subscribers($category_name, $id);
+		foreach ($subscribers as $user) {
+			if (!self::has_access_to_record($user, $category_name, $id)) {
+				self::user_notified($user, $category_name, $id);
+			}
+		}
 
         self::queue_notification_for_cron($event_id);
     }
@@ -333,13 +344,28 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$href = ' onclick="utils_watchdog_set_subscribe('.(($last_seen===null)?1:0).',\''.$category_name.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"';
 		if ($last_seen===null) {
 			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','not_watching_small.png');
-			$tooltip = __('Click to watch this record for changes.');
 		} else {
 			if ($last_seen===true) {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png');
-				$tooltip = __('You are watching this record, click to stop watching this record for changes.');
 			} else {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
+			}
+		}
+		$tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array(__CLASS__, 'ajax_subscription_tooltip'), array($category_name, $id));
+		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
+	}
+
+	public static function ajax_subscription_tooltip($category_name, $id)
+	{
+		$category_id = self::get_category_id($category_name);
+		if (!$category_id) return;
+		$last_seen = self::check_if_notified($category_name, $id);
+		if ($last_seen===null) {
+			$tooltip = __('Click to watch this record for changes.');
+		} else {
+			if ($last_seen===true) {
+				$tooltip = __('You are watching this record, click to stop watching this record for changes.');
+			} else {
 				$ev = self::display_events($category_id, $last_seen, $id);
 				$tooltip = __('You are watching this record, click to stop watching this record for changes.').($ev?'<br>'.__('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']:'');
 			}
@@ -354,6 +380,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				if ($subscriber == $my_user) {
 					continue;
 				}
+				if (!self::has_access_to_record($subscriber, $category_name, $id)) continue;
 				if (class_exists('CRM_ContactsCommon')) {
 					$contact = CRM_ContactsCommon::get_user_label($subscriber, true);
 				} else {
@@ -368,9 +395,8 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				$tooltip .= '<hr />' . implode('<br>', $other_subscribers);
 			}
 		}
-		$tooltip = Utils_TooltipCommon::open_tag_attrs($tooltip);
-		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
-	} 
+		return $tooltip;
+	}
 	
 	public static function notification() {
 		/*$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
@@ -421,6 +447,22 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			$tray['watchdog_'.$v.'_'.$k] = array('title'=>__('Watchdog - %s', array($data['category'])), 'body'=>$data['title']);
 		}
 		return array('notifications'=>$ret, 'tray'=>$tray);
+	}
+
+	public static function has_access_to_record($user_id, $tab, $id)
+	{
+		if (!Utils_RecordBrowserCommon::check_table_name($tab, false, false)) {
+			return true;
+		}
+		$record = Utils_RecordBrowserCommon::get_record($tab, $id);
+		if (!$record) {
+			return false;
+		}
+		$old_user = Base_AclCommon::get_user();
+		Base_AclCommon::set_user($user_id);
+		$access = Utils_RecordBrowserCommon::get_access($tab, 'view', $id);
+		Base_AclCommon::set_user($old_user);
+		return $access != false;
 	}
 }
 

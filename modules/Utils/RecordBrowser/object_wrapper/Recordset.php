@@ -139,7 +139,7 @@ abstract class RBO_Recordset {
      */
     public static final function __QFfield_magic_callback(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
         $recordset_class =  get_called_class();
-        $args = func_get_args();
+        $args = array(&$form, $field, $label, $mode, $default, $desc, $rb_obj);
         $callback_name = 'QFfield_' . $field;
         if (self::_callback_recordset($recordset_class, $callback_name, $args, $return_value)) {
             return $return_value;
@@ -179,8 +179,7 @@ abstract class RBO_Recordset {
         $recordset = self::recordset_instance($recordset_class);
         // check for qffield callback in Recordset class
         if (method_exists($recordset, $callback_name)) {
-            $method = new ReflectionMethod($recordset_class, $callback_name); //TODO: czemu nie call_user_func_array?
-            $return_value = $method->invokeArgs($recordset, $args);
+            $return_value = call_user_func_array(array($recordset, $callback_name), $args);
             return true;
         }
         return false;
@@ -190,9 +189,8 @@ abstract class RBO_Recordset {
         $recordset = self::recordset_instance($recordset_class);
         $record_class = $recordset->class_name();
         if (method_exists($record_class, $callback_name)) {
-            $record = new $record_class($recordset, $record);
-            $method = new ReflectionMethod($record_class, $callback_name); //TODO: czemu nie call_user_func_array?
-            $return_value = $method->invokeArgs($record, $args);
+            $record = $recordset->record_to_object($record);
+            $return_value = call_user_func_array(array($record, $callback_name), $args);
             return true;
         }
         return false;

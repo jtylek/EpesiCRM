@@ -8,8 +8,6 @@ class Utils_RecordBrowser_CritsValidator
     protected $fields;
     protected $fields_by_id;
 
-    protected $issues = array();
-
     function __construct($tab)
     {
         $this->tab = $tab;
@@ -19,27 +17,19 @@ class Utils_RecordBrowser_CritsValidator
 
     public function validate(Utils_RecordBrowser_CritsInterface $crits, $record)
     {
+        $result = array(true, array());
         if (!$crits->is_active()) {
-            return true;
+            return $result;
         }
-        $success = true;
 
         if ($crits instanceof Utils_RecordBrowser_CritsSingle) {
-            $success = $this->validate_single($crits, $record);
+            $result = $this->validate_single($crits, $record);
         } elseif ($crits instanceof Utils_RecordBrowser_Crits) {
-            $success = $this->validate_compound($crits, $record);
+            $result = $this->validate_compound($crits, $record);
         } elseif ($crits instanceof Utils_RecordBrowser_CritsRawSQL) {
-            $success = $this->validate_sql($crits, $record);
+            $result = $this->validate_sql($crits, $record);
         }
-        return $success;
-    }
-
-    /**
-     * @return array
-     */
-    public function get_issues()
-    {
-        return $this->issues;
+        return $result;
     }
 
     protected function validate_single(Utils_RecordBrowser_CritsSingle $crits, $record)
@@ -49,7 +39,7 @@ class Utils_RecordBrowser_CritsValidator
         $field = ltrim(Utils_RecordBrowserCommon::get_field_id($field), '_');
         $subfield = ltrim(Utils_RecordBrowserCommon::get_field_id($subfield), '_');
         $r_val = isset($record[$field]) ? $record[$field] : '';
-        $crit_value = $crits->get_value();
+        $crit_value_raw = $crits->get_value();
         $field_definition = $this->get_field_definition($field);
         if ($subfield && $field_definition) {
             $sub_tab = isset($field_definition['ref_table']) ? $field_definition['ref_table'] : false;
@@ -71,7 +61,6 @@ class Utils_RecordBrowser_CritsValidator
             }
         }
 
-        $result = false;
         $transform_date = false;
         if ($field == 'created_on') {
             $transform_date = 'timestamp';
@@ -87,37 +76,55 @@ class Utils_RecordBrowser_CritsValidator
                 $transform_date = 'date';
             }
         }
-        if ($transform_date == 'timestamp' && $crit_value) {
-            $crit_value = Base_RegionalSettingsCommon::reg2time($crit_value, false);
-            $crit_value = date('Y-m-d H:i:s', $crit_value);
-        } else if ($transform_date == 'date' && $crit_value) {
-            $crit_value = Base_RegionalSettingsCommon::reg2time($crit_value, false);
-            $crit_value = date('Y-m-d', $crit_value);
-        }
 
-        $vv = explode('::',$crit_value,2);
-        if (isset($vv[1]) && is_callable($vv)) {
-            $result = call_user_func_array($vv, array($this->tab, &$record, $field, $crits));
-        } else {
-            if (is_array($r_val)) {
-                if ($crit_value) $result = in_array($crit_value, $r_val);
-                else $result = empty($r_val);
-                if ($crits->get_operator() == '!=') $result = !$result;
+        $crit_value_arr = is_array($crit_value_raw) ? $crit_value_raw : array($crit_value_raw);
+        $result = false;
+        foreach ($crit_value_arr as $crit_value) {
+            if ($transform_date == 'timestamp' && $crit_value) {
+                $crit_value = Base_RegionalSettingsCommon::reg2time($crit_value, false);
+                $crit_value = date('Y-m-d H:i:s', $crit_value);
+            } else if ($transform_date == 'date' && $crit_value) {
+                $crit_value = Base_RegionalSettingsCommon::reg2time($crit_value, false);
+                $crit_value = date('Y-m-d', $crit_value);
             }
-            else switch ($crits->get_operator()) {
-                case '>': $result = ($r_val > $crit_value); break;
-                case '>=': $result = ($r_val >= $crit_value); break;
-                case '<': $result = ($r_val < $crit_value); break;
-                case '<=': $result = ($r_val <= $crit_value); break;
-                case '!=': $result = ($r_val != $crit_value); break;
-                case '=': $result = ($r_val == $crit_value); break;
-                case 'LIKE': $result = self::check_like_match($r_val, $crit_value); break;
-                case 'NOT LIKE': $result = !self::check_like_match($r_val, $crit_value); break;
+
+            $vv = is_string($crit_value) ? explode('::',$crit_value,2) : null;
+            if (isset($vv[1]) && is_callable($vv)) {
+                $result = call_user_func_array($vv, array($this->tab, &$record, $field, $crits));
+            } else {
+                if (is_array($r_val)) {
+                    if ($crit_value) $result = in_array($crit_value, $r_val);
+                    else $result = empty($r_val);
+                    if ($crits->get_operator() == '!=') $result = !$result;
+                } elseif ($field_definition['type'] == 'text' || $field_definition['type'] == 'long text') {
+                    $str_cmp = strcasecmp($r_val, $crit_value);
+                    switch ($crits->get_operator()) {
+                        case '>': $result = ($str_cmp > 0); break;
+                        case '>=': $result = ($str_cmp >= 0); break;
+                        case '<': $result = ($str_cmp < 0); break;
+                        case '<=': $result = ($str_cmp <= 0); break;
+                        case '!=': $result = ($str_cmp != 0); break;
+                        case '=': $result = ($str_cmp == 0); break;
+                        case 'LIKE': $result = self::check_like_match($r_val, $crit_value); break;
+                        case 'NOT LIKE': $result = !self::check_like_match($r_val, $crit_value); break;
+                    }
+                } else switch ($crits->get_operator()) {
+                    case '>': $result = ($r_val > $crit_value); break;
+                    case '>=': $result = ($r_val >= $crit_value); break;
+                    case '<': $result = ($r_val < $crit_value); break;
+                    case '<=': $result = ($r_val <= $crit_value); break;
+                    case '!=': $result = ($r_val != $crit_value); break;
+                    case '=': $result = ($r_val == $crit_value); break;
+                    case 'LIKE': $result = self::check_like_match($r_val, $crit_value); break;
+                    case 'NOT LIKE': $result = !self::check_like_match($r_val, $crit_value); break;
+                }
             }
+            if ($result) break;
         }
         if ($crits->get_negation()) $result = !$result;
-        if (!$result) $this->issues[] = $field;
-        return $result;
+        $issues = array();
+        if (!$result) $issues[] = $crits;
+        return array($result, $issues);
     }
 
     public static function check_like_match($value, $pattern, $ignore_case = true)
@@ -130,12 +137,14 @@ class Utils_RecordBrowser_CritsValidator
     protected function validate_compound(Utils_RecordBrowser_Crits $crits, $record)
     {
         if ($crits->is_empty()) {
-            return true;
+            return array(true, array());
         }
         $or = $crits->get_join_operator() == 'OR';
         $success = $or ? false : true;
+        $all_issues = array();
         foreach ($crits->get_component_crits() as $c) {
-            $satisfied = $this->validate($c, $record);
+            list($satisfied, $issues) = $this->validate($c, $record);
+            $all_issues = array_merge($all_issues, $issues);
             if ($or) {
                 if ($satisfied) {
                     $success = true;
@@ -151,7 +160,10 @@ class Utils_RecordBrowser_CritsValidator
         if ($crits->get_negation()) {
             $success = !$success;
         }
-        return $success;
+        if ($success) {
+            $all_issues = array();
+        }
+        return array($success, $all_issues);
     }
 
     protected function validate_sql(Utils_RecordBrowser_CritsRawSQL $crits, $record)
@@ -161,7 +173,8 @@ class Utils_RecordBrowser_CritsValidator
             $sql = "AND $sql";
         }
         $ret = DB::GetOne("SELECT 1 FROM {$this->tab}_data_1 WHERE id=%d $sql", array($record['id']));
-        return $ret ? true : false;
+        $result = $ret ? true : false;
+        return array($result, !$result ? array($crits) : array());
     }
 
     protected function get_field_definition($field_id_or_label)
