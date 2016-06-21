@@ -227,15 +227,16 @@ class Apps_Shoutbox extends Module {
     		    } else $emps = array();
     		} else $emps = array();
 		    $e = $qf->addElement('autoselect','shoutbox_to',__('To'), array('all'=>'['.__('All').']')+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
-		    $e->setAttribute('id','shoutbox_to'.($big?'_big':''));
+//		    $e->setAttribute('id','shoutbox_to'.($big?'_big':''));
+		    $e->setAttribute('style','margin-bottom: 15px;');
 		    $e->setAttribute('onChange','shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()');
         	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
         	    $qf->freeze(array('shoutbox_to'));
 			//create text box
-			$qf->addElement($big?'textarea':'textarea','post',__('Message'),'class="border_radius_6px" id="shoutbox_text'.($big?'_big':'').'"');
+			$qf->addElement($big?'textarea':'textarea','post',__('Message'),'class="form-control" id="shoutbox_text'.($big?'_big':'').'"');
 			$qf->addRule('post',__('Field required'),'required');
 			//create submit button
-			$qf->addElement('submit','submit_button',__('Send'), 'id="shoutbox_button'.($big?'_big':'').'"');
+			$qf->addElement('submit','submit_button',__('Send'), 'class="btn btn-primary btn-block" id="shoutbox_button'.($big?'_big':'').'"');
 			//add it
 			$qf->setRequiredNote(null);
 			$qf->setDefaults(array('shoutbox_to'=>$to));
