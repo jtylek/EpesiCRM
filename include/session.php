@@ -162,7 +162,7 @@ class DBSession {
                         $data = DB::qstr($data);
                     else
                         $data = '\''.DB::BlobEncode($data).'\'';
-                    $ret &= DB::Replace('session_client',array('data'=>$data,'session_name'=>DB::qstr($name),'client_id'=>CID),array('session_name','client_id'));
+                    $ret &= (bool) DB::Replace('session_client',array('data'=>$data,'session_name'=>DB::qstr($name),'client_id'=>CID),array('session_name','client_id'));
                     break;
             }
         }
@@ -176,7 +176,7 @@ class DBSession {
                 fflush(self::$session_fp);            // flush output before releasing the lock
                 flock(self::$session_fp, LOCK_UN);    // release the lock
                 fclose(self::$session_fp);
-                $ret &= DB::Replace('session',array('expires'=>time(),'name'=>DB::qstr($name)),'name');
+                $ret &= (bool) DB::Replace('session',array('expires'=>time(),'name'=>DB::qstr($name)),'name');
                 break;
             case 'memcache':
                 if(self::$memcached->is_lock(MEMCACHE_SESSION_TOKEN.$name,self::$memcached_lock_time)) {
@@ -186,7 +186,7 @@ class DBSession {
                         self::$memcached->set(MEMCACHE_SESSION_TOKEN.$name.'/'.$i, $d, self::$lifetime);
                     }
                     self::$memcached->unlock(MEMCACHE_SESSION_TOKEN.$name);
-                    $ret &= DB::Replace('session',array('expires'=>time(),'name'=>DB::qstr($name)),'name');
+                    $ret &= (bool) DB::Replace('session',array('expires'=>time(),'name'=>DB::qstr($name)),'name');
                 }
                 break;
             case 'sql':
@@ -194,7 +194,7 @@ class DBSession {
                     $data = DB::qstr($data);
                 else
                     $data = '\''.DB::BlobEncode($data).'\'';
-                $ret &= DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($name)),'name');
+                $ret &= (bool) DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($name)),'name');
                 break;
         }
 
