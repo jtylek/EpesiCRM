@@ -252,7 +252,7 @@ class DBSession {
 
         if(FILE_SESSION_DIR) {
             $files = @glob(rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.'*');
-            if(!$files) return;
+            if(!$files) return true;
             foreach($files as $sess_file) {
                 if(filemtime($sess_file)<$t) @unlink($sess_file);
             }
