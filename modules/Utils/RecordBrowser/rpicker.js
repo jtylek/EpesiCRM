@@ -85,7 +85,7 @@ rpicker_move = function(element, id, cstring, where){
 
 rpicker_chained = function(element) {
 	jq('[rel="rpicker_leightbox_'+element+'"]').click(function(){	
-		jq('#chained_vals')
+		jq('#'+element+'__chained_vals')
 			.val(jq('#'+element).closest('form').serialize())
 			.closest('form').submit();
 	});
