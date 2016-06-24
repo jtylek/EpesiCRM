@@ -235,11 +235,13 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			}
 		}
 
+		$number_sanitized = preg_replace('/[^0-9+pP*#,@wW]/', '', $number);
+
 		if(MOBILE_DEVICE && IPHONE)
-			return $nr[0].': '.'<a href="tel:'.$number.'">'.$number.'</a>';
+			return $nr[0].': '.'<a href="tel:'.$number_sanitized.'">'.$number.'</a>';
 		if($nolink)
 			return $nr[0].': '.$number;
-		return $nr[0].': '.CRM_CommonCommon::get_dial_code($number);
+		return $nr[0].': '.CRM_CommonCommon::get_dial_code($number, $number_sanitized);
 	}
 	public static function display_status($record, $nolink, $desc) {
 		$prefix = 'crm_phonecall_leightbox';
