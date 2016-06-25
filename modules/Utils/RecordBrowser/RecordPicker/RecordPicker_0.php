@@ -33,10 +33,12 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 				$form->addElement('select', 'tab', __('Recordset'), $tabs, array('id'=>'tab', 'onchange'=>$form->get_submit_form_js(), 'style'=>'width:200px'));
 			}
 			
-			$form->addElement('hidden', 'chained_vals', 1, array('id'=>'chained_vals'));			
+			$chained_vals_element = $this->element . '__chained_vals';
+			
+			$form->addElement('hidden', $chained_vals_element, 1, array('id'=>$chained_vals_element));			
 			
 			if ($form->exportValue('submited')) {			
-				$this->set_module_variable($this->element . '__chained_vals', $form->exportValue('chained_vals'));
+				$this->set_module_variable($chained_vals_element, $form->exportValue($chained_vals_element));
 
 				if ($multi_tab)
 					$this->set_module_variable('tab', $form->exportValue('tab'));
@@ -44,7 +46,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 				$refresh = true;
 			}
 			
-			$chained_vals = $this->get_module_variable($this->element . '__chained_vals', '');
+			$chained_vals = $this->get_module_variable($chained_vals_element, '');
 			
 			if ($multi_tab)
 				$tab = $this->get_module_variable('tab', reset($tab));				

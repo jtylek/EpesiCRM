@@ -246,12 +246,16 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				if (isset($vals[$e]) && $vals[$e]) $selected[] = $k;
             Base_User_SettingsCommon::save('CRM_Calendar_Event', 'event_handlers', $selected);
 		}
-		CRM_Calendar_EventCommon::$events_handlers = $selected;
 
 		foreach ($selected as $k=>$e) {
-		    if(isset($elements_name[$e]))
-    			$form->setDefaults(array($elements_name[$e]=>true));
+		    if(isset($elements_name[$e])) {
+				$form->setDefaults(array($elements_name[$e] => true));
+			} else {
+				unset($selected[$k]);
+			}
 		}
+		CRM_Calendar_EventCommon::$events_handlers = $selected;
+
 		$label = 'Filter: Error';
 		$select_count = count($selected);
 		if ($select_count==count($custom_handlers)) $label = __('All');
