@@ -14,7 +14,7 @@
     {$i.open}
     <div class="btn btn-default">
         <div class="div_icon"><img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32"></div>
-        <div>{$i.label}</div>
+        <div style="white-space: normal">{$i.label}</div>
     </div>
     {$i.close}
 {/foreach}
