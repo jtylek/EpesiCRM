@@ -76,11 +76,11 @@ class Base_User_Login extends Module {
 		
 		if(DEMO_MODE) {
 			global $demo_users;
-			$form->addElement('select', 'username', __('Username'), $demo_users, array('id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
+			$form->addElement('select', 'username', __('Username'), $demo_users, array('class'=>'form-control', 'id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
 			$form->addElement('hidden', 'password', key($demo_users));
 		} else {
-			$form->addElement('text', 'username', __('Username'),array('id'=>'username'));
-			$form->addElement('password', 'password', __('Password'));
+			$form->addElement('text', 'username', __('Username'),array('class'=>'form-control', 'id'=>'username'));
+			$form->addElement('password', 'password', __('Password'), array('class'=>'form-control', 'id' => 'password'));
 		}
 
 		// Display warning about storing a cookie
@@ -91,7 +91,7 @@ class Base_User_Login extends Module {
         }
 
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.__('Recover password').'</a>');
-		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'submit'));
+		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'btn btn-primary btn-block'));
 
         // register and add a rule to check if user is banned
         $form->registerRule('check_user_banned', 'callback', 'rule_login_banned', 'Base_User_LoginCommon');

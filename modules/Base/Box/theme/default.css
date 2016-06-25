@@ -132,30 +132,6 @@ hr.line {
 	width: 100%;
 }
 
-/*** login ***/
-
-#Base_Box__login {
-	position: relative;
-	width: 100%;
-	height: 100%;
-	top: -50px;
-	text-align: center;
-	vertical-align: middle;
-	background-color: #F0F0F0;
-}
-
-#Base_Box__login .status {
-	height: 40px;
-}
-
-#Base_Box__login .entry {
-}
-
-#Base_Box__login .starting {
-	height: 30px;
-	padding-top: 15px;
-    vertical-align: top;
-}
 
 /*** content body ***/
 
