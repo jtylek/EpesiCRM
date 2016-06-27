@@ -85,6 +85,10 @@ class CRM_TasksCommon extends ModuleCommon {
 
 	public static function applet_settings() {
         $settings = array(
+			array('label' => __('Additional title'),
+				  'name' => 'subtitle',
+				  'type' => 'text',
+				  'default' => ''),
             array('label'   => __('Display tasks marked as'), 'name' => 'term',
                   'type'    => 'select',
                   'values'  => array('s' => __('Short-term'),
@@ -106,7 +110,8 @@ class CRM_TasksCommon extends ModuleCommon {
 		$settings[] = array('label'   => __('Filter'),
                             'name'    => 'crits',
                             'type'    => 'crits',
-							'param' => 'task'
+							'param' => 'task',
+							'default' => array('employees' => 'USER')
 		);
 
         return Utils_RecordBrowserCommon::applet_settings($settings);

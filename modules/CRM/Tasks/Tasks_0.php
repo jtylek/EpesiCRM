@@ -31,18 +31,12 @@ class CRM_Tasks extends Module
     public function applet($conf, & $opts)
     {
         $opts['go'] = true;
-        $opts['title'] = __('Tasks') .
-            ($conf['related'] == 0 ? ' - ' . __('Todo') : '') .
-            ($conf['related'] == 1 ? ' - ' . __('Related') : '') .
-            ($conf['term'] == 's' ? ' - ' . __('Short-term') : ($conf['term'] == 'l' ? ' - ' . __('Long-term') : ''));
-        $me = CRM_ContactsCommon::get_my_record();
-        if ($me['id'] == -1) {
-            CRM_ContactsCommon::no_contact_message();
-            return;
+        $opts['title'] = __('Tasks');
+        if (isset($conf['subtitle']) && $conf['subtitle']) {
+            $opts['title'] .= ' - ' . $conf['subtitle'];
         }
         $short = ($conf['term'] == 's' || $conf['term'] == 'b');
         $long = ($conf['term'] == 'l' || $conf['term'] == 'b');
-        $related = $conf['related'];
         $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'task', 'task');
         $status = array();
         foreach (Utils_CommonDataCommon::get_array('CRM/Status')
@@ -58,9 +52,9 @@ class CRM_Tasks extends Module
         if ($short && !$long) $crits['!longterm'] = 1;
         if (!$short && $long) $crits['longterm'] = 1;
 
-        $qbi = new Utils_RecordBrowser_QueryBuilderIntegration('task');
-        $qb_crits = $qbi->json_to_crits($conf['crits']);
-        $crits = Utils_RecordBrowserCommon::merge_crits($crits, $qb_crits);
+        if (isset($conf['crits']) && $conf['crits']) {
+            $crits = Utils_RecordBrowserCommon::merge_crits($crits, $conf['crits']);
+        }
 
         $conds = array(
             array(array('field' => 'title', 'width' => 20, 'callback' => array('CRM_TasksCommon', 'display_title_with_mark')),
@@ -74,7 +68,12 @@ class CRM_Tasks extends Module
             $conf,
             & $opts
         );
-        $opts['actions'][] = Utils_RecordBrowserCommon::applet_new_record_button('task', array('employees' => array($me['id']), 'status' => 0, 'permission' => 0, 'priority' => CRM_CommonCommon::get_default_priority()));
+        $defaults = array('status' => 0, 'permission' => 0, 'priority' => CRM_CommonCommon::get_default_priority());
+        $me = CRM_ContactsCommon::get_my_record();
+        if ($me['id'] != -1) {
+            $defaults['employees'] = array($me['id']);
+        }
+        $opts['actions'][] = Utils_RecordBrowserCommon::applet_new_record_button('task', $defaults);
         $this->display_module($rb, $conds, 'mini_view');
     }
 
