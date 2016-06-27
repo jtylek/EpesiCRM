@@ -9,9 +9,9 @@
 	<div class="pull-left">
 			<!-- Custom label -->
 			{if (isset($custom_label) && $custom_label)}
-				<div style="display: inline-block" {$custom_label_args}>
-				<nobr>{$custom_label}</nobr>
-				</div>
+				<span {$custom_label_args}>
+				{$custom_label}
+				</span>
 			{/if}
 			<!-- QuickJump -->
 			{if isset($letter_links)}
@@ -38,7 +38,6 @@
 					<a id="{$expand_collapse.e_id}" class="btn btn-success" {$expand_collapse.e_href}><i class="fa fa-caret-square-o-down"></i> {$expand_collapse.e_label} </a>
 					<a id="{$expand_collapse.c_id}" class="btn btn-success" {$expand_collapse.c_href}><i class="fa fa-caret-square-o-up"></i> {$expand_collapse.c_label} </a>
 				{/if}
-				&nbsp;
 			</div>
 	</div>
 	<div class="pull-right">

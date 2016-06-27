@@ -79,10 +79,15 @@ class Utils_RecordBrowser extends Module {
 			Base_ActionBarCommon::add($type, $label, $href);
 		else {
 			if (!file_exists($type))
-				$type = Base_ThemeCommon::get_template_file(Base_ActionBar::module_name(), 'icons/'.$type.'.png');
-			$this->more_add_button_stuff .= '<a class="record_browser_button" id="Base_ActionBar" '.$href.'>'.'<img src="'.$type.'">'.
-				'<div style="display:inline-block;position: relative;top:-8px;">'.$label.'</div>'.
-				'</a>';
+			    if(array_key_exists($type, Base_ActionBarCommon::$translate)) {
+                    $type = Base_ActionBarCommon::$translate[$type];
+                    $this->more_add_button_stuff .= '<a '.$href.'><button class="btn btn-default" style="margin: 0 2px;">'.'<i class="fa fa-'.$type.'"></i> '.$label.'</button></a>';
+                } else {
+                    $type = Base_ThemeCommon::get_template_file(Base_ActionBar::module_name(), 'icons/'.$type.'.png');
+                    $this->more_add_button_stuff .= '<a '.$href.'><button class="btn btn-default" style="margin: 0 2px;">'.'<img src="'.$type.'">'.
+                        '<div style="display:inline-block;position: relative;top:-8px;">'.$label.'</div>'.
+                        '</button></a>';
+                }
 		}
 	}
 
@@ -979,10 +984,10 @@ class Utils_RecordBrowser extends Module {
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
             else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);
-            if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><button class="btn btn-primary" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><i class="fa fa-plus-square"></i> '.__('Add new').'</button></a>';
+            if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><button style="margin: 0 2px;" class="btn btn-primary" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><i class="fa fa-plus-square"></i> '.__('Add new').'</button></a>';
         }
         if ($this->more_add_button_stuff) {
-            if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
+            if ($custom_label) $custom_label = '<span>'.$custom_label.'</span><span>'.$this->more_add_button_stuff.'</span>';
             else $custom_label = $this->more_add_button_stuff;
         }
         $gb->set_custom_label($custom_label);
