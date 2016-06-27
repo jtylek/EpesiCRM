@@ -1096,10 +1096,10 @@ class Utils_GenericBrowser extends Module {
 		foreach($options as $key => $value)
 			$theme->assign($key, $value);
 
-//		if (isset($template))
-//			$theme->display($template, true);
-//		else
-//			$theme->display();
+		if (isset($template))
+			$theme->display($template, true);
+		else
+			$theme->display();
 		$this->set_module_variable('show_all_triggered', false);
 	}
 	
