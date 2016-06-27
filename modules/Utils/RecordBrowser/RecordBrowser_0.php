@@ -521,7 +521,7 @@ class Utils_RecordBrowser extends Module {
 
             $filters[] = $filter_id;
         }
-        $form->addElement('submit', 'submit', __('Show'));
+        $form->addElement('submit', 'submit', __('Show'), array('class'=>'btn btn-warning'));
 
         $use_saving_filters = Base_User_SettingsCommon::get($this->get_type(), 'save_filters');
 		if ($this->data_gb->show_all()) {
@@ -628,18 +628,25 @@ class Utils_RecordBrowser extends Module {
         $form->assign_theme('form',$theme);
         $theme->assign('filters', $filters);
 		load_js('modules/Utils/RecordBrowser/filters.js');
-        $theme->assign('show_filters', array('attrs'=>'onclick="rb_show_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="show_filter_b_'.$f_id.'"','label'=>__('Show filters')));
-        $theme->assign('hide_filters', array('attrs'=>'onclick="rb_hide_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="hide_filter_b_'.$f_id.'"','label'=>__('Hide filters')));
         $theme->assign('id', $f_id);
+
+        $return_options = array(
+            'filter_form' => $this->get_html_of_module($theme, 'Filter', 'display'),
+            'show_filters' => array('attrs'=>'onclick="rb_show_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="show_filter_b_'.$f_id.'"','label'=>__('Show filters')),
+            'hide_filters' => array('attrs'=>'onclick="rb_hide_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="hide_filter_b_'.$f_id.'"','label'=>__('Hide filters'))
+        );
+
         if (!$use_saving_filters) {
             if (!$this->isset_module_variable('filters_defaults')) {
                 $this->set_module_variable('filters_defaults', $this->crits);
             } elseif ($this->crits != $this->get_module_variable('filters_defaults')) {
                 $theme->assign('dont_hide', true);
+                $return_options['dont_hide'] = true;
+            } else {
+                $return_options['dont_hide'] = false;
             }
         }
-        if ($dont_hide) $theme->assign('dont_hide', true);
-        return $this->get_html_of_module($theme, 'Filter', 'display');
+        return $return_options;
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function navigate($func){
@@ -2955,7 +2962,7 @@ class Utils_RecordBrowser extends Module {
 		$link = Module::create_href_js(Utils_RecordBrowserCommon::get_record_href_array($this->tab, '__ID__'));
 		if (isset($_REQUEST['__jump_to_RB_record'])) Base_StatusBarCommon::message(__('Record not found'), 'warning');
 		$link = str_replace('__ID__', '\'+this.value+\'', $link);
-		return ' <a '.Utils_TooltipCommon::open_tag_attrs(__('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','jump_to.png').'"></a><input type="text" id="jump_to_record_input" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
+		return ' <a '.Utils_TooltipCommon::open_tag_attrs(__('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><i class="fa fa-share"></i></a><input type="text" id="jump_to_record_input" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
 	}
 
     public function search_by_id_form($label) {
