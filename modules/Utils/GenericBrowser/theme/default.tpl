@@ -108,23 +108,20 @@
 				{$form_data_paging.hidden}
 				{/if}
 				{if isset($order) || $first || $prev || $summary || isset($form_data_paging.page) || isset($form_data_paging.per_page)}
-					<table id="Utils_GenericBrowser__navigation" class="nonselectable" border="0" cellspacing="0" cellpadding="0">
-						<tr class="nav_background">
+						<div class="well well-sm">
 							<td style="text-align: left; width: 1px; white-space: nowrap;">
 								{if isset($order)}
 									{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
 								{/if}
 							</td>
-							<td style="width:30%"></td>
-							<td style="width:30%"></td>
 							{if isset($__link.first.open) || isset($__link.last.open)}
-								<td class="nav_button" nowrap>{if isset($__link.first.open)}{$__link.first.open}<div class="nav_left_arrow"><img src="{$theme_dir}/images/first.png"></div><div class="nav_left_label">{$__link.first.text}</div>{$__link.first.close}{/if}</td>
-								<td class="nav_button" nowrap>{if isset($__link.prev.open)}{$__link.prev.open}<div class="nav_left_arrow"><img border="0" src="{$theme_dir}/images/prev.png"></div><div class="nav_left_label">{$__link.prev.text}</div>{$__link.prev.close}{/if}</td>
+								{if isset($__link.first.open)}{$__link.first.open}<button class="btn btn-primary"><i class="fa fa-fast-backward"></i> {$__link.first.text}</button>{$__link.first.close}{/if}
+								{if isset($__link.prev.open)}{$__link.prev.open}<button class="btn btn-primary"><i class="fa fa-backward"></i> {$__link.prev.text}</button>{$__link.prev.close}{/if}
 							{/if}
 							<td class="nav_summary" nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
 							{if isset($__link.first.open) || isset($__link.last.open)}
-								<td class="nav_button" nowrap>{if isset($__link.next.open)}{$__link.next.open}<div class="nav_right_label">{$__link.next.text}</div><div class="nav_right_arrow"><img border="0" src="{$theme_dir}/images/next.png"></div>{$__link.next.close}{/if}</td>
-								<td class="nav_button" nowrap>{if isset($__link.last.open)}{$__link.last.open}<div class="nav_right_label">{$__link.last.text}</div><div class="nav_right_arrow"><img border="0" src="{$theme_dir}/images/last.png"></div>{$__link.last.close}{/if}</td>
+								{if isset($__link.next.open)}{$__link.next.open}<button class="btn btn-primary"><i class="fa fa-forward"></i> {$__link.next.text}</button>{$__link.next.close}{/if}
+								{if isset($__link.last.open)}{$__link.last.open}<button class="btn btn-primary"><i class="fa fa-fast-forward"></i> {$__link.last.text}</button>{$__link.last.close}{/if}
 							{/if}
 							<td style="width:30%"></td>
 							<td class="nav_pagin" nowrap style="width: 1px; text-align: right; white-space: nowrap;">
@@ -137,8 +134,7 @@
 									{$form_data_paging.per_page.label} {$form_data_paging.per_page.html}
 								{/if}
 							</td>
-						</tr>
-					</table>
+						</div>
 				{/if}
 
 				{if isset($form_data_paging)}
