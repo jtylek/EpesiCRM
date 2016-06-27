@@ -144,16 +144,16 @@ class Utils_TabbedBrowser extends Module {
 		if ($parent===null) $parent = '';
 		else $parent = ' parent_menu="'.$parent.'"';
 		$path = escapeJS($this->get_path());
-		if($this->page === $i || (is_string($this->page) && $this->page == $caption)) $selected = ' class="tabbed_browser_selected"';
-			else $selected = ' class="tabbed_browser_unselected"';
+		if($this->page === $i || (is_string($this->page) && $this->page == $caption)) $selected = true;
+			else $selected = false;
 		$icon = '<img class="tab_icon" id="'.$this->get_tab_id($caption).'_icon" src="" style="display:none;">';
 		if (isset($val['href']) && $val['href'])
-			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' '.$val['href'].'>'.$caption.$icon.'</span>';
+			$link = '<a id="'.$this->get_tab_id($caption).'"'.$parent.' '.$val['href'].'>'.$caption.$icon.'</a>';
 		elseif ($val['js'])
-			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.'>'.$caption.$icon.'</span>';
+			$link = '<a id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')">'.$caption.$icon.'</a>';
 		else
-			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.$icon.'</span>';
-		return $link;
+			$link = '<a id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')" original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.$icon.'</a>';
+		return array('link' => $link, 'selected' => $selected);
 	}
 	
 	/**
