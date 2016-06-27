@@ -979,7 +979,7 @@ class Utils_RecordBrowser extends Module {
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
             else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);
-            if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><span class="record_browser_add_new" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils/RecordBrowser/add.png').'" /><div class="add_new">'.__('Add new').'</div></span></a>';
+            if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><button class="btn btn-primary" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><i class="fa fa-plus-square"></i> '.__('Add new').'</button></a>';
         }
         if ($this->more_add_button_stuff) {
             if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';

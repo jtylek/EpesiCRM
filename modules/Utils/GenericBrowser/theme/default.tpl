@@ -5,21 +5,20 @@
 <div>
 
 {if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search) || isset($expand_collapse)}
-<table class="letters-search nonselectable" border="0" cellpadding="0" cellspacing="0">
-	<tbody>
-		<tr>
+<div class="nonselectable clearfix" style="margin-bottom: 20px">
+	<div class="pull-left">
 			<!-- Custom label -->
 			{if (isset($custom_label) && $custom_label)}
-				<td class="letter_search_icon" {$custom_label_args}>
+				<div style="display: inline-block" {$custom_label_args}>
 				<nobr>{$custom_label}</nobr>
-				</td>
+				</div>
 			{/if}
 			<!-- QuickJump -->
 			{if isset($letter_links)}
-				<td class="letters">
-					<div class="abc" onclick="quick_jump_letters('{$id}');">ABC</div>
-					<div id="quick_jump_letters_{$id}" class="quick_jump_letters" 
-						{if $quickjump_to==''} 
+				<div class="letters" style="display: inline-block">
+					<button class="btn btn-warning" onclick="quick_jump_letters('{$id}');">ABC</button>
+					<div id="quick_jump_letters_{$id}" class="quick_jump_letters"
+						{if $quickjump_to==''}
 							style="display: none;"
 						{/if}
 						>
@@ -31,37 +30,31 @@
 								{/if}
 						</div>
 					</div>
-				</td>
+				</div>
 			{/if}
             <!-- Expand/Collapse -->
-			<td class="expand_collapse">
+			<div class="expand_collapse" style="display: inline-block">
 				{if isset($expand_collapse)}
-                    <a id="{$expand_collapse.e_id}" class="button" {$expand_collapse.e_href}><img src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
-                        <div style="display:inline-block;position:relative;top:-4px">
-                            {$expand_collapse.e_label}
-                        </div>
-                    </a>
-                    <a id="{$expand_collapse.c_id}" class="button" {$expand_collapse.c_href}><img src="{$theme_dir}/Base/ActionBar/icons/collapse_big.png" />
-                        <div style="display:inline-block;position:relative;top:-4px">
-                            {$expand_collapse.c_label}
-                        </div>
-                    </a>
+					<a id="{$expand_collapse.e_id}" class="btn btn-success" {$expand_collapse.e_href}><i class="fa fa-caret-square-o-down"></i> {$expand_collapse.e_label} </a>
+					<a id="{$expand_collapse.c_id}" class="btn btn-success" {$expand_collapse.c_href}><i class="fa fa-caret-square-o-up"></i> {$expand_collapse.c_label} </a>
 				{/if}
 				&nbsp;
-			</td>
+			</div>
+	</div>
+	<div class="pull-right">
 			<!-- Advanced / Simple Search -->
 			{if isset($form_data_search)}
-				<td style="width:470px; float:right">
+				<div class="form-inline">
 					{$form_data_search.javascript}
 
 					<form {$form_data_search.attributes}>
 					{$form_data_search.hidden}
 					{if isset($form_data_search.search)}
-						<span class="advanced" style="float:right;">{$adv_search}</span>
-						<span class="submit" style="float:right;">{$form_data_search.submit_search.html}</span>
-						<span class="search-box" style="float:right;">{$form_data_search.search.html}</span>
+						{$adv_search}
+						{$form_data_search.submit_search.html}
+						{$form_data_search.search.html}
 						{if isset($form_data_search.show_all)}
-							<span class="submit" style="float:right;">{$form_data_search.show_all.html}</span>
+							{$form_data_search.show_all.html}
 						{/if}
 					{else}
 						{php}
@@ -74,19 +67,18 @@
 							$this->assign('cols',$cols);
 						{/php}
 						{if isset($form_data_search.submit_search)}
-							<span class="advanced" style="float:right;">{$adv_search}</span>
-							<span class="submit" style="float:right;">{$form_data_search.submit_search.html}</span>
+							{$adv_search}
+							{$form_data_search.submit_search.html}
 							{if isset($form_data_search.show_all)}
-								<span class="submit" style="float:right;">{$form_data_search.show_all.html}</span>
+								{$form_data_search.show_all.html}
 							{/if}
 						{/if}
 					{/if}
 					</form>
-				</td>
+				</div>
 			{/if}
-		</tr>
-	</tbody>
-</table>
+	</div>
+</div>
 {/if}
 
 {php}
@@ -127,7 +119,7 @@
 							<td class="nav_pagin" nowrap style="width: 1px; text-align: right; white-space: nowrap;">
 								{if isset($form_data_paging.page)}
 									{$form_data_paging.page.label} {$form_data_paging.page.html}
-								{/if}	
+								{/if}
 							</td>
 							<td class="nav_per_page" nowrap style="width: 1px; text-align: right; white-space: nowrap;">
 								{if isset($form_data_paging.per_page)}

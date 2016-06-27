@@ -767,7 +767,7 @@ class Utils_GenericBrowser extends Module {
 		if (!$this->is_adv_search_on()) {
 			foreach ($this->columns as $k => $v)
 				if (isset($v['search'])) {
-					$this->form_s->addElement('text', 'search', __('Keyword'), array('id' => 'gb_search_field', 'placeholder' => __('search keyword...'), 'x-webkit-speech' => 'x-webkit-speech', 'lang' => Base_LangCommon::get_lang_code(), 'onwebkitspeechchange' => $this->form_s->get_submit_form_js()));
+					$this->form_s->addElement('text', 'search', __('Keyword'), array('class' => 'form-control', 'id' => 'gb_search_field', 'placeholder' => __('search keyword...'), 'x-webkit-speech' => 'x-webkit-speech', 'lang' => Base_LangCommon::get_lang_code(), 'onwebkitspeechchange' => $this->form_s->get_submit_form_js()));
 					eval_js('jq("#gb_search_field").focus()');
 					$this->form_s->setDefaults(array('search' => isset($search['__keyword__']) ? $search['__keyword__'] : ''));
 					$search_on = true;
@@ -794,10 +794,10 @@ class Utils_GenericBrowser extends Module {
 			$options['search_fields'] = $search_fields;
 		}
 		if ($search_on) {
-			$this->form_s->addElement('submit', 'submit_search', __('Search'), array('id' => 'gb_search_button'));
+			$this->form_s->addElement('submit', 'submit_search', __('Search'), array('class' => 'btn btn-success','id' => 'gb_search_button'));
 			if (Base_User_SettingsCommon::get($this->get_type(), 'show_all_button')) {
 				$el = $this->form_s->addElement('hidden', 'show_all_pressed');
-				$this->form_s->addElement('button', 'show_all', __('Show all'), array('onclick' => 'document.forms["' . $this->form_s->getAttribute('name') . '"].show_all_pressed.value="1";' . $this->form_s->get_submit_form_js()));
+				$this->form_s->addElement('button', 'show_all', __('Show all'), array('class'=>'btn btn-success', 'onclick' => 'document.forms["' . $this->form_s->getAttribute('name') . '"].show_all_pressed.value="1";' . $this->form_s->get_submit_form_js()));
 				$el->setValue('0');
 			}
 		}
@@ -1077,7 +1077,7 @@ class Utils_GenericBrowser extends Module {
 			eval_js('gb_show_hide_buttons("' . $md5_id . '")');
 		}
 
-		if ($search_on) $options['adv_search'] = '<a id="switch_search_' . ($this->is_adv_search_on() ? 'simple' : 'advanced') . '" class="button" ' . $this->create_unique_href(array('adv_search' => !$this->is_adv_search_on())) . '>' . ($this->is_adv_search_on() ? __('Simple Search') : __('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this->get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>';
+		if ($search_on) $options['adv_search'] = '<a id="switch_search_' . ($this->is_adv_search_on() ? 'simple' : 'advanced') . '" class="btn btn-warning" ' . $this->create_unique_href(array('adv_search' => !$this->is_adv_search_on())) . '>' . ($this->is_adv_search_on() ? __('Simple Search') : __('Advanced Search')) . ' <i class="fa fa-cog"></i></a>';
 		else $options['adv_search'] = '';
 
 		if (Base_User_SettingsCommon::get(Utils_GenericBrowser::module_name(), 'adv_history') && $is_order) {
