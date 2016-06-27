@@ -164,104 +164,7 @@
 }
 /* */
 
-table.Utils_GenericBrowser {
-    background-color: #FFFFFF;
-    /*border-top: 1px solid #B3B3B3;*/
-    border-left: 1px solid #B3B3B3;
-	-webkit-border-radius: 6px 6px 0 0;
-	-moz-border-radius: 6px 6px 0 0;
-	border-radius: 6px 6px 0 0;
-}
 
-table.Utils_GenericBrowser > thead > tr > th:first-child {
-	-webkit-border-radius: 6px 0 0 0;
-	-moz-border-radius: 6px 0 0 0;
-	border-radius: 6px 0 0 0;
-}
-
-table.Utils_GenericBrowser > thead > tr > th:last-child {
-	-webkit-border-radius: 0 6px 0 0;
-	-moz-border-radius: 0 6px 0 0;
-	border-radius: 0 6px 0 0;
-}
-
-.applet table.Utils_GenericBrowser th:first-child,
-.applet table.Utils_GenericBrowser th:last-child,
-.applet table.Utils_GenericBrowser {
-	-webkit-border-radius: 0;
-	-moz-border-radius: 0;
-	border-radius: 0;
-}
-
-table.Utils_GenericBrowser input[type="text"],
-table.Utils_GenericBrowser select {
-	width: 90%;
-}
-
-table.Utils_GenericBrowser a.button {
-	width: 20px;
-	text-align:left;
-}
-
-table.Utils_GenericBrowser > thead > tr > th {
-    font-weight: normal;
-    background-repeat: repeat-x;
-    text-align: left;
-    min-height: 25px;
-    /*border-top: 1px solid #B3B3B3;*/
-    border-right: 1px solid #B3B3B3;
-    border-bottom: 1px solid #FFFFFF;
-	color: #FFFFFF;
-    vertical-align: middle;
-
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	
-	/* css3 blue gradient */
-	background: #3f6a8c; /* Old browsers */
-	background: -moz-linear-gradient(top,  #3f6a8c 0%, #5087b2 50%, #3f6a8c 51%, #335772 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3f6a8c), color-stop(50%,#5087b2), color-stop(51%,#3f6a8c), color-stop(100%,#335772)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* Opera 11.10+ */
-	background: -ms-linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* IE10+ */
-	background: linear-gradient(top,  #3f6a8c 0%,#5087b2 50%,#3f6a8c 51%,#335772 100%); /* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f6a8c', endColorstr='#335772',GradientType=0 ); /* IE6-9 */
-	/* end css3  gradient */
-}
-.epesi_rtl table.Utils_GenericBrowser > thead > tr > th {
-    text-align: right;
-}
-
-table.Utils_GenericBrowser > thead > tr > th > .GB_margin {
-	margin: 0px 40% auto 5px;
-}
-
-table.Utils_GenericBrowser > thead > tr > th > span {
-	color: #FFFFFF;
-    display: block;
-	height: 100%;
-    line-height: 20px;
-    padding: 3px 10px 3px 3px;
-}
-table.Utils_GenericBrowser > thead > tr > th a {
-	color: #FFFFFF;
-	width: 120%;
-	display: block;
-}
-
-table.Utils_GenericBrowser > thead > tr > th:hover {	
-	/* css3 blue gradient - reverse */
-background: #5b8eb5; /* Old browsers */
-background: -moz-linear-gradient(top,  #5b8eb5 0%, #77a2c3 50%, #5b8eb5 51%, #4b7fa7 100%); /* FF3.6+ */
-background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5b8eb5), color-stop(50%,#77a2c3), color-stop(51%,#5b8eb5), color-stop(100%,#4b7fa7)); /* Chrome,Safari4+ */
-background: -webkit-linear-gradient(top,  #5b8eb5 0%,#77a2c3 50%,#5b8eb5 51%,#4b7fa7 100%); /* Chrome10+,Safari5.1+ */
-background: -o-linear-gradient(top,  #5b8eb5 0%,#77a2c3 50%,#5b8eb5 51%,#4b7fa7 100%); /* Opera 11.10+ */
-background: -ms-linear-gradient(top,  #5b8eb5 0%,#77a2c3 50%,#5b8eb5 51%,#4b7fa7 100%); /* IE10+ */
-background: linear-gradient(top,  #5b8eb5 0%,#77a2c3 50%,#5b8eb5 51%,#4b7fa7 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5b8eb5', endColorstr='#4b7fa7',GradientType=0 ); /* IE6-9 */
-	/* end css3 blue gradient - reverse */
-}
 .plus-minus,
 .plus-minus:hover {
 	width: 8px!important;
@@ -288,14 +191,6 @@ table.Utils_GenericBrowser > thead > tr > th input:focus {
 
 table.Utils_GenericBrowser > tbody {
 	overflow: auto;
-}
-
-table.Utils_GenericBrowser > tbody > tr {
-	background-color: #FFFFFF;
-}
-
-table.Utils_GenericBrowser > tbody > tr:hover {
-	background-color: #F0F0F0;
 }
 
 .Utils_GenericBrowser__td {

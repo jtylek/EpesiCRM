@@ -96,12 +96,8 @@
 	$this->assign('cols',$cols);
 {/php}
 
-<div class="table">
-	<div class="layer">
-		<div class="css3_content_shadow">
-			<div class="margin2px">
 				{$table_prefix}
-                {capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
+                {capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser table table-bordered table-hover" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
 				{html_table_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
 				{$table_postfix}
 
@@ -148,9 +144,5 @@
 				{if isset($form_data_paging)}
 				</form>
 				{/if}
-			</div>
- 		</div>
-	</div>
-</div>
 
 </div>
