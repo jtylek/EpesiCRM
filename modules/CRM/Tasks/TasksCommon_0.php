@@ -83,7 +83,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::get_record('task', $id);
 	}
 
-	public static function applet_settings() {
+	public static function applet_settings($applet_id) {
         $settings = array(
             array('label'   => __('Display tasks marked as'), 'name' => 'term',
                   'type'    => 'select',
@@ -102,13 +102,13 @@ class CRM_TasksCommon extends ModuleCommon {
             $settings[] = array('label' => $label, 'name' => $name,
                                 'type'  => 'checkbox', 'default' => $default);
         }
-        $settings[] = array('label'   => __('Related'),
-                            'name'    => 'related',
-                            'type'    => 'select',
-                            'values'  => array(__('Employee'),
-                                               __('Customer'),
-                                               __('Both')),
-                            'default' => '0');
+
+		$settings[] = array('label'   => __('Filter'),
+                            'name'    => 'crits',
+                            'type'    => 'crits',
+							'param' => 'task'
+		);
+
         return Utils_RecordBrowserCommon::applet_settings($settings);
 	}
 	

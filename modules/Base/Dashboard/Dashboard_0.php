@@ -342,7 +342,9 @@ class Base_Dashboard extends Module {
 		if($is_conf) {
 			$f->addElement('header',null,__('%s settings', array($caption)));
 
-			$menu = call_user_func($sett_fn);
+			//send the applet id to applet_settings function
+			$menu = call_user_func($sett_fn,$id);
+
 			if (is_array($menu))
 				$this->add_module_settings_to_form($menu,$f,$id,$mod);
 			else
@@ -462,6 +464,13 @@ class Base_Dashboard extends Module {
 			if (isset($v['rule'])) {
 				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
 			}
+
+            if ($v['type'] == "crits") {
+
+                $default_crits = DB::GetOne('SELECT value FROM base_dashboard_settings WHERE name="crits" and applet_id=%d', array($id));
+
+                $v['default'] = array($default_crits);
+            }
 		}
 		$this->set_default_js = '';
 		$f -> add_array($info, $this->set_default_js);
