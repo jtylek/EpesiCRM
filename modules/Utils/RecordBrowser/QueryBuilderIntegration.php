@@ -215,7 +215,10 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             case 'long text':   $type = 'string'; $input = 'textarea'; break;
             case 'hidden': break;
             case 'calculated': break;
-            case 'checkbox':    $type = 'boolean'; break;
+            case 'checkbox':    $type = 'boolean';
+                                $input = 'select';
+                                $values = array('1' => __('Yes'), '0' => __('No'));
+                break;
             case 'currency': $type = 'double'; break;
             case 'autonumber': break;
         }
