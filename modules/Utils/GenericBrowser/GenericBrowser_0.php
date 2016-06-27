@@ -919,8 +919,6 @@ class Utils_GenericBrowser extends Module {
 			eval_js_once('gb_collapse_icon_off = "' . Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse_gray.gif') . '";');
 		}
 
-		$rows_data = array();
-
 		foreach ($this->rows as $i => $r) {
 			$col = array();
 
@@ -1017,14 +1015,11 @@ class Utils_GenericBrowser extends Module {
 
 			ksort($col);
 			$expanded = $this->expandable ? ' expanded' : '';
-			$row_data = array();
 			foreach ($col as $v)
-				$row_data[] = array('label' => '<div class="expandable' . $expanded . '">' . $v['label'] . '</div>', 'attrs' => $v['attrs']);
+				$out_data[] = array('label' => '<div class="expandable' . $expanded . '">' . $v['label'] . '</div>', 'attrs' => $v['attrs']);
 			if (isset($this->rows_jses[$i]))
 				eval_js($this->rows_jses[$i]);
-			$rows_data[] = $row_data;
 		}
-
 		if (isset($quickjump)) {
 			$quickjump_to = $this->get_module_variable('quickjump_to');
 			$all = '<span class="all">' . __('All') . '</span>';
@@ -1045,10 +1040,6 @@ class Utils_GenericBrowser extends Module {
 			$options['letter_links'] = $letter_links;
 			$options['quickjump_to'] = $quickjump_to;
 		}
-
-		foreach($rows_data as $row_data)
-			foreach($row_data as $col_data)
-				$out_data[] = $col_data;
 
 		$options['data'] = $out_data;
 		$options['cols'] = $out_headers;
@@ -1110,11 +1101,6 @@ class Utils_GenericBrowser extends Module {
 //		else
 //			$theme->display();
 		$this->set_module_variable('show_all_triggered', false);
-		$this->twig_display('table.twig', array(
-			'columns' => $out_headers,
-			'rows' => $rows_data,
-			'summary' => $this->summary()
-		));
 	}
 	
 	public function show_all() {
