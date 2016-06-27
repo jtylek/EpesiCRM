@@ -183,6 +183,7 @@ class CRM_Calendar extends Module {
 					if (!is_callable($cb)) continue;
 					$add = call_user_func($cb, 'get_all', $start, $end, CRM_Calendar_EventCommon::$filter);
 					foreach ($add as $v) {
+						$v['id'] = $id . '#' . $v['id'];
 						$ret[str_pad($v['start'], 16, '0', STR_PAD_LEFT).'__'.$c] = $v;
 						$c++;
 					}
@@ -197,8 +198,6 @@ class CRM_Calendar extends Module {
 			if (!isset($row['view_action'])) {
 				$ex = Utils_CalendarCommon::process_event($row);
 				$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
-				$ev_id = explode('_',$row['id'],2);
-				$ev_id = $ev_id[0];
 			} else {
 				$tmp = Utils_CalendarCommon::process_event($row);
 				$ex = $row;
