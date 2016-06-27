@@ -83,7 +83,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::get_record('task', $id);
 	}
 
-	public static function applet_settings($applet_id) {
+	public static function applet_settings() {
         $settings = array(
             array('label'   => __('Display tasks marked as'), 'name' => 'term',
                   'type'    => 'select',

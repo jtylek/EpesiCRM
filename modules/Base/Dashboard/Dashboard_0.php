@@ -343,7 +343,7 @@ class Base_Dashboard extends Module {
 			$f->addElement('header',null,__('%s settings', array($caption)));
 
 			//send the applet id to applet_settings function
-			$menu = call_user_func($sett_fn,$id);
+			$menu = call_user_func($sett_fn);
 
 			if (is_array($menu))
 				$this->add_module_settings_to_form($menu,$f,$id,$mod);
