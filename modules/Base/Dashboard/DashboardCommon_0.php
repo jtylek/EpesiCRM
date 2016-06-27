@@ -144,5 +144,23 @@ class Base_DashboardCommon extends ModuleCommon {
 		return Base_AclCommon::check_permission('Dashboard - manage applets');
 	}
 
+	public static function decode_value($value)
+	{
+		$b64_decoded = base64_decode($value);
+		if ($b64_decoded === serialize(false)) {
+			return false;
+		}
+		$unserialized = @unserialize($b64_decoded);
+		if ($unserialized !== false) {
+			return $unserialized;
+		}
+		return $value;
+	}
+
+	public static function encode_value($value)
+	{
+		return base64_encode(serialize($value));
+	}
+
 }
 ?>

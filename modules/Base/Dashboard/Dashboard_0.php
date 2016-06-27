@@ -381,12 +381,12 @@ class Base_Dashboard extends Module {
 						if($submited[$name]==$def_value)
 							DB::Execute('DELETE FROM base_dashboard_default_settings WHERE applet_id=%d AND name=%s',array($id,$name));
 						else
-							DB::Replace('base_dashboard_default_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
+							DB::Replace('base_dashboard_default_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>Base_DashboardCommon::encode_value($submited[$name])), array('applet_id','name'), true);
 					} else {
 						if($submited[$name]==$def_value)
 							DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d AND name=%s',array($id,$name));
 						else
-							DB::Replace('base_dashboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
+							DB::Replace('base_dashboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>Base_DashboardCommon::encode_value($submited[$name])), array('applet_id','name'), true);
 					}
 				}
 			}
@@ -430,14 +430,18 @@ class Base_Dashboard extends Module {
 		if(!isset(self::$settings_cache)) {
 			self::$settings_cache = array('default'=>array(), 'user'=>array());
 			$ret = DB::Execute('SELECT applet_id,name,value FROM base_dashboard_default_settings');
-			while($row = $ret->FetchRow())
+			while ($row = $ret->FetchRow()) {
+				$row['value'] = Base_DashboardCommon::decode_value($row['value']);
 				self::$settings_cache['default'][$row['applet_id']][] = $row;
+			}
 
 			self::$settings_cache['user'] = array();
 			if(Base_AclCommon::is_user()) {
 				$ret = DB::Execute('SELECT s.applet_id,s.name,s.value FROM base_dashboard_settings s INNER JOIN base_dashboard_applets a ON a.id=s.applet_id WHERE a.user_login_id=%d',array(Base_AclCommon::get_user()));
-				while($row = $ret->FetchRow())
+				while($row = $ret->FetchRow()) {
+					$row['value'] = Base_DashboardCommon::decode_value($row['value']);
 					self::$settings_cache['user'][$row['applet_id']][] = $row;
+				}
 			} 
 		}
 		if($this->get_module_variable('default'))
@@ -466,10 +470,8 @@ class Base_Dashboard extends Module {
 			}
 
             if ($v['type'] == "crits") {
-
-                $default_crits = DB::GetOne('SELECT value FROM base_dashboard_settings WHERE name="crits" and applet_id=%d', array($id));
-
-                $v['default'] = array($default_crits);
+                $v['default'] = isset($values[$v['name']]) ? $values[$v['name']] : array();
+				unset($values[$v['name']]);
             }
 		}
 		$this->set_default_js = '';

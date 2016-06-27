@@ -226,10 +226,12 @@ class Libs_QuickForm extends Module {
 					break;
 				case 'crits':
 					$qbi = new Utils_RecordBrowser_QueryBuilderIntegration($v['param']);
-					$default_crits = $v['default'][0];
-					$default_crits = $qbi->json_to_crits($default_crits);
+					$default_crits = $v['default'] ?: array();
 					$qb = $qbi->get_builder_module($this, $default_crits);
 					$qb->add_to_form($this, $v['name'], $v['label'], $v['name'].'_editor');
+					$v['filter'] = array(function($value) use ($qbi) {
+						return $qbi->json_to_crits($value); });
+					unset($v['default']);
 					break;
 				default:
 					$this->qf->addElement($this->get_element_by_array($v,$default_js));
