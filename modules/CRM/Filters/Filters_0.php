@@ -52,7 +52,7 @@ class CRM_Filters extends Module {
 		if(isset($_SESSION['client']['filter_'.Acl::get_user()]['value'])) {
 			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()]['value'])));
 		}
-		$qf->addElement('submit','submit',__('Show'), array('onclick'=>'crm_filters_deactivate()'));
+		$qf->addElement('submit','submit',__('Show'), array('class'=>'btn btn-success','onclick'=>'crm_filters_deactivate()'));
 		if($qf->validate()) {
 			$c = $qf->exportValue('crm_filter_contact');
 			CRM_FiltersCommon::set_profile('c'.$c);

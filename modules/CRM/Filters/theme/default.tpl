@@ -1,89 +1,55 @@
 <center>
 
-<table id="CRM_Filters" cellspacing="0" cellpadding="0">
-	<tr>
+<div id="CRM_Filters" style="margin-bottom: 10px">
         <!-- MY -->
-        <td>
 
 	    {$__link.my.open}
-		<div class="epesi_big_button">
-            <img src="{$theme_dir}/CRM/Filters/my.png" alt="" align="middle" border="0" width="32" height="32">
-			<span>{$__link.my.text}</span>
-        </div>
+		<button class="btn btn-default">
+			<i class="fa fa-user fa-3x" aria-hidden="true"></i>
+			<div>{$__link.my.text}</div>
+        </button>
 	    {$__link.my.close}
 
-        </td>
 
 		{if isset($all)}
 			<!-- ALL -->
-			<td>
 
 			{$__link.all.open}
-			<div class="epesi_big_button">
-				<img src="{$theme_dir}/CRM/Filters/all.png" alt="" align="middle" border="0" width="32" height="32">
-				<span>{$__link.all.text}</span>
-			</div>
+			<button class="btn btn-default">
+				<i class="fa fa-globe fa-3x" aria-hidden="true"></i>
+				<div>{$__link.all.text}</div>
+			</button>
 			{$__link.all.close}
 
-			</td>
 		{/if}
 
         <!-- MANAGE FILTERS -->
-        <td>
 
 	    {$__link.manage.open}
-		<div class="epesi_big_button">
-            <img src="{$theme_dir}/CRM/Filters/manage.png" alt="" align="middle" border="0" width="32" height="32">
-			<span>{$__link.manage.text}</span>
-        </div>
+		<button class="btn btn-default">
+			<i class="fa fa-cog fa-3x" aria-hidden="true"></i>
+			<div>{$__link.manage.text}</div>
+        </button>
 	    {$__link.manage.close}
 
-        </td>
-    </tr>
-</table>
-<table id="CRM_Filters" cellspacing="0" cellpadding="0">
-	<tr>
-        <td colspan="3" style="text-align: center;">
+</div>
+<div id="CRM_Filters" style="margin-bottom: 10px">
 			{$contacts_open}
-				{$contacts_data.crm_filter_contact.label}&nbsp;<span class="filters-autoselect">{$contacts_data.crm_filter_contact.html}</span>&nbsp;<span class="child_button">{$contacts_data.submit.html}</span>
+				{$contacts_data.crm_filter_contact.label}&nbsp;<span class="filters-autoselect">{$contacts_data.crm_filter_contact.html}</span>&nbsp;{$contacts_data.submit.html}
 			{$contacts_close}
-		</td>
-    </tr>
-</table>
+</div>
 
-<br>
-
-{if !empty($filters)}
-	<table id="CRM_Filters" cellspacing="0" cellpadding="0">
-		<tr>
-			<td colspan="4" class="epesi_label header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</td>
-		</tr>
-		<tr>
-
-		{assign var=x value=0}
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{$saved_filters}
+	</div>
+	<div class="panel-body">
 		{foreach item=p key=k from=$filters}
-		{assign var=x value=$x+1}
-
-			<td>
-
 			{$p.open}
-			<div class="epesi_big_button">
-				<span class="text">{$p.title}</span>
+			<div class="btn btn-default">
+				{$p.title}
 			</div>
 			{$p.close}
-
-		</td>
-
-		{if ($x%4)==0}
-		</tr>
-		<tr>
-		{/if}
-
-	{/foreach}
-
-		</tr>
-
-	</table>
-{/if}
-
-</center>
+		{/foreach}
+	</div>
+</div>
