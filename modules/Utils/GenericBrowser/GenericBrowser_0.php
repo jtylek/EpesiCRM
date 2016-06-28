@@ -942,10 +942,10 @@ class Utils_GenericBrowser extends Module {
 					foreach ($this->actions[$i] as $icon => $arr) {
 						$actions .= '<a ' . Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] !== null ? $arr['tooltip'] : $arr['label'], $arr['tooltip'] === null) . ' ' . $arr['tag_attrs'] . '>';
 						if(array_key_exists('fa-'.$icon,$fa_icons)) {
-							$actions .= "<i class='fa fa-$icon fa-lg fa-fw'></i>";
+							$actions .= "<i class='fa fa-$icon fa-lg fa-fw text-info'></i>";
 						} elseif ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
 							$ico = $this->font_awesome_translate[$icon];
-							$actions .= "<i class='fa fa-$ico fa-lg fa-fw'></i>";
+							$actions .= "<i class='fa fa-$ico fa-lg fa-fw text-info'></i>";
 						} elseif (file_exists($icon)) {
 							$actions .= '<img class="action_button" src="' . $icon . '" border="0">';
 						} else {
