@@ -1596,7 +1596,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 return false;
             } elseif ($ret !== null) {
                 if ($crits === null) {
-                    $crits = $ret;
+                    $crits = is_array($ret)? Utils_RecordBrowser_Crits::from_array($ret): $ret;
                 } else {
                     $crits = self::merge_crits($crits, $ret);
                 }
