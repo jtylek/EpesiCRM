@@ -1716,7 +1716,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		load_js('modules/Utils/RecordBrowser/favorites.js');
 		if ($isfav===null) $isfav = DB::GetOne('SELECT '.$tab.'_id FROM '.$tab.'_favorite WHERE user_id=%d AND '.$tab.'_id=%d', array(Acl::get_user(), $id));
 		$tag_id = 'rb_fav_button_'.$tab.'_'.$id;
-		return '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?__('This item is on your favorites list').'<br>'.__('Click to remove it from your favorites'):__('Click to add this item to favorites'))).' onclick="utils_recordbrowser_set_favorite('.($isfav?0:1).',\''.$tab.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"><i class="fa fa-lg fa-fw '.($isfav==false?"fa-star-o":"fa-star").'"></i></a>';
+		return '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?__('This item is on your favorites list').'<br>'.__('Click to remove it from your favorites'):__('Click to add this item to favorites'))).' onclick="utils_recordbrowser_set_favorite('.($isfav?0:1).',\''.$tab.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"><i class="fa fa-lg fa-fw '.($isfav==false?"fa-star-o text-muted":"fa-star text-warning").'"></i></a>';
 	}
     public static function set_favs($tab, $id, $state) {
         self::check_table_name($tab);
