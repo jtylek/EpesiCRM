@@ -352,7 +352,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			}
 		}
 		$tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array(__CLASS__, 'ajax_subscription_tooltip'), array($category_name, $id));
-		return '<a '.$href.' '.$tooltip.'><i class="fa fa-'.$icon.'""/></a>';
+		return '<a '.$href.' '.$tooltip.'><i class="fa fa-'.$icon.'"></i></a>';
 	}
 
 	public static function ajax_subscription_tooltip($category_name, $id)
