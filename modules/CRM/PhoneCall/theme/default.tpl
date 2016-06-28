@@ -24,7 +24,7 @@
 <div class="panel panel-default">
 	<div class="panel-heading clearfix">
 		<div class="pull-left">
-			<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0"> <span>{$caption}</span>
+			<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0"> <span class="form-inline">{$caption}</span>
 		</div>
 		<div class="pull-right">
 			&nbsp;*&nbsp;{$required_note}

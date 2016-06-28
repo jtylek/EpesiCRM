@@ -315,7 +315,7 @@ class Utils_RecordBrowser extends Module {
                 if (!$this->browse_mode) $this->browse_mode='all';
                 if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all');
                 $form = $this->init_module(Libs_QuickForm::module_name());
-                $form->addElement('select', 'browse_mode', '', $opts, array('onchange'=>$form->get_submit_form_js()));
+                $form->addElement('select', 'browse_mode', '', $opts, array('class'=>'form-control','onchange'=>$form->get_submit_form_js()));
                 $form->setDefaults(array('browse_mode'=>$this->browse_mode));
                 if ($form->validate()) {
                     $vals = $form->exportValues();
@@ -2967,7 +2967,7 @@ class Utils_RecordBrowser extends Module {
 		$link = Module::create_href_js(Utils_RecordBrowserCommon::get_record_href_array($this->tab, '__ID__'));
 		if (isset($_REQUEST['__jump_to_RB_record'])) Base_StatusBarCommon::message(__('Record not found'), 'warning');
 		$link = str_replace('__ID__', '\'+this.value+\'', $link);
-		return ' <a '.Utils_TooltipCommon::open_tag_attrs(__('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><i class="fa fa-share text-success"></i></a><input type="text" id="jump_to_record_input" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
+		return ' <a '.Utils_TooltipCommon::open_tag_attrs(__('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><i class="fa fa-share text-success"></i></a><input type="text" id="jump_to_record_input" class="form-control" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
 	}
 
     public function search_by_id_form($label) {
