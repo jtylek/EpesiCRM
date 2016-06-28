@@ -182,6 +182,7 @@ class CRM_Roundcube extends Module {
         	//$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
         	$this->display_module($rb, array(array('(contacts'=>array('P:'.$id),'|id'=>$assoc_threads_ids), array(), array('last_date'=>'DESC')), 'show_data');
         } elseif($rs=='company') {
+            /** @var Libs_QuickForm $form */
             $form = $this->init_module(Libs_QuickForm::module_name());
             $form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
             if ($form->validate()) {
@@ -190,10 +191,12 @@ class CRM_Roundcube extends Module {
             }
             $show_related = $this->get_module_variable('include_related');
             $form->setDefaults(array('include_related'=>$show_related));
-            
-            ob_start();
-            $form->display_as_row();
-            $html = ob_get_clean();
+
+            $form->accept($renderer = new HTML_QuickForm_Renderer_TCMSArray());
+
+            $html = $this->twig_render('button.twig',[
+                'form' => $renderer->toArray()
+            ]);
             
             $rb->set_button(false, $html);
             $customers = array('C:'.$id);
@@ -233,9 +236,10 @@ class CRM_Roundcube extends Module {
             $show_related = $this->get_module_variable('include_related');
             $form->setDefaults(array('include_related'=>$show_related));
 
-            ob_start();
-            $form->display_as_row();
-            $html = ob_get_clean();
+            $form->accept($renderer = new HTML_QuickForm_Renderer_TCMSArray());
+            $html = $this->twig_render('button.twig',[
+                'form' => $renderer->toArray()
+            ]);
 
             $rb->set_button(false, $html);
             $customers = array('C:'.$id);
