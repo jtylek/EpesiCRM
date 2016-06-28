@@ -56,6 +56,7 @@
 
 					<form {$form_data_search.attributes}>
 					{$form_data_search.hidden}
+					{$search_fields_hidden}
 					{if isset($form_data_search.search)}
 						<span class="advanced" style="float:right;">{$adv_search}</span>
 						<span class="submit" style="float:right;">{$form_data_search.submit_search.html}</span>

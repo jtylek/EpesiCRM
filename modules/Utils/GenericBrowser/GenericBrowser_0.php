@@ -755,6 +755,7 @@ class Utils_GenericBrowser extends Module {
 				}
 		} else {
 			$search_fields = array();
+			$search_fields_hidden = '';
 			if ($this->en_actions && $actions_position==0) $mov = 1;
 			else $mov=0;
 			foreach($this->columns as $k=>$v) {
@@ -763,15 +764,21 @@ class Utils_GenericBrowser extends Module {
 					continue;
 				}
 				if (isset($v['search'])) {
-					$this->form_s->addElement('hidden','search__'.$v['search'],'');
-					$default = isset($search[$v['search']])?$search[$v['search']]:'';
-					$this->form_s->setDefaults(array('search__'.$v['search']=>$default));
-					$in = '<input value="'.$default.'" x-webkit-speech="x-webkit-speech" lang="'.Base_LangCommon::get_lang_code().'" name="search__textbox_'.$v['search'].'" placeholder="'.__('search keyword...').'" onblur="document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
-					$search_fields[$k+$mov] = $in;
+					$type = isset($v['search_type']) ? $v['search_type'] : 'text';
+					// quickform element to perform proper export
+					$this->form_s->addElement($type, 'search__' . $v['search'], '');
+					// hidden element to pass data during submit
+					$default = isset($search[$v['search']]) ? $search[$v['search']] : '';
+					$search_fields_hidden .= '<input type="hidden" name="search__' . $v['search'] . '" value="' . $default . '">';
+					$this->form_s->setDefaults(array('search__' . $v['search'] => $default));
+					// outside form input element to update input hidden with value
+					$in_el = $this->form_s->createElement($type, 'search__' . $v['search'], '', ' value="'.$default.'" x-webkit-speech="x-webkit-speech" lang="'.Base_LangCommon::get_lang_code().'" placeholder="'.__('search keyword...').'" onchange="document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}"');
+					$search_fields[$k+$mov] = $in_el->toHtml();
 					$search_on=true;
 				}
 			}
 			$theme->assign('search_fields', $search_fields);
+			$theme->assign('search_fields_hidden', $search_fields_hidden);
 		}
 		if ($search_on) {
 			$this->form_s->addElement('submit','submit_search',__('Search'), array('id'=>'gb_search_button'));
