@@ -72,7 +72,7 @@
                 </div>
                 <div class="panel-body">
                         <div class="login clearfix">{$login}</div>
-                        <div class="search" id="search_box">{$search}</div>
+                        <div class="search" id="search_box" style="margin-bottom: 8px;">{$search}</div>
                         <div class="filter" id="filter_box">{$filter}</div>
                 </div>
             </div>

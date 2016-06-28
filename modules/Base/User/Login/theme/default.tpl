@@ -1,7 +1,7 @@
 {if $is_logged_in}
 	<div>
 		{$logged_as}
-		<button class="btn btn-default pull-right" {$logout_href}>{$logout_label} <i class="glyphicon glyphicon-log-out"></i> </button>
+		<button class="btn btn-warning pull-right" {$logout_href}>{$logout_label} <i class="glyphicon glyphicon-log-out"></i> </button>
 	</div>
 
 {else}
