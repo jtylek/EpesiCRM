@@ -1663,22 +1663,29 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($action=='browse') {
 				return $crits['view']!==null ? true : false;
 			}
-            if (is_bool($callback_ret)) return $callback_ret;
-			$ret = false;
-			$blocked_fields = array();
-			if ($action!='browse' && $action!='clone') {
-				foreach ($crits_raw[$action] as $rule_id=>$c) {
-					if ($record != null && !self::check_record_against_crits($tab, $record, $c))
-						continue;
-					if (!$ret) {
-						$ret = true;
-						$blocked_fields = $fields[$rule_id];
-					} else {
-						foreach ($blocked_fields as $f=>$v)
-							if (!isset($fields[$rule_id][$f])) unset($blocked_fields[$f]);
-					}
-				}
-			}
+            if (is_bool($callback_ret)) {
+                $ret = $callback_ret;
+            } else {
+                $ret = false;
+                $blocked_fields = array();
+                if ($action != 'browse' && $action != 'clone') {
+                    foreach ($crits_raw[$action] as $rule_id => $c) {
+                        if ($record != null && !self::check_record_against_crits($tab, $record, $c)) {
+                            continue;
+                        }
+                        if (!$ret) {
+                            $ret = true;
+                            $blocked_fields = $fields[$rule_id];
+                        } else {
+                            foreach ($blocked_fields as $f => $v) {
+                                if (!isset($fields[$rule_id][$f])) {
+                                    unset($blocked_fields[$f]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         if ($action!=='browse' && $action!=='delete') {
             self::init($tab);
