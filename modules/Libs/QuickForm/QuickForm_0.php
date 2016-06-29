@@ -329,17 +329,17 @@ class Libs_QuickForm extends Module {
 	}
 
 	public function display_as_column() {
-		$t = $this->init_module('Base_Theme');
 		$this->add_error_closing_buttons();
-		$this->assign_theme('form', $t);
-		$t->display('column');
+		$this->accept($renderer = new HTML_QuickForm_Renderer_TCMSArray());
+		$form_data = $renderer->toArray();
+		$this->twig_display('simple_form.twig', ['form' => $form_data, 'inline'=>false]);
 	}
 	
 	public function display_as_row() {
-		$t = $this->init_module('Base_Theme');
 		$this->add_error_closing_buttons();
-		$this->assign_theme('form', $t);
-		$t->display('row');
+		$this->accept($renderer = new HTML_QuickForm_Renderer_TCMSArray());
+		$form_data = $renderer->toArray();
+		$this->twig_display('simple_form.twig', ['form' => $form_data, 'inline'=>true]);
 	}
 	
 	public function set_confirm_leave_page($activate = true, $message = null) {
