@@ -219,17 +219,24 @@ class CRM_ContactsCommon extends ModuleCommon {
     			'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
 
     	//backward compatibility
-    	if (stripos($arg, ':')!== false || is_numeric($arg)) {
-	    	$x = explode(':', $arg);
-	    	if(count($x)==2) {
-	    		list($rset, $id) = $x;
-	    	} else {
-	    		$id = $x[0];
-	    		$rset = 'P';
-	    	}
-	    	$tab = $rset_map[$rset];
-    	}
-    	else list($tab, $id) = explode('/', $arg);
+        $id = null;
+
+        if(!is_array($arg)) {
+            if (stripos($arg, ':') !== false || is_numeric($arg)) {
+                $x = explode(':', $arg);
+                if (count($x) == 2) {
+                    list($rset, $id) = $x;
+                } else {
+                    $rset = 'P';
+                }
+                $tab = $rset_map[$rset];
+            } else {
+                list($tab, $id) = explode('/', $arg);
+            }
+        } else {
+            $id = $arg['id'];
+            $tab = "contact";
+        }
     	
     	if (!$id) return '---';
     	
