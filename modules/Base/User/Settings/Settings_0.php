@@ -52,6 +52,7 @@ class Base_User_Settings extends Module {
             return;
         }
 
+        /** @var Libs_QuickForm $f */
         $f = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'),'settings');
         $f->addElement('header',null,$branch);
         $this->indicator = ': '.$branch;
@@ -79,7 +80,7 @@ class Base_User_Settings extends Module {
             $this->submit_settings($f->exportValues());
             $this->set_back_location();
         } else
-            $f->display();
+            $f->display_as_column();
         return;
     }
 
