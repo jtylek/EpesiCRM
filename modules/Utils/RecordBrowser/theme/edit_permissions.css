@@ -39,10 +39,6 @@ div.crits_callback_info {
 	text-align:left;
 }
 
-div.crits_callback_info p {
-	margin-left: 20px;
-}
-
 div.crits_callback_info .description {
 	color: #585858;
 	font-style: italic;
