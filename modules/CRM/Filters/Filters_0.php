@@ -119,8 +119,9 @@ class CRM_Filters extends Module {
 			$gb_row->add_data($row['name'], $row['description'], implode(', ',$users));
 		}
 
+		print('<div class="panel panel-default"><div class="panel panel-body">');
 		$this->display_module($gb);
-		
+
 		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'default_filter');
 		$qf->addElement('checkbox','show_all_contacts_in_filters',__('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
         $qf->addElement('checkbox','show_only_users_in_filters',__('Show only users in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
@@ -134,7 +135,8 @@ class CRM_Filters extends Module {
 			Base_User_SettingsCommon::save('CRM_Contacts','show_all_contacts_in_filters',$vals['show_all_contacts_in_filters']);
 			Base_User_SettingsCommon::save('CRM_Contacts','show_only_users_in_filters',$vals['show_only_users_in_filters']);
 		}
-		$qf->display();
+		$qf->display_as_column();
+		print('</div></div>');
 	}
 	
 	public function edit_group($id=null) {
