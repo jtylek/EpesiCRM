@@ -1,20 +1,20 @@
-var CRM_RC = {
+var CRM_Mail = {
 msg_num_cache: Array(),
 updating_msg_num: Array(),
 update_msg_num: function(applet_id,accid,cache) {
 	if(!jq('#mailaccount_'+applet_id+'_'+accid).length) return;
-	if(CRM_RC.updating_msg_num[accid] == true) {
-		setTimeout('CRM_RC.update_msg_num('+applet_id+', '+accid+', 1)',1000);
+	if(CRM_Mail.updating_msg_num[accid] == true) {
+		setTimeout('CRM_Mail.update_msg_num('+applet_id+', '+accid+', 1)',1000);
 		return;
 	}
-	if(cache && typeof CRM_RC.msg_num_cache[accid] != 'undefined') {
-		jq('#mailaccount_'+applet_id+'_'+accid).html(CRM_RC.msg_num_cache[accid]);
+	if(cache && typeof CRM_Mail.msg_num_cache[accid] != 'undefined') {
+		jq('#mailaccount_'+applet_id+'_'+accid).html(CRM_Mail.msg_num_cache[accid]);
 	} else {
-		CRM_RC.updating_msg_num[accid] = true;
+		CRM_Mail.updating_msg_num[accid] = true;
 		jq.post('modules/CRM/Roundcube/applet_refresh.php',{acc_id:accid},
             function(data) {
-                CRM_RC.msg_num_cache[accid] = data;
-                CRM_RC.updating_msg_num[accid] = false;
+                CRM_Mail.msg_num_cache[accid] = data;
+                CRM_Mail.updating_msg_num[accid] = false;
                 jq('#mailaccount_'+applet_id+'_'+accid).html(data);
             });
 	}
@@ -51,7 +51,7 @@ edit_form: function() {
 		if(jq('#smtp_auth').val() && jq('#smtp_login').val()=='' && jq('#smtp_pass').val()=='') {
 			jq('#smtp_login').val(jq('#login').val());
 			jq('#smtp_pass').val(jq('#password').val());
-			alert(CRM_RC.filled_smtp_message);
+			alert(CRM_Mail.filled_smtp_message);
 		}
 	});
 },

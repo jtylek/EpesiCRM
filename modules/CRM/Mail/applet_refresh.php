@@ -12,7 +12,7 @@ if (!Acl::is_user()) {
 }
 
 try {
-    $unseen_data = CRM_RoundcubeCommon::get_unread_messages($_POST['acc_id']);
+    $unseen_data = CRM_MailCommon::get_unread_messages($_POST['acc_id']);
     $unseen = array();
     foreach ($unseen_data as $u) {
         $unseen[] = htmlspecialchars($u['from']) . ': <i>' . htmlspecialchars($u['subject']) . '</i>';
