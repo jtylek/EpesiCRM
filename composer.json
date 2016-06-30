@@ -3,7 +3,8 @@
         "pimple/pimple": "^3.0",
         "twig/twig": "^1.24",
         "symfony/console": "^2.7",
-        "symfony/http-foundation": "^2.7"
+        "symfony/http-foundation": "^2.7",
+        "phpdocumentor/reflection-docblock": "^2.0.4"
     },
     "autoload": {
         "psr-4": {"Epesi\\Console\\": "console/"}

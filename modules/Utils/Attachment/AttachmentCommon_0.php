@@ -867,6 +867,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return '';
     }
 
+    /**
+     * Deny access to notes on records where user has no access
+     * 
+     * @param string $action
+	 * @param array $record
+	 * @param string $tab
+     * @return boolean
+     */
     public static function rb_access($action, $record, $tab)
     {
         if ($action == 'view' && isset($record['id']) && $record['id'] > 0) {

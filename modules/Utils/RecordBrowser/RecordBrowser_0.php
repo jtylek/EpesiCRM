@@ -3055,11 +3055,38 @@ class Utils_RecordBrowser extends Module {
 		}
 		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) 
 			Base_ActionBarCommon::add('add',__('Add new rule'), $this->create_callback_href(array($this, 'edit_permissions_rule'), array(null)));
-		if (Utils_RecordBrowserCommon::get_custom_access_callbacks($this->tab))
-			print('<div style="width: 98%;color:red;text-align:left;">* ' . __('The recordset has access crits callbacks active. Final permisions depend on the result of the callbacks.') . '</div>');
 		Base_ThemeCommon::load_css('Utils_RecordBrowser', 'edit_permissions');
+		$this->display_access_callback_descriptions();
 		$this->display_module($gb);
 		eval_js('utils_recordbrowser__crits_initialized = false;');
+	}
+	public function display_access_callback_descriptions() {
+		$callbacks = Utils_RecordBrowserCommon::get_custom_access_callbacks($this->tab);
+	
+		if (!$callbacks) return;
+	
+		$output = '<div class="crits_callback_info"><b>' . __('The recordset has access crits callbacks active. Final permisions depend on the result of the callbacks:') . '</b>';
+		$output .= '<ul>';
+	
+		foreach ($callbacks as $callback) {
+			$output .= '<li><b>' . $callback . '</b>: ';
+				
+			try {
+				list($class_name, $method_name) = explode('::', $callback);
+					
+				$class = new ReflectionClass($class_name);
+				$docblock  = new \phpDocumentor\Reflection\DocBlock($class->getMethod($method_name));
+					
+				$output .= '<span class="description">' . $docblock->getShortDescription() . '<br />' . $docblock->getLongDescription()->getContents() . '</span>';
+			} catch (Exception $e) {
+			}
+				
+			$output .= '</li>';
+		}
+	
+		$output .= '</ul></div>';
+	
+		print($output);
 	}
 	public function delete_permissions_rule($id) {
 		Utils_RecordBrowserCommon::delete_access($this->tab, $id);
