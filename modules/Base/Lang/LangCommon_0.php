@@ -64,7 +64,7 @@ class Base_LangCommon extends ModuleCommon {
 	}
 	
 	public static function print_flag($code, $label, $href='') {
-		$file = 'modules/Base/Lang/theme/flag_'.$code.'.png';
+		$file = 'modules/Base/Lang/theme/flags/'.$code.'.svg';
 		if (!file_exists($file))
 			$file = 'modules/Base/Lang/theme/flag_placeholder.png';
 		print(	'<a '.$href.' class="flag_button">'.
