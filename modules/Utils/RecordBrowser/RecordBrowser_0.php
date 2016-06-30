@@ -3055,6 +3055,8 @@ class Utils_RecordBrowser extends Module {
 		}
 		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) 
 			Base_ActionBarCommon::add('add',__('Add new rule'), $this->create_callback_href(array($this, 'edit_permissions_rule'), array(null)));
+		if (Utils_RecordBrowserCommon::get_custom_access_callbacks($this->tab))
+			print('<div style="width: 98%;color:red;text-align:left;">* ' . __('The recordset has access crits callbacks active. Final permisions depend on the result of the callbacks.') . '</div>');
 		Base_ThemeCommon::load_css('Utils_RecordBrowser', 'edit_permissions');
 		$this->display_module($gb);
 		eval_js('utils_recordbrowser__crits_initialized = false;');
