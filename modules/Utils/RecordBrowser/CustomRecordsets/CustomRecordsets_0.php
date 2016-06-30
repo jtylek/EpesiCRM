@@ -50,7 +50,9 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
             $gbr->add_data("<a $table_href>$table_name</a>", Utils_RecordBrowserCommon::get_caption($t['tab']), str_replace(Utils_RecordBrowser_CustomRecordsetsCommon::$sep, ' -> ', $t['menu']));
         }
         Base_ActionBarCommon::add('new', __('Create new'), $this->create_callback_href(array($this, 'edit_rset')));
+        print('<div class="panel panel-default"><div class="panel-body">');
         $this->display_module($gb);
+        print('</div></div>');
     }
 
     public function manage_recordset($recordset)
