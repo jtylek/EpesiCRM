@@ -9,6 +9,8 @@
                 {{ _self.element(subelement) }}
             {% endfor %}
         </div>
+    {% elseif element.type == 'html' %}
+        <div class="well">{{ element.html | raw }}</div>
     {% else %}
         <div class="form-group">
             <div class="input-group">
