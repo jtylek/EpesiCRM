@@ -149,10 +149,11 @@ class Utils_Wizard extends Module {
 				if($cont)
 					$this->displayed = $cont;
 				ob_start();
-				if(isset($this->renderers[$this->curr_page]))
+				if(isset($this->renderers[$this->curr_page])){
 					$this->renderers[$this->curr_page]->display();
-				else	
-					$this->form[$this->curr_page]->display();
+				} else {
+					$this->form[$this->curr_page]->display_as_column();
+				}
 				$this->displayed .= ob_get_contents();
 				ob_end_clean();
 			}
