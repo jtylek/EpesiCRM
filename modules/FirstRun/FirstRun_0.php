@@ -59,6 +59,7 @@ class FirstRun extends Module {
 		}
         if (empty($post_install) && ModuleManager::is_installed('Base') < 0) {
 
+			/** @var Utils_Wizard $wizard */
 			$wizard = $this->init_module(Utils_Wizard::module_name());
 			/////////////////////////////////////////////////////////////
 			$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
