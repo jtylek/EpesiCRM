@@ -24,8 +24,8 @@
 						>
 						<div class="css3_content_shadow GenericBrowser_letters">
 								{if isset($letter_links)}
-								{foreach key=k item=link from=$letter_links}
-								{$link}
+								{foreach key=k item=letter from=$letter_links}
+									<a class="badge" {$letter.href}>{$letter.label}</a>
 								{/foreach}
 								{/if}
 						</div>
