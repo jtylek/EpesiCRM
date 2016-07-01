@@ -1,39 +1,33 @@
-{{ form.javascript | raw}}
+{% macro element(element) %}
+    {% if element.type == 'hidden' %}
+        {{ element.html | raw }}
+    {% elseif element.type == 'button' or element.type == 'submit' %}
+        <button type="{{ element.type }}" value="{{ element.value }}" name="{{ element.name }}" class="btn btn-default">{{ element.value }}</button>
+    {% else %}
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon">{{ element.label | raw }}{% if element.required %}*{% endif %}</span>
+                <span class="form-control {% if element.frozem %}form-control-static{% endif %}">{{ element.html | raw }}</span>
+            </div>
+            {{ element.error | raw }}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% import _self as macros %}
+
+
+{{ form.javascript | raw }}
 <form {{ form.attributes | raw }} class="{% if inline %}form-inline{% endif %}" style="{% if inline %}margin-bottom: 5px;{% endif %}">
     {% for element in form.elements %}
-        {% if element.type == 'hidden' %}
-            {{ element.html | raw }}
-        {% elseif element.type == 'button' or element.type == 'submit' %}
-            <button type="{{ element.type }}" value="{{ element.value }}" name="{{ element.name }}" class="btn btn-default">{{ element.value }}</button>
-        {% else %}
-            <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon">{{ element.label | raw }}{% if element.required %}*{% endif %}</span>
-                    <span class="form-control {% if element.frozem %}form-control-static{% endif %}">{{ element.html | raw }}</span>
-                </div>
-                {{ element.error | raw }}
-            </div>
-
-        {% endif %}
+        {{ macros.element(element) }}
     {% endfor %}
     {% for section in form.sections %}
         <div class="panel panel-default">
             <div class="panel-heading">{{ section.header }}</div>
             <div class="panel-body">
                 {% for element in section.elements %}
-                    {% if element.type == 'hidden' %}
-                        {{ element.html | raw }}
-                    {% elseif element.type == 'button' or element.type == 'submit' %}
-                        <button type="{{ element.type }}" value="{{ element.value }}" name="{{ element.name }}" class="btn btn-default">{{ element.value }}</button>
-                    {% else %}
-                        <div class="form-group">
-                            <div class="input-group">
-                                <span class="input-group-addon">{{ element.label | raw }}{% if element.required %}*{% endif %}</span>
-                                <span class="form-control {% if element.frozem %}form-control-static{% endif %}">{{ element.html | raw }}</span>
-                            </div>
-                            {{ element.error | raw }}
-                        </div>
-                    {% endif %}
+                    {{ macros.element(element) }}
                 {% endfor %}
             </div>
         </div>
