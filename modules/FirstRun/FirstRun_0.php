@@ -27,7 +27,6 @@ class FirstRun extends Module {
         
 		$th = $this->init_module(Base_Theme::module_name());
 		ob_start();
-		print('<center>');
         $post_install = & $_SESSION['first-run_post-install'];
 		if (!empty($post_install)) {
 			foreach($post_install as $i=>$v) {
@@ -133,7 +132,6 @@ class FirstRun extends Module {
 			/////////////////////////////////////////
 			$this->display_module($wizard, array(array($this,'done')));
 		}
-		print('</center>');
 		$th->assign('wizard',ob_get_clean());
 		$th->display();
 	}
