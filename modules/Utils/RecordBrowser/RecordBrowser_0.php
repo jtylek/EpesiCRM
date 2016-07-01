@@ -3197,6 +3197,7 @@ class Utils_RecordBrowser extends Module {
 		$theme->assign('counts', $counts);
 		
 		$theme->display('edit_permissions');
+		Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 		Base_ActionBarCommon::add('delete', __('Cancel'), $this->create_back_href());
 		return true;
