@@ -23,6 +23,8 @@
                 {% for element in section.elements %}
                     {% if element.type == 'hidden' %}
                         {{ element.html | raw }}
+                    {% elseif element.type == 'button' or element.type == 'submit' %}
+                        <button type="{{ element.type }}" value="{{ element.value }}" name="{{ element.name }}" class="btn btn-default">{{ element.value }}</button>
                     {% else %}
                         <div class="form-group">
                             <div class="input-group">
