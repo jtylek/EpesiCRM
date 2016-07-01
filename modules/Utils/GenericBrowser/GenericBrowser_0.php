@@ -772,7 +772,7 @@ class Utils_GenericBrowser extends Module {
 					$search_fields_hidden .= '<input type="hidden" name="search__' . $v['search'] . '" value="' . $default . '">';
 					$this->form_s->setDefaults(array('search__' . $v['search'] => $default));
 					// outside form input element to update input hidden with value
-					$in_el = $this->form_s->createElement($type, 'search__' . $v['search'], '', ' value="'.$default.'" x-webkit-speech="x-webkit-speech" lang="'.Base_LangCommon::get_lang_code().'" placeholder="'.__('search keyword...').'" onchange="document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}"');
+					$in_el = $this->form_s->createElement($type, 'search__' . $v['search'], '', ' style="width:100%" value="'.$default.'" x-webkit-speech="x-webkit-speech" lang="'.Base_LangCommon::get_lang_code().'" placeholder="'.__('search keyword...').'" onchange="document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}"');
 					$search_fields[$k+$mov] = $in_el->toHtml();
 					$search_on=true;
 				}
