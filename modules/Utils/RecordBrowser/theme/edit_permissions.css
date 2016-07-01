@@ -32,3 +32,14 @@
 .RecordBrowser__edit_permissions .button {
 	margin: 2px;
 }
+
+div.crits_callback_info {
+	width: 98%;
+	color:firebrick;
+	text-align:left;
+}
+
+div.crits_callback_info .description {
+	color: #585858;
+	font-style: italic;
+}
