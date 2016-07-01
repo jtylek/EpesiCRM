@@ -47,7 +47,7 @@ class FirstRun extends Module {
 					$form->process($fs);
 					unset($post_install[$i]);
 				} else {
-					$form->display();
+					$form->display_as_column();
 					break;
 				}
 			}
