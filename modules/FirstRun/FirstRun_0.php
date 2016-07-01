@@ -76,7 +76,7 @@ class FirstRun extends Module {
 					}
 					$f->addElement('radio', 'setup_type', '', $label, $name);
 				}
-				$f->addElement('html','<tr><td colspan=2><br /><strong>If you are not sure which package to choose select CRM Installation.<br>You can customize your installation later.</strong><br><br></td></tr>');
+				$f->addElement('html','<strong>If you are not sure which package to choose select CRM Installation.<br>You can customize your installation later.</strong>');
 				$wizard->next_page();
 			}
 
@@ -105,7 +105,7 @@ class FirstRun extends Module {
 			$f = $wizard->begin_page('simple_mail');
 
 			$f->addElement('header',null, __('Mail settings'));
-			$f->addElement('html','<tr><td colspan=2>'.__('If you are on a hosted server it probably should stay as it is now.').'</td></tr>');
+			$f->addElement('html',__('If you are on a hosted server it probably should stay as it is now.'));
 			$f->addElement('select','mail_method', __('Choose method'), array('smtp'=>__('remote smtp server'), 'mail'=>__('local php.ini settings')));
 			$f->setDefaults(array('mail_method'=>'mail'));
 
@@ -127,7 +127,7 @@ class FirstRun extends Module {
 			////////////////////////////////////////////////////////////
 			$f = $wizard->begin_page('setup_warning');
 			$f->addElement('header', null, __('Warning'));
-			$f->addElement('html','<tr><td colspan=2><br />' . __('Setup will now check for available modules and will install them.') . '<br>' . __('This operation may take several minutes.') . '<br><br></td></tr>');
+			$f->addElement('html',__('Setup will now check for available modules and will install them.') . '<br>' . __('This operation may take several minutes.'));
 			$wizard->next_page();
 
 			/////////////////////////////////////////
