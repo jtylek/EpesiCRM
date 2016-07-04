@@ -71,6 +71,8 @@ class Base_User_Settings extends Module {
                 }    
         }
 
+        Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$f->get_submit_form_js().'}');
+        
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
         Base_ActionBarCommon::add('save', __('Save'), $f->get_submit_form_href());
         Base_ActionBarCommon::add('settings',__('Restore Defaults'),'href="javascript:void(0)" onClick="'.$this->set_default_js.'"');
