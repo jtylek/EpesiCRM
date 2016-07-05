@@ -8,8 +8,8 @@ rename(DATA_DIR.'/CRM_Roundcube/attachments',DATA_DIR.'/CRM_Mail/attachments');
 
 Base_ThemeCommon::install_default_theme('CRM_Mail');
 
-Variable::set('crm_mail_global_signature',Variable::get('crm_roundcube_global_signature',''));
-Variable::delete('crm_roundcube_global_signature');
+Variable::set('crm_mail_global_signature',Variable::get('crm_roundcube_global_signature',false));
+Variable::delete('crm_roundcube_global_signature',false);
 
 Utils_CommonDataCommon::new_array('CRM/Mail/Security', array('tls'=>_M('TLS'),'ssl'=>_M('SSL')),true,true);
 DB::Execute('UPDATE rc_accounts_field SET param=%s WHERE param=%s',array('CRM/Mail/Security','CRM/Roundcube/Security'));

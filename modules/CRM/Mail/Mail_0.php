@@ -266,10 +266,10 @@ class CRM_Mail extends Module {
 			$cell_id = 'mailaccount_'.$opts['id'].'_'.$row['id'];
 
 			//interval execution
-			eval_js_once('setInterval(\'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' , 0)\',200000)');
+			eval_js_once('setInterval(\'CRM_Mail.update_msg_num('.$opts['id'].' ,'.$row['id'].' , 0)\',200000)');
 
 			//and now
-			$update_applet .= 'CRM_RC.update_msg_num('.$opts['id'].' ,'.$row['id'].' ,1);';
+			$update_applet .= 'CRM_Mail.update_msg_num('.$opts['id'].' ,'.$row['id'].' ,1);';
 			print('<li><i><a'.$this->create_callback_href(array($this,'open_mail_client'),$row['id']).'>'.$mail.'</a></i> - <span id="'.$cell_id.'"></span></li>');
 		}
 		print('</ul>');

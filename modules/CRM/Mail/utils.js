@@ -11,7 +11,7 @@ update_msg_num: function(applet_id,accid,cache) {
 		jq('#mailaccount_'+applet_id+'_'+accid).html(CRM_Mail.msg_num_cache[accid]);
 	} else {
 		CRM_Mail.updating_msg_num[accid] = true;
-		jq.post('modules/CRM/Roundcube/applet_refresh.php',{acc_id:accid},
+		jq.post('modules/CRM/Mail/applet_refresh.php',{acc_id:accid},
             function(data) {
                 CRM_Mail.msg_num_cache[accid] = data;
                 CRM_Mail.updating_msg_num[accid] = false;
@@ -25,27 +25,27 @@ edit_form: function() {
 		if(jq('#login').val() == '')
 			jq('login').val(jq('#account_name').val());
 		if(jq('#email').val()=='')
-			jq('#email').val(jq('#account_name').val()); 
+			jq('#email').val(jq('#account_name').val());
 	});
 	jq('#email').on('blur',function() {
 		if(jq('#account_name').val()=='')
-			jq('#account_name').val(jq('#email').val()); 
+			jq('#account_name').val(jq('#email').val());
 		if(jq('#login').val()=='')
-			jq('#login').val(jq('#email').val()); 
+			jq('#login').val(jq('#email').val());
 	});
 	jq('#login').on('blur',function() {
 		if(jq('#account_name').val()=='')
-			jq('#account_name').val(jq('#login').val()); 
+			jq('#account_name').val(jq('#login').val());
 		if(jq('#email').val()=='')
-			jq('#email').val(jq('#login').val()); 
+			jq('#email').val(jq('#login').val());
 	});
 	jq('#server').on('blur',function() {
 		if(jq('#smtp_server').val()=='')
-			jq('#smtp_server').val(jq('#server').val()); 
+			jq('#smtp_server').val(jq('#server').val());
 	});
 	jq('#smtp_server').on('blur',function() {
 		if(jq('#server').val()=='')
-			jq('#server').val(jq('#smtp_server').val()); 
+			jq('#server').val(jq('#smtp_server').val());
 	});
 	jq('#smtp_auth').on('change',function() {
 		if(jq('#smtp_auth').val() && jq('#smtp_login').val()=='' && jq('#smtp_pass').val()=='') {
@@ -62,4 +62,3 @@ edit_form: function() {
         jq('#smtp_security').prop('disabled', disabled);
     }
 };
-
