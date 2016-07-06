@@ -215,8 +215,8 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
 	public static function company_contact_format_default($arg,$nolink=false) {
     	$rset_map = array('C'=>'company', 'P'=>'contact');
-    	$icon = array('company' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
-    			'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
+    	$icon = array('company' => '<i class="fa fa-users"></i>',
+    			'contact' => '<i class="fa fa-person"></i>');
 
     	//backward compatibility
     	if (stripos($arg, ':')!== false || is_numeric($arg)) {
@@ -237,8 +237,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     	$rlabel = array_search($tab, $rset_map);
 
     	$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
-    	$rindicator = isset($icon[$tab]) ?
-    	'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
+    	$rindicator = isset($icon[$tab]) ? $icon[$tab] : "[$indicator_text] ";
     	$val = $rindicator.$val;
     	if ($nolink)
     		return strip_tags($val);
