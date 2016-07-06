@@ -393,7 +393,7 @@ class Base_Dashboard extends Module {
 			return false;
 		}
 		$ok=null;
-		$f->display();
+		$f->display_as_column();
 
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		Base_ActionBarCommon::add('save',__('Save'),$f->get_submit_form_href());
