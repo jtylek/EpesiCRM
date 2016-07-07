@@ -42,6 +42,6 @@ foreach($ext_rec as $k=>$v) {
 }
 
 if (!isset($params['required']) || !$params['required'])
-	$res = array(array('key'=>'','caption'=>'---'))+$res;
+	$res = array_merge(array(array('key'=>'','caption'=>'---')),$res);
 print(json_encode($res));
 ?>
