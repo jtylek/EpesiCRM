@@ -357,8 +357,7 @@ class CRM_MailCommon extends ModuleCommon {
         $contacts = $record['contacts'];
         $subscribers = $employee ? Utils_WatchdogCommon::get_subscribers('contact', $employee) : array();
         foreach ($contacts as $c) {
-            list($rs, $con_id) = explode(':', $c);
-            $rs_full = ($rs == 'P' ? 'contact' : 'company');
+            list($rs_full, $con_id) = CRM_ContactsCommon::decode_record_token($c);
             $subscribers = array_merge($subscribers, Utils_WatchdogCommon::get_subscribers($rs_full, $con_id));
         }
         foreach (array_unique($subscribers) as $user_id) {

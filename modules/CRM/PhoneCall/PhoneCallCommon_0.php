@@ -29,8 +29,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function applet_info_format($r){
 		if (isset($r['customer']) && $r['customer']!='') {
 			$customer = CRM_ContactsCommon::autoselect_company_contact_format($r['customer']);
-			list($rset, $id) = explode(':',$r['customer']);
-			$cus = Utils_RecordBrowserCommon::get_record($rset=='P'?'contact':'company', $id);
+			$cus = CRM_ContactsCommon::get_record($r['customer']);
 			if (isset($r['phone']) && $r['phone']!='') {
 				$num = $r['phone'];
 				switch ($num) {
@@ -127,6 +126,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function QFfield_other_contact(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {
+			// TODO: rewrite to jQuery
 			$js =
 					'Event.observe(\'other_customer\',\'change\', onchange_other_customer);'.
 					'function enable_disable_customer(arg) {'.
@@ -211,11 +211,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if ($record[$desc['id']]=='') return '';
 		$num = $record[$desc['id']];
 		if (!isset($record['customer']) || !$record['customer']) return '---';
-		list($r,$id) = explode(':',$record['customer']);
-		if ($r=='P')
-			$contact = CRM_ContactsCommon::get_contact($id);
-		else
-			$contact = CRM_ContactsCommon::get_company($id);
+		$contact = CRM_ContactsCommon::get_record($record['customer']);
 		$nr = '';
 		switch ($num) {
 			case 1: $id = 'mobile_phone'; 	$nr = 'Mobile Phone'; break;
@@ -351,13 +347,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (!isset($values['other_customer'])) $related[] = $values['customer'];
 			foreach ($related as $v) {
 				if ($mode==='edit' && in_array($v, $old_related)) continue;
-				if (!is_numeric($v)) {
-					list($t, $id) = explode(':', $v);
-				} else {
-					$t = 'P';
-					$id = $v;
-				}
-				if ($t=='P') $t = 'contact'; else $t = 'company';
+				list($t, $id) = CRM_ContactsCommon::decode_record_token($v);
 				$subs = Utils_WatchdogCommon::get_subscribers($t,$id);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'phonecall',$values['id']);
@@ -408,8 +398,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if($a['other_customer'])
 			$contact = $a['other_customer_name'];
 		else {
-			list($r,$id) = explode(':',$a['customer']);
-			if ($r=='P')
+			list($r,$id) = CRM_ContactsCommon::decode_record_token($a['customer']);
+			if ($r=='contact')
 				$contact = CRM_ContactsCommon::contact_format_default($id,true);
 			else {
 				$contact = CRM_ContactsCommon::get_company($id);

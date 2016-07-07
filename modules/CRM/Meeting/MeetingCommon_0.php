@@ -531,14 +531,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			self::subscribed_employees($values);
 			$related = array_merge($values['employees'],$values['customers']);
 			foreach ($related as $v) {
-				if ($mode==='edit' && in_array($v, $old_related)) continue;
-				if (!is_numeric($v)) {
-					list($t, $id) = explode(':', $v);
-				} else {
-					$t = 'P';
-					$id = $v;
-				}
-				if ($t=='P') $t = 'contact'; else $t = 'company';
+				list ($t, $id) = CRM_ContactsCommon::decode_record_token($v);
 				$subs = Utils_WatchdogCommon::get_subscribers($t,$id);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'crm_meeting',$values['id']);

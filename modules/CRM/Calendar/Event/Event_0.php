@@ -117,14 +117,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 		if (isset($ev['customers']) && !empty($ev['customers'])) {
 			foreach ($ev['customers'] as $v) {
-				$det = explode(':', $v);
-				if (isset($det[1])) $v = $det[1];
-				else {
-					$v = $det[0];
-					$det[0] = 'P';
-				}
-				if ($det[0]=='P') {
-					$c = CRM_ContactsCommon::get_contact($v);
+				list ($tab, $rec_id) = CRM_ContactsCommon::decode_record_token($v);
+				if ($tab == 'contact') {
+					$c = CRM_ContactsCommon::get_contact($rec_id);
 					$company_name = isset($c['company_name']) && is_numeric($c['company_name'])
                             ? array(Utils_RecordBrowserCommon::get_value('company', $c['company_name'], 'Company Name'))
                             : '---';
@@ -134,7 +129,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 									'hphone'=>$c['home_phone'],
 									'company_name'=>$company_name);
 				}
-				if ($det[0]=='C') $c = array('company_name'=>array($v));
+				if ($tab == 'company') $c = array('company_name'=>array($rec_id));
 				if (is_array($c['company_name']))
 					foreach ($c['company_name'] as $v2)
 						if (!isset($cus_cmps[$v2]))

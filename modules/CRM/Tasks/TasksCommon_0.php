@@ -253,12 +253,11 @@ class CRM_TasksCommon extends ModuleCommon {
 			foreach ($related as $v) {
 				if ($mode==='edit' && in_array($v, $old_related)) continue;
 				if (!is_numeric($v)) {
-					list($t, $id) = explode(':', $v);
+					list($t, $id) = explode('/', $v);
 				} else {
-					$t = 'P';
+					$t = 'contact';
 					$id = $v;
 				}
-				if ($t=='P') $t = 'contact'; else $t = 'company';
 				$subs = Utils_WatchdogCommon::get_subscribers($t,$id);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'task',$values['id']);
