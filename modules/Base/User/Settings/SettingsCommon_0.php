@@ -55,6 +55,8 @@ class Base_User_SettingsCommon extends ModuleCommon {
 							continue;
 						}
 						foreach ($v as $v2) {
+							$max_len = 64;
+							if(isset($v2['name']) && strlen($v2['name'])>$max_len) throw new Exception("Variable name too long. Max length is $max_len.");
 							if ($v2['type'] == 'group') {
 								foreach ($v2['elems'] as $e) {
 									if ($e['type'] != 'static' && $e['type'] != 'header') {

@@ -68,11 +68,11 @@ class Base_User_Settings extends Module {
                     } else {
                         $this->add_module_settings_to_form($v,$f,$name);
                     }
-                }    
+                }
         }
 
         Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$f->get_submit_form_js().'}');
-        
+
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
         Base_ActionBarCommon::add('save', __('Save'), $f->get_submit_form_href());
         Base_ActionBarCommon::add('settings',__('Restore Defaults'),'href="javascript:void(0)" onClick="'.$this->set_default_js.'"');
@@ -144,6 +144,8 @@ class Base_User_Settings extends Module {
         $defaults = array();
         $admin_settings = $this->get_module_variable('admin_settings');
         foreach($info as $k=>&$v){
+            $max_len = 64;
+            if(isset($v['name']) && strlen($v['name'])>$max_len) throw new Exception("Variable name too long. Max length is $max_len.");
             if($v['type']=='group')
                 foreach($v['elems'] as & $vv)
                     $this->add_elem_to_form($vv,$defaults, $module,$admin_settings);
