@@ -598,6 +598,53 @@ class CRM_MailCommon extends ModuleCommon {
     public static function get_attachment_url($mime_id) {
         return 'get.php?'.http_build_query(array('mail_id'=>'__MAIL_ID__','mime_id'=>$mime_id));
     }
+
+    public static function get_connection($rec) {
+        static $cache = array();
+        if(is_numeric($rec)) {
+            if(isset($cache[$rec])) return $cache[$rec];
+            $rec = Utils_RecordBrowserCommon::get_record('rc_accounts', $rec);
+            if ($rec['epesi_user'] != Acl::get_user()) {
+                throw new Exception('Invalid account id');
+            }
+        } elseif(isset($cache[$rec['id']])) return $cache[$rec['id']];
+
+        $port = $rec['security'] == 'ssl' ? 993 : 143;
+        $server = new \Fetch\Server($rec['server'], $port);
+        $server->setAuthentication($rec['login'], $rec['password']);
+        $server->setFlag('readonly');
+        $server->setFlag('novalidate-cert');
+        if($rec['security']) $server->setFlag($rec['security']);
+
+        @set_time_limit(0);
+        $cache[$rec['id']] = $server;
+        return $server;
+    }
+
+    public static function get_folders($rec) {
+        static $cache = array();
+        $mailbox = self::get_connection($rec);
+        $srvstr = $mailbox->getServerString();
+        if(isset($cache[$srvstr])) return $cache[$srvstr];
+        $folders = $mailbox->listMailBoxes();
+        foreach($folders as &$folder) $folder = mb_convert_encoding(str_replace($mailbox->getServerString(),'',$folder), "UTF-8", "UTF7-IMAP");
+        sort($folders);
+        $cache[$srvstr] = $folders;
+        return $folders;
+    }
+
+    public static function decode_mime_header($header) {
+        $elems = imap_mime_header_decode($header);
+        $ret = '';
+        foreach($elems as $elem) {
+            $ret .= $elem->text;
+        }
+        return $ret;
+    }
+
+    public static function archive($connection,$message_id) {
+
+    }
 }
 
 ?>
