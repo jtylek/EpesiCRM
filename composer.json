@@ -6,6 +6,11 @@
         "symfony/http-foundation": "^2.7",
         "phpdocumentor/reflection-docblock": "^2.0.4"
     },
+    "scripts": {
+        "post-install-cmd": [
+            "@composer -d='modules/CRM/Mail' install"
+        ]
+    },
     "autoload": {
         "psr-4": {"Epesi\\Console\\": "console/"}
     }
