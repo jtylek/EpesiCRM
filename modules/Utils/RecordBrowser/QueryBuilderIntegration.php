@@ -6,10 +6,18 @@ class Utils_RecordBrowser_QueryBuilderIntegration
     protected $tab;
     protected $fields;
 
-    function __construct($tab)
+    function __construct($tab, $limit_access = true)
     {
         $this->tab = $tab;
         $this->fields = Utils_RecordBrowserCommon::init($this->tab);
+        if ($limit_access) {
+            $access = Utils_RecordBrowserCommon::get_access($this->tab, 'view');
+            foreach ($this->fields as $f_key => $f) {
+                if (!isset($access[$f['id']]) || !$access[$f['id']]) {
+                    unset($this->fields[$f_key]);
+                }
+            }
+        }
     }
 
     public function get_builder_module(Module $module, $crits)

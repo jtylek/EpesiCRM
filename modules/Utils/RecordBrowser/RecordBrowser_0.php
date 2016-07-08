@@ -3160,7 +3160,7 @@ class Utils_RecordBrowser extends Module {
 				unset($defaults['field_'.$t['block_field']]);
 			}
 		}
-        $qbi = new Utils_RecordBrowser_QueryBuilderIntegration($this->tab);
+        $qbi = new Utils_RecordBrowser_QueryBuilderIntegration($this->tab, false);
         $qb = $qbi->get_builder_module($this, $crits);
         $qb->add_to_form($form, 'qb_crits', __('Crits'), 'qb_crits_editor');
 
