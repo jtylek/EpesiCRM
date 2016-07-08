@@ -226,7 +226,7 @@ class Libs_QuickForm extends Module {
 					break;
 				case 'crits':
 					$qbi = new Utils_RecordBrowser_QueryBuilderIntegration($v['param']);
-					$default_crits = $v['default'] ?: array();
+					$default_crits = isset($v['default']) ? $v['default'] : array();
 					$qb = $qbi->get_builder_module($this, $default_crits);
 					$qb->add_to_form($this, $v['name'], $v['label'], $v['name'].'_editor');
 					$v['filter'] = array(function($value) use ($qbi) {

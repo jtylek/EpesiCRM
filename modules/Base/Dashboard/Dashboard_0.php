@@ -474,10 +474,12 @@ class Base_Dashboard extends Module {
 				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
 			}
 
-            if ($v['type'] == "crits") {
-                $v['default'] = isset($values[$v['name']]) ? $values[$v['name']] : array();
-            } elseif(isset($v['name'])) {
-				$values2[$v['name']] = $values[$v['name']];
+			if (isset($values[$v['name']])) {
+				if ($v['type'] == "crits") {
+					$v['default'] = $values[$v['name']];
+				} else {
+					$values2[$v['name']] = $values[$v['name']];
+				}
 				unset($values[$v['name']]);
 			}
 		}
