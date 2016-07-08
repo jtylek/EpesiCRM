@@ -1365,8 +1365,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         $me = self::get_my_record();
         $my_contact_id = $me['id'] ? $me['id'] : -1;
         $my_company_id = (isset($me['company_name']) && $me['company_name']) ? $me['company_name'] : -1;
-        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER', __('User Contact'), $my_contact_id);
-        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER_COMPANY', __('User Company'), $my_company_id);
+        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER', __('User Contact'), "contact/$my_contact_id");
+        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER_COMPANY', __('User Company'), "company/$my_company_id");
         return $ret;
     }
 

@@ -264,8 +264,9 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 $arr = array('1'=>__('Yes'),'0'=>__('No'));
                 break;
             case ($args['type']=='select' || $args['type']=='multiselect') && isset($args['ref_table']):
-                if ($args['ref_table']=='contact') $arr = $arr + array('USER'=>__('User Contact'));
-                if ($args['ref_table']=='company') $arr = $arr + array('USER_COMPANY'=>__('User Company'));
+                $ref_tables = explode(',', $args['ref_table']);
+                if (in_array('contact', $ref_tables)) $arr = $arr + array('USER'=>__('User Contact'));
+                if (in_array('company', $ref_tables)) $arr = $arr + array('USER_COMPANY'=>__('User Company'));
                 if ($first_level) {
                     if($args['type']=='multiselect')
                         $arr = $arr + array('ACCESS_VIEW'=>__('Allow view any record'),'ACCESS_VIEW_ALL'=>__('Allow view all records'),'ACCESS_EDIT'=>__('Allow edit any record'),'ACCESS_EDIT_ALL'=>__('Allow edit all records'),'ACCESS_PRINT'=>__('Allow print any record'),'ACCESS_PRINT_ALL'=>__('Allow print all records'),'ACCESS_DELETE'=>__('Allow delete any record'),'ACCESS_DELETE_ALL'=>__('Allow delete all records'));
