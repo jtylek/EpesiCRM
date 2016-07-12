@@ -3160,9 +3160,7 @@ class Utils_RecordBrowser extends Module {
 				unset($defaults['field_'.$t['block_field']]);
 			}
 		}
-        $qbi = new Utils_RecordBrowser_QueryBuilderIntegration($this->tab, false);
-        $qb = $qbi->get_builder_module($this, $crits);
-        $qb->add_to_form($form, 'qb_crits', __('Crits'), 'qb_crits_editor');
+        $form->addElement('crits', 'qb_crits', __('Crits'), $this->tab, $crits);
 
         $form->setDefaults($defaults);
 		
@@ -3174,7 +3172,7 @@ class Utils_RecordBrowser extends Module {
 			for ($i=0; $i<$counts['clearance']; $i++)
 				if ($vals['clearance_'.$i]) $clearance[] = $vals['clearance_'.$i];
 
-            $crits = $qbi->json_to_crits($vals['qb_crits']);
+            $crits = $vals['qb_crits'];
 
 			$blocked_fields = array();
 			foreach ($fields_permissions as $k=>$v) {
