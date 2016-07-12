@@ -84,6 +84,16 @@ class Libs_QuickForm extends Module {
 				if (is_array($args[4])) $args[4]['onkeydown'] = 'typeAhead();';
 				else $args[4] .= ' onkeydown="typeAhead();"';
 			}
+			if ($type == 'crits') {
+				// 0=type, 1=name, 2=label, 3=tab, 4=crits
+				if (isset ($args[3]) && Utils_RecordBrowserCommon::check_table_name($args[3], false, false)) {
+					$tab = $args[3];
+					$qbi = new Utils_RecordBrowser_QueryBuilderIntegration($tab);
+					$default_crits = isset($args[4]) ? $args[4] : array();
+					$qb = $qbi->get_builder_module($this, $default_crits);
+					$qb->add_to_form($this, $args[1], $args[2]);
+				}
+			}
 		}
 		if (is_object($this->qf)) {
 //			if($func_name==='accept') trigger_error(print_r($args,true));
@@ -225,13 +235,8 @@ class Libs_QuickForm extends Module {
 					$this->addGroup($elems,null,$v['label']);
 					break;
 				case 'crits':
-					$qbi = new Utils_RecordBrowser_QueryBuilderIntegration($v['param']);
 					$default_crits = isset($v['default']) ? $v['default'] : array();
-					$qb = $qbi->get_builder_module($this, $default_crits);
-					$qb->add_to_form($this, $v['name'], $v['label'], $v['name'].'_editor');
-					$v['filter'] = array(function($value) use ($qbi) {
-						return $qbi->json_to_crits($value); });
-					unset($v['default']);
+					$this->addElement('crits', $v['name'], $v['label'], $v['param'], $default_crits);
 					break;
 				default:
 					$this->qf->addElement($this->get_element_by_array($v,$default_js));

@@ -11,10 +11,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_QueryBuilder extends Module
 {
-    private $instance_id;
-    private $form_element_id;
-
-    private $editor_element_name;
+    private $element_name;
+    private $element_label;
 
     private $form;
     private $form_initialized = false;
@@ -29,9 +27,6 @@ class Utils_QueryBuilder extends Module
 
     public function construct($form = null, $form_element_id = null)
     {
-        $this->instance_id = 'builder_' . md5($this->get_path());
-        $this->form_element_id = $form_element_id ? $form_element_id : $this->instance_id . '_form';
-
         $this->form = $form;
     }
 
@@ -40,7 +35,6 @@ class Utils_QueryBuilder extends Module
         $this->generate_query_builder();
 
         $theme = $this->pack_module('Base/Theme');
-        $theme->assign('builder_id', $this->instance_id);
         $theme->assign('width', $this->width);
         $theme->assign('form', $this->get_html_of_module($this->form));
         $theme->display();
@@ -51,15 +45,11 @@ class Utils_QueryBuilder extends Module
         $this->width = $width;
     }
 
-    public function add_to_form($form, $form_element_id, $editor_element_label, $editor_element_name)
+    public function add_to_form($form, $element_name, $element_label)
     {
         $this->form = $form;
-        $this->form_element_id = $form_element_id;
-        $this->editor_element_name = $editor_element_name;
-
-        $str = "<div id=\"{$this->instance_id}\"></div>";
-        $this->form->addElement('static', $editor_element_name, $editor_element_label, $str);
-        $this->form->setDefaults(array($editor_element_name => $str));
+        $this->element_name = $element_name;
+        $this->element_label = $element_label;
 
         $this->generate_query_builder();
     }
@@ -78,13 +68,13 @@ class Utils_QueryBuilder extends Module
         $rules_json = $this->rules ? json_encode($this->rules) : json_encode(self::$empty_rules);
         $error_msg = __('Please fix query builder rules');
         $error_msg = json_encode($error_msg);
-        eval_js("Utils_QueryBuilder('{$this->form->get_name()}', '{$this->form_element_id}', '{$this->instance_id}', {$options_json}, {$rules_json}, {$error_msg});");
+        eval_js("Utils_QueryBuilder('{$this->form->get_name()}', '{$this->element_name}', '{$this->element_name}_qb_editor', {$options_json}, {$rules_json}, {$error_msg});");
     }
 
     public function validate()
     {
         if ($this->get_form()->validate()) {
-            return $this->get_form()->exportValue($this->form_element_id);
+            return $this->get_form()->exportValue($this->element_name);
         }
         return false;
     }
@@ -125,32 +115,13 @@ class Utils_QueryBuilder extends Module
             if (!$this->form) {
                 $this->form = $this->init_module('Libs/QuickForm');
             }
-            $this->form->addElement('hidden', $this->form_element_id, '', array('id' => $this->form_element_id));
-            $last_valid_el_id = $this->form_element_id . '_last_valid';
-            $this->form->addElement('hidden', $last_valid_el_id, '', array('id' => $last_valid_el_id));
-            $this->form->addFormRule(array($this, 'check_for_error'));
+            $this->form->addElement('critsvalue', $this->element_name, $this->element_label, array('id' => $this->element_name));
         }
-    }
-
-    public function check_for_error($form_values)
-    {
-        if (isset($form_values[$this->form_element_id])
-            && $form_values[$this->form_element_id] == '{}'
-        ) {
-            $error_element = $this->editor_element_name ?: $this->form_element_id;
-            return array($error_element => __('Please fix query builder rules'));
-        }
-        return array();
     }
 
     public function get_form()
     {
         return $this->form;
-    }
-
-    public function get_form_element_id()
-    {
-        return $this->form_element_id;
     }
 
     public function set_rules($rules)
@@ -181,6 +152,9 @@ class Utils_QueryBuilder extends Module
     protected function load_libs()
     {
         $m = $this->get_module_dir();
+
+        $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['critsvalue'] = array($m . 'quickform_crits.php', 'HTML_QuickForm_crits');
+
         load_css($m . 'bootstrap-compat.css');
         load_css($m . 'query-builder.default.css');
         load_js($m . 'query-builder.standalone.js');
