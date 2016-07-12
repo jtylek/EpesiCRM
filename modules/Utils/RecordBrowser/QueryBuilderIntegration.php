@@ -121,6 +121,32 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             'input' => 'select',
             'values' => Utils_RecordBrowserCommon::$date_values
         );
+        $ret[] = array(
+            'id' => ':Fav',
+            'field' => ':Fav',
+            'label' => __('Favorite'),
+            'type' => 'boolean',
+            'input' => 'select',
+            'values' => array('1' => __('Yes'), '0' => __('No'))
+        );
+        $ret[] = array(
+            'id' => ':Recent',
+            'field' => ':Recent',
+            'label' => __('Recent'),
+            'type' => 'boolean',
+            'input' => 'select',
+            'values' => array('1' => __('Yes'), '0' => __('No'))
+        );
+        if (Utils_WatchdogCommon::get_category_id($this->tab)) {
+            $ret[] = array(
+                'id' => ':Sub',
+                'field' => ':Sub',
+                'label' => __('Subscribed'),
+                'type' => 'boolean',
+                'input' => 'select',
+                'values' => array('1' => __('Yes'), '0' => __('No'))
+            );
+        }
         return $ret;
     }
 
@@ -287,7 +313,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
     }
 
 
-    public function crits_to_json(Utils_RecordBrowser_CritsInterface $crits)
+    public static function crits_to_json(Utils_RecordBrowser_CritsInterface $crits)
     {
         $crits->normalize();
         if ($crits instanceof Utils_RecordBrowser_Crits) {
@@ -297,7 +323,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             $ret = array('condition' => $condition);
             $rules = array();
             foreach ($cc as $c) {
-                $rr = $this->crits_to_json($c);
+                $rr = self::crits_to_json($c);
                 if ($rr) {
                     $rules[] = $rr;
                 }
@@ -320,19 +346,23 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         }
     }
 
-    public function json_to_crits($json)
+    public static function json_to_crits($json)
     {
+        // backward compatibility check
+        if ($json instanceof Utils_RecordBrowser_CritsInterface) {
+            return $json;
+        }
         $array = json_decode($json, true);
-        return $this->array_to_crits($array);
+        return self::array_to_crits($array);
     }
 
-    public function array_to_crits($arr)
+    public static function array_to_crits($arr)
     {
         $ret = null;
         if (isset($arr['condition']) && isset($arr['rules'])) {
             $rules = array();
             foreach ($arr['rules'] as $rule) {
-                $crit = $this->array_to_crits($rule);
+                $crit = self::array_to_crits($rule);
                 if ($crit) {
                     $rules[] = $crit;
                 }
