@@ -80,18 +80,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
     }
 	
-    public static function get_val($tab, $field, $record, $links_not_recommended = false, $args = null) {
+	public static function get_val($tab, $field, $record, $links_not_recommended = false, $desc = null) {
         static $recurrence_call_stack = array();
         self::init($tab);
-        $commondata_sep = '/';
         if (!isset(self::$table_rows[$field])) {
             if (!isset(self::$hash[$field])) trigger_error('Unknown field "'.$field.'" for recordset "'.$tab.'"',E_USER_ERROR);
             $field = self::$hash[$field];
         }
-        if ($args===null) $args = self::$table_rows[$field];
+        if ($desc===null) $desc = self::$table_rows[$field];
         if(!array_key_exists('id',$record)) $record['id'] = null;
-        if (!array_key_exists($args['id'],$record)) trigger_error($args['id'].' - unknown field for record '.serialize($record), E_USER_ERROR);
-        $val = $record[$args['id']];
+        if (!array_key_exists($desc['id'],$record)) trigger_error($desc['id'].' - unknown field for record '.serialize($record), E_USER_ERROR);
+        $val = $record[$desc['id']];
         $function_call_id = implode('|', array($tab, $field, serialize($val)));
         if (isset($recurrence_call_stack[$function_call_id])) {
             return '!! ' . __('recurrence issue') . ' !!';
@@ -99,118 +98,165 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $recurrence_call_stack[$function_call_id] = true;
         }
 		self::display_callback_cache($tab);
-        if (isset(self::$display_callback_table[$tab][$field])) {
-	    $ret = self::call_display_callback(self::$display_callback_table[$tab][$field],$record,$links_not_recommended,self::$table_rows[$field],$tab);
-        } else {
-            $ret = $val;
-            if ($args['type']=='select' || $args['type']=='multiselect') {
-                if ((is_array($val) && empty($val)) || (!is_array($val) && $val=='')) {
-                    $ret = '---';
-                    unset($recurrence_call_stack[$function_call_id]);
-                    return $ret;
-                }
-                $param = explode(';',$args['param']);
-                $pp = explode('::',$param[0]);
-                $tab = $pp[0];
-                if (isset($pp[1])) $col = $pp[1];
-                else $col = null;//return;//trigger_error("\"param\" attribute of field \"$field\" is not valid. Please set <recordset>::<field>");
-                if(!$col && $tab=='__COMMON__') {
-                    unset($recurrence_call_stack[$function_call_id]);
-                    return;
-                }
-                
-                if (!is_array($val)) $val = array($val);
-//              if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_translated_array($col, true);
-
-                if($tab == '__RECORDSETS__') $single_tab = false;
-                else {
-                    $tabs = explode(',',$tab);
-                    $single_tab = count($tabs)==1;
-                }
-
-                $ret = '';
-                $first = true;
-                foreach ($val as $k=>$v){
-//                  if ($tab=='__COMMON__' && !isset($data[$v])) continue;
-                    if ($tab=='__COMMON__') {
-                        $path = explode('/',$v);
-                        $tooltip = '';
-                        $res = '';
-                        if (count($path)>1) {
-                            $res .= Utils_CommonDataCommon::get_value($col.'/'.$path[0],true);
-                            if (count($path)>2) {
-                                $res .= $commondata_sep.'...';
-                                $tooltip = '';
-                                $full_path = $col;
-                                foreach ($path as $w) {
-                                    $full_path .= '/'.$w;
-                                    $tooltip .= ($tooltip?$commondata_sep:'').Utils_CommonDataCommon::get_value($full_path,true);
-                                }
-                            }
-                            $res .= $commondata_sep;
-                        }
-                        $val = Utils_CommonDataCommon::get_value($col.'/'.$v,true);
-						if (!$val) continue;
-                        $res .= $val;
-						if ($first) $first = false;
-						else $ret .= '<br>';
-                        $res = self::no_wrap($res);
-                        if ($tooltip) $res = '<span '.Utils_TooltipCommon::open_tag_attrs($tooltip, false).'>'.$res.'</span>';
-                        $ret .= $res;
-                    } else {
-                        if(!$single_tab) list($tab,$v) = explode('/',$v,2);
-                        if ($first) $first = false;
-                        else $ret .= '<br>';
-                        if($col) {
-                            $columns = explode('|', $col);
-                            $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $columns, $v, $links_not_recommended);
-                        } else {
-                            $ret .= Utils_RecordBrowserCommon::create_default_linked_label($tab, $v, $links_not_recommended);
-                        }
-                    }
-                }
-                if ($ret=='') $ret = '---';
-            } elseif ($args['type']=='commondata') {
-                if (!isset($val) || $val==='') {
-                    $ret = '';
-                } else {
-                    $arr = explode('::',$args['param']['array_id']);
-                    $path = array_shift($arr);
-                    foreach($arr as $v) $path .= '/'.$record[self::get_field_id($v)];
-                    $path .= '/'.$record[$args['id']];
-                    $ret = Utils_CommonDataCommon::get_value($path,true);
-                }
-/*            } elseif ($args['type']=='record') {
-                if (!isset($val) || $val==='') {
-                    $ret = '';
-                } else {
-                    @list($rs,$rid) = explode('#',$record[$args['id']],2);
-                    if(!$rid) $ret = '';
-                    else {
-                        $ret = self::create_default_linked_label($rs,$rid,$links_not_recommended);
-                    }
-                }*/
-            } elseif ($args['type']=='autonumber') {
-                if(!$links_not_recommended && isset($record['id']) && $record['id']) $ret = self::record_link_open_tag_r($tab, $record).$val.self::record_link_close_tag();
-            } elseif ($args['type']=='currency') {
-                $val = Utils_CurrencyFieldCommon::get_values($val);
-                $ret = Utils_CurrencyFieldCommon::format($val[0], $val[1]);
-            } elseif ($args['type']=='checkbox') {
-                $ret = $ret?__('Yes'):__('No');
-            } elseif ($args['type']=='date') {
-                if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, false,true,false);
-            } elseif ($args['type']=='timestamp') {
-                if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, 'without_seconds');
-            } elseif ($args['type']=='time') {
-                if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, 'without_seconds',false);
-            } elseif ($args['type']=='long text') {
-                $ret = htmlspecialchars($val);
-                $ret = str_replace("\n",'<br>',$ret);
-                $ret = Utils_BBCodeCommon::parse($ret);
-            }
-        }
+		if (isset(self::$display_callback_table[$tab][$field])) {
+			$display_callback = self::$display_callback_table[$tab][$field];
+		} else {
+			$display_callback = self::get_default_display_callback($desc['type']);
+		}
+		
+		if (is_callable($display_callback))
+			$ret = self::call_display_callback($display_callback, $record, $links_not_recommended, $desc, $tab);
+	    else 
+	    	$ret = $val;
+        
         unset($recurrence_call_stack[$function_call_id]);
         return $ret;
+    }
+    
+    ////////////////////////////
+    // default display callbacks
+    
+    public static function get_default_display_callback($type) {
+    	$types = array('select', 'multiselect', 'commondata', 'autonumber', 'currency', 'checkbox', 
+    			'date', 'timestamp', 'time', 'long text');
+    	if (array_search($type, $types) !== false) {
+    		return __CLASS__. '::display_' . self::get_field_id($type);
+    	}
+    	return null;
+    }
+    public static function display_select($record, $nolink=false, $desc=null, $tab=null) {
+    	$ret = '---';
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    		$val = $record[$desc['id']];
+    		$commondata_sep = '/';
+    		if ((is_array($val) && empty($val))) return $ret;
+    		
+    		$param = explode(';', $desc['param']);
+    		$reference = explode('::', $param[0]);
+    		$select_tab = $reference[0];
+    		$col = isset($reference[1])? $reference[1]: null;
+    		if(!$col && $select_tab == '__COMMON__') return;
+    		
+    		if (!is_array($val)) $val = array($val);
+    		
+    		if($select_tab == '__RECORDSETS__') 
+    			$single_tab = false;
+    		else {
+    			$select_tabs = explode(',',$select_tab);
+    			$single_tab = count($select_tabs)==1;
+    		}
+    		
+    		$ret = '';
+    		foreach ($val as $v) {
+    			$ret .= ($ret!=='')? '<br>': '';
+    			
+    			if ($select_tab == '__COMMON__') {
+    				$path = explode('/', $v);
+    				$tooltip = '';
+    				$res = '';
+    				if (count($path) > 1) {
+    					$res .= Utils_CommonDataCommon::get_value($col . '/' . $path[0], true);
+    					if (count($path) > 2) {
+    						$res .= $commondata_sep . '...';
+    						$tooltip = '';
+    						$full_path = $col;
+    						foreach ($path as $w) {
+    							$full_path .= '/' . $w;
+    							$tooltip .= ($tooltip? $commondata_sep: '').Utils_CommonDataCommon::get_value($full_path, true);
+    						}
+    					}
+    					$res .= $commondata_sep;
+    				}
+    				$label = Utils_CommonDataCommon::get_value($col . '/' . $v, true);
+    				if (!$label) continue;
+    				$res .= $label;    				
+    				$res = self::no_wrap($res);
+    				if ($tooltip) $res = '<span '.Utils_TooltipCommon::open_tag_attrs($tooltip, false) . '>' . $res . '</span>';
+    			} else {
+    				if(!$single_tab) list($select_tab, $v) = explode('/', $v, 2);
+    				if($col) {
+    					$columns = explode('|', $col);
+    					$res = self::create_linked_label($select_tab, $columns, $v, $nolink);
+    				} else {
+    					$res = self::create_default_linked_label($select_tab, $v, $nolink);
+    				}
+    			}
+    			
+    			$ret .= $res;
+    		}
+    	}
+    	 
+    	return $ret;
+    }
+    public static function display_multiselect($record, $nolink=false, $desc=null, $tab=null) {
+    	return self::display_select($record, $nolink, $desc, $tab);
+    }
+    public static function display_commondata($record, $nolink=false, $desc=null, $tab=null) {
+    	$ret = '';    	
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    		$arr = explode('::', $desc['param']['array_id']);
+    		$path = array_shift($arr);
+    		foreach($arr as $v) $path .= '/' . $record[self::get_field_id($v)];
+    		$path .= '/' . $record[$desc['id']];
+    		$ret = Utils_CommonDataCommon::get_value($path, true);
+    	}
+    	
+    	return $ret;
+    }
+    public static function display_autonumber($record, $nolink=false, $desc=null, $tab=null) {
+    	$ret = '';
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='' && !$nolink && isset($record['id']) && $record['id']) {
+    		$ret = self::record_link_open_tag_r($tab, $record) . $record[$desc['id']] . self::record_link_close_tag();
+    	}
+    	
+    	return $ret;    	
+    }
+    public static function display_currency($record, $nolink=false, $desc=null, $tab=null) {
+    	$ret = '';
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    		$val = Utils_CurrencyFieldCommon::get_values($record[$desc['id']]);
+            $ret = Utils_CurrencyFieldCommon::format($val[0], $val[1]);
+    	}
+    	 
+    	return $ret;
+    }
+    public static function display_checkbox($record, $nolink=false, $desc=null, $tab=null) {
+    	return isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]? __('Yes'): __('No');
+    }
+    public static function display_checkbox_icon($record, $nolink, $desc=null) {
+    	return '<img src="'.Base_ThemeCommon::get_template_file('images', (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]? 'checkbox_on': 'checkbox_off') . '.png') .'">';
+    }
+    public static function display_date($record, $nolink, $desc=null) {
+    	$ret = '';
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    		$ret = Base_RegionalSettingsCommon::time2reg($record[$desc['id']], false, true, false);
+    	}
+    	 
+    	return $ret;
+    }
+    public static function display_timestamp($record, $nolink, $desc=null) {
+    	$ret = '';
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    		$ret = Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds');
+    	}
+    
+    	return $ret;
+    }
+    public static function display_time($record, $nolink, $desc=null) {
+    	$ret = '';
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    		$ret = Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds',false);
+    	}
+    
+    	return $ret;
+    }
+    public static function display_long_text($record, $nolink, $desc=null) {
+    	$ret = '';
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    		$ret = self::format_long_text($record[$desc['id']]);
+    	}
+    
+    	return $ret;
     }
     public static function multiselect_from_common($arrid) {
         return '__COMMON__::'.$arrid;
