@@ -123,6 +123,8 @@ class Utils_RecordBrowser_CritsToWords
                     if (is_numeric($v)) {
                         $value[$k] = Base_UserCommon::get_user_login($v);
                     }
+                } elseif ($field == ':Fav' || $field == ':Sub' || $field == ':Recent') {
+                    $value[$k] = $value[$k] ? __('Yes') : __('No');
                 } elseif ($field_definition) {
                     $vv = explode('::',$v,2);
                     if (!(isset($vv[1]) && is_callable($vv)) && (is_numeric($v) || $field_definition['commondata'] || !isset($field_definition['ref_table']))) {
