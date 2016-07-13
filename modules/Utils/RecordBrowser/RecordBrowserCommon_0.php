@@ -203,10 +203,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	
     	return $ret;
     }
-    public static function display_autonumber($record, $nolink=false, $desc=null, $tab=null) {
+	public static function display_autonumber($record, $nolink=false, $desc=null, $tab=null) {
     	$ret = '';
-    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='' && !$nolink && isset($record['id']) && $record['id']) {
-    		$ret = self::record_link_open_tag_r($tab, $record) . $record[$desc['id']] . self::record_link_close_tag();
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    		$ret = $record[$desc['id']];
+    		
+    		if (!$nolink && isset($record['id']) && $record['id'])
+    			$ret = self::record_link_open_tag_r($tab, $record) . $ret . self::record_link_close_tag();
     	}
     	
     	return $ret;    	
@@ -221,10 +224,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	return $ret;
     }
     public static function display_checkbox($record, $nolink=false, $desc=null, $tab=null) {
-    	return isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]? __('Yes'): __('No');
+    	$ret = '';
+    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    		$ret = $record[$desc['id']]? __('Yes'): __('No');
+    	}
+    	 
+    	return $ret;
     }
-    public static function display_checkbox_icon($record, $nolink, $desc=null) {
-    	return '<img src="'.Base_ThemeCommon::get_template_file('images', (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]? 'checkbox_on': 'checkbox_off') . '.png') .'">';
+	public static function display_checkbox_icon($record, $nolink, $desc=null) {
+		$ret = '';
+		if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+			$ret = '<img src="'.Base_ThemeCommon::get_template_file('images', ($record[$desc['id']]? 'checkbox_on': 'checkbox_off') . '.png') .'">';;
+		}
+		
+		return $ret;
     }
     public static function display_date($record, $nolink, $desc=null) {
     	$ret = '';
