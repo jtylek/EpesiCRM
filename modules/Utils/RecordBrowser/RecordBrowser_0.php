@@ -1621,7 +1621,11 @@ class Utils_RecordBrowser extends Module {
                                     'type'=>$args['type'],
                                     'help' => $help);
                 $ftheme->assign('f', $arr);
-                $arr['full_field'] = $ftheme->get_html('single_field');
+                if (self::$mode == 'history' or self::$mode == 'view') {
+                    $arr['full_field'] = $ftheme->get_html('single_field_view');
+                } else {
+                    $arr['full_field'] = $ftheme->get_html('single_field');
+                }
                     if ($args['type']<>'long text') $fields[$args['id']] = $arr; else $longfields[$args['id']] = $arr;
             }
         }
