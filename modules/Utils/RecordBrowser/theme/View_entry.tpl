@@ -20,6 +20,7 @@
 	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
 	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
 	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
+	$this->_tpl_vars['grid_cols'] = 12 / $this->_tpl_vars['cols'];
 {/php}
 
 {if $main_page}
@@ -60,17 +61,7 @@
 			{/if}
 
 			{/if}
-
-
-			<div class="layer" style="padding: 9px; width: 98%;">
-				<div class="css3_content_shadow">
-
-					<div class="Utils_RecordBrowser__container">
-
-						{* Outside table *}
-						<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-							<tbody>
-							<tr>
+							<div>
 								{assign var=x value=1}
 								{assign var=y value=1}
 								{foreach key=k item=f from=$fields name=fields}
@@ -80,65 +71,43 @@
 										{/if}
 
 										{if $y==1}
-											<td class="column" style="width: {$cols_percent}%;">
-											<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+											<div class="col col-md-{$grid_cols}">
 										{/if}
 										{$f.full_field}
 										{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-											{if $x>$no_empty}
-												<tr style="display:none;">
-													<td class="label">&nbsp;</td>
-													<td class="data">&nbsp;</td>
-												</tr>
-											{/if}
-											{assign var=y value=1}
+													{assign var=y value=1}
 											{assign var=x value=$x+1}
-											</table>
-											</td>
+											</div>
 										{else}
 											{assign var=y value=$y+1}
 										{/if}
 									{/if}
 								{/foreach}
-							</tr>
+							</div>
 							{if !empty($multiselects)}
-								<tr>
+								<div>
 									{assign var=x value=1}
 									{assign var=y value=1}
 									{foreach key=k item=f from=$multiselects name=fields}
 										{if $y==1}
-											<td class="column" style="width: {$cols_percent}%;">
-											<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+											<div class="col col-md-{$grid_cols}">
 										{/if}
 										{$f.full_field}
 										{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-											{if $x>$mss_no_empty}
-												<tr style="display:none;">
-													<td class="label">&nbsp;</td>
-													<td class="data">&nbsp;</td>
-												</tr>
-											{/if}
 											{assign var=y value=1}
 											{assign var=x value=$x+1}
-											</table>
-											</td>
+											</div>
 										{else}
 											{assign var=y value=$y+1}
 										{/if}
 									{/foreach}
-								</tr>
+								</div>
 							{/if}
-							<tr>
-								<td colspan="{$cols}">
-									<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+							<div>
 										{foreach key=k item=f from=$longfields name=fields}
 											{$f.full_field}
 										{/foreach}
-									</table>
-								</td>
-							</tr>
-							</tbody>
-						</table>
+							</div>
 
 						{if $main_page}
 							{php}
@@ -146,10 +115,7 @@
 							{/php}
 						{/if}
 
-					</div>
 
-				</div>
-			</div>
 		</div>
 		{if $main_page}
 			</div></div>
