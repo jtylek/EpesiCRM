@@ -22,7 +22,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			}
 		}
 
-		return '<a class="button" '.self::create_href($name,$function,$mode,$first_day_of_week,$pos_js,$default).'>' . $label . '&nbsp;&nbsp;<img style="vertical-align: middle;" src=' . Base_ThemeCommon::get_template_file('Utils_PopupCalendar', 'select.png').'>' . '</a>';
+		return '<a class="btn btn-default" '.self::create_href($name,$function,$mode,$first_day_of_week,$pos_js,$default).'>' . $label . '&nbsp;<i class="fa fa-calendar" aria-hidden="true"></i>' . '</a>';
 	}
 
 	public static function create_href($name,$function = '',$mode=null,$first_day_of_week=null,$pos_js=null,$default=null,$id=null) {
