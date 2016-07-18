@@ -361,8 +361,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	$array_id = isset($reference[1])? $reference[1]: null;
     	$order = isset($reference[2])? $reference[2]: 'value';
 
-    	if($select_tab == '__RECORDSETS__') {
-    		$select_tabs = $select_tab;
+    	if ($select_tab == '__RECORDSETS__') {
+    		$select_tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
     		$single_tab = false;
     	}
     	else {
@@ -372,7 +372,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	
     	return array(
     			'single_tab'=>$single_tab? $select_tab: false, //returns single tab name, __COMMON__ or false
-    			'select_tabs'=>$select_tabs, //returns __RECORDSETS__ or array of tab names
+    			'select_tabs'=>$select_tabs, //returns array of tab names
     			'cols'=>$cols, // returns array of columns for formatting the display value (used in case RB records select)
     			'array_id'=>$array_id, //returns array_id (used in case __COMMON__)
     			'order'=>$order, //returns order code (used in case __COMMON__)
@@ -414,51 +414,48 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	return array_merge($ret, $adv_params);
     }
     
-    public static function get_select_crits($param, $record) {
+    public static function get_select_tab_crits($param, $record) {
     	$param = self::decode_select_param($param);
     	
-   		$crits = array();
+   		$ret = array();
     	if (is_callable($param['crits_callback']))
-    		$crits = call_user_func($param['crits_callback'], false, $record);
+    		$ret = call_user_func($param['crits_callback'], false, $record);
     	
-    	if($param['select_tabs'] == '__RECORDSETS__') {
-    		$tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
-	   	}
-    	else
-    		$tabs = $param['select_tabs'];    		
+    	$tabs = $param['select_tabs'];    		
 
-    	$crits = !empty($crits)? $crits: array();
-    	if ($param['single_tab']) {
-    		$crits = array($param['single_tab'] => $crits);
+    	$ret = !empty($ret)? $ret: array();
+    	if ($param['single_tab'] && !isset($ret[$param['single_tab']])) {
+    		$ret = array($param['single_tab'] => $ret);
     	}
-    	elseif(is_array($crits) && !array_intersect($tabs, array_keys($crits))) {
+    	elseif(is_array($ret) && !array_intersect($tabs, array_keys($ret))) {
     		$tab_crits = array();
     		foreach($tabs as $tab)
-    			$tab_crits[$tab] = $crits;
+    			$tab_crits[$tab] = $ret;
     			
-    		$crits = $tab_crits;
+    		$ret = $tab_crits;
     	}
 
-    	foreach ($crits as $tab=>$value) {
-    		if (!$tab) {
-    			unset($crits[$tab]);
+    	foreach ($ret as $tab=>$crits) {
+    		if (!$tab || !self::check_table_name($tab, false, false)) {
+    			unset($ret[$tab]);
     			continue;
     		}
     		$access = self::get_access($tab, 'selection', null, true);
-    		if ($access===false) unset($crits[$tab]);
-    		if ($access!==true && is_array($access)) {
-    			if(is_array($crits[$tab]) && $crits[$tab])
-    				$crits[$tab] = self::merge_crits($crits[$tab], $access);
+    		if ($access===false) unset($ret[$tab]);
+    		if ($access===true) continue;
+    		if (is_array($access) || $access instanceof Utils_RecordBrowswer_CritsInterface) {
+    			if((is_array($crits) && $crits) || $crits instanceof Utils_RecordBrowswer_CritsInterface)
+    				$ret[$tab] = self::merge_crits($crits, $access);
     			else
-    				$crits[$tab] = $access;
+    				$ret[$tab] = $access;
     		}
     	}
 
-    	return $crits;
+    	return $ret;
     }
     
     public static function call_select_item_format_callback($callback, $record, $args) {
-//     	$args = array($tab, $crits, $format_callback, $params);
+//     	$args = array($tab, $tab_crits, $format_callback, $params);
 
     	$callback = is_callable($callback)? $callback: array('Utils_RecordBrowserCommon', 'autoselect_label');
     	
@@ -2849,7 +2846,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	    return strcasecmp($aa,$bb);
 	}
 
-    public static function automulti_suggestbox($str, $tab, $crits, $f_callback, $param) {
+    public static function automulti_suggestbox($str, $tab, $tab_crits, $f_callback, $param) {
     	$param = self::decode_select_param($param);
     	
 		$words = array_filter(explode(' ',$str));
@@ -2862,12 +2859,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::$automulti_order_tabs = '/('.implode('|',self::$automulti_order_tabs).')/i';
 
         $tabs = $param['select_tabs'];
-        if($tabs == '__RECORDSETS__') 
-        	$tabs = DB::GetAssoc('SELECT tab,caption FROM recordbrowser_table_properties');
-        else {
-		    foreach($tabs as & $t) $t = DB::qstr($t);
-		    $tabs = DB::GetAssoc('SELECT tab,caption FROM recordbrowser_table_properties WHERE tab IN ('.implode(',',$tabs).')');
-		}
+        foreach($tabs as & $t) $t = DB::qstr($t);
+	    $tabs = DB::GetAssoc('SELECT tab,caption FROM recordbrowser_table_properties WHERE tab IN ('.implode(',',$tabs).')');
+	    
         $single_tab = $param['single_tab'];
 	
 		uasort($tabs,array('Utils_RecordBrowserCommon','automulti_order_by'));
@@ -2876,18 +2870,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         //backward compatibility
         if ($single_tab) {
-        	if (is_array($crits) && !isset($crits[$single_tab])) $crits = array($single_tab=>$crits);
+        	if (is_array($tab_crits) && !isset($tab_crits[$single_tab])) $tab_crits = array($single_tab=>$tab_crits);
         }
         foreach($tabs as $t=>$caption) {
-            if(!empty($crits) && !isset($crits[$t])) continue;
+            if(!empty($tab_crits) && !isset($tab_crits[$t])) continue;
             
-            $access = self::get_access($t, 'selection',null,true);
+            $access = self::get_access($t, 'selection', null, true);
             if ($access===false) continue;
-            if ($access!==true && is_array($access)) {
-                if(isset($crits[$t]) && is_array($crits[$t]) && $crits[$t]) $crits[$t] = self::merge_crits($crits[$t], $access);
-                else $crits[$t] = $access;
+            if ($access!==true && (is_array($access) || $access instanceof Utils_RecordBrowswer_CritsInterface)) {
+            	if((is_array($tab_crits[$t]) && $tab_crits[$t]) || $tab_crits[$t] instanceof Utils_RecordBrowswer_CritsInterface)
+            		$tab_crits[$t] = self::merge_crits($tab_crits[$t], $access);
+                else 
+                	$tab_crits[$t] = $access;
             }
-
+           
             $fields = $param['cols'];
             if(!$fields) $fields = DB::GetCol("SELECT field FROM {$t}_field WHERE active=1 AND visible=1 AND (type NOT IN ('calculated','page_split','hidden') OR (type='calculated' AND param is not null AND param!=''))");
 
@@ -3265,22 +3261,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $comp = $comp + $data;
             $label = Utils_RecordBrowserCommon::get_field_tooltip($label, 'commondata', $param['array_id']);
         } else {
-        	$crits = self::get_select_crits($param, $record);           
+        	$tab_crits = self::get_select_tab_crits($param, $record);           
                 
-        	$tabs = array_keys($crits);
+        	$tabs = array_keys($tab_crits);
 
         	foreach($tabs as $t) {
-                $rec_count += Utils_RecordBrowserCommon::get_records_count($t, $crits[$t]);
+                $rec_count += Utils_RecordBrowserCommon::get_records_count($t, $tab_crits[$t]);
                 
                 if ($rec_count > Utils_RecordBrowserCommon::$options_limit) break;
             }
             if ($rec_count <= Utils_RecordBrowserCommon::$options_limit) {
                 foreach($tabs as $t) {
-                    $records = Utils_RecordBrowserCommon::get_records($t, $crits[$t], array(), $multi_adv_params['order']);
+                    $records = Utils_RecordBrowserCommon::get_records($t, $tab_crits[$t], array(), $multi_adv_params['order']);
                     foreach($records as $key=>$rec) {
                         if(!self::get_access($t,'view',$rec)) continue;
                         $tab_id = ($param['single_tab']?'':$t.'/').$key;
-                        $comp[$tab_id] = self::call_select_item_format_callback($multi_adv_params['format_callback'], $tab_id, array($rb_obj->tab, $crits[$t], $multi_adv_params['format_callback'], $param));
+                        $comp[$tab_id] = self::call_select_item_format_callback($multi_adv_params['format_callback'], $tab_id, array($rb_obj->tab, $tab_crits[$t], $multi_adv_params['format_callback'], $param));
                     }
                 }
             }
@@ -3307,24 +3303,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             		$vals = self::decode_record_token($tab_id, $param['single_tab']);
             		if (!$vals) continue;
             		list($t,$rid) = $vals;
-            		$comp[$tab_id] = self::call_select_item_format_callback($multi_adv_params['format_callback'], $tab_id, array($rb_obj->tab, $crits[$t], $multi_adv_params['format_callback'], $param));
+            		$comp[$tab_id] = self::call_select_item_format_callback($multi_adv_params['format_callback'], $tab_id, array($rb_obj->tab, $tab_crits[$t], $multi_adv_params['format_callback'], $param));
             	}
             }
             if (empty($multi_adv_params['order']))
                 natcasesort($comp);
 
             if($param['single_tab'])
-                $label = self::get_field_tooltip($label, $desc['type'], $param['single_tab'], $crits[$param['single_tab']]);
+                $label = self::get_field_tooltip($label, $desc['type'], $param['single_tab'], $tab_crits[$param['single_tab']]);
         }
         if ($rec_count > Utils_RecordBrowserCommon::$options_limit) {
             if ($desc['type'] == 'multiselect') {
-                $el = $form->addElement('automulti', $field, $label, array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $format_callback, $desc['param']), $format_callback);
+                $el = $form->addElement('automulti', $field, $label, array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $tab_crits, $format_callback, $desc['param']), $format_callback);
                 ${'rp_' . $field} = $rb_obj->init_module(Utils_RecordBrowser_RecordPicker::module_name(), array());
                 $filters_defaults = isset($multi_adv_params['filters_defaults']) ? $multi_adv_params['filters_defaults'] : array();
-                $rb_obj->display_module(${'rp_' . $field}, array($tabs, $field, $format_callback, $param['crits_callback']?:$crits, array(), array(), array(), $filters_defaults));
+                $rb_obj->display_module(${'rp_' . $field}, array($tabs, $field, $format_callback, $param['crits_callback']?:$tab_crits, array(), array(), array(), $filters_defaults));
                 $el->set_search_button('<a ' . ${'rp_' . $field}->create_open_href() . ' ' . Utils_TooltipCommon::open_tag_attrs(__('Advanced Selection')) . ' href="javascript:void(0);"><img border="0" src="' . Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'icon_zoom.png') . '"></a>');
             } else
-                $el = $form->addElement('autoselect', $field, $label, $comp, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $crits, $format_callback, $desc['param'])), $format_callback);
+                $el = $form->addElement('autoselect', $field, $label, $comp, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $tab_crits, $format_callback, $desc['param'])), $format_callback);
         } else {
             if ($desc['type'] === 'select')
                 $comp = array('' => '---') + $comp;
