@@ -16,8 +16,6 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 	public function body($tab, $element, $format=array(), $crits=array(), $cols=array(), $order=array(), $filters=array(), $filters_defaults=array(), $custom_filters=array()) {
 		Module::$disable_confirm_leave = true;
 		
-		$refresh = false;
-		
 		$this->crits_callback = is_callable($crits)? $crits: array();
 		
 		$multi_tab = is_array($tab);		
@@ -42,8 +40,6 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 
 				if ($multi_tab)
 					$this->set_module_variable('tab', $form->exportValue('tab'));
-				
-				$refresh = true;
 			}
 			
 			$chained_vals = $this->get_module_variable($chained_vals_element, '');
@@ -81,8 +77,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 			__('Select'),
 			true);
 		
-		if ($refresh)
-			eval_js('rpicker_leightbox_refresh(\'rpicker_leightbox_'.$this->element .'\');');
+		eval_js('rpicker_leightbox_refresh(\'rpicker_leightbox_'.$this->element .'\');');
 		
 		Module::$disable_confirm_leave = false;
 	}
