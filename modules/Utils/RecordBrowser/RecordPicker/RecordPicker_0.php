@@ -77,8 +77,6 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 			__('Select'),
 			true);
 		
-		eval_js('rpicker_leightbox_refresh(\'rpicker_leightbox_'.$this->element .'\');');
-		
 		Module::$disable_confirm_leave = false;
 	}
 

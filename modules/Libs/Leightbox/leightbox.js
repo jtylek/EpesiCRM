@@ -225,7 +225,15 @@ addLeightboxMarkup();
 getBrowserInfo();
 
 function leightbox_reload() {
-    if(leightbox_is_active) return;
+    if(leightbox_is_active) {
+        var lbs = jq('#leightbox_container .leightbox');
+        if(lbs.length>0) {
+            var id = lbs.attr('id')
+            leightbox_deactivate(id);
+            leightbox_activate(id);
+        }
+        return;
+    }
     $('leightbox_container').innerHTML = '';
     lbox = document.getElementsByClassName('lbOn');
     for(i = 0; i < leightboxes.length; i++)

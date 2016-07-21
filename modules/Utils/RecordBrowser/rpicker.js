@@ -91,7 +91,3 @@ rpicker_chained = function(element) {
 	});
 }
 
-rpicker_leightbox_refresh = function(name) {
-	leightbox_deactivate(name);
-	leightbox_activate(name);
-}
