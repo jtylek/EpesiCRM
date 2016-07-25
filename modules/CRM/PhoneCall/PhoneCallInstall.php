@@ -48,7 +48,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name' => _M('Phone Number'), 		'type'=>'hidden', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_phone_number')),
 
 			array('name' => _M('Customer'), 			'type'=>'crm_company_contact', 'param'=>array('field_type'=>'select'), 'extra'=>false),
-			array('name' => _M('Other Customer'),		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_contact')),
+			array('name' => _M('Other Customer'),		'type'=>'checkbox', 'extra'=>false),
 			array('name' => _M('Other Customer Name'),'type'=>'text', 'param'=>'64', 'extra'=>false),
 
 			array('name' => _M('Permission'), 		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
@@ -58,7 +58,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name' => _M('Priority'), 			'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Priority'), 'extra'=>false),
 
 			array('name' => _M('Phone'), 				'type'=>'integer', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_phone'), 'display_callback'=>array('CRM_PhoneCallCommon','display_phone')),
-			array('name' => _M('Other Phone'),		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_phone')),
+			array('name' => _M('Other Phone'),		'type'=>'checkbox', 'extra'=>false),
 			array('name' => _M('Other Phone Number'),	'type'=>'text', 'param'=>'64', 'extra'=>false),
 			array('name' => _M('Date and Time'),		'type'=>'timestamp', 'required'=>true, 'extra'=>false, 'visible'=>true),			
 
