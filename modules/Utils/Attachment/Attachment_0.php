@@ -147,7 +147,7 @@ class Utils_Attachment extends Module {
 		}
 	}
 
-    public function file_history($attachment) {
+	public function file_history($attachment) {
         if($this->is_back()) {
             $x = ModuleManager::get_instance('/Base_Box|0');
             if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
@@ -156,9 +156,10 @@ class Utils_Attachment extends Module {
 
         Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
+        $file_leightbox_href = array();
         $id = $attachment['id'];
 
-        $tb = & $this->init_module(Utils_TabbedBrowser::module_name());
+        $tb = $this->init_module(Utils_TabbedBrowser::module_name());
         $tb->start_tab('File history');
         $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'hua'.$id);
         $gb->set_inline_display();
@@ -166,7 +167,7 @@ class Utils_Attachment extends Module {
             array('name'=>__('Deleted'), 'order'=>'deleted','width'=>10),
             array('name'=>__('Date'), 'order'=>'upload_on','width'=>25),
             array('name'=>__('Who'), 'order'=>'upload_by','width'=>25),
-            array('name'=>__('Attachment'), 'order'=>'uaf.original')
+            array('name'=>__('File'), 'order'=>'uaf.original')
         ));
         $gb->set_default_order(array(__('Date')=>'DESC'));
 
@@ -181,7 +182,8 @@ class Utils_Attachment extends Module {
             $lb['original'] = $row['original'];
             $lb['id'] = $row['id'];
             $lb['filestorage_id'] = $row['filestorage_id'];
-            $file = '<a '.Utils_AttachmentCommon::get_file_leightbox($lb,$view_link).'>'.$row['original'].'</a>';
+            $file_leightbox_href[$row['id']] = Utils_AttachmentCommon::get_file_leightbox($lb,$view_link);
+            $file = '<a '.$file_leightbox_href[$row['id']].'>'.$row['original'].'</a>';
             $r->add_data($row['deleted']?__('Yes'):__('No'),Base_RegionalSettingsCommon::time2reg($row['upload_on']),Base_UserCommon::get_user_label($row['upload_by']),$file);
         }
         $this->display_module($gb);
@@ -190,6 +192,7 @@ class Utils_Attachment extends Module {
         $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'hda'.$id);
         $gb->set_inline_display();
         $gb->set_table_columns(array(
+        	array('name'=>__('File'), 'order'=>'original','width'=>15),
             array('name'=>__('Create date'), 'order'=>'created_on','width'=>15),
             array('name'=>__('Download date'), 'order'=>'download_on','width'=>15),
             array('name'=>__('Who'), 'order'=>'created_by','width'=>15),
@@ -200,7 +203,7 @@ class Utils_Attachment extends Module {
         ));
         $gb->set_default_order(array(__('Create date')=>'DESC'));
 
-        $query = 'SELECT uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
+        $query = 'SELECT uaf.id,uaf.original,uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
         $query_qty = 'SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
         if(Base_AclCommon::check_permission('Attachments - view full download history'))
             $ret = $gb->query_order_limit($query, $query_qty);
@@ -211,7 +214,11 @@ class Utils_Attachment extends Module {
         }
         while($row = $ret->FetchRow()) {
             $r = $gb->get_new_row();
-            $r->add_data(Base_RegionalSettingsCommon::time2reg($row['created_on']),($row['remote']!=1?Base_RegionalSettingsCommon::time2reg($row['download_on']):''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], ($row['remote']==0?'no':'yes'));
+            if (isset($file_leightbox_href[$row['id']]))
+            	$file = '<a '.$file_leightbox_href[$row['id']].'>'.$row['original'].'</a>';
+            else 
+            	$file = $row['original'];
+            $r->add_data($file,Base_RegionalSettingsCommon::time2reg($row['created_on']),($row['remote']!=1?Base_RegionalSettingsCommon::time2reg($row['download_on']):''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], ($row['remote']==0?'no':'yes'));
         }
         $this->display_module($gb);
         $tb->end_tab();
