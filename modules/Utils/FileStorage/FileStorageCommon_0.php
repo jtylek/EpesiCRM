@@ -100,6 +100,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     }
 
     public static function delete($id) {
+        DB::StartTrans();
         if(!is_numeric($id)) {
             $mid = self::get_storage_id_by_link($id,false);
             DB::Execute('DELETE FROM utils_filestorage_link WHERE link=%s',array($id));
@@ -107,12 +108,13 @@ class Utils_FileStorageCommon extends ModuleCommon {
         }
         if(DB::GetOne('SELECT 1 FROM utils_filestorage_link WHERE storage_id=%d',array($id))) return;
         $meta = self::meta($id);
+        DB::Execute('DELETE FROM utils_filestorage_files WHERE id=%d',array($id));
+        DB::CompleteTrans();
         @unlink($meta['file']);
         for($i=0; $i<=4; $i++) {
             $meta['file'] = dirname($meta['file']);
             if(!@rmdir($meta['file'])) break;
         }
-        DB::Execute('DELETE FROM utils_filestorage_files WHERE id=%d',array($id));
     }
     
     public static function get($id) {
