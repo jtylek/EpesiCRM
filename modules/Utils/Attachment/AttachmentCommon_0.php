@@ -52,13 +52,18 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if(isset($selective) && !empty($selective))
             $ids = array_intersect($ids,$selective);
         foreach($ids as $id) {
+            DB::StartTrans();
             $mids = DB::GetCol('SELECT id FROM utils_attachment_file WHERE attach_id=%d',array($id));
             foreach($mids as $mid) {
-                Utils_FileStorageCommon::delete('attachment_file/'.$mid);
+                // at first we have to delete download as it references to file
                 DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($mid));
+                // then file as it references filestorage id
+                DB::Execute('DELETE FROM utils_attachment_file WHERE id=%d',array($mid));
+                // finally filestorage link
+                Utils_FileStorageCommon::delete('attachment_file/'.$mid);
             }
-            DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
             DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d',array($id));
+            DB::CompleteTrans();
             Utils_RecordBrowserCommon::delete_record('utils_attachment',$id,true);
         }
 	}
