@@ -184,23 +184,14 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 break;
             case 'multiselect':
             case 'select':
-                $param = explode(';', $f['param']);
-                $ref = explode('::', $param[0]);
-
-                $tabs = $ref[0];
-                if ($tabs == '__RECORDSETS__') {
-                    $single_tab = false;
-                } else {
-                    $tabs = explode(',', $tabs);
-                    $single_tab = count($tabs) == 1;
-                }
+                $param = Utils_RecordBrowserCommon::decode_select_param($f['param']);
+                
                 $type = 'boolean';
                 $input = 'select';
                 $values = self::permissions_get_field_values($tab, $f, $in_depth);
-                if ($in_depth && $single_tab) {
-                    $one_tab = reset($tabs);
-                    if (Utils_RecordBrowserCommon::check_table_name($one_tab, false, false)) {
-                        $fields = Utils_RecordBrowserCommon::init($one_tab);
+                if ($in_depth && $param['single_tab']) {
+                    if (Utils_RecordBrowserCommon::check_table_name($param['single_tab'], false, false)) {
+                        $fields = Utils_RecordBrowserCommon::init($param['single_tab']);
                         foreach ($fields as $k => $v) {
                             if ($v['type'] == 'calculated' || $v['type'] == 'hidden') {
                             } else {
