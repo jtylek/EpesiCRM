@@ -160,43 +160,43 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         return $ret;
     }
 
-    public static function map_rb_field_to_query_builder_filters($tab, $f, $in_depth = true, $prefix = '', $sufix = '', $label_prefix = '')
+    public static function map_rb_field_to_query_builder_filters($tab, $desc, $in_depth = true, $prefix = '', $sufix = '', $label_prefix = '')
     {
         $filters = array();
         $type = null;
         $values = null;
         $input = null;
         $opts = array();
-        $opts['id'] = $prefix . $f['id'] . $sufix;
+        $opts['id'] = $prefix . $desc['id'] . $sufix;
         $opts['field'] = $opts['id'];
-        $opts['label'] = $label_prefix . _V($f['name']);
+        $opts['label'] = $label_prefix . _V($desc['name']);
 
-        if ($tab == 'contact' && $f['id'] == 'login' ||
-            $tab == 'rc_accounts' && $f['id'] == 'epesi_user'
+        if ($tab == 'contact' && $desc['id'] == 'login' ||
+            $tab == 'rc_accounts' && $desc['id'] == 'epesi_user'
         ) {
             $type = 'boolean'; // just for valid operators
             $input = 'select';
             $values = array(''=>'['.__('Empty').']', 'USER_ID'=>__('User Login'));
         } else
-        switch ($f['type']) {
+        switch ($desc['type']) {
             case 'text':
                 $type = 'string';
                 break;
             case 'multiselect':
             case 'select':
-                $param = Utils_RecordBrowserCommon::decode_select_param($f['param']);
+                $param = Utils_RecordBrowserCommon::decode_select_param($desc['param']);
                 
                 $type = 'boolean';
                 $input = 'select';
-                $values = self::permissions_get_field_values($tab, $f, $in_depth);
+                $values = self::permissions_get_field_values($tab, $desc, $in_depth);
                 if ($in_depth && $param['single_tab']) {
                     if (Utils_RecordBrowserCommon::check_table_name($param['single_tab'], false, false)) {
                         $fields = Utils_RecordBrowserCommon::init($param['single_tab']);
                         foreach ($fields as $k => $v) {
                             if ($v['type'] == 'calculated' || $v['type'] == 'hidden') {
                             } else {
-                                $new_label_prefix = _V($f['name']) . ' ' .  __('is set to record where') . ' ';
-                                $sub_filter = self::map_rb_field_to_query_builder_filters($tab, $v, false, $f['id'] . '[', ']', $new_label_prefix);
+                                $new_label_prefix = _V($desc['name']) . ' ' .  __('is set to record where') . ' ';
+                                $sub_filter = self::map_rb_field_to_query_builder_filters($tab, $v, false, $desc['id'] . '[', ']', $new_label_prefix);
                                 if ($sub_filter) {
                                     $sub_filter = reset($sub_filter);
                                     $sub_filter['optgroup'] = $new_label_prefix;
@@ -210,10 +210,10 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             case 'commondata':
                 $type = 'boolean';
                 $input = 'select';
-                $array_id = is_array($f['param']) ? $f['param']['array_id'] : $f['ref_table'];
+                $array_id = is_array($desc['param']) ? $desc['param']['array_id'] : $desc['ref_table'];
                 $values = array('' => '['.__('Empty').']');
                 if (strpos($array_id, '::') === false) {
-                    $values = $values + Utils_CommonDataCommon::get_translated_array($array_id, is_array($f['param']) ? $f['param']['order'] : false);
+                    $values = $values + Utils_CommonDataCommon::get_translated_array($array_id, is_array($desc['param']) ? $desc['param']['order'] : false);
                 }
                 break;
             case 'integer':     $type = 'integer'; break;
@@ -231,7 +231,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 $filt2['label'] .= ' (' . __('relative') . ')';
                 $filt2['type'] = 'date';
                 $filt2['input'] = 'select';
-                $filt2['values'] = self::permissions_get_field_values($tab, $f);
+                $filt2['values'] = self::permissions_get_field_values($tab, $desc);
                 $filters[] = $filt2;
                 break;
             case 'time':
@@ -261,39 +261,39 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         return null;
     }
 
-    private static function permissions_get_field_values($tab, $args, $first_level = true) {
+    private static function permissions_get_field_values($tab, $desc, $first_level = true) {
         $arr = array(''=>'['.__('Empty').']');
-        $field = $args['id'];
+        $field = $desc['id'];
         switch (true) {
-            case $args['type']=='text' && $args['filter']:
-                $arr_add = @DB::GetAssoc('SELECT f_'.$args['id'].', f_'.$args['id'].' FROM '.$tab.'_data_1 GROUP BY f_'.$args['id'].' ORDER BY count(*) DESC LIMIT 20');
+            case $desc['type']=='text' && $desc['filter']:
+                $arr_add = @DB::GetAssoc('SELECT f_'.$desc['id'].', f_'.$desc['id'].' FROM '.$tab.'_data_1 GROUP BY f_'.$desc['id'].' ORDER BY count(*) DESC LIMIT 20');
                 if($arr_add) $arr += $arr_add;
                 break;
-            case $args['commondata']:
-                $array_id = is_array($args['param']) ? $args['param']['array_id'] : $args['ref_table'];
+            case $desc['commondata']:
+                $array_id = is_array($desc['param']) ? $desc['param']['array_id'] : $desc['ref_table'];
                 if (strpos($array_id, '::')===false)
-                    $arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, is_array($args['param'])?$args['param']['order']:false);
+                    $arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, is_array($desc['param'])?$desc['param']['order']:false);
                 break;
             case $tab=='contact' && $field=='login' ||
                  $tab=='rc_accounts' && $field=='epesi_user': // just a quickfix, better solution will be needed
                 $arr = $arr + array('USER_ID'=>__('User Login'));
                 break;
-            case $args['type']=='date' || $args['type']=='timestamp':
+            case $desc['type']=='date' || $desc['type']=='timestamp':
                 $arr = $arr + Utils_RecordBrowserCommon::$date_values;
                 break;
-            case ($args['type']=='multiselect' || $args['type']=='select') && (!isset($args['ref_table']) || !$args['ref_table']):
+            case ($desc['type']=='multiselect' || $desc['type']=='select') && (!isset($desc['ref_table']) || !$desc['ref_table']):
                 $arr = $arr + array('USER'=>__('User Contact'));
                 $arr = $arr + array('USER_COMPANY'=>__('User Company'));
                 break;
-            case $args['type']=='checkbox':
+            case $desc['type']=='checkbox':
                 $arr = array('1'=>__('Yes'),'0'=>__('No'));
                 break;
-            case ($args['type']=='select' || $args['type']=='multiselect') && isset($args['ref_table']):
-                $ref_tables = explode(',', $args['ref_table']);
+            case ($desc['type']=='select' || $desc['type']=='multiselect') && isset($desc['ref_table']):
+                $ref_tables = explode(',', $desc['ref_table']);
                 if (in_array('contact', $ref_tables)) $arr = $arr + array('USER'=>__('User Contact'));
                 if (in_array('company', $ref_tables)) $arr = $arr + array('USER_COMPANY'=>__('User Company'));
                 if ($first_level) {
-                    if($args['type']=='multiselect')
+                    if($desc['type']=='multiselect')
                         $arr = $arr + array('ACCESS_VIEW'=>__('Allow view any record'),'ACCESS_VIEW_ALL'=>__('Allow view all records'),'ACCESS_EDIT'=>__('Allow edit any record'),'ACCESS_EDIT_ALL'=>__('Allow edit all records'),'ACCESS_PRINT'=>__('Allow print any record'),'ACCESS_PRINT_ALL'=>__('Allow print all records'),'ACCESS_DELETE'=>__('Allow delete any record'),'ACCESS_DELETE_ALL'=>__('Allow delete all records'));
                     else
                         $arr = $arr + array('ACCESS_VIEW'=>__('Allow view record'),'ACCESS_EDIT'=>__('Allow edit record'),'ACCESS_PRINT'=>__('Allow print record'),'ACCESS_DELETE'=>__('Allow delete record'));
