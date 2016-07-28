@@ -134,6 +134,16 @@ class Utils_QueryBuilder extends Module
         $this->filters = $filters;
     }
 
+	public function add_filter($filter, $position=null)
+    {
+    	$this->filters = is_array($this->filters)? $this->filters: array();
+    	
+    	if (!is_numeric($position) || $position > count($this->filters))
+    		$position = count($this->filters);
+    	
+    	array_splice($this->filters, $position, 0, array($filter));
+    }
+    
     public function set_option($option_name, $value)
     {
         $this->options[$option_name] = $value;
