@@ -1209,11 +1209,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $user = Acl::get_user();
 
 		$for_processing = $values;
-		foreach(self::$table_rows as $field=>$args)
-			if ($args['type']==='multiselect') {
-				if (!isset($for_processing[$args['id']]) || !$for_processing[$args['id']])
-					$for_processing[$args['id']] = array();
-			} elseif (!isset($for_processing[$args['id']])) $for_processing[$args['id']] = '';
+		foreach(self::$table_rows as $field=>$desc)
+			if ($desc['type']==='multiselect') {
+				if (!isset($for_processing[$desc['id']]) || !$for_processing[$desc['id']])
+					$for_processing[$desc['id']] = array();
+			} elseif (!isset($for_processing[$desc['id']])) $for_processing[$desc['id']] = '';
 
 		$values = self::record_processing($tab, $for_processing, 'add');
 		if ($values===false) return;
@@ -1222,19 +1222,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $fields = 'created_on,created_by,active';
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d H:i:s'), $user, 1);
-        foreach(self::$table_rows as $field => $args) {
-            if ($args['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$args['param'])===0) continue; // FIXME move DB definiton to *_field table
-            if (!isset($values[$args['id']]) || $values[$args['id']]==='') continue;
-			if (!is_array($values[$args['id']])) $values[$args['id']] = trim($values[$args['id']]);
-            if ($args['type']=='long text')
-                $values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
-            if ($args['type']=='multiselect' && empty($values[$args['id']])) continue;
-            if ($args['type']=='multiselect')
-                $values[$args['id']] = self::encode_multi($values[$args['id']]);
-            $fields_types .= ','.self::get_sql_type($args['type']);
-            $fields .= ',f_'.$args['id'];
-            if (is_bool($values[$args['id']])) $values[$args['id']] = $values[$args['id']]?1:0;
-            $vals[] = $values[$args['id']];
+        foreach(self::$table_rows as $field => $desc) {
+            if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
+            if (!isset($values[$desc['id']]) || $values[$desc['id']]==='') continue;
+			if (!is_array($values[$desc['id']])) $values[$desc['id']] = trim($values[$desc['id']]);
+            if ($desc['type']=='long text')
+                $values[$desc['id']] = Utils_BBCodeCommon::optimize($values[$desc['id']]);
+            if ($desc['type']=='multiselect' && empty($values[$desc['id']])) continue;
+            if ($desc['type']=='multiselect')
+                $values[$desc['id']] = self::encode_multi($values[$desc['id']]);
+            $fields_types .= ','.self::get_sql_type($desc['type']);
+            $fields .= ',f_'.$desc['id'];
+            if (is_bool($values[$desc['id']])) $values[$desc['id']] = $values[$desc['id']]?1:0;
+            $vals[] = $values[$desc['id']];
         }
         DB::Execute('INSERT INTO '.$tab.'_data_1 ('.$fields.') VALUES ('.$fields_types.')',$vals);
         $id = DB::Insert_ID($tab.'_data_1', 'id');
@@ -1242,16 +1242,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_fav'))
             DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array($user, $id));
 		self::init($tab);
-		foreach(self::$table_rows as $field=>$args) {
-			if ($args['type']==='multiselect') {
-				if (!isset($values[$args['id']])) $values[$args['id']] = array();
-				elseif (!is_array($values[$args['id']]))
-					$values[$args['id']] = self::decode_multi($values[$args['id']]);
+		foreach(self::$table_rows as $field=>$desc) {
+			if ($desc['type']==='multiselect') {
+				if (!isset($values[$desc['id']])) $values[$desc['id']] = array();
+				elseif (!is_array($values[$desc['id']]))
+					$values[$desc['id']] = self::decode_multi($values[$desc['id']]);
 			}
-            if ($args['type'] === 'autonumber') {
-                $autonumber_value = self::format_autonumber_str($args['param'], $id);
-                self::update_record($tab, $id, array($args['id'] => $autonumber_value), false, null, true);
-                $values[$args['id']] = $autonumber_value;
+            if ($desc['type'] === 'autonumber') {
+                $autonumber_value = self::format_autonumber_str($desc['param'], $id);
+                self::update_record($tab, $id, array($desc['id'] => $autonumber_value), false, null, true);
+                $values[$desc['id']] = $autonumber_value;
             }
         }
 		$values['id'] = $id;
@@ -1289,38 +1289,38 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         $diff = array();
         self::init($tab);
-        foreach(self::$table_rows as $field => $args){
-			if ($args['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$args['param'])===0) continue; // FIXME move DB definiton to *_field table
-            if ($args['id']=='id') continue;
-            if (!isset($values[$args['id']])) {
-                if ($all_fields) $values[$args['id']] = '';
+        foreach(self::$table_rows as $field => $desc){
+			if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
+            if ($desc['id']=='id') continue;
+            if (!isset($values[$desc['id']])) {
+                if ($all_fields) $values[$desc['id']] = '';
                 else continue;
             }
-			if ($args['type']=='checkbox') {
-				if ($values[$args['id']]) $values[$args['id']] = 1;
-				else $values[$args['id']] = 0;
-				if ($record[$args['id']]) $record[$args['id']] = 1;
-				else $record[$args['id']] = 0;
+			if ($desc['type']=='checkbox') {
+				if ($values[$desc['id']]) $values[$desc['id']] = 1;
+				else $values[$desc['id']] = 0;
+				if ($record[$desc['id']]) $record[$desc['id']] = 1;
+				else $record[$desc['id']] = 0;
 			}
-            if ($args['type']=='long text')
-                $values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
-            if ($args['type']=='multiselect') {
-                if (!is_array($values[$args['id']])) $values[$args['id']] = array($values[$args['id']]);
-                $array_diff = array_diff($record[$args['id']], $values[$args['id']]);
+            if ($desc['type']=='long text')
+                $values[$desc['id']] = Utils_BBCodeCommon::optimize($values[$desc['id']]);
+            if ($desc['type']=='multiselect') {
+                if (!is_array($values[$desc['id']])) $values[$desc['id']] = array($values[$desc['id']]);
+                $array_diff = array_diff($record[$desc['id']], $values[$desc['id']]);
                 if (empty($array_diff)) {
-                    $array_diff = array_diff($values[$args['id']], $record[$args['id']]);
+                    $array_diff = array_diff($values[$desc['id']], $record[$desc['id']]);
                     if (empty($array_diff)) continue;
                 }
-                $v = self::encode_multi($values[$args['id']]);
-                $old = self::encode_multi($record[$args['id']]);
+                $v = self::encode_multi($values[$desc['id']]);
+                $old = self::encode_multi($record[$desc['id']]);
             } else {
-                if ($record[$args['id']]===$values[$args['id']]) continue;
-                $v = $values[$args['id']];
-                $old = $record[$args['id']];
+                if ($record[$desc['id']]===$values[$desc['id']]) continue;
+                $v = $values[$desc['id']];
+                $old = $record[$desc['id']];
             }
-            if ($v!=='') DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'='.self::get_sql_type($args['type']).' WHERE id=%d',array($v, $id));
-            else DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'=NULL WHERE id=%d',array($id));
-            $diff[$args['id']] = $old;
+            if ($v!=='') DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$desc['id'].'='.self::get_sql_type($desc['type']).' WHERE id=%d',array($v, $id));
+            else DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$desc['id'].'=NULL WHERE id=%d',array($id));
+            $diff[$desc['id']] = $old;
         }
         if(!empty($diff)) {
             @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0 WHERE id=%d',array($id));
@@ -1494,14 +1494,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         ':active'=>$row['active'],
                         'created_by'=>$row['created_by'],
                         'created_on'=>$row['created_on']);
-            foreach(self::$table_rows as $v){
-                if (isset($row['f_'.$v['id']])) {
-                    if ($v['type']=='multiselect') $r[$v['id']] = self::decode_multi($row['f_'.$v['id']]);
-                    elseif ($v['type']=='text') $r[$v['id']] = htmlspecialchars($row['f_'.$v['id']]);
-                    else $r[$v['id']] = $row['f_'.$v['id']];
+            foreach(self::$table_rows as $desc){
+                if (isset($row['f_'.$desc['id']])) {
+                    if ($desc['type']=='multiselect') $r[$desc['id']] = self::decode_multi($row['f_'.$desc['id']]);
+                    elseif ($desc['type']=='text') $r[$desc['id']] = htmlspecialchars($row['f_'.$desc['id']]);
+                    else $r[$desc['id']] = $row['f_'.$desc['id']];
                 } else {
-                    if ($v['type']=='multiselect') $r[$v['id']] = array();
-                    else $r[$v['id']] = '';
+                    if ($desc['type']=='multiselect') $r[$desc['id']] = array();
+                    else $r[$desc['id']] = '';
                 }
             }
             if($admin || self::get_access($tab,'view',$r)) $records[$row['id']] = $r;
@@ -1840,12 +1840,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             self::init($tab);
             if ($ret===false) return false;
             if ($ret===true) $ret = array();
-            foreach (self::$table_rows as $field=>$args)
-                if (!isset($ret[$args['id']])) {
-					if (isset($blocked_fields[$args['id']]))
-						$ret[$args['id']] = false;
+            foreach (self::$table_rows as $field=>$desc)
+                if (!isset($ret[$desc['id']])) {
+					if (isset($blocked_fields[$desc['id']]))
+						$ret[$desc['id']] = false;
 					else
-						$ret[$args['id']] = true;
+						$ret[$desc['id']] = true;
 				}
         }
         return $ret;
@@ -1921,14 +1921,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach(array('created_by','created_on') as $v)
                 $record[$v] = $row[$v];
             $record[':active'] = $row['active'];
-            foreach(self::$table_rows as $field=>$args) {
-                if ($args['type']==='multiselect') {
-                    if (!isset($row['f_'.$args['id']])) $r = array();
-                    else $r = self::decode_multi($row['f_'.$args['id']]);
-                    $record[$args['id']] = $r;
+            foreach(self::$table_rows as $field=>$desc) {
+                if ($desc['type']==='multiselect') {
+                    if (!isset($row['f_'.$desc['id']])) $r = array();
+                    else $r = self::decode_multi($row['f_'.$desc['id']]);
+                    $record[$desc['id']] = $r;
                 } else {
-                    $record[$args['id']] = (isset($row['f_'.$args['id']])?$row['f_'.$args['id']]:'');
-                    if ($htmlspecialchars && $args['type'] == 'text') $record[$args['id']] = htmlspecialchars($record[$args['id']]);
+                    $record[$desc['id']] = (isset($row['f_'.$desc['id']])?$row['f_'.$desc['id']]:'');
+                    if ($htmlspecialchars && $desc['type'] == 'text') $record[$desc['id']] = htmlspecialchars($record[$desc['id']]);
                 }
             }
             return $record;
@@ -2386,9 +2386,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $cols = self::init($tab);
         $access = self::get_access($tab, 'view', $record);
         $data = array();
-        foreach ($cols as $c) {
-            if ($c['tooltip'] && $access[$c['id']]) {
-                $data[_V($c['name'])] = self::get_val($tab, $c['id'], $record, true);
+        foreach ($cols as $desc) {
+            if ($desc['tooltip'] && $access[$desc['id']]) {
+                $data[_V($desc['name'])] = self::get_val($tab, $desc['id'], $record, true);
             }
         }
         return $data;
@@ -2568,11 +2568,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (!$details) continue; // do not generate content when we dont want them
 			self::init($tab);
 			$field = self::$hash[$k];
-			$params = self::$table_rows[$field];
+			$desc = self::$table_rows[$field];
 			$event_display['what'][] = array(
-										_V($params['name']),
-										self::get_val($tab, $field, $r2, true, $params),
-										self::get_val($tab, $field, $r, true, $params)
+										_V($desc['name']),
+										self::get_val($tab, $field, $r2, true, $desc),
+										self::get_val($tab, $field, $r, true, $desc)
 									);
 		}
         if ($modifications_to_show)
@@ -2811,9 +2811,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::init($tab);
         $arg = array_flip($arg);
         $ret = array();
-        foreach (self::$table_rows as $k=>$v) {
-            if ($v['visible'] && !isset($arg[$v['id']])) $ret[$v['id']] = false;
-            elseif (!$v['visible'] && isset($arg[$v['id']])) $ret[$v['id']] = true;
+        foreach (self::$table_rows as $desc) {
+            if ($desc['visible'] && !isset($arg[$desc['id']])) $ret[$desc['id']] = false;
+            elseif (!$desc['visible'] && isset($arg[$desc['id']])) $ret[$desc['id']] = true;
         }
         return $ret;
     }
