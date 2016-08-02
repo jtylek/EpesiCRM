@@ -22,14 +22,21 @@
 				</td>
 			{/if}
     		<td class="filters">
-                {if $filters}
-	                {$filters}
-                {else}
+                {if $filters.controls}
+	                {$filters.controls}
+                {/if}
             </td>
         </tr>
+        {if $filters.elements}
+        <tr>
+            <td colspan="3" class="filters">
+            {$filters.elements}
+            </td>
+        </tr>
+        {/if}
 	</tbody>
 </table>
 </div>
-                {/if}
+                
 
 {$table}

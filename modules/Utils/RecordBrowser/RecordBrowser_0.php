@@ -343,303 +343,15 @@ class Utils_RecordBrowser extends Module {
 
     //////////////////////////////////////////////////////////////////////////////////////////
     public function show_filters($filters_set = array(), $f_id='') {
-        $this->init();
-        if ($this->get_access('browse')===false) {
-            return;
-        }
-        $access = $this->get_access('view');
-        $filters_all = array();
-        foreach ($this->table_rows as $k => $v) {
-            if (isset($access[$v['id']]) && $access[$v['id']]) {
-                if ((!isset($filters_set[$v['id']]) && $v['filter']) || (isset($filters_set[$v['id']]) && $filters_set[$v['id']])) {
-                    $filters_all[] = $k;
-                    if (isset($filters_set[$v['id']])) {
-                        unset($filters_set[$v['id']]);
-                    }
-                }
-            }
-        }
-        if (!$this->data_gb) $this->data_gb = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab);
-        if (empty($filters_all)) {
-            $this->crits = array();
-            return '';
-        } // TODO: move it
-        $form = $this->init_module(Libs_QuickForm::module_name(), null, $this->tab.'filters');
+    	if (!$this->data_gb) $this->data_gb = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab);
+    	
+    	$filter_module = $this->init_module(Utils_RecordBrowser_Filters::module_name(), array($this, $this->filter_crits, $this->custom_filters), $this->tab . 'filters');
+    	
+    	$ret = $filter_module->get_filters_html($this->data_gb->show_all(), $filters_set, $f_id);
 
-//        $form_sub = $form->get_submit_form_js_by_name(array($form->get_name(), $this->data_gb->form_s->get_name()),true,null)."return false;";
-//        $this->data_gb->form_s->updateAttributes(array('onsubmit'=>$form_sub));
-//	      $form->updateAttributes(array('onsubmit'=>$form_sub));
-
-		$empty_defaults = array();
-        $filters = array();
-        foreach ($filters_all as $filter) {
-            $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
-            $field_id = 'filter__'.$filter_id;
-            if (isset($this->custom_filters[$filter_id])) {
-                $f = $this->custom_filters[$filter_id];
-				if ($this->data_gb->show_all()) {
-					if (isset($f['trans'])) {
-						foreach ($f['trans'] as $k=>$v)
-							if (empty($v)) $empty_defaults[$field_id] = $k;
-					}
-				}
-                if (!isset($f['label'])) $f['label'] = $filter;
-                if (!isset($f['args'])) $f['args'] = null;
-                if (!isset($f['args_2'])) $f['args_2'] = null;
-                if (!isset($f['args_3'])) $f['args_3'] = null;
-                $form->addElement($f['type'], $field_id, $f['label'], $f['args'], $f['args_2'], $f['args_3']);
-                $filters[] = $filter_id;
-                continue;
-            }
-            $field_label = _V($this->table_rows[$filter]['name']);
-            $arr = array();
-            $autoselect = false;
-            if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
-				$form->addElement('datepicker', $field_id.'__from', $field_label.' ('.__('From').')', array('label'=>false)); // TRSL
-				$form->addElement('datepicker', $field_id.'__to', $field_label.' ('.__('To').')', array('label'=>false)); // TRSL
-				$filters[] = $filter_id.'__from';
-				$filters[] = $filter_id.'__to';
-				continue;
-            } elseif ($this->table_rows[$filter]['type']=='checkbox') {
-                $arr = array(''=>__('No'), 1=>__('Yes'));
-            } elseif (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
-		    $form->addElement('text', $field_id.'__from', $field_label.' ('.__('From').')', array('label'=>false)); // TRSL
-		    $form->addElement('text', $field_id.'__to', $field_label.' ('.__('To').')', array('label'=>false)); // TRSL
-		    $form->addRule($field_id.'__from',__('Only numbers are allowed.'),'numeric');
-		    $form->addRule($field_id.'__to',__('Only numbers are allowed.'),'numeric');
-		    $filters[] = $filter_id.'__from';
-		    $filters[] = $filter_id.'__to';
-		    if ($this->table_rows[$filter]['type'] == 'currency' || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && $this->table_rows[$filter]['style'] == 'currency')) {
-                        $arr = Utils_CurrencyFieldCommon::get_currencies();
-                        if (count($arr) > 1) {
-                            $arr = array('__NULL__'=>'---')+$arr;
-                            $form->addElement('select', $field_id.'__currency', $field_label.' ('.__('Currency').')', $arr); // TRSL
-                            $filters[] = $filter_id.'__currency';
-                        }
-                    }
-                    continue;
-            } else if ($this->table_rows[$filter]['type'] == 'commondata') {
-					$parts = explode('::', $this->table_rows[$filter]['param']['array_id']);
-					$array_id = array_shift($parts);
-					$arr = Utils_CommonDataCommon::get_translated_array($array_id, $this->table_rows[$filter]['param']['order']);
-					$made_of_parts = false;
-					while (!empty($parts)) {
-						$made_of_parts = true;
-						array_shift($parts);
-						$next_arr = array();
-						foreach ($arr as $k=>$v) {
-							$next = Utils_CommonDataCommon::get_translated_array($array_id.'/'.$k, $this->table_rows[$filter]['param']['order']);
-							foreach ($next as $k2=>$v2)
-								$next_arr[$k.'/'.$k2] = $v.' / '.$v2;
-						}
-						$arr = $next_arr;
-					}
-                    if ($made_of_parts) natcasesort($arr);
-            } else {
-                    $param = explode(';',$this->table_rows[$filter]['param']);
-                    $x = explode('::',$param[0]);
-                    if (!isset($x[1])) continue;
-                    list($tab, $col) = $x;
-                    if ($tab=='__COMMON__') {
-                        $arr = Utils_CommonDataCommon::get_translated_tree($col);
-                    } else {
-                        $col = explode('|',$col);
-                        Utils_RecordBrowserCommon::check_table_name($tab);
-                        foreach ($col as $k=>$v)
-                            $col[$k] = preg_replace('/[^a-z0-9]/','_',strtolower($v));
-                        $crits = array();
-                        if (isset($this->filter_crits[$this->table_rows[$filter]['id']])) {
-                            $crits = $this->filter_crits[$this->table_rows[$filter]['id']];
-                        } else {
-                            if (isset($param[1])) {
-                                $callback = explode('::',$param[1]);
-                                if (is_callable($callback))
-                                    $crits = call_user_func($callback, true);
-                            }
-                            if (!is_array($crits)) {
-                                $crits = array();
-                                if (isset($param[2])) {
-                                    $callback = explode('::',$param[2]);
-                                    if (is_callable($callback))
-                                        $crits = call_user_func($callback, true);
-                                }
-                                if (!is_array($crits)) $crits = array();
-                            }
-                        }
-                        if($tab!='__RECORDSETS__' && !preg_match('/,/',$tab)) {
-                        	$qty = Utils_RecordBrowserCommon::get_records_count($tab,$crits);
-                        	if($qty <= Utils_RecordBrowserCommon::$options_limit) {
-                          		$tpro = DB::GetRow('SELECT description_callback FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
-                            	if ($tpro) {
-                            		$descr = $tpro['description_callback'];
-                            		if($descr) {
-                            			if(preg_match('/::/',$descr)) {
-                            				$descr = explode('::',$descr);
-                            			}
-                            			if(!is_callable($descr))
-                            				$descr = '';
-                            		}
-                            	}
-                             	$ret2 = Utils_RecordBrowserCommon::get_records($tab,$crits);
-                             	foreach ($ret2 as $k=>$v) {
-									if (empty($descr)) {
-	                               		$txt = array();
-	                                	foreach ($col as $kk=>$vv)
-	                                		$txt[] = Utils_RecordBrowserCommon::get_val($tab,$vv,$v,true);
-	                                	$option_label = implode(' ',$txt);
-                                	}
-                                	else {
-                                		$option_label = call_user_func($descr,$v,true);
-                                	}
-                                	$arr[$k] = $option_label;
-                            	}
-                            	natcasesort($arr);
-                            } else {
-                                $arr = array();
-                                $autoselect = true;
-                                $param = array($tab,$crits);
-                            }
-                        } else {
-                            $arr = array();
-                            $autoselect = true;
-                            $param = array($tab,$crits);
-                        }
-                        if ($tab=='contact') $arr = array($this->crm_perspective_default()=>'['.__('Perspective').']')+$arr;
-                    } 
-            }
-            
-            
-            if($autoselect) {
-                $f_callback = array('Utils_RecordBrowserCommon', 'autoselect_label');
-                $arr = array('__NULL__'=>'---')+$arr;
-                $form->addElement('autoselect', $field_id, $field_label, $arr, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array_merge($param,array($f_callback, $this->table_rows[$filter]['param']))), $f_callback);
-                $form->setDefaults(array($field_id=>'__NULL__'));
-            } else {
-                $arr = array('__NULL__'=>'---')+$arr;
-                $form->addElement('select', $field_id, $field_label, $arr); // TRSL
-            }
-
-            $filters[] = $filter_id;
-        }
-        $form->addElement('submit', 'submit', __('Show'));
-
-        $use_saving_filters = Base_User_SettingsCommon::get($this->get_type(), 'save_filters');
-		if ($this->data_gb->show_all()) {
-			$this->set_module_variable('def_filter', $empty_defaults);
-            if ($use_saving_filters) {
-                Base_User_SettingsCommon::save($this->get_type(), $this->tab . '_filters', $empty_defaults);
-            }
-			print('<span style="display:none;">'.microtime(true).'</span>');
-		}
-        $def_filt = $this->get_module_variable('def_filter', array());
-        if ($use_saving_filters) {
-            $saved_filters = Base_User_SettingsCommon::get($this->get_type(), $this->tab . '_filters');
-            if ($saved_filters) {
-                $def_filt = $saved_filters;
-            }
-        }
-
-        $this->crits = array();
-        $filter_crits = array();
-
-        $form->setDefaults($def_filt);
-
-        $external_filters = array();
-
-        $dont_hide = Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),$this->tab.'_show_filters');
-
-        $vals = $form->exportValues();
-
-        $ret = DB::Execute('SELECT * FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($this->tab));
-        while ($row = $ret->FetchRow()) {
-            $m = $this->init_module($row['module']);
-            $this->display_module($m, array(& $form, & $external_filters, & $vals, & $filter_crits, $this), $row['func']);
-        }
-
-        foreach ($filters_all as $filter) {
-            if (in_array(strtolower($filter), $external_filters)) continue;
-            $filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
-            $field_id = 'filter__'.$filter_id;
-            if (isset($this->custom_filters[$filter_id])) {
-                if (!isset($vals['filter__'.$filter_id])) {
-					if ($this->custom_filters[$filter_id]['type']!='autoselect')
-						$vals['filter__'.$filter_id]='__NULL__';
-					else
-						$vals['filter__'.$filter_id]='';
-				}
-                if (isset($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]])) {
-                    foreach($this->custom_filters[$filter_id]['trans'][$vals['filter__'.$filter_id]] as $k=>$v)
-                        $filter_crits[$k] = $v;
-                } elseif (isset($this->custom_filters[$filter_id]['trans_callback'])) {
-                    $new_crits = call_user_func($this->custom_filters[$filter_id]['trans_callback'], $vals['filter__'.$filter_id], $filter_id);
-                    $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
-                }
-            } else {
-                if (in_array($this->table_rows[$filter]['type'], array('currency','float','integer','autonumber')) || ($this->table_rows[$filter]['type'] == 'calculated' && $this->table_rows[$filter]['param'] != '' && in_array($this->table_rows[$filter]['style'], array('currency','float','integer','autonumber')))) {
-                    if (isset($vals[$field_id.'__currency']) && $vals[$field_id.'__currency'] != "__NULL__")
-                        $filter_crits["~$filter_id"] = "%\\_\\_" . $vals[$field_id.'__currency'];
-                    if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'] !== "")
-                        $filter_crits[">=$filter_id"] = floatval($vals[$field_id.'__from']);
-                    if (isset($vals[$field_id.'__to']) && $vals[$field_id.'__to'] !== "")
-                        $filter_crits["<=$filter_id"] = floatval($vals[$field_id.'__to']);
-                    continue;
-                }
-				if ($this->table_rows[$filter]['type']=='timestamp' || $this->table_rows[$filter]['type']=='date') {
-					if (isset($vals[$field_id.'__from']) && $vals[$field_id.'__from'])
-                        $filter_crits['>='.$filter_id] = $vals[$field_id.'__from'].' 00:00:00';
-					if (isset($vals[$field_id.'__to']) && $vals[$field_id.'__to'])
-                        $filter_crits['<='.$filter_id] = $vals[$field_id.'__to'].' 23:59:59';
-					continue;
-				}
-                if (!isset($vals['filter__'.$filter_id]) || ($this->table_rows[$filter]['type']=='select' && $vals['filter__'.$filter_id]==='')) $vals['filter__'.$filter_id]='__NULL__';
-                if ($vals['filter__'.$filter_id]==='__NULL__') continue;
-                if ($this->table_rows[$filter]['type']=='commondata') {
-                    $vals2 = explode('/',$vals['filter__'.$filter_id]);
-                    $param = explode('::',$this->table_rows[$filter]['param']['array_id']);
-                    array_shift($param);
-                    $param[] = $filter_id;
-                    foreach ($vals2 as $v)
-                        $filter_crits[preg_replace('/[^a-z0-9]/','_',strtolower(array_shift($param)))] = $v;
-                } else {
-                    $filter_crits[$filter_id] = $vals['filter__'.$filter_id];
-                }
-            }
-        }
-        $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $filter_crits);
-
-        $this->set_module_variable('crits', $this->crits);
-
-        $filters = array_merge($filters, $external_filters);
-
-        foreach ($filters as $k=>$v)
-            $filters[$k] = 'filter__'.$v;
-
-        foreach ($vals as $k=>$v) {
-            $c = str_replace('filter__','',$k);
-            if (isset($this->custom_filters[$c]) && $this->custom_filters[$c]['type']=='checkbox' && $v==='__NULL__') unset($vals[$k]);
-        }
-        if ($use_saving_filters && isset($vals['submited']) && $vals['submited']) {
-            unset($vals['submited']);
-            unset($vals['submit']);
-            Base_User_SettingsCommon::save($this->get_type(), $this->tab . '_filters', $vals);
-        }
-        $this->set_module_variable('def_filter', $vals);
-        $theme = $this->init_module(Base_Theme::module_name());
-        $form->assign_theme('form',$theme);
-        $theme->assign('filters', $filters);
-		load_js('modules/Utils/RecordBrowser/filters.js');
-        $theme->assign('show_filters', array('attrs'=>'onclick="rb_show_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="show_filter_b_'.$f_id.'"','label'=>__('Show filters')));
-        $theme->assign('hide_filters', array('attrs'=>'onclick="rb_hide_filters(\''.$this->tab.'\',\''.$f_id.'\');" id="hide_filter_b_'.$f_id.'"','label'=>__('Hide filters')));
-        $theme->assign('id', $f_id);
-        if (!$use_saving_filters) {
-            if (!$this->isset_module_variable('filters_defaults')) {
-                $this->set_module_variable('filters_defaults', $this->crits);
-            } elseif ($this->crits != $this->get_module_variable('filters_defaults')) {
-                $theme->assign('dont_hide', true);
-            }
-        }
-        if ($dont_hide) $theme->assign('dont_hide', true);
-        return $this->get_html_of_module($theme, 'Filter', 'display');
+    	$this->crits = $filter_module->get_crits();
+    	
+    	return $ret;
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function navigate($func){
@@ -2730,11 +2442,17 @@ class Utils_RecordBrowser extends Module {
 			$f = array();
 			if(is_array($arg)) {
 				foreach ($arg as $k=>$v) {
-					$f['filter__'.$k] = $v;
+					$f[Utils_RecordBrowser_Filters::get_element_id($k)] = $v;
 				}
 			}
-			$this->set_module_variable('def_filter', $f);
+			$this->set_filters($f);
 		}
+    }
+    public function set_filters($filters){
+    	$this->set_module_variable('def_filter', $filters);
+    }
+    public function get_filters(){
+    	return $this->get_module_variable('def_filter', array());
     }
     public function set_default_order($arg){
         foreach ($arg as $k=>$v)

@@ -397,7 +397,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	return array('tab'=>$tab, 'id'=>$record_id, $tab, $record_id);
     }
     
-    public static function call_select_adv_params_callback($callback, $record) {
+    public static function call_select_adv_params_callback($callback, $record=null) {
     	$ret = array(
     		'order'=>array(),
     		'cols'=>array(),
@@ -414,7 +414,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	return array_merge($ret, $adv_params);
     }
     
-    public static function get_select_tab_crits($param, $record) {
+    public static function get_select_tab_crits($param, $record=null) {
     	$param = self::decode_select_param($param);
     	
    		$ret = array();
@@ -488,7 +488,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_settings[] = array('name'=>'hide_empty','label'=>__('Hide empty fields'),'type'=>'checkbox','default'=>0);
         $final_settings[] = array('name'=>'enable_autocomplete','label'=>__('Enable autocomplete in select/multiselect at'),'type'=>'select','default'=>50, 'values'=>array(0=>__('Always'), 20=>__('%s records', array(20)), 50=>__('%s records', array(50)), 100=>__('%s records', array(100))));
         $final_settings[] = array('name'=>'grid','label'=>__('Grid edit (experimental)'),'type'=>'checkbox','default'=>0);
-        $final_settings[] = array('name'=>'save_filters','label'=>__('Save filters'),'type'=>'checkbox','default'=>0);
         $final_settings[] = array('name'=>'confirm_leave','label'=>__('Confirm before leave edit page'),'type'=>'checkbox','default'=>1);
         $final_settings[] = array('name'=>'header_default_view','label'=>__('Default data view'),'type'=>'header');
         $final_settings = array_merge($final_settings,$settings[0]);
