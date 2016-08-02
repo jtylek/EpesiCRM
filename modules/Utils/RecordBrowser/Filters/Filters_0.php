@@ -11,6 +11,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_Filters extends Module {
+	/** @var Utils_RecordBrowser */
 	private $rb_obj;
 	private $tab;
 	private $filter_field_crits;
@@ -285,7 +286,7 @@ class Utils_RecordBrowser_Filters extends Module {
 		
 			if ($this->set_custom_filter_crits($filter_name, $element_id)) continue;
 			
-			$field_type = self::get_field_type($filter_name);
+			$field_type = $this->get_field_type($filter_name);
 				
 			switch ($field_type) {
 				case 'timestamp':
