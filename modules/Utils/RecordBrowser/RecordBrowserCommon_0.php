@@ -3235,7 +3235,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $param = explode('::', $desc['param']['array_id']);
         foreach ($param as $k => $v)
             if ($k != 0)
-                $param[$k] = preg_replace('/[^a-z0-9]/', '_', strtolower($v));
+                $param[$k] = self::get_field_id($v);
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $desc['param']['array_id']);
         $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => true, 'order' => $desc['param']['order']), array('id' => $field));
         if ($mode !== 'add')
@@ -3253,7 +3253,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $format_callback = $multi_adv_params['format_callback'];
         $rec_count = 0;
         if ($param['single_tab'] == '__COMMON__') {
-        	if (empty($param['cols']))
+        	if (empty($param['array_id']))
         		trigger_error("Commondata array id not set for field: $field", E_USER_ERROR);
             $data = Utils_CommonDataCommon::get_translated_tree($param['array_id'], $param['order']);
             if (!is_array($data))
