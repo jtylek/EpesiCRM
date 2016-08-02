@@ -112,7 +112,7 @@ class Utils_RecordBrowser_Filters extends Module {
 			if ($this->set_custom_filter($filter_name, $element_id)) continue;
 		
 			$filter_label = $this->get_filter_label($filter_name);
-			$field_type = self::get_field_type($filter_name);
+			$field_type = $this->get_field_type($filter_name);
 			$desc = $this->table_rows[$filter_name];
 
 			switch ($field_type) {
