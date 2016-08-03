@@ -229,14 +229,14 @@ class Apps_Shoutbox extends Module {
 		    $e = $qf->addElement('autoselect','shoutbox_to',__('To'), array('all'=>'['.__('All').']')+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
 //		    $e->setAttribute('id','shoutbox_to'.($big?'_big':''));
 		    $e->setAttribute('style','margin-bottom: 15px;');
-		    $e->setAttribute('onChange','shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()');
+		    $e->setAttribute('onChange','shoutbox_uid=this.value;shoutbox_refresh()');
         	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
         	    $qf->freeze(array('shoutbox_to'));
 			//create text box
-			$qf->addElement($big?'textarea':'textarea','post',__('Message'),'class="form-control" id="shoutbox_text'.($big?'_big':'').'"');
+			$qf->addElement('textarea','post',__('Message'),'class="form-control" id="shoutbox_text"');
 			$qf->addRule('post',__('Field required'),'required');
 			//create submit button
-			$qf->addElement('submit','submit_button',__('Send'), 'class="btn btn-primary btn-block" id="shoutbox_button'.($big?'_big':'').'"');
+			$qf->addElement('submit','submit_button',__('Send'), 'class="btn btn-primary btn-block" id="shoutbox_button"');
 			//add it
 			$qf->setRequiredNote(null);
 			$qf->setDefaults(array('shoutbox_to'=>$to));
@@ -263,7 +263,7 @@ class Apps_Shoutbox extends Module {
 				//get logged user id
 				$user_id = Base_AclCommon::get_user();
 				//clear text box and focus it
-				eval_js('$(\'shoutbox_text'.($big?'_big':'').'\').value=\'\';focus_by_id(\'shoutbox_text'.($big?'_big':'').'\');shoutbox_uid="'.$to.'"');
+				eval_js('$(\'shoutbox_text\').value=\'\';focus_by_id(\'shoutbox_text\');shoutbox_uid="'.$to.'"');
 
 				//insert to db
 				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id,to_user_login_id) VALUES(%s,%d,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id,is_numeric($to)?$to:null));
@@ -273,15 +273,15 @@ class Apps_Shoutbox extends Module {
 			return;
 		}
 
-		$theme->assign('board','<div id=\'shoutbox_board'.($big?'_big':'').'\'></div>');
+		$theme->assign('board',$big?'<div style=\'height: 500px\' id=\'shoutbox_board\'></div>':'<div id=\'shoutbox_board\'></div>');
 		$theme->assign('header', __('Shoutbox'));
-   		$theme->display('chat_form'.($big?'_big':''));
+   		$theme->display('chat_form');
 
 		//if shoutbox is diplayed, call myFunctions->refresh from refresh.php file every 5s
-		eval_js_once('shoutbox_refresh'.($big?'_big':'').' = function(){if(!$(\'shoutbox_board'.($big?'_big':'').'\')) return;'.
-			'new Ajax.Updater(\'shoutbox_board'.($big?'_big':'').'\',\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\', parameters: { uid: shoutbox_uid }});'.
-			'};setInterval(\'shoutbox_refresh'.($big?'_big':'').'()\','.($big?'10000':'30000').')');
-		eval_js('shoutbox_refresh'.($big?'_big':'').'()');
+		eval_js_once('shoutbox_refresh = function(){if(!$(\'shoutbox_board\')) return;'.
+			'new Ajax.Updater(\'shoutbox_board\',\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\', parameters: { uid: shoutbox_uid }});'.
+			'};setInterval(\'shoutbox_refresh()\',10000)');
+		eval_js('shoutbox_refresh()');
 	}
 
 	public function caption() {
