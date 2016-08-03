@@ -10,17 +10,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_LeightboxPrompt extends Module {
-    private $params = array();
+    private $params_list = array();
     private $options = array();
     private $group = null;
     private $leightbox_ready = false;
     private $last_location = null;
-    private $option_chosen = null;
-
-    public function option_chosen($arg) {
-        $this->option_chosen = $arg;
-        return false;
-    }
 
     public function construct() {
         $this->group = md5($this->get_path());
@@ -36,95 +30,117 @@ class Utils_LeightboxPrompt extends Module {
         if (isset($form) && $form->exportValue('submited') && !$form->validate()) $this->open();
     }
 
-    public function body($header='', $params = array(), $add_disp='', $big=true) {
+    public function body($header='', $params_list = array(), $additional_info='', $big=true) {
         if (MOBILE_DEVICE) return;
         if (isset($_REQUEST['__location']) && $this->last_location!=$_REQUEST['__location']) {
             $this->last_location = $_REQUEST['__location'];
             $this->leightbox_ready = false;
         }
         if (!$this->leightbox_ready) {
-            if (!empty($params)) {
-                $this->params = $params;
-                $js = 'f'.$this->group.'_set_params = function(arg'.implode(',arg',array_keys($params)).'){';
-                foreach ($params as $k=>$v) {
-                    $js .= 'els=document.getElementsByName(\''.$this->group.'_'.$v.'\');';
-                    $js .= 'i=0;while(i<els.length){els[i].value=arg'.$k.';i++;}';
-                }
-                $js .= '}';
-                eval_js($js);
-            }
-
             $this->leightbox_ready = true;
+            
+            $this->params_list = $params_list;
 
-            eval_js_once('f'.$this->group.'_prompt_deactivate = function(){leightbox_deactivate(\''.$this->group.'_prompt_leightbox\');}');
-            eval_js_once('f'.$this->group.'_show_form = function(arg){$(arg+\'_'.$this->group.'_form_section\').style.display=\'block\';$(\''.$this->group.'_buttons_section\').style.display=\'none\';}');
-            eval_js('$(\''.$this->group.'_buttons_section\').style.display=\''.(count($this->options)==1?'none':'block').'\';');
-
+            $active_option = $single_option = $this->get_single_option();
+            
             $buttons = array();
             $sections = array();
-            foreach ($this->options as $k=>$v) {
-                $next_button = array('icon'=>$v['icon'], 'label'=>$v['label']);
-                if ($v['form']!==null) $form = $v['form'];
-                else $form = $this->options[$k]['form'] = $this->init_module(Libs_QuickForm::module_name());
-                if (!empty($params)) {
-                    foreach ($params as $w)
-                        $form->addElement('hidden', $this->group.'_'.$w, 'none', array('id'=>$this->group.'_'.$w));
+            foreach ($this->options as $option_key=>$option) {
+                $next_button = array('icon'=>$option['icon'], 'label'=>$option['label']);
+                if ($option['form']!==null) $form = $option['form'];
+                else $form = $this->options[$option_key]['form'] = $this->init_module(Libs_QuickForm::module_name());
+                if (!empty($params_list)) {
+                    foreach ($params_list as $param_key)
+                        $form->addElement('hidden', $this->group.'_'.$param_key, 'none');
                 }
-                if ($v['form']!==null) {
-                    $v['form']->addElement('button', 'cancel', __('Cancel'), array('id'=>$this->group.'_lp_cancel', 'onclick'=>count($this->options)==1?'f'.$this->group.'_prompt_deactivate();':'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
-                    $v['form']->addElement('submit', 'submit', __('OK'), array('id'=>$this->group.'_lp_submit', 'onclick'=>'f'.$this->group.'_prompt_deactivate();'));
+                if ($option['form']!==null) {
+                    $option['form']->addElement('button', 'cancel', __('Cancel'), array('id'=>$this->group.'_lp_cancel', 'onclick'=>$this->get_close_leightbox_href_js(!$single_option)));
+                    $option['form']->addElement('submit', 'submit', __('OK'), array('id'=>$this->group.'_lp_submit', 'onclick'=>$this->get_close_leightbox_href_js()));
                     ob_start();
                     $th = $this->init_module(Base_Theme::module_name());
-                    $v['form']->assign_theme('form', $th);
+                    $option['form']->assign_theme('form', $th);
                     $th->assign('id', $this->get_instance_id());
                     $th->display('form');
                     $form_contents = ob_get_clean();
-                    $next_button['open'] = '<a href="javascript:void(0);" onclick="f'.$this->group.'_show_form(\''.$k.'\');">';
-                    $sections[] = '<div id="'.$k.'_'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>';
-                    eval_js('$(\''.$k.'_'.$this->group.'_form_section\').style.display=\''.(count($this->options)!=1?'none':'block').'\';');
-                	
-                    if ($v['form']->exportValue('submited') && !$v['form']->validate()) {
-						// open this selection
-						eval_js('f' . $this->get_group_key() . "_show_form('$k')");
-					}
+                    $next_button['open'] = '<a ' . $this->get_form_show_href($option_key) .'>';
+                    $sections[] = '<div id="'.$this->group.'_'.$option_key.'_form_section" class="'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>';
+                    
+                    if ($option['form']->exportValue('submited') && !$option['form']->validate())						
+						$active_option = $option_key; // open this selection if form submitted but not valid
+                    
                 } else {
-//                  $next_button['open'] = '<a '.$this->create_callback_href(array($this,'option_chosen'), array($k)).' onmouseup="f'.$this->group.'_prompt_deactivate();">';
-                    $next_button['open'] = '<a href="javascript:void(0);" onmouseup="f'.$this->group.'_prompt_deactivate();'.$form->get_submit_form_js().';">';
+                    $next_button['open'] = '<a href="javascript:void(0);" onmouseup="' . $this->get_close_leightbox_href_js() . $form->get_submit_form_js() . ';">';
                     $form->display();
                 }
                 $next_button['close'] = '</a>';
                 $buttons[] = $next_button;
             }
-
+            
+            $active_option = $active_option?: '';
+			
+            load_js($this->get_module_dir() . 'js/leightbox_prompt.js');
+            load_js($this->get_module_dir() . 'js/jquery-deparam.js');
+            eval_js('Utils_LeightboxPrompt.init("' . $this->group . '", "' . $active_option . '");');           
+            
             $theme = $this->init_module(Base_Theme::module_name());
 
             $theme->assign('open_buttons_section','<div id="'.$this->group.'_buttons_section">');
             $theme->assign('buttons',$buttons);
             $theme->assign('sections',$sections);
-            $theme->assign('additional_info',$add_disp);
+            $theme->assign('additional_info',$additional_info);
             $theme->assign('close_buttons_section','</div>');
 
             ob_start();
             $theme->display('leightbox');
-            $profiles_out = ob_get_clean();
+            $profiles_out = ob_get_clean();            
+
             Libs_LeightboxCommon::display($this->group.'_prompt_leightbox', $profiles_out, $header, $big);
         }
     }
+    
+    private function get_single_option() {
+    	if (count($this->options) == 1) {    	
+	    	$option_keys = array_keys($this->options);
+	    	
+	    	return reset($option_keys);	    	
+	    }
+    	return false;
+    }
+    
+    private function get_form_show_href($option_key) {
+    	return 'href="javascript:void(0);" onclick="'.$this->get_form_show_href_js($option_key).'"';
+    }
+    
+    private function get_form_show_href_js($option_key) {
+    	return 'Utils_LeightboxPrompt.show_form(\''.$this->group.'\', \''.$option_key.'\');';
+    }
+    
+    private function get_params($params) {
+    	if (empty($params)) return array();
+    	
+    	$ret = $params;
+    	if (count($this->params_list) != count(array_intersect($this->params_list, array_keys($params)))) {
+    		$ret = array_combine($this->params_list, $params);
+    	}
+
+    	return $ret;
+    }
 
     public function get_href($params=array()) {
-		return Utils_LeightboxPromptCommon::get_href($this->group, $params);
+		return Utils_LeightboxPromptCommon::get_href($this->group, $this->get_params($params));
     }
 
     public function open($params=array()) {
-		return Utils_LeightboxPromptCommon::open($this->group, $params);
+    	$this->init_leightbox();
+    	
+		return Utils_LeightboxPromptCommon::open($this->group, $this->get_params($params));
     }
 
     private $init = false;
     public function get_href_js($params=array()) {
 		$this->init_leightbox();
-        $ret = 'leightbox_activate(\''.$this->group.'_prompt_leightbox\');';
-        if (!empty($params)) $ret .= 'f'.$this->group.'_set_params(\''.implode('\',\'',$params).'\');';
-        return $ret;
+		
+        return Utils_LeightboxPromptCommon::get_open_js($this->group, $this->get_params($params));
     }
 	
 	public function init_leightbox() {
@@ -132,23 +148,27 @@ class Utils_LeightboxPrompt extends Module {
         $this->init=true;
 	}
 
-    public function get_close_leightbox_href() {
-        return 'href="javascript:void(0)" onclick="f'.$this->group.'_prompt_deactivate();"';
+    public function get_close_leightbox_href($reset_view = false) {
+        return 'href="javascript:void(0)" onclick="' . $this->get_close_leightbox_href_js($reset_view) . '"';
+    }
+    
+    public function get_close_leightbox_href_js($reset_view = false) {
+    	return 'Utils_LeightboxPrompt.deactivate(\''.$this->group.'\', ' . ($reset_view?1:0) . ');';
     }
 
     public function export_values() {
         $ret = array();
-        foreach ($this->options as $k=>$v) {
-            if ($v['form']!==null && $v['form']->validate()) {
-                $ret['option'] = $k;
-                $vals = $v['form']->exportValues();
-                if (is_array($this->params)) foreach ($this->params as $p) {
+        foreach ($this->options as $option_key=>$option) {
+            if ($option['form']!==null && $option['form']->validate()) {
+                $ret['option'] = $option_key;
+                $vals = $option['form']->exportValues();
+                if (is_array($this->params_list)) foreach ($this->params_list as $p) {
                     $ret['params'][$p] = $vals[$this->group.'_'.$p];
                     unset($vals[$this->group.'_'.$p]);
                 }
                 unset($vals['submit']);
                 unset($vals['submited']);
-                unset($vals['_qf__libs_qf_'.md5($v['form']->get_path())]); // TODO: not really nice
+                unset($vals['_qf__libs_qf_'.md5($option['form']->get_path())]); // TODO: not really nice
                 $ret['form'] = $vals;
                 break;
             }
