@@ -39,7 +39,7 @@ class Base_EpesiStore extends Module {
         $button_label = Base_EssClientCommon::has_license_key()
                 ? __('License Key') : __('Register EPESI!');
 		Base_ActionBarCommon::add(
-                Base_ThemeCommon::get_template_file('Base_EpesiStore','icon.png'),
+                'shopping-cart',
                 $button_label,
                 $this->create_callback_href(array($this,'display_registration_form')));
 
