@@ -12,13 +12,16 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_LeightboxPromptCommon extends ModuleCommon {
     public static function get_href($group, $params=array()) {
         $ret = 'href="javascript:void(0)" class="lbOn" rel="'.$group.'_prompt_leightbox"';
-        if (!empty($params)) $ret .= ' onmousedown="f'.$group.'_set_params(\''.implode('\',\'',$params).'\');"';
+        if (!empty($params)) $ret .= ' onmousedown="Utils_LeightboxPrompt.set_params(\''.$group.'\', \'' . http_build_query($params) . '\');"';
         return $ret;
     }
 
     public static function open($group, $params=array()) {
-		Libs_LeightboxCommon::open($group.'_prompt_leightbox');
-        if (!empty($params)) eval_js('f'.$group.'_set_params(\''.implode('\',\'',$params).'\');');
+    	eval_js(self::get_open_js($group, $params));
+    }
+    
+    public static function get_open_js($group, $params=array()) {
+    	return 'Utils_LeightboxPrompt.activate(\''.$group.'\', \'' . http_build_query($params). '\');';
     }
 }
 
