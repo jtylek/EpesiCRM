@@ -48,7 +48,7 @@ class Base_DashboardInstall extends ModuleInstall {
 		}
 		$ret &= DB::CreateTable('base_dashboard_settings','
 			applet_id I4,
-			name C(32) NOTNULL,
+			name C(64) NOTNULL,
 			value X NOTNULL',
 			array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_applets(ID), PRIMARY KEY(applet_id,name)'));
 		if(!$ret){
@@ -69,7 +69,7 @@ class Base_DashboardInstall extends ModuleInstall {
 		}
 		$ret &= DB::CreateTable('base_dashboard_default_settings','
 			applet_id I4,
-			name C(32) NOTNULL,
+			name C(64) NOTNULL,
 			value X NOTNULL',
 			array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_default_applets(ID), PRIMARY KEY(applet_id,name)'));
 		if(!$ret){
@@ -118,18 +118,18 @@ class Base_DashboardInstall extends ModuleInstall {
 			array('name'=>Libs_ScriptAculoUsInstall::module_name(),'version'=>0),
 			array('name'=>Utils_TooltipInstall::module_name(),'version'=>0));
 	}
-	
+
 	public static function info() {
 		return array(
 			'Description'=>'Something like igoogle',
 			'Author'=>'Paul Bukowski <pbukowski@telaxus.com>',
 			'License'=>'MIT');
 	}
-	
+
 	public static function simple_setup() {
 		return __('EPESI Core');
 	}
-	
+
 }
 
 ?>

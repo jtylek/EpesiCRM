@@ -15,7 +15,6 @@ function Utils_QueryBuilder(form_name, form_element_id, builder_id, options_json
         if (a != '{}') jq(form_element_selector_last).val(JSON.stringify(jq(builder_selector).queryBuilder("getRules")));
     });
     if (jq(form_element_selector_last).val()) {
-        console.log(jq(form_element_selector_last).val());
         jq(builder_selector).queryBuilder('setRules', JSON.parse(jq(form_element_selector_last).val()));
     } else {
         jq(builder_selector).queryBuilder('setRules', rules_json);

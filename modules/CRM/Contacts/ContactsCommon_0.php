@@ -78,6 +78,31 @@ class CRM_ContactsCommon extends ModuleCommon {
         $cache[$uid] = $ret = CRM_ContactsCommon::get_contact($cid);
         return $ret;
     }
+
+    public static function decode_record_token($token)
+    {
+        $token = trim($token);
+        $preg_ret = preg_match('#(^[a-zA-Z_0-9]+([:/])[0-9]+$)|(^[0-9]+$)#', $token, $matches);
+        if ($preg_ret === false || $preg_ret === 0) {
+            return array(false, false);
+        }
+        $delimiter = $matches[2];
+        if (!$delimiter) {
+            return array('contact', $token);
+        }
+        $exploded = explode($delimiter, $token);
+        list($tab, $id) = $exploded;
+        if ($delimiter == ':') {
+            if ($tab == 'P') $tab = 'contact';
+            if ($tab == 'C') $tab = 'company';
+        }
+        return array($tab, $id);
+    }
+    public static function get_record($token)
+    {
+        list($tab, $id) = self::decode_record_token($token);
+        return Utils_RecordBrowserCommon::get_record($tab, $id);
+    }
     public static function get_contact($id) {
         static $cache;
         if(!isset($cache[$id]))
@@ -214,27 +239,22 @@ class CRM_ContactsCommon extends ModuleCommon {
     	return self::company_contact_format_default($arg, $nolink);
     }
 	public static function company_contact_format_default($arg,$nolink=false) {
-    	$rset_map = array('C'=>'company', 'P'=>'contact');
     	$icon = array('company' => '<i class="fa fa-users"></i>',
     			'contact' => '<i class="fa fa-person"></i>');
 
     	//backward compatibility
-    	if (stripos($arg, ':')!== false || is_numeric($arg)) {
-	    	$x = explode(':', $arg);
-	    	if(count($x)==2) {
-	    		list($rset, $id) = $x;
-	    	} else {
-	    		$id = $x[0];
-	    		$rset = 'P';
-	    	}
-	    	$tab = $rset_map[$rset];
-    	}
-    	else list($tab, $id) = explode('/', $arg);
+        $id = null;
 
+        if(!is_array($arg)) {
+            list($tab, $id) = self::decode_record_token($arg);
+        } else {
+            $id = $arg['id'];
+            $tab = "contact";
+        }
+    	
     	if (!$id) return '---';
 
     	$val = Utils_RecordBrowserCommon::create_default_linked_label($tab, $id, $nolink, false);
-    	$rlabel = array_search($tab, $rset_map);
 
     	$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
     	$rindicator = isset($icon[$tab]) ? $icon[$tab] : "[$indicator_text] ";
@@ -1344,8 +1364,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         $me = self::get_my_record();
         $my_contact_id = $me['id'] ? $me['id'] : -1;
         $my_company_id = (isset($me['company_name']) && $me['company_name']) ? $me['company_name'] : -1;
-        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER', __('User Contact'), $my_contact_id);
-        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER_COMPANY', __('User Company'), $my_company_id);
+        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER', __('User Contact'), "contact/$my_contact_id");
+        $ret[] = new Utils_RecordBrowser_ReplaceValue('USER_COMPANY', __('User Company'), "company/$my_company_id");
         return $ret;
     }
 

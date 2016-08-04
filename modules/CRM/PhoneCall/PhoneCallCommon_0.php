@@ -29,8 +29,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function applet_info_format($r){
 		if (isset($r['customer']) && $r['customer']!='') {
 			$customer = CRM_ContactsCommon::autoselect_company_contact_format($r['customer']);
-			list($rset, $id) = explode(':',$r['customer']);
-			$cus = Utils_RecordBrowserCommon::get_record($rset=='P'?'contact':'company', $id);
+			$cus = CRM_ContactsCommon::get_record($r['customer']);
 			if (isset($r['phone']) && $r['phone']!='') {
 				$num = $r['phone'];
 				switch ($num) {
@@ -102,60 +101,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function caption() {
 		return __('Phonecalls');
 	}
-	public static function QFfield_other_phone(&$form, $field, $label, $mode, $default, $desc) {
-		if ($mode=='add' || $mode=='edit') {
-			$js =
-					'Event.observe(\'other_phone\',\'change\', onchange_other_phone);'.
-					'function enable_disable_phone(arg) {'.
-					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
-					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.
-					'if (arg) {phone.disabled=true;o_phone.disabled=false;} else {if(phone.length!=0)phone.disabled=false;o_phone.disabled=true;}'.
-					'};'.
-					'function onchange_other_phone() {'.
-					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
-					'enable_disable_phone(c_phone.checked);'.
-					'};'.
-					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
-					'enable_disable_phone('.($default?'1':'0').' || c_phone.checked);';
-			eval_js($js);
-			$form->addElement('checkbox', $field, $label, null, array('id'=>$field));
-			if ($mode=='edit') $form->setDefaults(array($field=>$default));
-		} else {
-			$form->addElement('checkbox', $field, $label);
-			$form->setDefaults(array($field=>$default));//self::display_phone(array($desc['id']=>$default), null, false, $desc)));
-		}
-	}
-	public static function QFfield_other_contact(&$form, $field, $label, $mode, $default, $desc) {
-		if ($mode=='add' || $mode=='edit') {
-			$js =
-					'Event.observe(\'other_customer\',\'change\', onchange_other_customer);'.
-					'function enable_disable_customer(arg) {'.
-					'customer = document.forms[\''.$form->getAttribute('name').'\'].customer;'.
-					'customer_s = document.forms[\''.$form->getAttribute('name').'\'].customer__search;'.
-					'o_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer_name;'.
-					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
-					'if (arg) {c_phone.disabled=true;customer_s.disabled=customer.disabled=true;o_customer.disabled=false;} else {c_phone.disabled=false;if(customer.length!=0)customer_s.disabled=customer.disabled=false;o_customer.disabled=true;}'.
-					'if (arg) c_phone.checked=true;'.
-					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
-					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.
-					'if (arg) {phone.disabled=true;o_phone.disabled=false;} else {if(phone.length!=0)phone.disabled=false;o_phone.disabled=true;}'.
-					'};'.
-					'function onchange_other_customer() {'.
-					'c_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer;'.
-					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
-					'c_phone.checked = c_customer.checked;'.
-					'enable_disable_customer(c_customer.checked);'.
-					'};'.
-					'c_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer;'.
-					'enable_disable_customer('.($default?'1':'0').' || c_customer.checked);';
-			eval_js($js);
-			$form->addElement('checkbox', $field, $label, null, array('id'=>$field));
-			if ($mode=='edit') $form->setDefaults(array($field=>$default));
-		} else {
-			$form->addElement('checkbox', $field, $label);
-			$form->setDefaults(array($field=>$default));//self::display_phone(array($desc['id']=>$default), null, false, $desc)));
-		}
-	}
 	public static function check_contact_not_empty($v) {
 		$ret = array();
 		if ((isset($v['other_phone']) && $v['other_phone']) || (isset($v['other_customer']) && $v['other_customer'])) {
@@ -211,11 +156,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if ($record[$desc['id']]=='') return '';
 		$num = $record[$desc['id']];
 		if (!isset($record['customer']) || !$record['customer']) return '---';
-		list($r,$id) = explode(':',$record['customer']);
-		if ($r=='P')
-			$contact = CRM_ContactsCommon::get_contact($id);
-		else
-			$contact = CRM_ContactsCommon::get_company($id);
+		$contact = CRM_ContactsCommon::get_record($record['customer']);
 		$nr = '';
 		switch ($num) {
 			case 1: $id = 'mobile_phone'; 	$nr = 'Mobile Phone'; break;
@@ -339,6 +280,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			return $ret;
 		case 'adding':
 			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
+		case 'editing':
+			if (Utils_RecordBrowser::$rb_obj instanceof Utils_RecordBrowser) {
+				load_js('modules/' . self::module_name() . '/js/main.js');
+				eval_js('CRM_PhoneCall__form_control.init(\''.Utils_RecordBrowser::$rb_obj->form->getAttribute('name').'\', '. ($values['other_phone']? 1: 0) . ' , ' . ($values['other_customer']? 1: 0) . ')');
+			}
 			break;
 		case 'edit':
 			$old_vals = Utils_RecordBrowserCommon::get_record('phonecall',$values['id']);
@@ -351,13 +297,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (!isset($values['other_customer'])) $related[] = $values['customer'];
 			foreach ($related as $v) {
 				if ($mode==='edit' && in_array($v, $old_related)) continue;
-				if (!is_numeric($v)) {
-					list($t, $id) = explode(':', $v);
-				} else {
-					$t = 'P';
-					$id = $v;
-				}
-				if ($t=='P') $t = 'contact'; else $t = 'company';
+				list($t, $id) = CRM_ContactsCommon::decode_record_token($v);
 				$subs = Utils_WatchdogCommon::get_subscribers($t,$id);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'phonecall',$values['id']);
@@ -408,8 +348,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if($a['other_customer'])
 			$contact = $a['other_customer_name'];
 		else {
-			list($r,$id) = explode(':',$a['customer']);
-			if ($r=='P')
+			list($r,$id) = CRM_ContactsCommon::decode_record_token($a['customer']);
+			if ($r=='contact')
 				$contact = CRM_ContactsCommon::contact_format_default($id,true);
 			else {
 				$contact = CRM_ContactsCommon::get_company($id);

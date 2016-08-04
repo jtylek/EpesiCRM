@@ -37,7 +37,7 @@ class Libs_QuickFormCommon extends ModuleCommon {
 		return ' <a href="javascript:void(0);" onclick="this.parentNode.innerHTML=\'\'"><img src="'.Base_ThemeCommon::get_template_file('Libs_QuickForm','close.png').'"></a>';
 	}
 	
-	public static function autohide_fields($field, $field_type, $hide_mapping) {
+	public static function autohide_fields($field, $hide_mapping) {
 		$allowed_modes = array('hide', 'show');
 	
 		$groups = array();
@@ -66,8 +66,15 @@ class Libs_QuickFormCommon extends ModuleCommon {
 		eval_js("
 				jq(function(){
 					var hide_ctrl = jq('#$field');
+					if(hide_ctrl.length==0) return;
 					Libs_QuickForm__hide_groups['$field']=$js_groups;
+					var observer = new MutationObserver(function(mutations) {
+						mutations.forEach(function(mutation) {
+							if(mutation.addedNodes.length>0 || mutation.removedNodes.length>0) jq('#'+mutation.target.id).trigger('change');
+						})
+					});
 					hide_ctrl.change(Libs_QuickForm__autohide).trigger('change');
+					observer.observe(hide_ctrl.get(0), { childList: true });
 				});"
 		);
 	}

@@ -12,16 +12,15 @@
 						{$form_close}
 					{/if}
 				</div>
-				{if $filters}
-						<div class="pull-right">
-							<input class="btn btn-success" type="button" {if $filters.dont_hide}style="display: none;"{/if} {$filters.show_filters.attrs} value="{$filters.show_filters.label}">
-							<input class="btn btn-danger" type="button" {if !$filters.dont_hide}style="display: none;"{/if} {$filters.hide_filters.attrs} value="{$filters.hide_filters.label}">
-						</div>
-				{/if}
+                {if $filters.controls}
+                    {$filters.controls}
+                {/if}
 			</div>
 	{/if}
 	<div class="panel-body">
-		<div>{$filters.filter_form}</div>
+        {if $filters.elements}
+		    <div>{$filters.elements}</div>
+        {/if}
 		{$table}
 	</div>
 </div>

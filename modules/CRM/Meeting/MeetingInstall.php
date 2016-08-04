@@ -223,7 +223,7 @@ class CRM_MeetingInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::new_addon('crm_meeting', CRM_MeetingInstall::module_name(), 'messanger_addon', _M('Alerts'));
         // ************ other ************** //
         CRM_CalendarCommon::new_event_handler(_M('Meetings'), array('CRM_MeetingCommon', 'crm_calendar_handler'));
-        CRM_RoundcubeCommon::new_addon('crm_meeting');
+        CRM_MailCommon::new_addon('crm_meeting');
         Utils_BBCodeCommon::new_bbcode('meeting', 'CRM_MeetingCommon', 'meeting_bbcode');
         if (ModuleManager::is_installed('Premium_SalesOpportunity') >= 0) 
             Utils_RecordBrowserCommon::new_record_field('crm_meeting', _M('Opportunity'), 'select', true, false, 'premium_salesopportunity::Opportunity Name;Premium_SalesOpportunityCommon::crm_opportunity_reference_crits', '', false);
@@ -239,7 +239,7 @@ class CRM_MeetingInstall extends ModuleInstall {
     public function uninstall() {
         Utils_AttachmentCommon::delete_addon('crm_meeting');
         Utils_RecordBrowserCommon::delete_addon('crm_meeting', CRM_MeetingInstall::module_name(), 'messanger_addon');
-        CRM_RoundcubeCommon::delete_addon('crm_meeting');
+        CRM_MailCommon::delete_addon('crm_meeting');
         CRM_CalendarCommon::delete_event_handler('Meetings');
         Base_ThemeCommon::uninstall_default_theme(CRM_MeetingInstall::module_name());
         Utils_RecordBrowserCommon::uninstall_recordset('crm_meeting');

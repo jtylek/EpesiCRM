@@ -232,6 +232,7 @@ class Utils_RecordBrowser_QueryBuilder
                 case 'id' :
                     if (!is_array($value)) {
                         $sql = $this->tab_alias.".id $operator %d";
+                        $value = preg_replace('/[^0-9]*/', '', $value);
                         $vals[] = $value;
                     } else {
                         if ($operator != '=' && $operator != '==') {
@@ -587,6 +588,9 @@ class Utils_RecordBrowser_QueryBuilder
                     $sql .= " OR $field=''";
                 }
             } else {
+                if ($single_tab) {
+                    $value = preg_replace('#.*/#', '', $value); // remove prefix for multiselects: contact/1 => 1
+                }
                 if ($single_tab && !$multiselect && $operator != DB::like()) {
                     $operand = '%d';
                 } else {

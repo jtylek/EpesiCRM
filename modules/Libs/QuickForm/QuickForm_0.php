@@ -84,6 +84,16 @@ class Libs_QuickForm extends Module {
 				if (is_array($args[4])) $args[4]['onkeydown'] = 'typeAhead();';
 				else $args[4] .= ' onkeydown="typeAhead();"';
 			}
+			if ($type == 'crits') {
+				// 0=type, 1=name, 2=label, 3=tab, 4=crits
+				if (isset ($args[3]) && Utils_RecordBrowserCommon::check_table_name($args[3], false, false)) {
+					$tab = $args[3];
+					$qbi = new Utils_RecordBrowser_QueryBuilderIntegration($tab);
+					$default_crits = isset($args[4]) ? $args[4] : array();
+					$qb = $qbi->get_builder_module($this, $default_crits);
+					$qb->add_to_form($this, $args[1], $args[2]);
+				}
+			}
 		}
 		if (is_object($this->qf)) {
 //			if($func_name==='accept') trigger_error(print_r($args,true));
@@ -224,6 +234,10 @@ class Libs_QuickForm extends Module {
 						$elems[] = $this->get_element_by_array($x,$default_js);
 					$this->addGroup($elems,null,$v['label']);
 					break;
+				case 'crits':
+					$default_crits = isset($v['default']) ? $v['default'] : array();
+					$this->addElement('crits', $v['name'], $v['label'], $v['param'], $default_crits);
+					break;
 				default:
 					$this->qf->addElement($this->get_element_by_array($v,$default_js));
 			}
@@ -359,15 +373,19 @@ class Libs_QuickForm extends Module {
 		$field_obj = $this->getElement($field);
 		$field_type = $field_obj->getType();
 	
-		$allowed_types = array('static', 'hidden', 'select', 'checkbox', 'commondata', 'text');
-		if (!in_array($field_type, $allowed_types)) return;
+		$allowed_types = array('static', 'hidden', 'select', 'checkbox', 'commondata', 'text','automulti');
+		if (!in_array($field_type, $allowed_types)) throw new Exception('Cannot autohide on '.$field_type);
 	
 		if ($field_type == 'static') {
 			$field .= '__autohide';
-			$this->addElement('hidden', $field , $default, 'id="' . $field . '"');
+			$this->addElement('hidden', $field , is_array($default)?implode('__SEP__',$default):$default, 'id="' . $field . '"');
+		} elseif(is_a($field_obj,'HTML_QuickForm_multiselect')) {
+			$field.='__to';
+		} elseif($field_type=='automulti') {
+			Libs_QuickFormCommon::autohide_fields($field.'__to', $hide_mapping);
 		}
 	
-		Libs_QuickFormCommon::autohide_fields($field, $field_type, $hide_mapping);
+		Libs_QuickFormCommon::autohide_fields($field, $hide_mapping);
 	}
 }
 ?>

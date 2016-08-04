@@ -33,8 +33,8 @@ class UninstallModuleCommand extends Command
         if(!$module)
             throw new \Exception('Module not found');
 
-        if (!ModuleManager::is_installed($module['name'])) {
-            $output->writeln('<fg=yellow>Module ' . $module_name . ' already installed</fg=yellow>');
+        if (ModuleManager::is_installed($module['name']) < 0) {
+            $output->writeln('<fg=yellow>Module ' . $module_name . ' not installed</fg=yellow>');
             return;
         }
 

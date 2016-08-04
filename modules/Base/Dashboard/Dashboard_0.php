@@ -29,7 +29,7 @@ class Base_Dashboard extends Module {
 		$this->dashboard();
         Base_ActionBarCommon::show_quick_access_shortcuts(true);
 	}
-	
+
 	private function dashboard() {
 		load_js($this->get_module_dir().'ab.js');
 		$default_dash = $this->get_module_variable('default');
@@ -137,7 +137,7 @@ class Base_Dashboard extends Module {
 			print('<div id="dashboard_applets_new" style="vertical-align:top">');
 
 			print(Base_DashboardCommon::get_installed_applets_html());
-			
+
 			print('</div>');
 			print('</div>');
 			print('</td></tr></table>');
@@ -145,7 +145,7 @@ class Base_Dashboard extends Module {
 		}
 		eval_js('dashboard_activate('.json_encode($init_tabs_js).','.($default_dash?1:0).','.($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()?1:0).')');
 	}
-	
+
 	public function switch_config_mode() {
 		$this->set_module_variable('config_mode', !$this->get_module_variable('config_mode', false));
 	}
@@ -200,7 +200,7 @@ class Base_Dashboard extends Module {
 
 				if($opts['toggle'] && !$config_mode)
 					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs(__('Toggle')).'>=</a>');
-					
+
 				foreach ($opts['actions'] as $k=>$v)
 					if (!$v) unset($opts['actions'][$k]);
 
@@ -218,7 +218,7 @@ class Base_Dashboard extends Module {
 
 				$th->assign('caption',$opts['title']);
 				$th->assign('color',$colors[$row['color']]['class']);
-				
+
 				$th->assign('actions',$opts['actions']);
 
 				$th->assign('config_mode',$config_mode);
@@ -342,7 +342,9 @@ class Base_Dashboard extends Module {
 		if($is_conf) {
 			$f->addElement('header',null,__('%s settings', array($caption)));
 
+			//send the applet id to applet_settings function
 			$menu = call_user_func($sett_fn);
+
 			if (is_array($menu))
 				$this->add_module_settings_to_form($menu,$f,$id,$mod);
 			else
@@ -379,12 +381,12 @@ class Base_Dashboard extends Module {
 						if($submited[$name]==$def_value)
 							DB::Execute('DELETE FROM base_dashboard_default_settings WHERE applet_id=%d AND name=%s',array($id,$name));
 						else
-							DB::Replace('base_dashboard_default_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
+							DB::Replace('base_dashboard_default_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>Base_DashboardCommon::encode_value($submited[$name])), array('applet_id','name'), true);
 					} else {
 						if($submited[$name]==$def_value)
 							DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d AND name=%s',array($id,$name));
 						else
-							DB::Replace('base_dashboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
+							DB::Replace('base_dashboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>Base_DashboardCommon::encode_value($submited[$name])), array('applet_id','name'), true);
 					}
 				}
 			}
@@ -411,33 +413,41 @@ class Base_Dashboard extends Module {
 		$variables[$mod] = array();
 		if(method_exists($mod.'Common', 'applet_settings')) {
 			$menu = call_user_func(array($mod.'Common','applet_settings'));
-			foreach($menu as $v)
+			foreach($menu as $v) {
+				$max_len = 64;
+				if(isset($v['name']) && strlen($v['name'])>$max_len) throw new Exception("Variable name too long. Max length is $max_len.");
 				if($v['type']=='group') {
 					foreach($v['elems'] as $e)
 						if(isset($e['default']))
 							$variables[$mod][$e['name']] = $e['default'];
 				} elseif(isset($v['default']))
 					$variables[$mod][$v['name']] = $v['default'];
+			}
 		}
 		return $variables[$mod];
 	}
 
 	private static $settings_cache;
-	
+
 	private function get_values($id,$mod) {
 		if(!isset(self::$settings_cache)) {
 			self::$settings_cache = array('default'=>array(), 'user'=>array());
 			$ret = DB::Execute('SELECT applet_id,name,value FROM base_dashboard_default_settings');
-			while($row = $ret->FetchRow())
+			while ($row = $ret->FetchRow()) {
+				$row['value'] = Base_DashboardCommon::decode_value($row['value']);
 				self::$settings_cache['default'][$row['applet_id']][] = $row;
+			}
 
 			self::$settings_cache['user'] = array();
 			if(Base_AclCommon::is_user()) {
 				$ret = DB::Execute('SELECT s.applet_id,s.name,s.value FROM base_dashboard_settings s INNER JOIN base_dashboard_applets a ON a.id=s.applet_id WHERE a.user_login_id=%d',array(Base_AclCommon::get_user()));
-				while($row = $ret->FetchRow())
+				while($row = $ret->FetchRow()) {
+					$row['value'] = Base_DashboardCommon::decode_value($row['value']);
 					self::$settings_cache['user'][$row['applet_id']][] = $row;
-			} 
+				}
+			}
 		}
+
 		if($this->get_module_variable('default'))
 			$c = self::$settings_cache['default'];
 		else
@@ -449,7 +459,7 @@ class Base_Dashboard extends Module {
 			$c = $c[$id];
 
 		$variables = $this->get_default_values($mod);
-		
+
 		foreach($c as $v)
 			$variables[$v['name']] = $v['value'];
 
@@ -458,14 +468,30 @@ class Base_Dashboard extends Module {
 
 	private function add_module_settings_to_form($info, &$f, $id, $module){
 		$values = $this->get_values($id,$module);
+		$values2 = array();
 		foreach($info as & $v){
 			if (isset($v['rule'])) {
 				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
 			}
+
+			if (isset($values[$v['name']])) {
+				if ($v['type'] == "crits") {
+					$v['default'] = $values[$v['name']];
+				} else {
+					$values2[$v['name']] = $values[$v['name']];
+				}
+				unset($values[$v['name']]);
+			}
+		}
+		foreach($values as $name=>$value) { //remove junk
+			if($this->get_module_variable('default'))
+				DB::Execute('DELETE FROM base_dashboard_default_settings WHERE name=%s AND applet_id=%d',array($name,$id));
+			else
+				DB::Execute('DELETE FROM base_dashboard_settings WHERE name=%s AND applet_id=%d',array($name,$id));
 		}
 		$this->set_default_js = '';
 		$f -> add_array($info, $this->set_default_js);
-		$f -> setDefaults($values);
+		$f -> setDefaults($values2);
 	}
 
 	public function caption() {
@@ -483,7 +509,7 @@ class Base_Dashboard extends Module {
 			return;
 		}
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
-		
+
 		$this->set_module_variable('default',true);
 		$this->dashboard();
 	}

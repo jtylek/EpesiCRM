@@ -85,6 +85,10 @@ class CRM_TasksCommon extends ModuleCommon {
 
 	public static function applet_settings() {
         $settings = array(
+			array('label' => __('Additional title'),
+				  'name' => 'subtitle',
+				  'type' => 'text',
+				  'default' => ''),
             array('label'   => __('Display tasks marked as'), 'name' => 'term',
                   'type'    => 'select',
                   'values'  => array('s' => __('Short-term'),
@@ -102,13 +106,14 @@ class CRM_TasksCommon extends ModuleCommon {
             $settings[] = array('label' => $label, 'name' => $name,
                                 'type'  => 'checkbox', 'default' => $default);
         }
-        $settings[] = array('label'   => __('Related'),
-                            'name'    => 'related',
-                            'type'    => 'select',
-                            'values'  => array(__('Employee'),
-                                               __('Customer'),
-                                               __('Both')),
-                            'default' => '0');
+
+		$settings[] = array('label'   => __('Filter'),
+                            'name'    => 'crits',
+                            'type'    => 'crits',
+							'param' => 'task',
+							'default' => array('employees' => 'USER')
+		);
+
         return Utils_RecordBrowserCommon::applet_settings($settings);
 	}
 	
@@ -248,12 +253,11 @@ class CRM_TasksCommon extends ModuleCommon {
 			foreach ($related as $v) {
 				if ($mode==='edit' && in_array($v, $old_related)) continue;
 				if (!is_numeric($v)) {
-					list($t, $id) = explode(':', $v);
+					list($t, $id) = explode('/', $v);
 				} else {
-					$t = 'P';
+					$t = 'contact';
 					$id = $v;
 				}
-				if ($t=='P') $t = 'contact'; else $t = 'company';
 				$subs = Utils_WatchdogCommon::get_subscribers($t,$id);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'task',$values['id']);

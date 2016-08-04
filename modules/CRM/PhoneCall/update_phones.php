@@ -23,11 +23,9 @@ foreach ($values as $v) {
 
 $res = array();
 if ($ret !== '') {
-    $x = explode(':', $ret);
-    if (isset($x[1])) {
-        $r = $x[0];
-        $id = $x[1];
-        if ($r == 'P') {
+    list ($r, $id) = CRM_ContactsCommon::decode_record_token($ret);
+    if ($id) {
+        if ($r == 'contact') {
             $contact = CRM_ContactsCommon::get_contact($id);
             $i = 1;
             foreach (array('mobile_phone' => __('Mobile Phone'), 'work_phone' => __('Work Phone'), 'home_phone' => __('Home Phone')) as $field => $label) {

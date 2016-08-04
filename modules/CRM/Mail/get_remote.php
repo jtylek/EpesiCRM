@@ -17,7 +17,7 @@ list($mimetype,$name,$attachment) = DB::GetRow('SELECT type,name,attachment FROM
 
 $disposition = $attachment?'attachment':'inline';
 
-$filename = DATA_DIR.'/CRM_Roundcube/attachments/'.$_GET['mail_id'].'/'.$_GET['mime_id'];
+$filename = DATA_DIR.'/CRM_Mail/attachments/'.$_GET['mail_id'].'/'.$_GET['mime_id'];
 
 if(headers_sent())
     die('Some data has already been output to browser, can\'t send file');

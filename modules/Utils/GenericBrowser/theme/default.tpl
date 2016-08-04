@@ -48,6 +48,7 @@
 
 					<form {$form_data_search.attributes}>
 					{$form_data_search.hidden}
+					{$search_fields_hidden}
 					{if isset($form_data_search.search)}
 						{$adv_search}
 						{$form_data_search.submit_search.html}

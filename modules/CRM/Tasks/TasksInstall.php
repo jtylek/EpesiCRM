@@ -85,7 +85,7 @@ class CRM_TasksInstall extends ModuleInstall {
 // ************ other ************** //
 		CRM_CalendarCommon::new_event_handler(_M('Tasks'), array('CRM_TasksCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('task', 'CRM_TasksCommon', 'task_bbcode');
-        CRM_RoundcubeCommon::new_addon('task');
+        CRM_MailCommon::new_addon('task');
 
 		if (ModuleManager::is_installed('Premium_SalesOpportunity')>=0)
 			Utils_RecordBrowserCommon::new_record_field('task', _M('Opportunity'), 'select', true, false, 'premium_salesopportunity::Opportunity Name;Premium_SalesOpportunityCommon::crm_opportunity_reference_crits', '', false);
@@ -101,7 +101,7 @@ class CRM_TasksInstall extends ModuleInstall {
 
 	public function uninstall() {
 		CRM_CalendarCommon::delete_event_handler('Tasks');
-        CRM_RoundcubeCommon::delete_addon('task');
+        CRM_MailCommon::delete_addon('task');
 		Utils_AttachmentCommon::delete_addon('task');
 		Base_ThemeCommon::uninstall_default_theme(CRM_TasksInstall::module_name());
 		Utils_RecordBrowserCommon::unregister_processing_callback('task', array('CRM_TasksCommon', 'submit_task'));

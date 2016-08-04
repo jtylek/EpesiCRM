@@ -48,7 +48,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name' => _M('Phone Number'), 		'type'=>'hidden', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_phone_number')),
 
 			array('name' => _M('Customer'), 			'type'=>'crm_company_contact', 'param'=>array('field_type'=>'select'), 'extra'=>false),
-			array('name' => _M('Other Customer'),		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_contact')),
+			array('name' => _M('Other Customer'),		'type'=>'checkbox', 'extra'=>false),
 			array('name' => _M('Other Customer Name'),'type'=>'text', 'param'=>'64', 'extra'=>false),
 
 			array('name' => _M('Permission'), 		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
@@ -58,7 +58,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name' => _M('Priority'), 			'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Priority'), 'extra'=>false),
 
 			array('name' => _M('Phone'), 				'type'=>'integer', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_phone'), 'display_callback'=>array('CRM_PhoneCallCommon','display_phone')),
-			array('name' => _M('Other Phone'),		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_phone')),
+			array('name' => _M('Other Phone'),		'type'=>'checkbox', 'extra'=>false),
 			array('name' => _M('Other Phone Number'),	'type'=>'text', 'param'=>'64', 'extra'=>false),
 			array('name' => _M('Date and Time'),		'type'=>'timestamp', 'required'=>true, 'extra'=>false, 'visible'=>true),			
 
@@ -88,7 +88,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 // ************ addons ************** //
 		Utils_AttachmentCommon::new_addon('phonecall');
 		Utils_RecordBrowserCommon::new_addon('phonecall', CRM_PhoneCallInstall::module_name(), 'messanger_addon', _M('Alerts'));
-        CRM_RoundcubeCommon::new_addon('phonecall');
+        CRM_MailCommon::new_addon('phonecall');
 // ************ other ************** //
 		CRM_CalendarCommon::new_event_handler(_M('Phonecalls'), array('CRM_PhoneCallCommon', 'crm_calendar_handler'));
 		Utils_BBCodeCommon::new_bbcode('phone', 'CRM_PhoneCallCommon', 'phone_bbcode');
@@ -107,7 +107,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 
 	public function uninstall() {
 		CRM_CalendarCommon::delete_event_handler('Phonecalls');
-        CRM_RoundcubeCommon::delete_addon('phonecall');
+        CRM_MailCommon::delete_addon('phonecall');
 		Base_ThemeCommon::uninstall_default_theme(CRM_PhoneCallInstall::module_name());
 		Utils_AttachmentCommon::delete_addon('phonecall');
 		Utils_AttachmentCommon::persistent_mass_delete('phonecall/');
