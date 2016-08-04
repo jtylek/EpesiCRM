@@ -165,15 +165,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     				$res = self::no_wrap($res);
     				if ($tooltip) $res = '<span '.Utils_TooltipCommon::open_tag_attrs($tooltip, false) . '>' . $res . '</span>';
     			} else {
-    				if($param['single_tab']) 
-    					$select_tab = $param['single_tab'];
-    				else
-    					list($select_tab, $v) = explode('/', $v, 2);
+    				$tab_id = self::decode_record_token($v, $param['single_tab']);
     				
-    				if($param['cols']) {
-    					$res = self::create_linked_label($select_tab, $param['cols'], $v, $nolink);
+    				if (!$tab_id) continue;
+    					
+    				list($select_tab, $id) = $tab_id;
+
+    				if ($param['cols']) {
+    					$res = self::create_linked_label($select_tab, $param['cols'], $id, $nolink);
     				} else {
-    					$res = self::create_default_linked_label($select_tab, $v, $nolink);
+    					$res = self::create_default_linked_label($select_tab, $id, $nolink);
     				}
     			}
     			
@@ -2855,10 +2856,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         list($tab, $record_id) = $val;
 
-        if (self::get_description_callback($tab) || empty($param['cols']))
-        	return self::create_default_linked_label($tab, $record_id, true, false);            
-        else
+        if ($param['cols'])
         	return self::create_linked_label($tab, $param['cols'], $record_id, true);
+        else
+        	return self::create_default_linked_label($tab, $record_id, true, false);            
     }
     
     private static $automulti_order_tabs;
