@@ -454,12 +454,27 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	return $ret;
     }
     
-    public static function call_select_item_format_callback($callback, $record, $args) {
+    public static function call_select_item_format_callback($callback, $tab_id, $args) {
 //     	$args = array($tab, $tab_crits, $format_callback, $params);
 
+    	$param = self::decode_select_param($args[3]);
+    	
+    	$val = self::decode_record_token($tab_id, $param['single_tab']);
+    	
+    	if (!$val) return '';
+    	
+    	list($tab, $record_id) = $val;
+    	
+    	$tab_caption = '';
+    	if (!$param['single_tab']) {
+    		$tab_caption = self::get_caption($tab);
+    	
+    		$tab_caption = '[' . ((!$tab_caption || $tab_caption == '---')? $tab: $tab_caption) . '] ';
+    	}
+    	
     	$callback = is_callable($callback)? $callback: array('Utils_RecordBrowserCommon', 'autoselect_label');
     	
-    	return call_user_func($callback, $record, $args);
+    	return $tab_caption . call_user_func($callback, $tab_id, $args);
     }
 
     public static function user_settings(){
@@ -1152,6 +1167,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($cache===null) $cache = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties');
 		if (is_string($tab) && isset($cache[$tab])) return _V($cache[$tab]);
 		return '---';
+    }
+    public static function get_description_callback($tab) {
+    	static $cache = null;
+    	if ($cache===null) $cache = DB::GetAssoc('SELECT tab, description_callback FROM recordbrowser_table_properties');
+
+    	if (is_string($tab) && isset($cache[$tab])) {
+    		if(is_string($cache[$tab]) && preg_match('/::/',$cache[$tab])) {
+    			$cache[$tab] = explode('::',$cache[$tab]);
+    		}
+    		if(!is_callable($cache[$tab]))
+    			$cache[$tab] = false;
+    		
+    		return $cache[$tab];
+    	}
+    	
+    	return false;
     }
     public static function get_sql_type($type) {
         switch ($type) {
@@ -2337,30 +2368,26 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function create_default_linked_label($tab, $id, $nolink=false, $table_name=true, $detailed_tooltip = true){
         if (!is_numeric($id)) return '';
-        $rec = self::get_record($tab,$id);
-        if(!$rec) return '';
-        $tpro = DB::GetRow('SELECT caption,description_callback FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
-        if(!$tpro) return '';
-        $cap = _V($tpro['caption']);
-        if(!$cap) $cap = $tab;
-        $descr = $tpro['description_callback'];
-        if($descr) {
-            if(preg_match('/::/',$descr)) {
-                $descr = explode('::',$descr);
-            }
-            if(!is_callable($descr))
-                $descr = '';
-        }
-        if($descr)
-            $label = call_user_func($descr,$rec,$nolink);
+        $record = self::get_record($tab,$id);
+        if(!$record) return '';
+        $description_callback = self::get_description_callback($tab);
+        
+        $tab_caption = self::get_caption($tab);
+        if(!$tab_caption || $tab_caption == '---') $tab_caption = $tab;
+        
+        if($description_callback)
+            $label = call_user_func($description_callback, $record, $nolink);
         else {
             $field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE (type=\'autonumber\' OR ((type=\'text\' OR type=\'commondata\' OR type=\'integer\' OR type=\'date\') AND required=1)) AND visible=1 AND active=1 ORDER BY position');
             if(!$field)
-                $label = ($table_name?$cap.': ':'').$id;
+                $label = $id;
             else
-                $label = ($table_name?$cap.': ':'').self::get_val($tab,$field,$rec,$nolink);
+                $label = self::get_val($tab,$field,$record,$nolink);
         }
-        $ret = self::record_link_open_tag_r($tab, $rec, $nolink).$label.self::record_link_close_tag();
+        
+        $label = ($table_name? $tab_caption . ': ': '') . $label;
+        
+        $ret = self::record_link_open_tag_r($tab, $record, $nolink) . $label . self::record_link_close_tag();
         if ($nolink == false && $detailed_tooltip) {
             $ret = self::create_default_record_tooltip_ajax($ret, $tab, $id);
         }
@@ -2817,17 +2844,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $ret;
     }
 
-    public static function autoselect_label($id, $def) {
-        $param = self::decode_select_param($def[3]);
+    public static function autoselect_label($tab_id, $args) {
+//     	$args = array($tab, $tab_crits, $format_callback, $params);
+
+        $param = self::decode_select_param($args[3]);
         
-        $val = self::decode_record_token($id, $param['single_tab']);
+        $val = self::decode_record_token($tab_id, $param['single_tab']);
 
         if (!$val) return '';
 
         list($tab, $record_id) = $val;
 
-        if (empty($param['cols']))
-        	return self::create_default_linked_label($tab, $record_id, true);            
+        if (self::get_description_callback($tab) || empty($param['cols']))
+        	return self::create_default_linked_label($tab, $record_id, true, false);            
         else
         	return self::create_linked_label($tab, $param['cols'], $record_id, true);
     }
@@ -2913,10 +2942,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
             $records = self::get_records($t, $crits3A, array(), $order, 10);
 
-            $rs_caption = $single_tab ? '' : "[" . _V($caption) . "] ";
             foreach ($records as $r) {
                 if(!self::get_access($t,'view',$r)) continue;
-                $ret[($single_tab?'':$t.'/').$r['id']] = $rs_caption . self::call_select_item_format_callback($f_callback, $t.'/'.$r['id'], array($tab, $crits3A, $f_callback, $param));
+                $ret[($single_tab?'':$t.'/').$r['id']] = self::call_select_item_format_callback($f_callback, $t.'/'.$r['id'], array($tab, $crits3A, $f_callback, $param));
             }
 
             $records = self::get_records($t, $crits3B, array(), $order, 10);
@@ -2924,7 +2952,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach ($records as $r) {
 				if(isset($ret[($single_tab?'':$t.'/').$r['id']]) ||
             	    !self::get_access($t,'view',$r)) continue;
-                $ret[($single_tab?'':$t.'/').$r['id']] = $rs_caption . self::call_select_item_format_callback($f_callback, $t.'/'.$r['id'], array($tab, $crits3B, $f_callback, $param));
+                $ret[($single_tab?'':$t.'/').$r['id']] = self::call_select_item_format_callback($f_callback, $t.'/'.$r['id'], array($tab, $crits3B, $f_callback, $param));
             }
             
             if(count($ret)>=10) break;
