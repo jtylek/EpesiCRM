@@ -74,7 +74,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         $callback_func = self::callback_check_function($callback);
         if ($callback_func) {
-            call_user_func($callback_func, $form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table);
+            call_user_func_array($callback_func, array(&$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table));
         } else {
             eval($callback);
         }
@@ -1541,7 +1541,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             
             $ret = true;
             $field_is_empty = true;
-            if(!is_array($r[$field])) $values = array($r[$field]);
+        if (!isset($r[$field])) $values = array();
+            elseif(!is_array($r[$field])) $values = array($r[$field]);
             else $values = $r[$field];
             foreach($values as $rid) {
             	if (!$rid) continue;
