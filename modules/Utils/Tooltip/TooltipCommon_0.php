@@ -29,14 +29,14 @@ class Utils_TooltipCommon extends ModuleCommon {
 			ob_start();
 			@Base_ThemeCommon::display_smarty($smarty,'Utils_Tooltip');
 			$tip_th = ob_get_clean();
-			eval_js('Utils_Tooltip__create_block(\''.Epesi::escapeJS($tip_th,false).'\')',false);
+			eval_js('Utils_Tooltip.create_block(\''.Epesi::escapeJS($tip_th,false).'\')',false);
 			$_SESSION['client']['utils_tooltip']['div_exists'] = true;
 		}
 		on_exit(array('Utils_TooltipCommon', 'hide_tooltip'),null,false);
 	}
 	
 	public static function hide_tooltip() {
-		eval_js('Utils_Tooltip__hideTip()');
+		eval_js('Utils_Tooltip.hide()');
 	}
 
 	/**
@@ -51,7 +51,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if(MOBILE_DEVICE) return '';
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
-		return ' onMouseMove="if(typeof(Utils_Tooltip__showTip)!=\'undefined\')Utils_Tooltip__showTip(this,event,'.$max_width.')" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" onMouseUp="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" ';
+		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.show(this,event,'.$max_width.')" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';
 	}
 
 	/**
@@ -73,7 +73,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		$tooltip_id++;
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = array('callback'=>$callback, 'args'=>$args);
 		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.__('Loading...').'</center>';
-		return ' onMouseMove="if(typeof(Utils_Tooltip__showTip)!=\'undefined\')Utils_Tooltip__load_ajax_Tip(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" onMouseUp="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" ';
+		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.load_ajax(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';
 	}
 
 	/**
@@ -96,8 +96,8 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * Returns string that if displayed will create text with tooltip loaded via ajax.
 	 *
 	 * @param string text
-	 * @param string tooltip text
-	 * @param boolean help tooltip? (you can turn off help tooltips)
+	 * @param mixed callback
+	 * @param array arguments for the callback
 	 * @return string text with tooltip
 	 */
 	public static function ajax_create( $text, $callback, $args=array(), $max_width=300) {
@@ -106,7 +106,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 
     public static function is_tooltip_code_in_str($str)
     {
-        return strpos($str, 'Utils_Toltip__showTip(') !== false || strpos($str, 'Utils_Tooltip__load_ajax_Tip(') !== false;
+        return strpos($str, 'Utils_Toltip.show(') !== false || strpos($str, 'Utils_Tooltip.load_ajax(') !== false;
     }
 
 	/**
@@ -116,14 +116,14 @@ class Utils_TooltipCommon extends ModuleCommon {
 	*/
 	public static function format_info_tooltip( $arg) {
 		if(!is_array($arg) || empty($arg)) return '';
-		$table='<TABLE WIDTH="280" cellpadding="2">';
+		$table='<table width="280" cellpadding="2">';
 		foreach ($arg as $k=>$v){
-			$table.='<TR><TD WIDTH="90"><STRONG>';
-			$table.=$k.'</STRONG></TD><TD bgcolor="white" style="word-wrap: break-word;">';
+			$table.='<tr><td width="90"><strong>';
+			$table.=$k.'</strong></td><td bgcolor="white" style="word-wrap: break-word;">';
 			$table.= $v; // Value
-			$table.='</TD></TR>';
+			$table.='</td></tr>';
 		}
-		$table.='</TABLE>';
+		$table.='</table>';
 		return $table;
 	}
 
@@ -136,12 +136,12 @@ class Utils_TooltipCommon extends ModuleCommon {
 			Libs_LeightboxCommon::display('tooltip_leightbox_mode', '<center><span id="tooltip_leightbox_mode_content" /></center>');
 			$init = $loc;
 		}
-		return Libs_LeightboxCommon::get_open_href('tooltip_leightbox_mode').' onmousedown="Utils_Tooltip__leightbox_mode(this)" ';
+		return Libs_LeightboxCommon::get_open_href('tooltip_leightbox_mode').' onmousedown="Utils_Tooltip.leightbox_mode(this)" ';
 	}
 	
 }
 
-load_js('modules/Utils/Tooltip/js/Tooltip.js');
+load_js('modules/Utils/Tooltip/js/tooltip.js');
 Utils_TooltipCommon::init_tooltip_div();
 
 ?>
