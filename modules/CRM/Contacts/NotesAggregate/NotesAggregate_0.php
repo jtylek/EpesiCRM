@@ -15,7 +15,7 @@ class CRM_Contacts_NotesAggregate extends Module {
 	public function contact_addon($contact) {
 		$attachment_groups = array();
 
-        $ids = array('P:' . $contact['id']);
+        $ids = array('contact/' . $contact['id']);
 
         if (ModuleManager::is_installed('CRM_Meeting')>=0) {
             $records = Utils_RecordBrowserCommon::get_records('crm_meeting', array('customers' => $ids), array());
@@ -56,12 +56,12 @@ class CRM_Contacts_NotesAggregate extends Module {
 	public function company_addon($company) {
 		$attachment_groups = array();
 		
-		$ids = array('C:'.$company['id']);
+		$ids = array('company/'.$company['id']);
         $crits = array('(company_name'      => $company['id'],
                        '|related_companies' => array($company['id']));
         $cont = CRM_ContactsCommon::get_contacts($crits);
 		foreach ($cont as $k=>$v) {
-			$ids[] = 'P:'.$v['id'];
+			$ids[] = 'contact/'.$v['id'];
 			$attachment_groups[] = 'contact/'.$v['id'];
 		}
 

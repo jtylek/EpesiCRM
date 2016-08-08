@@ -26,10 +26,10 @@ class CRM_Contacts_Activities extends Module {
 		$db_string = '';
 		foreach($cont as $v) {
 			$ids[] = $v['id'];
-			$cus_ids[] = 'P:'.$v['id'];
+			$cus_ids[] = 'contact/'.$v['id'];
 			$rel_ids[] = 'contact/'.$v['id'];
 		}
-		$cus_ids[] = 'C:'.$me['id'];
+		$cus_ids[] = 'company/'.$me['id'];
 		$events = null;
 		$tasks = null;
 		$phonecalls = null;
@@ -77,13 +77,13 @@ class CRM_Contacts_Activities extends Module {
 		if ($this->display['events']) {
 			//$events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE cce.deleted=0 AND'.$date_filter.(!$this->display['closed']?' cce.status<2 AND':'').' (EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND contact=%d) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND contact=%d)) ORDER BY starts DESC', array($me['id'], $me['id']));
 			if ($this->activities_date==0)
-				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s'),date('Y-m-d H:i:s',time()+10*365*24*3600),'('.$me['id'].')',array('P:'.$me['id']));
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s'),date('Y-m-d H:i:s',time()+10*365*24*3600),'('.$me['id'].')',array('contact/'.$me['id']));
 			elseif ($this->activities_date==1)
-				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s'),'('.$me['id'].')',array('P:'.$me['id']));
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s'),'('.$me['id'].')',array('contact/'.$me['id']));
 			else
-				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s',time()+10*365*24*3600),'('.$me['id'].')',array('P:'.$me['id']));
+				$events = CRM_MeetingCommon::crm_event_get_all(date('Y-m-d H:i:s',0),date('Y-m-d H:i:s',time()+10*365*24*3600),'('.$me['id'].')',array('contact/'.$me['id']));
 		}
-		$crits = array('(employees'=>$me['id'], '|customers'=>'P:'.$me['id']);
+		$crits = array('(employees'=>$me['id'], '|customers'=>'contact/'.$me['id']);
 		if ($this->activities_date==0) {
 			$crits['(>=deadline'] = date('Y-m-d');
 			$crits['|deadline'] = '';
@@ -94,7 +94,7 @@ class CRM_Contacts_Activities extends Module {
 		}
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
-		$crits = array('(employees'=>$me['id'], '|customer'=>'P:'.$me['id']);
+		$crits = array('(employees'=>$me['id'], '|customer'=>'contact/'.$me['id']);
 		if ($this->activities_date==0) $crits['>=date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if ($this->activities_date==1) $crits['<date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);

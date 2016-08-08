@@ -974,11 +974,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 			case 'display':
 				$me = CRM_ContactsCommon::get_my_record();
 				$emp = array($me['id']);
-				$cus = array('C:'.$values['id']);
+				$cus = array('company/'.$values['id']);
 				$ret = array();
 				if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
 				if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-				if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'C:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
+				if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'company/'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 				$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('company/'.$values['id']);
 				return $ret;
 			case 'adding':
@@ -1004,7 +1004,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $emp = array($me['id']);
             $cus = array();
             if ($is_employee) $emp[] = $values['id'];
-            else $cus[] = 'P:'.$values['id'];
+            else $cus[] = 'contact/'.$values['id'];
             $ret = array();
 			$ret['new'] = array();
 			$ret['new']['crm_filter'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Set CRM Filter')).' '.Module::create_href(array('set_crm_filter'=>1)).'>F</a>';
@@ -1012,7 +1012,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				CRM_FiltersCommon::set_profile('c'.$values['id']);
 			if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
 			if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-			if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
+			if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'contact/'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('contact/'.$values['id']);
             return $ret;
         case 'adding':

@@ -384,7 +384,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		elseif($filter!='()' && $filter) {
 			$crits['|customers'] = $f_array;
 			foreach ($crits['|customers'] as $k=>$v)
-				$crits['|customers'][$k] = 'P:'.$v;
+				$crits['|customers'][$k] = 'contact/'.$v;
 		}
 		$crits['<=deadline'] = $end;
 		$crits['>=deadline'] = $start;

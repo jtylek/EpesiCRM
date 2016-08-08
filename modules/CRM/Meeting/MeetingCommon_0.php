@@ -772,7 +772,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		elseif($filter!='()' && $filter) {
 			$crits['|customers'] = $f_array;
 			foreach ($crits['|customers'] as $k=>$v)
-				$crits['|customers'][$k] = 'P:'.$v;
+				$crits['|customers'][$k] = 'contact/'.$v;
 		}
 		$critsb = $crits;
 		
