@@ -588,6 +588,10 @@ class Utils_RecordBrowser_QueryBuilder
                     $sql .= " OR $field=''";
                 }
             } else {
+                // compatibility code to replace old company/contact style
+                if (preg_match('/([PC]):([0-9]+)/', $value, $matches)) {
+                    $value = ( $matches[1] == 'C' ? 'company' : 'contact' ) . '/' . $matches[2];
+                }
                 if ($single_tab) {
                     $value = preg_replace('#.*/#', '', $value); // remove prefix for multiselects: contact/1 => 1
                 }
