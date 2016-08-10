@@ -1297,33 +1297,21 @@ class Utils_RecordBrowser extends Module {
         print('Addon is broken, please contact system administrator.');
     }
 
-    public function view_entry_details($from, $to, $data, $theme=null, $main_page = false, $cols = 2, $tab_label = null){
+    public function view_entry_details($from, $to, $form_data, $theme=null, $main_page = false, $cols = 2, $tab_label = null){
         if ($theme==null) $theme = $this->init_module(Base_Theme::module_name());
         $fields = array();
         $longfields = array();
-        /** @var Base_Theme $ftheme */
-        $ftheme = $this->init_module(Base_Theme::module_name());
-        foreach($this->table_rows as $field => $args) {
-            if (!isset($data[$args['id']]) || $data[$args['id']]['type']=='hidden') continue;
-            if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to))
-            {
-				if ($tab_label) $this->fields_in_tabs[$tab_label][] = $args['id'];
-                if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
-                    $help = isset($args['help']) && $args['help'] ?
-                        array('icon' => Base_ThemeCommon::get_icon('info'), 'text' => Utils_TooltipCommon::open_tag_attrs(_V($args['help']), false))
-                        : false;
-                    $arr = array(   'label'=>$data[$args['id']]['label'],
-                                    'element'=>$args['id'],
-                                    'advanced'=>isset($this->advanced[$args['id']])?$this->advanced[$args['id']]:'',
-                                    'html'=>$data[$args['id']]['html'],
-                                    'style'=>$args['style'].($data[$args['id']]['frozen']?' frozen':''),
-                                    'error'=>isset($data[$args['id']]['error'])?$data[$args['id']]['error']:null,
-                                    'required'=>isset($args['required'])?$args['required']:null,
-                                    'type'=>$args['type'],
-                                    'help' => $help);
-                $ftheme->assign('f', $arr);
-                $arr['full_field'] = $ftheme->get_html('single_field');
-                    if ($args['type']<>'long text') $fields[$args['id']] = $arr; else $longfields[$args['id']] = $arr;
+
+        foreach($this->table_rows as $field => $desc) {
+            if (!isset($form_data[$desc['id']]) || $form_data[$desc['id']]['type']=='hidden') continue;
+            if ($desc['position'] >= $from && ($to == -1 || $desc['position'] < $to)) {
+				if ($tab_label) $this->fields_in_tabs[$tab_label][] = $desc['id'];
+                
+				$opts = $this->get_field_display_options($desc, $form_data);
+				
+				if (!$opts) continue;
+				
+                if ($desc['type']<>'long text') $fields[$desc['id']] = $opts; else $longfields[$desc['id']] = $opts;
             }
         }
         if ($cols==0) $cols=2;
@@ -1331,7 +1319,7 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('cols', $cols);
         $theme->assign('longfields', $longfields);
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
-        $theme->assign('form_data', $data);
+        $theme->assign('form_data', $form_data);
         $theme->assign('required_note', __('Indicates required fields.'));
 
         $theme->assign('caption',_V($this->caption) . $this->get_jump_to_id_button());
@@ -1349,6 +1337,49 @@ class Utils_RecordBrowser extends Module {
 		if ($tpl) Base_ThemeCommon::load_css('Utils_RecordBrowser','View_entry');
         $theme->display(($tpl!=='')?$tpl:'View_entry', ($tpl!==''));
         if (!$main_page && self::$mode=='view') print('</form>');
+    }
+    
+    public function get_field_display_options($desc, $form_data = array()) {
+    	/** @var Base_Theme $ftheme */
+    	static $ftheme;
+    	
+    	$field_form_data = isset($form_data[$desc['id']])? $form_data[$desc['id']]: array();
+
+    	$default_field_form_data = array('label'=>'', 'html'=>'', 'error'=>null, 'frozen'=>false);
+    	$field_form_data = array_merge($default_field_form_data, $field_form_data);
+    	
+    	$help = isset($desc['help']) && $desc['help']? array(
+    			'icon' => Base_ThemeCommon::get_icon('info'), 
+    			'text' => Utils_TooltipCommon::open_tag_attrs(_V($desc['help']), false))
+    		: false;
+    	
+    	$ret = array('label'=>$field_form_data['label'],
+    			'element'=>$desc['id'],
+    			'advanced'=>isset($this->advanced[$desc['id']])?$this->advanced[$desc['id']]:'',
+    			'html'=>$field_form_data['html'],
+    			'style'=>$desc['style'].($field_form_data['frozen']?' frozen':''),
+    			'error'=>$field_form_data['error'],
+    			'required'=>isset($desc['required'])? $desc['required']: null,
+    			'type'=>$desc['type'],
+    			'help' => $help);
+    	
+    	if (!$ftheme)
+    		$ftheme = $this->init_module(Base_Theme::module_name());
+
+    	$ftheme->assign('f', $ret);
+    	$ftheme->assign('form_data', $form_data);
+    	$ftheme->assign('action', self::$mode);
+    	
+    	$default_field_template = self::module_name() . '/single_field';
+    	
+    	$field_template = $desc['template']?: $default_field_template;    	
+    	$field_template = is_callable($field_template)? call_user_func($field_template, $desc['id'], self::$mode): $field_template;
+    	
+    	if (!$field_template) return false;
+    	
+    	$ret['full_field'] = $ftheme->get_html($field_template, true);
+
+    	return $ret;
     }
 
     public function check_new_record_access($data) {
@@ -1876,7 +1907,7 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('text', 'caption', __('Caption'), array('maxlength'=>255, 'placeholder' => __('Leave empty to use default label')));
 
         if ($action=='edit') {
-            $row = DB::GetRow('SELECT field, caption, type, visible, required, param, filter, export, tooltip, extra, position, help FROM '.$this->tab.'_field WHERE field=%s',array($field));
+            $row = DB::GetRow('SELECT field, caption, type, visible, required, param, filter, export, tooltip, extra, position, help, template FROM '.$this->tab.'_field WHERE field=%s',array($field));
 			switch ($row['type']) {
 				case 'select':
 				case 'multiselect':
@@ -1975,6 +2006,8 @@ class Utils_RecordBrowser extends Module {
 
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('id'=>'advanced'));
         $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
+        $txt = 'Callback returning the template or template file to use for the field';
+        $form->addElement('textarea', 'template', __('Field template') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'template'));
         $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $record (array)<br />- $links_not_recommended (bool)<br />- $field (array)<br />return "value to display";</li></ul>';
 		$form->addElement('textarea', 'display_callback', __('Value display function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'display_callback'));
         $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $form (QuickForm object)<br />- $field (string)<br />- $label (string)<br />- $mode (string)<br />- $default (mixed)<br />- $desc (array)<br />- $rb_obj (RB object)<br />- $display_callback_table (array)</li></ul>';
@@ -1998,6 +2031,7 @@ class Utils_RecordBrowser extends Module {
             $data = $form->exportValues();
             $data['caption'] = trim($data['caption']);
             $data['field'] = trim($data['field']);
+            $data['template'] = trim($data['template']);
 			$type = DB::GetOne('SELECT type FROM '.$this->tab.'_field WHERE field=%s', array($field));
 			if (!isset($data['select_data_type'])) $data['select_data_type'] = $type;
             if ($action=='add')
@@ -2132,8 +2166,8 @@ class Utils_RecordBrowser extends Module {
                     DB::RenameColumn($this->tab.'_data_1', 'f_'.$id, 'f_'.$new_id, Utils_RecordBrowserCommon::actual_db_type($type, $old_param));
                 }
             }*/
-            DB::Execute('UPDATE '.$this->tab.'_field SET caption=%s, param=%s, type=%s, field=%s, visible=%d, required=%d, filter=%d, export=%d, tooltip=%d, help=%s WHERE field=%s',
-                        array($data['caption'], $param, $data['select_data_type'], $data['field'], $data['visible'], $data['required'], $data['filter'], $data['export'], $data['tooltip'], $data['help'], $field));
+            DB::Execute('UPDATE '.$this->tab.'_field SET caption=%s, param=%s, type=%s, field=%s, visible=%d, required=%d, filter=%d, export=%d, tooltip=%d, help=%s, template=%s WHERE field=%s',
+                        array($data['caption'], $param, $data['select_data_type'], $data['field'], $data['visible'], $data['required'], $data['filter'], $data['export'], $data['tooltip'], $data['help'], $data['template'], $field));
 /*            DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
                         array($new_id, $id));
             DB::CompleteTrans();*/
@@ -2187,7 +2221,7 @@ class Utils_RecordBrowser extends Module {
 	        	'advanced' => array(
 			        	array('values'=>1,
 			        			'mode'=>'show',
-			        			'fields'=>array('display_callback', 'QFfield_callback'),
+			        			'fields'=>array('template', 'display_callback', 'QFfield_callback'),
 			        			'confirm'=>__('Changing these settings may often cause system unstability. Are you sure you want to see advanced settings?')
 			        	)
 			        )

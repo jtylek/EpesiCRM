@@ -367,7 +367,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		$single_tab = false;
     	}
     	else {
-    		$select_tabs = explode(',',$select_tab);
+    		$select_tabs = array_filter(explode(',',$select_tab));
     		$single_tab = count($select_tabs)==1? $select_tab: false;
     	}
     	
@@ -626,7 +626,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'filter'=>$row['filter'],
                         'style'=>$row['style'],
                         'param'=>$row['param'],
-                        'help' =>$row['help']);
+                        'help' =>$row['help'],
+                		'template'=>$row['template']
+                );
 			if (isset(self::$display_callback_table[$tab][$row['field']]))
 				$next_field['display_callback'] = self::$display_callback_table[$tab][$row['field']];
 			if (($row['type']=='select' || $row['type']=='multiselect') && $row['param']) {
@@ -709,6 +711,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'filter I1 DEFAULT 0,'.
                     'param C(255),'.
                     'style C(64),'.
+        			'template C(255),'.
                     'help X',
                     array('constraints'=>''));
         DB::CreateTable($tab.'_callback',
@@ -888,6 +891,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!isset($definition['required'])) $definition['required'] = false;
         if (!isset($definition['filter'])) $definition['filter'] = false;
         if (!isset($definition['position'])) $definition['position'] = null;
+        if (!isset($definition['template'])) $definition['template'] = '';
+        $definition['template'] = is_array($definition['template'])? implode('::', $definition['template']): $definition['template'];
         if (isset(self::$datatypes[$definition['type']])) $definition = call_user_func(self::$datatypes[$definition['type']], $definition);
 
         if (isset($definition['display_callback'])) self::set_display_callback($tab, $definition['name'], $definition['display_callback']);
@@ -923,7 +928,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
         }
         $f = self::actual_db_type($definition['type'], $param);
-        DB::Execute('INSERT INTO '.$tab.'_field(field, caption, type, visible, param, style, position, processing_order, extra, required, filter, export, tooltip) VALUES(%s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d)', array($definition['name'], $definition['caption'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0, $definition['export']?1:0, $definition['tooltip']?1:0));
+        DB::Execute('INSERT INTO '.$tab.'_field(field, caption, type, visible, param, style, position, processing_order, extra, required, filter, export, tooltip, template) VALUES(%s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %s)', array($definition['name'], $definition['caption'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0, $definition['export']?1:0, $definition['tooltip']?1:0, $definition['template']));
 		$column = 'f_'.self::get_field_id($definition['name']);
 		if ($alter) {
 			self::init($tab, false, true);
@@ -976,6 +981,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('UPDATE ' . $tab . '_field SET field=%s WHERE field=%s', array($new_name, $old_name));
         DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         DB::CompleteTrans();
+    }
+    
+    public static function set_field_template($tab, $fields, $template)
+    {
+    	Utils_RecordBrowserCommon::check_table_name($tab);
+    	$template = is_array($template)? implode('::', $template): $template;
+    	$fields = is_array($fields)? $fields: array($fields);
+    	$s = array_fill(0, count($fields), '%s');
+    	
+    	DB::Execute('UPDATE ' . $tab . '_field SET template=%s WHERE field IN ('. implode(',', $s)  .')', array_merge(array($template), $fields));
     }
 
     /**
