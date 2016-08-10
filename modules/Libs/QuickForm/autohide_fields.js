@@ -38,7 +38,11 @@ Libs_QuickForm__autohide = function(e) {
 		}
 
 		if (found) {
-			f[group.mode]();
+			var confirmed = true;
+			if (typeof group.confirm !== 'undefined')
+				confirmed = confirm(group.confirm);
+
+			if (confirmed) f[group.mode]();
 		} else {
 			//apply reverse mode only to fields not specifically set
 			not_set_fields = jq(group.fields).not(set_fields[group.mode]).get();
