@@ -1838,6 +1838,7 @@ class Utils_RecordBrowser extends Module {
         if ($this->is_back()) return false;
         if ($this->check_for_jump()) return;
         $data_type = array(
+        	null=>'---',
             'autonumber'=>__('Autonumber'),
             'currency'=>__('Currency'),
             'checkbox'=>__('Checkbox'),
@@ -1853,8 +1854,7 @@ class Utils_RecordBrowser extends Module {
 	
         );
         natcasesort($data_type);
-		
-		load_js('modules/Utils/RecordBrowser/js/field_admin.js');
+
         $form = $this->init_module(Libs_QuickForm::module_name());
 
         switch ($action) {
@@ -1879,32 +1879,20 @@ class Utils_RecordBrowser extends Module {
             $row = DB::GetRow('SELECT field, caption, type, visible, required, param, filter, export, tooltip, extra, position, help FROM '.$this->tab.'_field WHERE field=%s',array($field));
 			switch ($row['type']) {
 				case 'select':
-					$row['select_data_type'] = 'select';
-					$row['select_type'] = 'select';
-					$row['data_source'] = 'rset';
-					$ref = explode(';', $row['param']);
-					$refe = explode('::',$ref[0]);
-					$row['rset'] = array_filter(explode(',',$refe[0]));
-					$row['label_field'] = isset($refe[1]) ? str_replace('|', ',', $refe[1]) : '';
-					break;
 				case 'multiselect':
 					$row['select_data_type'] = 'select';
-					$row['select_type'] = 'multiselect';
-					$ref = explode(';', $row['param']);
-					$refe = explode('::',$ref[0]);
-					$tab = $refe[0];
-					if ($tab=='__COMMON__') {
+					$row['select_type'] = $row['type'];
+					$param = Utils_RecordBrowserCommon::decode_select_param($row['param']);
+					if ($param['single_tab']=='__COMMON__') {
 						$row['data_source'] = 'commondata';
-						$order = isset($refe[2]) ? $refe[2] : 'value';
+						$order = $param['order'];
                         if (strlen($order) <= 1) $order = $order ? 'key' : 'value';
 						$row['order_by'] = $order;
-						$row['commondata_table'] = $refe[1];
+						$row['commondata_table'] = $param['array_id'];
 					} else {
-						$row['label_field'] = '';
-                        if (isset($refe[1]))
-                            $row['label_field'] = str_replace('|', ',', $refe[1]);
+                        $row['label_field'] = implode(',', $param['cols']);
 						$row['data_source'] = 'rset';
-						$row['rset'] = array_filter(explode(',',$tab));
+						$row['rset'] = $param['select_tabs'];
 					}
 					break;
 				case 'commondata':
@@ -1951,13 +1939,13 @@ class Utils_RecordBrowser extends Module {
 		$this->admin_field_mode = $action;
 		$this->admin_field_name = $field;
 		
-		$form->addElement('select', 'select_data_type', __('Data Type'), $data_type, array('id'=>'select_data_type', 'onchange'=>'RB_hide_form_fields()'));
+		$form->addElement('select', 'select_data_type', __('Data Type'), $data_type, array('id'=>'select_data_type'));
 
 		$form->addElement('text', 'text_length', __('Maximum Length'), array('id'=>'length'));
         $minute_increment_values = array(1=>1,2=>2,5=>5,10=>10,15=>15,20=>20,30=>30,60=>__('Full hours'));
 		$form->addElement('select', 'minute_increment', __('Minutes Interval'), $minute_increment_values, array('id'=>'minute_increment'));
 
-		$form->addElement('select', 'data_source', __('Source of Data'), array('rset'=>__('Recordset'), 'commondata'=>__('CommonData')), array('id'=>'data_source', 'onchange'=>'RB_hide_form_fields()'));
+		$form->addElement('select', 'data_source', __('Source of Data'), array('rset'=>__('Recordset'), 'commondata'=>__('CommonData')), array('id'=>'data_source'));
 		$form->addElement('select', 'select_type', __('Type'), array('select'=>__('Single value selection'), 'multiselect'=>__('Multiple values selection')), array('id'=>'select_type'));
 		$form->addElement('select', 'order_by', __('Order by'), array('key'=>__('Key'), 'value'=>__('Value'), 'position' => __('Position')), array('id'=>'order_by'));
 		$form->addElement('text', 'commondata_table', __('CommonData table'), array('id'=>'commondata_table'));
@@ -1985,7 +1973,7 @@ class Utils_RecordBrowser extends Module {
         $ck = $form->addElement('ckeditor', 'help', __('Help Message'));
         $ck->setFCKProps(null, null, false);
 
-		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('onchange'=>'RB_advanced_settings(true)', 'id'=>'advanced'));
+		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('id'=>'advanced'));
         $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
         $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $record (array)<br />- $links_not_recommended (bool)<br />- $field (array)<br />return "value to display";</li></ul>';
 		$form->addElement('textarea', 'display_callback', __('Value display function') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'display_callback'));
@@ -2163,9 +2151,53 @@ class Utils_RecordBrowser extends Module {
         }
         $form->display_as_column();
 
-		eval_js('RB_hide_form_fields();');
-		eval_js('RB_advanced_confirmation = "'.Epesi::escapeJS(__('Changing these settings may often cause system unstability. Are you sure you want to see advanced settings?')).'";');
-		eval_js('RB_advanced_settings(false);');
+        $autohide_mapping = array(
+        		'select_data_type' => array(
+		        		array('values'=>'text',
+		        				'mode'=>'show',
+		        				'fields'=>array('length')
+		        		),
+		        		array('values'=>'select',
+		        				'mode'=>'show',
+		        				'fields'=>array('data_source', 'select_type', 'commondata_table', 'order_by', 'rset_label', 'label_field')
+		        		),
+		        		array('values'=>'autonumber',
+		        				'mode'=>'show',
+		        				'fields'=>array('autonumber_prefix', 'autonumber_pad_length', 'autonumber_pad_mask')
+		        		),
+		        		array('values'=>array('time', 'timestamp'),
+		        				'mode'=>'show',
+		        				'fields'=>array('minute_increment')
+		        		),
+		        		array('values'=>array('checkbox', 'autonumber'),
+		        				'mode'=>'hide',
+		        				'fields'=>array('required')
+		        		),
+		    	),
+	        	'data_source' => array(
+		        		array('values'=>'rset',
+		        				'mode'=>'show',
+		        				'fields'=>array('rset_label', 'label_field')
+		        		),
+		        		array('values'=>'commondata',
+		        				'mode'=>'show',
+		        				'fields'=>array('commondata_table', 'order_by')
+		        		),
+		        ),
+	        	'advanced' => array(
+			        	array('values'=>1,
+			        			'mode'=>'show',
+			        			'fields'=>array('display_callback', 'QFfield_callback'),
+			        			'confirm'=>__('Changing these settings may often cause system unstability. Are you sure you want to see advanced settings?')
+			        	)
+			        )
+        );
+        
+        $row['advanced'] = 0;
+        
+        foreach ($autohide_mapping as $control_field=>$map) {
+        	$form->autohide_fields($control_field, isset($row[$control_field])? $row[$control_field]:null, $map);
+        }
 
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
