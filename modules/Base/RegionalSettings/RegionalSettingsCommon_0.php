@@ -92,12 +92,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	}
 
 	private static $country_elem_name;
-	public static function default_country_elem($name, $args, & $def_js) {
+	public static function default_country_elem($name) {
 		self::$country_elem_name = $name;
 		return HTML_QuickForm::createElement('commondata',$name,__('Country'),'Countries');
 	}
 
-	public static function default_state_elem($name, $args, & $def_js) {
+	public static function default_state_elem($name) {
 		return HTML_QuickForm::createElement('commondata',$name,__('State'),array('Countries',self::$country_elem_name),array('empty_option'=>true));
 	}
 

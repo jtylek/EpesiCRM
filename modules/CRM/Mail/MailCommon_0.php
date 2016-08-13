@@ -345,10 +345,10 @@ class CRM_MailCommon extends ModuleCommon {
         if(!$thread && $m['references'])
           $thread = DB::GetOne('SELECT f_thread FROM rc_mails_data_1 WHERE f_message_id is not null AND %s LIKE '.DB::Concat('\'%%\'','f_message_id','\'%%\'').' AND active=1',array($m['references']));
         if(!$thread)
-          $thread = Utils_RecordBrowserCommon::new_record('rc_mail_threads',array('subject'=>$m['subject'],'contacts'=>array_unique(array_merge($m['contacts'],array('P:'.$m['employee']))),'first_date'=>$m['date'],'last_date'=>$m['date']));
+          $thread = Utils_RecordBrowserCommon::new_record('rc_mail_threads',array('subject'=>$m['subject'],'contacts'=>array_unique(array_merge($m['contacts'],array('contact/'.$m['employee']))),'first_date'=>$m['date'],'last_date'=>$m['date']));
         Utils_RecordBrowserCommon::update_record('rc_mails',$id,array('thread'=>$thread), false, null, true);
         $t = Utils_RecordBrowserCommon::get_record('rc_mail_threads',$thread);
-        Utils_RecordBrowserCommon::update_record('rc_mail_threads',$thread,array('contacts'=>array_unique(array_merge($t['contacts'],$m['contacts'],array('P:'.$m['employee']))),'first_date'=>strtotime($m['date'])<strtotime($t['first_date'])?$m['date']:$t['first_date'],'last_date'=>strtotime($m['date'])>strtotime($t['last_date'])?$m['date']:$t['last_date'],'subject'=>(trim($m['references'])=='' ||  mb_strlen($m['subject'])<mb_strlen($t['subject']))?$m['subject']:$t['subject']));
+        Utils_RecordBrowserCommon::update_record('rc_mail_threads',$thread,array('contacts'=>array_unique(array_merge($t['contacts'],$m['contacts'],array('contact/'.$m['employee']))),'first_date'=>strtotime($m['date'])<strtotime($t['first_date'])?$m['date']:$t['first_date'],'last_date'=>strtotime($m['date'])>strtotime($t['last_date'])?$m['date']:$t['last_date'],'subject'=>(trim($m['references'])=='' ||  mb_strlen($m['subject'])<mb_strlen($t['subject']))?$m['subject']:$t['subject']));
     }
 
     public static function subscribe_users_to_record($record)
@@ -565,7 +565,7 @@ class CRM_MailCommon extends ModuleCommon {
         }
         $contact = DB::GetCol('SELECT c.id FROM contact_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type=%s AND m.active=1) WHERE c.active=1 AND ('.implode('='.DB::qstr($addr).' OR ',$fields).'='.DB::qstr($addr).' OR m.f_email=%s) AND (c.f_permission<%s OR c.created_by=%d)',array('contact',$addr,'2',$user));
         foreach($contact as $contact_id) {
-            $ret[] = 'P:'.$contact_id;  //TODO: change to contact/XX
+            $ret[] = 'contact/'.$contact_id;
         }
         $fields = DB::GetCol('SELECT field FROM company_field WHERE active=1 AND type=\'text\' AND field LIKE \'%mail%\' ORDER BY field');
         foreach($fields as & $f) {
@@ -573,7 +573,7 @@ class CRM_MailCommon extends ModuleCommon {
         }
         $company = DB::GetCol('SELECT c.id FROM company_data_1 c LEFT JOIN rc_multiple_emails_data_1 m ON (m.f_record_id=c.id AND m.f_record_type=%s AND m.active=1) WHERE c.active=1 AND ('.implode('='.DB::qstr($addr).' OR ',$fields).'='.DB::qstr($addr).' OR m.f_email=%s) AND (c.f_permission<%s OR c.created_by=%d)',array('company',$addr,2,$user));
         foreach($company as $company_id) {
-            $ret[] = 'C:'.$company_id; //TODO: change to company/XX
+            $ret[] = 'company/'.$company_id;
         }
 
         return $ret;

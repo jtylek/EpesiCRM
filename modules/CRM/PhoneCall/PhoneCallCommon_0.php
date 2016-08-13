@@ -445,7 +445,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		elseif($filter!='()' && $filter) {
 			$crits['|customer'] = $f_array;
 			foreach ($crits['|customer'] as $k=>$v)
-				$crits['|customer'][$k] = 'P:'.$v;
+				$crits['|customer'][$k] = 'contact/'.$v;
 		}
 		$crits['<=date_and_time'] = $end;
 		$crits['>=date_and_time'] = $start;
