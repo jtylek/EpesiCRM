@@ -13,4 +13,4 @@ DB::Execute('UPDATE
 			WHERE 
 				module=%s 
 				AND 
-				variable LIKE "%_filters"', array('Utils_RecordBrowser_Filters', 'Utils_RecordBrowser'));
+				variable ' . DB::like() . ' %s', array('Utils_RecordBrowser_Filters', 'Utils_RecordBrowser', '%_filters'));
