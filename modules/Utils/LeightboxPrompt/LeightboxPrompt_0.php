@@ -15,6 +15,7 @@ class Utils_LeightboxPrompt extends Module {
     private $group = null;
     private $leightbox_ready = false;
     private $last_location = null;
+    private $selected_option = null;
 
     public function construct() {
         $this->group = md5($this->get_path());
@@ -28,6 +29,10 @@ class Utils_LeightboxPrompt extends Module {
         $this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label);
         
         if (isset($form) && $form->exportValue('submited') && !$form->validate()) $this->open();
+    }
+    
+    public function set_selected_option($option) {
+    	$this->selected_option = $option;
     }
 
     public function body($header='', $params_list = array(), $additional_info='', $big=true) {
@@ -64,6 +69,9 @@ class Utils_LeightboxPrompt extends Module {
                     $form_contents = ob_get_clean();
                     $next_button['open'] = '<a ' . $this->get_form_show_href($option_key) .'>';
                     $sections[] = '<div id="'.$this->group.'_'.$option_key.'_form_section" class="'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>';
+
+                    if ($this->selected_option ==  $option_key)
+                    	$active_option = $option_key; // open this selection if selected_option set
                     
                     if ($option['form']->exportValue('submited') && !$option['form']->validate())						
 						$active_option = $option_key; // open this selection if form submitted but not valid
