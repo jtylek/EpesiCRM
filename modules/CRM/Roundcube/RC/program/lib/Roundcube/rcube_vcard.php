@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2008-2012, The Roundcube Dev Team                       |
@@ -124,11 +124,6 @@ class rcube_vcard
             $this->raw = self::charset_convert($this->raw, $detected_charset);
         }
 
-        // consider FN empty if the same as the primary e-mail address
-        if ($this->raw['FN'][0][0] == $this->raw['EMAIL'][0][0]) {
-            $this->raw['FN'][0][0] = '';
-        }
-
         // find well-known address fields
         $this->displayname  = $this->raw['FN'][0][0];
         $this->surname      = $this->raw['N'][0][0];
@@ -201,7 +196,7 @@ class rcube_vcard
                         }
 
                         while ($k < count($raw['type']) && ($subtype == 'internet' || $subtype == 'pref')) {
-                            $subtype = $typemap[$raw['type'][++$k]] ? $typemap[$raw['type'][$k]] : strtolower($raw['type'][$k]);
+                            $subtype = $typemap[$raw['type'][++$k]] ?: strtolower($raw['type'][$k]);
                         }
                     }
 
@@ -212,7 +207,7 @@ class rcube_vcard
                                 && !in_array($k, array('pref','internet','voice','base64'))
                             ) {
                                 $k_uc    = strtoupper($k);
-                                $subtype = $typemap[$k_uc] ? $typemap[$k_uc] : $k;
+                                $subtype = $typemap[$k_uc] ?: $k;
                                 break;
                             }
                         }
@@ -390,7 +385,7 @@ class rcube_vcard
                 $this->raw[$tag][$index] = (array)$value;
                 if ($type) {
                     $typemap = array_flip($this->typemap);
-                    $this->raw[$tag][$index]['type'] = explode(',', ($typemap[$type_uc] ? $typemap[$type_uc] : $type));
+                    $this->raw[$tag][$index]['type'] = explode(',', $typemap[$type_uc] ?: $type);
                 }
             }
             else {
@@ -663,7 +658,7 @@ class rcube_vcard
                         // $entry['base64'] = true;
                     }
 
-                    $data = self::decode_value($data, $enc ? $enc : 'base64');
+                    $data = self::decode_value($data, $enc ?: 'base64');
                 }
                 else if ($field == 'PHOTO') {
                     // vCard 4.0 data URI, "PHOTO:data:image/jpeg;base64,..."
@@ -747,9 +742,9 @@ class rcube_vcard
                         else if (is_bool($attrvalues)) {
                             // true means just a tag, not tag=value, as in PHOTO;BASE64:...
                             if ($attrvalues) {
-                                // vCard v3 uses ENCODING=B (#1489183)
+                                // vCard v3 uses ENCODING=b (#1489183)
                                 if ($attrname == 'base64') {
-                                    $attr .= ";ENCODING=B";
+                                    $attr .= ";ENCODING=b";
                                 }
                                 else {
                                     $attr .= strtoupper(";$attrname");

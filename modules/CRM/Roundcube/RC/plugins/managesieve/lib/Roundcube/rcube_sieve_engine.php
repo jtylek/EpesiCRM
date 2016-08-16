@@ -63,7 +63,7 @@ class rcube_sieve_engine
         1 => 'notifyimportancehigh'
     );
 
-    const VERSION  = '8.4';
+    const VERSION  = '8.6';
     const PROGNAME = 'Roundcube (Managesieve)';
     const PORT     = 4190;
 
@@ -334,7 +334,7 @@ class rcube_sieve_engine
             else if ($action == 'act' && !$error) {
                 if (isset($this->script[$fid])) {
                     $rule     = $this->script[$fid];
-                    $disabled = $rule['disabled'] ? true : false;
+                    $disabled = !empty($rule['disabled']);
                     $rule['disabled'] = !$disabled;
                     $result = $this->sieve->script->update_rule($fid, $rule);
 
@@ -397,6 +397,8 @@ class rcube_sieve_engine
                 }
             }
             else if ($action == 'setget') {
+                $this->rc->request_security_check(rcube_utils::INPUT_GET);
+
                 $script_name = rcube_utils::get_input_value('_set', rcube_utils::INPUT_GPC, true);
                 $script      = $this->sieve->get_script($script_name);
 
@@ -616,6 +618,7 @@ class rcube_sieve_engine
             $addresses      = rcube_utils::get_input_value('_action_addresses', rcube_utils::INPUT_POST, true);
             $intervals      = rcube_utils::get_input_value('_action_interval', rcube_utils::INPUT_POST);
             $interval_types = rcube_utils::get_input_value('_action_interval_type', rcube_utils::INPUT_POST);
+            $from           = rcube_utils::get_input_value('_action_from', rcube_utils::INPUT_POST);
             $subject        = rcube_utils::get_input_value('_action_subject', rcube_utils::INPUT_POST, true);
             $flags          = rcube_utils::get_input_value('_action_flags', rcube_utils::INPUT_POST);
             $varnames       = rcube_utils::get_input_value('_action_varname', rcube_utils::INPUT_POST);
@@ -632,8 +635,8 @@ class rcube_sieve_engine
             foreach ($sizeitems as $item)
                 $items[] = $item;
 
-            $this->form['disabled'] = $_POST['_disabled'] ? true : false;
-            $this->form['join']     = $join=='allof' ? true : false;
+            $this->form['disabled'] = !empty($_POST['_disabled']);
+            $this->form['join']     = $join == 'allof';
             $this->form['name']     = $name;
             $this->form['tests']    = array();
             $this->form['actions']  = array();
@@ -981,10 +984,11 @@ class rcube_sieve_engine
                     $interval_type = $interval_types[$idx] == 'seconds' ? 'seconds' : 'days';
 
                     $this->form['actions'][$i]['reason']    = str_replace("\r\n", "\n", $reason);
+                    $this->form['actions'][$i]['from']      = $from[$idx];
                     $this->form['actions'][$i]['subject']   = $subject[$idx];
                     $this->form['actions'][$i]['addresses'] = array_shift($addresses);
                     $this->form['actions'][$i][$interval_type] = $intervals[$idx];
-// @TODO: vacation :mime, :from, :handle
+// @TODO: vacation :mime, :handle
 
                     foreach ((array)$this->form['actions'][$i]['addresses'] as $aidx => $address) {
                         $this->form['actions'][$i]['addresses'][$aidx] = $address = trim($address);
@@ -996,6 +1000,10 @@ class rcube_sieve_engine
                             $this->errors['actions'][$i]['addresses'] = $this->plugin->gettext('noemailwarning');
                             break;
                         }
+                    }
+
+                    if (!empty($this->form['actions'][$i]['from']) && !rcube_utils::check_email($this->form['actions'][$i]['from'])) {
+                        $this->errors['actions'][$i]['from'] = $this->plugin->gettext('noemailwarning');
                     }
 
                     if ($this->form['actions'][$i]['reason'] == '')
@@ -1606,7 +1614,7 @@ class rcube_sieve_engine
             $mout .= '<div id="rule_date_header_div' .$id. '" class="adv"'. ($rule['test'] != 'date' ? ' style="display:none"' : '') .'>';
             $mout .= '<span class="label">' . rcube::Q($this->plugin->gettext('dateheader')) . '</span>';
             $mout .= '<input type="text" name="_rule_date_header[]" id="rule_date_header'.$id
-                . '" value="'. Q($rule['test'] == 'date' ? $rule['header'] : '')
+                . '" value="'. rcube::Q($rule['test'] == 'date' ? $rule['header'] : '')
                 . '" size="15"' . $this->error_class($id, 'test', 'dateheader', 'rule_date_header') .' />';
             $mout .= '</div>';
         }
@@ -1679,7 +1687,7 @@ class rcube_sieve_engine
             $test = $rule['type'];
         }
         else if (in_array($rule['test'], $set)) {
-            $test = ($rule['not'] ? 'not' : '') . ($rule['type'] ? $rule['type'] : 'is');
+            $test = ($rule['not'] ? 'not' : '') . ($rule['type'] ?: 'is');
         }
         else {
             $test = ($rule['not'] ? 'not' : '') . $rule['test'];
@@ -1782,11 +1790,15 @@ class rcube_sieve_engine
         $out .= '<span class="label">'. rcube::Q($this->plugin->gettext('vacationreason')) .'</span><br />'
             .'<textarea name="_action_reason['.$id.']" id="action_reason' .$id. '" '
             .'rows="3" cols="35" '. $this->error_class($id, 'action', 'reason', 'action_reason') . '>'
-            . Q($action['reason'], 'strict', false) . "</textarea>\n";
+            . rcube::Q($action['reason'], 'strict', false) . "</textarea>\n";
         $out .= '<br /><span class="label">' .rcube::Q($this->plugin->gettext('vacationsubject')) . '</span><br />'
             .'<input type="text" name="_action_subject['.$id.']" id="action_subject'.$id.'" '
             .'value="' . (is_array($action['subject']) ? rcube::Q(implode(', ', $action['subject']), 'strict', false) : $action['subject']) . '" size="35" '
             . $this->error_class($id, 'action', 'subject', 'action_subject') .' />';
+        $out .= '<br /><span class="label">' .rcube::Q($this->plugin->gettext('vacationfrom')) . '</span><br />'
+            .'<input type="text" name="_action_from['.$id.']" id="action_from'.$id.'" '
+            .'value="' . $action['from'] . '" size="35" '
+            . $this->error_class($id, 'action', 'from', 'action_from') .' />';
         $out .= '<br /><span class="label">' .rcube::Q($this->plugin->gettext('vacationaddr')) . '</span><br />'
             . $this->list_input($id, 'action_addresses', $addresses, true,
                 $this->error_class($id, 'action', 'addresses', 'action_addresses'), 30)
@@ -2348,7 +2360,7 @@ class rcube_sieve_engine
             if (empty($filter['actions'])) {
                 continue;
             }
-            $fname = $filter['name'] ? $filter['name'] : "#$i";
+            $fname = $filter['name'] ?: "#$i";
             $result[] = array(
                 'id'    => $idx,
                 'name'  => $fname,

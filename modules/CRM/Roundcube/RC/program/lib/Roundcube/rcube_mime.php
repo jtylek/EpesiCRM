@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2005-2014, The Roundcube Dev Team                       |
@@ -133,8 +133,8 @@ class rcube_mime
     /**
      * Decode a message header value
      *
-     * @param string  $input         Header value
-     * @param string  $fallback      Fallback charset if none specified
+     * @param string  $input    Header value
+     * @param string  $fallback Fallback charset if none specified
      *
      * @return string Decoded string
      */
@@ -155,7 +155,7 @@ class rcube_mime
      */
     public static function decode_mime_string($input, $fallback = null)
     {
-        $default_charset = !empty($fallback) ? $fallback : self::get_charset();
+        $default_charset = $fallback ?: self::get_charset();
 
         // rfc: all line breaks or other characters not found
         // in the Base64 Alphabet must be ignored by decoding software
@@ -290,7 +290,7 @@ class rcube_mime
     }
 
     /**
-     * @access private
+     * E-mail address list parser
      */
     private static function parse_address_list($str, $decode = true, $fallback = null)
     {
@@ -567,7 +567,7 @@ class rcube_mime
         // Note: Never try to use iconv instead of mbstring functions here
         //       Iconv's substr/strlen are 100x slower (#1489113)
 
-        if ($charset && $charset != RCUBE_CHARSET && function_exists('mb_internal_encoding')) {
+        if ($charset && $charset != RCUBE_CHARSET) {
             mb_internal_encoding($charset);
         }
 
@@ -661,7 +661,7 @@ class rcube_mime
             }
         }
 
-        if ($charset && $charset != RCUBE_CHARSET && function_exists('mb_internal_encoding')) {
+        if ($charset && $charset != RCUBE_CHARSET) {
             mb_internal_encoding(RCUBE_CHARSET);
         }
 
@@ -671,9 +671,9 @@ class rcube_mime
     /**
      * A method to guess the mime_type of an attachment.
      *
-     * @param string $path      Path to the file or file contents
-     * @param string $name      File name (with suffix)
-     * @param string $failover  Mime type supplied for failover
+     * @param string  $path        Path to the file or file contents
+     * @param string  $name        File name (with suffix)
+     * @param string  $failover    Mime type supplied for failover
      * @param boolean $is_stream   Set to True if $path contains file contents
      * @param boolean $skip_suffix Set to True if the config/mimetypes.php mappig should be ignored
      *

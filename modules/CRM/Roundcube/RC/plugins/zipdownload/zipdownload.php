@@ -6,7 +6,7 @@
  * Plugin to allow the download of all message attachments in one zip file
  * and downloading of many messages in one go.
  *
- * @version 3.0
+ * @version 3.1
  * @requires php_zip extension (including ZipArchive class)
  * @author Philip Weir
  * @author Thomas Bruderli
@@ -63,7 +63,7 @@ class zipdownload extends rcube_plugin
                 '_action' => 'plugin.zipdownload.attachments',
                 '_mbox'   => $rcmail->output->env['mailbox'],
                 '_uid'    => $rcmail->output->env['uid'],
-            ));
+            ), false, false, true);
 
             $link = html::a(array('href' => $href, 'class' => 'button zipdownload'),
                 rcube::Q($this->gettext('downloadall'))
@@ -119,7 +119,11 @@ class zipdownload extends rcube_plugin
      */
     public function download_attachments()
     {
-        $rcmail    = rcmail::get_instance();
+        $rcmail = rcmail::get_instance();
+
+        // require CSRF protected request
+        $rcmail->request_security_check(rcube_utils::INPUT_GET);
+
         $imap      = $rcmail->get_storage();
         $temp_dir  = $rcmail->config->get('temp_dir');
         $tmpfname  = tempnam($temp_dir, 'zipdownload');
@@ -156,7 +160,7 @@ class zipdownload extends rcube_plugin
 
         $zip->close();
 
-        $filename = ($message->subject ? $message->subject : 'roundcube') . '.zip';
+        $filename = ($message->subject ?: 'roundcube') . '.zip';
         $this->_deliver_zipfile($tmpfname, $filename);
 
         // delete temporary files from disk
@@ -247,7 +251,7 @@ class zipdownload extends rcube_plugin
                     $subject = $this->_convert_filename($subject);
                     $subject = substr($subject, 0, 16);
 
-                    $disp_name = ($subject ? $subject : 'message_rfc822') . ".eml";
+                    $disp_name = ($subject ?: 'message_rfc822') . ".eml";
                     $disp_name = $path . $uid . "_" . $disp_name;
 
                     $tmpfn = tempnam($temp_dir, 'zipmessage');

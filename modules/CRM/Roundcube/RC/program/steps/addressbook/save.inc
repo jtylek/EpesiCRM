@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | program/steps/addressbook/save.inc                                    |
  |                                                                       |
@@ -124,7 +124,7 @@ if (isset($a_record['photo'])) {
     else if ($tempfile = $_SESSION['contacts']['files'][$a_record['photo']]) {
         $tempfile = $RCMAIL->plugins->exec_hook('attachment_get', $tempfile);
         if ($tempfile['status'])
-            $a_record['photo'] = $tempfile['data'] ? $tempfile['data'] : @file_get_contents($tempfile['path']);
+            $a_record['photo'] = $tempfile['data'] ?: @file_get_contents($tempfile['path']);
     }
     else
         unset($a_record['photo']);
@@ -164,9 +164,12 @@ if (!empty($cid)) {
             $_POST['_cid'] = $newcid;
         }
 
-        // define list of cols to be displayed
+        // refresh contact data for list update and 'show' action
+        $CONTACT_RECORD = $CONTACTS->get_record($newcid ?: $cid, true);
+
+        // Update contacts list
         $a_js_cols = array();
-        $record = $CONTACTS->get_record($newcid ? $newcid : $cid, true);
+        $record = $CONTACT_RECORD;
         $record['email'] = reset($CONTACTS->get_col_values('email', $record, true));
         $record['name']  = rcube_addressbook::compose_list_name($record);
 
@@ -186,7 +189,7 @@ if (!empty($cid)) {
     else {
         // show error message
         $err = $CONTACTS->get_error();
-        $OUTPUT->show_message($plugin['message'] ? $plugin['message'] : ($err['message'] ? $err['message'] : 'errorsaving'), 'error', null, false);
+        $OUTPUT->show_message($plugin['message'] ?: ($err['message'] ?: 'errorsaving'), 'error', null, false);
         $RCMAIL->overwrite_action('show');
     }
 }
@@ -249,7 +252,7 @@ else {
     else {
         // show error message
         $err = $CONTACTS->get_error();
-        $OUTPUT->show_message($plugin['message'] ? $plugin['message'] : ($err['message'] ? $err['message'] : 'errorsaving'), 'error', null, false);
+        $OUTPUT->show_message($plugin['message'] ?: ($err['message'] ?: 'errorsaving'), 'error', null, false);
         $RCMAIL->overwrite_action('add');
     }
 }

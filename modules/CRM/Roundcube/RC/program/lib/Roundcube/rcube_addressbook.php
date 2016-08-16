@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2006-2013, The Roundcube Dev Team                       |
@@ -16,7 +16,6 @@
  +-----------------------------------------------------------------------+
 */
 
-
 /**
  * Abstract skeleton of an address book/repository
  *
@@ -26,27 +25,32 @@
 abstract class rcube_addressbook
 {
     /** constants for error reporting **/
-    const ERROR_READ_ONLY = 1;
+    const ERROR_READ_ONLY     = 1;
     const ERROR_NO_CONNECTION = 2;
-    const ERROR_VALIDATE = 3;
-    const ERROR_SAVING = 4;
-    const ERROR_SEARCH = 5;
+    const ERROR_VALIDATE      = 3;
+    const ERROR_SAVING        = 4;
+    const ERROR_SEARCH        = 5;
 
     /** public properties (mandatory) */
     public $primary_key;
-    public $groups = false;
+    public $groups        = false;
     public $export_groups = true;
-    public $readonly = true;
-    public $searchonly = false;
-    public $undelete = false;
-    public $ready = false;
-    public $group_id = null;
-    public $list_page = 1;
-    public $page_size = 10;
-    public $sort_col = 'name';
-    public $sort_order = 'ASC';
-    public $coltypes = array('name' => array('limit'=>1), 'firstname' => array('limit'=>1), 'surname' => array('limit'=>1), 'email' => array('limit'=>1));
-    public $date_cols = array();
+    public $readonly      = true;
+    public $searchonly    = false;
+    public $undelete      = false;
+    public $ready         = false;
+    public $group_id      = null;
+    public $list_page     = 1;
+    public $page_size     = 10;
+    public $sort_col      = 'name';
+    public $sort_order    = 'ASC';
+    public $date_cols     = array();
+    public $coltypes      = array(
+        'name'      => array('limit'=>1),
+        'firstname' => array('limit'=>1),
+        'surname'   => array('limit'=>1),
+        'email'     => array('limit'=>1)
+    );
 
     protected $error;
 
@@ -126,10 +130,10 @@ abstract class rcube_addressbook
     /**
      * Get a specific contact record
      *
-     * @param mixed record identifier(s)
+     * @param mixed   Record identifier(s)
      * @param boolean True to return record as associative array, otherwise a result set is returned
      *
-     * @return mixed Result object with all record fields or False if not found
+     * @return rcube_result_set|array Result object with all record fields
      */
     abstract function get_record($id, $assoc=false);
 
@@ -146,7 +150,7 @@ abstract class rcube_addressbook
     /**
      * Setter for errors for internal use
      *
-     * @param int Error type (one of this class' error constants)
+     * @param int    Error type (one of this class' error constants)
      * @param string Error message (name of a text label)
      */
     protected function set_error($type, $message)
@@ -163,8 +167,7 @@ abstract class rcube_addressbook
     /**
      * Set internal list page
      *
-     * @param  number  Page number to list
-     * @access public
+     * @param number Page number to list
      */
     function set_page($page)
     {
@@ -174,8 +177,7 @@ abstract class rcube_addressbook
     /**
      * Set internal page size
      *
-     * @param  number  Number of messages to display on one page
-     * @access public
+     * @param number Number of messages to display on one page
      */
     function set_pagesize($size)
     {
@@ -202,8 +204,9 @@ abstract class rcube_addressbook
      * Check the given data before saving.
      * If input isn't valid, the message to display can be fetched using get_error()
      *
-     * @param array Assoziative array with data to save
+     * @param array   Assoziative array with data to save
      * @param boolean Attempt to fix/complete record automatically
+     *
      * @return boolean True if input is valid, False if not.
      */
     public function validate(&$save_data, $autofix = false)
@@ -292,10 +295,10 @@ abstract class rcube_addressbook
     /**
      * Mark one or more contact records as deleted
      *
-     * @param array  Record identifiers
-     * @param bool   Remove records irreversible (see self::undelete)
+     * @param array Record identifiers
+     * @param bool  Remove records irreversible (see self::undelete)
      */
-    function delete($ids, $force=true)
+    function delete($ids, $force = true)
     {
         /* empty for read-only address books */
     }
@@ -303,7 +306,7 @@ abstract class rcube_addressbook
     /**
      * Unmark delete flag on contact record(s)
      *
-     * @param array  Record identifiers
+     * @param array Record identifiers
      */
     function undelete($ids)
     {
@@ -536,7 +539,7 @@ abstract class rcube_addressbook
         else if ($compose_mode == 1)
             $fn = join(' ', array($contact['firstname'], $contact['middlename'], $contact['surname']));
         else if ($compose_mode == 0)
-            $fn = !empty($contact['name']) ? $contact['name'] : join(' ', array($contact['prefix'], $contact['firstname'], $contact['middlename'], $contact['surname'], $contact['suffix']));
+            $fn = $contact['name'] ?: join(' ', array($contact['prefix'], $contact['firstname'], $contact['middlename'], $contact['surname'], $contact['suffix']));
         else {
             $plugin = rcube::get_instance()->plugins->exec_hook('contact_listname', array('contact' => $contact));
             $fn     = $plugin['fn'];
@@ -547,12 +550,12 @@ abstract class rcube_addressbook
         // fallbacks...
         if ($fn === '') {
             // ... display name
-            if (!empty($contact['name'])) {
-                $fn = $contact['name'];
+            if ($name = trim($contact['name'])) {
+                $fn = $name;
             }
             // ... organization
-            else if (!empty($contact['organization'])) {
-                $fn = $contact['organization'];
+            else if ($org = trim($contact['organization'])) {
+                $fn = $org;
             }
             // ... email address
             else if (($email = self::get_col_values('email', $contact, true)) && !empty($email)) {
@@ -685,6 +688,4 @@ abstract class rcube_addressbook
 
         return false;
     }
-
 }
-

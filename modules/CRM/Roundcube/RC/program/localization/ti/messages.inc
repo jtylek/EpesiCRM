@@ -21,4 +21,3 @@ $messages['cookiesdisabled'] = 'ጎስጓሲ ኢንተርኔት ዛላማላ አ
 $messages['sessionerror'] = 'እዋኑ ዝሓለፎ ወይ ዋጋ ዘይብሉ ካርነ ምጥቃም ክልክል እዩ::';
 $messages['storageerror'] = 'ናብ ውሃቢ ግልጋሉት ቆፎ ረኽቢ አይተኻለን::';
 $messages['servererror'] = 'ጋዶ ውሃቢት ግልጋሉት';
-?>

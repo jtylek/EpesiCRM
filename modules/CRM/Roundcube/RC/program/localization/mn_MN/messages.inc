@@ -46,4 +46,3 @@ $messages['sendingmessage'] = 'Илгээж байна...';
 $messages['messagesent'] = 'Захиа амжилттай илгээгдлээ.';
 $messages['savingmessage'] = 'Захиа хадгалж байна...';
 $messages['messagesaved'] = 'Захиа Ноороглож хадгалагдсан';
-?>

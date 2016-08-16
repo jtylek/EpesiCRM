@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2005-2012, The Roundcube Dev Team                       |
@@ -26,7 +26,7 @@
  */
 class rcube_smtp
 {
-    private $conn = null;
+    private $conn;
     private $response;
     private $error;
     private $anonymize_log = 0;
@@ -47,7 +47,7 @@ class rcube_smtp
      *
      * @return bool  Returns true on success, or false on error
      */
-    public function connect($host=null, $port=null, $user=null, $pass=null)
+    public function connect($host = null, $port = null, $user = null, $pass = null)
     {
         $rcube = rcube::get_instance();
 
@@ -59,10 +59,10 @@ class rcube_smtp
 
         // let plugins alter smtp connection config
         $CONFIG = $rcube->plugins->exec_hook('smtp_connect', array(
-            'smtp_server'    => $host ? $host : $rcube->config->get('smtp_server'),
-            'smtp_port'      => $port ? $port : $rcube->config->get('smtp_port', 25),
-            'smtp_user'      => $user ? $user : $rcube->config->get('smtp_user'),
-            'smtp_pass'      => $pass ? $pass : $rcube->config->get('smtp_pass'),
+            'smtp_server'    => $host ?: $rcube->config->get('smtp_server'),
+            'smtp_port'      => $port ?: $rcube->config->get('smtp_port', 25),
+            'smtp_user'      => $user !== null ? $user : $rcube->config->get('smtp_user'),
+            'smtp_pass'      => $pass !== null ? $pass : $rcube->config->get('smtp_pass'),
             'smtp_auth_cid'  => $rcube->config->get('smtp_auth_cid'),
             'smtp_auth_pw'   => $rcube->config->get('smtp_auth_pw'),
             'smtp_auth_type' => $rcube->config->get('smtp_auth_type'),
@@ -145,7 +145,7 @@ class rcube_smtp
 
         $smtp_user = str_replace('%u', $rcube->get_user_name(), $CONFIG['smtp_user']);
         $smtp_pass = str_replace('%p', $rcube->get_user_password(), $CONFIG['smtp_pass']);
-        $smtp_auth_type = empty($CONFIG['smtp_auth_type']) ? NULL : $CONFIG['smtp_auth_type'];
+        $smtp_auth_type = $CONFIG['smtp_auth_type'] ?: null;
 
         if (!empty($CONFIG['smtp_auth_cid'])) {
             $smtp_authz = $smtp_user;
@@ -336,7 +336,6 @@ class rcube_smtp
         }
     }
 
-
     /**
      * This is our own debug handler for the SMTP connection
      */
@@ -460,15 +459,19 @@ class rcube_smtp
         }
 
         $addresses  = array();
+        $recipients = preg_replace('/[\s\t]*\r?\n/', '', $recipients);
         $recipients = rcube_utils::explode_quoted_string(',', $recipients);
 
         reset($recipients);
         foreach ($recipients as $recipient) {
             $a = rcube_utils::explode_quoted_string(' ', $recipient);
             foreach ($a as $word) {
-                if (strpos($word, "@") > 0 && $word[strlen($word)-1] != '"') {
-                    $word = preg_replace('/^<|>$/', '', trim($word));
-                    if (in_array($word, $addresses) === false) {
+                $word = trim($word);
+                $len  = strlen($word);
+
+                if ($len && strpos($word, "@") > 0 && $word[$len-1] != '"') {
+                    $word = preg_replace('/^<|>$/', '', $word);
+                    if (!in_array($word, $addresses)) {
                         array_push($addresses, $word);
                     }
                 }

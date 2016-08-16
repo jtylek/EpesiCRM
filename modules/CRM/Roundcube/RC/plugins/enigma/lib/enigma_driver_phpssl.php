@@ -1,20 +1,14 @@
 <?php
-/*
+
+/**
  +-------------------------------------------------------------------------+
- | S/MIME driver for the Enigma Plugin                                |
+ | S/MIME driver for the Enigma Plugin                                     |
  |                                                                         |
- | This program is free software; you can redistribute it and/or modify    |
- | it under the terms of the GNU General Public License version 2          |
- | as published by the Free Software Foundation.                           |
+ | Copyright (C) 2010-2015 The Roundcube Dev Team                          |
  |                                                                         |
- | This program is distributed in the hope that it will be useful,         |
- | but WITHOUT ANY WARRANTY; without even the implied warranty of          |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           |
- | GNU General Public License for more details.                            |
- |                                                                         |
- | You should have received a copy of the GNU General Public License along |
- | with this program; if not, write to the Free Software Foundation, Inc., |
- | 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.             |
+ | Licensed under the GNU General Public License version 3 or              |
+ | any later version with exceptions for skins & plugins.                  |
+ | See the README file for a full license statement.                       |
  |                                                                         |
  +-------------------------------------------------------------------------+
  | Author: Aleksander Machniak <alec@alec.pl>                              |
@@ -24,7 +18,6 @@
 class enigma_driver_phpssl extends enigma_driver
 {
     private $rc;
-    //private $gpg;
     private $homedir;
     private $user;
 
@@ -46,15 +39,15 @@ class enigma_driver_phpssl extends enigma_driver
         $homedir = $this->rc->config->get('enigma_smime_homedir', INSTALL_PATH . '/plugins/enigma/home');
 
         if (!$homedir)
-            return new enigma_error(enigma_error::E_INTERNAL,
+            return new enigma_error(enigma_error::INTERNAL,
                 "Option 'enigma_smime_homedir' not specified");
 
         // check if homedir exists (create it if not) and is readable
         if (!file_exists($homedir))
-            return new enigma_error(enigma_error::E_INTERNAL,
+            return new enigma_error(enigma_error::INTERNAL,
                 "Keys directory doesn't exists: $homedir");
         if (!is_writable($homedir))
-            return new enigma_error(enigma_error::E_INTERNAL,
+            return new enigma_error(enigma_error::INTERNAL,
                 "Keys directory isn't writeable: $homedir");
 
         $homedir = $homedir . '/' . $this->user;
@@ -64,10 +57,10 @@ class enigma_driver_phpssl extends enigma_driver
             mkdir($homedir, 0700);
 
         if (!file_exists($homedir))
-            return new enigma_error(enigma_error::E_INTERNAL,
+            return new enigma_error(enigma_error::INTERNAL,
                 "Unable to create keys directory: $homedir");
         if (!is_writable($homedir))
-            return new enigma_error(enigma_error::E_INTERNAL,
+            return new enigma_error(enigma_error::INTERNAL,
                 "Unable to write to keys directory: $homedir");
 
         $this->homedir = $homedir;
@@ -78,11 +71,11 @@ class enigma_driver_phpssl extends enigma_driver
     {
     }
 
-    function decrypt($text, $key, $passwd)
+    function decrypt($text, $keys = array())
     {
     }
 
-    function sign($text, $key, $passwd)
+    function sign($text, $key, $passwd, $mode = null)
     {
     }
 
@@ -111,7 +104,7 @@ class enigma_driver_phpssl extends enigma_driver
         if ($sig !== true) {
             // try without certificate verification
             $sig      = openssl_pkcs7_verify($msg_file, PKCS7_NOVERIFY, $cert_file);
-            $validity = enigma_error::E_UNVERIFIED;
+            $validity = enigma_error::UNVERIFIED;
         }
 
         if ($sig === true) {
@@ -119,7 +112,7 @@ class enigma_driver_phpssl extends enigma_driver
         }
         else {
             $errorstr = $this->get_openssl_error();
-            $sig = new enigma_error(enigma_error::E_INTERNAL, $errorstr);
+            $sig = new enigma_error(enigma_error::INTERNAL, $errorstr);
         }
 
         // remove temp files
@@ -130,6 +123,10 @@ class enigma_driver_phpssl extends enigma_driver
     }
 
     public function import($content, $isfile=false)
+    {
+    }
+
+    public function export($key, $with_private = false)
     {
     }
 
@@ -145,15 +142,15 @@ class enigma_driver_phpssl extends enigma_driver
     {
     }
 
-    public function del_key($keyid)
+    public function delete_key($keyid)
     {
     }
 
-    public function del_privkey($keyid)
+    public function delete_privkey($keyid)
     {
     }
 
-    public function del_pubkey($keyid)
+    public function delete_pubkey($keyid)
     {
     }
 
@@ -190,8 +187,6 @@ class enigma_driver_phpssl extends enigma_driver
                 $skey->expires     = $subkey->getExpirationDate();
                 $skey->fingerprint = $subkey->getFingerprint();
                 $skey->has_private = $subkey->hasPrivate();
-                $skey->can_sign    = $subkey->canSign();
-                $skey->can_encrypt = $subkey->canEncrypt();
 
                 $ekey->subkeys[$idx] = $skey;
         };
@@ -218,7 +213,7 @@ class enigma_driver_phpssl extends enigma_driver
 
         if (empty($cert) || empty($cert['subject'])) {
             $errorstr = $this->get_openssl_error();
-            return new enigma_error(enigm_error::E_INTERNAL, $errorstr);
+            return new enigma_error(enigma_error::INTERNAL, $errorstr);
         }
 
         $data = new enigma_signature();

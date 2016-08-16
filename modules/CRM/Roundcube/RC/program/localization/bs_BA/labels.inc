@@ -298,6 +298,7 @@ $labels['searchresult'] = 'Rezultati pretrage';
 $labels['advsearch'] = 'Napredna pretraga';
 $labels['advanced'] = 'Napredno';
 $labels['other'] = 'Ostalo';
+$labels['printcontact'] = 'Štampaj kontakt';
 $labels['typehome']   = 'Kućni broj';
 $labels['typework']   = 'Poslovni broj';
 $labels['typeother']  = 'Ostalo';

@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2008-2012, The Roundcube Dev Team                       |
@@ -34,6 +34,8 @@ class rcube_plugin_api
     public $dir;
     public $url = 'plugins/';
     public $task = '';
+    public $initialized = false;
+
     public $output;
     public $handlers              = array();
     public $allowed_prefs         = array();
@@ -41,6 +43,7 @@ class rcube_plugin_api
     public $active_plugins        = array();
 
     protected $plugins           = array();
+    protected $plugins_initialized = array();
     protected $tasks             = array();
     protected $actions           = array();
     protected $actionmap         = array();
@@ -85,12 +88,21 @@ class rcube_plugin_api
     {
         $this->task   = $task;
         $this->output = $app->output;
-
         // register an internal hook
         $this->register_hook('template_container', array($this, 'template_container_hook'));
-
         // maybe also register a shudown function which triggers
         // shutdown functions of all plugin objects
+
+        foreach ($this->plugins as $plugin) {
+            // ... task, request type and framed mode
+            if (!$this->plugins_initialized[$plugin->ID] && !$this->filter($plugin)) {
+                $plugin->init();
+                $this->plugins_initialized[$plugin->ID] = $plugin;
+            }
+        }
+
+        // we have finished initializing all plugins
+        $this->initialized = true;
     }
 
     /**
@@ -136,7 +148,7 @@ class rcube_plugin_api
     /**
      * Load the specified plugin
      *
-     * @param string Plugin name
+     * @param string  Plugin name
      * @param boolean Force loading of the plugin even if it doesn't match the filter
      * @param boolean Require loading of the plugin, error if it doesn't exist
      *
@@ -151,55 +163,75 @@ class rcube_plugin_api
             $plugins_dir = unslashify($dir->path);
         }
 
-        // plugin already loaded
-        if ($this->plugins[$plugin_name]) {
-            return true;
-        }
+        // plugin already loaded?
+        if (!$this->plugins[$plugin_name]) {
+            $fn = "$plugins_dir/$plugin_name/$plugin_name.php";
 
-        $fn = "$plugins_dir/$plugin_name/$plugin_name.php";
+            if (!is_readable($fn)) {
+                if ($require) {
+                    rcube::raise_error(array('code' => 520, 'type' => 'php',
+                        'file' => __FILE__, 'line' => __LINE__,
+                        'message' => "Failed to load plugin file $fn"), true, false);
+                }
 
-        if (is_readable($fn)) {
+                return false;
+            }
+
             if (!class_exists($plugin_name, false)) {
                 include $fn;
             }
 
             // instantiate class if exists
-            if (class_exists($plugin_name, false)) {
-                $plugin = new $plugin_name($this);
-                $this->active_plugins[] = $plugin_name;
-
-                // check inheritance...
-                if (is_subclass_of($plugin, 'rcube_plugin')) {
-                    // ... task, request type and framed mode
-                    if (($force || !$plugin->task || preg_match('/^('.$plugin->task.')$/i', $this->task))
-                        && (!$plugin->noajax || (is_object($this->output) && $this->output->type == 'html'))
-                        && (!$plugin->noframe || empty($_REQUEST['_framed']))
-                    ) {
-                        $plugin->init();
-                        $this->plugins[$plugin_name] = $plugin;
-                    }
-
-                    if (!empty($plugin->allowed_prefs)) {
-                        $this->allowed_prefs = array_merge($this->allowed_prefs, $plugin->allowed_prefs);
-                    }
-
-                    return true;
-                }
-            }
-            else {
+            if (!class_exists($plugin_name, false)) {
                 rcube::raise_error(array('code' => 520, 'type' => 'php',
                     'file' => __FILE__, 'line' => __LINE__,
                     'message' => "No plugin class $plugin_name found in $fn"),
                     true, false);
+
+                return false;
+            }
+
+            $plugin = new $plugin_name($this);
+            $this->active_plugins[] = $plugin_name;
+
+            // check inheritance...
+            if (is_subclass_of($plugin, 'rcube_plugin')) {
+                // call onload method on plugin if it exists.
+                // this is useful if you want to be called early in the boot process
+                if (method_exists($plugin, 'onload')) {
+                    $plugin->onload();
+                }
+
+                if (!empty($plugin->allowed_prefs)) {
+                    $this->allowed_prefs = array_merge($this->allowed_prefs, $plugin->allowed_prefs);
+                }
+
+                $this->plugins[$plugin_name] = $plugin;
             }
         }
-        else if ($require) {
-            rcube::raise_error(array('code' => 520, 'type' => 'php',
-                'file' => __FILE__, 'line' => __LINE__,
-                'message' => "Failed to load plugin file $fn"), true, false);
+
+        if ($plugin = $this->plugins[$plugin_name]) {
+            // init a plugin only if $force is set or if we're called after initialization
+            if (($force || $this->initialized) && !$this->plugins_initialized[$plugin_name] && ($force || !$this->filter($plugin))) {
+                $plugin->init();
+                $this->plugins_initialized[$plugin_name] = $plugin;
+            }
         }
 
-        return false;
+        return true;
+    }
+
+    /**
+     * check if we should prevent this plugin from initialising
+     *
+     * @param $plugin
+     * @return bool
+     */
+    private function filter($plugin)
+    {
+        return ($plugin->noajax  && !(is_object($this->output) && $this->output->type == 'html'))
+             || ($plugin->task && !preg_match('/^('.$plugin->task.')$/i', $this->task))
+             || ($plugin->noframe && !empty($_REQUEST['_framed']));
     }
 
     /**
@@ -293,8 +325,8 @@ class rcube_plugin_api
             // load additional information from local composer.lock file
             if ($lock = $composer_lock['installed'][$json['name']]) {
                 $info['version'] = $lock['version'];
-                $info['uri']     = $lock['homepage'] ? $lock['homepage'] : $lock['source']['uri'];
-                $info['src_uri'] = $lock['dist']['uri'] ? $lock['dist']['uri'] : $lock['source']['uri'];
+                $info['uri']     = $lock['homepage'] ?: $lock['source']['uri'];
+                $info['src_uri'] = $lock['dist']['uri'] ?: $lock['source']['uri'];
             }
         }
 

@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | program/steps/addressbook/export.inc                                  |
  |                                                                       |
@@ -20,6 +20,8 @@
  | Author: Aleksander Machniak <machniak@kolabsys.com>                   |
  +-----------------------------------------------------------------------+
 */
+
+$RCMAIL->request_security_check(rcube_utils::INPUT_GET);
 
 // Use search result
 if (!empty($_REQUEST['_search']) && isset($_SESSION['search'][$_REQUEST['_search']])) {
@@ -96,6 +98,14 @@ else {
     $CONTACTS->set_page(1);
     $CONTACTS->set_pagesize(99999);
     $result = $CONTACTS->list_records(null, 0, true);
+}
+
+// Give plugins a possibility to implement other output formats or modify the result
+$plugin = $RCMAIL->plugins->exec_hook('addressbook_export', array('result' => $result));
+$result = $plugin['result'];
+
+if ($plugin['abort']) {
+    exit;
 }
 
 // send downlaod headers

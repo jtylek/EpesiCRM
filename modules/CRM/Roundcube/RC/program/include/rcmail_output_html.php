@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | program/include/rcmail_output_html.php                                |
  |                                                                       |
@@ -18,7 +18,6 @@
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
  +-----------------------------------------------------------------------+
 */
-
 
 /**
  * Class to create HTML page output using a skin template
@@ -274,11 +273,14 @@ EOF;
         $meta = @file_get_contents(RCUBE_INSTALL_PATH . $skin_path . '/meta.json');
         $meta = @json_decode($meta, true);
 
-        $meta['path'] = $skin_path;
-        $skin_id = end(explode('/', $skin_path));
+        $meta['path']  = $skin_path;
+        $path_elements = explode('/', $skin_path);
+        $skin_id       = end($path_elements);
+
         if (!$meta['name']) {
             $meta['name'] = $skin_id;
         }
+
         $this->skins[$skin_id] = $meta;
 
         if ($meta['extends']) {
@@ -400,7 +402,7 @@ EOF;
         if ($override || !$this->message) {
             if ($this->app->text_exists($message)) {
                 if (!empty($vars))
-                    $vars = array_map('Q', $vars);
+                    $vars = array_map(array('rcube','Q'), $vars);
                 $msgtext = $this->app->gettext(array('name' => $message, 'vars' => $vars));
             }
             else
@@ -514,10 +516,10 @@ EOF;
         // write all javascript commands
         $this->add_script($commands, 'head_top');
 
-        // send clickjacking protection headers
+        // allow (legal) iframe content to be loaded
         $iframe = $this->framed || $this->env['framed'];
-        if (!headers_sent() && ($xframe = $this->app->config->get('x_frame_options', 'sameorigin'))) {
-            header('X-Frame-Options: ' . ($iframe && $xframe == 'deny' ? 'sameorigin' : $xframe));
+        if (!headers_sent() && $iframe && $this->app->config->get('x_frame_options', 'sameorigin') === 'deny') {
+            header('X-Frame-Options: sameorigin', true);
         }
 
         // call super method
@@ -968,7 +970,7 @@ EOF;
                 "rcube_utils::get_input_value('\\1', rcube_utils::INPUT_GPC)",
                 "\$_COOKIE['\\1']",
                 "\$browser->{'\\1'}",
-                $this->template_name,
+                "'" . $this->template_name . "'",
             ),
             $expression
         );
@@ -1268,7 +1270,6 @@ EOF;
         if (!($attrib['command'] || $attrib['name'] || $attrib['href'])) {
             return '';
         }
-
 
         // try to find out the button type
         if ($attrib['type']) {
@@ -2046,5 +2047,4 @@ EOF;
 
         return $content;
     }
-
 }

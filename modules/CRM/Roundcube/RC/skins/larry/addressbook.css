@@ -88,7 +88,6 @@
 }
 
 #directorylist li.addressbook.selected > a {
-	background-color: transparent;
 	background-position: 6px -791px;
 }
 
@@ -399,7 +398,7 @@ a.deletebutton {
 	height: 18px;
 	text-decoration: none;
 	text-indent: -5000px;
-	background: url(images/buttons.png?v=51d4.15699) -7px -377px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -7px -377px no-repeat;
 }
 
 #import-box {

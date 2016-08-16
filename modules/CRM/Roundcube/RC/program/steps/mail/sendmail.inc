@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | program/steps/mail/sendmail.inc                                       |
  |                                                                       |
@@ -111,6 +111,12 @@ else if ($from_string = rcmail_email_input_format($from)) {
         $from = trim($m[1], '<>');
     else
         $from = null;
+}
+
+// check 'From' address (identity may be incomplete)
+if (!$savedraft && !$saveonly && empty($from)) {
+    $OUTPUT->show_message('nofromaddress', 'error');
+    $OUTPUT->send('iframe');
 }
 
 if (!$from_string && $from) {
@@ -228,7 +234,7 @@ $data = $RCMAIL->plugins->exec_hook('message_outgoing_headers', array('headers' 
 
 // sending aborted by plugin
 if ($data['abort'] && !$savedraft) {
-    $OUTPUT->show_message($data['message'] ? $data['message'] : 'sendingfailed');
+    $OUTPUT->show_message($data['message'] ?: 'sendingfailed');
     $OUTPUT->send('iframe');
 }
 else {
@@ -239,6 +245,19 @@ $isHtml = (bool) rcube_utils::get_input_value('_is_html', rcube_utils::INPUT_POS
 
 // fetch message body
 $message_body = rcube_utils::get_input_value('_message', rcube_utils::INPUT_POST, TRUE, $message_charset);
+
+if (isset($_POST['_pgpmime'])) {
+    $pgp_mime     = rcube_utils::get_input_value('_pgpmime', rcube_utils::INPUT_POST);
+    $isHtml       = false;
+    $message_body = '';
+
+    // clear unencrypted attachments
+    foreach ((array) $COMPOSE['attachments'] as $attach) {
+        $RCMAIL->plugins->exec_hook('attachment_delete', $attach);
+    }
+
+    $COMPOSE['attachments'] = array();
+}
 
 if ($isHtml) {
     $bstyle = array();
@@ -264,16 +283,22 @@ if (!$savedraft) {
 
         $message_body = preg_replace(
             array(
+                // remove empty signature div
+                '/<div id="_rc_sig">(&nbsp;)?<\/div>[\s\r\n]*$/',
                 // remove signature's div ID
                 '/\s*id="_rc_sig"/',
                 // add inline css for blockquotes and container
                 '/<blockquote>/',
-                '/<div class="pre">/'
+                '/<div class="pre">/',
+                // convert TinyMCE's new-line sequences (#1490463)
+                '/<p>&nbsp;<\/p>/',
             ),
             array(
                 '',
+                '',
                 '<blockquote type="cite" style="'.$b_style.'">',
-                '<div class="pre" style="'.$pre_style.'">'
+                '<div class="pre" style="'.$pre_style.'">',
+                '<p><br /></p>',
             ),
             $message_body);
     }
@@ -359,25 +384,23 @@ if ($isHtml) {
 
     $MAIL_MIME->setHTMLBody($plugin['body']);
 
-    // replace emoticons
-    $plugin['body'] = $RCMAIL->replace_emoticons($plugin['body']);
-
-    // add a plain text version of the e-mail as an alternative part.
-    $h2t = new rcube_html2text($plugin['body'], false, true, 0, $message_charset);
-    $plainTextPart = rcube_mime::wordwrap($h2t->get_text(), $LINE_LENGTH, "\r\n", false, $message_charset);
+    $plainTextPart = $RCMAIL->html2text($plugin['body'], array('width' => 0, 'charset' => $message_charset));
+    $plainTextPart = rcube_mime::wordwrap($plainTextPart, $LINE_LENGTH, "\r\n", false, $message_charset);
     $plainTextPart = wordwrap($plainTextPart, 998, "\r\n", true);
 
-    // make sure all line endings are CRLF (#1486712)
-    $plainTextPart = preg_replace('/\r?\n/', "\r\n", $plainTextPart);
+    // There's no sense to use multipart/alternative if the text/plain
+    // part would be blank. Completely blank text/plain part may confuse
+    // some mail clients (#5283)
+    if (strlen(trim($plainTextPart)) > 0) {
+        // make sure all line endings are CRLF (#1486712)
+        $plainTextPart = preg_replace('/\r?\n/', "\r\n", $plainTextPart);
 
-    $plugin = $RCMAIL->plugins->exec_hook('message_outgoing_body',
-        array('body' => $plainTextPart, 'type' => 'alternative', 'message' => $MAIL_MIME));
+        $plugin = $RCMAIL->plugins->exec_hook('message_outgoing_body',
+            array('body' => $plainTextPart, 'type' => 'alternative', 'message' => $MAIL_MIME));
 
-    $MAIL_MIME->setTXTBody($plugin['body']);
-
-    // look for "emoticon" images from TinyMCE and change their src paths to
-    // be file paths on the server instead of URL paths.
-    rcmail_fix_emoticon_paths($MAIL_MIME);
+        // add a plain text version of the e-mail as an alternative part.
+        $MAIL_MIME->setTXTBody($plugin['body']);
+    }
 
     // Extract image Data URIs into message attachments (#1488502)
     rcmail_extract_inline_images($MAIL_MIME, $from);
@@ -437,7 +460,7 @@ if (is_array($COMPOSE['attachments'])) {
         }
         else {
             $ctype   = str_replace('image/pjpeg', 'image/jpeg', $attachment['mimetype']); // #1484914
-            $file    = $attachment['data'] ? $attachment['data'] : $attachment['path'];
+            $file    = $attachment['data'] ?: $attachment['path'];
             $folding = (int) $RCMAIL->config->get('mime_param_folding');
 
             $MAIL_MIME->addAttachment($file,
@@ -470,6 +493,23 @@ if ($flowed) {
     $text_charset .= ";\r\n format=flowed";
 }
 
+// compose PGP/Mime message
+if ($pgp_mime) {
+    $MAIL_MIME->addAttachment(new Mail_mimePart('Version: 1', array(
+            'content_type' => 'application/pgp-encrypted',
+            'description'  => 'PGP/MIME version identification',
+    )));
+
+    $MAIL_MIME->addAttachment(new Mail_mimePart($pgp_mime, array(
+            'content_type' => 'application/octet-stream',
+            'filename'     => 'encrypted.asc',
+            'disposition'  => 'inline',
+    )));
+
+    $MAIL_MIME->setContentType('multipart/encrypted', array('protocol' => 'application/pgp-encrypted'));
+    $MAIL_MIME->setParam('preamble', 'This is an OpenPGP/MIME encrypted message (RFC 2440 and 3156)');
+}
+
 // encoding settings for mail composing
 $MAIL_MIME->setParam('text_encoding', $transfer_encoding);
 $MAIL_MIME->setParam('html_encoding', 'quoted-printable');
@@ -481,14 +521,12 @@ $MAIL_MIME->setParam('text_charset', $text_charset);
 // pass headers to message object
 $MAIL_MIME->headers($headers);
 
+// This hook allows to modify the message before send or save action
+$plugin    = $RCMAIL->plugins->exec_hook('message_ready', array('message' => $MAIL_MIME));
+$MAIL_MIME = $plugin['message'];
+
 // Begin SMTP Delivery Block
 if (!$savedraft && !$saveonly) {
-    // check 'From' address (identity may be incomplete)
-    if (empty($from)) {
-        $OUTPUT->show_message('nofromaddress', 'error');
-        $OUTPUT->send('iframe');
-    }
-
     // Handle Delivery Status Notification request
     $smtp_opts['dsn'] = $dsn_enabled;
 
@@ -502,10 +540,16 @@ if (!$savedraft && !$saveonly) {
             unlink($mailbody_file);
         }
 
-        if ($smtp_error)
-            $OUTPUT->show_message($smtp_error['label'], 'error', $smtp_error['vars']); 
-        else
-            $OUTPUT->show_message('sendingfailed', 'error'); 
+        if ($smtp_error && is_string($smtp_error)) {
+            $OUTPUT->show_message($smtp_error, 'error');
+        }
+        else if ($smtp_error && !empty($smtp_error['label'])) {
+            $OUTPUT->show_message($smtp_error['label'], 'error', $smtp_error['vars']);
+        }
+        else {
+            $OUTPUT->show_message('sendingfailed', 'error');
+        }
+
         $OUTPUT->send('iframe');
     }
 
@@ -640,7 +684,7 @@ if ($savedraft) {
             array('msgid' => $message_id, 'uid' => $saved, 'folder' => $store_target));
 
         // display success
-        $OUTPUT->show_message($plugin['message'] ? $plugin['message'] : 'messagesaved', 'confirmation');
+        $OUTPUT->show_message($plugin['message'] ?: 'messagesaved', 'confirmation');
 
         // update "_draft_saveid" and the "cmp_hash" to prevent "Unsaved changes" warning
         $COMPOSE['param']['draft_uid'] = $plugin['uid'];
@@ -743,61 +787,6 @@ function rcmail_get_identity($id)
     }
 
     return false;
-}
-
-/**
- * go from this:
- * <img src="http[s]://.../tinymce/plugins/emoticons/img/smiley-cool.gif" border="0" alt="Cool" title="Cool" />
- *
- * to this:
- *
- * <img src="/path/on/server/.../tinymce/plugins/emoticons/img/smiley-cool.gif" border="0" alt="Cool" title="Cool" />
- */
-function rcmail_fix_emoticon_paths($mime_message)
-{
-    global $RCMAIL;
-
-    $body = $mime_message->getHTMLBody();
-
-    // remove any null-byte characters before parsing
-    $body = preg_replace('/\x00/', '', $body);
-
-    $searchstr  = 'program/js/tinymce/plugins/emoticons/img/';
-    $assets_dir = $RCMAIL->config->get('assets_dir');
-    $path       = ($assets_dir ?: INSTALL_PATH) . '/' . $searchstr;
-    $offset     = 0;
-
-    // keep track of added images, so they're only added once
-    $included_images = array();
-
-    if (preg_match_all('# src=[\'"]([^\'"]+)#', $body, $matches, PREG_OFFSET_CAPTURE)) {
-        foreach ($matches[1] as $m) {
-            // find emoticon image tags
-            if (preg_match('#'.$searchstr.'(.*)$#', $m[0], $imatches)) {
-                $image_name = $imatches[1];
-
-                // sanitize image name so resulting attachment doesn't leave images dir
-                $image_name = preg_replace('/[^a-zA-Z0-9_\.\-]/i', '', $image_name);
-                $img_file   = $path . $image_name;
-
-                if (!in_array($image_name, $included_images)) {
-                    // add the image to the MIME message
-                    $res = $mime_message->addHTMLImage($img_file, 'image/gif', '', true, $image_name);
-                    if (is_a($res, 'PEAR_Error')) {
-                        $RCMAIL->output->show_message("emoticonerror", 'error');
-                        continue;
-                    }
-
-                    array_push($included_images, $image_name);
-                }
-
-                $body    = substr_replace($body, $img_file, $m[1] + $offset, strlen($m[0]));
-                $offset += strlen($img_file) - strlen($m[0]);
-            }
-        }
-    }
-
-    $mime_message->setHTMLBody($body);
 }
 
 /**

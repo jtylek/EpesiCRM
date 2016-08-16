@@ -123,7 +123,7 @@ class acl extends rcube_plugin
                     $group_id = is_array($record[$group_field]) ? $record[$group_field][0] : $record[$group_field];
 
                     if ($group) {
-                        $users[] = array('name' => ($prefix ? $prefix : '') . $group_id, 'display' => $group, 'type' => 'group');
+                        $users[] = array('name' => ($prefix ?: '') . $group_id, 'display' => $group, 'type' => 'group');
                         $keys[]  = $group;
                     }
                 }
@@ -563,7 +563,7 @@ class acl extends rcube_plugin
 
         $this->mbox = trim(rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GPC, true)); // UTF7-IMAP
         $advanced   = trim(rcube_utils::get_input_value('_mode', rcube_utils::INPUT_GPC));
-        $advanced   = $advanced == 'advanced' ? true : false;
+        $advanced   = $advanced == 'advanced';
 
         // Save state in user preferences
         $this->rc->user->save_prefs(array('acl_advanced_mode' => $advanced));

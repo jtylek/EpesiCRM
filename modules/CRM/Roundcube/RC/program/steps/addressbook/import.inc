@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | program/steps/addressbook/import.inc                                  |
  |                                                                       |
@@ -136,7 +136,7 @@ if (is_array($_FILES['_file'])) {
                 }
                 if ($existing && $existing->count) {
                     $IMPORT_STATS->skipped++;
-                    $IMPORT_STATS->skipped_names[] = $vcard->displayname ? $vcard->displayname : $email;
+                    $IMPORT_STATS->skipped_names[] = $vcard->displayname ?: $email;
                     continue;
                 }
             }
@@ -164,7 +164,7 @@ if (is_array($_FILES['_file'])) {
                 }
 
                 $IMPORT_STATS->inserted++;
-                $IMPORT_STATS->names[] = $a_record['name'] ? $a_record['name'] : $email;
+                $IMPORT_STATS->names[] = $a_record['name'] ?: $email;
             }
             else {
                 $IMPORT_STATS->errors++;
@@ -276,7 +276,7 @@ function rcmail_import_confirm($attrib)
         )) . ($IMPORT_STATS->names ? ':' : '.'));
 
     if ($IMPORT_STATS->names) {
-        $content .= html::p('em', join(', ', array_map('Q', $IMPORT_STATS->names)));
+        $content .= html::p('em', join(', ', array_map(array('rcube', 'Q'), $IMPORT_STATS->names)));
     }
 
     if ($IMPORT_STATS->skipped) {
@@ -285,7 +285,7 @@ function rcmail_import_confirm($attrib)
                 'nr'   => $IMPORT_STATS->skipped,
                 'vars' => $vars,
             )) . ':')
-            . html::p('em', join(', ', array_map('Q', $IMPORT_STATS->skipped_names)));
+            . html::p('em', join(', ', array_map(array('rcube', 'Q'), $IMPORT_STATS->skipped_names)));
     }
 
     return html::div($attrib, $content);

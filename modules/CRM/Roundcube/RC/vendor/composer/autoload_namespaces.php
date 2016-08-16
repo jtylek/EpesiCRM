@@ -7,4 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Roundcube\\Composer' => array($vendorDir . '/roundcube/plugin-installer/src'),
+    'PEAR' => array($vendorDir . '/pear/pear_exception'),
+    'Console' => array($vendorDir . '/pear/console_getopt'),
+    '' => array($vendorDir . '/pear/pear-core-minimal/src'),
 );

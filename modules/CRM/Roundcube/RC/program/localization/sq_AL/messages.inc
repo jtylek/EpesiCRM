@@ -34,7 +34,6 @@ $messages['savingmessage'] = 'Po ruaj mesazhin...';
 $messages['messagesaved'] = 'Mesazhi u ruajt te kutia Drafte';
 $messages['successfullysaved'] = 'U ruajt me sukses';
 $messages['addedsuccessfully'] = 'Kontakti u shtua me sukses në librin e adresave';
-$messages['contactexists'] = 'Këtë adresë e-mail e ka një kontakt tjetër';
 $messages['contactnameexists'] = 'Një kontakt me emrin e njëjtë tashmë ekziston.';
 $messages['blockedimages'] = 'Për të mbrojtur fshehtësinë tuaj, imazhet e largëta të këtij mesazhi janë bllokuar.';
 $messages['encryptedmessage'] = 'Ky është një mesazh i koduar dhe nuk mund te shfaqet. Më vjen keq!';
@@ -74,4 +73,3 @@ $messages['movingmessage'] = 'Po lëviz mesazhin...';
 $messages['receiptsent'] = 'U dërgua me sukses një njoftim leximi';
 $messages['errorsendingreceipt'] = 'Nuk mund të dërgohet njoftimi';
 $messages['nodeletelastidentity'] = 'Ju nuk mund ta fshini këtë identitet sepse nuk ju ka mbetur tjetër.';
-?>

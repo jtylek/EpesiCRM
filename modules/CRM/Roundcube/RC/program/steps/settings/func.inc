@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | program/steps/settings/func.inc                                       |
  |                                                                       |
@@ -500,11 +500,11 @@ function rcmail_user_prefs($current = null)
 
                 $field_id = 'rcmfd_mail_pagesize';
                 $input    = new html_inputfield(array('name' => '_mail_pagesize', 'id' => $field_id, 'size' => 5));
-                $size     = intval($config['mail_pagesize'] ? $config['mail_pagesize'] : $config['pagesize']);
+                $size     = intval($config['mail_pagesize'] ?: $config['pagesize']);
 
                 $blocks['main']['options']['pagesize'] = array(
                     'title'   => html::label($field_id, rcube::Q($RCMAIL->gettext('pagesize'))),
-                    'content' => $input->show($size ? $size : 50),
+                    'content' => $input->show($size ?: 50),
                 );
             }
 
@@ -672,9 +672,10 @@ function rcmail_user_prefs($current = null)
                 $select   = new html_select(array('name' => '_htmleditor', 'id' => $field_id));
 
                 $select->add($RCMAIL->gettext('never'), 0);
-                $select->add($RCMAIL->gettext('always'), 1);
                 $select->add($RCMAIL->gettext('htmlonreply'), 2);
                 $select->add($RCMAIL->gettext('htmlonreplyandforward'), 3);
+                $select->add($RCMAIL->gettext('always'), 1);
+                $select->add($RCMAIL->gettext('alwaysbutplain'), 4);
 
                 $blocks['main']['options']['htmleditor'] = array(
                     'title'   => html::label($field_id, rcube::Q($RCMAIL->gettext('htmleditor'))),
@@ -748,7 +749,7 @@ function rcmail_user_prefs($current = null)
                 );
             }
 
-            if (!isset($no_override['dsn_default'])) {
+            if (!isset($no_override['dsn_default']) && $RCMAIL->config->get('smtp_server')) {
                 if (!$current) {
                     continue 2;
                 }
@@ -870,6 +871,20 @@ function rcmail_user_prefs($current = null)
                 $blocks['sig']['options']['strip_existing_sig'] = array(
                     'title'   => html::label($field_id, rcube::Q($RCMAIL->gettext('replyremovesignature'))),
                     'content' => $input->show($config['strip_existing_sig']?1:0),
+                );
+            }
+
+            if (!isset($no_override['sig_separator'])) {
+                if (!$current) {
+                    continue 2;
+                }
+
+                $field_id = 'rcmfd_sig_separator';
+                $input    = new html_checkbox(array('name' => '_sig_separator', 'id' => $field_id, 'value' => 1));
+
+                $blocks['sig']['options']['sig_separator'] = array(
+                    'title'   => html::label($field_id, rcube::Q($RCMAIL->gettext('sigseparator'))),
+                    'content' => $input->show($RCMAIL->config->get('sig_separator') ? 1 : 0),
                 );
             }
 
@@ -1028,11 +1043,11 @@ function rcmail_user_prefs($current = null)
 
                 $field_id = 'rcmfd_addressbook_pagesize';
                 $input    = new html_inputfield(array('name' => '_addressbook_pagesize', 'id' => $field_id, 'size' => 5));
-                $size     = intval($config['addressbook_pagesize'] ? $config['addressbook_pagesize'] : $config['pagesize']);
+                $size     = intval($config['addressbook_pagesize'] ?: $config['pagesize']);
 
                 $blocks['main']['options']['pagesize'] = array(
                     'title'   => html::label($field_id, rcube::Q($RCMAIL->gettext('pagesize'))),
-                    'content' => $input->show($size ? $size : 50),
+                    'content' => $input->show($size ?: 50),
                 );
             }
 
@@ -1275,13 +1290,14 @@ function rcmail_user_prefs($current = null)
             unset($sections[$idx]);
         else
             $sections[$idx]['blocks'] = $data['blocks'];
-    }
 
-    $data = $RCMAIL->plugins->exec_hook('preferences_section_header',
-        array('section' => $sect['id'], 'header' => '', 'current' => $current));
+        // allow plugins to add a header to each section
+        $data = $RCMAIL->plugins->exec_hook('preferences_section_header',
+            array('section' => $sect['id'], 'header' => '', 'current' => $current));
 
-    if(!empty($data['header'])) {
-        $sections[$idx]['header'] = $data['header'];
+        if (!empty($data['header'])) {
+            $sections[$idx]['header'] = $data['header'];
+        }
     }
 
     return array($sections, $plugin['cols']);
@@ -1388,8 +1404,8 @@ function rcmail_settings_tabs($attrib)
         $button = $OUTPUT->button($action);
         $attr   = $attrib;
 
-        $cmd = $action['action'] ? $action['action'] : $action['command'];
-        $id  = $action['id'] ? $action['id'] : $cmd;
+        $cmd = $action['action'] ?: $action['command'];
+        $id  = $action['id'] ?: $cmd;
 
         if (!empty($id)) {
             $attr['id'] = preg_replace('/[^a-z0-9]/i', '', $attrib['idprefix'] . $id);

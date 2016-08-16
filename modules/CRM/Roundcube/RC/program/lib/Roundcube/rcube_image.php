@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2005-2012, The Roundcube Dev Team                       |
@@ -41,6 +41,11 @@ class rcube_image
     );
 
 
+    /**
+     * Class constructor
+     *
+     * @param string $filename Image file name/path
+     */
     function __construct($filename)
     {
         $this->image_file = $filename;
@@ -85,9 +90,9 @@ class rcube_image
      * Resize image to a given size. Use only to shrink an image.
      * If an image is smaller than specified size it will be not resized.
      *
-     * @param int    $size      Max width/height size
-     * @param string $filename  Output filename
-     * @param boolean $browser_compat  Convert to image type displayable by any browser
+     * @param int     $size           Max width/height size
+     * @param string  $filename       Output filename
+     * @param boolean $browser_compat Convert to image type displayable by any browser
      *
      * @return mixed Output type on success, False on failure
      */
@@ -161,7 +166,10 @@ class rcube_image
                     else {
                         try {
                             $image = new Imagick($this->image_file);
-                            $image = $image->flattenImages();
+                            
+                            $image->setImageBackgroundColor('white');
+                            $image->setImageAlphaChannel(11);
+                            $image->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
 
                             $image->setImageColorspace(Imagick::COLORSPACE_SRGB);
                             $image->setImageCompressionQuality(75);
@@ -227,6 +235,10 @@ class rcube_image
                 $height    = intval($props['height'] * $scale);
                 $new_image = imagecreatetruecolor($width, $height);
 
+                if ($new_image === false) {
+                    return false;
+                }
+
                 // Fix transparency of gif/png image
                 if ($props['gd_type'] != IMAGETYPE_JPEG) {
                     imagealphablending($new_image, false);
@@ -280,9 +292,9 @@ class rcube_image
     /**
      * Convert image to a given type
      *
-     * @param int    $type      Destination file type (see class constants)
-     * @param string $filename  Output filename (if empty, original file will be used
-     *                          and filename extension will be modified)
+     * @param int    $type     Destination file type (see class constants)
+     * @param string $filename Output filename (if empty, original file will be used
+     *                         and filename extension will be modified)
      *
      * @return bool True on success, False on failure
      */

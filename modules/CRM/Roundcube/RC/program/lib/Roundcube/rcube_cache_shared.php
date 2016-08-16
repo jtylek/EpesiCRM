@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2011-2013, The Roundcube Dev Team                       |
@@ -17,7 +17,6 @@
  | Author: Aleksander Machniak <alec@alec.pl>                            |
  +-----------------------------------------------------------------------+
 */
-
 
 /**
  * Interface class for accessing Roundcube shared cache
@@ -41,6 +40,8 @@ class rcube_cache_shared
     private $packed;
     private $index;
     private $table;
+    private $debug;
+    private $index_changed = false;
     private $cache         = array();
     private $cache_changes = array();
     private $cache_sums    = array();
@@ -63,12 +64,14 @@ class rcube_cache_shared
         $type  = strtolower($type);
 
         if ($type == 'memcache') {
-            $this->type = 'memcache';
-            $this->db   = $rcube->get_memcache();
+            $this->type  = 'memcache';
+            $this->db    = $rcube->get_memcache();
+            $this->debug = $rcube->config->get('memcache_debug');
         }
         else if ($type == 'apc') {
-            $this->type = 'apc';
-            $this->db   = function_exists('apc_exists'); // APC 3.1.4 required
+            $this->type  = 'apc';
+            $this->db    = function_exists('apc_exists'); // APC 3.1.4 required
+            $this->debug = $rcube->config->get('apc_debug');
         }
         else {
             $this->type  = 'db';
@@ -84,7 +87,6 @@ class rcube_cache_shared
         $this->packed    = $packed;
         $this->prefix    = $prefix;
     }
-
 
     /**
      * Returns cached value.
@@ -102,7 +104,6 @@ class rcube_cache_shared
         return $this->cache[$key];
     }
 
-
     /**
      * Sets (add/update) value in cache.
      *
@@ -112,10 +113,8 @@ class rcube_cache_shared
     function set($key, $data)
     {
         $this->cache[$key]         = $data;
-        $this->cache_changed       = true;
         $this->cache_changes[$key] = true;
     }
-
 
     /**
      * Returns cached value without storing it in internal memory.
@@ -133,7 +132,6 @@ class rcube_cache_shared
         return $this->read_record($key, true);
     }
 
-
     /**
      * Sets (add/update) value in cache and immediately saves
      * it in the backend, no internal memory will be used.
@@ -148,7 +146,6 @@ class rcube_cache_shared
         return $this->write_record($key, $this->serialize($data));
     }
 
-
     /**
      * Clears the cache.
      *
@@ -161,7 +158,6 @@ class rcube_cache_shared
         // Remove all keys
         if ($key === null) {
             $this->cache         = array();
-            $this->cache_changed = true;
             $this->cache_changes = array();
             $this->cache_sums    = array();
         }
@@ -186,7 +182,6 @@ class rcube_cache_shared
         $this->remove_record($key, $prefix_mode);
     }
 
-
     /**
      * Remove cache records older than ttl
      */
@@ -201,7 +196,6 @@ class rcube_cache_shared
         }
     }
 
-
     /**
      * Remove expired records of all caches
      */
@@ -213,16 +207,11 @@ class rcube_cache_shared
         $db->query("DELETE FROM " . $db->table_name('cache_shared', true) . " WHERE `expires` < " . $db->now());
     }
 
-
     /**
      * Writes the cache back to the DB.
      */
     function close()
     {
-        if (!$this->cache_changed) {
-            return;
-        }
-
         foreach ($this->cache as $key => $data) {
             // The key has been used
             if ($this->cache_changes[$key]) {
@@ -236,12 +225,13 @@ class rcube_cache_shared
             }
         }
 
-        $this->write_index();
+        if ($this->index_changed) {
+            $this->write_index();
+        }
 
         // reset internal cache index, thanks to this we can force index reload
         $this->index = null;
     }
-
 
     /**
      * Reads cache entry.
@@ -266,11 +256,19 @@ class rcube_cache_shared
                 // to have data in consistent state. Keeping the index consistent
                 // is needed for keys delete operation when we delete all keys or by prefix.
             }
-            else if ($this->type == 'memcache') {
-                $data = $this->db->get($this->ckey($key));
-            }
-            else if ($this->type == 'apc') {
-                $data = apc_fetch($this->ckey($key));
+            else {
+                $ckey = $this->ckey($key);
+
+                if ($this->type == 'memcache') {
+                    $data = $this->db->get($ckey);
+                }
+                else if ($this->type == 'apc') {
+                    $data = apc_fetch($ckey);
+                }
+
+                if ($this->debug) {
+                    $this->debug('get', $ckey, $data);
+                }
             }
 
             if ($data) {
@@ -319,7 +317,6 @@ class rcube_cache_shared
         return $this->cache[$key];
     }
 
-
     /**
      * Writes single cache record into DB.
      *
@@ -344,9 +341,16 @@ class rcube_cache_shared
             $result = $this->add_record($this->ckey($key), $data);
 
             // make sure index will be updated
-            if ($result && !array_key_exists($key, $this->cache_sums)) {
-                $this->cache_changed    = true;
-                $this->cache_sums[$key] = true;
+            if ($result) {
+                if (!array_key_exists($key, $this->cache_sums)) {
+                    $this->cache_sums[$key] = true;
+                }
+
+                $this->load_index();
+
+                if (!$this->index_changed && !in_array($key, $this->index)) {
+                    $this->index_changed = true;
+                }
             }
 
             return $result;
@@ -385,7 +389,6 @@ class rcube_cache_shared
         return $this->db->affected_rows($result);
     }
 
-
     /**
      * Deletes the cache record(s).
      *
@@ -405,22 +408,29 @@ class rcube_cache_shared
             // Remove all keys
             if ($key === null) {
                 foreach ($this->index as $key) {
-                    $this->delete_record($key, false);
+                    $this->delete_record($this->ckey($key));
                 }
+
                 $this->index = array();
             }
             // Remove keys by name prefix
             else if ($prefix_mode) {
-                foreach ($this->index as $k) {
+                foreach ($this->index as $idx => $k) {
                     if (strpos($k, $key) === 0) {
-                        $this->delete_record($k);
+                        $this->delete_record($this->ckey($k));
+                        unset($this->index[$idx]);
                     }
                 }
             }
             // Remove one key by name
             else {
-                $this->delete_record($key);
+                $this->delete_record($this->ckey($key));
+                if (($idx = array_search($key, $this->index)) !== false) {
+                    unset($this->index[$idx]);
+                }
             }
+
+            $this->index_changed = true;
 
             return;
         }
@@ -441,11 +451,10 @@ class rcube_cache_shared
         $this->db->query("DELETE FROM " . $this->table . $where);
     }
 
-
     /**
      * Adds entry into memcache/apc DB.
      *
-     * @param string $key  Cache key name
+     * @param string $key  Cache internal key name
      * @param mixed  $data Serialized cache data
      *
      * @param boolean True on success, False on failure
@@ -454,6 +463,7 @@ class rcube_cache_shared
     {
         if ($this->type == 'memcache') {
             $result = $this->db->replace($key, $data, MEMCACHE_COMPRESSED, $this->ttl);
+
             if (!$result) {
                 $result = $this->db->set($key, $data, MEMCACHE_COMPRESSED, $this->ttl);
             }
@@ -462,44 +472,47 @@ class rcube_cache_shared
             if (apc_exists($key)) {
                 apc_delete($key);
             }
+
             $result = apc_store($key, $data, $this->ttl);
+        }
+
+        if ($this->debug) {
+            $this->debug('set', $key, $data, $result);
         }
 
         return $result;
     }
 
-
     /**
      * Deletes entry from memcache/apc DB.
+     *
+     * @param string $key Cache internal key name
+     *
+     * @param boolean True on success, False on failure
      */
-    private function delete_record($key, $index=true)
+    private function delete_record($key)
     {
         if ($this->type == 'memcache') {
             // #1488592: use 2nd argument
-            $this->db->delete($this->ckey($key), 0);
+            $result = $this->db->delete($key, 0);
         }
         else {
-            apc_delete($this->ckey($key));
+            $result = apc_delete($key);
         }
 
-        if ($index) {
-            if (($idx = array_search($key, $this->index)) !== false) {
-                unset($this->index[$idx]);
-            }
+        if ($this->debug) {
+            $this->debug('delete', $key, null, $result);
         }
+
+        return $result;
     }
-
 
     /**
      * Writes the index entry into memcache/apc DB.
      */
     private function write_index()
     {
-        if (!$this->db) {
-            return;
-        }
-
-        if ($this->type == 'db') {
+        if (!$this->db || $this->type == 'db') {
             return;
         }
 
@@ -523,13 +536,12 @@ class rcube_cache_shared
         $this->add_record($this->ikey(), $data);
     }
 
-
     /**
      * Gets the index entry from memcache/apc DB.
      */
     private function load_index()
     {
-        if (!$this->db) {
+        if (!$this->db || $this->type == 'db') {
             return;
         }
 
@@ -546,9 +558,12 @@ class rcube_cache_shared
             $data = apc_fetch($index_key);
         }
 
+        if ($this->debug) {
+            $this->debug('get', $index_key, $data);
+        }
+
         $this->index = $data ? unserialize($data) : array();
     }
-
 
     /**
      * Creates cache key name (for memcache and apc)
@@ -561,7 +576,6 @@ class rcube_cache_shared
     {
         return $this->prefix . ':' . $key;
     }
-
 
     /**
      * Creates index cache key name (for memcache and apc)
@@ -624,5 +638,19 @@ class rcube_cache_shared
         }
 
         return $this->max_packet;
+    }
+
+    /**
+     * Write memcache/apc debug info to the log
+     */
+    private function debug($type, $key, $data = null, $result = null)
+    {
+        $line = strtoupper($type) . ' ' . $key;
+
+        if ($data !== null) {
+            $line .= ' ' . ($this->packed ? $data : serialize($data));
+        }
+
+        rcube::debug($this->type, $line, $result);
     }
 }

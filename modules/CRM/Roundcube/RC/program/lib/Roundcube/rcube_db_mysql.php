@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2005-2012, The Roundcube Dev Team                       |
@@ -118,7 +118,7 @@ class rcube_db_mysql extends rcube_db
      */
     protected function dsn_options($dsn)
     {
-        $result = array();
+        $result = parent::dsn_options($dsn);
 
         if (!empty($dsn['key'])) {
             $result[PDO::MYSQL_ATTR_SSL_KEY] = $dsn['key'];

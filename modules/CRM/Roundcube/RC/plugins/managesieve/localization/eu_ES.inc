@@ -177,6 +177,7 @@ $labels['vacation.keep'] = 'Mantendu';
 $labels['vacation.discard'] = 'Baztertu';
 $labels['vacation.redirect'] = 'Birbideratu hona';
 $labels['vacation.copy'] = 'Bidali kopia hona';
+$labels['filladdresses'] = 'Bete nire helbide guztiekin';
 $labels['arialabelfiltersetactions'] = 'Iragazki-paketearen ekintzak';
 $labels['arialabelfilteractions'] = 'Iragazki-ekintzak';
 $labels['arialabelfilterform'] = 'Iragazkiaren ezaugarriak';

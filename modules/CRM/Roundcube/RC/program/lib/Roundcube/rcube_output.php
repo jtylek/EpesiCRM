@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube PHP suite                          |
  | Copyright (C) 2005-2014 The Roundcube Dev Team                        |
@@ -190,6 +190,11 @@ abstract class rcube_output
 
         // Request browser to disable DNS prefetching (CVE-2010-0464)
         header("X-DNS-Prefetch-Control: off");
+
+        // send CSRF and clickjacking protection headers
+        if ($xframe = $this->app->config->get('x_frame_options', 'sameorigin')) {
+            header('X-Frame-Options: ' . $xframe);
+        }
     }
 
     /**
@@ -208,10 +213,10 @@ abstract class rcube_output
     /**
      * Create an edit field for inclusion on a form
      *
-     * @param string col field name
-     * @param string value field value
-     * @param array attrib HTML element attributes for field
-     * @param string type HTML element type (default 'text')
+     * @param string $col    Field name
+     * @param string $value  Field value
+     * @param array  $attrib HTML element attributes for the field
+     * @param string $type   HTML element type (default 'text')
      *
      * @return string HTML field definition
      */
@@ -236,7 +241,7 @@ abstract class rcube_output
             $input->add('---', '');
             $input->add(array_values($attrib['options']), array_keys($attrib['options']));
         }
-        else if ($attrib['type'] == 'password') {
+        else if ($type == 'password' || $attrib['type'] == 'password') {
             $input = new html_passwordfield($attrib);
         }
         else {

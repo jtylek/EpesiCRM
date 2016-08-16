@@ -19,4 +19,3 @@ $messages['servererror'] = 'Serverflater!';
 $messages['dberror'] = 'Databaseflater!';
 $messages['nomessages'] = 'Gjin berjochten';
 $messages['smtperror'] = 'SMTP-flater: $msg';
-?>
