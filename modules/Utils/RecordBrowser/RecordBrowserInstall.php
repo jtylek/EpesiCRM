@@ -92,6 +92,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 			array('name'=>Utils_ShortcutInstall::module_name(), 'version'=>0),
 			array('name'=>Utils_BBCodeInstall::module_name(), 'version'=>0),
 			array('name'=>Utils_TooltipInstall::module_name(), 'version'=>0),
+			array('name'=>Utils_RecordBrowser_FiltersInstall::module_name(), 'version'=>0),
 			array('name'=>Utils_RecordBrowser_RecordPickerFSInstall::module_name(), 'version'=>0),
 			array('name'=>Utils_RecordBrowser_RecordPickerInstall::module_name(), 'version'=>0),
 			array('name'=>Utils_GenericBrowserInstall::module_name(), 'version'=>0),
