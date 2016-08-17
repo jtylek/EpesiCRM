@@ -593,7 +593,7 @@ class Utils_RecordBrowser_QueryBuilder
                     $value = ( $matches[1] == 'C' ? 'company' : 'contact' ) . '/' . $matches[2];
                 }
                 if ($single_tab) {
-                    $value = preg_replace('#.*/#', '', $value); // remove prefix for multiselects: contact/1 => 1
+                    $value = preg_replace('#.*/#', '', $value); // remove prefix for select from single tab: contact/1 => 1
                 }
                 if ($single_tab && !$multiselect && $operator != DB::like()) {
                     $operand = '%d';
