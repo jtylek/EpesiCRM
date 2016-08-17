@@ -682,6 +682,9 @@ class Utils_RecordBrowser_QueryBuilder
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
         }
+        if ($field_def['style'] == 'currency') {
+            return $this->hf_currency($field, $operator, $value, $raw_sql_val);
+        }
         $vals = array();
         if (DB::is_postgresql()) $field .= '::varchar';
         if (!$value) {
