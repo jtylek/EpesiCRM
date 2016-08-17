@@ -351,8 +351,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	
     	$param = explode(';', $param);
     	$reference = explode('::', $param[0]);
-    	$crits_callback = isset($param[1])? explode('::', $param[1]): null;
-    	$adv_params_callback = isset($param[2])? explode('::', $param[2]): null;
+    	$crits_callback = isset($param[1]) && $param[1] != '::' ? explode('::', $param[1]): null;
+    	$adv_params_callback = isset($param[2]) && $param[2] != '::' ? explode('::', $param[2]): null;
     	
     	//in case RB records select
     	$select_tab = $reference[0];
