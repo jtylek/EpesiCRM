@@ -87,7 +87,18 @@ class Utils_RecordBrowser_CritsValidator
                 $crit_value = Base_RegionalSettingsCommon::reg2time($crit_value, false);
                 $crit_value = date('Y-m-d', $crit_value);
             }
-
+            // remove recordset identifier when values are integers in record
+            // crit_value: contact/1 => 1
+            if (isset($field_definition['ref_table']) && $field_definition['ref_table'] != '') {
+                if (is_array($r_val)) {
+                    $first = reset($r_val);
+                } else {
+                    $first = $r_val;
+                }
+                if (preg_match('/[0-9]+/', $first)) {
+                    $crit_value = preg_replace('#.*/#', '', $crit_value); // remove prefix for select from single tab: contact/1 => 1
+                }
+            }
             $vv = is_string($crit_value) ? explode('::',$crit_value,2) : null;
             if (isset($vv[1]) && is_callable($vv)) {
                 $result = call_user_func_array($vv, array($this->tab, &$record, $field, $crits));
