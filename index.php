@@ -100,7 +100,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 		require_once('Minify/Build.php');
 		$jquery = DEBUG_JS ? 'libs/jquery-1.11.3.js' : 'libs/jquery-1.11.3.min.js';
 		$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-1.2.1.js' : 'libs/jquery-migrate-1.2.1.min.js';
-		$jses = array('libs/prototype.js', $jquery, $jquery_migrate, 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/HistoryKeeper.js', 'include/epesi.js');
+		$jses = array('libs/prototype.js', $jquery, $jquery_migrate, 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/HistoryKeeper.js','include/epesi.js');
 	if(!DEBUG_JS) {
 		$jsses_build = new Minify_Build($jses);
 		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
@@ -109,7 +109,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 		foreach($jses as $js)
 			print("<script type='text/javascript' src='$js'></script>");
 	}
-	$csses = array('libs/jquery-ui-1.10.1.custom.min.css');
+	$csses = array('libs/jquery-ui-1.10.1.custom.min.css', 'libs/select2/css/select2.css');
 	$csses_build = new Minify_Build($csses);
 	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
 ?>
@@ -117,6 +117,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 		<link type="text/css" href="libs/font-awesome/css/font-awesome.css" rel="stylesheet"/>
 			<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600&amp;subset=latin-ext,latin" rel="stylesheet" type="text/css">
 			<script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+			<script type="text/javascript" src="libs/select2/js/select2.js"></script>
 
 		<style type="text/css">
 			<?php if (DIRECTION_RTL) print('body { direction: rtl; }'); ?>
