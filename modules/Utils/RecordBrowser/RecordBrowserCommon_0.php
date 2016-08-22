@@ -425,7 +425,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	$tabs = $param['select_tabs'];    		
 
     	$ret = !empty($ret)? $ret: array();
-    	if ($param['single_tab'] && !isset($ret[$param['single_tab']])) {
+    	if ($param['single_tab'] && (!is_array($ret) || !isset($ret[$param['single_tab']]))) {
     		$ret = array($param['single_tab'] => $ret);
     	}
     	elseif(is_array($ret) && !array_intersect($tabs, array_keys($ret))) {
