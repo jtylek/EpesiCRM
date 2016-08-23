@@ -105,6 +105,10 @@ class Utils_RecordBrowser extends Module {
     public function get_custom_defaults(){
         return $this->custom_defaults;
     }
+    
+    public function get_crits() {
+    	return $this->crits;
+    }
 
     public function get_final_crits() {
         if (!$this->displayed()) trigger_error('You need to call display_module() before calling get_final_crits() method.', E_USER_ERROR);
