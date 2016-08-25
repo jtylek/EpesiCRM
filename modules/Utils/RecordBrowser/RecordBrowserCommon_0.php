@@ -1277,6 +1277,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($desc['type']=='multiselect' && empty($values[$desc['id']])) continue;
             if ($desc['type']=='multiselect')
                 $values[$desc['id']] = self::encode_multi($values[$desc['id']]);
+            if ($desc['type']=='multiselect' || $desc['type']=='select') $values[$desc['id']] = str_replace(array('P:', 'C:'), array('contact/', 'company/'), $values[$desc['id']]);
             $fields_types .= ','.self::get_sql_type($desc['type']);
             $fields .= ',f_'.$desc['id'];
             if (is_bool($values[$desc['id']])) $values[$desc['id']] = $values[$desc['id']]?1:0;
