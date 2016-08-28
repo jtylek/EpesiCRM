@@ -773,7 +773,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $view_link = 'modules/Utils/Attachment/'.$script.'.php?'.http_build_query(array('id'=>$row['id'],'cid'=>CID,'view'=>1));
         $links['view'] = '<a href="'.$view_link.'" target="_blank" onClick="'.$onclick.'">'.$label.'</a><br>';
         $links['download'] = '<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.__('Download').'</a><br>';
-
+        $file_history_key = md5(serialize($row['aid']));
+        if(isset($_GET['utils_attachment_file_history']) && $_GET['utils_attachment_file_history']==$file_history_key)
+        	self::navigate_to_file_history($row['aid']);
+        $links['history'] = '<a onClick="'.Epesi::escapeJS(Module::create_href_js(array('utils_attachment_file_history'=>$file_history_key)),true,false).';leightbox_deactivate(\''.$lid.'\')">'.__('File History').'</a><br>';
+        
         load_js('modules/Utils/Attachment/remote.js');
         if(!$row['crypted']) {
             $links['link'] = '<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['id'].', '.CID.',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.__('Get link').'</a><br>';
@@ -816,6 +820,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
         Libs_LeightboxCommon::display($lid,$c,__('Attachment'));
         return Libs_LeightboxCommon::get_open_href($lid);
+    }
+    
+    public static function navigate_to_file_history($attachment) {
+    	$attachment = is_numeric($attachment)? Utils_RecordBrowserCommon::get_record('utils_attachment', $attachment): $attachment;
+    	if ($attachment['crypted'] && !isset($_SESSION['client']['cp'.$attachment['id']]))
+    		Epesi::alert(__('You have no access to this file history'));
+    	else
+    		Base_BoxCommon::push_module('Utils_Attachment','file_history',array($attachment));
     }
 
     //got from: http://www.kavoir.com/2010/02/php-get-the-file-uploading-limit-max-file-size-allowed-to-upload.html
