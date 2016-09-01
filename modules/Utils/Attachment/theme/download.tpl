@@ -41,6 +41,15 @@
 					</div>
 				{$__link.download.close}
 			</td>
+			<!-- HISTORY -->
+			<td valign="top">
+				{$__link.history.open}
+					<div class="epesi_big_button">
+						<img src="{$theme_dir}/Utils/Attachment/history.png" alt="" align="middle" border="0" width="32" height="32">
+						<span>{$__link.history.text}</span>
+					</div>
+				{$__link.history.close}
+			</td>
             {if isset($link)}
 			<!-- LINK -->
 			<td valign="top">
