@@ -448,7 +448,7 @@ class Base_Dashboard extends Module {
 			}
 		}
 
-		if($this->get_module_variable('default'))
+		if($this->get_module_variable('default') || !Base_DashboardCommon::has_permission_to_manage_applets())
 			$c = self::$settings_cache['default'];
 		else
 			$c = self::$settings_cache['user'];
