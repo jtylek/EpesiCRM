@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2008-2014, The Roundcube Dev Team                       |
@@ -53,13 +53,13 @@ class rcube_message
     public $uid;
     public $folder;
     public $headers;
-    public $parts = array();
-    public $mime_parts = array();
+    public $sender;
+    public $parts        = array();
+    public $mime_parts   = array();
     public $inline_parts = array();
-    public $attachments = array();
-    public $subject = '';
-    public $sender = null;
-    public $is_safe = false;
+    public $attachments  = array();
+    public $subject      = '';
+    public $is_safe      = false;
 
     const BODY_MAX_SIZE = 1048576; // 1MB
 
@@ -69,26 +69,27 @@ class rcube_message
      *
      * Provide a uid, and parse message structure.
      *
-     * @param string $uid    The message UID.
-     * @param string $folder Folder name
+     * @param string $uid     The message UID.
+     * @param string $folder  Folder name
+     * @param bool   $is_safe Security flag
      *
      * @see self::$app, self::$storage, self::$opt, self::$parts
      */
-    function __construct($uid, $folder = null)
+    function __construct($uid, $folder = null, $is_safe = false)
     {
         // decode combined UID-folder identifier
         if (preg_match('/^\d+-.+/', $uid)) {
             list($uid, $folder) = explode('-', $uid, 2);
         }
 
-        $this->uid  = $uid;
-        $this->app  = rcube::get_instance();
+        $this->uid     = $uid;
+        $this->app     = rcube::get_instance();
         $this->storage = $this->app->get_storage();
         $this->folder  = strlen($folder) ? $folder : $this->storage->get_folder();
-        $this->storage->set_options(array('all_headers' => true));
 
         // Set current folder
         $this->storage->set_folder($this->folder);
+        $this->storage->set_options(array('all_headers' => true));
 
         $this->headers = $this->storage->get_message($uid);
 
@@ -96,19 +97,19 @@ class rcube_message
             return;
         }
 
-        $this->mime = new rcube_mime($this->headers->charset);
-
+        $this->mime    = new rcube_mime($this->headers->charset);
         $this->subject = $this->headers->get('subject');
         list(, $this->sender) = each($this->mime->decode_address_list($this->headers->from, 1));
 
-        $this->set_safe((intval($_GET['_safe']) || $_SESSION['safe_messages'][$this->folder.':'.$uid]));
+        $this->set_safe($is_safe || $_SESSION['safe_messages'][$this->folder.':'.$uid]);
         $this->opt = array(
-            'safe' => $this->is_safe,
+            'safe'        => $this->is_safe,
             'prefer_html' => $this->app->config->get('prefer_html'),
-            'get_url' => $this->app->url(array(
-                'action' => 'get',
-                'mbox'   => $this->storage->get_folder(),
-                'uid'    => $uid))
+            'get_url'     => $this->app->url(array(
+                    'action' => 'get',
+                    'mbox'   => $this->folder,
+                    'uid'    => $uid),
+                false, false, true)
         );
 
         if (!empty($this->headers->structure)) {
@@ -122,7 +123,6 @@ class rcube_message
         // notify plugins and let them analyze this structured message object
         $this->app->plugins->exec_hook('message_load', array('object' => $this));
     }
-
 
     /**
      * Return a (decoded) message header
@@ -140,7 +140,6 @@ class rcube_message
         return $this->headers->get($name, !$raw);
     }
 
-
     /**
      * Set is_safe var and session data
      *
@@ -150,7 +149,6 @@ class rcube_message
     {
         $_SESSION['safe_messages'][$this->folder.':'.$this->uid] = $this->is_safe = $safe;
     }
-
 
     /**
      * Compose a valid URL for getting a message part
@@ -166,7 +164,6 @@ class rcube_message
         else
             return false;
     }
-
 
     /**
      * Get content of a specific part of this message
@@ -199,7 +196,6 @@ class rcube_message
         }
     }
 
-
     /**
      * Get content of a specific part of this message
      *
@@ -216,6 +212,10 @@ class rcube_message
         if (!($part = $this->mime_parts[$mime_id])) {
             return;
         }
+
+        // allow plugins to modify part body
+        $plugin = $this->app->plugins->exec_hook('message_part_body',
+            array('object' => $this, 'part' => $part));
 
         // only text parts can be formatted
         $formatted = $formatted && $part->ctype_primary == 'text';
@@ -279,7 +279,6 @@ class rcube_message
         return $body;
     }
 
-
     /**
      * Format text message part for display
      *
@@ -320,7 +319,6 @@ class rcube_message
         return $body;
     }
 
-
     /**
      * Determine if the message contains a HTML part. This must to be
      * a real part not an attachment (or its part)
@@ -342,6 +340,7 @@ class rcube_message
 
                 $level = explode('.', $part->mime_id);
                 $depth = count($level);
+                $last  = '';
 
                 // Check if the part belongs to higher-level's multipart part
                 // this can be alternative/related/signed/encrypted or mixed
@@ -351,9 +350,12 @@ class rcube_message
                         return true;
                     }
 
-                    $parent = $this->mime_parts[join('.', $level)];
+                    $parent    = $this->mime_parts[join('.', $level)];
+                    $max_delta = $depth - (1 + ($last == 'multipart/alternative' ? 1 : 0));
+                    $last      = $parent->mimetype;
+
                     if (!preg_match('/^multipart\/(alternative|related|signed|encrypted|mixed)$/', $parent->mimetype)
-                        || ($parent->mimetype == 'multipart/mixed' && $parent_depth < $depth - 1)) {
+                        || ($parent->mimetype == 'multipart/mixed' && $parent_depth < $max_delta)) {
                         continue 2;
                     }
                 }
@@ -368,7 +370,6 @@ class rcube_message
 
         return false;
     }
-
 
     /**
      * Determine if the message contains a text/plain part. This must to be
@@ -413,7 +414,6 @@ class rcube_message
         return false;
     }
 
-
     /**
      * Return the first HTML part of this message
      *
@@ -434,7 +434,6 @@ class rcube_message
             return $body;
         }
     }
-
 
     /**
      * Return the first text part of this message.
@@ -464,7 +463,6 @@ class rcube_message
         }
     }
 
-
     /**
      * Checks if part of the message is an attachment (or part of it)
      *
@@ -490,6 +488,27 @@ class rcube_message
         return false;
     }
 
+    /**
+     * In a multipart/encrypted encrypted message,
+     * find the encrypted message payload part.
+     *
+     * @return rcube_message_part
+     */
+    public function get_multipart_encrypted_part()
+    {
+        foreach ($this->mime_parts as $mime_id => $mpart) {
+            if ($mpart->mimetype == 'multipart/encrypted') {
+                $this->pgp_mime = true;
+            }
+            if ($this->pgp_mime && ($mpart->mimetype == 'application/octet-stream' ||
+                    (!empty($mpart->filename) && $mpart->filename != 'version.txt'))) {
+                $this->encrypted_part = $mime_id;
+                return $mpart;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * Read the message structure returend by the IMAP server
@@ -510,8 +529,9 @@ class rcube_message
                 $structure->headers = rcube_mime::parse_headers($headers);
             }
         }
-        else
+        else {
             $mimetype = $structure->mimetype;
+        }
 
         // show message headers
         if ($recursive && is_array($structure->headers) &&
@@ -527,11 +547,15 @@ class rcube_message
             array('object' => $this, 'structure' => $structure,
                 'mimetype' => $mimetype, 'recursive' => $recursive));
 
-        if ($plugin['abort'])
+        if ($plugin['abort']) {
             return;
+        }
 
         $structure = $plugin['structure'];
-        list($message_ctype_primary, $message_ctype_secondary) = explode('/', $plugin['mimetype']);
+        $mimetype  = $plugin['mimetype'];
+        $recursive = $plugin['recursive'];
+
+        list($message_ctype_primary, $message_ctype_secondary) = explode('/', $mimetype);
 
         // print body if message doesn't have multiple parts
         if ($message_ctype_primary == 'text' && !$recursive) {
@@ -728,9 +752,16 @@ class rcube_message
                 }
                 // part is Microsoft Outlook TNEF (winmail.dat)
                 else if ($part_mimetype == 'application/ms-tnef') {
-                    foreach ((array)$this->tnef_decode($mail_part) as $tpart) {
+                    $tnef_parts = (array) $this->tnef_decode($mail_part);
+                    foreach ($tnef_parts as $tpart) {
                         $this->mime_parts[$tpart->mime_id] = $tpart;
                         $this->attachments[] = $tpart;
+                    }
+
+                    // add winmail.dat to the list if it's content is unknown
+                    if (empty($tnef_parts) && !empty($mail_part->filename)) {
+                        $this->mime_parts[$mail_part->mime_id] = $mail_part;
+                        $this->attachments[] = $mail_part;
                     }
                 }
                 // part is a file/attachment
@@ -829,7 +860,6 @@ class rcube_message
         }
     }
 
-
     /**
      * Fill aflat array with references to all parts, indexed by part numbers
      *
@@ -844,7 +874,6 @@ class rcube_message
             for ($i=0; $i<count($part->parts); $i++)
                 $this->get_mime_numbers($part->parts[$i]);
     }
-
 
     /**
      * Decode a Microsoft Outlook TNEF part (winmail.dat)
@@ -880,7 +909,6 @@ class rcube_message
 
         return $parts;
     }
-
 
     /**
      * Parse message body for UUencoded attachments bodies
@@ -1007,5 +1035,4 @@ class rcube_message
     {
         return rcube_mime::format_flowed($text, $length);
     }
-
 }

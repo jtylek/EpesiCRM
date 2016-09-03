@@ -30,4 +30,3 @@ $messages['passwordshort'] = 'Лозинка мора имати најмање 
 $messages['passwordweak'] = 'Лозинка мора да садржи најмање један број и један знак интерпункције.';
 $messages['passwordforbidden'] = 'Лозинка садржи недозвољене знакове.';
 $messages['firstloginchange'] = 'Ово је ваше прво пријављивање. Измените лозинку.';
-?>

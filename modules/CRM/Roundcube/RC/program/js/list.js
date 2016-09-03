@@ -1104,11 +1104,11 @@ _rowIndex: function(obj)
 /**
  * Check if given id is part of the current selection
  */
-in_selection: function(id)
+in_selection: function(id, index)
 {
   for (var n in this.selection)
     if (this.selection[n] == id)
-      return true;
+      return index ? parseInt(n) : true;
 
   return false;
 },
@@ -1256,18 +1256,19 @@ highlight_row: function(id, multiple, norecur)
     }
   }
   else {
-    if (!this.in_selection(id)) { // select row
+    var pre, post, p = this.in_selection(id, true);
+
+    if (p === false) { // select row
       this.selection.push(id);
       $(this.rows[id].obj).addClass('selected').attr('aria-selected', 'true');
       if (!norecur && !this.rows[id].expanded)
         this.highlight_children(id, true);
     }
     else { // unselect row
-      var p = $.inArray(id, this.selection),
-        a_pre = this.selection.slice(0, p),
-        a_post = this.selection.slice(p+1, this.selection.length);
+      pre = this.selection.slice(0, p);
+      post = this.selection.slice(p+1, this.selection.length);
 
-      this.selection = a_pre.concat(a_post);
+      this.selection = pre.concat(post);
       $(this.rows[id].obj).removeClass('selected').removeAttr('aria-selected');
       if (!norecur && !this.rows[id].expanded)
         this.highlight_children(id, false);
@@ -1687,32 +1688,33 @@ column_drag_mouse_up: function(e)
     this.col_draglayer = null;
   }
 
-  if (this.col_drag_active)
-    this.focus();
-  this.col_drag_active = false;
-
   rcube_event.remove_listener({event:'mousemove', object:this, method:'column_drag_mouse_move'});
   rcube_event.remove_listener({event:'mouseup', object:this, method:'column_drag_mouse_up'});
+
   // remove temp divs
   this.del_dragfix();
 
-  if (this.selected_column !== null && this.cols && this.cols.length) {
-    var i, cpos = 0, pos = rcube_event.get_mouse_pos(e);
+  if (this.col_drag_active) {
+    this.col_drag_active = false;
+    this.focus();
+    this.triggerEvent('column_dragend', e);
 
-    // find destination position
-    for (i=0; i<this.cols.length; i++) {
-      if (pos.x >= this.cols[i]/2 + this.list_pos + cpos)
-        cpos += this.cols[i];
-      else
-        break;
-    }
+    if (this.selected_column !== null && this.cols && this.cols.length) {
+      var i, cpos = 0, pos = rcube_event.get_mouse_pos(e);
 
-    if (i != this.selected_column && i != this.selected_column+1) {
-      this.column_replace(this.selected_column, i);
+      // find destination position
+      for (i=0; i<this.cols.length; i++) {
+        if (pos.x >= this.cols[i]/2 + this.list_pos + cpos)
+          cpos += this.cols[i];
+        else
+          break;
+      }
+
+      if (i != this.selected_column && i != this.selected_column+1) {
+        this.column_replace(this.selected_column, i);
+      }
     }
   }
-
-  this.triggerEvent('column_dragend', e);
 
   return rcube_event.cancel(e);
 },

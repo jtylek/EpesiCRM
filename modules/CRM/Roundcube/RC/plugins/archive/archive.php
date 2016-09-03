@@ -6,7 +6,7 @@
  * Plugin that adds a new button to the mailbox toolbar
  * to move messages to a (user selectable) archive folder.
  *
- * @version 2.3
+ * @version 2.4
  * @license GNU GPLv3+
  * @author Andre Rodier, Thomas Bruederli, Aleksander Machniak
  */
@@ -111,12 +111,12 @@ class archive extends rcube_plugin
     $delimiter      = $storage->get_hierarchy_delimiter();
     $archive_folder = $rcmail->config->get('archive_mbox');
     $archive_type   = $rcmail->config->get('archive_type', '');
-    $current_mbox   = rcube_utils::get_input_value('_mbox', RCUBE_INPUT_POST);
+    $current_mbox   = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
 
     $result  = array('reload' => false, 'update' => false, 'errors' => array());
     $folders = array();
-    $uids    = rcube_utils::get_input_value('_uid', RCUBE_INPUT_POST);
-    $search_request = get_input_value('_search', RCUBE_INPUT_GPC);
+    $uids    = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
+    $search_request = rcube_utils::get_input_value('_search', rcube_utils::INPUT_GPC);
 
     if ($uids == '*') {
       $index = $storage->index(null, rcmail_sort_column(), rcmail_sort_order());
@@ -220,7 +220,7 @@ class archive extends rcube_plugin
     }
 
     if ($_POST['_from'] == 'show' && !empty($result['update'])) {
-      if ($next = get_input_value('_next_uid', RCUBE_INPUT_GPC)) {
+      if ($next = rcube_utils::get_input_value('_next_uid', rcube_utils::INPUT_GPC)) {
         $rcmail->output->command('show_message', $next);
       }
       else {
@@ -245,14 +245,22 @@ class archive extends rcube_plugin
       $rcmail = rcmail::get_instance();
 
       // load folders list when needed
-      if ($CURR_SECTION)
-        $select = $rcmail->folder_selector(array('noselection' => '---', 'realnames' => true,
-          'maxlength' => 30, 'exceptions' => array('INBOX'), 'folder_filter' => 'mail', 'folder_rights' => 'w'));
-      else
+      if ($CURR_SECTION) {
+        $select = $rcmail->folder_selector(array(
+            'noselection'   => '---',
+            'realnames'     => true,
+            'maxlength'     => 30,
+            'folder_filter' => 'mail',
+            'folder_rights' => 'w',
+            'onchange'      => "if ($(this).val() == 'INBOX') $(this).val('')",
+        ));
+      }
+      else {
         $select = new html_select();
+      }
 
       $args['blocks']['main']['options']['archive_mbox'] = array(
-          'title' => $this->gettext('archivefolder'),
+          'title'   => $this->gettext('archivefolder'),
           'content' => $select->show($rcmail->config->get('archive_mbox'), array('name' => "_archive_mbox"))
       );
 
@@ -265,7 +273,7 @@ class archive extends rcube_plugin
       $archive_type->add($this->gettext('archivetypefolder'), 'folder');
 
       $args['blocks']['archive'] = array(
-        'name' => Q($this->gettext('settingstitle')),
+        'name' => rcube::Q($this->gettext('settingstitle')),
         'options' => array('archive_type' => array(
             'title' => $this->gettext('archivetype'),
             'content' => $archive_type->show($rcmail->config->get('archive_type'))

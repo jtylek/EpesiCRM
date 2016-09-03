@@ -79,9 +79,10 @@
     <roundcube:endif />
     </div>
     <div id="countcontrols" class="pagenav">
+        <roundcube:object name="messageCountDisplay" />
         <roundcube:button command="lastpage" type="link" class="buttonPas lastpage" classAct="button lastpage" classSel="button lastpageSel" title="lastpage" content=" " />
         <roundcube:button command="nextpage" type="link" class="buttonPas nextpage" classAct="button nextpage" classSel="button nextpageSel" title="nextpage" content=" " />
-        <roundcube:object name="messageCountDisplay" style="padding:0 .5em; float:right" />
+        <input id="pagejumper" class="pagejumper" type="text" size="3" disabled="disabled" title="<roundcube:label name="currpage" />" />
         <roundcube:button command="previouspage" type="link" class="buttonPas prevpage" classAct="button prevpage" classSel="button prevpageSel" title="previouspage" content=" " />
         <roundcube:button command="firstpage" type="link" class="buttonPas firstpage" classAct="button firstpage" classSel="button firstpageSel" title="firstpage" content=" " />
     </div>
@@ -114,6 +115,8 @@
     <li><label><input type="checkbox" name="s_mods[]" value="bcc" id="s_mod_bcc" onclick="rcmail_ui.set_searchmod(this)" /> <span><roundcube:label name="bcc" /></span></label></li>
     <li><label><input type="checkbox" name="s_mods[]" value="body" id="s_mod_body" onclick="rcmail_ui.set_searchmod(this)" /> <span><roundcube:label name="body" /></span></label></li>
     <li><label><input type="checkbox" name="s_mods[]" value="text" id="s_mod_text" onclick="rcmail_ui.set_searchmod(this)" /> <span><roundcube:label name="msgtext" /></span></label></li>
+    <li><label class="comment"><roundcube:label name="date" /></label></li>
+    <li><roundcube:object name="searchinterval" id="s_interval" onchange="rcmail.set_searchinterval($(this).val())" /></li>
     <li><label class="comment"><roundcube:label name="searchscope" /></label></li>
     <li><label><input type="radio" name="s_scope" value="base" id="s_scope_base" onclick="rcmail.set_searchscope(this.value)" /> <span><roundcube:label name="currentfolder" /></span></label></li>
     <li><label><input type="radio" name="s_scope" value="sub" id="s_scope_sub" onclick="rcmail.set_searchscope(this.value)" /> <span><roundcube:label name="subfolders" /></span></label></li>

@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | program/steps/addressbook/show.inc                                    |
  |                                                                       |
@@ -28,8 +28,8 @@ $cid    = $cids ? array_shift($cids[$source]) : null;
 $CONTACTS  = rcmail_contact_source($source, true);
 $SOURCE_ID = $source;
 
-// read contact record
-if ($cid && ($record = $CONTACTS->get_record($cid, true))) {
+// read contact record (or get the one defined in 'save' action)
+if ($cid && ($record = ($CONTACT_RECORD ?: $CONTACTS->get_record($cid, true)))) {
     $OUTPUT->set_env('readonly', $CONTACTS->readonly || $record['readonly']);
     $OUTPUT->set_env('cid', $record['ID']);
 
@@ -94,7 +94,7 @@ function rcmail_contact_details($attrib)
         return false;
     }
 
-    $i_size = !empty($attrib['size']) ? $attrib['size'] : 40;
+    $i_size = $attrib['size'] ?: 40;
 
     $form = array(
         'contact' => array(

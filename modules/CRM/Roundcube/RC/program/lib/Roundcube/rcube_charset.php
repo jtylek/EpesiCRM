@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2005-2012, The Roundcube Dev Team                       |
@@ -70,14 +70,13 @@ class rcube_charset
     /**
      * Catch an error and throw an exception.
      *
-     * @param  int    Level of the error
-     * @param  string Error message
+     * @param int    $errno  Level of the error
+     * @param string $errstr Error message
      */
     public static function error_handler($errno, $errstr)
     {
         throw new ErrorException($errstr, 0, $errno);
     }
-
 
     /**
      * Parse and validate charset name string (see #1485758).
@@ -120,7 +119,7 @@ class rcube_charset
         }
         // ISO-8859
         else if (preg_match('/ISO8859([0-9]{0,2})/', $str, $m)) {
-            $iso = 'ISO-8859-' . ($m[1] ? $m[1] : 1);
+            $iso = 'ISO-8859-' . ($m[1] ?: 1);
             // some clients sends windows-1252 text as latin1,
             // it is safe to use windows-1252 for all latin1
             $result = $iso == 'ISO-8859-1' ? 'WINDOWS-1252' : $iso;
@@ -159,24 +158,23 @@ class rcube_charset
         return $result;
     }
 
-
     /**
      * Convert a string from one charset to another.
      * Uses mbstring and iconv functions if possible
      *
-     * @param  string Input string
-     * @param  string Suspected charset of the input string
-     * @param  string Target charset to convert to; defaults to RCUBE_CHARSET
+     * @param string $str  Input string
+     * @param string $from Suspected charset of the input string
+     * @param string $to   Target charset to convert to; defaults to RCUBE_CHARSET
      *
      * @return string Converted string
      */
     public static function convert($str, $from, $to = null)
     {
-        static $iconv_options   = null;
-        static $mbstring_list   = null;
-        static $mbstring_sch    = null;
+        static $iconv_options = null;
+        static $mbstring_list = null;
+        static $mbstring_sch  = null;
 
-        $to   = empty($to) ? RCUBE_CHARSET : $to;
+        $to   = empty($to) ? RCUBE_CHARSET : strtoupper($to);
         $from = self::parse_charset($from);
 
         // It is a common case when UTF-16 charset is used with US-ASCII content (#1488654)
@@ -209,14 +207,15 @@ class rcube_charset
             // it means that input string has been truncated
             set_error_handler(array('rcube_charset', 'error_handler'), E_NOTICE);
             try {
-                $_iconv = iconv($from, $to . $iconv_options, $str);
-            } catch (ErrorException $e) {
-                $_iconv = false;
+                $out = iconv($from, $to . $iconv_options, $str);
+            }
+            catch (ErrorException $e) {
+                $out = false;
             }
             restore_error_handler();
 
-            if ($_iconv !== false) {
-                return $_iconv;
+            if ($out !== false) {
+                return $out;
             }
         }
 
@@ -239,20 +238,29 @@ class rcube_charset
                 $aliases['US-ASCII'] = 'ASCII';
             }
 
-            $mb_from = $aliases[$from] ? $aliases[$from] : $from;
-            $mb_to   = $aliases[$to] ? $aliases[$to] : $to;
+            $mb_from = $aliases[$from] ?: $from;
+            $mb_to   = $aliases[$to] ?: $to;
 
             // return if encoding found, string matches encoding and convert succeeded
             if (in_array($mb_from, $mbstring_list) && in_array($mb_to, $mbstring_list)) {
-                if (mb_check_encoding($str, $mb_from)) {
-                    // Do the same as //IGNORE with iconv
-                    mb_substitute_character('none');
-                    $out = mb_convert_encoding($str, $mb_to, $mb_from);
-                    mb_substitute_character($mbstring_sch);
+                // Do the same as //IGNORE with iconv
+                mb_substitute_character('none');
 
-                    if ($out !== false) {
-                        return $out;
-                    }
+                // throw an exception if mbstring reports an illegal character in input
+                // using mb_check_encoding() is much slower
+                set_error_handler(array('rcube_charset', 'error_handler'), E_WARNING);
+                try {
+                    $out = mb_convert_encoding($str, $mb_to, $mb_from);
+                }
+                catch (ErrorException $e) {
+                    $out = false;
+                }
+                restore_error_handler();
+
+                mb_substitute_character($mbstring_sch);
+
+                if ($out !== false) {
+                    return $out;
                 }
             }
         }
@@ -260,20 +268,17 @@ class rcube_charset
         // convert charset using bundled classes/functions
         if ($to == 'UTF-8') {
             if ($from == 'UTF7-IMAP') {
-                if ($_str = self::utf7imap_to_utf8($str)) {
-                    return $_str;
+                if ($out = self::utf7imap_to_utf8($str)) {
+                    return $out;
                 }
             }
             else if ($from == 'UTF-7') {
-                if ($_str = self::utf7_to_utf8($str)) {
-                    return $_str;
+                if ($out = self::utf7_to_utf8($str)) {
+                    return $out;
                 }
             }
             else if ($from == 'ISO-8859-1' && function_exists('utf8_encode')) {
                 return utf8_encode($str);
-            }
-            else  {
-                trigger_error("No suitable function found for UTF-8 encoding");
             }
         }
 
@@ -281,29 +286,29 @@ class rcube_charset
         if ($from == 'UTF-8') {
             // @TODO: we need a function for UTF-7 (RFC2152) conversion
             if ($to == 'UTF7-IMAP' || $to == 'UTF-7') {
-                if ($_str = self::utf8_to_utf7imap($str)) {
-                    return $_str;
+                if ($out = self::utf8_to_utf7imap($str)) {
+                    return $out;
                 }
             }
             else if ($to == 'ISO-8859-1' && function_exists('utf8_decode')) {
                 return utf8_decode($str);
             }
-            else {
-                trigger_error("No suitable function found for UTF-8 decoding");
-            }
+        }
+
+        if (!isset($out)) {
+            trigger_error("No suitable function found for '$from' to '$to' conversion");
         }
 
         // return original string
         return $str;
     }
 
-
     /**
      * Converts string from standard UTF-7 (RFC 2152) to UTF-8.
      *
-     * @param  string  Input string (UTF-7)
+     * @param string $str Input string (UTF-7)
      *
-     * @return string  Converted string (UTF-8)
+     * @return string Converted string (UTF-8)
      */
     public static function utf7_to_utf8($str)
     {
@@ -357,13 +362,12 @@ class rcube_charset
         return $res;
     }
 
-
     /**
      * Converts string from UTF-16 to UTF-8 (helper for utf-7 to utf-8 conversion)
      *
-     * @param  string  Input string
+     * @param string $str Input string
      *
-     * @return string  The converted string
+     * @return string The converted string
      */
     public static function utf16_to_utf8($str)
     {
@@ -388,7 +392,6 @@ class rcube_charset
 
         return $dec;
     }
-
 
     /**
      * Convert the data ($str) from RFC 2060's UTF-7 to UTF-8.
@@ -497,7 +500,6 @@ class rcube_charset
 
         return $p;
     }
-
 
     /**
      * Convert the data ($str) from UTF-8 to RFC 2060's UTF-7.
@@ -629,7 +631,6 @@ class rcube_charset
         return $p;
     }
 
-
     /**
      * A method to guess character set of a string.
      *
@@ -729,7 +730,6 @@ class rcube_charset
         return $failover;
     }
 
-
     /**
      * Removes non-unicode characters from input.
      *
@@ -817,5 +817,4 @@ class rcube_charset
 
         return $out;
     }
-
 }

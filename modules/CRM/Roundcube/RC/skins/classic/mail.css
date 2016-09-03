@@ -36,7 +36,7 @@
   padding: 0;
   margin: 0 5px;
   overflow: hidden;
-  background: url(images/mail_toolbar.png?v=6409.13340) 0 0 no-repeat transparent;
+  background: url(images/mail_toolbar.png?v=2271.13035) 0 0 no-repeat transparent;
   opacity: 0.99; /* this is needed to make buttons appear correctly in Chrome */
 }
 
@@ -184,6 +184,14 @@
   background-position: -548px 0;
 }
 
+#messagetoolbar a.encrypt {
+  background-position: -612px 0;
+}
+
+#messagetoolbar a.encryptSel {
+  background-position: -612px -32px;
+}
+
 #messagemenu li a.active:hover,
 #attachmentmenu li a.active:hover,
 #markmessagemenu li a.active:hover
@@ -212,7 +220,7 @@
 
 #messagemenu li a.sourcelink
 {
-  background-position: 7px -35px;
+  background-position: 7px -34px;
 }
 
 #messagemenu li a.openlink,
@@ -228,12 +236,12 @@
 
 #messagemenu li a.movelink
 {
-  background-position: 6px -161px;
+  background-position: 6px -160px;
 }
 
 #messagemenu li a.copylink
 {
-  background-position: 6px -143px;
+  background-position: 6px -142px;
 }
 
 #markmessagemenu li a,
@@ -533,6 +541,7 @@
   right: 4px;
   white-space: nowrap;
   font-size: 11px;
+  line-height: 14px;
 }
 
 #countcontrols a.button,
@@ -1027,6 +1036,10 @@ table.headers-table
   width: auto;
   margin: 6px 8px;
   background-color: #F4F4F4;
+}
+
+#messagebody.mailvelope {
+  padding: 10px 8px;
 }
 
 #messagebody table.headers-table
@@ -1711,4 +1724,57 @@ input.from_address
 {
   top: 45px;
   position: absolute;
+}
+
+.mailvelopekeyimport div.key {
+  position: relative;
+  margin-bottom: 2px;
+  padding: 1em 1em 5px;
+  background-color: #ebebeb;
+}
+
+.mailvelopekeyimport div.key.revoked,
+.mailvelopekeyimport div.key.disabled {
+  color: #a0a0a0;
+}
+
+.mailvelopekeyimport div.key label {
+  display: inline-block;
+  margin-right: 0.5em;
+}
+
+.mailvelopekeyimport div.key label:after {
+  content: ":";
+}
+
+.mailvelopekeyimport div.key label + a,
+.mailvelopekeyimport div.key label + span {
+  display: inline-block;
+  margin-right: 2em;
+  white-space: nowrap;
+}
+
+.mailvelopekeyimport div.key label + a {
+  font-weight: bold;
+}
+
+.mailvelopekeyimport ul.uids {
+  margin: 5px 1em 0 1em;
+  padding: 0;
+}
+
+.mailvelopekeyimport li.uid {
+  border: 0;
+  padding: 2px;
+}
+
+.mailvelopekeyimport div.key input.button.importkey {
+  position: absolute;
+  top: 0.8em;
+  right: 0.8em;
+  padding: 2px 6px;
+}
+
+.mailvelopekeyimport div.key input.button[disabled] {
+  display: none;
 }

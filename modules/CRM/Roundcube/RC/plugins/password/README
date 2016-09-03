@@ -44,7 +44,9 @@
  2.18. Samba (smb)
  2.19. Vpopmail daemon (vpopmaild)
  2.20. Plesk (Plesk RPC-API)
+ 2.21. Kpasswd
  3. Driver API
+ 4. Sudo setup
 
 
  1. Configuration
@@ -301,6 +303,7 @@
  Driver to change Samba user password via the 'smbpasswd' command.
  See config.inc.php.dist file for configuration description.
 
+
  2.19. Vpopmail daemon (vpopmaild)
  -----------------------------------
 
@@ -330,6 +333,13 @@
  Set the RPC-Path in $config['password_plesk_rpc_path']. Normally this is: enterprise/control/agent.php.
 
 
+ 2.21.  Kpasswd
+ -----------------------------------
+
+ Driver to change the password in Kerberos environments via the 'kpasswd' command.
+ See config.inc.php.dist file for configuration description.
+
+
  3. Driver API
  -------------
 
@@ -339,3 +349,17 @@
  PASSWORD_CRYPT_ERROR, PASSWORD_ERROR when driver was unable to change password.
  Extended result (as a hash-array with 'message' and 'code' items) can be returned
  too. See existing drivers in drivers/ directory for examples.
+
+ 4. Sudo setup
+ -------------
+
+ Some drivers that execute system commands (like chpasswd) require use of sudo command.
+ Here's a sample for CentOS 7:
+
+ # cat <<END >/etc/sudoers.d/99-roundcubemail
+ apache ALL=NOPASSWD:/usr/sbin/chpasswd
+ Defaults:apache !requiretty
+ <<END
+
+ Note: on different systems the username (here 'apache') may be different, e.g. www.
+ Note: on some systems the disabling tty line may not be needed.

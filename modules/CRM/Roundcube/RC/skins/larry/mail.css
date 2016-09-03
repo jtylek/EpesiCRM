@@ -244,13 +244,16 @@ html.mozilla #mailboxlist > li:first-child {
 	right: 4px;
 	width: 20px;
 	height: 18px;
-	background: url(images/buttons.png?v=51d4.15699) -3px -458px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -3px -458px no-repeat;
 }
 
 #mailpreviewtoggle.enabled {
 	background-position: -28px -458px;
 }
 
+#s_interval {
+	margin: 3px 8px;
+}
 
 /*** message list ***/
 
@@ -423,19 +426,19 @@ table.messagelist.fixedcopy {
 }
 
 .messagelist tr td.priority span.prio5 {
-	background-position: 0 -1905px;
+	background-position: -2px -1905px;
 }
 
 .messagelist tr td.priority span.prio4 {
-	background-position: 0 -1885px;
+	background-position: -2px -1885px;
 }
 
 .messagelist tr td.priority span.prio2 {
-	background-position: 0 -1865px;
+	background-position: -2px -1865px;
 }
 
 .messagelist tr td.priority span.prio1 {
-	background-position: 0 -1845px;
+	background-position: -2px -1845px;
 }
 
 .messagelist tbody tr td.flag span.flagged {
@@ -627,7 +630,7 @@ h3.subject {
 
 .headers-table td {
 	color: #666;
-	padding: 2px 8px;
+	padding: 1px 8px;
 }
 
 .headers-table td.header,
@@ -652,7 +655,6 @@ h3.subject {
 
 .headers-table td.subject {
 	color: #333;
-	font-size: 110%;
 	font-weight: bold;
 }
 
@@ -727,7 +729,7 @@ h3.subject {
 	left: 0;
 	width: 18px;
 	height: 16px;
-	background: url(images/buttons.png?v=51d4.15699) -27px -242px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -27px -242px no-repeat;
 }
 
 .moreheaderstoggle.remove .iconlink {
@@ -747,7 +749,7 @@ div.more-headers {
 	width: 12px;
 	height: 10px;
 	cursor: pointer;
-	background: url(images/buttons.png?v=51d4.15699) center -1579px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) center -1579px no-repeat;
 }
 
 div.hide-headers {
@@ -861,19 +863,18 @@ div.hide-headers {
 
 #messagecontent .rightcol,
 #messagepreview .rightcol {
-	float: right;
-/*
 	position: absolute;
-	top: 10px;
-	right: 10px;
-	height: 90%;
-*/
+	right: 8px;
 	width: 230px;
-	margin: 8px;
 	min-height: 200px;
 	background: #f0f0f0;
 	padding: 8px;
 	border-radius: 4px;
+	z-index: 1;
+}
+
+#messagecontent .rightcol {
+	margin-top: 8px;
 }
 
 #messagebody {
@@ -958,12 +959,13 @@ div.message-partheaders .headers-table {
 }
 
 div.message-partheaders .headers-table td.header-title {
-	width: auto;
+	width: 1%;
 	padding-left: 0;
+	vertical-align: top;
 }
 
 div.message-partheaders .headers-table td.header {
-	width: 88%;
+	width: 99%;
 }
 
 #messagebody > hr {
@@ -1298,6 +1300,16 @@ div.message-partheaders .headers-table td.header {
 	bottom: 42px;
 }
 
+#composebodycontainer.mailvelope {
+	right: 0;
+	z-index: 10;
+}
+
+#composebodycontainer.mailvelope > iframe[scrolling='no'] {
+	position: relative;
+	top: -12px;
+}
+
 #composebody {
 	position: absolute;
 	top: 0;
@@ -1354,6 +1366,10 @@ div.message-partheaders .headers-table td.header {
 	-webkit-box-shadow: 0 0 5px 2px rgba(71,135,177, 0.9);
 }
 
+#compose-attachments .attachment-size {
+	color: #888;
+}
+
 #composeview-bottom .formbuttons.floating {
 	position: absolute;
 	width: auto;
@@ -1383,4 +1399,57 @@ div.message-partheaders .headers-table td.header {
 
 #uploadform form div {
 	margin: 4px 0;
+}
+
+.mailvelopekeyimport div.key {
+	position: relative;
+	margin-bottom: 2px;
+	padding: 1em;
+	background-color: #ebebeb;
+}
+
+.mailvelopekeyimport div.key.revoked,
+.mailvelopekeyimport div.key.disabled {
+	color: #a0a0a0;
+}
+
+.mailvelopekeyimport div.key label {
+	display: inline-block;
+	margin-right: 0.5em;
+}
+
+.mailvelopekeyimport div.key label:after {
+	content: ":";
+}
+
+.mailvelopekeyimport div.key label + a,
+.mailvelopekeyimport div.key label + span {
+	display: inline-block;
+	margin-right: 2em;
+	white-space: nowrap;
+}
+
+.mailvelopekeyimport div.key label + a {
+	font-weight: bold;
+}
+
+.mailvelopekeyimport ul.uids {
+	margin: 1em 0 0 0;
+	padding: 0;
+}
+
+.mailvelopekeyimport li.uid {
+	border: 0;
+	padding: 0.3em;
+}
+
+.mailvelopekeyimport div.key input.button.importkey {
+	position: absolute;
+	top: 0.8em;
+	right: 0.8em;
+	padding: 4px 6px;
+}
+
+.mailvelopekeyimport div.key input.button[disabled] {
+	display: none;
 }

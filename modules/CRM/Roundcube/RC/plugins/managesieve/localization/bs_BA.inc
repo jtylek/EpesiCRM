@@ -177,6 +177,7 @@ $labels['vacation.keep'] = 'Zadrži';
 $labels['vacation.discard'] = 'Odbaci';
 $labels['vacation.redirect'] = 'Preusmeri ka';
 $labels['vacation.copy'] = 'Pošalji kopiju na';
+$labels['filladdresses'] = 'Popuni svim mojim adresama';
 $labels['arialabelfiltersetactions'] = 'Akcije za filterske setove';
 $labels['arialabelfilteractions'] = 'Filterske akcije';
 $labels['arialabelfilterform'] = 'Svojstva filtera';

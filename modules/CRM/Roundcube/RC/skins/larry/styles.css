@@ -349,7 +349,7 @@ a.button span.icon,
 	height: 13px;
 	text-indent: 1000px;
 	overflow: hidden;
-	background: url(images/buttons.png?v=51d4.15699) -6px -211px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -6px -211px no-repeat;
 }
 
 a.button.prevpage span.icon,
@@ -435,13 +435,21 @@ a.button.delete span.icon {
 	top: -2px;
 }
 
+.pagenav .pagejumper {
+	text-align: center;
+	background: #f8f8f8;
+	padding: 3px 0;
+	background: linear-gradient(to bottom, #dddddd 0%, #f8f8f8 100%);
+	cursor: default;
+}
+
 a.iconbutton {
 	display: inline-block;
 	width: 20px;
 	height: 18px;
 	text-decoration: none;
 	text-indent: -5000px;
-	background: url(images/buttons.png?v=51d4.15699) -1000px 0 no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -1000px 0 no-repeat;
 }
 
 a.iconbutton.disabled {
@@ -500,7 +508,7 @@ a.iconlink {
 	text-decoration: none;
 	white-space: nowrap;
 	padding: 2px 8px 2px 20px;
-	background: url(images/buttons.png?v=51d4.15699) -1000px 0 no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -1000px 0 no-repeat;
 }
 
 a.iconlink:hover {
@@ -816,7 +824,7 @@ a.iconlink.upload {
 #topline a.button-logout {
 	display: inline-block;
 	padding: 2px 10px 2px 20px;
-	background: url(images/buttons.png?v=51d4.15699) -6px -193px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -6px -193px no-repeat;
 	color: #fff;
 }
 
@@ -966,7 +974,7 @@ a.iconlink.upload {
 	text-shadow: 0px 1px 1px black;
 	padding: 5px 0 0 34px;
 	height: 19px;
-	background: url(images/buttons.png?v=51d4.15699) -1000px 0 no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -1000px 0 no-repeat;
 }
 
 #taskbar a:focus {
@@ -1025,7 +1033,7 @@ a.iconlink.upload {
 	width: 19px;
 	height: 46px;
 	cursor: pointer;
-	background: url(images/buttons.png?v=51d4.15699) -35px -1778px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -35px -1778px no-repeat;
 }
 
 .minimal #taskbar .minmodetoggle {
@@ -1404,7 +1412,7 @@ ul.treelist li.selected > div.expanded {
 	width: 48px;
 	height: 35px;
 	text-indent: -5000px;
-	background-image: url(images/buttons.png?v=51d4.15699);
+	background-image: url(images/buttons.png?v=32cf.15571);
 	background-position: -1000px 0;
 	background-repeat: no-repeat;
 }
@@ -1469,7 +1477,7 @@ ul.treelist li.selected > div.expanded {
 	text-indent: 1000px;
 	vertical-align: bottom;
 	overflow: hidden;
-	background: url(images/buttons.png?v=51d4.15699) -4px -286px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -4px -286px no-repeat;
 }
 
 .boxpagenav a.icon.prevpage {
@@ -1681,6 +1689,15 @@ body.iframe .footerleft.floating:before,
 
 .boxcontent {
 	padding: 10px;
+}
+
+.boxcontent .boxwarning {
+	margin: 0 0 10px;
+	display: block;
+	color: #960;
+	border: 1px solid #ffdf0e;
+	background: url(images/messages.png?v=3a4f.1461) #fef893 5px -85px no-repeat;
+	padding: 6px 12px 6px 30px;
 }
 
 .contentbox .scroller {
@@ -1988,7 +2005,7 @@ ul.proplist li {
 	text-shadow: 0px 1px 1px #eee;
 	box-shadow: none;
 	-webkit-box-shadow: none;
-	background: url(images/buttons.png?v=51d4.15699) -100px 0 no-repeat transparent;
+	background: url(images/buttons.png?v=32cf.15571) -100px 0 no-repeat transparent;
 	border: 0;
 	border-radius: 0;
 }
@@ -2005,6 +2022,18 @@ ul.proplist li {
 	opacity: 0.4;
 }
 
+.toolbar a.button.selected {
+	color: #1978a1;
+}
+
+.toolbar a.button.selected:focus {
+	color: #fff;
+}
+
+.toolbar a.button.hidden {
+	display: none;
+}
+
 .dropbutton {
 	display: inline-block;
 	position: relative;
@@ -2019,7 +2048,7 @@ ul.proplist li {
 	width: 18px;
 	overflow: hidden;
 	text-indent: -5000px;
-	background: url(images/buttons.png?v=51d4.15699) 0 -1255px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) 0 -1255px no-repeat;
 	cursor: pointer;
 	outline: none;
 }
@@ -2149,6 +2178,14 @@ ul.proplist li {
 	background-position: center -1932px;
 }
 
+.toolbar a.button.encrypt {
+	background-position: center -2025px;
+}
+
+.toolbar a.button.encrypt.selected {
+	background-position: center -2068px;
+}
+
 a.menuselector {
 	display: inline-block;
 	border: 1px solid #ababab;
@@ -2233,7 +2270,12 @@ a.iconbutton:focus,
 	font-weight: bold;
 	text-shadow: 0px 1px 1px #fff;
 	padding-left: 30px;
-	background: url(images/quota.png?v=7ea4.2033) -100px 0 no-repeat;
+	background: url(images/quota.png?v=5c9e.4967) -100px 0 no-repeat;
+}
+
+#quotadisplay.p90,
+#quotadisplay.p100 {
+    color: #e03221;
 }
 
 table.quota-info {
@@ -2340,6 +2382,7 @@ ul.toolbarmenu li a.active {
 ul.toolbarmenu li a.active:hover,
 ul.toolbarmenu li a.active:focus,
 #rcmKSearchpane ul li.selected,
+#pagejump-selector ul li.selected,
 select.decorated option:hover,
 select.decorated option[selected='selected'] {
 	background-color: #00aad6;
@@ -2370,6 +2413,12 @@ ul.toolbarmenu li label {
 ul.toolbarmenu li.separator label {
 	color: #bbb;
 	font-style: italic;
+	padding: 0 8px;
+	line-height: 17px;
+}
+
+ul.toolbarmenu li input {
+	margin: 0;
 }
 
 ul.toolbarmenu li a.icon {
@@ -2455,6 +2504,17 @@ ul.toolbarmenu li span.move {
 
 ul.toolbarmenu li span.copy {
 	background-position: 0 -2150px;
+}
+
+#pagejump-selector {
+	max-height: 250px;
+	overflow-x: hidden;
+}
+
+#pagejump-selector ul li {
+	min-width: 45px;
+	padding: 2px 5px;
+	cursor: default;
 }
 
 #snippetslist {
@@ -2578,7 +2638,7 @@ ul.toolbarmenu li span.copy {
 	content: " ";
 	width: 16px;
 	height: 16px;
-	background: url(images/buttons.png?v=51d4.15699) -7px -358px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -7px -358px no-repeat;
 	z-index: 255;
 }
 
@@ -2974,7 +3034,7 @@ ul.toolbarmenu li span.copy {
 }
 
 .attachmentslist li a.drop {
-	background: url(images/buttons.png?v=51d4.15699) no-repeat scroll center -1570px;
+	background: url(images/buttons.png?v=32cf.15571) no-repeat scroll center -1570px;
 	width: 14px;
 	height: 20px;
 	cursor: pointer;
@@ -3015,7 +3075,7 @@ ul.toolbarmenu li span.copy {
 	padding: 0;
 	text-decoration: none;
 	text-indent: -5000px;
-	background-image: url(images/buttons.png?v=51d4.15699);
+	background-image: url(images/buttons.png?v=32cf.15571);
 	background-position: -6px -338px;
 	background-repeat: no-repeat;
 }
@@ -3089,4 +3149,14 @@ ul.toolbarmenu li span.copy {
 
 _:not(), _:-moz-handler-blocked, .mozilla .mce-btn-small i {
 	line-height: 20px !important;
+}
+
+.mce-textbox {
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.mce-textbox:focus {
+	box-shadow: none;
+	outline: none;
 }

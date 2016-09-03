@@ -44,12 +44,12 @@
 }
 
 #abooktoolbar a.print {
-  background: url(images/mail_toolbar.png?v=6409.13340) 0 0 no-repeat transparent;
+  background: url(images/mail_toolbar.png?v=2271.13035) 0 0 no-repeat transparent;
   background-position: -256px 0;
 }
 
 #abooktoolbar a.printSel {
-  background: url(images/mail_toolbar.png?v=6409.13340) 0 0 no-repeat transparent;
+  background: url(images/mail_toolbar.png?v=2271.13035) 0 0 no-repeat transparent;
   background-position: -256px -32px;
 }
 

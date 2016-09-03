@@ -1,10 +1,10 @@
 <?php
-/*
+/**
  +-------------------------------------------------------------------------+
  | Roundcube Webmail IMAP Client                                           |
- | Version 1.1.4                                                           |
+ | Version 1.2.1                                                           |
  |                                                                         |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                         |
+ | Copyright (C) 2005-2016, The Roundcube Dev Team                         |
  |                                                                         |
  | This program is free software: you can redistribute it and/or modify    |
  | it under the terms of the GNU General Public License (with exceptions   |
@@ -40,7 +40,7 @@
 require_once 'program/include/iniset.php';
 
 // init application, start session, init output class, etc.
-$RCMAIL = rcmail::get_instance($GLOBALS['env']);
+$RCMAIL = rcmail::get_instance(0, $GLOBALS['env']);
 
 // Make the whole PHP output non-cacheable (#1487797)
 $RCMAIL->output->nocacheing_headers();
@@ -62,12 +62,12 @@ if ($err_str = $RCMAIL->db->is_error()) {
     rcmail::raise_error(array(
         'code' => 603,
         'type' => 'db',
-        'message' => $err_str), FALSE, TRUE);
+        'message' => $err_str), false, true);
 }
 
 // error steps
 if ($RCMAIL->action == 'error' && !empty($_GET['_code'])) {
-    rcmail::raise_error(array('code' => hexdec($_GET['_code'])), FALSE, TRUE);
+    rcmail::raise_error(array('code' => hexdec($_GET['_code'])), false, true);
 }
 
 // check if https is required (for login) and redirect if necessary
@@ -155,6 +155,7 @@ if ($RCMAIL->task == 'login' && $RCMAIL->action == 'login') {
             RCMAIL::ERROR_COOKIES_DISABLED => 'cookiesdisabled',
             RCMAIL::ERROR_INVALID_REQUEST  => 'invalidrequest',
             RCMAIL::ERROR_INVALID_HOST     => 'invalidhost',
+            RCMAIL::ERROR_RATE_LIMIT       => 'accountlocked',
         );
 
         $error_message = !empty($auth['error']) && !is_numeric($auth['error']) ? $auth['error'] : ($error_labels[$error_code] ?: 'loginfailed');

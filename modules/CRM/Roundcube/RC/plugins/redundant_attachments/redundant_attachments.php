@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Redundant attachments
  *
@@ -31,6 +32,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+if (class_exists('filesystem_attachments', false) && !defined('TESTS_DIR')) {
+    die("Configuration issue. There can be only one enabled plugin for attachments handling");
+}
+
 require_once(RCUBE_PLUGINS_DIR . 'filesystem_attachments/filesystem_attachments.php');
 
 class redundant_attachments extends filesystem_attachments
@@ -56,7 +61,7 @@ class redundant_attachments extends filesystem_attachments
             return;
         }
 
-        $rcmail = rcmail::get_instance();
+        $rcmail = rcube::get_instance();
 
         // load configuration
         $this->load_config();
@@ -85,8 +90,8 @@ class redundant_attachments extends filesystem_attachments
      */
     private function _key($args)
     {
-        $uname = $args['path'] ? $args['path'] : $args['name'];
-        return $args['group'] . md5(mktime() . $uname . $_SESSION['user_id']);
+        $uname = $args['path'] ?: $args['name'];
+        return $args['group'] . md5(time() . $uname . $_SESSION['user_id']);
     }
 
     /**

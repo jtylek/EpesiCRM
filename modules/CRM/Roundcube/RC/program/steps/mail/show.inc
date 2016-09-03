@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | program/steps/mail/show.inc                                           |
  |                                                                       |
@@ -19,7 +19,7 @@
  +-----------------------------------------------------------------------+
 */
 
-$PRINT_MODE = $RCMAIL->action == 'print' ? TRUE : FALSE;
+$PRINT_MODE = $RCMAIL->action == 'print';
 
 // Read browser capabilities and store them in session
 if ($caps = rcube_utils::get_input_value('_caps', rcube_utils::INPUT_GET)) {
@@ -46,13 +46,12 @@ if ($uid) {
         $RCMAIL->config->set('prefer_html', $_SESSION['msg_formats'][$mbox_name.':'.$uid]);
     }
 
-    $MESSAGE = new rcube_message($uid);
+    $MESSAGE = new rcube_message($uid, $mbox_name, intval($_GET['_safe']));
 
     // if message not found (wrong UID)...
     if (empty($MESSAGE->headers)) {
         rcmail_message_error($uid);
     }
-
 
     // show images?
     rcmail_check_safe($MESSAGE);
@@ -69,6 +68,7 @@ if ($uid) {
     $OUTPUT->set_env('safemode', $MESSAGE->is_safe);
     $OUTPUT->set_env('sender', $MESSAGE->sender['string']);
     $OUTPUT->set_env('mailbox', $mbox_name);
+    $OUTPUT->set_env('username', $RCMAIL->get_user_name());
     $OUTPUT->set_env('permaurl', $RCMAIL->url(array('_action' => 'show', '_uid' => $MESSAGE->uid, '_mbox' => $mbox_name)));
 
     if ($MESSAGE->headers->get('list-post', false)) {
@@ -241,6 +241,7 @@ function rcmail_message_attachments($attrib)
         $out = html::tag('ul', $attrib, $ol, html::$common_attrib);
 
         $RCMAIL->output->set_env('attachments', $attachments);
+        $RCMAIL->output->add_gui_object('attachments', $attrib['id']);
     }
 
     return $out;
@@ -330,7 +331,7 @@ function rcmail_contact_exists($email)
         $CONTACTS = $RCMAIL->get_address_book(-1, true);
 
         if (is_object($CONTACTS)) {
-            $existing = $CONTACTS->search('email', $email, true, false);
+            $existing = $CONTACTS->search('email', $email, 1, false);
             if ($existing->count) {
                 return true;
             }
@@ -345,7 +346,7 @@ function rcmail_message_contactphoto($attrib)
     global $RCMAIL, $MESSAGE;
 
     $placeholder = $attrib['placeholder'] ? $RCMAIL->output->abs_url($attrib['placeholder'], true) : null;
-    $placeholder = $RCMAIL->output->asset_url($placeholder ? $placeholder : 'program/resources/blank.gif');
+    $placeholder = $RCMAIL->output->asset_url($placeholder ?: 'program/resources/blank.gif');
 
     if ($MESSAGE->sender) {
         $photo_img = $RCMAIL->url(array(

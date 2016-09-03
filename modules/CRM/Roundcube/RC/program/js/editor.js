@@ -39,7 +39,7 @@ function rcube_text_editor(config, id)
     abs_url = location.href.replace(/[?#].*$/, '').replace(/\/$/, ''),
     conf = {
       selector: '#' + ($('#' + id).is('.mce_editor') ? id : 'fake-editor-id'),
-      cache_suffix: 's=4010900',
+      cache_suffix: 's=4031300',
       theme: 'modern',
       language: config.lang,
       content_css: rcmail.assets_path('program/js/tinymce/roundcube/content.css'),
@@ -88,11 +88,11 @@ function rcube_text_editor(config, id)
   // full-featured editor
   else {
     $.extend(conf, {
-      plugins: 'autolink charmap code colorpicker directionality emoticons link image media nonbreaking'
-        + ' paste table tabfocus textcolor searchreplace' + (config.spellcheck ? ' spellchecker' : ''),
+      plugins: 'autolink charmap code colorpicker directionality link image media nonbreaking'
+        + ' paste table tabfocus textcolor searchreplace spellchecker',
       toolbar: 'bold italic underline | alignleft aligncenter alignright alignjustify'
         + ' | bullist numlist outdent indent ltr rtl blockquote | forecolor backcolor | fontselect fontsizeselect'
-        + ' | link unlink table | emoticons charmap image media | code searchreplace undo redo',
+        + ' | link unlink table | $extra charmap image media | code searchreplace undo redo',
       spellchecker_rpc_url: abs_url + '/?_task=utils&_action=spell_html&_remote=1',
       spellchecker_language: rcmail.env.spell_lang,
       accessibility_focus: false,
@@ -101,6 +101,26 @@ function rcube_text_editor(config, id)
       file_browser_callback_types: 'image media'
     });
   }
+
+  // add TinyMCE plugins/buttons from Roundcube plugin
+  $.each(config.extra_plugins || [], function() {
+    if (conf.plugins.indexOf(this) < 0)
+      conf.plugins = conf.plugins + ' ' + this;
+  });
+  $.each(config.extra_buttons || [], function() {
+    if (conf.toolbar.indexOf(this) < 0)
+      conf.toolbar = conf.toolbar.replace('$extra', '$extra ' + this);
+  });
+
+  // disable TinyMCE plugins/buttons from Roundcube plugin
+  $.each(config.disabled_plugins || [], function() {
+    conf.plugins = conf.plugins.replace(this, '');
+  });
+  $.each(config.disabled_buttons || [], function() {
+    conf.toolbar = conf.toolbar.replace(this, '');
+  });
+
+  conf.toolbar = conf.toolbar.replace('$extra', '').replace(/\|\s+\|/g, '|');
 
   // support external configuration settings e.g. from skin
   if (window.rcmail_editor_settings)
@@ -427,7 +447,6 @@ function rcube_text_editor(config, id)
 
     // get selected text from tinymce editor
     if (ed) {
-      ed.getWin().focus(); // correct focus in IE & Chrome
       if (args.selection)
         text = ed.selection.getContent({format: args.format});
 
@@ -490,10 +509,10 @@ function rcube_text_editor(config, id)
           message = message.substring(0, p) + sig + message.substring(p, message.length);
           cursor_pos = p - 1;
         }
-        // empty message
-        else if (!message) {
-          message = '\n\n' + sig;
-          cursor_pos = 0;
+        // empty message or new-message mode
+        else if (!message || !rcmail.env.compose_mode) {
+          cursor_pos = message.length;
+          message += '\n\n' + sig;
         }
         else if (rcmail.env.top_posting && !rcmail.env.sig_below) {
           // at cursor position
@@ -532,8 +551,10 @@ function rcube_text_editor(config, id)
         sigElem = $('<div id="_rc_sig"></div>').get(0);
 
         // insert at start or at cursor position in top-posting mode
-        // (but not if the content is empty)
-        if (rcmail.env.top_posting && !rcmail.env.sig_below && (body.childNodes.length > 1 || $(body).text())) {
+        // (but not if the content is empty and not in new-message mode)
+        if (rcmail.env.top_posting && !rcmail.env.sig_below
+          && rcmail.env.compose_mode && (body.childNodes.length > 1 || $(body).text())
+        ) {
           this.editor.getWin().focus(); // correct focus in IE & Chrome
 
           var node = this.editor.selection.getNode();
@@ -543,7 +564,7 @@ function rcube_text_editor(config, id)
         }
         else {
           body.appendChild(sigElem);
-          position_element = rcmail.env.top_posting ? body.firstChild : $(sigElem).prev();
+          position_element = rcmail.env.top_posting && rcmail.env.compose_mode ? body.firstChild : $(sigElem).prev();
         }
       }
 
@@ -581,7 +602,7 @@ function rcube_text_editor(config, id)
 
     // open image selector dialog
     dialog = this.editor.windowManager.open({
-      title: rcmail.gettext('select' + type),
+      title: rcmail.get_label('select' + type),
       width: 500,
       height: 300,
       html: '<div id="image-selector-list"><ul></ul></div>'
@@ -608,7 +629,7 @@ function rcube_text_editor(config, id)
       .text($('div.hint', rcmail.gui_objects.uploadform).text()));
 
     // init upload button
-    elem = $('#image-upload-button').append($('<span>').text(rcmail.gettext('add' + type)));
+    elem = $('#image-upload-button').append($('<span>').text(rcmail.get_label('add' + type)));
     cancel = elem.parents('.mce-panel').find('button:last').parent();
 
     // we need custom Tab key handlers, until we find out why
@@ -651,7 +672,7 @@ function rcube_text_editor(config, id)
 
       rcmail.gui_objects.filedrop = $('#image-selector-form');
       rcmail.gui_objects.filedrop.addClass('droptarget')
-        .bind('dragover dragleave', function(e) {
+        .on('dragover dragleave', function(e) {
           e.preventDefault();
           e.stopPropagation();
           $(this)[(e.type == 'dragover' ? 'addClass' : 'removeClass')]('hover');
@@ -753,10 +774,9 @@ function rcube_text_editor(config, id)
   // create smart files upload button
   this.hack_file_input = function(elem, clone_form)
   {
-    var link = $(elem),
+    var offset, link = $(elem),
       file = $('<input>').attr('name', '_file[]'),
-      form = $('<form>').attr({method: 'post', enctype: 'multipart/form-data'}),
-      offset = link.offset();
+      form = $('<form>').attr({method: 'post', enctype: 'multipart/form-data'});
 
     // clone existing upload form
     if (clone_form) {
@@ -766,6 +786,7 @@ function rcube_text_editor(config, id)
     }
 
     function move_file_input(e) {
+      if (!offset) offset = link.offset();
       file.css({top: (e.pageY - offset.top - 10) + 'px', left: (e.pageX - offset.left - 10) + 'px'});
     }
 

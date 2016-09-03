@@ -16,9 +16,9 @@
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-password/
 */
 $labels['changepasswd']  = 'Ändra lösenord';
-$labels['curpasswd']  = 'Nuvarande lösenord:';
-$labels['newpasswd']  = 'Nytt lösenord:';
-$labels['confpasswd']  = 'Bekräfta nytt lösenord:';
+$labels['curpasswd']  = 'Nuvarande lösenord';
+$labels['newpasswd']  = 'Nytt lösenord';
+$labels['confpasswd']  = 'Bekräfta nytt lösenord';
 $messages['nopassword'] = 'Ange nytt lösenord.';
 $messages['nocurpassword'] = 'Ange nuvarande lösenord.';
 $messages['passwordincorrect'] = 'Felaktigt nuvarande lösenord.';
@@ -30,4 +30,4 @@ $messages['passwordshort'] = 'Lösenordet måste vara minst $length tecken lång
 $messages['passwordweak'] = 'Lösenordet måste innehålla minst en siffra och ett specialtecken.';
 $messages['passwordforbidden'] = 'Lösenordet innehåller otillåtna tecken.';
 $messages['firstloginchange'] = 'Du loggar in för första gången. Vänligen ändra ditt lösenord.';
-?>
+$messages['disablednotice'] = 'Underhåll av systemet pågår och därför kan lösenord inte ändras för tillfället. Allt ska fungera normalt igen så snart som möjligt. Ursäkta den eventuella olägenheten underhållet orsakar.';

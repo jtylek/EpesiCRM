@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2008-2012, The Roundcube Dev Team                       |
@@ -137,10 +137,10 @@ class rcube_html2text
      */
     protected $search = array(
         '/\r/',                                  // Non-legal carriage return
-        '/^.*<body[^>]*>\n*/i',                  // Anything before <body>
-        '/<head[^>]*>.*?<\/head>/i',             // <head>
-        '/<script[^>]*>.*?<\/script>/i',         // <script>
-        '/<style[^>]*>.*?<\/style>/i',           // <style>
+        '/^.*<body[^>]*>\n*/is',                 // Anything before <body>
+        '/<head[^>]*>.*?<\/head>/is',            // <head>
+        '/<script[^>]*>.*?<\/script>/is',        // <script>
+        '/<style[^>]*>.*?<\/style>/is',          // <style>
         '/[\n\t]+/',                             // Newlines and tabs
         '/<p[^>]*>/i',                           // <p>
         '/<\/p>[\s\n\t]*<div[^>]*>/i',           // </p> before <div>
@@ -587,11 +587,11 @@ class rcube_html2text
     {
         $level = 0;
         $offset = 0;
-        while (($start = strpos($text, '<blockquote', $offset)) !== false) {
+        while (($start = stripos($text, '<blockquote', $offset)) !== false) {
             $offset = $start + 12;
             do {
-                $end = strpos($text, '</blockquote>', $offset);
-                $next = strpos($text, '<blockquote', $offset);
+                $end = stripos($text, '</blockquote>', $offset);
+                $next = stripos($text, '<blockquote', $offset);
 
                 // nested <blockquote>, skip
                 if ($next !== false && $next < $end) {

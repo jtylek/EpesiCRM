@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  +-----------------------------------------------------------------------+
  | program/steps/addressbook/func.inc                                    |
  |                                                                       |
@@ -234,7 +234,7 @@ function rcmail_directory_list($attrib)
         if ($source['class_name'])
             $class_name .= ' ' . $source['class_name'];
 
-        $name = !empty($source['name']) ? $source['name'] : $id;
+        $name = $source['name'] ?: $id;
         $out .= sprintf($line_templ,
             rcube_utils::html_identifier($id, true),
             $class_name,
@@ -292,7 +292,7 @@ function rcmail_savedsearch_list($attrib)
             rcube_utils::html_identifier('S'.$id, true),
             join(' ', $classes),
             $id,
-            $js_id, (!empty($source['name']) ? rcube::Q($source['name']) : rcube::Q($id))
+            $js_id, rcube::Q($source['name'] ?: $id)
         );
     }
 
@@ -371,19 +371,21 @@ function rcmail_js_contacts_list($result, $prefix='')
 {
     global $OUTPUT, $RCMAIL;
 
-    if (empty($result) || $result->count == 0)
+    if (empty($result) || $result->count == 0) {
         return;
+    }
 
     // define list of cols to be displayed
     $a_show_cols = array('name','action');
 
     while ($row = $result->next()) {
-        $row['CID'] = $row['ID'];
-        $row['email'] = reset(rcube_addressbook::get_col_values('email', $row, true));
+        $emails       = rcube_addressbook::get_col_values('email', $row, true);
+        $row['CID']   = $row['ID'];
+        $row['email'] = reset($emails);
 
-        $source_id = $OUTPUT->get_env('source');
+        $source_id  = $OUTPUT->get_env('source');
         $a_row_cols = array();
-        $classes = array($row['_type'] ? $row['_type'] : 'person');
+        $classes    = array($row['_type'] ?: 'person');
 
         // build contact ID with source ID
         if (isset($row['sourceid'])) {
@@ -483,7 +485,7 @@ function rcmail_get_rowcount_text($result=null)
         $out = $RCMAIL->gettext('nocontactsfound');
     else
         $out = $RCMAIL->gettext(array(
-            'name'  => $_SESSION['contactcountdisplay'] ? $_SESSION['contactcountdisplay'] : 'contactsfromto',
+            'name'  => $_SESSION['contactcountdisplay'] ?: 'contactsfromto',
             'vars'  => array(
             'from'  => $result->first + 1,
             'to'    => min($result->count, $result->first + $PAGE_SIZE),
@@ -658,7 +660,7 @@ function rcmail_contact_form($form, $record, $attrib = null)
                         }
                     }
                     else {
-                        $values = $record[$fullkey] ? $record[$fullkey] : $record[$field];
+                        $values   = $record[$fullkey] ?: $record[$field];
                         $subtypes = null;
                     }
                 }
@@ -685,7 +687,7 @@ function rcmail_contact_form($form, $record, $attrib = null)
                         $template = $RCMAIL->config->get($col . '_template', '{'.join('} {', array_keys($colprop['childs'])).'}');
                         foreach ($colprop['childs'] as $childcol => $cp) {
                             if (!empty($val) && is_array($val)) {
-                                $childvalue = $val[$childcol] ? $val[$childcol] : $val[$j];
+                                $childvalue = $val[$childcol] ?: $val[$j];
                             }
                             else {
                                 $childvalue = '';

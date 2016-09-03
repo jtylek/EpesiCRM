@@ -169,7 +169,7 @@ class Net_SMTP
         $this->socket_options = $socket_options;
         $this->timeout        = $timeout;
 
-        /* Include the Auth_SASL package.  If the package is available, we 
+        /* Include the Auth_SASL package.  If the package is available, we
          * enable the authentication methods that depend upon it. */
         if (@include_once 'Auth/SASL.php') {
             $this->setAuthMethod('CRAM-MD5', array($this, 'authCramMD5'));
@@ -1034,12 +1034,15 @@ class Net_SMTP
             if (PEAR::isError($result = $this->send($headers . "\r\n\r\n"))) {
                 return $result;
             }
+
+            /* Subtract the headers size now that they've been sent. */
+            $size -= strlen($headers) + 4;
         }
 
         /* Now we can send the message body data. */
         if (is_resource($data)) {
-            /* Stream the contents of the file resource out over our socket 
-             * connection, line by line.  Each line must be run through the 
+            /* Stream the contents of the file resource out over our socket
+             * connection, line by line.  Each line must be run through the
              * quoting routine. */
             while (strlen($line = fread($data, 8192)) > 0) {
                 /* If the last character is an newline, we need to grab the
@@ -1060,15 +1063,15 @@ class Net_SMTP
              $last = $line;
         } else {
             /*
-             * Break up the data by sending one chunk (up to 512k) at a time.  
+             * Break up the data by sending one chunk (up to 512k) at a time.
              * This approach reduces our peak memory usage.
              */
             for ($offset = 0; $offset < $size;) {
                 $end = $offset + 512000;
 
                 /*
-                 * Ensure we don't read beyond our data size or span multiple 
-                 * lines.  quotedata() can't properly handle character data 
+                 * Ensure we don't read beyond our data size or span multiple
+                 * lines.  quotedata() can't properly handle character data
                  * that's split across two line break boundaries.
                  */
                 if ($end >= $size) {

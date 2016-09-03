@@ -593,7 +593,7 @@ class Utils_RecordBrowser_QueryBuilder
                     $value = ( $matches[1] == 'C' ? 'company' : 'contact' ) . '/' . $matches[2];
                 }
                 if ($single_tab) {
-                    $value = preg_replace('#.*/#', '', $value); // remove prefix for multiselects: contact/1 => 1
+                    $value = preg_replace('#.*/#', '', $value); // remove prefix for select from single tab: contact/1 => 1
                 }
                 if ($single_tab && !$multiselect && $operator != DB::like()) {
                     $operand = '%d';
@@ -681,6 +681,9 @@ class Utils_RecordBrowser_QueryBuilder
         }
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
+        }
+        if ($field_def['style'] == 'currency') {
+            return $this->hf_currency($field, $operator, $value, $raw_sql_val);
         }
         $vals = array();
         if (DB::is_postgresql()) $field .= '::varchar';

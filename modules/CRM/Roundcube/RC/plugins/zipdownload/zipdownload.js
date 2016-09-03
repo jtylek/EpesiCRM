@@ -43,10 +43,10 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
             link.html('').append(span);
         }
 
-        span.text(rcmail.gettext('zipdownload.download'));
+        span.text(rcmail.get_label('zipdownload.download'));
         rcmail.env.download_link = link;
     });
-  });
+});
 
 
 function rcmail_zipdownload(mode)
@@ -54,7 +54,7 @@ function rcmail_zipdownload(mode)
     // default .eml download of single message
     if (mode == 'eml') {
         var uid = rcmail.get_single_uid();
-        rcmail.goto_url('viewsource', rcmail.params_from_uid(uid, {_save: 1}));
+        rcmail.goto_url('viewsource', rcmail.params_from_uid(uid, {_save: 1}), false, true);
         return;
     }
 

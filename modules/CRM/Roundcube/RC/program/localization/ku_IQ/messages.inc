@@ -17,4 +17,3 @@
 */
 $messages['errortitle']  = 'هەڵەیەک ڕوویدا!';
 $messages['loginfailed']  = 'چوونەژوورەوە سەرکەوتوو نەبوو.';
-?>

@@ -260,6 +260,7 @@ body > #message div
 
 body > #message div.notice,
 body > #messagebody .part-notice,
+body > #mainscreen #messagebody .part-notice,
 #message-objects div.notice
 {
   background: url(images/display/icons.png?v=e866.4201) 6px 3px no-repeat;
@@ -324,7 +325,7 @@ body.extwin #closelink
 .boxtitle
 {
   height: 12px !important;
-  padding: 2px 10px 5px 5px;
+  padding: 3px 10px 4px 5px;
   border-bottom: 1px solid #999;
   color: #333;
   font-size: 11px;
@@ -353,6 +354,16 @@ body.iframe .boxtitle
 {
   padding: 15px 10px 10px 10px;
   background-color: #F2F2F2;
+}
+
+.boxcontent .boxwarning
+{
+  margin: 0 0 10px;
+  display: block;
+  min-height: 22px;
+  background: url(images/display/icons.png?v=e866.4201) #EF9398 6px -95px no-repeat;
+  border: 1px solid #DC5757;
+  padding: 8px 10px 8px 46px;
 }
 
 .boxcontent table td.title
@@ -480,6 +491,22 @@ body.iframe .boxtitle
   background-position: -33px -11px;
 }
 
+#rcmcountdisplay
+{
+  float: left;
+  margin-right: 10px;
+}
+
+#countcontrols #pagejumper
+{
+  margin: 0 5px;
+  float: right;
+  text-align: center;
+  padding: 0;
+  cursor: default;
+  font-size: 10px;
+}
+
 .splitter
 {
   user-select: none;
@@ -544,9 +571,10 @@ body.iframe .boxtitle
 {
   display: block;
   color: #a0a0a0;
-  padding: 2px 16px 2px 10px;
+  padding: 3px 16px 3px 10px;
   text-decoration: none;
   min-height: 14px;
+  line-height: 14px;
   background: transparent;
 }
 
@@ -1119,7 +1147,8 @@ a.rcmContactAddress:hover
   cursor: pointer;
 }
 
-#rcmKSearchpane ul li.selected
+#rcmKSearchpane ul li.selected,
+#pagejump-selector ul li.selected
 {
   color: #ffffff;
   background-color: #CC3333;
@@ -1205,9 +1234,10 @@ ul.toolbarmenu li a
 {
   display: block;
   color: #a0a0a0;
-  padding: 1px 12px 3px 28px;
+  padding: 3px 12px 3px 28px;
   text-decoration: none;
   min-height: 14px;
+  line-height: 14px;
 }
 
 ul.toolbarmenu li a.active,
@@ -1265,6 +1295,35 @@ ul.toolbarmenu li.separator_above
 #searchmenu ul.toolbarmenu li
 {
   margin: 1px 4px 1px;
+}
+
+#searchmenu ul.toolbarmenu li label
+{
+  padding: 2px 0;
+  color: black;
+}
+
+#searchmenu ul.toolbarmenu li label.comment
+{
+  color: #999;
+}
+
+#searchmenu select
+{
+  width: 100%;
+}
+
+#pagejump-selector
+{
+  max-height: 250px;
+  overflow-x: hidden;
+}
+
+#pagejump-selector ul li
+{
+  min-width: 45px;
+  padding: 2px 5px;
+  cursor: default;
 }
 
 
