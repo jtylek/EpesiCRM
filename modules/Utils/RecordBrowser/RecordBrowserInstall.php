@@ -62,19 +62,16 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						array('constraints'=>', PRIMARY KEY(tab, func)'));
 		DB::CreateTable('recordbrowser_clipboard_pattern', 'tab C(64) KEY, pattern X, enabled I4');
 
-		DB::CreateTable('recordbrowser_words_index', 'id I AUTO KEY,word C(3)',
-					array('constraints'=>', UNIQUE(word)'));
-		DB::CreateTable('recordbrowser_words_map', 'word_id I, tab_id I2, record_id I, field_id I2, position I',
-					array('constraints'=>', FOREIGN KEY (word_id) REFERENCES recordbrowser_words_index(id) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (tab_id) REFERENCES recordbrowser_table_properties(id) ON DELETE CASCADE ON UPDATE CASCADE'));
-		DB::CreateIndex('rb_words_map__word_idx','recordbrowser_words_map','word_id');
-		DB::CreateIndex('rb_words_map__tab_idx','recordbrowser_words_map','tab_id');
-		DB::CreateIndex('rb_words_map__record_tab_idx','recordbrowser_words_map','record_id,tab_id');
+		DB::CreateTable('recordbrowser_search_index', 'tab_id I2 NOTNULL, record_id I NOTNULL, field_id I2 NOTNULL, text X', array('constraints' => ', PRIMARY KEY(tab_id, record_id, field_id)'));
+
 		Base_PrintCommon::register_printer(new Utils_RecordBrowser_RecordPrinter());
 		return true;
 	}
 	
 	public function uninstall() {
+        DB::DropTable('recordbrowser_search_index');
         DB::DropTable('recordbrowser_clipboard_pattern');
+        DB::DropTable('recordbrowser_access_methods');
 		DB::DropTable('recordbrowser_browse_mode_definitions');
 		DB::DropTable('recordbrowser_addon');
 		DB::DropTable('recordbrowser_table_properties');
