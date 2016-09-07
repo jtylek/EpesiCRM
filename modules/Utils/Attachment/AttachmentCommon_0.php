@@ -157,50 +157,57 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return DB::GetAll($sql);
 	}
 
-	public static function search($word, $types) {
-	        if(!$types) return;
-	        
-	        $r = null;
-                $limit = Base_SearchCommon::get_recordset_limit_records();
-	        $ret = array();
-                
-                foreach($types as $type) {
-                    if($type=='files') {
-		        $r = DB::SelectLimit('SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_data_1 ua INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id INNER JOIN utils_attachment_file AS uaf ON uaf.attach_id=ua.id WHERE ua.active=1 AND '.
-				' uaf.original '.DB::like().' '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.deleted=0', $limit, -1, array($word));
-                    } elseif($type=='downloads') {
-                        if(strlen($word)==32) {
-                            $query = 'SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_file uaf INNER JOIN utils_attachment_download uad ON uad.attach_file_id=uaf.id INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id WHERE uad.token='.DB::qstr($word);
+    public static function search($word, $types)
+    {
+        $ret = array();
+        if (!$types) {
+            return $ret;
+        }
+
+        $r = null;
+        $limit = Base_SearchCommon::get_recordset_limit_records();
+
+        foreach ($types as $type) {
+            if ($type == 'files') {
+                $r = DB::SelectLimit('SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_data_1 ua INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id INNER JOIN utils_attachment_file AS uaf ON uaf.attach_id=ua.id WHERE ua.active=1 AND ' .
+                                     ' uaf.original ' . DB::like() . ' ' . DB::Concat(DB::qstr('%'), '%s', DB::qstr('%')) . ' AND uaf.deleted=0', $limit, -1, array($word));
+            } elseif ($type == 'downloads') {
+                if (strlen($word) == 32) {
+                    $query = 'SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_file uaf INNER JOIN utils_attachment_download uad ON uad.attach_file_id=uaf.id INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id WHERE uad.token=' . DB::qstr($word);
+                    $r = DB::Execute($query);
+                } else {
+                    $query = parse_url($word, PHP_URL_QUERY);
+                    if ($query) {
+                        $vars = array();
+                        parse_str($query, $vars);
+                        if ($vars && isset($vars['id']) && isset($vars['token'])) {
+                            $query = 'SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_file uaf INNER JOIN utils_attachment_download uad ON uad.attach_file_id=uaf.id INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id WHERE uad.id=' . DB::qstr($vars['id']) . ' AND uad.token=' . DB::qstr($vars['token']);
                             $r = DB::Execute($query);
-                        } else {
-                            $query = parse_url($word,PHP_URL_QUERY);
-                            if($query) {
-                                $vars = array();
-                                parse_str($query,$vars);
-                                if($vars && isset($vars['id']) && isset($vars['token'])) {
-                                    $query = 'SELECT ua.id,uaf.original,ual.func,ual.args,ual.local,ua.f_title FROM utils_attachment_file uaf INNER JOIN utils_attachment_download uad ON uad.attach_file_id=uaf.id INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local AS ual ON ual.attachment=ua.id WHERE uad.id='.DB::qstr($vars['id']).' AND uad.token='.DB::qstr($vars['token']);
-                                    $r = DB::Execute($query);
-                                }
-                            }
                         }
                     }
-                
-                    if($r) {
-		        while($row = $r->FetchRow()) {
-		            if(!self::get_access($row['id'])) continue;
-			    $func = unserialize($row['func']);
-                            $record = $func ? call_user_func_array($func, unserialize($row['args'])) : '';
-                            if(!$record) continue;
-                            $title = $row['original'].' - '.self::description_callback(Utils_RecordBrowserCommon::get_record('utils_attachment',$row['id']));
-                            $title = Utils_RecordBrowserCommon::record_link_open_tag('utils_attachment', $row['id'])
-                                 . __('Files').': ' . $title
-                                 . Utils_RecordBrowserCommon::record_link_close_tag();
-                            $ret[$row['id'].'#'.$row['local']] = $title . " ($record)";
-		        }
-                    }
                 }
-                return $ret;
-	}
+            }
+
+            if ($r) {
+                while ($row = $r->FetchRow()) {
+                    if (!self::get_access($row['id'])) {
+                        continue;
+                    }
+                    $func = unserialize($row['func']);
+                    $record = $func ? call_user_func_array($func, unserialize($row['args'])) : '';
+                    if (!$record) {
+                        continue;
+                    }
+                    $title = $row['original'] . ' - ' . self::description_callback(Utils_RecordBrowserCommon::get_record('utils_attachment', $row['id']));
+                    $title = Utils_RecordBrowserCommon::record_link_open_tag('utils_attachment', $row['id'])
+                             . __('Files') . ': ' . $title
+                             . Utils_RecordBrowserCommon::record_link_close_tag();
+                    $ret[$row['id'] . '#' . $row['local']] = $title . " ($record)";
+                }
+            }
+        }
+        return $ret;
+    }
 
 	public static function search_categories() {
 	        return array('files'=>__('Files'),'downloads'=>Utils_TooltipCommon::create(__('Downloads'),__('Paste file download remote URL as "Keyword"')));
@@ -405,7 +412,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $ret = substr($ret,0,50);
         }
         if(!$ret) $ret = $row['id'];
-        return __('Note').': '.$ret;
+        return $ret;
     }
 
     public static function QFfield_note(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
