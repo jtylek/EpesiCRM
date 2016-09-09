@@ -124,6 +124,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$fsid = Utils_FileStorageCommon::write_file($oryg,$file);
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,filestorage_id) VALUES(%d,%s,%d,%d)',array($note,$oryg,$user,$fsid));
 		Utils_FileStorageCommon::add_link('attachment_file/'.DB::Insert_ID('utils_attachment_file','id'),$fsid);
+        @unlink($file);
 	}
 
 	public static function count($group=null,$group_starts_with=false) {
