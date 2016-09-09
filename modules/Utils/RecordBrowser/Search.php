@@ -59,15 +59,49 @@ class Utils_RecordBrowser_Search
         }
     }
 
-    public function search_results($string)
+    public function search_results($search)
     {
-        $sorted_results = $this->get_sorted_results($string);
+        $sorted_results = $this->get_sorted_results($search);
         return $this->format_results($sorted_results);
     }
 
-    protected function get_sorted_results($string)
+    public function get_crits($search, $match_all = false)
     {
-        $query_array = $this->prepare_query_array($string);
+        if (!$search) {
+            return array();
+        }
+        if (count($this->search_tabs) > 1) {
+            throw new ErrorException('Cannot get search crits for more than one tab!');
+        }
+        $all_words = $this->prepare_query_array($search);
+        $LIKE = DB::like();
+
+        $categories_sql = $this->get_categories_with_fields_sql();
+        if ($match_all) {
+            $i = 0;
+            $query = '';
+            foreach ($all_words as $word) {
+                $alias = "search_tab_$i"; $i++;
+                $query_new = "(SELECT record_id FROM recordbrowser_search_index WHERE ($categories_sql) AND (text $LIKE %s)) $alias";
+                if ($query) {
+                    $query = "$query INNER JOIN $query_new ON search_tab_0.record_id=$alias.record_id";
+                } else {
+                    $query = $query_new;
+                }
+            }
+            $vals = array_values($all_words);
+            $query = "(SELECT search_tab_0.record_id FROM $query GROUP BY search_tab_0.record_id)";
+        } else {
+            $all_words_sql = implode(' OR ', array_fill(0, count($all_words), "text $LIKE %s"));
+            $vals = array_values($all_words);
+            $query = "(SELECT record_id FROM recordbrowser_search_index WHERE ($categories_sql) AND ($all_words_sql))";
+        }
+        return new Utils_RecordBrowser_CritsRawSQL("id IN $query", "id NOT IN $query", $vals);
+    }
+
+    protected function get_sorted_results($search)
+    {
+        $query_array = $this->prepare_query_array($search);
         $results = $this->get_results($query_array);
         $sort_function = function ($a, $b) {
             if ($a['priority'] != $b['priority']) {

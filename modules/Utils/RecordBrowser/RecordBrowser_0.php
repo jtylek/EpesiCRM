@@ -563,6 +563,18 @@ class Utils_RecordBrowser extends Module {
 				}
             }
         } else {
+            // New experimental search using search index!
+            /*
+            $isearch = $gb->get_module_variable('search');
+            $keyword = isset($isearch['__keyword__']) ? $isearch['__keyword__'] : '';
+            if ($keyword) {
+//             TODO: use all indexed columns to search
+                $search_cols = array_column($table_columns, 'search');
+                $search_result = new Utils_RecordBrowser_Search($this->tab, $search_cols);
+                $search_res = $search_result->get_crits($keyword, true);
+            }
+            */
+
             $val = reset($search);
             $isearch = $gb->get_module_variable('search');
             if (empty($isearch)) $val = null;
