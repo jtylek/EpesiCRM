@@ -1640,7 +1640,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function unserialize_crits($str)
     {
-        $ret = unserialize($str);
+        $ret = @unserialize($str);
         if ($ret === false && DB::is_postgresql()) {
             $ret = unserialize(hex2bin($str));
         }
