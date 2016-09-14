@@ -1378,8 +1378,12 @@ class Utils_RecordBrowser extends Module {
     	$ftheme->assign('f', $ret);
     	$ftheme->assign('form_data', $form_data);
     	$ftheme->assign('action', self::$mode);
+        if (self::$mode == 'history' or self::$mode == 'view') {
+            $default_field_template = self::module_name() . '/single_field_view';
+        } else {
+            $default_field_template = self::module_name() . '/single_field';
+        }
 
-    	$default_field_template = self::module_name() . '/single_field';
 
     	$field_template = $desc['template']?: $default_field_template;
     	$field_template = is_callable($field_template)? call_user_func($field_template, $desc['id'], self::$mode): $field_template;
