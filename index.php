@@ -119,46 +119,76 @@ Please choose <?php print(EPESI);?> version:<ul>
 			<script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 			<script type="text/javascript" src="libs/select2/js/select2.js"></script>
 
-		<style type="text/css">
-			<?php if (DIRECTION_RTL) print('body { direction: rtl; }'); ?>
-			#epesiStatus {
-  				/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
-  				position: fixed;
-  				left: 50%; top: 30%;
-                margin-left: -280px;
-  				/* all */
-  				/*background-color: #e6ecf2;*/
-  				background-color: white;
-				border: 5px solid #336699;
-				visibility: hidden;
-				width: 560px;
-				text-align: center;
-				vertical-align: middle;
-				z-index: 2002;
-                color: #336699;
-				overflow: hidden;
-				
-				/* css3 shadow border*/
-				-webkit-box-shadow: 1px 1px 15px black;
-				-moz-box-shadow: 1px 1px 15px black;
-				box-shadow: 1px 1px 15px black;
-				/* end css3 shadow border*/
-				
-				/* border radius */
-				-webkit-border-radius: 6px;
-				-moz-border-radius: 6px;
-				border-radius: 6px;
-				/* end border radius */
-			}
-			#epesiStatus table {
-				color: #336699;
-				font-weight: bold;
-				font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-				font-size: 11px;
-				border: 5px solid #FFFFFF;
-            }
+            <style type="text/css">
 
-		</style>
+                #epesiStatus {
+                    background-color: white;
+                    position: fixed;
+                    left: 50%;
+                    top: 30%;
+                    margin-left: -180px;
+                    width: 360px;
+                    text-align: center;
+                    vertical-align: middle;
+                    z-index: 2002;
+                    overflow: hidden;
+
+                    -webkit-box-shadow: 1px 1px 15px black;
+                    -moz-box-shadow: 1px 1px 15px black;
+                    box-shadow: 1px 1px 15px black;
+
+                    -webkit-border-radius: 6px;
+                    -moz-border-radius: 6px;
+                    border-radius: 20px;
+                    padding-top: 20px;
+                }
+
+                #epesiStatus .text {
+                    font-size: 22px;
+                }
+
+                #epesiStatus .spinner {
+                    margin: 20px auto 20px;
+                    text-align: center;
+                }
+
+                #epesiStatus .spinner > div {
+                    width: 18px;
+                    height: 18px;
+                    background-color: #333;
+
+                    border-radius: 100%;
+                    display: inline-block;
+                    -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+                    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+                }
+
+                #epesiStatus .spinner .bounce1 {
+                    -webkit-animation-delay: -0.32s;
+                    animation-delay: -0.32s;
+                }
+
+                #epesiStatus .spinner .bounce2 {
+                    -webkit-animation-delay: -0.16s;
+                    animation-delay: -0.16s;
+                }
+
+                @-webkit-keyframes sk-bouncedelay {
+                    0%, 80%, 100% { -webkit-transform: scale(0) }
+                    40% { -webkit-transform: scale(1.0) }
+                }
+
+                @keyframes sk-bouncedelay {
+                    0%, 80%, 100% {
+                        -webkit-transform: scale(0);
+                        transform: scale(0);
+                    } 40% {
+                          -webkit-transform: scale(1.0);
+                          transform: scale(1.0);
+                      }
+                }
+
+            </style>
 		<?php print(TRACKING_CODE); ?>
 	</head>
 	<body <?php if (DIRECTION_RTL) print('class="epesi_rtl"'); ?> >
@@ -170,20 +200,16 @@ Please choose <?php print(EPESI);?> version:<ul>
 				<div id="debug"></div>
 				<div id="error_box"></div>
 			</div>
-			
-			<div id="epesiStatus">
-				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
-					<tr>
-						<td><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></td>
-					</tr>
-					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>
-					</tr>
-					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
-					</tr>
-				</table>
-			</div>	
+
+            <div id="epesiStatus" style="">
+                <img src="images/epesi_logo_RGB_Solid.png">
+                <div class="text" style="display: none">{{ starting_message }}</div>
+                <div class="spinner">
+                    <div class="bounce1"></div>
+                    <div class="bounce2"></div>
+                    <div class="bounce3"></div>
+                </div>
+            </div>
 		</div>
         <?php 
         /*
