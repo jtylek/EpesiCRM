@@ -1,20 +1,6 @@
-#statusbar_content {
-	background: white;
-	height: 100%;
-	padding: 5px;
-	border-radius: 10px;
-}
-
-.Base_StatusBar img {
-	position: absolute;
-	left: 30px;
-	top: 35px;
-	z-index: 2002;
-}
-
-.Base_StatusBar {
+.Base_StatusBar_background {
 	z-index: 2001;
-  	position: fixed;
+	position: fixed;
 	top: 0px;
 	left: 0px;
 	width: 100%;
@@ -24,71 +10,69 @@
 	background-color: rgba(128, 128, 128, 0.3);
 }
 
-.Base_StatusBar div.layer {
-  	position: fixed;
-    padding: 10px;
-	width: 210px;
+.Base_StatusBar {
+	background-color: white;
+	position: fixed;
 	left: 50%;
 	top: 30%;
-	margin-left: -110px;
+	margin-left: -100px;
+	width: 200px;
+	text-align: center;
+	vertical-align: middle;
+	z-index: 2002;
+	overflow: hidden;
+
+	-webkit-box-shadow: 1px 1px 15px black;
+	-moz-box-shadow: 1px 1px 15px black;
+	box-shadow: 1px 1px 15px black;
+
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 20px;
+	padding-top: 20px;
 }
 
-.Base_StatusBar .message {
-	width: 140px;
-	min-height: 20px;
-	line-height: 20px;
-	padding: 25px 0 25px 60px;
-
-    font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-	font-size: 14px;
-	font-weight: bold;
-	color: #336699;
-	
-	text-shadow: 1px 1px 2px #bbb;
-	
-	background-repeat: no-repeat;
-	background-position: 15px 50%;
-
-	border-radius: 6px;
-	
-	box-shadow: inset 2px 2px 4px #777;
+.Base_StatusBar .text {
+	font-size: 22px;
 }
 
-.Base_StatusBar .message .message {
-	margin-left: -60px;
-	margin-top: -25px;
-	margin-bottom: -25px;
+.Base_StatusBar .spinner {
+	margin: 20px auto 20px;
+	text-align: center;
 }
 
-.Base_StatusBar .loading.message {
-	background-image: url('Base/StatusBar/loader.gif');
-	background-color: #EEEEFF;
+.Base_StatusBar .spinner > div {
+	width: 18px;
+	height: 18px;
+	background-color: #333;
+
+	border-radius: 100%;
+	display: inline-block;
+	-webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+	animation: sk-bouncedelay 1.4s infinite ease-in-out both;
 }
-.Base_StatusBar .normal.message {
-	background-image: none;
-	background-color: #EEEEFF;
-    padding-left: 0;
-    width: 200px;
+
+.Base_StatusBar .spinner .bounce1 {
+	-webkit-animation-delay: -0.32s;
+	animation-delay: -0.32s;
 }
-.Base_StatusBar .warning.message {
-	background-image: none;
-	background-color: #FFEE66;
-	color: #000000;
-    padding-left: 0;
-    width: 200px;
+
+.Base_StatusBar .spinner .bounce2 {
+	-webkit-animation-delay: -0.16s;
+	animation-delay: -0.16s;
 }
-.Base_StatusBar .error.message {
-	background-image: none;
-	background-color: #BB0000;
-    color: #FFFFFF;
-    padding-left: 0;
-    width: 200px;
+
+@-webkit-keyframes sk-bouncedelay {
+	0%, 80%, 100% { -webkit-transform: scale(0) }
+	40% { -webkit-transform: scale(1.0) }
 }
-.Base_StatusBar #dismiss {
-    color: #AAAAAA;
-    position: relative;
-    font-size: 80%;
-    margin: 0;
-    padding: 0;
-    top: 2px;
+
+@keyframes sk-bouncedelay {
+	0%, 80%, 100% {
+		-webkit-transform: scale(0);
+		transform: scale(0);
+	} 40% {
+		  -webkit-transform: scale(1.0);
+		  transform: scale(1.0);
+	  }
 }
