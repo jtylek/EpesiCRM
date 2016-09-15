@@ -69,9 +69,9 @@
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                     <div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
+                    <div class="pull-right">{$indicator}</div>
                 </div>
                 <div class="panel-body">
-                        <div class="login clearfix">{$login}</div>
                         <div class="search" id="search_box" style="margin-bottom: 8px;">{$search}</div>
                         <div class="filter" id="filter_box">{$filter}</div>
                 </div>

@@ -18,6 +18,19 @@ class Base_User_Login extends Module {
 
 	public function construct() {
 		$this->theme = $this->pack_module(Base_Theme::module_name());
+
+		$this->theme->assign('is_logged_in', Acl::is_user());
+		$this->theme->assign('is_demo', DEMO_MODE);
+		if (SUGGEST_DONATION) {
+			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/cost" target="_blank">'.__('donation').'</a>')).'<br>'.__('Your funding will help to ensure continued development of this project.'));
+		}
+
+		if(Acl::is_user()) {
+			if ($this->get_unique_href_variable('logout')) {
+				Base_User_LoginCommon::logout();
+				eval_js('document.location=\'index.php\';', false);
+			}
+		}
 	}
 
 	private function autologin() {
@@ -26,6 +39,28 @@ class Base_User_Login extends Module {
 	            return true;
 	        }
 		return false;
+	}
+
+	public function indicator()
+	{
+		//todo-pj: Add profile link
+		$indicator = array(
+			'label' => Base_UserCommon::get_my_user_label(),
+			'login' => Base_UserCommon::get_my_user_login()
+		);
+
+
+		$logout = array(
+			'href' => $this->create_unique_href(array('logout'=>1)),
+			'text' => __('Logout')
+		);
+
+		return $this->twig_render('indicator.twig', array(
+				'indicator' => $indicator,
+				'logout' => $logout,
+			)
+		);
+
 	}
 
 	public function body($tpl=null) {
