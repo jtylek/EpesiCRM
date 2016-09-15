@@ -84,6 +84,19 @@
             {$main}
         </div>
     </div>
+
+    <footer class="footer">
+        <div class="container-fluid">
+            <p class="text-muted">
+                <a href="http://epe.si" target="_blank"><b>EPESI</b> powered</a>
+                <span style="float: right">{$version_no}</span>
+                {if isset($donate)}
+                <span style="float: right; margin-right: 30px">{$donate}</span>
+                {/if}
+            </p>
+        </div>
+    </footer>
+
     {$status}
 
 {literal}
@@ -94,6 +107,35 @@
 
         div > div#bottom_bar {
             position: fixed;
+        }
+    </style>
+
+    <style>
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+
+        body {
+            /* Margin bottom by footer height */
+            margin-bottom: 60px;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            /* Set the fixed height of the footer here */
+            height: 60px;
+            background-color: #f5f5f5;
+            margin: 0 -15px;
+        }
+
+        .footer .container-fluid {
+            width: auto;
+            padding: 0 15px;
+        }
+        .footer .container-fluid .text-muted {
+            margin: 20px 0;
         }
     </style>
 {/literal}
