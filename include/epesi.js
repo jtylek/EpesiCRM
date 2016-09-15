@@ -178,7 +178,7 @@ var Epesi = {
 			},
 			onComplete: function(t) {
 				Epesi.procOn--;
-				Epesi.append_js('jQuery(document).trigger(\'e:load\');Event.fire(document,\'e:load\');Epesi.updateIndicator();');
+				Epesi.append_js('Event.fire(document,\'e:load\');Epesi.updateIndicator();');
 				if(keep_focus_field!=null) {
                     Epesi.append_js('jQuery("#'+keep_focus_field+':visible").focus();');
                 }
@@ -186,7 +186,6 @@ var Epesi = {
 			onSuccess: function(t) {
 				if(typeof document.activeElement != "undefined") keep_focus_field = document.activeElement.getAttribute("id");
 				Event.fire(document,'e:loading');
-				jQuery(document).trigger('e:loading');
 			},
 			onException: function(t,e) {
 				throw(e);
