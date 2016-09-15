@@ -116,7 +116,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
 		<link type="text/css" href="libs/font-awesome/css/font-awesome.css" rel="stylesheet"/>
 			<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600&amp;subset=latin-ext,latin" rel="stylesheet" type="text/css">
-			<script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+			<script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js"></script>
 			<script type="text/javascript" src="libs/select2/js/select2.js"></script>
 
             <style type="text/css">
@@ -231,6 +231,33 @@ Please choose <?php print(EPESI);?> version:<ul>
 		<?php if(IPHONE) { ?>
 		<script type="text/javascript">var iphone=true;</script>
 		<?php } ?>
+        <script type="application/javascript">
+            (function() {
+                var isBootstrapEvent = false;
+                if (window.jQuery) {
+                    var all = jQuery('*');
+                    jQuery.each(['hide.bs.dropdown',
+                        'hide.bs.collapse',
+                        'hide.bs.modal',
+                        'hide.bs.tooltip'], function(index, eventName) {
+                        all.on(eventName, function( event ) {
+                            isBootstrapEvent = true;
+                        });
+                    });
+                }
+                var originalHide = Element.hide;
+                Element.addMethods({
+                    hide: function(element) {
+                        if(isBootstrapEvent) {
+                            isBootstrapEvent = false;
+                            return element;
+                        }
+                        return originalHide(element);
+                    }
+                });
+            })();
+
+        </script>
 	</body>
 </html>
 <?php
