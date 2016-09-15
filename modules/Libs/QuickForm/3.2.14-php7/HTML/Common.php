@@ -460,5 +460,16 @@ class HTML_Common
         }
         return $charset;
     } // end func charset
+
+    public function addClass($addClass)
+    {
+        $class = $this->getAttribute('class');
+        if($class != null) {
+            $class = $class.' '.$addClass;
+        } else {
+            $class = $addClass;
+        }
+        $this->setAttribute('class', $class);
+    }
 } // end class HTML_Common
 ?>
