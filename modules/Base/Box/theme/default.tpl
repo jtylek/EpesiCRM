@@ -40,15 +40,7 @@
                     {if $quick_access_menu}
                         <div class="quick-access-bar">{$quick_access_menu}</div>
                     {/if}
-                    <span class="powered" nowrap="1">
-                        <span>
-                            <a href="http://epe.si" target="_blank"><b>EPESI</b> powered</a>&nbsp;
-                        </span>
-                        <span>{$version_no}</span>
-                    </span>
-                    {if isset($donate)}
-                        <span class="donate" nowrap="1">{$donate}</span>
-                    {/if}
+                    <div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
                 </div>
                 <div class="panel-body">
                     {$actionbar}
@@ -68,7 +60,6 @@
         <div class="col-md-2">
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
-                    <div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
                     <div class="pull-right">{$indicator}</div>
                 </div>
                 <div class="panel-body">
