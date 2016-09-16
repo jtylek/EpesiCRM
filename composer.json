@@ -12,6 +12,12 @@
         ]
     },
     "autoload": {
-        "psr-4": {"Epesi\\Console\\": "console/"}
+        "psr-4": {
+            "Epesi\\Console\\": "console/",
+            "Epesi\\Module\\": "modules/"
+        },
+        "psr-0": {
+            "": "modules/"
+        }
     }
 }
