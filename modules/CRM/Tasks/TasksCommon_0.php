@@ -106,12 +106,19 @@ class CRM_TasksCommon extends ModuleCommon {
             $settings[] = array('label' => $label, 'name' => $name,
                                 'type'  => 'checkbox', 'default' => $default);
         }
-
-		$settings[] = array('label'   => __('Filter'),
+        $settings[] = array('label'   => __('You are in field'),
+                            'name'    => 'related',
+                            'type'    => 'select',
+                            'values'  => array(0 => __('Employee'),
+                                               1 => __('Customer'),
+                                               2 => __('Employee or Customer'),
+                                               'none' => __('---')),
+                            'default' => '0');
+		$settings[] = array('label'   => __('Advanced Filter'),
                             'name'    => 'crits',
                             'type'    => 'crits',
-							'param' => 'task',
-							'default' => array('employees' => 'USER')
+							'param'   => 'task',
+							'default' => array()
 		);
 
         return Utils_RecordBrowserCommon::applet_settings($settings);
