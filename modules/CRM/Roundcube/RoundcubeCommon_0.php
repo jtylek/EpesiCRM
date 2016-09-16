@@ -75,8 +75,10 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         DB::Execute('DELETE FROM rc_session WHERE changed<%T',array(time()-3600*24));
     }
 
+}
 
-
+if (isset($_GET['rc_mailto'])) {
+    Base_BoxCommon::location('CRM_Roundcube','new_mail',array($_GET['rc_mailto']));
 }
 
 ?>

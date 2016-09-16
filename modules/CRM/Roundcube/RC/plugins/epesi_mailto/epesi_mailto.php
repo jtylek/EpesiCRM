@@ -27,7 +27,11 @@ class epesi_mailto extends rcube_plugin
   function startup($args)
   {
     if(isset($_GET['mailto'])) {
-        $_POST['_url'] = http_build_query(array('task' => 'mail', '_action' => 'compose'));
+        if (strpos($_GET['mailto'], 'mailto:') === 0) {
+            $_POST['_url'] = http_build_query(array('task' => 'mail', '_action' => 'compose', '_to' => $_GET['mailto']));
+        } else {
+            $_POST['_url'] = http_build_query(array('task' => 'mail', '_action' => 'compose'));
+        }
         $_SESSION['epesi_mailto'] = 1;
     }
 

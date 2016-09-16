@@ -322,13 +322,25 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             $ret['rules'] = $rules;
             return $ret;
         } elseif ($crits instanceof Utils_RecordBrowser_CritsSingle) {
-            list($operator, $value) = self::map_crits_operator_to_query_builder($crits->get_operator(), $crits->get_value());
-            $ret = array(
-                'id' => $crits->get_field(),
-                'field' => $crits->get_field(),
-                'operator' => $operator,
-                'value' => $value
-            );
+            $values = $crits->get_value();
+            if (!is_array($values)) {
+                $values = array($values);
+            }
+            $ret = array();
+            foreach ($values as $value) {
+                list($operator, $value) = self::map_crits_operator_to_query_builder($crits->get_operator(), $value);
+                $ret[] = array(
+                    'id'       => $crits->get_field(),
+                    'field'    => $crits->get_field(),
+                    'operator' => $operator,
+                    'value'    => $value
+                );
+            }
+            if (count($ret) > 1) {
+                $ret = array('condition' => 'OR', 'rules' => $ret);
+            } else {
+                $ret = reset($ret);
+            }
             return $ret;
         } elseif ($crits instanceof Utils_RecordBrowser_CritsRawSQL) {
 

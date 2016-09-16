@@ -29,6 +29,7 @@ class InstallModuleCommand extends Command
     }
     protected function execute(InputInterface $input, OutputInterface $output) {
         $module_name = $input->getArgument('name');
+        \Base_SetupCommon::refresh_available_modules();
         $module = DB::GetRow("SELECT * FROM available_modules WHERE name = %s",$module_name);
         if(!$module)
             throw new \Exception('Module not found');

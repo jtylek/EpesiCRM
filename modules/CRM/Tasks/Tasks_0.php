@@ -37,6 +37,7 @@ class CRM_Tasks extends Module
         }
         $short = ($conf['term'] == 's' || $conf['term'] == 'b');
         $long = ($conf['term'] == 'l' || $conf['term'] == 'b');
+        $related = $conf['related'];
         $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'task', 'task');
         $status = array();
         foreach (Utils_CommonDataCommon::get_array('CRM/Status')
@@ -51,6 +52,19 @@ class CRM_Tasks extends Module
         $crits['status'] = $status;
         if ($short && !$long) $crits['!longterm'] = 1;
         if (!$short && $long) $crits['longterm'] = 1;
+        if ($related !== "none") {
+            if ($related == 0) {
+                $crits['employees'] = 'USER';
+            }
+            if ($related == 1) {
+                $crits['customers'] = 'USER';
+            }
+            if ($related == 2) {
+                $crits['(employees'] = 'USER';
+                $crits['|customers'] = 'USER';
+
+            }
+        }
 
         if (isset($conf['crits']) && $conf['crits']) {
             $crits = Utils_RecordBrowserCommon::merge_crits($crits, $conf['crits']);

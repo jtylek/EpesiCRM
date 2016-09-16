@@ -44,19 +44,15 @@ $chunks = isset($_REQUEST["chunks"]) ? intval($_REQUEST["chunks"]) : 0;
 $orig_fileName = isset($_REQUEST["name"]) ? $_REQUEST["name"] : '';
 
 // Clean the fileName for security reasons
-$fileName = preg_replace('/[^\w\._]+/', '_', $orig_fileName);
+$fileName = md5($orig_fileName . microtime());
 
 // Make sure the fileName is unique but only if chunking is disabled
 if ($chunks < 2 && file_exists($targetDir . DIRECTORY_SEPARATOR . $fileName)) {
-	$ext = strrpos($fileName, '.');
-	$fileName_a = substr($fileName, 0, $ext);
-	$fileName_b = substr($fileName, $ext);
-
 	$count = 1;
-	while (file_exists($targetDir . DIRECTORY_SEPARATOR . $fileName_a . '_' . $count . $fileName_b))
+	while (file_exists($targetDir . DIRECTORY_SEPARATOR . $fileName . '_' . $count))
 		$count++;
 
-	$fileName = $fileName_a . '_' . $count . $fileName_b;
+	$fileName = $fileName . '_' . $count;
 }
 
 $filePath = $targetDir . DIRECTORY_SEPARATOR . $fileName;
@@ -71,7 +67,7 @@ if ($cleanupTargetDir && is_dir($targetDir) && ($dir = opendir($targetDir))) {
 		$tmpfilePath = $targetDir . DIRECTORY_SEPARATOR . $file;
 
 		// Remove temp file if it is older than the max age and is not the current file
-		if (preg_match('/\.part$/', $file) && (filemtime($tmpfilePath) < time() - $maxFileAge) && ($tmpfilePath != "{$filePath}.part")) {
+		if (filemtime($tmpfilePath) < time() - $maxFileAge) {
 			@unlink($tmpfilePath);
 		}
 	}

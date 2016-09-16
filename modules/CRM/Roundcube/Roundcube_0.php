@@ -91,13 +91,21 @@ class CRM_Roundcube extends Module {
     }
 
     public function new_mail($to='',$subject='',$body='',$message_id='',$references='') {
-//        $this->body(array('task' => 'mail', '_action' => 'compose', '_to' => $to));
-          $this->body(array('mailto' => 1));
-          $_SESSION['rc_body'] = $body;
-          $_SESSION['rc_to'] = $to;
-          $_SESSION['rc_subject'] = $subject;
-          $_SESSION['rc_reply'] = $message_id;
-          $_SESSION['rc_references'] = $references;
+        if (strpos($to, 'mailto:') === 0) {
+            $this->body(array('mailto' => $to));
+            unset($_SESSION['rc_body']);
+            unset($_SESSION['rc_to']);
+            unset($_SESSION['rc_subject']);
+            unset($_SESSION['rc_reply']);
+            unset($_SESSION['rc_references']);
+        } else {
+            $this->body(array('mailto' => 1));
+            $_SESSION['rc_body'] = $body;
+            $_SESSION['rc_to'] = $to;
+            $_SESSION['rc_subject'] = $subject;
+            $_SESSION['rc_reply'] = $message_id;
+            $_SESSION['rc_references'] = $references;
+        }
     }
 
     public function account($id) {
