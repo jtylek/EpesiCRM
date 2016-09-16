@@ -344,14 +344,16 @@ class Libs_QuickForm extends Module {
 
 	public function display_as_column() {
 		$this->add_error_closing_buttons();
-		$this->accept($renderer = new HTML_QuickForm_Renderer_TCMSArray());
+		$renderer = new HTML_QuickForm_Renderer_TCMSArray();
+		$this->accept($renderer);
 		$form_data = $renderer->toArray();
 		$this->twig_display('simple_form.twig', ['form' => $form_data, 'inline'=>false]);
 	}
 	
 	public function display_as_row() {
 		$this->add_error_closing_buttons();
-		$this->accept($renderer = new HTML_QuickForm_Renderer_TCMSArray());
+		$renderer = new HTML_QuickForm_Renderer_TCMSArray();
+		$this->accept($renderer);
 		$form_data = $renderer->toArray();
 		$this->twig_display('simple_form.twig', ['form' => $form_data, 'inline'=>true]);
 	}
