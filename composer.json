@@ -19,5 +19,8 @@
         "psr-0": {
             "": "modules/"
         }
+    },
+    "require-dev": {
+        "codeception/codeception": "*"
     }
 }
