@@ -36,9 +36,10 @@ foreach($arr as $row) {
 	if ($row['to_user_login_id'])
 		$user_label .= ' -> '.Apps_ShoutboxCommon::create_write_to_link($row['to_user_login_id']);
 
-    $message = (($row['to_login_id']==$myid && $uid===null)?'<b>':'').Utils_BBCodeCommon::parse($row['message']).(($row['to_login_id']==$myid && $uid===null)?'</b>':'');
+    $message = (($row['to_user_login_id']==$myid && $uid===null)?'<b>':'').Utils_BBCodeCommon::parse($row['message']).(($row['to_user_login_id']==$myid && $uid===null)?'</b>':'');
     $time = Base_RegionalSettingsCommon::time2reg($row['posted_on'],2);
-    $color = array('default','primary','success','danger','warning','info')[$row['from_login_id'] % 6];
+    $color = array('default','primary','success','danger','warning','info');
+	$color = $color[$row['base_user_login_id'] % 6];
 
     $html = <<<HTML
 	<div class="bs-callout bs-callout-$color">
