@@ -32,6 +32,23 @@ CURRENT
 - Fix CSV export memory limit issues
 - Disallow php code as callbacks by default
 - Fix chained select contacts sort
+- Fix special values replacement in crits
+- Fix JS Query Builder integration - proper queries for multiple values
+- New global search engine
+- Fix file uploads - remove temporary files
+- Fix default dashboard - use default settings when user is not allowed to edit dashboard
+- Add option to use EPESI as email handling application in browsers
+- Add custom field template (georgehristov)
+- Improvements in Utils/Tooltip and LeightboxPrompt (georgehristov)
+- Fix Roundcube's addressbook permissions to contacts/companies
+- Update Roundcube version to v1.2.1
+- Unify contact or company field type with standard multiselect field
+- Add separate RB/Filters module (georgehristov)
+- Add separate display callback methods (georgehristov)
+- Filter by favorite, subscribed and recent in JS Query Builder
+- Add user version of JS Query Builder - respecting permissions
+- Add option to search by date fields with datepicker
+- Several other minor improvements and fixes
 
 RELEASE 1.7.2-20160314
 -------
