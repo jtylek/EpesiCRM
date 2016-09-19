@@ -14,6 +14,7 @@ use Symfony\Component\Console\Application;
 use Epesi\Console\Modules\ListModulesCommand;
 use Epesi\Console\Modules\DisableModuleCommand;
 use Epesi\Console\Modules\EnableModuleCommand;
+use Epesi\Console\Modules\CreateModuleCommand;
 
 ModuleManager::load_modules();
 
@@ -26,4 +27,5 @@ $application->add(new ThemeRebuildCommand());
 $application->add(new MaintenanceStatusCommand());
 $application->add(new InstallModuleCommand());
 $application->add(new UninstallModuleCommand());
+$application->add(new CreateModuleCommand());
 $application->run();
