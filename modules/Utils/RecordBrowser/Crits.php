@@ -231,6 +231,9 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
                         $this->set_active(false);
                     }
                 } else {
+                    if (!is_array($replace)) {
+                        $replace = array($replace);
+                    }
                     $this->value = array_merge($this->value, $replace);
                 }
             }

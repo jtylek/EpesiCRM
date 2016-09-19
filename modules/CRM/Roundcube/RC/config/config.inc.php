@@ -5,6 +5,8 @@ chdir(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))));
 define('SET_SESSION',false);
 define('CID',false);
 define('READ_ONLY_SESSION',isset($_GET['_action']) && $_GET['_action']=='plugin.epesi_archive'?false:true);
+error_reporting(E_ALL & ~(E_STRICT | E_NOTICE | E_DEPRECATED));
+
 require_once('include/data_dir.php');
 require_once('include/config.php');
 require_once('include/database.php');

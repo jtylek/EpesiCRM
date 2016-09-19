@@ -418,7 +418,7 @@ class CRM_MailCommon extends ModuleCommon {
     }
 
     public static function reload_mails($rs,$id,$email_addresses = null) {
-        $prefix = ($rs=='contact'?'P':'C').':';
+        $prefix = $rs . '/';
 
         if(!$email_addresses) $email_addresses = self::get_email_addresses($rs,$id);
 
