@@ -214,7 +214,7 @@ class Utils_RecordBrowser_Filters extends Module {
 							}
 							///--->end temporary use. to be removed when bug fixed
 							
-							$crits = isset($crits[$tab])? $crits[$tab]: $crits; //in case tab_crits
+							$crits = is_array($crits) && isset($crits[$tab]) ? $crits[$tab] : $crits; //in case tab_crits
 							
 							$qty = Utils_RecordBrowserCommon::get_records_count($tab, $crits);
 							

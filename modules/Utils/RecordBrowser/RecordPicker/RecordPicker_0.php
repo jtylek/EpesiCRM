@@ -18,7 +18,14 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 		
 		$this->crits_callback = is_callable($crits)? $crits: array();
 		
-		$multi_tab = is_array($tab);		
+		$multi_tab = false;
+		if (is_array($tab)) {
+			if (count($tab) > 1) {
+				$multi_tab = true;
+			} else {
+				$tab = reset($tab);
+			}
+		}
 
 		$this->element = $element;
 
@@ -59,7 +66,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 				$crits = call_user_func($this->crits_callback, false, $chained_vals_array);
 
 				if ($multi_tab) {
-					$crits = isset($crits[$tab])? $crits[$tab]: array();
+					$crits = is_array($crits) && isset($crits[$tab])? $crits[$tab]: array();
 				}
 			}
 		}		
