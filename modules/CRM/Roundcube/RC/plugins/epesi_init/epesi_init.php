@@ -65,7 +65,7 @@ class epesi_init extends rcube_plugin
   }
   
   public function add_signature($b) {
-    $footer = Variable::get('crm_roundcube_global_signature',false);
+    $footer = Variable::get('crm_mail_global_signature',false);
     if($b['type']=='plain') {
         $b['body'] .= "\r\n".strip_tags(preg_replace('/<[bh]r\s*\/?>/i',"\r\n",$footer));
     } else {

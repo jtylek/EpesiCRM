@@ -30,6 +30,10 @@ class CRM_MailCommon extends ModuleCommon {
         return $values;
     }
 
+    public static function admin_caption() {
+        return array('label'=>__('Mail'), 'section'=>__('Features Configuration'));
+    }
+
     public static function new_addon($rs) {
         Utils_RecordBrowserCommon::new_addon($rs, CRM_Mail::module_name(), 'addon', _M('E-mails'));
     }
