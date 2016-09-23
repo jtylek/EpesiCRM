@@ -70,11 +70,11 @@ class Libs_QuickFormCommon extends ModuleCommon {
 					Libs_QuickForm__hide_groups['$field']=$js_groups;
 					var observer = new MutationObserver(function(mutations) {
 						mutations.forEach(function(mutation) {
-							if(mutation.addedNodes.length>0 || mutation.removedNodes.length>0) jq('#'+mutation.target.id).trigger('change');
+							if(mutation.addedNodes.length>0 || mutation.removedNodes.length>0 || mutation.type == 'attributes') jq('#'+mutation.target.id).trigger('change');
 						})
 					});
 					hide_ctrl.change(Libs_QuickForm__autohide).trigger('change');
-					observer.observe(hide_ctrl.get(0), { childList: true });
+					observer.observe(hide_ctrl.get(0), { childList: true, attributes: true });
 				});"
 		);
 	}

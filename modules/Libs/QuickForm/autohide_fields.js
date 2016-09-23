@@ -1,6 +1,8 @@
 var Libs_QuickForm__hide_groups = {};
 Libs_QuickForm__autohide = function(e) {
 	var el = jq(e.target);
+	// do not handle autohide when element is not shown
+	if (el.closest('tr').is(':hidden')) return;
 	var hide_groups = Libs_QuickForm__hide_groups[el.attr('id')];
 	if(typeof hide_groups == "undefined") return;
 	var reverse_mode = {
@@ -9,9 +11,8 @@ Libs_QuickForm__autohide = function(e) {
 	};
 	
 	var multi = ((el.prop('tagName').toLowerCase()=='select') && (el.attr('name').match(/\_\_display$/) || el.attr('id').match(/\_\_to$/)));
-	set_fields = {};
+	var set_fields = {};
 	jq.each(hide_groups, function(i, group) {
-		var f = jq(group.fields).closest('tr');
 		var autohide_values = group.values;
 		var val;
 		if(multi) {
@@ -42,11 +43,15 @@ Libs_QuickForm__autohide = function(e) {
 			if (typeof group.confirm !== 'undefined')
 				confirmed = confirm(group.confirm);
 
-			if (confirmed) f[group.mode]();
+			if (confirmed) {
+				jq(group.fields).closest('tr')[group.mode]();
+				jq(group.fields)[group.mode](); // hide/show element to trigger nested autohide
+			}
 		} else {
 			//apply reverse mode only to fields not specifically set
 			not_set_fields = jq(group.fields).not(set_fields[group.mode]).get();
 			jq(not_set_fields).closest('tr')[reverse_mode[group.mode]]();
+			jq(not_set_fields)[reverse_mode[group.mode]](); // hide/show element to trigger nested autohide
 		}
 		
 		set_fields[group.mode] = group.fields;
