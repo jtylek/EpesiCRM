@@ -61,4 +61,10 @@ class HTML_QuickForm_crits extends HTML_QuickForm_input {
         $value[$this->getName()] = Utils_RecordBrowser_QueryBuilderIntegration::json_to_crits($value[$this->getName()]);
         return $value;
     }
+
+    function getValueInJson()
+    {
+        $value = parent::exportValue($submitValues, false);
+        return $value;
+    }
 }
