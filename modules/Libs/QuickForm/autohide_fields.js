@@ -21,7 +21,7 @@ Libs_QuickForm__autohide = function(e) {
 			});
 		} else if (el.attr('type') == 'checkbox') {
 			val = el.is(':checked') ? '1' : '0';
-		} else if (el.attr('type') == 'hidden') {
+		} else if (el.attr('type') == 'hidden' && el.val().indexOf('__SEP__')!== -1) {
 			val = el.val().split('__SEP__');
 			multi = true;
 		} else {
