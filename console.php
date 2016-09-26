@@ -23,4 +23,5 @@ $application->add(new \Epesi\Console\Maintenance\MaintenanceOnCommand());
 $application->add(new \Epesi\Console\Maintenance\MaintenanceOffCommand());
 $application->add(new \Epesi\Console\SearchClearCommand());
 $application->add(new \Epesi\Console\SearchIndexCommand());
+$application->add(new \Epesi\Console\Demo\GenerateContactsCommand());
 $application->run();
