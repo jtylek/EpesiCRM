@@ -3,7 +3,7 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
-CURRENT
+RELEASE 1.8.0-20160926
 -------
 
 - Allow to add help text to each field in RB

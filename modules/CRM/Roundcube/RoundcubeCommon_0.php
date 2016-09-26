@@ -50,10 +50,6 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     	return '<a href="mailto:'.$v.'">'.$v.'</a>';
 	}
 
-	public static function admin_caption() {
-		return array('label'=>__('Mail'), 'section'=>__('Features Configuration'));
-	}
-
 	public static function attachment_getters() {
 	        $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
 		if($ret)

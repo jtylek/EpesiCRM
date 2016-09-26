@@ -8,7 +8,6 @@
  */
 namespace Epesi\Console;
 use Cache;
-use DB;
 use ModuleManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,5 +23,6 @@ class CacheRebuildCommand extends Command
     }
     protected function execute(InputInterface $input, OutputInterface $output) {
         Cache::clear();
+        ModuleManager::create_common_cache();
     }
 }
