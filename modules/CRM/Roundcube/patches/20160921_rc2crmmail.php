@@ -22,7 +22,7 @@ if (!DB::GetOne('SELECT 1 FROM modules WHERE name=%s', array('CRM_Mail'))) {
 ModuleManager::create_data_dir('CRM_Mail');
 @file_put_contents(DATA_DIR . '/CRM_Mail/.htaccess', "deny from all\n");
 
-if (!file_exists(DATA_DIR . '/CRM_Mail/attachments')) {
+if (!file_exists(DATA_DIR . '/CRM_Mail/attachments') && file_exists(DATA_DIR . '/CRM_Roundcube/attachments')) {
     rename(DATA_DIR . '/CRM_Roundcube/attachments', DATA_DIR . '/CRM_Mail/attachments');
 }
 
