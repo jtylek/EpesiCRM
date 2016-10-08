@@ -876,16 +876,31 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 		if ($default!=='') $form->freeze($field);
 		else {
-			eval_js('new_user_textfield = function(){'.
-					'($("crm_contacts_select_user").value=="new"?"":"none");'.
-					'$("username").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
-					'if ($("contact_admin")) $("contact_admin").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
-					'}');
+            $js = <<<'JS'
+new_user_textfield = function () {
+    if (jQuery("#crm_contacts_select_user").val() == "") {
+        jQuery('#_username__container').hide();
+        jQuery('#_username__container__container').hide();
+        jQuery('#_set_password__container').hide();
+        jQuery('#_confirm_password__container').hide();
+        jQuery('#_access__data__container').hide();
+        jQuery("#_admin__container").hide();
+    } else {
+        jQuery('#_username__container').show();
+        jQuery('#_username__container__container').show();
+        jQuery('#_set_password__container').show();
+        jQuery('#_confirm_password__container').show();
+        jQuery('#_access__data__container').show();
+        jQuery("#_admin__container").show();
+    }
+};
+JS;
+            eval_js($js);
 			eval_js('new_user_textfield();');
 			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
 		}
 		if ($default)
-			eval_js('$("_login__data").up("tr").style.display = "none";');
+			eval_js('jQuery("#_login__container").hide();');
 	}
 
 	public static function check_new_username($arg) {
