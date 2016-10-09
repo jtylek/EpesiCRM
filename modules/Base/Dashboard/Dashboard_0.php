@@ -92,13 +92,12 @@ class Base_Dashboard extends Module {
 				$label = $tab['name'];
 				$buttons = array();
 				if ($config_mode) {
-					$label .= '&nbsp;';
 					if($tab['pos']>$tabs[0]['pos'])
-						$label .= '<a '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],-1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+						$label .= '&nbsp;<button type="button" class="btn btn-primary btn-xs" '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],-1)).'><i class="fa fa-arrow-left" aria-hidden="true"></i></button>';
 					if($tab['pos']<$tabs[count($tabs)-1]['pos'])
-						$label .= '<a '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],+1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'\';" width="14" height="14" alt="<" border="0"></a>';
-					$label .= '<a href="javascript:void(0);" onclick="edit_dashboard_tab('.$tab['id'].');"><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'\';" width="14" height="14" alt="<" border="0"></a>';
-					$label .= '<a '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$tab['id']).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+						$label .= '&nbsp;<button type="button" class="btn btn-primary btn-xs" '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],+1)).'><i class="fa fa-arrow-right" aria-hidden="true"></i></button>';
+					$label .= '&nbsp;<button type="button" class="btn btn-warning btn-xs" onclick="edit_dashboard_tab('.$tab['id'].');"><i class="fa fa-cog" aria-hidden="true"></i></button>';
+					$label .= '&nbsp;<button type="button" class="btn btn-danger btn-xs" '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$tab['id']).'><i class="fa fa-trash" aria-hidden="true"></i></button>';
 				}
 				$this->tb->set_tab($label, array($this,'display_dashboard'),$tab['id'], $config_mode, $buttons);
 				$init_tabs_js[] = $tab['id'];
