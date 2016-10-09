@@ -5,27 +5,23 @@
 define('SET_SESSION', false);
 require 'include.php';
 
-use Epesi\Console\CacheRebuildCommand;
-use Epesi\Console\Maintenance\MaintenanceStatusCommand;
-use Epesi\Console\Modules\InstallModuleCommand;
-use Epesi\Console\Modules\UninstallModuleCommand;
-use Epesi\Console\ThemeRebuildCommand;
 use Symfony\Component\Console\Application;
-use Epesi\Console\Modules\ListModulesCommand;
-use Epesi\Console\Modules\DisableModuleCommand;
-use Epesi\Console\Modules\EnableModuleCommand;
-use Epesi\Console\Modules\CreateModuleCommand;
 
 ModuleManager::load_modules();
 
 $application = new Application();
-$application->add(new ListModulesCommand());
-$application->add(new DisableModuleCommand());
-$application->add(new EnableModuleCommand());
-$application->add(new CacheRebuildCommand());
-$application->add(new ThemeRebuildCommand());
-$application->add(new MaintenanceStatusCommand());
-$application->add(new InstallModuleCommand());
-$application->add(new UninstallModuleCommand());
-$application->add(new CreateModuleCommand());
+$application->add(new \Epesi\Console\Modules\ListModulesCommand());
+$application->add(new \Epesi\Console\Modules\DisableModuleCommand());
+$application->add(new \Epesi\Console\Modules\EnableModuleCommand());
+$application->add(new \Epesi\Console\Modules\InstallModuleCommand());
+$application->add(new \Epesi\Console\Modules\UninstallModuleCommand());
+$application->add(new \Epesi\Console\Modules\CreateModuleCommand());
+$application->add(new \Epesi\Console\CacheRebuildCommand());
+$application->add(new \Epesi\Console\ThemeRebuildCommand());
+$application->add(new \Epesi\Console\Maintenance\MaintenanceStatusCommand());
+$application->add(new \Epesi\Console\Maintenance\MaintenanceOnCommand());
+$application->add(new \Epesi\Console\Maintenance\MaintenanceOffCommand());
+$application->add(new \Epesi\Console\SearchClearCommand());
+$application->add(new \Epesi\Console\SearchIndexCommand());
+$application->add(new \Epesi\Console\Demo\GenerateContactsCommand());
 $application->run();

@@ -221,7 +221,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function display_checkbox($record, $nolink=false, $desc=null, $tab=null) {
     	$ret = '';
-    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
+    	if (isset($desc['id']) && array_key_exists($desc['id'], $record)) {
     		$ret = $record[$desc['id']]? __('Yes'): __('No');
     	}
     	 

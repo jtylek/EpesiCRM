@@ -71,6 +71,7 @@ class Utils_CommonData extends Module {
 			Utils_CommonDataCommon::set_value($parent.'/'.$submited['akey'],$submited['value']);
 			return false;
 		}
+		Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$f->get_submit_form_js().'}');
 		Base_ActionBarCommon::add('save',__('Save'),$f->get_submit_form_href());
 		Base_ActionBarCommon::add('back',__('Cancel'),$this->create_back_href());
 		$f->display();

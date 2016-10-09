@@ -1,0 +1,10 @@
+<div class="form-inline pull-left">
+    <form {{ form.attributes|raw }}>
+        {{ form.elements[0].html|raw }}
+        {{ form.elements[1].html|raw }}
+        <div class="input-group">
+            <span class="input-group-addon">{{ form.elements[2].label|raw }}</span>
+            <span class="form-control">{{ form.elements[2].html|raw }}</span>
+        </div>
+    </form>
+</div>

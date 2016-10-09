@@ -611,18 +611,22 @@ class Utils_RecordBrowser_QueryBuilder
                 $vals[] = $value;
             }
         }
-        if ($ids) {
-            if ($multiselect) {
-                $q = array();
-                foreach ($ids as $id) {
-                    $q[] = "$field LIKE '%\\_\\_$id\\_\\_%'";
+        if (is_array($ids)) {
+            if (count($ids)) {
+                if ($multiselect) {
+                    $q = array();
+                    foreach ($ids as $id) {
+                        $q[] = "$field LIKE '%\\_\\_$id\\_\\_%'";
+                    }
+                    $q = implode(' OR ', $q);
+                } else {
+                    $q = implode(',', $ids);
+                    $q = "$field IN ($q)";
                 }
-                $q = implode(' OR ', $q);
+                $sql = "($field IS NOT NULL AND ($q))";
             } else {
-                $q = implode(',', $ids);
-                $q = "$field IN ($q)";
+                $sql = 'false';
             }
-            $sql = "($field IS NOT NULL AND ($q))";
         }
         return array($sql, $vals);
     }
