@@ -1,9 +1,6 @@
 <?php
 
 require_once 'HTML/QuickForm/select.php';
-require_once('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php');
-load_js('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.js');
-
 /**
  * HTML class for an autoselect field
  * 
@@ -51,22 +48,11 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 		$suggestbox_args = $args;
     	array_unshift($suggestbox_args, $string);
     	$result = call_user_func_array($callback, $suggestbox_args);
-    	$ret = '<ul style="width:auto;">';
-    	if (empty($result)) {
-			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records founds').'</span></li>';
-    	}
-		if (is_array($result)) {
-			foreach ($result as $k=>$v) {
-				if ($format) $disp = call_user_func($format, $k, $args);
-				else $disp = $v;
-				if (!$v) $v = $disp;
-				$ret .= '<li><span style="display:none;">'.$k.'__'.$disp.'</span><span class="informal">'.$v.'</span></li>';
-			}
-			$ret .= '</ul>';
-		} else {
-			$ret = $result;
-		}
-    	return $ret;
+    	$res =[];
+    	foreach ($result as $id => $description) {
+    	    $res[] = ['id'=>$id, 'text' => html_entity_decode($description)];
+        }
+    	return $res;
     }
 
     function toHtml()
@@ -80,11 +66,6 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
             return $this->getFrozenHtml();
         } else {
             $tabs    = $this->_getTabs();
-            $strHtml = '';
-
-            if ($this->getComment() != '') {
-                $strHtml .= $tabs . '<!-- ' . $this->getComment() . " //-->\n";
-            }
 
             $myName = $this->getName();
 			$this->updateAttributes(array('id'=>$myName));
@@ -96,40 +77,71 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
                 $attrString = $this->_getAttrString($this->_attributes);
                 $this->setName($myName);
             }
-            $strHtml .= $tabs . '<select' . $attrString . ">\n";
-			$mode = Base_User_SettingsCommon::get('Libs_QuickForm','autoselect_mode');
 
-				
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
-			$hint = __('Start typing to search...');
-			$strHtml .= '<option value="">'.$hint.'</option>';
-//			eval_js('set_style_for_search_tip = function(el){if($(el).value=="__SEARCH_TIP__")$(el).className="autoselect_search_tip";else $(el).className=""}');
-//			eval_js('set_style_for_search_tip("'.$myName.'");');
-//			eval_js('Event.observe("'.$myName.'", "change", function (){set_style_for_search_tip("'.$myName.'");});');
+
+            $options = '';
             foreach ($this->_options as $option) {
                 if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
                     $option['attr']['selected'] = 'selected';
                 }
-                $strHtml .= $tabs . "\t<option" . $this->_getAttrString($option['attr']) . '>' .
+                $options .= $tabs . "\t<option" . $this->_getAttrString($option['attr']) . '>' .
                             $option['text'] . "</option>\n";
             }
-			$strHtml .= $tabs . '</select>';
+			$callback = array($this->more_opts_callback, $this->more_opts_args, $this->more_opts_format);
 
-			$text_attrs = array('placeholder'=>$hint);
-			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args, $this->more_opts_format), $text_attrs);
-			$search->on_hide_js('autoselect_on_hide("'.$myName.'",'.($mode?'1':'0').');'.$this->on_hide_js_code);
+            $key = md5(serialize($callback).$this->getAttribute('id'));
+            $_SESSION['client']['quickform']['autocomplete'][$key] = array(
+                'callback'=>array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'),
+                'field'=>'q',
+                'args'=> $callback
+            );
 
-			if ($mode==0) eval_js('Event.observe("'.$myName.'","change",function(){if($("'.$myName.'").value=="")autoselect_start_searching("'.$myName.'");});');
-			
-			if (isset($val[0]) && $val[0]!='')
-				$mode=1;
-			
-            return 	'<span id="__'.$myName.'_select_span"'.($mode==0?' style="display:none;"':'').'>'.
-						$strHtml.
-					'</span>'.
-					'<span id="__'.$myName.'_autocomplete_span"'.($mode==1?' style="display:none;"':'').'>'.
-						$search->toHtml().
-					'</span>';
+            //TODO-PJ: Add pagination
+
+            $cid = CID;
+            $hint = __('Start typing to search...');
+            $select2_js = <<<js
+                jQuery("select[name='{$myName}']").select2({
+                    placeholder: "{$hint}",
+                    ajax: {
+                        url: "modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete_update.php",
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                          return {
+                              q: params.term,
+                              page: params.page,
+                              cid: "{$cid}",
+                              key: "{$key}"
+                          }
+                        },
+                        processResults: function (data, params) {
+                              // parse the results into the format expected by Select2
+                              // since we are using custom formatting functions we do not need to
+                              // alter the remote JSON data, except to indicate that infinite
+                              // scrolling can be used
+                              params.page = params.page || 1;
+                              return {
+                                results: data,
+                                pagination: {
+                                  more: (params.page * 30) < data.total_count
+                                }
+                              };
+                            },
+                    }
+                });
+js;
+
+            $select2 = <<<html
+                    <!--{$this->getComment()}-->
+                    <select style="width: 100%" {$attrString}>
+                      {$options}
+                    </select>
+html;
+
+            eval_js($select2_js);
+            return 	$select2;
         }
     } //end func toHtml
 

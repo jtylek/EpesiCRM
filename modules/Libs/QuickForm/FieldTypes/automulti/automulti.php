@@ -77,24 +77,19 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
         if ($options_callback_args) $this->_options_callback_args = $options_callback_args;
         if ($format_callback) $this->_format_callback = $format_callback;
     }
-    
-    public static function get_autocomplete_suggestbox($string, $callback=null, $args=null, $format=null) {
-    	if (!is_array($args)) $args = array();
-		$suggestbox_args = $args;
-    	array_unshift($suggestbox_args, $string);
-    	$result = call_user_func_array($callback, $suggestbox_args);
-    	$ret = '<ul>';
-    	if (empty($result))
-			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.__('No records found').'</span></li>';
-    	foreach ($result as $k=>$v) {
-    		if ($format) $disp = call_user_func($format, $k, $args);
-			else $disp = $v;
-			if (!$v) $v = $disp;
-			$ret .= '<li><span style="display:none;">'.$k.'__'.$disp.'</span><span class="informal">'.$v.'</span></li>';
-		}
-    	$ret .= '</ul>';
-    	return $ret;
+
+    public static function get_autocomplete_suggestbox($string, $callback, $args, $format=null) {
+        if (!is_string($string)) $string = '';
+        $suggestbox_args = $args;
+        array_unshift($suggestbox_args, $string);
+        $result = call_user_func_array($callback, $suggestbox_args);
+        $res =[];
+        foreach ($result as $id => $description) {
+            $res[] = ['id'=>$id, 'text' => html_entity_decode($description)];
+        }
+        return $res;
     }
+
     public function set_search_button($html) {
     	$this->search_button = $html;
     }
@@ -241,55 +236,76 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {
-			$tabs    = $this->_getTabs();
-			$strHtml = '';
-			
-			if ($this->getComment() != '') {
-			    $strHtml .= $tabs . '<!-- ' . $this->getComment() . " //-->\n";
-			}
-			
 			$myName = $this->getName();
 			$this->updateAttributes(array('id' => $myName)); // Workaround for not processing attributes arg properly
 
-			load_js('modules/Libs/QuickForm/FieldTypes/automulti/automulti.js');
 
-			$searchElement = '';
-			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_automulti','get_autocomplete_suggestbox'), array($this->_options_callback, $this->_options_callback_args, $this->_format_callback));
-			$search->setAttribute('placeholder', __('Start typing to search...'));
-			$search->on_hide_js('if($("__autocomplete_id_'.$myName.'__search").value!=""){automulti_on_hide("'.$myName.'","'.self::$list_sep.'");'.$this->on_add_js_code.'}');
-			
-			$searchElement .= $tabs . $search->toHtml()."\n";
 			if (isset($this->_values[0]) && (preg_match('/'.addcslashes(self::$list_sep,'/').'/i',$this->_values[0]) || $this->_values[0]=='')) {
 		        $this->_values = explode(self::$list_sep,$this->_values[0]);
 		        array_shift($this->_values);
 			}
 
-			$this->setName($myName.'__display');
 
-			$mainElement = '';
-			$list = '';
 			$attrString = $this->_getAttrString($this->_attributes);
-			$mainElement .= $tabs . '<select' . $attrString . ' onclick="automulti_remove_button_update(\''.$myName.'\');">'."\n";
+			$options = '';
 			if ($this->_format_callback) foreach ($this->_values as $value) {
-				$mainElement .= $tabs . "\t".'<option value="'.$value.'">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>'."\n";
-				$list .= '__SEP__'.$value;
+				$options .= "\t".'<option value="'.$value.'">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>'."\n";
             }
-			$mainElement .= $tabs . '</select>';
 
-			$strHtml .= $tabs . '<table class="automulti">';
-            $strHtml .= $tabs . '<tr>'.
-            			$tabs . '<td class="search-element">' . $searchElement . '</td>'.
-						($this->search_button? $tabs.'<td class="search">'.$this->search_button.'</td>' : '<td></td>').
-						$tabs . '<td width="80px;" class="button disabled" id="automulti_button_style_'.$myName.'">'.
-						'<input style="width:100%" type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.self::$list_sep.'\');'.$this->on_remove_js_code.'" value="'.__('Remove').'">'.'</td>' .
-								'</tr>';
+            $callback = array($this->_options_callback, $this->_options_callback_args, $this->_format_callback);
 
-			$strHtml .= $tabs . '<tr><td class="main-element" colspan="3">' . $mainElement . '</td></tr></table>';
+            $key = md5(serialize($callback).$this->getAttribute('id'));
+            $_SESSION['client']['quickform']['autocomplete'][$key] = array(
+                'callback'=>array('HTML_QuickForm_automulti','get_autocomplete_suggestbox'),
+                'field'=>'q',
+                'args'=> $callback
+            );
 
-			$this->setName($myName);
+            //TODO-PJ: Add pagination
 
-			$strHtml .= $tabs . '<input type="hidden" name="'.$myName.'" value="'.$list.'" id="'.$myName.'__var_holder" />'."\n";
-			return $strHtml;
+            $cid = CID;
+            $hint = __('Start typing to search...');
+            $select2_js = <<<js
+                jQuery("select[name='{$myName}[]']").select2({
+                    placeholder: "{$hint}",
+                    ajax: {
+                        url: "modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete_update.php",
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                          return {
+                              q: params.term,
+                              page: params.page,
+                              cid: "{$cid}",
+                              key: "{$key}"
+                          }
+                        },
+                        processResults: function (data, params) {
+                              // parse the results into the format expected by Select2
+                              // since we are using custom formatting functions we do not need to
+                              // alter the remote JSON data, except to indicate that infinite
+                              // scrolling can be used
+                              params.page = params.page || 1;
+                              return {
+                                results: data,
+                                pagination: {
+                                  more: (params.page * 30) < data.total_count
+                                }
+                              };
+                            },
+                    }
+                });
+js;
+
+            $select2 = <<<html
+                    <!--{$this->getComment()}-->
+                    <select style="width: 100%" name="{$myName}[]"{$attrString} multiple="multiple">
+                      {$options}
+                    </select>
+html;
+
+            eval_js($select2_js);
+            return 	$select2;
         }
     }
 

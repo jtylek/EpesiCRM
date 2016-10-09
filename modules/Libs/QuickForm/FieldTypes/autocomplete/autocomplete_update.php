@@ -25,15 +25,17 @@ if (!isset($_SESSION['client']['quickform']['autocomplete'][$_GET['key']])) {
     die('<ul><li style="font-weight: bold;text-align:center;">'.__('Search disabled in grid view').'</li></ul>');
 }
 $params = $_SESSION['client']['quickform']['autocomplete'][$_GET['key']];
-$string = $_POST[$params['field']];
+$string = $_GET[$params['field']];
 $callback = $params['callback'];
 
 if (is_callable($callback)) {
 /*	if (strlen($string)<2)
 		print('<ul><li class="informal">'.__('Minimum %d letters are required.',array(2)).'</li></ul>');
-	else {*/
+	else {
+*/
 		array_unshift($params['args'], $string);
-		print(call_user_func_array($callback, $params['args']));
+    header('content-type: application/json');
+		print(json_encode(call_user_func_array($callback, $params['args'])));
 //	}
 } else
 	print('<ul><li>Error: method ('.print_r($callback,true).') not callable</li></ul>');
