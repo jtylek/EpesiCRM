@@ -94,7 +94,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
         <meta name="robots" content="NOINDEX, NOARCHIVE">
-			<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+			<link rel="stylesheet" href="libs/bootstrap/css/bootstrap.min.css">
 			<?php
 		ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
 		require_once('Minify/Build.php');
@@ -116,7 +116,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
 		<link type="text/css" href="libs/font-awesome/css/font-awesome.css" rel="stylesheet"/>
 			<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600&amp;subset=latin-ext,latin" rel="stylesheet" type="text/css">
-			<script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js"></script>
+			<script type="text/javascript" src="libs/bootstrap/js/bootstrap.js"></script>
 			<script type="text/javascript" src="libs/select2/js/select2.js"></script>
 
             <style type="text/css">
