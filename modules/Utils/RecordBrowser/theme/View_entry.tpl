@@ -115,8 +115,6 @@
 							{/php}
 						{/if}
 
-
-		</div>
 		{if $main_page}
 			</div></div>
 		{/if}
