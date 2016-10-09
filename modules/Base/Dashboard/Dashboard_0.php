@@ -85,7 +85,7 @@ class Base_Dashboard extends Module {
 		}
 
 		if ($config_mode)
-			print('<table style="width:100%;"><tr><td style="width:75%;vertical-align:top;">');
+			print('<div class="row"><div class="col-md-8">');
 		$init_tabs_js = array();
 		if(count($tabs)>1 || $config_mode) {
 			foreach($tabs as $tab) {
@@ -129,19 +129,18 @@ class Base_Dashboard extends Module {
 			$init_tabs_js[] = $tabs[0]['id'];
 		}
 		if ($config_mode) {
-			print('</td>');
-			print('<td id="dashboard" style="vertical-align:top;">');
+			print('</div>');
+			print('<div class="col-md-4">');
 			$search_caption = __('Search applets...');
-			print('<input type="text" id="dashboard_applets_filter" style="color:#555;width:90%;" value="'.$search_caption.'" onblur="dashboard_prepare_filter_box(0,\''.$search_caption.'\')" onfocus="dashboard_prepare_filter_box(1,\''.$search_caption.'\')" onkeyup="dashboard_filter_applets()">');
-			print('<div id="dashboard_applets_new_scroll" style="overflow-y:auto;overflow-x: hidden;height:200px;vertical-align:top">');
+			print('<input type="text" id="dashboard_applets_filter" class="form-control" style="margin-bottom: 20px" value="'.$search_caption.'" onblur="dashboard_prepare_filter_box(0,\''.$search_caption.'\')" onfocus="dashboard_prepare_filter_box(1,\''.$search_caption.'\')" onkeyup="dashboard_filter_applets()">');
+			print('<div id="dashboard_applets_new_scroll" style="position: relative; overflow-y:auto;overflow-x: hidden;height:80vh;vertical-align:top">');
 			print('<div id="dashboard_applets_new" style="vertical-align:top">');
 
 			print(Base_DashboardCommon::get_installed_applets_html());
 
 			print('</div>');
-			print('</div>');
-			print('</td></tr></table>');
-			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
+			print('</div></div></div>');
+//			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
 		}
 		eval_js('dashboard_activate('.json_encode($init_tabs_js).','.($default_dash?1:0).','.($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()?1:0).')');
 	}
