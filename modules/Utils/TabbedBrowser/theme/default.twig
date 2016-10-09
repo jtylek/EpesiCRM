@@ -2,7 +2,7 @@
     <ul class="nav nav-tabs">
         {% for tab in captions %}
             <li role="presentation" {% if tab.selected %}class="active"{% endif %}>
-                <a id="{{ id }}" {{ tab.parent |raw }} {{ tab.href | raw }}>{{ tab.caption }}</a>
+                <a id="{{ id }}" {{ tab.parent |raw }} {{ tab.href | raw }}>{{ tab.caption | raw}}</a>
             </li>
         {% endfor %}
     </ul>
