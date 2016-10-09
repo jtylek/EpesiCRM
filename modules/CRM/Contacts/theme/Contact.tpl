@@ -12,8 +12,6 @@
 	{/if}
 {/foreach}
 {php}
-	if ($this->_tpl_vars['action']!='view')
-		$this->_tpl_vars['count'] = $this->_tpl_vars['count']+1;
 	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
 	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
 	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
@@ -64,7 +62,8 @@
         {/if}
 						{* create new company *}
 						{if isset($form_data.create_company)}
-						<div class="col col-md-12" style="margin-bottom: 10px">
+<div class="row">
+	<div class="col col-md-12" style="margin-bottom: 10px">
 							<div class="label label-default" nowrap>
 								{$form_data.create_company.label}
 							</div>
@@ -76,8 +75,11 @@
 									{if isset($form_data.create_company_name.error)}<span class="error">{$form_data.create_company_name.error}</span>{/if}{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
 								</div>
 							</div>
-						</div>
+						</div></div>
 						{/if}
+						<div class="row">
+
+
 						{assign var=x value=1}
 							{assign var=y value=1}
 						{foreach key=k item=f from=$fields name=fields}
@@ -99,9 +101,9 @@
 								{/if}
 							{/if}
 						{/foreach}
-							</div>
+						</div>
 		{if !empty($multiselects)}
-								<div>
+								<div class="row">
 				{assign var=x value=1}
 				{assign var=y value=1}
 				{foreach key=k item=f from=$multiselects name=fields}

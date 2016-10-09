@@ -61,7 +61,7 @@
 			{/if}
 
 			{/if}
-							<div>
+							<div class="row">
 								{assign var=x value=1}
 								{assign var=y value=1}
 								{foreach key=k item=f from=$fields name=fields}
@@ -85,7 +85,7 @@
 								{/foreach}
 							</div>
 							{if !empty($multiselects)}
-								<div>
+								<div class="row">
 									{assign var=x value=1}
 									{assign var=y value=1}
 									{foreach key=k item=f from=$multiselects name=fields}
