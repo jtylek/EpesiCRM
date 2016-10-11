@@ -3360,10 +3360,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($rec_count > Utils_RecordBrowserCommon::$options_limit) {
             if ($desc['type'] == 'multiselect') {
                 $el = $form->addElement('automulti', $field, $label, array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $tab_crits, $format_callback, $desc['param']), $format_callback);
-                ${'rp_' . $field} = $rb_obj->init_module(Utils_RecordBrowser_RecordPicker::module_name(), array());
-                $filters_defaults = isset($multi_adv_params['filters_defaults']) ? $multi_adv_params['filters_defaults'] : array();
-                $rb_obj->display_module(${'rp_' . $field}, array($tabs, $field, $format_callback, $param['crits_callback']?:$tab_crits, array(), array(), array(), $filters_defaults));
-                $el->set_search_button('<a ' . ${'rp_' . $field}->create_open_href() . ' ' . Utils_TooltipCommon::open_tag_attrs(__('Advanced Selection')) . ' href="javascript:void(0);"><img border="0" src="' . Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'icon_zoom.png') . '"></a>');
+                if (method_exists($rb_obj, 'init_module')) { // fixes mobile edit issue - to be removed when mobile.php will be removed
+                    ${'rp_' . $field} = $rb_obj->init_module(Utils_RecordBrowser_RecordPicker::module_name(), array());
+                    $filters_defaults = isset($multi_adv_params['filters_defaults']) ? $multi_adv_params['filters_defaults'] : array();
+                    $rb_obj->display_module(${'rp_' . $field}, array($tabs, $field, $format_callback, $param['crits_callback']?:$tab_crits, array(), array(), array(), $filters_defaults));
+                    $el->set_search_button('<a ' . ${'rp_' . $field}->create_open_href() . ' ' . Utils_TooltipCommon::open_tag_attrs(__('Advanced Selection')) . ' href="javascript:void(0);"><img border="0" src="' . Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'icon_zoom.png') . '"></a>');
+                }
             } else
                 $el = $form->addElement('autoselect', $field, $label, $comp, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $tab_crits, $format_callback, $desc['param'])), $format_callback);
         } else {
