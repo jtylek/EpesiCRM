@@ -74,6 +74,10 @@ class Utils_Watchdog_Cleaner
 
     public function cleanup_leftover_events()
     {
-        DB::Execute('DELETE FROM utils_watchdog_event AS uwe WHERE id < (SELECT MIN(last_seen_event) FROM utils_watchdog_subscription AS uws WHERE uws.internal_id = uwe.internal_id AND uws.category_id = uwe.category_id)');
+        if (DB::is_mysql()) {
+            DB::Execute('DELETE uwe.* FROM utils_watchdog_event AS uwe LEFT JOIN (SELECT internal_id, category_id, MIN(uws.last_seen_event) min FROM utils_watchdog_subscription AS uws GROUP BY uws.internal_id, uws.category_id) AS uws ON uws.internal_id = uwe.internal_id AND uws.category_id = uwe.category_id WHERE uwe.id < uws.min');
+        } else {
+            DB::Execute('DELETE FROM utils_watchdog_event AS uwe WHERE id < (SELECT MIN(last_seen_event) FROM utils_watchdog_subscription AS uws WHERE uws.internal_id = uwe.internal_id AND uws.category_id = uwe.category_id)');
+        }
     }
 }
