@@ -44,7 +44,8 @@ class SearchIndexCommand extends Command
             $st->writeln('Nothing to index!');
             return;
         }
-
+        $st->writeln("Records count: $total");
+        $st->writeln("Indexing...");
         $st->progressStart($total);
         do {
             $indexed = 0;
