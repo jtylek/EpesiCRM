@@ -2034,8 +2034,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return false;
         }
         @DB::Execute('UPDATE ' . $tab . '_data_1 SET active=%d,indexed=0 WHERE id=%d', array($state ? 1 : 0, $id));
-        $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
-        DB::Execute('DELETE FROM recordbrowser_search_index WHERE tab_id=%d AND record_id=%d',array($tab_id,$id));
+        $tab_prop = DB::GetRow('SELECT id,search_include FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+        if ($tab_prop['search_include'] > 0) {
+            DB::Execute('DELETE FROM recordbrowser_search_index WHERE tab_id=%d AND record_id=%d',array($tab_prop['id'],$id));
+        }
         $edit_id = self::new_record_history($tab,$id,$state ? 'RESTORED' : 'DELETED');
         Utils_WatchdogCommon::new_event($tab, $id, ($state ? 'R' : 'D').'_'.$edit_id);
         self::record_processing($tab, $record, $state ? 'restored' : 'deleted');
@@ -3420,10 +3422,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $text = self::get_val($tab,$field,$record, true);
                 ob_end_clean();
                 $text = $cleanup_str($text);
-                $insert_vals[] = $tab_id;
-                $insert_vals[] = $record['id'];
-                $insert_vals[] = $field_info['pkey'];
-                $insert_vals[] = $text;
+                if ($text) {
+                    $insert_vals[] = $tab_id;
+                    $insert_vals[] = $record['id'];
+                    $insert_vals[] = $field_info['pkey'];
+                    $insert_vals[] = $text;
+                }
             }
             $insert_query = implode(',', array_fill(0, count($insert_vals) / 4, '(%d, %d, %d, %s)'));
             DB::Execute('INSERT INTO recordbrowser_search_index VALUES ' . $insert_query, $insert_vals);
