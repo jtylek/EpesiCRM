@@ -26,6 +26,8 @@ class Utils_LeightboxPrompt extends Module {
 	}
 
     public function add_option($key, $label, $icon, $form=null) {
+    	$key = $key?: 'default';
+    	
         $this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label);
         
         if (isset($form) && $form->exportValue('submited') && !$form->validate()) $this->open();
@@ -70,7 +72,7 @@ class Utils_LeightboxPrompt extends Module {
                     $next_button['open'] = '<a ' . $this->get_form_show_href($option_key) .'>';
                     $sections[] = '<div id="'.$this->group.'_'.$option_key.'_form_section" class="'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>';
 
-                    if ($this->selected_option ==  $option_key)
+                    if ($this->selected_option ===  $option_key)
                     	$active_option = $option_key; // open this selection if selected_option set
                     
                     if ($option['form']->exportValue('submited') && !$option['form']->validate())						
