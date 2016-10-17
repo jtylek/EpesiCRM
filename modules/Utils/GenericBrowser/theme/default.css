@@ -329,7 +329,7 @@ table.Utils_GenericBrowser > tbody > td img {
 .record_browser_button,
 .record_browser_add_new {
 	display: block;
-	width: 67px;
+	/*width: 67px;*/
 	height: 18px;
 	color: white;
 	padding: 6px 10px;
@@ -388,6 +388,7 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 .record_browser_add_new .add_new {
 	margin-top:2px;
+	display: inline-block;
 }
 
 
