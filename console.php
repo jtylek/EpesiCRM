@@ -22,4 +22,8 @@ $application->add(new \Epesi\Console\Maintenance\MaintenanceOnCommand());
 $application->add(new \Epesi\Console\Maintenance\MaintenanceOffCommand());
 $application->add(new \Epesi\Console\SearchClearCommand());
 $application->add(new \Epesi\Console\SearchIndexCommand());
+$application->add(new \Epesi\Console\Backup\BackupDbCommand());
+$application->add(new \Epesi\Console\Backup\BackupFilesCommand());
+$application->add(new \Epesi\Console\Backup\BackupAllCommand());
+$application->add(new \Epesi\Console\Backup\ListBackupsCommand());
 $application->run();
