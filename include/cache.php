@@ -50,9 +50,10 @@ class Cache
         self::$cache_object->save($ret);
     }
 
-    public static function clear($name = null)
+    public static function clear($name=null)
     {
-        self::$cache_object->deleteItem($name);
+        if($name) self::$cache_object->deleteItem($name);
+        else  self::$cache_object->clear();
     }
 
 }

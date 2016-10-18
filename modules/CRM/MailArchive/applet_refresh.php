@@ -32,9 +32,14 @@ try {
     $folders_map = array();
     foreach($folders as $folder) $folders_map[md5($folder)] = $folder;
 
-    $mailbox = CRM_MailCommon::get_connection($rec);
-    $server_string = $mailbox->getServerString();
-    $mailbox->setOptions(OP_READONLY);
+    try {
+        $mailbox = CRM_MailCommon::get_connection($rec);
+        $server_string = $mailbox->getServerString();
+        $mailbox->setOptions(OP_READONLY);
+        $mailbox->getImapStream(); //test connection
+    } catch (Exception $e) {
+        print('<h3>'.$rec['account_name'].': '.$folder.'</h3><div><ul>'.$e->getMessage());
+    }
     $return = array();
     foreach($ipath as $path) {
         if(!isset($folders_map[$path])) continue;
