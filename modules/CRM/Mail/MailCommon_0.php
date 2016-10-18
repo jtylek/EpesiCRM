@@ -455,13 +455,10 @@ class CRM_MailCommon extends ModuleCommon {
         }
         $port = $rec['security'] == 'ssl' ? 993 : 143;
         $server_str = '{' . $rec['server'] . '/imap/readonly/novalidate-cert' . ($rec['security'] ? '/' . $rec['security'] : '') . ':' . $port . '}';
-        $cache_key = md5($server_str . ' # ' . $rec['login'] . ' # ' . $rec['password']);
-        $cache = new FileCache(DATA_DIR . '/cache/mail_unread.php');
+        $cache_key = 'crm_mail_'.md5($server_str . ' # ' . $rec['login'] . ' # ' . $rec['password']);
         if ($cache_validity_in_minutes) {
-            $unread_messages = $cache->get($cache_key);
-            if ($unread_messages && ($only_cached || $unread_messages['t'] > (time() - $cache_validity_in_minutes*60))) {
-                $return = $unread_messages['val'];
-            }
+            $unread_messages = Cache::get($cache_key);
+            if($unread_messages) return $unread_messages;
         }
         if ($return === null && $only_cached === false) {
             @set_time_limit(0);
@@ -496,7 +493,7 @@ class CRM_MailCommon extends ModuleCommon {
                 throw new Exception($err);
             } else {
                 $return = $unseen;
-                $cache->set($cache_key, array('val' => $return, 't' => time()));
+                $cache->set($cache_key, $return, $cache_validity_in_minutes);
             }
         }
         return $return;

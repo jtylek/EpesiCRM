@@ -13,6 +13,7 @@ umask(0022);
 
 chdir(dirname(__FILE__));
 try {
+    require_once('vendor/autoload.php');
     require_once('include/include_path.php');
     require_once('include/data_dir.php');
     require_once('include/config.php');
@@ -34,7 +35,6 @@ try {
     require_once('include/history.php');
     require_once('include/patches.php');
     require_once('include/simple_login.php');
-    require_once('vendor/autoload.php');
 } catch (Exception $e) {
     die($e->getMessage());
 }
