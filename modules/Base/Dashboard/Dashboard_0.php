@@ -375,7 +375,7 @@ class Base_Dashboard extends Module {
 			$defaults = $this->get_default_values($mod);
 			$old = $this->get_values($id,$mod);
 			foreach($defaults as $name=>$def_value) {
-				if(!isset($submited[$name])) $submited[$name]=0;
+				if(!array_key_exists($name, $submited)) $submited[$name] = 0;
 				if($submited[$name]!=$old[$name]) {
 					if($this->get_module_variable('default')) {
 						if($submited[$name]==$def_value)

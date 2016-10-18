@@ -85,8 +85,10 @@ class CRM_FiltersCommon extends ModuleCommon {
 	{
 		$perspective = trim(CRM_FiltersCommon::get(), '()');
 		$perspective = empty($perspective) ? null : explode(',', $perspective);
-		foreach ($perspective as $k => $value) {
-			$perspective[$k] = 'contact/' . $value;
+		if (is_array($perspective)) {
+			foreach ($perspective as $k => $value) {
+				$perspective[$k] = 'contact/' . $value;
+			}
 		}
 
 		return new Utils_RecordBrowser_ReplaceValue('__PERSPECTIVE__', __('Perspective'), $perspective, true);

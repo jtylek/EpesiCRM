@@ -1,6 +1,7 @@
 <?php
 header("Content-type: text/javascript");
 
+define('CID', false);
 define('JS_OUTPUT',1);
 require_once('../../../include.php');
 ModuleManager::load_modules();

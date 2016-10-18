@@ -563,6 +563,18 @@ class Utils_RecordBrowser extends Module {
 				}
             }
         } else {
+            // New experimental search using search index!
+            /*
+            $isearch = $gb->get_module_variable('search');
+            $keyword = isset($isearch['__keyword__']) ? $isearch['__keyword__'] : '';
+            if ($keyword) {
+//             TODO: use all indexed columns to search
+                $search_cols = array_column($table_columns, 'search');
+                $search_result = new Utils_RecordBrowser_Search($this->tab, $search_cols);
+                $search_res = $search_result->get_crits($keyword, true);
+            }
+            */
+
             $val = reset($search);
             $isearch = $gb->get_module_variable('search');
             if (empty($isearch)) $val = null;
@@ -738,9 +750,9 @@ class Utils_RecordBrowser extends Module {
                 $row_data[] = Utils_WatchdogCommon::get_change_subscription_icon($this->tab,$row['id']);
             if ($special) {
                 $element = $this->get_module_variable('element');
-                $format = $this->get_module_variable('format_func');
                 $row_id = $this->include_tab_in_id? $this->tab . '/' . $row['id']: $row['id'];
-                $formated_name = is_callable($format) ? strip_tags(call_user_func($format, $row_id, true)) : Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $row['id'], true);
+                $formated_name = Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $row['id'], true);
+                $formated_name = htmlspecialchars(strip_tags($formated_name));
                 $row_data = array('<input type="checkbox" id="leightbox_rpicker_' . $element . '_' . $row_id . '" formated_name="' . $formated_name . '" />');
                 $rpicker_ind[] = $row_id;
             }
