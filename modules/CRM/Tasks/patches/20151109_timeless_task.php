@@ -24,9 +24,9 @@ $deadline_time_field_exists = DB::GetOne('SELECT 1 FROM task_field WHERE field=%
 $sql = false;
 if ($deadline_time_field_exists) {
     if (DB::is_mysql()) {
-        $sql = 'UPDATE task_data_1 SET f_deadline = TIMESTAMP(f_deadline, TIME(f_deadline_time)), f_timeless = (f_deadline_time IS NULL)';
+        $sql = 'UPDATE task_data_1 SET f_deadline = TIMESTAMP(f_deadline, TIME(COALESCE(f_deadline_time, FALSE))), f_timeless = (f_deadline_time IS NULL)';
     } else {
-        $sql = 'UPDATE task_data_1 SET f_deadline = f_deadline + CAST(f_deadline_time as time), f_timeless = (f_deadline_time IS NULL)::int';
+        $sql = 'UPDATE task_data_1 SET f_deadline = f_deadline + CAST(COALESCE(f_deadline_time, \'0:00\') as time), f_timeless = (f_deadline_time IS NULL)::int';
     }
 } elseif ($deadline_field_is_not_timestamp) {
     if (DB::is_mysql()) {
