@@ -13,6 +13,7 @@ umask(0022);
 
 chdir(dirname(__FILE__));
 try {
+    require_once('vendor/autoload.php');
     require_once('include/include_path.php');
     require_once('include/data_dir.php');
     require_once('include/config.php');

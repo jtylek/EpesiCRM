@@ -22,7 +22,7 @@ class ListModulesCommand extends Command
         $this
             ->setName('module:list')
             ->setDescription('List EPESI modules')
-            ->addOption('installed-only');
+            ->addOption('installed-only', 'i');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
