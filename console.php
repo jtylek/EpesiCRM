@@ -2,14 +2,25 @@
 <?php
 // application.php
 
-define('SET_SESSION', false);
-require 'include.php';
-
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\InputOption;
 
+require_once 'vendor/autoload.php';
+
+$input = new ArgvInput();
+$data_dir = $input->getParameterOption('--data-dir', false);
+
+define('SET_SESSION', false);
+if ($data_dir) {
+    define('DATA_DIR', $data_dir);
+}
+require 'include.php';
 ModuleManager::load_modules();
 
 $application = new Application();
+$application->getDefinition()->addOption(new InputOption('data-dir', null, InputOption::VALUE_REQUIRED, 'Data directory to use'));
+
 $application->add(new \Epesi\Console\Modules\ListModulesCommand());
 $application->add(new \Epesi\Console\Modules\DisableModuleCommand());
 $application->add(new \Epesi\Console\Modules\EnableModuleCommand());
@@ -26,4 +37,4 @@ $application->add(new \Epesi\Console\Backup\BackupDbCommand());
 $application->add(new \Epesi\Console\Backup\BackupFilesCommand());
 $application->add(new \Epesi\Console\Backup\BackupAllCommand());
 $application->add(new \Epesi\Console\Backup\ListBackupsCommand());
-$application->run();
+$application->run($input);
