@@ -30,13 +30,10 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 						));
 			$ret_opts[] = array('type'=>'group', 'label'=>$opt['label'], 'elems'=>array(
 						array_merge($opt,array(
-							'values'=>'',
-							'name'=>$name.'_m')),
-						array_merge($opt,array(
-							'values'=>'',
+							'values'=>__('Dashboard'),
 							'name'=>$name.'_d')),
 						array_merge($opt,array(
-							'values'=>__('Menu').' &bull; '.__('Dashboard').' &bull; '.__('Launchpad'),
+							'values'=>__('Launchpad'),
 							'name'=>$name.'_l'))
 					));
 		}
@@ -81,18 +78,6 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 			}
 		}
 		return $result;
-	}
-
-	public static function quick_access_menu() {
-		if (!Base_AclCommon::i_am_user()) return array();
-		self::get_options();
-		$qa_menu = array('__submenu__'=>1);
-		foreach (self::$options as $v)
-			if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_m'))
-				$qa_menu[$v['label']] = $v['link'];
-
-		if ($qa_menu == array('__submenu__'=>1)) return array();
-		return array(__('Quick Access')=>$qa_menu);
 	}
 }
 

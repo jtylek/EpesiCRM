@@ -42,7 +42,7 @@ class CRM_Filters extends Module {
         if (Base_User_SettingsCommon::get('CRM_Contacts','show_only_users_in_filters')) $recent_crits['!login'] = '';
 		$contacts = CRM_ContactsCommon::get_contacts($recent_crits,array(),array(),15);
 		$cont = array();
-		foreach ($contacts as $v) { 
+		foreach ($contacts as $v) {
 			$cont[$v['id']] = call_user_func($fcallback, $v, true);
 		}
 		asort($cont);
@@ -69,11 +69,11 @@ class CRM_Filters extends Module {
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,__('Perspective'),true);
 		if(!isset($_SESSION['client']['filter_'.Acl::get_user()]['desc']))
 			CRM_FiltersCommon::set_profile('my');
-		    
+
 		//Base_ActionBarCommon::add('folder',__('Filters'),'class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',__('My records')));
 		if (isset($_REQUEST['__location'])) $in_use = (CRM_FiltersCommon::$in_use===$_REQUEST['__location']);
 		else $in_use = CRM_FiltersCommon::$in_use;
-		print('<a class="lbOn'.($in_use?'':' disabled').' btn btn-primary btn-block" rel="crm_filters">'.__('Perspective').': '.'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b><i class="glyphicon glyphicon-search pull-right"></i></a>');
+		print('<a class="lbOn'.($in_use?'':' disabled').' btn btn-primary btn-block" style="white-space: inherit ! important;" rel="crm_filters">'.__('Perspective').': '.'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b><i class="glyphicon glyphicon-search pull-right"></i></a>');
 	}
 
 	public function manage_filters() {
@@ -138,7 +138,7 @@ class CRM_Filters extends Module {
 		$qf->display_as_column();
 		print('</div></div>');
 	}
-	
+
 	public function edit_group($id=null) {
 		if($this->is_back()) return false;
 
@@ -185,7 +185,7 @@ class CRM_Filters extends Module {
 
 		return true;
 	}
-	
+
 	public function check_amount_of_records ($data) {
 		$sep = '__SEP__';
 		$c = explode($sep, trim($data['contacts'], $sep));

@@ -5,9 +5,9 @@
         {% elseif link.type == 'submenu' %}
             <li class="dropdown-submenu">
                 {% if link.icon is not null %}
-                    <a tabindex="-1" href="#submenu-{{ loop.index }}"><i class="fa fa-{{ link.icon }}"></i>&nbsp;{{ link.label }}</a>
+                    <a tabindex="-1" href="javascript:void(0);"><i class="fa fa-{{ link.icon }}"></i>&nbsp;{{ link.label }}</a>
                 {% else %}
-                    <a tabindex="-1" href="#submenu-{{ loop.index }}">{{ link.label }}</a>
+                    <a tabindex="-1" href="javascript:void(0);">{{ link.label }}</a>
                 {% endif %}
 
                 <ul id="submenu-{{ loop.index }}" class="dropdown-menu">

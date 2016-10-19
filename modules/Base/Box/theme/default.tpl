@@ -37,9 +37,6 @@
         <div class="col-md-7">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    {if $quick_access_menu}
-                        <div class="quick-access-bar">{$quick_access_menu}</div>
-                    {/if}
                     <div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
                 </div>
                 <div class="panel-body">
