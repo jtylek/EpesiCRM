@@ -18,8 +18,8 @@
         <div class="button_next" id="Base_Help__button_next">{'Next'|t}</div>
         <div class="button_next" id="Base_Help__button_finish">{'Finish'|t}</div>
     </div>
-    <div class="row">
-        <div class="col-md-2">
+    <header class="row">
+        <div class="col-lg-2 col-xs-4">
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                     <div class="pull-left">{$menu}</div>
@@ -34,27 +34,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
-                </div>
-                <div class="panel-body">
-                    {$actionbar}
-                </div>
-            </div>
-        </div>
-        <div class="col-md-1">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    {$help}
-                </div>
-                <div class="panel-body" id="launchpad_button_section">
-                    {$launchpad}
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2">
+        <div class="col-lg-2 col-xs-5 pull-right">
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                     <div class="pull-right">{$indicator}</div>
@@ -65,7 +45,27 @@
                 </div>
             </div>
         </div>
-    </div>
+        <div class="col-lg-2 col-xs-3 pull-right">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {$help}
+                </div>
+                <div class="panel-body" id="launchpad_button_section">
+                    {$launchpad}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
+                </div>
+                <div class="panel-body">
+                    {$actionbar}
+                </div>
+            </div>
+        </div>
+    </header>
     <!-- -->
     <div id="content">
         <div id="content_body" style="top: 50px;">
