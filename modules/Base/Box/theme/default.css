@@ -15,6 +15,7 @@ body {
 	font-size: 15px;
 	background-color: #F0F0F0;
 	position: relative; /* needed by prototype 1.7 for clone position */
+	margin-bottom: 10px;
 }
 
 /* for debug uncomment following lines */
@@ -80,13 +81,13 @@ textarea {
 	-moz-border-radius: 6px;
 	border-radius: 6px;
 	/* end border radius */
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 3px black;
 	-moz-box-shadow: 1px 1px 3px black;
 	box-shadow: 1px 1px 3px black;
 	/* end css3 shadow border*/
-	
+
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -180,7 +181,7 @@ hr.line {
 #top_bar {
 	position: fixed;
 	left: 0px;
-	top: 0px;       
+	top: 0px;
 	z-index: 10;
 	background-color: transparent;
 }
@@ -219,7 +220,7 @@ hr.line {
 	height: 20px;
 	width: 93px;
 	text-align: left;
-	
+
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -230,7 +231,7 @@ hr.line {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64B164', endColorstr='#307030',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
 	/* end dark css3 green background gradient */
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 3px gray;
 	-moz-box-shadow: 1px 1px 3px gray;
@@ -238,7 +239,7 @@ hr.line {
 	/* end css3 shadow border*/
 }
 
-#top_bar #top_bar_1 .menu-bar:hover { 
+#top_bar #top_bar_1 .menu-bar:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%); /* FF3.6+ */
@@ -264,7 +265,7 @@ hr.line {
 	width: 93px;
 	text-align: left;
 	cursor: pointer;
-	
+
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -275,7 +276,7 @@ hr.line {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64B164', endColorstr='#307030',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
 	/* end dark css3 green background gradient */
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 0px 0px 3px #000000;
 	-moz-box-shadow: 0px 0px 3px #000000;
@@ -298,8 +299,8 @@ hr.line {
 
 #top_bar #top_bar_1 .home-bar .home-bar-icon {
 	margin: auto 0px auto 5px ;
-	width: 20px; 
-	height: 20px; 
+	width: 20px;
+	height: 20px;
 	float: left;
 	background-image: url("Base/Box/home-small.png");
 }
@@ -311,8 +312,8 @@ hr.line {
 	font-weight: bold;
 	text-align: left;
 	overflow: auto;
-	float:right; 
-	width: 60px; 
+	float:right;
+	width: 60px;
 }
 
 #top_bar #top_bar_1 .quick-access-bar {
@@ -320,7 +321,7 @@ hr.line {
 	width: 138px;
 	text-align: left;
 	overflow: hidden;
-	
+
 	/*dark css3 green background gradient */
 /*	background: #226622; IE 9 conflict/* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -331,7 +332,7 @@ hr.line {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64B164', endColorstr='#307030',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #709c70 0%,#4d844d 49%,#226622 51%,#649464 100%); /* W3C */
 	/* end dark css3 green background gradient */
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 3px #gray;
 	-moz-box-shadow: 1px 1px 3px #gray;
@@ -339,7 +340,7 @@ hr.line {
 	/* end css3 shadow border*/
 }
 
-#top_bar #top_bar_1 .quick-access-bar:hover { 
+#top_bar #top_bar_1 .quick-access-bar:hover {
 	/*light css3 green background gradient */
 /*	background: #226622; IE 9 conflict/* Old browsers */
 	background: -moz-linear-gradient(top, #226622 0%, #71b871 1%, #58ab58 49%, #379b37 51%, #63b163 95%); /* FF3.6+ */
@@ -430,7 +431,7 @@ hr.line {
 	width: 70px;
 	height: auto;
 	overflow: hidden;
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 0px 0px 3px #000000;
 	-moz-box-shadow: 0px 0px 3px #000000;
@@ -446,7 +447,7 @@ hr.line {
 	color: #FFFFFF;
     vertical-align: medium;
     text-align: center;
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 0px 0px 3px #000000;
 	-moz-box-shadow: 0px 0px 3px #000000;
@@ -508,7 +509,7 @@ hr.line {
 	-moz-box-shadow: 1px 1px 3px #gray;
 	box-shadow: 1px 1px 3px #gray;
 	/* end css3 shadow border*/}
-	
+
 .shadow_css3_logo_border {
 	width: 193px;
 	height: 83px;
@@ -520,7 +521,7 @@ hr.line {
 	-moz-box-shadow: 1px 1px 6px gray;
 	box-shadow: 1px 1px 6px gray;
 	/* end css3 shadow border*/
-	
+
 	/* border bottom radius */
 	-webkit-border-top-left-radius: 0px;
 	-webkit-border-top-right-radius: 0px;
@@ -533,11 +534,11 @@ hr.line {
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
 	border-bottom-right-radius: 6px;
-	border-bottom-left-radius: 6px; 
+	border-bottom-left-radius: 6px;
 	/* end border bottom radius */
 }
-	
-	
+
+
 
 
 #top_bar #top_bar_2 .logo img {
@@ -549,7 +550,7 @@ hr.line {
 	height: auto;
 }
 
-.shadow_css3_icons_border {	
+.shadow_css3_icons_border {
 	width: 100%;
 	height: 83px;
 	margin: 0px;
@@ -573,9 +574,9 @@ hr.line {
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
 	border-bottom-right-radius: 6px;
-	border-bottom-left-radius: 6px; 
+	border-bottom-left-radius: 6px;
 	/* end border bottom radius */
-	
+
 	/* gray css3 gradient */
 	background: #ffffff; /* Old browsers */
 	background: -moz-linear-gradient(top, #ffffff 0%, #e2e2e2 99%); /* FF3.6+ */
@@ -587,7 +588,7 @@ hr.line {
 	background: linear-gradient(top, #ffffff 0%,#e2e2e2 99%); /* W3C */
 	/* gray css3 gradient */
 }
-	
+
 .icons_launchpad {
     width: 70px;
     height: auto ;
@@ -616,9 +617,9 @@ hr.line {
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
 	border-bottom-right-radius: 6px;
-	border-bottom-left-radius: 6px; 
-	/* end border bottom radius */	
-	
+	border-bottom-left-radius: 6px;
+	/* end border bottom radius */
+
 	/* gray css3 gradient */
 	background: #ffffff; /* Old browsers */
 	background: -moz-linear-gradient(top, #ffffff 0%, #e2e2e2 99%); /* FF3.6+ */
@@ -629,8 +630,8 @@ hr.line {
 	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e2e2e2',GradientType=0 ); *//* IE6-9 */
 	background: linear-gradient(top, #ffffff 0%,#e2e2e2 99%); /* W3C */
 	/* gray css3 gradient */
-}	
-	
+}
+
 #top_bar #top_bar_2 #login-search-td {
 	width: 282px;
 	height: auto;
@@ -648,7 +649,7 @@ hr.line {
 	-moz-box-shadow: 1px 1px 3px gray;
 	box-shadow: 1px 1px 3px gray;
 	/* end css3 shadow border*/
-	
+
 	/* border bottom radius */
 	-webkit-border-top-left-radius: 0px;
 	-webkit-border-top-right-radius: 0px;
@@ -661,7 +662,7 @@ hr.line {
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
 	border-bottom-right-radius: 6px;
-	border-bottom-left-radius: 6px; 
+	border-bottom-left-radius: 6px;
 	/* end border bottom radius */
 
 }
@@ -771,7 +772,7 @@ hr.line {
 
 
 /* Global styles */
-	
+
 	/* shadows */
 		.shadow_5px_left {
 			/* css3 shadow border*/
@@ -780,8 +781,8 @@ hr.line {
 			box-shadow: -1px 1px 5px black;
 			/* end css3 shadow border*/
 		}
-	
-	
+
+
 		.shadow_5px {
 			/* css3 shadow border*/
 			-webkit-box-shadow: 1px 1px 5px black;
@@ -789,7 +790,7 @@ hr.line {
 			box-shadow: 1px 1px 5px black;
 			/* end css3 shadow border*/
 		}
-		
+
 		.shadow_15px {
 			/* css3 shadow border*/
 			-webkit-box-shadow: 1px 1px 15px black;
@@ -806,14 +807,14 @@ hr.line {
 			-moz-border-radius: 3px;
 			border-radius: 3px;
 			/* end border radius */
-		}	
+		}
 		.border_radius_6px {
 			/* border radius */
 			-webkit-border-radius: 6px;
 			-moz-border-radius: 6px;
 			border-radius: 6px;
 			/* end border radius */
-		}	
+		}
 	/* end radius borders */
 
 
@@ -843,7 +844,7 @@ hr.line {
 	text-align: left;
 	padding: 5px 8px;
 	margin: 20px;
-	
+
 	border: 1px solid gray;
 
 	-webkit-box-shadow: 2px 2px 6px black;
@@ -864,7 +865,7 @@ hr.line {
 	padding: 5px 8px;
 	margin-top: 3px;
 	margin-bottom: 3px;
-	
+
 	border: 1px solid lightgray;
 
 	-webkit-box-shadow: inset 2px 2px 3px gray;
@@ -885,7 +886,7 @@ hr.line {
     z-index: 500;
     overflow-x: auto;
     max-height: 100%;
-    width: 350px;    
+    width: 350px;
 }
 
 #client_messages_frame_hide {
@@ -1069,7 +1070,7 @@ hr.line {
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
-	/* end border radius */	
+	/* end border radius */
 }
 
 .epesi_data {
@@ -1079,7 +1080,7 @@ hr.line {
 	height: 20px;
 	padding: 0;
 	border-spacing: 0;
-	
+
 	-webkit-box-shadow: inset 1px 1px 1px #777;
 	-moz-box-shadow: inset 1px 1px 1px #777;
 	box-shadow: inset 1px 1px 1px #777;
@@ -1226,7 +1227,7 @@ hr.line {
 	color: #CCCCCC;
 }
 .epesi_data .form_error:not(:empty) {
-	color: white !important; 
+	color: white !important;
 	position: absolute;
 	right: 0px;
 	display: block;
@@ -1274,7 +1275,7 @@ hr.line {
 	-webkit-box-shadow: 1px 1px 5px black;
 	-moz-box-shadow: 1px 1px 5px black;
 	box-shadow: 1px 1px 5px black;
-	
+
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
@@ -1303,7 +1304,7 @@ hr.line {
     height: 24px;
     white-space: nowrap;
     vertical-align: top;
-	
+
 	margin-left: 12px;
 	margin-right: 12px;
 	padding: 5px 18px 0px;
@@ -1315,7 +1316,7 @@ hr.line {
 	-webkit-box-shadow: 1px 1px 5px black;
 	-moz-box-shadow: 1px 1px 5px black;
 	box-shadow: 1px 1px 5px black;
-	
+
 	/* gray v1 css3 background gradient */
 	background: #9c9c9c; /* Old browsers */
 	background: -moz-linear-gradient(top, #9c9c9c 0%, #858585 49%, #666666 51%, #939393 100%); /* FF3.6+ */

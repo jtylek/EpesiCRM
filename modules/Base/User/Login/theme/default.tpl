@@ -5,7 +5,7 @@
 	</div>
 
 {else}
-<div style="margin-top: 50px" class="col-md-4 col-md-offset-4 panel">
+<div style="margin-top: 50px" class="col-md-4 col-md-offset-4 panel panel-default">
 	<div class="panel-body">
 	{$form_data.javascript}
 
