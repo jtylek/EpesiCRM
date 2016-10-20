@@ -10,7 +10,7 @@
 {*</div>*}
 
 <div id="{$statusbar_id}" class="Base_StatusBar_background">
-    <div class="Base_StatusBar">
+    <div class="Base_StatusBar panel panel-default">
         <p id="{$text_id}" class="lead">Loading...</p>
         <div class="spinner">
             <div class="bounce1"></div>

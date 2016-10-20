@@ -7,7 +7,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @license MIT
- * @version 1.0 
+ * @version 1.0
  * @package epesi-base
  */
 if(version_compare(phpversion(), '5.4.0')==-1)
@@ -132,14 +132,6 @@ Please choose <?php print(EPESI);?> version:<ul>
                     vertical-align: middle;
                     z-index: 2002;
                     overflow: hidden;
-
-                    -webkit-box-shadow: 1px 1px 15px black;
-                    -moz-box-shadow: 1px 1px 15px black;
-                    box-shadow: 1px 1px 15px black;
-
-                    -webkit-border-radius: 6px;
-                    -moz-border-radius: 6px;
-                    border-radius: 20px;
                     padding-top: 20px;
                 }
 
@@ -201,7 +193,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 				<div id="error_box"></div>
 			</div>
 
-            <div id="epesiStatus" style="">
+            <div id="epesiStatus" class="panel panel-default">
                 <img src="images/epesi_logo_RGB_Solid.png">
                 <div class="text" style="display: none">{{ starting_message }}</div>
                 <div class="spinner">
@@ -211,13 +203,13 @@ Please choose <?php print(EPESI);?> version:<ul>
                 </div>
             </div>
 		</div>
-        <?php 
+        <?php
         /*
          * init_js file allows only num_of_clients sessions. If there is image
          * with empty src="" browser will load index.php file, so we cannot
          * include init_js file directly because num_of_clients request will
          * reset our history and restart EPESI.
-         * 
+         *
          * Check here if request accepts html. If it does we can assume that
          * this is request for page and include init_js file which is faster.
          * If there is not 'html' in accept use script with src property.

@@ -7,7 +7,7 @@
 	height: 100%;
 	text-align: center;
 	vertical-align: middle;
-	background-color: rgba(128, 128, 128, 0.3);
+	background-color: rgba(255, 255, 255, 0.5);
 }
 
 .Base_StatusBar {
@@ -21,14 +21,6 @@
 	vertical-align: middle;
 	z-index: 2002;
 	overflow: hidden;
-
-	-webkit-box-shadow: 1px 1px 15px black;
-	-moz-box-shadow: 1px 1px 15px black;
-	box-shadow: 1px 1px 15px black;
-
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	border-radius: 20px;
 	padding-top: 20px;
 }
 
