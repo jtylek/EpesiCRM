@@ -8,3 +8,8 @@
     width:100%;
     vertical-align: middle;
 }
+#Base_User_Settings div.btn > a > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -2,7 +2,7 @@
     <div class="panel-heading">{$header}</div>
     <div class="panel-body btn-toolbar">
         {foreach key=key item=button from=$buttons}
-            <div class="btn btn-default pull-left col-xs-4 col-sm-3 col-md-2 col-lg-1">
+            <div class="btn btn-default col-xs-4 col-sm-3 col-md-2 col-lg-1">
                 {$__link.buttons.$key.link.open}
                     {if isset($button.icon)}
                         <img src="{$button.icon}" border="0" width="32" height="32" align="middle">
