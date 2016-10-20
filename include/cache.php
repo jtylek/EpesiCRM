@@ -25,13 +25,21 @@ class Cache
     public static function init()
     {
         $drivers = array();
-        if( class_exists('Memcached')) $drivers[] = 'Memcached';
-        elseif(class_exists('Memcache')) $drivers[] = 'Memcache';
-        $drivers = array_merge($drivers,array('Apc','Apcu','Xcache','Zendshm','files'));
-        foreach($drivers as $driver) {
+        if (class_exists('Memcached')) {
+            $drivers[] = 'Memcached';
+        } elseif (class_exists('Memcache')) {
+            $drivers[] = 'Memcache';
+        }
+        $drivers = array_merge($drivers, array('Apc', 'Apcu', 'Xcache', 'Zendshm', 'files'));
+        foreach ($drivers as $driver) {
             try {
                 self::$cache_object = CacheManager::getInstance($driver);
-            }catch(Exception $e){}
+                break;
+            } catch (Exception $e) {
+            }
+        }
+        if (!self::$cache_object) {
+            throw new Exception('No valid cache driver');
         }
     }
 
