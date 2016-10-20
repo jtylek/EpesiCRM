@@ -4,7 +4,7 @@
     {% elseif element.type == 'button' or element.type == 'submit' %}
         <button type="{{ element.type }}" value="{{ element.value }}" name="{{ element.name }}" class="btn btn-default">{{ element.value }}</button>
     {% elseif element.type == 'group' %}
-        <div class="btn-group">
+        <div class="btn-group col-xs-12 col-md-6 col-lg-4">
             {% for subelement in element.elements %}
                 {{ _self.element(subelement) }}
             {% endfor %}
