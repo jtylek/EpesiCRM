@@ -173,6 +173,8 @@ class CRM_Contacts extends Module {
 		if(Utils_RecordBrowserCommon::get_access('contact','add'))
 			Base_ActionBarCommon::add('add',__('Add contact'), $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$rb->set_button($this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
+		$this->add_associate_button($rb, 'add', $arg['id']);
+		$this->add_associate_button($rb, 'remove', $arg['id']);
 		$rb->set_defaults(array('company_name'=>$arg['id']));
 		$this->display_module($rb, array(array('(company_name'=>$arg['id'],'|related_companies'=>array($arg['id'])), array('company_name'=>false), array('last_name'=>'ASC','first_name'=>'ASC')), 'show_data');
         $uid = Base_AclCommon::get_clearance();
@@ -182,6 +184,61 @@ class CRM_Contacts extends Module {
             Libs_LeightboxCommon::display($prompt_id, $content, __('Update Contacts'));
             Base_ActionBarCommon::add('all', __('Update Contacts'), Libs_LeightboxCommon::get_open_href($prompt_id));
         }
+    }
+    
+    public function add_associate_button($rb, $mode, $company_id) {
+    	switch ($mode) {
+    		case 'add':
+    			$crits = array('!company_name'=>$company_id, '!related_companies'=>$company_id);
+    			$label = __('Associate');
+    			$icon = 'add';
+    			$tooltip = Utils_TooltipCommon::open_tag_attrs(__('Click to associate contacts with this company (Add company to contact related companies)'));
+    			break;
+    		case 'remove':
+    			$crits = array('related_companies'=>$company_id);
+    			$label = __('Remove Associate');
+    			$icon = 'delete';
+    			$tooltip = Utils_TooltipCommon::open_tag_attrs(__('Click to remove company association from selected contacts'));
+    			break;
+    		default:
+    			return;
+    			break;
+    	}
+    	
+    	if (!Utils_RecordBrowserCommon::get_records_count('contact', $crits)) return;
+    
+    	$record_picker = $this->pack_module(Utils_RecordBrowser_RecordPickerFS::module_name(), null, null, array('contact', $crits));
+    
+    	$rb->new_button($icon, $label, 'style="cursor:pointer;" ' . $tooltip . ' ' . $record_picker->create_open_href());
+    
+    	$selected = $record_picker->get_selected();
+    	if (empty($selected)) return;
+    
+    	foreach ($selected as $contact_id) {
+    		$contact = CRM_ContactsCommon::get_contact($contact_id);
+    		
+    		$related_companies = $contact['related_companies'];
+    		
+    		switch ($mode) {
+    			case 'add':
+    				$related_companies = array_unique(array_merge($related_companies, array($company_id)));
+    				break;
+    			case 'remove':
+    				if(($key = array_search($company_id, $related_companies)) !== false) {
+    					unset($related_companies[$key]);
+    				}
+    				break;
+    			default:
+    				return;
+    				break;
+    		}
+    			
+    		Utils_RecordBrowserCommon::update_record('contact', $contact_id, array('related_companies'=>$related_companies));
+    		
+    		Base_StatusBarCommon::message(__('Company associations updated'));
+    	}
+    
+    	$record_picker->clear_selected();
     }
 
 	public function contacts_actions($r, $gb_row) {

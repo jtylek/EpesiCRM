@@ -1304,7 +1304,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$cont = DB::GetRow('SELECT id, created_on, created_by FROM contact_data_1 WHERE active=1 AND f_email '.DB::like().' %s AND id!=%d', array($email, $rset=='contact'?$rid:-1));
 		if ($cont)
 			return array('contact', $cont['id']);
-		if (ModuleManager::is_installed('CRM_Roundcube')>=0) {
+		if (ModuleManager::is_installed('CRM_Mail')>=0) {
 			$vals = array($email);
 			$where_id = '';
 			if ($rid!=null) {
