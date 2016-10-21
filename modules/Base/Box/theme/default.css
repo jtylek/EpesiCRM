@@ -1,9 +1,11 @@
 header > div .panel-heading {
-	min-height: 55px;
-	line-height: 35px;
+	min-height: 57px;
 }
 header > div .panel-body {
-	min-height: 105px;
+	min-height: 106px;
+}
+header > div .panel-heading.vertical-align-middle {
+	line-height:36px;
 }
 /* Global */
 

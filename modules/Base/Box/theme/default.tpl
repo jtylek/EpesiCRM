@@ -47,7 +47,7 @@
         </div>
         <div class="col-lg-2 col-xs-3 pull-right">
             <div class="panel panel-default">
-                <div class="panel-heading">
+                <div class="panel-heading vertical-align-middle">
                     {$help}
                 </div>
                 <div class="panel-body" id="launchpad_button_section">
@@ -57,7 +57,7 @@
         </div>
         <div class="col-lg-6 col-xs-12">
             <div class="panel panel-default">
-                <div class="panel-heading">
+                <div class="panel-heading vertical-align-middle">
                     <div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
                 </div>
                 <div class="panel-body">
