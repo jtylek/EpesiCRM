@@ -378,9 +378,7 @@ class CRM_Fax extends Module {
 	public function go_back($file) {
 		unlink($file);
 		
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->pop_main();
+		Base_BoxCommon::pop_main();
 	}
 
 }

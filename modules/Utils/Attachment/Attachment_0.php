@@ -149,9 +149,7 @@ class Utils_Attachment extends Module {
 
 	public function file_history($attachment) {
         if($this->is_back()) {
-            $x = ModuleManager::get_instance('/Base_Box|0');
-            if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            return $x->pop_main();
+        	return Base_BoxCommon::pop_main();
         }
 
         Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
