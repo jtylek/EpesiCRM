@@ -60,8 +60,15 @@ class Cache
 
     public static function clear($name=null)
     {
-        if($name) self::$cache_object->deleteItem($name);
-        else  self::$cache_object->clear();
+        if ($name) {
+            self::$cache_object->deleteItem($name);
+        } else {
+            self::$cache_object->clear();
+            $class_uses = class_uses(self::$cache_object);
+            if (in_array('phpFastCache\Core\PathSeekerTrait', $class_uses)) {
+                self::$cache_object->tmp = array();
+            }
+        }
     }
 
 }
