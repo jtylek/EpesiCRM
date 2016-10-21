@@ -297,8 +297,7 @@ class CRM_Mail extends Module {
 	public function account_manager($pushed_on_top = false) {
 		if ($pushed_on_top) {
 			if ($this->is_back()) {
-				Base_BoxCommon::pop_main();
-				return;
+				return Base_BoxCommon::pop_main();
 			}
 			Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		} else {

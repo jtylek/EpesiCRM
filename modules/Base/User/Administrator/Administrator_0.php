@@ -230,9 +230,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     public function edit_user_form($edit_id) {
 		if ($this->is_back()) {
 			if($this->parent->get_type()!='Base_Admin') {
-				$x = ModuleManager::get_instance('/Base_Box|0');
-				if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-				$x->pop_main();
+				Base_BoxCommon::pop_main();
 			}
 			return false;
 		}
@@ -280,9 +278,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         if($form->validate()) {
             if($form->process(array(&$this, 'submit_edit_user_form'))) {
 				if($this->parent->get_type()!='Base_Admin') {
-					$x = ModuleManager::get_instance('/Base_Box|0');
-					if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-					$x->pop_main();
+					Base_BoxCommon::pop_main();
 				}
                 return false;
 			}

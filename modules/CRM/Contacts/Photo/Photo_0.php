@@ -30,9 +30,7 @@ class CRM_Contacts_Photo extends Module {
         $this->display_module($form, array( array($this,'submit_attach'), $record));
 
         if ($this->is_back() || $this->submitted) {
-            $x = ModuleManager::get_instance('/Base_Box|0');
-            if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            return $x->pop_main();
+        	return Base_BoxCommon::pop_main();
         }
     }
 
