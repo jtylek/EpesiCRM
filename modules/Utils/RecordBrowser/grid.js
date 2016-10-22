@@ -33,9 +33,9 @@ grid_enable_field_edit = function(element_name, recid, tab, form_name) {
 	switched_id = recid;
 	elemf.style.display = 'inline';
 	elemv.style.display = 'none';
-	new Ajax.Request('modules/Utils/RecordBrowser/grid.php', {
+	jq.ajax('modules/Utils/RecordBrowser/grid.php', {
 		method: 'post',
-		parameters:{
+		data:{
 			element:Object.toJSON(element_name),
 			id:Object.toJSON(recid),
 			tab:Object.toJSON(tab),
@@ -43,9 +43,9 @@ grid_enable_field_edit = function(element_name, recid, tab, form_name) {
 			mode:Object.toJSON('edit'),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
+		success:function(t) {
 			if (element_name==switched_elem && recid==switched_id)
-				eval(t.responseText);
+				eval(t);
 			e=$('grid_save_'+element_name+'_'+recid);
 			if(e)e.style.display='inline';
 		}
@@ -58,9 +58,9 @@ grid_submit_field = function(element_name, recid, tab) {
 
 	switched_elem = '';
 	switched_id = '';
-	new Ajax.Request('modules/Utils/RecordBrowser/grid.php', {
+	jq.ajax('modules/Utils/RecordBrowser/grid.php', {
 		method: 'post',
-		parameters:{
+		data:{
 			element:Object.toJSON(element_name),
 			value:Object.toJSON($(grid_edit_form_name).serialize()),
 			form_name:Object.toJSON(grid_edit_form_name),
@@ -69,8 +69,8 @@ grid_submit_field = function(element_name, recid, tab) {
 			mode:Object.toJSON('submit'),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			eval(t.responseText);
+		success:function(t) {
+			eval(t);
 		}
 	});
 	elemf.style.display = 'none';

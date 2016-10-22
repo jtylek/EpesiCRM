@@ -352,12 +352,12 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 			f = f.replace('__TIMELESS__','0');
 		}
 
-		Event.observe(cell_id,'dblclick',function(e){eval(f)});
-		Event.observe(cell_id,'touchend',function(e){
+		jq('#'+cell_id).on('dblclick',function(e){eval(f)});
+		jq('#'+cell_id).on('touchend',function(e){
 		    var now = new Date().getTime();
-		    var lastTouch = $(this).readAttribute('lastTouch') || 0;
+		    var lastTouch = jq(this).attr('lastTouch') || 0;
 		    var delta = now-lastTouch;
-		    $(this).writeAttribute('lastTouch',now);
+		    jq(this).attr('lastTouch',now);
 		    if(delta<500)
     		    eval(f);
 		});
@@ -378,18 +378,18 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 				Epesi.procOn++;
 				Epesi.updateIndicator();
 //				element.css({zIndex:0});
-				new Ajax.Request('modules/Utils/Calendar/update.php',{
+				jq.ajax('modules/Utils/Calendar/update.php',{
 					method:'post',
-					parameters:{
+					data:{
 						ev_id: element.attr('id').substr(21),
 						cell_id: droppable.attr('id').substr(7),
 						path: mpath,
 						cid: ecid,
 						page_type: Utils_Calendar.page_type
 					},
-					onComplete: function(t) {
+					success: function(t) {
 						var reject=false;
-						eval(t.responseText);
+						eval(t);
 						if(!reject) {
 							setTimeout(function() {
 							if(Utils_Calendar.page_type=='month') {
@@ -426,12 +426,9 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 						Epesi.procOn--;
 						Epesi.updateIndicator();
 					},
-					onException: function(t,e) {
-						throw(e);
-					},
-					onFailure: function(t) {
-						alert('Failure ('+t.status+')');
-						Epesi.text(t.responseText,'error_box','p');
+					error: function(xhr,status,t) {
+						alert('Failure ('+status+')');
+						Epesi.text(t,'error_box','p');
 					}
 				});
 			}
@@ -462,17 +459,17 @@ delete_event:function(eid,mpath,ecid) {
 	Epesi.updateIndicatorText("Deleting event");
 	Epesi.procOn++;
 	Epesi.updateIndicator();
-	new Ajax.Request('modules/Utils/Calendar/update.php',{
+	jq.ajax('modules/Utils/Calendar/update.php',{
 			method:'post',
-			parameters:{
+			data:{
 				ev_id: eid.substr(21),
 				cell_id: 'trash',
 				path: mpath,
 				cid: ecid
 			},
-			onComplete: function(t) {
+			success: function(t) {
 				var reject=false;
-				eval(t.responseText);
+				eval(t);
                 var element = Utils_Calendar.jq_id(eid);
 				if(reject) {
                     Utils_Calendar.revert_element(element);
@@ -487,12 +484,9 @@ delete_event:function(eid,mpath,ecid) {
 				Epesi.procOn--;
 				Epesi.updateIndicator();
 			},
-			onException: function(t,e) {
-				throw(e);
-			},
-			onFailure: function(t) {
-				alert('Failure ('+t.status+')');
-				Epesi.text(t.responseText,'error_box','p');
+			error: function(xhr,status,t) {
+				alert('Failure ('+status+')');
+				Epesi.text(t,'error_box','p');
 			}
 	});
 },

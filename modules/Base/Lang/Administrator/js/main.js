@@ -17,19 +17,20 @@ translate_first_on_the_list = function() {
 }
 
 lang_translate = function (original, span_id) {
-	var ret = prompt("Translate: "+original, $(span_id).innerHTML);
+        var span = jq('#'+span_id);
+	var ret = prompt("Translate: "+original, span.html());
 	if (ret === null) return;
-	$(span_id).innerHTML = ret;
-	$(span_id).style.color = "red";
-	new Ajax.Request('modules/Base/Lang/Administrator/update_translation.php', {
+	span.html(ret);
+	span.css('color','red');
+	jq.ajax('modules/Base/Lang/Administrator/update_translation.php', {
 		method: 'post',
-		parameters:{
+		data:{
 			original: original,
 			new: ret,
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			if($(span_id))$(span_id).style.color = "black";
+		success:function(t) {
+			if(span.length)span.css('color', "black");
 		}
 	});
 }

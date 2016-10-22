@@ -1,20 +1,17 @@
 utils_attachment_get_link = function(attach_file_id,cidd,desc) {
-	new Ajax.Request('modules/Utils/Attachment/create_remote.php', {
+	jq.ajax('modules/Utils/Attachment/create_remote.php', {
 		method: 'post',
-		parameters: {
+		data: {
 			file: attach_file_id,
 			cid: cidd,
 			description: desc
 		},
-		onComplete: function(t) {
-			prompt('Url to this file (valid for 1 week)',t.responseText);
+		success: function(t) {
+			prompt('Url to this file (valid for 1 week)',t);
 		},
-		onException: function(t,e) {
-			throw(e);
-		},
-		onFailure: function(t) {
-			alert('Failure ('+t.status+')');
-			Epesi.text(t.responseText,'error_box','p');
+		error: function(xhr,status,t) {
+			alert('Failure ('+status+')');
+			Epesi.text(t,'error_box','p');
 		}
 	});
 };

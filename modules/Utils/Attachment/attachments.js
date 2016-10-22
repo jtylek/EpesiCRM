@@ -100,16 +100,16 @@ document.onpaste = function(event) {
 			reader.onload = function(event) {
                         	Epesi.procOn++;
                         	Epesi.updateIndicator();
-				new Ajax.Request("modules/Utils/Attachment/paste.php", {
+				jq.ajax("modules/Utils/Attachment/paste.php", {
 					method: "post",
-					parameters:{
+					data:{
 						cid: Epesi.client_id,
 						data: event.target.result
 					},
-					onSuccess:function(t) {
+					success:function(t) {
                                         	Epesi.procOn--;
                                         	Epesi.updateIndicator();
-						var file = t.responseText.evalJSON();
+						var file = t.evalJSON();
 						Utils_Attachment__add_file_to_list(file.name, null, file.id, false, true);
 					}
 				});
@@ -130,25 +130,25 @@ utils_attachment_password = function(label,label_button,id,reload) {
 function utils_attachment_submit_password(id,reload) {
     var pass = jq('#attachment_pass_'+id).val();
     if (pass!=null && pass!='') {
-      new Ajax.Request("modules/Utils/Attachment/check_decrypt.php", {
+      jq.ajax("modules/Utils/Attachment/check_decrypt.php", {
         method: "post",
-        parameters:{
+        data:{
             cid: Epesi.client_id,
             id: id,
             pass: pass
         },
-        onSuccess:function(t) {
-            result = t.responseText.evalJSON();
+        success:function(t) {
+            result = t.evalJSON();
             if(typeof result.error != "undefined") return alert(result.error);
             if(reload) {
                 _chj("","","queue");
             } else {
-                Event.fire(document,'e:loading');
+                jq(document).trigger('e:loading');
                 if(typeof result.js != "undefined") {
                     eval(result.js);
                 }
-                $("note_value_"+id).innerHTML = result.note;
-                Event.fire(document,'e:load');
+                jq("#note_value_"+id).text(result.note);
+                jq(document).trigger('e:load');
             }
         }
       });

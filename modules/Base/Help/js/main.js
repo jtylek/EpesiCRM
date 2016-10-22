@@ -190,26 +190,26 @@ Base_Help = function(){
 		if (!value) {
 			$('Base_Help__help_suggestions').style.display='block';
 			$('Base_Help__help_links').style.display='none';
-			new Ajax.Request('modules/Base/Help/suggestions.php', { 
+			jq.ajax('modules/Base/Help/suggestions.php', { 
 				method: 'post', 
-				parameters:{
+				data:{
 					cid: Epesi.client_id
 				},
-				onComplete: function(t) {
-					eval(t.responseText);
+				success: function(t) {
+					eval(t);
 				}
 			});
 		} else {
 			$('Base_Help__help_suggestions').style.display='none';
 			$('Base_Help__help_links').style.display='block';
-			new Ajax.Request('modules/Base/Help/search.php', { 
+			jq.ajax('modules/Base/Help/search.php', { 
 				method: 'post', 
-				parameters:{
+				data:{
 					cid: Epesi.client_id,
 					keywords: value
 				},
-				onComplete: function(t) {
-					eval(t.responseText);
+				success: function(t) {
+					eval(t);
 				}
 			});
 		}

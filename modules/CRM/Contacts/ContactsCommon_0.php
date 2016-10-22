@@ -618,12 +618,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$form->addElement('text', 'create_company_name', __('New company name'), array('disabled'=>1));
 					$form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
 					if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
-					eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
-							'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
+					eval_js('jq(\'#last_name\').change(update_create_company_name_field);'.
+							'jq(\'#first_name\').change(update_create_company_name_field);'.
 							'function update_create_company_name_field() {'.
 								'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
 							'}');
-					eval_js('$("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+					eval_js('jq("#company_name").prop("disabled", document.getElementsByName("create_company")[0].checked);document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
 				}
             } else {
                 $comp = self::get_company(self::$paste_or_new);
@@ -639,13 +639,13 @@ class CRM_ContactsCommon extends ModuleCommon {
                     'document.getElementsByName(\'fax\')[0].value=\''.$comp['fax'].'\';'.
                     'document.getElementsByName(\'city\')[0].value=\''.$comp['city'].'\';'.
                     'document.getElementsByName(\'postal_code\')[0].value=\''.$comp['postal_code'].'\';'.
-                    'var country = $(\'country\');'.
-                    'var k = 0; while (k < country.options.length) if (country.options[k].value==\''.$comp['country'].'\') break; else k++;'.
-                    'country.selectedIndex = k;'.
-                    'country.fire(\'e_u_cd:load\');'.
+                    'var country = jq(\'#country\');'.
+                    'country.val(\''.$comp['country'].'\');'.
+//                    'var k = 0; while (k < opts.length) if (opts[k].val()==\''.$comp['country'].'\') break; else k++;'.
+//                    'country.selectedIndex = k;'.
+                    'country.trigger(\'e_u_cd:load\');'.
                     'setTimeout(\''.
-                    'var zone = $(\\\'zone\\\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\\\''.$comp['zone'].'\\\') break; else k++;'.
-                    'zone.selectedIndex = k;'.
+                    'var zone = jq(\\\'#zone\\\'); zone.val(\\\''.$comp['zone'].'\\\');'.
                     '\',900);'.
                     'document.getElementsByName(\'web_address\')[0].value=\''.$comp['web_address'].'\';';
                 Base_ActionBarCommon::add('add', __('Paste Company Info'), 'href="javascript:void(0);" onclick="'.$paste_company_info.'"');
@@ -897,7 +897,7 @@ new_user_textfield = function () {
 JS;
             eval_js($js);
 			eval_js('new_user_textfield();');
-			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
+			eval_js('jq("#crm_contacts_select_user").change(new_user_textfield);');
 		}
 		if ($default)
 			eval_js('jQuery("#_login__container").hide();');

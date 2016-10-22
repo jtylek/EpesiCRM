@@ -11,7 +11,6 @@ header("Content-type: text/javascript");
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-
 if(!isset($_POST['url']) || !isset($_SERVER['HTTP_X_CLIENT_ID']))
 	die('alert(\'Invalid request\');');
 

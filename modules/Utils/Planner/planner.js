@@ -80,16 +80,16 @@ function resource_changed(resource,type) {
 			rvalue = $(resource).value;
 		}
 	}
-	new Ajax.Request('modules/Utils/Planner/resource_change.php', {
+	jq.ajax('modules/Utils/Planner/resource_change.php', {
 		method: 'post',
-		parameters:{
+		data:{
 			resource:Object.toJSON(resource),
 			options:Object.toJSON(opts),
 			value:Object.toJSON(rvalue),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			eval(t.responseText);
+		success:function(t) {
+			eval(t);
 		}
 	});
 }
@@ -103,14 +103,14 @@ function update_grid() {
 //		frames[id[0]][id[1]] = true;
 		frames[i] = frames_elems[i].id;
 	}
-	new Ajax.Request('modules/Utils/Planner/grid_change.php', {
+	jq.ajax('modules/Utils/Planner/grid_change.php', {
 		method: 'post',
-		parameters:{
+		data:{
 			frames:Object.toJSON(frames),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			eval(t.responseText);
+		success:function(t) {
+			eval(t);
 		}
 	});
 }

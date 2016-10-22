@@ -86,29 +86,29 @@ class Utils_Planner extends Module {
 			return $el;
 		}
 		if ($type=='checkbox'){
-			eval_js('Event.observe("'.$name.'", "change" , function(){'.'resource_changed("'.$name.'","checkbox");'.'});');
+			eval_js('jq("#'.$name.'").change(function(){'.'resource_changed("'.$name.'","checkbox");'.'});');
 			$el = $this->form->addElement($type, $name, $label, null, array('id'=>$name));
 			return $el;
 		}
 		if ($type=='datepicker'){
-			eval_js('Event.observe("'.$name.'", "change" , function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
-			eval_js('Event.observe("'.$name.'", "native:change" , function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
+			eval_js('jq("#'.$name.'").change(function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
+			eval_js('jq("#'.$name.'").on("native:change" , function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
 			$el = $this->form->addElement($type, $name, $label, array('id'=>$name));
 			return $el;
 		}
 		if ($type=='select'){
-			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
+			eval_js('jq("#'.$name.'").change(function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
 			$el = $this->form->addElement($type, $name, $label, $param1, array('id'=>$name));
 			return $el;
 		}
 		if ($type=='commondata'){
-			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
+			eval_js('jq("#'.$name.'").change(function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, array('id'=>$name));
 			return $el;
 		}
 		if ($type=='autoselect'){
-			$on_change .= '$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;';
-			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'});');
+			$on_change .= 'jq("#'.$name.'").attr("class",jq("#'.$name.'").find(":selected").attr("class"));';
+			eval_js('jq("#'.$name.'").change(function(){'.$on_change.'});');
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, $param3, array('id'=>$name));
 			$el->on_hide_js($on_change);
 			return $el;
@@ -149,7 +149,7 @@ class Utils_Planner extends Module {
 		}
 		load_js('modules/Utils/Planner/planner.js');
 		eval_js('disableSelection($("Utils_Planner__grid"))');
-		eval_js('Event.observe(window,"mouseup",time_grid_mouse_up)');
+		eval_js('jq(window).mouseup(time_grid_mouse_up)');
 		$theme = $this->init_module(Base_Theme::module_name());
 
 		/* HEADERS */

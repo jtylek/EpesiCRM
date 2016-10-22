@@ -106,7 +106,7 @@ var Epesi = {
                 this.forms = {};
                 this.forms_freezed = {};
             }
-				
+
 			if (!Object.keys(this.forms).length) jQuery(window).unbind('beforeunload');
 		},
         freeze: function(f) {
@@ -170,29 +170,27 @@ var Epesi = {
 		Epesi.procOn++;
 		Epesi.updateIndicator();
 		var keep_focus_field = null;
-		new Ajax.Request(Epesi.process_file, {
+		jQuery.ajax(Epesi.process_file, {
 			method: 'post',
-			parameters: {
+			data: {
 				history: history_id,
 				url: url
 			},
-			onComplete: function(t) {
+			complete: function(xhr,t) {
 				Epesi.procOn--;
-				Epesi.append_js('Event.fire(document,\'e:load\');Epesi.updateIndicator();');
+				Epesi.append_js('jQuery(document).trigger(\'e:load\');Epesi.updateIndicator();');
 				if(keep_focus_field!=null) {
                     Epesi.append_js('jQuery("#'+keep_focus_field+':visible").focus();');
                 }
 			},
-			onSuccess: function(t) {
+			success: function(t) {
 				if(typeof document.activeElement != "undefined") keep_focus_field = document.activeElement.getAttribute("id");
-				Event.fire(document,'e:loading');
+				jQuery(document).trigger('e:loading');
 			},
-			onException: function(t,e) {
-				throw(e);
-			},
-			onFailure: function(t) {
-				alert('Failure ('+t.status+')');
-				Epesi.text(t.responseText,'error_box','p');
+			error: function(t,type,error) {
+				//throw(type+": "+e);
+				alert(type+' ('+error+')');
+				Epesi.text(type+": "+error,'error_box','p');
 			}
 		});
 	},
@@ -284,18 +282,10 @@ var Epesi = {
 	}
 };
 _chj=Epesi.href;
-Ajax.Responders.register({
-onCreate: function(x,y) { //hack
-        if (typeof x.options.requestHeaders == 'undefined')
-		x.options.requestHeaders = ['X-Client-ID', Epesi.client_id];
-	else if (typeof x.options.requestHeaders.push == 'function')
-		x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
-	else
-		x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id});	
-},
-onException: function(req, e){
-	alert(e);
-}});
+jQuery(document).ajaxSend(function(ev,xhr,settings){
+	xhr.setRequestHeader('X-Client-ID', Epesi.client_id);
+});
+
 function getTotalTopOffet(e) {
 	var ret=0;
 	while (e!=null) {

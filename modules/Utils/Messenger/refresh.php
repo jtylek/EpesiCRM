@@ -31,7 +31,7 @@ foreach($arr as $row) {
 	$ret = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 	ob_clean();
 
-	print('if(confirm(\''.Epesi::escapeJS(__('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."\n".$ret."\n".($row['message']?__('Alarm comment: %s',array($row['message'])):'')."\n\n".__('Are you sure you want to turn off the alarm?'),false).'\')) new Ajax.Request(\'modules/Utils/Messenger/turnoff.php\',{method:\'get\',parameters:{id:'.$row['id'].'}});');
+	print('if(confirm(\''.Epesi::escapeJS(__('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."\n".$ret."\n".($row['message']?__('Alarm comment: %s',array($row['message'])):'')."\n\n".__('Are you sure you want to turn off the alarm?'),false).'\')) jq.ajax(\'modules/Utils/Messenger/turnoff.php\',{method:\'get\',data:{id:'.$row['id'].'}});');
 }
 
 print('utils_messenger_on=true;');
