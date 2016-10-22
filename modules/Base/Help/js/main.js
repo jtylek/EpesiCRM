@@ -21,7 +21,7 @@ Base_Help = function(){
 	this.init_help = function() {
 		this.check_compatibility();
 		Helper.timed_update();
-		Event.observe(document, "mousemove", Helper.update);
+		jq(document).mousemove(Helper.update);
 	}
 
 	this.check_compatibility = function() {
@@ -64,7 +64,7 @@ Base_Help = function(){
 	this.refresh_step = function() {
 		this.current_step = this.steps[this.step];
 		this.target = this.get_step_target(this.step);
-		if (this.target) Event.observe(this.target, 'click', function(){Helper.prompt_next_step = true;});
+		if (this.target) jq('#'+this.target).click(function(){Helper.prompt_next_step = true;});
 		this.operation = this.current_step.operation;
 		this.screen = jQuery('.Base_Help__screen_name').attr('value');
 	}

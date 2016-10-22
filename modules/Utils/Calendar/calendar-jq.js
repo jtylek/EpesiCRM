@@ -526,4 +526,4 @@ destroy:function() {
 	Utils_Calendar.jq_cache = {};
 }
 };
-document.observe('e:loading', Utils_Calendar.destroy);
+jq(document).on('e:loading', Utils_Calendar.destroy);

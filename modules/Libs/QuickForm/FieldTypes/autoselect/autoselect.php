@@ -69,7 +69,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 
             $myName = $this->getName();
 			$this->updateAttributes(array('id'=>$myName));
-			eval_js('Event.observe("'.$myName.'", "keydown", function(ev){autoselect_start_searching("'.$myName.'", ev.keyCode)});');
+			eval_js('jq("#'.$myName.'").keydown(function(ev){autoselect_start_searching("'.$myName.'", ev.keyCode)});');
             if (!$this->getMultiple()) {
                 $attrString = $this->_getAttrString($this->_attributes);
             } else {

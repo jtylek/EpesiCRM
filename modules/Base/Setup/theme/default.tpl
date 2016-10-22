@@ -84,7 +84,7 @@
 							{if !empty($action.buttons)}
 								<div class="actions" id="hide_actions_{$name}__{$option}" style="display:none;">
 									{foreach from=$action.buttons item=button}
-										<div {$button.href} class="action {$button.style}" onclick="Effect.Fade($('hide_actions_{$name}'), {literal}{duration:0.4}{/literal});">
+										<div {$button.href} class="action {$button.style}" onclick="jq('#hide_actions_{$name}').fadeOut();">
 											{$button.label}
 										</div>
 									{/foreach}

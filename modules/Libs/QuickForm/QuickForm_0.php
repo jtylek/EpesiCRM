@@ -123,13 +123,13 @@ class Libs_QuickForm extends Module {
 		foreach ($form_name as $f) {
             $pre .= 'Epesi.confirmLeave.freeze(\''.addslashes($f).'\');';
             if ($submited) {
-				$pre .= "$('".addslashes($f)."').submited.value=1;";
+				$pre .= "jq('#".addslashes($f)." input[name=submited]').val(1);";
 			}
-			$pre .= "Event.fire(document,'e:submit_form','".$f."');";
-			$pre .= str_replace('this',"$('".addslashes($f)."')",Libs_QuickFormCommon::get_on_submit_actions());
+			$pre .= "jq(document).trigger('e:submit_form',['".$f."']);";
+			$pre .= str_replace('this',"jq('#".addslashes($f)."').get(0)",Libs_QuickFormCommon::get_on_submit_actions());
 			if ($chj) $chj .= "+'&'+";
-			$chj .= "$('".addslashes($f)."').serialize()";
-			if ($submited) $post .= "$('".addslashes($f)."').submited.value=0;";
+			$chj .= "jq('#".addslashes($f)."').serialize()";
+			if ($submited) $post .= "jq('#".addslashes($f)." input[name=submited]').val(0);";
 		}
 		$s = $pre . Module::create_href_js_raw($chj.$fast, $indicator, $queue?'queue':'') . $post;
 		return $s;

@@ -34,11 +34,11 @@ Utils_Attachment__add_file_to_list = function (name, size, id, upload, clipboard
 	var button = '';
 	if (clipboard) {
 		Utils_Attachment__add_clipboard(id);
-		button = '<a href="javascript:void(0);" onclick="this.onclick=null;Utils_Attachment__delete_clipboard(\''+id+'\');Effect.Fade(\'clipboard_file_'+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
+		button = '<a href="javascript:void(0);" onclick="this.onclick=null;Utils_Attachment__delete_clipboard(\''+id+'\');jq(\'#clipboard_file_'+id+'\').fadeOut();"><img src="'+Utils_Attachment__delete_button+'" /></a>';
 		id = 'clipboard_file_'+id;
 	} else {
 		if (upload) {
-			button = '<a href="javascript:void(0);" onclick="this.onclick=null;uploader.removeFile(uploader.getFile(\''+id+'\'));Effect.Fade(\''+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
+			button = '<a href="javascript:void(0);" onclick="this.onclick=null;uploader.removeFile(uploader.getFile(\''+id+'\'));jq(\'#'+id+'\').fadeOut();"><img src="'+Utils_Attachment__delete_button+'" /></a>';
 		} else {
 			button = '<a href="javascript:void(0);" id="delete_existing_'+id+'" onclick="Utils_Attachment__delete_existing('+id+');"><img src="'+Utils_Attachment__delete_button+'" /></a>';
 			button += '<a href="javascript:void(0);" id="restore_existing_'+id+'" onclick="Utils_Attachment__restore_existing('+id+');" style="display:none;"><img src="'+Utils_Attachment__restore_button+'" /></a>';

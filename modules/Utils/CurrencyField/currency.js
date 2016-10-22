@@ -41,7 +41,7 @@ round:function(val,currency) {
 	return all/prec;
 },
 validate: function(ev) {
-	var elem = Event.element(ev);
+	var elem = ev.target;
 	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
 	var val = elem.value;
 	var key = ev.which;
@@ -51,13 +51,13 @@ validate: function(ev) {
 	val = val.substring(0,Scar)+String.fromCharCode(key)+val.substring(Ecar);
 	Utils_CurrencyField.init_re(currency.regex);
 	if(!Utils_CurrencyField.re.test(val))
-		Event.stop(ev);
+		ev.stopPropagation();
 	if(!Utils_CurrencyField.re.test(elem.value)) {
 		elem.value='';
 	}
 },
 validate_blur: function(ev,f) {
-	var elem = Event.element(ev);
+	var elem = ev.target;
 	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
 	Utils_CurrencyField.init_re(currency.regex);
 	if(!Utils_CurrencyField.re.test(elem.value)) {
