@@ -20,8 +20,7 @@
 
 <b>DIY - Do It Yourself manual methods:</b>
 For experienced users and server administrators:
-It requires properly configured HTTP server with PHP and MySQL/PostgreSQL - so called LAMP stack.
-- LAMP Stack https://en.wikipedia.org/wiki/LAMP_(software_bundle)
+It requires properly configured HTTP server with PHP and MySQL or PostgreSQL database server - so called LAMP stack: https://en.wikipedia.org/wiki/LAMP_(software_bundle)
 
 - Download from Sourceforge: http://sourceforge.net/projects/epesi
 - Use Easy Install Script: http://sourceforge.net/projects/epesi/files/easy%20installer/
