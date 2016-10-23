@@ -25,7 +25,7 @@ class ErrorHandler {
 			chdir(dirname(dirname(__FILE__)));
 			Epesi::clean();
 			if(DISPLAY_ERRORS) {
-				Epesi::js("$('debug_content').style.display='block';");
+				Epesi::js("jq('#debug_content').show();");
 				Epesi::text($buffer.'<hr>','error_box','prepend');
 			}
 			Epesi::alert('There was an error in one of epesi modules.'.((DISPLAY_ERRORS)?' Details are displayed at the bottom of the page, please send this information to system administrator.':''));

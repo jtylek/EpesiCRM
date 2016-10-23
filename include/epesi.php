@@ -326,8 +326,8 @@ class Epesi {
 			foreach($to_cleanup as $k) {
 				$mod = ModuleManager::get_instance($k);
 				if($mod === null) {
-					$xx = explode('/',$k);
-					$yy = explode('|',$xx[count($xx)-1]);
+					$xx = explode('__',$k);
+					$yy = explode('--',$xx[count($xx)-1]);
 					$mod = $yy[0];
 					if(is_callable(array($mod.'Common','destroy')))
 						call_user_func(array($mod.'Common','destroy'),$k,isset($_SESSION['client']['__module_vars__'][$k])?$_SESSION['client']['__module_vars__'][$k]:null);

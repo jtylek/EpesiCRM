@@ -25,8 +25,8 @@ var Epesi = {
 	procOn:0,
 	client_id:0,
 	process_file:'process.php',
-	indicator:'epesiStatus',
-	indicator_text:'epesiStatusText',
+	indicator:'#epesiStatus',
+	indicator_text:'#epesiStatusText',
 	confirmLeave: {
 		// object of form ids which require confirmation for leaving the page
         // store changed fields to pass through submit state
@@ -117,12 +117,15 @@ var Epesi = {
         }
 	},
 	updateIndicator: function() {
-		var s = $(Epesi.indicator);
-		if(s) s.style.visibility = Epesi.procOn ? 'visible' : 'hidden';
-		if (!Epesi.procOn) $('main_content').style.display = '';
+		var s = jq(Epesi.indicator);
+		if(s.length) {
+		    if(Epesi.procOn) s.show();
+		    else s.hide();
+		}
+		if (!Epesi.procOn) jq('#main_content').show();
 	},
 	updateIndicatorText: function(text) {
-		$(Epesi.indicator_text).innerHTML = text;
+		jq(Epesi.indicator_text).html(text);
 	},
 	history_on:1,
 	history_add:function(id){
@@ -211,14 +214,14 @@ var Epesi = {
 		jQuery('form[name="' + formName + '"] input[name="submited"]').val(0);
 	},
 	text: function(txt,idt,type) {
-		var t=$(idt);
-		if(!t) return;
+		var t=jq('#'+idt);
+		if(!t.length) return;
 		if(type=='i')//instead
-			t.innerHTML = txt;
+			t.html(txt);
 		else if(type=='p')//prepend
-			t.innerHTML = txt+t.innerHTML;
+			t.prepend(txt);
 		else if(type=='a')//append
-			t.innerHTML += txt;
+			t.append(txt);
 	},
 	//js loader
 	loaded_jss:new Array(),

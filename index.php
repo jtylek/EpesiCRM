@@ -188,7 +188,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 		<div id="body_content">
 			<div class="container-fluid" id="main_content" style="display:none;"></div>
 			<div id="debug_content" style="padding-top:97px;display:none;">
-				<div class="button" onclick="$('error_box').innerHTML='';$('debug_content').style.display='none';">Hide</div>
+				<div class="button" onclick="jq('#error_box').html('');jq('#debug_content').hide();">Hide</div>
 				<div id="debug"></div>
 				<div id="error_box"></div>
 			</div>
