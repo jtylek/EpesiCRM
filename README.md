@@ -26,9 +26,10 @@ It requires properly configured HTTP server with PHP and MySQL or PostgreSQL dat
 - Use Easy Install Script: http://sourceforge.net/projects/epesi/files/easy%20installer/
 - Github: https://github.com/Telaxus/epesi
 
-
-
-
+<b>Reviews</b>
+- Users reviews collected from our support forum: http://epe.si/reviews/
+- Sourceforge: https://sourceforge.net/projects/epesi/reviews/
+- Review from September 19, 2016: "Top 10 Open Source CRM" by http://www.datamation.com/open-source/top-10-open-source-crm.html
 
 <i>Copyright © 2006-2016 Telaxus LLC</i>
 
