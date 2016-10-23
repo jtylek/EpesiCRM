@@ -22,7 +22,7 @@ class Base_BoxCommon extends ModuleCommon {
 		elseif(file_exists($ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini')))
 			return $ini;
 		else
-			$ini = __DIR__.'/default.ini';
+			$ini = 'modules/Base/Box/default.ini';
 
 		return file_exists($ini) ?$ini:null;
 	}
