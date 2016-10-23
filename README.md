@@ -53,6 +53,13 @@ EPESI BIM is a result of many years of experience working with SMB businesses an
 
 Our software can make your organization more efficient, better organized and more competitive. We can help you simplify and automate internal procedures with management of important business information.
 
+- To eliminate e-mail in our workplace we internally use <b>EPESI</b> for all tasks, notes, projects and tickets - making our life more organized. 
+- In addition we use great multiplatform and programmable chat: <b>Telegram https://telegram.org/</b> available here at Github as well: https://github.com/telegramdesktop
+
+Telegram is a messaging app with a focus on speed and security, it’s super-fast, simple and free. You can use Telegram on all your devices at the same time — your messages sync seamlessly across any number of your phones, tablets or computers.
+
+- Epesi is already integrated with Telegram messaging platform te receive notifications from the <b>Watchdog</b> module (free and included with the latest release) as well as with Time tracking and reporting module integrated with Premium module Timesheets  http://epe.si/modules/premium/timesheets/
+
 <i>Copyright © 2006-2016 Telaxus LLC</i>
 
 Enjoy,  
