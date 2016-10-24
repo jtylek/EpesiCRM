@@ -27,10 +27,6 @@
  * PEAR and PEAR_Error classes, for error handling
  */
 require_once 'PEAR.php';
-/**
- * Base class for all HTML classes
- */
-require_once 'HTML/Common.php';
 
 /**
  * Element types known to HTML_QuickForm
@@ -1518,6 +1514,7 @@ class HTML_QuickForm extends HTML_Common
         $registry =& HTML_QuickForm_RuleRegistry::singleton();
 
         foreach ($this->_rules as $target => $rules) {
+            if($this->isElementFrozen($target)) continue;
             $submitValue = $this->getSubmitValue($target);
 
             foreach ($rules as $rule) {
