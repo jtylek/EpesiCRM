@@ -102,7 +102,7 @@ class Utils_PlannerCommon extends ModuleCommon {
 			foreach ($values as $v)
 				if ($v!='') $next .= 'conflicting['.$v.']='.$v.';';
 			$next .='i=0;'.
-					'e=$("'.$elem.'");'.
+					'e=jq("#'.$elem.'").get(0);'.
 					'while(i<e.options.length){'.
 						'o=e.options[i];'.
 						'o.className=conflicting[o.value]?"conflict":"noconflict";'.

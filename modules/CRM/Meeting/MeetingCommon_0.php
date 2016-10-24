@@ -133,34 +133,34 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			$form->addElement('hidden','duration_switch',$duration_switch,array('id'=>'duration_switch'));
 			eval_js_once('crm_calendar_duration_switcher = function(x) {'.
-				'var sw = $(\'duration_switch\');'.
-				'if((!x && sw.value==\'0\') || (x && sw.value==\'1\')) {'.
-				'var end_b=$(\'crm_calendar_event_end_block\');if(end_b)end_b.hide();'.
-				'var dur_b=$(\'crm_calendar_duration_block\');if(dur_b)dur_b.show();'.
-				'sw.value=\'1\';'.
+				'var sw = jq(\'#duration_switch\');'.
+				'if((!x && sw.val()==\'0\') || (x && sw.val()==\'1\')) {'.
+				'var end_b=jq(\'#crm_calendar_event_end_block\');if(end_b.length)end_b.hide();'.
+				'var dur_b=jq(\'#crm_calendar_duration_block\');if(dur_b.length)dur_b.show();'.
+				'sw.val(\'1\');'.
 				'} else {'.
-				'var end_b=$(\'crm_calendar_event_end_block\');if(end_b)end_b.show();'.
-				'var dur_b=$(\'crm_calendar_duration_block\');if(dur_b)dur_b.hide();'.
-				'sw.value=\'0\';'.
+				'var end_b=jq(\'#crm_calendar_event_end_block\');if(end_b.length)end_b.show();'.
+				'var dur_b=jq(\'#crm_calendar_duration_block\');if(dur_b.length)dur_b.hide();'.
+				'sw.val(\'0\');'.
 				'}}');
 			eval_js_once('crm_calendar_event_timeless = function(val) {'.
 					'var cal_style;'.
-					'var tdb=$(\'toggle_duration_button\');'.
-					'if(tdb==null) return;'.
+					'var tdb=jq(\'#toggle_duration_button\');'.
+					'if(!tdb.length) return;'.
 					'if(val){'.
 					'cal_style = \'none\';'.
 					'}else{'.
 					'cal_style = \'\';'.
 					'}'.
-					'var db = $(\'duration_end_date__data_\');'.
-					'if(db) db.style.display = cal_style;'.
-					'var ts = $(\'time_s\');'.
-					'if(ts) ts.style.display = cal_style;'.
+					'var db = jq(\'#duration_end_date__data_\');'.
+					'if(db.length) db.css("display", cal_style);'.
+					'var ts = jq(\'#time_s\');'.
+					'if(ts.length) ts.css("display",cal_style);'.
 				'}');
 			$form->addElement('button', 'toggle', __('Toggle'), array('onclick'=>'crm_calendar_duration_switcher()', 'id'=>'toggle_duration_button', 'class'=>'button'));
 			$form->addElement('checkbox', 'timeless', __('Timeless'), null, array('onClick'=>'crm_calendar_event_timeless(this.checked)', 'id'=>'timeless'));
 
-			eval_js('crm_calendar_event_timeless($("timeless").checked)');
+			eval_js('crm_calendar_event_timeless(jq("#timeless").is(":checked"))');
 			eval_js('crm_calendar_duration_switcher(1)');
 
 			$form->setDefaults(array('duration_switch'=>$duration_switch));
@@ -177,11 +177,11 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 		//messanger
 		if($mode == 'add') {
-			eval_js_once('crm_calendar_event_messenger = function(v) {var mb=$("messenger_block");if(!mb)return;if(v)mb.show();else mb.hide();}');
+			eval_js_once('crm_calendar_event_messenger = function(v) {var mb=jq("#messenger_block");if(!mb.length)return;if(v)mb.show();else mb.hide();}');
 			$form->addElement('select','messenger_before',__('Popup alert'),array(0=>__('on event start'), 900=>__('15 minutes before event'), 1800=>__('30 minutes before event'), 2700=>__('45 minutes before event'), 3600=>__('1 hour before event'), 2*3600=>__('2 hours before event'), 3*3600=>__('3 hours before event'), 4*3600=>__('4 hours before event'), 8*3600=>__('8 hours before event'), 12*3600=>__('12 hours before event'), 24*3600=>__('24 hours before event')));
 			$form->addElement('textarea','messenger_message',__('Popup message'), array('id'=>'messenger_message'));
-			$form->addElement('select','messenger_on',__('Alert'),array('none'=>__('None'),'me'=>__('me'),'all'=>__('all selected employees')),array('onChange'=>'crm_calendar_event_messenger(this.value!="none");$("messenger_message").value=$("title").value;'));
-//			$form->addElement('checkbox','messenger_on',__('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
+			$form->addElement('select','messenger_on',__('Alert'),array('none'=>__('None'),'me'=>__('me'),'all'=>__('all selected employees')),array('onChange'=>'crm_calendar_event_messenger(this.value!="none");jq("#messenger_message").val(jq("#title").val());'));
+//			$form->addElement('checkbox','messenger_on',__('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);jq("#messenger_message").val(jq("#event_title").val());'));
 			eval_js('crm_calendar_event_messenger('.(($form->exportValue('messenger_on')!='none' && $form->exportValue('messenger_on')!='')?1:0).')');
 			$form->registerRule('check_my_user', 'callback', array('CRM_MeetingCommon','check_my_user'));
 			$form->addRule(array('messenger_on','emp_id'), __('You have to select your contact to set alarm on it'), 'check_my_user');
@@ -217,10 +217,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		eval_js('recurrence_type_switch = function(arg){'.
 			'if (arg==0) mode="none";'.
 			'else mode="";'.
-			'$("recurrence_end_date_row").style.display=mode;'.
+			'jq("#recurrence_end_date_row").css("display",mode);'.
 			'if (arg!=8) mode="none";'.
 			'else mode="";'.
-			'$("recurrence_hash_row").style.display=mode;'.
+			'jq("#recurrence_hash_row").css("display",mode);'.
 		'}');
 		$options = array(
 			''=>__('No'),
@@ -237,7 +237,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			11=>__('Every year')
 			);
 		if ($mode=='add' || $mode=='edit') {
-			eval_js('recurrence_type_switch($("recurrence_type").value);');
+			eval_js('recurrence_type_switch(jq("#recurrence_type").val());');
 			$form->addElement('select', $field, __('Recurring Event'), $options, array('id'=>$field, 'onchange'=>'recurrence_type_switch(this.value);'));
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
@@ -250,11 +250,11 @@ class CRM_MeetingCommon extends ModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('datepicker', $field, __('Recurrence End Date'), array('id'=>$field));
 			eval_js('recurrence_end_switch = function(arg){'.
-				'reds = $("recurrence_end");'.
-				'if (arg) reds.disabled="";'.
+				'reds = jq("#recurrence_end");'.
+				'if (arg) reds.attr("disabled","");'.
 				'else {'.
-					'reds.disabled="1";'.
-					'$("recurrence_end").value="";'.
+					'reds.attr("disabled","1");'.
+					'jq("#recurrence_end").val("");'.
 				'}'.
 			'}');
 			$form->addElement('checkbox', 'recurrence_end_checkbox', __('Recurrence end'), null, array('id'=>'recurrence_end_checkbox','onclick'=>'recurrence_end_switch(this.checked);'));

@@ -275,7 +275,7 @@ class Apps_Shoutbox extends Module {
 
 		//if shoutbox is diplayed, call myFunctions->refresh from refresh.php file every 5s
 		eval_js_once('shoutbox_refresh = function(){var board = jq(\'#shoutbox_board\');if(!board.length) return;'.
-			'jq.ajax(\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\', data: { uid: shoutbox_uid },success:function(txt){board.html(txt);});'.
+			'jq.ajax(\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\', data: { uid: shoutbox_uid },success:function(txt){board.html(txt);}});'.
 			'};setInterval(\'shoutbox_refresh()\',10000)');
 		eval_js('shoutbox_refresh()');
 	}

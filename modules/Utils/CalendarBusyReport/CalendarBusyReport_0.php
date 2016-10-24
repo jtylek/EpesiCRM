@@ -547,12 +547,12 @@ class Utils_CalendarBusyReport extends Module {
 					$ii = $today_t_timeless.'_'.$v['time'];
 					$time_ids[$i][] = $ii;
 					$report[$ii] = array();
-//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.$ii.'";'); // *DEBUG*
+//					eval_js('jq("#UCcell_'.$ii.'").html("'.$ii.'");'); // *DEBUG*
 				} else {
 					$ii = $today_t+$v['time'];
 					$time_ids[$i][] = $ii;
 					$report[$ii] = array();
-//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.Base_RegionalSettingsCommon::time2reg($ii).'";'); // *DEBUG*
+//					eval_js('jq("#UCcell_'.$ii.'").html("'.Base_RegionalSettingsCommon::time2reg($ii).'");'); // *DEBUG*
 				}
 				$prev = $v;
 			}

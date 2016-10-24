@@ -122,9 +122,9 @@ class Utils_TabbedBrowser extends Module {
 	public function tab_icon($caption, $icon=false) {
 		$id = $this->get_tab_id($caption).'_icon';
 		if ($icon)
-			eval_js('var img=$("'.$id.'");img.src="'.$icon.'";img.style.display="";');
+			eval_js('var img=jq("#'.$id.'");img.attr("src","'.$icon.'");img.show();');
 		else
-			eval_js('var img=$("'.$id.'");img.style.display="none";');
+			eval_js('var img=jq("#'.$id.'");img.hide();');
 	}
 	
 	public function get_tab_id($caption) {
