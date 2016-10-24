@@ -26,6 +26,7 @@ $application->add(new \Epesi\Console\Modules\DisableModuleCommand());
 $application->add(new \Epesi\Console\Modules\EnableModuleCommand());
 $application->add(new \Epesi\Console\Modules\InstallModuleCommand());
 $application->add(new \Epesi\Console\Modules\UninstallModuleCommand());
+$application->add(new \Epesi\Console\Modules\EnableAllModuleCommand());
 $application->add(new \Epesi\Console\CacheRebuildCommand());
 $application->add(new \Epesi\Console\ThemeRebuildCommand());
 $application->add(new \Epesi\Console\Maintenance\MaintenanceStatusCommand());
