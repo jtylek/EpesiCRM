@@ -1,6 +1,5 @@
 <?php
 
-require_once 'HTML/QuickForm/select.php';
 require_once('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php');
 load_js('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.js');
 

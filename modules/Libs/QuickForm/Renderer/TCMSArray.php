@@ -27,8 +27,6 @@
 //
 // $Id: Array.php,v 1.9 2004/10/15 20:00:48 ths Exp $
 
-require_once 'HTML/QuickForm/Renderer.php';
-
 /**
  * A concrete renderer for HTML_QuickForm, makes an array of form contents
  *

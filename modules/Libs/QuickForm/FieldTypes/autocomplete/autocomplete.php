@@ -1,7 +1,5 @@
 <?php
 
-require_once 'HTML/QuickForm/text.php';
-
 /**
  * HTML class for an autocomplete field
  * 

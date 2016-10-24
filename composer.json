@@ -7,7 +7,8 @@
         "phpdocumentor/reflection-docblock": "^2.0.4",
         "fzaninotto/faker": "^1.6",
         "phpFastCache/phpFastCache": "^5.0",
-        "ifsnop/mysqldump-php": "dev-master"
+        "ifsnop/mysqldump-php": "dev-master",
+        "pear/html_common": "dev-trunk"
     },
     "scripts": {
         "post-install-cmd": [
@@ -21,7 +22,8 @@
         },
         "psr-0": {
             "": "modules/"
-        }
+        },
+        "classmap": ["libs/quickform"]
     },
     "require-dev": {
         "codeception/codeception": "*"

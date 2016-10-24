@@ -9,7 +9,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-require_once('modules/Libs/QuickForm/requires.php');
 require_once('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php');
 require_once('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php');
 
