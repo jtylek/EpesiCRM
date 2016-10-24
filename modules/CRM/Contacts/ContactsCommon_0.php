@@ -1384,33 +1384,6 @@ JS;
         return $ret;
     }
 
-    //////////////////////////
-    // mobile devices
-    public static function mobile_menu() {
-        if(!Acl::is_user())
-            return array();
-        return array(__('Contacts')=>array('func'=>'mobile_contacts','color'=>'red'),__('Companies')=>array('func'=>'mobile_companies','color'=>'black'));
-    }
-
-    public static function mobile_contacts() {
-        $sort = array('last_name'=>'ASC', 'first_name'=>'ASC');
-        $info = array('company_name'=>0,'work_phone'=>1,'mobile_phone'=>1);
-        $defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
-                        'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
-                        'permission'=>'0',
-                        'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
-                        'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'));
-        Utils_RecordBrowserCommon::mobile_rb('contact',array(),$sort,$info,$defaults);
-    }
-
-    public static function mobile_companies() {
-        $info = array('phone'=>1);
-        $sort = array('company_name'=>'ASC');
-        $defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
-                        'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
-                        'permission'=>'0');
-        Utils_RecordBrowserCommon::mobile_rb('company',array(),$sort,$info,$defaults);
-    }
 }
 
 Utils_RecordBrowser_Crits::register_special_value_callback(array('CRM_ContactsCommon', 'crits_special_values'));

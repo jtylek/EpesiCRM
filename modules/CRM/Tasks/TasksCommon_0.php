@@ -305,21 +305,6 @@ class CRM_TasksCommon extends ModuleCommon {
 		return $date."\n".__('Title: %s',array($a['title']));
 	}
 
-	///////////////////////////////////
-	// mobile devices
-
-	public static function mobile_menu() {
-		if(!Utils_RecordBrowserCommon::get_access('task','browse'))
-			return array();
-		return array(__('Tasks')=>array('func'=>'mobile_tasks','color'=>'blue'));
-	}
-	
-	public static function mobile_tasks() {
-		$me = CRM_ContactsCommon::get_my_record();
-		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=> CRM_CommonCommon::get_default_priority());
-		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id']),'status'=>array(0,1)),array('deadline'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('priority'=>1, 'deadline'=>1,'longterm'=>1),$defaults);
-	}
-
 	public static function crm_calendar_handler($action) {
 		$args = func_get_args();
 		array_shift($args);

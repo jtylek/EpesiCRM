@@ -98,38 +98,6 @@ class CRM_CalendarCommon extends ModuleCommon {
 	    return null;
 	}
 	
-	//////////////////////////////////////////////
-	/// mobile methods
-	
-	public static function mobile_menu() {
-		if(Acl::is_user())
-			return array(__('Calendar')=>array('func'=>'mobile_agenda','color'=>'green'));
-	}
-	
-	public static function mobile_agenda($time_shift=0) {
-		print('<center>'.Base_RegionalSettingsCommon::time2reg(time()+$time_shift,false,true).' - '.Base_RegionalSettingsCommon::time2reg(time()+7*24*3600+$time_shift,false,true).'</center>');
-	
-		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
-		if($time_shift)
-			print('<a '.(IPHONE?'class="button red" ':'').mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(0)).'>'.__('Show current week').'</a>');
-		else
-			print('<a '.(IPHONE?'class="button green" ':'').mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(7 * 24 * 60 * 60)).'>'.__('Show next week').'</a>');
-		Utils_CalendarCommon::mobile_agenda(CRM_Calendar_Event::module_name(),array('custom_agenda_cols'=>array(__('Description'),__('Assigned to'),__('Related with'))),$time_shift,array('CRM_CalendarCommon','mobile_view_event'));
-	}
-	
-	public static function mobile_view_event($id) {
-		$row = CRM_Calendar_EventCommon::get($id);
-		$ex = Utils_CalendarCommon::process_event($row);
-		
-		print('<ul class="field">');
-		print('<li>'.__('Title').': '.$row['title'].'</li>');
-		print('<li>'.__('Starts').': '.$ex['start'].'</li>');
-		print('<li>'.__('Duration').': '.$ex['duration'].'</li>');
-		print('<li>'.__('Ends').': '.$ex['end'].'</li>');
-		print('<li>'.__('Description').': '.$row['description'].'</li>');
-		print('</ul>');
-	}
-	
 	public static function new_event_handler($name, $callback) {
 		if (DB::GetOne('SELECT group_name FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array($name))) return;
 		DB::Execute('INSERT INTO crm_calendar_custom_events_handlers(group_name, handler_callback) VALUES (%s, %s)', array($name, implode('::',$callback)));

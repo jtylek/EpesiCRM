@@ -905,20 +905,6 @@ class CRM_MeetingCommon extends ModuleCommon {
         return array('label' => __('Meetings'), 'section' => __('Features Configuration'));
     }
 
-	///////////////////////////////////
-	// mobile devices
-
-	public static function mobile_menu() {
-		if(!Utils_RecordBrowserCommon::get_access('crm_meeting','browse'))
-			return array();
-		return array(__('Meetings')=>array('func'=>'mobile_meetings','color'=>'blue'));
-	}
-	
-	public static function mobile_meetings() {
-		$me = CRM_ContactsCommon::get_my_record();
-		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>CRM_CommonCommon::get_default_priority());
-		Utils_RecordBrowserCommon::mobile_rb('crm_meeting',array('employees'=>array($me['id'])),array('date'=>'ASC', 'time'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('date'=>1,'time'=>1,'priority'=>1,'longterm'=>1),$defaults);
-	}
 }
 
 ?>

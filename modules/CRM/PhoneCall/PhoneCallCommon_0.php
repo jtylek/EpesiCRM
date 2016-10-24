@@ -362,20 +362,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return $ret.__('Subject: %s',array($a['subject']));
 	}
 
-	//////////////////////////
-	// mobile devices
-	public static function mobile_menu() {
-		if(!Utils_RecordBrowserCommon::get_access('phonecall','browse'))
-			return array();
-		return array(__('Phonecalls')=>array('func'=>'mobile_phone_calls','color'=>'blue'));
-	}
-
-	public static function mobile_phone_calls() {
-		$me = CRM_ContactsCommon::get_my_record();
-		$defaults = array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>CRM_CommonCommon::get_default_priority());
-		Utils_RecordBrowserCommon::mobile_rb('phonecall',array('employees'=>array($me['id'])),array('status'=>'ASC', 'date_and_time'=>'ASC', 'subject'=>'ASC'),array(),$defaults);
-	}
-
 	public static function crm_calendar_handler($action) {
 		$args = func_get_args();
 		array_shift($args);
