@@ -22,62 +22,62 @@ function disableSelection(target){
 
 var switch_direction = '';
 function time_grid_mouse_down(from_time,day,switchd) {
-	elem = $(day+'__'+from_time);
-	if (!elem) {
+	elem = jq('#'+day+'__'+from_time);
+	if (!elem.length) {
 //		alert(day+'__'+from_time+': element not found');
 		return;
 	}
-	if (has_class(elem,'unused'))
+	if (elem.hasClass('unused'))
 		switch_direction = 'used';
 	else 
 		switch_direction = 'unused';
 	if (switchd) switch_direction = switchd;
-	if (has_class(elem,'noconflict'))
-		elem.className = 'border_radius_3px noconflict '+switch_direction;
+	if (elem.hasClass('noconflict'))
+		elem.attr('class','border_radius_3px noconflict '+switch_direction);
 	else
-		elem.className = 'conflict '+switch_direction;
+		elem.attr('class','conflict '+switch_direction);
 }
 
 function time_grid_mouse_move(from_time,day) {
 	if (switch_direction=='') return;
-	elem = $(day+'__'+from_time);
-	if (has_class(elem,'noconflict'))
-		elem.className = 'border_radius_3px noconflict '+switch_direction;
+	elem = jq('#'+day+'__'+from_time);
+	if (elem.hasClass('noconflict'))
+		elem.attr('class', 'border_radius_3px noconflict '+switch_direction);
 	else
-		elem.className = 'border_radius_3px conflict '+switch_direction;
+		elem.attr('class','border_radius_3px conflict '+switch_direction);
 }
 
 function time_grid_change_conflicts(from_time,day,conflict) {
-	elem = $(day+'__'+from_time);
-	if (!elem) return;
+	elem = jq('#'+day+'__'+from_time);
+	if (!elem.length) return;
 	if (conflict)
 		switch_conflict = 'conflict';
 	else 
 		switch_conflict = 'noconflict';
-	if (has_class(elem,'unused'))
-		elem.className = 'unused '+switch_conflict;
+	if (elem.hasClass('unused'))
+		elem.attr('class', 'unused '+switch_conflict);
 	else
-		elem.className = 'used '+switch_conflict;
+		elem.attr('class', 'used '+switch_conflict);
 }
 
 function resource_changed(resource,type) {
 	if (!type) {
-		opts = new Array();
+		var opts = new Array();
 		i=0;
-		while (i!=$(resource).options.length){
-			opts[i] = $(resource).options[i].value;
+		jq(resource).find('option').each(function() {
+			opts[i] = jq(this).val();
 			i++;
-		}
-		rvalue = $(resource).value;
+		});
+		rvalue = jq(resource).val();
 	} else {
 		if (type=='checkbox') {
 			opts = 0;
-			if ($(resource).checked) rvalue = 1;
+			if (jq(resource).is(':checked')) rvalue = 1;
 			else rvalue = 0;
 		}
 		if (type=='datepicker') {
 			opts = 0;
-			rvalue = $(resource).value;
+			rvalue = jq(resource).val();
 		}
 	}
 	jq.ajax('modules/Utils/Planner/resource_change.php', {

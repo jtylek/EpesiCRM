@@ -10,7 +10,7 @@ ChainedSelect.prototype = {
 	default_val:null,
 	loads:0,
 	initialize:function(dest_id,prev_ids,params,def_val) {
-		var dest = $(dest_id);
+		var dest = jq('#'+dest_id).get(0);
 		if(dest==null)return;
 		this.prev_ids = prev_ids;
 		this.dest_id = dest_id;
@@ -42,10 +42,11 @@ ChainedSelect.prototype = {
 		this.loads++;
 		if(this.loads==2) {
 			var prev_obj = this.prev_ids[this.prev_ids.length-1];
-			if($(prev_obj)!=null) {
-				jq('#'+prev_obj).off('change',this.request_f);
-				jq('#'+prev_obj).off('e_cs:load',this.request_f);
-				jq('#'+prev_obj).off('e_cs:clear',this.clear_f);
+			var prev = jq('#'+prev_obj);
+			if(prev.length) {
+				prev.off('change',this.request_f);
+				prev.off('e_cs:load',this.request_f);
+				prev.off('e_cs:clear',this.clear_f);
 			}
 			if(this.prev_ids.length==1)
 				jq(document).off('e:load',this.load_def_f);
@@ -59,9 +60,9 @@ ChainedSelect.prototype = {
 			this.default_val = null;
 		}
 		for(x in this.prev_ids) {
-			var p = $(this.prev_ids[x]);
-			if(p==null) return;
-			vals.set(this.prev_ids[x],p.value);
+			var p = jq(this.prev_ids[x]);
+			if(!p.length) return;
+			vals.set(this.prev_ids[x],p.val());
 		}
 		var dest_id = this.dest_id;
 		jq('modules/Utils/ChainedSelect/req.php', {

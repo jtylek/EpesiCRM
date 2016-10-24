@@ -39,7 +39,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	}
 	
 	public static function crm_new_event($timestamp, $timeless, $id, $object, $cal_obj) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>$me['id'], 'priority'=>CRM_CommonCommon::get_default_priority(), 'permission'=>0, 'status'=>0);
@@ -372,7 +372,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$values['status'] = 0;
 
 			if ($action != 'none') {		
-				$x = ModuleManager::get_instance('/Base_Box|0');
+				$x = Base_BoxCommon::root();
 				$values['follow_up'] = array('meeting',$record['id'],$record['title']);
 				if ($action == 'new_meeting') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $values), array('crm_meeting'));
 				if ($action == 'new_task') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'follow_up'=>$values['follow_up'])), array('task'));

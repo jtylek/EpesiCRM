@@ -422,7 +422,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if($rb_obj->record['crypted']) {
             if(!(isset($rb_obj->record['id']) && isset($_SESSION['client']['cp'.$rb_obj->record['id']])) && !(isset($rb_obj->record['clone_id']) && isset($_SESSION['client']['cp'.$rb_obj->record['clone_id']]))) {
                 /*Epesi::alert(__('Note encrypted.'));
-                $x = ModuleManager::get_instance('/Base_Box|0');
+                $x = Base_BoxCommon::root();
                 if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
                 return $x->pop_main();*/
                 $form->addElement('static', $field, $label);

@@ -20,7 +20,7 @@ class CRM_FaxCommon extends ModuleCommon {
 		$tmp = self::Instance()->get_data_dir().$oryg;
 		copy($f,$tmp);
 		
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main('CRM_Fax','send',$tmp);
 	}

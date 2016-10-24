@@ -8,7 +8,7 @@ jQuery.noConflict();
 
 function focus_by_id(idd) {
 	xx = document.getElementById(idd);
-	if(xx) setTimeout('xx.focus();',200);
+	if(xx) setTimeout(function(){jq(xx).focus();},200);
 };
 
 function addslashes(x){return x.replace(/('|"|\\)/g,"\\$1")}

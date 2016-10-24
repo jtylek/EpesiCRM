@@ -42,7 +42,7 @@ class Base_User_Settings extends Module {
         $this->get_module_variable('admin_settings',($admin_settings));
 
         if (!$branch) {
-            $x = ModuleManager::get_instance('/Base_Box|0');
+            $x = Base_BoxCommon::root();
             if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
             $mains = $x->get_module_variable('main');
             if(count($mains)>1)

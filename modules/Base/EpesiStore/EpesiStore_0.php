@@ -432,7 +432,7 @@ class Base_EpesiStore extends Module {
             $str .= '<input type="hidden" name="' . $key . '" value="' . $value . '"/>';
         }
         print($str);
-        eval_js('$("' . $hash_or_url . '").submit();');
+        eval_js('jq("#' . $hash_or_url . '").submit();');
     }
 
     public function process_downloading() {
@@ -752,7 +752,7 @@ class Base_EpesiStore extends Module {
     }
 
     public function navigate($func, $params = array()) {
-        $x = ModuleManager::get_instance('/Base_Box|0');
+        $x = Base_BoxCommon::root();
         if (!$x)
             trigger_error('There is no base box module instance', E_USER_ERROR);
         $x->push_main($this->get_type(), $func, $params);
@@ -760,7 +760,7 @@ class Base_EpesiStore extends Module {
     }
 
     public function pop_main($i = 1) {
-        $x = ModuleManager::get_instance('/Base_Box|0');
+        $x = Base_BoxCommon::root();
         if (!$x)
             trigger_error('There is no base box module instance', E_USER_ERROR);
         $x->pop_main($i);

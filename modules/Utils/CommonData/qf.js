@@ -94,14 +94,14 @@ Utils_CommonData_freeze.prototype = {
 		for(var i=1; i<this.path.length; i++) {
 			var val = eval('obj.form.'+this.path[i]).value;
 			if(val=='') {
-				$(this.id+'_label').innerHTML = '---';
+				jq('#'.this.id+'_label').html('---');
 				setTimeout(function(){jq(this.obj).trigger('e_u_cd:load')},1);
 				return;
 			}
 			curr_root += '/' + val;
 		}
 		if(this.obj.value=='') {
-			$(this.id+'_label').innerHTML = '---';
+			jq('#'+this.id+'_label').html('---');
 			setTimeout(function(){jq(this.obj).trigger('e_u_cd:load')},1);
 			return;
 		}
@@ -118,7 +118,7 @@ Utils_CommonData_freeze.prototype = {
 	on_request: function(t) {
 		if (!t) return;
 		var val = t.evalJSON();
-		$(this.id+'_label').innerHTML = val;
+		jq('#'+this.id+'_label').html(val);
 		setTimeout(function(){jq(this.obj).trigger('e_u_cd:load')},1);
 	}
 };

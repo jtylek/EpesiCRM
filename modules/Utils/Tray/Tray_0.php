@@ -201,7 +201,7 @@ class Utils_Tray extends Module {
 	public function set_filters($rb, $display_tray_select = true, $filter_defaults = array()) {
 		if(!Base_AclCommon::check_permission('Dashboard')) return;
 		if($this->is_back()) {
-			$x = ModuleManager::get_instance('/Base_Box|0');
+			$x = Base_BoxCommon::root();
 			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 			return $x->push_main('Utils_Tray');
 		}
@@ -302,7 +302,7 @@ class Utils_Tray extends Module {
 	}
 
 	public function push_settings($s) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main('Base_User_Settings',null,array(_V($s)));
 	}

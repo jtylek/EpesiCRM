@@ -364,7 +364,7 @@ class Utils_RecordBrowser extends Module {
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function navigate($func){
-        $x = ModuleManager::get_instance('/Base_Box|0');
+        $x = Base_BoxCommon::root();
         if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
         $args = func_get_args();
         array_shift($args);
@@ -2783,7 +2783,7 @@ class Utils_RecordBrowser extends Module {
             if (!$r || empty($r)) $message = __('There is no such record').'<br>';
             else if (!$r[':active']) $message = __('This record was deleted from the system').'<br>';
             else {
-                $x = ModuleManager::get_instance('/Base_Box|0');
+                $x = Base_BoxCommon::root();
                 if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
                 $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('view', $id),array($this->tab));
                 return;

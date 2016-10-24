@@ -108,7 +108,7 @@ class Base_Search extends Module {
 
 /*
 	public static function search_menu(){
-		return '<form action="javascript:load_page(\'href=Base_Search&qs_keyword=\'+$(\'qs_keyword\').value);" method=POST><input type=text name=qs_keyword /><input type=submit value=Search /></form>';
+		return '<form action="javascript:load_page(\'href=Base_Search&qs_keyword=\'+jq(\'#qs_keyword\').val());" method=POST><input type=text name=qs_keyword /><input type=submit value=Search /></form>';
 	}
 	*/
 	public function mini() {

@@ -37,7 +37,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 
 	public static function get_mailto_link($v) {
         if(isset($_REQUEST['rc_mailto'])) {
-            $x = ModuleManager::get_instance('/Base_Box|0');
+            $x = Base_BoxCommon::root();
             $x->push_main('CRM_Roundcube','new_mail',array($_REQUEST['rc_mailto']));
             unset($_REQUEST['rc_mailto']);
         }
@@ -59,7 +59,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 	public static function mail_file($f,$d,$file_id) {
 		$t = time()+3600*24*7;
 		$url = Utils_AttachmentCommon::create_remote($file_id, 'mail', $t);
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		$x->push_main('CRM_Roundcube','new_mail',array('',__('File attachment, expires on: %s',array(Base_RegionalSettingsCommon::time2reg($t))),"<br /><br />".$url));
 	}
 

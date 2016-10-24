@@ -1,33 +1,33 @@
 var uploader;
 
 Utils_Attachment__restore_existing = function (id) {
-	$('restore_existing_'+id).style.display="none";
-	$('delete_existing_'+id).style.display="";
-	$('existing_file_'+id).className = 'file';
-	var files = $('delete_files').value.split(';');
+	jq('#restore_existing_'+id).hide();
+	jq('#delete_existing_'+id).show();
+	jq('#existing_file_'+id).attr('class','file');
+	var files = jq('#delete_files').val().split(';');
 	for (var i in files) {
 		if (files[i]==id) files.splice(i,1);
 	}
-	$('delete_files').value = files.join(';');
+	jq('#delete_files').val(files.join(';'));
 }
 
 Utils_Attachment__delete_existing = function (id) {
-	$('restore_existing_'+id).style.display="";
-	$('delete_existing_'+id).style.display="none";
-	$('existing_file_'+id).className = 'file deleted';
-	$('delete_files').value = $('delete_files').value + ';' + id; 
+	jq('#restore_existing_'+id).show();
+	jq('#delete_existing_'+id).hide();
+	jq('#existing_file_'+id).attr('class','file deleted');
+	jq('#delete_files').val(jq('#delete_files').val() + ';' + id); 
 }
 
 Utils_Attachment__delete_clipboard = function (id) {
-	var files = $('clipboard_files').value.split(';');
+	var files = jq('#clipboard_files').val().split(';');
 	for (var i in files) {
 		if (files[i]==id) files.splice(i,1);
 	}
-	$('clipboard_files').value = files.join(';');
+	jq('#clipboard_files').val(files.join(';'));
 }
 
 Utils_Attachment__add_clipboard = function (id) {
-	$('clipboard_files').value = $('clipboard_files').value + ';' + id; 
+	jq('#clipboard_files').val(jq('#clipboard_files').val() + ';' + id); 
 }
 
 Utils_Attachment__add_file_to_list = function (name, size, id, upload, clipboard) {
@@ -45,7 +45,7 @@ Utils_Attachment__add_file_to_list = function (name, size, id, upload, clipboard
 			id = 'existing_file_'+id;
 		}
 	}
-	$('filelist').innerHTML += '<div class="file" id="' + id + '"><div class="indicator">'+button+'</div><div class="filename">' + name + (size!=null?' (' + plupload.formatSize(size) + ')':'')+'</div></div>';
+	jq('#filelist').append('<div class="file" id="' + id + '"><div class="indicator">'+button+'</div><div class="filename">' + name + (size!=null?' (' + plupload.formatSize(size) + ')':'')+'</div></div>');
 }
 
 Utils_Attachment__init_uploader = function (max_fs) {
@@ -72,7 +72,7 @@ Utils_Attachment__init_uploader = function (max_fs) {
 	});
 
 	uploader.bind('UploadProgress', function(up, file) {
-		$(file.id).getElementsByTagName('div')[0].innerHTML = '<b>' + file.percent + "%</b>";
+		jq('#'+file.id).find('div').first().html('<b>' + file.percent + "%</b>");
 	});
 	uploader.bind('UploadComplete', function(up,files){
 	        up.files.length = 0;

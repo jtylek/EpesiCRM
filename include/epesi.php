@@ -434,7 +434,7 @@ class Epesi {
 		}
 		if(!isset($_SESSION['client']['custom_debug']) || $debug!=$_SESSION['client']['custom_debug']) {
 			self::text($debug,'debug');
-			if ($debug) Epesi::js("$('debug_content').style.display='block';");
+			if ($debug) Epesi::js("jq('#debug_content').show();");
 			$_SESSION['client']['custom_debug'] = $debug;
 		}
 

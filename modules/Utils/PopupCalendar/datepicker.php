@@ -42,7 +42,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
                     '{method:\'post\', data:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
                     'success:function(t){e=$(\''.Epesi::escapeJS($id,false).'\');if(e) {e.value=t;jq(e).change();}}})',
                     null,null,
-                    'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$value, $id);
+                    'jq(popup).clonePosition(\'#'.$id.'\',{cloneWidth:false,cloneHeight:false,offsetTop:jq(\'#'.$id.'\').height()})',$value, $id);
             $str .= $this->_getTabs() . '<input ' . $js . ' ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(__('Example date: %s',array($ex_date)), false ).' />';
 			eval_js('jq(\'#'.$id.'\').keypress(function(ev){Utils_PopupCalendarDatePicker.validate(ev,\''.Epesi::escapeJS($date_format,false).'\')})');
 			eval_js('jq(\'#'.$id.'\').blur(function(ev){Utils_PopupCalendarDatePicker.validate_blur(ev,\''.Epesi::escapeJS($date_format,false).'\')})');

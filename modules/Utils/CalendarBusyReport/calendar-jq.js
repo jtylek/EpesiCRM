@@ -17,9 +17,9 @@ activate_dclick:function(new_ev) {
 		jq(this).dblclick(function(e){eval(f)});
 		jq(this).bind('touchend',function(e){
 		    var now = new Date().getTime();
-		    var lastTouch = $(this).readAttribute('lastTouch') || 0;
+		    var lastTouch = jq(this).attr('lastTouch') || 0;
 		    var delta = now-lastTouch;
-		    $(this).writeAttribute('lastTouch',now);
+		    jq(this).attr('lastTouch',now);
 		    if(delta<500)
     		    eval(f);
 		});

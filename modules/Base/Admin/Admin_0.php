@@ -148,7 +148,7 @@ class Base_Admin extends Module {
 			$enable_default = Base_AdminCommon::get_access($name, '', true);
 			$form->addElement('checkbox', $enable_field, $enable_default===null?__('Access blocked'):__('Allow access'), null, array('onchange'=>'admin_switch_button("'.$button_id.'",this.checked, "'.$sections_id.'");', 'id'=>$enable_field, 'style'=>$enable_default===null?'display:none;':''));
 			$form->setDefaults(array($enable_field=>$enable_default));
-			eval_js('admin_switch_button("'.$button_id.'",$("'.$enable_field.'").checked, "'.$sections_id.'", 1);');
+			eval_js('admin_switch_button("'.$button_id.'",jq("#'.$enable_field.'").is(":checked"), "'.$sections_id.'", 1);');
 			
 			if (class_exists($name.'Common') && is_callable(array($name.'Common', 'admin_access_levels'))) {
 				$raws = call_user_func(array($name.'Common', 'admin_access_levels'));

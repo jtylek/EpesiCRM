@@ -55,7 +55,7 @@ class Utils_CalendarBusyReportCommon extends Base_AdminModuleCommon {
 
 		$link_text = Module::create_href_js(array('UCev_id'=>$ev['id'], 'UCaction'=>'move','UCdate'=>'__YEAR__-__MONTH__-__DAY__'));
 		if(!isset($ev['move_action']) || $ev['move_action']===true)
-			$th->assign('move_href', Utils_PopupCalendarCommon::create_href('move_event'.str_replace(array('#','-'),'_',$ev['id']), $link_text,null,null,'popup.clonePosition(\'utils_calendar_event:'.$ev['id'].'\',{setWidth:false,setHeight:false,offsetTop:$(\'utils_calendar_event:'.$ev['id'].'\').getHeight()})'));
+			$th->assign('move_href', Utils_PopupCalendarCommon::create_href('move_event'.str_replace(array('#','-'),'_',$ev['id']), $link_text,null,null,'jq(popup).clonePosition(\'#utils_calendar_event:'.$ev['id'].'\',{cloneWidth:false,cloneHeight:false,offsetTop:jq(\'#utils_calendar_event:'.$ev['id'].'\').height()})'));
 
 		if(!isset($ev['delete_action']) || $ev['delete_action']===true)
 			$th->assign('delete_href', Module::create_confirm_href(__('Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));

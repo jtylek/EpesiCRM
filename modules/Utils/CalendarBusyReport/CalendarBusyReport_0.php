@@ -650,7 +650,7 @@ class Utils_CalendarBusyReport extends Module {
 	}
 
 	public function push_event_action($action,$arg=null) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main($this->event_module,$action,$arg);
 	}

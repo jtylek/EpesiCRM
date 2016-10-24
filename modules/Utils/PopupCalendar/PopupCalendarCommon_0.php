@@ -58,8 +58,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$cal_out.
 			'</div>');
 
-		if(!isset($pos_js)) $pos_js = 'popup.clonePosition(\''.$butt.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$butt.'\').getHeight()});';
-		eval_js('if(Epesi.ie)$(\''.$entry.'\').style.position="fixed";else $(\''.$entry.'\').absolutize();');
+		if(!isset($pos_js)) $pos_js = 'jq(popup).clonePosition(\'#'.$butt.'\',{cloneWidth:false,cloneHeight:false,offsetTop:jq(\'#'.$butt.'\').height()});';
+		eval_js('if(jq.browser.msie)jq(\'#'.$entry.'\').css("position","fixed");else jq(\'#'.$entry.'\').absolutize();');
 
 		$ret = 'onClick="var popup=$(\''.$entry.'\');'.$pos_js.';$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
 		$function .= ';$(\''.$entry.'\').hide()';
