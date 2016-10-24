@@ -27,10 +27,6 @@
  * PEAR and PEAR_Error classes, for error handling
  */
 require_once 'PEAR.php';
-/**
- * Base class for all HTML classes
- */
-require_once 'HTML/Common.php';
 
 /**
  * Element types known to HTML_QuickForm
