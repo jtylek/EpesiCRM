@@ -354,6 +354,30 @@ class HTML_QuickForm_element extends HTML_Common
         }
     } //end func _findValue
 
+    /**
+     * Tries to remove the element value from the values array
+     *
+     * @since     2.7
+     * @access    private
+     * @return    mixed
+     */
+    function _removeValue(&$values)
+    {
+        if (empty($values)) {
+            return null;
+        }
+        $elementName = $this->getName();
+        if (isset($values[$elementName])) {
+            unset($values[$elementName]);
+        } elseif (strpos($elementName, '[')) {
+            $myVar = "['" . str_replace(
+                    array('\\', '\'', ']', '['), array('\\\\', '\\\'', '', "']['"),
+                    $elementName
+                ) . "']";
+            eval("if(isset(\$values$myVar)) unset(\$values$myVar);");
+        }
+    } //end func _findValue
+
     // }}}
     // {{{ onQuickFormEvent()
 
@@ -383,7 +407,10 @@ class HTML_QuickForm_element extends HTML_Common
                 // default values are overriden by submitted
                 $value = $this->_findValue($caller->_constantValues);
                 if (null === $value) {
-                    $value = $this->_findValue($caller->_submitValues);
+                    if($this->_flagFrozen)
+                        $this->_removeValue($caller->_submitValues);
+                    else
+                        $value = $this->_findValue($caller->_submitValues);
                     if (null === $value) {
                         $value = $this->_findValue($caller->_defaultValues);
                     }
