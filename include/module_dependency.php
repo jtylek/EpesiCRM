@@ -4,7 +4,7 @@
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @version 0.1
  * @copyright Copyright &copy; 2012, Telaxus LLC
- * @license SPL
+ * @license MIT
  * @package epesi-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
