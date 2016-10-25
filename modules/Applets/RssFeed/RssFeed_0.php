@@ -29,13 +29,14 @@ class Applets_RssFeed extends Module {
 		//interval execution
 		eval_js_once('var rssfeedcache = Array();'.
 			'rssfeedfunc = function(name,fee,num,cache){'.
-			'if(!$(\'rssfeed_\'+name)) return;'.
+			''var rss = jq(\'#rssfeed_\'+name);'.
+			'if(!rss.length) return;'.
 			'if(cache && typeof rssfeedcache[name] != \'undefined\')'.
-				'$(\'rssfeed_\'+name).innerHTML = rssfeedcache[name];'.
+				'rss.html(rssfeedcache[name]);'.
 			'else '.
 				'jq.ajax(\'modules/Applets/RssFeed/refresh.php\',{'.
 					'method:\'post\','.
-					'success:function(r){rssfeedcache[name]=r;jq(\'#rssfeed_\'+name).html(r);},'.
+					'success:function(r){rssfeedcache[name]=r;rss.html(r);},'.
 					'data:{feed:fee, number:num, cid: Epesi.client_id}});'.
 			'}');
 		eval_js_once('setInterval(\'rssfeedfunc(\\\''.$name.'\\\',\\\''.Epesi::escapeJS($values['rssfeed'],false).'\\\' ,'.$values['rssnumber'].' , 0)\',1799993)'); //29 minutes and 53 seconds
