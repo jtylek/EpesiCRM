@@ -356,8 +356,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	
     	//in case RB records select
     	$select_tab = $reference[0];
-    	$cols = isset($reference[1])? array_map(array('Utils_RecordBrowserCommon', 'get_field_id'), array_filter(explode('|', $reference[1]))): null;
-    	
+        $cols = isset($reference[1]) ? array_filter(explode('|', $reference[1])) : null;
+
     	//in case __COMMON__
     	$array_id = isset($reference[1])? $reference[1]: null;
     	$order = isset($reference[2])? $reference[2]: 'value';
