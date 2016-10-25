@@ -788,7 +788,6 @@ class Utils_RecordBrowser extends Module {
 
 
                     $attrs = 'onmouseover="if(typeof(mouse_over_grid)!=\'undefined\')mouse_over_grid(\''.$argsid.'\',\''.$row['id'].'\');" onmouseout="if(typeof(mouse_out_grid)!=\'undefined\')mouse_out_grid(\''.$argsid.'\',\''.$row['id'].'\');"';
-//                  $attrs = 'onmouseover="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'inline\'" onmouseout="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'none\'"';
                 } else {
                     $table = '';
                     $ed_icon = '';
@@ -1236,7 +1235,7 @@ class Utils_RecordBrowser extends Module {
                 $translated_label = _V($label);
                 $tb->set_tab($translated_label, array($this, 'view_entry_details'), array($last_page, $pos + 1, $data, null, false, $cols, _V($label)), $js); // TRSL
 				if ($hide_page) {
-					eval_js('$("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
+					eval_js('jq("#'.$tb->get_tab_id(_V($label)).'").hide();');
 					if ($default_tab === $tab_counter) $default_tab = $tab_counter + 1;
 				} else
 					$additional_tabs++;
@@ -1462,7 +1461,7 @@ class Utils_RecordBrowser extends Module {
             }
             // is set then hide empty fields that are not checkboxes
 			if ($mode == 'view' && $args['type'] != 'checkbox' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $args['id'])) {
-				eval_js('var e=$("_'.$args['id'].'__data");if(e)e.up("tr").style.display="none";');
+				eval_js('var e=jq("#_'.$args['id'].'__data");if(e.length)e.closest("tr").hide();');
 			}
             // translate label and put it into span with id
             $label = '<span id="_'.$args['id'].'__label">'._V($args['name']).'</span>'; // TRSL
@@ -2657,7 +2656,7 @@ class Utils_RecordBrowser extends Module {
 
     public function enable_quick_new_records($button = true, $force_show = null) {
         $this->add_in_table = true;
-		$href = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if(focus_on_field)if($(focus_on_field))focus_by_id(focus_on_field);"';
+		$href = 'href="javascript:void(0);" onclick="jq(\'#add_in_table_row\').css("display",(jq(\'#add_in_table_row\').css("display")==\'none\'?\'\':\'none\'));if(focus_on_field)if(jq(focus_on_field))focus_by_id(focus_on_field);"';
         if ($button) $this->add_button = $href;
         if ($force_show===null) $this->show_add_in_table = Base_User_SettingsCommon::get('Utils_RecordBrowser','add_in_table_shown');
         else $this->show_add_in_table = $force_show;

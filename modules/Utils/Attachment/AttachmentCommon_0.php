@@ -508,7 +508,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $form->setDefaults(array('crypted'=>array('crypted'=>$default,'note_password'=>'*@#old@#*','note_password2'=>'*@#old@#*', 'note_password_hint'=>$hint)));
             }
             $crypted = $form->exportValue($field);
-            if(!$crypted) eval_js('jq("#note_password").attr("disabled",1);jq("#note_password2").attr("disabled",1);jq("#note_password_hint").attr("disabled",1);');
+            if(!$crypted) eval_js('jq("#note_password").prop("disabled",true);jq("#note_password2").prop("disabled",true);jq("#note_password_hint").prop("disabled",true);');
 
             $form->addFormRule(array('Utils_AttachmentCommon','crypted_rules'));
         }

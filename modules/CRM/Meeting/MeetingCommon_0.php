@@ -251,9 +251,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$form->addElement('datepicker', $field, __('Recurrence End Date'), array('id'=>$field));
 			eval_js('recurrence_end_switch = function(arg){'.
 				'reds = jq("#recurrence_end");'.
-				'if (arg) reds.attr("disabled","");'.
+				'if (arg) reds.prop("disabled",false);'.
 				'else {'.
-					'reds.attr("disabled","1");'.
+					'reds.prop("disabled",true);'.
 					'jq("#recurrence_end").val("");'.
 				'}'.
 			'}');

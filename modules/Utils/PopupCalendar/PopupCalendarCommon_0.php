@@ -61,8 +61,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		if(!isset($pos_js)) $pos_js = 'jq(popup).clonePosition(\'#'.$butt.'\',{cloneWidth:false,cloneHeight:false,offsetTop:jq(\'#'.$butt.'\').height()});';
 		eval_js('if(jq.browser.msie)jq(\'#'.$entry.'\').css("position","fixed");else jq(\'#'.$entry.'\').absolutize();');
 
-		$ret = 'onClick="var popup=$(\''.$entry.'\');'.$pos_js.';$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
-		$function .= ';$(\''.$entry.'\').hide()';
+		$ret = 'onClick="var popup=jq(\'#'.$entry.'\');'.$pos_js.';jq(\'#'.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
+		$function .= ';jq(\'#'.$entry.'\').hide()';
 
 		if ($default) {
 			if (!is_numeric($default)) $default = strtotime($default);
@@ -76,7 +76,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		$js .= ');'.
 			'datepicker_'.$name.'.show('.$args.')';
 		eval_js($js);
-//		eval_js('$(\''.$entry.'\').absolutize();');
+//		eval_js('jq(\'#'.$entry.'\').absolutize();');
 		return $ret;
 	}
 

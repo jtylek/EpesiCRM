@@ -689,7 +689,7 @@ class Utils_Calendar extends Module {
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
-//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.$ii.'";'); // *DEBUG*
+//					eval_js('jq("#UCcell_'.$ii.'").html("'.$ii.'");'); // *DEBUG*
 				} else {
 					$ii = $today_t+$v['time'];
 					$dnd[] = $ii;
@@ -697,7 +697,7 @@ class Utils_Calendar extends Module {
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
-//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.Base_RegionalSettingsCommon::time2reg($ii).'";'); // *DEBUG*
+//					eval_js('jq("#UCcell_'.$ii.'").html("'.Base_RegionalSettingsCommon::time2reg($ii).'");'); // *DEBUG*
 				}
 				$prev = $v;
 			}

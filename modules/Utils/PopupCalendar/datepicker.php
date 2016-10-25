@@ -40,7 +40,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
             $js = Utils_PopupCalendarCommon::create_href(md5($id),
                     'new jq.ajax(\'modules/Utils/PopupCalendar/up.php\','.
                     '{method:\'post\', data:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
-                    'success:function(t){e=$(\''.Epesi::escapeJS($id,false).'\');if(e) {e.value=t;jq(e).change();}}})',
+                    'success:function(t){e=jq(\'#'.Epesi::escapeJS($id,false).'\');if(e.length) {e.val(t);e.change();}}})',
                     null,null,
                     'jq(popup).clonePosition(\'#'.$id.'\',{cloneWidth:false,cloneHeight:false,offsetTop:jq(\'#'.$id.'\').height()})',$value, $id);
             $str .= $this->_getTabs() . '<input ' . $js . ' ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(__('Example date: %s',array($ex_date)), false ).' />';
