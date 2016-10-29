@@ -26,16 +26,12 @@ class HTML_QuickForm_header extends HTML_QuickForm_static
         $this->_type = 'header';
     }
 
-   /**
-    * Accepts a renderer
-    *
-    * @param HTML_QuickForm_Renderer    renderer object
-    * @param bool $sc1                  unused, for signature compatibility
-    * @param bool $sc2                  unused, for signature compatibility
-    * @access public
-    * @return void 
-    */
-    function accept(&$renderer, $sc1 = false, $sc2 = null)
+    /**
+     * Accepts a renderer
+     *
+     * @param HTML_QuickForm_Renderer    renderer object
+     */
+    public function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null)
     {
         $renderer->renderHeader($this);
     }

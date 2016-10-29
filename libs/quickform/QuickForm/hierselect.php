@@ -411,7 +411,7 @@ JAVASCRIPT;
                $renderer->toHtml();
     }
 
-    public function accept(&$renderer, $required = false, $error = null)
+    public function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null)
     {
         $renderer->renderElement($this, $required, $error);
     }

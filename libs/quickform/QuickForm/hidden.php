@@ -38,15 +38,15 @@ class HTML_QuickForm_hidden extends HTML_QuickForm_input
     {
         return false;
     }
-   /**
-    * Accepts a renderer
-    *
-    * @param HTML_QuickForm_Renderer    renderer object
-    * @param bool $sc1                  unused, for signature compatibility
-    * @param bool $sc2                  unused, for signature compatibility
-    * @access public
-    * @return void 
-    */
+    /**
+     * Accepts a renderer
+     *
+     * @param HTML_QuickForm_Renderer    renderer object
+     * @param bool $sc1                  unused, for signature compatibility
+     * @param bool $sc2                  unused, for signature compatibility
+     * @access public
+     * @return void
+     */
     function accept(&$renderer, $sc1 = false, $sc2 = null)
     {
         $renderer->renderHidden($this);
