@@ -12,29 +12,26 @@
  * @package     HTML_QuickForm
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  */
-class HTML_QuickForm_Rule
+abstract class HTML_QuickForm_Rule
 {
-   /**
-    * Name of the rule to use in validate method
-    *
-    * This property is used in more global rules like Callback and Regex
-    * to determine which callback and which regex is to be used for validation
-    *
-    * @var  string
-    * @access   public
-    */
-    var $name;
+    /**
+     * Name of the rule to use in validate method
+     *
+     * This property is used in more global rules like Callback and Regex
+     * to determine which callback and which regex is to be used for validation
+     *
+     * @var  string
+     */
+    public $name;
 
-   /**
-    * Validates a value
-    * 
-    * @access public
-    * @abstract
-    */
-    function validate($value)
-    {
-        return true;
-    }
+    /**
+     * Validates a value
+     *
+     * @param     string    $value      Value to be checked
+     * @param     mixed     $options    Int for length, array for range
+     * @return    boolean   true if value is valid
+     */
+    abstract public function validate($value, $options = null);
 
     /**
      * Sets the rule name

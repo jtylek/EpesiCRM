@@ -15,37 +15,28 @@
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
  */
-class HTML_QuickForm_Renderer
+abstract class HTML_QuickForm_Renderer
 {
    /**
     * Called when visiting a form, before processing any form elements
     *
     * @param    HTML_QuickForm  a form being visited
     */
-    function startForm(&$form)
-    {
-        return;
-    }
+    abstract public function startForm(&$form);
 
    /**
     * Called when visiting a form, after processing all form elements
     *
     * @param    HTML_QuickForm  a form being visited
     */
-    function finishForm(&$form)
-    {
-        return;
-    }
+    abstract public function finishForm(&$form);
 
    /**
     * Called when visiting a header element
     *
     * @param    HTML_QuickForm_header   a header element being visited
     */
-    function renderHeader(&$header)
-    {
-        return;
-    }
+    abstract public function renderHeader(&$header);
 
    /**
     * Called when visiting an element
@@ -54,22 +45,14 @@ class HTML_QuickForm_Renderer
     * @param    bool                    Whether an element is required
     * @param    string                  An error message associated with an element
     */
-    function renderElement(&$element, $required, $error)
-    {
-        return;
-    }
+    abstract public function renderElement(&$element, $required, $error);
 
    /**
     * Called when visiting a hidden element
     *
     * @param    HTML_QuickForm_element  a hidden element being visited
-    * @param    bool                    Whether an element is required
-    * @param    string                  An error message associated with an element
     */
-    function renderHidden(&$element)
-    {
-        return;
-    }
+    abstract public function renderHidden(&$element);
 
    /**
     * Called when visiting a raw HTML/text pseudo-element
@@ -79,10 +62,7 @@ class HTML_QuickForm_Renderer
     *
     * @param    HTML_QuickForm_html     a 'raw html' element being visited
     */
-    function renderHtml(&$data)
-    {
-        return;
-    }
+    abstract public function renderHtml(&$data);
 
    /**
     * Called when visiting a group, before processing any group elements
@@ -91,10 +71,7 @@ class HTML_QuickForm_Renderer
     * @param    bool                    Whether a group is required
     * @param    string                  An error message associated with a group
     */
-    function startGroup(&$group, $required, $error)
-    {
-        return;
-    }
+    abstract public function startGroup(&$group, $required, $error);
 
    /**
     * Called when visiting a group, after processing all group elements
@@ -102,9 +79,6 @@ class HTML_QuickForm_Renderer
     * @param    HTML_QuickForm_group    A group being visited
     * @return   void
     */
-    function finishGroup(&$group)
-    {
-        return;
-    }
+    abstract public function finishGroup(&$group);
 }
 ?>

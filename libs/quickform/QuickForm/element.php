@@ -16,7 +16,7 @@
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @author      Alexey Borzov <avb@php.net>
  */
-class HTML_QuickForm_element extends HTML_Common
+abstract class HTML_QuickForm_element extends HTML_Common
 {
     /**
      * Label of the field
