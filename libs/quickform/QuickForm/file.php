@@ -117,7 +117,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
                 if ($caller->getAttribute('method') == 'get') {
                     throw new HTML_QuickForm_Error('Cannot add a file upload field to a GET method form');
                 }
-                $this->_value = $this->_findValue();
+                $this->_value = $this->_findValue($_FILES);
                 $caller->updateAttributes(array('enctype' => 'multipart/form-data'));
                 $caller->setMaxFileSize();
                 break;
@@ -241,28 +241,28 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     */
     protected function _findValue(&$values)
     {
-        if (empty($_FILES)) {
+        if (empty($values)) {
             return null;
         }
         $elementName = $this->getName();
-        if (isset($_FILES[$elementName])) {
-            return $_FILES[$elementName];
+        if (isset($values[$elementName])) {
+            return $values[$elementName];
         } elseif (false !== ($pos = strpos($elementName, '['))) {
             $base  = str_replace(
                         array('\\', '\''), array('\\\\', '\\\''),
                         substr($elementName, 0, $pos)
-                    ); 
+                    );
             $idx   = "['" . str_replace(
                         array('\\', '\'', ']', '['), array('\\\\', '\\\'', '', "']['"),
                         substr($elementName, $pos + 1, -1)
                      ) . "']";
             $props = array('name', 'type', 'size', 'tmp_name', 'error');
-            $code  = "if (!isset(\$_FILES['{$base}']['name']{$idx})) {\n" .
+            $code  = "if (!isset(\$values['{$base}']['name']{$idx})) {\n" .
                      "    return null;\n" .
                      "} else {\n" .
                      "    \$value = array();\n";
             foreach ($props as $prop) {
-                $code .= "    \$value['{$prop}'] = \$_FILES['{$base}']['{$prop}']{$idx};\n";
+                $code .= "    \$value['{$prop}'] = \$values['{$base}']['{$prop}']{$idx};\n";
             }
             return eval($code . "    return \$value;\n}\n");
         } else {
