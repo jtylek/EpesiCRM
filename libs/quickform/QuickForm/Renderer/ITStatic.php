@@ -7,11 +7,6 @@
  */
 
 /**
- * An abstract base class for QuickForm renderers
- */
-require_once 'HTML/QuickForm/Renderer.php';
-
-/**
  * A static renderer for HTML_QuickForm compatible
  * with HTML_Template_IT and HTML_Template_Sigma.
  *

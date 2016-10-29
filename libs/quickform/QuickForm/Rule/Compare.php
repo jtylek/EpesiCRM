@@ -7,11 +7,6 @@
  */
 
 /**
- * Abstract base class for QuickForm validation rules 
- */
-require_once 'HTML/QuickForm/Rule.php';
-
-/**
  * Rule to compare two form fields
  *
  * The most common usage for this is to ensure that the password

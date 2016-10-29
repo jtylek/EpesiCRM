@@ -9,11 +9,6 @@
  */
 
 /**
- * An abstract base class for QuickForm renderers
- */
-require_once 'HTML/QuickForm/Renderer.php';
-
-/**
  * A concrete renderer for HTML_QuickForm, based on QuickForm 2.x built-in one
  *
  * @package     HTML_QuickForm

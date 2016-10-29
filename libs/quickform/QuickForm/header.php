@@ -7,11 +7,6 @@
  */
 
 /**
- * HTML class for static data
- */ 
-require_once 'HTML/QuickForm/static.php';
-
-/**
  * A pseudo-element used for adding headers to form
  *
  * @package     HTML_QuickForm

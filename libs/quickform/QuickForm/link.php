@@ -8,11 +8,6 @@
  */
 
 /**
- * HTML class for static data
- */ 
-require_once 'HTML/QuickForm/static.php';
-
-/**
  * HTML class for a link type field
  *
  * @package     HTML_QuickForm

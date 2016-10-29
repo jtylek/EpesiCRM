@@ -7,11 +7,6 @@
  */
 
 /**
- * Base class for form elements
- */ 
-require_once 'HTML/QuickForm/element.php';
-
-/**
  * HTML class for static data
  *
  * @package     HTML_QuickForm
