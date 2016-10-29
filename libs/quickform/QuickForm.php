@@ -474,7 +474,7 @@ class HTML_QuickForm extends HTML_Common
     public function &createElement($elementType)
     {
         $args    =  func_get_args();
-        $element =& HTML_QuickForm::_loadElement('createElement', $elementType, array_slice($args, 1));
+        $element =& $this->_loadElement('createElement', $elementType, array_slice($args, 1));
         return $element;
     }
 
@@ -1121,7 +1121,7 @@ class HTML_QuickForm extends HTML_Common
                     if (!isset($a[$k])) {
                         $a[$k] = array();
                     }
-                    $a[$k] = HTML_QuickForm::arrayMerge($a[$k], $v);
+                    $a[$k] = self::arrayMerge($a[$k], $v);
                 }
             } else {
                 $a[$k] = $v;
@@ -1260,7 +1260,7 @@ class HTML_QuickForm extends HTML_Common
      */
     public function validate()
     {
-        if (count($this->_rules) == 0 && count($this->_formRules) == 0 && 
+        if (count($this->_rules) == 0 && count($this->_formRules) == 0 &&
             $this->isSubmitted()) {
             return (0 == count($this->_errors));
         } elseif (!$this->isSubmitted()) {

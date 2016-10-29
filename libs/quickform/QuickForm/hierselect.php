@@ -421,7 +421,7 @@ JAVASCRIPT;
         if ('updateValue' == $event) {
             // we need to call setValue() so that the secondary option
             // matches the main option
-            return HTML_QuickForm_element::onQuickFormEvent($event, $arg, $caller);
+            return parent::onQuickFormEvent($event, $arg, $caller);
         } else {
             $ret = parent::onQuickFormEvent($event, $arg, $caller);
             // add onreset handler to form to properly reset hierselect (see bug #2970)

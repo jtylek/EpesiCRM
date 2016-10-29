@@ -190,7 +190,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
             (UPLOAD_ERR_FORM_SIZE == $elementValue['error'] || UPLOAD_ERR_INI_SIZE == $elementValue['error'])) {
             return false;
         }
-        if (!HTML_QuickForm_file::_ruleIsUploadedFile($elementValue)) {
+        if (!$this->_ruleIsUploadedFile($elementValue)) {
             return true;
         }
         return ($maxSize >= @filesize($elementValue['tmp_name']));
@@ -206,7 +206,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      */
     function _ruleCheckMimeType($elementValue, $mimeType)
     {
-        if (!HTML_QuickForm_file::_ruleIsUploadedFile($elementValue)) {
+        if (!$this->_ruleIsUploadedFile($elementValue)) {
             return true;
         }
         if (is_array($mimeType)) {
@@ -225,7 +225,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      */
     function _ruleCheckFileName($elementValue, $regex)
     {
-        if (!HTML_QuickForm_file::_ruleIsUploadedFile($elementValue)) {
+        if (!$this->_ruleIsUploadedFile($elementValue)) {
             return true;
         }
         return (bool)preg_match($regex, $elementValue['name']);
