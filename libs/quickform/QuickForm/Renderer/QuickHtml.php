@@ -84,12 +84,12 @@ class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default
         if (is_null($elementKey)) {
             $msg = is_null($elementValue) ? "Element $elementName does not exist." :
                 "Element $elementName with value of $elementValue does not exist.";
-            return PEAR::raiseError(null, QUICKFORM_UNREGISTERED_ELEMENT, null, E_USER_WARNING, $msg, 'HTML_QuickForm_Error', true);
+            throw new HTML_QuickForm_Error($msg, QUICKFORM_UNREGISTERED_ELEMENT);
         } else {
             if ($this->renderedElements[$elementKey]['rendered']) {
-                $msg = is_null($elementValue) ? "Element $elementName has already been rendered." : 
+                $msg = is_null($elementValue) ? "Element $elementName has already been rendered." :
                     "Element $elementName with value of $elementValue has already been rendered.";
-                return PEAR::raiseError(null, QUICKFORM_ERROR, null, E_USER_WARNING, $msg, 'HTML_QuickForm_Error', true);
+                throw new HTML_QuickForm_Error($msg, QUICKFORM_ERROR);
             } else {
                 $this->renderedElements[$elementKey]['rendered'] = true;
                 return $this->renderedElements[$elementKey]['html'];

@@ -224,9 +224,6 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
      */
     public function loadArray(array $arr, $values=null)
     {
-        if (!is_array($arr)) {
-            return PEAR::raiseError('Argument 1 of HTML_Select::loadArray is not a valid array');
-        }
         if (isset($values)) {
             $this->setSelected($values);
         }
@@ -242,16 +239,13 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
      *
      * If no column names are specified the first two columns of the result are
      * used as the text and value columns respectively
-     * @param     object    $result     DB_result object 
+     * @param     DB_result    $result     DB_result object
      * @param     string    $textCol    (optional) Name of column to display as the OPTION text
      * @param     string    $valueCol   (optional) Name of column to use as the OPTION value
      * @param     mixed     $values     (optional) Array or comma delimited string of selected values
      */
-    public function loadDbResult(&$result, $textCol=null, $valueCol=null, $values=null)
+    public function loadDbResult(DB_result &$result, $textCol=null, $valueCol=null, $values=null)
     {
-        if (!is_object($result) || !is_a($result, 'db_result')) {
-            return PEAR::raiseError('Argument 1 of HTML_Select::loadDbResult is not a valid DB_result');
-        }
         if (isset($values)) {
             $this->setValue($values);
         }
@@ -274,7 +268,7 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
      * @param     string    $textCol    (optional) Name of column to display as the OPTION text
      * @param     string    $valueCol   (optional) Name of column to use as the OPTION value
      * @param     mixed     $values     (optional) Array or comma delimited string of selected values
-     * @throws    PEAR_Error
+     * @throws    HTML_QuickForm_Error
      */
     public function loadQuery(&$conn, $sql, $textCol=null, $valueCol=null, $values=null)
     {
@@ -287,7 +281,7 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
         } elseif (is_subclass_of($conn, "db_common")) {
             $dbConn = &$conn;
         } else {
-            return PEAR::raiseError('Argument 1 of HTML_Select::loadQuery is not a valid type');
+            throw new HTML_QuickForm_Error('Argument 1 is not a valid type');
         }
         $result = $dbConn->query($sql);
         if (DB::isError($result)) {
@@ -316,7 +310,7 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
      * @param     mixed     $param3     (optional) See function detail
      * @param     mixed     $param4     (optional) See function detail
      * @return    PEAR_Error on error or true
-     * @throws    PEAR_Error
+     * @throws    HTML_QuickForm_Error
      */
     public function load(&$options, $param1=null, $param2=null, $param3=null, $param4=null)
     {
