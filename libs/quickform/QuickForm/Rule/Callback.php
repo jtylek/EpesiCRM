@@ -1,24 +1,9 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * Validates values using callback functions or methods
- * 
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -29,11 +14,8 @@ require_once 'HTML/QuickForm/Rule.php';
 /**
  * Validates values using callback functions or methods
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Bertrand Mansion <bmansion@mamasam.com>
- * @version     Release: @package_version@
- * @since       3.2
  */
 class HTML_QuickForm_Rule_Callback extends HTML_QuickForm_Rule
 {
@@ -51,11 +33,11 @@ class HTML_QuickForm_Rule_Callback extends HTML_QuickForm_Rule
 
    /**
     * Whether to use BC mode for specific rules
-    * 
+    *
     * Previous versions of QF passed element's name as a first parameter
     * to validation functions, but not to validation methods. This behaviour
     * is emulated if you are using 'function' as rule type when registering.
-    * 
+    *
     * @var array
     * @access private
     */
@@ -66,7 +48,6 @@ class HTML_QuickForm_Rule_Callback extends HTML_QuickForm_Rule
      *
      * @param     string    $value      Value to be checked
      * @param     mixed     $options    Options for callback
-     * @access    public
      * @return    boolean   true if value is valid
      */
     function validate($value, $options = null)
@@ -85,7 +66,7 @@ class HTML_QuickForm_Rule_Callback extends HTML_QuickForm_Rule
         } else {
             return true;
         }
-    } // end func validate
+    }
 
     /**
      * Adds new callbacks to the callbacks list
@@ -93,8 +74,7 @@ class HTML_QuickForm_Rule_Callback extends HTML_QuickForm_Rule
      * @param     string    $name       Name of rule
      * @param     string    $callback   Name of function or method
      * @param     string    $class      Name of class containing the method
-     * @param     bool      $BCMode     Backwards compatibility mode 
-     * @access    public
+     * @param     bool      $BCMode     Backwards compatibility mode
      */
     function addData($name, $callback, $class = null, $BCMode = false)
     {
@@ -104,7 +84,7 @@ class HTML_QuickForm_Rule_Callback extends HTML_QuickForm_Rule
             $this->_data[$name] = array($callback);
         }
         $this->_BCMode[$name] = $BCMode;
-    } // end func addData
+    }
 
 
     function getValidationScript($options = null)
@@ -118,7 +98,7 @@ class HTML_QuickForm_Rule_Callback extends HTML_QuickForm_Rule
             $params   = '{jsVar}';
         }
         return array('', "{jsVar} != '' && !{$callback}({$params})");
-    } // end func getValidationScript
+    }
 
-} // end class HTML_QuickForm_Rule_Callback
+}
 ?>

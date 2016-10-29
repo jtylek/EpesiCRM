@@ -1,24 +1,9 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * Class for a group of elements used to input dates (and times).
- *
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -36,16 +21,11 @@ require_once 'HTML/QuickForm/select.php';
  * Inspired by original 'date' element but reimplemented as a subclass
  * of HTML_QuickForm_group
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
- * @version     Release: @package_version@
- * @since       3.1
  */
 class HTML_QuickForm_date extends HTML_QuickForm_group
 {
-    // {{{ properties
-
    /**
     * Various options to control the element's display.
     *
@@ -284,7 +264,6 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
     * - 'emptyOptionText': The text displayed for the empty option.
     * - 'optionIncrement': Step to increase the option values by (works for 'i' and 's')
     *
-    * @access   public
     * @param    string  Element's name
     * @param    mixed   Label(s) for an element
     * @param    array   Options to control the element's display
@@ -423,7 +402,7 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
                             $options = array($this->_options['emptyOptionValue'] => $this->_options['emptyOptionText']) + $options;
                         }
                     }
-                    $this->_elements[] =new HTML_QuickForm_select($sign, null, $options, $this->getAttributes());
+                    $this->_elements[] = new HTML_QuickForm_select($sign, null, $options, $this->getAttributes());
                 }
             }
         }

@@ -1,24 +1,9 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * QuickForm renderer for Flexy template engine, static version.
- * 
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Ron McClain <ron@humaniq.com>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -28,15 +13,15 @@ require_once 'HTML/QuickForm/Renderer/Object.php';
 
 /**
  * QuickForm renderer for Flexy template engine, static version.
- * 
+ *
  * A static renderer for HTML_Quickform.  Makes a QuickFormFlexyObject
  * from the form content suitable for use with a Flexy template
  *
  * Usage:
  * <code>
-` * $form =new HTML_QuickForm('form', 'POST');
- * $template =new HTML_Template_Flexy();
- * $renderer =new HTML_QuickForm_Renderer_ObjectFlexy(&$template);
+ * $form = new HTML_QuickForm('form', 'POST');
+ * $template = new HTML_Template_Flexy();
+ * $renderer = new HTML_QuickForm_Renderer_ObjectFlexy(&$template);
  * $renderer->setHtmlTemplate("html.html");
  * $renderer->setLabelTemplate("label.html");
  * $form->accept($renderer);
@@ -47,11 +32,8 @@ require_once 'HTML/QuickForm/Renderer/Object.php';
  *
  * Based on the code for HTML_QuickForm_Renderer_ArraySmarty
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Ron McClain <ron@humaniq.com>
- * @version     Release: @package_version@
- * @since       3.1.1
  */
 class HTML_QuickForm_Renderer_ObjectFlexy extends HTML_QuickForm_Renderer_Object
 {
@@ -102,14 +84,13 @@ class HTML_QuickForm_Renderer_ObjectFlexy extends HTML_QuickForm_Renderer_Object
      * Constructor
      *
      * @param HTML_Template_Flexy   template object to use
-     * @public
      */
     function HTML_QuickForm_Renderer_ObjectFlexy(&$flexy)
     {
         $this->HTML_QuickForm_Renderer_Object(true);
         $this->_obj = new QuickformFlexyForm();
         $this->_flexy =& $flexy;
-    } // end constructor
+    }
 
     function renderHeader(&$header)
     {
@@ -119,13 +100,13 @@ class HTML_QuickForm_Renderer_ObjectFlexy extends HTML_QuickForm_Renderer_Object
             $this->_obj->header[$this->_sectionCount] = $header->toHtml();
         }
         $this->_currentSection = $this->_sectionCount++;
-    } // end func renderHeader
+    }
 
     function startGroup(&$group, $required, $error)
     {
         parent::startGroup($group, $required, $error);
         $this->_groupElementIdx = 1;
-    } //end func startGroup
+    }
 
     /**
      * Creates an object representing an element containing
@@ -159,7 +140,7 @@ class HTML_QuickForm_Renderer_ObjectFlexy extends HTML_QuickForm_Renderer_Object
                 $keys = '->{\'' . str_replace(array('\\', '\''), array('\\\\', '\\\''), $ret->name) . '\'}';
             } else {
                 $keys = '->{\'' . str_replace(
-                            array('\\', '\'', '[', ']'), array('\\\\', '\\\'', '\'}->{\'', ''), 
+                            array('\\', '\'', '[', ']'), array('\\\\', '\\\'', '\'}->{\'', ''),
                             $ret->name
                         ) . '\'}';
             }
@@ -190,14 +171,13 @@ class HTML_QuickForm_Renderer_ObjectFlexy extends HTML_QuickForm_Renderer_Object
     }
 
     /**
-     * Stores an object representation of an element in the 
+     * Stores an object representation of an element in the
      * QuickformFormObject instance
      *
      * @access private
      * @param QuickformElement  Object representation of an element
-     * @return void
      */
-    function _storeObject($elObj) 
+    function _storeObject($elObj)
     {
         if ($elObj) {
             $keys = $elObj->keys;
@@ -223,14 +203,12 @@ class HTML_QuickForm_Renderer_ObjectFlexy extends HTML_QuickForm_Renderer_Object
      * {html:h}
      * </pre>
      *
-     * @access public
      * @param string   Filename of template
-     * @return void
      */
     function setHtmlTemplate($template)
     {
         $this->_html = $template;
-    } 
+    }
 
     /**
      * Set the filename of the template to render form labels
@@ -245,11 +223,9 @@ class HTML_QuickForm_Renderer_ObjectFlexy extends HTML_QuickForm_Renderer_Object
      * {label:h}
      * </pre>
      *
-     * @access public
      * @param string   Filename of template
-     * @return void
      */
-    function setLabelTemplate($template) 
+    public function setLabelTemplate($template)
     {
         $this->_label = $template;
     }
@@ -265,12 +241,11 @@ class HTML_QuickForm_Renderer_ObjectFlexy extends HTML_QuickForm_Renderer_Object
         $this->_flexy->compile($this->_html);
         $ret->html = $this->_flexy->bufferedOutputObject($ret);
     }
-} // end class HTML_QuickForm_Renderer_ObjectFlexy
+}
 
 /**
  * Adds nothing to QuickformForm, left for backwards compatibility
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @ignore
  */
@@ -281,7 +256,6 @@ class QuickformFlexyForm extends QuickformForm
 /**
  * Adds nothing to QuickformElement, left for backwards compatibility
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @ignore
  */

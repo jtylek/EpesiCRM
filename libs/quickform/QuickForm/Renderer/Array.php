@@ -1,18 +1,5 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * A concrete renderer for HTML_QuickForm, makes an array of form contents
- * 
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
  * @author      Adam Daniel <adaniel1@eesus.jnj.com>
@@ -20,8 +7,6 @@
  * @author      Thomas Schulz <ths@4bconsult.de>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -103,14 +88,11 @@ require_once 'HTML/QuickForm/Renderer.php';
  * );
  * </pre>
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
  * @author      Adam Daniel <adaniel1@eesus.jnj.com>
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @author      Thomas Schulz <ths@4bconsult.de>
- * @version     Release: @package_version@
- * @since       3.0
  */
 class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
 {
@@ -173,8 +155,7 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
         $this->HTML_QuickForm_Renderer();
         $this->_collectHidden = $collectHidden;
         $this->_staticLabels  = $staticLabels;
-    } // end constructor
-
+    }
 
    /**
     * Returns the resultant array
@@ -203,7 +184,7 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
         $this->_elementIdx     = 1;
         $this->_currentSection = null;
         $this->_sectionCount   = 0;
-    } // end func startForm
+    }
 
 
     function renderHeader(&$header)
@@ -213,7 +194,7 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
             'name'   => $header->getName()
         );
         $this->_currentSection = $this->_sectionCount++;
-    } // end func renderHeader
+    }
 
 
     function renderElement(&$element, $required, $error)
@@ -223,7 +204,7 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
             $this->_ary['errors'][$elAry['name']] = $error;
         }
         $this->_storeArray($elAry);
-    } // end func renderElement
+    }
 
 
     function renderHidden(&$element)
@@ -233,7 +214,7 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
         } else {
             $this->renderElement($element, false, null);
         }
-    } // end func renderHidden
+    }
 
 
     function startGroup(&$group, $required, $error)
@@ -242,7 +223,7 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
         if (!empty($error)) {
             $this->_ary['errors'][$this->_currentGroup['name']] = $error;
         }
-    } // end func startGroup
+    }
 
 
     function finishGroup(&$group)
@@ -319,14 +300,11 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
         }
     }
 
-
    /**
     * Sets a style to use for element rendering
     *
     * @param mixed      element name or array ('element name' => 'style name')
     * @param string     style name if $elementName is not an array
-    * @access public
-    * @return void
     */
     function setElementStyle($elementName, $styleName = null)
     {
