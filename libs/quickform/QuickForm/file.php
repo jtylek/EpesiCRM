@@ -23,11 +23,6 @@
  * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
-/**
- * Base class for <input /> form elements
- */
-require_once 'HTML/QuickForm/input.php';
-
 // register file-related rules
 if (class_exists('HTML_QuickForm')) {
     HTML_QuickForm::registerRule('uploadedfile', 'callback', '_ruleIsUploadedFile', 'HTML_QuickForm_file');
@@ -259,7 +254,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      */
     function _ruleCheckMaxFileSize($elementValue, $maxSize)
     {
-        if (!empty($elementValue['error']) && 
+        if (!empty($elementValue['error']) &&
             (UPLOAD_ERR_FORM_SIZE == $elementValue['error'] || UPLOAD_ERR_INI_SIZE == $elementValue['error'])) {
             return false;
         }

@@ -26,7 +26,6 @@
 /**
  * Base class for all HTML classes
  */
-require_once 'HTML/Common.php';
 
 /**
  * Base class for form elements
