@@ -79,9 +79,8 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
     *
     * @param HTML_Template_ITX|HTML_Template_Sigma     Template object to use
     */
-    function HTML_QuickForm_Renderer_ITDynamic(&$tpl)
+    public function __construct(&$tpl)
     {
-        $this->HTML_QuickForm_Renderer();
         $this->_tpl =& $tpl;
         $this->_tpl->setCurrentBlock('qf_main_loop');
     }

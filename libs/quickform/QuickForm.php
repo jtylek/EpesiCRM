@@ -249,7 +249,7 @@ class HTML_QuickForm extends HTML_Common
      * @param    mixed       $attributes        (optional)Extra attributes for <form> tag
      * @param    bool        $trackSubmit       (optional)Whether to track if the form was submitted by adding a special hidden field
      */
-    function HTML_QuickForm($formName='', $method='post', $action='', $target='', $attributes=null, $trackSubmit = false)
+    public function __construct($formName='', $method='post', $action='', $target='', $attributes=null, $trackSubmit = false)
     {
         HTML_Common::HTML_Common($attributes);
         $method = (strtoupper($method) == 'GET') ? 'get' : 'post';

@@ -29,9 +29,9 @@ class HTML_QuickForm_reset extends HTML_QuickForm_input
      * @param     mixed     $attributes     (optional)Either a typical HTML attribute string
      *                                      or an associative array
      */
-    function HTML_QuickForm_reset($elementName=null, $value=null, $attributes=null)
+    public function __construct($elementName=null, $value=null, $attributes=null)
     {
-        HTML_QuickForm_input::HTML_QuickForm_input($elementName, null, $attributes);
+        parent::__construct($elementName, null, $attributes);
         $this->setValue($value);
         $this->setType('reset');
     }

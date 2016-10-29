@@ -59,9 +59,9 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text
      * @param     mixed     $attributes     (optional)Either a typical HTML attribute string
      *                                      or an associative array. Date format is passed along the attributes.
      */
-    function HTML_QuickForm_autocomplete($elementName = null, $elementLabel = null, $options = null, $attributes = null)
+    public function __construct($elementName = null, $elementLabel = null, $options = null, $attributes = null)
     {
-        $this->HTML_QuickForm_text($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'autocomplete';
         if (isset($options)) {

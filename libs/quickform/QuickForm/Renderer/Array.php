@@ -143,16 +143,14 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
     var $_staticLabels = false;
    /**#@-*/
 
-   /**
-    * Constructor
-    *
-    * @param  bool    true: collect all hidden elements into string; false: process them as usual form elements
-    * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
-    * @access public
-    */
-    function HTML_QuickForm_Renderer_Array($collectHidden = false, $staticLabels = false)
+    /**
+     * Constructor
+     *
+     * @param  bool    true: collect all hidden elements into string; false: process them as usual form elements
+     * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
+     */
+    public function __construct($collectHidden = false, $staticLabels = false)
     {
-        $this->HTML_QuickForm_Renderer();
         $this->_collectHidden = $collectHidden;
         $this->_staticLabels  = $staticLabels;
     }

@@ -68,7 +68,7 @@ class HTML_QuickForm_element extends HTML_Common
      * @param    mixed      Label(s) for the element
      * @param    mixed      Associative array of tag attributes or HTML attributes name="value" pairs
      */
-    function HTML_QuickForm_element($elementName=null, $elementLabel=null, $attributes=null)
+    public function __construct($elementName=null, $elementLabel=null, $attributes=null)
     {
         HTML_Common::HTML_Common($attributes);
         if (isset($elementName)) {
@@ -298,8 +298,7 @@ class HTML_QuickForm_element extends HTML_Common
         $this->_caller = $caller;
         switch ($event) {
             case 'createElement':
-                $className = get_class($this);
-                call_user_func_array(array($this, $className), $arg);
+                call_user_func_array(array($this, '__construct'), $arg);
                 break;
             case 'addElement':
                 $this->onQuickFormEvent('createElement', $arg, $caller);

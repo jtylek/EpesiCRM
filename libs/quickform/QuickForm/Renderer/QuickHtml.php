@@ -33,9 +33,8 @@ class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default 
     /**
      * Constructor
      */
-    function HTML_QuickForm_Renderer_QuickHtml()
+    public function __construct()
     {
-        $this->HTML_QuickForm_Renderer_Default();
         // The default templates aren't used for this renderer
         $this->clearAllTemplates();
     }

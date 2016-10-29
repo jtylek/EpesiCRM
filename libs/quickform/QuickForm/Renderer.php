@@ -18,15 +18,6 @@
 class HTML_QuickForm_Renderer
 {
    /**
-    * Constructor
-    *
-    * @access public
-    */
-    function HTML_QuickForm_Renderer()
-    {
-    }
-
-   /**
     * Called when visiting a form, before processing any form elements
     *
     * @param    HTML_QuickForm  a form being visited

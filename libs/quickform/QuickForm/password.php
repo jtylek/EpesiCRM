@@ -29,9 +29,9 @@ class HTML_QuickForm_password extends HTML_QuickForm_input
      * @param     mixed     $attributes     (optional)Either a typical HTML attribute string
      *                                      or an associative array
      */
-    function HTML_QuickForm_password($elementName=null, $elementLabel=null, $attributes=null)
+    public function __construct($elementName=null, $elementLabel=null, $attributes=null)
     {
-        HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->setType('password');
     }
 

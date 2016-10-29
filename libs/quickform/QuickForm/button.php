@@ -14,8 +14,7 @@ require_once 'HTML/QuickForm/input.php';
 
 /**
  * HTML class for an <input type="button" /> elements
- * 
- * @category    HTML
+ *
  * @package     HTML_QuickForm
  * @author      Adam Daniel <adaniel1@eesus.jnj.com>
  * @author      Bertrand Mansion <bmansion@mamasam.com>
@@ -30,9 +29,9 @@ class HTML_QuickForm_button extends HTML_QuickForm_input
      * @param     mixed     $attributes     (optional)Either a typical HTML attribute string
      *                                      or an associative array
      */
-    function HTML_QuickForm_button($elementName=null, $value=null, $attributes=null)
+    public function __construct($elementName=null, $value=null, $attributes=null)
     {
-        HTML_QuickForm_input::HTML_QuickForm_input($elementName, null, $attributes);
+        parent::__construct($elementName, null, $attributes);
         $this->_persistantFreeze = false;
         $this->setValue($value);
         $this->setType('button');

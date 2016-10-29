@@ -38,9 +38,9 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      * @param     string    Input field value
      * @param     mixed     Either a typical HTML attribute string or an associative array
      */
-    function HTML_QuickForm_radio($elementName=null, $elementLabel=null, $text=null, $value=null, $attributes=null)
+    public function __construct($elementName=null, $elementLabel=null, $text=null, $value=null, $attributes=null)
     {
-        $this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes);
         if (isset($value)) {
             $this->setValue($value);
         }

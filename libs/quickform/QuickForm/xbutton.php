@@ -33,9 +33,9 @@ class HTML_QuickForm_xbutton extends HTML_QuickForm_element
     * @param    string  Button content (HTML to add between <button></button> tags)
     * @param    mixed   Either a typical HTML attribute string or an associative array
     */
-    function HTML_QuickForm_xbutton($elementName = null, $elementContent = null, $attributes = null)
+    public function __construct($elementName = null, $elementContent = null, $attributes = null)
     {
-        $this->HTML_QuickForm_element($elementName, null, $attributes);
+        parent::__construct($elementName, null, $attributes);
         $this->setContent($elementContent);
         $this->setPersistantFreeze(false);
         $this->_type = 'xbutton';

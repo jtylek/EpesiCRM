@@ -40,9 +40,9 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      * @param     mixed     $attributes     (optional)Either a typical HTML attribute string
      *                                      or an associative array
      */
-    function HTML_QuickForm_checkbox($elementName=null, $elementLabel=null, $text='', $attributes=null)
+    public function __construct($elementName=null, $elementLabel=null, $text='', $attributes=null)
     {
-        HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_text = $text;
         $this->setType('checkbox');

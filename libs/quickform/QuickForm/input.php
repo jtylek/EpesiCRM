@@ -22,26 +22,6 @@ require_once 'HTML/QuickForm/element.php';
  */
 class HTML_QuickForm_input extends HTML_QuickForm_element
 {
-    // {{{ constructor
-
-    /**
-     * Class constructor
-     * 
-     * @param    string     Input field name attribute
-     * @param    mixed      Label(s) for the input field
-     * @param    mixed      Either a typical HTML attribute string or an associative array
-     * @since     1.0
-     * @access    public
-     * @return    void
-     */
-    function HTML_QuickForm_input($elementName=null, $elementLabel=null, $attributes=null)
-    {
-        $this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
-    } //end constructor
-
-    // }}}
-    // {{{ setType()
-
     /**
      * Sets the element type
      *

@@ -67,9 +67,9 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
      * @param     mixed     $separator      (optional)Use a string for one separator,
      *                                      use an array to alternate the separators.
      */
-    function HTML_QuickForm_hierselect($elementName=null, $elementLabel=null, $attributes=null, $separator=null)
+    function __construct($elementName=null, $elementLabel=null, $attributes=null, $separator=null)
     {
-        $this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         if (isset($separator)) {
             $this->_separator = $separator;
