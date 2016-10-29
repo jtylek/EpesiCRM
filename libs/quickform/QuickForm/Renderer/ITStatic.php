@@ -103,7 +103,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     *
     * @param    HTML_QuickForm  form object being visited
     */
-    function startForm(&$form)
+    public function startForm(&$form)
     {
         $this->_formName = $form->getAttribute('id');
 
@@ -120,7 +120,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     *
     * @param    HTML_QuickForm  form object being visited
     */
-    function finishForm(&$form)
+    public function finishForm(&$form)
     {
         // display errors above form
         if (!empty($this->_errors) && $this->_tpl->blockExists($this->_formName.'_error_loop')) {
@@ -148,7 +148,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     *
     * @param    HTML_QuickForm_header   header element being visited
     */
-    function renderHeader(&$header)
+    public function renderHeader(&$header)
     {
         $name = $header->getName();
         $varName = $this->_formName.'_header';
@@ -167,7 +167,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     * @param    bool                    Whether an element is required
     * @param    string                  An error message associated with an element
     */
-    function renderElement(&$element, $required, $error)
+    public function renderElement(&$element, $required, $error)
     {
         $name = $element->getName();
 
@@ -235,11 +235,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     }
 
    /**
-    * Called when visiting a hidden element
-    * 
-    * @param    HTML_QuickForm_element  hidden element being visited
-    * @access   public
-    * @return   void
+    * @inheritDoc
     */
     function renderHidden(&$element)
     {
@@ -259,7 +255,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     * @param    bool                    Whether a group is required
     * @param    string                  An error message associated with a group
     */
-    function startGroup(&$group, $required, $error)
+    public function startGroup(&$group, $required, $error)
     {
         $name = $group->getName();
         $varName = $this->_formName.'_'.$name;
@@ -308,7 +304,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     *
     * @param    HTML_QuickForm_group    group being visited
     */
-    function finishGroup(&$group)
+    public function finishGroup(&$group)
     {
         $this->_inGroup = '';
     }
@@ -325,7 +321,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     *
     * @param    string      The required element template
     */
-    function setRequiredTemplate($template)
+    public function setRequiredTemplate($template)
     {
         $this->_required = $template;
     }
@@ -351,7 +347,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     *
     * @param    string      The element error template
     */
-    function setErrorTemplate($template)
+    public function setErrorTemplate($template)
     {
         $this->_error = $template;
     }

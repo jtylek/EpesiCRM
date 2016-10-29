@@ -52,7 +52,7 @@ class HTML_QuickForm_link extends HTML_QuickForm_static
      *
      * @param     string    $name   Input field name attribute
      */
-    function setName($name)
+    public function setName($name)
     {
         $this->updateAttributes(array('name'=>$name));
     }
@@ -62,7 +62,7 @@ class HTML_QuickForm_link extends HTML_QuickForm_static
      *
      * @return    string
      */
-    function getName()
+    public function getName()
     {
         return $this->getAttribute('name');
     }
@@ -72,7 +72,7 @@ class HTML_QuickForm_link extends HTML_QuickForm_static
      *
      * @param     string    $value  Value for password element
      */
-    function setValue($value)
+    public function setValue($value)
     {
         return;
     }
@@ -80,7 +80,7 @@ class HTML_QuickForm_link extends HTML_QuickForm_static
     /**
      * Returns the value of the form element
      */
-    function getValue()
+    public function getValue()
     {
         return;
     }
@@ -90,7 +90,7 @@ class HTML_QuickForm_link extends HTML_QuickForm_static
      *
      * @param     string    $href
      */
-    function setHref($href)
+    public function setHref($href)
     {
         $this->updateAttributes(array('href'=>$href));
     }
@@ -100,7 +100,7 @@ class HTML_QuickForm_link extends HTML_QuickForm_static
      *
      * @return    string
      */
-    function toHtml()
+    public function toHtml()
     {
         $tabs = $this->_getTabs();
         $html = "$tabs<a".$this->_getAttrString($this->_attributes).">";
@@ -114,7 +114,7 @@ class HTML_QuickForm_link extends HTML_QuickForm_static
      *
      * @return    string
      */
-    function getFrozenHtml()
+    public function getFrozenHtml()
     {
         return;
     }

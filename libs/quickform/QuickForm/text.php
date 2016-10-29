@@ -41,7 +41,7 @@ class HTML_QuickForm_text extends HTML_QuickForm_input
      *
      * @param     string    $size  Size of text field
      */
-    function setSize($size)
+    public function setSize($size)
     {
         $this->updateAttributes(array('size'=>$size));
     }
@@ -51,7 +51,7 @@ class HTML_QuickForm_text extends HTML_QuickForm_input
      *
      * @param     string    $maxlength  Maximum length of text field
      */
-    function setMaxlength($maxlength)
+    public function setMaxlength($maxlength)
     {
         $this->updateAttributes(array('maxlength'=>$maxlength));
     }

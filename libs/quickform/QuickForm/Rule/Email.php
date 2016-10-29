@@ -29,7 +29,7 @@ class HTML_QuickForm_Rule_Email extends HTML_QuickForm_Rule
      * @param     boolean   $checkDomain    True if dns check should be performed
      * @return    boolean   true if email is valid
      */
-    function validate($email, $checkDomain = false)
+    public function validate($email, $checkDomain = null)
     {
         // Fix for bug #10799: add 'D' modifier to regex
         if (preg_match($this->regex . 'D', $email)) {

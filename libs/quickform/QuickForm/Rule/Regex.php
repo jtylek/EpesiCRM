@@ -43,7 +43,7 @@ class HTML_QuickForm_Rule_Regex extends HTML_QuickForm_Rule
      * @param     string    $regex      Regular expression
      * @return    boolean   true if value is valid
      */
-    function validate($value, $regex = null)
+    public function validate($value, $regex = null)
     {
         // Fix for bug #10799: add 'D' modifier to regex
         if (isset($this->_data[$this->name])) {
@@ -64,7 +64,7 @@ class HTML_QuickForm_Rule_Regex extends HTML_QuickForm_Rule
      * @param     string    $name       Name of rule
      * @param     string    $pattern    Regular expression pattern
      */
-    function addData($name, $pattern)
+    public function addData($name, $pattern)
     {
         $this->_data[$name] = $pattern;
     }

@@ -112,7 +112,7 @@ class HTML_QuickForm_xbutton extends HTML_QuickForm_element
     * The value is only returned if the button's type is "submit" and if this
     * particlular button was clicked
     */
-    function exportValue(&$submitValues, $assoc = false)
+    public function exportValue(&$submitValues, $assoc = false)
     {
         if ('submit' == $this->getAttribute('type')) {
             return $this->_prepareValue($this->_findValue($submitValues), $assoc);

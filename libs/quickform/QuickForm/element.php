@@ -84,7 +84,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @return    float
      */
-    function apiVersion()
+    public function apiVersion()
     {
         return 3.2;
     }
@@ -94,7 +94,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @return    string
      */
-    function getType()
+    public function getType()
     {
         return $this->_type;
     }
@@ -104,7 +104,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @param     string    $name   Input field name attribute
      */
-    function setName($name)
+    public function setName($name)
     {
         // interface method
     }
@@ -114,7 +114,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @return    string
      */
-    function getName()
+    public function getName()
     {
         // interface method
     }
@@ -124,7 +124,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @param     string    $value      Default value of the form element
      */
-    function setValue($value)
+    public function setValue($value)
     {
         // interface
     }
@@ -134,7 +134,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @return    mixed
      */
-    function getValue()
+    public function getValue()
     {
         // interface
         return null;
@@ -143,22 +143,19 @@ class HTML_QuickForm_element extends HTML_Common
     /**
      * Freeze the element so that only its value is returned
      */
-    function freeze()
+    public function freeze()
     {
         $this->_flagFrozen = true;
         if($this->_caller!==null) {
             $this->_removeValue($this->_caller->_submitValues);
             $this->onQuickFormEvent('updateValue',null,$this->_caller);
         }
-    } //end func freeze
-
-    // }}}
-    // {{{ unfreeze()
+    }
 
    /**
     * Unfreezes the element so that it becomes editable
     */
-    function unfreeze()
+    public function unfreeze()
     {
         $this->_flagFrozen = false;
     }
@@ -168,7 +165,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @return    string
      */
-    function getFrozenHtml()
+    public function getFrozenHtml()
     {
         $value = $this->getValue();
         return (strlen($value)? htmlspecialchars($value): '&nbsp;') .
@@ -200,7 +197,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @return    bool
      */
-    function isFrozen()
+    public function isFrozen()
     {
         return $this->_flagFrozen;
     }
@@ -211,7 +208,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @param     bool    $persistant   True if persistant value
      */
-    function setPersistantFreeze($persistant=false)
+    public function setPersistantFreeze($persistant=false)
     {
         $this->_persistantFreeze = $persistant;
     }
@@ -221,7 +218,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @param     string    $label  Display text for the element
      */
-    function setLabel($label)
+    public function setLabel($label)
     {
         $this->_label = $label;
     }
@@ -231,7 +228,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @return    string
      */
-    function getLabel()
+    public function getLabel()
     {
         return $this->_label;
     }
@@ -241,7 +238,7 @@ class HTML_QuickForm_element extends HTML_Common
      *
      * @return    mixed
      */
-    function _findValue(&$values)
+    protected function _findValue(&$values)
     {
         if (empty($values)) {
             return null;
@@ -293,7 +290,7 @@ class HTML_QuickForm_element extends HTML_Common
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
      */
-    function onQuickFormEvent($event, $arg, &$caller)
+    public function onQuickFormEvent($event, $arg, &$caller)
     {
         $this->_caller = $caller;
         switch ($event) {
@@ -334,7 +331,7 @@ class HTML_QuickForm_element extends HTML_Common
     * @param boolean                       Whether an element is required
     * @param string                     An error message associated with an element
     */
-    function accept(&$renderer, $required=false, $error=null)
+    public function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null)
     {
         $renderer->renderElement($this, $required, $error);
     }
@@ -363,7 +360,7 @@ class HTML_QuickForm_element extends HTML_Common
     * @param  bool    whether to return the value as associative array
     * @return mixed
     */
-    function exportValue(&$submitValues, $assoc = false)
+    public function exportValue(&$submitValues, $assoc = false)
     {
         $value = $this->_findValue($submitValues);
         if (null === $value) {
@@ -393,7 +390,7 @@ class HTML_QuickForm_element extends HTML_Common
             } else {
                 $valueAry = array();
                 $myIndex  = "['" . str_replace(
-                                array('\\', '\'', ']', '['), array('\\\\', '\\\'', '', "']['"), 
+                                array('\\', '\'', ']', '['), array('\\\\', '\\\'', '', "']['"),
                                 $name
                             ) . "']";
                 eval("\$valueAry$myIndex = \$value;");

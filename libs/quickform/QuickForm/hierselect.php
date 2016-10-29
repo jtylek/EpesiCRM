@@ -122,7 +122,7 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
      *
      * @param     array    $options    Array of options defining each element
      */
-    function setOptions($options)
+    public function setOptions($options)
     {
         $this->_options = $options;
 
@@ -149,7 +149,7 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
      *
      * @deprecated          Deprecated since release 3.2.2
      */
-    function setMainOptions($array)
+    public function setMainOptions($array)
     {
         $this->_options[0] = $array;
 
@@ -167,7 +167,7 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
      *
      * @deprecated          Deprecated since release 3.2.2
      */
-    function setSecOptions($array)
+    public function setSecOptions($array)
     {
         $this->_options[1] = $array;
 
@@ -179,7 +179,7 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
             // check if all elements have been created
             $totalNbElements = 2;
             for ($i = $this->_nbElements; $i < $totalNbElements; $i ++) {
-                $this->_elements[] =new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
+                $this->_elements[] = new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
                 $this->_nbElements++;
             }
         }
@@ -214,7 +214,7 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
      * @param     array     $value    An array of 2 or more values, for the first,
      *                                the second, the third etc. select
      */
-    function setValue($value)
+    public function setValue($value)
     {
         // fix for bug #6766. Hope this doesn't break anything more
         // after bug #7961. Forgot that _nbElements was used in
@@ -232,7 +232,7 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
     function _createElements()
     {
         for ($i = 0; $i < $this->_nbElements; $i++) {
-            $this->_elements[] =new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
+            $this->_elements[] = new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
         }
     }
 
@@ -421,7 +421,7 @@ JAVASCRIPT;
                $renderer->toHtml();
     }
 
-    function accept(&$renderer, $required = false, $error = null)
+    public function accept(&$renderer, $required = false, $error = null)
     {
         $renderer->renderElement($this, $required, $error);
     }

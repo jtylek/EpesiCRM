@@ -39,7 +39,7 @@ class HTML_QuickForm_hidden extends HTML_QuickForm_input
     /**
      * Freeze the element so that only its value is returned
      */
-    function freeze()
+    public function freeze()
     {
         return false;
     }

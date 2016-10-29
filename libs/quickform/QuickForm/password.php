@@ -40,7 +40,7 @@ class HTML_QuickForm_password extends HTML_QuickForm_input
      *
      * @param     string    $size  Size of password field
      */
-    function setSize($size)
+    public function setSize($size)
     {
         $this->updateAttributes(array('size'=>$size));
     }
@@ -50,7 +50,7 @@ class HTML_QuickForm_password extends HTML_QuickForm_input
      *
      * @param     string    $maxlength  Maximum length of password field
      */
-    function setMaxlength($maxlength)
+    public function setMaxlength($maxlength)
     {
         $this->updateAttributes(array('maxlength'=>$maxlength));
     }
@@ -60,7 +60,7 @@ class HTML_QuickForm_password extends HTML_QuickForm_input
      *
      * @return    string
      */
-    function getFrozenHtml()
+    public function getFrozenHtml()
     {
         $value = $this->getValue();
         return ('' != $value? '**********': '&nbsp;') .

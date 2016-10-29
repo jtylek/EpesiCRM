@@ -205,7 +205,7 @@ class HTML_QuickForm_Renderer_ObjectFlexy extends HTML_QuickForm_Renderer_Object
      *
      * @param string   Filename of template
      */
-    function setHtmlTemplate($template)
+    public function setHtmlTemplate($template)
     {
         $this->_html = $template;
     }

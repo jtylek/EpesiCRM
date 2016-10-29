@@ -73,7 +73,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
      * @return string
      * @deprecated          Deprecated since 3.2.6, both generated elements have the same name
      */
-    function getPrivateName($elementName)
+    public function getPrivateName($elementName)
     {
         return '__'.$elementName;
     }
@@ -86,7 +86,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
      * @return string
      * @deprecated          Deprecated since 3.2.6, this element no longer uses any javascript
      */
-    function getOnclickJs($elementName)
+    public function getOnclickJs($elementName)
     {
         $onclickJs = 'if (this.checked) { this.form[\''.$elementName.'\'].value=\''.addcslashes($this->_values[1], '\'').'\'; }';
         $onclickJs .= 'else { this.form[\''.$elementName.'\'].value=\''.addcslashes($this->_values[0], '\'').'\'; }';
@@ -98,7 +98,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
      *
      * @param   mixed   $values The values, either a string or an array
      */
-    function setValues($values)
+    public function setValues($values)
     {
         if (empty($values)) {
             // give it default checkbox behavior
@@ -119,7 +119,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
     *
     * @param    mixed   Element's value
     */
-    function setValue($value)
+    public function setValue($value)
     {
         $this->setChecked(isset($this->_values[1]) && $value == $this->_values[1]);
         $this->_currentValue = $value;
@@ -130,7 +130,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
     *
     * @return   mixed
     */
-    function getValue()
+    public function getValue()
     {
         if (is_array($this->_values)) {
             return $this->_values[$this->getChecked()? 1: 0];
@@ -145,7 +145,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
      *
      * @return    string
      */
-    function toHtml()
+    public function toHtml()
     {
         if ($this->_flagFrozen) {
             return parent::toHtml();
@@ -176,7 +176,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
      */
-    function onQuickFormEvent($event, $arg, &$caller)
+    public function onQuickFormEvent($event, $arg, &$caller)
     {
         switch ($event) {
             case 'updateValue':
@@ -206,7 +206,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
     * This element has a value even if it is not checked, thus we override
     * checkbox's behaviour here
     */
-    function exportValue(&$submitValues, $assoc = false)
+    public function exportValue(&$submitValues, $assoc = false)
     {
         $value = $this->_findValue($submitValues);
         if (null === $value) {

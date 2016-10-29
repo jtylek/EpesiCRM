@@ -48,7 +48,7 @@ class HTML_QuickForm_hiddenselect extends HTML_QuickForm_select
      *
      * @return    string
      */
-    function toHtml()
+    public function toHtml()
     {
         if (empty($this->_values)) {
             return '';

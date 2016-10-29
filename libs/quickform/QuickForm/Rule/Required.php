@@ -26,7 +26,7 @@ class HTML_QuickForm_Rule_Required extends HTML_QuickForm_Rule
      * @param     mixed     $options    Not used yet
      * @return    boolean   true if value is not empty
      */
-    function validate($value, $options = null)
+    public function validate($value, $options = null)
     {
         if (is_array($value)) {
             return (bool) $value;

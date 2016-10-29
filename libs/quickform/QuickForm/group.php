@@ -95,7 +95,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      *
      * @param     string    $name   Group name
      */
-    function setName($name)
+    public function setName($name)
     {
         $this->_name = $name;
     }
@@ -105,7 +105,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      *
      * @return    string
      */
-    function getName()
+    public function getName()
     {
         return $this->_name;
     }
@@ -115,7 +115,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      *
      * @param     mixed    Values for group's elements
      */
-    function setValue($value)
+    public function setValue($value)
     {
         $this->_createElementsIfNotExist();
         foreach (array_keys($this->_elements) as $key) {
@@ -144,7 +144,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      *
      * @return    mixed
      */
-    function getValue()
+    public function getValue()
     {
         $value = null;
         foreach (array_keys($this->_elements) as $key) {
@@ -183,7 +183,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      *
      * @param     array     $elements   Array of elements
      */
-    function setElements($elements)
+    public function setElements($elements)
     {
         $this->_elements = array_values($elements);
         if ($this->_flagFrozen) {
@@ -196,7 +196,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      *
      * @return    array
      */
-    function &getElements()
+    public function &getElements()
     {
         $this->_createElementsIfNotExist();
         return $this->_elements;
@@ -209,7 +209,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      *
      * @return    string    group elements type
      */
-    function getGroupType()
+    public function getGroupType()
     {
         $this->_createElementsIfNotExist();
         $prevType = '';
@@ -228,7 +228,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      *
      * @return      string
      */
-    function toHtml()
+    public function toHtml()
     {
         include_once('HTML/QuickForm/Renderer/Default.php');
         $renderer =new HTML_QuickForm_Renderer_Default();
@@ -243,7 +243,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      * @param     mixed     $index  Element name or element index in the group
      * @return    mixed     string with element name, false if not found
      */
-    function getElementName($index)
+    public function getElementName($index)
     {
         $this->_createElementsIfNotExist();
         $elementName = false;
@@ -281,7 +281,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      *
      * @return    string
      */
-    function getFrozenHtml()
+    public function getFrozenHtml()
     {
         $flags = array();
         $this->_createElementsIfNotExist();
@@ -306,7 +306,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
      */
-    function onQuickFormEvent($event, $arg, &$caller)
+    public function onQuickFormEvent($event, $arg, &$caller)
     {
         switch ($event) {
             case 'updateValue':
@@ -342,7 +342,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
     * @param bool                       Whether a group is required
     * @param string                     An error message associated with a group
     */
-    function accept(&$renderer, $required = false, $error = null)
+    public function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null)
     {
         $this->_createElementsIfNotExist();
         $renderer->startGroup($this, $required, $error);
@@ -375,7 +375,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
     * As usual, to get the group's value we access its elements and call
     * their exportValue() methods
     */
-    function exportValue(&$submitValues, $assoc = false)
+    public function exportValue(&$submitValues, $assoc = false)
     {
         $value = null;
         foreach (array_keys($this->_elements) as $key) {

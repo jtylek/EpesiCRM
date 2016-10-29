@@ -74,7 +74,7 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text
      *
      * @param     array    $options    Array of options for the autocomplete input text element
      */
-    function setOptions($options)
+    public function setOptions($options)
     {
         $this->_options = array_values($options);
     }
@@ -84,7 +84,7 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text
      *
      * @return      string
      */
-    function toHtml()
+    public function toHtml()
     {
         // prevent problems with grouped elements
         $arrayName = str_replace(array('[', ']'), array('__', ''), $this->getName()) . '_values';

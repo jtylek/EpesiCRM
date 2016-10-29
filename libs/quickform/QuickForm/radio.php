@@ -55,7 +55,7 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      *
      * @param     bool    $checked  Whether the field is checked or not
      */
-    function setChecked($checked)
+    public function setChecked($checked)
     {
         if (!$checked) {
             $this->removeAttribute('checked');
@@ -69,7 +69,7 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      *
      * @return    string
      */
-    function getChecked()
+    public function getChecked()
     {
         return $this->getAttribute('checked');
     }
@@ -79,7 +79,7 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      *
      * @return    string
      */
-    function toHtml()
+    public function toHtml()
     {
         if (0 == strlen($this->_text)) {
             $label = '';
@@ -96,7 +96,7 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      *
      * @return    string
      */
-    function getFrozenHtml()
+    public function getFrozenHtml()
     {
         if ($this->getChecked()) {
             return '<tt>(x)</tt>' .
@@ -111,7 +111,7 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      *
      * @param     string    $text  Text to display near the radio button
      */
-    function setText($text)
+    public function setText($text)
     {
         $this->_text = $text;
     }
@@ -121,7 +121,7 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      *
      * @return    string
      */
-    function getText()
+    public function getText()
     {
         return $this->_text;
     }
@@ -133,7 +133,7 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
      */
-    function onQuickFormEvent($event, $arg, &$caller)
+    public function onQuickFormEvent($event, $arg, &$caller)
     {
         switch ($event) {
             case 'updateValue':
@@ -171,7 +171,7 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
    /**
     * Returns the value attribute if the radio is checked, null if it is not
     */
-    function exportValue(&$submitValues, $assoc = false)
+    public function exportValue(&$submitValues, $assoc = false)
     {
         $value = $this->_findValue($submitValues);
         if (null === $value) {

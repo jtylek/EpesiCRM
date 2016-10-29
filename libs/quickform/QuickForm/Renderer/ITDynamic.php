@@ -250,7 +250,7 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
     * @param mixed      element name or array ('element name' => 'block name')
     * @param string     block name if $elementName is not an array
     */
-    function setElementBlock($elementName, $blockName = null)
+    public function setElementBlock($elementName, $blockName = null)
     {
         if (is_array($elementName)) {
             $this->_elementBlocks = array_merge($this->_elementBlocks, $elementName);
@@ -264,7 +264,7 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
     *
     * @param string     block name
     */
-    function setHeaderBlock($blockName)
+    public function setHeaderBlock($blockName)
     {
         $this->_headerBlock = $blockName;
     }

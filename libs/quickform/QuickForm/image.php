@@ -41,7 +41,7 @@ class HTML_QuickForm_image extends HTML_QuickForm_input
      *
      * @param     string    $src  source for image element
      */
-    function setSource($src)
+    public function setSource($src)
     {
         $this->updateAttributes(array('src' => $src));
     }
@@ -51,7 +51,7 @@ class HTML_QuickForm_image extends HTML_QuickForm_input
      *
      * @param     string    $border  border for image element
      */
-    function setBorder($border)
+    public function setBorder($border)
     {
         $this->updateAttributes(array('border' => $border));
     }
@@ -61,7 +61,7 @@ class HTML_QuickForm_image extends HTML_QuickForm_input
      *
      * @param     string    $align  alignment for image element
      */
-    function setAlign($align)
+    public function setAlign($align)
     {
         $this->updateAttributes(array('align' => $align));
     }
@@ -69,7 +69,7 @@ class HTML_QuickForm_image extends HTML_QuickForm_input
     /**
      * Freeze the element so that only its value is returned
      */
-    function freeze()
+    public function freeze()
     {
         return false;
     }

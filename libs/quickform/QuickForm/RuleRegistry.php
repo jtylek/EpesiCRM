@@ -33,7 +33,7 @@ class HTML_QuickForm_RuleRegistry
      *
      * @return    HTML_QuickForm_RuleRegistry
      */
-    function &singleton()
+    public static function &singleton()
     {
         static $obj;
         if (!isset($obj)) {
@@ -61,7 +61,7 @@ class HTML_QuickForm_RuleRegistry
      *                                  HTML_QuickForm_Rule object class name
      * @param     string    $data2      Object parent of above function
      */
-    function registerRule($ruleName, $type, $data1, $data2 = null)
+    public function registerRule($ruleName, $type, $data1, $data2 = null)
     {
         $type = strtolower($type);
         if ($type == 'regex') {
@@ -93,7 +93,7 @@ class HTML_QuickForm_RuleRegistry
      * @param     string   $ruleName        Name of the requested rule
      * @return    HTML_QuickForm_Rule
      */
-    function &getRule($ruleName)
+    public function &getRule($ruleName)
     {
         list($class, $path) = $GLOBALS['_HTML_QuickForm_registered_rules'][$ruleName];
 
@@ -117,7 +117,7 @@ class HTML_QuickForm_RuleRegistry
      * @param     mixed    $multiple        Whether to validate an array of values altogether
      * @return    mixed    true if no error found, int of valid values (when an array of values is given) or false if error
      */
-    function validate($ruleName, $values, $options = null, $multiple = false)
+    public function validate($ruleName, $values, $options = null, $multiple = false)
     {
         $rule =& $this->getRule($ruleName);
 
@@ -143,7 +143,7 @@ class HTML_QuickForm_RuleRegistry
      * @param     array                         Rule data
      * @return    string    JavaScript for the rule
      */
-    function getValidationScript(&$element, $elementName, $ruleData)
+    public function getValidationScript(&$element, $elementName, $ruleData)
     {
         $reset =  (isset($ruleData['reset'])) ? $ruleData['reset'] : false;
         $rule  =& $this->getRule($ruleData['type']);

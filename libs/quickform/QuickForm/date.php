@@ -496,7 +496,7 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
     // }}}
     // {{{ accept()
 
-    function accept(&$renderer, $required = false, $error = null)
+    public function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null)
     {
         $renderer->renderElement($this, $required, $error);
     }

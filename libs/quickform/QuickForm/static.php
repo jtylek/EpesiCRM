@@ -45,7 +45,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
      *
      * @param     string    $name   Element name
      */
-    function setName($name)
+    public function setName($name)
     {
         $this->updateAttributes(array('name'=>$name));
     }
@@ -55,7 +55,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
      *
      * @return    string
      */
-    function getName()
+    public function getName()
     {
         return $this->getAttribute('name');
     }
@@ -65,7 +65,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
      *
      * @param     string    $text
      */
-    function setText($text)
+    public function setText($text)
     {
         $this->_text = $text;
     }
@@ -75,7 +75,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
      *
      * @param     string    $text
      */
-    function setValue($text)
+    public function setValue($text)
     {
         $this->setText($text);
     }
@@ -85,7 +85,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
      *
      * @return    string
      */
-    function toHtml()
+    public function toHtml()
     {
         return $this->_getTabs() . $this->_text;
     }
@@ -95,7 +95,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
      *
      * @return    string
      */
-    function getFrozenHtml()
+    public function getFrozenHtml()
     {
         return $this->toHtml();
     }
@@ -107,7 +107,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
      */
-    function onQuickFormEvent($event, $arg, &$caller)
+    public function onQuickFormEvent($event, $arg, &$caller)
     {
         switch ($event) {
             case 'updateValue':
@@ -129,7 +129,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
    /**
     * We override this here because we don't want any values from static elements
     */
-    function exportValue(&$submitValues, $assoc = false)
+    public function exportValue(&$submitValues, $assoc = false)
     {
         return null;
     }

@@ -55,7 +55,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      *
      * @param     bool    $checked  Whether the field is checked or not
      */
-    function setChecked($checked)
+    public function setChecked($checked)
     {
         if (!$checked) {
             $this->removeAttribute('checked');
@@ -69,7 +69,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      *
      * @return    bool
      */
-    function getChecked()
+    public function getChecked()
     {
         return (bool)$this->getAttribute('checked');
     }
@@ -79,7 +79,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      *
      * @return    string
      */
-    function toHtml()
+    public function toHtml()
     {
         if (0 == strlen($this->_text)) {
             $label = '';
@@ -96,7 +96,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      *
      * @return    string
      */
-    function getFrozenHtml()
+    public function getFrozenHtml()
     {
         if ($this->getChecked()) {
             return '<tt>[x]</tt>' .
@@ -111,20 +111,17 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      *
      * @param     string    $text
      */
-    function setText($text)
+    public function setText($text)
     {
         $this->_text = $text;
-    } //end func setText
-
-    // }}}
-    // {{{ getText()
+    }
 
     /**
      * Returns the checkbox text
      *
      * @return    string
      */
-    function getText()
+    public function getText()
     {
         return $this->_text;
     }
@@ -134,7 +131,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      *
      * @param     string    $value      Default value of the form element
      */
-    function setValue($value)
+    public function setValue($value)
     {
         return $this->setChecked($value);
     }
@@ -144,7 +141,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      *
      * @return    bool
      */
-    function getValue()
+    public function getValue()
     {
         return $this->getChecked();
     }
@@ -156,7 +153,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
      */
-    function onQuickFormEvent($event, $arg, &$caller)
+    public function onQuickFormEvent($event, $arg, &$caller)
     {
         switch ($event) {
             case 'updateValue':
@@ -192,7 +189,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
    /**
     * Return true if the checkbox is checked, null if it is not checked (getValue() returns false)
     */
-    function exportValue(&$submitValues, $assoc = false)
+    public function exportValue(&$submitValues, $assoc = false)
     {
         $value = $this->_findValue($submitValues);
         if (null === $value) {

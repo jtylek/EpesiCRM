@@ -134,7 +134,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     *
     * @return string
     */
-    function toHtml()
+    public function toHtml()
     {
         // _hiddenHtml is cleared in finishForm(), so this only matters when
         // finishForm() was not called (e.g. group::toHtml(), bug #3511)
@@ -146,7 +146,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     *
     * @param    HTML_QuickForm  form object being visited
     */
-    function startForm(&$form)
+    public function startForm(&$form)
     {
         $this->_html = '';
         $this->_hiddenHtml = '';
@@ -158,7 +158,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     *
     * @param    HTML_QuickForm  form object being visited
     */
-    function finishForm(&$form)
+    public function finishForm(&$form)
     {
         // add a required note, if one is needed
         if (!empty($form->_required) && !$form->_freezeAll) {
@@ -184,7 +184,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     *
     * @param    HTML_QuickForm_header   header element being visited
     */
-    function renderHeader(&$header)
+    public function renderHeader(&$header)
     {
         $name = $header->getName();
         if (!empty($name) && isset($this->_templates[$name])) {
@@ -252,7 +252,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     * @param bool                   Whether an element is required
     * @param string                 An error message associated with an element
     */
-    function renderElement(&$element, $required, $error)
+    public function renderElement(&$element, $required, $error)
     {
         if (!$this->_inGroup) {
             $html = $this->_prepareTemplate($element->getName(), $element->getLabel(), $required, $error);
@@ -274,14 +274,9 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     }
 
    /**
-    * Renders an hidden element
-    * Called when visiting a hidden element
-    * 
-    * @param HTML_QuickForm_element     form element being visited
-    * @access public
-    * @return void
+    * @inheritDoc
     */
-    function renderHidden(&$element)
+    public function renderHidden(&$element)
     {
         $this->_hiddenHtml .= $element->toHtml() . "\n";
     }
@@ -291,7 +286,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     *
     * @param  HTML_QuickForm_html   element being visited
     */
-    function renderHtml(&$data)
+    public function renderHtml(&$data)
     {
         $this->_html .= $data->toHtml();
     }
@@ -303,7 +298,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     * @param bool       Whether a group is required
     * @param string     An error message associated with a group
     */
-    function startGroup(&$group, $required, $error)
+    public function startGroup(&$group, $required, $error)
     {
         $name = $group->getName();
         $this->_groupTemplate        = $this->_prepareTemplate($name, $group->getLabel(), $required, $error);
@@ -318,7 +313,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     *
     * @param    HTML_QuickForm_group    group being visited
     */
-    function finishGroup(&$group)
+    public function finishGroup(&$group)
     {
         $separator = $group->_separator;
         if (is_array($separator)) {
@@ -346,7 +341,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
      * @param       string      The HTML surrounding an element
      * @param       string      (optional) Name of the element to apply template for
      */
-    function setElementTemplate($html, $element = null)
+    public function setElementTemplate($html, $element = null)
     {
         if (is_null($element)) {
             $this->_elementTemplate = $html;
@@ -365,7 +360,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
      * @param       string      The HTML surrounding group elements
      * @param       string      Name of the group to apply template for
      */
-    function setGroupTemplate($html, $group)
+    public function setGroupTemplate($html, $group)
     {
         $this->_groupWraps[$group] = $html;
     }
@@ -376,7 +371,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
      * @param       string      The HTML surrounding an element
      * @param       string      Name of the group to apply template for
      */
-    function setGroupElementTemplate($html, $group)
+    public function setGroupElementTemplate($html, $group)
     {
         $this->_groupTemplates[$group] = $html;
     }
@@ -386,7 +381,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
      *
      * @param       string      The HTML surrounding the header
      */
-    function setHeaderTemplate($html)
+    public function setHeaderTemplate($html)
     {
         $this->_headerTemplate = $html;
     }
@@ -396,7 +391,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
      *
      * @param     string    The HTML surrounding the form tags
      */
-    function setFormTemplate($html)
+    public function setFormTemplate($html)
     {
         $this->_formTemplate = $html;
     }
@@ -406,7 +401,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
      *
      * @param       string      The HTML surrounding the required note
      */
-    function setRequiredNoteTemplate($html)
+    public function setRequiredNoteTemplate($html)
     {
         $this->_requiredNoteTemplate = $html;
     }
@@ -415,7 +410,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
      * Clears all the HTML out of the templates that surround notes, elements, etc.
      * Useful when you want to use addData() to create a completely custom form look
      */
-    function clearAllTemplates()
+    public function clearAllTemplates()
     {
         $this->setElementTemplate('{element}');
         $this->setFormTemplate("\n\t<form{attributes}>{content}\n\t</form>\n");

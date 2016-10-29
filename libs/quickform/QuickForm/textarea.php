@@ -48,7 +48,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      *
      * @param     string    $name   Input field name attribute
      */
-    function setName($name)
+    public function setName($name)
     {
         $this->updateAttributes(array('name'=>$name));
     }
@@ -58,7 +58,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      *
      * @return    string
      */
-    function getName()
+    public function getName()
     {
         return $this->getAttribute('name');
     }
@@ -68,7 +68,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      *
      * @param     string    $value  Value for textarea element
      */
-    function setValue($value)
+    public function setValue($value)
     {
         $this->_value = $value;
     }
@@ -78,7 +78,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      *
      * @return    string
      */
-    function getValue()
+    public function getValue()
     {
         return $this->_value;
     }
@@ -88,7 +88,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      *
      * @param     string    $wrap  Wrap type
      */
-    function setWrap($wrap)
+    public function setWrap($wrap)
     {
         $this->updateAttributes(array('wrap' => $wrap));
     }
@@ -98,7 +98,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      *
      * @param     string    $rows  Height expressed in rows
      */
-    function setRows($rows)
+    public function setRows($rows)
     {
         $this->updateAttributes(array('rows' => $rows));
     }
@@ -108,7 +108,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      *
      * @param     string    $cols  Width expressed in cols
      */
-    function setCols($cols)
+    public function setCols($cols)
     {
         $this->updateAttributes(array('cols' => $cols));
     }
@@ -118,7 +118,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      *
      * @return    string
      */
-    function toHtml()
+    public function toHtml()
     {
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
@@ -136,7 +136,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      *
      * @return    string
      */
-    function getFrozenHtml()
+    public function getFrozenHtml()
     {
         $value = htmlspecialchars($this->getValue());
         if ($this->getAttribute('wrap') == 'off') {

@@ -82,7 +82,7 @@ class HTML_QuickForm_Renderer_Object extends HTML_QuickForm_Renderer
     /**
      * Return the rendered Object
      */
-    function toObject() 
+    public function toObject()
     {
         return $this->_obj;
     }
@@ -92,7 +92,7 @@ class HTML_QuickForm_Renderer_Object extends HTML_QuickForm_Renderer
      *
      * @param string   Name of element class
      */
-    function setElementType($type)
+    public function setElementType($type)
     {
         $this->_elementType = $type;
     }

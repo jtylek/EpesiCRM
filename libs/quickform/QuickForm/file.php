@@ -56,7 +56,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      *
      * @param     int    Size of file element
      */
-    function setSize($size)
+    public function setSize($size)
     {
         $this->updateAttributes(array('size' => $size));
     }
@@ -66,7 +66,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      *
      * @return    int
      */
-    function getSize()
+    public function getSize()
     {
         return $this->getAttribute('size');
     }
@@ -76,7 +76,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      *
      * @return    bool
      */
-    function freeze()
+    public function freeze()
     {
         return false;
     }
@@ -92,7 +92,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      *
      * @param     mixed    Value for file element
      */
-    function setValue($value)
+    public function setValue($value)
     {
         return null;
     }
@@ -102,7 +102,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      *
      * @return    array
      */
-    function getValue()
+    public function getValue()
     {
         return $this->_value;
     }
@@ -115,7 +115,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      * @param     object    calling object
      * @return    bool
      */
-    function onQuickFormEvent($event, $arg, &$caller)
+    public function onQuickFormEvent($event, $arg, &$caller)
     {
         switch ($event) {
             case 'updateValue':
@@ -145,7 +145,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      * @param    string  New file name
      * @return   bool    Whether the file was moved successfully
      */
-    function moveUploadedFile($dest, $fileName = '')
+    public function moveUploadedFile($dest, $fileName = '')
     {
         if ($dest != ''  && substr($dest, -1) != '/') {
             $dest .= '/';
@@ -159,7 +159,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      *
      * @return    bool      true if file has been uploaded, false otherwise
      */
-    function isUploadedFile()
+    public function isUploadedFile()
     {
         return $this->_ruleIsUploadedFile($this->_value);
     }
@@ -244,7 +244,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     *
     * @return    mixed
     */
-    function _findValue(&$sc1 = null)
+    protected function _findValue(&$values)
     {
         if (empty($_FILES)) {
             return null;

@@ -23,7 +23,8 @@ require_once 'HTML/QuickForm/Renderer/Default.php';
  * @package     HTML_QuickForm
  * @author      Jason Rust <jrust@rustyparts.com>
  */
-class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default {
+class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default
+{
     /**
      * The array of rendered elements
      * @var array
@@ -45,7 +46,7 @@ class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default 
      * @param string $data (optional) Any extra data to put before the end of the form
      * @return string
      */
-    function toHtml($data = '')
+    public function toHtml($data = '')
     {
         // Render any elements that haven't been rendered explicitly by elementToHtml()
         foreach (array_keys($this->renderedElements) as $key) {
@@ -71,7 +72,7 @@ class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default 
      * @return string The html for the QuickForm element
      * @throws HTML_QuickForm_Error
      */
-    function elementToHtml($elementName, $elementValue = null)
+    public function elementToHtml($elementName, $elementValue = null)
     {
         $elementKey = null;
         // Find the key for the element
@@ -112,7 +113,7 @@ class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default 
      * @return mixed HTML string of element if $immediateRender is set, else we just add the
      *               html to the global _html string
      */
-    function renderElement(&$element, $required, $error)
+    public function renderElement(&$element, $required, $error)
     {
         $this->_html = '';
         parent::renderElement($element, $required, $error);
@@ -148,7 +149,7 @@ class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default 
      *
      * @param    HTML_QuickForm_group   group being visited
      */
-    function finishGroup(&$group)
+    public function finishGroup(&$group)
     {
         $this->_html = '';
         parent::finishGroup($group);

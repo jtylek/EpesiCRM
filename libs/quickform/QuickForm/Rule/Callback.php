@@ -50,7 +50,7 @@ class HTML_QuickForm_Rule_Callback extends HTML_QuickForm_Rule
      * @param     mixed     $options    Options for callback
      * @return    boolean   true if value is valid
      */
-    function validate($value, $options = null)
+    public function validate($value, $options = null)
     {
         if (isset($this->_data[$this->name])) {
             $callback = $this->_data[$this->name];
@@ -76,7 +76,7 @@ class HTML_QuickForm_Rule_Callback extends HTML_QuickForm_Rule
      * @param     string    $class      Name of class containing the method
      * @param     bool      $BCMode     Backwards compatibility mode
      */
-    function addData($name, $callback, $class = null, $BCMode = false)
+    public function addData($name, $callback, $class = null, $BCMode = false)
     {
         if (!empty($class)) {
             $this->_data[$name] = array($callback, $class);

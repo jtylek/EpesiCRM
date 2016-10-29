@@ -127,7 +127,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     *
     * @param    HTML_QuickForm_header   header element being visited
     */
-    function renderHeader(&$header)
+    public function renderHeader(&$header)
     {
         if ($name = $header->getName()) {
             $this->_ary['header'][$name] = $header->toHtml();
@@ -144,7 +144,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * @param    bool                    Whether a group is required
     * @param    string                  An error message associated with a group
     */
-    function startGroup(&$group, $required, $error)
+    public function startGroup(&$group, $required, $error)
     {
         parent::startGroup($group, $required, $error);
         $this->_groupElementIdx = 1;
@@ -334,7 +334,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     *
     * @param    string      The required element template
     */
-    function setRequiredTemplate($template)
+    public function setRequiredTemplate($template)
     {
         $this->_required = $template;
     }
@@ -363,7 +363,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     *
     * @param    string      The element error template
     */
-    function setErrorTemplate($template)
+    public function setErrorTemplate($template)
     {
         $this->_error = $template;
     }
