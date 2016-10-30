@@ -25,15 +25,6 @@ abstract class HTML_Common
     var $_attributes = array();
 
     /**
-     * Contains the line end string
-     *
-     * @var       string
-     * @access    private
-     */
-    var $_lineEnd = "\12";
-
-
-    /**
      * Class constructor
      *
      * @param    mixed   $attributes     Associative array of table tag attributes or HTML attributes name="value" pairs
@@ -52,18 +43,6 @@ abstract class HTML_Common
     {
         return 1.7;
     }
-
-    /**
-     * Returns the lineEnd
-     *
-     * @access    private
-     * @return    string
-     */
-    function _getLineEnd()
-    {
-        return $this->_lineEnd;
-    }
-
 
     /**
      * Returns an HTML formatted attribute string
@@ -254,28 +233,6 @@ abstract class HTML_Common
     public function removeAttribute($attr)
     {
         $this->_removeAttr($attr, $this->_attributes);
-    }
-
-    /**
-     * Sets the line end style to Windows, Mac, Unix or a custom string.
-     *
-     * @param   string  $style  "win", "mac", "unix" or custom string.
-     */
-    public function setLineEnd($style)
-    {
-        switch ($style) {
-            case 'win':
-                $this->_lineEnd = "\15\12";
-                break;
-            case 'unix':
-                $this->_lineEnd = "\12";
-                break;
-            case 'mac':
-                $this->_lineEnd = "\15";
-                break;
-            default:
-                $this->_lineEnd = $style;
-        }
     }
 
     /**
