@@ -137,10 +137,9 @@ class HTML_QuickForm_RuleRegistry
     /**
      * Returns the validation test in javascript code
      *
-     * @param     array|HTML_QuickForm_element  Element(s) the rule applies to
-     * @param     string                        Element name, in case $element is
-     *                                          not an array
-     * @param     array                         Rule data
+     * @param     array|HTML_QuickForm_element  $element Element(s) the rule applies to
+     * @param     string                        $elementName Element name, in case $element is not an array
+     * @param     array                         $ruleData Rule data
      * @return    string    JavaScript for the rule
      */
     public function getValidationScript(&$element, $elementName, $ruleData)
@@ -188,12 +187,10 @@ class HTML_QuickForm_RuleRegistry
     * Returns JavaScript to get and to reset the element's value
     *
     * @access private
-    * @param  HTML_QuickForm_element    element being processed
-    * @param  string                    element's name
-    * @param  bool                      whether to generate JavaScript to reset
-    *                                   the value
-    * @param  integer                   value's index in the array (only used for
-    *                                   multielement rules)
+    * @param  HTML_QuickForm_element    $element element being processed
+    * @param  string                    $elementName element's name
+    * @param  bool                      $reset whether to generate JavaScript to reset the value
+    * @param  integer                   $index value's index in the array (only used for multielement rules)
     * @return array     first item is value javascript, second is reset
     */
     function _getJsValue(&$element, $elementName, $reset = false, $index = null)

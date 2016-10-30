@@ -27,9 +27,9 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
     /**
      * Class constructor
      *
-     * @param     string    Input field name attribute
-     * @param     mixed     Label(s) for a field
-     * @param     mixed     Either a typical HTML attribute string or an associative array
+     * @param     string   $elementName Input field name attribute
+     * @param     mixed    $elementLabel Label(s) for a field
+     * @param     mixed    $attributes Either a typical HTML attribute string or an associative array
      */
     public function __construct($elementName=null, $elementLabel=null, $attributes=null)
     {

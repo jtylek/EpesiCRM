@@ -41,9 +41,9 @@ class HTML_QuickForm_hidden extends HTML_QuickForm_input
     /**
      * Accepts a renderer
      *
-     * @param HTML_QuickForm_Renderer    renderer object
-     * @param bool $sc1                  unused, for signature compatibility
-     * @param bool $sc2                  unused, for signature compatibility
+     * @param HTML_QuickForm_Renderer   $renderer renderer object
+     * @param bool $sc1                 $sc1 unused, for signature compatibility
+     * @param bool $sc2                 $sc2 unused, for signature compatibility
      * @access public
      * @return void
      */

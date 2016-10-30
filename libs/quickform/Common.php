@@ -197,9 +197,10 @@ abstract class HTML_Common
     /**
      * Updates the attributes in $attr1 with the values in $attr2 without changing the other existing attributes
      *
-     * @param    array   $attr1      Original attributes array
-     * @param    array   $attr2      New attributes array
+     * @param    array $attr1 Original attributes array
+     * @param    array $attr2 New attributes array
      * @access   private
+     * @return bool
      */
     function _updateAttrArray(&$attr1, $attr2)
     {
@@ -245,8 +246,8 @@ abstract class HTML_Common
     /**
      * Sets the value of the attribute
      *
-     * @param   string  Attribute name
-     * @param   string  Attribute value (will be set to $name if omitted)
+     * @param   string  $name Attribute name
+     * @param   string  $value Attribute value (will be set to $name if omitted)
      */
     public function setAttribute($name, $value = null)
     {
@@ -270,7 +271,7 @@ abstract class HTML_Common
     /**
      * Returns the assoc array (default) or string of attributes
      *
-     * @param     bool    Whether to return the attributes as string
+     * @param     bool    $asString Whether to return the attributes as string
      * @return    mixed   attributes
      */
     public function getAttributes($asString = false)
@@ -402,9 +403,7 @@ abstract class HTML_Common
      * $charset = HTML_Common::charset();
      * </code>
      *
-     * @param   string  New charset to use. Omit if just getting the 
-     *                  current value. Consult the htmlspecialchars() docs 
-     *                  for a list of supported character sets.
+     * @param   string  $newCharset New charset to use. Omit if just getting the current value. Consult the htmlspecialchars() docs for a list of supported character sets.
      * @return  string  Current charset
      */
     public static function charset($newCharset = null)

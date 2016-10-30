@@ -112,7 +112,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
    /**
     * Sets the element's value
     *
-    * @param    mixed   Element's value
+    * @param    mixed  $value Element's value
     */
     public function setValue($value)
     {
@@ -170,6 +170,7 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
      * @param     string    $event  Name of event
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
+     * @return true
      */
     public function onQuickFormEvent($event, $arg, &$caller)
     {

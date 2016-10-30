@@ -19,6 +19,7 @@ class HTML_QuickForm_Error extends Exception
      *
      * @param string $message The error message
      * @param int $code The error code
+     * @throws self
      */
     function __construct($message, $code = QUICKFORM_ERROR)
     {

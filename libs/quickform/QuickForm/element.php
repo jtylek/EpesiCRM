@@ -64,9 +64,9 @@ abstract class HTML_QuickForm_element extends HTML_Common
     /**
      * Class constructor
      *
-     * @param    string     Name of the element
-     * @param    mixed      Label(s) for the element
-     * @param    mixed      Associative array of tag attributes or HTML attributes name="value" pairs
+     * @param    string $elementName    Name of the element
+     * @param    mixed  $elementLabel    Label(s) for the element
+     * @param    mixed  $attributes    Associative array of tag attributes or HTML attributes name="value" pairs
      */
     public function __construct($elementName=null, $elementLabel=null, $attributes=null)
     {
@@ -289,6 +289,7 @@ abstract class HTML_QuickForm_element extends HTML_Common
      * @param     string    $event  Name of event
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
+     * @return true
      */
     public function onQuickFormEvent($event, $arg, &$caller)
     {
@@ -327,9 +328,9 @@ abstract class HTML_QuickForm_element extends HTML_Common
    /**
     * Accepts a renderer
     *
-    * @param HTML_QuickForm_Renderer    renderer object
-    * @param boolean                       Whether an element is required
-    * @param string                     An error message associated with an element
+    * @param HTML_QuickForm_Renderer   $renderer renderer object
+    * @param boolean                   $required    Whether an element is required
+    * @param string                    $error An error message associated with an element
     */
     public function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null)
     {
@@ -356,8 +357,8 @@ abstract class HTML_QuickForm_element extends HTML_Common
    /**
     * Returns a 'safe' element's value
     *
-    * @param  array   array of submitted values to search
-    * @param  bool    whether to return the value as associative array
+    * @param  array  $submitValues array of submitted values to search
+    * @param  bool   $assoc whether to return the value as associative array
     * @return mixed
     */
     public function exportValue(&$submitValues, $assoc = false)
@@ -372,8 +373,8 @@ abstract class HTML_QuickForm_element extends HTML_Common
    /**
     * Used by exportValue() to prepare the value for returning
     *
-    * @param  mixed   the value found in exportValue()
-    * @param  bool    whether to return the value as associative array
+    * @param  mixed  $value the value found in exportValue()
+    * @param  bool   $assoc whether to return the value as associative array
     * @access private
     * @return mixed
     */

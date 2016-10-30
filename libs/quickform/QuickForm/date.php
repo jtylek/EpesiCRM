@@ -252,10 +252,10 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
     * - 'emptyOptionText': The text displayed for the empty option.
     * - 'optionIncrement': Step to increase the option values by (works for 'i' and 's')
     *
-    * @param    string  Element's name
-    * @param    mixed   Label(s) for an element
-    * @param    array   Options to control the element's display
-    * @param    mixed   Either a typical HTML attribute string or an associative array
+    * @param    string $elementName Element's name
+    * @param    mixed  $elementLabel Label(s) for an element
+    * @param    array  $options Options to control the element's display
+    * @param    mixed  $attributes Either a typical HTML attribute string or an associative array
     */
     public function __construct($elementName = null, $elementLabel = null, $options = array(), $attributes = null)
     {
@@ -403,9 +403,9 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
    /**
     * Creates an option list containing the numbers from the start number to the end, inclusive
     *
-    * @param    int     The start number
-    * @param    int     The end number
-    * @param    int     Increment by this value
+    * @param    int    $start The start number
+    * @param    int    $end The end number
+    * @param    int    $step Increment by this value
     * @access   private
     * @return   array   An array of numeric options.
     */
@@ -423,7 +423,7 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
    /**
     * Trims leading zeros from the (numeric) string
     *
-    * @param    string  A numeric string, possibly with leading zeros
+    * @param    string $str A numeric string, possibly with leading zeros
     * @return   string  String with leading zeros removed
     */
     function _trimLeadingZeros($str)

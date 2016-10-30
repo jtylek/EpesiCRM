@@ -27,11 +27,11 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
     /**
      * Class constructor
      *
-     * @param     string    Input field name attribute
-     * @param     mixed     Label(s) for a field
-     * @param     string    Text to display near the radio
-     * @param     string    Input field value
-     * @param     mixed     Either a typical HTML attribute string or an associative array
+     * @param     string    $elementName Input field name attribute
+     * @param     mixed     $elementLabel Label(s) for a field
+     * @param     string    $text Text to display near the radio
+     * @param     string    $value Input field value
+     * @param     mixed     $attributes Either a typical HTML attribute string or an associative array
      */
     public function __construct($elementName=null, $elementLabel=null, $text=null, $value=null, $attributes=null)
     {
@@ -127,6 +127,7 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
      * @param     string    $event  Name of event
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
+     * @return true
      */
     public function onQuickFormEvent($event, $arg, &$caller)
     {

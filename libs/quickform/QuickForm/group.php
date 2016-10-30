@@ -108,7 +108,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
     /**
      * Sets values for group's elements
      *
-     * @param     mixed    Values for group's elements
+     * @param     mixed   $value Values for group's elements
      */
     public function setValue($value)
     {
@@ -299,6 +299,7 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
      * @param     string    $event  Name of event
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
+     * @return true
      */
     public function onQuickFormEvent($event, $arg, &$caller)
     {
@@ -332,9 +333,9 @@ class HTML_QuickForm_group extends HTML_QuickForm_element
    /**
     * Accepts a renderer
     *
-    * @param HTML_QuickForm_Renderer    renderer object
-    * @param bool                       Whether a group is required
-    * @param string                     An error message associated with a group
+    * @param HTML_QuickForm_Renderer   $renderer renderer object
+    * @param bool                      $required Whether a group is required
+    * @param string                    $error An error message associated with a group
     */
     public function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null)
     {

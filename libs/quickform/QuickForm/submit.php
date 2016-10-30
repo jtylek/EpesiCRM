@@ -19,9 +19,9 @@ class HTML_QuickForm_submit extends HTML_QuickForm_input
     /**
      * Class constructor
      *
-     * @param     string    Input field name attribute
-     * @param     string    Input field value
-     * @param     mixed     Either a typical HTML attribute string or an associative array
+     * @param     string  $elementName  Input field name attribute
+     * @param     string  $value  Input field value
+     * @param     mixed   $attributes  Either a typical HTML attribute string or an associative array
      */
     public function __construct($elementName=null, $value=null, $attributes=null)
     {

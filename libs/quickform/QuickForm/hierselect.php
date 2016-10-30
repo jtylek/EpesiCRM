@@ -20,6 +20,7 @@
  * @author      Herim Vasquez <vasquezh@iro.umontreal.ca>
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @author      Alexey Borzov <avb@php.net>
+ * @property HTML_QuickForm_select[] $_elements
  */
 class HTML_QuickForm_hierselect extends HTML_QuickForm_group
 {
@@ -189,6 +190,7 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
         foreach (array_keys($this->_elements) AS $key) {
             $array = eval("return isset(\$this->_options[{$key}]{$toLoad})? \$this->_options[{$key}]{$toLoad}: null;");
             if (is_array($array)) {
+                /** @var HTML_QuickForm_select $select */
                 $select =& $this->_elements[$key];
                 $select->_options = array();
                 $select->loadArray($array);
@@ -235,6 +237,7 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
             $keys     = array_keys($this->_elements);
             $onChange = array();
             for ($i = 0; $i < count($keys) - 1; $i++) {
+                /** @var HTML_QuickForm_select $select */
                 $select =& $this->_elements[$keys[$i]];
                 $onChange[$i] = $select->getAttribute('onchange');
                 $select->updateAttributes(
@@ -449,8 +452,8 @@ JAVASCRIPT;
     * convert an associative array of options to two arrays of their values
     * and texts. Backport from HTML_QuickForm2.
     *
-    * @param    array   Options array
-    * @param    int     Depth within options array
+    * @param    array   $ary Options array
+    * @param    int     $depth Depth within options array
     * @link     http://pear.php.net/bugs/bug.php?id=16603
     * @return   array
     * @access   private
@@ -474,7 +477,7 @@ JAVASCRIPT;
     * Converts PHP array to its Javascript analog
     *
     * @access private
-    * @param  array     PHP array to convert
+    * @param  array     $array PHP array to convert
     * @return string    Javascript representation of the value
     */
     function _convertArrayToJavascript($array)
@@ -511,7 +514,7 @@ JAVASCRIPT;
     * Converts PHP's scalar value to its Javascript analog
     *
     * @access private
-    * @param  mixed     PHP value to convert
+    * @param  mixed     $val PHP value to convert
     * @return string    Javascript representation of the value
     */
     function _convertScalarToJavascript($val)
