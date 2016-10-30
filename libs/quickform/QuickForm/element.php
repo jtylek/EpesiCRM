@@ -70,7 +70,7 @@ abstract class HTML_QuickForm_element extends HTML_Common
      */
     public function __construct($elementName=null, $elementLabel=null, $attributes=null)
     {
-        HTML_Common::HTML_Common($attributes);
+        parent::__construct($attributes);
         if (isset($elementName)) {
             $this->setName($elementName);
         }
