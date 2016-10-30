@@ -1,0 +1,54 @@
+{
+    "authors": [
+        {
+            "email": "bmansion@mamasam.com",
+            "name": "Bertrand Mansion",
+            "role": "Lead"
+        },
+        {
+            "email": "adaniel1@eesus.jnj.com",
+            "name": "Adam Daniel",
+            "role": "Lead"
+        },
+        {
+            "email": "borz_off@cs.msu.su",
+            "name": "Alexey Borzov",
+            "role": "Lead"
+        },
+        {
+            "email": "jason@rustyparts.com",
+            "name": "Jason Rust",
+            "role": "Developer"
+        },
+        {
+            "email": "ths@4bconsult.de",
+            "name": "Thomas Schulz",
+            "role": "Developer"
+        },
+        {
+            "email": "ron@humaniq.com",
+            "name": "Ron McClain",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "./"
+        ]
+    },
+    "description": "More info available on: http://pear.php.net/package/HTML_QuickForm",
+    "license": "PHP License",
+    "name": "pear/html_quickform",
+    "support": {
+        "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=HTML_QuickForm",
+        "source": "https://github.com/pear/HTML_QuickForm"
+    },
+    "type": "library",
+    "require": {
+        "pear/pear_exception": "*",
+        "pear/html_common": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
+}
