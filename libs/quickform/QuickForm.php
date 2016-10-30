@@ -687,7 +687,7 @@ class HTML_QuickForm extends HTML_Common
     /**
      * Returns the elements value after submit and filter
      *
-     * @param     string     Element name
+     * @param     string    $elementName  Element name
      * @return    mixed     submitted element value or null if not set
      */
     public function getSubmitValue($elementName)
@@ -753,8 +753,8 @@ class HTML_QuickForm extends HTML_Common
    /**
     * A helper function to change the indexes in $_FILES array
     *
-    * @param  mixed   Some value from the $_FILES array
-    * @param  string  The key from the $_FILES array that should be appended
+    * @param  mixed   $value Some value from the $_FILES array
+    * @param  string  $key The key from the $_FILES array that should be appended
     * @return array
     */
     function _reindexFiles($value, $key)

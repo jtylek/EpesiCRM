@@ -58,9 +58,6 @@ abstract class HTML_QuickForm_element extends HTML_Common
       */
     var $_caller = null;
 
-    // }}}
-    // {{{ constructor
-    
     /**
      * Class constructor
      *
@@ -278,10 +275,7 @@ abstract class HTML_QuickForm_element extends HTML_Common
                 ) . "']";
             eval("if(isset(\$values$myVar)) unset(\$values$myVar);");
         }
-    } //end func _findValue
-
-    // }}}
-    // {{{ onQuickFormEvent()
+    }
 
     /**
      * Called by HTML_QuickForm whenever form event is made on this element

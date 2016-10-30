@@ -283,9 +283,6 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
         }
     }
 
-    // }}}
-    // {{{ _createElements()
-
     function _createElements()
     {
         $this->_separator = $this->_elements = array();
@@ -397,9 +394,6 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
         $this->_wrap[1] = $separator . ($backslash? '\\': '');
     }
 
-    // }}}
-    // {{{ _createOptionList()
-
    /**
     * Creates an option list containing the numbers from the start number to the end, inclusive
     *
@@ -417,9 +411,6 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
         return $options;
     }
 
-    // }}}
-    // {{{ _trimLeadingZeros()
-
    /**
     * Trims leading zeros from the (numeric) string
     *
@@ -434,9 +425,6 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
         $trimmed = ltrim($str, '0');
         return strlen($trimmed)? $trimmed: '0';
     }
-
-    // }}}
-    // {{{ setValue()
 
     function setValue($value)
     {
@@ -472,9 +460,6 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
         parent::setValue($value);
     }
 
-    // }}}
-    // {{{ toHtml()
-
     function toHtml()
     {
         $renderer = new HTML_QuickForm_Renderer_Default();
@@ -483,16 +468,10 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
         return $this->_wrap[0] . $renderer->toHtml() . $this->_wrap[1];
     }
 
-    // }}}
-    // {{{ accept()
-
     public function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null)
     {
         $renderer->renderElement($this, $required, $error);
     }
-
-    // }}}
-    // {{{ onQuickFormEvent()
 
     function onQuickFormEvent($event, $arg, &$caller)
     {
@@ -504,7 +483,5 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
             return parent::onQuickFormEvent($event, $arg, $caller);
         }
     }
-
-    // }}}
 }
 ?>
