@@ -25,22 +25,6 @@ abstract class HTML_Common
     var $_attributes = array();
 
     /**
-     * Tab offset of the tag
-     *
-     * @var     int
-     * @access  private
-     */
-    var $_tabOffset = 0;
-
-    /**
-     * Tab string
-     *
-     * @var       string
-     * @access    private
-     */
-    var $_tab = "\11";
-
-    /**
      * Contains the line end string
      *
      * @var       string
@@ -59,14 +43,11 @@ abstract class HTML_Common
     /**
      * Class constructor
      *
-     * @param    mixed   $attributes     Associative array of table tag attributes
-     *                                   or HTML attributes name="value" pairs
-     * @param    int     $tabOffset      Indent offset in tabs
+     * @param    mixed   $attributes     Associative array of table tag attributes or HTML attributes name="value" pairs
      */
-    public function __construct($attributes = null, $tabOffset = 0)
+    public function __construct($attributes = null)
     {
         $this->setAttributes($attributes);
-        $this->setTabOffset($tabOffset);
     }
 
     /**
@@ -90,27 +71,6 @@ abstract class HTML_Common
         return $this->_lineEnd;
     }
 
-    /**
-     * Returns a string containing the unit for indenting HTML
-     *
-     * @access    private
-     * @return    string
-     */
-    function _getTab()
-    {
-        return $this->_tab;
-    }
-
-    /**
-     * Returns a string containing the offset for the whole HTML code
-     *
-     * @return    string
-     * @access   private
-     */
-    function _getTabs()
-    {
-        return str_repeat($this->_getTab(), $this->_tabOffset);
-    }
 
     /**
      * Returns an HTML formatted attribute string
@@ -323,36 +283,6 @@ abstract class HTML_Common
             default:
                 $this->_lineEnd = $style;
         }
-    }
-
-    /**
-     * Sets the tab offset
-     *
-     * @param    int     $offset
-     */
-    public function setTabOffset($offset)
-    {
-        $this->_tabOffset = $offset;
-    }
-
-    /**
-     * Returns the tabOffset
-     *
-     * @return    int
-     */
-    public function getTabOffset()
-    {
-        return $this->_tabOffset;
-    }
-
-    /**
-     * Sets the string used to indent HTML
-     *
-     * @param     string    $string     String used to indent ("\11", "\t", '  ', etc.).
-     */
-    public function setTab($string)
-    {
-        $this->_tab = $string;
     }
 
     /**

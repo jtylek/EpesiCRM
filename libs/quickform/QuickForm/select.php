@@ -339,11 +339,10 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {
-            $tabs    = $this->_getTabs();
             $strHtml = '';
 
             if ($this->getComment() != '') {
-                $strHtml .= $tabs . '<!-- ' . $this->getComment() . " //-->\n";
+                $strHtml .= '<!-- ' . $this->getComment() . " //-->\n";
             }
 
             if (!$this->getMultiple()) {
@@ -354,18 +353,18 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
                 $attrString = $this->_getAttrString($this->_attributes);
                 $this->setName($myName);
             }
-            $strHtml .= $tabs . '<select' . $attrString . ">\n";
+            $strHtml .= '<select' . $attrString . ">\n";
 
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
             foreach ($this->_options as $option) {
                 if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
                     $option['attr']['selected'] = 'selected';
                 }
-                $strHtml .= $tabs . "\t<option" . $this->_getAttrString($option['attr']) . '>' .
+                $strHtml .= "\t<option" . $this->_getAttrString($option['attr']) . '>' .
                             $option['text'] . "</option>\n";
             }
 
-            return $strHtml . $tabs . '</select>';
+            return $strHtml . '</select>';
         }
     }
 
