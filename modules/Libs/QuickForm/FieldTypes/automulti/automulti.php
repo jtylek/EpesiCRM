@@ -240,11 +240,10 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {
-			$tabs    = $this->_getTabs();
 			$strHtml = '';
 			
 			if ($this->getComment() != '') {
-			    $strHtml .= $tabs . '<!-- ' . $this->getComment() . " //-->\n";
+			    $strHtml .= '<!-- ' . $this->getComment() . " //-->\n";
 			}
 			
 			$myName = $this->getName();
@@ -257,7 +256,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$search->setAttribute('placeholder', __('Start typing to search...'));
 			$search->on_hide_js('if($("__autocomplete_id_'.$myName.'__search").value!=""){automulti_on_hide("'.$myName.'","'.self::$list_sep.'");'.$this->on_add_js_code.'}');
 			
-			$searchElement .= $tabs . $search->toHtml()."\n";
+			$searchElement .= $search->toHtml()."\n";
 			if (isset($this->_values[0]) && (preg_match('/'.addcslashes(self::$list_sep,'/').'/i',$this->_values[0]) || $this->_values[0]=='')) {
 		        $this->_values = explode(self::$list_sep,$this->_values[0]);
 		        array_shift($this->_values);
@@ -268,26 +267,26 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$mainElement = '';
 			$list = '';
 			$attrString = $this->_getAttrString($this->_attributes);
-			$mainElement .= $tabs . '<select' . $attrString . ' onclick="automulti_remove_button_update(\''.$myName.'\');">'."\n";
+			$mainElement .= '<select' . $attrString . ' onclick="automulti_remove_button_update(\''.$myName.'\');">'."\n";
 			if ($this->_format_callback) foreach ($this->_values as $value) {
-				$mainElement .= $tabs . "\t".'<option value="'.$value.'">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>'."\n";
+				$mainElement .= "\t".'<option value="'.$value.'">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>'."\n";
 				$list .= '__SEP__'.$value;
             }
-			$mainElement .= $tabs . '</select>';
+			$mainElement .= '</select>';
 
-			$strHtml .= $tabs . '<table class="automulti">';
-            $strHtml .= $tabs . '<tr>'.
-            			$tabs . '<td class="search-element">' . $searchElement . '</td>'.
-						($this->search_button? $tabs.'<td class="search">'.$this->search_button.'</td>' : '<td></td>').
-						$tabs . '<td width="80px;" class="button disabled" id="automulti_button_style_'.$myName.'">'.
+			$strHtml .= '<table class="automulti">';
+            $strHtml .= '<tr>'.
+            			'<td class="search-element">' . $searchElement . '</td>'.
+						($this->search_button? '<td class="search">'.$this->search_button.'</td>' : '<td></td>').
+						'<td width="80px;" class="button disabled" id="automulti_button_style_'.$myName.'">'.
 						'<input style="width:100%" type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.self::$list_sep.'\');'.$this->on_remove_js_code.'" value="'.__('Remove').'">'.'</td>' .
 								'</tr>';
 
-			$strHtml .= $tabs . '<tr><td class="main-element" colspan="3">' . $mainElement . '</td></tr></table>';
+			$strHtml .= '<tr><td class="main-element" colspan="3">' . $mainElement . '</td></tr></table>';
 
 			$this->setName($myName);
 
-			$strHtml .= $tabs . '<input type="hidden" name="'.$myName.'" value="'.$list.'" id="'.$myName.'__var_holder" />'."\n";
+			$strHtml .= '<input type="hidden" name="'.$myName.'" value="'.$list.'" id="'.$myName.'__var_holder" />'."\n";
 			return $strHtml;
         }
     }

@@ -78,11 +78,10 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {
-            $tabs    = $this->_getTabs();
             $strHtml = '';
 
             if ($this->getComment() != '') {
-                $strHtml .= $tabs . '<!-- ' . $this->getComment() . " //-->\n";
+                $strHtml .= '<!-- ' . $this->getComment() . " //-->\n";
             }
 
             $myName = $this->getName();
@@ -95,7 +94,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
                 $attrString = $this->_getAttrString($this->_attributes);
                 $this->setName($myName);
             }
-            $strHtml .= $tabs . '<select' . $attrString . ">\n";
+            $strHtml .= '<select' . $attrString . ">\n";
 			$mode = Base_User_SettingsCommon::get('Libs_QuickForm','autoselect_mode');
 
 				
@@ -109,10 +108,10 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
                 if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
                     $option['attr']['selected'] = 'selected';
                 }
-                $strHtml .= $tabs . "\t<option" . $this->_getAttrString($option['attr']) . '>' .
+                $strHtml .= "\t<option" . $this->_getAttrString($option['attr']) . '>' .
                             $option['text'] . "</option>\n";
             }
-			$strHtml .= $tabs . '</select>';
+			$strHtml .= '</select>';
 
 			$text_attrs = array('placeholder'=>$hint);
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args, $this->more_opts_format), $text_attrs);

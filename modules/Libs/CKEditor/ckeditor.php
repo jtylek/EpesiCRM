@@ -122,8 +122,7 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
             if(!isset($this->config['scayt_autoStartup']))
                 $this->config['scayt_autoStartup'] = 0;
       	    eval_js('ckeditors_hib["'.$this->_attributes['id'].'"]='.json_encode($this->config));
-            return $this->_getTabs() .
-                   '<textarea' . $this->_getAttrString($this->_attributes) . '>' .
+            return '<textarea' . $this->_getAttrString($this->_attributes) . '>' .
                    // because we wrap the form later we don't want the text indented
                    preg_replace("/(\r\n|\n|\r)/", '&#010;', htmlspecialchars($this->_value)) .
                    '</textarea>';
@@ -134,7 +133,7 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
     {
         $value = htmlspecialchars($this->getValue());
         if ($this->getAttribute('wrap') == 'off') {
-            $html = $this->_getTabs() . '<pre>' . $value."</pre>\n";
+            $html = '<pre>' . $value."</pre>\n";
         } else {
             $html = nl2br($value)."\n";
         }

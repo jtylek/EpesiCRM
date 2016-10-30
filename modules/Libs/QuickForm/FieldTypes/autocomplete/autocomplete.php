@@ -61,7 +61,7 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text {
 					$this->on_hide_js_code.
 				'}');
 
-            return $this->_getTabs() . '<input' . $this->_getAttrString($this->_attributes) . ' />'.
+            return '<input' . $this->_getAttrString($this->_attributes) . ' />'.
             		'<div id="'.$id.'_suggestbox" class="autocomplete">&nbsp;</div>';
         }
     } //end func toHtml
