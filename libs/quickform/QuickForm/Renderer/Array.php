@@ -144,8 +144,8 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
     /**
      * Constructor
      *
-     * @param  bool    true: collect all hidden elements into string; false: process them as usual form elements
-     * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
+     * @param  bool  $collectHidden  true: collect all hidden elements into string; false: process them as usual form elements
+     * @param  bool  $staticLabels  true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
      */
     public function __construct($collectHidden = false, $staticLabels = false)
     {
@@ -242,9 +242,9 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
     /**
      * Creates an array representing an element
      *
-     * @param  HTML_QuickForm_element    element being processed
-     * @param  bool                      Whether an element is required
-     * @param  string                    Error associated with the element
+     * @param  HTML_QuickForm_element   $element element being processed
+     * @param  bool                     $required Whether an element is required
+     * @param  string                   $error Error associated with the element
      * @return array
      */
     protected function _elementToArray(&$element, $required, $error)
@@ -289,7 +289,7 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
     /**
      * Stores an array representation of an element in the form array
      *
-     * @param array  Array representation of an element
+     * @param array $elAry Array representation of an element
      */
     private function _storeArray($elAry)
     {
@@ -306,8 +306,8 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
    /**
     * Sets a style to use for element rendering
     *
-    * @param mixed      element name or array ('element name' => 'style name')
-    * @param string     style name if $elementName is not an array
+    * @param mixed     $elementName element name or array ('element name' => 'style name')
+    * @param string    $styleName style name if $elementName is not an array
     */
     public function setElementStyle($elementName, $styleName = null)
     {

@@ -177,7 +177,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
    /**
     * Called when visiting a header element
     *
-    * @param    HTML_QuickForm_header   header element being visited
+    * @param    HTML_QuickForm_header  $header header element being visited
     */
     public function renderHeader(&$header)
     {
@@ -192,10 +192,10 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
    /**
     * Helper method for renderElement
     *
-    * @param    string      Element name
-    * @param    mixed       Element label (if using an array of labels, you should set the appropriate template)
-    * @param    bool        Whether an element is required
-    * @param    string      Error message associated with the element
+    * @param    string     $name Element name
+    * @param    mixed      $label Element label (if using an array of labels, you should set the appropriate template)
+    * @param    bool       $required Whether an element is required
+    * @param    string     $error Error message associated with the element
     * @access   private
     * @see      renderElement()
     * @return   string      Html for element
@@ -244,8 +244,8 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     * Called when visiting an element
     *
     * @param HTML_QuickForm_element form element being visited
-    * @param bool                   Whether an element is required
-    * @param string                 An error message associated with an element
+    * @param bool                  $element Whether an element is required
+    * @param string                $required An error message associated with an element
     */
     public function renderElement(&$element, $required, $error)
     {
@@ -279,7 +279,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
    /**
     * Called when visiting a raw HTML/text pseudo-element
     *
-    * @param  HTML_QuickForm_html   element being visited
+    * @param  HTML_QuickForm_html  $data element being visited
     */
     public function renderHtml(&$data)
     {
@@ -289,9 +289,9 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
    /**
     * Called when visiting a group, before processing any group elements
     *
-    * @param HTML_QuickForm_group   group being visited
-    * @param bool       Whether a group is required
-    * @param string     An error message associated with a group
+    * @param HTML_QuickForm_group  $group group being visited
+    * @param bool      $required Whether a group is required
+    * @param string    $error An error message associated with a group
     */
     public function startGroup(&$group, $required, $error)
     {
@@ -306,7 +306,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
    /**
     * Called when visiting a group, after processing all group elements
     *
-    * @param    HTML_QuickForm_group    group being visited
+    * @param    HTML_QuickForm_group   $group group being visited
     */
     public function finishGroup(&$group)
     {
@@ -333,8 +333,8 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     /**
      * Sets element template
      *
-     * @param       string      The HTML surrounding an element
-     * @param       string      (optional) Name of the element to apply template for
+     * @param       string     $html The HTML surrounding an element
+     * @param       string     $element (optional) Name of the element to apply template for
      */
     public function setElementTemplate($html, $element = null)
     {
@@ -352,8 +352,8 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
      * set via setTemplate() and contains group's element templates, set
      * via setGroupElementTemplate()
      *
-     * @param       string      The HTML surrounding group elements
-     * @param       string      Name of the group to apply template for
+     * @param       string     $html The HTML surrounding group elements
+     * @param       string     $group Name of the group to apply template for
      */
     public function setGroupTemplate($html, $group)
     {
@@ -363,8 +363,8 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     /**
      * Sets element template for elements within a group
      *
-     * @param       string      The HTML surrounding an element
-     * @param       string      Name of the group to apply template for
+     * @param       string     $html The HTML surrounding an element
+     * @param       string     $group Name of the group to apply template for
      */
     public function setGroupElementTemplate($html, $group)
     {
@@ -374,7 +374,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     /**
      * Sets header template
      *
-     * @param       string      The HTML surrounding the header
+     * @param       string     $html The HTML surrounding the header
      */
     public function setHeaderTemplate($html)
     {
@@ -384,7 +384,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     /**
      * Sets form template
      *
-     * @param     string    The HTML surrounding the form tags
+     * @param     string   $html The HTML surrounding the form tags
      */
     public function setFormTemplate($html)
     {
@@ -394,7 +394,7 @@ class HTML_QuickForm_Renderer_Default extends HTML_QuickForm_Renderer
     /**
      * Sets the note indicating required fields template
      *
-     * @param       string      The HTML surrounding the required note
+     * @param       string     $html The HTML surrounding the required note
      */
     public function setRequiredNoteTemplate($html)
     {

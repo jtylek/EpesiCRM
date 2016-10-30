@@ -107,9 +107,9 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
    /**
     * Constructor
     *
-    * @param  Smarty  reference to the Smarty template engine instance
-    * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
-    * @param  bool    true: collect all hidden elements into string; false: process them as usual form elements
+    * @param  Smarty $tpl reference to the Smarty template engine instance
+    * @param  bool   $staticLabels true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
+    * @param  bool   $collectHidden true: collect all hidden elements into string; false: process them as usual form elements
     */
     public function __construct(&$tpl, $staticLabels = false, $collectHidden = true)
     {
@@ -120,7 +120,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
    /**
     * Called when visiting a header element
     *
-    * @param    HTML_QuickForm_header   header element being visited
+    * @param    HTML_QuickForm_header  $header header element being visited
     */
     public function renderHeader(&$header)
     {
@@ -135,9 +135,9 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
    /**
     * Called when visiting a group, before processing any group elements
     *
-    * @param    HTML_QuickForm_group    group being visited
-    * @param    bool                    Whether a group is required
-    * @param    string                  An error message associated with a group
+    * @param    HTML_QuickForm_group   $group group being visited
+    * @param    bool                   $required Whether a group is required
+    * @param    string                 $error An error message associated with a group
     */
     public function startGroup(&$group, $required, $error)
     {
@@ -150,9 +150,9 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * the key for storing this
     *
     * @access private
-    * @param  HTML_QuickForm_element    form element being visited
-    * @param  bool                      Whether an element is required
-    * @param  string                    Error associated with the element
+    * @param  HTML_QuickForm_element   $element form element being visited
+    * @param  bool                     $required Whether an element is required
+    * @param  string                   $error Error associated with the element
     * @return array
     */
     function _elementToArray(&$element, $required, $error)
@@ -222,7 +222,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * Stores an array representation of an element in the form array
     *
     * @access private
-    * @param array  Array representation of an element
+    * @param array $elAry Array representation of an element
     */
     function _storeArray($elAry)
     {
@@ -246,10 +246,10 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * This method will add the required tag to the element label and/or the element html
     * such as defined with the method setRequiredTemplate.
     *
-    * @param    string      The element label
-    * @param    string      The element html rendering
-    * @param    boolean     The element required
-    * @param    string      The element error
+    * @param    string     $label The element label
+    * @param    string     $html The element html rendering
+    * @param    boolean    $required The element required
+    * @param    string     $error The element error
     * @see      setRequiredTemplate()
     * @access   private
     */
@@ -277,9 +277,9 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * such as defined with the method setErrorTemplate. If the error placeholder is not found
     * in the template, the error will be displayed in the form error block.
     *
-    * @param    string      The element label
-    * @param    string      The element html rendering
-    * @param    string      The element error
+    * @param    string     $label The element label
+    * @param    string     $html The element html rendering
+    * @param    string     $error The element error
     * @see      setErrorTemplate()
     * @access   private
     */
@@ -303,8 +303,9 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * Smarty has no core function to render	a template given as a string.
     * So we use the smarty eval plugin function	to do this.
     *
-    * @param    string      The template source
+    * @param    string     $tplSource The template source
     * @access   private
+    * @return mixed
     */
     function _tplFetch($tplSource)
     {
@@ -327,7 +328,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * translate the label.
     *
     *
-    * @param    string      The required element template
+    * @param    string     $template The required element template
     */
     public function setRequiredTemplate($template)
     {
@@ -356,7 +357,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * place the formated error message manually. In this case, use {$form.group.error}
     * where you want the formated error message to appear in the form.
     *
-    * @param    string      The element error template
+    * @param    string  $template    The element error template
     */
     public function setErrorTemplate($template)
     {

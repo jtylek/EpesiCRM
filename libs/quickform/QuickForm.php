@@ -248,7 +248,7 @@ class HTML_QuickForm extends HTML_Common
      */
     public function __construct($formName='', $method='post', $action='', $target='', $attributes=null, $trackSubmit = false)
     {
-        HTML_Common::HTML_Common($attributes);
+        parent::__construct($attributes);
         $method = (strtoupper($method) == 'GET') ? 'get' : 'post';
         $action = ($action == '') ? $_SERVER['PHP_SELF'] : $action;
         $target = empty($target) ? array() : array('target' => $target);
@@ -687,7 +687,7 @@ class HTML_QuickForm extends HTML_Common
     /**
      * Returns the elements value after submit and filter
      *
-     * @param     string     Element name
+     * @param     string    $elementName  Element name
      * @return    mixed     submitted element value or null if not set
      */
     public function getSubmitValue($elementName)
@@ -753,8 +753,8 @@ class HTML_QuickForm extends HTML_Common
    /**
     * A helper function to change the indexes in $_FILES array
     *
-    * @param  mixed   Some value from the $_FILES array
-    * @param  string  The key from the $_FILES array that should be appended
+    * @param  mixed   $value Some value from the $_FILES array
+    * @param  string  $key The key from the $_FILES array that should be appended
     * @return array
     */
     function _reindexFiles($value, $key)
@@ -1155,7 +1155,7 @@ class HTML_QuickForm extends HTML_Common
      * Returns whether or not the given rule is supported
      *
      * @param     string   $name    Validation rule name
-     * @param     bool     Whether to automatically register subclasses of HTML_QuickForm_Rule
+     * @param     bool     $autoRegister Whether to automatically register subclasses of HTML_QuickForm_Rule
      * @return    mixed    true if previously registered, false if not, new rule name if auto-registering worked
      */
     public function isRuleRegistered($name, $autoRegister = false)
@@ -1348,7 +1348,8 @@ class HTML_QuickForm extends HTML_Common
     /**
      * Displays elements without HTML input tags
      *
-     * @param    mixed   $elementList       array or string of element(s) to be frozen
+     * @param    mixed $elementList array or string of element(s) to be frozen
+     * @return bool
      * @throws   HTML_QuickForm_Error
      */
     public function freeze($elementList=null)
@@ -1407,7 +1408,7 @@ class HTML_QuickForm extends HTML_Common
    /**
     * Accepts a renderer
     *
-    * @param object     An HTML_QuickForm_Renderer object
+    * @param HTML_QuickForm_Renderer    $renderer An HTML_QuickForm_Renderer object
     */
     public function accept(&$renderer)
     {
@@ -1577,7 +1578,7 @@ class HTML_QuickForm extends HTML_Common
      * it will return a value set by setValue()/setDefaults()/setConstants()
      * if submitted value does not exist for the given element.
      *
-     * @param  string   Name of an element
+     * @param  string  $element Name of an element
      * @return mixed
      * @throws HTML_QuickForm_Error
      */
@@ -1650,7 +1651,7 @@ class HTML_QuickForm extends HTML_Common
     /**
      * Tell whether a result from a QuickForm method is an error (an instance of HTML_QuickForm_Error)
      *
-     * @param mixed     result code
+     * @param mixed     $value result code
      * @return bool     whether $value is an error
      */
     public static function isError($value)

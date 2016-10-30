@@ -78,7 +78,7 @@ class HTML_QuickForm_input extends HTML_QuickForm_element
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {
-            return $this->_getTabs() . '<input' . $this->_getAttrString($this->_attributes) . ' />';
+            return '<input' . $this->_getAttrString($this->_attributes) . ' />';
         }
     }
 
@@ -88,6 +88,7 @@ class HTML_QuickForm_input extends HTML_QuickForm_element
      * @param     string    $event  Name of event
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
+     * @return true
      */
     public function onQuickFormEvent($event, $arg, &$caller)
     {

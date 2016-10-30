@@ -38,7 +38,7 @@ class HTML_QuickForm_Rule_Compare extends HTML_QuickForm_Rule
     * Returns the operator to use for comparing the values
     *
     * @access private
-    * @param  string     operator name
+    * @param  string    $name operator name
     * @return string     operator to use for validation
     */
     function _findOperator($name)
