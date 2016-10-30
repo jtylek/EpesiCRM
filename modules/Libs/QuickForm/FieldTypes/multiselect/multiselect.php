@@ -360,10 +360,6 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
         } else {
             $strHtml = '';
 
-            if ($this->getComment() != '') {
-                $strHtml .= '<!-- ' . $this->getComment() . " //-->\n";
-            }
-
             $myName = $this->getName();
 			$mod = $myName;
 			if (detect_mobile_device()) {

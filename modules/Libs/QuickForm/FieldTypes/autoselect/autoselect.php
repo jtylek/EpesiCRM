@@ -80,10 +80,6 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
         } else {
             $strHtml = '';
 
-            if ($this->getComment() != '') {
-                $strHtml .= '<!-- ' . $this->getComment() . " //-->\n";
-            }
-
             $myName = $this->getName();
 			$this->updateAttributes(array('id'=>$myName));
 			eval_js('Event.observe("'.$myName.'", "keydown", function(ev){autoselect_start_searching("'.$myName.'", ev.keyCode)});');

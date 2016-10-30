@@ -242,10 +242,6 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
         } else {
 			$strHtml = '';
 			
-			if ($this->getComment() != '') {
-			    $strHtml .= '<!-- ' . $this->getComment() . " //-->\n";
-			}
-			
 			$myName = $this->getName();
 			$this->updateAttributes(array('id' => $myName)); // Workaround for not processing attributes arg properly
 
