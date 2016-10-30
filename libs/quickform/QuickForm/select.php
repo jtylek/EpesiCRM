@@ -341,10 +341,6 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
         } else {
             $strHtml = '';
 
-            if ($this->getComment() != '') {
-                $strHtml .= '<!-- ' . $this->getComment() . " //-->\n";
-            }
-
             if (!$this->getMultiple()) {
                 $attrString = $this->_getAttrString($this->_attributes);
             } else {

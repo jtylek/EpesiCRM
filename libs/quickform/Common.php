@@ -32,13 +32,6 @@ abstract class HTML_Common
      */
     var $_lineEnd = "\12";
 
-    /**
-     * HTML comment on the object
-     *
-     * @var       string
-     * @access    private
-     */
-    var $_comment = '';
 
     /**
      * Class constructor
@@ -283,26 +276,6 @@ abstract class HTML_Common
             default:
                 $this->_lineEnd = $style;
         }
-    }
-
-    /**
-     * Sets the HTML comment to be displayed at the beginning of the HTML string
-     *
-     * @param     string
-     */
-    public function setComment($comment)
-    {
-        $this->_comment = $comment;
-    }
-
-    /**
-     * Returns the HTML comment
-     *
-     * @return    string
-     */
-    public function getComment()
-    {
-        return $this->_comment;
     }
 
     /**
