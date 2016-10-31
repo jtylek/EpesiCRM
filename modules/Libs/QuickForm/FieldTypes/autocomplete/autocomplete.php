@@ -22,8 +22,8 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text {
      *                                      or an associative array
      * @return void
      */
-    function HTML_QuickForm_autocomplete($elementName=null, $elementLabel=null, $callback=null, $args=null, $attributes=null) {
-        HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+    function __construct($elementName=null, $elementLabel=null, $callback=null, $args=null, $attributes=null) {
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->callback = $callback;
         if (!$args || !is_array($args)) $args = array();
         $this->args = $args;

@@ -152,9 +152,8 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
     * @access public
     */
-    function HTML_QuickForm_Renderer_TCMSArray($collectHidden = false, $staticLabels = false)
+    public function __construct($collectHidden = false, $staticLabels = false)
     {
-        $this->HTML_QuickForm_Renderer();
         $this->_collectHidden = $collectHidden;
         $this->_staticLabels  = $staticLabels;
         //print "<div id='asdfre'></div>";
