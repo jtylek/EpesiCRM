@@ -1,33 +1,12 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * A static renderer for HTML_QuickForm, makes an array of form content
- * useful for a Smarty template
- * 
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @author      Thomas Schulz <ths@4bconsult.de>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
-
-/**
- * A concrete renderer for HTML_QuickForm, makes an array of form contents
- */ 
-require_once 'HTML/QuickForm/Renderer/Array.php';
 
 /**
  * A static renderer for HTML_QuickForm, makes an array of form content
@@ -82,13 +61,10 @@ require_once 'HTML/QuickForm/Renderer/Array.php';
  * )
  * </pre>
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @author      Thomas Schulz <ths@4bconsult.de>
- * @version     Release: @package_version@
- * @since       3.0
  */
 class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
 {
@@ -134,22 +110,19 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * @param  Smarty  reference to the Smarty template engine instance
     * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
     * @param  bool    true: collect all hidden elements into string; false: process them as usual form elements
-    * @access public
     */
-    function HTML_QuickForm_Renderer_ArraySmarty(&$tpl, $staticLabels = false, $collectHidden = true)
+    public function __construct(&$tpl, $staticLabels = false, $collectHidden = true)
     {
-        $this->HTML_QuickForm_Renderer_Array($collectHidden, $staticLabels);
+        parent::__construct($collectHidden, $staticLabels);
         $this->_tpl =& $tpl;
-    } // end constructor
+    }
 
    /**
     * Called when visiting a header element
     *
     * @param    HTML_QuickForm_header   header element being visited
-    * @access   public
-    * @return   void
     */
-    function renderHeader(&$header)
+    public function renderHeader(&$header)
     {
         if ($name = $header->getName()) {
             $this->_ary['header'][$name] = $header->toHtml();
@@ -157,7 +130,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
             $this->_ary['header'][$this->_sectionCount] = $header->toHtml();
         }
         $this->_currentSection = $this->_sectionCount++;
-    } // end func renderHeader
+    }
 
    /**
     * Called when visiting a group, before processing any group elements
@@ -165,14 +138,12 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * @param    HTML_QuickForm_group    group being visited
     * @param    bool                    Whether a group is required
     * @param    string                  An error message associated with a group
-    * @access   public
-    * @return   void
     */
-    function startGroup(&$group, $required, $error)
+    public function startGroup(&$group, $required, $error)
     {
         parent::startGroup($group, $required, $error);
         $this->_groupElementIdx = 1;
-    } // end func startGroup
+    }
 
    /**
     * Creates an array representing an element containing
@@ -202,11 +173,11 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
         }
         // create keys for elements grouped by native group or name
         if (strstr($ret['name'], '[') or $this->_currentGroup) {
-            // Fix for bug #8123: escape backslashes and quotes to prevent errors 
+            // Fix for bug #8123: escape backslashes and quotes to prevent errors
             // in eval(). The code below seems to handle the case where element
             // name has unbalanced square brackets. Dunno whether we really
             // need this after the fix for #8123, but I'm wary of making big
-            // changes to this code.  
+            // changes to this code.
             preg_match('/([^]]*)\\[([^]]*)\\]/', $ret['name'], $matches);
             if (isset($matches[1])) {
                 $sKeysSub = substr_replace($ret['name'], '', 0, strlen($matches[1]));
@@ -245,14 +216,13 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
         $this->_elementIdx++;
         $ret['keys'] = $sKeys;
         return $ret;
-    } // end func _elementToArray
+    }
 
    /**
     * Stores an array representation of an element in the form array
     *
     * @access private
     * @param array  Array representation of an element
-    * @return void
     */
     function _storeArray($elAry)
     {
@@ -282,7 +252,6 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * @param    string      The element error
     * @see      setRequiredTemplate()
     * @access   private
-    * @return   void
     */
     function _renderRequired(&$label, &$html, &$required, &$error)
     {
@@ -299,7 +268,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
             $html = $this->_tplFetch($this->_required);
         }
         $this->_tpl->clear_assign(array('label', 'html', 'required'));
-    } // end func _renderRequired
+    }
 
    /**
     * Called when an element has a validation error
@@ -313,7 +282,6 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * @param    string      The element error
     * @see      setErrorTemplate()
     * @access   private
-    * @return   void
     */
     function _renderError(&$label, &$html, &$error)
     {
@@ -327,7 +295,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
             $html = $this->_tplFetch($this->_error);
         }
         $this->_tpl->clear_assign(array('label', 'html', 'error'));
-    } // end func _renderError
+    }
 
    /**
     * Process an template sourced in a string with Smarty
@@ -337,7 +305,6 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     *
     * @param    string      The template source
     * @access   private
-    * @return   void
     */
     function _tplFetch($tplSource)
     {
@@ -345,7 +312,7 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
             require SMARTY_DIR . '/plugins/function.eval.php';
         }
         return smarty_function_eval(array('var' => $tplSource), $this->_tpl);
-    }// end func _tplFetch
+    }
 
    /**
     * Sets the way required elements are rendered
@@ -361,13 +328,11 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     *
     *
     * @param    string      The required element template
-    * @access   public
-    * @return   void
     */
-    function setRequiredTemplate($template)
+    public function setRequiredTemplate($template)
     {
         $this->_required = $template;
-    } // end func setRequiredTemplate
+    }
 
    /**
     * Sets the way elements with validation errors are rendered
@@ -392,12 +357,10 @@ class HTML_QuickForm_Renderer_ArraySmarty extends HTML_QuickForm_Renderer_Array
     * where you want the formated error message to appear in the form.
     *
     * @param    string      The element error template
-    * @access   public
-    * @return   void
     */
-    function setErrorTemplate($template)
+    public function setErrorTemplate($template)
     {
         $this->_error = $template;
-    } // end func setErrorTemplate
+    }
 }
 ?>
