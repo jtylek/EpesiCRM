@@ -49,7 +49,7 @@ class CreateModuleCommand extends Command
         }
         //endregion
 
-        shell_exec('mkdir '.EPESI_LOCAL_DIR.'/modules/'.$module_type.'/'.$module_name);
+        shell_exec('mkdir -p '.EPESI_LOCAL_DIR.'/modules/'.$module_type.'/'.$module_name);
 
         //region Main File
         $myFile = File::make(EPESI_LOCAL_DIR.'/modules/'.$module_type.'/'.$module_name.'/'.$module_name.'_0.php')
