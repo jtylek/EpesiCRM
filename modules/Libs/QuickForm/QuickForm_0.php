@@ -98,10 +98,14 @@ class Libs_QuickForm extends Module {
 		}
 		if (is_object($this->qf)) {
 //			if($func_name==='accept') trigger_error(print_r($args,true));
-			$return = call_user_func_array(array(& $this->qf, $func_name), $args);
+			try {
+                return call_user_func_array(array(& $this->qf, $func_name), $args);
+            } catch (HTML_QuickForm_Error $e){
+            	//TODO: At least log it...
+				return $e;
+			}
 		} else
 			trigger_error("QuickFrom object doesn't exists", E_USER_ERROR);
-		return $return;
 	}
 	
 	public function get_submit_form_js($submited=true, $indicator=null, $queue=false) {
