@@ -380,6 +380,28 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 			}
 		}
 	}
-   
+
+    /**
+     * Called when visiting a form, after processing all form elements
+     *
+     * @param    HTML_QuickForm  a form being visited
+     */
+    public function finishForm(&$form)
+    {
+        // TODO: Implement finishForm() method.
+    }
+
+    /**
+     * Called when visiting a raw HTML/text pseudo-element
+     *
+     * Only implemented in Default renderer. Usage of 'html' elements is
+     * discouraged, templates should be used instead.
+     *
+     * @param    HTML_QuickForm_html     a 'raw html' element being visited
+     */
+    public function renderHtml(&$data)
+    {
+        // TODO: Implement renderHtml() method.
+    }
 }
 ?>
