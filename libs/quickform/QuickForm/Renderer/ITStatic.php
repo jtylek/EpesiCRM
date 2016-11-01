@@ -1,25 +1,9 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * A static renderer for HTML_QuickForm compatible 
- * with HTML_Template_IT and HTML_Template_Sigma.
- * 
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -29,12 +13,9 @@
  * As opposed to the dynamic renderer, this renderer needs
  * every elements and labels in the form to be specified by
  * placeholders at the position you want them to be displayed.
- * 
- * @category    HTML
+ *
  * @package     HTML_QuickForm
  * @author      Bertrand Mansion <bmansion@mamasam.com>
- * @version     Release: @package_version@
- * @since       3.0
  */
 class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
 {
@@ -96,7 +77,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     var $_error = '<font color="red">{error}</font><br />{html}';
 
    /**
-    * Collected HTML for hidden elements, if needed  
+    * Collected HTML for hidden elements, if needed
     * @var string
     */
     var $_hidden = '';
@@ -107,20 +88,17 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     *
     * @param HTML_Template_IT|HTML_Template_Sigma   Template object to use
     */
-    function HTML_QuickForm_Renderer_ITStatic(&$tpl)
+    public function __construct(&$tpl)
     {
-        $this->HTML_QuickForm_Renderer();
         $this->_tpl =& $tpl;
-    } // end constructor
+    }
 
    /**
     * Called when visiting a form, before processing any form elements
     *
     * @param    HTML_QuickForm  form object being visited
-    * @access   public
-    * @return   void
     */
-    function startForm(&$form)
+    public function startForm(&$form)
     {
         $this->_formName = $form->getAttribute('id');
 
@@ -130,16 +108,14 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
                 $this->_duplicateElements[$elementName] = 0;
             }
         }
-    } // end func startForm
+    }
 
    /**
     * Called when visiting a form, after processing all form elements
-    * 
+    *
     * @param    HTML_QuickForm  form object being visited
-    * @access   public
-    * @return   void
     */
-    function finishForm(&$form)
+    public function finishForm(&$form)
     {
         // display errors above form
         if (!empty($this->_errors) && $this->_tpl->blockExists($this->_formName.'_error_loop')) {
@@ -160,16 +136,14 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
         $this->_tpl->setVariable($this->_formName.'_attributes', $form->getAttributes(true));
         // assign javascript validation rules
         $this->_tpl->setVariable($this->_formName.'_javascript', $form->getValidationScript());
-    } // end func finishForm
+    }
 
    /**
     * Called when visiting a header element
     *
     * @param    HTML_QuickForm_header   header element being visited
-    * @access   public
-    * @return   void
     */
-    function renderHeader(&$header)
+    public function renderHeader(&$header)
     {
         $name = $header->getName();
         $varName = $this->_formName.'_header';
@@ -179,7 +153,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
             $varName = $this->_formName.'_header_'.$name;
         }
         $this->_tpl->setVariable($varName, $header->toHtml());
-    } // end func renderHeader
+    }
 
    /**
     * Called when visiting an element
@@ -187,10 +161,8 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     * @param    HTML_QuickForm_element  form element being visited
     * @param    bool                    Whether an element is required
     * @param    string                  An error message associated with an element
-    * @access   public
-    * @return   void
     */
-    function renderElement(&$element, $required, $error)
+    public function renderElement(&$element, $required, $error)
     {
         $name = $element->getName();
 
@@ -255,14 +227,10 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
             }
             $this->_tpl->setVariable($varName.'_html', $html);
         }
-    } // end func renderElement
+    }
 
    /**
-    * Called when visiting a hidden element
-    * 
-    * @param    HTML_QuickForm_element  hidden element being visited
-    * @access   public
-    * @return   void
+    * @inheritDoc
     */
     function renderHidden(&$element)
     {
@@ -273,7 +241,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
             $name = str_replace(array('[', ']'), array('_', ''), $name);
             $this->_tpl->setVariable($this->_formName.'_'.$name.'_html', $element->toHtml());
         }
-    } // end func renderHidden
+    }
 
    /**
     * Called when visiting a group, before processing any group elements
@@ -281,10 +249,8 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     * @param    HTML_QuickForm_group    group being visited
     * @param    bool                    Whether a group is required
     * @param    string                  An error message associated with a group
-    * @access   public
-    * @return   void
     */
-    function startGroup(&$group, $required, $error)
+    public function startGroup(&$group, $required, $error)
     {
         $name = $group->getName();
         $varName = $this->_formName.'_'.$name;
@@ -326,19 +292,17 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
             $this->_tpl->setVariable($varName.'_label', $label);
         }
         $this->_inGroup = $varName;
-    } // end func startGroup
+    }
 
    /**
     * Called when visiting a group, after processing all group elements
     *
     * @param    HTML_QuickForm_group    group being visited
-    * @access   public
-    * @return   void
     */
-    function finishGroup(&$group)
+    public function finishGroup(&$group)
     {
         $this->_inGroup = '';
-    } // end func finishGroup
+    }
 
    /**
     * Sets the way required elements are rendered
@@ -351,13 +315,11 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     * will put a red star in front of the label if the element is required.
     *
     * @param    string      The required element template
-    * @access   public
-    * @return   void
     */
-    function setRequiredTemplate($template)
+    public function setRequiredTemplate($template)
     {
         $this->_required = $template;
-    } // end func setRequiredTemplate
+    }
 
    /**
     * Sets the way elements with validation errors are rendered
@@ -379,13 +341,11 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     * where you want the error message to appear in the form.
     *
     * @param    string      The element error template
-    * @access   public
-    * @return   void
     */
-    function setErrorTemplate($template)
+    public function setErrorTemplate($template)
     {
         $this->_error = $template;
-    } // end func setErrorTemplate
+    }
 
    /**
     * Called when an element is required
@@ -397,7 +357,6 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     * @param    string      The element html rendering
     * @see      setRequiredTemplate()
     * @access   private
-    * @return   void
     */
     function _renderRequired(&$label, &$html)
     {
@@ -426,7 +385,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
                 $html = str_replace('{html}', $html, $this->_required);
             }
         }
-    } // end func _renderRequired
+    }
 
    /**
     * Called when an element has a validation error
@@ -440,7 +399,6 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
     * @param    string      The element error
     * @see      setErrorTemplate()
     * @access   private
-    * @return   void
     */
     function _renderError(&$label, &$html, $error)
     {
@@ -470,8 +428,7 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
         } else {
             $this->_errors[] = $error;
         }
-    }// end func _renderError
-
+    }
 
    /**
     * Returns the block's contents
@@ -495,5 +452,5 @@ class HTML_QuickForm_Renderer_ITStatic extends HTML_QuickForm_Renderer
         }
         return $ret;
     }
-} // end class HTML_QuickForm_Renderer_ITStatic
+}
 ?>

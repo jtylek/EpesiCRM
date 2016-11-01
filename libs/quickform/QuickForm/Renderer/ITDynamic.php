@@ -1,42 +1,24 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * A concrete renderer for HTML_QuickForm, using Integrated Templates.
- * 
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
  * A concrete renderer for HTML_QuickForm, using Integrated Templates.
- * 
- * This is a "dynamic" renderer, which means that concrete form look 
- * is defined at runtime. This also means that you can define 
+ *
+ * This is a "dynamic" renderer, which means that concrete form look
+ * is defined at runtime. This also means that you can define
  * <b>one</b> template file for <b>all</b> your forms. That template
- * should contain a block for every element 'look' appearing in your 
+ * should contain a block for every element 'look' appearing in your
  * forms and also some special blocks (consult the examples). If a
  * special block is not set for an element, the renderer falls back to
  * a default one.
- * 
- * @category    HTML
+ *
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
- * @version     Release: @package_version@
- * @since       3.0
  */
 class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
 {
@@ -74,7 +56,7 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
     var $_groupElementIdx = 0;
 
    /**
-    * Blocks to use for different elements  
+    * Blocks to use for different elements
     * @var array
     */
     var $_elementBlocks = array();
@@ -92,13 +74,11 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
     *
     * @param HTML_Template_ITX|HTML_Template_Sigma     Template object to use
     */
-    function HTML_QuickForm_Renderer_ITDynamic(&$tpl)
+    public function __construct(&$tpl)
     {
-        $this->HTML_QuickForm_Renderer();
         $this->_tpl =& $tpl;
         $this->_tpl->setCurrentBlock('qf_main_loop');
     }
-
 
     function finishForm(&$form)
     {
@@ -118,7 +98,6 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
         // assign javascript validation rules
         $this->_tpl->setVariable('qf_javascript', $form->getValidationScript());
     }
-      
 
     function renderHeader(&$header)
     {
@@ -185,7 +164,6 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
         $this->_tpl->parse($blockName);
         $this->_tpl->parseCurrentBlock();
     }
-   
 
     function renderHidden(&$element)
     {
@@ -229,11 +207,11 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
 
    /**
     * Returns the name of a block to use for element rendering
-    * 
+    *
     * If a name was not explicitly set via setElementBlock(), it tries
     * the names '{prefix}_{element type}' and '{prefix}_{element}', where
     * prefix is either 'qf' or the name of the current group's block
-    * 
+    *
     * @param HTML_QuickForm_element     form element being rendered
     * @access private
     * @return string    block name
@@ -261,16 +239,13 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
         }
     }
 
-
    /**
     * Sets the block to use for element rendering
-    * 
+    *
     * @param mixed      element name or array ('element name' => 'block name')
     * @param string     block name if $elementName is not an array
-    * @access public
-    * @return void
     */
-    function setElementBlock($elementName, $blockName = null)
+    public function setElementBlock($elementName, $blockName = null)
     {
         if (is_array($elementName)) {
             $this->_elementBlocks = array_merge($this->_elementBlocks, $elementName);
@@ -279,15 +254,12 @@ class HTML_QuickForm_Renderer_ITDynamic extends HTML_QuickForm_Renderer
         }
     }
 
-
    /**
     * Sets the name of a block to use for header rendering
     *
     * @param string     block name
-    * @access public
-    * @return void
     */
-    function setHeaderBlock($blockName)
+    public function setHeaderBlock($blockName)
     {
         $this->_headerBlock = $blockName;
     }

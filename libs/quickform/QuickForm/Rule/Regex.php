@@ -1,34 +1,16 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * Validates values using regular expressions
- * 
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
  * Validates values using regular expressions
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Bertrand Mansion <bmansion@mamasam.com>
- * @version     Release: @package_version@
- * @since       3.2
  */
 class HTML_QuickForm_Rule_Regex extends HTML_QuickForm_Rule
 {
@@ -54,10 +36,9 @@ class HTML_QuickForm_Rule_Regex extends HTML_QuickForm_Rule
      *
      * @param     string    $value      Value to be checked
      * @param     string    $regex      Regular expression
-     * @access    public
      * @return    boolean   true if value is valid
      */
-    function validate($value, $regex = null)
+    public function validate($value, $regex = null)
     {
         // Fix for bug #10799: add 'D' modifier to regex
         if (isset($this->_data[$this->name])) {
@@ -70,20 +51,18 @@ class HTML_QuickForm_Rule_Regex extends HTML_QuickForm_Rule
             }
         }
         return true;
-    } // end func validate
+    }
 
     /**
      * Adds new regular expressions to the list
      *
      * @param     string    $name       Name of rule
      * @param     string    $pattern    Regular expression pattern
-     * @access    public
      */
-    function addData($name, $pattern)
+    public function addData($name, $pattern)
     {
         $this->_data[$name] = $pattern;
-    } // end func addData
-
+    }
 
     function getValidationScript($options = null)
     {
@@ -96,7 +75,6 @@ class HTML_QuickForm_Rule_Regex extends HTML_QuickForm_Rule
         }
 
         return array("  var regex = " . $regex . ";\n", "{jsVar} != '' && !regex.test({jsVar})");
-    } // end func getValidationScript
-
-} // end class HTML_QuickForm_Rule_Regex
+    }
+}
 ?>

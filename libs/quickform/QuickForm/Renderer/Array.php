@@ -1,18 +1,5 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * A concrete renderer for HTML_QuickForm, makes an array of form contents
- * 
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
  * @author      Adam Daniel <adaniel1@eesus.jnj.com>
@@ -20,8 +7,6 @@
  * @author      Thomas Schulz <ths@4bconsult.de>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -98,92 +83,90 @@
  * );
  * </pre>
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Alexey Borzov <avb@php.net>
  * @author      Adam Daniel <adaniel1@eesus.jnj.com>
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @author      Thomas Schulz <ths@4bconsult.de>
- * @version     Release: @package_version@
- * @since       3.0
  */
 class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
 {
-   /**#@+
-    * @access private
-    */
-   /**
-    * An array being generated
-    * @var array
-    */
-    var $_ary;
+    /**
+     * An array being generated
+     *
+     * @var array
+     */
+    protected $_ary;
 
-   /**
-    * Number of sections in the form (i.e. number of headers in it)
-    * @var integer
-    */
-    var $_sectionCount;
+    /**
+     * Number of sections in the form (i.e. number of headers in it)
+     *
+     * @var integer
+     */
+    protected $_sectionCount;
 
-   /**
-    * Current section number
-    * @var integer
-    */
-    var $_currentSection;
+    /**
+     * Current section number
+     *
+     * @var integer
+     */
+    protected $_currentSection;
 
-   /**
-    * Array representing current group
-    * @var array
-    */
-    var $_currentGroup = null;
+    /**
+     * Array representing current group
+     *
+     * @var array
+     */
+    protected $_currentGroup = null;
 
-   /**
-    * Additional style information for different elements
-    * @var array
-    */
-    var $_elementStyles = array();
+    /**
+     * Additional style information for different elements
+     *
+     * @var array
+     */
+    protected $_elementStyles = array();
 
-   /**
-    * true: collect all hidden elements into string; false: process them as usual form elements
-    * @var bool
-    */
-    var $_collectHidden = false;
+    /**
+     * true: collect all hidden elements into string; false: process them as usual form elements
+     *
+     * @var bool
+     */
+    private $_collectHidden = false;
 
-   /**
-    * true:  render an array of labels to many labels, $key 0 named 'label', the rest "label_$key"
-    * false: leave labels as defined
-    * @var bool
-    */
-    var $_staticLabels = false;
-   /**#@-*/
+    /**
+     * true:  render an array of labels to many labels, $key 0 named 'label', the rest "label_$key"
+     * false: leave labels as defined
+     *
+     * @var bool
+     */
+    private $_staticLabels = false;
 
-   /**
-    * Constructor
-    *
-    * @param  bool    true: collect all hidden elements into string; false: process them as usual form elements
-    * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
-    * @access public
-    */
-    function HTML_QuickForm_Renderer_Array($collectHidden = false, $staticLabels = false)
+    /**
+     * Constructor
+     *
+     * @param  bool    true: collect all hidden elements into string; false: process them as usual form elements
+     * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
+     */
+    public function __construct($collectHidden = false, $staticLabels = false)
     {
-        $this->HTML_QuickForm_Renderer();
         $this->_collectHidden = $collectHidden;
         $this->_staticLabels  = $staticLabels;
-    } // end constructor
+    }
 
-
-   /**
-    * Returns the resultant array
-    *
-    * @access public
-    * @return array
-    */
-    function toArray()
+    /**
+     * Returns the resultant array
+     *
+     * @return array
+     */
+    public function toArray()
     {
         return $this->_ary;
     }
 
-
-    function startForm(&$form)
+    /**
+     * @inheritDoc
+     */
+    public function startForm(&$form)
     {
         $this->_ary = array(
             'frozen'            => $form->isFrozen(),
@@ -198,65 +181,73 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
         $this->_elementIdx     = 1;
         $this->_currentSection = null;
         $this->_sectionCount   = 0;
-    } // end func startForm
+    }
 
-
-    function renderHeader(&$header)
+    /**
+     * @inheritDoc
+     */
+    public function renderHeader(&$header)
     {
         $this->_ary['sections'][$this->_sectionCount] = array(
             'header' => $header->toHtml(),
             'name'   => $header->getName()
         );
         $this->_currentSection = $this->_sectionCount++;
-    } // end func renderHeader
+    }
 
-
-    function renderElement(&$element, $required, $error)
+    /**
+     * @inheritDoc
+     */
+    public function renderElement(&$element, $required, $error)
     {
         $elAry = $this->_elementToArray($element, $required, $error);
         if (!empty($error)) {
             $this->_ary['errors'][$elAry['name']] = $error;
         }
         $this->_storeArray($elAry);
-    } // end func renderElement
+    }
 
-
-    function renderHidden(&$element)
+    /**
+     * @inheritDoc
+     */
+    public function renderHidden(&$element)
     {
         if ($this->_collectHidden) {
             $this->_ary['hidden'] .= $element->toHtml() . "\n";
         } else {
             $this->renderElement($element, false, null);
         }
-    } // end func renderHidden
+    }
 
-
-    function startGroup(&$group, $required, $error)
+    /**
+     * @inheritDoc
+     */
+    public function startGroup(&$group, $required, $error)
     {
         $this->_currentGroup = $this->_elementToArray($group, $required, $error);
         if (!empty($error)) {
             $this->_ary['errors'][$this->_currentGroup['name']] = $error;
         }
-    } // end func startGroup
+    }
 
-
-    function finishGroup(&$group)
+    /**
+     * @inheritDoc
+     */
+    public function finishGroup(&$group)
     {
         $this->_storeArray($this->_currentGroup);
         $this->_currentGroup = null;
-    } // end func finishGroup
+    }
 
-
-   /**
-    * Creates an array representing an element
-    *
-    * @access private
-    * @param  HTML_QuickForm_element    element being processed
-    * @param  bool                      Whether an element is required
-    * @param  string                    Error associated with the element
-    * @return array
-    */
-    function _elementToArray(&$element, $required, $error)
+    /**
+     * Creates an array representing an element
+     *
+     * @param  HTML_QuickForm_element    element being processed
+     * @param  bool                      Whether an element is required
+     * @param  string                    Error associated with the element
+     * @return array
+     */
+    protected function _elementToArray(&$element, $required, $error)
     {
         $ret = array(
             'name'      => $element->getName(),
@@ -295,14 +286,12 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
     }
 
 
-   /**
-    * Stores an array representation of an element in the form array
-    *
-    * @access private
-    * @param array  Array representation of an element
-    * @return void
-    */
-    function _storeArray($elAry)
+    /**
+     * Stores an array representation of an element in the form array
+     *
+     * @param array  Array representation of an element
+     */
+    private function _storeArray($elAry)
     {
         // where should we put this element...
         if (is_array($this->_currentGroup) && ('group' != $elAry['type'])) {
@@ -314,16 +303,13 @@ class HTML_QuickForm_Renderer_Array extends HTML_QuickForm_Renderer
         }
     }
 
-
    /**
     * Sets a style to use for element rendering
     *
     * @param mixed      element name or array ('element name' => 'style name')
     * @param string     style name if $elementName is not an array
-    * @access public
-    * @return void
     */
-    function setElementStyle($elementName, $styleName = null)
+    public function setElementStyle($elementName, $styleName = null)
     {
         if (is_array($elementName)) {
             $this->_elementStyles = array_merge($this->_elementStyles, $elementName);

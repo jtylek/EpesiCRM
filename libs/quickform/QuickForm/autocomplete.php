@@ -1,24 +1,9 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
- * HTML class for an autocomplete element
- *
- * PHP versions 4 and 5
- *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Matteo Di Giovinazzo <matteodg@infinito.it>
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -39,16 +24,11 @@
  * $autocomplete->setOptions($options);
  * </code>
  *
- * @category    HTML
  * @package     HTML_QuickForm
  * @author      Matteo Di Giovinazzo <matteodg@infinito.it>
- * @version     Release: @package_version@
- * @since       3.2
  */
 class HTML_QuickForm_autocomplete extends HTML_QuickForm_text
 {
-    // {{{ properties
-
     /**
      * Options for the autocomplete input text element
      *
@@ -65,9 +45,6 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text
      */
     var $_js = '';
 
-    // }}}
-    // {{{ constructor
-
     /**
      * Class constructor
      *
@@ -76,44 +53,33 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text
      * @param     array     $options        (optional)Autocomplete options
      * @param     mixed     $attributes     (optional)Either a typical HTML attribute string
      *                                      or an associative array. Date format is passed along the attributes.
-     * @access    public
-     * @return    void
      */
-    function HTML_QuickForm_autocomplete($elementName = null, $elementLabel = null, $options = null, $attributes = null)
+    public function __construct($elementName = null, $elementLabel = null, $options = null, $attributes = null)
     {
-        $this->HTML_QuickForm_text($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'autocomplete';
         if (isset($options)) {
             $this->setOptions($options);
         }
-    } //end constructor
-
-    // }}}
-    // {{{ setOptions()
+    }
 
     /**
      * Sets the options for the autocomplete input text element
      *
      * @param     array    $options    Array of options for the autocomplete input text element
-     * @access    public
-     * @return    void
      */
-    function setOptions($options)
+    public function setOptions($options)
     {
         $this->_options = array_values($options);
-    } // end func setOptions
-
-    // }}}
-    // {{{ toHtml()
+    }
 
     /**
      * Returns Html for the autocomplete input text element
      *
-     * @access      public
      * @return      string
      */
-    function toHtml()
+    public function toHtml()
     {
         // prevent problems with grouped elements
         $arrayName = str_replace(array('[', ']'), array('__', ''), $this->getName()) . '_values';
@@ -246,8 +212,6 @@ EOS;
             $js .= "//]]>\n</script>";
         }
         return $js . parent::toHtml();
-    }// end func toHtml
-
-    // }}}
-} // end class HTML_QuickForm_autocomplete
+    }
+}
 ?>
