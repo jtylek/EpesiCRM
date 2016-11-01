@@ -18,33 +18,33 @@ require_once 'PEAR.php';
  * @see HTML_QuickForm::registerElementType(), HTML_QuickForm::getRegisteredTypes(),
  *      HTML_QuickForm::isTypeRegistered()
  * @global array $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']
- */ 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] = 
-        array(
-            'group'         =>array('HTML/QuickForm/group.php','HTML_QuickForm_group'),
-            'hidden'        =>array('HTML/QuickForm/hidden.php','HTML_QuickForm_hidden'),
-            'reset'         =>array('HTML/QuickForm/reset.php','HTML_QuickForm_reset'),
-            'checkbox'      =>array('HTML/QuickForm/checkbox.php','HTML_QuickForm_checkbox'),
-            'file'          =>array('HTML/QuickForm/file.php','HTML_QuickForm_file'),
-            'image'         =>array('HTML/QuickForm/image.php','HTML_QuickForm_image'),
-            'password'      =>array('HTML/QuickForm/password.php','HTML_QuickForm_password'),
-            'radio'         =>array('HTML/QuickForm/radio.php','HTML_QuickForm_radio'),
-            'button'        =>array('HTML/QuickForm/button.php','HTML_QuickForm_button'),
-            'submit'        =>array('HTML/QuickForm/submit.php','HTML_QuickForm_submit'),
-            'select'        =>array('HTML/QuickForm/select.php','HTML_QuickForm_select'),
-            'hiddenselect'  =>array('HTML/QuickForm/hiddenselect.php','HTML_QuickForm_hiddenselect'),
-            'text'          =>array('HTML/QuickForm/text.php','HTML_QuickForm_text'),
-            'textarea'      =>array('HTML/QuickForm/textarea.php','HTML_QuickForm_textarea'),
-            'link'          =>array('HTML/QuickForm/link.php','HTML_QuickForm_link'),
-            'advcheckbox'   =>array('HTML/QuickForm/advcheckbox.php','HTML_QuickForm_advcheckbox'),
-            'date'          =>array('HTML/QuickForm/date.php','HTML_QuickForm_date'),
-            'static'        =>array('HTML/QuickForm/static.php','HTML_QuickForm_static'),
-            'header'        =>array('HTML/QuickForm/header.php', 'HTML_QuickForm_header'),
-            'html'          =>array('HTML/QuickForm/html.php', 'HTML_QuickForm_html'),
-            'hierselect'    =>array('HTML/QuickForm/hierselect.php', 'HTML_QuickForm_hierselect'),
-            'autocomplete'  =>array('HTML/QuickForm/autocomplete.php', 'HTML_QuickForm_autocomplete'),
-            'xbutton'       =>array('HTML/QuickForm/xbutton.php','HTML_QuickForm_xbutton')
-        );
+ */
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] =
+    array(
+        'group'         => 'HTML_QuickForm_group',
+        'hidden'        => 'HTML_QuickForm_hidden',
+        'reset'         => 'HTML_QuickForm_reset',
+        'checkbox'      => 'HTML_QuickForm_checkbox',
+        'file'          => 'HTML_QuickForm_file',
+        'image'         => 'HTML_QuickForm_image',
+        'password'      => 'HTML_QuickForm_password',
+        'radio'         => 'HTML_QuickForm_radio',
+        'button'        => 'HTML_QuickForm_button',
+        'submit'        => 'HTML_QuickForm_submit',
+        'select'        => 'HTML_QuickForm_select',
+        'hiddenselect'  => 'HTML_QuickForm_hiddenselect',
+        'text'          => 'HTML_QuickForm_text',
+        'textarea'      => 'HTML_QuickForm_textarea',
+        'link'          => 'HTML_QuickForm_link',
+        'advcheckbox'   => 'HTML_QuickForm_advcheckbox',
+        'date'          => 'HTML_QuickForm_date',
+        'static'        => 'HTML_QuickForm_static',
+        'header'        => 'HTML_QuickForm_header',
+        'html'          => 'HTML_QuickForm_html',
+        'hierselect'    => 'HTML_QuickForm_hierselect',
+        'autocomplete'  => 'HTML_QuickForm_autocomplete',
+        'xbutton'       => 'HTML_QuickForm_xbutton'
+);
 
 /**
  * Validation rules known to HTML_QuickForm
@@ -53,19 +53,19 @@ $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] =
  * @global array $GLOBALS['_HTML_QuickForm_registered_rules']
  */
 $GLOBALS['_HTML_QuickForm_registered_rules'] = array(
-    'required'      => array('html_quickform_rule_required', 'HTML/QuickForm/Rule/Required.php'),
-    'maxlength'     => array('html_quickform_rule_range',    'HTML/QuickForm/Rule/Range.php'),
-    'minlength'     => array('html_quickform_rule_range',    'HTML/QuickForm/Rule/Range.php'),
-    'rangelength'   => array('html_quickform_rule_range',    'HTML/QuickForm/Rule/Range.php'),
-    'email'         => array('html_quickform_rule_email',    'HTML/QuickForm/Rule/Email.php'),
-    'regex'         => array('html_quickform_rule_regex',    'HTML/QuickForm/Rule/Regex.php'),
-    'lettersonly'   => array('html_quickform_rule_regex',    'HTML/QuickForm/Rule/Regex.php'),
-    'alphanumeric'  => array('html_quickform_rule_regex',    'HTML/QuickForm/Rule/Regex.php'),
-    'numeric'       => array('html_quickform_rule_regex',    'HTML/QuickForm/Rule/Regex.php'),
-    'nopunctuation' => array('html_quickform_rule_regex',    'HTML/QuickForm/Rule/Regex.php'),
-    'nonzero'       => array('html_quickform_rule_regex',    'HTML/QuickForm/Rule/Regex.php'),
-    'callback'      => array('html_quickform_rule_callback', 'HTML/QuickForm/Rule/Callback.php'),
-    'compare'       => array('html_quickform_rule_compare',  'HTML/QuickForm/Rule/Compare.php')
+    'required'      => 'HTML_QuickForm_Rule_Required',
+    'maxlength'     => 'HTML_QuickForm_Rule_Range',
+    'minlength'     => 'HTML_QuickForm_Rule_Range',
+    'rangelength'   => 'HTML_QuickForm_Rule_Range',
+    'email'         => 'HTML_QuickForm_Rule_Email',
+    'regex'         => 'HTML_QuickForm_Rule_Regex',
+    'lettersonly'   => 'HTML_QuickForm_Rule_Regex',
+    'alphanumeric'  => 'HTML_QuickForm_Rule_Regex',
+    'numeric'       => 'HTML_QuickForm_Rule_Regex',
+    'nopunctuation' => 'HTML_QuickForm_Rule_Regex',
+    'nonzero'       => 'HTML_QuickForm_Rule_Regex',
+    'callback'      => 'HTML_QuickForm_Rule_Callback',
+    'compare'       => 'HTML_QuickForm_Rule_Compare',
 );
 
 /**#@+
@@ -311,9 +311,13 @@ class HTML_QuickForm extends HTML_Common
      * @param     string    $include    Include path for element type (parameter is unused)
      * @param     string    $className  Element class name
      */
-    public function registerElementType($typeName, $include, $className)
+    public static function registerElementType($typeName, $include, $className)
     {
-        $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][strtolower($typeName)] = array($include, $className);
+        if($include){
+            $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][strtolower($typeName)] = array($include, $className);
+        } else {
+            $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][strtolower($typeName)] = $className;
+        }
     }
 
     /**
@@ -324,7 +328,7 @@ class HTML_QuickForm extends HTML_Common
      * @param     string    $data1      Name of function, regular expression or HTML_QuickForm_Rule classname
      * @param     string    $data2      Object parent of above function
      */
-    public function registerRule($ruleName, $type, $data1, $data2 = null)
+    public static function registerRule($ruleName, $type, $data1, $data2 = null)
     {
         $registry =& HTML_QuickForm_RuleRegistry::singleton();
         $registry->registerRule($ruleName, $type, $data1, $data2);
@@ -493,15 +497,21 @@ class HTML_QuickForm extends HTML_Common
         if (!self::isTypeRegistered($type)) {
             throw new HTML_QuickForm_Error ("Element '$type' does not exist", QUICKFORM_UNREGISTERED_ELEMENT);
         }
-        $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][1];
-        $includeFile = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][0];
-        include_once($includeFile);
+        if(is_array($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type])) {
+            $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][1];
+            $includeFile = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][0];
+            include_once($includeFile);
+        } else {
+            $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type];
+        }
+
         $elementObject =& new $className();
         for ($i = 0; $i < 5; $i++) {
             if (!isset($args[$i])) {
                 $args[$i] = null;
             }
         }
+
         $err = $elementObject->onQuickFormEvent($event, $args, $this);
         if ($err !== true) {
             return $err;
