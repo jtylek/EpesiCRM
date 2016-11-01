@@ -36,7 +36,7 @@ abstract class HTML_QuickForm_Rule
     /**
      * Sets the rule name
      *
-     * @param  string    rule name
+     * @param  string   $ruleName rule name
      */
     public function setName($ruleName)
     {
@@ -46,7 +46,7 @@ abstract class HTML_QuickForm_Rule
     /**
      * Returns the javascript test (the test should return true if the value is INVALID)
      *
-     * @param     mixed     Options for the rule
+     * @param     mixed     $options Options for the rule
      * @return    array     first element is code to setup validation, second is the check itself
      * @abstract
      */

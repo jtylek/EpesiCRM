@@ -24,9 +24,9 @@ class HTML_QuickForm_xbutton extends HTML_QuickForm_element
    /**
     * Class constructor
     *
-    * @param    string  Button name
-    * @param    string  Button content (HTML to add between <button></button> tags)
-    * @param    mixed   Either a typical HTML attribute string or an associative array
+    * @param    string  $elementName Button name
+    * @param    string  $elementContent Button content (HTML to add between <button></button> tags)
+    * @param    mixed   $attributes Either a typical HTML attribute string or an associative array
     */
     public function __construct($elementName = null, $elementContent = null, $attributes = null)
     {
@@ -78,7 +78,7 @@ class HTML_QuickForm_xbutton extends HTML_QuickForm_element
    /**
     * Sets the contents of the button element
     *
-    * @param    string  Button content (HTML to add between <button></button> tags)
+    * @param    string  $content Button content (HTML to add between <button></button> tags)
     */
     function setContent($content)
     {

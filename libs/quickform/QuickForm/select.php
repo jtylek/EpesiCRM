@@ -37,10 +37,10 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
     /**
      * Class constructor
      *
-     * @param     string    Select name attribute
-     * @param     mixed     Label(s) for the select
-     * @param     mixed     Data to be used to populate options
-     * @param     mixed     Either a typical HTML attribute string or an associative array
+     * @param     string    $elementName Select name attribute
+     * @param     mixed     $elementLabel Label(s) for the select
+     * @param     mixed     $options Data to be used to populate options
+     * @param     mixed     $attributes Either a typical HTML attribute string or an associative array
      */
     public function __construct($elementName=null, $elementLabel=null, $options=null, $attributes=null)
     {
@@ -126,7 +126,7 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
     /**
      * Sets the value of the form element
      *
-     * @param     mixed    $values  Array or comma delimited string of selected values
+     * @param   $value  mixed    $values  Array or comma delimited string of selected values
      */
     public function setValue($value)
     {
@@ -243,6 +243,7 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
      * @param     string    $textCol    (optional) Name of column to display as the OPTION text
      * @param     string    $valueCol   (optional) Name of column to use as the OPTION value
      * @param     mixed     $values     (optional) Array or comma delimited string of selected values
+     * @return true
      */
     public function loadDbResult(DB_result &$result, $textCol=null, $valueCol=null, $values=null)
     {
@@ -269,6 +270,7 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
      * @param     string    $valueCol   (optional) Name of column to use as the OPTION value
      * @param     mixed     $values     (optional) Array or comma delimited string of selected values
      * @throws    HTML_QuickForm_Error
+     * @return true
      */
     public function loadQuery(&$conn, $sql, $textCol=null, $valueCol=null, $values=null)
     {
@@ -337,12 +339,7 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {
-            $tabs    = $this->_getTabs();
             $strHtml = '';
-
-            if ($this->getComment() != '') {
-                $strHtml .= $tabs . '<!-- ' . $this->getComment() . " //-->\n";
-            }
 
             if (!$this->getMultiple()) {
                 $attrString = $this->_getAttrString($this->_attributes);
@@ -352,18 +349,18 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
                 $attrString = $this->_getAttrString($this->_attributes);
                 $this->setName($myName);
             }
-            $strHtml .= $tabs . '<select' . $attrString . ">\n";
+            $strHtml .= '<select' . $attrString . ">\n";
 
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
             foreach ($this->_options as $option) {
                 if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
                     $option['attr']['selected'] = 'selected';
                 }
-                $strHtml .= $tabs . "\t<option" . $this->_getAttrString($option['attr']) . '>' .
+                $strHtml .= "\t<option" . $this->_getAttrString($option['attr']) . '>' .
                             $option['text'] . "</option>\n";
             }
 
-            return $strHtml . $tabs . '</select>';
+            return $strHtml . '</select>';
         }
     }
 

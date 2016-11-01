@@ -101,9 +101,9 @@ class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default
      * Gets the html for an element and adds it to the array by calling
      * parent::renderElement()
      *
-     * @param HTML_QuickForm_element    form element being visited
-     * @param bool                      Whether an element is required
-     * @param string                    An error message associated with an element
+     * @param HTML_QuickForm_element    $element form element being visited
+     * @param bool                      $required Whether an element is required
+     * @param string                    $error An error message associated with an element
      *
      * @return mixed HTML string of element if $immediateRender is set, else we just add the
      *               html to the global _html string
@@ -125,7 +125,7 @@ class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default
     /**
      * Gets the html for a hidden element and adds it to the array.
      * 
-     * @param HTML_QuickForm_element    hidden form element being visited
+     * @param HTML_QuickForm_element    $element hidden form element being visited
      * @access public
      * @return void
      */
@@ -142,7 +142,7 @@ class HTML_QuickForm_Renderer_QuickHtml extends HTML_QuickForm_Renderer_Default
      * Gets the html for the group element and adds it to the array by calling
      * parent::finishGroup()
      *
-     * @param    HTML_QuickForm_group   group being visited
+     * @param    HTML_QuickForm_group  $group group being visited
      */
     public function finishGroup(&$group)
     {

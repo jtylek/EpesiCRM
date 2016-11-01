@@ -23,10 +23,10 @@ class HTML_QuickForm_hiddenselect extends HTML_QuickForm_select
     /**
      * Class constructor
      *
-     * @param     string    Select name attribute
-     * @param     mixed     Label(s) for the select (not used)
-     * @param     mixed     Data to be used to populate options
-     * @param     mixed     Either a typical HTML attribute string or an associative array (not used)
+     * @param     string   $elementName Select name attribute
+     * @param     mixed    $elementLabel Label(s) for the select (not used)
+     * @param     mixed    $options Data to be used to populate options
+     * @param     mixed    $attributes Either a typical HTML attribute string or an associative array (not used)
      */
     public function __construct($elementName=null, $elementLabel=null, $options=null, $attributes=null)
     {
@@ -49,14 +49,13 @@ class HTML_QuickForm_hiddenselect extends HTML_QuickForm_select
             return '';
         }
 
-        $tabs    = $this->_getTabs();
         $name    = $this->getPrivateName();
         $strHtml = '';
 
         foreach ($this->_values as $key => $val) {
             for ($i = 0, $optCount = count($this->_options); $i < $optCount; $i++) {
                 if ($val == $this->_options[$i]['attr']['value']) {
-                    $strHtml .= $tabs . '<input' . $this->_getAttrString(array(
+                    $strHtml .= '<input' . $this->_getAttrString(array(
                         'type'  => 'hidden',
                         'name'  => $name,
                         'value' => $val

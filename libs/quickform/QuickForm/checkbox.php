@@ -147,6 +147,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      * @param     string    $event  Name of event
      * @param     mixed     $arg    event arguments
      * @param     object    &$caller calling object
+     * @return true
      */
     public function onQuickFormEvent($event, $arg, &$caller)
     {

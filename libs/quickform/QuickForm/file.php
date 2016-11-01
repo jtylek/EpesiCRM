@@ -27,10 +27,9 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     /**
      * Class constructor
      *
-     * @param     string    Input field name attribute
-     * @param     string    Input field label
-     * @param     mixed     (optional)Either a typical HTML attribute string
-     *                      or an associative array
+     * @param     string   $elementName Input field name attribute
+     * @param     string   $elementLabel Input field label
+     * @param     mixed    $attributes (optional)Either a typical HTML attribute string or an associative array
      */
     public function __construct($elementName=null, $elementLabel=null, $attributes=null)
     {
@@ -48,7 +47,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     /**
      * Sets size of file element
      *
-     * @param     int    Size of file element
+     * @param     int   $size Size of file element
      */
     public function setSize($size)
     {
@@ -84,7 +83,8 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      * (because of security implications) we implement file's value as a
      * read-only property with a special meaning.
      *
-     * @param     mixed    Value for file element
+     * @param     mixed  $value  Value for file element
+     * @return null
      */
     public function setValue($value)
     {
@@ -104,10 +104,11 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     /**
      * Called by HTML_QuickForm whenever form event is made on this element
      *
-     * @param     string    Name of event
-     * @param     mixed     event arguments
-     * @param     object    calling object
+     * @param     string  $event  Name of event
+     * @param     mixed   $arg  event arguments
+     * @param     object  $caller  calling object
      * @return    bool
+     * @throws HTML_QuickForm_Error
      */
     public function onQuickFormEvent($event, $arg, &$caller)
     {
@@ -135,8 +136,8 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     /**
      * Moves an uploaded file into the destination
      *
-     * @param    string  Destination directory path
-     * @param    string  New file name
+     * @param    string $dest Destination directory path
+     * @param    string $fileName New file name
      * @return   bool    Whether the file was moved successfully
      */
     public function moveUploadedFile($dest, $fileName = '')
@@ -161,7 +162,7 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     /**
      * Checks if the given element contains an uploaded file
      *
-     * @param     array     Uploaded file info (from $_FILES)
+     * @param     array   $elementValue  Uploaded file info (from $_FILES)
      * @access    private
      * @return    bool      true if file has been uploaded, false otherwise
      */
@@ -178,8 +179,8 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     /**
      * Checks that the file does not exceed the max file size
      *
-     * @param     array     Uploaded file info (from $_FILES)
-     * @param     int       Max file size
+     * @param     array    $elementValue Uploaded file info (from $_FILES)
+     * @param     int      $maxSize Max file size
      * @access    private
      * @return    bool      true if filesize is lower than maxsize, false otherwise
      */
@@ -198,8 +199,8 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     /**
      * Checks if the given element contains an uploaded file of the right mime type
      *
-     * @param     array     Uploaded file info (from $_FILES)
-     * @param     mixed     Mime Type (can be an array of allowed types)
+     * @param     array    $elementValue Uploaded file info (from $_FILES)
+     * @param     mixed    $mimeType Mime Type (can be an array of allowed types)
      * @access    private
      * @return    bool      true if mimetype is correct, false otherwise
      */
@@ -217,8 +218,8 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
     /**
      * Checks if the given element contains an uploaded file of the filename regex
      *
-     * @param     array     Uploaded file info (from $_FILES)
-     * @param     string    Regular expression
+     * @param     array    $elementValue Uploaded file info (from $_FILES)
+     * @param     string   $regex Regular expression
      * @access    private
      * @return    bool      true if name matches regex, false otherwise
      */

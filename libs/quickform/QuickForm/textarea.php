@@ -27,9 +27,9 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
     /**
      * Class constructor
      *
-     * @param     string    Input field name attribute
-     * @param     mixed     Label(s) for a field
-     * @param     mixed     Either a typical HTML attribute string or an associative array
+     * @param     string   $elementName Input field name attribute
+     * @param     mixed    $elementLabel Label(s) for a field
+     * @param     mixed    $attributes Either a typical HTML attribute string or an associative array
      */
     public function __construct($elementName=null, $elementLabel=null, $attributes=null)
     {
@@ -118,8 +118,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {
-            return $this->_getTabs() .
-                   '<textarea' . $this->_getAttrString($this->_attributes) . '>' .
+            return '<textarea' . $this->_getAttrString($this->_attributes) . '>' .
                    // because we wrap the form later we don't want the text indented
                    preg_replace("/(\r\n|\n|\r)/", '&#010;', htmlspecialchars($this->_value)) .
                    '</textarea>';
@@ -135,7 +134,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
     {
         $value = htmlspecialchars($this->getValue());
         if ($this->getAttribute('wrap') == 'off') {
-            $html = $this->_getTabs() . '<pre>' . $value."</pre>\n";
+            $html = '<pre>' . $value."</pre>\n";
         } else {
             $html = nl2br($value)."\n";
         }

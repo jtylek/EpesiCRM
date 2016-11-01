@@ -97,8 +97,7 @@ class HTML_QuickForm_link extends HTML_QuickForm_static
      */
     public function toHtml()
     {
-        $tabs = $this->_getTabs();
-        $html = "$tabs<a".$this->_getAttrString($this->_attributes).">";
+        $html = "<a".$this->_getAttrString($this->_attributes).">";
         $html .= $this->_text;
         $html .= "</a>";
         return $html;
