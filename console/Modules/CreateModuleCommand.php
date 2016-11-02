@@ -106,7 +106,7 @@ class CreateModuleCommand extends Command
         $prettyPrinter = Build::prettyPrinter();
 
         file_put_contents(
-            EPESI_LOCAL_DIR.'/modules/'.$module_type.'/'.$module_name.'/'.$module_name.'Install_0.php',
+            EPESI_LOCAL_DIR.'/modules/'.$module_type.'/'.$module_name.'/'.$module_name.'Install.php',
             $prettyPrinter->generateCode($myFile)
         );
         //endregion
