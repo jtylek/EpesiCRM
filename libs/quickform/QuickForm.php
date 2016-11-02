@@ -45,7 +45,8 @@ $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] =
         'autocomplete'  => 'HTML_QuickForm_autocomplete',
         'xbutton'       => 'HTML_QuickForm_xbutton',
         'automulti'     => 'HTML_QuickForm_automulti',
-        'autoselect'    => 'HTML_QuickForm_autoselect'
+        'autoselect'    => 'HTML_QuickForm_autoselect',
+        'multiselect'   => 'HTML_QuickForm_multiselect'
 );
 
 /**
