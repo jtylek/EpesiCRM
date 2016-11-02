@@ -69,6 +69,7 @@ $GLOBALS['_HTML_QuickForm_registered_rules'] = array(
     'nonzero'       => 'HTML_QuickForm_Rule_Regex',
     'callback'      => 'HTML_QuickForm_Rule_Callback',
     'compare'       => 'HTML_QuickForm_Rule_Compare',
+    'comparestring' => 'HTML_QuickForm_Rule_CompareString'
 );
 
 /**#@+
