@@ -244,7 +244,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$myName = $this->getName();
 			$this->updateAttributes(array('id' => $myName)); // Workaround for not processing attributes arg properly
 
-			load_js('modules/Libs/QuickForm/FieldTypes/automulti/automulti.js');
+			load_js('libs/quickform/QuickForm/automulti.js');
 
 			$searchElement = '';
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_automulti','get_autocomplete_suggestbox'), array($this->_options_callback, $this->_options_callback_args, $this->_format_callback));

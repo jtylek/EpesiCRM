@@ -43,7 +43,8 @@ $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] =
         'html'          => 'HTML_QuickForm_html',
         'hierselect'    => 'HTML_QuickForm_hierselect',
         'autocomplete'  => 'HTML_QuickForm_autocomplete',
-        'xbutton'       => 'HTML_QuickForm_xbutton'
+        'xbutton'       => 'HTML_QuickForm_xbutton',
+        'automulti'     => 'HTML_QuickForm_automulti'
 );
 
 /**
