@@ -9,9 +9,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-require_once('Renderer/TCMSArraySmarty.php');
-require_once('Renderer/TCMSDefault.php');
-
 /**
  * This class provides saving any page as homepage for each user.
  */

@@ -193,7 +193,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
         $this->_currentSection = null;
         $this->_sectionCount   = 0;
         $this->_formName = $form->getAttribute('name');
-	load_js('modules/Libs/QuickForm/Renderer/TCMSDefault.js');
+        load_js('libs/quickform/QuickForm/Renderer/TCMSDefault.js');
     } // end func startForm
 
 
