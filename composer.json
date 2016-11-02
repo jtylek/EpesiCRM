@@ -7,8 +7,7 @@
         "phpdocumentor/reflection-docblock": "^2.0.4",
         "fzaninotto/faker": "^1.6",
         "phpFastCache/phpFastCache": "^5.0",
-        "ifsnop/mysqldump-php": "dev-master",
-        "pear/html_common": "dev-trunk"
+        "ifsnop/mysqldump-php": "dev-master"
     },
     "scripts": {
         "post-install-cmd": [

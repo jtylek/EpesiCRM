@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a7b8344f76915bd828db753f458c664a",
-    "content-hash": "61bd2774b41c4edb804ccafa682d2422",
+    "hash": "e27528bf8b99e2e70b07169bee45816b",
+    "content-hash": "7d266e3c2825ce497566a133753c4a5d",
     "packages": [
         {
             "name": "fzaninotto/faker",
@@ -148,116 +148,6 @@
                 "password"
             ],
             "time": "2014-11-20 16:49:30"
-        },
-        {
-            "name": "pear/html_common",
-            "version": "dev-trunk",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/HTML_Common.git",
-                "reference": "403cbf3aa1c2d41f9f5f629ecb646ef665380e8c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/HTML_Common/zipball/403cbf3aa1c2d41f9f5f629ecb646ef665380e8c",
-                "reference": "403cbf3aa1c2d41f9f5f629ecb646ef665380e8c",
-                "shasum": ""
-            },
-            "require": {
-                "pear/pear_exception": "*"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "./"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "PHP License"
-            ],
-            "authors": [
-                {
-                    "name": "Alexey Borzov",
-                    "email": "avb@php.net",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Klaus Guenther",
-                    "email": "thesaur@php.net",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Bertrand Mansion",
-                    "email": "bmansion@mamasam.com",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Adam Daniel",
-                    "email": "adaniel1@eesus.jnj.com",
-                    "role": "Lead"
-                }
-            ],
-            "description": "More info available on: http://pear.php.net/package/HTML_Common",
-            "time": "2014-02-21 11:50:33"
-        },
-        {
-            "name": "pear/pear_exception",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/PEAR_Exception.git",
-                "reference": "8c18719fdae000b690e3912be401c76e406dd13b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/8c18719fdae000b690e3912be401c76e406dd13b",
-                "reference": "8c18719fdae000b690e3912be401c76e406dd13b",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=4.4.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "*"
-            },
-            "type": "class",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "PEAR": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "."
-            ],
-            "license": [
-                "BSD-2-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Helgi Thormar",
-                    "email": "dufuz@php.net"
-                },
-                {
-                    "name": "Greg Beaver",
-                    "email": "cellog@php.net"
-                }
-            ],
-            "description": "The PEAR Exception base class.",
-            "homepage": "https://github.com/pear/PEAR_Exception",
-            "keywords": [
-                "exception"
-            ],
-            "time": "2015-02-10 20:07:52"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -1466,16 +1356,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.5.4",
+            "version": "1.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "ea74994a3dc7f8d2f65a06009348f2d63c81e61f"
+                "reference": "399c1f9781e222f6eb6cc238796f5200d1b7f108"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/ea74994a3dc7f8d2f65a06009348f2d63c81e61f",
-                "reference": "ea74994a3dc7f8d2f65a06009348f2d63c81e61f",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/399c1f9781e222f6eb6cc238796f5200d1b7f108",
+                "reference": "399c1f9781e222f6eb6cc238796f5200d1b7f108",
                 "shasum": ""
             },
             "require": {
@@ -1504,7 +1394,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2016-09-16 13:37:59"
+            "time": "2016-10-31 17:19:45"
         },
         {
             "name": "phpspec/prophecy",
@@ -1570,16 +1460,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "4.0.1",
+            "version": "4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "5f3f7e736d6319d5f1fc402aff8b026da26709a3"
+                "reference": "6cba06ff75a1a63a71033e1a01b89056f3af1e8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/5f3f7e736d6319d5f1fc402aff8b026da26709a3",
-                "reference": "5f3f7e736d6319d5f1fc402aff8b026da26709a3",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/6cba06ff75a1a63a71033e1a01b89056f3af1e8d",
+                "reference": "6cba06ff75a1a63a71033e1a01b89056f3af1e8d",
                 "shasum": ""
             },
             "require": {
@@ -1629,7 +1519,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-07-26 14:39:29"
+            "time": "2016-11-01 05:06:24"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -2844,8 +2734,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "ifsnop/mysqldump-php": 20,
-        "pear/html_common": 20
+        "ifsnop/mysqldump-php": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
