@@ -209,7 +209,7 @@ add_event_tag:function(dest,ev) {
 			var err_evs = too_many_events;
 			dest.removeAttr("too_many_events");
 			var date = dest.attr('id').substr(7);
-			var err = $('tooManyEventsCell_'+date);
+			var err = jq('#tooManyEventsCell_'+date).get(0);
 			err.parentNode.removeChild(err);
 			jQuery.each(err_evs,function(i,id) {
 				if(typeof id == undefined) return;
