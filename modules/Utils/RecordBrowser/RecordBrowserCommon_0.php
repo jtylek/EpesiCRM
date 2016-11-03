@@ -3351,6 +3351,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             		$vals = self::decode_record_token($tab_id, $param['single_tab']);
             		if (!$vals) continue;
             		list($t,$rid) = $vals;
+                    if (!isset($tab_crits[$t])) continue;
             		$comp[$tab_id] = self::call_select_item_format_callback($multi_adv_params['format_callback'], $tab_id, array($rb_obj->tab, $tab_crits[$t], $multi_adv_params['format_callback'], $param));
             	}
             }
