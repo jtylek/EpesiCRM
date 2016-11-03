@@ -53,8 +53,8 @@ grid_enable_field_edit = function(element_name, recid, tab, form_name) {
 }
 
 grid_submit_field = function(element_name, recid, tab) {
-	elemf = $('grid_form_field_'+element_name+'_'+recid);
-	elemv = $('grid_value_field_'+element_name+'_'+recid);
+	elemf = jq('#grid_form_field_'+element_name+'_'+recid);
+	elemv = jq('#grid_value_field_'+element_name+'_'+recid);
 
 	switched_elem = '';
 	switched_id = '';
@@ -62,7 +62,7 @@ grid_submit_field = function(element_name, recid, tab) {
 		method: 'post',
 		data:{
 			element:Object.toJSON(element_name),
-			value:Object.toJSON($(grid_edit_form_name).serialize()),
+			value:Object.toJSON(jq('#'+grid_edit_form_name).serialize()),
 			form_name:Object.toJSON(grid_edit_form_name),
 			id:Object.toJSON(recid),
 			tab:Object.toJSON(tab),
@@ -73,25 +73,25 @@ grid_submit_field = function(element_name, recid, tab) {
 			eval(t);
 		}
 	});
-	elemf.style.display = 'none';
-	elemv.style.display = 'inline';
-	elemf.innerHTML = 'Loading...';
-	elemv.innerHTML = 'Processing...';
-	e=$('grid_save_'+element_name+'_'+recid);
-	if(e)e.style.display='none';
+	elemf.hide();
+	elemv.css('display','inline');
+	elemf.html('Loading...');
+	elemv.html('Processing...');
+	e=jq('#grid_save_'+element_name+'_'+recid);
+	if(e.length) e.css("display",'none');
 }
 
 grid_disable_edit = function(element_name, recid) {
 	if (switched_elem==element_name && switched_id==recid) {
-		elemf = $('grid_form_field_'+element_name+'_'+recid);
-		elemv = $('grid_value_field_'+element_name+'_'+recid);
+		elemf = jq('#grid_form_field_'+element_name+'_'+recid);
+		elemv = jq('#grid_value_field_'+element_name+'_'+recid);
 
 		switched_elem = '';
 		switched_id = '';
-		elemf.style.display = 'none';
-		elemv.style.display = 'inline';
-		elemf.innerHTML = 'Loading...';
-		e=$('grid_save_'+element_name+'_'+recid);
-		if(e)e.style.display='none';
+		elemf.hide();
+		elemv.css("display", 'inline');
+		elemf.html('Loading...');
+		e=jq('#grid_save_'+element_name+'_'+recid);
+		if(e.length) e.css("display",'none');
 	}
 }

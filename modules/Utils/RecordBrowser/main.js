@@ -1,7 +1,7 @@
 jump_to_record_id = function (tab) {
-	if ($("jump_to_record_input").style.display=="")
-		$("jump_to_record_input").style.display = "none";
+	if (!jq("#jump_to_record_input").is(":hidden"))
+		jq("#jump_to_record_input").hide();
 	else
-		$("jump_to_record_input").style.display = "";
+		jq("#jump_to_record_input").show();
 	focus_by_id("jump_to_record_input");
 }

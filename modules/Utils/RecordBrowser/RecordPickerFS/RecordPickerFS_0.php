@@ -85,7 +85,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 					$form->setDefaults(array($select=>$selected));
 				}
 			}
-			return '$(\'rpfs_'.$md.'\').value=1;'.$form->get_submit_form_js(false);
+			return 'jq(\'#rpfs_'.$md.'\').val(1);'.$form->get_submit_form_js(false);
 		} else {
 			return $this->create_callback_href_js(array($this,'open'));
 		}

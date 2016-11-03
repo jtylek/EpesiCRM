@@ -1,5 +1,5 @@
 utils_recordbrowser_set_favorite = function(state,tab,id,element) {
-	$(element).innerHTML = '...';
+	jq(element).text('...');
 	jq.ajax('modules/Utils/RecordBrowser/favorites.php', {
 		method: 'post',
 		data:{

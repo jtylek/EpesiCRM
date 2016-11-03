@@ -1,8 +1,8 @@
 rpicker_fs_init = function(id,checked,path){
-	checkbox = $('leightbox_rpicker__'+id);
-	if(checked==1) checkbox.checked = true;
-		else checkbox.checked = false;
-	checkbox.observe('click', function(e){
+	checkbox = jq('#leightbox_rpicker__'+id);
+	if(checked==1) checkbox.prop("checked",true);
+		else checkbox.prop("checked", false);
+	checkbox.click(function(e){
 		jq.ajax('modules/Utils/RecordBrowser/RecordPickerFS/select.php', {
 			method: 'post',
 			data:{
