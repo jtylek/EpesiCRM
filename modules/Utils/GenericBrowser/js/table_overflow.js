@@ -21,7 +21,7 @@ table_overflow_show = function (e_td, force) {
         e_tip.css({maxWidth: maxWidth + "px"});
         var keep_height = jq(e_td).height();
         while (e_td.childNodes.length>0) {
-			$("table_overflow_content").appendChild(e_td.firstChild);
+			jq("#table_overflow_content").append(e_td.firstChild);
 		}
 		utils_genericbrowser__last_td = e_td;
 
