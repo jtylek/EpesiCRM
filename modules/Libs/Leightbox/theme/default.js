@@ -3,7 +3,7 @@ function libs_leightbox_resize(elem) {
 	var s = elem.style;
 
 	if(s.width == '100%') {
-		if($(elem.id+'_bigsize').value==1) {
+		if(jq('#'+elem.id+'_bigsize').val()==1) {
 			s.top = '5%';
 			s.left = '5%';
 			s.width = '90%';
