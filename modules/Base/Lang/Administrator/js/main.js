@@ -4,16 +4,16 @@ translate_init = function() {
 }
 
 translate_add_id = function(id, org) {
-	if ($(id)) missing_translations[id] = org;
+	if (jq('#'+id).length) missing_translations[id] = org;
 }
 
 translate_first_on_the_list = function() {
 	for (var id in missing_translations) {
-		if ($(id).innerHTML) continue;
+		if (jq('#'+id).html()   ) continue;
 		lang_translate(missing_translations[id], id);
 		return;
 	}
-	document.querySelectorAll(".nav_button")[2].down("a").onclick(); // A bit lazy way
+	jq(".nav_button").get(2).find("a").click();
 }
 
 lang_translate = function (original, span_id) {
