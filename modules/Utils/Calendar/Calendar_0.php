@@ -263,8 +263,6 @@ class Utils_Calendar extends Module {
 		load_js($this->get_module_dir().'jquery.ui.touch-punch.min.js');
 		load_js($this->get_module_dir().'calendar-jq.js');
 
-//		load_js($this->get_module_dir().'calendar.js');
-
 		$this->js('Utils_Calendar.day_href = \''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'switch','time'=>'__DATE__', 'tab'=>'Day')),false).'\'');
 		if(isset($this->tb)) {
 			$this->display_module($this->tb);
