@@ -444,8 +444,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		$access = self::get_access($tab, 'selection', null, true);
     		if ($access===false) unset($ret[$tab]);
     		if ($access===true) continue;
-    		if (is_array($access) || $access instanceof Utils_RecordBrowswer_CritsInterface) {
-    			if((is_array($crits) && $crits) || $crits instanceof Utils_RecordBrowswer_CritsInterface)
+    		if (is_array($access) || $access instanceof Utils_RecordBrowser_CritsInterface) {
+    			if((is_array($crits) && $crits) || $crits instanceof Utils_RecordBrowser_CritsInterface)
     				$ret[$tab] = self::merge_crits($crits, $access);
     			else
     				$ret[$tab] = $access;
